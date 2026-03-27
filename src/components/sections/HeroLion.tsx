@@ -1,0 +1,119 @@
+"use client";
+
+import { useRef, useEffect } from "react";
+import gsap from "gsap";
+
+const TOP_ITEMS = ["FREE TIME", "BRAND SUCCESS", "TRUSTED REPUTATION"];
+const BOTTOM_ITEMS = ["IMPROVED PRESENCE", "MORE SALES", "PREMIUM IMAGE"];
+const SEP = " • ";
+
+function MarqueeRow({
+  items,
+  direction = "left",
+  tweenRef,
+}: {
+  items: string[];
+  direction?: "left" | "right";
+  tweenRef?: React.MutableRefObject<gsap.core.Tween | null>;
+}) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const text = items.join(SEP) + SEP;
+  const xPct = direction === "left" ? -50 : 50;
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const tween = gsap.fromTo(
+      track,
+      { xPercent: direction === "left" ? 0 : -50 },
+      {
+        xPercent: xPct,
+        duration: 20,
+        ease: "none",
+        repeat: -1,
+      }
+    );
+
+    if (tweenRef) tweenRef.current = tween;
+
+    return () => {
+      tween.kill();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <div className="overflow-hidden">
+      <div ref={trackRef} className="flex shrink-0 whitespace-nowrap">
+        <span className="shrink-0 px-2 text-[18px] font-bold uppercase tracking-[0.15em] text-white/90 md:text-[22px]">
+          {text}
+        </span>
+        <span className="shrink-0 px-2 text-[18px] font-bold uppercase tracking-[0.15em] text-white/90 md:text-[22px]">
+          {text}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+export default function HeroLion() {
+  const topTweenRef = useRef<gsap.core.Tween | null>(null);
+  const bottomTweenRef = useRef<gsap.core.Tween | null>(null);
+
+  // Boost marquee speed on scroll via Lenis velocity
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onScroll = (e: any) => {
+      const velocity = Math.abs(e?.velocity ?? 0);
+      const scale = 1 + Math.min(velocity * 0.003, 4);
+      if (topTweenRef.current) topTweenRef.current.timeScale(scale);
+      if (bottomTweenRef.current) bottomTweenRef.current.timeScale(scale);
+
+      // Decay back to normal speed
+      gsap.to([topTweenRef.current, bottomTweenRef.current], {
+        timeScale: 1,
+        duration: 0.8,
+        ease: "power2.out",
+        overwrite: true,
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <section className="relative flex min-h-[80vh] flex-col overflow-hidden bg-bg-dark md:min-h-screen">
+      {/* Lion background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage:
+            "url('/images/lion-bg.jpg')",
+          opacity: 0.12,
+        }}
+      />
+
+      {/* Dark gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-bg-dark/60 via-transparent to-bg-dark/90" />
+
+      {/* Center content placeholder */}
+      <div className="relative z-10 flex flex-1 items-center justify-center px-4 md:px-6">
+        <p className="text-center text-[14px] font-medium uppercase tracking-[0.3em] text-white/30">
+          {/* Optional center content can go here */}
+        </p>
+      </div>
+
+      {/* Bottom Marquees */}
+      <div className="relative z-10 flex flex-col gap-2 pb-10 md:pb-16">
+        <MarqueeRow items={TOP_ITEMS} direction="left" tweenRef={topTweenRef} />
+        <MarqueeRow
+          items={BOTTOM_ITEMS}
+          direction="right"
+          tweenRef={bottomTweenRef}
+        />
+      </div>
+    </section>
+  );
+}
