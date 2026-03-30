@@ -436,10 +436,10 @@ export default function LumaShowcase() {
         {/* ── 3-Column Guided Presentation Layout ── */}
         <div
           ref={finalContentRef}
-          className="absolute inset-0 z-[5] mx-auto flex max-w-[1400px] flex-col items-center justify-between px-4 pb-[25vh] pt-[15vh] opacity-0 md:flex-row md:px-6 md:pb-[20vh] lg:pb-[15vh] md:pt-[20vh]"
+          className="absolute inset-0 z-[25] pointer-events-none mx-auto flex max-w-[1400px] flex-col items-center justify-between px-4 pb-[18vh] pt-[12vh] opacity-0 md:flex-row md:px-6 md:pb-[18vh] md:pt-[18vh]"
         >
           {/* Left Visual Column */}
-          <div className="relative hidden aspect-[4/5] w-[25%] overflow-hidden rounded-[20px] border border-white/10 bg-white/5 md:block">
+          <div className="relative hidden aspect-[4/5] w-[25%] max-h-[55vh] overflow-hidden rounded-[20px] border border-white/10 bg-white/5 md:block">
             <AnimatePresence mode="wait">
               {active.leftVisual.type === "image" ? (
                 <motion.img
@@ -473,26 +473,10 @@ export default function LumaShowcase() {
             </div>
           </div>
 
-          {/* Center Column: Hook Text + Stat Card */}
-          <div className="flex flex-1 flex-col items-center justify-center text-center z-10">
-            {/* Hook Text */}
-            <div className="relative h-[120px] w-full md:h-[160px]">
-              <AnimatePresence mode="wait">
-                <motion.h2
-                  key={`hook-${active.id}`}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.8, ease: "easeInOut" }}
-                  className="absolute inset-0 flex items-center justify-center text-[28px] font-medium leading-[1.2] tracking-tight text-white sm:text-[36px] md:text-[44px]"
-                >
-                  <span className="max-w-[700px]">{active.hookText}</span>
-                </motion.h2>
-              </AnimatePresence>
-            </div>
-
+          {/* Center Column: Stat Card */}
+          <div className="flex flex-1 flex-col items-center z-10 justify-between pt-[8vh] pb-[10vh] md:justify-center md:text-center md:pt-0 md:pb-0">
             {/* Stat Card */}
-            <div className="relative mt-8 h-[90px] w-full max-w-[320px] overflow-hidden rounded-[16px] border border-white/10 bg-white/5 backdrop-blur-xl md:mt-12">
+            <div className="relative h-[80px] md:h-[90px] w-full max-w-[260px] md:max-w-[320px] overflow-hidden rounded-[16px] border border-white/10 bg-white/5 backdrop-blur-xl">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={`stat-${active.id}`}
@@ -502,10 +486,10 @@ export default function LumaShowcase() {
                   transition={{ duration: 0.8, ease: "easeInOut", delay: 0.1 }}
                   className="absolute inset-0 flex flex-col items-center justify-center px-4"
                 >
-                  <div className="text-[28px] font-bold leading-none text-white" style={{ color: "var(--luma-accent)" }}>
+                  <div className="text-[22px] md:text-[28px] font-bold leading-none text-white" style={{ color: "var(--luma-accent)" }}>
                     {active.statValue}
                   </div>
-                  <div className="mt-1 text-[11px] font-medium uppercase tracking-widest text-white/50">
+                  <div className="mt-1 text-[10px] md:text-[11px] font-medium uppercase tracking-widest text-white/50">
                     {active.statLabel}
                   </div>
                 </motion.div>
@@ -513,7 +497,7 @@ export default function LumaShowcase() {
             </div>
 
             {/* Mobile Single Visual (Alternating) */}
-            <div className="relative mt-8 aspect-[4/3] w-full max-w-[320px] overflow-hidden rounded-[16px] border border-white/10 bg-white/5 md:hidden">
+            <div className="relative aspect-[4/3] w-full max-w-[90vw] overflow-hidden rounded-[20px] border border-white/10 bg-white/5 md:hidden">
               <AnimatePresence mode="wait">
                 {activeIndex % 2 === 0 ? (
                   active.leftVisual.type === "image" ? (
@@ -575,7 +559,7 @@ export default function LumaShowcase() {
           </div>
 
           {/* Right Visual Column */}
-          <div className="relative hidden aspect-[4/5] w-[25%] overflow-hidden rounded-[20px] border border-white/10 bg-white/5 md:block">
+          <div className="relative hidden aspect-[4/5] w-[25%] max-h-[55vh] overflow-hidden rounded-[20px] border border-white/10 bg-white/5 md:block">
             <AnimatePresence mode="wait">
               {active.rightVisual.type === "image" ? (
                 <motion.img
