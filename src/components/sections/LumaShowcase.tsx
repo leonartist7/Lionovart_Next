@@ -290,41 +290,31 @@ export default function LumaShowcase() {
           // Force lion down and hidden at scroll 0.00
           tl.set(lionRef.current!, { y: () => window.innerHeight, opacity: 0, width: lionEntryW }, 0);
 
-          /* ── Phase A: Lion rises from below, peeks above video bottom
-                        (0.10 → 0.28)
-             Starts fully off-screen below, rises to peek
-             position. The lion NEVER crosses above the video's bottom
-             third — it's always anchored to the lower portion.           */
+          /* ── Phase A: Lion rises from below ── */
           tl.to(
             lionRef.current!,
             {
               y: () => getLionPeekY(),
               opacity: 1,
-              duration: 0.18,
+              duration: 0.15,
               ease: "power2.out",
             },
-            0.10,
+            0.05,
           );
 
-          /* ── Phase B: Lion shrinks back to ornamental size at bottom
-                        (0.28 → 0.60)
-             Extends to 0.60 so it overlaps with the video shrink phase,
-             giving the impression the video and lion shrink together.
-             y returns to 0 (resting at bottom of sticky viewport).      */
+          /* ── Phase B: Lion shrinks back to ornamental size at bottom ── */
           tl.to(
             lionRef.current!,
             {
               y: 0,
               width: lionShrinkW,
-              duration: 0.32,
+              duration: 0.20,
               ease: "power2.inOut",
             },
-            0.28,
+            0.20,
           );
 
-          /* ── Video shrinks + translates to pill (0.10 → 0.64) ─────────
-             Mechanics identical to before, just starts at 0.10 instead
-             of 0.00 to honour the dead zone. End point stays 0.64.     */
+          /* ── Video shrinks + translates to pill ── */
           tl.fromTo(
             videoRef.current!,
             {
@@ -340,34 +330,30 @@ export default function LumaShowcase() {
               borderRadius: 9999,
               x: () => getDelta().x,
               y: () => getDelta().y,
-              duration: 0.54,
+              duration: 0.40,
               ease: "power2.inOut",
             },
-            0.10,
+            0.05,
           );
 
-          /* ── Glow fades in (0.24 → 0.42) ─────────────────────────── */
+          /* ── Glow fades in ── */
           tl.fromTo(
             glowRef.current!,
             { opacity: 0 },
-            { opacity: 0.7, duration: 0.18 },
-            0.24,
+            { opacity: 0.7, duration: 0.15 },
+            0.10,
           );
 
-          /* ── Handoff: video out + pills row in (0.64 → 0.68) ─────── */
-
-          // Video fades out (very fast so the swap is seamless)
-          tl.to(videoRef.current!, { opacity: 0, duration: 0.03 }, 0.64);
-
-          // Pills row container becomes visible
+          /* ── Handoff: video out + pills row in ── */
+          tl.to(videoRef.current!, { opacity: 0, duration: 0.05 }, 0.45);
           tl.fromTo(
             pillsRowRef.current!,
             { opacity: 0 },
-            { opacity: 1, duration: 0.04 },
-            0.64,
+            { opacity: 1, duration: 0.05 },
+            0.45,
           );
 
-          // Side pills scale in with a center-out stagger using CSS variables
+          /* ── Side pills scale in ── */
           tl.fromTo(
             pillsRowRef.current!,
             {
@@ -384,7 +370,7 @@ export default function LumaShowcase() {
               duration: 0.08,
               ease: "back.out(1.7)",
             },
-            0.68,
+            0.52,
           );
           tl.fromTo(
             pillsRowRef.current!,
@@ -402,34 +388,34 @@ export default function LumaShowcase() {
               duration: 0.08,
               ease: "back.out(1.7)",
             },
-            0.70,
+            0.54,
           );
 
-          /* ── Center pill expands + label fades (0.76 → 0.90) ────── */
+          /* ── Center pill expands + label fades ── */
           tl.fromTo(
             pillsRowRef.current!,
             { "--center-pill-width": () => `${getPillSize()}px` },
             {
               "--center-pill-width": () => `${getExpandedPillWidth()}px`,
-              duration: 0.14,
+              duration: 0.10,
               ease: "power2.out",
             },
-            0.76,
+            0.60,
           );
 
           tl.fromTo(
             pillsRowRef.current!,
             { "--center-label-opacity": 0 },
             { "--center-label-opacity": 1, duration: 0.08 },
-            0.82,
+            0.72,
           );
 
-          /* ── Heading + floating cards (0.86 → 1.00) ─────────────── */
+          /* ── Heading + floating cards ── */
           tl.fromTo(
             headingRef.current!,
             { opacity: 0, y: 30 },
             { opacity: 1, y: 0, duration: 0.10, ease: "power2.out" },
-            0.86,
+            0.82,
           );
 
           tl.fromTo(
@@ -442,14 +428,11 @@ export default function LumaShowcase() {
               duration: 0.10,
               ease: "power2.out",
             },
-            0.90,
+            0.86,
           );
 
-          /* Cards end: 0.56 + 0.04 stagger + 0.08 dur = 0.68
-             → add an anchor to keep totalDuration at 1.0. This ensures the
-               scroll progress continues for an additional 32% after the
-               animation completes, giving "grace space" before unpinning. */
-          tl.set({}, {}, 1.0);
+          /* Anchor to keep totalDuration at 1.3 */
+          tl.set({}, {}, 1.3);
         },
       );
     },
