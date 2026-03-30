@@ -1,17 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect, ReactNode } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 import { Volume2, VolumeX } from "lucide-react";
-
-gsap.registerPlugin(ScrollTrigger);
-
-/* ═══════════════════════════════════════════════════════════════════════
-   Types
-   ═══════════════════════════════════════════════════════════════════════ */
 
 interface ServiceItem {
   id: string;
@@ -27,16 +18,29 @@ interface ServiceItem {
   hasCinematicHit?: boolean;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
-   Data  (Phase 3 - Awwwards Blueprint)
-   ═══════════════════════════════════════════════════════════════════════ */
-
 const SERVICES: ServiceItem[] = [
+  {
+    id: "default",
+    label: "LIONOVART",
+    shortLabel: "ALL",
+    accent: "#e5192a",
+    hookText: (
+      <>
+        We don&apos;t make videos.<br />
+        We direct emotions.
+      </>
+    ),
+    statValue: "30+",
+    statLabel: "years combined experience",
+    leftVisual: { type: "video", src: "https://cdn.pixabay.com/video/2020/05/24/40061-424855011_large.mp4", caption: "Short looping video reel" },
+    rightVisual: { type: "image", src: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070", caption: "Device mockup showing best website project" },
+    audioId: "default",
+  },
   {
     id: "branding",
     label: "BRANDING",
     shortLabel: "BRA",
-    accent: "#f59e0b", // amber
+    accent: "#f59e0b",
     hookText: (
       <>
         Your brand is the first thing<br />
@@ -54,7 +58,7 @@ const SERVICES: ServiceItem[] = [
     id: "web",
     label: "WEB / APP",
     shortLabel: "WEB",
-    accent: "#10b981", // teal
+    accent: "#10b981",
     hookText: (
       <>
         Websites built to perform.<br />
@@ -68,27 +72,10 @@ const SERVICES: ServiceItem[] = [
     audioId: "web",
   },
   {
-    id: "default",
-    label: "LIONOVART",
-    shortLabel: "ALL",
-    accent: "#e5192a", // center red pill active
-    hookText: (
-      <>
-        We don&apos;t make videos.<br />
-        We direct emotions.
-      </>
-    ),
-    statValue: "30+",
-    statLabel: "years combined experience",
-    leftVisual: { type: "video", src: "https://cdn.pixabay.com/video/2020/05/24/40061-424855011_large.mp4", caption: "Short looping video reel" },
-    rightVisual: { type: "image", src: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070", caption: "Device mockup showing best website project" },
-    audioId: "default",
-  },
-  {
     id: "av",
     label: "A/V PRODUCTION",
     shortLabel: "A/V",
-    accent: "#e5192a", // red
+    accent: "#e5192a",
     hookText: (
       <>
         We don&apos;t make videos.<br />
@@ -106,7 +93,7 @@ const SERVICES: ServiceItem[] = [
     id: "print",
     label: "PRINTING",
     shortLabel: "PRI",
-    accent: "#f59e0b", // amber
+    accent: "#f59e0b",
     hookText: (
       <>
         Every touchpoint is an emotion.<br />
@@ -122,16 +109,6 @@ const SERVICES: ServiceItem[] = [
   },
 ];
 
-/** Index of the default active (center) pill */
-const DEFAULT_CENTER = 2; // LIONOVART / ALL
-
-/* ═══════════════════════════════════════════════════════════════════════
-   Helpers
-   ═══════════════════════════════════════════════════════════════════════ */
-
-const getPillSize = (): number => Math.max(40, Math.min(window.innerWidth * 0.042, 60));
-const getExpandedPillWidth = (): number => Math.max(120, Math.min(window.innerWidth * 0.18, 220));
-
 function getOrderedServices(centerIdx: number): ServiceItem[] {
   const n = SERVICES.length;
   return [
@@ -143,90 +120,29 @@ function getOrderedServices(centerIdx: number): ServiceItem[] {
   ];
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
-   Component
-   ═══════════════════════════════════════════════════════════════════════ */
-
 export default function LumaShowcase() {
-  /* ── Refs ─────────────────────────────────────────────────────────── */
   const sectionRef = useRef<HTMLElement>(null);
-  const stickyRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLDivElement>(null);
-  const lionRef = useRef<HTMLImageElement>(null);
-  const glowRef = useRef<HTMLDivElement>(null);
-  const pillsRowRef = useRef<HTMLDivElement>(null);
-  const centerAnchorRef = useRef<HTMLDivElement>(null);
-  const finalContentRef = useRef<HTMLDivElement>(null);
-
-  /* ── State ──────────────────────────────────────────────────────── */
-  const [activeIndex, setActiveIndex] = useState(DEFAULT_CENTER);
+  const isInView = useInView(sectionRef, { margin: "-20%", once: false });
+  
+  const [activeIndex, setActiveIndex] = useState(0); // State 0 is default
   const [isSoundOn, setIsSoundOn] = useState(false);
   const [autoPlayProgress, setAutoPlayProgress] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  
+  const [hasEntered, setHasEntered] = useState(false);
+
   const ordered = getOrderedServices(activeIndex);
   const active = SERVICES[activeIndex];
 
-  // Store references to Audio elements
   const bassAudioRef = useRef<HTMLAudioElement | null>(null);
   const hitAudioRef = useRef<HTMLAudioElement | null>(null);
   const voiceoverRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
 
-  /* ── Auto-cycle & Progress Engine ─────────────────────────────── */
-  const autoPlayDuration = 6000; // 6 seconds per state
+  const autoPlayDuration = 6000;
   const lastInteractionTime = useRef<number>(Date.now());
   const progressStartTime = useRef<number | null>(null);
   const reqRef = useRef<number>(0);
 
-  useEffect(() => {
-    // Check if we should resume autoplay after 10s of idle
-    const idleCheckInterval = setInterval(() => {
-      if (!isAutoPlaying && Date.now() - lastInteractionTime.current > 10000) {
-        setIsAutoPlaying(true);
-        progressStartTime.current = Date.now();
-      }
-    }, 1000);
-    return () => clearInterval(idleCheckInterval);
-  }, [isAutoPlaying]);
-
-  useEffect(() => {
-    if (!isAutoPlaying) {
-      if (reqRef.current) cancelAnimationFrame(reqRef.current);
-      setAutoPlayProgress(0);
-      return;
-    }
-
-    if (!progressStartTime.current) progressStartTime.current = Date.now();
-
-    const updateProgress = () => {
-      if (!progressStartTime.current) return;
-      const elapsed = Date.now() - progressStartTime.current;
-      const progress = Math.min((elapsed / autoPlayDuration) * 100, 100);
-      
-      setAutoPlayProgress(progress);
-
-      if (progress >= 100) {
-        // Next state
-        setActiveIndex((prev) => (prev + 1) % SERVICES.length);
-        progressStartTime.current = Date.now();
-      }
-      
-      reqRef.current = requestAnimationFrame(updateProgress);
-    };
-
-    reqRef.current = requestAnimationFrame(updateProgress);
-    return () => {
-      if (reqRef.current) cancelAnimationFrame(reqRef.current);
-    };
-  }, [isAutoPlaying, activeIndex]);
-
-  const handlePillClick = (index: number) => {
-    setActiveIndex(index);
-    setIsAutoPlaying(false);
-    lastInteractionTime.current = Date.now();
-  };
-
-  /* ── Audio Engine ─────────────────────────────────────────────── */
+  // Initialize Audio
   useEffect(() => {
     if (typeof window !== "undefined") {
       bassAudioRef.current = new Audio("https://cdn.freesound.org/previews/415/415209_5121236-lq.mp3");
@@ -247,216 +163,133 @@ export default function LumaShowcase() {
     });
   };
 
-  // Play sound when activeIndex changes
+  // Handle entry audio
   useEffect(() => {
-    if (!isSoundOn) return;
+    if (isInView && !hasEntered) {
+      setHasEntered(true);
+      if (isSoundOn && bassAudioRef.current) {
+        bassAudioRef.current.currentTime = 0;
+        bassAudioRef.current.volume = 0.5;
+        bassAudioRef.current.play().catch(() => {});
+      }
+    }
+  }, [isInView, hasEntered, isSoundOn]);
+
+  // Handle state audio
+  useEffect(() => {
+    if (!isSoundOn || !isInView) return;
     
     stopVoiceovers();
-    
-    // Play voiceover
     const voice = voiceoverRefs.current[active.audioId];
     if (voice) {
+      voice.currentTime = 0;
       voice.volume = 0.8;
-      voice.play().catch(e => console.log("Audio play failed:", e));
+      voice.play().catch(() => {});
     }
 
-    // Play cinematic hit if applicable
     if (active.hasCinematicHit && hitAudioRef.current) {
       hitAudioRef.current.currentTime = 0;
       hitAudioRef.current.volume = 0.6;
-      hitAudioRef.current.play().catch(e => console.log("Hit play failed:", e));
+      hitAudioRef.current.play().catch(() => {});
     }
-  }, [activeIndex, active, isSoundOn]);
+  }, [activeIndex, active, isSoundOn, isInView]);
 
   const toggleSound = () => {
     const newSoundState = !isSoundOn;
     setIsSoundOn(newSoundState);
     if (newSoundState) {
-      // On initial unmute, play the bass ambient sound
       if (bassAudioRef.current) {
         bassAudioRef.current.volume = 0.5;
-        bassAudioRef.current.play().catch(e => console.log("Bass play failed:", e));
+        bassAudioRef.current.play().catch(() => {});
       }
-      // Play current voice
       stopVoiceovers();
       const voice = voiceoverRefs.current[active.audioId];
       if (voice) {
+        voice.currentTime = 0;
         voice.volume = 0.8;
-        voice.play().catch(e => console.log("Voice play failed:", e));
+        voice.play().catch(() => {});
       }
     } else {
       stopVoiceovers();
     }
   };
 
-  /* ── GSAP Scroll Timeline  ────────────────────────────────────── */
-  useGSAP(
-    () => {
-      if (
-        !sectionRef.current ||
-        !stickyRef.current ||
-        !videoRef.current ||
-        !lionRef.current ||
-        !glowRef.current ||
-        !pillsRowRef.current ||
-        !centerAnchorRef.current ||
-        !finalContentRef.current
-      )
-        return;
+  const handlePillClick = (index: number) => {
+    setActiveIndex(index);
+    setIsAutoPlaying(false);
+    lastInteractionTime.current = Date.now();
+  };
 
-      const mm = gsap.matchMedia();
+  // Autoplay idle resume
+  useEffect(() => {
+    const idleCheckInterval = setInterval(() => {
+      if (!isAutoPlaying && Date.now() - lastInteractionTime.current > 10000) {
+        setIsAutoPlaying(true);
+        progressStartTime.current = Date.now();
+      }
+    }, 1000);
+    return () => clearInterval(idleCheckInterval);
+  }, [isAutoPlaying]);
 
-      mm.add(
-        {
-          isMobile: "(max-width: 767px)",
-          isTablet: "(min-width: 768px) and (max-width: 1023px)",
-          isDesktop: "(min-width: 1024px) and (max-width: 1439px)",
-          isLarge: "(min-width: 1440px)",
-        },
-        (ctx) => {
-          const c = ctx.conditions as Record<string, boolean>;
+  // Autoplay loop
+  useEffect(() => {
+    if (!isAutoPlaying || !isInView) {
+      if (reqRef.current) cancelAnimationFrame(reqRef.current);
+      setAutoPlayProgress(0);
+      return;
+    }
 
-          const lionRestW = c.isMobile ? 350 : c.isTablet ? 390 : c.isDesktop ? 430 : 470;
-          const lionEntryW = Math.round(lionRestW * 1.3);
-          const lionShrinkW = c.isMobile ? 200 : c.isTablet ? 210 : c.isDesktop ? 250 : 260;
+    if (!progressStartTime.current) progressStartTime.current = Date.now();
 
-          const videoFromW = c.isMobile ? "70vw" : c.isTablet ? "80vw" : c.isDesktop ? "90vw" : "80vw";
-          const videoFromH = c.isMobile ? "50vw" : c.isTablet ? "50vw" : c.isDesktop ? "60vw" : "50vw";
+    const updateProgress = () => {
+      if (!progressStartTime.current) return;
+      const elapsed = Date.now() - progressStartTime.current;
+      const progress = Math.min((elapsed / autoPlayDuration) * 100, 100);
+      
+      setAutoPlayProgress(progress);
 
-          const getDelta = () => {
-            const vR = videoRef.current!.getBoundingClientRect();
-            const pR = centerAnchorRef.current!.getBoundingClientRect();
-            return {
-              x: (pR.left + pR.width / 2) - (vR.left + vR.width / 2),
-              y: (pR.top + pR.height / 2) - (vR.top + vR.height / 2),
-            };
-          };
+      if (progress >= 100) {
+        setActiveIndex((prev) => (prev + 1) % SERVICES.length);
+        progressStartTime.current = Date.now();
+      }
+      
+      reqRef.current = requestAnimationFrame(updateProgress);
+    };
 
-          const tl = gsap.timeline({
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top top",
-              end: "bottom bottom",
-              scrub: 1,
-              invalidateOnRefresh: true,
-              onEnter: () => {
-                if (isSoundOn && bassAudioRef.current) {
-                  bassAudioRef.current.currentTime = 0;
-                  bassAudioRef.current.volume = 0.5;
-                  bassAudioRef.current.play().catch(() => {});
-                }
-              }
-            },
-          });
-
-          const getLionPeekY = () => -(lionEntryW * 0);
-
-          // Force lion down and hidden at scroll 0.00
-          tl.set(lionRef.current!, { y: () => window.innerHeight, opacity: 0, width: lionEntryW }, 0);
-
-          /* ── Phase A: Lion rises from below ── */
-          tl.to(lionRef.current!, { y: () => getLionPeekY(), opacity: 1, duration: 0.18, ease: "power2.out" }, 0.10);
-
-          /* ── Phase B: Lion shrinks back to bottom ── */
-          tl.to(lionRef.current!, { y: 0, width: lionShrinkW, duration: 0.32, ease: "power2.inOut" }, 0.28);
-
-          /* ── Video shrinks to pill ── */
-          tl.fromTo(
-            videoRef.current!,
-            { width: videoFromW, height: videoFromH, borderRadius: 20, x: 0, y: 0 },
-            {
-              width: () => getPillSize(), height: () => getPillSize(), borderRadius: 9999,
-              x: () => getDelta().x, y: () => getDelta().y, duration: 0.54, ease: "power2.inOut",
-            },
-            0.10,
-          );
-
-          /* ── Glow fades in ── */
-          tl.fromTo(glowRef.current!, { opacity: 0 }, { opacity: 0.7, duration: 0.18 }, 0.24);
-
-          /* ── Handoff: video out + pills row in ── */
-          tl.to(videoRef.current!, { opacity: 0, duration: 0.03 }, 0.64);
-          tl.fromTo(pillsRowRef.current!, { opacity: 0 }, { opacity: 1, duration: 0.04 }, 0.64);
-
-          /* ── Side pills scale in ── */
-          tl.fromTo(
-            pillsRowRef.current!,
-            { "--pill-1-scale": 0, "--pill-1-opacity": 0, "--pill-3-scale": 0, "--pill-3-opacity": 0 },
-            { "--pill-1-scale": 1, "--pill-1-opacity": 1, "--pill-3-scale": 1, "--pill-3-opacity": 1, duration: 0.08, ease: "back.out(1.7)" },
-            0.68,
-          );
-          tl.fromTo(
-            pillsRowRef.current!,
-            { "--pill-0-scale": 0, "--pill-0-opacity": 0, "--pill-4-scale": 0, "--pill-4-opacity": 0 },
-            { "--pill-0-scale": 1, "--pill-0-opacity": 1, "--pill-4-scale": 1, "--pill-4-opacity": 1, duration: 0.08, ease: "back.out(1.7)" },
-            0.70,
-          );
-
-          /* ── Center pill expands ── */
-          tl.fromTo(
-            pillsRowRef.current!,
-            { "--center-pill-width": () => `${getPillSize()}px` },
-            { "--center-pill-width": () => `${getExpandedPillWidth()}px`, duration: 0.14, ease: "power2.out" },
-            0.76,
-          );
-
-          tl.fromTo(pillsRowRef.current!, { "--center-label-opacity": 0 }, { "--center-label-opacity": 1, duration: 0.08 }, 0.82);
-
-          /* ── 3-Column Layout Unveils (Final Content) ── */
-          tl.fromTo(
-            finalContentRef.current!,
-            { opacity: 0, y: 30 },
-            { opacity: 1, y: 0, duration: 0.14, ease: "power2.out" },
-            0.86,
-          );
-
-          tl.set({}, {}, 1.5); // Grace space
-        },
-      );
-    },
-    { scope: stickyRef, dependencies: [] },
-  );
+    reqRef.current = requestAnimationFrame(updateProgress);
+    return () => {
+      if (reqRef.current) cancelAnimationFrame(reqRef.current);
+    };
+  }, [isAutoPlaying, isInView, activeIndex]);
 
   return (
-    <section ref={sectionRef} className="relative h-[700vh]">
+    <section ref={sectionRef} className="relative min-h-screen w-full overflow-hidden bg-[#0D0D0D]">
       <motion.div
-        ref={stickyRef}
-        className="sticky top-0 h-screen overflow-hidden bg-[#0D0D0D]"
+        className="absolute inset-0 flex flex-col items-center justify-center pt-24 pb-12 md:pt-32 md:pb-24"
         initial={{ "--luma-accent": active.accent } as any}
         animate={{ "--luma-accent": active.accent } as any}
         transition={{ duration: 0.1, ease: "easeOut" }}
       >
-        {/* ── Audio Opt-In Button ── */}
-        <button 
-          onClick={toggleSound}
-          className="absolute bottom-6 right-6 z-[60] flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-4 py-2 text-white/70 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white"
-        >
-          {isSoundOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
-          <span className="text-xs font-semibold uppercase tracking-wider">{isSoundOn ? "Sound On" : "Sound Off"}</span>
-        </button>
+        {/* Glow Layer */}
+        <div
+          className="pointer-events-none absolute bottom-0 left-1/2 z-[1] h-[55vh] w-[80vw] -translate-x-1/2 rounded-t-full blur-3xl opacity-70"
+          style={{ background: "radial-gradient(ellipse at bottom, var(--luma-accent), transparent 70%)" }}
+        />
 
-        {/* ── Auto-cycle Indicator ── */}
-        <AnimatePresence>
-          {isAutoPlaying && (
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }}
-              className="absolute left-1/2 top-4 z-[60] -translate-x-1/2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white/50 backdrop-blur-sm"
-            >
-              Auto-Playing
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Lion Cutout */}
+        <img
+          src="https://i.imgur.com/2PGbCnR.png"
+          alt="Lion cutout"
+          draggable={false}
+          className="pointer-events-none absolute bottom-0 left-0 right-0 z-[2] mx-auto h-auto select-none object-contain w-[400px] md:w-[500px] lg:w-[600px] opacity-40 mix-blend-screen"
+        />
 
         {/* ── 3-Column Guided Presentation Layout ── */}
-        <div
-          ref={finalContentRef}
-          className="absolute inset-0 z-[5] mx-auto flex max-w-[1400px] flex-col items-center justify-between px-4 pb-[20vh] pt-[15vh] opacity-0 md:flex-row md:px-6 md:pb-[10vh] md:pt-[20vh]"
-        >
+        <div className="relative z-[5] mx-auto flex w-full max-w-[1400px] flex-col items-center justify-between px-4 md:flex-row md:px-6">
+          
           {/* Left Visual Column */}
           <div className="relative hidden aspect-[4/5] w-[25%] overflow-hidden rounded-[20px] border border-white/10 bg-white/5 md:block">
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
               {active.leftVisual.type === "image" ? (
                 <motion.img
                   key={`left-img-${active.id}`}
@@ -490,10 +323,10 @@ export default function LumaShowcase() {
           </div>
 
           {/* Center Column: Hook Text + Stat Card */}
-          <div className="flex flex-1 flex-col items-center justify-center text-center pb-[25vh] md:pb-[20vh] lg:pb-[15vh]">
+          <div className="flex flex-1 flex-col items-center justify-center text-center pb-8 md:pb-16 z-10">
             {/* Hook Text */}
             <div className="relative h-[120px] w-full md:h-[160px]">
-              <AnimatePresence>
+              <AnimatePresence mode="wait">
                 <motion.h2
                   key={`hook-${active.id}`}
                   initial={{ opacity: 0, y: 15 }}
@@ -509,7 +342,7 @@ export default function LumaShowcase() {
 
             {/* Stat Card */}
             <div className="relative mt-8 h-[90px] w-full max-w-[320px] overflow-hidden rounded-[16px] border border-white/10 bg-white/5 backdrop-blur-xl md:mt-12">
-              <AnimatePresence>
+              <AnimatePresence mode="wait">
                 <motion.div
                   key={`stat-${active.id}`}
                   initial={{ opacity: 0, y: 10 }}
@@ -527,11 +360,72 @@ export default function LumaShowcase() {
                 </motion.div>
               </AnimatePresence>
             </div>
+
+            {/* Mobile Single Visual (Alternating) */}
+            <div className="relative mt-8 aspect-[4/3] w-full max-w-[320px] overflow-hidden rounded-[16px] border border-white/10 bg-white/5 md:hidden">
+              <AnimatePresence mode="wait">
+                {activeIndex % 2 === 0 ? (
+                  active.leftVisual.type === "image" ? (
+                    <motion.img
+                      key={`mob-left-img-${active.id}`}
+                      src={active.leftVisual.src}
+                      alt={active.leftVisual.caption}
+                      initial={{ opacity: 0, scale: 1.05 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.8, ease: "easeInOut" }}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : (
+                    <motion.video
+                      key={`mob-left-vid-${active.id}`}
+                      src={active.leftVisual.src}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      initial={{ opacity: 0, scale: 1.05 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.8, ease: "easeInOut" }}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  )
+                ) : (
+                  active.rightVisual.type === "image" ? (
+                    <motion.img
+                      key={`mob-right-img-${active.id}`}
+                      src={active.rightVisual.src}
+                      alt={active.rightVisual.caption}
+                      initial={{ opacity: 0, scale: 1.05 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.8, ease: "easeInOut" }}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : (
+                    <motion.video
+                      key={`mob-right-vid-${active.id}`}
+                      src={active.rightVisual.src}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      initial={{ opacity: 0, scale: 1.05 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.8, ease: "easeInOut" }}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  )
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
           {/* Right Visual Column */}
           <div className="relative hidden aspect-[4/5] w-[25%] overflow-hidden rounded-[20px] border border-white/10 bg-white/5 md:block">
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
               {active.rightVisual.type === "image" ? (
                 <motion.img
                   key={`right-img-${active.id}`}
@@ -565,62 +459,28 @@ export default function LumaShowcase() {
           </div>
         </div>
 
-        {/* ── Video Pill (Phase 1 start point) ── */}
-        <div
-          ref={videoRef}
-          className="absolute inset-0 z-[8] m-auto overflow-hidden rounded-[20px] w-[70vw] h-[50vw] md:w-[80vw] md:h-[50vw] lg:w-[90vw] lg:h-[60vw] 2xl:w-[80vw] 2xl:h-[50vw]"
-        >
-          <video autoPlay muted loop playsInline className="h-full w-full object-cover">
-            <source src="https://i.imgur.com/x9yWTNn.mp4" type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-black/20" />
-        </div>
-
-        {/* ── Glow Layer ── */}
-        <div
-          ref={glowRef}
-          className="pointer-events-none absolute bottom-0 left-1/2 z-[10] h-[55vh] w-[80vw] -translate-x-1/2 rounded-t-full opacity-0 blur-3xl"
-          style={{ background: "radial-gradient(ellipse at bottom, var(--luma-accent), transparent 70%)" }}
-        />
-
-        {/* ── Lion Cutout ── */}
-        <img
-          ref={lionRef}
-          src="https://i.imgur.com/2PGbCnR.png"
-          alt="Lion cutout"
-          draggable={false}
-          className="pointer-events-none absolute bottom-0 left-0 right-0 z-[12] mx-auto h-auto select-none object-contain opacity-0 w-[488px] md:w-[585px] lg:w-[645px] 2xl:w-[705px]"
-        />
-
         {/* ── Pills Row ── */}
-        <div
-          ref={pillsRowRef}
-          className="absolute left-1/2 z-[20] flex -translate-x-1/2 items-center opacity-0 top-[60%] gap-2 md:gap-3 lg:top-[52%]"
-        >
-          <div
-            ref={centerAnchorRef}
-            className="pointer-events-none absolute left-1/2 top-1/2 h-[clamp(40px,4.2vw,60px)] w-[clamp(40px,4.2vw,60px)] -translate-x-1/2 -translate-y-1/2 opacity-0"
-          />
-
+        <div className="absolute bottom-24 left-1/2 z-[20] flex -translate-x-1/2 items-center gap-2 md:bottom-12 md:gap-3">
           {ordered.map((item, i) => {
             const isCenter = i === 2;
+            const expandedWidth = "clamp(120px, 18vw, 220px)";
+            const pillSize = "clamp(40px, 4.2vw, 60px)";
+            
             return (
               <div
                 key={i}
                 onClick={() => handlePillClick(SERVICES.findIndex((s) => s.id === item.id))}
-                className="relative shrink-0 rounded-full"
+                className="relative shrink-0 rounded-full transition-all duration-500 ease-in-out"
                 style={{
-                  width: isCenter ? "var(--center-pill-width, clamp(40px,4.2vw,60px))" : "clamp(40px,4.2vw,60px)",
-                  height: "clamp(40px,4.2vw,60px)",
+                  width: isCenter ? expandedWidth : pillSize,
+                  height: pillSize,
                   cursor: "pointer",
                 }}
               >
                 <div
-                  className={`flex h-full w-full items-center justify-center overflow-hidden rounded-full backdrop-blur-md ${isCenter ? "" : "border border-white/10 bg-white/20"}`}
+                  className={`flex h-full w-full items-center justify-center overflow-hidden rounded-full backdrop-blur-md transition-colors duration-500 ${isCenter ? "" : "border border-white/10 bg-white/20"}`}
                   style={{
                     backgroundColor: isCenter ? "var(--luma-accent)" : undefined,
-                    transform: isCenter ? "none" : `scale(var(--pill-${i}-scale, 0))`,
-                    opacity: isCenter ? 1 : `var(--pill-${i}-opacity, 0)`,
                   }}
                   title={item.label}
                 >
@@ -634,9 +494,7 @@ export default function LumaShowcase() {
                         transition={{ duration: 0.4 }}
                         className="whitespace-nowrap px-3 text-[11px] font-bold uppercase tracking-wider text-white md:text-[12px]"
                       >
-                        <span style={{ opacity: "var(--center-label-opacity, 0)" }}>
-                          {item.label}
-                        </span>
+                        {item.label}
                       </motion.span>
                     ) : (
                       <motion.span
@@ -655,7 +513,7 @@ export default function LumaShowcase() {
                 
                 {/* Auto-play Progress Bar */}
                 {isCenter && (
-                  <div className="absolute -bottom-2 left-0 h-[2px] w-full overflow-hidden rounded-full bg-white/10">
+                  <div className="absolute -bottom-3 left-0 h-[2px] w-full overflow-hidden rounded-full bg-white/10">
                     <motion.div 
                       className="h-full bg-white"
                       style={{ width: `${autoPlayProgress}%` }}
@@ -666,6 +524,30 @@ export default function LumaShowcase() {
             );
           })}
         </div>
+
+        {/* ── Audio Opt-In Button ── */}
+        <button 
+          onClick={toggleSound}
+          className="absolute bottom-6 right-6 z-[60] flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-4 py-2 text-white/70 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white"
+        >
+          {isSoundOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
+          <span className="text-xs font-semibold uppercase tracking-wider">{isSoundOn ? "Sound On" : "Sound Off"}</span>
+        </button>
+
+        {/* ── Auto-cycle Indicator ── */}
+        <AnimatePresence>
+          {isAutoPlaying && (
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              className="absolute left-1/2 top-4 z-[60] -translate-x-1/2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white/50 backdrop-blur-sm"
+            >
+              Auto-Playing
+            </motion.div>
+          )}
+        </AnimatePresence>
+
       </motion.div>
     </section>
   );
