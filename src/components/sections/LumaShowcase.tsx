@@ -445,11 +445,11 @@ export default function LumaShowcase() {
             0.90,
           );
 
-          /* Cards end: 0.90 + 0.06 stagger + 0.10 dur = 1.06
-             → add an anchor to keep totalDuration at 1.5. This ensures the
-               scroll progress continues for an additional 33% after the
+          /* Cards end: 0.56 + 0.04 stagger + 0.08 dur = 0.68
+             → add an anchor to keep totalDuration at 1.0. This ensures the
+               scroll progress continues for an additional 32% after the
                animation completes, giving "grace space" before unpinning. */
-          tl.set({}, {}, 1.5);
+          tl.set({}, {}, 1.0);
         },
       );
     },
@@ -467,7 +467,7 @@ export default function LumaShowcase() {
      ═════════════════════════════════════════════════════════════════════ */
 
   return (
-    <section ref={sectionRef} className="relative h-[700vh]">
+    <section ref={sectionRef} className="relative h-[300vh] md:h-[400vh]">
       <motion.div
         ref={stickyRef}
         className="sticky top-0 h-screen overflow-hidden bg-[#0D0D0D]"
