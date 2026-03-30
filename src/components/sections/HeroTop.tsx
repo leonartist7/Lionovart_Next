@@ -1,14 +1,7 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-
-const AVATARS = [
-  { flag: "🇺🇸", bg: "bg-[#1a1a2e]" },
-  { flag: "🇬🇧", bg: "bg-[#1a2e1a]" },
-  { flag: "🇨🇦", bg: "bg-[#2e1a1a]" },
-  { flag: "🇦🇺", bg: "bg-[#1a2e2e]" },
-  { flag: "🇩🇪", bg: "bg-[#2e2e1a]" },
-];
 
 const containerVariants = {
   hidden: {},
@@ -30,58 +23,100 @@ const itemVariants = {
 };
 
 export default function HeroTop() {
+  const [email, setEmail] = useState("");
+
   return (
-    <section className="relative flex min-h-[50vh] flex-col items-center justify-center px-4 pt-24 md:min-h-[60vh] md:px-6">
+    <section className="relative flex min-h-[85vh] flex-col items-center justify-center px-4 pt-28 md:pt-32 md:px-6">
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="flex flex-col items-center gap-8 text-center"
+        className="flex w-full max-w-[700px] flex-col items-center gap-6 text-center"
       >
-        {/* Main Heading */}
+        {/* Main Heading — centered so BRAND ________ extends symmetrically wider than MAKE YOUR */}
         <motion.h1
           variants={itemVariants}
-          className="max-w-[900px] text-[2.2rem] font-medium uppercase leading-none tracking-tight text-text-main sm:text-[2.5rem] md:text-[3rem]"
+          className="text-center text-[2.6rem] font-bold uppercase leading-[1.05] tracking-tight text-text-main sm:text-[3rem] md:text-[4rem] lg:text-[5rem]"
         >
-          We build premium brands{" "}
-          <span className="text-text-muted">that demand attention</span>
+          MAKE YOUR
+          <br />
+          {/* Underscores wrapper — image floats on top of them */}
+          <span className="relative inline-block">
+            BRAND{" "}
+            <span className="relative inline-block">
+              <span className="opacity-0 select-none">________</span>
+              {/* Actual visible underscores behind image */}
+              <span
+                className="absolute inset-0 flex items-center justify-center tracking-widest text-text-muted/40"
+                aria-hidden
+              >
+                ________
+              </span>
+              {/* Overlay image on top of underscores */}
+              <img
+                src="https://imgur.com/8czAkK3.png"
+                alt="Brand fill"
+                className="pointer-events-none absolute left-1/2 top-1/2 h-auto w-[110%] -translate-x-1/2 -translate-y-1/2 object-contain"
+                draggable={false}
+              />
+            </span>
+          </span>
         </motion.h1>
 
         {/* Subtitle */}
         <motion.p
           variants={itemVariants}
-          className="max-w-[600px] text-[16px] leading-[160%] text-text-muted md:text-[20px] md:leading-[132%]"
+          className="max-w-[520px] text-[15px] leading-[170%] text-text-muted md:text-[18px]"
         >
-          Award-winning creative agency delivering world-class branding, web
-          design, and video production for ambitious businesses.
+          The art of innovating ambitious businesses in today&apos;s digital
+          landscape.
         </motion.p>
 
-        {/* Avatar Row + Globe */}
+        {/* Premium Email Form */}
+        <motion.form
+          variants={itemVariants}
+          onSubmit={(e) => e.preventDefault()}
+          className="flex w-full max-w-[480px] flex-col items-stretch gap-3 sm:flex-row sm:items-center"
+        >
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email"
+            required
+            className="
+              flex-1 rounded-[14px] border border-white/10 bg-white/5
+              px-5 py-3.5 text-[14px] text-text-main placeholder-text-muted/50
+              outline-none ring-0 backdrop-blur-sm
+              transition-colors duration-200
+              focus:border-white/25 focus:bg-white/8
+              md:text-[15px]
+            "
+          />
+          <button
+            type="submit"
+            className="
+              shrink-0 rounded-[14px] bg-brand-red px-6 py-3.5
+              text-[13px] font-bold uppercase tracking-widest text-white
+              transition-all duration-200 hover:brightness-110 hover:scale-[1.03]
+              active:scale-[0.98] sm:px-7
+            "
+          >
+            Get Started
+          </button>
+        </motion.form>
+
+        {/* Trust Badges — pushed down with large top margin */}
         <motion.div
           variants={itemVariants}
-          className="flex items-center gap-4"
+          className="mt-16 flex w-full max-w-[520px] items-center justify-center md:mt-24"
         >
-          {/* Overlapping Avatars */}
-          <div className="flex -space-x-3">
-            {AVATARS.map((avatar, i) => (
-              <div
-                key={i}
-                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-bg-dark text-lg ${avatar.bg} md:h-12 md:w-12`}
-              >
-                {avatar.flag}
-              </div>
-            ))}
-          </div>
-
-          {/* Globe */}
-          <div className="flex h-10 w-10 items-center justify-center rounded-full border border-border-dark bg-white/5 text-xl backdrop-blur-sm md:h-12 md:w-12">
-            🌍
-          </div>
-
-          {/* Label */}
-          <span className="text-sm font-medium text-text-muted">
-            Serving clients globally
-          </span>
+          <img
+            src="https://imgur.com/L6zJMEm.png"
+            alt="Trust badges"
+            className="h-auto w-full object-contain opacity-80"
+            draggable={false}
+          />
         </motion.div>
       </motion.div>
     </section>

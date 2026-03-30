@@ -148,6 +148,9 @@
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: rgba(38, 38, 38, 0.3);
   --sidebar-ring: #e5192a;
+
+  /* LumaShowcase — dynamic accent (Phase 2 swaps via JS) */
+  --luma-accent: #e5192a;
 }
 
 @layer base {

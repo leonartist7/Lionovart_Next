@@ -1,8 +1,7 @@
 import Navbar from "@/components/sections/Navbar";
 import HeroTop from "@/components/sections/HeroTop";
 import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
-import About from "@/components/sections/About";
-import HeroLion from "@/components/sections/HeroLion";
+import LumaShowcase from "@/components/sections/LumaShowcase";
 import Benefits from "@/components/sections/Benefits";
 import Portfolio from "@/components/sections/Portfolio";
 import Reality from "@/components/sections/Reality";
@@ -18,8 +17,7 @@ export default function Home() {
       <Navbar />
       <HeroTop />
       <MarqueeSlanted />
-      <About />
-      <HeroLion />
+      <LumaShowcase />
       <Benefits />
       <Portfolio />
       <Reality />
