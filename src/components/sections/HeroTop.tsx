@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const containerVariants = {
   hidden: {},
@@ -53,11 +54,14 @@ export default function HeroTop() {
                 ________
               </span>
               {/* Overlay image on top of underscores */}
-              <img
+              <Image
                 src="https://imgur.com/8czAkK3.png"
                 alt="Brand fill"
+                width={400}
+                height={100}
                 className="pointer-events-none absolute left-1/2 top-1/2 h-auto w-[110%] -translate-x-1/2 -translate-y-1/2 object-contain"
                 draggable={false}
+                priority
               />
             </span>
           </span>
@@ -111,11 +115,14 @@ export default function HeroTop() {
           variants={itemVariants}
           className="mt-16 flex w-full max-w-[520px] items-center justify-center md:mt-24"
         >
-          <img
+          <Image
             src="https://imgur.com/L6zJMEm.png"
             alt="Trust badges"
+            width={800}
+            height={200}
             className="h-auto w-full object-contain opacity-80"
             draggable={false}
+            priority
           />
         </motion.div>
       </motion.div>

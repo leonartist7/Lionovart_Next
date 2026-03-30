@@ -29,6 +29,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${clashDisplay.variable} h-full antialiased`}>
+      <head>
+        <link rel="preload" as="image" href="https://imgur.com/8czAkK3.png" />
+        <link rel="preload" as="image" href="https://imgur.com/L6zJMEm.png" />
+        <link rel="preload" as="image" href="https://i.imgur.com/2PGbCnR.png" />
+      </head>
       <body className="min-h-full flex flex-col">
         <SmoothScrollProvider>{children}</SmoothScrollProvider>
       </body>
