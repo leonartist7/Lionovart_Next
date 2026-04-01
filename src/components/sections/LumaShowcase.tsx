@@ -436,7 +436,7 @@ export default function LumaShowcase() {
         {/* ── 3-Column Guided Presentation Layout ── */}
         <div
           ref={finalContentRef}
-          className="absolute inset-0 z-[25] pointer-events-none mx-auto flex max-w-[1400px] flex-col items-center justify-between px-4 pb-[18vh] pt-[12vh] opacity-0 md:flex-row md:px-6 md:pb-[18vh] md:pt-[18vh]"
+          className="absolute inset-0 z-[25] pointer-events-none mx-auto flex max-w-[1400px] flex-col items-center justify-start px-4 pb-[44vh] pt-[14vh] opacity-0 md:flex-row md:items-center md:justify-between md:px-6 md:pb-[20vh] md:pt-[10vh]"
         >
           {/* Left Visual Column */}
           <div className="relative hidden aspect-[4/5] w-[25%] max-h-[55vh] overflow-hidden rounded-[20px] border border-white/10 bg-white/5 md:block">
@@ -474,7 +474,7 @@ export default function LumaShowcase() {
           </div>
 
           {/* Center Column: Stat Card */}
-          <div className="flex flex-1 flex-col items-center z-10 justify-between pt-[8vh] pb-[10vh] md:justify-center md:text-center md:pt-0 md:pb-0">
+          <div className="flex flex-1 flex-col items-center z-10 justify-start gap-5 md:justify-start md:text-center md:gap-0 md:pt-[6vh]">
             {/* Stat Card */}
             <div className="relative h-[80px] md:h-[90px] w-full max-w-[260px] md:max-w-[320px] overflow-hidden rounded-[16px] border border-white/10 bg-white/5 backdrop-blur-xl">
               <AnimatePresence mode="wait">
@@ -497,7 +497,7 @@ export default function LumaShowcase() {
             </div>
 
             {/* Mobile Single Visual (Alternating) */}
-            <div className="relative aspect-[4/3] w-full max-w-[90vw] overflow-hidden rounded-[20px] border border-white/10 bg-white/5 md:hidden">
+            <div className="relative aspect-[4/3] w-full max-w-[90vw] max-h-[28vh] overflow-hidden rounded-[20px] border border-white/10 bg-white/5 md:hidden">
               <AnimatePresence mode="wait">
                 {activeIndex % 2 === 0 ? (
                   active.leftVisual.type === "image" ? (
@@ -684,9 +684,9 @@ export default function LumaShowcase() {
                 
                 {/* Auto-play Progress Bar */}
                 {isCenter && (
-                  <div className="absolute -bottom-3 left-0 h-[2px] w-full overflow-hidden rounded-full bg-white/10">
-                    <motion.div 
-                      className="h-full bg-white"
+                  <div className="absolute -bottom-3 left-1/2 h-[2px] w-[72px] -translate-x-1/2 overflow-hidden rounded-full bg-white/10">
+                    <motion.div
+                      className="h-full bg-white/50"
                       style={{ width: `${autoPlayProgress}%` }}
                     />
                   </div>
