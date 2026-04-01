@@ -27,7 +27,7 @@ export default function HeroTop() {
   const [email, setEmail] = useState("");
 
   return (
-    <section className="relative flex min-h-[85vh] flex-col items-center justify-center px-4 pt-28 md:pt-32 md:px-6">
+    <section className="relative flex min-h-[72vh] flex-col items-center justify-center px-4 pt-28 md:pt-32 md:px-6">
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -37,7 +37,7 @@ export default function HeroTop() {
         {/* Main Heading — centered so BRAND ________ extends symmetrically wider than MAKE YOUR */}
         <motion.h1
           variants={itemVariants}
-          className="text-center text-[2.6rem] font-bold uppercase leading-[1.05] tracking-tight text-text-main sm:text-[3rem] md:text-[4rem] lg:text-[5rem]"
+          className="text-center text-[3rem] font-bold uppercase leading-[1.05] tracking-tight text-text-main sm:text-[3.6rem] md:text-[4.5rem] lg:text-[5.8rem]"
         >
           MAKE YOUR
           <br />
@@ -46,14 +46,7 @@ export default function HeroTop() {
             BRAND{" "}
             <span className="relative inline-block">
               <span className="opacity-0 select-none">________</span>
-              {/* Actual visible underscores behind image */}
-              <span
-                className="absolute inset-0 flex items-center justify-center tracking-widest text-text-muted/40"
-                aria-hidden
-              >
-                ________
-              </span>
-              {/* Overlay image on top of underscores */}
+              {/* Overlay image */}
               <Image
                 src="https://imgur.com/8czAkK3.png"
                 alt="Brand fill"
@@ -113,7 +106,7 @@ export default function HeroTop() {
         {/* Trust Badges — pushed down with large top margin */}
         <motion.div
           variants={itemVariants}
-          className="mt-16 flex w-full max-w-[520px] items-center justify-center md:mt-24"
+          className="mt-6 flex w-full max-w-[520px] items-center justify-center md:mt-8"
         >
           <Image
             src="https://imgur.com/L6zJMEm.png"

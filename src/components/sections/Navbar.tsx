@@ -74,19 +74,20 @@ export default function Navbar() {
             {!isPastHero && (
               <motion.ul
                 key="nav-links"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.25 }}
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
                 className="ml-auto hidden items-center gap-8 md:flex"
               >
                 {NAV_LINKS.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm font-medium uppercase tracking-wider text-text-muted transition-colors hover:text-text-main"
+                      className="group relative text-sm font-medium uppercase tracking-wider text-text-muted transition-colors hover:text-text-main"
                     >
                       {link.label}
+                      <span className="absolute -bottom-0.5 left-0 h-[1px] w-full origin-left scale-x-0 bg-current transition-transform duration-300 group-hover:scale-x-100" />
                     </Link>
                   </li>
                 ))}
@@ -99,15 +100,15 @@ export default function Navbar() {
             {!isPastHero && (
               <motion.div
                 key="cta"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.25 }}
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
                 className="ml-6 hidden md:block"
               >
                 <Link
                   href="#contact"
-                  className="rounded-[20px] bg-brand-red px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-all hover:brightness-110 hover:scale-105"
+                  className="rounded-[20px] bg-brand-red px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-all hover:brightness-110 hover:scale-105 hover:shadow-[0_0_22px_4px_rgba(229,25,42,0.45)]"
                 >
                   Book a Call
                 </Link>
