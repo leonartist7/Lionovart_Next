@@ -32,18 +32,20 @@ export default function HeroTop() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="flex w-full max-w-[700px] flex-col items-center gap-6 text-center"
+        className="flex w-full max-w-[1200px] flex-col items-center gap-6 text-center"
       >
-        {/* Main Heading — centered so BRAND ________ extends symmetrically wider than MAKE YOUR */}
+        {/* Main Heading — Structured to never wrap arbitrarily */}
         <motion.h1
           variants={itemVariants}
-          className="text-center text-[3rem] font-bold uppercase leading-[1.05] tracking-tight text-text-main sm:text-[3.6rem] md:text-[4.5rem] lg:text-[5.8rem]"
+          className="text-center text-[10vw] sm:text-[3.6rem] md:text-[4.5rem] lg:text-[5.8rem] xl:text-[6.5rem] font-bold uppercase leading-[1.05] tracking-tight text-text-main flex flex-col items-center"
         >
-          MAKE YOUR
-          <br />
-          {/* Underscores wrapper — image floats on top of them */}
-          <span className="relative inline-block">
+          {/* First Line */}
+          <span className="block whitespace-nowrap">MAKE YOUR</span>
+          
+          {/* Second Line */}
+          <span className="block whitespace-nowrap mt-1 md:mt-2">
             BRAND{" "}
+            {/* Underscores wrapper — image floats on top of them */}
             <span className="relative inline-block">
               <span className="opacity-0 select-none">________</span>
               {/* Overlay image */}
