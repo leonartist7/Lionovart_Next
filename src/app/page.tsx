@@ -5,7 +5,6 @@ import LumaShowcase from "@/components/sections/LumaShowcase";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
 import Benefits from "@/components/sections/Benefits";
 import Portfolio from "@/components/sections/Portfolio";
-import Reality from "@/components/sections/Reality";
 import Services from "@/components/sections/Services";
 import Process from "@/components/sections/Process";
 import Testimonials from "@/components/sections/Testimonials";
@@ -22,7 +21,6 @@ export default function Home() {
       <ProblemsSolvedSection />
       <Benefits />
       <Portfolio />
-      <Reality />
       <Services />
       <Process />
       <Testimonials />

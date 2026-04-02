@@ -54,7 +54,7 @@ export default function HeroTop() {
                 alt="Brand fill"
                 width={400}
                 height={100}
-                className="pointer-events-none absolute left-1/2 top-1/2 h-auto w-[110%] -translate-x-1/2 -translate-y-1/2 object-contain"
+                className="pointer-events-none absolute left-1/2 top-1/2 h-auto w-[130%] -translate-x-1/2 -translate-y-[65%] object-contain"
                 draggable={false}
                 priority
               />
