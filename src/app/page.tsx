@@ -2,6 +2,7 @@ import Navbar from "@/components/sections/Navbar";
 import HeroTop from "@/components/sections/HeroTop";
 import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
 import LumaShowcase from "@/components/sections/LumaShowcase";
+import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
 import Benefits from "@/components/sections/Benefits";
 import Portfolio from "@/components/sections/Portfolio";
 import Reality from "@/components/sections/Reality";
@@ -18,6 +19,7 @@ export default function Home() {
       <HeroTop />
       <MarqueeSlanted />
       <LumaShowcase />
+      <ProblemsSolvedSection />
       <Benefits />
       <Portfolio />
       <Reality />
