@@ -4,7 +4,15 @@
       "mcp__Claude_Preview__preview_start",
       "Bash(git pull:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :3000)",
+      "Bash(git checkout:*)",
+      "Bash(npx next:*)",
+      "Bash(npm run:*)",
+      "Bash(taskkill //PID 6172)",
+      "Bash(taskkill:*)",
+      "WebFetch(domain:imgur.com)"
     ]
   }
 }

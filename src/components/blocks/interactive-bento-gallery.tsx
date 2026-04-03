@@ -289,13 +289,68 @@ const GalleryModal = ({ selectedItem, isOpen, onClose, setSelectedItem, mediaIte
 
 
 
+const DEFAULT_MEDIA_ITEMS: MediaItem[] = [
+  {
+    id: 1,
+    type: "image",
+    title: "Card 1 (1x2)",
+    desc: "Spans two rows vertically.",
+    url: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&q=80",
+    span: "col-span-1 row-span-2",
+  },
+  {
+    id: 2,
+    type: "image",
+    title: "Card 2 (1x1)",
+    desc: "Top right on mobile, Top middle on desktop.",
+    url: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&q=80",
+    span: "col-span-1 row-span-1",
+  },
+  {
+    id: 3,
+    type: "image",
+    title: "Card 3 (1x1)",
+    desc: "Middle right on mobile, Top right on desktop.",
+    url: "https://images.unsplash.com/photo-1558655146-d09347e92766?w=800&q=80",
+    span: "col-span-1 row-span-1",
+  },
+  {
+    id: 4,
+    type: "image",
+    title: "Card 4 (1x1)",
+    desc: "Bottom left on mobile, Middle middle on desktop.",
+    url: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800&q=80",
+    span: "col-span-1 row-span-1",
+  },
+  {
+    id: 5,
+    type: "image",
+    title: "Card 5 (1x1)",
+    desc: "Bottom right on mobile, Middle right on desktop.",
+    url: "https://images.unsplash.com/photo-1634942537034-2531766767d1?w=800&q=80",
+    span: "col-span-1 row-span-1",
+  },
+  {
+    id: 6,
+    type: "image",
+    title: "Card 6 (Wide)",
+    desc: "Spans the full width at the bottom.",
+    url: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&q=80",
+    span: "col-span-2 row-span-1 md:col-span-3",
+  },
+];
+
 interface InteractiveBentoGalleryProps {
-    mediaItems: MediaItem[]
-    title: string
-    description: string
+    mediaItems?: MediaItem[]
+    title?: string
+    description?: string
 }
 
-const InteractiveBentoGallery: React.FC<InteractiveBentoGalleryProps> = ({ mediaItems, title, description }) => {
+const InteractiveBentoGallery: React.FC<InteractiveBentoGalleryProps> = ({ 
+    mediaItems = DEFAULT_MEDIA_ITEMS, 
+    title = "Selected Work", 
+    description = "A responsive bento grid showcasing your best projects." 
+}) => {
     const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
     const [items, setItems] = useState(mediaItems);
     const [isDragging, setIsDragging] = useState(false);
@@ -331,7 +386,7 @@ const InteractiveBentoGallery: React.FC<InteractiveBentoGalleryProps> = ({ media
                     />
                 ) : (
                     <motion.div
-                        className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-3 auto-rows-[180px]"
+                        className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 auto-rows-[180px] sm:auto-rows-[200px]"
                         initial="hidden"
                         animate="visible"
                         exit="hidden"

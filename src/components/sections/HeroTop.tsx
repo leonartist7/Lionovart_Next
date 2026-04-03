@@ -115,7 +115,7 @@ export default function HeroTop() {
             alt="Trust badges"
             width={800}
             height={200}
-            className="h-auto w-full object-contain opacity-80"
+            className="h-auto w-full object-contain"
             draggable={false}
             priority
           />
