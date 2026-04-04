@@ -146,6 +146,7 @@ export default function LumaShowcase() {
   const sectionRef = useRef<HTMLElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLDivElement>(null);
+  const oneVisionRef = useRef<HTMLDivElement>(null);
   const lionRef = useRef<HTMLImageElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const pillsRowRef = useRef<HTMLDivElement>(null);
@@ -172,9 +173,13 @@ export default function LumaShowcase() {
 
   /* ── Auto-cycle & Progress Engine ─────────────────────────────── */
   const autoPlayDuration = 6000; // 6 seconds per state
-  const lastInteractionTime = useRef<number>(Date.now());
+  const lastInteractionTime = useRef<number>(0);
   const progressStartTime = useRef<number | null>(null);
   const reqRef = useRef<number>(0);
+
+  useEffect(() => {
+    lastInteractionTime.current = Date.now();
+  }, []);
 
   useEffect(() => {
     // Check if we should resume autoplay after 10s of idle
@@ -190,7 +195,7 @@ export default function LumaShowcase() {
   useEffect(() => {
     if (!isAutoPlaying || !isScrollComplete) {
       if (reqRef.current) cancelAnimationFrame(reqRef.current);
-      setAutoPlayProgress(0);
+      progressStartTime.current = null; // Reset start time so it doesn't glitch when scrolling back down
       return;
     }
 
@@ -257,13 +262,25 @@ export default function LumaShowcase() {
     }
   };
 
-  /* ── GSAP Scroll Timeline (The Hybrid Handoff) ────────────────── */
+  /* ── GSAP Scroll Timeline (3-Stage Cinematic Snap) ──────────────
+   *
+   *  STAGE 1  snap=0.00  Full-screen video, lion hidden, "ONE VISION" visible
+   *  STAGE 2  snap=0.40  Lion fully risen & holding, video still full-screen
+   *  STAGE 3  snap=0.75  Video shrinks to pill, pills row + 3-col layout revealed
+   *  EXIT     snap=1.00  Section exit (scroll continues)
+   *
+   *  Timeline progress positions used below are normalised to [0 → 1.6]
+   *  because tl.set({}, {}, 1.6) anchors the total duration.
+   *  Snap points are expressed as fractions of the ScrollTrigger's scroll
+   *  range (which maps to the tl progress 0→1).
+   * ──────────────────────────────────────────────────────────────── */
   useGSAP(
     () => {
       if (
         !sectionRef.current ||
         !stickyRef.current ||
         !videoRef.current ||
+        !oneVisionRef.current ||
         !lionRef.current ||
         !glowRef.current ||
         !pillsRowRef.current ||
@@ -284,13 +301,16 @@ export default function LumaShowcase() {
         (ctx) => {
           const c = ctx.conditions as Record<string, boolean>;
 
-          const lionRestW = c.isMobile ? 350 : c.isTablet ? 390 : c.isDesktop ? 430 : 470;
-          const lionEntryW = Math.round(lionRestW * 1.3);
-          const lionShrinkW = c.isMobile ? 200 : c.isTablet ? 210 : c.isDesktop ? 250 : 260;
+          // Lion dimensions
+          const lionRestW  = c.isMobile ? 402 : c.isTablet ? 448 : c.isDesktop ? 494 : 540;
+          const lionEntryW = Math.round(lionRestW * 1.3); // Oversized on entry for drama
+          const lionShrinkW = c.isMobile ? 230 : c.isTablet ? 241 : c.isDesktop ? 287 : 299;
 
-          const videoFromW = c.isMobile ? "70vw" : c.isTablet ? "80vw" : c.isDesktop ? "90vw" : "80vw";
-          const videoFromH = c.isMobile ? "50vw" : c.isTablet ? "50vw" : c.isDesktop ? "60vw" : "50vw";
+          // Video starting dimensions (full-screen-ish rectangle)
+          const videoFromW = c.isMobile ? "70vw" : c.isTablet ? "75vw" : c.isDesktop ? "60vw" : "50vw";
+          const videoFromH = c.isMobile ? "50vw" : c.isTablet ? "45vw" : c.isDesktop ? "35vw" : "28vw";
 
+          // Calculates how far the video center must travel to sit inside the center pill anchor
           const getDelta = () => {
             const vR = videoRef.current!.getBoundingClientRect();
             const pR = centerAnchorRef.current!.getBoundingClientRect();
@@ -300,13 +320,22 @@ export default function LumaShowcase() {
             };
           };
 
+          /* ─────────────────────────────────────────────────────────
+           *  ScrollTrigger with 4 magnetic snap points
+           * ───────────────────────────────────────────────────────── */
           const tl = gsap.timeline({
             scrollTrigger: {
               trigger: sectionRef.current,
               start: "top top",
               end: "bottom bottom",
-              scrub: 1,
+              scrub: 1.2,          // Slightly higher scrub = feels heavier / more cinematic
               invalidateOnRefresh: true,
+              snap: {
+                snapTo: [0, 0.40, 0.75, 1],
+                duration: { min: 0.5, max: 1.2 },
+                delay: 0.08,
+                ease: "power2.inOut",
+              },
               onEnter: () => {
                 if (isSoundOn && bassAudioRef.current) {
                   bassAudioRef.current.currentTime = 0;
@@ -315,86 +344,132 @@ export default function LumaShowcase() {
                 }
               },
               onUpdate: (self) => {
-                // Handoff to presentation mode when scroll animation completes (at 0.82)
-                const isComplete = self.progress >= 0.82;
+                // Hand off to interactive presentation mode at stage 3
+                const isComplete = self.progress >= 0.73;
                 if (isComplete && !isScrollCompleteRef.current) {
                   isScrollCompleteRef.current = true;
                   setIsScrollComplete(true);
-                  setIsAutoPlaying(true); // Start auto-cycle
+                  setIsAutoPlaying(true);
                   lastInteractionTime.current = Date.now();
                 } else if (!isComplete && isScrollCompleteRef.current) {
                   isScrollCompleteRef.current = false;
                   setIsScrollComplete(false);
-                  setIsAutoPlaying(false); // Pause auto-cycle
+                  setIsAutoPlaying(false);
                   setAutoPlayProgress(0);
                 }
-              }
+              },
             },
           });
 
-          const getLionPeekY = () => -(lionEntryW * 0);
+          /* ══════════════════════════════════════════════════════════
+           *  STAGE 1 → STAGE 2  (progress 0.00 → 0.40)
+           *  Lion rises from below; "ONE VISION" text disappears
+           * ══════════════════════════════════════════════════════════ */
 
-          // Force lion down and hidden at scroll 0.00
-          tl.set(lionRef.current!, { y: () => window.innerHeight, opacity: 0, width: lionEntryW }, 0);
+          // At scroll=0: lion is offscreen below, fully opaque (no fade-in flash)
+          tl.set(lionRef.current!, { y: () => window.innerHeight * 1.1, opacity: 1, width: lionEntryW }, 0);
 
-          /* ── Phase A: Lion rises from below ── */
-          tl.to(lionRef.current!, { y: () => getLionPeekY(), opacity: 1, duration: 0.15, ease: "power2.out" }, 0.05);
+          // "ONE VISION" starts fully visible at scroll=0 — no initial set needed
 
-          /* ── Phase B: Lion shrinks back to bottom ── */
-          tl.to(lionRef.current!, { y: 0, width: lionShrinkW, duration: 0.20, ease: "power2.inOut" }, 0.20);
+          // Lion rises up into the hero position (ends at progress 0.30 so it
+          // fully arrives well before the snap point at 0.40)
+          tl.to(
+            lionRef.current!,
+            { y: 0, duration: 0.30, ease: "power3.out" },
+            0.05,
+          );
 
-          /* ── Video shrinks + translates to pill ── */
+          // "ONE VISION" text falls down and fades out as the lion rises
+          // It's placed BEHIND the video (z-index 7 vs video z-index 8) so it
+          // physically appears to be swallowed by the video frame as it drops.
+          tl.to(
+            oneVisionRef.current!,
+            { y: "60vh", scale: 0.15, opacity: 0, duration: 0.28, ease: "power3.in" },
+            0.10, // Starts early so it's gone before the snap at 0.40
+          );
+
+          /* ══════════════════════════════════════════════════════════
+           *  STAGE 2 → STAGE 3  (progress 0.40 → 0.75)
+           *  Video shrinks to pill; lion settles down; pills appear
+           * ══════════════════════════════════════════════════════════ */
+
+          // Lion shrinks down to its rest size as the video starts collapsing
+          tl.to(
+            lionRef.current!,
+            { width: lionShrinkW, duration: 0.18, ease: "power2.inOut" },
+            0.42,
+          );
+
+          // Video collapses from full rectangle → tiny pill, sliding into the center anchor
           tl.fromTo(
             videoRef.current!,
             { width: videoFromW, height: videoFromH, borderRadius: 20, x: 0, y: 0 },
             {
-              width: () => getPillSize(), height: () => getPillSize(), borderRadius: 9999,
-              x: () => getDelta().x, y: () => getDelta().y, duration: 0.40, ease: "power2.inOut",
+              width: () => getPillSize(),
+              height: () => getPillSize(),
+              borderRadius: 9999,
+              x: () => getDelta().x,
+              y: () => getDelta().y,
+              duration: 0.28,
+              ease: "power2.inOut",
             },
-            0.05,
+            0.44,
           );
 
-          /* ── Glow fades in ── */
-          tl.fromTo(glowRef.current!, { opacity: 0 }, { opacity: 0.7, duration: 0.15 }, 0.10);
+          // Glow appears as the video morphs
+          tl.fromTo(glowRef.current!, { opacity: 0 }, { opacity: 0.7, duration: 0.15 }, 0.52);
 
-          /* ── Handoff: video out + pills row in ── */
-          tl.to(videoRef.current!, { opacity: 0, duration: 0.05 }, 0.45);
-          tl.fromTo(pillsRowRef.current!, { opacity: 0 }, { opacity: 1, duration: 0.05 }, 0.45);
+          // Video fades out once it's pill-sized (hand off to the pills row DOM)
+          tl.to(videoRef.current!, { opacity: 0, duration: 0.06 }, 0.72);
 
-          /* ── Side pills scale in ── */
+          // Pills row fades in at the same time
+          tl.fromTo(pillsRowRef.current!, { opacity: 0 }, { opacity: 1, duration: 0.06 }, 0.72);
+
+          /* ══════════════════════════════════════════════════════════
+           *  STAGE 3 FINISHES  (progress 0.75 → 1.00)
+           *  Side pills cascade in; center pill expands; 3-col reveals
+           * ══════════════════════════════════════════════════════════ */
+
+          // Inner pills cascade in (±1 first, then ±2)
           tl.fromTo(
             pillsRowRef.current!,
             { "--pill-1-scale": 0, "--pill-1-opacity": 0, "--pill-3-scale": 0, "--pill-3-opacity": 0 },
-            { "--pill-1-scale": 1, "--pill-1-opacity": 1, "--pill-3-scale": 1, "--pill-3-opacity": 1, duration: 0.08, ease: "back.out(1.7)" },
-            0.52,
+            { "--pill-1-scale": 1, "--pill-1-opacity": 1, "--pill-3-scale": 1, "--pill-3-opacity": 1, duration: 0.07, ease: "back.out(1.7)" },
+            0.78,
           );
           tl.fromTo(
             pillsRowRef.current!,
             { "--pill-0-scale": 0, "--pill-0-opacity": 0, "--pill-4-scale": 0, "--pill-4-opacity": 0 },
-            { "--pill-0-scale": 1, "--pill-0-opacity": 1, "--pill-4-scale": 1, "--pill-4-opacity": 1, duration: 0.08, ease: "back.out(1.7)" },
-            0.54,
+            { "--pill-0-scale": 1, "--pill-0-opacity": 1, "--pill-4-scale": 1, "--pill-4-opacity": 1, duration: 0.07, ease: "back.out(1.7)" },
+            0.85,
           );
 
-          /* ── Center pill expands + label fades ── */
+          // Center pill stretches from circle → expanded label pill
           tl.fromTo(
             pillsRowRef.current!,
             { "--center-pill-width": () => `${getPillSize()}px` },
             { "--center-pill-width": () => `${getExpandedPillWidth()}px`, duration: 0.10, ease: "power2.out" },
-            0.60,
+            0.90,
           );
 
-          tl.fromTo(pillsRowRef.current!, { "--center-label-opacity": 0 }, { "--center-label-opacity": 1, duration: 0.08 }, 0.72);
+          // Label text fades in once the pill is expanded
+          tl.fromTo(
+            pillsRowRef.current!,
+            { "--center-label-opacity": 0 },
+            { "--center-label-opacity": 1, duration: 0.08 },
+            1.00,
+          );
 
-          /* ── 3-Column Layout Unveils (Final Content) ── */
+          // 3-column layout slides up into view
           tl.fromTo(
             finalContentRef.current!,
             { opacity: 0, y: 30 },
             { opacity: 1, y: 0, duration: 0.10, ease: "power2.out" },
-            0.82,
+            1.05,
           );
 
-          /* Anchor to keep totalDuration at 1.3 */
-          tl.set({}, {}, 1.3);
+          // Anchor — keeps totalDuration stable for scrub mapping
+          tl.set({}, {}, 1.6);
         },
       );
     },
@@ -594,10 +669,20 @@ export default function LumaShowcase() {
           </div>
         </div>
 
+        {/* ── Text above the video ── */}
+        <div
+          ref={oneVisionRef}
+          className="absolute inset-x-0 bottom-1/2 mb-[25vw] md:mb-[22.5vw] lg:mb-[17.5vw] 2xl:mb-[14vw] z-[7] text-center pointer-events-none"
+        >
+          <h2 className="text-[2.5rem] sm:text-[4rem] md:text-[5rem] lg:text-[7rem] font-bold text-white uppercase tracking-widest font-clash leading-none">
+            One Vision
+          </h2>
+        </div>
+
         {/* ── Video Pill (Phase 1 start point) ── */}
         <div
           ref={videoRef}
-          className="absolute inset-0 z-[8] m-auto overflow-hidden rounded-[20px] w-[70vw] h-[50vw] md:w-[80vw] md:h-[50vw] lg:w-[90vw] lg:h-[60vw] 2xl:w-[80vw] 2xl:h-[50vw]"
+          className="absolute inset-0 z-[8] m-auto overflow-hidden rounded-[20px] w-[70vw] h-[50vw] md:w-[75vw] md:h-[45vw] lg:w-[60vw] lg:h-[35vw] 2xl:w-[50vw] 2xl:h-[28vw] pointer-events-auto bg-black"
         >
           <video autoPlay muted loop playsInline className="h-full w-full object-cover">
             <source src="https://i.imgur.com/x9yWTNn.mp4" type="video/mp4" />
@@ -683,13 +768,18 @@ export default function LumaShowcase() {
                 </div>
                 
                 {/* Auto-play Progress Bar */}
-                {isCenter && (
-                  <div className="absolute -bottom-3 left-1/2 h-[2px] w-[72px] -translate-x-1/2 overflow-hidden rounded-full bg-white/10">
+                {isCenter && isScrollComplete && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="absolute -bottom-3 left-1/2 h-[2px] w-[72px] -translate-x-1/2 overflow-hidden rounded-full bg-white/10"
+                  >
                     <motion.div
                       className="h-full bg-white/50"
                       style={{ width: `${autoPlayProgress}%` }}
                     />
-                  </div>
+                  </motion.div>
                 )}
               </div>
             );

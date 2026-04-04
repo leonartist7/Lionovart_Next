@@ -10,6 +10,12 @@ import {
 } from "framer-motion";
 
 // --- Data Structure ---
+// Layout (12-col grid, 2 explicit rows):
+//
+//  [  Card 1 — 4col×2row tall  ] [  Card 2 — 4col×1row  ] [  Card 3 — 4col×2row tall  ]
+//  [  Card 1 — continues       ] [  Card 4 — 4col×1row  ] [  Card 3 — continues       ]
+//  [  Card 5 — 12col×1row wide bottom banner  ]
+//
 const PROJECTS = [
   {
     id: 1,
@@ -17,7 +23,7 @@ const PROJECTS = [
     description: "Full rebrand — logo system, typography, color palette",
     metric: "3x",
     image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&q=80",
-    gridClasses: "col-span-1 row-span-2 md:col-span-6 md:row-span-2 lg:col-span-8 lg:row-span-2",
+    gridClasses: "col-span-1 md:col-span-3 md:row-span-2 lg:col-span-4 lg:row-span-2",
   },
   {
     id: 2,
@@ -25,7 +31,7 @@ const PROJECTS = [
     description: "Premium SaaS landing page with motion design",
     metric: "150%",
     image: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&q=80",
-    gridClasses: "col-span-1 row-span-2 md:col-span-3 md:row-span-1 lg:col-span-4 lg:row-span-1",
+    gridClasses: "col-span-1 md:col-span-3 md:row-span-1 lg:col-span-4 lg:row-span-1",
   },
   {
     id: 3,
@@ -33,7 +39,7 @@ const PROJECTS = [
     description: "Social media & video production campaign",
     metric: "10k+",
     image: "https://images.unsplash.com/photo-1558655146-d09347e92766?w=800&q=80",
-    gridClasses: "col-span-1 row-span-2 md:col-span-3 md:row-span-2 lg:col-span-4 lg:row-span-2",
+    gridClasses: "col-span-1 md:col-span-3 md:row-span-2 lg:col-span-4 lg:row-span-2",
   },
   {
     id: 4,
@@ -41,7 +47,7 @@ const PROJECTS = [
     description: "UI/UX design & interactive prototype",
     metric: "4.9",
     image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800&q=80",
-    gridClasses: "col-span-1 row-span-2 md:col-span-3 md:row-span-1 lg:col-span-4 lg:row-span-1",
+    gridClasses: "col-span-1 md:col-span-3 md:row-span-1 lg:col-span-4 lg:row-span-1",
   },
   {
     id: 5,
@@ -49,23 +55,7 @@ const PROJECTS = [
     description: "Brand strategy, logo, and style guide",
     metric: "Top 10",
     image: "https://images.unsplash.com/photo-1634942537034-2531766767d1?w=800&q=80",
-    gridClasses: "col-span-1 row-span-2 md:col-span-6 md:row-span-2 lg:col-span-4 lg:row-span-1",
-  },
-  {
-    id: 6,
-    title: "Motion Reel 2024",
-    description: "Showreel — brand films & motion graphics",
-    metric: "1M+",
-    image: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&q=80",
-    gridClasses: "col-span-1 row-span-2 md:col-span-3 md:row-span-2 lg:col-span-5 lg:row-span-2",
-  },
-  {
-    id: 7,
-    title: "Premium E-Commerce",
-    description: "End-to-end Shopify build for luxury fashion brand",
-    metric: "2x",
-    image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&q=80",
-    gridClasses: "col-span-1 row-span-2 md:col-span-3 md:row-span-2 lg:col-span-7 lg:row-span-2",
+    gridClasses: "col-span-1 md:col-span-6 md:row-span-1 lg:col-span-12 lg:row-span-1",
   },
 ];
 
@@ -134,7 +124,7 @@ function BentoCard({
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={handleMouseLeave}
-        className="relative flex h-full w-full cursor-pointer flex-col justify-end overflow-hidden rounded-[20px] bg-[#161616]"
+        className="relative flex h-full w-full cursor-pointer flex-col justify-end overflow-hidden rounded-[20px] bg-[#161616] min-h-[280px] md:min-h-0"
         style={{
           rotateX,
           rotateY,
@@ -142,8 +132,8 @@ function BentoCard({
         animate={{
           scale: isHovered ? 1.03 : 1,
           boxShadow: isHovered
-            ? "0 20px 40px -15px rgba(229, 25, 42, 1), 0 0 15px -5px rgba(229, 25, 42, 0.8)"
-            : "0 0 0 0 rgba(229, 25, 42, 0)",
+            ? "0 20px 48px -12px rgba(240, 201, 23, 0.55), 0 0 20px -4px rgba(240, 201, 23, 0.35), inset 0 0 40px rgba(240, 201, 23, 0.07)"
+            : "0 0 0 0 rgba(240, 201, 23, 0)",
         }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} // Beautiful Expo Out ease
       >
@@ -227,12 +217,12 @@ export default function Portfolio() {
   }, [activeIdx]);
 
   return (
-    <section id="work" className="bg-bg-dark py-[80px] md:py-[180px]">
+    <section id="work" className="bg-[#F5F0EB] py-[80px] md:py-[120px]">
       <div className="mx-auto max-w-[1200px] px-4 md:px-6">
         {/* Header */}
-        <div className="mb-12">
+        <div className="mb-12 flex flex-col items-center text-center">
           <motion.p
-            className="mb-4 text-[16px] font-semibold uppercase tracking-[0.2em] text-brand-red"
+            className="mb-4 text-[13px] font-semibold uppercase tracking-[0.2em] text-brand-red"
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -241,7 +231,7 @@ export default function Portfolio() {
             Selected Work
           </motion.p>
           <motion.h2
-            className="text-[2.2rem] font-bold uppercase leading-none tracking-tight text-text-main sm:text-[3rem] md:text-[4.5rem]"
+            className="text-[2.2rem] font-bold uppercase leading-none tracking-tight text-[#111111] sm:text-[3rem] md:text-[4.5rem]"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -251,8 +241,17 @@ export default function Portfolio() {
           </motion.h2>
         </div>
 
-        {/* CSS Grid */}
-        <div className="grid auto-rows-[minmax(150px,auto)] grid-cols-1 gap-5 md:grid-cols-6 md:auto-rows-[160px] md:gap-6 lg:grid-cols-12 lg:auto-rows-[180px]">
+        {/* CSS Grid
+            Desktop (lg): 12 cols, 3 rows — [270px tall] [270px tall] [200px wide banner]
+            Tablet (md):  6 cols,  auto rows
+            Mobile:       1 col,   auto rows
+        */}
+        <div className="
+          grid gap-5
+          grid-cols-1
+          md:grid-cols-6 md:grid-rows-[280px_280px_220px]
+          lg:grid-cols-12 lg:grid-rows-[270px_270px_200px]
+        ">
           {PROJECTS.map((project, idx) => (
             <BentoCard
               key={project.id}

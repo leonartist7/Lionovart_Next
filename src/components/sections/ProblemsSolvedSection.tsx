@@ -115,7 +115,7 @@ export default function ProblemsSolvedSection() {
                     animate={{ y: isCardRevealed ? "105%" : "0%" }}
                     transition={{
                       duration: 1.4,
-                      delay: isCardRevealed ? 0.5 : 0,
+                      delay: isCardRevealed ? 0.4 : 0,
                       ease: [0.25, 1, 0.5, 1],
                     }}
                   >
@@ -128,20 +128,20 @@ export default function ProblemsSolvedSection() {
                         animate={
                           isCardRevealed
                             ? {
-                                x: ["-70%", "0%", "3%", "0%"],
+                                x: ["-70%", "-20%", "-18%", "-20%"],
                                 y: ["0px", "0px", "3px", "0px"],
                                 rotate: [0, 0, 20, 40],
                                 scale: [0.7, 1, 1, 0.9],
                               }
                             : {
-                                x: ["0%", "0%", "-70%"],
+                                x: ["-20%", "-20%", "-70%"],
                                 y: ["0px", "0px", "0px"],
                                 rotate: [40, 0, 0],
                                 scale: [0.9, 1, 0.7],
                               }
                         }
                         transition={{
-                          duration: 0.8,
+                          duration: 1.5,
                           ease: [0.22, 1, 0.36, 1],
                         }}
                       >
@@ -158,7 +158,7 @@ export default function ProblemsSolvedSection() {
                       </motion.div>
 
                       {/* Problem text — below the paw */}
-                      <div className="flex items-start md:items-center gap-3 mb-2 pt-[70px]">
+                      <div className="flex items-start md:items-center gap-3 mb-2 pt-[70px] md:pt-2">
                         <span className="text-brand-red font-clash font-bold text-[20px] md:text-[24px] opacity-90 leading-none mt-0.5 md:mt-0">
                           {item.num}
                         </span>

@@ -1,10 +1,9 @@
 import Navbar from "@/components/sections/Navbar";
 import HeroTop from "@/components/sections/HeroTop";
+import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
 import LumaShowcase from "@/components/sections/LumaShowcase";
-import InteractiveBentoGallery from "@/components/blocks/interactive-bento-gallery";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
-import Benefits from "@/components/sections/Benefits";
 import Portfolio from "@/components/sections/Portfolio";
 import Services from "@/components/sections/Services";
 import Process from "@/components/sections/Process";
@@ -17,14 +16,12 @@ export default function Home() {
     <main className="bg-bg-dark min-h-screen">
       <Navbar />
       <HeroTop />
+      <AboutUsHalf />
       <LumaShowcase />
       <MarqueeSlanted />
-      {/* <Portfolio /> Replacing old static portfolio with new Interactive Bento below to test */}
-      <InteractiveBentoGallery />
       <ProblemsSolvedSection />
-      <Benefits />
-      <Portfolio />
       <Services />
+      <Portfolio />
       <Process />
       <Testimonials />
       <FAQ />

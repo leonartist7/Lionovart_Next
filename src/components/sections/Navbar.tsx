@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   motion,
   useScroll,
@@ -38,32 +38,75 @@ export default function Navbar() {
     setIsPastHero(latest > heroThreshold);
   });
 
+  /* ── Determine visual mode ──
+   *  heroMode  = red background, white text (top of page)
+   *  glassMode = glass blur backdrop (past 70% of hero)
+   *  Transition: circular clip-path ripple expanding from center
+   */
+  const heroMode = !isPastHero;
+
   return (
     <>
+      {/* ── The nav bar itself ── */}
       <motion.header
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-colors duration-300",
-          isScrolled
-            ? "bg-nav-glass backdrop-blur-md border-b border-white/5"
-            : "bg-transparent"
-        )}
+        className="fixed top-0 left-0 right-0 z-50 overflow-hidden"
       >
-        {/* Nav inner — always relative so absolute children are contained */}
+        {/* ── Red layer ──
+         *  Starts fully visible (circle covers whole nav).
+         *  When past hero: the circle collapses from the center outward
+         *  (shrinks from 150% → 0%) while opacity fades, revealing the
+         *  glass layer behind it.
+         * ─────────────────────────────────────────────────────────── */}
+        <motion.div
+          aria-hidden
+          className="absolute inset-0 bg-brand-red"
+          initial={{ clipPath: "circle(150% at 50% 50%)", opacity: 1 }}
+          animate={
+            isPastHero
+              ? { clipPath: "circle(0% at 50% 50%)", opacity: 0 }
+              : { clipPath: "circle(150% at 50% 50%)", opacity: 1 }
+          }
+          transition={{
+            clipPath: { duration: 0.75, ease: [0.4, 0, 0.2, 1] },
+            opacity: { duration: 0.5, ease: "easeOut", delay: 0.15 },
+          }}
+          style={{ pointerEvents: "none" }}
+        />
+
+        {/* ── Glass layer (fades in after hero) ── */}
+        <motion.div
+          aria-hidden
+          className="absolute inset-0 bg-nav-glass backdrop-blur-md border-b border-white/5"
+          animate={{ opacity: isPastHero ? 1 : 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          style={{ pointerEvents: "none" }}
+        />
+
+        {/* Nav inner */}
         <div className="relative mx-auto flex max-w-[1200px] items-center px-4 py-4 md:px-6">
 
           {/* ── Logo ──
-               Before hero passes: left-aligned (default flow).
-               After hero passes: absolutely centered in the nav bar.    */}
+               Before hero passes: left-aligned.
+               After hero passes: centered.    */}
           <motion.div
-            animate={isPastHero ? { x: "-50%", left: "50%", position: "absolute" } : { x: "0%", left: "0%", position: "relative" }}
-            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            animate={
+              isPastHero
+                ? { x: "-50%", left: "50%", position: "absolute" }
+                : { x: "0%", left: "0%", position: "relative" }
+            }
+            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
             className="z-50"
           >
             <Link href="/">
-              <span className="text-xl font-bold uppercase tracking-widest text-text-main">
+              <span
+                className={cn(
+                  "text-xl font-bold uppercase tracking-widest transition-colors duration-300",
+                  heroMode ? "text-white" : "text-text-main"
+                )}
+              >
                 LIONOVART
               </span>
             </Link>
@@ -84,10 +127,10 @@ export default function Navbar() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="group relative text-sm font-medium uppercase tracking-wider text-text-muted transition-colors hover:text-text-main"
+                      className="group relative text-sm font-medium uppercase tracking-wider text-white/90 transition-colors hover:text-white"
                     >
                       {link.label}
-                      <span className="absolute -bottom-0.5 left-0 h-[1px] w-full origin-left scale-x-0 bg-current transition-transform duration-300 group-hover:scale-x-100" />
+                      <span className="absolute -bottom-0.5 left-0 h-[1px] w-full origin-left scale-x-0 bg-white transition-transform duration-300 group-hover:scale-x-100" />
                     </Link>
                   </li>
                 ))}
@@ -95,7 +138,7 @@ export default function Navbar() {
             )}
           </AnimatePresence>
 
-          {/* ── Desktop CTA — fade out when past hero ── */}
+          {/* ── Desktop CTA ── */}
           <AnimatePresence>
             {!isPastHero && (
               <motion.div
@@ -108,15 +151,15 @@ export default function Navbar() {
               >
                 <Link
                   href="#contact"
-                  className="rounded-[20px] bg-brand-red px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-all hover:brightness-110 hover:scale-105 hover:shadow-[0_0_22px_4px_rgba(229,25,42,0.45)]"
+                  className="rounded-[20px] border border-white/70 bg-transparent px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-all hover:bg-white hover:text-brand-red hover:scale-105"
                 >
-                  Book a Call
+                  Connect Now
                 </Link>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* ── Burger Menu — appears on right when past hero (all screens) or always on mobile ── */}
+          {/* ── Burger Menu ── */}
           <AnimatePresence>
             {(isPastHero || true) && (
               <motion.button
@@ -128,7 +171,6 @@ export default function Navbar() {
                 onClick={() => setIsMobileOpen(!isMobileOpen)}
                 className={cn(
                   "relative z-50 ml-auto",
-                  /* Always visible on mobile, only visible on desktop when past hero */
                   isPastHero ? "flex" : "flex md:hidden"
                 )}
                 aria-label="Toggle menu"
@@ -151,9 +193,9 @@ export default function Navbar() {
               aria-label="Toggle menu"
             >
               {isMobileOpen ? (
-                <X className="h-6 w-6 text-text-main" />
+                <X className="h-6 w-6 text-white" />
               ) : (
-                <Menu className="h-6 w-6 text-text-main" />
+                <Menu className="h-6 w-6 text-white" />
               )}
             </button>
           )}
@@ -204,7 +246,7 @@ export default function Navbar() {
                   onClick={() => setIsMobileOpen(false)}
                   className="mt-4 inline-block rounded-[20px] bg-brand-red px-8 py-4 text-lg font-semibold uppercase tracking-wider text-white transition-all hover:brightness-110"
                 >
-                  Book a Call
+                  Connect Now
                 </Link>
               </motion.div>
             </motion.nav>
