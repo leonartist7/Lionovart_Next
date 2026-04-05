@@ -259,7 +259,6 @@ Flex row: `[left image 20%] [center column flex-1] [right image 20%]`
 ## Known Issues / To-Do Next
 
 ### High Priority
-- [ ] **Cloudinary Image 404s** — Some image URLs in `LumaShowcase` SERVICES array return 404s (e.g. `freepik_luxury-car_zglhcb.avif` and `freepik_luxury-car-dealership_zglhcb.avif`). Need the exact, correct filenames from the Cloudinary bucket `dgio9uutc`.
 - [ ] **Founder photo** — swap `<div>` avatar placeholder in `HeroTop.tsx` (~line 175) with `<Image src="CLOUDINARY_URL" />` once URL is ready
 - [ ] **Lion Cutout PNG** — still on Imgur (`i.imgur.com/2PGbCnR.png`), move to Cloudinary. When done, swap `<img>` in `LumaShowcase.tsx` to `<Image>` from `next/image`
 - [ ] **LumaShowcase mobile** — pills position bottom values are empirically tuned (`bottom-[280px]`). Test on real device — may need adjusting per exact phone model

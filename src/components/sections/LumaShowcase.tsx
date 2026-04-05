@@ -63,7 +63,7 @@ const SERVICES: ServiceItem[] = [
     statValue: "10k+",
     statLabel: "social impressions on Fluora campaign",
     leftVisual:  { type: "image", src: `${CDN}Frame_1_zhyago.avif`,         caption: "Production reel" },
-    rightVisual: { type: "image", src: `${CDN}freepik_luxury-car_zglhcb.avif`, caption: "Campaign results" },
+    rightVisual: { type: "image", src: `${CDN}freepik_a-highly-polished-professional-uiux-website-homepage-mockup-for-a-modern-luxury-car-dealership.-clean-gridbased-layout-with-a-dark-theme-featuring-charcoal-grey-backgrounds-metallic-silve_0001_zglhcb.avif`, caption: "Campaign results" },
     hasCinematicHit: true,
   },
   {
@@ -79,8 +79,8 @@ const SERVICES: ServiceItem[] = [
     ),
     statValue: "30+",
     statLabel: "years combined experience",
-    leftVisual:  { type: "image", src: `${CDN}freepik_from-this-brand_0001_1_u6hnjz.avif`, caption: "Brand campaign" },
-    rightVisual: { type: "image", src: `${CDN}freepik_from-this-brand_0001_2_cd1gee.avif`, caption: "Creative direction" },
+    leftVisual:  { type: "image", src: `${CDN}freepik_from-this-brand-help-me-make-a-mockup-of-her-landing-page-keeping-the-visual-identity..-looking-very-premium-and-elegant-and-perfect_0001_1_u6hnjz.avif`, caption: "Brand campaign" },
+    rightVisual: { type: "image", src: `${CDN}freepik_from-this-brand-help-me-make-a-mockup-of-her-landing-page-keeping-the-visual-identity..-looking-very-premium-and-elegant-and-perfect_0001_2_cd1gee.avif`, caption: "Creative direction" },
   },
   {
     id: "branding",
@@ -96,8 +96,8 @@ const SERVICES: ServiceItem[] = [
     ),
     statValue: "3x",
     statLabel: "average perceived value increase after rebrand",
-    leftVisual:  { type: "image", src: `${CDN}freepik_brand-identity_bnk4us.avif`,  caption: "Brand identity" },
-    rightVisual: { type: "image", src: `${CDN}freepik_corporate-we_qukgx3.avif`,    caption: "Corporate identity" },
+    leftVisual:  { type: "image", src: `${CDN}freepik_from-this-brand-identity-help-me-make-a-mockup-of-her-landing-page..-looking-premium-and-elegant_0001_bnk4us.avif`,  caption: "Brand identity" },
+    rightVisual: { type: "image", src: `${CDN}freepik__design-a-highly-polished-professional-corporate-we__1650_qukgx3.avif`,    caption: "Corporate identity" },
   },
   {
     id: "print",
@@ -113,8 +113,8 @@ const SERVICES: ServiceItem[] = [
     ),
     statValue: "100%",
     statLabel: "brand consistency across all deliverables",
-    leftVisual:  { type: "image", src: `${CDN}freepik_luxury-car-dealership_zglhcb.avif`, caption: "Print spread" },
-    rightVisual: { type: "image", src: `${CDN}freepik_brand-identity_bnk4us.avif`,        caption: "Deliverables" },
+    leftVisual:  { type: "image", src: `${CDN}image_19_rnwg8w.avif`, caption: "Print spread" },
+    rightVisual: { type: "image", src: `${CDN}Screenshots_2_apvmbr.avif`,        caption: "Deliverables" },
   },
 ];
 
