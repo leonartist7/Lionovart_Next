@@ -1,32 +1,9 @@
 "use client";
 
 import { useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
-
-gsap.registerPlugin(ScrollTrigger);
 
 export default function AboutUsHalf() {
   const containerRef = useRef<HTMLElement>(null);
-
-  useGSAP(() => {
-    if (!containerRef.current) return;
-
-    ScrollTrigger.create({
-      trigger: containerRef.current,
-      start: "top bottom",
-      end: "bottom top",
-      snap: {
-        // 0.45 snaps the section slightly HIGHER than the exact center, 
-        // which pushes the screen slightly further down, intentionally cutting off/passing the 2nd row of the marquee!
-        snapTo: [0.45], 
-        duration: { min: 0.3, max: 0.6 },
-        delay: 0.05,
-        ease: "power2.out",
-      },
-    });
-  }, { scope: containerRef });
 
   return (
     <section 

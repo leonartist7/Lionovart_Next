@@ -1,7 +1,8 @@
 # LIONOVART — Next.js Project Handoff Document
-> Last updated: Apr 4 2026  
-> Project path: `C:\Users\Leonartist\Documents\WEB DEV\LIONOVART_NEXTJS-TAILWIND`  
+> Last updated: Apr 5 2026
+> Project path: `C:\Users\Leonartist\Documents\WEB DEV\LIONOVART_NEXTJS-TAILWIND`
 > Dev command: `npm run dev` (uses `--webpack` flag, NOT turbopack)
+> Dev server usually starts on port 3000 or 3001 if 3000 is taken
 
 ---
 
@@ -44,7 +45,7 @@
 ```
 <Navbar />
 <HeroTop />
-<AbouUsHalf />
+<AboutUsHalf />
 <LumaShowcase />
 <MarqueeSlanted />
 <ProblemsSolvedSection />   ← dark bg, ends with hard cut
@@ -61,97 +62,158 @@
 ## Section-by-Section Status
 
 ### `HeroTop.tsx`
-- Velocity-based scroll marquee with 2 rows of project images
+- Velocity-based scroll marquee with 2 rows of Cloudinary project images
 - Large heading with image overlay on blank underscores ("BRAND ____")
-- Email capture form + trust badges (Imgur-hosted PNGs)
+- Email capture form + trust badges (Imgur-hosted PNGs — move to Cloudinary)
+- Count-up stat counters (50+, 20+, 20+) via `useCountUp` hook, triggered on `useInView`
+- Floating Founder Card bottom-right: glass morphism, avatar placeholder (`L` initial — swap for real photo)
+- CTA label: **"Connect Now"**
 - Bottom gradient blends into `AboutUsHalf`
 
 ### `AboutUsHalf.tsx`
-- Short snap-scroll section, `h-[30vh] md:h-[40vh]`
-- Uses GSAP ScrollTrigger with `snap`
-- Placeholder copy — **needs real About Us content**
+- Short section, `h-[35vh] sm:h-[42vh] md:h-[50vh]`
+- **No snap** — snap was removed (Session 3). Now plain scroll.
+- Real content: paragraph + 2 stat cards (20 Years / 7 Languages)
+- Card bg images: Unsplash (replace with Cloudinary when ready)
 
-### `LumaShowcase.tsx`
-- Complex GSAP scroll-pinned section (`h-[300vh] md:h-[400vh]`)
-- Lion cutout rises from bottom, video pill shrinks into a pill nav
-- 5 services as interactive pills (WEB, A/V, LIONOVART, BRANDING, PRINTING)
-- Auto-cycles through services after scroll completes
-- Sound toggle (bass ambient + cinematic hit audio)
-- **Do not touch the GSAP timeline without careful testing**
+### `LumaShowcase.tsx` ← HEAVILY MODIFIED (Session 3)
+See full architecture notes below.
 
 ### `MarqueeSlanted.tsx`
-- Simple decorative text marquee, likely slanted/styled ticker
+- Simple decorative text marquee, slanted/styled ticker
+- Sits directly below LumaShowcase — the glow from LumaShowcase bleeds into it intentionally
 
 ### `ProblemsSolvedSection.tsx`
 - Dark bg (`bg-bg-dark`), `py-12 lg:py-24`
 - 2×2 grid of flip-cards — click to reveal solution under problem
 - Lion Paw animation swipes across on reveal (Cloudinary PNG asset)
 - Hard cut at bottom — goes directly into off-white Services
-- **No gradient bleed** (was tried and removed — user preferred hard cut)
+- **No gradient bleed** (user preferred hard cut)
 
-### `Services.tsx` ← RECENTLY REDESIGNED
-- **Background:** `bg-[#F5F0EB]` (off-white), `pt-[100px] pb-[100px] md:pt-[120px] md:pb-[120px]`
-- Section header sits above the glass panel on the off-white bg
-- **Glass Panel:** single large container wrapping accordion + sticky image
-  - `bg-white/70 backdrop-blur-xl border border-white/60`
-  - `shadow-[0_8px_48px_-8px_rgba(0,0,0,0.10),inset_0_1px_0_rgba(255,255,255,0.9)]`
-  - `rounded-[24px] p-6 md:p-10 lg:p-14`
-- **Accordion** (left column): Base UI accordion, first item open by default via `defaultValue={[SERVICES[0].id]}`
-  - Title text: `text-[#111111]`, hover → `text-brand-red`
-  - Description: `text-[#4A4A4A]`
-  - Dividers: `border-black/8`
-- **Deliverable tags:** `bg-brand-red/6 border border-brand-red/20 text-brand-red` — subtle red tint
-- **Sticky image** (right column, desktop only): `aspect-[3/4]` portrait, `rounded-[20px]`
-  - True crossfade via `AnimatePresence mode="sync"` — single img + single label in DOM
-  - Image scales from `1.05` → `1` on enter, `1` → `0.97` on exit
-  - Label overlay crossfades simultaneously
-- **Mobile:** image shown inside each accordion item when expanded
+### `Services.tsx`
+- **Background:** `bg-[#F5F0EB]` (off-white)
+- Glass Panel: `bg-white/75 backdrop-blur-2xl rounded-[28px]`
+- Accordion (Base UI, NOT radix) — first item open by default via `defaultValue={[SERVICES[0].id]}`
+- Sticky image right column (desktop), inside accordion on mobile
+- Progress dots below sticky image (clickable, dot stretches to pill when active)
+- Numbers: 42px font-black, animate from `rgba(0,0,0,0.10)` → `#e5192a` when active
 
-### `Portfolio.tsx` ← RECENTLY REDESIGNED
-- **Background:** `bg-[#F5F0EB]` (off-white), `py-[80px] md:py-[120px]`
-- Header: charcoal `text-[#111111]`, eyebrow `text-brand-red`
-- **5 cards only** (down from 7). Layout:
-  ```
-  [ Card 1 — 4col × 2row TALL ] [ Card 2 — 4col × 1row      ] [ Card 3 — 4col × 2row TALL ]
-  [ Card 1 — continues        ] [ Card 4 — 4col × 1row      ] [ Card 3 — continues        ]
-  [ Card 5 — 12col × 1row FULL-WIDTH BANNER                                               ]
-  ```
-- Grid: `lg:grid-cols-12 lg:grid-rows-[270px_270px_200px]`
-- **Hover effect:** Gold glow shadow (`brand-gold #f0c917`) + soft inner gold bloom
-  - `boxShadow: "0 20px 48px -12px rgba(240,201,23,0.55), 0 0 20px -4px rgba(240,201,23,0.35), inset 0 0 40px rgba(240,201,23,0.07)"`
-- **3D tilt** on hover (max 4° rotation via Framer Motion spring)
-- **Click → modal slideshow** with keyboard nav (Arrow keys, Escape)
-- Cards: dark (`bg-[#161616]`) with gradient overlay — they look great on off-white bg
+### `Portfolio.tsx`
+- **Background:** `bg-[#F5F0EB]` (off-white)
+- 5 cards, CSS grid layout: `lg:grid-cols-12 lg:grid-rows-[270px_270px_200px]`
+- Gold glow on hover, 3D tilt (max 4°), click → modal slideshow with keyboard nav
+- All images still Unsplash placeholders — **needs real project images**
 
 ### `Process.tsx`
-- Dark bg (`bg-bg-brand-black`), `py-[90px] lg:py-[180px]`
-- Alternating left/right timeline with vertical center line (desktop)
-- 4 steps: Discovery, Creative Concepts, Build & Refine, Launch & Scale
-- Uses `useInView` from Framer Motion for entrance animations
+- Dark bg (`bg-bg-brand-black`)
+- Alternating left/right timeline, 4 steps
+- Framer Motion `useInView` entrance animations
 
 ### `Testimonials.tsx`
-- Current state unknown — not modified in this session
+- Infinite scrolling horizontal marquee (2 rows, opposite directions)
+- Cloudinary avatars — see SERVICES array in `Testimonials.tsx`
+- 8 testimonial cards total
 
 ### `FAQ.tsx`
-- Current state unknown — not modified in this session
+- Not audited — current state unknown
 
 ### `Footer.tsx`
-- Current state unknown — not modified in this session
+- Not audited — current state unknown
 
 ---
 
-## Known Issues / Things To Do Next
+## LumaShowcase — Full Architecture (Session 3 — Major Rebuild)
 
-- [ ] `AboutUsHalf` has placeholder copy — needs real About Us content written
-- [ ] `Testimonials` section needs review — not audited
-- [ ] `FAQ` section needs review — not audited
-- [ ] Portfolio modal: the image dock thumbnails wrap on mobile — could clip
-- [ ] Services accordion: `defaultValue` opens first item but the Base UI accordion `onClick` on trigger and `defaultValue` may conflict — test that switching items correctly updates `activeId` state
-- [ ] Consider adding a CTA / contact section before the footer
-- [ ] Real project images needed — all images are currently Unsplash placeholders
-- [ ] Real copy throughout — all descriptions are placeholder/demo text
-- [ ] `LumaShowcase` mobile experience needs testing — complex GSAP pinned section
-- [ ] `HeroTop` trust badge images are hosted on Imgur — move to Cloudinary or `/public`
+### Section height
+```
+h-[600vh] md:h-[800vh]
+```
+More scroll distance creates a deliberate, weighted feel.
+
+### GSAP ScrollTrigger config
+```js
+scrub: 2.5           // Heavy — feels like dragging through resistance
+snapTo: [0, 0.55, 1] // Only 3 points — no mid-stage pause
+duration: { min: 0.4, max: 1.0 }
+ease: "power4.inOut" // Aggressive pull into snap points
+```
+
+### Timeline — Single Fluid Sweep (0.00 → 0.55)
+All animations overlap into one continuous cinematic motion. NO staged pauses:
+
+| Progress | What happens |
+|---|---|
+| `0.02–0.20` | "ONE VISION" drops away fast (`y: 60vh, scale: 0.15, opacity: 0`) |
+| `0.05–0.33` | Lion rises from below (`y: 100vh → 0`) |
+| `0.30–0.46` | Lion width shrinks AND video simultaneously collapses to pill |
+| `0.36–0.50` | Glow blooms, video fades out, pills row fades in |
+| `0.42–0.70` | Side pills cascade, center pill expands, label fades in |
+| `0.42–0.70` | Content (text + images) zooms in from behind (`scale: 0.55 → 1, blur: 20px → 0`) |
+
+### Dwell zone (0.55 → 1.00)
+Full luma view is locked. Timeline anchor at `tl.set({}, {}, 2.2)` — user must scroll ~40% of total section height to exit. This is intentional: creates a "drag out of" feeling.
+
+### `isScrollComplete` threshold
+Set at `progress >= 0.50`. Once reached: pills become interactive, auto-cycle starts, Framer per-column animations trigger.
+
+### Center Anchor (critical — DO NOT MOVE)
+`centerAnchorRef` is a **sibling** of `pillsRowRef`, NOT a child. It lives directly under the sticky container. This guarantees the video-to-pill GSAP delta calculation is never corrupted by any transforms on the pills row itself.
+
+Both the anchor and pills row share **identical** `bottom` values:
+```
+bottom-[280px] md:bottom-[320px] lg:bottom-[290px] 2xl:bottom-[275px]
+```
+
+### Pill sizes
+```js
+getPillSize():         clamp(44px, 5vw, 64px)
+getExpandedPillWidth(): clamp(160px, 22vw, 280px)
+```
+
+### Glow layer
+- `z-[0]` — behind all content
+- `h-[90vh] w-[110vw]`, `blur-xl`
+- Gradient: `radial-gradient(ellipse 80% 60% at 50% 100%, accent 0%, accent 25%, transparent 70%)`
+- Bleeds past section bottom into MarqueeSlanted below (sticky container has **no** `overflow-hidden`)
+- GSAP animates opacity `0 → 1.0` at progress `0.36`
+
+### Lion image sizes (1:1 PNG — width = height)
+| Breakpoint | CSS width | GSAP lionRestW | GSAP lionShrinkW |
+|---|---|---|---|
+| Mobile `<768px` | `537px` | `442` | `253` |
+| Tablet `md:` | `644px` | `493` | `265` |
+| Desktop `lg:` | `581px` | `445` | `258` |
+| Large `2xl:` | `564px` | `432` | `239` |
+
+### Service cards — Cloudinary images
+All 5 service cards now use `res.cloudinary.com/dgio9uutc/image/upload/`:
+
+| Service | Left | Right |
+|---|---|---|
+| WEB / APP | `1_1_bv3shm.avif` | `Thumb_2_p6ksrb.avif` |
+| A/V PRODUCTION | `Frame_1_zhyago.avif` | `freepik_luxury-car_zglhcb.avif` |
+| LIONOVART | `freepik_from-this-brand_0001_1_u6hnjz.avif` | `freepik_from-this-brand_0001_2_cd1gee.avif` |
+| BRANDING | `freepik_brand-identity_bnk4us.avif` | `freepik_corporate-we_qukgx3.avif` |
+| PRINTING | `freepik_luxury-car-dealership_zglhcb.avif` | `freepik_brand-identity_bnk4us.avif` |
+
+### Pill switch animation
+- Flood blob replaced with radial bloom pulse: white core → accent color → transparent, expands from center, fades over `0.65s`
+- Center pill background uses Framer `layoutId="center-pill-bg"` for smooth accent color morph
+- Auto-cycle triggers pulse too (not just manual clicks)
+- Progress bar below center pill colored with `var(--luma-accent)`
+
+### Mobile layout (final state)
+Flex column, top → bottom:
+1. Hook text (`minHeight: clamp(2.8rem, 7vw, 5rem)`)
+2. Stat number + label (`minHeight: clamp(4rem, 10vw, 8rem)`)
+3. Single image (thin cinematic strip: `aspectRatio: 16/7`, `maxHeight: 14vh`)
+4. Pills row (above lion, fixed bottom position)
+5. Lion (bottom-0)
+
+### Desktop layout (final state)
+Flex row: `[left image 20%] [center column flex-1] [right image 20%]`
+- Images: `aspectRatio: 3/4`, `maxHeight: 36vh`
+- Center: hook text + stat number/label (no overflow-hidden, uses minHeight)
 
 ---
 
@@ -160,21 +222,24 @@
 | Asset | URL |
 |---|---|
 | Lion Paw PNG | `https://res.cloudinary.com/dgio9uutc/image/upload/v1775085187/Untitled_design_4_muu53f.png` |
-| Lion Cutout PNG | `https://i.imgur.com/2PGbCnR.png` |
-| Brand fill image (hero) | `https://imgur.com/8czAkK3.png` |
-| Trust badges image | `https://imgur.com/L6zJMEm.png` |
-| Showcase video (LumaShowcase) | `https://i.imgur.com/x9yWTNn.mp4` |
+| Lion Cutout PNG | `https://i.imgur.com/2PGbCnR.png` ← **move to Cloudinary** |
+| Brand fill image (hero) | `https://imgur.com/8czAkK3.png` ← **move to Cloudinary** |
+| Trust badges image | `https://imgur.com/L6zJMEm.png` ← **move to Cloudinary** |
+| Showcase video (LumaShowcase entry) | `https://i.imgur.com/x9yWTNn.mp4` ← **move to Cloudinary** |
+| Cloudinary CDN base | `https://res.cloudinary.com/dgio9uutc/image/upload/` |
 
 ---
 
 ## Important Notes for Next Chat
 
 1. **Tailwind v4** — no `tailwind.config.js`. All tokens live in `src/app/globals.css` under `@theme inline {}`. Use `--color-*` tokens directly as class names like `bg-brand-red`, `text-text-main`, etc.
-2. **Dev server** — run with `npm run dev` (uses `--webpack`). Do NOT use turbopack.
+2. **Dev server** — run with `npm run dev` (uses `--webpack`). Do NOT use turbopack. Port is usually 3001 if 3000 is taken.
 3. **Accordion component** — uses `@base-ui/react/accordion`, NOT shadcn's radix accordion. Props and behavior differ. `defaultValue` expects an array `string[]`.
-4. **GSAP ScrollTrigger** — registered globally in each component that uses it. The `LumaShowcase` scroll timeline is very sensitive — avoid modifying without reading the full component first.
-5. **`bg-white/70` glass effect** — only looks like frosted glass if there's visual complexity behind it. The off-white bg is flat, so the blur is invisible. This is acceptable for now — the white panel still reads as a "floating panel" from the shadow alone.
+4. **GSAP ScrollTrigger** — `LumaShowcase` has a completely rebuilt timeline (Session 3). Read the full component before touching anything. The `centerAnchorRef` being OUTSIDE `pillsRowRef` is intentional and critical.
+5. **`overflow-hidden` removed** from LumaShowcase sticky container — intentional, allows glow to bleed into Marquee below.
 6. **Font** — Clash Display is loaded via `next/font/local` in `layout.tsx` and mapped to `--font-clash`. All text defaults to this font via `body { font-family: var(--font-clash) }`.
+7. **LumaShowcase CSS variables** — GSAP animates `--pill-0-scale`, `--pill-1-scale`, etc. on `pillsRowRef`. These are non-standard CSS vars animated via GSAP's `fromTo`. Do not rename them.
+8. **Framer Motion CSS var workaround** — `initial/animate` props on the sticky `motion.div` use `as any` cast for `--luma-accent`. This is the documented Framer workaround for animating CSS variables. Not a bug.
 
 ---
 
@@ -191,145 +256,77 @@
 
 ---
 
-## Session 2 Changes
-> Date: Apr 4 2026
+## Known Issues / To-Do Next
 
-### LumaShowcase — GSAP Timeline Rebuilt (3-Stage Cinematic Snap)
+### High Priority
+- [ ] **Cloudinary Image 404s** — Some image URLs in `LumaShowcase` SERVICES array return 404s (e.g. `freepik_luxury-car_zglhcb.avif` and `freepik_luxury-car-dealership_zglhcb.avif`). Need the exact, correct filenames from the Cloudinary bucket `dgio9uutc`.
+- [ ] **Founder photo** — swap `<div>` avatar placeholder in `HeroTop.tsx` (~line 175) with `<Image src="CLOUDINARY_URL" />` once URL is ready
+- [ ] **Lion Cutout PNG** — still on Imgur (`i.imgur.com/2PGbCnR.png`), move to Cloudinary. When done, swap `<img>` in `LumaShowcase.tsx` to `<Image>` from `next/image`
+- [ ] **LumaShowcase mobile** — pills position bottom values are empirically tuned (`bottom-[280px]`). Test on real device — may need adjusting per exact phone model
+- [ ] **Showcase video** — `https://i.imgur.com/x9yWTNn.mp4` still on Imgur, move to Cloudinary
 
-**Problem:** The old timeline had two duplicate `fromTo` blocks for `videoRef` and three conflicting animations on `oneVisionRef`, causing chaotic scrub behavior.
-
-**Fix:** Complete timeline rewrite with a clean 3-stage architecture:
-
-| Snap | Progress | What happens |
-|------|----------|-------------|
-| Stage 1 | `0.00` | Full-screen video, lion hidden below, "ONE VISION" visible |
-| Stage 2 | `0.40` | Lion rises dramatically, "ONE VISION" drops + fades behind the video |
-| Stage 3 | `0.75` | Video collapses to pill, pills row + 3-col layout reveal |
-| Exit | `1.00` | Scroll continues past section |
-
-Key changes:
-- `scrub` increased from `1` to `1.2` for heavier cinematic feel
-- `snapTo` changed from `[0, 0.22, 0.82, 1]` → `[0, 0.40, 0.75, 1]`
-- `onUpdate` threshold for `isScrollComplete` changed from `0.80` to `0.73`
-- "ONE VISION" text: single clean `y: 60vh + scale: 0.15 + opacity: 0` drop, starting at `0.10`, finishes well before the Stage 2 snap
-- Lion `y: 0` animation unchanged; only width shrinks at Stage 2→3 (`0.42`)
-- Video `fromTo` exists exactly once (was duplicated before)
-
----
-
-### AboutUsHalf — Real Content Added
-
-- **Paragraph:** "We are a creative agency obsessed with one thing — building brands that move people. From strategy to screen, every decision is made with intention."
-- **20 Years card:**
-  - Title: "Combined Experience"
-  - Description: "Two decades of craft across branding, digital, and production."
-  - Background image: `https://images.unsplash.com/photo-1600880292203-757bb62b4baf` (40% opacity)
-- **7 Languages card:**
-  - Title: "Global Reach"
-  - Description: "A multilingual team serving clients across 4 continents."
-  - Background image: `https://images.unsplash.com/photo-1529156069898-49953e39b3ac` (40% opacity)
-
----
-
-### Services — Polish Pass
-
-- Heading: larger (`6rem` desktop), tighter letter-spacing (`-0.02em`), bolder tracking on eyebrow (`0.3em`)
-- Numbers: now **42px / font-black** — become the visual anchor; animate from `rgba(0,0,0,0.10)` → `#e5192a` when active
-- Description text indented to align with the title (not the number), using `pl-[calc(42px+1.75rem)]`
-- Image label: updated to `01 / 05` counter format with y-slide entrance animation
-- Red accent line added: `w-8 h-[3px]` in top-right corner of the sticky image
-- Progress dots added below the sticky image (dot stretches to pill when active, clickable)
-- Glass panel: upgraded to `rounded-[28px]`, `bg-white/75 backdrop-blur-2xl`, stronger shadow
-
----
-
-### Navbar — Red Hero Mode + Circular Transition
-
-**New behavior:**
-- **In hero (< 70% scroll):** solid `bg-brand-red` bar, white nav links, white outline `Connect Now` CTA button
-- **Past 70% of hero:** red layer collapses inward via circular `clip-path` (`circle(150%) → circle(0%)`) while glass layer fades in simultaneously; logo slides to center
-- **Transition:** `clipPath` 0.75s `[0.4, 0, 0.2, 1]` ease, `opacity` 0.5s with 0.15s delay
-- Mobile burger icon uses `text-white` in hero mode
-- CTA label changed from "Book a Call" → **"Connect Now"** everywhere (desktop, mobile overlay)
-- Mobile overlay menu CTA also updated
-
-**Architecture:** Two absolutely-positioned background layers (`<motion.div>`) stacked under the nav content — red layer on top (clips away), glass layer underneath (fades in). No conditional class swapping.
-
----
-
-### HeroTop — Multiple Enhancements
-
-**Marquee images:** All 10 Unsplash placeholders replaced with Cloudinary portfolio screenshots:
-- `1_1_bv3shm.avif`, `Thumb_2_p6ksrb.avif`, `Frame_1_zhyago.avif`, `freepik_luxury-car-dealership_zglhcb.avif`, and 6 more brand/web mockups
-
-**Count-up stats overlay:**
-- Trust badge PNG opacity reduced to `opacity-60` (transparent feel)
-- Below it: 3 animated stat counters (`50+`, `20+`, `20+`) using a custom `useCountUp` hook
-- Animation: ease-out cubic, triggers once on `useInView`, counts over ~1.4–1.8s
-- Labels: "Clients", "Industries", "Years Exp."
-
-**Floating Founder Card (bottom-right):**
-- Glass morphism: `bg-black/60 backdrop-blur-xl border border-white/10`
-- Avatar placeholder: red initial `L` circle (swap for real photo — see below)
-- Name: "Leo — Founder", sub-label: "LIONOVART Creative Agency"
-- Pulsing green "Open" availability indicator (`animate-ping`)
-- Entrance: `opacity: 0 → 1`, `y: 20 → 0`, delay `1.4s`
-
-**To swap in real founder photo:**
-In `HeroTop.tsx` around line 175, replace the `<div>` avatar with:
-```tsx
-<Image src="YOUR_CLOUDINARY_URL" alt="Leo" fill className="object-cover" sizes="44px" />
-```
-
-**CTA button label:** "Get Started" → **"Connect Now"**
-
----
-
-### Testimonials — Animated Infinite Marquee
-
-Replaced static masonry grid with two infinite scrolling horizontal rows.
-
-**Architecture:**
-- `TestimonialRow` component uses the same `useAnimationFrame` + `useVelocity` pattern as the hero marquee
-- Row 1 moves left (`baseVelocity: -0.35`), Row 2 moves right (`0.35`)
-- Cards pause on hover (`isPaused` ref)
-- Edge masks: `linear-gradient(to right, transparent, black 8%, black 92%, transparent)`
-
-**Cards:**
-- Width: `320px` → `360px` → `400px` across breakpoints
-- Stars, italic quote, bottom border + avatar + name/role
-- Avatar: Cloudinary portfolio screenshot cropped to circle (`rounded-full overflow-hidden`)
-
-**Testimonials expanded to 8** (added Priya Anand / Marcus Obi) to give both rows enough content for seamless looping.
-
-**Cloudinary avatars used (in order):**
-1. `1_1_bv3shm.avif`
-2. `Frame_1_zhyago.avif`
-3. `freepik_from-this-brand_0001_1_u6hnjz.avif`
-4. `freepik_luxury-car_zglhcb.avif`
-5. `Thumb_2_p6ksrb.avif`
-6. `freepik_brand-identity_bnk4us.avif`
-7. `freepik_corporate-we_qukgx3.avif`
-8. `freepik_from-this-brand_0001_2_cd1gee.avif`
-
----
-
-### Assets Added This Session
-
-| Asset | URL |
-|---|---|
-| Portfolio marquee images (10) | Cloudinary `dgio9uutc` — see `MARQUEE_IMAGES` array in `HeroTop.tsx` |
-| Testimonial avatar images (8) | Same Cloudinary bucket — see `TESTIMONIALS` array in `Testimonials.tsx` |
-| Founder photo | **Placeholder** — `L` initial shown; needs real Cloudinary URL |
-
----
-
-### Known Issues / Updated To-Do
-
-- [ ] **Founder photo** — swap `<div>` avatar placeholder in `HeroTop.tsx` with real `<Image>` once URL is ready
-- [ ] `LumaShowcase` mobile snap experience still needs live testing — complex GSAP pinned section
-- [ ] `HeroTop` trust badge PNG still on Imgur — move to Cloudinary
-- [ ] `Lion Cutout` PNG still on Imgur — move to Cloudinary
-- [ ] `AboutUsHalf` card images are Unsplash — replace with real Cloudinary assets when available
+### Medium Priority
+- [ ] `Testimonials` section needs review — not audited in Session 3
+- [ ] `FAQ` section needs review — not audited
+- [ ] `Footer` section needs review — not audited
 - [ ] Real portfolio images needed in `Portfolio.tsx` — still using Unsplash
-- [ ] Real copy throughout — all descriptions are still demo text
+- [ ] `AboutUsHalf` card bg images still Unsplash — replace with Cloudinary
+- [ ] `HeroTop` trust badge PNG still on Imgur — move to Cloudinary
+- [ ] Real copy throughout — all descriptions are still placeholder/demo text
+
+### Low Priority
+- [ ] Portfolio modal: image dock thumbnails may wrap on mobile
+- [ ] Services accordion: test that `defaultValue` + manual `onClick` interaction correctly updates `activeId` state
+- [ ] Consider adding a CTA / contact section before the footer
+
+---
+
+## Session 3 / 4 Changes Summary
+> Date: Apr 5 2026
+
+### LumaShowcase — Complete Overhaul
+
+**Scroll & snap:**
+- Section height: `h-[300vh]` → `h-[600vh]` (mobile), `h-[400vh]` → `h-[800vh]` (desktop)
+- `scrub`: `1.2` → `2.5` — heavy resistance feel
+- Snap points: `[0, 0.40, 0.75, 1]` → `[0.55, 1]` — removed the `0` snap point and mid-stage pause, added large dwell zone. The `0` snap point was removed to prevent GSAP from aggressively pulling the user backward when pausing early in the section. Increased snap delay to `0.15`.
+- Snap ease: `power3.inOut` → `power4.inOut`
+- Timeline anchor: `1.6` → `2.2` — 38% longer dwell before exit
+
+**Transition (single sweep):**
+- Removed the 2-step jitter. All animations (lion rise, video shrink, pills cascade, content zoom) now overlap into one continuous cinematic sweep, completely finishing by progress `0.48` so the `0.55` snap point is always fully resolved.
+- "ONE VISION" drops at `0.02`, lion rises `0.04`, video collapses at `0.22` simultaneously with lion width shrink, pills appear at `0.36`, content zooms from `0.28`.
+
+**Images:**
+- All service card images replaced with Cloudinary URLs (bucket `dgio9uutc`). Note: Some URLs are currently returning 404s and need verification.
+- Removed all Unsplash and Pixabay video/image sources from LumaShowcase.
+
+**Responsive layout (overlap fix):**
+- The `finalContentRef` container holding the 3 columns is now **top-anchored** on both mobile and desktop. 
+- Mobile: uses `pt-[8vh]` and `justify-start`
+- Desktop: uses `md:items-start` and `md:pt-[18vh]`
+- This guarantees the content flows downwards from the top and will *never* overlap the absolute-positioned pills at the bottom, even on very short screens.
+- Mobile image strip: `aspectRatio: 16/9, maxHeight: 22vh` → `16/7, maxHeight: 14vh` (thinner)
+- Desktop image columns: `w-[22%], aspectRatio: 4/5, maxHeight: 42vh` → `w-[20%], aspectRatio: 3/4, maxHeight: 36vh`
+- Text containers: removed `overflow-hidden` + fixed `height` → `minHeight` only (text never clips)
+
+**Glow:**
+- Opacity: `0.7` → `1.0`
+- Size: `h-[55vh] w-[80vw]` → `h-[90vh] w-[110vw]`
+- Blur: `blur-3xl` → `blur-xl` (more concentrated)
+- Gradient: solid accent for first 25%, transparent by 70% — no dark bottom ring
+- Removed `overflow-hidden` from sticky container so glow bleeds into Marquee below
+
+**Pill animation:**
+- Removed fluid flood blob (looked off)
+- New: radial bloom pulse from center pill — white core → accent → transparent, `0.65s` ease-out
+
+**Lion sizes:**
+- Mobile/tablet: +10% larger
+- Desktop: -10% smaller
+- Large (2xl): -20% smaller
+- Pill/anchor bottom position tuned to sit above lion head
+
+### AboutUsHalf — Snap Removed
+- Removed GSAP `ScrollTrigger.create` with snap — section is now a plain scroll element
+- All `gsap`, `ScrollTrigger`, `useGSAP` imports removed from the file
