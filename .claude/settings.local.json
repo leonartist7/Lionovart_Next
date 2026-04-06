@@ -12,7 +12,13 @@
       "Bash(npm run:*)",
       "Bash(taskkill //PID 6172)",
       "Bash(taskkill:*)",
-      "WebFetch(domain:imgur.com)"
+      "WebFetch(domain:imgur.com)",
+      "Bash(npm install:*)",
+      "Read(//tmp/**)",
+      "Bash(dir /s /b \"C:\\\\Users\\\\Leonartist\\\\Downloads\\\\liquid-buttons\")",
+      "Bash(npx tsc:*)",
+      "Bash(timeout 6 sleep 5)",
+      "Bash(find '/c/Users/Leonartist/Documents/WEB DEV/LIONOVART_NEXTJS-TAILWIND' -iname *liquid* -o -iname *luma*button*)"
     ]
   }
 }

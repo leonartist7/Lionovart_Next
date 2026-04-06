@@ -10,11 +10,18 @@ import {
 } from "framer-motion";
 
 // --- Data Structure ---
-// Layout (12-col grid, 2 explicit rows):
+// Mobile/Tablet layout (2-col grid, 3 rows):
 //
-//  [  Card 1 — 4col×2row tall  ] [  Card 2 — 4col×1row  ] [  Card 3 — 4col×2row tall  ]
-//  [  Card 1 — continues       ] [  Card 4 — 4col×1row  ] [  Card 3 — continues       ]
-//  [  Card 5 — 12col×1row wide bottom banner  ]
+//  [  Card 1 — 1col×2row tall  ] [  Card 2 — 1col×1row  ]
+//  [  Card 1 — continues       ] [  Card 4 — 1col×1row  ]
+//  [  Card 3 — 2col×1row wide  ]
+//
+// Desktop layout (lg, 12-col grid, 2 rows):
+//
+//  [  Card 1 — 4col×2row  ] [  Card 2 — 4col×1row  ] [  Card 3 — 4col×2row  ]
+//  [  Card 1 — continues  ] [  Card 4 — 4col×1row  ] [  Card 3 — continues  ]
+//
+// DOM order: 1, 2, 4, 3 — so Card 3 naturally falls to the bottom on mobile
 //
 const PROJECTS = [
   {
@@ -23,7 +30,8 @@ const PROJECTS = [
     description: "Full rebrand — logo system, typography, color palette",
     metric: "3x",
     image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&q=80",
-    gridClasses: "col-span-1 md:col-span-3 md:row-span-2 lg:col-span-4 lg:row-span-2",
+    // Mobile: tall left (2 rows) | Desktop: tall left (2 rows)
+    gridClasses: "col-span-1 row-span-2 md:col-span-3 md:row-span-2 lg:col-span-4 lg:row-span-2",
   },
   {
     id: 2,
@@ -31,15 +39,8 @@ const PROJECTS = [
     description: "Premium SaaS landing page with motion design",
     metric: "150%",
     image: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&q=80",
-    gridClasses: "col-span-1 md:col-span-3 md:row-span-1 lg:col-span-4 lg:row-span-1",
-  },
-  {
-    id: 3,
-    title: "Fluora Campaign",
-    description: "Social media & video production campaign",
-    metric: "10k+",
-    image: "https://images.unsplash.com/photo-1558655146-d09347e92766?w=800&q=80",
-    gridClasses: "col-span-1 md:col-span-3 md:row-span-2 lg:col-span-4 lg:row-span-2",
+    // Mobile: right col top | Desktop: middle top
+    gridClasses: "col-span-1 row-span-1 md:col-span-3 md:row-span-1 lg:col-span-4 lg:row-span-1",
   },
   {
     id: 4,
@@ -47,15 +48,17 @@ const PROJECTS = [
     description: "UI/UX design & interactive prototype",
     metric: "4.9",
     image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800&q=80",
-    gridClasses: "col-span-1 md:col-span-3 md:row-span-1 lg:col-span-4 lg:row-span-1",
+    // Mobile: right col bottom | Desktop: middle bottom
+    gridClasses: "col-span-1 row-span-1 md:col-span-3 md:row-span-1 lg:col-span-4 lg:row-span-1",
   },
   {
-    id: 5,
-    title: "LionNova Branding",
-    description: "Brand strategy, logo, and style guide",
-    metric: "Top 10",
-    image: "https://images.unsplash.com/photo-1634942537034-2531766767d1?w=800&q=80",
-    gridClasses: "col-span-1 md:col-span-6 md:row-span-1 lg:col-span-12 lg:row-span-1",
+    id: 3,
+    title: "Fluora Campaign",
+    description: "Social media & video production campaign",
+    metric: "10k+",
+    image: "https://images.unsplash.com/photo-1558655146-d09347e92766?w=800&q=80",
+    // Mobile: full-width bottom | Tablet: full-width bottom | Desktop: tall right column
+    gridClasses: "col-span-2 row-span-1 md:col-span-6 md:row-span-1 lg:col-span-4 lg:row-span-2 lg:col-start-9",
   },
 ];
 
@@ -115,16 +118,16 @@ function BentoCard({
         type: "spring",
         stiffness: 100,
         damping: 20,
-        delay: (index % 3) * 0.1, // Organic stagger by column index
+        delay: (index % 3) * 0.1,
       }}
     >
       <motion.div
         ref={cardRef}
-        onClick={onClick}
+        // onClick={onClick} // Click action temporarily deactivated
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={handleMouseLeave}
-        className="relative flex h-full w-full cursor-pointer flex-col justify-end overflow-hidden rounded-[20px] bg-[#161616] min-h-[280px] md:min-h-0"
+        className="relative flex h-full w-full cursor-default flex-col justify-end overflow-hidden rounded-[20px] bg-[#161616] min-h-[220px] md:min-h-0"
         style={{
           rotateX,
           rotateY,
@@ -132,10 +135,10 @@ function BentoCard({
         animate={{
           scale: isHovered ? 1.03 : 1,
           boxShadow: isHovered
-            ? "0 20px 48px -12px rgba(240, 201, 23, 0.55), 0 0 20px -4px rgba(240, 201, 23, 0.35), inset 0 0 40px rgba(240, 201, 23, 0.07)"
-            : "0 0 0 0 rgba(240, 201, 23, 0)",
+            ? "0 16px 40px -8px rgba(0,0,0,0.22), 0 4px 16px -4px rgba(0,0,0,0.14), inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 2px 12px rgba(0,0,0,0.12)"
+            : "0 8px 24px -6px rgba(0,0,0,0.15), 0 2px 8px -2px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 2px 10px rgba(0,0,0,0.08)",
         }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} // Beautiful Expo Out ease
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
         {/* Background Image */}
         <div
@@ -148,23 +151,22 @@ function BentoCard({
           className="absolute inset-0 transition-opacity duration-500 ease-[0.16,1,0.3,1]"
           style={{
             background:
-              "linear-gradient(to top, rgba(0, 0, 0, 0.98) 0%, rgba(0, 0, 0, 0.85) 25%, rgba(0, 0, 0, 0.5) 50%, transparent 100%)",
+              "linear-gradient(to top, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.75) 18%, rgba(255,255,255,0.3) 36%, transparent 60%)",
             opacity: isHovered ? 0.85 : 1,
           }}
         />
 
-        {/* Overlay Content */}
-        <div className="relative z-10 flex flex-col justify-end p-6 md:p-8">
+        {/* Overlay Content — pushed lower with reduced bottom padding */}
+        <div className="relative z-10 flex flex-col justify-end px-6 pt-6 pb-[15px] md:px-8 md:pt-8 md:pb-[19px]">
           <span
             className="mb-1 text-[2.5rem] font-[800] leading-none text-[#e5192a]"
-            style={{ textShadow: "0 4px 12px rgba(0,0,0,0.5)" }}
+            style={{ textShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
           >
             {project.metric}
           </span>
-          <h3 className="mb-1 text-[1.1rem] font-bold text-white">
+          <h3 className="mb-0 text-[1.1rem] font-bold text-[#0d0d0d]">
             {project.title}
           </h3>
-          <p className="text-[0.85rem] text-white/85">{project.description}</p>
         </div>
       </motion.div>
     </motion.div>
@@ -217,7 +219,7 @@ export default function Portfolio() {
   }, [activeIdx]);
 
   return (
-    <section id="work" className="bg-[#F5F0EB] py-[80px] md:py-[120px]">
+    <section id="work" className="bg-[#F5F0EB] pt-[40px] pb-[80px] md:pt-[60px] md:pb-[120px]">
       <div className="mx-auto max-w-[1200px] px-4 md:px-6">
         {/* Header */}
         <div className="mb-12 flex flex-col items-center text-center">
@@ -242,15 +244,15 @@ export default function Portfolio() {
         </div>
 
         {/* CSS Grid
-            Desktop (lg): 12 cols, 3 rows — [270px tall] [270px tall] [200px wide banner]
-            Tablet (md):  6 cols,  auto rows
-            Mobile:       1 col,   auto rows
+            Mobile (2-col, 3 rows): [Card1 tall] [Card2] / [Card1] [Card4] / [Card3 full]
+            Tablet (md, 6-col, 3 rows): same structure, bigger
+            Desktop (lg, 12-col, 2 rows): 3-column bento unchanged
         */}
         <div className="
-          grid gap-5
-          grid-cols-1
-          md:grid-cols-6 md:grid-rows-[280px_280px_220px]
-          lg:grid-cols-12 lg:grid-rows-[270px_270px_200px]
+          grid gap-3
+          grid-cols-2 grid-rows-[220px_220px_180px]
+          md:grid-cols-6 md:grid-rows-[260px_260px_200px]
+          lg:grid-cols-12 lg:grid-rows-[270px_270px]
         ">
           {PROJECTS.map((project, idx) => (
             <BentoCard
@@ -320,7 +322,7 @@ export default function Portfolio() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              onClick={(e) => e.stopPropagation()} // Prevent close on modal click
+              onClick={(e) => e.stopPropagation()}
             >
               {/* Left: Image Container */}
               <div className="relative h-[300px] w-full md:h-full md:w-[55%]">

@@ -205,8 +205,15 @@ export default function LumaShowcase() {
   const [autoPlayProgress, setAutoPlayProgress] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
   const [isScrollComplete, setIsScrollComplete] = useState(false);
-  // Track which pill position triggered the pulse animation
-  const [fluidOriginPillIndex, setFluidOriginPillIndex] = useState<number | null>(null);
+  // Liquid traveling-pill state
+  const [travelingPillIdx, setTravelingPillIdx] = useState<number | null>(null);
+  const [travelOffset, setTravelOffset] = useState(0);
+  const isTransitioningRef = useRef(false);
+  const gooPillRefs = useRef<(HTMLDivElement | null)[]>([]);
+  // Metaball merge overlay state — controls the 2-blob liquid bridge
+  const [mergeBlob, setMergeBlob] = useState<{ startX: number; fading: boolean } | null>(null);
+  // Ref to the traveling blob DOM element so we can set start position before enabling CSS transition
+  const travelingBlobRef = useRef<HTMLDivElement>(null);
 
   const ordered = getOrderedServices(activeIndex);
   const active = SERVICES[activeIndex];
@@ -250,10 +257,30 @@ export default function LumaShowcase() {
       const progress = Math.min((elapsed / autoPlayDuration) * 100, 100);
       setAutoPlayProgress(progress);
 
-      if (progress >= 100) {
-        setFluidOriginPillIndex(3);
-        setActiveIndex((prev) => (prev + 1) % SERVICES.length);
+      if (progress >= 100 && !isTransitioningRef.current) {
+        isTransitioningRef.current = true;
         progressStartTime.current = Date.now();
+        setAutoPlayProgress(0);
+
+        // Position 3 (next pill right of center) travels to center
+        const offset3 = computeOffsetToCenter(3);
+        setTravelOffset(offset3);
+        setTravelingPillIdx(3);
+
+        // Metaball merge — DOM effect handles animation
+        const startX3 = -offset3;
+        setMergeBlob({ startX: startX3, fading: false });
+
+        setTimeout(() => setActiveIndex((prev) => (prev + 1) % SERVICES.length), 600);
+        setTimeout(() => {
+          setMergeBlob((prev) => prev ? { ...prev, fading: true } : null);
+        }, 650);
+        setTimeout(() => {
+          setTravelingPillIdx(null);
+          setTravelOffset(0);
+          setMergeBlob(null);
+          isTransitioningRef.current = false;
+        }, 850);
       }
 
       reqRef.current = requestAnimationFrame(updateProgress);
@@ -265,23 +292,64 @@ export default function LumaShowcase() {
     };
   }, [isAutoPlaying, isScrollComplete, activeIndex]);
 
-  // Clear fluid origin after animation completes
-  useEffect(() => {
-    if (fluidOriginPillIndex !== null) {
-      const t = setTimeout(() => setFluidOriginPillIndex(null), 700);
-      return () => clearTimeout(t);
-    }
-  }, [fluidOriginPillIndex]);
+  // On-demand offset computation: how far a pill must translateX to reach center
+  const computeOffsetToCenter = (orderedPosition: number): number => {
+    const pills = gooPillRefs.current;
+    const centerPill = pills[2];
+    const targetPill = pills[orderedPosition];
+    if (!centerPill || !targetPill) return 0;
+    const cRect = centerPill.getBoundingClientRect();
+    const tRect = targetPill.getBoundingClientRect();
+    return (cRect.left + cRect.width / 2) - (tRect.left + tRect.width / 2);
+  };
 
   const handlePillClick = (globalIndex: number, orderedPosition: number) => {
-    if (!isScrollComplete) return;
+    if (!isScrollComplete || isTransitioningRef.current) return;
     if (globalIndex === activeIndex) return;
-    setFluidOriginPillIndex(orderedPosition);
-    setActiveIndex(globalIndex);
+
+    isTransitioningRef.current = true;
     setIsAutoPlaying(false);
-    // eslint-disable-next-line react-hooks/purity
     lastInteractionTime.current = Date.now();
+
+    const offset = computeOffsetToCenter(orderedPosition);
+    setTravelOffset(offset);
+    setTravelingPillIdx(orderedPosition);
+
+    // Metaball merge: traveling blob starts at pill position, DOM effect animates to center
+    const startX = -offset;
+    setMergeBlob({ startX, fading: false });
+
+    // Swap content when bridge peaks (~traveling blob reaches center)
+    setTimeout(() => setActiveIndex(globalIndex), 600);
+
+    // Start overlay fade-out after bridge peaks
+    setTimeout(() => {
+      setMergeBlob((prev) => prev ? { ...prev, fading: true } : null);
+    }, 650);
+
+    // Full cleanup
+    setTimeout(() => {
+      setTravelingPillIdx(null);
+      setTravelOffset(0);
+      setMergeBlob(null);
+      isTransitioningRef.current = false;
+    }, 850);
   };
+
+  /* ── Metaball merge animation — GSAP-driven so React re-renders don't interrupt ── */
+  useEffect(() => {
+    if (!mergeBlob || mergeBlob.fading || !travelingBlobRef.current) return;
+    gsap.killTweensOf(travelingBlobRef.current);
+    // xPercent/yPercent handle the -50% centering; x handles the startX → 0 travel
+    gsap.set(travelingBlobRef.current, { xPercent: -50, yPercent: -50, x: mergeBlob.startX });
+    gsap.to(travelingBlobRef.current, {
+      x: 0,
+      duration: 0.65,
+      ease: "power2.out",
+      overwrite: true,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mergeBlob?.startX]);
 
   /* ── Audio Engine ─────────────────────────────────────────────── */
   useEffect(() => {
@@ -358,15 +426,14 @@ export default function LumaShowcase() {
               trigger: sectionRef.current,
               start: "top top",
               end: "bottom bottom",
-              scrub: 2.5,             // Heavy scrub — feels like dragging through resistance
+              scrub: 4,               // Heavy scrub — viscous honey drag through the section
               invalidateOnRefresh: true,
               snap: {
-                // Only 2 points: full-reveal (0.55), exit (1)
-                // Removed 0 so the engine never fights the user and pulls backwards to the top
-                snapTo: [0.55, 1],
-                duration: { min: 0.4, max: 1.0 },
-                delay: 0.15,
-                ease: "power4.inOut",   // Very aggressive pull into snap points
+                // Snap at presentation view; exit is natural with scrub drag
+                snapTo: [0.55],
+                duration: { min: 0.8, max: 1.4 },
+                delay: 0.2,
+                ease: "power2.inOut",
               },
               onEnter: () => {
                 if (isSoundOn && bassAudioRef.current) {
@@ -496,9 +563,31 @@ export default function LumaShowcase() {
             0.28,
           );
 
-          // ── Dwell zone anchor ──
-          // Everything done by 0.48. Snap at 0.55 always shows full reveal.
-          // Remaining 0.55→1.0 = dead dwell the user scrolls through to exit.
+          // ── Exit animation (scroll progress ~0.88→1.0) ──
+          // Timeline time = progress × 2.2. So progress 0.88 = time 1.936.
+          // Content, pills, lion drift away. With scrub:4, this trails behind scroll.
+          tl.to(
+            finalContentRef.current!,
+            { y: -80, opacity: 0, duration: 0.18, ease: "power2.in" },
+            1.936,   // progress 0.88
+          );
+          tl.to(
+            pillsRowRef.current!,
+            { y: -50, opacity: 0, duration: 0.14, ease: "power2.in" },
+            1.98,    // progress 0.90
+          );
+          tl.to(
+            lionRef.current!,
+            { y: 100, opacity: 0, duration: 0.16, ease: "power2.in" },
+            2.0,     // progress 0.91
+          );
+          tl.to(
+            glowRef.current!,
+            { opacity: 0, duration: 0.12 },
+            2.02,    // progress 0.92
+          );
+
+          // Duration anchor — ensures timeline extends to full scroll range
           tl.set({}, {}, 2.2);
         },
       );
@@ -506,11 +595,8 @@ export default function LumaShowcase() {
     { scope: stickyRef, dependencies: [] },
   );
 
-  /* ── Pill pulse animation size estimate ── */
-  const pillSizeEstimate = 52; // midpoint of clamp(44px, 5vw, 64px)
-
   return (
-    <section ref={sectionRef} className="relative h-[600vh] md:h-[800vh]">
+    <section ref={sectionRef} className="relative h-[500vh] md:h-[600vh]">
       <motion.div
         ref={stickyRef}
         className="sticky top-0 h-screen bg-[#0D0D0D]"
@@ -519,7 +605,7 @@ export default function LumaShowcase() {
         initial={{ "--luma-accent": active.accent } as any}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         animate={{ "--luma-accent": active.accent } as any}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
       >
         {/* ── Audio Opt-In Button ── */}
         <button
@@ -561,7 +647,7 @@ export default function LumaShowcase() {
           {/* ── Left Visual Column (desktop only) ── */}
           <motion.div
             className="relative hidden overflow-hidden rounded-[18px] border border-white/10 bg-white/5 md:block flex-shrink-0"
-            style={{ width: "20%", aspectRatio: "3/4", maxHeight: "36vh" }}
+            style={{ width: "22%", aspectRatio: "4/3", maxHeight: "24vh" }}
             animate={
               isScrollComplete
                 ? { opacity: 1, scale: 1, filter: "blur(0px)" }
@@ -596,7 +682,7 @@ export default function LumaShowcase() {
                   initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
                   animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                   exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
-                  transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                   className="font-clash italic font-semibold leading-snug text-white/90"
                   style={{ fontSize: "clamp(0.95rem, 2.8vw, 1.7rem)" }}
                 >
@@ -616,7 +702,7 @@ export default function LumaShowcase() {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.5, ease: "easeInOut", delay: 0.07 }}
+                  transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
                   className="flex flex-col items-center gap-1"
                 >
                   <span
@@ -641,7 +727,7 @@ export default function LumaShowcase() {
             {/* Mobile Single Visual — thin cinematic strip, won't overlap pills */}
             <div
               className="relative w-full flex-shrink-0 overflow-hidden rounded-[12px] border border-white/10 bg-white/5 md:hidden"
-              style={{ aspectRatio: "16/7", maxWidth: "80vw", maxHeight: "14vh" }}
+              style={{ aspectRatio: "4/3", maxWidth: "60vw", maxHeight: "22vh" }}
             >
               <AnimatePresence mode="wait">
                 {activeIndex % 2 === 0 ? (
@@ -666,7 +752,7 @@ export default function LumaShowcase() {
           {/* ── Right Visual Column (desktop only) ── */}
           <motion.div
             className="relative hidden overflow-hidden rounded-[18px] border border-white/10 bg-white/5 md:block flex-shrink-0"
-            style={{ width: "20%", aspectRatio: "3/4", maxHeight: "36vh" }}
+            style={{ width: "22%", aspectRatio: "4/3", maxHeight: "24vh" }}
             animate={
               isScrollComplete
                 ? { opacity: 1, scale: 1, filter: "blur(0px)" }
@@ -743,86 +829,104 @@ export default function LumaShowcase() {
         <LayoutGroup>
           <div
             ref={pillsRowRef}
-            className="absolute left-1/2 z-[30] flex -translate-x-1/2 items-center opacity-0 gap-2 md:gap-3
+            className="absolute left-1/2 z-[30] -translate-x-1/2 opacity-0
                        bottom-[280px] md:bottom-[320px] lg:bottom-[290px] 2xl:bottom-[275px]"
           >
 
-            {/* ── Soft inner-glow pulse on pill switch ──
-                A white radial bloom that scales out from center and fades.
-                Triggered on every activeIndex change once scroll is complete. */}
-            <AnimatePresence>
-              {fluidOriginPillIndex !== null && (
-                <motion.div
-                  key={`pulse-${activeIndex}-${fluidOriginPillIndex}`}
-                  className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full z-[5]"
-                  initial={{
-                    width: pillSizeEstimate,
-                    height: pillSizeEstimate,
-                    opacity: 0.7,
-                    scale: 1,
-                  }}
-                  animate={{
-                    width: pillSizeEstimate * 3.5,
-                    height: pillSizeEstimate * 3.5,
-                    opacity: 0,
-                    scale: 1,
-                  }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.65, ease: [0.0, 0.0, 0.2, 1] }}
+            {/* ── METABALL MERGE OVERLAY — 2-blob CSS contrast+blur liquid bridge ── */}
+            {/* z-[5]: behind text layer. Pill backgrounds turn transparent so goo shows through. */}
+            {/* Both blobs are equal-size 52px circles → visible bridge/neck forms as they approach */}
+            {mergeBlob && isScrollComplete && (
+              <div
+                className="pointer-events-none absolute z-[5]"
+                style={{
+                  left: "50%",
+                  top: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: "700px",
+                  height: "120px",
+                  background: "#0D0D0D",
+                  filter: "contrast(20)",
+                  borderRadius: "60px",
+                  overflow: "hidden",
+                  opacity: mergeBlob.fading ? 0 : 1,
+                  transition: mergeBlob.fading ? "opacity 0.2s ease-in" : "none",
+                }}
+              >
+                {/* Center blob — 52px circle, same size as traveling blob */}
+                <div
+                  className="absolute rounded-full"
                   style={{
-                    background: `radial-gradient(circle, rgba(255,255,255,0.55) 0%, ${active.accent}55 35%, transparent 70%)`,
-                    boxShadow: `0 0 24px 8px ${active.accent}66`,
+                    left: "50%",
+                    top: "50%",
+                    transform: "translate(-50%, -50%)",
+                    width: "clamp(44px,5vw,64px)",
+                    height: "clamp(44px,5vw,64px)",
+                    backgroundColor: "white",
+                    filter: "blur(20px)",
                   }}
                 />
-              )}
-            </AnimatePresence>
-
-            {ordered.map((item, i) => {
-              const isCenter = i === 2;
-              const globalIndex = SERVICES.findIndex((s) => s.id === item.id);
-              return (
+                {/* Traveling blob — GSAP animates from startX to 0. No transform in JSX. */}
                 <div
-                  key={i}
-                  onClick={() => handlePillClick(globalIndex, i)}
-                  className="relative shrink-0 rounded-full"
+                  ref={travelingBlobRef}
+                  className="absolute rounded-full"
                   style={{
-                    width: isCenter
-                      ? "var(--center-pill-width, clamp(44px,5vw,64px))"
-                      : "clamp(44px,5vw,64px)",
+                    left: "50%",
+                    top: "50%",
+                    /* GSAP sets xPercent:-50 yPercent:-50 x:startX then animates x→0 */
+                    width: "clamp(44px,5vw,64px)",
                     height: "clamp(44px,5vw,64px)",
-                    cursor: isScrollComplete ? "pointer" : "default",
-                    zIndex: isCenter ? 10 : 6,
+                    backgroundColor: "white",
+                    filter: "blur(20px)",
                   }}
-                >
+                />
+              </div>
+            )}
+
+            {/* ── PILLS — main visual layer with colors, labels, interactions ── */}
+            <div className="flex items-center gap-2 md:gap-3 z-10 relative">
+              {ordered.map((item, i) => {
+                const isCenter = i === 2;
+                const globalIndex = SERVICES.findIndex((s) => s.id === item.id);
+
+                const sideOpacity = isScrollComplete
+                  ? (travelingPillIdx === i ? 0 : travelingPillIdx !== null ? 0.5 : 1)
+                  : undefined;
+
+                return (
                   <div
-                    className={`relative flex h-full w-full items-center justify-center overflow-hidden rounded-full backdrop-blur-md ${
-                      isCenter ? "" : "border border-white/10 bg-white/20"
-                    }`}
+                    key={`text-${i}`}
+                    ref={(el) => { gooPillRefs.current[i] = el; }}
+                    onClick={() => handlePillClick(globalIndex, i)}
+                    className="relative shrink-0 flex items-center justify-center rounded-full"
                     style={{
-                      backgroundColor: isCenter ? "var(--luma-accent)" : undefined,
+                      width: isCenter
+                        ? "var(--center-pill-width, clamp(44px,5vw,64px))"
+                        : "clamp(44px,5vw,64px)",
+                      height: "clamp(44px,5vw,64px)",
+                      /* Hide pill backgrounds while goo overlay is visible (z-35) */
+                      backgroundColor: mergeBlob && !mergeBlob.fading
+                        ? "transparent"
+                        : isCenter
+                          ? "var(--luma-accent)"
+                          : "#3D3D3D",
+                      cursor: isScrollComplete && !isTransitioningRef.current ? "pointer" : "default",
                       transform: isCenter ? "none" : `scale(var(--pill-${i}-scale, 0))`,
-                      opacity: isCenter ? 1 : `var(--pill-${i}-opacity, 0)`,
+                      opacity: isCenter
+                        ? 1
+                        : (sideOpacity !== undefined ? sideOpacity : `var(--pill-${i}-opacity, 0)`),
+                      transition: isScrollComplete ? "opacity 0.25s ease, background-color 0.15s ease" : "none",
                     }}
                     title={item.label}
                   >
-                    {/* Center pill: Framer layout-animated background for smooth accent color morph */}
-                    {isCenter && (
-                      <motion.div
-                        layoutId="center-pill-bg"
-                        className="absolute inset-0 rounded-full"
-                        style={{ backgroundColor: active.accent }}
-                        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                      />
-                    )}
-
                     <AnimatePresence mode="wait">
                       {isCenter ? (
                         <motion.span
                           key={`center-${item.id}`}
-                          initial={{ opacity: 0, y: 4 }}
+                          initial={{ opacity: 0, y: 6 }}
                           animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -4 }}
-                          transition={{ duration: 0.3 }}
+                          exit={{ opacity: 0, y: -6 }}
+                          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                           className="relative z-10 whitespace-nowrap px-4 text-[11px] font-bold uppercase tracking-wider text-white md:text-[13px]"
                         >
                           <span style={{ opacity: "var(--center-label-opacity, 0)" }}>
@@ -832,38 +936,38 @@ export default function LumaShowcase() {
                       ) : (
                         <motion.span
                           key={`side-${item.id}`}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.4 }}
+                          initial={{ opacity: 0, scale: 0.7 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.7 }}
+                          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                           className="text-[10px] font-semibold uppercase tracking-wide text-white/70"
                         >
                           {item.shortLabel}
                         </motion.span>
                       )}
                     </AnimatePresence>
-                  </div>
 
-                  {/* Auto-play Progress Bar under center pill */}
-                  {isCenter && isScrollComplete && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.3 }}
-                      className="absolute -bottom-4 left-1/2 h-[2px] w-[80px] -translate-x-1/2 overflow-hidden rounded-full bg-white/10"
-                    >
+                    {/* Auto-play Progress Bar under center pill */}
+                    {isCenter && isScrollComplete && (
                       <motion.div
-                        className="h-full rounded-full"
-                        style={{
-                          width: `${autoPlayProgress}%`,
-                          backgroundColor: "var(--luma-accent)",
-                        }}
-                      />
-                    </motion.div>
-                  )}
-                </div>
-              );
-            })}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.4 }}
+                        className="absolute -bottom-4 left-1/2 h-[2px] w-[80px] -translate-x-1/2 overflow-hidden rounded-full bg-white/10"
+                      >
+                        <motion.div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${autoPlayProgress}%`,
+                            backgroundColor: "var(--luma-accent)",
+                          }}
+                        />
+                      </motion.div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </LayoutGroup>
       </motion.div>

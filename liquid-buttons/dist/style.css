@@ -1,0 +1,107 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.buttons {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #fff;
+  filter: contrast(50);
+  overflow: hidden;
+}
+
+.buttons #toggle {
+  position: relative;
+  top: 160px;
+  width: 160px;
+  height: 160px;
+  background-color: #000;
+  border-radius: 50%;
+  cursor: pointer;
+  filter: blur(20px);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  border: none;
+  transition: all 1s;
+}
+
+#toggle:focus {
+  outline: none;
+}
+
+#toggle span {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background-color: #000;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: -999;
+}
+
+#toggle span:nth-child(1) {
+  top: 0;
+  animation: bottom1 1s ease-in-out;
+}
+
+#toggle span:nth-child(2) {
+  top: 0;
+  animation: bottom2 .8s ease-in-out;
+}
+
+@keyframes bottom1 {
+  0% {
+    top: -280px;
+  }
+
+  100% {
+    top: 0px;
+  }
+}
+
+@keyframes bottom2 {
+  0% {
+    top: -140px;
+  }
+
+  100% {
+    top: 0px;
+  }
+}
+
+#toggle.active span:nth-child(1) {
+  top: -280px;
+  animation: top1 1s ease-in-out;
+}
+
+#toggle.active span:nth-child(2) {
+  top: -140px;
+  animation: top2 .8s linear;
+}
+
+@keyframes top1 {
+  0% {
+    top: 0px;
+  }
+
+  100% {
+    top: -280px;
+  }
+}
+
+@keyframes top2 {
+  0% {
+    top: 0px;
+  }
+
+  100% {
+    top: -140px;
+  }
+}

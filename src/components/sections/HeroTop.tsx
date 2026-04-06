@@ -1,17 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import {
-  motion,
-  useScroll,
-  useSpring,
-  useTransform,
-  useMotionValue,
-  useVelocity,
-  useAnimationFrame,
-  useInView,
-} from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import Image from "next/image";
+import { getWhatsAppUrlWithEmail, getWhatsAppUrl } from "@/lib/contact";
 
 /* ─── Variants ─────────────────────────────────────────────────── */
 const containerVariants = {
@@ -33,8 +25,8 @@ const itemVariants = {
   },
 };
 
-/* ─── Marquee images — Cloudinary portfolio shots ───────────────── */
-const MARQUEE_IMAGES = [
+/* ─── 3D Carousel images — Cloudinary portfolio shots ──────────── */
+const ORIGINAL_IMAGES = [
   "https://res.cloudinary.com/dgio9uutc/image/upload/v1775277351/1_1_bv3shm.avif",
   "https://res.cloudinary.com/dgio9uutc/image/upload/v1775277351/Thumb_2_p6ksrb.avif",
   "https://res.cloudinary.com/dgio9uutc/image/upload/v1775277352/Frame_1_zhyago.avif",
@@ -47,53 +39,83 @@ const MARQUEE_IMAGES = [
   "https://res.cloudinary.com/dgio9uutc/image/upload/v1775277350/image_19_rnwg8w.avif",
 ];
 
-/* ─── Wrap helper ───────────────────────────────────────────────── */
-function wrap(min: number, max: number, v: number) {
-  const rangeSize = max - min;
-  return ((((v - min) % rangeSize) + rangeSize) % rangeSize) + min;
-}
+// Double the array to 20 items so the cylinder is massive and wraps fully around the screen width
+const CAROUSEL_IMAGES = [...ORIGINAL_IMAGES, ...ORIGINAL_IMAGES];
+const N = CAROUSEL_IMAGES.length;
 
-/* ─── Velocity Marquee ──────────────────────────────────────────── */
-interface VelocityMarqueeProps {
-  images: string[];
-  baseVelocity: number;
-}
+/* ─── 3D Carousel ───────────────────────────────────────────────── */
+function Carousel3D() {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [radius, setRadius] = useState(600);
 
-function VelocityMarquee({ images, baseVelocity }: VelocityMarqueeProps) {
-  const baseX = useMotionValue(0);
-  const { scrollY } = useScroll();
-  const scrollVelocity = useVelocity(scrollY);
-  const smoothVelocity = useSpring(scrollVelocity, {
-    damping: 50,
-    stiffness: 400,
-  });
-
-  const x = useTransform(baseX, (v) => `${wrap(-50, 0, v)}%`);
-
-  useAnimationFrame((_t, delta) => {
-    let moveBy = baseVelocity * (delta / 1000);
-    const scrollFactor = smoothVelocity.get() * 0.0001;
-    moveBy += Math.sign(baseVelocity) * Math.abs(scrollFactor) * (delta / 1000) * 100;
-    baseX.set(baseX.get() + moveBy);
-  });
+  useEffect(() => {
+    const compute = () => {
+      if (!cardRef.current) return;
+      const w = cardRef.current.offsetWidth;
+      // CodePen gap approximation
+      const r = (w * 0.5 + 12) / Math.tan(Math.PI / N);
+      setRadius(r);
+    };
+    compute();
+    window.addEventListener("resize", compute);
+    return () => window.removeEventListener("resize", compute);
+  }, []);
 
   return (
-    <motion.div className="flex w-max gap-4 md:gap-6" style={{ x }}>
-      {[...images, ...images].map((src, i) => (
-        <div
-          key={i}
-          className="relative h-[96px] w-[144px] sm:h-[128px] sm:w-[192px] md:h-[160px] md:w-[240px] shrink-0 rounded-[12px] md:rounded-[20px] overflow-hidden bg-white/5 border border-white/10"
-        >
-          <Image
-            src={src}
-            alt="Portfolio showcase"
-            fill
-            className="object-cover transition-transform duration-500 hover:scale-110 pointer-events-auto"
-            sizes="(max-width: 768px) 144px, (max-width: 1024px) 192px, 240px"
-          />
-        </div>
-      ))}
-    </motion.div>
+    <div
+      className="relative w-screen left-1/2 -translate-x-1/2 overflow-hidden flex justify-center"
+      style={{
+        // By scaling perspective dynamically with viewport width, the depth illusion 
+        // stays completely consistent whether on a phone or an ultrawide monitor.
+        // CodePen ratio: perspective is exactly 2x the card width.
+        perspective: "clamp(400px, 36vw, 800px)",
+        // Mask pushes the black fade exclusively to the very edges
+        maskImage: "linear-gradient(90deg, transparent, black 15%, black 85%, transparent)",
+        WebkitMaskImage: "linear-gradient(90deg, transparent, black 15%, black 85%, transparent)",
+      }}
+    >
+      <div
+        className="grid"
+        style={{
+          transformStyle: "preserve-3d",
+          animation: "carousel-spin 60s linear infinite",
+          // Taller container to allow the huge edge cards to fully expand without clipping
+          height: "clamp(260px, 35vw, 550px)",
+          placeItems: "center",
+        }}
+      >
+        {CAROUSEL_IMAGES.map((src, i) => {
+          const angleTurn = i / N;
+          return (
+            <div
+              key={i}
+              ref={i === 0 ? cardRef : undefined}
+              style={{
+                gridArea: "1 / 1",
+                // Dynamic width: ~18vw so they scale with screen, resulting in a huge cylinder diameter
+                width: "clamp(120px, 14vw, 240px)",
+                aspectRatio: "7 / 10",
+                // Negative Z creates the concave "stadium" effect. 
+                // Because N=20 and width is 14vw, the radius is huge. This pushes the 
+                // center cards far back, and makes the lateral cards massive as they pass the camera.
+                transform: `rotateY(${angleTurn}turn) translateZ(${-radius}px)`,
+                backfaceVisibility: "hidden",
+                WebkitBackfaceVisibility: "hidden",
+              }}
+              className="relative overflow-hidden rounded-[16px] md:rounded-[24px] border border-white/10"
+            >
+              <Image
+                src={src}
+                alt="Portfolio showcase"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 150px, (max-width: 1280px) 20vw, 300px"
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -107,7 +129,6 @@ function useCountUp(target: number, duration: number = 1800, active: boolean = t
       if (!start) start = ts;
       const elapsed = ts - start;
       const progress = Math.min(elapsed / duration, 1);
-      // Ease out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       setCount(Math.floor(eased * target));
       if (progress < 1) requestAnimationFrame(step);
@@ -149,10 +170,21 @@ function AnimatedStats() {
 /* ─── Main Component ────────────────────────────────────────────── */
 export default function HeroTop() {
   const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const url = email.trim()
+      ? getWhatsAppUrlWithEmail(email.trim())
+      : getWhatsAppUrl();
+    window.open(url, "_blank", "noopener,noreferrer");
+    setSubmitted(true);
+    setTimeout(() => setSubmitted(false), 3000);
+  };
 
   return (
     <section className="relative flex min-h-[72vh] flex-col items-center justify-center px-4 pt-28 pb-6 md:pt-32 md:px-6 overflow-hidden">
-      {/* Bottom gradient to blend seamlessly into the next section */}
+      {/* Bottom gradient to blend into the next section */}
       <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-bg-dark to-transparent z-0 pointer-events-none" />
 
       <motion.div
@@ -167,7 +199,6 @@ export default function HeroTop() {
           className="text-center text-[11.2vw] sm:text-[4.05rem] md:text-[5.05rem] lg:text-[6.5rem] xl:text-[7.3rem] font-bold uppercase leading-[1.05] tracking-tight text-text-main flex flex-col items-center"
         >
           <span className="block whitespace-nowrap">MAKE YOUR</span>
-
           <span className="block whitespace-nowrap mt-1 md:mt-2">
             BRAND{" "}
             <span className="relative inline-block">
@@ -194,10 +225,10 @@ export default function HeroTop() {
           landscape.
         </motion.p>
 
-        {/* CTA Form — "Connect Now" */}
+        {/* CTA Form */}
         <motion.form
           variants={itemVariants}
-          onSubmit={(e) => e.preventDefault()}
+          onSubmit={handleSubmit}
           className="flex w-full max-w-[480px] flex-col items-stretch gap-3 sm:flex-row sm:items-center"
         >
           <input
@@ -205,7 +236,6 @@ export default function HeroTop() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
-            required
             className="
               flex-1 rounded-[14px] border border-white/10 bg-white/5
               px-5 py-3.5 text-[14px] text-text-main placeholder-text-muted/50
@@ -224,11 +254,11 @@ export default function HeroTop() {
               active:scale-[0.98] sm:px-7
             "
           >
-            Connect Now
+            {submitted ? "Opening WhatsApp…" : "Connect Now"}
           </button>
         </motion.form>
 
-        {/* Trust Badges — PNG + animated count-up overlay */}
+        {/* Trust Badges */}
         <motion.div
           variants={itemVariants}
           className="mt-4 flex flex-col items-center gap-3 md:mt-5"
@@ -253,22 +283,17 @@ export default function HeroTop() {
         </motion.p>
       </motion.div>
 
-      {/* Image Marquees */}
+      {/* 3D Rotating Carousel — full bleed, breaks out of section padding */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 1 }}
-        className="relative z-10 mt-8 md:mt-12 w-full flex flex-col gap-4 md:gap-6 overflow-hidden max-w-[1600px] pointer-events-none"
-        style={{
-          maskImage: "linear-gradient(to right, transparent, black 15%, black 85%, transparent)",
-          WebkitMaskImage: "linear-gradient(to right, transparent, black 15%, black 85%, transparent)",
-        }}
+        transition={{ delay: 1, duration: 1.2 }}
+        className="relative z-10 mt-6 md:mt-8 w-full overflow-visible"
       >
-        <VelocityMarquee images={MARQUEE_IMAGES} baseVelocity={-0.75} />
-        <VelocityMarquee images={MARQUEE_IMAGES.slice().reverse()} baseVelocity={0.75} />
+        <Carousel3D />
       </motion.div>
 
-      {/* ── Floating Founder Card — bottom-right ── */}
+      {/* Floating Founder Card */}
       <motion.div
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -284,14 +309,11 @@ export default function HeroTop() {
           shadow-[0_8px_32px_rgba(0,0,0,0.4)]
         "
       >
-        {/* Avatar placeholder — swap src for your real photo */}
         <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border-2 border-brand-red/60 bg-brand-red/10">
-          {/* Replace the div below with <Image> once you have a photo URL */}
           <div className="flex h-full w-full items-center justify-center text-brand-red font-black text-lg select-none">
             L
           </div>
         </div>
-
         <div className="flex flex-col">
           <span className="text-[13px] font-bold text-white leading-tight tracking-tight">
             Leo — Founder
@@ -300,8 +322,6 @@ export default function HeroTop() {
             LIONOVART Creative Agency
           </span>
         </div>
-
-        {/* Live indicator */}
         <div className="flex items-center gap-1.5 ml-2">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />

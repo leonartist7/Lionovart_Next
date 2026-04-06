@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import { getWhatsAppUrl } from "@/lib/contact";
 
 export default function Footer() {
   const ref = useRef<HTMLElement>(null);
@@ -38,7 +39,9 @@ export default function Footer() {
             transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
           >
             <a
-              href="#contact"
+              href={getWhatsAppUrl("Hi! I visited Lionovart and I'm ready to book a sprint. Can we discuss my project?")}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex h-16 items-center justify-center rounded-full bg-brand-red px-10 text-[16px] font-bold uppercase tracking-widest text-white transition-all hover:scale-105 hover:bg-brand-red-secondary focus:ring-4 focus:ring-brand-red/30"
             >
               Book Your Sprint

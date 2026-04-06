@@ -13,6 +13,12 @@
   }
 }
 
+/* 3D Carousel spin — used in HeroTop */
+@keyframes carousel-spin {
+  from { transform: rotateY(0turn); }
+  to   { transform: rotateY(1turn); }
+}
+
 @custom-variant data-open {
   &:where([data-state="open"]), &:where([data-open]:not([data-open="false"])) { @slot; }
 }

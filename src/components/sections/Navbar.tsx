@@ -10,6 +10,7 @@ import {
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { getWhatsAppUrl } from "@/lib/contact";
 
 const NAV_LINKS = [
   { label: "Work", href: "#work" },
@@ -149,12 +150,14 @@ export default function Navbar() {
                 transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
                 className="ml-6 hidden md:block"
               >
-                <Link
-                  href="#contact"
+                <a
+                  href={getWhatsAppUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="rounded-[20px] border border-white/70 bg-transparent px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-all hover:bg-white hover:text-brand-red hover:scale-105"
                 >
                   Connect Now
-                </Link>
+                </a>
               </motion.div>
             )}
           </AnimatePresence>
@@ -241,13 +244,15 @@ export default function Navbar() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.4 }}
               >
-                <Link
-                  href="#contact"
+                <a
+                  href={getWhatsAppUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={() => setIsMobileOpen(false)}
                   className="mt-4 inline-block rounded-[20px] bg-brand-red px-8 py-4 text-lg font-semibold uppercase tracking-wider text-white transition-all hover:brightness-110"
                 >
                   Connect Now
-                </Link>
+                </a>
               </motion.div>
             </motion.nav>
           </motion.div>
