@@ -694,14 +694,12 @@ export default function LumaShowcase() {
 
               return (
                 <motion.div
-                  key={item.id}
+                  key={i}
                   onClick={() => handlePillClick(globalIndex)}
-                  layout
                   animate={{
                     backgroundColor: isActive ? active.accent : "#3D3D3D",
-                    opacity: isScrollComplete ? 1 : undefined,
                   }}
-                  transition={{ layout: { duration: 0.35, ease: [0.22, 1, 0.36, 1] }, backgroundColor: { duration: 0.4 } }}
+                  transition={{ backgroundColor: { duration: 0.4 } }}
                   className="relative shrink-0 flex items-center justify-center rounded-full overflow-hidden"
                   style={{
                     width: isActive
@@ -726,7 +724,7 @@ export default function LumaShowcase() {
                         exit={{ opacity: 0, y: -5 }}
                         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                         className="whitespace-nowrap px-4 text-[11px] font-bold uppercase tracking-wider text-white md:text-[13px]"
-                        style={{ opacity: "var(--center-label-opacity, 0)" }}
+                        style={!isScrollComplete ? { opacity: "var(--center-label-opacity, 0)" } : undefined}
                       >
                         {item.label}
                       </motion.span>
