@@ -94,7 +94,7 @@ export default function Comparison() {
                     className="max-h-[28px] lg:max-h-[48px] w-auto object-contain filter drop-shadow-md brightness-150" 
                   />
                 </div>
-                {["Speed", "Flexibility", "Quality", "Scalability", "Efficiency", "Digital & Printing", "Support"].map((label) => (
+                {["Speed", "Flexibility", "Quality", "Scalability", "Efficiency", "Printing", "Support"].map((label) => (
                   <div key={label} className="p-2 lg:p-4 flex items-center justify-center text-[9px] sm:text-[10px] lg:text-[14px] font-medium tracking-wide text-center">
                     {label}
                   </div>
@@ -107,7 +107,7 @@ export default function Comparison() {
                   <span className="text-[13px] sm:text-[16px] lg:text-[28px] font-black uppercase tracking-tighter text-white">
                     LIONOVART
                   </span>
-                  <p className="hidden lg:block text-[13px] text-white/80 leading-[160%] mt-2">
+                  <p className="hidden lg:block mt-2 text-[12px] lg:text-[13px] text-white/80 leading-[150%] lg:leading-[160%]">
                     All your creative and printing needs with world-class creative talent backed by smart systems built to strengthen every project.
                   </p>
                 </div>
@@ -136,7 +136,7 @@ export default function Comparison() {
                       <h3 className="text-[12px] sm:text-[14px] lg:text-[22px] font-bold text-[#111111] lg:mb-2">
                         {row.title}
                       </h3>
-                      <p className="hidden lg:block text-[14px] text-[#555] leading-[160%]">
+                      <p className="hidden lg:block mt-2 text-[12px] lg:text-[14px] text-[#555] leading-[150%] lg:leading-[160%]">
                         {row.description}
                       </p>
                     </div>
