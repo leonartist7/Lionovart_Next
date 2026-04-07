@@ -23,7 +23,7 @@ const FAQS = [
   {
     id: "faq-3",
     question: "What platforms do you build websites on?",
-    answer: "We specialize in custom Next.js applications for total control over performance and design. We also build on Webflow and Shopify depending on your specific needs.",
+    answer: "We build fully custom websites and applications for total control over performance and design. We also work on Webflow and Shopify depending on your specific needs and goals.",
   },
   {
     id: "faq-4",
@@ -34,6 +34,21 @@ const FAQS = [
     id: "faq-5",
     question: "Can you help with copywriting and content?",
     answer: "Absolutely. We have an in-house team of copywriters and content strategists to ensure your messaging aligns perfectly with your new visual identity.",
+  },
+  {
+    id: "faq-6",
+    question: "Do you work with clients in other languages?",
+    answer: "Yes. Our team works across 9 languages and has delivered projects on 4 continents. Whether you need assets in French, Spanish, Portuguese, Arabic, or others, we handle it in-house. No external translators, no briefing a third party.",
+  },
+  {
+    id: "faq-7",
+    question: "Why not just hire a freelancer?",
+    answer: "Freelancers are great for single tasks. But brand, web, video, content, and automation each require a different specialist — and coordinating them costs you time, consistency, and often more money than you expect. We bring every discipline under one roof so nothing gets lost in translation.",
+  },
+  {
+    id: "faq-8",
+    question: "How do we get started?",
+    answer: "Send us a message on WhatsApp or fill in the form on this page. We'll set up a short discovery call — usually 20 to 30 minutes — to understand your goals, timeline, and budget. From there we put together a scope and you decide if it's the right fit. No pressure.",
   },
 ];
 

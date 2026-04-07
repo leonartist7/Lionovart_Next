@@ -45,7 +45,7 @@ const items = [
       body: "Wrong audience, wrong message, wrong platform. You're paying for clicks that never turn into clients.",
     },
     solution: {
-      heading: "Every Pound Works Harder",
+      heading: "Every Dollar Works Harder",
       body: "Data-led targeting, tested creative, continuous optimisation. We scale what converts — nothing else.",
     },
   },
@@ -150,7 +150,7 @@ function ProblemCard({
     <div
       onClick={handleClick}
       className="relative w-full cursor-pointer group"
-      title="Click to reveal solution"
+      title="Reveal the fix"
     >
       <div
         className="
@@ -234,7 +234,7 @@ function ProblemCard({
         {/* ── Subtle "click to reveal" hint (bottom-right corner) ── */}
         <div className="absolute bottom-3 right-4 z-30 pointer-events-none">
           <span className="text-[10px] md:text-[11px] uppercase tracking-[0.15em] text-white/30 font-clash">
-            {isRevealed ? "click to reset" : "click to reveal"}
+            {isRevealed ? "RESET" : "REVEAL THE FIX →"}
           </span>
         </div>
       </div>
