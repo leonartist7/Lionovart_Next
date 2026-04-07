@@ -20,7 +20,7 @@ const items = [
     num: "01",
     problem: {
       heading: "You Look Like Everyone Else",
-      body: "Generic logos, template websites, and recycled visuals make you invisible. Clients can't tell you apart — and choose whoever they remember.",
+      body: "Generic logos, template websites, recycled visuals. You blend in and clients pick whoever they remember. It's rarely you.",
     },
     solution: {
       heading: "A Brand That Owns The Room",
@@ -31,7 +31,7 @@ const items = [
     num: "02",
     problem: {
       heading: "Your Website Leaks Revenue",
-      body: "Slow load times, confusing copy, and zero hierarchy kill conversions daily. Visitors land and leave in seconds — you never knew they were there.",
+      body: "Slow, confusing, no clear direction. Visitors leave in seconds and you never even knew they came.",
     },
     solution: {
       heading: "A Site That Sells While You Sleep",
@@ -42,7 +42,7 @@ const items = [
     num: "03",
     problem: {
       heading: "Marketing Spend. Zero Return.",
-      body: "Ad budgets burned on wrong audiences, wrong messages, wrong platforms. Paying for clicks that never become clients.",
+      body: "Wrong audience, wrong message, wrong platform. You're paying for clicks that never turn into clients.",
     },
     solution: {
       heading: "Every Pound Works Harder",
@@ -53,7 +53,7 @@ const items = [
     num: "04",
     problem: {
       heading: "You're Doing It All Yourself",
-      body: "Writing content, chasing leads, editing reels — trapped in a one-person marketing department. Growth is stalling.",
+      body: "Writing content, chasing leads, editing reels. You're a business owner stuck running a one-person marketing team.",
     },
     solution: {
       heading: "A Full Creative Team Behind You",
