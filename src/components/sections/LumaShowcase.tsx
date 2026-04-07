@@ -44,8 +44,8 @@ const SERVICES: ServiceItem[] = [
         Not just to impress.
       </>
     ),
-    statValue: "150%",
-    statLabel: "conversion lift on Nova redesign",
+    statValue: "70%",
+    statLabel: "of users judge a business by its website design — Stanford",
     leftVisual:  { type: "image", src: `${CDN}1_1_bv3shm.avif`,        caption: "Web project showcase" },
     rightVisual: { type: "image", src: `${CDN}Thumb_2_p6ksrb.avif`,    caption: "Digital experience" },
   },
@@ -60,8 +60,8 @@ const SERVICES: ServiceItem[] = [
         We direct emotions.
       </>
     ),
-    statValue: "10k+",
-    statLabel: "social impressions on Fluora campaign",
+    statValue: "82%",
+    statLabel: "of all internet traffic will be video by 2027 — Cisco",
     leftVisual:  { type: "image", src: `${CDN}Frame_1_zhyago.avif`,         caption: "Production reel" },
     rightVisual: { type: "image", src: `${CDN}freepik_a-highly-polished-professional-uiux-website-homepage-mockup-for-a-modern-luxury-car-dealership.-clean-gridbased-layout-with-a-dark-theme-featuring-charcoal-grey-backgrounds-metallic-silve_0001_zglhcb.avif`, caption: "Campaign results" },
     hasCinematicHit: true,
@@ -77,15 +77,15 @@ const SERVICES: ServiceItem[] = [
         Every medium.
       </>
     ),
-    statValue: "30+",
-    statLabel: "years combined experience",
+    statValue: "50+",
+    statLabel: "projects delivered across 9 languages",
     leftVisual:  { type: "image", src: `${CDN}freepik_from-this-brand-help-me-make-a-mockup-of-her-landing-page-keeping-the-visual-identity..-looking-very-premium-and-elegant-and-perfect_0001_1_u6hnjz.avif`, caption: "Brand campaign" },
     rightVisual: { type: "image", src: `${CDN}freepik_from-this-brand-help-me-make-a-mockup-of-her-landing-page-keeping-the-visual-identity..-looking-very-premium-and-elegant-and-perfect_0001_2_cd1gee.avif`, caption: "Creative direction" },
   },
   {
     id: "branding",
     label: "BRANDING",
-    shortLabel: "BRA",
+    shortLabel: "BRAND",
     accent: "#f59e0b",
     hookText: (
       <>
@@ -95,20 +95,20 @@ const SERVICES: ServiceItem[] = [
       </>
     ),
     statValue: "3x",
-    statLabel: "average perceived value increase after rebrand",
+    statLabel: "average perceived value increase after rebrand — Lucidpress",
     leftVisual:  { type: "image", src: `${CDN}freepik_from-this-brand-identity-help-me-make-a-mockup-of-her-landing-page..-looking-premium-and-elegant_0001_bnk4us.avif`,  caption: "Brand identity" },
     rightVisual: { type: "image", src: `${CDN}freepik__design-a-highly-polished-professional-corporate-we__1650_qukgx3.avif`,    caption: "Corporate identity" },
   },
   {
     id: "print",
     label: "PRINTING",
-    shortLabel: "PRI",
+    shortLabel: "PRINT",
     accent: "#f59e0b",
     hookText: (
       <>
-        Every touchpoint is an emotion.<br />
-        We compose them like a score —<br />
-        nothing is accidental.
+        What you hold in your hands<br />
+        says everything about who you are.<br />
+        Print that commands attention — and gets kept.
       </>
     ),
     statValue: "100%",

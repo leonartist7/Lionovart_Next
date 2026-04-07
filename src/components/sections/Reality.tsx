@@ -33,7 +33,7 @@ const cards = [
       body: "Ad budgets burned on the wrong audiences, wrong messages, and wrong platforms. You're paying for clicks that never become clients.",
     },
     solution: {
-      heading: "Every Pound Works Harder",
+      heading: "Every Dollar Works Harder",
       body: "Data-led targeting, tested creative, and continuous optimisation. We track what actually converts and scale what works — nothing else.",
     },
   },

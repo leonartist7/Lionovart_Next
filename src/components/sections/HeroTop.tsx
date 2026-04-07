@@ -221,8 +221,8 @@ export default function HeroTop() {
           variants={itemVariants}
           className="max-w-[520px] text-[15px] leading-[170%] text-text-muted md:text-[18px]"
         >
-          The art of innovating ambitious businesses in today&apos;s digital
-          landscape.
+          We design brands, build websites, and produce content that makes
+          your business impossible to ignore. One team. Nine languages.
         </motion.p>
 
         {/* CTA Form */}
@@ -257,6 +257,22 @@ export default function HeroTop() {
             {submitted ? "Opening WhatsApp…" : "Connect Now"}
           </button>
         </motion.form>
+
+        {/* Secondary CTA */}
+        <motion.div variants={itemVariants}>
+          <a
+            href="#work"
+            className="
+              inline-flex items-center gap-2
+              rounded-[14px] border border-white/20 bg-transparent px-6 py-3
+              text-[13px] font-semibold uppercase tracking-widest text-white/70
+              transition-all duration-200 hover:border-white/40 hover:text-white hover:scale-[1.03]
+            "
+          >
+            See Our Work
+            <span className="text-[11px] opacity-60">→</span>
+          </a>
+        </motion.div>
 
         {/* Trust Badges */}
         <motion.div

@@ -15,7 +15,7 @@ const SERVICES = [
     number: "01",
     title: "Branding & Identity",
     description:
-      "We build brand identities that command attention. Logo systems, typography, colour palettes, brand guidelines — everything you need to look premium across every touchpoint.",
+      "Your brand is the first thing people judge — and the last thing they forget. We craft identity systems that communicate authority, build instant trust, and hold together across every touchpoint — digital and physical.",
     deliverables: ["Logo System", "Brand Guidelines", "Typography & Colour", "Brand Voice"],
     media: {
       url: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=900&q=80",
@@ -27,7 +27,7 @@ const SERVICES = [
     number: "02",
     title: "Web Design & Development",
     description:
-      "Performance-first websites built to convert. We design and develop in Next.js — fast, beautiful, and engineered to turn visitors into booked calls.",
+      "Performance-first websites built to convert. Fast, beautiful, and engineered to turn visitors into booked calls — with measurable results from day one.",
     deliverables: ["UI/UX Design", "Next.js Development", "CMS Integration", "SEO Setup"],
     media: {
       url: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=900&q=80",

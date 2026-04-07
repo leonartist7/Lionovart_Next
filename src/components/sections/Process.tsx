@@ -7,22 +7,22 @@ const STEPS = [
   {
     num: "01",
     title: "Discovery & Strategy",
-    description: "We dive deep into your brand, audience, and goals. We analyze your market and craft a bulletproof strategy to position you as an authority.",
+    description: "We learn your business, your audience, and your standards. We ask the questions most agencies skip — because the best creative work starts with clarity, not assumptions.",
   },
   {
     num: "02",
     title: "Creative Concepts",
-    description: "Our team develops signature identities and premium design directions. We iterate until we find the perfect visual language that simply demands attention.",
+    description: "We develop two to three creative directions and refine with you until the visual language feels unmistakably yours. No surprises. No wasted revisions.",
   },
   {
     num: "03",
     title: "Build & Refine",
-    description: "We bring the concepts to life. From pixel-perfect web development in Next.js to crafting engaging video assets and social content.",
+    description: "We bring the concepts to life — websites, video, social, print — all built to the same standard and reviewed with you at every stage.",
   },
   {
     num: "04",
     title: "Launch & Scale",
-    description: "Your brand goes live. We don't just hand over the keys; we set up automation pipelines and manage your growth to turn attention into revenue.",
+    description: "Your brand goes live. We don't just hand over the keys — we set up the systems, track the results, and stay available for what comes next. For ongoing partnerships, this is where growth begins.",
   },
 ];
 
