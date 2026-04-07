@@ -342,7 +342,7 @@ function OrbitPlatformsCard({
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775085187/Untitled_design_4_muu53f.png"
+                src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
                 alt="Lionovart emblem"
                 width={32}
                 height={32}
@@ -624,7 +624,7 @@ export default function Portfolio() {
                   <div className="absolute inset-0 flex items-center justify-center bg-[#0d0d0d]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775085187/Untitled_design_4_muu53f.png"
+                      src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
                       alt="Lionovart"
                       width={56}
                       height={56}

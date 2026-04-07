@@ -79,10 +79,10 @@ export default function Comparison() {
               {/* Header Row */}
               <div className="col-span-8 grid grid-cols-subgrid bg-[#111111] text-white rounded-t-[24px]">
                 <div className="p-3 lg:p-8 flex items-center justify-center lg:justify-start">
-                  <img 
-                    src="https://i.imgur.com/2PGbCnR.png" 
-                    alt="Lionovart logo" 
-                    className="max-h-[28px] lg:max-h-[48px] w-auto object-contain filter drop-shadow-md brightness-150" 
+                  <img
+                    src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
+                    alt="Lionovart logo"
+                    className="max-h-[28px] lg:max-h-[48px] w-auto object-contain filter drop-shadow-md brightness-150"
                   />
                 </div>
                 {["Speed", "Flexibility", "Quality", "Scalability", "Efficiency", "Printing", "Support"].map((label) => (

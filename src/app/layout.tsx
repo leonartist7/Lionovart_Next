@@ -32,7 +32,7 @@ export default function RootLayout({
       <head>
         <link rel="preload" as="image" href="https://imgur.com/8czAkK3.png" />
         <link rel="preload" as="image" href="https://imgur.com/L6zJMEm.png" />
-        <link rel="preload" as="image" href="https://i.imgur.com/2PGbCnR.png" />
+        <link rel="preload" as="image" href="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif" />
       </head>
       <body className="min-h-full flex flex-col">
         <SmoothScrollProvider>{children}</SmoothScrollProvider>

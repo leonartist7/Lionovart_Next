@@ -656,7 +656,7 @@ export default function LumaShowcase() {
         {/* ── Lion cutout ── */}
         <img
           ref={lionRef}
-          src="https://i.imgur.com/2PGbCnR.png"
+          src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
           alt="Lion cutout"
           draggable={false}
           className="pointer-events-none absolute bottom-0 left-0 right-0 z-[12] mx-auto h-auto select-none object-contain opacity-0
