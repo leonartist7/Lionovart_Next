@@ -190,10 +190,10 @@ export default function Services() {
                             <li
                               key={item}
                               className="
-                                rounded-full
+                                rounded-[6px]
                                 border border-brand-red/25
                                 bg-brand-red/[0.06]
-                                px-4 py-[6px]
+                                px-3 py-[6px]
                                 text-[11px] font-bold uppercase tracking-wider
                                 text-brand-red
                               "

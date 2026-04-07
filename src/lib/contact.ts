@@ -6,7 +6,7 @@
    Example: US +1 (415) 555-1234  →  "14155551234"
             Colombia +57 (300) 123-4567  →  "573001234567"
    ═══════════════════════════════════════════════════════════════════ */
-export const WHATSAPP_NUMBER = "YOUR_NUMBER_HERE"; // ← Swap this once
+export const WHATSAPP_NUMBER = "15878974772"; // +1 (587) 897-4772
 
 const DEFAULT_MESSAGE =
   "Hi! I just visited Lionovart and I'm interested in discussing a project. Can we connect?";

@@ -55,15 +55,6 @@ export default function Comparison() {
     <section className="bg-[#F5F0EB] py-[100px] md:py-[140px] px-4 md:px-8">
       <div className="max-w-[1200px] mx-auto">
         <div className="mb-12 md:mb-20 flex flex-col items-center text-center">
-          <motion.p
-            className="text-brand-red text-[11px] md:text-[13px] font-bold uppercase tracking-[0.3em] mb-4"
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4 }}
-          >
-            The Better Way
-          </motion.p>
           <motion.h2
             className="text-[2.5rem] sm:text-[3.5rem] md:text-[5rem] lg:text-[6rem] font-bold uppercase leading-[0.92] tracking-[-0.02em] text-[#111111] max-w-4xl"
             initial={{ opacity: 0, y: 20 }}

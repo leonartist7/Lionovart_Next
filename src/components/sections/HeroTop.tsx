@@ -169,14 +169,11 @@ function AnimatedStats() {
 
 /* ─── Main Component ────────────────────────────────────────────── */
 export default function HeroTop() {
-  const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const url = email.trim()
-      ? getWhatsAppUrlWithEmail(email.trim())
-      : getWhatsAppUrl();
+    const url = getWhatsAppUrl();
     window.open(url, "_blank", "noopener,noreferrer");
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 3000);
@@ -191,7 +188,7 @@ export default function HeroTop() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 flex w-full max-w-[1200px] flex-col items-center gap-6 text-center"
+        className="relative z-20 flex w-full max-w-[1200px] flex-col items-center gap-6 text-center"
       >
         {/* Main Heading */}
         <motion.h1
@@ -229,29 +226,15 @@ export default function HeroTop() {
         <motion.form
           variants={itemVariants}
           onSubmit={handleSubmit}
-          className="flex w-full max-w-[480px] flex-col items-stretch gap-3 sm:flex-row sm:items-center"
+          className="flex w-full justify-center"
         >
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            className="
-              flex-1 rounded-[14px] border border-white/10 bg-white/5
-              px-5 py-3.5 text-[14px] text-text-main placeholder-text-muted/50
-              outline-none ring-0 backdrop-blur-sm
-              transition-colors duration-200
-              focus:border-white/25 focus:bg-white/8
-              md:text-[15px]
-            "
-          />
           <button
             type="submit"
             className="
-              shrink-0 rounded-[14px] bg-brand-red px-6 py-3.5
-              text-[13px] font-bold uppercase tracking-widest text-white
+              rounded-[14px] bg-brand-red px-8 py-3.5
+              text-[14px] font-bold uppercase tracking-widest text-white
               transition-all duration-200 hover:brightness-110 hover:scale-[1.03]
-              active:scale-[0.98] sm:px-7
+              active:scale-[0.98]
             "
           >
             {submitted ? "Opening WhatsApp…" : "Connect Now"}
@@ -304,7 +287,7 @@ export default function HeroTop() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 1.2 }}
-        className="relative z-10 mt-6 md:mt-8 w-full overflow-visible"
+        className="relative z-10 -mt-6 md:-mt-12 lg:-mt-20 w-full overflow-visible pointer-events-none"
       >
         <Carousel3D />
       </motion.div>
