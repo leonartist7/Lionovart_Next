@@ -15,8 +15,8 @@ const SERVICES = [
     number: "01",
     title: "Branding & Identity",
     description:
-      "Your brand is the first thing people judge — and the last thing they forget. We craft identity systems that communicate authority, build instant trust, and hold together across every touchpoint — digital and physical.",
-    deliverables: ["Logo System", "Brand Guidelines", "Typography & Colour", "Brand Voice"],
+      "Your brand is the first thing people judge — and the last thing they forget. We craft identity systems that communicate authority, build instant trust, and hold together across every touchpoint — digital and physical. We don't just design how your brand looks — we shape how it sounds. Audio logos, brand voice tone, sonic identity systems.",
+    deliverables: ["Logo System", "Brand Guidelines", "Typography & Colour", "Brand Voice", "Sonic Branding"],
     media: {
       url: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=900&q=80",
       alt: "Branding & Identity",
@@ -39,8 +39,8 @@ const SERVICES = [
     number: "03",
     title: "Video Production",
     description:
-      "Brand films, product showcases, reels and social content. We handle scripting, shooting, and editing — delivering assets that stop the scroll and tell your story.",
-    deliverables: ["Brand Films", "Social Reels", "Product Videos", "Motion Graphics"],
+      "Brand films, product showcases, reels and social content. We handle scripting, shooting, and editing — delivering assets that stop the scroll and tell your story. Including original music composition when your project needs a sonic identity, not stock audio.",
+    deliverables: ["Brand Films", "Social Reels", "Product Videos", "Motion Graphics", "Custom Sound Design & Music"],
     media: {
       url: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=900&q=80",
       alt: "Video Production",
@@ -59,15 +59,39 @@ const SERVICES = [
     },
   },
   {
-    id: "automation",
+    id: "print",
     number: "05",
-    title: "Digital & Printing",
+    title: "Print & Physical Branding",
     description:
-      "From digital campaigns to premium print materials — we keep your brand consistent across every medium, physical and digital, end to end.",
-    deliverables: ["Digital Campaigns", "Print Design", "Packaging", "Brand Collateral"],
+      "Your brand can't live only on screens. We design and produce the physical materials that make your business memorable in the real world — from business cards people keep to inflatable installations that turn heads at events. With direct access to one of Canada's leading balloon production facilities, we deliver physical brand experiences most agencies can't.",
+    deliverables: ["Business Cards & Stationery", "Packaging Design", "Print Collateral", "Custom Balloons & Inflatables", "Signage & Display", "Event Branding"],
+    media: {
+      url: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=900&q=80",
+      alt: "Print & Physical Branding",
+    },
+  },
+  {
+    id: "smart-systems",
+    number: "06",
+    title: "Smart Systems & AI",
+    description:
+      "Intelligent systems that work while you sleep. From AI voice receptionists answering calls 24/7 to automated lead capture, personalized customer agents, and workflow integrations — we build the automations that turn manual tasks into round-the-clock growth. Human-directed. Brand-aligned. Always on.",
+    deliverables: ["AI Voice Agents", "Virtual Receptionists", "Lead Automation", "AI Chatbots", "Workflow Integration", "CRM & Email Automation"],
     media: {
       url: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=900&q=80",
-      alt: "AI & Automation",
+      alt: "Smart Systems & AI",
+    },
+  },
+  {
+    id: "growth",
+    number: "07",
+    title: "Growth Marketing",
+    description:
+      "Visibility where it matters. We combine search optimization, local SEO, Google Business management, and strategic consulting to make sure your business is found by the right people — consistently, not accidentally. From climbing search rankings to dominating your local market, we build the systems that bring qualified leads to your door.",
+    deliverables: ["SEO & AEO Optimization", "Google Business Management", "Local Search Domination", "Paid Ads & Google Ads", "Business Consultation", "Analytics & Reporting"],
+    media: {
+      url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&q=80",
+      alt: "Growth Marketing",
     },
   },
 ];

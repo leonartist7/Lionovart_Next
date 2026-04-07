@@ -16,8 +16,8 @@ export default function AboutUsHalf() {
           About Us
         </h2>
         <p className="text-text-main text-[16px] md:text-[28px] font-medium leading-[1.4]">
-          We are a creative agency obsessed with one thing — building brands that move people.
-          From strategy to screen, every decision is made with intention.
+          We are a multidisciplinary creative agency — building brands that don&apos;t just look right,
+          they feel great. From strategy to screen to sound, every decision is made with intention.
         </p>
 
         {/* ── 2 "Mini-Video" Style Cards Underneath ── */}
