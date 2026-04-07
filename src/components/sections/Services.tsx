@@ -61,10 +61,10 @@ const SERVICES = [
   {
     id: "automation",
     number: "05",
-    title: "AI & Automation",
+    title: "Digital & Printing",
     description:
-      "We build automated lead generation pipelines, CRM integrations and AI-powered workflows so your business grows while you sleep.",
-    deliverables: ["Lead Gen Pipelines", "CRM Setup", "Email Automation", "AI Workflows"],
+      "From digital campaigns to premium print materials — we keep your brand consistent across every medium, physical and digital, end to end.",
+    deliverables: ["Digital Campaigns", "Print Design", "Packaging", "Brand Collateral"],
     media: {
       url: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=900&q=80",
       alt: "AI & Automation",

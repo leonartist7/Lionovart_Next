@@ -1,44 +1,52 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, X } from "lucide-react";
 
 const COMPARISON_DATA = [
   {
     title: "In-house team",
-    description: "Hiring takes time, replacements are slow, and ongoing salaries make in-house design costly, especially when needs fluctuate.",
-    platform: false,
+    description: "In-house teams don't always have the skill mix or bandwidth to handle every request that the business needs.",
     speed: false,
+    flexibility: true,
     quality: true,
+    scalability: false,
+    efficiency: false,
+    aiAndStrategy: false,
     support: true,
-    cost: false,
+  },
+  {
+    title: "Creative agencies",
+    description: "Traditional agencies can be slow, costly, and built around rigid processes that make it difficult to adapt.",
+    speed: false,
+    flexibility: false,
+    quality: true,
+    scalability: false,
+    efficiency: false,
+    aiAndStrategy: false,
+    support: true,
   },
   {
     title: "Freelancers",
-    description: "Hit or miss. Sourcing and managing talent for every project keeps you chasing consistency, not building your brand.",
-    platform: false,
+    description: "Freelancers can be unreliable and hard to scale, leading to inconsistent work and questionable quality.",
     speed: false,
-    quality: true,
-    support: true,
-    cost: false,
-  },
-  {
-    title: "Agencies",
-    description: "Strategic partners, but high-cost retainers, rigid scopes, and slow timelines make them a poor fit for everyday creative needs.",
-    platform: false,
-    speed: false,
-    quality: true,
-    support: true,
-    cost: false,
-  },
-  {
-    title: "DIY tools",
-    description: "Quick to use — but the output is off-brand, inconsistent, and still needs heavy manual effort to finish.",
-    platform: true,
-    speed: true,
+    flexibility: true,
     quality: false,
+    scalability: false,
+    efficiency: false,
+    aiAndStrategy: false,
+    support: true,
+  },
+  {
+    title: "AI tools only",
+    description: "AI tools can increase speed and efficiency, but without human judgment and brand context, they fall short on quality and strategy.",
+    speed: true,
+    flexibility: false,
+    quality: false,
+    scalability: true,
+    efficiency: true,
+    aiAndStrategy: false,
     support: false,
-    cost: false,
   }
 ];
 
@@ -75,85 +83,76 @@ export default function Comparison() {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
           <div className="w-full overflow-x-auto">
-            <div className="min-w-[900px] grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] bg-white divide-y divide-black/5">
+            <div className="w-full min-w-[500px] lg:min-w-[1000px] grid grid-cols-[1.2fr_repeat(7,1fr)] lg:grid-cols-[1.8fr_repeat(7,1fr)] bg-white divide-y divide-black/5">
               
               {/* Header Row */}
-              <div className="col-span-6 grid grid-cols-subgrid bg-[#111111] text-white rounded-t-[24px]">
-                <div className="p-6 md:p-8 flex items-center">
-                  <span className="text-[24px] md:text-[32px] font-black uppercase text-brand-gold tracking-tighter">
-                    LIONOVART<span className="text-brand-red">.</span>
-                  </span>
+              <div className="col-span-8 grid grid-cols-subgrid bg-[#111111] text-white rounded-t-[24px]">
+                <div className="p-3 lg:p-8 flex items-center justify-center lg:justify-start">
+                  <img 
+                    src="https://i.imgur.com/2PGbCnR.png" 
+                    alt="Lionovart logo" 
+                    className="max-h-[28px] lg:max-h-[48px] w-auto object-contain filter drop-shadow-md brightness-150" 
+                  />
                 </div>
-                {["Platform", "Speed", "Quality", "Support", "Cost"].map((label) => (
-                  <div key={label} className="p-6 flex items-center justify-center text-[13px] md:text-[15px] font-medium tracking-wide">
+                {["Speed", "Flexibility", "Quality", "Scalability", "Efficiency", "Digital & Printing", "Support"].map((label) => (
+                  <div key={label} className="p-2 lg:p-4 flex items-center justify-center text-[9px] sm:text-[10px] lg:text-[14px] font-medium tracking-wide text-center">
                     {label}
                   </div>
                 ))}
               </div>
 
               {/* LIONOVART Highlight Row */}
-              <div className="col-span-6 grid grid-cols-subgrid bg-brand-red text-white">
-                <div className="p-6 md:p-8 flex items-center border-r border-white/20">
-                  <span className="text-[22px] md:text-[28px] font-black uppercase tracking-tighter text-white">
+              <div className="col-span-8 grid grid-cols-subgrid bg-brand-red text-white">
+                <div className="p-3 lg:p-8 flex flex-col justify-center border-r border-white/20">
+                  <span className="text-[13px] sm:text-[16px] lg:text-[28px] font-black uppercase tracking-tighter text-white">
                     LIONOVART
                   </span>
+                  <p className="hidden lg:block text-[13px] text-white/80 leading-[160%] mt-2">
+                    All your creative and printing needs with world-class creative talent backed by smart systems built to strengthen every project.
+                  </p>
                 </div>
-                {[1, 2, 3, 4, 5].map((idx) => (
-                  <div key={idx} className="p-6 flex items-center justify-center border-r border-white/20 last:border-r-0">
-                    <CheckCircle className="w-6 h-6 md:w-7 md:h-7" strokeWidth={1.5} />
+                {[1, 2, 3, 4, 5, 6, 7].map((idx) => (
+                  <div key={idx} className="p-3 lg:p-6 flex items-center justify-center border-r border-white/20 last:border-r-0">
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 lg:w-7 lg:h-7" strokeWidth={1.5} />
                   </div>
                 ))}
               </div>
 
               {/* Competitor Rows */}
-              {COMPARISON_DATA.map((row, idx) => (
-                <div key={idx} className="col-span-6 grid grid-cols-subgrid bg-[#FAFAFA] hover:bg-white transition-colors duration-300">
-                  <div className="p-6 md:p-8 flex flex-col justify-center border-r border-black/5">
-                    <h3 className="text-[18px] md:text-[22px] font-bold text-[#111111] mb-2">
-                      {row.title}
-                    </h3>
-                    <p className="text-[13px] md:text-[14px] text-[#555] leading-[160%]">
-                      {row.description}
-                    </p>
+              {COMPARISON_DATA.map((row, idx) => {
+                const fields = [
+                  row.speed,
+                  row.flexibility,
+                  row.quality,
+                  row.scalability,
+                  row.efficiency,
+                  row.aiAndStrategy,
+                  row.support
+                ];
+
+                return (
+                  <div key={idx} className="col-span-8 grid grid-cols-subgrid bg-[#FAFAFA] hover:bg-white transition-colors duration-300">
+                    <div className="p-3 lg:p-8 flex flex-col justify-center border-r border-black/5">
+                      <h3 className="text-[12px] sm:text-[14px] lg:text-[22px] font-bold text-[#111111] lg:mb-2">
+                        {row.title}
+                      </h3>
+                      <p className="hidden lg:block text-[14px] text-[#555] leading-[160%]">
+                        {row.description}
+                      </p>
+                    </div>
+                    
+                    {fields.map((isTrue, i) => (
+                      <div key={i} className="p-2 sm:p-3 lg:p-6 flex items-center justify-center border-r border-black/5 last:border-r-0">
+                        {isTrue ? (
+                          <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-[#111]" strokeWidth={1.5} />
+                        ) : (
+                          <X className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-[#999]" strokeWidth={1.5} />
+                        )}
+                      </div>
+                    ))}
                   </div>
-                  
-                  <div className="p-6 flex items-center justify-center border-r border-black/5">
-                    {row.platform ? (
-                      <CheckCircle className="w-6 h-6 text-[#111]" strokeWidth={1.5} />
-                    ) : (
-                      <XCircle className="w-6 h-6 text-[#999]" strokeWidth={1.5} />
-                    )}
-                  </div>
-                  <div className="p-6 flex items-center justify-center border-r border-black/5">
-                    {row.speed ? (
-                      <CheckCircle className="w-6 h-6 text-[#111]" strokeWidth={1.5} />
-                    ) : (
-                      <XCircle className="w-6 h-6 text-[#999]" strokeWidth={1.5} />
-                    )}
-                  </div>
-                  <div className="p-6 flex items-center justify-center border-r border-black/5">
-                    {row.quality ? (
-                      <CheckCircle className="w-6 h-6 text-[#111]" strokeWidth={1.5} />
-                    ) : (
-                      <XCircle className="w-6 h-6 text-[#999]" strokeWidth={1.5} />
-                    )}
-                  </div>
-                  <div className="p-6 flex items-center justify-center border-r border-black/5">
-                    {row.support ? (
-                      <CheckCircle className="w-6 h-6 text-[#111]" strokeWidth={1.5} />
-                    ) : (
-                      <XCircle className="w-6 h-6 text-[#999]" strokeWidth={1.5} />
-                    )}
-                  </div>
-                  <div className="p-6 flex items-center justify-center">
-                    {row.cost ? (
-                      <CheckCircle className="w-6 h-6 text-[#111]" strokeWidth={1.5} />
-                    ) : (
-                      <XCircle className="w-6 h-6 text-[#999]" strokeWidth={1.5} />
-                    )}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </motion.div>
