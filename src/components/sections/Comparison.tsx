@@ -12,7 +12,7 @@ const COMPARISON_DATA = [
     quality: true,
     scalability: false,
     efficiency: false,
-    aiAndStrategy: false,
+    printing: false,
     support: true,
   },
   {
@@ -23,7 +23,7 @@ const COMPARISON_DATA = [
     quality: true,
     scalability: false,
     efficiency: false,
-    aiAndStrategy: false,
+    printing: false,
     support: true,
   },
   {
@@ -34,7 +34,7 @@ const COMPARISON_DATA = [
     quality: false,
     scalability: false,
     efficiency: false,
-    aiAndStrategy: false,
+    printing: false,
     support: true,
   },
   {
@@ -45,7 +45,7 @@ const COMPARISON_DATA = [
     quality: false,
     scalability: true,
     efficiency: true,
-    aiAndStrategy: false,
+    printing: false,
     support: false,
   }
 ];
@@ -117,7 +117,7 @@ export default function Comparison() {
                   row.quality,
                   row.scalability,
                   row.efficiency,
-                  row.aiAndStrategy,
+                  row.printing,
                   row.support
                 ];
 
