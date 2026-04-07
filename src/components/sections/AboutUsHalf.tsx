@@ -50,12 +50,12 @@ export default function AboutUsHalf() {
             </div>
           </div>
 
-          {/* Card 2 — 7 Languages */}
+          {/* Card 2 — 9 Languages */}
           <div className="relative flex-1 rounded-[16px] border border-white/10 bg-[#0A0A0A] h-[120px] sm:h-[140px] md:h-[180px] shadow-2xl">
             {/* Stat label floating above the card */}
             <div className="absolute inset-x-0 top-0 -translate-y-[130%] text-center pointer-events-none">
               <h3 className="text-[16px] sm:text-[20px] md:text-[26px] font-bold text-white uppercase tracking-widest font-clash leading-none whitespace-nowrap">
-                7 Languages
+                9 Languages
               </h3>
             </div>
 
