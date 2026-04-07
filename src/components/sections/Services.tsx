@@ -25,13 +25,13 @@ const SERVICES = [
   {
     id: "web",
     number: "02",
-    title: "Web Design & Development",
+    title: "Web & App Development",
     description:
-      "Performance-first websites built to convert. Fast, beautiful, and engineered to turn visitors into booked calls — with measurable results from day one.",
-    deliverables: ["UI/UX Design", "Next.js Development", "CMS Integration", "SEO Setup"],
+      "Performance-first websites and applications built to convert. Fast, beautiful, and engineered to turn visitors into booked calls — with measurable results from day one. From marketing sites to custom web apps and mobile experiences, we build what your business actually needs.",
+    deliverables: ["UI/UX Design", "Web Development", "Web & Mobile Apps", "CMS Integration", "E-Commerce", "SEO Setup"],
     media: {
       url: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=900&q=80",
-      alt: "Web Design & Development",
+      alt: "Web & App Development",
     },
   },
   {
