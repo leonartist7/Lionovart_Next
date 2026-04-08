@@ -1,13 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";
 import {
   Accordion,
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
+
+// Rising particles — mirrored from Process section
+const PARTICLES = [
+  { left:  "4%", sz: 4, dur: 4.8, del: 0.0, op: 0.40 },
+  { left: "10%", sz: 3, dur: 6.2, del: 1.0, op: 0.28 },
+  { left: "17%", sz: 5, dur: 5.5, del: 0.5, op: 0.32 },
+  { left: "23%", sz: 3, dur: 4.3, del: 2.2, op: 0.40 },
+  { left: "30%", sz: 6, dur: 7.1, del: 1.5, op: 0.22 },
+  { left: "37%", sz: 4, dur: 5.0, del: 0.8, op: 0.35 },
+  { left: "44%", sz: 3, dur: 6.8, del: 3.0, op: 0.28 },
+  { left: "51%", sz: 5, dur: 4.6, del: 0.3, op: 0.32 },
+  { left: "58%", sz: 4, dur: 5.9, del: 1.8, op: 0.30 },
+  { left: "64%", sz: 3, dur: 4.2, del: 2.5, op: 0.40 },
+  { left: "71%", sz: 5, dur: 6.5, del: 0.6, op: 0.22 },
+  { left: "78%", sz: 4, dur: 5.3, del: 1.3, op: 0.30 },
+  { left: "85%", sz: 3, dur: 4.9, del: 2.8, op: 0.38 },
+  { left: "91%", sz: 6, dur: 7.4, del: 0.2, op: 0.20 },
+  { left: "96%", sz: 4, dur: 5.7, del: 3.5, op: 0.28 },
+  { left: "14%", sz: 3, dur: 4.4, del: 1.1, op: 0.32 },
+  { left: "55%", sz: 5, dur: 6.0, del: 2.0, op: 0.25 },
+  { left: "74%", sz: 4, dur: 5.2, del: 0.9, op: 0.35 },
+] as const;
 
 const SERVICES = [
   {
@@ -99,13 +122,63 @@ const SERVICES = [
 export default function Services() {
   const [activeId, setActiveId] = useState<string>(SERVICES[0].id);
 
+  // biome-ignore lint/suspicious/noExplicitAny: External library without types
+  const panelShaderRef = useRef<HTMLDivElement>(null);
+  const panelShaderMount = useRef<any>(null);
+
+  useEffect(() => {
+    const styleId = "shader-canvas-style-card";
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.textContent = `.shader-container-card canvas { width: 100% !important; height: 100% !important; display: block !important; position: absolute !important; top: 0 !important; left: 0 !important; border-radius: 28px !important; }`;
+      document.head.appendChild(style);
+    }
+    if (panelShaderRef.current) {
+      panelShaderMount.current = new ShaderMount(
+        panelShaderRef.current,
+        liquidMetalFragmentShader,
+        { u_repetition: 3, u_softness: 0.6, u_shiftRed: 1.0, u_shiftBlue: 1.0, u_distortion: 0, u_scale: 6, u_shape: 1 },
+        undefined,
+        0.15,
+      );
+    }
+    return () => { panelShaderMount.current?.destroy?.(); panelShaderMount.current = null; };
+  }, []);
+
   const activeService = SERVICES.find((s) => s.id === activeId) ?? SERVICES[0];
 
   return (
     <section
       id="services"
-      className="bg-[#F5F0EB] pt-[100px] pb-[100px] md:pt-[120px] md:pb-[140px]"
+      className="relative bg-white pt-[100px] pb-[100px] md:pt-[120px] md:pb-[140px] overflow-hidden"
     >
+      {/* Rising particles — same as Process section */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+        <style>{`
+          @keyframes particle-rise {
+            0%   { transform: translateY(0);      opacity: var(--p-op); }
+            70%  {                                 opacity: var(--p-op); }
+            100% { transform: translateY(-105vh); opacity: 0; }
+          }
+        `}</style>
+        {PARTICLES.map((p, i) => (
+          <span
+            key={i}
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: p.left,
+              width: p.sz,
+              height: p.sz,
+              borderRadius: "50%",
+              background: "#e5192a",
+              ["--p-op" as string]: p.op,
+              animation: `particle-rise ${p.dur}s ${p.del}s ease-out infinite`,
+            }}
+          />
+        ))}
+      </div>
       <div className="mx-auto max-w-[1280px] px-4 md:px-8">
 
         {/* ── Section Header ── */}
@@ -132,21 +205,39 @@ export default function Services() {
 
         {/* ── The Premium Floating Glass Panel ── */}
         <motion.div
-          className="
-            relative
-            rounded-[28px]
-            border border-white/70
-            bg-white/75
-            backdrop-blur-2xl
-            shadow-[0_12px_64px_-12px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.95)]
-            p-6 md:p-12 lg:p-16
-          "
+          className="relative rounded-[28px]"
+          style={{ padding: "3px" }}
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-20 lg:items-start">
+          {/* Liquid metal shader rim */}
+          <div
+            ref={panelShaderRef}
+            className="shader-container-card"
+            style={{
+              position: "absolute",
+              inset: 0,
+              borderRadius: "28px",
+              overflow: "hidden",
+              pointerEvents: "none",
+            }}
+          />
+
+          {/* Inner glass panel — 3px inset so the metal rim shows */}
+          <div
+            className="
+              relative
+              rounded-[26px]
+              border border-white/70
+              bg-white/85
+              backdrop-blur-2xl
+              shadow-[0_12px_64px_-12px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.95)]
+              p-6 md:p-12 lg:p-16
+            "
+          >
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-12 lg:gap-20 lg:items-start">
 
             {/* ── Left: Accordion ── */}
             <div>
@@ -219,7 +310,7 @@ export default function Services() {
             </div>
 
             {/* ── Right: Sticky Image ── */}
-            <div className="hidden lg:block sticky top-28">
+            <div className="hidden md:block md:sticky md:top-28 lg:sticky lg:top-28">
               <div className="relative overflow-hidden rounded-[24px] aspect-[3/4] bg-[#e8e3de] shadow-[0_8px_40px_rgba(0,0,0,0.10)]">
 
                 <AnimatePresence mode="sync">
@@ -266,8 +357,8 @@ export default function Services() {
                     onClick={() => setActiveId(s.id)}
                     className={`rounded-full transition-all duration-300 ${
                       activeId === s.id
-                        ? "w-6 h-[6px] bg-brand-red"
-                        : "w-[6px] h-[6px] bg-black/20 hover:bg-black/40"
+                        ? "w-8 h-2 bg-brand-red"
+                        : "w-2.5 h-2.5 bg-black/20 hover:bg-black/40"
                     }`}
                     aria-label={s.title}
                   />
@@ -276,6 +367,7 @@ export default function Services() {
             </div>
 
           </div>
+          </div>{/* /inner glass panel */}
         </motion.div>
 
       </div>

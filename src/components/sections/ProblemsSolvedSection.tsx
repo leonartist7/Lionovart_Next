@@ -221,7 +221,7 @@ function ProblemCard({
         >
           <div className="relative w-full h-full drop-shadow-[0_0_24px_rgba(240,201,23,0.55)]">
             <Image
-              src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
+              src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775085187/Untitled_design_4_muu53f.png"
               alt="Lion Emblem"
               aria-hidden="true"
               fill

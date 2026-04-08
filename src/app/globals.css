@@ -13,6 +13,12 @@
   }
 }
 
+/* Metallic border shimmer — used in Portfolio cards */
+@keyframes metal-shimmer {
+  0%   { background-position: -200% center, 0 0; }
+  100% { background-position:  200% center, 0 0; }
+}
+
 /* 3D Carousel spin — used in HeroTop */
 @keyframes carousel-spin {
   from { transform: rotateY(0turn); }

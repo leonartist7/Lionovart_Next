@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";
 import {
   motion,
   useMotionValue,
@@ -255,6 +256,30 @@ function OrbitPlatformsCard({
   const innerIcons = PLATFORM_ICONS.slice(0, 4) as readonly PlatformIcon[];
   const outerIcons = PLATFORM_ICONS.slice(4) as readonly PlatformIcon[];
 
+  // biome-ignore lint/suspicious/noExplicitAny: External library without types
+  const shaderRef = useRef<HTMLDivElement>(null);
+  const shaderMount = useRef<any>(null);
+
+  useEffect(() => {
+    const styleId = "shader-canvas-style-card";
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.textContent = `.shader-container-card canvas { width: 100% !important; height: 100% !important; display: block !important; position: absolute !important; top: 0 !important; left: 0 !important; border-radius: 20px !important; }`;
+      document.head.appendChild(style);
+    }
+    if (shaderRef.current) {
+      shaderMount.current = new ShaderMount(
+        shaderRef.current,
+        liquidMetalFragmentShader,
+        { u_repetition: 3, u_softness: 0.6, u_shiftRed: 0.65, u_shiftBlue: 0.0, u_distortion: 0, u_scale: 6, u_shape: 1 },
+        undefined,
+        0.15,
+      );
+    }
+    return () => { shaderMount.current?.destroy?.(); shaderMount.current = null; };
+  }, []);
+
   return (
     <motion.div
       className={`relative ${project.gridClasses}`}
@@ -268,113 +293,139 @@ function OrbitPlatformsCard({
         delay: (index % 3) * 0.1,
       }}
     >
+      {/* Outer shell — position:relative so shader fills it as a ring */}
       <div
-        className="relative flex h-full w-full flex-col overflow-hidden rounded-[20px] min-h-[220px] md:min-h-0"
+        className="relative flex h-full w-full min-h-[220px] md:min-h-0"
         style={{
-          background: "#0d0d0d",
-          boxShadow:
-            "0 8px 24px -6px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(255,255,255,0.05)",
+          borderRadius: "20px",
+          overflow: "hidden",
+          boxShadow: "0 8px 24px -6px rgba(0,0,0,0.15)",
         }}
       >
-        {/* Radial red glow */}
+        {/* Liquid metal shader — fills full card, visible only as the 3px rim */}
         <div
+          ref={shaderRef}
+          className="shader-container-card"
           style={{
             position: "absolute",
             inset: 0,
-            background:
-              "radial-gradient(ellipse 60% 55% at 50% 42%, rgba(229,25,42,0.10) 0%, transparent 75%)",
+            borderRadius: "20px",
+            overflow: "hidden",
             pointerEvents: "none",
           }}
         />
 
-        {/* Orbit stage */}
+        {/* Inner dark layer — 3px inset leaves shader visible as the border */}
         <div
+          className="flex flex-col"
           style={{
             position: "absolute",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            paddingBottom: 56,
+            inset: "3px",
+            borderRadius: "17px",
+            background: "#0d0d0d",
+            overflow: "hidden",
           }}
         >
-          {/* Zero-size anchor at center */}
-          <div style={{ position: "relative", width: 0, height: 0 }}>
-            {/* Faint guide rings */}
-            {([120, 190] as const).map((d) => (
+          {/* Radial red glow */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "radial-gradient(ellipse 60% 55% at 50% 42%, rgba(229,25,42,0.10) 0%, transparent 75%)",
+              pointerEvents: "none",
+            }}
+          />
+
+          {/* Orbit stage */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingBottom: 56,
+            }}
+          >
+            {/* Zero-size anchor at center */}
+            <div style={{ position: "relative", width: 0, height: 0 }}>
+              {/* Faint guide rings */}
+              {([120, 190] as const).map((d) => (
+                <div
+                  key={d}
+                  style={{
+                    position: "absolute",
+                    width: d,
+                    height: d,
+                    borderRadius: "50%",
+                    border: "1px solid rgba(255,255,255,0.05)",
+                    top: -d / 2,
+                    left: -d / 2,
+                    pointerEvents: "none",
+                  }}
+                />
+              ))}
+
+              {/* Inner ring: 4 icons, 60px radius, 9s CW */}
+              <OrbitRing icons={innerIcons} radius={60} duration={9} direction={1} />
+
+              {/* Outer ring: 5 icons, 95px radius, 18s CCW */}
+              <OrbitRing icons={outerIcons} radius={95} duration={18} direction={-1} />
+
+              {/* Lion emblem at center */}
               <div
-                key={d}
                 style={{
                   position: "absolute",
-                  width: d,
-                  height: d,
+                  width: 40,
+                  height: 40,
+                  top: -20,
+                  left: -20,
                   borderRadius: "50%",
-                  border: "1px solid rgba(255,255,255,0.05)",
-                  top: -d / 2,
-                  left: -d / 2,
-                  pointerEvents: "none",
+                  background: "rgba(255,255,255,0.04)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  filter: "drop-shadow(0 0 10px rgba(255,255,255,0.6))",
+                  zIndex: 10,
                 }}
-              />
-            ))}
-
-            {/* Inner ring: 4 icons, 60px radius, 9s CW */}
-            <OrbitRing icons={innerIcons} radius={60} duration={9} direction={1} />
-
-            {/* Outer ring: 5 icons, 95px radius, 18s CCW */}
-            <OrbitRing icons={outerIcons} radius={95} duration={18} direction={-1} />
-
-            {/* Lion emblem at center */}
-            <div
-              style={{
-                position: "absolute",
-                width: 40,
-                height: 40,
-                top: -20,
-                left: -20,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.04)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                filter: "drop-shadow(0 0 10px rgba(255,255,255,0.6))",
-                zIndex: 10,
-              }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
-                alt="Lionovart emblem"
-                width={32}
-                height={32}
-                style={{ objectFit: "contain" }}
-              />
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
+                  alt="Lionovart emblem"
+                  width={32}
+                  height={32}
+                  style={{ objectFit: "contain" }}
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Bottom label */}
-        <div
-          className="relative z-10 mt-auto px-5 pb-4 pt-2 md:px-6 md:pb-5"
-          style={{
-            background:
-              "linear-gradient(to top, rgba(13,13,13,0.95) 70%, transparent)",
-          }}
-        >
-          <p
-            className="mb-[2px] text-[9px] font-bold uppercase tracking-[0.2em]"
-            style={{ color: "#e5192a" }}
+          {/* Bottom label */}
+          <div
+            className="relative z-10 mt-auto px-5 pb-4 pt-2 md:px-6 md:pb-5"
+            style={{
+              background:
+                "linear-gradient(to top, rgba(13,13,13,0.95) 70%, transparent)",
+            }}
           >
-            OUR TOOLS
-          </p>
-          <h3 className="text-[1rem] font-bold leading-tight text-white">
-            Top Platform Expertise
-          </h3>
-          <p
-            className="mt-[2px] text-[12px] leading-snug"
-            style={{ color: "rgba(255,255,255,0.4)" }}
-          >
-            Always the best tools available
-          </p>
+            <p
+              className="mb-[2px] text-[9px] font-bold uppercase tracking-[0.2em]"
+              style={{ color: "#e5192a" }}
+            >
+              OUR TOOLS
+            </p>
+            <h3 className="text-[1rem] font-bold leading-tight text-white">
+              Top Platform Expertise
+            </h3>
+            <p
+              className="mt-[2px] text-[12px] leading-snug"
+              style={{ color: "rgba(255,255,255,0.4)" }}
+            >
+              Always the best tools available
+            </p>
+          </div>
         </div>
       </div>
     </motion.div>
@@ -394,6 +445,10 @@ function BentoCard({
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
+  // biome-ignore lint/suspicious/noExplicitAny: External library without types
+  const shaderRef = useRef<HTMLDivElement>(null);
+  const shaderMount = useRef<any>(null);
+
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
@@ -402,6 +457,26 @@ function BentoCard({
 
   const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], [4, -4]);
   const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], [-4, 4]);
+
+  useEffect(() => {
+    const styleId = "shader-canvas-style-card";
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.textContent = `.shader-container-card canvas { width: 100% !important; height: 100% !important; display: block !important; position: absolute !important; top: 0 !important; left: 0 !important; border-radius: 20px !important; }`;
+      document.head.appendChild(style);
+    }
+    if (shaderRef.current) {
+      shaderMount.current = new ShaderMount(
+        shaderRef.current,
+        liquidMetalFragmentShader,
+        { u_repetition: 3, u_softness: 0.6, u_shiftRed: 0.65, u_shiftBlue: 0.0, u_distortion: 0, u_scale: 6, u_shape: 1 },
+        undefined,
+        0.15,
+      );
+    }
+    return () => { shaderMount.current?.destroy?.(); shaderMount.current = null; };
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -435,43 +510,72 @@ function BentoCard({
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={handleMouseLeave}
-        className="relative flex h-full w-full cursor-default flex-col justify-end overflow-hidden rounded-[20px] bg-[#161616] min-h-[220px] md:min-h-0"
-        style={{ rotateX, rotateY }}
+        className="relative flex h-full w-full cursor-default min-h-[220px] md:min-h-0"
+        style={{
+          rotateX,
+          rotateY,
+          borderRadius: "20px",
+          overflow: "hidden",
+        }}
         animate={{
-          scale: isHovered ? 1.03 : 1,
+          scale: isHovered ? 1.015 : 1,
           boxShadow: isHovered
-            ? "0 16px 40px -8px rgba(0,0,0,0.22), 0 4px 16px -4px rgba(0,0,0,0.14), inset 0 0 0 1px rgba(255,255,255,0.08)"
-            : "0 8px 24px -6px rgba(0,0,0,0.15), 0 2px 8px -2px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(255,255,255,0.05)",
+            ? "0 10px 28px -8px rgba(0,0,0,0.20), 0 0 16px -4px rgba(229,25,42,0.10)"
+            : "0 8px 24px -6px rgba(0,0,0,0.15), 0 2px 8px -2px rgba(0,0,0,0.10)",
         }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
-        {/* Background Image */}
+        {/* Liquid metal shader — fills the full card; only the 3px rim is exposed */}
         <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${project.image})` }}
-        />
-
-        {/* Fade Overlay */}
-        <div
-          className="absolute inset-0 transition-opacity duration-500"
+          ref={shaderRef}
+          className="shader-container-card"
           style={{
-            background:
-              "linear-gradient(to top, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.75) 18%, rgba(255,255,255,0.3) 36%, transparent 60%)",
-            opacity: isHovered ? 0.85 : 1,
+            position: "absolute",
+            inset: 0,
+            borderRadius: "20px",
+            overflow: "hidden",
+            pointerEvents: "none",
           }}
         />
 
-        {/* Content */}
-        <div className="relative z-10 flex flex-col justify-end px-6 pt-6 pb-[15px] md:px-8 md:pt-8 md:pb-[19px]">
-          <span
-            className="mb-1 text-[2.5rem] font-[800] leading-none text-[#e5192a]"
-            style={{ textShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
-          >
-            {project.metric}
-          </span>
-          <h3 className="mb-0 text-[1.1rem] font-bold text-[#0d0d0d]">
-            {project.title}
-          </h3>
+        {/* Inner content wrapper — 3px inset makes the shader ring visible as the border */}
+        <div
+          className="absolute flex flex-col justify-end"
+          style={{
+            inset: "3px",
+            borderRadius: "17px",
+            background: "#161616",
+            overflow: "hidden",
+          }}
+        >
+          {/* Background Image */}
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${project.image})` }}
+          />
+
+          {/* Fade Overlay */}
+          <div
+            className="absolute inset-0 transition-opacity duration-500"
+            style={{
+              background:
+                "linear-gradient(to top, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.75) 18%, rgba(255,255,255,0.3) 36%, transparent 60%)",
+              opacity: isHovered ? 0.85 : 1,
+            }}
+          />
+
+          {/* Content */}
+          <div className="relative z-10 flex flex-col justify-end px-6 pt-6 pb-[15px] md:px-8 md:pt-8 md:pb-[19px]">
+            <span
+              className="mb-1 text-[2.5rem] font-[800] leading-none text-[#e5192a]"
+              style={{ textShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
+            >
+              {project.metric}
+            </span>
+            <h3 className="mb-0 text-[1.1rem] font-bold text-[#0d0d0d]">
+              {project.title}
+            </h3>
+          </div>
         </div>
       </motion.div>
     </motion.div>

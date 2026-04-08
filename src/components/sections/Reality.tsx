@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
+import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";
 
 const cards = [
   {
@@ -58,6 +59,30 @@ interface FlipCardProps {
 function FlipCard({ card, index }: FlipCardProps) {
   const [flipped, setFlipped] = useState(false);
 
+  // biome-ignore lint/suspicious/noExplicitAny: External library without types
+  const shaderRef = useRef<HTMLDivElement>(null);
+  const shaderMount = useRef<any>(null);
+
+  useEffect(() => {
+    const styleId = "shader-canvas-style-card";
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.textContent = `.shader-container-card canvas { width: 100% !important; height: 100% !important; display: block !important; position: absolute !important; top: 0 !important; left: 0 !important; border-radius: 20px !important; }`;
+      document.head.appendChild(style);
+    }
+    if (shaderRef.current) {
+      shaderMount.current = new ShaderMount(
+        shaderRef.current,
+        liquidMetalFragmentShader,
+        { u_repetition: 3, u_softness: 0.6, u_shiftRed: 0.65, u_shiftBlue: 0.0, u_distortion: 0, u_scale: 6, u_shape: 1 },
+        undefined,
+        0.12,
+      );
+    }
+    return () => { shaderMount.current?.destroy?.(); shaderMount.current = null; };
+  }, []);
+
   return (
     <motion.div
       className="relative h-[340px] md:h-[380px] cursor-pointer"
@@ -76,16 +101,35 @@ function FlipCard({ card, index }: FlipCardProps) {
       onHoverEnd={() => setFlipped(false)}
       onClick={() => setFlipped((f) => !f)}
     >
-      {/* Card inner — the thing that flips */}
+      {/* Liquid metal shader ring — wraps the whole card, stays visible during flip */}
+      <div
+        ref={shaderRef}
+        className="shader-container-card"
+        style={{
+          position: "absolute",
+          inset: 0,
+          borderRadius: "20px",
+          overflow: "hidden",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+
+      {/* Card inner — 3px inset reveals the metal rim; flips */}
       <motion.div
-        className="relative w-full h-full"
-        style={{ transformStyle: "preserve-3d" }}
+        className="absolute"
+        style={{
+          inset: "3px",
+          borderRadius: "17px",
+          transformStyle: "preserve-3d",
+          overflow: "hidden",
+        }}
         animate={{ rotateY: flipped ? 180 : 0 }}
         transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
       >
         {/* ── FRONT — Problem ── */}
         <div
-          className="absolute inset-0 rounded-[20px] p-7 flex flex-col justify-between overflow-hidden border border-white/5"
+          className="absolute inset-0 rounded-[17px] p-7 flex flex-col justify-between overflow-hidden border border-white/5"
           style={{
             backfaceVisibility: "hidden",
             background:
@@ -128,7 +172,7 @@ function FlipCard({ card, index }: FlipCardProps) {
 
         {/* ── BACK — Solution ── */}
         <div
-          className="absolute inset-0 rounded-[20px] p-7 flex flex-col justify-between overflow-hidden border border-brand-gold/15"
+          className="absolute inset-0 rounded-[17px] p-7 flex flex-col justify-between overflow-hidden border border-brand-gold/15"
           style={{
             backfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
