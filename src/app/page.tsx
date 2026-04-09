@@ -20,8 +20,8 @@ export default function Home() {
       <AboutUsHalf />
       <LumaShowcase />
       <MarqueeSlanted />
-      <Portfolio />
       <ProblemsSolvedSection />
+      <Portfolio />
       <Services />
       <Process />
       <Comparison />

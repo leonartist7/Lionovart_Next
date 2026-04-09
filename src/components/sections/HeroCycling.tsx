@@ -143,7 +143,8 @@ export default function HeroCycling({
   const sharedTextStyle: React.CSSProperties = {
     fontSize: clampSize,
     lineHeight: 1,
-    letterSpacing: "-0.02em",
+    letterSpacing: "0.05em",
+    wordSpacing: "0.2em",
     fontFamily: "var(--font-heading)",
     fontWeight: 700,
     textTransform: "uppercase",

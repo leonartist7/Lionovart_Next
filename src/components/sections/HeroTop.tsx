@@ -218,7 +218,7 @@ export default function HeroTop() {
           className="max-w-[520px] text-[15px] leading-[170%] text-text-muted md:text-[18px]"
         >
           We design brands, build websites, and produce content that makes
-          your business impossible to ignore. One team. Nine languages.
+          your business impossible to ignore.
         </motion.p>
 
         {/* CTAs — always one row, wraps on very small screens */}

@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";
 import {
   motion,
   useMotionValue,
   useSpring,
   useTransform,
   AnimatePresence,
+  useInView,
 } from "framer-motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -256,73 +256,36 @@ function OrbitPlatformsCard({
   const innerIcons = PLATFORM_ICONS.slice(0, 4) as readonly PlatformIcon[];
   const outerIcons = PLATFORM_ICONS.slice(4) as readonly PlatformIcon[];
 
-  // biome-ignore lint/suspicious/noExplicitAny: External library without types
-  const shaderRef = useRef<HTMLDivElement>(null);
-  const shaderMount = useRef<any>(null);
-
-  useEffect(() => {
-    const styleId = "shader-canvas-style-card";
-    if (!document.getElementById(styleId)) {
-      const style = document.createElement("style");
-      style.id = styleId;
-      style.textContent = `.shader-container-card canvas { width: 100% !important; height: 100% !important; display: block !important; position: absolute !important; top: 0 !important; left: 0 !important; border-radius: 20px !important; }`;
-      document.head.appendChild(style);
-    }
-    if (shaderRef.current) {
-      shaderMount.current = new ShaderMount(
-        shaderRef.current,
-        liquidMetalFragmentShader,
-        { u_repetition: 3, u_softness: 0.6, u_shiftRed: 0.65, u_shiftBlue: 0.0, u_distortion: 0, u_scale: 6, u_shape: 1 },
-        undefined,
-        0.15,
-      );
-    }
-    return () => { shaderMount.current?.destroy?.(); shaderMount.current = null; };
-  }, []);
-
   return (
     <motion.div
       className={`relative ${project.gridClasses}`}
-      initial={{ opacity: 0, y: 150 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{
-        type: "spring",
-        stiffness: 100,
-        damping: 20,
-        delay: (index % 3) * 0.1,
-      }}
     >
       {/* Outer shell — position:relative so shader fills it as a ring */}
       <div
-        className="relative flex h-full w-full min-h-[220px] md:min-h-0"
+        className="relative flex h-full w-full min-h-[220px] md:min-h-0 bg-[#e2e8f0]"
         style={{
           borderRadius: "20px",
           overflow: "hidden",
           boxShadow: "0 8px 24px -6px rgba(0,0,0,0.15)",
         }}
       >
-        {/* Liquid metal shader — fills full card, visible only as the 3px rim */}
+        {/* Soft Animated Rim */}
         <div
-          ref={shaderRef}
-          className="shader-container-card"
+          className="absolute inset-[-100%] animate-[spin_5s_linear_infinite]"
           style={{
-            position: "absolute",
-            inset: 0,
-            borderRadius: "20px",
-            overflow: "hidden",
-            pointerEvents: "none",
+            background: "conic-gradient(from 0deg at 50% 50%, transparent 0%, rgba(229,25,42,0.8) 25%, transparent 50%, rgba(229,25,42,0.8) 75%, transparent 100%)",
+            opacity: 0.6,
           }}
         />
 
-        {/* Inner dark layer — 3px inset leaves shader visible as the border */}
+        {/* Inner dark layer — 2px inset leaves the animated gradient visible as the border */}
         <div
           className="flex flex-col"
           style={{
             position: "absolute",
-            inset: "3px",
-            borderRadius: "17px",
-            background: "#0d0d0d",
+            inset: "2px",
+            borderRadius: "18px",
+            background: "#ffffff",
             overflow: "hidden",
           }}
         >
@@ -359,7 +322,7 @@ function OrbitPlatformsCard({
                     width: d,
                     height: d,
                     borderRadius: "50%",
-                    border: "1px solid rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(0,0,0,0.05)",
                     top: -d / 2,
                     left: -d / 2,
                     pointerEvents: "none",
@@ -382,11 +345,11 @@ function OrbitPlatformsCard({
                   top: -20,
                   left: -20,
                   borderRadius: "50%",
-                  background: "rgba(255,255,255,0.04)",
+                  background: "rgba(0,0,0,0.02)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  filter: "drop-shadow(0 0 10px rgba(255,255,255,0.6))",
+                  filter: "drop-shadow(0 0 10px rgba(0,0,0,0.1))",
                   zIndex: 10,
                 }}
               >
@@ -407,7 +370,7 @@ function OrbitPlatformsCard({
             className="relative z-10 mt-auto px-5 pb-4 pt-2 md:px-6 md:pb-5"
             style={{
               background:
-                "linear-gradient(to top, rgba(13,13,13,0.95) 70%, transparent)",
+                "linear-gradient(to top, rgba(255,255,255,0.98) 70%, transparent)",
             }}
           >
             <p
@@ -416,12 +379,12 @@ function OrbitPlatformsCard({
             >
               OUR TOOLS
             </p>
-            <h3 className="text-[1rem] font-bold leading-tight text-white">
+            <h3 className="text-[1rem] font-bold leading-tight text-[#111]">
               Top Platform Expertise
             </h3>
             <p
               className="mt-[2px] text-[12px] leading-snug"
-              style={{ color: "rgba(255,255,255,0.4)" }}
+              style={{ color: "#666" }}
             >
               Always the best tools available
             </p>
@@ -446,9 +409,6 @@ function BentoCard({
   const [isHovered, setIsHovered] = useState(false);
 
   // biome-ignore lint/suspicious/noExplicitAny: External library without types
-  const shaderRef = useRef<HTMLDivElement>(null);
-  const shaderMount = useRef<any>(null);
-
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
@@ -457,26 +417,6 @@ function BentoCard({
 
   const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], [4, -4]);
   const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], [-4, 4]);
-
-  useEffect(() => {
-    const styleId = "shader-canvas-style-card";
-    if (!document.getElementById(styleId)) {
-      const style = document.createElement("style");
-      style.id = styleId;
-      style.textContent = `.shader-container-card canvas { width: 100% !important; height: 100% !important; display: block !important; position: absolute !important; top: 0 !important; left: 0 !important; border-radius: 20px !important; }`;
-      document.head.appendChild(style);
-    }
-    if (shaderRef.current) {
-      shaderMount.current = new ShaderMount(
-        shaderRef.current,
-        liquidMetalFragmentShader,
-        { u_repetition: 3, u_softness: 0.6, u_shiftRed: 0.65, u_shiftBlue: 0.0, u_distortion: 0, u_scale: 6, u_shape: 1 },
-        undefined,
-        0.15,
-      );
-    }
-    return () => { shaderMount.current?.destroy?.(); shaderMount.current = null; };
-  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -495,22 +435,13 @@ function BentoCard({
     <motion.div
       className={`relative ${project.gridClasses}`}
       style={{ perspective: 1200 }}
-      initial={{ opacity: 0, y: 150 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{
-        type: "spring",
-        stiffness: 100,
-        damping: 20,
-        delay: (index % 3) * 0.1,
-      }}
     >
       <motion.div
         ref={cardRef}
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={handleMouseLeave}
-        className="relative flex h-full w-full cursor-default min-h-[220px] md:min-h-0"
+        className="relative flex h-full w-full cursor-default min-h-[220px] md:min-h-0 bg-[#e2e8f0]"
         style={{
           rotateX,
           rotateY,
@@ -525,26 +456,23 @@ function BentoCard({
         }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
-        {/* Liquid metal shader — fills the full card; only the 3px rim is exposed */}
-        <div
-          ref={shaderRef}
-          className="shader-container-card"
+        {/* Soft Animated Rim */}
+        <motion.div
+          className="absolute inset-[-100%] animate-[spin_5s_linear_infinite]"
           style={{
-            position: "absolute",
-            inset: 0,
-            borderRadius: "20px",
-            overflow: "hidden",
-            pointerEvents: "none",
+            background: "conic-gradient(from 0deg at 50% 50%, transparent 0%, rgba(229,25,42,0.8) 25%, transparent 50%, rgba(229,25,42,0.8) 75%, transparent 100%)",
           }}
+          animate={{ opacity: isHovered ? 1 : 0.3 }}
+          transition={{ duration: 0.4 }}
         />
 
-        {/* Inner content wrapper — 3px inset makes the shader ring visible as the border */}
+        {/* Inner content wrapper — 2px inset makes the rim visible */}
         <div
           className="absolute flex flex-col justify-end"
           style={{
-            inset: "3px",
-            borderRadius: "17px",
-            background: "#161616",
+            inset: "2px",
+            borderRadius: "18px",
+            background: "#ffffff",
             overflow: "hidden",
           }}
         >
@@ -565,14 +493,14 @@ function BentoCard({
           />
 
           {/* Content */}
-          <div className="relative z-10 flex flex-col justify-end px-6 pt-6 pb-[15px] md:px-8 md:pt-8 md:pb-[19px]">
+          <div className="relative z-10 flex flex-row items-end justify-between px-6 pt-6 pb-[15px] md:px-8 md:pt-8 md:pb-[19px]">
             <span
-              className="mb-1 text-[2.5rem] font-[800] leading-none text-[#e5192a]"
+              className="text-[2.5rem] font-[800] leading-none text-[#e5192a] mb-0"
               style={{ textShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
             >
               {project.metric}
             </span>
-            <h3 className="mb-0 text-[1.1rem] font-bold text-[#0d0d0d]">
+            <h3 className="mb-1 text-[1.1rem] font-bold text-[#111] text-right max-w-[55%]">
               {project.title}
             </h3>
           </div>
@@ -618,7 +546,7 @@ export default function Portfolio() {
   }, [activeIdx]);
 
   return (
-    <section id="work" className="bg-[#F5F0EB] pt-[40px] pb-[80px] md:pt-[60px] md:pb-[120px]">
+    <section id="work" className="bg-[#eceff3] pt-[40px] pb-[80px] md:pt-[60px] md:pb-[120px]">
       <div className="mx-auto max-w-[1200px] px-4 md:px-6">
         {/* Header */}
         <div className="mb-12 flex flex-col items-center text-center">

@@ -4,6 +4,7 @@ import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";
 import { Sparkles } from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useInView } from "framer-motion";
 
 interface LiquidMetalButtonProps {
   label?: string;
@@ -58,89 +59,69 @@ export function LiquidMetalButton({
     }
   }, [viewMode]);
 
-  useEffect(() => {
-    const styleId = "shader-canvas-style-exploded";
-    if (!document.getElementById(styleId)) {
-      const style = document.createElement("style");
-      style.id = styleId;
-      style.textContent = `
-        .shader-container-exploded canvas {
-          width: 100% !important;
-          height: 100% !important;
-          display: block !important;
-          position: absolute !important;
-          top: 0 !important;
-          left: 0 !important;
-          border-radius: 100px !important;
-        }
-        @keyframes ripple-animation {
-          0% {
-            transform: translate(-50%, -50%) scale(0);
-            opacity: 0.6;
-          }
-          100% {
-            transform: translate(-50%, -50%) scale(4);
-            opacity: 0;
-          }
-        }
-      `;
-      document.head.appendChild(style);
-    }
+    const isInView = useInView(shaderRef, { margin: "200px" });
 
+  useEffect(() => {
     const loadShader = async () => {
       try {
-        // static import used above
-
         if (shaderRef.current) {
-          if (shaderMount.current?.destroy) {
-            shaderMount.current.destroy();
-          }
-
+          if (shaderMount.current?.destroy) shaderMount.current.destroy();
           shaderMount.current = new ShaderMount(
             shaderRef.current,
             liquidMetalFragmentShader,
-            {
-              u_repetition: 4,
-              u_softness: 0.5,
-              u_shiftRed: 0.65,  // warm gold — less red than pure crimson
-              u_shiftBlue: 0.0,  // zero blue for warm gold tone
-              u_distortion: 0,
-              u_contour: 0,
-              u_angle: 45,
-              u_scale: 8,
-              u_shape: 1,
-              u_offsetX: 0.1,
-              u_offsetY: -0.1,
-            },
+            { u_repetition: 4, u_softness: 0.5, u_shiftRed: 0.65, u_shiftBlue: 0.0, u_distortion: 0, u_contour: 0, u_angle: 45, u_scale: 8, u_shape: 1, u_offsetX: 0.1, u_offsetY: -0.1 },
             undefined,
-            0.6,
+            0.6
           );
         }
       } catch (error) {
-        console.error("[v0] Failed to load shader:", error);
+        console.error("Failed to load shader:", error);
       }
     };
-
+    
     loadShader();
 
     return () => {
       if (shaderMount.current?.destroy) {
+        const canvas = shaderRef.current?.querySelector("canvas");
+        if (canvas) {
+          const gl = (canvas.getContext("webgl") || canvas.getContext("experimental-webgl")) as WebGLRenderingContext | null;
+          gl?.getExtension("WEBGL_lose_context")?.loseContext();
+        }
         shaderMount.current.destroy();
         shaderMount.current = null;
       }
     };
   }, []);
 
+  // Separate effect to pause animation when off-screen to save battery without recompiling
+  useEffect(() => {
+    if (shaderMount.current?.setSpeed) {
+      if (isInView) {
+        shaderMount.current.setSpeed(isHovered ? 1 : 0.6);
+      } else {
+        shaderMount.current.setSpeed(0); // Pause when off-screen
+      }
+    }
+  }, [isInView, isHovered]);
+
   const handleMouseEnter = () => {
-    setIsHovered(true);
-    shaderMount.current?.setSpeed?.(1);
+    if (typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches) {
+      setIsHovered(true);
+      shaderMount.current?.setSpeed?.(1);
+    }
   };
 
   const handleMouseLeave = () => {
-    setIsHovered(false);
-    setIsPressed(false);
-    shaderMount.current?.setSpeed?.(0.6);
+    if (typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches) {
+      setIsHovered(false);
+      setIsPressed(false);
+      shaderMount.current?.setSpeed?.(0.6);
+    }
   };
+
+  const handleTouchStart = () => setIsPressed(true);
+  const handleTouchEnd = () => setIsPressed(false);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (shaderMount.current?.setSpeed) {
@@ -321,6 +302,8 @@ export function LiquidMetalButton({
             onMouseLeave={handleMouseLeave}
             onMouseDown={() => setIsPressed(true)}
             onMouseUp={() => setIsPressed(false)}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
             style={{
               position: "absolute",
               top: 0,

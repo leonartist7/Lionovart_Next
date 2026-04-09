@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";
 
 const cards = [
@@ -63,25 +63,51 @@ function FlipCard({ card, index }: FlipCardProps) {
   const shaderRef = useRef<HTMLDivElement>(null);
   const shaderMount = useRef<any>(null);
 
+    const isInView = useInView(shaderRef, { margin: "300px" });
+
   useEffect(() => {
-    const styleId = "shader-canvas-style-card";
-    if (!document.getElementById(styleId)) {
-      const style = document.createElement("style");
-      style.id = styleId;
-      style.textContent = `.shader-container-card canvas { width: 100% !important; height: 100% !important; display: block !important; position: absolute !important; top: 0 !important; left: 0 !important; border-radius: 20px !important; }`;
-      document.head.appendChild(style);
-    }
-    if (shaderRef.current) {
-      shaderMount.current = new ShaderMount(
-        shaderRef.current,
-        liquidMetalFragmentShader,
-        { u_repetition: 3, u_softness: 0.6, u_shiftRed: 0.65, u_shiftBlue: 0.0, u_distortion: 0, u_scale: 6, u_shape: 1 },
-        undefined,
-        0.12,
-      );
-    }
-    return () => { shaderMount.current?.destroy?.(); shaderMount.current = null; };
+    const loadShader = async () => {
+      try {
+        if (shaderRef.current) {
+          if (shaderMount.current?.destroy) shaderMount.current.destroy();
+          shaderMount.current = new ShaderMount(
+            shaderRef.current,
+            liquidMetalFragmentShader,
+            { u_repetition: 3, u_softness: 0.6, u_shiftRed: 0.65, u_shiftBlue: 0.0, u_distortion: 0, u_scale: 6, u_shape: 1 },
+            undefined,
+            0.12
+          );
+        }
+      } catch (error) {
+        console.error("Failed to load shader:", error);
+      }
+    };
+    
+    loadShader();
+
+    return () => {
+      if (shaderMount.current?.destroy) {
+        const canvas = shaderRef.current?.querySelector("canvas");
+        if (canvas) {
+          const gl = (canvas.getContext("webgl") || canvas.getContext("experimental-webgl")) as WebGLRenderingContext | null;
+          gl?.getExtension("WEBGL_lose_context")?.loseContext();
+        }
+        shaderMount.current.destroy();
+        shaderMount.current = null;
+      }
+    };
   }, []);
+
+  // Separate effect to pause animation when off-screen to save battery without recompiling
+  useEffect(() => {
+    if (shaderMount.current?.setSpeed) {
+      if (isInView) {
+        shaderMount.current.setSpeed(0.12);
+      } else {
+        shaderMount.current.setSpeed(0); // Pause when off-screen
+      }
+    }
+  }, [isInView]);
 
   return (
     <motion.div

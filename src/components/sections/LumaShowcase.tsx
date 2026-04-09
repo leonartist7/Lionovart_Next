@@ -752,7 +752,7 @@ export default function LumaShowcase() {
                     >
                       <div
                         className="h-full rounded-full transition-[width] duration-100"
-                        style={{ width: `${autoPlayProgress}%`, backgroundColor: "var(--luma-accent)" }}
+                        style={{ transform: `scaleX(${autoPlayProgress / 100})`, transformOrigin: "left", backgroundColor: "var(--luma-accent)" }}
                       />
                     </motion.div>
                   )}

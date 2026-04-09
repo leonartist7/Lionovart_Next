@@ -1,36 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";
+import { motion, AnimatePresence, useInView } from "framer-motion";
+import { useLenis } from "@studio-freight/react-lenis";
 import {
   Accordion,
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-
-// Rising particles — mirrored from Process section
-const PARTICLES = [
-  { left:  "4%", sz: 4, dur: 4.8, del: 0.0, op: 0.40 },
-  { left: "10%", sz: 3, dur: 6.2, del: 1.0, op: 0.28 },
-  { left: "17%", sz: 5, dur: 5.5, del: 0.5, op: 0.32 },
-  { left: "23%", sz: 3, dur: 4.3, del: 2.2, op: 0.40 },
-  { left: "30%", sz: 6, dur: 7.1, del: 1.5, op: 0.22 },
-  { left: "37%", sz: 4, dur: 5.0, del: 0.8, op: 0.35 },
-  { left: "44%", sz: 3, dur: 6.8, del: 3.0, op: 0.28 },
-  { left: "51%", sz: 5, dur: 4.6, del: 0.3, op: 0.32 },
-  { left: "58%", sz: 4, dur: 5.9, del: 1.8, op: 0.30 },
-  { left: "64%", sz: 3, dur: 4.2, del: 2.5, op: 0.40 },
-  { left: "71%", sz: 5, dur: 6.5, del: 0.6, op: 0.22 },
-  { left: "78%", sz: 4, dur: 5.3, del: 1.3, op: 0.30 },
-  { left: "85%", sz: 3, dur: 4.9, del: 2.8, op: 0.38 },
-  { left: "91%", sz: 6, dur: 7.4, del: 0.2, op: 0.20 },
-  { left: "96%", sz: 4, dur: 5.7, del: 3.5, op: 0.28 },
-  { left: "14%", sz: 3, dur: 4.4, del: 1.1, op: 0.32 },
-  { left: "55%", sz: 5, dur: 6.0, del: 2.0, op: 0.25 },
-  { left: "74%", sz: 4, dur: 5.2, del: 0.9, op: 0.35 },
-] as const;
 
 const SERVICES = [
   {
@@ -87,7 +65,7 @@ const SERVICES = [
     title: "Print & Physical Branding",
     description:
       "Your brand can't live only on screens. We design and produce the physical materials that make your business memorable in the real world — from business cards people keep to inflatable installations that turn heads at events. With direct access to one of Canada's leading balloon production facilities, we deliver physical brand experiences most agencies can't.",
-    deliverables: ["Business Cards & Stationery", "Packaging Design", "Print Collateral", "Custom Balloons & Inflatables", "Signage & Display", "Event Branding"],
+    deliverables: ["Business Cards & Stationery", "Packaging Design", "Digital printing", "Commercial printing", "Custom balloon", "Apparel design", "Corporate gifting", "Signage & Display", "Event Branding"],
     media: {
       url: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=900&q=80",
       alt: "Print & Physical Branding",
@@ -120,65 +98,16 @@ const SERVICES = [
 ];
 
 export default function Services() {
+  const lenis = useLenis();
   const [activeId, setActiveId] = useState<string>(SERVICES[0].id);
-
-  // biome-ignore lint/suspicious/noExplicitAny: External library without types
-  const panelShaderRef = useRef<HTMLDivElement>(null);
-  const panelShaderMount = useRef<any>(null);
-
-  useEffect(() => {
-    const styleId = "shader-canvas-style-card";
-    if (!document.getElementById(styleId)) {
-      const style = document.createElement("style");
-      style.id = styleId;
-      style.textContent = `.shader-container-card canvas { width: 100% !important; height: 100% !important; display: block !important; position: absolute !important; top: 0 !important; left: 0 !important; border-radius: 28px !important; }`;
-      document.head.appendChild(style);
-    }
-    if (panelShaderRef.current) {
-      panelShaderMount.current = new ShaderMount(
-        panelShaderRef.current,
-        liquidMetalFragmentShader,
-        { u_repetition: 3, u_softness: 0.6, u_shiftRed: 1.0, u_shiftBlue: 1.0, u_distortion: 0, u_scale: 6, u_shape: 1 },
-        undefined,
-        0.15,
-      );
-    }
-    return () => { panelShaderMount.current?.destroy?.(); panelShaderMount.current = null; };
-  }, []);
 
   const activeService = SERVICES.find((s) => s.id === activeId) ?? SERVICES[0];
 
   return (
     <section
       id="services"
-      className="relative bg-white pt-[100px] pb-[100px] md:pt-[120px] md:pb-[140px] overflow-hidden"
+      className="relative bg-[#eceff3] pt-[100px] pb-[100px] md:pt-[120px] md:pb-[140px]"
     >
-      {/* Rising particles — same as Process section */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
-        <style>{`
-          @keyframes particle-rise {
-            0%   { transform: translateY(0);      opacity: var(--p-op); }
-            70%  {                                 opacity: var(--p-op); }
-            100% { transform: translateY(-105vh); opacity: 0; }
-          }
-        `}</style>
-        {PARTICLES.map((p, i) => (
-          <span
-            key={i}
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: p.left,
-              width: p.sz,
-              height: p.sz,
-              borderRadius: "50%",
-              background: "#e5192a",
-              ["--p-op" as string]: p.op,
-              animation: `particle-rise ${p.dur}s ${p.del}s ease-out infinite`,
-            }}
-          />
-        ))}
-      </div>
       <div className="mx-auto max-w-[1280px] px-4 md:px-8">
 
         {/* ── Section Header ── */}
@@ -205,39 +134,27 @@ export default function Services() {
 
         {/* ── The Premium Floating Glass Panel ── */}
         <motion.div
-          className="relative rounded-[28px]"
-          style={{ padding: "3px" }}
+          className="relative rounded-[28px] bg-gradient-to-br from-[#e6e9ef] via-[#ffffff] to-[#d5d9e2]"
+          style={{ padding: "1px" }}
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          {/* Liquid metal shader rim */}
-          <div
-            ref={panelShaderRef}
-            className="shader-container-card"
-            style={{
-              position: "absolute",
-              inset: 0,
-              borderRadius: "28px",
-              overflow: "hidden",
-              pointerEvents: "none",
-            }}
-          />
 
-          {/* Inner glass panel — 3px inset so the metal rim shows */}
+          {/* Inner glass panel */}
           <div
             className="
               relative
-              rounded-[26px]
+              rounded-[27px]
               border border-white/70
-              bg-white/85
-              backdrop-blur-2xl
-              shadow-[0_12px_64px_-12px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.95)]
+              bg-[#f2f4f7]/95
+              
+              shadow-[0_12px_32px_-8px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.95),inset_0_2px_8px_rgba(255,255,255,0.4)]
               p-6 md:p-12 lg:p-16
             "
           >
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-12 lg:gap-20 lg:items-start">
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-12 lg:gap-20">
 
             {/* ── Left: Accordion ── */}
             <div>
@@ -249,11 +166,21 @@ export default function Services() {
                   <AccordionItem
                     key={service.id}
                     value={service.id}
-                    className="border-b border-black/[0.07] last:border-b-0"
+                    className={`transition-all duration-500 ease-out border-b border-black/[0.07] last:border-b-0 ${activeId === service.id ? 'bg-[#f2f4f7] shadow-[8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)] border-t border-l border-white/60 relative z-10 -mx-4 px-4 md:-mx-6 md:px-6' : '-mx-4 px-4 md:-mx-6 md:px-6'}`}
                   >
                     <AccordionTrigger
                       className="group flex w-full items-center justify-between py-6 md:py-7 text-left hover:no-underline"
-                      onClick={() => setActiveId(service.id)}
+                      onClick={(e) => {
+                        setActiveId(service.id);
+                        const target = e.currentTarget.parentElement;
+                        setTimeout(() => {
+                          if (lenis) {
+                            if (target) lenis.scrollTo(target, { offset: -120, duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+                          } else {
+                            target?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                          }
+                        }, 250);
+                      }}
                     >
                       <div className="flex items-center gap-5 md:gap-7">
                         {/* Large bold number — the visual anchor */}
@@ -276,18 +203,11 @@ export default function Services() {
                         </p>
 
                         {/* Deliverable tags */}
-                        <ul className="flex flex-wrap gap-2 mb-2">
+                        <ul className="flex flex-wrap gap-x-5 gap-y-2 mb-2">
                           {service.deliverables.map((item) => (
                             <li
                               key={item}
-                              className="
-                                rounded-[6px]
-                                border border-brand-red/25
-                                bg-brand-red/[0.06]
-                                px-3 py-[6px]
-                                text-[11px] font-bold uppercase tracking-wider
-                                text-brand-red
-                              "
+                              className="text-[11px] font-bold uppercase tracking-wider text-brand-red"
                             >
                               {item}
                             </li>
@@ -295,7 +215,7 @@ export default function Services() {
                         </ul>
 
                         {/* Mobile-only image */}
-                        <div className="mt-6 overflow-hidden rounded-[16px] lg:hidden">
+                        <div className="mt-6 overflow-hidden rounded-[16px] md:hidden">
                           <img
                             src={service.media.url}
                             alt={service.media.alt}
@@ -310,44 +230,27 @@ export default function Services() {
             </div>
 
             {/* ── Right: Sticky Image ── */}
-            <div className="hidden md:block md:sticky md:top-28 lg:sticky lg:top-28">
-              <div className="relative overflow-hidden rounded-[24px] aspect-[3/4] bg-[#e8e3de] shadow-[0_8px_40px_rgba(0,0,0,0.10)]">
-
-                <AnimatePresence mode="sync">
-                  <motion.img
-                    key={activeService.id}
-                    src={activeService.media.url}
-                    alt={activeService.media.alt}
-                    className="absolute inset-0 h-full w-full object-cover"
-                    initial={{ opacity: 0, scale: 1.06 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.96 }}
-                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                  />
-                </AnimatePresence>
-
-                {/* Label overlay */}
-                <AnimatePresence mode="sync">
-                  <motion.div
-                    key={`label-${activeService.id}`}
-                    className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-7 pointer-events-none"
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                  >
-                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-brand-red mb-2">
-                      {activeService.number} / {SERVICES.length.toString().padStart(2, "0")}
-                    </p>
-                    <p className="text-[20px] font-bold uppercase tracking-tight text-white leading-tight">
-                      {activeService.title}
-                    </p>
-                  </motion.div>
-                </AnimatePresence>
-
-                {/* Red accent line */}
-                <div className="absolute top-5 right-5 w-8 h-[3px] rounded-full bg-brand-red" />
-              </div>
+            <div className="hidden md:block relative">
+              <div className="sticky top-28 flex flex-col items-center">
+                <div className="w-[65%] lg:w-[50%]">
+                                    {/* Neumorphic Extruded Bezel (Based on CodePen) */}
+                  <div className="relative rounded-[24px] aspect-[3/4] p-[2px] bg-[#f2f4f7] border border-white/80 shadow-[16px_16px_36px_rgba(0,0,0,0.12),-16px_-16px_36px_rgba(255,255,255,1)]">
+                    {/* Inner Embedded Image Container */}
+                    <div className="relative w-full h-full overflow-hidden rounded-[22px] shadow-[inset_6px_6px_12px_rgba(0,0,0,0.12),inset_-6px_-6px_12px_rgba(255,255,255,0.9)]">
+                      <AnimatePresence mode="sync">
+                        <motion.img
+                          key={activeService.id}
+                          src={activeService.media.url}
+                          alt={activeService.media.alt}
+                          className="absolute inset-0 h-full w-full object-cover"
+                          initial={{ opacity: 0, scale: 1.06 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.96 }}
+                          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                        />
+                      </AnimatePresence>
+                    </div>
+                  </div>
 
               {/* Progress dots */}
               <div className="flex items-center justify-center gap-2 mt-5">
@@ -364,6 +267,8 @@ export default function Services() {
                   />
                 ))}
               </div>
+              </div>{/* /w-[70%] wrapper */}
+            </div>
             </div>
 
           </div>

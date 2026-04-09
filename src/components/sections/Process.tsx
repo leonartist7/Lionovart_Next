@@ -6,52 +6,41 @@ import { motion, useScroll, useTransform } from "framer-motion";
 // ─── Step data ─────────────────────────────────────────────────────────────────
 const STEPS = [
   {
-    num: "01",
+    num: "1",
     title: "Discovery & Strategy",
     description:
-      "We learn your business, your audience, and your standards. We ask the questions most agencies skip — because the best creative work starts with clarity, not assumptions.",
+      "We learn your business, your audience, and your standards. We ask the questions most agencies skip because the best creative work starts with clarity.",
     tag: "Foundation",
   },
   {
-    num: "02",
+    num: "2",
     title: "Creative Concepts",
     description:
       "We develop two to three creative directions and refine with you until the visual language feels unmistakably yours. No surprises. No wasted revisions.",
     tag: "Design",
   },
   {
-    num: "03",
+    num: "3",
     title: "Build & Refine",
     description:
-      "We bring the concepts to life — websites, video, social, print — all built to the same standard and reviewed with you at every stage.",
+      "We bring the concepts to life including websites, video, social and print. All built to the same standard and reviewed with you at every stage.",
     tag: "Execution",
   },
   {
-    num: "04",
+    num: "4",
     title: "Launch & Scale",
     description:
-      "Your brand goes live. We don't just hand over the keys — we set up the systems, track the results, and stay available for what comes next.",
+      "Your brand goes live. We don't just hand over the keys. We set up the systems, track the results, and stay available for what comes next.",
     tag: "Growth",
   },
 ] as const;
 
-// Each column taller than the last — bar-chart growth effect
+// Taller columns to fit text comfortably, still maintaining the ascending bar-chart effect
 const COL_HEIGHTS = [
-  "clamp(150px, 26vh, 230px)",
-  "clamp(210px, 38vh, 320px)",
-  "clamp(275px, 50vh, 420px)",
-  "clamp(340px, 64vh, 530px)",
-] as const;
-
-// Top accent bar gets thicker as steps advance
-const TOP_BAR_H = [3, 5, 8, 12] as const;
-
-// Column backgrounds — subtly warmer/deeper red tint as steps grow
-const COL_BGS = [
-  "linear-gradient(180deg,#ffffff 0%,#fff9f9 100%)",
-  "linear-gradient(180deg,#ffffff 0%,#fff3f3 100%)",
-  "linear-gradient(180deg,#fff8f8 0%,#ffe8e8 100%)",
-  "linear-gradient(180deg,#fff5f5 0%,#ffd8d8 100%)",
+  "clamp(320px, 45vh, 450px)",
+  "clamp(380px, 55vh, 520px)",
+  "clamp(440px, 65vh, 590px)",
+  "clamp(500px, 75vh, 660px)",
 ] as const;
 
 // ─── Particles — fixed data so SSR matches client render ──────────────────────
@@ -100,14 +89,26 @@ export default function Process() {
     offset: ["start start", "end end"],
   });
 
-  const x        = useTransform(scrollYProgress, [0, 1], [0, endX]);
-  const barWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+  const line1 = useTransform(scrollYProgress, [0, 0.33], [0, 1]);
+  const line2 = useTransform(scrollYProgress, [0.33, 0.66], [0, 1]);
+  const line3 = useTransform(scrollYProgress, [0.66, 1], [0, 1]);
+  const lines = [line1, line2, line3];
 
+  const c2Bg = useTransform(scrollYProgress, [0.3, 0.33], ["rgba(229,25,42,0)", "rgba(229,25,42,1)"]);
+  const c3Bg = useTransform(scrollYProgress, [0.63, 0.66], ["rgba(229,25,42,0)", "rgba(229,25,42,1)"]);
+  const c4Bg = useTransform(scrollYProgress, [0.96, 1], ["rgba(229,25,42,0)", "rgba(229,25,42,1)"]);
+  
+  const c2Text = useTransform(scrollYProgress, [0.3, 0.33], ["#e5192a", "#ffffff"]);
+  const c3Text = useTransform(scrollYProgress, [0.63, 0.66], ["#e5192a", "#ffffff"]);
+  const c4Text = useTransform(scrollYProgress, [0.96, 1], ["#e5192a", "#ffffff"]);
+
+  const x        = useTransform(scrollYProgress, [0, 1], [0, endX]);
+  
   return (
     <section
       ref={sectionRef}
       id="process"
-      className="relative bg-white"
+      className="relative bg-[#eceff3]"
       style={{ height: "420vh" }}
     >
       {/* ── Sticky viewport — stays at top while user scrolls through the section ── */}
@@ -134,51 +135,10 @@ export default function Process() {
               scroll to advance →
             </p>
           </div>
-
-          {/* Scroll progress bar */}
-          <div
-            className="h-[2px] rounded-full overflow-hidden"
-            style={{ background: "rgba(229,25,42,0.12)" }}
-          >
-            <motion.div
-              className="h-full rounded-full"
-              style={{ width: barWidth, background: "#e5192a" }}
-            />
-          </div>
         </div>
 
         {/* ── Columns area ── */}
         <div className="relative flex-1 overflow-hidden flex flex-col justify-end">
-
-          {/* Rising particles */}
-          <div
-            className="absolute inset-0 pointer-events-none overflow-hidden"
-            aria-hidden
-          >
-            <style>{`
-              @keyframes particle-rise {
-                0%   { transform: translateY(0);      opacity: var(--p-op); }
-                70%  {                                 opacity: var(--p-op); }
-                100% { transform: translateY(-105vh); opacity: 0; }
-              }
-            `}</style>
-            {PARTICLES.map((p, i) => (
-              <span
-                key={i}
-                style={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: p.left,
-                  width: p.sz,
-                  height: p.sz,
-                  borderRadius: "50%",
-                  background: "#e5192a",
-                  ["--p-op" as string]: p.op,
-                  animation: `particle-rise ${p.dur}s ${p.del}s ease-out infinite`,
-                }}
-              />
-            ))}
-          </div>
 
           {/* Floor line */}
           <div
@@ -191,133 +151,108 @@ export default function Process() {
           <motion.div
             ref={rowRef}
             style={{ x }}
-            className="flex items-end gap-4 md:gap-6 px-6 md:px-14 will-change-transform"
+            className="flex flex-col justify-between h-full pt-8 md:pt-16 pb-0 will-change-transform w-max"
           >
-            {STEPS.map((step, i) => (
-              <div
-                key={step.num}
-                style={{
-                  position: "relative",
-                  flexShrink: 0,
-                  width: "clamp(230px, 36vw, 460px)",
-                  height: COL_HEIGHTS[i],
-                  background: COL_BGS[i],
-                  borderRadius: "16px 16px 0 0",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  padding: "clamp(18px, 2.5vw, 28px)",
-                  boxShadow:
-                    "0 -6px 28px rgba(229,25,42,0.07), inset 0 0 0 1px rgba(229,25,42,0.09)",
-                  overflow: "hidden",
-                }}
-              >
-                {/* Top accent bar — grows thicker each step */}
+            {/* Timeline Header Row */}
+            <div className="flex items-start gap-8 md:gap-14 px-6 md:px-14 relative z-20">
+              {STEPS.map((step, i) => (
                 <div
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: TOP_BAR_H[i],
-                    background: "#e5192a",
-                    borderRadius: "16px 16px 0 0",
-                  }}
-                  aria-hidden
-                />
-
-                {/* Ghost number watermark */}
-                <span
-                  style={{
-                    position: "absolute",
-                    bottom: -16,
-                    right: -8,
-                    fontSize: "clamp(80px, 12vw, 130px)",
-                    fontWeight: 900,
-                    lineHeight: 1,
-                    color: "rgba(229,25,42,0.05)",
-                    pointerEvents: "none",
-                    userSelect: "none",
-                    fontFamily: "var(--font-heading, sans-serif)",
-                  }}
-                  aria-hidden
+                  key={`tl-${step.num}`}
+                  style={{ width: "clamp(240px, 32vw, 420px)" }}
+                  className="flex-shrink-0 relative flex flex-col items-center"
                 >
-                  {step.num}
-                </span>
+                  {/* Connecting red line */}
+                  {i < STEPS.length - 1 && (
+                    <div
+                      className="absolute top-[23px] left-[calc(50%+24px)] h-[2px] w-[calc(100%-48px+2rem)] md:w-[calc(100%-48px+3.5rem)] overflow-hidden"
+                    >
+                      <motion.div 
+                        className="h-full bg-[#e5192a] origin-left" 
+                        style={{ scaleX: lines[i] }} 
+                      />
+                    </div>
+                  )}
 
-                {/* Top section — number + tag + title */}
-                <div style={{ paddingTop: TOP_BAR_H[i] + 10 }}>
-                  <div
+                  {/* Number Circle */}
+                  <motion.div
+                    className="relative z-10 flex items-center justify-center w-[48px] h-[48px] rounded-full border-2 border-[#e5192a] font-black text-[16px] shadow-[0_4px_12px_rgba(229,25,42,0.30)]"
                     style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: 38,
-                      height: 38,
-                      borderRadius: "50%",
-                      background: "#e5192a",
-                      boxShadow: "0 4px 12px rgba(229,25,42,0.30)",
-                      color: "#fff",
-                      fontWeight: 900,
-                      fontSize: 13,
-                      marginBottom: 10,
+                      backgroundColor: i === 0 ? "#e5192a" : (i === 1 ? c2Bg : (i === 2 ? c3Bg : c4Bg)),
+                      color: i === 0 ? "#ffffff" : (i === 1 ? c2Text : (i === 2 ? c3Text : c4Text))
                     }}
                   >
                     {step.num}
-                  </div>
+                  </motion.div>
 
-                  <div
-                    style={{
-                      display: "inline-block",
-                      padding: "4px 10px",
-                      borderRadius: "100px",
-                      background: "rgba(229,25,42,0.08)",
-                      color: "#e5192a",
-                      fontSize: 10,
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.18em",
-                      marginBottom: 10,
-                    }}
-                  >
-                    {step.tag}
+                  {/* Tag Only */}
+                  <div className="mt-6 flex flex-col items-center gap-2">
+                    <div className="text-[#e5192a] text-[12px] font-bold uppercase tracking-[0.18em]">
+                      {step.tag}
+                    </div>
                   </div>
-
-                  <h3
-                    style={{
-                      fontSize: "clamp(16px, 2vw, 22px)",
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      letterSpacing: "-0.01em",
-                      lineHeight: 1.15,
-                      color: "#111111",
-                      margin: 0,
-                    }}
-                  >
-                    {step.title}
-                  </h3>
                 </div>
+              ))}
+            </div>
 
-                {/* Description — only has room from column 2 onwards, col 1 is short */}
-                <p
+            {/* Pillars Row */}
+            <div className="flex items-end gap-8 md:gap-14 px-6 md:px-14 mt-auto relative z-10">
+              {STEPS.map((step, i) => (
+                <div
+                  key={`pl-${step.num}`}
                   style={{
-                    fontSize: "clamp(12px, 1.3vw, 14px)",
-                    lineHeight: "170%",
-                    color: "#666",
-                    margin: 0,
+                    position: "relative",
+                    flexShrink: 0,
+                    width: "clamp(240px, 32vw, 420px)",
+                    height: COL_HEIGHTS[i],
+                    background: "#eceff3",
+                    borderRadius: "24px 24px 0 0",
+                    boxShadow: "-8px 8px 24px rgba(0,0,0,0.15), 8px -8px 24px rgba(255,255,255,1)",
+                    padding: "clamp(24px, 3vw, 40px)",
                     overflow: "hidden",
-                    display: "-webkit-box",
-                    WebkitLineClamp: i === 0 ? 2 : i === 1 ? 3 : 4,
-                    WebkitBoxOrient: "vertical",
-                  } as React.CSSProperties}
+                  }}
                 >
-                  {step.description}
-                </p>
-              </div>
-            ))}
+                  {/* Title & Description */}
+                  <div className="flex flex-col gap-5 relative z-10">
+                    <h3 className="text-[#111] text-[clamp(20px,2.8vw,32px)] font-bold uppercase tracking-[-0.01em] leading-[1.1] m-0 pr-4">
+                      {step.title}
+                    </h3>
+                    <p
+                      style={{
+                      fontSize: "clamp(13px, 1.4vw, 15px)",
+                      lineHeight: "180%",
+                      color: "#555",
+                      margin: 0,
+                      maxWidth: "90%",
+                    }}
+                  >
+                    {step.description}
+                    </p>
+                  </div>
 
-            {/* Trailing spacer keeps last column away from the edge */}
-            <div style={{ flexShrink: 0, width: "clamp(24px, 6vw, 56px)" }} aria-hidden />
+                  {/* Ghost number watermark */}
+                  <span
+                    style={{
+                      position: "absolute",
+                      bottom: -16,
+                      right: -8,
+                      fontSize: "clamp(80px, 12vw, 130px)",
+                      fontWeight: 900,
+                      lineHeight: 1,
+                      color: "rgba(229,25,42,0.06)",
+                      pointerEvents: "none",
+                      userSelect: "none",
+                      fontFamily: "var(--font-heading, sans-serif)",
+                    }}
+                    aria-hidden
+                  >
+                    {step.num}
+                  </span>
+                </div>
+              ))}
+              
+              {/* Trailing spacer keeps last column away from the edge */}
+              <div style={{ flexShrink: 0, width: "clamp(24px, 6vw, 56px)" }} aria-hidden />
+            </div>
           </motion.div>
         </div>
 
