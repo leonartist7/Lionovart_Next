@@ -18,7 +18,9 @@
       "Bash(dir /s /b \"C:\\\\Users\\\\Leonartist\\\\Downloads\\\\liquid-buttons\")",
       "Bash(npx tsc:*)",
       "Bash(timeout 6 sleep 5)",
-      "Bash(find '/c/Users/Leonartist/Documents/WEB DEV/LIONOVART_NEXTJS-TAILWIND' -iname *liquid* -o -iname *luma*button*)"
+      "Bash(find '/c/Users/Leonartist/Documents/WEB DEV/LIONOVART_NEXTJS-TAILWIND' -iname *liquid* -o -iname *luma*button*)",
+      "Bash(npx shadcn@latest add https://21st.dev/r/johuniq/liquid-metal-button --yes)",
+      "Bash(gh pr create --title 'Refine white sections, add particle animations, update liquid metal styling' --body ':*)"
     ]
   }
 }

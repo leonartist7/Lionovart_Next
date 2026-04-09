@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
+import { motion, useInView } from "framer-motion";
+import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";
 
 const cards = [
   {
@@ -58,6 +59,56 @@ interface FlipCardProps {
 function FlipCard({ card, index }: FlipCardProps) {
   const [flipped, setFlipped] = useState(false);
 
+  // biome-ignore lint/suspicious/noExplicitAny: External library without types
+  const shaderRef = useRef<HTMLDivElement>(null);
+  const shaderMount = useRef<any>(null);
+
+    const isInView = useInView(shaderRef, { margin: "300px" });
+
+  useEffect(() => {
+    const loadShader = async () => {
+      try {
+        if (shaderRef.current) {
+          if (shaderMount.current?.destroy) shaderMount.current.destroy();
+          shaderMount.current = new ShaderMount(
+            shaderRef.current,
+            liquidMetalFragmentShader,
+            { u_repetition: 3, u_softness: 0.6, u_shiftRed: 0.65, u_shiftBlue: 0.0, u_distortion: 0, u_scale: 6, u_shape: 1 },
+            undefined,
+            0.12
+          );
+        }
+      } catch (error) {
+        console.error("Failed to load shader:", error);
+      }
+    };
+    
+    loadShader();
+
+    return () => {
+      if (shaderMount.current?.destroy) {
+        const canvas = shaderRef.current?.querySelector("canvas");
+        if (canvas) {
+          const gl = (canvas.getContext("webgl") || canvas.getContext("experimental-webgl")) as WebGLRenderingContext | null;
+          gl?.getExtension("WEBGL_lose_context")?.loseContext();
+        }
+        shaderMount.current.destroy();
+        shaderMount.current = null;
+      }
+    };
+  }, []);
+
+  // Separate effect to pause animation when off-screen to save battery without recompiling
+  useEffect(() => {
+    if (shaderMount.current?.setSpeed) {
+      if (isInView) {
+        shaderMount.current.setSpeed(0.12);
+      } else {
+        shaderMount.current.setSpeed(0); // Pause when off-screen
+      }
+    }
+  }, [isInView]);
+
   return (
     <motion.div
       className="relative h-[340px] md:h-[380px] cursor-pointer"
@@ -76,16 +127,35 @@ function FlipCard({ card, index }: FlipCardProps) {
       onHoverEnd={() => setFlipped(false)}
       onClick={() => setFlipped((f) => !f)}
     >
-      {/* Card inner — the thing that flips */}
+      {/* Liquid metal shader ring — wraps the whole card, stays visible during flip */}
+      <div
+        ref={shaderRef}
+        className="shader-container-card"
+        style={{
+          position: "absolute",
+          inset: 0,
+          borderRadius: "20px",
+          overflow: "hidden",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+
+      {/* Card inner — 3px inset reveals the metal rim; flips */}
       <motion.div
-        className="relative w-full h-full"
-        style={{ transformStyle: "preserve-3d" }}
+        className="absolute"
+        style={{
+          inset: "3px",
+          borderRadius: "17px",
+          transformStyle: "preserve-3d",
+          overflow: "hidden",
+        }}
         animate={{ rotateY: flipped ? 180 : 0 }}
         transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
       >
         {/* ── FRONT — Problem ── */}
         <div
-          className="absolute inset-0 rounded-[20px] p-7 flex flex-col justify-between overflow-hidden border border-white/5"
+          className="absolute inset-0 rounded-[17px] p-7 flex flex-col justify-between overflow-hidden border border-white/5"
           style={{
             backfaceVisibility: "hidden",
             background:
@@ -128,7 +198,7 @@ function FlipCard({ card, index }: FlipCardProps) {
 
         {/* ── BACK — Solution ── */}
         <div
-          className="absolute inset-0 rounded-[20px] p-7 flex flex-col justify-between overflow-hidden border border-brand-gold/15"
+          className="absolute inset-0 rounded-[17px] p-7 flex flex-col justify-between overflow-hidden border border-brand-gold/15"
           style={{
             backfaceVisibility: "hidden",
             transform: "rotateY(180deg)",

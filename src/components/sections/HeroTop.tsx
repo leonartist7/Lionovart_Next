@@ -3,7 +3,9 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
-import { getWhatsAppUrlWithEmail, getWhatsAppUrl } from "@/lib/contact";
+import { getWhatsAppUrl } from "@/lib/contact";
+import HeroCycling, { Word } from "@/components/sections/HeroCycling";
+import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 
 /* ─── Variants ─────────────────────────────────────────────────── */
 const containerVariants = {
@@ -167,12 +169,21 @@ function AnimatedStats() {
   );
 }
 
+/* ─── Cycling words (text-only until image assets are ready) ───── */
+const CYCLING_WORDS: Word[] = [
+  { type: "text", content: "TO ROAR",          holdMs: 5000 },
+  { type: "text", content: "MORE SALES",        holdMs: 4000 },
+  { type: "text", content: "TOTAL CONFIDENCE",  holdMs: 4000 },
+  { type: "text", content: "BOLD IDENTITY",     holdMs: 4000 },
+  { type: "text", content: "REAL GROWTH",       holdMs: 4000 },
+  { type: "text", content: "BETTER DESIGN",     holdMs: 4000 },
+];
+
 /* ─── Main Component ────────────────────────────────────────────── */
 export default function HeroTop() {
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleConnectNow = () => {
     const url = getWhatsAppUrl();
     window.open(url, "_blank", "noopener,noreferrer");
     setSubmitted(true);
@@ -190,28 +201,16 @@ export default function HeroTop() {
         animate="visible"
         className="relative z-20 flex w-full max-w-[1200px] flex-col items-center gap-6 text-center"
       >
-        {/* Main Heading */}
-        <motion.h1
-          variants={itemVariants}
-          className="text-center text-[11.2vw] sm:text-[4.05rem] md:text-[5.05rem] lg:text-[6.5rem] xl:text-[7.3rem] font-bold uppercase leading-[1.05] tracking-tight text-text-main flex flex-col items-center"
-        >
-          <span className="block whitespace-nowrap">MAKE YOUR</span>
-          <span className="block whitespace-nowrap mt-1 md:mt-2">
-            BRAND{" "}
-            <span className="relative inline-block">
-              <span className="opacity-0 select-none">________</span>
-              <Image
-                src="https://imgur.com/8czAkK3.png"
-                alt="Brand fill"
-                width={400}
-                height={100}
-                className="pointer-events-none absolute left-1/2 top-1/2 h-auto w-[130%] -translate-x-1/2 -translate-y-[65%] object-contain"
-                draggable={false}
-                priority
-              />
-            </span>
-          </span>
-        </motion.h1>
+        {/* Main Heading — cycling */}
+        <motion.div variants={itemVariants} className="w-full text-center">
+          <HeroCycling
+            staticText="YOUR BRAND DESERVES"
+            words={CYCLING_WORDS}
+            fontSize="clamp(1.4rem, 5.5vw, 5.5rem)"
+            cyclingFontSize="clamp(2.2rem, 9vw, 9rem)"
+            forceAnimate
+          />
+        </motion.div>
 
         {/* Subtitle */}
         <motion.p
@@ -219,42 +218,25 @@ export default function HeroTop() {
           className="max-w-[520px] text-[15px] leading-[170%] text-text-muted md:text-[18px]"
         >
           We design brands, build websites, and produce content that makes
-          your business impossible to ignore. One team. Nine languages.
+          your business impossible to ignore.
         </motion.p>
 
-        {/* CTA Form */}
-        <motion.form
+        {/* CTAs — always one row, wraps on very small screens */}
+        <motion.div
           variants={itemVariants}
-          onSubmit={handleSubmit}
-          className="flex w-full justify-center"
+          className="flex flex-row flex-wrap items-center justify-center gap-4"
         >
-          <button
-            type="submit"
-            className="
-              rounded-[14px] bg-brand-red px-8 py-3.5
-              text-[14px] font-bold uppercase tracking-widest text-white
-              transition-all duration-200 hover:brightness-110 hover:scale-[1.03]
-              active:scale-[0.98]
-            "
-          >
-            {submitted ? "Opening WhatsApp…" : "Connect Now"}
-          </button>
-        </motion.form>
-
-        {/* Secondary CTA */}
-        <motion.div variants={itemVariants}>
-          <a
-            href="#work"
-            className="
-              inline-flex items-center gap-2
-              rounded-[14px] border border-white/20 bg-transparent px-6 py-3
-              text-[13px] font-semibold uppercase tracking-widest text-white/70
-              transition-all duration-200 hover:border-white/40 hover:text-white hover:scale-[1.03]
-            "
-          >
-            See Our Work
-            <span className="text-[11px] opacity-60">→</span>
-          </a>
+          <LiquidMetalButton
+            label={submitted ? "Opening WhatsApp…" : "Start Now"}
+            onClick={handleConnectNow}
+            width={168}
+          />
+          <LiquidMetalButton
+            label="See Our Work"
+            variant="white"
+            width={168}
+            onClick={() => document.getElementById("work")?.scrollIntoView({ behavior: "smooth" })}
+          />
         </motion.div>
 
         {/* Trust Badges */}

@@ -13,6 +13,12 @@
   }
 }
 
+/* Metallic border shimmer — used in Portfolio cards */
+@keyframes metal-shimmer {
+  0%   { background-position: -200% center, 0 0; }
+  100% { background-position:  200% center, 0 0; }
+}
+
 /* 3D Carousel spin — used in HeroTop */
 @keyframes carousel-spin {
   from { transform: rotateY(0turn); }
@@ -66,8 +72,8 @@
   --font-heading: var(--font-clash-display);
 
   /* --- Brand Colors --- */
-  --color-bg-dark: #0d0d0d;
-  --color-bg-brand-black: #0a0a0a;
+  --color-bg-dark: #181818;
+  --color-bg-brand-black: #181818;
   --color-bg-off-white: #f5f0eb;
   --color-brand-red: #e5192a;
   --color-brand-red-secondary: #db0000;
@@ -168,5 +174,39 @@
   }
   html {
     @apply font-clash scroll-smooth;
+  }
+}
+
+/* =============================================
+   Liquid Metal Shader Canvas Utilities
+   ============================================= */
+.shader-container-exploded canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  border-radius: 100px !important;
+}
+
+.shader-container-card canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  border-radius: 28px !important;
+}
+
+@keyframes ripple-animation {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(4);
+    opacity: 0;
   }
 }

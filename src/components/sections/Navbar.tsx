@@ -8,6 +8,7 @@ import {
   AnimatePresence,
 } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { getWhatsAppUrl } from "@/lib/contact";
@@ -103,14 +104,30 @@ export default function Navbar() {
             className="z-50"
           >
             <Link href="/">
-              <span
-                className={cn(
-                  "text-xl font-bold uppercase tracking-widest transition-colors duration-300",
-                  heroMode ? "text-white" : "text-text-main"
-                )}
-              >
-                LIONOVART
-              </span>
+              <div className="flex items-center gap-2">
+                {/* Lion head — collapses width to 0 when logo centers after hero */}
+                <motion.img
+                  src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
+                  alt=""
+                  aria-hidden="true"
+                  animate={{
+                    opacity: heroMode ? 1 : 0,
+                    width: heroMode ? 28 : 0,
+                    marginRight: heroMode ? 0 : -8,
+                  }}
+                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                  className="h-7 object-contain shrink-0 overflow-hidden"
+                  style={{ filter: "brightness(0) invert(1)" }}
+                />
+                <span
+                  className={cn(
+                    "text-xl font-bold uppercase tracking-widest transition-colors duration-300",
+                    heroMode ? "text-white" : "text-text-main"
+                  )}
+                >
+                  LIONOVART
+                </span>
+              </div>
             </Link>
           </motion.div>
 
@@ -151,14 +168,13 @@ export default function Navbar() {
                 transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
                 className="ml-6 hidden md:block"
               >
-                <a
-                  href={getWhatsAppUrl()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-[20px] border border-white/70 bg-transparent px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-all hover:bg-white hover:text-brand-red hover:scale-105"
-                >
-                  Connect Now
-                </a>
+                <LiquidMetalButton
+                  label="Start Now"
+                  onClick={() => window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer")}
+                  width={160}
+                  variant="white"
+                  textColor="#000000"
+                />
               </motion.div>
             )}
           </AnimatePresence>
@@ -245,15 +261,16 @@ export default function Navbar() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.4 }}
               >
-                <a
-                  href={getWhatsAppUrl()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setIsMobileOpen(false)}
-                  className="mt-4 inline-block rounded-[20px] bg-brand-red px-8 py-4 text-lg font-semibold uppercase tracking-wider text-white transition-all hover:brightness-110"
-                >
-                  Connect Now
-                </a>
+                <LiquidMetalButton
+                  label="Start Now"
+                  variant="white"
+                  textColor="#000000"
+                  width={200}
+                  onClick={() => {
+                    window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer");
+                    setIsMobileOpen(false);
+                  }}
+                />
               </motion.div>
             </motion.nav>
           </motion.div>

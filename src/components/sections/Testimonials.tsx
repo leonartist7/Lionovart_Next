@@ -60,7 +60,7 @@ function OutcomeCard({
         delay: (index % 4) * 0.08,
         ease: [0.22, 1, 0.36, 1],
       }}
-      className="flex flex-col gap-4 rounded-[20px] border border-white/8 bg-[#111111] p-6 md:p-7"
+      className="flex flex-col gap-4 rounded-[20px] bg-[#181818] p-6 md:p-7 shadow-[6px_6px_16px_rgba(0,0,0,0.6),-3px_-3px_12px_rgba(255,255,255,0.03)] ring-1 ring-white/[0.02]"
     >
       <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-red">
         {item.category}

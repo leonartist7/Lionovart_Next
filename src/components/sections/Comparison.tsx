@@ -52,7 +52,7 @@ const COMPARISON_DATA = [
 
 export default function Comparison() {
   return (
-    <section className="bg-[#F5F0EB] py-[100px] md:py-[140px] px-4 md:px-8">
+    <section className="bg-[#eceff3] py-[100px] md:py-[140px] px-4 md:px-8">
       <div className="max-w-[1200px] mx-auto">
         <div className="mb-12 md:mb-20 flex flex-col items-center text-center">
           <motion.h2

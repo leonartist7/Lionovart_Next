@@ -7,6 +7,7 @@ import {
   useSpring,
   useTransform,
   AnimatePresence,
+  useInView,
 } from "framer-motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -258,123 +259,136 @@ function OrbitPlatformsCard({
   return (
     <motion.div
       className={`relative ${project.gridClasses}`}
-      initial={{ opacity: 0, y: 150 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{
-        type: "spring",
-        stiffness: 100,
-        damping: 20,
-        delay: (index % 3) * 0.1,
-      }}
     >
+      {/* Outer shell — position:relative so shader fills it as a ring */}
       <div
-        className="relative flex h-full w-full flex-col overflow-hidden rounded-[20px] min-h-[220px] md:min-h-0"
+        className="relative flex h-full w-full min-h-[220px] md:min-h-0 bg-[#e2e8f0]"
         style={{
-          background: "#0d0d0d",
-          boxShadow:
-            "0 8px 24px -6px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(255,255,255,0.05)",
+          borderRadius: "20px",
+          overflow: "hidden",
+          boxShadow: "0 8px 24px -6px rgba(0,0,0,0.15)",
         }}
       >
-        {/* Radial red glow */}
+        {/* Soft Animated Rim */}
         <div
+          className="absolute inset-[-100%] animate-[spin_5s_linear_infinite]"
           style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "radial-gradient(ellipse 60% 55% at 50% 42%, rgba(229,25,42,0.10) 0%, transparent 75%)",
-            pointerEvents: "none",
+            background: "conic-gradient(from 0deg at 50% 50%, transparent 0%, rgba(229,25,42,0.8) 25%, transparent 50%, rgba(229,25,42,0.8) 75%, transparent 100%)",
+            opacity: 0.6,
           }}
         />
 
-        {/* Orbit stage */}
+        {/* Inner dark layer — 2px inset leaves the animated gradient visible as the border */}
         <div
+          className="flex flex-col"
           style={{
             position: "absolute",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            paddingBottom: 56,
+            inset: "2px",
+            borderRadius: "18px",
+            background: "#ffffff",
+            overflow: "hidden",
           }}
         >
-          {/* Zero-size anchor at center */}
-          <div style={{ position: "relative", width: 0, height: 0 }}>
-            {/* Faint guide rings */}
-            {([120, 190] as const).map((d) => (
+          {/* Radial red glow */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "radial-gradient(ellipse 60% 55% at 50% 42%, rgba(229,25,42,0.10) 0%, transparent 75%)",
+              pointerEvents: "none",
+            }}
+          />
+
+          {/* Orbit stage */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingBottom: 56,
+            }}
+          >
+            {/* Zero-size anchor at center */}
+            <div style={{ position: "relative", width: 0, height: 0 }}>
+              {/* Faint guide rings */}
+              {([120, 190] as const).map((d) => (
+                <div
+                  key={d}
+                  style={{
+                    position: "absolute",
+                    width: d,
+                    height: d,
+                    borderRadius: "50%",
+                    border: "1px solid rgba(0,0,0,0.05)",
+                    top: -d / 2,
+                    left: -d / 2,
+                    pointerEvents: "none",
+                  }}
+                />
+              ))}
+
+              {/* Inner ring: 4 icons, 60px radius, 9s CW */}
+              <OrbitRing icons={innerIcons} radius={60} duration={9} direction={1} />
+
+              {/* Outer ring: 5 icons, 95px radius, 18s CCW */}
+              <OrbitRing icons={outerIcons} radius={95} duration={18} direction={-1} />
+
+              {/* Lion emblem at center */}
               <div
-                key={d}
                 style={{
                   position: "absolute",
-                  width: d,
-                  height: d,
+                  width: 40,
+                  height: 40,
+                  top: -20,
+                  left: -20,
                   borderRadius: "50%",
-                  border: "1px solid rgba(255,255,255,0.05)",
-                  top: -d / 2,
-                  left: -d / 2,
-                  pointerEvents: "none",
+                  background: "rgba(0,0,0,0.02)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  filter: "drop-shadow(0 0 10px rgba(0,0,0,0.1))",
+                  zIndex: 10,
                 }}
-              />
-            ))}
-
-            {/* Inner ring: 4 icons, 60px radius, 9s CW */}
-            <OrbitRing icons={innerIcons} radius={60} duration={9} direction={1} />
-
-            {/* Outer ring: 5 icons, 95px radius, 18s CCW */}
-            <OrbitRing icons={outerIcons} radius={95} duration={18} direction={-1} />
-
-            {/* Lion emblem at center */}
-            <div
-              style={{
-                position: "absolute",
-                width: 40,
-                height: 40,
-                top: -20,
-                left: -20,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.04)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                filter: "drop-shadow(0 0 10px rgba(255,255,255,0.6))",
-                zIndex: 10,
-              }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
-                alt="Lionovart emblem"
-                width={32}
-                height={32}
-                style={{ objectFit: "contain" }}
-              />
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
+                  alt="Lionovart emblem"
+                  width={32}
+                  height={32}
+                  style={{ objectFit: "contain" }}
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Bottom label */}
-        <div
-          className="relative z-10 mt-auto px-5 pb-4 pt-2 md:px-6 md:pb-5"
-          style={{
-            background:
-              "linear-gradient(to top, rgba(13,13,13,0.95) 70%, transparent)",
-          }}
-        >
-          <p
-            className="mb-[2px] text-[9px] font-bold uppercase tracking-[0.2em]"
-            style={{ color: "#e5192a" }}
+          {/* Bottom label */}
+          <div
+            className="relative z-10 mt-auto px-5 pb-4 pt-2 md:px-6 md:pb-5"
+            style={{
+              background:
+                "linear-gradient(to top, rgba(255,255,255,0.98) 70%, transparent)",
+            }}
           >
-            OUR TOOLS
-          </p>
-          <h3 className="text-[1rem] font-bold leading-tight text-white">
-            Top Platform Expertise
-          </h3>
-          <p
-            className="mt-[2px] text-[12px] leading-snug"
-            style={{ color: "rgba(255,255,255,0.4)" }}
-          >
-            Always the best tools available
-          </p>
+            <p
+              className="mb-[2px] text-[9px] font-bold uppercase tracking-[0.2em]"
+              style={{ color: "#e5192a" }}
+            >
+              OUR TOOLS
+            </p>
+            <h3 className="text-[1rem] font-bold leading-tight text-[#111]">
+              Top Platform Expertise
+            </h3>
+            <p
+              className="mt-[2px] text-[12px] leading-snug"
+              style={{ color: "#666" }}
+            >
+              Always the best tools available
+            </p>
+          </div>
         </div>
       </div>
     </motion.div>
@@ -394,6 +408,7 @@ function BentoCard({
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
+  // biome-ignore lint/suspicious/noExplicitAny: External library without types
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
@@ -420,58 +435,75 @@ function BentoCard({
     <motion.div
       className={`relative ${project.gridClasses}`}
       style={{ perspective: 1200 }}
-      initial={{ opacity: 0, y: 150 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{
-        type: "spring",
-        stiffness: 100,
-        damping: 20,
-        delay: (index % 3) * 0.1,
-      }}
     >
       <motion.div
         ref={cardRef}
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={handleMouseLeave}
-        className="relative flex h-full w-full cursor-default flex-col justify-end overflow-hidden rounded-[20px] bg-[#161616] min-h-[220px] md:min-h-0"
-        style={{ rotateX, rotateY }}
+        className="relative flex h-full w-full cursor-default min-h-[220px] md:min-h-0 bg-[#e2e8f0]"
+        style={{
+          rotateX,
+          rotateY,
+          borderRadius: "20px",
+          overflow: "hidden",
+        }}
         animate={{
-          scale: isHovered ? 1.03 : 1,
+          scale: isHovered ? 1.015 : 1,
           boxShadow: isHovered
-            ? "0 16px 40px -8px rgba(0,0,0,0.22), 0 4px 16px -4px rgba(0,0,0,0.14), inset 0 0 0 1px rgba(255,255,255,0.08)"
-            : "0 8px 24px -6px rgba(0,0,0,0.15), 0 2px 8px -2px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(255,255,255,0.05)",
+            ? "0 10px 28px -8px rgba(0,0,0,0.20), 0 0 16px -4px rgba(229,25,42,0.10)"
+            : "0 8px 24px -6px rgba(0,0,0,0.15), 0 2px 8px -2px rgba(0,0,0,0.10)",
         }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
-        {/* Background Image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${project.image})` }}
-        />
-
-        {/* Fade Overlay */}
-        <div
-          className="absolute inset-0 transition-opacity duration-500"
+        {/* Soft Animated Rim */}
+        <motion.div
+          className="absolute inset-[-100%] animate-[spin_5s_linear_infinite]"
           style={{
-            background:
-              "linear-gradient(to top, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.75) 18%, rgba(255,255,255,0.3) 36%, transparent 60%)",
-            opacity: isHovered ? 0.85 : 1,
+            background: "conic-gradient(from 0deg at 50% 50%, transparent 0%, rgba(229,25,42,0.8) 25%, transparent 50%, rgba(229,25,42,0.8) 75%, transparent 100%)",
           }}
+          animate={{ opacity: isHovered ? 1 : 0.3 }}
+          transition={{ duration: 0.4 }}
         />
 
-        {/* Content */}
-        <div className="relative z-10 flex flex-col justify-end px-6 pt-6 pb-[15px] md:px-8 md:pt-8 md:pb-[19px]">
-          <span
-            className="mb-1 text-[2.5rem] font-[800] leading-none text-[#e5192a]"
-            style={{ textShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
-          >
-            {project.metric}
-          </span>
-          <h3 className="mb-0 text-[1.1rem] font-bold text-[#0d0d0d]">
-            {project.title}
-          </h3>
+        {/* Inner content wrapper — 2px inset makes the rim visible */}
+        <div
+          className="absolute flex flex-col justify-end"
+          style={{
+            inset: "2px",
+            borderRadius: "18px",
+            background: "#ffffff",
+            overflow: "hidden",
+          }}
+        >
+          {/* Background Image */}
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${project.image})` }}
+          />
+
+          {/* Fade Overlay */}
+          <div
+            className="absolute inset-0 transition-opacity duration-500"
+            style={{
+              background:
+                "linear-gradient(to top, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.75) 18%, rgba(255,255,255,0.3) 36%, transparent 60%)",
+              opacity: isHovered ? 0.85 : 1,
+            }}
+          />
+
+          {/* Content */}
+          <div className="relative z-10 flex flex-row items-end justify-between px-6 pt-6 pb-[15px] md:px-8 md:pt-8 md:pb-[19px]">
+            <span
+              className="text-[2.5rem] font-[800] leading-none text-[#e5192a] mb-0"
+              style={{ textShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
+            >
+              {project.metric}
+            </span>
+            <h3 className="mb-1 text-[1.1rem] font-bold text-[#111] text-right max-w-[55%]">
+              {project.title}
+            </h3>
+          </div>
         </div>
       </motion.div>
     </motion.div>
@@ -514,7 +546,7 @@ export default function Portfolio() {
   }, [activeIdx]);
 
   return (
-    <section id="work" className="bg-[#F5F0EB] pt-[40px] pb-[80px] md:pt-[60px] md:pb-[120px]">
+    <section id="work" className="bg-[#eceff3] pt-[40px] pb-[80px] md:pt-[60px] md:pb-[120px]">
       <div className="mx-auto max-w-[1200px] px-4 md:px-6">
         {/* Header */}
         <div className="mb-12 flex flex-col items-center text-center">
