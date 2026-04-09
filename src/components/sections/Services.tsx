@@ -64,7 +64,7 @@ const SERVICES = [
     title: "Print & Physical Branding",
     description:
       "Your brand can't live only on screens. We design and produce the physical materials that make your business memorable in the real world — from business cards people keep to inflatable installations that turn heads at events. With direct access to one of Canada's leading balloon production facilities, we deliver physical brand experiences most agencies can't.",
-    deliverables: ["Business Cards & Stationery", "Packaging Design", "Print Collateral", "Custom Balloons & Inflatables", "Signage & Display", "Event Branding"],
+    deliverables: ["Business Cards & Stationery", "Packaging Design", "Digital printing", "Commercial printing", "Custom balloon", "Apparel design", "Corporate gifting", "Signage & Display", "Event Branding"],
     media: {
       url: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=900&q=80",
       alt: "Print & Physical Branding",

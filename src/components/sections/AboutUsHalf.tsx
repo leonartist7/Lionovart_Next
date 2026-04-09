@@ -23,12 +23,12 @@ export default function AboutUsHalf() {
         {/* ── 2 "Mini-Video" Style Cards Underneath ── */}
         <div className="flex w-full max-w-[600px] gap-4 md:gap-8 mt-10 md:mt-16">
           
-          {/* Card 1 — 20 Years */}
+          {/* Card 1 — 10 Years */}
           <div className="relative flex-1 rounded-[16px] border border-white/10 bg-[#0A0A0A] h-[120px] sm:h-[140px] md:h-[180px] shadow-2xl">
             {/* Stat label floating above the card */}
             <div className="absolute inset-x-0 top-0 -translate-y-[130%] text-center pointer-events-none">
               <h3 className="text-[16px] sm:text-[20px] md:text-[26px] font-bold text-white uppercase tracking-widest font-clash leading-none whitespace-nowrap">
-                20 Years
+                10 Years
               </h3>
             </div>
 
@@ -43,9 +43,9 @@ export default function AboutUsHalf() {
 
             {/* Info box at the bottom */}
             <div className="absolute bottom-0 inset-x-0 p-3 md:p-4 bg-gradient-to-t from-black/90 via-black/50 to-transparent rounded-b-[16px] text-left">
-              <h4 className="text-white font-bold text-[11px] md:text-[14px] mb-0.5">Combined Experience</h4>
+              <h4 className="text-white font-bold text-[11px] md:text-[14px] mb-0.5">Creative experience</h4>
               <p className="text-text-muted text-[9px] md:text-[11px] leading-[1.3] line-clamp-2">
-                Two decades of craft across branding, digital, and production.
+                Expertise across digital innovation, audiovisual production and printed media.
               </p>
             </div>
           </div>
