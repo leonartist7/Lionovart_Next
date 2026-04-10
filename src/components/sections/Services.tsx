@@ -99,7 +99,7 @@ const SERVICES = [
 
 export default function Services() {
   const lenis = useLenis();
-  const [activeId, setActiveId] = useState<string>(SERVICES[0].id);
+  const [activeId, setActiveId] = useState<string>(SERVICES?.[0]?.id || "branding");
 
   return (
     <section
@@ -154,7 +154,12 @@ export default function Services() {
             <div className="flex flex-col w-full">
 
               {/* ── ALL SERVICES: CLEAN HORIZONTAL ACCORDION ── */}
-              <Accordion type="single" collapsible className="flex flex-col gap-6" defaultValue={SERVICES[0].id}>
+              <Accordion
+                className="flex flex-col gap-6"
+                defaultValue={activeId ? [activeId] : []}
+                value={activeId ? [activeId] : []}
+                onValueChange={(val: any) => setActiveId(Array.isArray(val) ? val[0] : val)}
+              >
                 {SERVICES.map((service, index) => {
                   const isActive = activeId === service.id;
 
