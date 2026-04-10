@@ -12,9 +12,7 @@ export default function AboutUsHalf() {
       className="relative flex flex-col items-center justify-start pt-6 md:pt-10 px-4 bg-[#181818] text-center h-auto min-h-[35vh] sm:min-h-[42vh] md:min-h-[50vh] pb-20"
     >
       <div className="max-w-[700px] w-full flex flex-col items-center">
-        <h2 className="text-brand-red text-[9px] md:text-[11px] font-bold uppercase tracking-widest mb-2 md:mb-3">
-          About Us
-        </h2>
+        
         <p className="text-text-main text-[16px] md:text-[28px] font-medium leading-[1.4]">
           We are a multidisciplinary creative agency — building brands that don&apos;t just look right,
           they feel great. From strategy to screen to sound, every decision is made with intention.

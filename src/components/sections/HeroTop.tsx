@@ -361,6 +361,26 @@ export default function HeroTop() {
           />
         </motion.div>
 
+        
+      </motion.div>
+
+      {/* 3D Rotating Carousel - full bleed */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1, duration: 1.2 }}
+        className="relative z-10 mt-10 md:mt-16 mb-4 md:mb-12 w-full overflow-visible pointer-events-none"
+      >
+        <Carousel3D />
+      </motion.div>
+
+
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="relative z-20 flex w-full max-w-[1200px] flex-col items-center gap-6 text-center"
+      >
         {/* Dynamic Trust Badges */}
         <DynamicTrustBadges />
 
@@ -373,15 +393,9 @@ export default function HeroTop() {
         </motion.p>
       </motion.div>
 
-      {/* 3D Rotating Carousel — full bleed, breaks out of section padding */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 1.2 }}
-        className="relative z-10 -mt-6 md:-mt-12 lg:-mt-20 w-full overflow-visible pointer-events-none"
-      >
-        <Carousel3D />
-      </motion.div>
+
+
+      
 
       {/* Floating Founder Card */}
       <motion.div
