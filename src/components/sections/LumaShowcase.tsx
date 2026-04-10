@@ -442,10 +442,10 @@ export default function LumaShowcase() {
           );
 
           /* ── Exit (progress 0.88 → 1.00 = time 1.936 → 2.2) ── */
-          tl.to(finalContentRef.current!, { y: -80, opacity: 0, duration: 0.18, ease: "power2.in" }, 1.936);
-          tl.to(pillsRowRef.current!,     { y: -50, opacity: 0, duration: 0.14, ease: "power2.in" }, 1.98);
-          tl.to(lionRef.current!,         { y: 100, opacity: 0, duration: 0.16, ease: "power2.in" }, 2.0);
-          tl.to(glowRef.current!,         { opacity: 0,         duration: 0.12                    }, 2.02);
+          // tl.to(finalContentRef.current!, { y: -80, opacity: 0, duration: 0.18, ease: "power2.in" }, 1.936);
+          // tl.to(pillsRowRef.current!,     { y: -50, opacity: 0, duration: 0.14, ease: "power2.in" }, 1.98);
+          // tl.to(lionRef.current!,         { y: 100, opacity: 0, duration: 0.16, ease: "power2.in" }, 2.0);
+          // tl.to(glowRef.current!,         { opacity: 0,         duration: 0.12                    }, 2.02);
 
           tl.set({}, {}, 2.2);
         },

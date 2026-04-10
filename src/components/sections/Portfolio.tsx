@@ -67,7 +67,7 @@ const PROJECTS: Project[] = [
     description: "Social media & video production campaign",
     metric: "10k+",
     image: "https://images.unsplash.com/photo-1558655146-d09347e92766?w=800&q=80",
-    gridClasses: "col-span-2 row-span-1 md:col-span-6 md:row-span-1 lg:col-span-4 lg:row-span-2 lg:col-start-9",
+    gridClasses: "col-span-2 row-span-1 md:col-span-6 md:row-span-1 lg:col-span-8 lg:row-span-1",
   },
 ];
 

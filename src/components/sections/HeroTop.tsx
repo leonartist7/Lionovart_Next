@@ -192,7 +192,7 @@ function TrustBadge({
 }) {
   return (
     <motion.div 
-      className="relative flex flex-col items-center justify-center aspect-square @container w-full max-w-[140px]"
+      className="relative flex flex-col items-center justify-center aspect-square @container w-full max-w-[126px]"
       initial={{ opacity: 1, scale: 1 }}
     >
        {/* Left Laurel (Replace src with your laurel.webp) */}
@@ -232,7 +232,7 @@ function DynamicTrustBadges() {
   const countriesCount = useCountUp(10, 1400, inView);
 
   return (
-    <div ref={ref} className="flex justify-center items-center gap-[2vw] md:gap-8 w-full max-w-[600px] mx-auto mt-4 md:mt-5">
+    <div ref={ref} className="flex justify-center items-center gap-[2vw] md:gap-8 w-full max-w-[540px] mx-auto mt-4 md:mt-5">
       {/* Badge 1: Brands */}
       <TrustBadge title={<>Brands<br/>elevated</>} delay={0.1}>
          <div className="flex items-center text-brand-red font-black leading-none tracking-tighter" style={{ fontSize: "38cqw" }}>
@@ -321,7 +321,7 @@ export default function HeroTop() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-20 flex w-full max-w-[1200px] flex-col items-center gap-6 text-center"
+        className="relative z-20 flex w-full max-w-[1200px] flex-col items-center gap-2 text-center -mt-4"
       >
         {/* Main Heading — cycling */}
         <motion.div variants={itemVariants} className="w-full text-center">
@@ -361,6 +361,26 @@ export default function HeroTop() {
           />
         </motion.div>
 
+        
+      </motion.div>
+
+      {/* 3D Rotating Carousel - full bleed */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1, duration: 1.2 }}
+        className="relative z-10 mt-[5px] mb-0 md:-mb-8 w-full overflow-visible pointer-events-none"
+      >
+        <Carousel3D />
+      </motion.div>
+
+
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="relative z-20 flex w-full max-w-[1200px] flex-col items-center gap-2 text-center -mt-4"
+      >
         {/* Dynamic Trust Badges */}
         <DynamicTrustBadges />
 
@@ -373,15 +393,9 @@ export default function HeroTop() {
         </motion.p>
       </motion.div>
 
-      {/* 3D Rotating Carousel — full bleed, breaks out of section padding */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 1.2 }}
-        className="relative z-10 -mt-6 md:-mt-12 lg:-mt-20 w-full overflow-visible pointer-events-none"
-      >
-        <Carousel3D />
-      </motion.div>
+
+
+      
 
       {/* Floating Founder Card */}
       <motion.div

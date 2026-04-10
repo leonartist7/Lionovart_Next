@@ -55,7 +55,7 @@ export default function Navbar() {
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="fixed top-0 left-0 right-0 z-50 overflow-hidden"
+        className="fixed top-[4px] left-3 right-3 z-50 rounded-2xl overflow-hidden shadow-sm"
       >
         {/* ── Red layer ──
          *  Starts fully visible (circle covers whole nav).
@@ -82,143 +82,146 @@ export default function Navbar() {
         {/* ── Glass layer (fades in after hero) ── */}
         <motion.div
           aria-hidden
-          className="absolute inset-0 bg-nav-glass backdrop-blur-md border-b border-white/5"
-          animate={{ opacity: isPastHero ? 1 : 0 }}
+          className="absolute inset-0 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_4px_30px_rgba(0,0,0,0.1)] inset-shadow-sm inset-shadow-white/5"
+          animate={{
+            opacity: isPastHero ? 1 : 0,
+            backgroundColor: "rgba(10, 10, 10, 0.75)" // Deep premium dark glass
+          }}
           transition={{ duration: 0.5, ease: "easeOut" }}
           style={{ pointerEvents: "none" }}
         />
 
         {/* Nav inner */}
-        <div className="relative mx-auto flex max-w-[1200px] items-center px-4 py-4 md:px-6">
+        <div className="relative mx-auto flex w-full max-w-[1280px] items-center justify-between px-6 py-4 lg:px-10">
 
           {/* ── Logo ──
-               Before hero passes: left-aligned.
-               After hero passes: centered.    */}
+               Permanently sits on the left on desktop.
+               On mobile, it moves to the center when scrolling past hero. */}
           <motion.div
             animate={
-              isPastHero
-                ? { x: "-50%", left: "50%", position: "absolute" }
-                : { x: "0%", left: "0%", position: "relative" }
+              isPastHero && typeof window !== "undefined" && window.innerWidth < 1024
+                ? { left: "50%", x: "-50%", position: "absolute" }
+                : { left: "24px", x: "0%", position: "relative" }
             }
             transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-            className="z-50"
+            className="z-40 lg:!static lg:!transform-none lg:flex-1 lg:!left-auto text-left"
           >
-            <Link href="/">
-              <div className="flex items-center gap-2">
-                {/* Lion head — collapses width to 0 when logo centers after hero */}
-                <motion.img
-                  src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
-                  alt=""
-                  aria-hidden="true"
-                  animate={{
-                    opacity: heroMode ? 1 : 0,
-                    width: heroMode ? 28 : 0,
-                    marginRight: heroMode ? 0 : -8,
-                  }}
-                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                  className="h-7 object-contain shrink-0 overflow-hidden"
-                  style={{ filter: "brightness(0) invert(1)" }}
-                />
-                <span
-                  className={cn(
-                    "text-xl font-bold uppercase tracking-widest transition-colors duration-300",
-                    heroMode ? "text-white" : "text-text-main"
-                  )}
-                >
-                  LIONOVART
-                </span>
-              </div>
+            <Link href="/" className="inline-flex items-center gap-2">
+              {/* Lion head */}
+              <motion.img
+                src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
+                alt="Lionovart logo"
+                aria-hidden="true"
+                animate={{
+                  opacity: heroMode ? 1 : 0,
+                  width: heroMode ? 28 : 0,
+                  marginRight: heroMode ? 0 : -8,
+                }}
+                transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                className="h-7 object-contain shrink-0 overflow-hidden transition-all duration-300 lg:opacity-100 lg:w-[28px] lg:mr-0"
+                style={{
+                  filter: "brightness(0) invert(1)"
+                }}
+              />
+              <motion.span
+                animate={{
+                  color: "#ffffff" // Always white
+                }}
+                className="text-xl font-bold uppercase tracking-[0.2em] text-white transition-opacity duration-300 opacity-100 lg:pointer-events-auto"
+              >
+                LIONOVART
+              </motion.span>
             </Link>
           </motion.div>
 
-          {/* ── Desktop Nav Links — fade out when past hero ── */}
-          <AnimatePresence>
-            {!isPastHero && (
-              <motion.ul
+          {/* ── Desktop Nav Links ── */}
+          <div className="hidden lg:flex flex-auto items-center justify-center gap-10">
+            <AnimatePresence>
+              <motion.div
                 key="nav-links"
                 initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  // Do not hardcode "display", let CSS handle the responsive 'hidden' vs 'flex' so mobile avoids overlap
+                }}
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
-                className="ml-auto hidden items-center gap-8 md:flex"
               >
-                {NAV_LINKS.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="group relative text-sm font-medium uppercase tracking-wider text-white/90 transition-colors hover:text-white"
-                    >
-                      {link.label}
-                      <span className="absolute -bottom-0.5 left-0 h-[1px] w-full origin-left scale-x-0 bg-white transition-transform duration-300 group-hover:scale-x-100" />
-                    </Link>
-                  </li>
-                ))}
-              </motion.ul>
-            )}
-          </AnimatePresence>
-
-          {/* ── Desktop CTA ── */}
-          <AnimatePresence>
-            {!isPastHero && (
-              <motion.div
-                key="cta"
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
-                className="ml-6 hidden md:block"
-              >
-                <LiquidMetalButton
-                  label="Start Now"
-                  onClick={() => window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer")}
-                  width={160}
-                  variant="white"
-                  textColor="#000000"
-                />
+                <ul className="flex items-center justify-center gap-[3.5rem]">
+                  {NAV_LINKS.map((link) => (
+                    <li key={link.label}>
+                      <Link
+                        href={link.href}
+                        className="group relative text-[13px] font-semibold uppercase tracking-[0.15em] text-white/90 transition-colors hover:text-white"
+                      >
+                        {link.label}
+                        <span className="absolute -bottom-1.5 left-0 h-[2px] w-full origin-left scale-x-0 bg-white transition-transform duration-300 group-hover:scale-x-100" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               </motion.div>
-            )}
-          </AnimatePresence>
+            </AnimatePresence>
+          </div>
 
-          {/* ── Burger Menu ── */}
-          <AnimatePresence>
-            {(isPastHero || true) && (
-              <motion.button
-                key="burger"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: isPastHero ? 1 : 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.25 }}
-                onClick={() => setIsMobileOpen(!isMobileOpen)}
-                className={cn(
-                  "relative z-50 ml-auto",
-                  isPastHero ? "flex" : "flex md:hidden"
-                )}
-                aria-label="Toggle menu"
-                style={{ pointerEvents: isPastHero ? "auto" : "none" }}
-              >
-                {isMobileOpen ? (
-                  <X className="h-6 w-6 text-text-main" />
-                ) : (
-                  <Menu className="h-6 w-6 text-text-main" />
-                )}
-              </motion.button>
-            )}
-          </AnimatePresence>
+          {/* ── Desktop CTA & Burger Wrapper ── */}
+          <div className="flex flex-1 items-center justify-end gap-6">
+            <div className="hidden lg:block shrink-0">
+              <AnimatePresence>
+                <motion.div
+                  key="cta"
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                    // Do not hardcode 'display: block' string overriding tailwind hidden classes on mobile
+                  }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
+                >
+                  <LiquidMetalButton
+                    label="Start Now"
+                    onClick={() => window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer")}
+                    width={140}
+                    variant="white"
+                    textColor="#000000"
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
 
-          {/* Mobile-only burger — always visible when NOT past hero */}
-          {!isPastHero && (
+            {/* Mobile-only burger, completely hidden on desktop since the links are always there */}
             <button
               onClick={() => setIsMobileOpen(!isMobileOpen)}
-              className="relative z-50 ml-auto md:hidden"
+              className="relative z-[60] lg:hidden transition-opacity duration-300"
               aria-label="Toggle menu"
             >
-              {isMobileOpen ? (
-                <X className="h-6 w-6 text-white" />
-              ) : (
-                <Menu className="h-6 w-6 text-white" />
-              )}
+              <AnimatePresence mode="wait">
+                {isMobileOpen ? (
+                  <motion.div
+                    key="close"
+                    initial={{ rotate: -90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: 90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <X className="h-6 w-6 text-white" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="menu"
+                    initial={{ rotate: 90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: -90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Menu className="h-6 w-6 text-white" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </button>
-          )}
+          </div>
         </div>
       </motion.header>
 

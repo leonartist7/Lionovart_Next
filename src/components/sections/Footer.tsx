@@ -51,6 +51,7 @@ export default function Footer() {
 
         {/* Middle Section: Links */}
         <div className="flex flex-col items-center text-center gap-12 border-t border-border-dark pt-12 mb-12">
+          {/* Middle Section: Removed Links, just preserving empty space or restructuring if needed */}
           <div className="space-y-4 flex flex-col items-center">
             <h3 className="text-[24px] font-bold font-clash uppercase text-white tracking-widest">
               LIONOVART
@@ -59,31 +60,10 @@ export default function Footer() {
               Premium brand identities and websites engineered for high-performing founders.
             </p>
           </div>
-          
-          <div className="flex flex-col sm:flex-row gap-12 sm:gap-24">
-            <div className="space-y-4">
-              <h4 className="text-[14px] font-bold uppercase tracking-widest text-brand-red">Company</h4>
-              <ul className="space-y-3">
-                <li><a href="#about" className="text-text-muted hover:text-white transition-colors text-[14px] uppercase tracking-wider">About Us</a></li>
-                <li><a href="#services" className="text-text-muted hover:text-white transition-colors text-[14px] uppercase tracking-wider">Services</a></li>
-                <li><a href="#portfolio" className="text-text-muted hover:text-white transition-colors text-[14px] uppercase tracking-wider">Work</a></li>
-                <li><a href="#process" className="text-text-muted hover:text-white transition-colors text-[14px] uppercase tracking-wider">Process</a></li>
-              </ul>
-            </div>
-
-            <div className="space-y-4">
-              <h4 className="text-[14px] font-bold uppercase tracking-widest text-brand-red">Social</h4>
-              <ul className="space-y-3">
-                <li><a href="#" className="text-text-muted hover:text-white transition-colors text-[14px] uppercase tracking-wider">Instagram</a></li>
-                <li><a href="#" className="text-text-muted hover:text-white transition-colors text-[14px] uppercase tracking-wider">Twitter / X</a></li>
-                <li><a href="#" className="text-text-muted hover:text-white transition-colors text-[14px] uppercase tracking-wider">LinkedIn</a></li>
-              </ul>
-            </div>
-          </div>
         </div>
 
         {/* Bottom Section: Copyright */}
-        <div className="flex flex-col justify-center items-center border-t border-border-dark pt-8 pb-12 gap-4">
+        <div className="flex flex-col justify-center items-center pt-8 pb-12 gap-4">
           <div className="flex gap-6">
             <a href="#" className="text-text-muted hover:text-white text-[13px] uppercase tracking-wider transition-colors">Privacy</a>
             <a href="#" className="text-text-muted hover:text-white text-[13px] uppercase tracking-wider transition-colors">Terms</a>
@@ -106,7 +86,7 @@ export default function Footer() {
               key={i} 
               className="px-6 text-[3.5rem] sm:text-[6rem] md:text-[9rem] font-bold uppercase font-clash text-white select-none"
             >
-              {text}
+              {text}&reg;
             </span>
           ))}
           {/* Duplicate set for seamless scrolling */}
@@ -115,7 +95,7 @@ export default function Footer() {
               key={`dup-${i}`} 
               className="px-6 text-[3.5rem] sm:text-[6rem] md:text-[9rem] font-bold uppercase font-clash text-white select-none"
             >
-              {text}
+              {text}&reg;
             </span>
           ))}
         </motion.div>
