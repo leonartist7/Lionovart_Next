@@ -181,127 +181,184 @@ const CYCLING_WORDS: Word[] = [
 
 
 /* ─── Trust Badge Components ────────────────────────────────────── */
-function TrustBadge({ 
-  children, 
-  title, 
-  delay = 0 
-}: { 
-  children: React.ReactNode, 
-  title: React.ReactNode, 
-  delay?: number 
+
+const AVATARS = [
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&q=80",
+];
+
+const FLAGS = [
+  { src: "https://flagcdn.com/w40/kr.png", rot: -10, y: -2 },
+  { src: "https://flagcdn.com/w40/jp.png", rot: -6,  y:  0 },
+  { src: "https://flagcdn.com/w40/it.png", rot: -3,  y:  1 },
+  { src: "https://flagcdn.com/w40/ch.png", rot:  0,  y:  2 },
+  { src: "https://flagcdn.com/w40/fr.png", rot:  3,  y:  2 },
+  { src: "https://flagcdn.com/w40/us.png", rot:  6,  y:  1 },
+  { src: "https://flagcdn.com/w40/gb.png", rot:  10, y:  0 },
+];
+
+/*
+ * STRUCTURAL APPROACH — Flex Row Form-Fitting Badge
+ * ───────────────────────────────────────────────────
+ * Instead of an artificial safe zone, we use a flex row:
+ * [Left Laurel] [Content] [Right Laurel]
+ * This guarantees the laurels ALWAYS hug the content perfectly
+ * with an exact 4px gap, mimicking the reference image.
+ */
+function TrustBadge({
+  children,
+  title,
+  contentWidth,
+}: {
+  children: React.ReactNode;
+  title?: React.ReactNode;
+  contentWidth: number;
 }) {
   return (
-    <motion.div 
-      className="relative flex flex-col items-center justify-center aspect-square @container w-full max-w-[126px]"
-      initial={{ opacity: 1, scale: 1 }}
-    >
-       {/* Left Laurel (Replace src with your laurel.webp) */}
-       <img 
-         src="/images/laurel.webp" 
-         alt="" 
-         className="absolute left-0 top-0 h-full w-[35%] object-contain object-left pointer-events-none opacity-50" 
-         style={{ filter: "drop-shadow(0 2px 4px rgba(229,25,42,0.3))" }}
-       />
-       {/* Right Laurel (Flipped) */}
-       <img 
-         src="/laurel.webp" 
-         alt="" 
-         className="absolute right-0 top-0 h-full w-[35%] object-contain object-right pointer-events-none scale-x-[-1] opacity-50" 
-         style={{ filter: "drop-shadow(0 2px 4px rgba(229,25,42,0.3))" }}
-       />
-       
-       {/* Content Container (dynamically scaled using container query units) */}
-       <div className="absolute inset-0 flex flex-col items-center justify-center px-[15%] text-center pt-[5cqw]">
-          {children}
-          <span 
-            className="text-brand-red font-bold leading-[1.1] mt-[6cqw] uppercase" 
-            style={{ fontSize: "14cqw", textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}
+    <div className="flex items-center justify-center gap-1">
+      {/* ── Left Laurel ── fixed height to maintain arch, scaled down 50% */}
+      <img
+        src="/images/laurel-L.webp"
+        alt=""
+        aria-hidden="true"
+        className="h-[60px] sm:h-[70px] md:h-[80px] w-auto object-contain pointer-events-none select-none"
+      />
+
+      {/* ── Content Container ── exact width requested */}
+      <div
+        className="flex flex-col items-center justify-center text-center flex-shrink-0"
+        style={{ width: contentWidth }}
+      >
+        {children}
+        {title && (
+          <span
+            className="text-[#e5192a] font-bold leading-[1.1] mt-1 sm:mt-1.5"
+            style={{ fontSize: contentWidth * 0.18 }}
           >
             {title}
           </span>
-       </div>
-    </motion.div>
+        )}
+      </div>
+
+      {/* ── Right Laurel ── */}
+      <img
+        src="/images/laurel-R.webp"
+        alt=""
+        aria-hidden="true"
+        className="h-[60px] sm:h-[70px] md:h-[80px] w-auto object-contain pointer-events-none select-none"
+      />
+    </div>
   );
 }
 
 function DynamicTrustBadges() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
-  
-  const brandsCount = useCountUp(50, 1600, inView);
+
+  const brandsCount    = useCountUp(50, 1600, inView);
   const countriesCount = useCountUp(10, 1400, inView);
 
+  // Responsive widths to avoid overflowing small mobile screens - reduced by 50%
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const sideWidth = isMobile ? 45 : 65;
+  const midWidth = isMobile ? 70 : 100;
+
   return (
-    <div ref={ref} className="flex justify-center items-center gap-[2vw] md:gap-8 w-full max-w-[540px] mx-auto mt-4 md:mt-5">
-      {/* Badge 1: Brands */}
-      <TrustBadge title={<>Brands<br/>elevated</>} delay={0.1}>
-         <div className="flex items-center text-brand-red font-black leading-none tracking-tighter" style={{ fontSize: "38cqw" }}>
-            <span style={{ fontSize: "28cqw", marginRight: "1cqw" }}>+</span>
-            {brandsCount}
-         </div>
-      </TrustBadge>
-      
-      {/* Badge 2: Customer Experience */}
-      <TrustBadge title={<>Customer<br/>Experience</>} delay={0.2}>
-         {/* Animated SVG Stars */}
-         <div className="flex items-center justify-center gap-[2cqw] mb-[6cqw]">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <motion.svg 
-                key={i} 
-                viewBox="0 0 24 24" 
-                fill="#e5192a" 
-                className="w-[14cqw] h-[14cqw]"
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3 + (i * 0.1), type: "spring", stiffness: 200 }}
-              >
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-              </motion.svg>
-            ))}
-         </div>
-         {/* Avatars Placeholder */}
-         <div className="flex items-center justify-center -space-x-[4cqw] mb-[2cqw]">
-            {[1, 2, 3, 4, 5].map((i) => (
-               <motion.div 
-                 key={i} 
-                 className="w-[18cqw] h-[18cqw] rounded-full border-[1.5cqw] border-brand-red bg-white/20 overflow-hidden relative"
-                 initial={{ opacity: 0, x: -10 }}
-                 animate={{ opacity: 1, x: 0 }}
-                 transition={{ delay: 0.6 + (i * 0.05) }}
-               >
-                 <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent" />
-               </motion.div>
-            ))}
-         </div>
+    <div
+      ref={ref}
+      className="flex justify-center items-center gap-0 sm:gap-2 md:gap-4 w-full max-w-[1100px] mx-auto mt-4 md:mt-5 scale-[0.85] sm:scale-90 md:scale-100 origin-top"
+    >
+      {/* ── Badge 1: Brands ── */}
+      <TrustBadge title={<>Brands<br />elevated</>} contentWidth={sideWidth}>
+        <div
+          className="flex items-center text-[#e5192a] font-black leading-none tracking-tighter"
+          style={{ fontSize: sideWidth * 0.7 }}
+        >
+          <span style={{ fontSize: sideWidth * 0.45, marginRight: 2 }}>+</span>
+          {brandsCount}
+        </div>
       </TrustBadge>
 
-      {/* Badge 3: Countries */}
-      <TrustBadge title="Countries" delay={0.3}>
-         <div className="flex items-center text-brand-red font-black leading-none tracking-tighter" style={{ fontSize: "38cqw" }}>
-            <span style={{ fontSize: "28cqw", marginRight: "1cqw" }}>+</span>
-            {countriesCount}
-         </div>
-         {/* Flags Placeholder */}
-         <div className="flex items-center justify-center -space-x-[2cqw] mt-[4cqw]">
-            {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-               <motion.div 
-                 key={i} 
-                 className="w-[10cqw] h-[7cqw] border-[0.5cqw] border-white/50 bg-white/20 overflow-hidden relative"
-                 style={{ transform: `rotate(${(i - 4) * 4}deg)` }}
-                 initial={{ opacity: 0, y: 10 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 transition={{ delay: 0.8 + (i * 0.05) }}
-               >
-                 <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent" />
-               </motion.div>
+      {/* ── Badge 2: Customer Experience ── */}
+      <TrustBadge title={<>Customer<br />Experience</>} contentWidth={midWidth}>
+        <div className="flex flex-col items-center gap-2 sm:gap-3 w-full">
+          {/* Stars */}
+          <div className="flex items-center justify-between w-[95%]">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <svg key={i} viewBox="0 0 24 24" fill="#e5192a" style={{ width: midWidth * 0.16, height: midWidth * 0.16 }}>
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
             ))}
-         </div>
+          </div>
+          {/* Avatars */}
+          <div className="flex items-center justify-center w-full">
+            {AVATARS.map((src, i) => (
+              <div
+                key={i}
+                style={{
+                  width: midWidth * 0.22,
+                  height: midWidth * 0.22,
+                  borderRadius: "50%",
+                  border: "1px solid #e5192a",
+                  overflow: "hidden",
+                  marginLeft: i === 0 ? 0 : -(midWidth * 0.05),
+                  position: "relative",
+                  zIndex: AVATARS.length - i,
+                  flexShrink: 0,
+                }}
+              >
+                <img src={src} alt="client" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </TrustBadge>
+
+      {/* ── Badge 3: Countries ── */}
+      <TrustBadge contentWidth={sideWidth}>
+        <div className="flex flex-col items-center w-full">
+          <div
+            className="flex items-center text-[#e5192a] font-black leading-none tracking-tighter"
+            style={{ fontSize: sideWidth * 0.7 }}
+          >
+            <span style={{ fontSize: sideWidth * 0.45, marginRight: 2 }}>+</span>
+            {countriesCount}
+          </div>
+          <span
+            className="text-[#e5192a] font-bold leading-[1.2]"
+            style={{ fontSize: sideWidth * 0.2 }}
+          >
+            Countries
+          </span>
+          {/* Flags */}
+          <div className="flex items-center justify-center mt-2 sm:mt-3 gap-1">
+            {FLAGS.map((flag, i) => (
+              <img
+                key={i}
+                src={flag.src}
+                alt="flag"
+                style={{
+                  width: sideWidth * 0.16,
+                  height: sideWidth * 0.11,
+                  objectFit: "cover",
+                  borderRadius: "1px",
+                  transform: `rotate(${flag.rot}deg) translateY(${flag.y}px)`,
+                }}
+              />
+            ))}
+          </div>
+        </div>
       </TrustBadge>
     </div>
-  )
+  );
 }
 
-/* ─── Main Component ────────────────────────────────────────────── */
+/* -------------------------------------------------------------------------- */
+/* Main Component */
+/* -------------------------------------------------------------------------- */
 export default function HeroTop() {
   const [submitted, setSubmitted] = useState(false);
 
