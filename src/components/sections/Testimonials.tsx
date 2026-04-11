@@ -1,128 +1,222 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useScroll, useTransform, MotionValue } from "framer-motion";
+import { Star } from "lucide-react";
 
-/* ─── Outcome cards data ────────────────────────────────────────── */
-const OUTCOMES = [
+// ─── Data ──────────────────────────────────────────────────────────────────
+const TESTIMONIALS = [
   {
-    category: "Branding",
-    statement: "A brand identity they're proud to show clients, investors, and partners.",
+    industry: "Hotel / hospitality",
+    hook: "Website that converts + More bookings",
+    quote:
+      "We were getting traffic but almost no direct bookings — everything was going through booking sites and eating our margin. Within two months of the new website going live, direct reservations jumped almost 70%. It finally looks like the place we actually run, not a template.",
+    author: "Camille Moreau",
+    role: "Owner, Maison Verre · Annecy, France",
   },
   {
-    category: "Web Design",
-    statement: "A website that converts visitors — not just impresses them.",
+    industry: "Beauty salon / clinic",
+    hook: "Brand identity + Confidence",
+    quote:
+      "I'd been embarrassed to hand out my business card for two years. I couldn't even post on Instagram without cringing. They rebuilt the whole identity from the ground up and now I actually feel proud when someone asks what I do. That's worth more than the money, honestly.",
+    author: "Sofia Álvarez",
+    role: "Founder, Lumen Skin Studio · Madrid",
   },
   {
-    category: "A/V Production",
-    statement: "Campaign content that stops the scroll and actually gets watched.",
+    industry: "Real estate / service business",
+    hook: "AI & automation + Time back",
+    quote:
+      "The voice agent they set up for us handles after-hours calls, qualifies leads, and books viewings straight into my calendar. I got a call last Sunday while I was at dinner with my kids — except I didn't, because it was already handled. That one system pays for everything else we do with them.",
+    author: "Marco De Luca",
+    role: "Director, Atelier Realty · Milan",
   },
   {
-    category: "Social & Content",
-    statement: "A consistent presence that builds authority without draining their time.",
+    industry: "Restaurant",
+    hook: "Video / social + Real growth",
+    quote:
+      "Three reels in and we had more reservations in one weekend than we'd had the entire previous month. It wasn't just that the videos looked good — it's that they finally sounded like us. Warm, not corporate. People walked in quoting lines from the reels.",
+    author: "Isabelle Chen",
+    role: "Co-owner, Mesa 14 · Toronto",
   },
   {
-    category: "AI & Automation",
-    statement: "Lead pipelines that run while they sleep — no manual follow-up.",
-  },
-  {
-    category: "Full Scope",
-    statement: "One team handling everything — no briefing six different vendors.",
-  },
-  {
-    category: "Brand Strategy",
-    statement: "Clarity on exactly who they're talking to — and why those people should care.",
-  },
-  {
-    category: "Rebranding",
-    statement: "A complete visual overhaul that positions them as the premium option in the room.",
+    industry: "Contractor / construction",
+    hook: "Full creative team + Relief",
+    quote:
+      "I'm a contractor, not a marketing guy. Before LIONOVART I was editing Instagram posts at 11pm after a 12-hour site day. Now I don't touch any of it. Website, ads, socials, the whole thing — handled. My phone rings more than it ever has and I actually get to sleep.",
+    author: "James Hollister",
+    role: "Founder, Hollister Build Co. · Calgary",
   },
 ];
 
-/* ─── Single outcome card ───────────────────────────────────────── */
-function OutcomeCard({
+// ─── Desktop Card (Framer Motion 3D Stack) ─────────────────────────────────
+function DesktopCard({
   item,
   index,
+  scrollYProgress,
 }: {
-  item: (typeof OUTCOMES)[number];
+  item: (typeof TESTIMONIALS)[0];
   index: number;
+  scrollYProgress: MotionValue<number>;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-40px" });
+  // We have 5 cards. Progress goes from 0 to 1.
+  // We allocate 0.2 of the scroll progress to each card's "leaving" animation.
+  const step = 0.2;
+  const startAppear = (index - 2) * step;
+  const fullyBehind = (index - 1) * step;
+  const atFront = index * step;
+  const gone = (index + 1) * step;
+
+  const range = [startAppear, fullyBehind, atFront, gone];
+
+  // Animate scale, y, and opacity based on where the card is in the stack
+  const scale = useTransform(scrollYProgress, range, [0.85, 0.92, 1, 1]);
+  const yOffset = useTransform(scrollYProgress, range, [80, 40, 0, -200]);
+  const opacity = useTransform(scrollYProgress, range, [0, 0.4, 1, 0]);
+  const zIndex = 10 - index;
 
   return (
     <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 28 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{
-        duration: 0.55,
-        delay: (index % 4) * 0.08,
-        ease: [0.22, 1, 0.36, 1],
+      style={{
+        scale,
+        y: yOffset,
+        opacity,
+        zIndex,
       }}
-      className="flex flex-col gap-4 rounded-[20px] bg-[#181818] p-6 md:p-7 shadow-[6px_6px_16px_rgba(0,0,0,0.6),-3px_-3px_12px_rgba(255,255,255,0.03)] ring-1 ring-white/[0.02]"
+      className="absolute top-0 left-0 w-full h-full bg-white rounded-[24px] p-8 lg:p-10 xl:p-12 shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-gray-100 flex flex-col"
     >
-      <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-red">
-        {item.category}
-      </span>
-      <p className="text-[15px] sm:text-[16px] leading-[160%] text-white/80 font-medium flex-1">
-        {item.statement}
+      <div className="flex items-center justify-between mb-6">
+        <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#e5192a]">
+          {item.industry}
+        </span>
+        <div className="flex items-center gap-1">
+          {[...Array(5)].map((_, i) => (
+            <Star key={i} className="w-4 h-4 fill-[#facc15] text-[#facc15]" />
+          ))}
+        </div>
+      </div>
+
+      <h3 className="text-[#111] font-bold text-lg lg:text-xl mb-4 leading-tight">
+        {item.hook}
+      </h3>
+
+      <p className="text-[#333] text-[15px] lg:text-[17px] leading-[1.6] mb-8 flex-1 italic">
+        &quot;{item.quote}&quot;
       </p>
+
+      <div className="mt-auto">
+        <p className="text-[#111] font-bold text-[15px] uppercase tracking-wide">
+          {item.author}
+        </p>
+        <p className="text-[#666] text-[13px] mt-1">{item.role}</p>
+      </div>
     </motion.div>
   );
 }
 
-/* ─── Main section ──────────────────────────────────────────────── */
-export default function Testimonials() {
-  const ref = useRef<HTMLElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-60px" });
-
+// ─── Mobile Card (Horizontal Snap) ─────────────────────────────────────────
+function MobileCard({ item }: { item: (typeof TESTIMONIALS)[0] }) {
   return (
-    <section
-      ref={ref}
-      id="testimonials"
-      className="bg-bg-dark py-[80px] md:py-[140px] overflow-hidden"
-    >
-      <div className="mx-auto max-w-[1200px] px-4 md:px-6">
-
-        {/* Heading */}
-        <div className="mb-14 md:mb-20 text-center">
-          <motion.p
-            className="text-brand-red text-[13px] font-semibold uppercase tracking-[0.2em] mb-4"
-            initial={{ opacity: 0, y: 10 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.4 }}
-          >
-            Why They Choose Us
-          </motion.p>
-          <motion.h2
-            className="text-[2.5rem] sm:text-[3.5rem] md:text-[4.5rem] font-bold uppercase leading-none tracking-tight text-text-main"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            What Clients{" "}
-            <span className="text-brand-red">Come To Us For</span>
-          </motion.h2>
-          <motion.p
-            className="mt-5 text-[15px] text-white/45 max-w-[520px] mx-auto leading-[160%]"
-            initial={{ opacity: 0, y: 12 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            The outcomes clients prioritize — drawn from conversations across
-            50+ projects in 9 languages.
-          </motion.p>
-        </div>
-
-        {/* 8-card grid: 1 col → 2 col → 4 col */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {OUTCOMES.map((item, i) => (
-            <OutcomeCard key={item.category} item={item} index={i} />
+    <div className="snap-center shrink-0 w-[85vw] sm:w-[400px] bg-white rounded-[20px] p-6 sm:p-8 shadow-[0_12px_30px_rgba(0,0,0,0.06)] border border-gray-100 flex flex-col">
+      <div className="flex items-center justify-between mb-5">
+        <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] text-[#e5192a]">
+          {item.industry}
+        </span>
+        <div className="flex items-center gap-1">
+          {[...Array(5)].map((_, i) => (
+            <Star key={i} className="w-3.5 h-3.5 fill-[#facc15] text-[#facc15]" />
           ))}
         </div>
-
       </div>
+
+      <h3 className="text-[#111] font-bold text-[16px] sm:text-lg mb-3 leading-tight">
+        {item.hook}
+      </h3>
+
+      <p className="text-[#444] text-[14px] sm:text-[15px] leading-[1.6] mb-6 flex-1 italic">
+        &quot;{item.quote}&quot;
+      </p>
+
+      <div className="mt-auto">
+        <p className="text-[#111] font-bold text-[14px] sm:text-[15px] uppercase tracking-wide">
+          {item.author}
+        </p>
+        <p className="text-[#666] text-[12px] sm:text-[13px] mt-1">{item.role}</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Section ──────────────────────────────────────────────────────────
+export default function Testimonials() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Scroll progress for the desktop sticky stack
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
+
+  return (
+    <section id="testimonials" className="bg-[#fafafa] relative w-full">
+      
+      {/* ── MOBILE / TABLET LAYOUT (< 1024px) ── */}
+      <div className="flex lg:hidden flex-col py-16 sm:py-24 overflow-hidden">
+        <div className="px-6 sm:px-10 mb-10">
+          <p className="text-[#e5192a] text-[12px] font-bold uppercase tracking-[0.2em] mb-2">
+            Client Stories
+          </p>
+          <h2 className="text-[2.5rem] sm:text-[3.5rem] font-bold uppercase leading-none tracking-tight text-[#111]">
+            The Verdict
+          </h2>
+        </div>
+        
+        <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 sm:gap-6 px-6 sm:px-10 pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {TESTIMONIALS.map((item, i) => (
+            <MobileCard key={i} item={item} />
+          ))}
+          {/* Spacer to allow the last card to snap perfectly with right padding */}
+          <div className="shrink-0 w-[4px] sm:w-[10px]" aria-hidden />
+        </div>
+      </div>
+
+      {/* ── DESKTOP LAYOUT (>= 1024px) Cinematic Stack ── */}
+      {/* Container is 500vh to give enough scroll distance for 5 cards */}
+      <div
+        ref={containerRef}
+        className="hidden lg:block relative w-full h-[500vh]"
+      >
+        <div className="sticky top-0 w-full h-screen flex items-center justify-center overflow-hidden">
+          <div className="w-full max-w-[1280px] mx-auto px-10 flex items-center justify-between gap-12 xl:gap-20">
+            
+            {/* Left: Sticky Header */}
+            <div className="w-5/12 flex flex-col justify-center">
+              <p className="text-[#e5192a] text-[13px] font-bold uppercase tracking-[0.2em] mb-4">
+                Client Stories
+              </p>
+              <h2 className="text-[4rem] xl:text-[4.5rem] font-bold uppercase leading-[1.05] tracking-tight text-[#111] mb-6">
+                The Verdict
+              </h2>
+              <p className="text-[#444] text-[17px] leading-[1.6] max-w-[400px]">
+                Don&apos;t just take our word for it. Hear from the founders and directors who transformed their brands and businesses with us.
+              </p>
+            </div>
+
+            {/* Right: The 3D Card Stack */}
+            <div className="w-6/12 relative h-[500px] xl:h-[550px] flex items-center justify-center">
+              {TESTIMONIALS.map((item, i) => (
+                <DesktopCard
+                  key={i}
+                  index={i}
+                  item={item}
+                  scrollYProgress={scrollYProgress}
+                />
+              ))}
+            </div>
+
+          </div>
+        </div>
+      </div>
+
     </section>
   );
 }

@@ -14,7 +14,7 @@ export default function Footer() {
   const marqueeText = Array(20).fill("LIONOVART");
 
   return (
-    <footer ref={ref} className="bg-[#050505] pt-[100px] border-t border-border-dark relative z-10">
+    <footer ref={ref} className="bg-[#050505] pt-[100px] border-t border-border-dark relative z-0">
       <div className="mx-auto max-w-[1200px] px-4 md:px-6 w-full">
         
         {/* Top Section: CTA CTA */}
@@ -53,7 +53,7 @@ export default function Footer() {
         <div className="flex flex-col items-center text-center gap-12 border-t border-border-dark pt-12 mb-12">
           {/* Middle Section: Removed Links, just preserving empty space or restructuring if needed */}
           <div className="space-y-4 flex flex-col items-center">
-            <h3 className="text-[24px] font-bold font-clash uppercase text-white tracking-widest">
+            <h3 className="text-[48px] md:text-[64px] font-bold font-clash uppercase text-white tracking-widest">
               LIONOVART
             </h3>
             <p className="text-text-muted text-[14px] max-w-sm">

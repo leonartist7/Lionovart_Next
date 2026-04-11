@@ -2,6 +2,8 @@
 
 import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 // ─── Step data ─────────────────────────────────────────────────────────────────
 const STEPS = [
@@ -69,18 +71,71 @@ const PARTICLES = [
 export default function Process() {
   const sectionRef  = useRef<HTMLElement>(null);
   const rowRef      = useRef<HTMLDivElement>(null);
-  const [endX, setEndX] = useState(0);
+  const pillarRefs  = useRef<(HTMLDivElement | null)[]>([]);
+  const [snapPoints, setSnapPoints] = useState<number[]>([0, 0, 0, 0]);
 
-  // Measure how far the row needs to translate so the last column is visible
+  // Measure how far the row needs to translate and calculate exact snap points
   useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
     const compute = () => {
-      if (!rowRef.current) return;
-      const overflow = rowRef.current.scrollWidth - window.innerWidth;
-      setEndX(overflow > 0 ? -overflow : 0);
+      if (!rowRef.current || pillarRefs.current.length < 4) return;
+      const iw = window.innerWidth;
+      
+      const getCenter = (el: HTMLElement) => {
+        let offset = 0;
+        let current: HTMLElement | null = el;
+        while (current && current !== rowRef.current) {
+          offset += current.offsetLeft;
+          current = current.offsetParent as HTMLElement;
+        }
+        return offset + el.offsetWidth / 2;
+      };
+
+      // Point 1: Aligned left (x = 0)
+      const pos1 = 0;
+      
+      // Point 2: Center pillar 2
+      const p2 = pillarRefs.current[1];
+      let pos2 = p2 ? (iw / 2) - getCenter(p2) : 0;
+      
+      // Point 3: Center pillar 3
+      const p3 = pillarRefs.current[2];
+      let pos3 = p3 ? (iw / 2) - getCenter(p3) : 0;
+      
+      // Point 4: Aligned right (max scroll)
+      const overflow = rowRef.current.scrollWidth - iw;
+      const pos4 = overflow > 0 ? -overflow : 0;
+
+      // Clamp center positions so we don't overscroll past bounds
+      pos2 = Math.min(0, Math.max(pos2, pos4));
+      pos3 = Math.min(0, Math.max(pos3, pos4));
+
+      setSnapPoints([pos1, pos2, pos3, pos4]);
     };
+    
     compute();
     window.addEventListener("resize", compute);
-    return () => window.removeEventListener("resize", compute);
+
+    // Setup GSAP Snapping Physics
+    const ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top top",
+        end: "bottom bottom",
+        snap: {
+          snapTo: [0, 0.3333, 0.6666, 1],
+          duration: { min: 0.1, max: 0.4 }, // Much faster, snappier duration
+          delay: 0, // Zero delay so it starts snapping immediately when scrolling stops
+          ease: "power3.out" // Stronger, more satisfying deceleration
+        }
+      });
+    });
+
+    return () => {
+      window.removeEventListener("resize", compute);
+      ctx.revert(); // Strict cleanup
+    };
   }, []);
 
   // Map vertical scroll progress inside the section → horizontal position
@@ -89,20 +144,20 @@ export default function Process() {
     offset: ["start start", "end end"],
   });
 
-  const line1 = useTransform(scrollYProgress, [0, 0.33], [0, 1]);
-  const line2 = useTransform(scrollYProgress, [0.33, 0.66], [0, 1]);
-  const line3 = useTransform(scrollYProgress, [0.66, 1], [0, 1]);
+  const line1 = useTransform(scrollYProgress, [0, 0.3333], [0, 1]);
+  const line2 = useTransform(scrollYProgress, [0.3333, 0.6666], [0, 1]);
+  const line3 = useTransform(scrollYProgress, [0.6666, 1], [0, 1]);
   const lines = [line1, line2, line3];
 
-  const c2Bg = useTransform(scrollYProgress, [0.3, 0.33], ["rgba(229,25,42,0)", "rgba(229,25,42,1)"]);
-  const c3Bg = useTransform(scrollYProgress, [0.63, 0.66], ["rgba(229,25,42,0)", "rgba(229,25,42,1)"]);
+  const c2Bg = useTransform(scrollYProgress, [0.3, 0.3333], ["rgba(229,25,42,0)", "rgba(229,25,42,1)"]);
+  const c3Bg = useTransform(scrollYProgress, [0.63, 0.6666], ["rgba(229,25,42,0)", "rgba(229,25,42,1)"]);
   const c4Bg = useTransform(scrollYProgress, [0.96, 1], ["rgba(229,25,42,0)", "rgba(229,25,42,1)"]);
   
-  const c2Text = useTransform(scrollYProgress, [0.3, 0.33], ["#e5192a", "#ffffff"]);
-  const c3Text = useTransform(scrollYProgress, [0.63, 0.66], ["#e5192a", "#ffffff"]);
+  const c2Text = useTransform(scrollYProgress, [0.3, 0.3333], ["#e5192a", "#ffffff"]);
+  const c3Text = useTransform(scrollYProgress, [0.63, 0.6666], ["#e5192a", "#ffffff"]);
   const c4Text = useTransform(scrollYProgress, [0.96, 1], ["#e5192a", "#ffffff"]);
 
-  const x        = useTransform(scrollYProgress, [0, 1], [0, endX]);
+  const x = useTransform(scrollYProgress, [0, 0.3333, 0.6666, 1], snapPoints);
   
   return (
     <section
@@ -199,6 +254,9 @@ export default function Process() {
               {STEPS.map((step, i) => (
                 <div
                   key={`pl-${step.num}`}
+                  ref={(el) => {
+                    pillarRefs.current[i] = el;
+                  }}
                   style={{
                     position: "relative",
                     flexShrink: 0,

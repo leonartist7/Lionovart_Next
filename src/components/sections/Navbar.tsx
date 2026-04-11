@@ -7,11 +7,11 @@ import {
   useMotionValueEvent,
   AnimatePresence,
 } from "framer-motion";
-import { Menu, X } from "lucide-react";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { getWhatsAppUrl } from "@/lib/contact";
+import { MenuBurgerLottie } from "@/components/ui/menu-burger-lottie";
 
 const NAV_LINKS = [
   { label: "Work", href: "#work" },
@@ -165,9 +165,9 @@ export default function Navbar() {
             </AnimatePresence>
           </div>
 
-          {/* ── Desktop CTA & Burger Wrapper ── */}
-          <div className="flex flex-1 items-center justify-end gap-6">
-            <div className="hidden lg:block shrink-0">
+          {/* ── CTA & Burger Wrapper ── */}
+          <div className="flex flex-1 items-center justify-end gap-3 sm:gap-4 lg:gap-6">
+            <div className="shrink-0 origin-right scale-[0.85] sm:scale-100 transition-transform">
               <AnimatePresence>
                 <motion.div
                   key="cta"
@@ -175,7 +175,6 @@ export default function Navbar() {
                   animate={{
                     opacity: 1,
                     y: 0,
-                    // Do not hardcode 'display: block' string overriding tailwind hidden classes on mobile
                   }}
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
@@ -191,36 +190,12 @@ export default function Navbar() {
               </AnimatePresence>
             </div>
 
-            {/* Mobile-only burger, completely hidden on desktop since the links are always there */}
-            <button
-              onClick={() => setIsMobileOpen(!isMobileOpen)}
-              className="relative z-[60] lg:hidden transition-opacity duration-300"
-              aria-label="Toggle menu"
-            >
-              <AnimatePresence mode="wait">
-                {isMobileOpen ? (
-                  <motion.div
-                    key="close"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <X className="h-6 w-6 text-white" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="menu"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Menu className="h-6 w-6 text-white" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </button>
+            {/* Mobile-only burger (Lottie), hidden on desktop */}
+            <MenuBurgerLottie
+              isOpen={isMobileOpen}
+              onToggle={() => setIsMobileOpen((v) => !v)}
+              className="transition-opacity duration-300"
+            />
           </div>
         </div>
       </motion.header>
@@ -258,23 +233,6 @@ export default function Navbar() {
                   </Link>
                 </motion.div>
               ))}
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.4 }}
-              >
-                <LiquidMetalButton
-                  label="Start Now"
-                  variant="white"
-                  textColor="#000000"
-                  width={200}
-                  onClick={() => {
-                    window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer");
-                    setIsMobileOpen(false);
-                  }}
-                />
-              </motion.div>
             </motion.nav>
           </motion.div>
         )}
