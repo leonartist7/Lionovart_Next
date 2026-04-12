@@ -26,11 +26,15 @@ export default function Navbar() {
   const [isPastHero, setIsPastHero] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [heroThreshold, setHeroThreshold] = useState(600);
+  const [isMobile, setIsMobile] = useState(false);
   const { scrollY } = useScroll();
 
-  /* Calculate 70% of hero section height on mount / resize */
+  /* Calculate 70% of hero section height + track mobile breakpoint on mount / resize */
   useEffect(() => {
-    const calc = () => setHeroThreshold(window.innerHeight * 0.7);
+    const calc = () => {
+      setHeroThreshold(window.innerHeight * 0.7);
+      setIsMobile(window.innerWidth < 1024);
+    };
     calc();
     window.addEventListener("resize", calc);
     return () => window.removeEventListener("resize", calc);
@@ -99,7 +103,7 @@ export default function Navbar() {
                On mobile, it moves to the center when scrolling past hero. */}
           <motion.div
             animate={
-              isPastHero && typeof window !== "undefined" && window.innerWidth < 1024
+              isPastHero && isMobile
                 ? { left: "50%", x: "-50%", position: "absolute" }
                 : { left: "24px", x: "0%", position: "relative" }
             }

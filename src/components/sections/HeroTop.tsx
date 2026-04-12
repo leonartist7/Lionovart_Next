@@ -261,10 +261,22 @@ function DynamicTrustBadges() {
   const brandsCount    = useCountUp(50, 1600, inView);
   const countriesCount = useCountUp(10, 1400, inView);
 
-  // Responsive widths to avoid overflowing small mobile screens - reduced by 50%
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const sideWidth = isMobile ? 45 : 65;
-  const midWidth = isMobile ? 70 : 100;
+  // Use a mounted state to prevent hydration mismatches caused by window.innerWidth
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Set safe default SSR fallback values (desktop values) so the server renders a predictable tree
+  const sideWidth = !isMounted ? 65 : (window.innerWidth < 768 ? 45 : 65);
+  const midWidth = !isMounted ? 100 : (window.innerWidth < 768 ? 70 : 100);
+
+  // Provide a hidden skeleton during the server pass to maintain identical HTML structure without visual collapse
+  if (!isMounted) {
+    return (
+      <div className="w-full max-w-[1100px] mx-auto mt-4 md:mt-5 opacity-0 invisible" style={{ height: "120px" }} />
+    );
+  }
 
   return (
     <div

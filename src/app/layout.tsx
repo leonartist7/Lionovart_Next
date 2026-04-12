@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${clashDisplay.variable} h-full antialiased`}>
+    <html lang="en" className={`${clashDisplay.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
         <link rel="preload" as="image" href="https://imgur.com/8czAkK3.png" />
         <link rel="preload" as="image" href="https://imgur.com/L6zJMEm.png" />

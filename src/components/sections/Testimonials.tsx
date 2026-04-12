@@ -59,19 +59,49 @@ function DesktopCard({
   scrollYProgress: MotionValue<number>;
 }) {
   // We have 5 cards. Progress goes from 0 to 1.
-  // We allocate 0.2 of the scroll progress to each card's "leaving" animation.
-  const step = 0.2;
-  const startAppear = (index - 2) * step;
-  const fullyBehind = (index - 1) * step;
-  const atFront = index * step;
-  const gone = (index + 1) * step;
+  // Each card occupies a 0.2 segment. We clamp keyframes to [0,1] and
+  // guarantee strictly-increasing offsets so the Web Animations API
+  // (used by Framer Motion v11+) never receives illegal negative offsets
+  // or duplicate values that some browsers reject.
+  const step = 1 / TESTIMONIALS.length; // 0.2
 
-  const range = [startAppear, fullyBehind, atFront, gone];
+  // Raw keyframe positions (can be negative for early cards)
+  const rawStart = (index - 2) * step;
+  const rawBehind = (index - 1) * step;
+  const rawFront = index * step;
+  const rawGone = (index + 1) * step;
 
-  // Animate scale, y, and opacity based on where the card is in the stack
-  const scale = useTransform(scrollYProgress, range, [0.85, 0.92, 1, 1]);
-  const yOffset = useTransform(scrollYProgress, range, [80, 40, 0, -200]);
-  const opacity = useTransform(scrollYProgress, range, [0, 0.4, 1, 0]);
+  // Clamp to [0,1] then deduplicate by filtering out clamped-equal entries
+  const rawRange = [rawStart, rawBehind, rawFront, rawGone];
+  const rawOutputScale = [0.85, 0.92, 1, 1];
+  const rawOutputY = [80, 40, 0, -200];
+  const rawOutputOpacity = [0, 0.4, 1, 0];
+
+  const range: number[] = [];
+  const outScale: number[] = [];
+  const outY: number[] = [];
+  const outOpacity: number[] = [];
+
+  for (let i = 0; i < rawRange.length; i++) {
+    const clamped = Math.max(0, Math.min(1, rawRange[i]));
+    // If duplicate of previous offset, overwrite with latest output
+    // (e.g. card 0: [-0.4,-0.2,0,0.2] clamps to [0,0,0,0.2] — we keep
+    //  the "atFront" outputs for offset 0, not the "startAppear" ones)
+    if (range.length > 0 && clamped === range[range.length - 1]) {
+      outScale[outScale.length - 1] = rawOutputScale[i];
+      outY[outY.length - 1] = rawOutputY[i];
+      outOpacity[outOpacity.length - 1] = rawOutputOpacity[i];
+      continue;
+    }
+    range.push(clamped);
+    outScale.push(rawOutputScale[i]);
+    outY.push(rawOutputY[i]);
+    outOpacity.push(rawOutputOpacity[i]);
+  }
+
+  const scale = useTransform(scrollYProgress, range, outScale);
+  const yOffset = useTransform(scrollYProgress, range, outY);
+  const opacity = useTransform(scrollYProgress, range, outOpacity);
   const zIndex = 10 - index;
 
   return (
