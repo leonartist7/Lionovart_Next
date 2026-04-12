@@ -9,8 +9,9 @@ export default function AboutUsHalf() {
   return (
     <section 
       ref={containerRef}
-      // Reduced mobile height from 42vh to 35vh to violently close the gap between the cards and the video!
-      className="relative flex flex-col items-center justify-start pt-6 md:pt-10 px-4 bg-[#181818] text-center h-auto min-h-[35vh] sm:min-h-[42vh] md:min-h-[50vh] pb-20"
+      // pb-6 (24px) instead of pb-20 (80px) — closes the gap between
+      // the stat cards and the LumaShowcase "One Vision" video below.
+      className="relative flex flex-col items-center justify-start pt-6 md:pt-10 px-4 bg-[#181818] text-center h-auto min-h-[35vh] sm:min-h-[42vh] md:min-h-[50vh] pb-6"
     >
       <div className="max-w-[700px] w-full flex flex-col items-center">
         

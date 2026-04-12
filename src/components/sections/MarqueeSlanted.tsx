@@ -54,7 +54,7 @@ export default function MarqueeSlanted() {
   return (
     <section className="relative z-10 overflow-visible">
       <div
-        className="overflow-hidden bg-brand-red py-4 md:py-5"
+        className="overflow-hidden bg-brand-red py-4 md:py-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
       >
         <MarqueeTrack />
       </div>

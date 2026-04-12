@@ -143,7 +143,9 @@ function useCountUp(target: number, duration: number = 1800, active: boolean = t
 /* ─── Animated Stats Overlay ────────────────────────────────────── */
 function AnimatedStats() {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
+  // margin "0px" — triggers as soon as any pixel of the element enters the viewport.
+  // Previously "-40px" was causing it to miss on some viewport heights.
+  const inView = useInView(ref, { once: true, margin: "0px" });
 
   const clients = useCountUp(50, 1600, inView);
   const industries = useCountUp(20, 1400, inView);
@@ -155,15 +157,21 @@ function AnimatedStats() {
         { value: clients, suffix: "+", label: "Clients" },
         { value: industries, suffix: "+", label: "Industries" },
         { value: years, suffix: "+", label: "Years Exp." },
-      ].map((stat) => (
-        <div key={stat.label} className="flex flex-col items-center">
+      ].map((stat, i) => (
+        <motion.div
+          key={stat.label}
+          className="flex flex-col items-center"
+          initial={{ opacity: 0, y: 12 }}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+          transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
+        >
           <span className="text-[22px] sm:text-[26px] font-black text-white leading-none tabular-nums">
             {stat.value}{stat.suffix}
           </span>
           <span className="text-[10px] sm:text-[11px] uppercase tracking-widest text-white/50 mt-1">
             {stat.label}
           </span>
-        </div>
+        </motion.div>
       ))}
     </div>
   );
@@ -254,118 +262,166 @@ function TrustBadge({
   );
 }
 
-function DynamicTrustBadges() {
+/*
+ * Inner badges component — only rendered after mount (client-only).
+ * This eliminates the SSR skeleton race condition: the ref attaches
+ * immediately, so useInView fires correctly the first time.
+ */
+function TrustBadgesInner() {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
+  // margin "0px" — fires as soon as the element enters the viewport.
+  // "once: true" so the count-up runs exactly once and never resets.
+  const inView = useInView(ref, { once: true, margin: "0px" });
 
   const brandsCount    = useCountUp(50, 1600, inView);
   const countriesCount = useCountUp(10, 1400, inView);
 
-  // Use a mounted state to prevent hydration mismatches caused by window.innerWidth
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Set safe default SSR fallback values (desktop values) so the server renders a predictable tree
-  const sideWidth = !isMounted ? 65 : (window.innerWidth < 768 ? 45 : 65);
-  const midWidth = !isMounted ? 100 : (window.innerWidth < 768 ? 70 : 100);
-
-  // Provide a hidden skeleton during the server pass to maintain identical HTML structure without visual collapse
-  if (!isMounted) {
-    return (
-      <div className="w-full max-w-[1100px] mx-auto mt-4 md:mt-5 opacity-0 invisible" style={{ height: "120px" }} />
-    );
-  }
+  const sideWidth = typeof window !== "undefined" && window.innerWidth < 768 ? 45 : 65;
+  const midWidth  = typeof window !== "undefined" && window.innerWidth < 768 ? 70 : 100;
 
   return (
     <div
       ref={ref}
       className="flex justify-center items-center gap-0 sm:gap-2 md:gap-4 w-full max-w-[1100px] mx-auto mt-4 md:mt-5 scale-[0.85] sm:scale-90 md:scale-100 origin-top"
     >
-      {/* ── Badge 1: Brands ── */}
-      <TrustBadge title={<>Brands<br />elevated</>} contentWidth={sideWidth}>
-        <div
-          className="flex items-center text-[#e5192a] font-black leading-none tracking-tighter"
-          style={{ fontSize: sideWidth * 0.7 }}
-        >
-          <span style={{ fontSize: sideWidth * 0.45, marginRight: 2 }}>+</span>
-          {brandsCount}
-        </div>
-      </TrustBadge>
-
-      {/* ── Badge 2: Customer Experience ── */}
-      <TrustBadge title={<>Customer<br />Experience</>} contentWidth={midWidth}>
-        <div className="flex flex-col items-center gap-2 sm:gap-3 w-full">
-          {/* Stars */}
-          <div className="flex items-center justify-between w-[95%]">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <svg key={i} viewBox="0 0 24 24" fill="#e5192a" style={{ width: midWidth * 0.16, height: midWidth * 0.16 }}>
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-              </svg>
-            ))}
-          </div>
-          {/* Avatars */}
-          <div className="flex items-center justify-center w-full">
-            {AVATARS.map((src, i) => (
-              <div
-                key={i}
-                style={{
-                  width: midWidth * 0.22,
-                  height: midWidth * 0.22,
-                  borderRadius: "50%",
-                  border: "1px solid #e5192a",
-                  overflow: "hidden",
-                  marginLeft: i === 0 ? 0 : -(midWidth * 0.05),
-                  position: "relative",
-                  zIndex: AVATARS.length - i,
-                  flexShrink: 0,
-                }}
-              >
-                <img src={src} alt="client" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </TrustBadge>
-
-      {/* ── Badge 3: Countries ── */}
-      <TrustBadge contentWidth={sideWidth}>
-        <div className="flex flex-col items-center w-full">
+      {/* ── Badge 1: Brands — entrance animation tied to inView ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+        transition={{ duration: 0.55, delay: 0.0, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <TrustBadge title={<>Brands<br />elevated</>} contentWidth={sideWidth}>
           <div
             className="flex items-center text-[#e5192a] font-black leading-none tracking-tighter"
             style={{ fontSize: sideWidth * 0.7 }}
           >
             <span style={{ fontSize: sideWidth * 0.45, marginRight: 2 }}>+</span>
-            {countriesCount}
+            {brandsCount}
           </div>
-          <span
-            className="text-[#e5192a] font-bold leading-[1.2]"
-            style={{ fontSize: sideWidth * 0.2 }}
-          >
-            Countries
-          </span>
-          {/* Flags */}
-          <div className="flex items-center justify-center mt-2 sm:mt-3 gap-1">
-            {FLAGS.map((flag, i) => (
-              <img
-                key={i}
-                src={flag.src}
-                alt="flag"
-                style={{
-                  width: sideWidth * 0.16,
-                  height: sideWidth * 0.11,
-                  objectFit: "cover",
-                  borderRadius: "1px",
-                  transform: `rotate(${flag.rot}deg) translateY(${flag.y}px)`,
-                }}
-              />
-            ))}
+        </TrustBadge>
+      </motion.div>
+
+      {/* ── Badge 2: Customer Experience — stars animate in staggered ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+        transition={{ duration: 0.55, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <TrustBadge title={<>Customer<br />Experience</>} contentWidth={midWidth}>
+          <div className="flex flex-col items-center gap-2 sm:gap-3 w-full">
+            {/* Stars — each animates in with scale + opacity, staggered */}
+            <div className="flex items-center justify-between w-[95%]">
+              {[0, 1, 2, 3, 4].map((i) => (
+                <motion.svg
+                  key={i}
+                  viewBox="0 0 24 24"
+                  fill="#e5192a"
+                  style={{ width: midWidth * 0.16, height: midWidth * 0.16 }}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={inView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
+                  transition={{
+                    duration: 0.4,
+                    delay: 0.3 + i * 0.08,
+                    ease: [0.34, 1.56, 0.64, 1], // spring-like overshoot
+                  }}
+                >
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </motion.svg>
+              ))}
+            </div>
+            {/* Avatars */}
+            <div className="flex items-center justify-center w-full">
+              {AVATARS.map((src, i) => (
+                <motion.div
+                  key={i}
+                  style={{
+                    width: midWidth * 0.22,
+                    height: midWidth * 0.22,
+                    borderRadius: "50%",
+                    border: "1px solid #e5192a",
+                    overflow: "hidden",
+                    marginLeft: i === 0 ? 0 : -(midWidth * 0.05),
+                    position: "relative",
+                    zIndex: AVATARS.length - i,
+                    flexShrink: 0,
+                  }}
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.6 }}
+                  transition={{ duration: 0.35, delay: 0.5 + i * 0.07, ease: "easeOut" }}
+                >
+                  <img src={src} alt="client" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
-      </TrustBadge>
+        </TrustBadge>
+      </motion.div>
+
+      {/* ── Badge 3: Countries — entrance animation tied to inView ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+        transition={{ duration: 0.55, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <TrustBadge contentWidth={sideWidth}>
+          <div className="flex flex-col items-center w-full">
+            <div
+              className="flex items-center text-[#e5192a] font-black leading-none tracking-tighter"
+              style={{ fontSize: sideWidth * 0.7 }}
+            >
+              <span style={{ fontSize: sideWidth * 0.45, marginRight: 2 }}>+</span>
+              {countriesCount}
+            </div>
+            <span
+              className="text-[#e5192a] font-bold leading-[1.2]"
+              style={{ fontSize: sideWidth * 0.2 }}
+            >
+              Countries
+            </span>
+            {/* Flags — fan in staggered */}
+            <div className="flex items-center justify-center mt-2 sm:mt-3 gap-1">
+              {FLAGS.map((flag, i) => (
+                <motion.img
+                  key={i}
+                  src={flag.src}
+                  alt="flag"
+                  style={{
+                    width: sideWidth * 0.16,
+                    height: sideWidth * 0.11,
+                    objectFit: "cover",
+                    borderRadius: "1px",
+                    transform: `rotate(${flag.rot}deg) translateY(${flag.y}px)`,
+                  }}
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
+                  transition={{ duration: 0.3, delay: 0.6 + i * 0.06, ease: "easeOut" }}
+                />
+              ))}
+            </div>
+          </div>
+        </TrustBadge>
+      </motion.div>
     </div>
   );
+}
+
+/*
+ * DynamicTrustBadges — SSR-safe wrapper.
+ * Renders an invisible same-size placeholder on the server to prevent
+ * layout shift. After hydration, swaps to the real animated component
+ * so the ref attaches cleanly and useInView fires correctly.
+ */
+function DynamicTrustBadges() {
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => { setIsMounted(true); }, []);
+
+  if (!isMounted) {
+    return (
+      <div className="w-full max-w-[1100px] mx-auto mt-4 md:mt-5 opacity-0 invisible" style={{ height: "120px" }} />
+    );
+  }
+
+  return <TrustBadgesInner />;
 }
 
 /* -------------------------------------------------------------------------- */

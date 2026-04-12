@@ -5,59 +5,56 @@ import { motion, useAnimation } from "framer-motion";
 import Image from "next/image";
 
 // ─── Animation timing constants ───────────────────────────────────────────────
-// Phase 1 (paw slides in from left):  0s → PAW_IN_DURATION
-// Phase 2 (paw + card pull down together): starts at PAW_IN_DURATION
-// Total duration kept matching for smooth feel
-const PAW_IN_DURATION  = 0.38; // how long the paw takes to slide in
-const PULL_DURATION    = 0.72; // how long the pull-down takes
-const TOTAL_DURATION   = PAW_IN_DURATION + PULL_DURATION;
+const PAW_IN_DURATION = 0.38;
+const PULL_DURATION   = 0.72;
 
 const EASE_IN  = [0.4, 0, 0.6, 1]  as const;
 const EASE_OUT = [0.16, 1, 0.3, 1] as const;
 
 const items = [
   {
-    num: "01",
+    useGoldenSolution: false,
     problem: {
       heading: "You Look Like Everyone Else",
-      body: "Generic logos, template websites, recycled visuals. You blend in and clients pick whoever they remember. It's rarely you.",
+      body: "You blend in — and clients pick whoever they remember first.",
     },
     solution: {
-      heading: "A Brand That Owns The Room",
-      body: "A signature identity that's unmistakably yours. Clients recognise you and choose you before reading your pitch.",
+      heading: "A Brand That Stands Out Before You Say A Word",
+      body: "Clients recognize you, remember you, and choose you before you've even pitched.",
     },
   },
   {
-    num: "02",
+    useGoldenSolution: false,
     problem: {
-      heading: "Your Website Leaks Revenue",
-      body: "Slow, confusing, no clear direction. Visitors leave in seconds and you never even knew they came.",
+      heading: "Your Phone Isn't Ringing Enough",
+      body: "You're great at what you do — your clients love you. But new ones?",
     },
     solution: {
-      heading: "A Site That Sells While You Sleep",
-      body: "Performance-first builds with conversion architecture baked in. Every CTA engineered to turn visitors into booked calls.",
+      heading: "Show Up First Where It Matters",
+      body: "We get you found. The next person searching for what you do ends up at your door — not your competitor's.",
     },
   },
   {
-    num: "03",
+    // Cards 3 & 4 — solution uses the golden card image as background
+    useGoldenSolution: true,
     problem: {
-      heading: "Marketing Spend. Zero Return.",
-      body: "Wrong audience, wrong message, wrong platform. You're paying for clicks that never turn into clients.",
+      heading: "Marketing Strategy Isn't Enough",
+      body: "You've spent real money trying to grow — Facebook ads, SEO agencies, generic content — yet don't know what actually worked.",
     },
     solution: {
-      heading: "Every Dollar Works Harder",
-      body: "Data-led targeting, tested creative, continuous optimisation. We scale what converts — nothing else.",
+      heading: "Strategies That Pay For Itself",
+      body: "One team. Clear reports. Honest numbers. We track every dollar, cut what doesn't work, and double down on what does.",
     },
   },
   {
-    num: "04",
+    useGoldenSolution: true,
     problem: {
-      heading: "You're Doing It All Yourself",
-      body: "Writing content, chasing leads, editing reels. You're a business owner stuck running a one-person marketing team.",
+      heading: "You're Running The Business And The Marketing And The Website And The Instagram",
+      body: "It's 10pm. You're still editing a reel on your phone. You didn't start this business to become a full-time content creator — wait, did you?",
     },
     solution: {
-      heading: "A Full Creative Team Behind You",
-      body: "Strategy, design, content, automation — handled. Focus on growth, not production.",
+      heading: "Your Full-Service Brand Creative Partner",
+      body: "Enabling you to reclaim your time back. You focus on doing what you do best. We make it look, sound, and grow better than ever.",
     },
   },
 ];
@@ -75,147 +72,122 @@ function ProblemCard({
   const cardControls = useAnimation();
   const pawControls  = useAnimation();
 
-  // ── REVEAL (pull down) ──
   const runReveal = async () => {
-    // Immediately reset paw to starting position (hidden below-left, off-screen)
     await pawControls.set({ x: "-110%", y: "0%", rotate: -6, scale: 0.9 });
-
-    // Phase 1: paw slides in quickly from the left bottom corner
     pawControls.start({
-      x: "-10%",
-      y: "0%",
-      rotate: 0,
-      scale: 1,
+      x: "-10%", y: "0%", rotate: 0, scale: 1,
       transition: { duration: PAW_IN_DURATION, ease: EASE_OUT },
     });
-
-    // Phase 2 (after paw grabs): both paw and card slide down together
     await new Promise(r => setTimeout(r, PAW_IN_DURATION * 1000 * 0.85));
-
     Promise.all([
-      cardControls.start({
-        y: "105%",
-        transition: { duration: PULL_DURATION, ease: EASE_IN },
-      }),
-      pawControls.start({
-        y: "105%",
-        x: "-10%",
-        rotate: 4,
-        scale: 0.95,
-        transition: { duration: PULL_DURATION, ease: EASE_IN },
-      }),
+      cardControls.start({ y: "105%", transition: { duration: PULL_DURATION, ease: EASE_IN } }),
+      pawControls.start({ y: "105%", x: "-10%", rotate: 4, scale: 0.95, transition: { duration: PULL_DURATION, ease: EASE_IN } }),
     ]);
   };
 
-  // ── RESET (push back up) ──
   const runReset = async () => {
-    // Both come back up together
     await Promise.all([
-      cardControls.start({
-        y: "0%",
-        transition: { duration: PULL_DURATION, ease: EASE_OUT },
-      }),
-      pawControls.start({
-        y: "0%",
-        x: "-10%",
-        rotate: 0,
-        scale: 1,
-        transition: { duration: PULL_DURATION, ease: EASE_OUT },
-      }),
+      cardControls.start({ y: "0%", transition: { duration: PULL_DURATION, ease: EASE_OUT } }),
+      pawControls.start({ y: "0%", x: "-10%", rotate: 0, scale: 1, transition: { duration: PULL_DURATION, ease: EASE_OUT } }),
     ]);
-
-    // Phase: paw retracts back to the left once card is settled
     await new Promise(r => setTimeout(r, 60));
-    await pawControls.start({
-      x: "-110%",
-      rotate: -6,
-      scale: 0.9,
-      transition: { duration: PAW_IN_DURATION, ease: EASE_IN },
-    });
-
-    // Snap paw fully off-screen for next cycle
+    await pawControls.start({ x: "-110%", rotate: -6, scale: 0.9, transition: { duration: PAW_IN_DURATION, ease: EASE_IN } });
     pawControls.set({ y: "0%" });
   };
 
   const handleClick = () => {
     onToggle();
-    if (!isRevealed) {
-      runReveal();
-    } else {
-      runReset();
-    }
+    if (!isRevealed) runReveal(); else runReset();
   };
 
   return (
-    <div
-      onClick={handleClick}
-      className="relative w-full cursor-pointer group"
-      title="Reveal the fix"
-    >
+    <div onClick={handleClick} className="relative w-full cursor-pointer">
       <div
         className="
           relative w-full overflow-hidden
           rounded-[16px] md:rounded-[20px]
-          bg-[#181818]
-          shadow-[8px_8px_20px_rgba(0,0,0,0.6),-4px_-4px_16px_rgba(255,255,255,0.03)]
-          ring-1 ring-white/[0.02]
-          transition-colors duration-300
-          h-[110px] sm:h-[120px] md:h-[130px] lg:h-[140px]
+          shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_16px_rgba(255,255,255,0.04)]
+          ring-1 ring-white/[0.06]
+          h-[130px] sm:h-[145px] md:h-[160px] lg:h-[175px]
         "
       >
-        {/* ── BASE LAYER: SOLUTION (white card, always behind) ── */}
-        <div className="absolute inset-0 bg-bg-off-white p-5 md:p-8 flex flex-col justify-center">
-          <div className="flex items-start md:items-center gap-3 mb-2">
-            <div className="w-5 h-5 md:w-7 md:h-7 rounded-full bg-[#10b981] flex items-center justify-center shrink-0 mt-0.5 md:mt-0">
-              <svg
-                className="w-3 h-3 md:w-3.5 md:h-3.5 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={4}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h3 className="text-bg-brand-black font-clash font-bold text-[15px] md:text-[20px] uppercase leading-tight m-0">
-              {item.solution.heading}
-            </h3>
-          </div>
-          <p className="text-[#4a4a4a] font-sans text-[12px] md:text-[14px] leading-[1.6]">
-            {item.solution.body}
-          </p>
-        </div>
-
-        {/* ── OVERLAY LAYER: PROBLEM (black card, pulled down by paw) ── */}
-        <motion.div
-          className="absolute inset-0 z-10 bg-[#181818] p-5 md:p-8 flex flex-col items-start"
-          initial={{ y: "0%" }}
-          animate={cardControls}
-        >
-          <div className="relative z-30 flex items-start gap-3">
-            <span className="shrink-0 text-brand-red font-clash font-bold text-[20px] md:text-[24px] opacity-90 leading-none mt-0.5">
-              {item.num}
-            </span>
-            <div className="flex flex-col gap-1">
-              <h3 className="text-text-main font-clash font-bold text-[15px] md:text-[20px] uppercase leading-tight m-0">
-                {item.problem.heading}
-              </h3>
-              <p className="text-text-muted font-sans text-[12px] md:text-[14px] leading-[1.6]">
-                {item.problem.body}
+        {/* ── BASE LAYER: SOLUTION ── */}
+        {item.useGoldenSolution ? (
+          /*
+           * Cards 3 & 4 — golden image background.
+           * object-contain keeps the entire image visible without any cropping.
+           * The card background (#1a1008) fills the surrounding area so the
+           * image sits cleanly inside the container with no clipping on any edge.
+           */
+          <div className="absolute inset-0 flex flex-col justify-center">
+            <Image
+              src="/images/Card golden.avif"
+              alt=""
+              aria-hidden="true"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover object-[center_65%]"
+              priority
+            />
+            {/* Scrim for text legibility over the bright golden image */}
+            <div className="absolute inset-0 bg-black/35" />
+            {/* Centered content */}
+            <div className="relative z-10 p-5 md:p-7 flex flex-col items-center justify-center h-full text-center gap-2">
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#10b981] flex items-center justify-center shrink-0">
+                  <svg className="w-3 h-3 md:w-3.5 md:h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-white font-clash font-bold text-[14px] md:text-[18px] uppercase leading-tight m-0 drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
+                  {item.solution.heading}
+                </h3>
+              </div>
+              <p className="text-white/90 font-sans text-[13px] md:text-[15px] leading-[1.5] drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)] max-w-[90%]">
+                {item.solution.body}
               </p>
             </div>
           </div>
-        </motion.div>
+        ) : (
+          /* Cards 1 & 2 — white/off-white solution */
+          <div className="absolute inset-0 bg-bg-off-white p-5 md:p-7 flex flex-col items-center justify-center text-center gap-2">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#10b981] flex items-center justify-center shrink-0">
+                <svg className="w-3 h-3 md:w-3.5 md:h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-bg-brand-black font-clash font-bold text-[14px] md:text-[18px] uppercase leading-tight m-0">
+                {item.solution.heading}
+              </h3>
+            </div>
+            <p className="text-[#4a4a4a] font-sans text-[13px] md:text-[15px] leading-[1.5] max-w-[90%]">
+              {item.solution.body}
+            </p>
+          </div>
+        )}
 
         {/*
-          ── LION PAW ──
-          z-20 → always on top of the black card (z-10)
-          Positioned at bottom-left of the container.
-          left: "-10%" → 10% of paw hidden behind the left edge when "in"
-          Starts fully off-screen at x: "-110%" y: "0%"
-          The paw container uses a % size relative to the card width so it
-          scales perfectly across all breakpoints.
+          ── OVERLAY LAYER: PROBLEM (black, pulled down by paw) ──
+          All pain cards are #181818 black with centered text.
+          No number, no hint label.
         */}
+        <motion.div
+          className="absolute inset-0 z-10 bg-[#181818] p-5 md:p-7 flex flex-col items-center justify-center text-center"
+          initial={{ y: "0%" }}
+          animate={cardControls}
+        >
+          <div className="flex flex-col items-center gap-2 max-w-[90%]">
+            <h3 className="text-white font-clash font-bold text-[14px] md:text-[18px] uppercase leading-tight m-0">
+              {item.problem.heading}
+            </h3>
+            <p className="text-white/70 font-sans text-[13px] md:text-[15px] leading-[1.5]">
+              {item.problem.body}
+            </p>
+          </div>
+        </motion.div>
+
+        {/* ── LION PAW ── z-20, bottom-left, clamped width for all breakpoints */}
         <motion.div
           className="pointer-events-none absolute z-20 bottom-0"
           initial={{ x: "-110%", y: "0%", rotate: -6, scale: 0.9 }}
@@ -225,7 +197,7 @@ function ProblemCard({
           <div className="relative w-full h-full drop-shadow-[0_0_24px_rgba(240,201,23,0.55)]">
             <Image
               src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775085187/Untitled_design_4_muu53f.png"
-              alt="Lion Emblem"
+              alt=""
               aria-hidden="true"
               fill
               sizes="42vw"
@@ -233,13 +205,6 @@ function ProblemCard({
             />
           </div>
         </motion.div>
-
-        {/* ── Subtle "click to reveal" hint (bottom-right corner) ── */}
-        <div className="absolute bottom-3 right-4 z-30 pointer-events-none">
-          <span className="text-[10px] md:text-[11px] uppercase tracking-[0.15em] text-white/30 font-clash">
-            {isRevealed ? "RESET" : "REVEAL THE FIX →"}
-          </span>
-        </div>
       </div>
     </div>
   );
@@ -256,28 +221,25 @@ export default function ProblemsSolvedSection() {
   };
 
   return (
-    <section className="relative bg-[#181818] py-12 lg:py-24 overflow-hidden">
+    <section className="relative bg-[#e5192a] py-12 lg:py-24 overflow-hidden">
       <div className="mx-auto max-w-[1200px] px-4 relative z-10">
 
         {/* Header */}
         <div className="mb-8 md:mb-12 flex flex-col items-center text-center">
-          <p className="text-brand-red text-[12px] md:text-[14px] font-clash uppercase tracking-[0.2em] mb-2 md:mb-3">
-            Problems We Solve
+          {/* Brighter label — white instead of white/70 */}
+          <p className="text-white text-[12px] md:text-[14px] font-clash uppercase tracking-[0.2em] mb-2 md:mb-3">
+            You Built Something Real
           </p>
-          <h2 className="text-[40px] sm:text-[56px] md:text-[76px] font-bold font-clash uppercase leading-[1.05] text-text-main max-w-4xl">
+          <h2 className="text-[40px] sm:text-[56px] md:text-[76px] font-bold font-clash uppercase leading-[1.05] text-white max-w-4xl">
             Sound Familiar?
           </h2>
         </div>
 
-        {/*
-          Grid: 2 columns always.
-          `items-stretch` ensures equal-height rows.
-          Cards use aspect-ratio internally so all 4 are identical at every size.
-        */}
+        {/* 2-column grid — equal height rows */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-stretch">
           {items.map((item, i) => (
             <ProblemCard
-              key={item.num}
+              key={i}
               item={item}
               isRevealed={revealedIds.includes(i)}
               onToggle={() => toggleCard(i)}

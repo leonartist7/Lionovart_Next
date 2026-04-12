@@ -207,7 +207,8 @@ export function LiquidMetalButton({
                   fontWeight: 700,
                   letterSpacing: "0.08em",
                   textTransform: "uppercase" as const,
-                  textShadow: "0px 1px 2px rgba(0, 0, 0, 0.5)",
+                  // No text shadow — clean crisp letters, button outer shadow is preserved
+                  textShadow: "none",
                   transition: "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
                   transform: "scale(1)",
                   whiteSpace: "nowrap",
