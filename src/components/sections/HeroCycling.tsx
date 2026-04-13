@@ -201,6 +201,9 @@ export default function HeroCycling({
       {/* ── Line 1: Static ── */}
       <h1 style={sharedTextStyle}>{staticText}</h1>
 
+      {/* ── Gap between static and cycling lines ── */}
+      <div style={{ height: "0.45em" }} />
+
       {/* ── Line 2: Cycling ── */}
       <div
         role="region"

@@ -40,10 +40,10 @@ function MarqueeTrack() {
   return (
     <div ref={trackRef} className="flex shrink-0 whitespace-nowrap">
       {/* Duplicate the text block for a seamless infinite loop */}
-      <span className="shrink-0 px-2 text-[18px] font-semibold uppercase tracking-wider text-white md:text-[22px]">
+      <span className="shrink-0 px-2 text-[22px] font-semibold uppercase tracking-wider text-white md:text-[24px]">
         {text}
       </span>
-      <span className="shrink-0 px-2 text-[18px] font-semibold uppercase tracking-wider text-white md:text-[22px]">
+      <span className="shrink-0 px-2 text-[22px] font-semibold uppercase tracking-wider text-white md:text-[24px]">
         {text}
       </span>
     </div>

@@ -52,7 +52,7 @@ const COMPARISON_DATA = [
 
 export default function Comparison() {
   return (
-    <section className="bg-[#eceff3] py-[100px] md:py-[140px] px-4 md:px-8">
+    <section className="bg-white py-[100px] md:py-[140px] px-4 md:px-8">
       <div className="max-w-[1200px] mx-auto">
         <div className="mb-12 md:mb-20 flex flex-col items-center text-center">
           <motion.h2
@@ -67,7 +67,7 @@ export default function Comparison() {
         </div>
 
         <motion.div
-          className="rounded-[24px] overflow-hidden bg-white shadow-[0_15px_40px_rgba(0,0,0,0.05)] border border-black/5"
+          className="rounded-[24px] overflow-hidden bg-white shadow-[8px_8px_24px_rgba(0,0,0,0.1),-8px_-8px_24px_rgba(255,255,255,0.9)] border border-black/5"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
@@ -78,7 +78,7 @@ export default function Comparison() {
               
               {/* Header Row */}
               <div className="col-span-8 grid grid-cols-subgrid bg-[#111111] text-white rounded-t-[24px]">
-                <div className="p-2 lg:p-4 flex items-center justify-center lg:justify-start">
+                <div className="p-1.5 lg:p-3 flex items-center justify-center">
                   <img
                     src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
                     alt="Lionovart logo"
@@ -86,7 +86,7 @@ export default function Comparison() {
                   />
                 </div>
                 {["Speed", "Flexibility", "Quality", "Scalability", "Efficiency", "Printing", "Support"].map((label) => (
-                  <div key={label} className="p-2 lg:p-3 flex items-center justify-center text-[9px] sm:text-[10px] lg:text-[14px] font-medium tracking-wide text-center">
+                  <div key={label} className="p-1.5 lg:p-2.5 flex items-center justify-center text-[9px] sm:text-[10px] lg:text-[14px] font-medium tracking-wide text-center">
                     {label}
                   </div>
                 ))}
@@ -94,16 +94,13 @@ export default function Comparison() {
 
               {/* LIONOVART Highlight Row */}
               <div className="col-span-8 grid grid-cols-subgrid bg-brand-red text-white">
-                <div className="p-2 lg:p-4 flex flex-col justify-center border-r border-white/20">
+                <div className="p-1.5 lg:p-2.5 flex flex-col justify-center border-r border-white/20">
                   <span className="text-[13px] sm:text-[16px] lg:text-[28px] font-black uppercase tracking-tighter text-white">
                     LIONOVART
                   </span>
-                  <p className="hidden lg:block mt-2 text-[12px] lg:text-[13px] text-white/80 leading-[150%] lg:leading-[160%]">
-                    All your creative and printing needs with world-class creative talent backed by smart systems built to strengthen every project.
-                  </p>
                 </div>
                 {[1, 2, 3, 4, 5, 6, 7].map((idx) => (
-                  <div key={idx} className="p-2 lg:p-3 flex items-center justify-center border-r border-white/20 last:border-r-0">
+                  <div key={idx} className="p-1 sm:p-1.5 lg:p-2 flex items-center justify-center border-r border-white/20 last:border-r-0">
                     <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 lg:w-7 lg:h-7" strokeWidth={1.5} />
                   </div>
                 ))}
@@ -123,17 +120,14 @@ export default function Comparison() {
 
                 return (
                   <div key={idx} className="col-span-8 grid grid-cols-subgrid bg-[#FAFAFA] hover:bg-white transition-colors duration-300">
-                    <div className="p-2 lg:p-4 flex flex-col justify-center border-r border-black/5">
-                      <h3 className="text-[12px] sm:text-[14px] lg:text-[22px] font-bold text-[#111111] lg:mb-2">
+                    <div className="p-1.5 lg:p-3 flex flex-col justify-center border-r border-black/5">
+                      <h3 className="text-[12px] sm:text-[14px] lg:text-[22px] font-bold text-[#111111]">
                         {row.title}
                       </h3>
-                      <p className="hidden lg:block mt-2 text-[12px] lg:text-[14px] text-[#555] leading-[150%] lg:leading-[160%]">
-                        {row.description}
-                      </p>
                     </div>
-                    
+
                     {fields.map((isTrue, i) => (
-                      <div key={i} className="p-1.5 sm:p-2 lg:p-3 flex items-center justify-center border-r border-black/5 last:border-r-0">
+                      <div key={i} className="p-1 sm:p-1.5 lg:p-2 flex items-center justify-center border-r border-black/5 last:border-r-0">
                         {isTrue ? (
                           <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-[#111]" strokeWidth={1.5} />
                         ) : (

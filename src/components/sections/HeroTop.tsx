@@ -177,14 +177,14 @@ function AnimatedStats() {
   );
 }
 
-/* ─── Cycling words (text-only until image assets are ready) ───── */
+/* ─── Cycling words ─────────────────────────────────────────────── */
 const CYCLING_WORDS: Word[] = [
-  { type: "text", content: "TO ROAR",          holdMs: 5000 },
-  { type: "text", content: "MORE SALES",        holdMs: 4000 },
-  { type: "text", content: "TOTAL CONFIDENCE",  holdMs: 4000 },
-  { type: "text", content: "BOLD IDENTITY",     holdMs: 4000 },
-  { type: "text", content: "REAL GROWTH",       holdMs: 4000 },
-  { type: "text", content: "BETTER DESIGN",     holdMs: 4000 },
+  { type: "text", content: "ROAR",       holdMs: 4000 },
+  { type: "text", content: "STAND OUT",  holdMs: 4000 },
+  { type: "text", content: "MEMORABLE",  holdMs: 4000 },
+  { type: "text", content: "MAGNETIC",   holdMs: 4000 },
+  { type: "text", content: "SELL MORE",  holdMs: 4000 },
+  { type: "text", content: "DOMINATE",   holdMs: 4000 },
 ];
 
 
@@ -438,7 +438,18 @@ export default function HeroTop() {
   };
 
   return (
-    <section className="relative flex min-h-[72vh] flex-col items-center justify-center px-4 pt-28 pb-6 md:pt-32 md:px-6 overflow-hidden">
+    <section className="relative flex min-h-[72vh] flex-col items-center justify-center px-4 pt-36 pb-6 md:pt-44 md:px-6 overflow-hidden">
+      {/* Video background */}
+      <video
+        className="absolute inset-0 w-full h-full object-cover z-0"
+        src="https://res.cloudinary.com/dgio9uutc/video/upload/v1775960150/hero-notext_eqjdin.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+      />
+      {/* Dark overlay to preserve text readability */}
+      <div className="absolute inset-0 bg-bg-dark/10 z-0 pointer-events-none" />
       {/* Bottom gradient to blend into the next section */}
       <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-bg-dark to-transparent z-0 pointer-events-none" />
 
@@ -451,10 +462,10 @@ export default function HeroTop() {
         {/* Main Heading — cycling */}
         <motion.div variants={itemVariants} className="w-full text-center">
           <HeroCycling
-            staticText="YOUR BRAND DESERVES"
+            staticText="MAKE YOUR BRAND"
             words={CYCLING_WORDS}
             fontSize="clamp(1.4rem, 5.5vw, 5.5rem)"
-            cyclingFontSize="clamp(2.2rem, 9vw, 9rem)"
+            cyclingFontSize="clamp(2.8rem, 11vw, 11rem)"
             forceAnimate
           />
         </motion.div>

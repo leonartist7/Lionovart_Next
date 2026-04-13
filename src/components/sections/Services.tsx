@@ -195,7 +195,7 @@ export default function Services() {
                           <span className="text-[#e5192a] font-black text-[16px] md:text-[20px] tracking-widest opacity-80 mt-1">
                             {service.number}
                           </span>
-                          <span className="text-[#111] font-bold text-[22px] sm:text-[28px] md:text-[36px] uppercase tracking-tight group-hover:text-[#e5192a] transition-colors leading-none">
+                          <span className="text-[#111] font-bold text-[22px] sm:text-[28px] md:text-[36px] uppercase tracking-tight transition-colors leading-none">
                             {service.title}
                           </span>
                         </div>
