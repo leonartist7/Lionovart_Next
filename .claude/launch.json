@@ -4,9 +4,8 @@
     {
       "name": "lionovart-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 3000,
-      "autoPort": true
+      "runtimeArgs": ["run", "dev", "--", "--port", "3737"],
+      "port": 3737
     }
   ]
 }
