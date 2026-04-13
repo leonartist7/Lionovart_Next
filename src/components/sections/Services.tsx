@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useLenis } from "@studio-freight/react-lenis";
 import {
   Accordion,
@@ -104,7 +104,7 @@ export default function Services() {
   return (
     <section
       id="services"
-      className="relative bg-[#eceff3] pt-[100px] pb-[100px] md:pt-[120px] md:pb-[140px]"
+      className="relative bg-[#eceff3] pt-[60px] pb-[60px] md:pt-[80px] md:pb-[80px]"
     >
       <div className="mx-auto max-w-[1280px] px-4 md:px-8">
 
@@ -200,70 +200,21 @@ export default function Services() {
                           </span>
                         </div>
 
-                        {/* Indicator Circle */}
-                        <div
-                          className="flex-shrink-0 w-3 h-3 md:w-4 md:h-4 ml-4"
-                          style={{
-                                borderRadius: "50%",
-                                transition: "background 0.3s",
-                                backgroundColor: isActive ? "#e5192a" : "rgba(0,0,0,0.15)"
-                          }}
-                        >
-                           <div className={`w-full h-full rounded-full transition-transform duration-300 ${!isActive && 'group-hover:scale-125 group-hover:bg-black/30'}`} />
-                        </div>
                       </AccordionTrigger>
 
                       <AccordionContent className="pb-8 md:pb-12 pt-2">
-                        <div className="flex flex-col w-full gap-8 md:gap-10">
-                          {/* Desktop: Description (Left) | Image (Right/35%) */}
-                          {/* Mobile: Description (Top) -> Tags -> Image (Bottom) */}
-                          <div className="flex flex-col md:flex-row gap-8 md:gap-12 lg:gap-16 items-start w-full justify-between">
-
-                            {/* Description Content (Left, ~65% taking maximum available space) text-justify */}
-                            <div className="flex-[1] md:flex-[0.65] flex flex-col items-start w-full gap-8">
-                              <p className="text-[#555] text-[15px] md:text-[18px] leading-[1.8] w-full text-left">
-                                {service.description}
-                              </p>
-
-                              {/* Tags (MOBILE ONLY) - Appears between Description and Image on small screens */}
-                              <div className="w-full flex md:hidden justify-start">
-                                 <ul className="flex flex-wrap gap-x-6 gap-y-3 justify-start">
-                                    {service.deliverables.map((item) => (
-                                      <li key={item} className="text-[12px] font-bold uppercase tracking-wider text-brand-red flex items-center gap-2">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-brand-red" />
-                                        {item}
-                                      </li>
-                                    ))}
-                                  </ul>
-                              </div>
-                            </div>
-
-                            {/* Image Box (Right, Exact 35%) */}
-                            {/* Aspect ratio changed from 4/3 to an approximate 16/10 to make it ~15-20% shorter */}
-                            <div className="w-full md:w-[35%] flex-shrink-0 flex justify-center md:justify-end">
-                              <div className="relative w-full aspect-[16/10] p-[2px] rounded-[24px] bg-[#f2f4f7] border border-white/80 shadow-[12px_12px_28px_rgba(0,0,0,0.08),-12px_-12px_28px_rgba(255,255,255,1)]">
-                                <div className="relative w-full h-full overflow-hidden rounded-[22px] shadow-[inset_6px_6px_12px_rgba(0,0,0,0.12),inset_-6px_-6px_12px_rgba(255,255,255,0.9)]">
-                                  <img
-                                    src={service.media.url}
-                                    alt={service.media.alt}
-                                    className="absolute inset-0 h-full w-full object-cover transition-transform hover:scale-105 duration-700"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Tags wrapping underneath (DESKTOP ONLY) - Spans full width under everything */}
-                          <div className="hidden md:flex w-full mt-2 justify-start">
-                             <ul className="flex flex-wrap gap-x-6 gap-y-3 justify-start">
-                                {service.deliverables.map((item) => (
-                                  <li key={item} className="text-[13px] font-bold uppercase tracking-wider text-brand-red flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-brand-red" />
-                                    {item}
-                                  </li>
-                                ))}
-                              </ul>
-                          </div>
+                        <div className="flex flex-col gap-6 w-full">
+                          <p className="text-[#555] text-[15px] md:text-[18px] leading-[1.8] w-full text-left">
+                            {service.description}
+                          </p>
+                          <ul className="flex flex-wrap gap-x-6 gap-y-3 justify-start">
+                            {service.deliverables.map((item) => (
+                              <li key={item} className="text-[12px] md:text-[13px] font-bold uppercase tracking-wider text-brand-red flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-brand-red" />
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
                         </div>
                       </AccordionContent>
                     </AccordionItem>

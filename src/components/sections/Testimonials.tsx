@@ -74,8 +74,8 @@ function DesktopCard({
   // Clamp to [0,1] then deduplicate by filtering out clamped-equal entries
   const rawRange = [rawStart, rawBehind, rawFront, rawGone];
   const rawOutputScale = [0.85, 0.92, 1, 1];
-  const rawOutputY = [80, 40, 0, -200];
-  const rawOutputOpacity = [0, 0.4, 1, 0];
+  const rawOutputY = [80, 40, 0, 0];
+  const rawOutputOpacity = [0, 0.6, 1, 0];
 
   const range: number[] = [];
   const outScale: number[] = [];
@@ -190,8 +190,8 @@ export default function Testimonials() {
     <section id="testimonials" className="bg-[#fafafa] relative w-full">
       
       {/* ── MOBILE / TABLET LAYOUT (< 1024px) ── */}
-      <div className="flex lg:hidden flex-col py-16 sm:py-24 overflow-hidden">
-        <div className="px-6 sm:px-10 mb-10">
+      <div className="flex lg:hidden flex-col py-16 sm:py-24 px-6 sm:px-10">
+        <div className="mb-10">
           <p className="text-[#e5192a] text-[12px] font-bold uppercase tracking-[0.2em] mb-2">
             Client Stories
           </p>
@@ -199,13 +199,19 @@ export default function Testimonials() {
             The Verdict
           </h2>
         </div>
-        
-        <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 sm:gap-6 px-6 sm:px-10 pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+
+        <div className="flex flex-col gap-6">
           {TESTIMONIALS.map((item, i) => (
-            <MobileCard key={i} item={item} />
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.55, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <MobileCard item={item} />
+            </motion.div>
           ))}
-          {/* Spacer to allow the last card to snap perfectly with right padding */}
-          <div className="shrink-0 w-[4px] sm:w-[10px]" aria-hidden />
         </div>
       </div>
 
