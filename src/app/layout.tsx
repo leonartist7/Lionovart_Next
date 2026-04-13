@@ -18,9 +18,22 @@ const clashDisplay = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "LIONOVART — Premium Creative Agency",
+  title: {
+    default: "lionovart.com",
+    template: "%s | LIONOVART"
+  },
   description:
     "We build premium brands, websites, and digital experiences that elevate your business.",
+  icons: {
+    icon: "/images/favicon.svg",
+  },
+  openGraph: {
+    title: "LIONOVART",
+    description: "Premium Creative Agency",
+    url: "https://lionovart.com",
+    siteName: "lionovart.com",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
