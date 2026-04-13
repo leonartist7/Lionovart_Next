@@ -21,7 +21,19 @@
       "Bash(find '/c/Users/Leonartist/Documents/WEB DEV/LIONOVART_NEXTJS-TAILWIND' -iname *liquid* -o -iname *luma*button*)",
       "Bash(npx shadcn@latest add https://21st.dev/r/johuniq/liquid-metal-button --yes)",
       "Bash(gh pr create --title 'Refine white sections, add particle animations, update liquid metal styling' --body ':*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(cmd /c \"taskkill /PID 20956 /F\")",
+      "Bash(cmd /c \"taskkill /F /IM node.exe\")",
+      "Bash(cmd /c \"taskkill /PID 20956 /F 2>&1\")",
+      "Bash(cmd /c \"netstat -ano | findstr :18093\")",
+      "Bash(cmd /c \"netstat -ano | findstr :53680\")",
+      "Bash(cmd /c \"netstat -ano | findstr :3000 | findstr LISTENING\")",
+      "Bash(cmd /c \"netstat -ano | findstr LISTENING\")",
+      "Bash(cmd /c \"taskkill /PID 20956 /F /T 2>&1\")",
+      "Bash(cmd /c \"wmic process where ProcessId=20956 get ProcessId,Name,CommandLine 2>&1\")",
+      "Bash(cmd /c \"wmic process where \\\\\"ProcessId=20956\\\\\" get ProcessId 2>&1\")",
+      "Bash(cmd /c \"del /F /Q \\\\\"C:\\\\Users\\\\Leonartist\\\\Documents\\\\WEB DEV\\\\LIONOVART_NEXTJS-TAILWIND\\\\.claude\\\\worktrees\\\\festive-jepsen\\\\.next\\\\dev\\\\server-info.json\\\\\" 2>&1\")",
+      "Bash(cmd /c \"dir \\\\\"C:\\\\Users\\\\Leonartist\\\\Documents\\\\WEB DEV\\\\LIONOVART_NEXTJS-TAILWIND\\\\.claude\\\\worktrees\\\\festive-jepsen\\\\.next\\\\dev\\\\\" 2>&1\")"
     ]
   }
 }
