@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useScroll, useTransform, MotionValue } from "framer-motion";
+import { useRef, useEffect } from "react";
+import { motion, useMotionValue, useTransform, MotionValue } from "framer-motion";
 import { Star } from "lucide-react";
 
 // ─── Data ──────────────────────────────────────────────────────────────────
@@ -48,71 +48,53 @@ const TESTIMONIALS = [
   },
 ];
 
-// ─── Desktop Card (Framer Motion 3D Stack) ─────────────────────────────────
+// ─── Desktop Card ───────────────────────────────────────────────────────────
+// Uses a manually-driven MotionValue (not useScroll) so it works correctly
+// alongside Lenis smooth scroll, which can confuse Framer Motion v12's
+// WAAPI-based ScrollTimeline implementation.
 function DesktopCard({
   item,
   index,
-  scrollYProgress,
+  progress,
 }: {
   item: (typeof TESTIMONIALS)[0];
   index: number;
-  scrollYProgress: MotionValue<number>;
+  progress: MotionValue<number>;
 }) {
-  // We have 5 cards. Progress goes from 0 to 1.
-  // Each card occupies a 0.2 segment. We clamp keyframes to [0,1] and
-  // guarantee strictly-increasing offsets so the Web Animations API
-  // (used by Framer Motion v11+) never receives illegal negative offsets
-  // or duplicate values that some browsers reject.
-  const step = 1 / TESTIMONIALS.length; // 0.2
+  const step = 1 / TESTIMONIALS.length; // 0.2 per card
 
-  // Raw keyframe positions (can be negative for early cards)
-  const rawStart = (index - 2) * step;
-  const rawBehind = (index - 1) * step;
-  const rawFront = index * step;
-  const rawGone = (index + 1) * step;
+  // Card 0 starts fully visible and fades as card 1 rises to cover it.
+  // Cards 1–4 rise from y:60 into position then fade in place.
+  // zIndex = index: each new card renders ON TOP of the one before it,
+  // so the rising card always covers the fading card cleanly.
+  let inputRange: number[];
+  let outOpacity: number[];
+  let outY: number[];
+  let outScale: number[];
 
-  // Clamp to [0,1] then deduplicate by filtering out clamped-equal entries
-  const rawRange = [rawStart, rawBehind, rawFront, rawGone];
-  const rawOutputScale = [0.85, 0.92, 1, 1];
-  const rawOutputY = [80, 40, 0, 0];
-  const rawOutputOpacity = [0, 0.6, 1, 0];
-
-  const range: number[] = [];
-  const outScale: number[] = [];
-  const outY: number[] = [];
-  const outOpacity: number[] = [];
-
-  for (let i = 0; i < rawRange.length; i++) {
-    const clamped = Math.max(0, Math.min(1, rawRange[i]));
-    // If duplicate of previous offset, overwrite with latest output
-    // (e.g. card 0: [-0.4,-0.2,0,0.2] clamps to [0,0,0,0.2] — we keep
-    //  the "atFront" outputs for offset 0, not the "startAppear" ones)
-    if (range.length > 0 && clamped === range[range.length - 1]) {
-      outScale[outScale.length - 1] = rawOutputScale[i];
-      outY[outY.length - 1] = rawOutputY[i];
-      outOpacity[outOpacity.length - 1] = rawOutputOpacity[i];
-      continue;
-    }
-    range.push(clamped);
-    outScale.push(rawOutputScale[i]);
-    outY.push(rawOutputY[i]);
-    outOpacity.push(rawOutputOpacity[i]);
+  if (index === 0) {
+    inputRange = [0, step];
+    outOpacity = [1, 0];
+    outY     = [0, 0];
+    outScale = [1, 1];
+  } else {
+    const preEnter = index * step - step * 0.5; // start rising half a step early
+    const enter    = index * step;
+    const exit     = Math.min(1, (index + 1) * step);
+    inputRange = [Math.max(0, preEnter), enter, exit];
+    outOpacity = [0, 1, 0];
+    outY       = [60, 0, 0];
+    outScale   = [0.95, 1, 1];
   }
 
-  const scale = useTransform(scrollYProgress, range, outScale);
-  const yOffset = useTransform(scrollYProgress, range, outY);
-  const opacity = useTransform(scrollYProgress, range, outOpacity);
-  const zIndex = 10 - index;
+  const scale   = useTransform(progress, inputRange, outScale);
+  const yOffset = useTransform(progress, inputRange, outY);
+  const opacity = useTransform(progress, inputRange, outOpacity);
 
   return (
     <motion.div
-      style={{
-        scale,
-        y: yOffset,
-        opacity,
-        zIndex,
-      }}
-      className="absolute top-0 left-0 w-full h-full bg-white rounded-[24px] p-8 lg:p-10 xl:p-12 shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-gray-100 flex flex-col"
+      style={{ scale, y: yOffset, opacity, zIndex: index }}
+      className="absolute top-0 left-0 w-full h-full bg-white rounded-[24px] p-8 lg:p-10 xl:p-12 shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-gray-100 flex flex-col transition-none"
     >
       <div className="flex items-center justify-between mb-6">
         <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#e5192a]">
@@ -143,10 +125,10 @@ function DesktopCard({
   );
 }
 
-// ─── Mobile Card (Horizontal Snap) ─────────────────────────────────────────
+// ─── Mobile Card ────────────────────────────────────────────────────────────
 function MobileCard({ item }: { item: (typeof TESTIMONIALS)[0] }) {
   return (
-    <div className="snap-center shrink-0 w-[85vw] sm:w-[400px] bg-white rounded-[20px] p-6 sm:p-8 shadow-[0_12px_30px_rgba(0,0,0,0.06)] border border-gray-100 flex flex-col">
+    <div className="bg-white rounded-[20px] p-6 sm:p-8 shadow-[0_12px_30px_rgba(0,0,0,0.06)] border border-gray-100 flex flex-col">
       <div className="flex items-center justify-between mb-5">
         <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] text-[#e5192a]">
           {item.industry}
@@ -180,15 +162,35 @@ function MobileCard({ item }: { item: (typeof TESTIMONIALS)[0] }) {
 export default function Testimonials() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Scroll progress for the desktop sticky stack
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
+  // Manually track scroll progress so we bypass Framer Motion v12's WAAPI
+  // ScrollTimeline, which mis-calculates progress when Lenis smooth scroll
+  // is running (Lenis moves scroll differently than native window.scrollY).
+  const progress = useMotionValue(0);
+
+  useEffect(() => {
+    const update = () => {
+      const el = containerRef.current;
+      if (!el) return;
+      const rect  = el.getBoundingClientRect();
+      const total = el.offsetHeight - window.innerHeight;
+      if (total <= 0) return;
+      const p = Math.max(0, Math.min(1, -rect.top / total));
+      progress.set(p);
+    };
+
+    window.addEventListener("scroll", update, { passive: true });
+    // Also run on resize in case layout shifts
+    window.addEventListener("resize", update, { passive: true });
+    update(); // set initial value
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [progress]);
 
   return (
     <section id="testimonials" className="bg-[#fafafa] relative w-full">
-      
+
       {/* ── MOBILE / TABLET LAYOUT (< 1024px) ── */}
       <div className="flex lg:hidden flex-col py-16 sm:py-24 px-6 sm:px-10">
         <div className="mb-10">
@@ -206,7 +208,7 @@ export default function Testimonials() {
               key={i}
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
+              viewport={{ once: true, amount: 0.15 }}
               transition={{ duration: 0.55, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
             >
               <MobileCard item={item} />
@@ -216,14 +218,14 @@ export default function Testimonials() {
       </div>
 
       {/* ── DESKTOP LAYOUT (>= 1024px) Cinematic Stack ── */}
-      {/* Container is 500vh to give enough scroll distance for 5 cards */}
+      {/* 500vh gives enough scroll runway for 5 cards (100vh each) */}
       <div
         ref={containerRef}
         className="hidden lg:block relative w-full h-[500vh]"
       >
         <div className="sticky top-0 w-full h-screen flex items-center justify-center overflow-hidden">
           <div className="w-full max-w-[1280px] mx-auto px-10 flex items-center justify-between gap-12 xl:gap-20">
-            
+
             {/* Left: Sticky Header */}
             <div className="w-5/12 flex flex-col justify-center">
               <p className="text-[#e5192a] text-[13px] font-bold uppercase tracking-[0.2em] mb-4">
@@ -233,18 +235,19 @@ export default function Testimonials() {
                 The Verdict
               </h2>
               <p className="text-[#444] text-[17px] leading-[1.6] max-w-[400px]">
-                Don&apos;t just take our word for it. Hear from the founders and directors who transformed their brands and businesses with us.
+                Don&apos;t just take our word for it. Hear from the founders and
+                directors who transformed their brands and businesses with us.
               </p>
             </div>
 
-            {/* Right: The 3D Card Stack */}
-            <div className="w-6/12 relative h-[500px] xl:h-[550px] flex items-center justify-center">
+            {/* Right: Card Stack */}
+            <div className="w-6/12 relative h-[500px] xl:h-[550px]">
               {TESTIMONIALS.map((item, i) => (
                 <DesktopCard
                   key={i}
                   index={i}
                   item={item}
-                  scrollYProgress={scrollYProgress}
+                  progress={progress}
                 />
               ))}
             </div>
