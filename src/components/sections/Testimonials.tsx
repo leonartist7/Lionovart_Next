@@ -3,50 +3,49 @@
 import { useRef, useEffect } from "react";
 import { motion, useMotionValue, useTransform, MotionValue } from "framer-motion";
 import { Star } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-// ─── Data ──────────────────────────────────────────────────────────────────
-const TESTIMONIALS = [
+// Static data — quotes, authors, roles stay in English (real client words)
+const TESTIMONIALS_STATIC = [
   {
-    industry: "Hotel / hospitality",
-    hook: "Website that converts + More bookings",
     quote:
       "We were getting traffic but almost no direct bookings — everything was going through booking sites and eating our margin. Within two months of the new website going live, direct reservations jumped almost 70%. It finally looks like the place we actually run, not a template.",
     author: "Camille Moreau",
     role: "Owner, Maison Verre · Annecy, France",
   },
   {
-    industry: "Beauty salon / clinic",
-    hook: "Brand identity + Confidence",
     quote:
       "I'd been embarrassed to hand out my business card for two years. I couldn't even post on Instagram without cringing. They rebuilt the whole identity from the ground up and now I actually feel proud when someone asks what I do. That's worth more than the money, honestly.",
     author: "Sofia Álvarez",
     role: "Founder, Lumen Skin Studio · Madrid",
   },
   {
-    industry: "Real estate / service business",
-    hook: "AI & automation + Time back",
     quote:
       "The voice agent they set up for us handles after-hours calls, qualifies leads, and books viewings straight into my calendar. I got a call last Sunday while I was at dinner with my kids — except I didn't, because it was already handled. That one system pays for everything else we do with them.",
     author: "Marco De Luca",
     role: "Director, Atelier Realty · Milan",
   },
   {
-    industry: "Restaurant",
-    hook: "Video / social + Real growth",
     quote:
       "Three reels in and we had more reservations in one weekend than we'd had the entire previous month. It wasn't just that the videos looked good — it's that they finally sounded like us. Warm, not corporate. People walked in quoting lines from the reels.",
     author: "Isabelle Chen",
     role: "Co-owner, Mesa 14 · Toronto",
   },
   {
-    industry: "Contractor / construction",
-    hook: "Full creative team + Relief",
     quote:
       "I'm a contractor, not a marketing guy. Before LIONOVART I was editing Instagram posts at 11pm after a 12-hour site day. Now I don't touch any of it. Website, ads, socials, the whole thing — handled. My phone rings more than it ever has and I actually get to sleep.",
     author: "James Hollister",
     role: "Founder, Hollister Build Co. · Calgary",
   },
 ];
+
+type TestimonialItem = {
+  industry: string;
+  hook: string;
+  quote: string;
+  author: string;
+  role: string;
+};
 
 // ─── Desktop Card ───────────────────────────────────────────────────────────
 // Uses a manually-driven MotionValue (not useScroll) so it works correctly
@@ -57,7 +56,7 @@ function DesktopCard({
   index,
   progress,
 }: {
-  item: (typeof TESTIMONIALS)[0];
+  item: TestimonialItem;
   index: number;
   progress: MotionValue<number>;
 }) {
@@ -126,7 +125,7 @@ function DesktopCard({
 }
 
 // ─── Mobile Card ────────────────────────────────────────────────────────────
-function MobileCard({ item }: { item: (typeof TESTIMONIALS)[0] }) {
+function MobileCard({ item }: { item: TestimonialItem }) {
   return (
     <div className="bg-white rounded-[20px] p-6 sm:p-8 shadow-[0_12px_30px_rgba(0,0,0,0.06)] border border-gray-100 flex flex-col">
       <div className="flex items-center justify-between mb-5">
@@ -160,7 +159,15 @@ function MobileCard({ item }: { item: (typeof TESTIMONIALS)[0] }) {
 
 // ─── Main Section ──────────────────────────────────────────────────────────
 export default function Testimonials() {
+  const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Merge translated hooks/industries with static quotes/author/role
+  const TESTIMONIALS: TestimonialItem[] = TESTIMONIALS_STATIC.map((s, i) => ({
+    industry: t.testimonials.industries[i] ?? "",
+    hook: t.testimonials.hooks[i] ?? "",
+    ...s,
+  }));
 
   // Manually track scroll progress so we bypass Framer Motion v12's WAAPI
   // ScrollTimeline, which mis-calculates progress when Lenis smooth scroll
@@ -195,10 +202,10 @@ export default function Testimonials() {
       <div className="flex lg:hidden flex-col py-16 sm:py-24 px-6 sm:px-10">
         <div className="mb-10">
           <p className="text-[#e5192a] text-[12px] font-bold uppercase tracking-[0.2em] mb-2">
-            Client Stories
+            {t.testimonials.eyebrow}
           </p>
           <h2 className="text-[2.5rem] sm:text-[3.5rem] font-bold uppercase leading-none tracking-tight text-[#111]">
-            The Verdict
+            {t.testimonials.heading}
           </h2>
         </div>
 
@@ -229,14 +236,13 @@ export default function Testimonials() {
             {/* Left: Sticky Header */}
             <div className="w-5/12 flex flex-col justify-center">
               <p className="text-[#e5192a] text-[13px] font-bold uppercase tracking-[0.2em] mb-4">
-                Client Stories
+                {t.testimonials.eyebrow}
               </p>
               <h2 className="text-[4rem] xl:text-[4.5rem] font-bold uppercase leading-[1.05] tracking-tight text-[#111] mb-6">
-                The Verdict
+                {t.testimonials.heading}
               </h2>
               <p className="text-[#444] text-[17px] leading-[1.6] max-w-[400px]">
-                Don&apos;t just take our word for it. Hear from the founders and
-                directors who transformed their brands and businesses with us.
+                {t.testimonials.subheading}
               </p>
             </div>
 

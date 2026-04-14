@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect, ReactNode } from "react";
+import { useState, useRef, useEffect } from "react";
 import gsap from "gsap";
+import { useLanguage } from "@/contexts/LanguageContext";
+import type { Translations } from "@/lib/i18n";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,9 +20,7 @@ interface ServiceItem {
   label: string;
   shortLabel: string;
   accent: string;
-  hookText: ReactNode;
   statValue: string;
-  statLabel: string;
   leftVisual: { type: "image" | "video"; src: string; caption?: string };
   rightVisual: { type: "image" | "video"; src: string; caption?: string };
   hasCinematicHit?: boolean;
@@ -38,14 +38,7 @@ const SERVICES: ServiceItem[] = [
     label: "WEB / APP",
     shortLabel: "WEB",
     accent: "#10b981",
-    hookText: (
-      <>
-        Websites built to perform.<br />
-        Not just to impress.
-      </>
-    ),
     statValue: "70%",
-    statLabel: "of users judge a business by its website design — Stanford",
     leftVisual:  { type: "image", src: `${CDN}1_1_bv3shm.avif`,        caption: "Web project showcase" },
     rightVisual: { type: "image", src: `${CDN}Thumb_2_p6ksrb.avif`,    caption: "Digital experience" },
   },
@@ -54,14 +47,7 @@ const SERVICES: ServiceItem[] = [
     label: "A/V PRODUCTION",
     shortLabel: "A/V",
     accent: "#e5192a",
-    hookText: (
-      <>
-        We don&apos;t make videos.<br />
-        We direct emotions.
-      </>
-    ),
     statValue: "82%",
-    statLabel: "of all internet traffic will be video by 2027 — Cisco",
     leftVisual:  { type: "image", src: `${CDN}Frame_1_zhyago.avif`,         caption: "Production reel" },
     rightVisual: { type: "image", src: `${CDN}freepik_a-highly-polished-professional-uiux-website-homepage-mockup-for-a-modern-luxury-car-dealership.-clean-gridbased-layout-with-a-dark-theme-featuring-charcoal-grey-backgrounds-metallic-silve_0001_zglhcb.avif`, caption: "Campaign results" },
     hasCinematicHit: true,
@@ -71,14 +57,7 @@ const SERVICES: ServiceItem[] = [
     label: "LIONOVART",
     shortLabel: "ALL",
     accent: "#e5192a",
-    hookText: (
-      <>
-        One vision.<br />
-        Every medium.
-      </>
-    ),
     statValue: "50+",
-    statLabel: "projects delivered across 9 languages",
     leftVisual:  { type: "image", src: `${CDN}freepik_from-this-brand-help-me-make-a-mockup-of-her-landing-page-keeping-the-visual-identity..-looking-very-premium-and-elegant-and-perfect_0001_1_u6hnjz.avif`, caption: "Brand campaign" },
     rightVisual: { type: "image", src: `${CDN}freepik_from-this-brand-help-me-make-a-mockup-of-her-landing-page-keeping-the-visual-identity..-looking-very-premium-and-elegant-and-perfect_0001_2_cd1gee.avif`, caption: "Creative direction" },
   },
@@ -87,15 +66,7 @@ const SERVICES: ServiceItem[] = [
     label: "BRANDING",
     shortLabel: "BRAND",
     accent: "#f59e0b",
-    hookText: (
-      <>
-        Your brand is the first thing<br />
-        people judge — and the last<br />
-        thing they forget.
-      </>
-    ),
     statValue: "3x",
-    statLabel: "average perceived value increase after rebrand — Lucidpress",
     leftVisual:  { type: "image", src: `${CDN}freepik_from-this-brand-identity-help-me-make-a-mockup-of-her-landing-page..-looking-premium-and-elegant_0001_bnk4us.avif`,  caption: "Brand identity" },
     rightVisual: { type: "image", src: `${CDN}freepik__design-a-highly-polished-professional-corporate-we__1650_qukgx3.avif`,    caption: "Corporate identity" },
   },
@@ -104,15 +75,7 @@ const SERVICES: ServiceItem[] = [
     label: "PRINTING",
     shortLabel: "PRINT",
     accent: "#f59e0b",
-    hookText: (
-      <>
-        What you hold in your hands<br />
-        says everything about who you are.<br />
-        Print that commands attention — and gets kept.
-      </>
-    ),
     statValue: "100%",
-    statLabel: "brand consistency across all deliverables",
     leftVisual:  { type: "image", src: `${CDN}image_19_rnwg8w.avif`, caption: "Print spread" },
     rightVisual: { type: "image", src: `${CDN}Screenshots_2_apvmbr.avif`,        caption: "Deliverables" },
   },
@@ -187,7 +150,17 @@ function ServiceVisual({
    Component
    ═══════════════════════════════════════════════════════════════════════ */
 
+// Maps SERVICES[i].id → key in t.lumaShowcase
+const LUMA_ID_TO_KEY: Record<string, keyof Translations["lumaShowcase"]> = {
+  web:      "web",
+  av:       "av",
+  default:  "lionovart",
+  branding: "branding",
+  print:    "print",
+};
+
 export default function LumaShowcase() {
+  const { t } = useLanguage();
 
   /* ── Refs ─────────────────────────────────────────────────────────── */
   const sectionRef      = useRef<HTMLElement>(null);
@@ -546,7 +519,9 @@ export default function LumaShowcase() {
                   className="font-clash italic font-semibold leading-snug text-white/90"
                   style={{ fontSize: "clamp(0.95rem, 2.8vw, 1.7rem)" }}
                 >
-                  {active.hookText}
+                  {t.lumaShowcase[LUMA_ID_TO_KEY[active.id] ?? "web"].hookLines.map((line, i, arr) => (
+                    <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+                  ))}
                 </motion.p>
               </AnimatePresence>
             </div>
@@ -572,7 +547,7 @@ export default function LumaShowcase() {
                     className="font-semibold uppercase text-white/45"
                     style={{ fontSize: "clamp(0.55rem, 1vw, 0.78rem)", letterSpacing: "0.22em" }}
                   >
-                    {active.statLabel}
+                    {t.lumaShowcase[LUMA_ID_TO_KEY[active.id] ?? "web"].statLabel}
                   </span>
                 </motion.div>
               </AnimatePresence>

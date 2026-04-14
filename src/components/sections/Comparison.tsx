@@ -2,55 +2,24 @@
 
 import { motion } from "framer-motion";
 import { CheckCircle, X } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const COMPARISON_DATA = [
-  {
-    title: "In-house team",
-    description: "In-house teams don't always have the skill mix or bandwidth to handle every request that the business needs.",
-    speed: false,
-    flexibility: true,
-    quality: true,
-    scalability: false,
-    efficiency: false,
-    printing: false,
-    support: true,
-  },
-  {
-    title: "Creative agencies",
-    description: "Traditional agencies can be slow, costly, and built around rigid processes that make it difficult to adapt.",
-    speed: false,
-    flexibility: false,
-    quality: true,
-    scalability: false,
-    efficiency: false,
-    printing: false,
-    support: true,
-  },
-  {
-    title: "Freelancers",
-    description: "Freelancers can be unreliable and hard to scale, leading to inconsistent work and questionable quality.",
-    speed: false,
-    flexibility: true,
-    quality: false,
-    scalability: false,
-    efficiency: false,
-    printing: false,
-    support: true,
-  },
-  {
-    title: "AI tools only",
-    description: "AI tools can increase speed and efficiency, but without human judgment and brand context, they fall short on quality and strategy.",
-    speed: true,
-    flexibility: false,
-    quality: false,
-    scalability: true,
-    efficiency: true,
-    printing: false,
-    support: false,
-  }
+// Boolean fields stay static — only text is translated
+const COMPARISON_BOOLEANS = [
+  { speed: false, flexibility: true,  quality: true,  scalability: false, efficiency: false, printing: false, support: true  },
+  { speed: false, flexibility: false, quality: true,  scalability: false, efficiency: false, printing: false, support: true  },
+  { speed: false, flexibility: true,  quality: false, scalability: false, efficiency: false, printing: false, support: true  },
+  { speed: true,  flexibility: false, quality: false, scalability: true,  efficiency: true,  printing: false, support: false },
 ];
 
 export default function Comparison() {
+  const { t } = useLanguage();
+
+  const COMPARISON_DATA = t.comparison.competitors.map((c, i) => ({
+    title: c.title,
+    ...COMPARISON_BOOLEANS[i],
+  }));
+
   return (
     <section className="bg-white py-[100px] md:py-[140px] px-4 md:px-8">
       <div className="max-w-[1200px] mx-auto">
@@ -62,7 +31,7 @@ export default function Comparison() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            Why <span className="text-brand-red">Lionovart</span>?
+            {t.comparison.heading} <span className="text-brand-red">{t.comparison.headingAccent}</span>{t.comparison.headingSuffix}
           </motion.h2>
         </div>
 
@@ -85,7 +54,7 @@ export default function Comparison() {
                     className="max-h-[28px] lg:max-h-[48px] w-auto object-contain filter drop-shadow-md brightness-150"
                   />
                 </div>
-                {["Speed", "Flexibility", "Quality", "Scalability", "Efficiency", "Printing", "Support"].map((label) => (
+                {t.comparison.columns.map((label) => (
                   <div key={label} className="p-1.5 lg:p-2.5 flex items-center justify-center text-[9px] sm:text-[10px] lg:text-[14px] font-medium tracking-wide text-center">
                     {label}
                   </div>

@@ -9,97 +9,32 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const SERVICES = [
-  {
-    id: "branding",
-    number: "1",
-    title: "Branding & Identity",
-    description:
-      "Your brand is the first thing people judge — and the last thing they forget. We craft identity systems that communicate authority, build instant trust, and hold together across every touchpoint — digital and physical. We don't just design how your brand looks — we shape how it sounds. Audio logos, brand voice tone, sonic identity systems.",
-    deliverables: ["Logo System", "Brand Guidelines", "Typography & Colour", "Brand Voice", "Sonic Branding"],
-    media: {
-      url: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=900&q=80",
-      alt: "Branding & Identity",
-    },
-  },
-  {
-    id: "web",
-    number: "2",
-    title: "Web & App Development",
-    description:
-      "Performance-first websites and applications built to convert. Fast, beautiful, and engineered to turn visitors into booked calls — with measurable results from day one. From marketing sites to custom web apps and mobile experiences, we build what your business actually needs.",
-    deliverables: ["UI/UX Design", "Web Development", "Web & Mobile Apps", "CMS Integration", "E-Commerce", "SEO Setup"],
-    media: {
-      url: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=900&q=80",
-      alt: "Web & App Development",
-    },
-  },
-  {
-    id: "video",
-    number: "3",
-    title: "Video Production",
-    description:
-      "Brand films, product showcases, reels and social content. We handle scripting, shooting, and editing — delivering assets that stop the scroll and tell your story. Including original music composition when your project needs a sonic identity, not stock audio.",
-    deliverables: ["Brand Films", "Social Reels", "Product Videos", "Motion Graphics", "Custom Sound Design & Music"],
-    media: {
-      url: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=900&q=80",
-      alt: "Video Production",
-    },
-  },
-  {
-    id: "social",
-    number: "4",
-    title: "Social Media & Content",
-    description:
-      "Consistent, on-brand content that builds authority and drives engagement. Strategy, creative direction, copywriting, and monthly calendars — handled.",
-    deliverables: ["Content Strategy", "Creative Direction", "Copywriting", "Monthly Calendar"],
-    media: {
-      url: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=900&q=80",
-      alt: "Social Media & Content",
-    },
-  },
-  {
-    id: "print",
-    number: "5",
-    title: "Print & Physical Branding",
-    description:
-      "Your brand can't live only on screens. We design and produce the physical materials that make your business memorable in the real world — from business cards people keep to inflatable installations that turn heads at events. With direct access to one of Canada's leading balloon production facilities, we deliver physical brand experiences most agencies can't.",
-    deliverables: ["Business Cards & Stationery", "Packaging Design", "Digital printing", "Commercial printing", "Custom balloon", "Apparel design", "Corporate gifting", "Signage & Display", "Event Branding"],
-    media: {
-      url: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=900&q=80",
-      alt: "Print & Physical Branding",
-    },
-  },
-  {
-    id: "smart-systems",
-    number: "6",
-    title: "Smart Systems & AI",
-    description:
-      "Intelligent systems that work while you sleep. From AI voice receptionists answering calls 24/7 to automated lead capture, personalized customer agents, and workflow integrations — we build the automations that turn manual tasks into round-the-clock growth. Human-directed. Brand-aligned. Always on.",
-    deliverables: ["AI Voice Agents", "Virtual Receptionists", "Lead Automation", "AI Chatbots", "Workflow Integration", "CRM & Email Automation"],
-    media: {
-      url: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=900&q=80",
-      alt: "Smart Systems & AI",
-    },
-  },
-  {
-    id: "growth",
-    number: "7",
-    title: "Growth Marketing",
-    description:
-      "Visibility where it matters. We combine search optimization, local SEO, Google Business management, and strategic consulting to make sure your business is found by the right people — consistently, not accidentally. From climbing search rankings to dominating your local market, we build the systems that bring qualified leads to your door.",
-    deliverables: ["SEO & AEO Optimization", "Google Business Management", "Local Search Domination", "Paid Ads & Google Ads", "Business Consultation", "Analytics & Reporting"],
-    media: {
-      url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&q=80",
-      alt: "Growth Marketing",
-    },
-  },
+// Static (non-translatable) data — IDs, numbers, media URLs
+const SERVICES_STATIC = [
+  { id: "branding",      number: "1", media: { url: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=900&q=80", alt: "Branding & Identity" } },
+  { id: "web",           number: "2", media: { url: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=900&q=80", alt: "Web & App Development" } },
+  { id: "video",         number: "3", media: { url: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=900&q=80", alt: "Video Production" } },
+  { id: "social",        number: "4", media: { url: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=900&q=80", alt: "Social Media & Content" } },
+  { id: "print",         number: "5", media: { url: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=900&q=80", alt: "Print & Physical Branding" } },
+  { id: "smart-systems", number: "6", media: { url: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=900&q=80", alt: "Smart Systems & AI" } },
+  { id: "growth",        number: "7", media: { url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&q=80", alt: "Growth Marketing" } },
 ];
 
 export default function Services() {
+  const { t } = useLanguage();
   const lenis = useLenis();
-  const [activeId, setActiveId] = useState<string>(SERVICES?.[0]?.id || "branding");
+
+  // Merge static (id/number/media) with translated text (title/description/deliverables)
+  const SERVICES = SERVICES_STATIC.map((s, i) => ({
+    ...s,
+    title: t.services.items[i]?.title ?? "",
+    description: t.services.items[i]?.description ?? "",
+    deliverables: (t.services.items[i]?.deliverables as readonly string[] | undefined) ?? [],
+  }));
+
+  const [activeId, setActiveId] = useState<string>(SERVICES_STATIC[0]?.id ?? "branding");
 
   return (
     <section
@@ -117,7 +52,7 @@ export default function Services() {
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
           >
-            What We Do
+            {t.services.eyebrow}
           </motion.p>
           <motion.h2
             className="text-[2.5rem] sm:text-[3.5rem] md:text-[5rem] lg:text-[6rem] font-bold uppercase leading-[0.92] tracking-[-0.02em] text-[#111111] max-w-3xl"
@@ -126,7 +61,7 @@ export default function Services() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            Our <span className="text-brand-red">Services</span>
+            {t.services.heading} <span className="text-brand-red">{t.services.headingAccent}</span>
           </motion.h2>
         </div>
 
