@@ -195,8 +195,6 @@ export default function Navbar() {
                 />
               </div>
 
-              <LanguageSwitcher isHeroMode={heroMode} />
-
               {/* Mobile burger — always visible on small screens */}
               <MenuBurgerLottie
                 isOpen={isMobileOpen}
@@ -238,7 +236,7 @@ export default function Navbar() {
               animate={{ y: 0 }}
               exit={{ y: "-100%" }}
               transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-              className="absolute top-0 left-[15%] right-[15%] lg:left-1/2 lg:right-auto lg:w-[260px] lg:-translate-x-1/2 -z-10 rounded-xl overflow-hidden"
+              className="absolute top-0 left-[15%] right-[15%] lg:left-1/4 lg:right-1/4 lg:w-auto -z-10 rounded-xl overflow-hidden"
               style={{
                 background: "rgba(255, 255, 255, 0.75)",
                 backdropFilter: "blur(28px) saturate(1.8)",
@@ -248,7 +246,7 @@ export default function Navbar() {
               }}
             >
               {/* pt-[82px] clears the bar; links are horizontal */}
-              <nav className="flex flex-row items-center justify-center px-4 pt-[82px] pb-5 gap-4">
+              <nav className="flex flex-row flex-wrap items-center justify-center px-6 pt-[82px] pb-6 gap-x-6 gap-y-3">
                 {NAV_LINKS.map((link, i) => (
                   <motion.div
                     key={link.href}
@@ -275,9 +273,8 @@ export default function Navbar() {
                   exit={{ opacity: 0, y: 6 }}
                   transition={{ duration: 0.2, delay: NAV_LINKS.length * 0.06 }}
                   className="mt-1 flex justify-center"
-                  style={{ filter: "invert(1)" }}
                 >
-                  <LanguageSwitcher />
+                  <LanguageSwitcher isHeroMode={false} />
                 </motion.div>
               </nav>
             </motion.div>

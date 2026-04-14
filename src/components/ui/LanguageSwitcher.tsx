@@ -34,7 +34,11 @@ export function LanguageSwitcher({ isHeroMode }: { isHeroMode?: boolean }) {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-white/90 transition-colors hover:text-white hover:bg-white/10 select-none"
+        className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] transition-colors select-none ${
+          isHeroMode === false
+            ? "text-black/70 hover:text-black hover:bg-black/[0.07]"
+            : "text-white/90 hover:text-white hover:bg-white/10"
+        }`}
       >
         <img
           src={current.flag}

@@ -7,11 +7,16 @@ import {
   useTransform,
   useSpring,
   useInView,
+  AnimatePresence,
   type MotionValue,
 } from "framer-motion";
 import Image from "next/image";
 import { useLenis } from "@studio-freight/react-lenis";
 import { useLanguage } from "@/contexts/LanguageContext";
+
+const CONTACT_PHONE   = "+1 (514) 000-0000";
+const CONTACT_EMAIL   = "hello@lionovart.com";
+const CONTACT_MEETING = "https://cal.com/lionovart";
 
 /* ─── Lenis-compatible section scroll progress ──────────────
    Framer Motion's useScroll breaks with Lenis (autoRaf:false).
@@ -89,7 +94,6 @@ function WordReveal({
   return (
     <span className={className}>
       {words.map((word, i) => {
-        // Stagger: each word starts a bit before the previous one ends
         const wordStart = blockStart + i * span * 0.65;
         const wordEnd = Math.min(wordStart + span * 1.6, blockEnd + 0.05);
         const isDim = dimLastN > 0 && i >= total - dimLastN;
@@ -169,22 +173,13 @@ export default function AboutUsHalf() {
   const statsRef = useRef<HTMLDivElement>(null);
   const statsInView = useInView(statsRef, { once: true, margin: "-60px" });
   const { t } = useLanguage();
+  const [contactOpen, setContactOpen] = useState(false);
 
   const progress = useLenisProgress(sectionRef);
 
   // Divider line
-  const lineScaleX = useSpring(useTransform(progress, [0.32, 0.52], [0, 1]), {
+  const lineScaleX = useSpring(useTransform(progress, [0.18, 0.32], [0, 1]), {
     stiffness: 70,
-    damping: 22,
-  });
-
-  // Founder card + stats fade
-  const cardOpacity = useSpring(useTransform(progress, [0.55, 0.72], [0, 1]), {
-    stiffness: 80,
-    damping: 22,
-  });
-  const cardY = useSpring(useTransform(progress, [0.55, 0.72], [20, 0]), {
-    stiffness: 80,
     damping: 22,
   });
 
@@ -196,13 +191,22 @@ export default function AboutUsHalf() {
       <div className="max-w-[700px] w-full flex flex-col items-center">
 
         {/* ── Headline word reveal ── */}
-        <div className="text-text-main text-[16px] md:text-[28px] font-medium leading-[1.4] mb-4">
+        <div className="text-text-main text-[16px] md:text-[28px] font-medium leading-[1.4] mb-2">
           <WordReveal
-            text={t.about.line1}
+            text="In 2026, innovation is no longer a choice"
             progress={progress}
-            blockStart={0.04}
-            blockEnd={0.38}
-            dimLastN={3}
+            blockStart={0.0}
+            blockEnd={0.22}
+          />
+        </div>
+
+        {/* ── Red accent ── */}
+        <div className="text-[18px] md:text-[32px] font-bold leading-[1.3] text-[#e5192a] mb-4">
+          <WordReveal
+            text="it's a necessity."
+            progress={progress}
+            blockStart={0.10}
+            blockEnd={0.26}
           />
         </div>
 
@@ -215,45 +219,82 @@ export default function AboutUsHalf() {
         {/* ── Body word reveal ── */}
         <div className="text-text-main text-[13px] md:text-[16px] font-normal leading-[1.7] text-white/60">
           <WordReveal
-            text={t.about.line2}
+            text="As a multidisciplinary team of artists and business owners, we provide what is needed to lead in today's digital landscape."
             progress={progress}
-            blockStart={0.36}
-            blockEnd={0.72}
+            blockStart={0.20}
+            blockEnd={0.50}
           />
         </div>
 
-        {/* ── Founder card ── */}
-        <motion.div
-          style={{ opacity: cardOpacity, y: cardY }}
-          className="z-20 mt-8 md:mt-10 self-end ml-auto inline-flex max-w-full items-center gap-3 rounded-[20px] border border-white/10 bg-black/60 backdrop-blur-xl px-4 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
-        >
-          <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border-2 border-brand-red/60">
-            <Image
-              src="https://res.cloudinary.com/dgio9uutc/image/upload/v1776064620/leonardo_icon_rkjxcx.webp"
-              alt="Leonardo"
-              fill
-              className="object-cover"
-              unoptimized
-            />
+        {/* ── Founder card — always visible, contact popup on hover/click ── */}
+        <div className="relative z-20 mt-8 md:mt-10 self-end ml-auto">
+          <div
+            className="inline-flex max-w-full items-center gap-3 rounded-[20px] border border-white/10 bg-black/60 backdrop-blur-xl px-4 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.4)] cursor-pointer select-none"
+            onClick={() => setContactOpen((v) => !v)}
+            onMouseEnter={() => setContactOpen(true)}
+            onMouseLeave={() => setContactOpen(false)}
+          >
+            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border-2 border-brand-red/60">
+              <Image
+                src="https://res.cloudinary.com/dgio9uutc/image/upload/v1776064620/leonardo_icon_rkjxcx.webp"
+                alt="Leonardo"
+                fill
+                className="object-cover"
+                unoptimized
+              />
+            </div>
+            <div className="flex min-w-0 flex-col text-left">
+              <span className="text-[13px] font-bold text-white leading-tight tracking-tight">
+                Leonardo
+              </span>
+              <span className="text-[11px] text-white/50 leading-tight">
+                {t.about.founderRole}
+              </span>
+            </div>
+            <div className="flex shrink-0 items-center ml-1">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+              </span>
+            </div>
           </div>
-          <div className="flex min-w-0 flex-col text-left">
-            <span className="text-[13px] font-bold text-white leading-tight tracking-tight">
-              Leonardo
-            </span>
-            <span className="text-[11px] text-white/50 leading-tight">
-              {t.about.founderRole}
-            </span>
-          </div>
-          <div className="flex shrink-0 items-center gap-1.5 ml-1">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
-            </span>
-            <span className="text-[10px] text-green-400 font-semibold uppercase tracking-widest">
-              {t.about.founderStatus}
-            </span>
-          </div>
-        </motion.div>
+
+          {/* Contact popup — appears above card */}
+          <AnimatePresence>
+            {contactOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 8, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.97 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="absolute bottom-full mb-3 right-0 min-w-[240px] rounded-[20px] border border-white/10 bg-black/70 backdrop-blur-xl px-5 py-4 shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col gap-3"
+                onMouseEnter={() => setContactOpen(true)}
+                onMouseLeave={() => setContactOpen(false)}
+              >
+                <a
+                  href={`tel:${CONTACT_PHONE}`}
+                  className="flex items-center gap-2.5 text-white/80 hover:text-white text-[13px] transition-colors"
+                >
+                  <span>📞</span><span>{CONTACT_PHONE}</span>
+                </a>
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="flex items-center gap-2.5 text-white/80 hover:text-white text-[13px] transition-colors"
+                >
+                  <span>✉️</span><span>{CONTACT_EMAIL}</span>
+                </a>
+                <a
+                  href={CONTACT_MEETING}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center rounded-xl bg-[#e5192a] px-4 py-2 text-[12px] font-bold uppercase tracking-[0.1em] text-white hover:bg-[#c01020] transition-colors"
+                >
+                  Schedule Meeting
+                </a>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* ── Stat cards ── */}
         <div
