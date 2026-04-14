@@ -425,7 +425,7 @@ export default function LumaShowcase() {
      Render
      ══════════════════════════════════════════════════════════════════════ */
   return (
-    <section ref={sectionRef} id="luma-showcase" className="relative h-[500vh] md:h-[600vh]">
+    <section ref={sectionRef} id="luma-showcase" className="relative h-[300vh] md:h-[350vh]">
       <motion.div
         ref={stickyRef}
         className="sticky top-0 h-screen bg-[#181818]"
