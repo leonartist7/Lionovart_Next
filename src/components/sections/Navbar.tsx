@@ -195,6 +195,21 @@ export default function Navbar() {
                 />
               </div>
 
+              {/* Language switcher — visible in hero (red) mode, hidden after transition */}
+              <AnimatePresence>
+                {heroMode && (
+                  <motion.div
+                    key="lang-hero"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    <LanguageSwitcher isHeroMode={true} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Mobile burger — always visible on small screens */}
               <MenuBurgerLottie
                 isOpen={isMobileOpen}

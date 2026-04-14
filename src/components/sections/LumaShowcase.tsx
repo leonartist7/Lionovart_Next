@@ -319,14 +319,8 @@ export default function LumaShowcase() {
               trigger: sectionRef.current,
               start:   "top top",
               end:     "bottom bottom",
-              scrub:   4,
+              scrub:   0.05,
               invalidateOnRefresh: true,
-              snap: {
-                snapTo:   [0.55],
-                duration: { min: 0.8, max: 1.4 },
-                delay:    0.2,
-                ease:     "power2.inOut",
-              },
               onEnter: () => {
                 if (isSoundOn && bassAudioRef.current) {
                   bassAudioRef.current.currentTime = 0;

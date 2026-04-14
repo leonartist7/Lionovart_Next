@@ -217,7 +217,7 @@ export default function AboutUsHalf() {
         />
 
         {/* ── Body word reveal ── */}
-        <div className="text-text-main text-[13px] md:text-[16px] font-normal leading-[1.7] text-white/60">
+        <div className="text-text-main text-[16px] md:text-[28px] font-semibold leading-[1.4] text-white/60">
           <WordReveal
             text="As a multidisciplinary team of artists and business owners, we provide what is needed to lead in today's digital landscape."
             progress={progress}
@@ -309,10 +309,10 @@ export default function AboutUsHalf() {
             active={statsInView}
           />
           <StatCard
-            number={10}
+            number={7}
             unit="+"
-            label={t.about.stat2Label}
-            description={t.about.stat2Desc}
+            label="Countries"
+            description="A multilingual team serving clients across 4 continents."
             active={statsInView}
           />
         </div>
