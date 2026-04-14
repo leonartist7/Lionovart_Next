@@ -174,6 +174,18 @@ export default function AboutUsHalf() {
   const statsInView = useInView(statsRef, { once: true, margin: "-60px" });
   const { t } = useLanguage();
   const [contactOpen, setContactOpen] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (cardRef.current && !cardRef.current.contains(e.target as Node)) {
+        setContactOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const progress = useLenisProgress(sectionRef);
 
@@ -226,15 +238,72 @@ export default function AboutUsHalf() {
           />
         </div>
 
-        {/* ── Founder card — always visible, contact popup on hover/click ── */}
-        <div className="relative z-20 mt-8 md:mt-10 self-end ml-auto">
-          <div
-            className="inline-flex max-w-full items-center gap-3 rounded-[20px] border border-white/10 bg-black/60 backdrop-blur-xl px-4 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.4)] cursor-pointer select-none"
-            onClick={() => setContactOpen((v) => !v)}
-            onMouseEnter={() => setContactOpen(true)}
-            onMouseLeave={() => setContactOpen(false)}
-          >
-            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border-2 border-brand-red/60">
+        {/* ── Founder card — two chips, expands to contact card on click ── */}
+        <div ref={cardRef} className="relative z-20 mt-8 md:mt-10 self-end ml-auto">
+
+          {/* Contact card — appears above chips */}
+          <AnimatePresence>
+            {contactOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.96 }}
+                transition={{ duration: 0.22, ease: "easeOut" }}
+                className="absolute bottom-full mb-3 right-0 min-w-[260px] rounded-[20px] border border-white/10 bg-[#1c1c1e] backdrop-blur-xl px-5 pt-5 pb-10 shadow-[0_12px_40px_rgba(0,0,0,0.6)] overflow-visible"
+              >
+                {/* Green pulse — top right */}
+                <span className="absolute top-4 right-4 flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+                </span>
+
+                {/* Email */}
+                <a href={`mailto:${CONTACT_EMAIL}`} className="group block mb-4">
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest mb-0.5">Email</p>
+                  <p className="text-[15px] font-semibold text-white group-hover:text-white/80 transition-colors">
+                    {CONTACT_EMAIL}
+                  </p>
+                </a>
+
+                {/* Phone */}
+                <a href={`tel:${CONTACT_PHONE}`} className="group block mb-4">
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest mb-0.5">Phone</p>
+                  <p className="text-[15px] font-semibold text-white group-hover:text-white/80 transition-colors">
+                    {CONTACT_PHONE}
+                  </p>
+                </a>
+
+                {/* Schedule */}
+                <a href={CONTACT_MEETING} target="_blank" rel="noopener noreferrer" className="group block">
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest mb-0.5">Schedule a call</p>
+                  <p className="text-[15px] font-semibold text-[#e5192a] group-hover:text-[#ff2233] transition-colors">
+                    Book on Calendly →
+                  </p>
+                </a>
+
+                {/* Photo — peeks below card bottom-left */}
+                <div className="absolute bottom-[-20px] left-4 w-12 h-12 rounded-[12px] overflow-hidden border border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
+                  <Image
+                    src="https://res.cloudinary.com/dgio9uutc/image/upload/v1776064620/leonardo_icon_rkjxcx.webp"
+                    alt="Leonardo"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Two resting chips */}
+          <div className="flex items-center gap-2">
+            {/* Photo chip */}
+            <button
+              type="button"
+              aria-label="Contact Leonardo"
+              onClick={() => setContactOpen((v) => !v)}
+              className="relative w-10 h-10 rounded-[12px] overflow-hidden border border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.4)] shrink-0 cursor-pointer"
+            >
               <Image
                 src="https://res.cloudinary.com/dgio9uutc/image/upload/v1776064620/leonardo_icon_rkjxcx.webp"
                 alt="Leonardo"
@@ -242,58 +311,29 @@ export default function AboutUsHalf() {
                 className="object-cover"
                 unoptimized
               />
-            </div>
-            <div className="flex min-w-0 flex-col text-left">
-              <span className="text-[13px] font-bold text-white leading-tight tracking-tight">
-                Leonardo
-              </span>
-              <span className="text-[11px] text-white/50 leading-tight">
-                {t.about.founderRole}
-              </span>
-            </div>
-            <div className="flex shrink-0 items-center ml-1">
-              <span className="relative flex h-2 w-2">
+            </button>
+
+            {/* Name chip */}
+            <button
+              type="button"
+              onClick={() => setContactOpen((v) => !v)}
+              className="inline-flex items-center gap-2.5 rounded-[14px] border border-white/10 bg-black/60 backdrop-blur-xl px-3.5 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.4)] cursor-pointer select-none"
+            >
+              <div className="flex flex-col text-left">
+                <span className="text-[13px] font-bold text-white leading-tight tracking-tight">
+                  Leonardo
+                </span>
+                <span className="text-[11px] text-white/50 leading-tight">
+                  {t.about.founderRole}
+                </span>
+              </div>
+              <span className="relative flex h-2 w-2 shrink-0">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
               </span>
-            </div>
+            </button>
           </div>
 
-          {/* Contact popup — appears above card */}
-          <AnimatePresence>
-            {contactOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: 8, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 8, scale: 0.97 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="absolute bottom-full mb-3 right-0 min-w-[240px] rounded-[20px] border border-white/10 bg-black/70 backdrop-blur-xl px-5 py-4 shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col gap-3"
-                onMouseEnter={() => setContactOpen(true)}
-                onMouseLeave={() => setContactOpen(false)}
-              >
-                <a
-                  href={`tel:${CONTACT_PHONE}`}
-                  className="flex items-center gap-2.5 text-white/80 hover:text-white text-[13px] transition-colors"
-                >
-                  <span>📞</span><span>{CONTACT_PHONE}</span>
-                </a>
-                <a
-                  href={`mailto:${CONTACT_EMAIL}`}
-                  className="flex items-center gap-2.5 text-white/80 hover:text-white text-[13px] transition-colors"
-                >
-                  <span>✉️</span><span>{CONTACT_EMAIL}</span>
-                </a>
-                <a
-                  href={CONTACT_MEETING}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center rounded-xl bg-[#e5192a] px-4 py-2 text-[12px] font-bold uppercase tracking-[0.1em] text-white hover:bg-[#c01020] transition-colors"
-                >
-                  Schedule Meeting
-                </a>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
 
         {/* ── Stat cards ── */}
