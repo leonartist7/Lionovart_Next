@@ -144,10 +144,7 @@ function StatCard({
   const count = useCountUp(number, 1400, active);
 
   return (
-    <div className="relative flex-1 flex flex-col justify-center items-center rounded-[20px] bg-[#181818] shadow-[10px_10px_28px_rgba(0,0,0,0.75),-6px_-6px_18px_rgba(255,255,255,0.06),inset_0_1px_0_rgba(255,255,255,0.04)] ring-1 ring-white/[0.04] p-6 md:p-10 text-center min-h-[160px] md:min-h-[220px] gap-1">
-      <h4 className="text-white font-bold text-[12px] md:text-[14px] uppercase tracking-[0.18em] mb-2">
-        {label}
-      </h4>
+    <div className="relative flex-1 flex flex-col justify-center items-center rounded-[20px] bg-[#181818] shadow-[10px_10px_28px_rgba(0,0,0,0.75),-6px_-6px_18px_rgba(255,255,255,0.06),inset_0_1px_0_rgba(255,255,255,0.04)] ring-1 ring-white/[0.04] p-6 md:p-10 text-center h-auto min-h-[160px] md:min-h-[220px] gap-1">
       <div className="flex items-baseline justify-center gap-0.5 leading-none">
         <span className="text-[44px] sm:text-[56px] md:text-[72px] font-black text-[#e5192a] font-clash leading-none">
           {count}
@@ -156,6 +153,9 @@ function StatCard({
           {unit}
         </span>
       </div>
+      <h4 className="text-[#e5192a] font-bold text-[12px] md:text-[14px] uppercase tracking-[0.18em] mt-2">
+        {label}
+      </h4>
       <p className="text-white/50 text-[11px] md:text-[13px] leading-[1.6] max-w-[95%] mx-auto mt-2">
         {description}
       </p>

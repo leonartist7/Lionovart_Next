@@ -6,11 +6,11 @@ import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 // ─── Animation timing constants ───────────────────────────────────────────────
-const PAW_IN_DURATION = 0.38;
-const PULL_DURATION   = 0.72;
+const PAW_IN_DURATION = 0.35;
+const PULL_DURATION   = 0.70;
 
-const EASE_IN  = [0.4, 0, 0.6, 1]  as const;
-const EASE_OUT = [0.16, 1, 0.3, 1] as const;
+const EASE_IN  = [0.2, 0, 0.6, 1]  as const;
+const EASE_OUT = [0.20, 1, 0.3, 1] as const;
 
 // Which cards use the golden solution background (cards 3 & 4 → index 2 & 3)
 const USE_GOLDEN = [false, false, true, true] as const;
@@ -21,30 +21,31 @@ function ProblemCard({
   isRevealed,
   onToggle,
 }: {
-  item: (typeof items)[0];
+  item: { useGoldenSolution: boolean; problem: { heading: string; body: string }; solution: { heading: string; body: string } };
   isRevealed: boolean;
   onToggle: () => void;
 }) {
   const cardControls = useAnimation();
   const pawControls  = useAnimation();
+  const [isHovered, setIsHovered] = useState(false);
 
   const runReveal = async () => {
     await pawControls.set({ x: "-110%", y: "0%", rotate: -6, scale: 0.9 });
     pawControls.start({
-      x: "-10%", y: "0%", rotate: 0, scale: 1,
+      x: "-10%", y: "0%", rotate: 0, scale: 1.15,
       transition: { duration: PAW_IN_DURATION, ease: EASE_OUT },
     });
     await new Promise(r => setTimeout(r, PAW_IN_DURATION * 1000 * 0.85));
     Promise.all([
       cardControls.start({ y: "105%", transition: { duration: PULL_DURATION, ease: EASE_IN } }),
-      pawControls.start({ y: "105%", x: "-10%", rotate: 4, scale: 0.95, transition: { duration: PULL_DURATION, ease: EASE_IN } }),
+      pawControls.start({ y: "105%", x: "-10%", rotate: 4, scale: 1.05, transition: { duration: PULL_DURATION, ease: EASE_IN } }),
     ]);
   };
 
   const runReset = async () => {
     await Promise.all([
       cardControls.start({ y: "0%", transition: { duration: PULL_DURATION, ease: EASE_OUT } }),
-      pawControls.start({ y: "0%", x: "-10%", rotate: 0, scale: 1, transition: { duration: PULL_DURATION, ease: EASE_OUT } }),
+      pawControls.start({ y: "0%", x: "-10%", rotate: 0, scale: 1.15, transition: { duration: PULL_DURATION, ease: EASE_OUT } }),
     ]);
     await new Promise(r => setTimeout(r, 60));
     await pawControls.start({ x: "-110%", rotate: -6, scale: 0.9, transition: { duration: PAW_IN_DURATION, ease: EASE_IN } });
@@ -57,7 +58,12 @@ function ProblemCard({
   };
 
   return (
-    <div onClick={handleClick} className="relative w-full cursor-pointer">
+    <div
+      onClick={handleClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="relative w-full cursor-pointer"
+    >
       <div
         className="
           relative w-full overflow-hidden
@@ -69,20 +75,14 @@ function ProblemCard({
       >
         {/* ── BASE LAYER: SOLUTION ── */}
         {item.useGoldenSolution ? (
-          /*
-           * Cards 3 & 4 — golden image background.
-           * object-contain keeps the entire image visible without any cropping.
-           * The card background (#1a1008) fills the surrounding area so the
-           * image sits cleanly inside the container with no clipping on any edge.
-           */
           <div className="absolute inset-0 flex flex-col justify-center">
             <Image
               src="/images/Card golden.avif"
               alt=""
               aria-hidden="true"
               fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover object-[center_65%]"
+              sizes="(max-width: 900px) 120vw, 60vw"
+              className="object-cover object-[center_70%]"
               priority
             />
             {/* Scrim for text legibility over the bright golden image */}
@@ -91,7 +91,7 @@ function ProblemCard({
             <div className="relative z-10 p-5 md:p-7 flex flex-col items-center justify-center h-full text-center gap-2">
               <div className="flex items-center justify-center gap-2">
                 <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#10b981] flex items-center justify-center shrink-0">
-                  <svg className="w-3 h-3 md:w-3.5 md:h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                  <svg className="w-4 h-4 md:w-4.5 md:h-4.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
@@ -126,7 +126,6 @@ function ProblemCard({
         {/*
           ── OVERLAY LAYER: PROBLEM (black, pulled down by paw) ──
           All pain cards are #181818 black with centered text.
-          No number, no hint label.
         */}
         <motion.div
           className="absolute inset-0 z-10 bg-[#181818] p-5 md:p-7 flex flex-col items-center justify-center text-center"
@@ -146,20 +145,27 @@ function ProblemCard({
         {/* ── LION PAW ── z-20, bottom-left, clamped width for all breakpoints */}
         <motion.div
           className="pointer-events-none absolute z-20 bottom-0"
-          initial={{ x: "-110%", y: "0%", rotate: -6, scale: 0.9 }}
+          initial={{ x: "-90%", y: "0%", rotate: -6, scale: 1.2 }}
           animate={pawControls}
-          style={{ left: 0, width: "clamp(70px, 80%, 110px)", aspectRatio: "1 / 1" }}
+          style={{ left: 0, width: "clamp(95px, 85%, 145px)", aspectRatio: "1 / 1" }}
         >
-          <div className="relative w-full h-full drop-shadow-[0_0_24px_rgba(240,201,23,0.55)]">
-            <Image
-              src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775085187/Untitled_design_4_muu53f.png"
-              alt=""
-              aria-hidden="true"
-              fill
-              sizes="42vw"
-              className="object-contain object-bottom-left"
-            />
-          </div>
+          {/* Inner wrapper — hover scale only, independent of reveal animation */}
+          <motion.div
+            className="relative w-full h-full"
+            animate={{ scale: isHovered && !isRevealed ? 1.12 : 1 }}
+            transition={{ type: "spring", stiffness: 350, damping: 24 }}
+          >
+            <div className="relative w-full h-full drop-shadow-[0_0_30px_rgba(240,201,23,0.55)]">
+              <Image
+                src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775085187/Untitled_design_4_muu53f.png"
+                alt=""
+                aria-hidden="true"
+                fill
+                sizes="50vw"
+                className="object-contain object-bottom-left"
+              />
+            </div>
+          </motion.div>
         </motion.div>
       </div>
     </div>
@@ -189,7 +195,6 @@ export default function ProblemsSolvedSection() {
 
         {/* Header */}
         <div className="mb-8 md:mb-12 flex flex-col items-center text-center">
-          {/* Brighter label — white instead of white/70 */}
           <p className="text-white text-[12px] md:text-[14px] font-clash uppercase tracking-[0.2em] mb-2 md:mb-3">
             {t.problems.eyebrow}
           </p>

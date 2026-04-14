@@ -1,41 +1,41 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const STEP_NUMS = ["1", "2", "3", "4"] as const;
-
-// Taller columns to fit text comfortably, still maintaining the ascending bar-chart effect
-const COL_HEIGHTS = [
-  "clamp(320px, 45vh, 450px)",
-  "clamp(380px, 55vh, 520px)",
-  "clamp(440px, 65vh, 590px)",
-  "clamp(500px, 75vh, 660px)",
+// ─── Step data (3 pillars) ────────────────────────────────────────────────────
+const STEPS = [
+  {
+    num: "1",
+    title: "Discovery & Strategy",
+    description:
+      "We learn your business, your audience, and your standards. We ask the questions most agencies skip because the best creative work starts with clarity.",
+    tag: "Foundation",
+  },
+  {
+    num: "2",
+    title: "Build & Refine",
+    description:
+      "We bring the concepts to life including websites, video, social and print. All built to the same standard and reviewed with you at every stage.",
+    tag: "Execution",
+  },
+  {
+    num: "3",
+    title: "Rule & Scale",
+    description:
+      "Your brand goes live. We don't just hand over the keys. We set up the systems, track the results, and stay available for what comes next.",
+    tag: "Launch",
+  },
 ] as const;
 
-// ─── Particles — fixed data so SSR matches client render ──────────────────────
-const PARTICLES = [
-  { left:  "4%", sz: 4, dur: 4.8, del: 0.0, op: 0.40 },
-  { left: "10%", sz: 3, dur: 6.2, del: 1.0, op: 0.28 },
-  { left: "17%", sz: 5, dur: 5.5, del: 0.5, op: 0.32 },
-  { left: "23%", sz: 3, dur: 4.3, del: 2.2, op: 0.40 },
-  { left: "30%", sz: 6, dur: 7.1, del: 1.5, op: 0.22 },
-  { left: "37%", sz: 4, dur: 5.0, del: 0.8, op: 0.35 },
-  { left: "44%", sz: 3, dur: 6.8, del: 3.0, op: 0.28 },
-  { left: "51%", sz: 5, dur: 4.6, del: 0.3, op: 0.32 },
-  { left: "58%", sz: 4, dur: 5.9, del: 1.8, op: 0.30 },
-  { left: "64%", sz: 3, dur: 4.2, del: 2.5, op: 0.40 },
-  { left: "71%", sz: 5, dur: 6.5, del: 0.6, op: 0.22 },
-  { left: "78%", sz: 4, dur: 5.3, del: 1.3, op: 0.30 },
-  { left: "85%", sz: 3, dur: 4.9, del: 2.8, op: 0.38 },
-  { left: "91%", sz: 6, dur: 7.4, del: 0.2, op: 0.20 },
-  { left: "96%", sz: 4, dur: 5.7, del: 3.5, op: 0.28 },
-  { left: "14%", sz: 3, dur: 4.4, del: 1.1, op: 0.32 },
-  { left: "55%", sz: 5, dur: 6.0, del: 2.0, op: 0.25 },
-  { left: "74%", sz: 4, dur: 5.2, del: 0.9, op: 0.35 },
+// Ascending bar-chart heights for 3 pillars
+const COL_HEIGHTS = [
+  "clamp(300px, 40vh, 440px)",
+  "clamp(420px, 50vh, 560px)",
+  "clamp(520px, 60vh, 650px)",
 ] as const;
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -43,24 +43,20 @@ export default function Process() {
   const sectionRef  = useRef<HTMLElement>(null);
   const rowRef      = useRef<HTMLDivElement>(null);
   const pillarRefs  = useRef<(HTMLDivElement | null)[]>([]);
-  const [snapPoints, setSnapPoints] = useState<number[]>([0, 0, 0, 0]);
+  const [snapPoints, setSnapPoints] = useState<number[]>([0, 0, 0]);
   const { t } = useLanguage();
 
-  const STEPS = t.process.steps.map((step, i) => ({
-    num: STEP_NUMS[i],
-    title: step.title,
-    description: step.description,
-    tag: step.tag,
-  }));
+  // Discrete active step — drives progress lines and circle colors exactly on snap
+  const [activeStep, setActiveStep] = useState(0);
 
   // Measure how far the row needs to translate and calculate exact snap points
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
     const compute = () => {
-      if (!rowRef.current || pillarRefs.current.length < 4) return;
+      if (!rowRef.current || pillarRefs.current.length < 3) return;
       const iw = window.innerWidth;
-      
+
       const getCenter = (el: HTMLElement) => {
         let offset = 0;
         let current: HTMLElement | null = el;
@@ -73,26 +69,21 @@ export default function Process() {
 
       // Point 1: Aligned left (x = 0)
       const pos1 = 0;
-      
+
       // Point 2: Center pillar 2
       const p2 = pillarRefs.current[1];
       let pos2 = p2 ? (iw / 2) - getCenter(p2) : 0;
-      
-      // Point 3: Center pillar 3
-      const p3 = pillarRefs.current[2];
-      let pos3 = p3 ? (iw / 2) - getCenter(p3) : 0;
-      
-      // Point 4: Aligned right (max scroll)
+
+      // Point 3: Aligned right (max scroll)
       const overflow = rowRef.current.scrollWidth - iw;
-      const pos4 = overflow > 0 ? -overflow : 0;
+      const pos3 = overflow > 0 ? -overflow : 0;
 
-      // Clamp center positions so we don't overscroll past bounds
-      pos2 = Math.min(0, Math.max(pos2, pos4));
-      pos3 = Math.min(0, Math.max(pos3, pos4));
+      // Clamp so we don't overscroll past bounds
+      pos2 = Math.min(0, Math.max(pos2, pos3));
 
-      setSnapPoints([pos1, pos2, pos3, pos4]);
+      setSnapPoints([pos1, pos2, pos3]);
     };
-    
+
     compute();
     window.addEventListener("resize", compute);
 
@@ -103,17 +94,17 @@ export default function Process() {
         start: "top top",
         end: "bottom bottom",
         snap: {
-          snapTo: [0, 0.3333, 0.6666, 1],
-          duration: { min: 0.1, max: 0.4 }, // Much faster, snappier duration
-          delay: 0, // Zero delay so it starts snapping immediately when scrolling stops
-          ease: "power3.out" // Stronger, more satisfying deceleration
+          snapTo: [0, 0.5, 1],
+          duration: { min: 0.1, max: 0.4 },
+          delay: 0,
+          ease: "power3.out",
         }
       });
     });
 
     return () => {
       window.removeEventListener("resize", compute);
-      ctx.revert(); // Strict cleanup
+      ctx.revert();
     };
   }, []);
 
@@ -123,27 +114,20 @@ export default function Process() {
     offset: ["start start", "end end"],
   });
 
-  const line1 = useTransform(scrollYProgress, [0, 0.3333], [0, 1]);
-  const line2 = useTransform(scrollYProgress, [0.3333, 0.6666], [0, 1]);
-  const line3 = useTransform(scrollYProgress, [0.6666, 1], [0, 1]);
-  const lines = [line1, line2, line3];
+  // Discrete step — rounds to nearest snap point so lines always land exactly on circles
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    const step = Math.min(2, Math.round(latest * 2));
+    setActiveStep(step);
+  });
 
-  const c2Bg = useTransform(scrollYProgress, [0.3, 0.3333], ["rgba(229,25,42,0)", "rgba(229,25,42,1)"]);
-  const c3Bg = useTransform(scrollYProgress, [0.63, 0.6666], ["rgba(229,25,42,0)", "rgba(229,25,42,1)"]);
-  const c4Bg = useTransform(scrollYProgress, [0.96, 1], ["rgba(229,25,42,0)", "rgba(229,25,42,1)"]);
-  
-  const c2Text = useTransform(scrollYProgress, [0.3, 0.3333], ["#e5192a", "#ffffff"]);
-  const c3Text = useTransform(scrollYProgress, [0.63, 0.6666], ["#e5192a", "#ffffff"]);
-  const c4Text = useTransform(scrollYProgress, [0.96, 1], ["#e5192a", "#ffffff"]);
+  const x = useTransform(scrollYProgress, [0, 0.5, 1], snapPoints);
 
-  const x = useTransform(scrollYProgress, [0, 0.3333, 0.6666, 1], snapPoints);
-  
   return (
     <section
       ref={sectionRef}
       id="process"
       className="relative bg-[#eceff3]"
-      style={{ height: "420vh" }}
+      style={{ height: "320vh" }}
     >
       {/* ── Sticky viewport — stays at top while user scrolls through the section ── */}
       <div className="sticky top-0 h-screen overflow-hidden flex flex-col">
@@ -195,14 +179,15 @@ export default function Process() {
                   style={{ width: "clamp(240px, 32vw, 420px)" }}
                   className="flex-shrink-0 relative flex flex-col items-center"
                 >
-                  {/* Connecting red line */}
+                  {/* Connecting red line — fills completely when next step becomes active */}
                   {i < STEPS.length - 1 && (
                     <div
                       className="absolute top-[23px] left-[calc(50%+24px)] h-[2px] w-[calc(100%-48px+2rem)] md:w-[calc(100%-48px+3.5rem)] overflow-hidden"
                     >
-                      <motion.div 
-                        className="h-full bg-[#e5192a] origin-left" 
-                        style={{ scaleX: lines[i] }} 
+                      <motion.div
+                        className="h-full bg-[#e5192a] origin-left"
+                        animate={{ scaleX: activeStep >= i + 1 ? 1 : 0 }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
                       />
                     </div>
                   )}
@@ -210,10 +195,11 @@ export default function Process() {
                   {/* Number Circle */}
                   <motion.div
                     className="relative z-10 flex items-center justify-center w-[48px] h-[48px] rounded-full border-2 border-[#e5192a] font-black text-[16px] shadow-[0_4px_12px_rgba(229,25,42,0.30)]"
-                    style={{
-                      backgroundColor: i === 0 ? "#e5192a" : (i === 1 ? c2Bg : (i === 2 ? c3Bg : c4Bg)),
-                      color: i === 0 ? "#ffffff" : (i === 1 ? c2Text : (i === 2 ? c3Text : c4Text))
+                    animate={{
+                      backgroundColor: activeStep >= i ? "#e5192a" : "transparent",
+                      color: activeStep >= i ? "#ffffff" : "#e5192a",
                     }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
                   >
                     {step.num}
                   </motion.div>
@@ -255,14 +241,14 @@ export default function Process() {
                     </h3>
                     <p
                       style={{
-                      fontSize: "clamp(13px, 1.4vw, 15px)",
-                      lineHeight: "180%",
-                      color: "#555",
-                      margin: 0,
-                      maxWidth: "90%",
-                    }}
-                  >
-                    {step.description}
+                        fontSize: "clamp(15px, 1.4vw, 15px)",
+                        lineHeight: "140%",
+                        color: "#3c3c3cff",
+                        margin: 0,
+                        maxWidth: "90%",
+                      }}
+                    >
+                      {step.description}
                     </p>
                   </div>
 
@@ -286,9 +272,9 @@ export default function Process() {
                   </span>
                 </div>
               ))}
-              
+
               {/* Trailing spacer keeps last column away from the edge */}
-              <div style={{ flexShrink: 0, width: "clamp(24px, 6vw, 56px)" }} aria-hidden />
+              <div style={{ flexShrink: 0, width: "clamp(80px, 15vw, 200px)" }} aria-hidden />
             </div>
           </motion.div>
         </div>

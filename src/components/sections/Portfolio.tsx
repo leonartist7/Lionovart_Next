@@ -353,8 +353,8 @@ function OrbitPlatformsCard({
                 <img
                   src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
                   alt="Lionovart emblem"
-                  width={32}
-                  height={32}
+                  width={50}
+                  height={50}
                   style={{ objectFit: "contain" }}
                 />
               </div>
@@ -380,7 +380,7 @@ function OrbitPlatformsCard({
             </h3>
             <p
               className="mt-[2px] text-[12px] leading-snug"
-              style={{ color: "#666" }}
+              style={{ color: "#151515ff" }}
             >
               {project.description}
             </p>

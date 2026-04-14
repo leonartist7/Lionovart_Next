@@ -438,7 +438,7 @@ export default function HeroTop() {
   };
 
   return (
-    <section className="relative flex min-h-[72vh] flex-col items-center justify-center px-4 pt-36 pb-6 md:pt-44 md:px-6 overflow-hidden">
+    <section className="relative flex min-h-[72vh] flex-col items-center justify-center px-4 pt-40 pb-6 md:pt-60 md:px-6 overflow-hidden">
       {/* Video background */}
       <video
         className="absolute inset-0 w-full h-full object-cover z-0"
@@ -464,7 +464,7 @@ export default function HeroTop() {
           <HeroCycling
             staticText={t.hero.staticText}
             words={CYCLING_WORDS}
-            fontSize="clamp(1.4rem, 5.5vw, 5.5rem)"
+            fontSize="clamp(2rem, 6vw, 7rem)"
             cyclingFontSize="clamp(2.8rem, 11vw, 11rem)"
             forceAnimate
           />

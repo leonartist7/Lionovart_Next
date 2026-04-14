@@ -3,6 +3,10 @@ import localFont from "next/font/local";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { VisualEditorProvider } from "@/lib/visual-editor-context";
+import { VisualEditorOverlay } from "@/components/VisualEditorOverlay";
+import { VisualEditorHotkey } from "@/components/VisualEditorHotkey";
+import { VisualEditorShell } from "@/components/visual-editor/VisualEditorShell";
 
 const clashDisplay = localFont({
   src: [
@@ -50,7 +54,14 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <LanguageProvider>
-          <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          <VisualEditorProvider>
+            <VisualEditorHotkey />
+            <VisualEditorOverlay />
+            <div data-visual-editor="true">
+              <VisualEditorShell />
+            </div>
+            <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          </VisualEditorProvider>
         </LanguageProvider>
       </body>
     </html>

@@ -431,10 +431,10 @@ export default function LumaShowcase() {
      Render
      ══════════════════════════════════════════════════════════════════════ */
   return (
-    <section ref={sectionRef} className="relative h-[500vh] md:h-[600vh]">
+    <section ref={sectionRef} id="luma-showcase" className="relative h-[500vh] md:h-[600vh]">
       <motion.div
         ref={stickyRef}
-        className="sticky top-0 h-screen bg-[#0D0D0D]"
+        className="sticky top-0 h-screen bg-[#181818]"
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         initial={{ "--luma-accent": active.accent } as any}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -476,8 +476,8 @@ export default function LumaShowcase() {
           className="absolute inset-0 z-[25] pointer-events-none
                      mx-auto flex max-w-[1400px] flex-col items-center
                      justify-start px-4 opacity-0
-                     pt-[8vh]
-                     md:flex-row md:items-start md:justify-between md:px-6 md:pt-[18vh]"
+                     pt-[16vh]
+                     md:flex-row md:items-start md:justify-between md:px-6 md:pt-[20vh]"
           style={{ willChange: "transform, opacity, filter" }}
         >
           {/* Left image — desktop only */}

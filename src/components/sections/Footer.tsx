@@ -18,7 +18,7 @@ export default function Footer() {
   return (
     <footer ref={ref} className="bg-[#050505] pt-[100px] border-t border-border-dark relative z-0">
       <div className="mx-auto max-w-[1200px] px-4 md:px-6 w-full">
-        
+
         {/* Top Section: CTA CTA */}
         <div className="flex flex-col items-center text-center mb-24 gap-8">
           <motion.div
@@ -84,8 +84,8 @@ export default function Footer() {
           transition={{ duration: 800, ease: "linear", repeat: Infinity }}
         >
           {marqueeText.map((text, i) => (
-            <span 
-              key={i} 
+            <span
+              key={i}
               className="px-6 text-[3.5rem] sm:text-[6rem] md:text-[9rem] font-bold uppercase font-clash text-white select-none"
             >
               {text}&reg;
@@ -93,8 +93,8 @@ export default function Footer() {
           ))}
           {/* Duplicate set for seamless scrolling */}
           {marqueeText.map((text, i) => (
-            <span 
-              key={`dup-${i}`} 
+            <span
+              key={`dup-${i}`}
               className="px-6 text-[3.5rem] sm:text-[6rem] md:text-[9rem] font-bold uppercase font-clash text-white select-none"
             >
               {text}&reg;

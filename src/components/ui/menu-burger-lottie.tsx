@@ -6,7 +6,7 @@ import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /** Public asset — filename uses a space; encode for the URL. Rename to `menu-burger.lottie` and use `/images/menu-burger.lottie` if you prefer no spaces. */
-const MENU_BURGER_LOTTIE_SRC = "/images/menu%20burger.lottie";
+const MENU_BURGER_LOTTIE_SRC = "/images/menu-burger.lottie";
 
 type MenuBurgerLottieProps = {
   isOpen: boolean;
@@ -93,7 +93,7 @@ export function MenuBurgerLottie({
       aria-expanded={isOpen}
       aria-label={ariaLabel}
       className={cn(
-        "relative z-[60] flex min-h-11 min-w-11 touch-manipulation items-center justify-center rounded-lg lg:hidden",
+        "relative z-[60] flex min-h-11 min-w-11 touch-manipulation items-center justify-center rounded-lg",
         "transition-transform duration-150 active:scale-90",
         "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80",
         className

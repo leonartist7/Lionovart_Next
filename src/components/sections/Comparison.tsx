@@ -17,6 +17,7 @@ export default function Comparison() {
 
   const COMPARISON_DATA = t.comparison.competitors.map((c, i) => ({
     title: c.title,
+    description: (c as { title: string; description?: string }).description ?? "",
     ...COMPARISON_BOOLEANS[i],
   }));
 
@@ -43,11 +44,11 @@ export default function Comparison() {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
           <div className="w-full overflow-x-auto">
-            <div className="w-full min-w-[500px] lg:min-w-[1000px] grid grid-cols-[1.2fr_repeat(7,1fr)] lg:grid-cols-[1.8fr_repeat(7,1fr)] bg-white divide-y divide-black/5">
-              
+            <div className="w-full min-w-[500px] lg:min-w-[1000px] grid grid-cols-[1.6fr_repeat(7,0.65fr)] lg:grid-cols-[2.4fr_repeat(7,0.65fr)] bg-white divide-y divide-black/5">
+
               {/* Header Row */}
               <div className="col-span-8 grid grid-cols-subgrid bg-[#111111] text-white rounded-t-[24px]">
-                <div className="p-1.5 lg:p-3 flex items-center justify-center">
+                <div className="p-1 lg:p-2 flex items-center justify-center">
                   <img
                     src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
                     alt="Lionovart logo"
@@ -55,7 +56,7 @@ export default function Comparison() {
                   />
                 </div>
                 {t.comparison.columns.map((label) => (
-                  <div key={label} className="p-1.5 lg:p-2.5 flex items-center justify-center text-[9px] sm:text-[10px] lg:text-[14px] font-medium tracking-wide text-center">
+                  <div key={label} className="p-1.5 lg:p-2.5 flex items-center justify-center text-[11px] sm:text-[12px] lg:text-[15px] font-semibold tracking-wide text-center">
                     {label}
                   </div>
                 ))}
@@ -63,13 +64,13 @@ export default function Comparison() {
 
               {/* LIONOVART Highlight Row */}
               <div className="col-span-8 grid grid-cols-subgrid bg-brand-red text-white">
-                <div className="p-1.5 lg:p-2.5 flex flex-col justify-center border-r border-white/20">
+                <div className="p-1 lg:p-2 flex flex-col justify-center border-r border-white/20">
                   <span className="text-[13px] sm:text-[16px] lg:text-[28px] font-black uppercase tracking-tighter text-white">
                     LIONOVART
                   </span>
                 </div>
                 {[1, 2, 3, 4, 5, 6, 7].map((idx) => (
-                  <div key={idx} className="p-1 sm:p-1.5 lg:p-2 flex items-center justify-center border-r border-white/20 last:border-r-0">
+                  <div key={idx} className="p-0.5 sm:p-1 lg:p-1.5 flex items-center justify-center border-r border-white/20 last:border-r-0">
                     <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 lg:w-7 lg:h-7" strokeWidth={1.5} />
                   </div>
                 ))}
@@ -89,14 +90,19 @@ export default function Comparison() {
 
                 return (
                   <div key={idx} className="col-span-8 grid grid-cols-subgrid bg-[#FAFAFA] hover:bg-white transition-colors duration-300">
-                    <div className="p-1.5 lg:p-3 flex flex-col justify-center border-r border-black/5">
-                      <h3 className="text-[12px] sm:text-[14px] lg:text-[22px] font-bold text-[#111111]">
+                    <div className="p-1 lg:p-2 flex flex-col justify-center border-r border-black/5">
+                      <h3 className="text-[12px] sm:text-[14px] lg:text-[18px] font-bold text-[#111111]">
                         {row.title}
                       </h3>
+                      {row.description && (
+                        <p className="hidden lg:block text-[12px] text-[#666] leading-[1.4] mt-0.5 max-w-[95%]">
+                          {row.description}
+                        </p>
+                      )}
                     </div>
 
                     {fields.map((isTrue, i) => (
-                      <div key={i} className="p-1 sm:p-1.5 lg:p-2 flex items-center justify-center border-r border-black/5 last:border-r-0">
+                      <div key={i} className="p-0.5 sm:p-1 lg:p-1.5 flex items-center justify-center border-r border-black/5 last:border-r-0">
                         {isTrue ? (
                           <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-[#111]" strokeWidth={1.5} />
                         ) : (

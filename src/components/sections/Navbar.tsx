@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   motion,
   useScroll,
@@ -18,6 +18,7 @@ export default function Navbar() {
   const [isPastHero, setIsPastHero] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [heroThreshold, setHeroThreshold] = useState(600);
+  const [isVisible, setIsVisible] = useState(true);
   const { scrollY } = useScroll();
   const { t } = useLanguage();
 
@@ -27,6 +28,17 @@ export default function Navbar() {
     { label: t.nav.results, href: "#proof" },
   ];
 
+  // Refs to avoid stale closures in scroll handler
+  const isInLumaRef   = useRef(false);
+  const isVisibleRef  = useRef(true);
+  const hideAtRef     = useRef(0);      // tracks lowest scrollY when hidden
+  const lastScrollRef = useRef(0);
+
+  const setNavVisible = (val: boolean) => {
+    isVisibleRef.current = val;
+    setIsVisible(val);
+  };
+
   useEffect(() => {
     const calc = () => setHeroThreshold(window.innerHeight * 0.5);
     calc();
@@ -34,16 +46,51 @@ export default function Navbar() {
     return () => window.removeEventListener("resize", calc);
   }, []);
 
+  // ── Hide navbar when the Luma / ONE VISION section is in view ────────────────
+  useEffect(() => {
+    const el = document.getElementById("luma-showcase");
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isInLumaRef.current = entry.isIntersecting;
+        // Always restore navbar when leaving the section
+        if (!entry.isIntersecting) setNavVisible(true);
+      },
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   useMotionValueEvent(scrollY, "change", (latest) => {
+    const prev = lastScrollRef.current;
+    const delta = latest - prev;
+    lastScrollRef.current = latest;
+
     setIsPastHero(latest > heroThreshold);
+
+    if (!isInLumaRef.current) return;
+
+    if (delta > 0) {
+      // Scrolling down → hide; keep tracking the lowest position
+      if (isVisibleRef.current) setNavVisible(false);
+      hideAtRef.current = latest;
+    } else if (delta < 0) {
+      // Scrolling up → restore once user moves ≥15 px upward
+      if (!isVisibleRef.current && hideAtRef.current - latest >= 15) {
+        setNavVisible(true);
+      }
+    }
   });
 
   const heroMode = !isPastHero;
 
   return (
-    // Fixed centering shell — caps bar width on large screens
-    <div className="fixed top-[3px] left-0 right-0 z-50 flex justify-center px-3">
-      {/* overflow-visible so dropdown can escape below the bar */}
+    <motion.div
+      className="fixed top-[3px] left-0 right-0 z-50 flex justify-center px-3"
+      animate={{ y: isVisible ? 0 : "-120%" }}
+      transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+    >
       <div className="relative w-full max-w-[1400px]">
 
         {/* ── Nav bar pill ── */}
@@ -65,7 +112,7 @@ export default function Navbar() {
             }
             transition={{
               clipPath: { duration: 0.75, ease: [0.4, 0, 0.2, 1] },
-              opacity: { duration: 0.5, ease: "easeOut", delay: 0.15 },
+              opacity:  { duration: 0.5,  ease: "easeOut", delay: 0.15 },
             }}
             style={{ pointerEvents: "none" }}
           />
@@ -94,7 +141,7 @@ export default function Navbar() {
                   aria-hidden="true"
                   animate={{
                     opacity: heroMode ? 1 : 0,
-                    width: heroMode ? 56 : 0,
+                    width:   heroMode ? 56 : 0,
                     marginRight: heroMode ? 0 : -8,
                   }}
                   transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
@@ -107,25 +154,37 @@ export default function Navbar() {
               </Link>
             </div>
 
-            {/* Desktop nav links — lg+ */}
-            <div className="hidden lg:flex flex-auto items-center justify-center">
-              <ul className="flex items-center justify-center gap-[3.5rem]">
-                {NAV_LINKS.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="group relative text-[13px] font-semibold uppercase tracking-[0.15em] text-white/90 transition-colors hover:text-white"
-                    >
-                      {link.label}
-                      <span className="absolute -bottom-1.5 left-0 h-[2px] w-full origin-left scale-x-0 bg-white transition-transform duration-300 group-hover:scale-x-100" />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {/*
+              Desktop nav links — hero mode only.
+              AnimatePresence fades them out during the red→glass transition.
+            */}
+            <AnimatePresence>
+              {heroMode && (
+                <motion.div
+                  key="desktop-links"
+                  className="hidden lg:flex flex-auto items-center justify-center"
+                  initial={{ opacity: 1 }}
+                  exit={{ opacity: 0, transition: { duration: 0.25 } }}
+                >
+                  <ul className="flex items-center justify-center gap-[3.5rem]">
+                    {NAV_LINKS.map((link) => (
+                      <li key={link.href}>
+                        <Link
+                          href={link.href}
+                          className="group relative text-[13px] font-semibold uppercase tracking-[0.15em] text-white/90 transition-colors hover:text-white"
+                        >
+                          {link.label}
+                          <span className="absolute -bottom-1.5 left-0 h-[2px] w-full origin-left scale-x-0 bg-white transition-transform duration-300 group-hover:scale-x-100" />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* CTA + language switcher + burger */}
-            <div className="flex flex-1 items-center justify-end gap-2 sm:gap-3 lg:gap-4">
+            {/* CTA + language switcher + burger(s) */}
+            <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4 lg:gap-5">
               <div className="shrink-0 origin-right scale-[0.85] sm:scale-100 transition-transform">
                 <LiquidMetalButton
                   label={t.nav.cta}
@@ -138,11 +197,28 @@ export default function Navbar() {
 
               <LanguageSwitcher isHeroMode={heroMode} />
 
+              {/* Mobile burger — always visible on small screens */}
               <MenuBurgerLottie
                 isOpen={isMobileOpen}
                 onToggle={() => setIsMobileOpen((v) => !v)}
-                className="lg:hidden transition-opacity duration-300"
+                className="lg:hidden"
               />
+
+              {/*
+                Desktop burger — hidden on mobile (span is hidden lg:flex).
+                Fades in smoothly when transitioning from hero → glass mode.
+              */}
+              <motion.span
+                className="hidden lg:flex"
+                animate={{ opacity: heroMode ? 0 : 1 }}
+                transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                style={{ pointerEvents: heroMode ? "none" : "auto" }}
+              >
+                <MenuBurgerLottie
+                  isOpen={isMobileOpen}
+                  onToggle={() => setIsMobileOpen((v) => !v)}
+                />
+              </motion.span>
             </div>
           </div>
         </motion.header>
@@ -151,6 +227,9 @@ export default function Navbar() {
           ── Mobile dropdown ──────────────────────────────────────────────────
           Lives OUTSIDE motion.header so overflow-hidden doesn't clip it.
           Shares the same max-w wrapper so width is inherited.
+          Mobile:  left-[15%] right-[15%]  — 70% width, centered.
+          Desktop: centered pill, fixed 260 px wide.
+          Links:   horizontal, underline-only on hover, pushed below the bar.
         */}
         <AnimatePresence>
           {isMobileOpen && (
@@ -159,7 +238,7 @@ export default function Navbar() {
               animate={{ y: 0 }}
               exit={{ y: "-100%" }}
               transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-              className="absolute top-0 left-[15%] right-[15%] -z-10 rounded-xl overflow-hidden lg:hidden"
+              className="absolute top-0 left-[15%] right-[15%] lg:left-1/2 lg:right-auto lg:w-[260px] lg:-translate-x-1/2 -z-10 rounded-xl overflow-hidden"
               style={{
                 background: "rgba(255, 255, 255, 0.75)",
                 backdropFilter: "blur(28px) saturate(1.8)",
@@ -168,8 +247,8 @@ export default function Navbar() {
                 border: "1px solid rgba(255,255,255,0.6)",
               }}
             >
-              {/* pt-[62px] clears the bar; links are horizontal */}
-              <nav className="flex flex-col items-center justify-center gap-1 px-4 pt-[62px] pb-4">
+              {/* pt-[82px] clears the bar; links are horizontal */}
+              <nav className="flex flex-row items-center justify-center px-4 pt-[82px] pb-5 gap-4">
                 {NAV_LINKS.map((link, i) => (
                   <motion.div
                     key={link.href}
@@ -182,9 +261,10 @@ export default function Navbar() {
                     <Link
                       href={link.href}
                       onClick={() => setIsMobileOpen(false)}
-                      className="flex items-center justify-center px-5 py-2.5 text-[14px] font-semibold uppercase tracking-[0.12em] text-black/75 hover:text-black hover:bg-black/[0.06] rounded-lg transition-colors whitespace-nowrap"
+                      className="group relative flex items-center py-1.5 text-[13px] font-semibold uppercase tracking-[0.12em] text-black/70 hover:text-black transition-colors whitespace-nowrap"
                     >
                       {link.label}
+                      <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-black/80 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
                     </Link>
                   </motion.div>
                 ))}
@@ -205,6 +285,6 @@ export default function Navbar() {
         </AnimatePresence>
 
       </div>
-    </div>
+    </motion.div>
   );
 }

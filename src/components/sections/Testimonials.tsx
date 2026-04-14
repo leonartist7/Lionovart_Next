@@ -15,9 +15,9 @@ const TESTIMONIALS_STATIC = [
   },
   {
     quote:
-      "I'd been embarrassed to hand out my business card for two years. I couldn't even post on Instagram without cringing. They rebuilt the whole identity from the ground up and now I actually feel proud when someone asks what I do. That's worth more than the money, honestly.",
+      "I was not as confident to hand out my business card and didn't know what to post in instagram for two years. Thank you Leon for rebuilding my whole brand identity, got my confidence back and now I know what to do when someone asks what I do. That's worth more than the money, gracias!",
     author: "Sofia Álvarez",
-    role: "Founder, Lumen Skin Studio · Madrid",
+    role: "Founder, Luminous Skin Studio · UK",
   },
   {
     quote:
