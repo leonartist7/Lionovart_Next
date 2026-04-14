@@ -392,6 +392,6 @@ export const en = {
       },
     ],
   },
-} as const;
+};
 
 export type Translations = typeof en;
