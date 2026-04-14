@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 const clashDisplay = localFont({
   src: [
@@ -35,7 +36,9 @@ export default function RootLayout({
         <link rel="preload" as="image" href="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif" />
       </head>
       <body className="min-h-full flex flex-col">
-        <SmoothScrollProvider>{children}</SmoothScrollProvider>
+        <LanguageProvider>
+          <SmoothScrollProvider>{children}</SmoothScrollProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

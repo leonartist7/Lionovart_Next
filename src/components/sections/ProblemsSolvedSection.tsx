@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, useAnimation } from "framer-motion";
 import Image from "next/image";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // ─── Animation timing constants ───────────────────────────────────────────────
 const PAW_IN_DURATION = 0.38;
@@ -11,53 +12,8 @@ const PULL_DURATION   = 0.72;
 const EASE_IN  = [0.4, 0, 0.6, 1]  as const;
 const EASE_OUT = [0.16, 1, 0.3, 1] as const;
 
-const items = [
-  {
-    useGoldenSolution: false,
-    problem: {
-      heading: "You Look Like Everyone Else",
-      body: "You blend in — and clients pick whoever they remember first.",
-    },
-    solution: {
-      heading: "A Brand That Stands Out Before You Say A Word",
-      body: "Clients recognize you, remember you, and choose you before you've even pitched.",
-    },
-  },
-  {
-    useGoldenSolution: false,
-    problem: {
-      heading: "Your Phone Isn't Ringing Enough",
-      body: "You're great at what you do — your clients love you. But new ones?",
-    },
-    solution: {
-      heading: "Show Up First Where It Matters",
-      body: "We get you found. The next person searching for what you do ends up at your door — not your competitor's.",
-    },
-  },
-  {
-    // Cards 3 & 4 — solution uses the golden card image as background
-    useGoldenSolution: true,
-    problem: {
-      heading: "Marketing Strategy Isn't Enough",
-      body: "You've spent real money trying to grow — Facebook ads, SEO agencies, generic content — yet don't know what actually worked.",
-    },
-    solution: {
-      heading: "Strategies That Pay For Itself",
-      body: "One team. Clear reports. Honest numbers. We track every dollar, cut what doesn't work, and double down on what does.",
-    },
-  },
-  {
-    useGoldenSolution: true,
-    problem: {
-      heading: "You're Running The Business And The Marketing And The Website And The Instagram",
-      body: "It's 10pm. You're still editing a reel on your phone. You didn't start this business to become a full-time content creator — wait, did you?",
-    },
-    solution: {
-      heading: "Your Full-Service Brand Creative Partner",
-      body: "Enabling you to reclaim your time back. You focus on doing what you do best. We make it look, sound, and grow better than ever.",
-    },
-  },
-];
+// Which cards use the golden solution background (cards 3 & 4 → index 2 & 3)
+const USE_GOLDEN = [false, false, true, true] as const;
 
 // ─── Single Card ──────────────────────────────────────────────────────────────
 function ProblemCard({
@@ -213,6 +169,13 @@ function ProblemCard({
 // ─── Section ──────────────────────────────────────────────────────────────────
 export default function ProblemsSolvedSection() {
   const [revealedIds, setRevealedIds] = useState<number[]>([]);
+  const { t } = useLanguage();
+
+  const items = t.problems.items.map((item, i) => ({
+    useGoldenSolution: USE_GOLDEN[i],
+    problem: item.problem,
+    solution: item.solution,
+  }));
 
   const toggleCard = (idx: number) => {
     setRevealedIds(prev =>
@@ -228,10 +191,10 @@ export default function ProblemsSolvedSection() {
         <div className="mb-8 md:mb-12 flex flex-col items-center text-center">
           {/* Brighter label — white instead of white/70 */}
           <p className="text-white text-[12px] md:text-[14px] font-clash uppercase tracking-[0.2em] mb-2 md:mb-3">
-            You Built Something Real
+            {t.problems.eyebrow}
           </p>
           <h2 className="text-[40px] sm:text-[56px] md:text-[76px] font-bold font-clash uppercase leading-[1.05] text-white max-w-4xl">
-            Sound Familiar?
+            {t.problems.heading}
           </h2>
         </div>
 

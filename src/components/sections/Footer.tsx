@@ -3,10 +3,12 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { getWhatsAppUrl } from "@/lib/contact";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Footer() {
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const { t } = useLanguage();
 
   const currentYear = new Date().getFullYear();
 
@@ -26,10 +28,10 @@ export default function Footer() {
             className="flex flex-col items-center"
           >
             <h2 className="text-[3rem] sm:text-[4rem] md:text-[6rem] font-bold uppercase leading-[0.9] tracking-tight text-white max-w-3xl mb-6">
-              Ready to <span className="text-brand-red">Dominate?</span>
+              {t.footer.heading} <span className="text-brand-red">{t.footer.headingAccent}</span>
             </h2>
             <p className="text-[18px] text-text-muted max-w-lg">
-              Stop blending in with the competition. Claim your spot as the undisputed industry leader.
+              {t.footer.subtitle}
             </p>
           </motion.div>
 
@@ -44,7 +46,7 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="inline-flex h-16 items-center justify-center rounded-full bg-brand-red px-10 text-[16px] font-bold uppercase tracking-widest text-white transition-all hover:scale-105 hover:bg-brand-red-secondary focus:ring-4 focus:ring-brand-red/30"
             >
-              Book Your Sprint
+              {t.footer.cta}
             </a>
           </motion.div>
         </div>
@@ -57,7 +59,7 @@ export default function Footer() {
               LIONOVART
             </h3>
             <p className="text-text-muted text-[14px] max-w-sm">
-              Premium brand identities and websites engineered for high-performing founders.
+              {t.footer.tagline}
             </p>
           </div>
         </div>
@@ -65,11 +67,11 @@ export default function Footer() {
         {/* Bottom Section: Copyright */}
         <div className="flex flex-col justify-center items-center pt-8 pb-12 gap-4">
           <div className="flex gap-6">
-            <a href="#" className="text-text-muted hover:text-white text-[13px] uppercase tracking-wider transition-colors">Privacy</a>
-            <a href="#" className="text-text-muted hover:text-white text-[13px] uppercase tracking-wider transition-colors">Terms</a>
+            <a href="#" className="text-text-muted hover:text-white text-[13px] uppercase tracking-wider transition-colors">{t.footer.privacy}</a>
+            <a href="#" className="text-text-muted hover:text-white text-[13px] uppercase tracking-wider transition-colors">{t.footer.terms}</a>
           </div>
           <p className="text-text-muted text-[13px] uppercase tracking-wider text-center">
-            &copy; {currentYear} LIONOVART. All rights reserved.
+            &copy; {currentYear} LIONOVART. {t.footer.copyright}
           </p>
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   motion,
   useMotionValue,
@@ -11,15 +12,15 @@ import {
 } from "framer-motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type Project = {
+type ProjectStatic = {
   id: number;
-  title: string;
-  description: string;
   metric: string;
   image: string;
   gridClasses: string;
   cardType?: "orbit" | "bento";
 };
+
+type Project = ProjectStatic & { title: string; description: string };
 
 // --- Data Structure ---
 // Mobile/Tablet layout (2-col grid, 3 rows):
@@ -35,19 +36,16 @@ type Project = {
 //
 // DOM order: 1, 2, 4, 3 — so Card 3 naturally falls to the bottom on mobile
 //
-const PROJECTS: Project[] = [
+// Static (non-translatable) project data — same order as t.portfolio.projects
+const PROJECTS_STATIC: ProjectStatic[] = [
   {
     id: 1,
-    title: "Alture Brand Identity",
-    description: "Full rebrand — logo system, typography, color palette",
     metric: "3x",
     image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&q=80",
     gridClasses: "col-span-1 row-span-2 md:col-span-3 md:row-span-2 lg:col-span-4 lg:row-span-2",
   },
   {
     id: 2,
-    title: "Top Platform Expertise",
-    description: "Always the best tools available",
     metric: "",
     image: "",
     cardType: "orbit",
@@ -55,16 +53,12 @@ const PROJECTS: Project[] = [
   },
   {
     id: 4,
-    title: "Arpeggio Music App",
-    description: "UI/UX design & interactive prototype",
     metric: "4.9",
     image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800&q=80",
     gridClasses: "col-span-1 row-span-1 md:col-span-3 md:row-span-1 lg:col-span-4 lg:row-span-1",
   },
   {
     id: 3,
-    title: "Fluora Campaign",
-    description: "Social media & video production campaign",
     metric: "10k+",
     image: "https://images.unsplash.com/photo-1558655146-d09347e92766?w=800&q=80",
     gridClasses: "col-span-2 row-span-1 md:col-span-6 md:row-span-1 lg:col-span-8 lg:row-span-1",
@@ -249,9 +243,11 @@ function OrbitRing({
 function OrbitPlatformsCard({
   project,
   index,
+  toolsLabel,
 }: {
   project: Project;
   index: number;
+  toolsLabel: string;
 }) {
   const innerIcons = PLATFORM_ICONS.slice(0, 4) as readonly PlatformIcon[];
   const outerIcons = PLATFORM_ICONS.slice(4) as readonly PlatformIcon[];
@@ -377,16 +373,16 @@ function OrbitPlatformsCard({
               className="mb-[2px] text-[9px] font-bold uppercase tracking-[0.2em]"
               style={{ color: "#e5192a" }}
             >
-              OUR TOOLS
+              {toolsLabel}
             </p>
             <h3 className="text-[1rem] font-bold leading-tight text-[#111]">
-              Top Platform Expertise
+              {project.title}
             </h3>
             <p
               className="mt-[2px] text-[12px] leading-snug"
               style={{ color: "#666" }}
             >
-              Always the best tools available
+              {project.description}
             </p>
           </div>
         </div>
@@ -512,7 +508,15 @@ function BentoCard({
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function Portfolio() {
+  const { t } = useLanguage();
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
+
+  // Merge static data (images/metrics/gridClasses) with translated text
+  const PROJECTS: Project[] = PROJECTS_STATIC.map((s, i) => ({
+    ...s,
+    title: t.portfolio.projects[i]?.title ?? "",
+    description: t.portfolio.projects[i]?.description ?? "",
+  }));
 
   const activeProject = activeIdx !== null ? PROJECTS[activeIdx] : null;
 
@@ -557,7 +561,7 @@ export default function Portfolio() {
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
           >
-            Selected Work
+            {t.portfolio.eyebrow}
           </motion.p>
           <motion.h2
             className="text-[2.2rem] font-bold uppercase leading-none tracking-tight text-[#111111] sm:text-[3rem] md:text-[4.5rem]"
@@ -566,7 +570,7 @@ export default function Portfolio() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            Built for <span className="text-brand-red">Impact</span>
+            {t.portfolio.heading} <span className="text-brand-red">{t.portfolio.headingAccent}</span>
           </motion.h2>
         </div>
 
@@ -583,6 +587,7 @@ export default function Portfolio() {
                 key={project.id}
                 project={project}
                 index={idx}
+                toolsLabel={t.portfolio.toolsLabel}
               />
             ) : (
               <BentoCard

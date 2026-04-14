@@ -6,6 +6,7 @@ import Image from "next/image";
 import { getWhatsAppUrl } from "@/lib/contact";
 import HeroCycling, { Word } from "@/components/sections/HeroCycling";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /* ─── Variants ─────────────────────────────────────────────────── */
 const containerVariants = {
@@ -141,7 +142,7 @@ function useCountUp(target: number, duration: number = 1800, active: boolean = t
 }
 
 /* ─── Animated Stats Overlay ────────────────────────────────────── */
-function AnimatedStats() {
+function AnimatedStats({ labels }: { labels: { clients: string; industries: string; yearsExp: string } }) {
   const ref = useRef<HTMLDivElement>(null);
   // margin "0px" — triggers as soon as any pixel of the element enters the viewport.
   // Previously "-40px" was causing it to miss on some viewport heights.
@@ -154,9 +155,9 @@ function AnimatedStats() {
   return (
     <div ref={ref} className="flex items-center justify-center gap-6 md:gap-10">
       {[
-        { value: clients, suffix: "+", label: "Clients" },
-        { value: industries, suffix: "+", label: "Industries" },
-        { value: years, suffix: "+", label: "Years Exp." },
+        { value: clients, suffix: "+", label: labels.clients },
+        { value: industries, suffix: "+", label: labels.industries },
+        { value: years, suffix: "+", label: labels.yearsExp },
       ].map((stat, i) => (
         <motion.div
           key={stat.label}
@@ -177,15 +178,7 @@ function AnimatedStats() {
   );
 }
 
-/* ─── Cycling words ─────────────────────────────────────────────── */
-const CYCLING_WORDS: Word[] = [
-  { type: "text", content: "ROAR",       holdMs: 4000 },
-  { type: "text", content: "STAND OUT",  holdMs: 4000 },
-  { type: "text", content: "MEMORABLE",  holdMs: 4000 },
-  { type: "text", content: "MAGNETIC",   holdMs: 4000 },
-  { type: "text", content: "SELL MORE",  holdMs: 4000 },
-  { type: "text", content: "DOMINATE",   holdMs: 4000 },
-];
+/* ─── Cycling words are built inside the component from translations ─── */
 
 
 /* ─── Trust Badge Components ────────────────────────────────────── */
@@ -267,7 +260,7 @@ function TrustBadge({
  * This eliminates the SSR skeleton race condition: the ref attaches
  * immediately, so useInView fires correctly the first time.
  */
-function TrustBadgesInner() {
+function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; experience: readonly string[]; countries: string } }) {
   const ref = useRef<HTMLDivElement>(null);
   // margin "0px" — fires as soon as the element enters the viewport.
   // "once: true" so the count-up runs exactly once and never resets.
@@ -290,7 +283,7 @@ function TrustBadgesInner() {
         animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
         transition={{ duration: 0.55, delay: 0.0, ease: [0.16, 1, 0.3, 1] }}
       >
-        <TrustBadge title={<>Brands<br />elevated</>} contentWidth={sideWidth}>
+        <TrustBadge title={<>{badges.brands[0]}<br />{badges.brands[1]}</>} contentWidth={sideWidth}>
           <div
             className="flex items-center text-[#e5192a] font-black leading-none tracking-tighter"
             style={{ fontSize: sideWidth * 0.7 }}
@@ -307,7 +300,7 @@ function TrustBadgesInner() {
         animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
         transition={{ duration: 0.55, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
       >
-        <TrustBadge title={<>Customer<br />Experience</>} contentWidth={midWidth}>
+        <TrustBadge title={<>{badges.experience[0]}<br />{badges.experience[1]}</>} contentWidth={midWidth}>
           <div className="flex flex-col items-center gap-2 sm:gap-3 w-full">
             {/* Stars — each animates in with scale + opacity, staggered */}
             <div className="flex items-center justify-between w-[95%]">
@@ -376,7 +369,7 @@ function TrustBadgesInner() {
               className="text-[#e5192a] font-bold leading-[1.2]"
               style={{ fontSize: sideWidth * 0.2 }}
             >
-              Countries
+              {badges.countries}
             </span>
             {/* Flags — fan in staggered */}
             <div className="flex items-center justify-center mt-2 sm:mt-3 gap-1">
@@ -411,7 +404,7 @@ function TrustBadgesInner() {
  * layout shift. After hydration, swaps to the real animated component
  * so the ref attaches cleanly and useInView fires correctly.
  */
-function DynamicTrustBadges() {
+function DynamicTrustBadges({ badges }: { badges: { brands: readonly string[]; experience: readonly string[]; countries: string } }) {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => { setIsMounted(true); }, []);
 
@@ -421,7 +414,7 @@ function DynamicTrustBadges() {
     );
   }
 
-  return <TrustBadgesInner />;
+  return <TrustBadgesInner badges={badges} />;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -429,6 +422,13 @@ function DynamicTrustBadges() {
 /* -------------------------------------------------------------------------- */
 export default function HeroTop() {
   const [submitted, setSubmitted] = useState(false);
+  const { t } = useLanguage();
+
+  const CYCLING_WORDS: Word[] = t.hero.cyclingWords.map((content) => ({
+    type: "text" as const,
+    content,
+    holdMs: 4000,
+  }));
 
   const handleConnectNow = () => {
     const url = getWhatsAppUrl();
@@ -462,7 +462,7 @@ export default function HeroTop() {
         {/* Main Heading — cycling */}
         <motion.div variants={itemVariants} className="w-full text-center">
           <HeroCycling
-            staticText="MAKE YOUR BRAND"
+            staticText={t.hero.staticText}
             words={CYCLING_WORDS}
             fontSize="clamp(1.4rem, 5.5vw, 5.5rem)"
             cyclingFontSize="clamp(2.8rem, 11vw, 11rem)"
@@ -475,8 +475,7 @@ export default function HeroTop() {
           variants={itemVariants}
           className="max-w-[520px] text-[15px] leading-[170%] text-text-muted md:text-[18px]"
         >
-          We design brands, build websites, and produce content that makes
-          your business impossible to ignore.
+          {t.hero.subtitle}
         </motion.p>
 
         {/* CTAs — always one row, wraps on very small screens */}
@@ -485,12 +484,12 @@ export default function HeroTop() {
           className="flex flex-row flex-wrap items-center justify-center gap-4"
         >
           <LiquidMetalButton
-            label={submitted ? "Opening WhatsApp…" : "Start Now"}
+            label={submitted ? t.hero.ctaStartOpening : t.hero.ctaStart}
             onClick={handleConnectNow}
             width={168}
           />
           <LiquidMetalButton
-            label="See Our Work"
+            label={t.hero.ctaWork}
             variant="white"
             width={168}
             onClick={() => document.getElementById("work")?.scrollIntoView({ behavior: "smooth" })}
@@ -518,14 +517,14 @@ export default function HeroTop() {
         className="relative z-20 flex w-full max-w-[1200px] flex-col items-center gap-2 text-center -mt-4"
       >
         {/* Dynamic Trust Badges */}
-        <DynamicTrustBadges />
+        <DynamicTrustBadges badges={t.hero.badges} />
 
         {/* Trust Text */}
         <motion.p
           variants={itemVariants}
           className="mt-1 text-[13px] font-medium tracking-wide text-text-muted md:text-[14px]"
         >
-          Trusted by 50+ startups and global brands, across 20+ industries.
+          {t.hero.trustText}
         </motion.p>
       </motion.div>
 

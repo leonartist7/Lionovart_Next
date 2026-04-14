@@ -1,21 +1,125 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  useSpring,
+  useInView,
+  type MotionValue,
+} from "framer-motion";
 import Image from "next/image";
+import { useLenis } from "@studio-freight/react-lenis";
+import { useLanguage } from "@/contexts/LanguageContext";
 
+/* ─── Lenis-compatible section scroll progress ──────────────
+   Framer Motion's useScroll breaks with Lenis (autoRaf:false).
+   We drive a MotionValue manually from the Lenis scroll callback.
+   ─────────────────────────────────────────────────────────── */
+function useLenisProgress(ref: React.RefObject<HTMLElement | null>): MotionValue<number> {
+  const progress = useMotionValue(0);
+
+  useLenis(({ scroll: _scroll }) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const elH = ref.current.offsetHeight;
+    // 0 = section top at viewport bottom, 1 = section bottom at viewport top
+    const total = vh + elH;
+    const current = vh - rect.top;
+    progress.set(Math.max(0, Math.min(1, current / total)));
+  });
+
+  return progress;
+}
+
+/* ─── Single animated word ───────────────────────────────── */
+function Word({
+  children,
+  progress,
+  start,
+  end,
+  dim,
+}: {
+  children: string;
+  progress: MotionValue<number>;
+  start: number;
+  end: number;
+  dim?: boolean;
+}) {
+  const opacity = useSpring(useTransform(progress, [start, end], [0, 1]), {
+    stiffness: 100,
+    damping: 22,
+    mass: 0.5,
+  });
+  const y = useSpring(useTransform(progress, [start, end], [24, 0]), {
+    stiffness: 100,
+    damping: 22,
+    mass: 0.5,
+  });
+
+  return (
+    <motion.span style={{ opacity, y, display: "inline-block" }} className={dim ? "text-white/25" : ""}>
+      {children}
+    </motion.span>
+  );
+}
+
+/* ─── Word-reveal paragraph ──────────────────────────────── */
+function WordReveal({
+  text,
+  progress,
+  blockStart,
+  blockEnd,
+  dimLastN = 0,
+  className,
+}: {
+  text: string;
+  progress: MotionValue<number>;
+  blockStart: number;
+  blockEnd: number;
+  dimLastN?: number;
+  className?: string;
+}) {
+  const words = text.split(" ");
+  const total = words.length;
+  const span = (blockEnd - blockStart) / total;
+
+  return (
+    <span className={className}>
+      {words.map((word, i) => {
+        // Stagger: each word starts a bit before the previous one ends
+        const wordStart = blockStart + i * span * 0.65;
+        const wordEnd = Math.min(wordStart + span * 1.6, blockEnd + 0.05);
+        const isDim = dimLastN > 0 && i >= total - dimLastN;
+
+        return (
+          <span key={i}>
+            <Word progress={progress} start={wordStart} end={wordEnd} dim={isDim}>
+              {word}
+            </Word>
+            {i < total - 1 && <span> </span>}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
+/* ─── Animated stat counter ──────────────────────────────── */
 function useCountUp(target: number, duration: number, active: boolean) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
     if (!active) return;
     let start: number | null = null;
-    const step = (timestamp: number) => {
-      if (!start) start = timestamp;
-      const progress = Math.min((timestamp - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
+    const step = (ts: number) => {
+      if (!start) start = ts;
+      const p = Math.min((ts - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
       setCount(Math.floor(eased * target));
-      if (progress < 1) requestAnimationFrame(step);
+      if (p < 1) requestAnimationFrame(step);
       else setCount(target);
     };
     requestAnimationFrame(step);
@@ -40,7 +144,7 @@ function StatCard({
   const count = useCountUp(number, 1400, active);
 
   return (
-    <div className="relative flex-1 flex flex-col justify-center items-center rounded-[20px] bg-[#181818] shadow-[10px_10px_28px_rgba(0,0,0,0.75),-6px_-6px_18px_rgba(255,255,255,0.06),inset_0_1px_0_rgba(255,255,255,0.04)] ring-1 ring-white/[0.04] p-6 md:p-10 text-center h-auto min-h-[160px] md:min-h-[220px] gap-1">
+    <div className="relative flex-1 flex flex-col justify-center items-center rounded-[20px] bg-[#181818] shadow-[10px_10px_28px_rgba(0,0,0,0.75),-6px_-6px_18px_rgba(255,255,255,0.06),inset_0_1px_0_rgba(255,255,255,0.04)] ring-1 ring-white/[0.04] p-6 md:p-10 text-center min-h-[160px] md:min-h-[220px] gap-1">
       <h4 className="text-white font-bold text-[12px] md:text-[14px] uppercase tracking-[0.18em] mb-2">
         {label}
       </h4>
@@ -59,44 +163,69 @@ function StatCard({
   );
 }
 
+/* ─── Main section ───────────────────────────────────────── */
 export default function AboutUsHalf() {
-  const containerRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const statsInView = useInView(statsRef, { once: true, margin: "-60px" });
+  const { t } = useLanguage();
+
+  const progress = useLenisProgress(sectionRef);
+
+  // Divider line
+  const lineScaleX = useSpring(useTransform(progress, [0.32, 0.52], [0, 1]), {
+    stiffness: 70,
+    damping: 22,
+  });
+
+  // Founder card + stats fade
+  const cardOpacity = useSpring(useTransform(progress, [0.55, 0.72], [0, 1]), {
+    stiffness: 80,
+    damping: 22,
+  });
+  const cardY = useSpring(useTransform(progress, [0.55, 0.72], [20, 0]), {
+    stiffness: 80,
+    damping: 22,
+  });
 
   return (
     <section
-      ref={containerRef}
+      ref={sectionRef}
       className="relative flex flex-col items-center justify-start pt-6 md:pt-10 px-4 bg-[#181818] text-center min-h-0 md:min-h-[50vh] pb-6"
     >
       <div className="max-w-[700px] w-full flex flex-col items-center">
 
-        <div className="flex flex-col gap-5 text-text-main text-[16px] md:text-[28px] font-medium leading-[1.4]">
-          <p>
-            In 2026, innovation isn&apos;t a choice — it&apos;s a necessity.
-          </p>
-          <p>
-            LIONOVART is a multidisciplinary team of artists and business owners building brands with
-            confidence, innovation, and emotion at their core. We bridge digital and physical, strategy
-            and feeling, craft and commerce—so your brand works exactly as hard as you do. World-class
-            creative, made accessible to any business serious about standing out.
-          </p>
+        {/* ── Headline word reveal ── */}
+        <div className="text-text-main text-[16px] md:text-[28px] font-medium leading-[1.4] mb-4">
+          <WordReveal
+            text={t.about.line1}
+            progress={progress}
+            blockStart={0.04}
+            blockEnd={0.38}
+            dimLastN={3}
+          />
         </div>
 
-        {/* Founder card — right-aligned */}
+        {/* ── Divider ── */}
         <motion.div
-          initial={{ opacity: 0, y: 16, scale: 0.98 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-          className="
-            z-20 mt-8 md:mt-10 self-end ml-auto inline-flex max-w-full items-center gap-3
-            rounded-[20px]
-            border border-white/10
-            bg-black/60 backdrop-blur-xl
-            px-4 py-3
-            shadow-[0_8px_32px_rgba(0,0,0,0.4)]
-          "
+          style={{ scaleX: lineScaleX, originX: "50%" }}
+          className="w-24 h-px bg-white/20 mb-6"
+        />
+
+        {/* ── Body word reveal ── */}
+        <div className="text-text-main text-[13px] md:text-[16px] font-normal leading-[1.7] text-white/60">
+          <WordReveal
+            text={t.about.line2}
+            progress={progress}
+            blockStart={0.36}
+            blockEnd={0.72}
+          />
+        </div>
+
+        {/* ── Founder card ── */}
+        <motion.div
+          style={{ opacity: cardOpacity, y: cardY }}
+          className="z-20 mt-8 md:mt-10 self-end ml-auto inline-flex max-w-full items-center gap-3 rounded-[20px] border border-white/10 bg-black/60 backdrop-blur-xl px-4 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
         >
           <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border-2 border-brand-red/60">
             <Image
@@ -112,7 +241,7 @@ export default function AboutUsHalf() {
               Leonardo
             </span>
             <span className="text-[11px] text-white/50 leading-tight">
-              Business &amp; creative director
+              {t.about.founderRole}
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-1.5 ml-1">
@@ -121,12 +250,12 @@ export default function AboutUsHalf() {
               <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
             </span>
             <span className="text-[10px] text-green-400 font-semibold uppercase tracking-widest">
-              Open
+              {t.about.founderStatus}
             </span>
           </div>
         </motion.div>
 
-        {/* ── 2 Neumorphic Stat Cards ── */}
+        {/* ── Stat cards ── */}
         <div
           ref={statsRef}
           className="flex w-full max-w-[800px] gap-6 md:gap-10 mt-6 md:mt-16"
@@ -134,15 +263,15 @@ export default function AboutUsHalf() {
           <StatCard
             number={10}
             unit=""
-            label="Years of Experience"
-            description="Expertise across digital innovation, audiovisual production and printed media."
+            label={t.about.stat1Label}
+            description={t.about.stat1Desc}
             active={statsInView}
           />
           <StatCard
             number={10}
             unit="+"
-            label="Countries — Global Reach"
-            description="A multilingual team serving clients across 4 continents."
+            label={t.about.stat2Label}
+            description={t.about.stat2Desc}
             active={statsInView}
           />
         </div>

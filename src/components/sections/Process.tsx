@@ -4,38 +4,9 @@ import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-// ─── Step data ─────────────────────────────────────────────────────────────────
-const STEPS = [
-  {
-    num: "1",
-    title: "Discovery & Strategy",
-    description:
-      "We learn your business, your audience, and your standards. We ask the questions most agencies skip because the best creative work starts with clarity.",
-    tag: "Foundation",
-  },
-  {
-    num: "2",
-    title: "Creative Concepts",
-    description:
-      "We develop two to three creative directions and refine with you until the visual language feels unmistakably yours. No surprises. No wasted revisions.",
-    tag: "Design",
-  },
-  {
-    num: "3",
-    title: "Build & Refine",
-    description:
-      "We bring the concepts to life including websites, video, social and print. All built to the same standard and reviewed with you at every stage.",
-    tag: "Execution",
-  },
-  {
-    num: "4",
-    title: "Launch & Scale",
-    description:
-      "Your brand goes live. We don't just hand over the keys. We set up the systems, track the results, and stay available for what comes next.",
-    tag: "Growth",
-  },
-] as const;
+const STEP_NUMS = ["1", "2", "3", "4"] as const;
 
 // Taller columns to fit text comfortably, still maintaining the ascending bar-chart effect
 const COL_HEIGHTS = [
@@ -73,6 +44,14 @@ export default function Process() {
   const rowRef      = useRef<HTMLDivElement>(null);
   const pillarRefs  = useRef<(HTMLDivElement | null)[]>([]);
   const [snapPoints, setSnapPoints] = useState<number[]>([0, 0, 0, 0]);
+  const { t } = useLanguage();
+
+  const STEPS = t.process.steps.map((step, i) => ({
+    num: STEP_NUMS[i],
+    title: step.title,
+    description: step.description,
+    tag: step.tag,
+  }));
 
   // Measure how far the row needs to translate and calculate exact snap points
   useEffect(() => {
@@ -177,17 +156,17 @@ export default function Process() {
                 className="text-[12px] font-bold uppercase tracking-[0.22em] mb-2"
                 style={{ color: "#e5192a" }}
               >
-                Our Process
+                {t.process.eyebrow}
               </p>
               <h2
                 className="text-[2.4rem] sm:text-[3.2rem] md:text-[4rem] font-bold uppercase leading-none tracking-tight"
                 style={{ color: "#111111" }}
               >
-                How We <span style={{ color: "#e5192a" }}>Work</span>
+                {t.process.heading} <span style={{ color: "#e5192a" }}>{t.process.headingAccent}</span>
               </h2>
             </div>
             <p className="text-[11px] uppercase tracking-[0.18em]" style={{ color: "#bbb" }}>
-              scroll to advance →
+              {t.process.scrollHint}
             </p>
           </div>
         </div>

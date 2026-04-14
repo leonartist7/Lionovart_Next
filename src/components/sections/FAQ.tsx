@@ -8,53 +8,18 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-
-const FAQS = [
-  {
-    id: "faq-1",
-    question: "How long does a typical project take?",
-    answer: "A standard brand identity and website sprint takes between 4 to 6 weeks depending on the complexity of the requirements and how fast we receive feedback.",
-  },
-  {
-    id: "faq-2",
-    question: "Do you offer ongoing support after launch?",
-    answer: "Yes, we offer retainer packages for ongoing design, development, and marketing support to ensure your brand continues to scale post-launch.",
-  },
-  {
-    id: "faq-3",
-    question: "What platforms do you build websites on?",
-    answer: "We build fully custom websites and applications for total control over performance and design. We also work on Webflow and Shopify depending on your specific needs and goals.",
-  },
-  {
-    id: "faq-4",
-    question: "How does the payment structure work?",
-    answer: "We typically work on a 50% upfront deposit to secure your spot in our schedule, with the remaining 50% due upon project completion and handover.",
-  },
-  {
-    id: "faq-5",
-    question: "Can you help with copywriting and content?",
-    answer: "Absolutely. We have an in-house team of copywriters and content strategists to ensure your messaging aligns perfectly with your new visual identity.",
-  },
-  {
-    id: "faq-6",
-    question: "Do you work with clients in other languages?",
-    answer: "Yes. Our team works across 9 languages and has delivered projects on 4 continents. Whether you need assets in French, Spanish, Portuguese, Arabic, or others, we handle it in-house. No external translators, no briefing a third party.",
-  },
-  {
-    id: "faq-7",
-    question: "Why not just hire a freelancer?",
-    answer: "Freelancers are great for single tasks. But brand, web, video, content, and automation each require a different specialist — and coordinating them costs you time, consistency, and often more money than you expect. We bring every discipline under one roof so nothing gets lost in translation.",
-  },
-  {
-    id: "faq-8",
-    question: "How do we get started?",
-    answer: "Send us a message on WhatsApp or fill in the form on this page. We'll set up a short discovery call — usually 20 to 30 minutes — to understand your goals, timeline, and budget. From there we put together a scope and you decide if it's the right fit. No pressure.",
-  },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function FAQ() {
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const { t } = useLanguage();
+
+  const FAQS = t.faq.items.map((item, i) => ({
+    id: `faq-${i + 1}`,
+    question: item.question,
+    answer: item.answer,
+  }));
 
   return (
     <section ref={ref} id="faq" className="bg-bg-brand-black py-[90px] lg:py-[180px]">
@@ -67,7 +32,7 @@ export default function FAQ() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.4 }}
           >
-            Got Questions?
+            {t.faq.eyebrow}
           </motion.p>
           <motion.h2
             className="text-[2.5rem] sm:text-[3.5rem] md:text-[4.5rem] font-bold uppercase leading-none tracking-tight text-text-main"
@@ -75,7 +40,7 @@ export default function FAQ() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            Frequently Asked <span className="text-brand-red">Questions</span>
+            {t.faq.heading} <span className="text-brand-red">{t.faq.headingAccent}</span>
           </motion.h2>
         </div>
 

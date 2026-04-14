@@ -11,18 +11,21 @@ import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import Link from "next/link";
 import { getWhatsAppUrl } from "@/lib/contact";
 import { MenuBurgerLottie } from "@/components/ui/menu-burger-lottie";
-
-const NAV_LINKS = [
-  { label: "We", href: "#about" },
-  { label: "Services", href: "#services" },
-  { label: "Results", href: "#proof" },
-];
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Navbar() {
   const [isPastHero, setIsPastHero] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [heroThreshold, setHeroThreshold] = useState(600);
   const { scrollY } = useScroll();
+  const { t } = useLanguage();
+
+  const NAV_LINKS = [
+    { label: t.nav.we, href: "#about" },
+    { label: t.nav.services, href: "#services" },
+    { label: t.nav.results, href: "#proof" },
+  ];
 
   useEffect(() => {
     const calc = () => setHeroThreshold(window.innerHeight * 0.5);
@@ -98,11 +101,6 @@ export default function Navbar() {
                   className="h-14 object-contain shrink-0 overflow-hidden"
                   style={{ filter: "brightness(1) invert(0)" }}
                 />
-                {/*
-                  tracking-[0.08em] — tighter than the previous 0.2em,
-                  still distinct from nav links (0.15em) and body text.
-                  This gives the brand name its own tight, bold identity.
-                */}
                 <span className="text-xl font-bold uppercase tracking-[0.08em] text-white">
                   LIONOVART
                 </span>
@@ -113,7 +111,7 @@ export default function Navbar() {
             <div className="hidden lg:flex flex-auto items-center justify-center">
               <ul className="flex items-center justify-center gap-[3.5rem]">
                 {NAV_LINKS.map((link) => (
-                  <li key={link.label}>
+                  <li key={link.href}>
                     <Link
                       href={link.href}
                       className="group relative text-[13px] font-semibold uppercase tracking-[0.15em] text-white/90 transition-colors hover:text-white"
@@ -126,17 +124,19 @@ export default function Navbar() {
               </ul>
             </div>
 
-            {/* CTA + burger */}
-            <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4 lg:gap-5">
+            {/* CTA + language switcher + burger */}
+            <div className="flex flex-1 items-center justify-end gap-2 sm:gap-3 lg:gap-4">
               <div className="shrink-0 origin-right scale-[0.85] sm:scale-100 transition-transform">
                 <LiquidMetalButton
-                  label="Start Now"
+                  label={t.nav.cta}
                   onClick={() => window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer")}
                   width={140}
                   variant="white"
                   textColor="#ff0000ff"
                 />
               </div>
+
+              <LanguageSwitcher isHeroMode={heroMode} />
 
               <MenuBurgerLottie
                 isOpen={isMobileOpen}
@@ -151,16 +151,6 @@ export default function Navbar() {
           ── Mobile dropdown ──────────────────────────────────────────────────
           Lives OUTSIDE motion.header so overflow-hidden doesn't clip it.
           Shares the same max-w wrapper so width is inherited.
-
-          "Sliding from behind" effect:
-          • top-0 — flush with the top of the wrapper (same as bar)
-          • -z-10 — behind the bar visually
-          • y: "-100%" → 0 — slides down from above, emerging under the bar
-          • pt-[72px] — pushes link content below the bar height (~64-72px)
-          • 30% narrower: left-[15%] right-[15%], centered
-          • White liquid-glass: rgba(255,255,255,0.75) + heavy blur
-
-          Link text is text-[14px] — bigger and more readable on all devices.
         */}
         <AnimatePresence>
           {isMobileOpen && (
@@ -179,25 +169,36 @@ export default function Navbar() {
               }}
             >
               {/* pt-[62px] clears the bar; links are horizontal */}
-              <nav className="flex flex-row items-center justify-center gap-1 px-4 pt-[62px] pb-4">
+              <nav className="flex flex-col items-center justify-center gap-1 px-4 pt-[62px] pb-4">
                 {NAV_LINKS.map((link, i) => (
                   <motion.div
-                    key={link.label}
+                    key={link.href}
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 6 }}
                     transition={{ duration: 0.2, delay: i * 0.06 }}
+                    className="w-full"
                   >
                     <Link
                       href={link.href}
                       onClick={() => setIsMobileOpen(false)}
-                      // text-[14px] — noticeably bigger than before (was 12px)
-                      className="flex items-center px-5 py-2.5 text-[14px] font-semibold uppercase tracking-[0.12em] text-black/75 hover:text-black hover:bg-black/[0.06] rounded-lg transition-colors whitespace-nowrap"
+                      className="flex items-center justify-center px-5 py-2.5 text-[14px] font-semibold uppercase tracking-[0.12em] text-black/75 hover:text-black hover:bg-black/[0.06] rounded-lg transition-colors whitespace-nowrap"
                     >
                       {link.label}
                     </Link>
                   </motion.div>
                 ))}
+                {/* Language switcher row inside mobile menu */}
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 6 }}
+                  transition={{ duration: 0.2, delay: NAV_LINKS.length * 0.06 }}
+                  className="mt-1 flex justify-center"
+                  style={{ filter: "invert(1)" }}
+                >
+                  <LanguageSwitcher />
+                </motion.div>
               </nav>
             </motion.div>
           )}
