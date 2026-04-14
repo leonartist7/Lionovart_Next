@@ -238,7 +238,11 @@ export default function AboutUsHalf() {
           />
         </div>
 
-        {/* ── Two permanent cards: photo (left) + contact (right, grows on click) ── */}
+        {/* ── Two permanent cards: photo (left) + contact (right, floats up on hover/click) ── */}
+        {/*
+          The contact card is absolute-positioned bottom-0 inside a fixed-height
+          shell so it grows UPWARD and overlaps content above — no layout shift.
+        */}
         <div ref={cardRef} className="relative z-20 mt-8 md:mt-10 self-end ml-auto flex items-end gap-2.5">
 
           {/* Photo card — always static */}
@@ -252,74 +256,74 @@ export default function AboutUsHalf() {
             />
           </div>
 
-          {/* Contact card — grows in place on click using layout animation */}
-          <motion.button
-            type="button"
-            layout
-            onClick={() => setContactOpen((v) => !v)}
-            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            className="relative text-left rounded-[18px] border border-white/[0.12] shadow-[0_8px_32px_rgba(0,0,0,0.5)] cursor-pointer select-none overflow-hidden"
-            style={{
-              background: "rgba(28,28,30,0.82)",
-              backdropFilter: "blur(28px) saturate(1.6)",
-              WebkitBackdropFilter: "blur(28px) saturate(1.6)",
-            }}
-          >
-            {/* Red pulse — top right, always visible */}
-            <span className="absolute top-3 right-3 flex h-2 w-2 z-10">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#e5192a] opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#e5192a]" />
-            </span>
+          {/* Shell — fixed to the collapsed card height so the grow never shifts layout */}
+          <div className="relative h-[62px]">
+            <motion.button
+              type="button"
+              layout
+              onClick={() => setContactOpen((v) => !v)}
+              onMouseEnter={() => setContactOpen(true)}
+              onMouseLeave={() => setContactOpen(false)}
+              transition={{ layout: { duration: 0.38, ease: [0.4, 0, 0.2, 1] } }}
+              className="absolute bottom-0 right-0 text-left rounded-[18px] border border-white/[0.12] shadow-[0_8px_32px_rgba(0,0,0,0.55)] cursor-pointer select-none overflow-hidden"
+              style={{
+                background: "rgba(28,28,30,0.88)",
+                backdropFilter: "blur(32px) saturate(1.8)",
+                WebkitBackdropFilter: "blur(32px) saturate(1.8)",
+              }}
+            >
+              {/* Red pulse — top right, always visible */}
+              <span className="absolute top-3 right-3 flex h-2 w-2 z-10">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#e5192a] opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#e5192a]" />
+              </span>
 
-            {/* Collapsed label */}
-            <motion.div layout="position" className="px-4 pt-3.5 pb-3.5 pr-8">
-              <p className="text-[14px] font-bold text-white leading-tight whitespace-nowrap">
-                Contact Leonardo
-              </p>
-              <p className="text-[11px] text-white/45 mt-0.5 whitespace-nowrap">
-                {t.about.founderRole}
-              </p>
-            </motion.div>
+              {/* Collapsed label — always rendered, anchors the card's base size */}
+              <motion.div layout="position" className="px-4 pt-3.5 pb-3.5 pr-8">
+                <p className="text-[14px] font-bold text-white leading-tight whitespace-nowrap">
+                  Contact Leonardo
+                </p>
+                <p className="text-[11px] text-white/45 mt-0.5 whitespace-nowrap">
+                  {t.about.founderRole}
+                </p>
+              </motion.div>
 
-            {/* Expanded contact rows — only rendered when open */}
-            <AnimatePresence>
-              {contactOpen && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1, transition: { delay: 0.15, duration: 0.2 } }}
-                  exit={{ opacity: 0, transition: { duration: 0.1 } }}
-                  className="px-4 pb-4 flex flex-col gap-3.5 min-w-[230px]"
-                >
-                  {/* Divider */}
-                  <div className="h-px bg-white/10 -mt-1" />
+              {/* Expanded rows — fade in after card finishes growing */}
+              <AnimatePresence>
+                {contactOpen && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1, transition: { delay: 0.18, duration: 0.18 } }}
+                    exit={{ opacity: 0, transition: { duration: 0.08 } }}
+                    className="px-4 pb-4 flex flex-col gap-3.5 min-w-[230px]"
+                  >
+                    <div className="h-px bg-white/10 -mt-1" />
 
-                  {/* Email */}
-                  <a href={`mailto:${CONTACT_EMAIL}`} className="group block" onClick={(e) => e.stopPropagation()}>
-                    <p className="text-[9px] text-white/35 uppercase tracking-[0.15em] mb-0.5">Email</p>
-                    <p className="text-[13px] font-semibold text-white group-hover:text-white/70 transition-colors">
-                      {CONTACT_EMAIL}
-                    </p>
-                  </a>
+                    <a href={`mailto:${CONTACT_EMAIL}`} className="group block" onClick={(e) => e.stopPropagation()}>
+                      <p className="text-[9px] text-white/35 uppercase tracking-[0.15em] mb-0.5">Email</p>
+                      <p className="text-[13px] font-semibold text-white group-hover:text-white/60 transition-colors">
+                        {CONTACT_EMAIL}
+                      </p>
+                    </a>
 
-                  {/* Phone */}
-                  <a href={`tel:${CONTACT_PHONE}`} className="group block" onClick={(e) => e.stopPropagation()}>
-                    <p className="text-[9px] text-white/35 uppercase tracking-[0.15em] mb-0.5">Phone</p>
-                    <p className="text-[13px] font-semibold text-white group-hover:text-white/70 transition-colors">
-                      {CONTACT_PHONE}
-                    </p>
-                  </a>
+                    <a href={`tel:${CONTACT_PHONE}`} className="group block" onClick={(e) => e.stopPropagation()}>
+                      <p className="text-[9px] text-white/35 uppercase tracking-[0.15em] mb-0.5">Phone</p>
+                      <p className="text-[13px] font-semibold text-white group-hover:text-white/60 transition-colors">
+                        {CONTACT_PHONE}
+                      </p>
+                    </a>
 
-                  {/* Schedule */}
-                  <a href={CONTACT_MEETING} target="_blank" rel="noopener noreferrer" className="group block" onClick={(e) => e.stopPropagation()}>
-                    <p className="text-[9px] text-white/35 uppercase tracking-[0.15em] mb-0.5">Schedule a call</p>
-                    <p className="text-[13px] font-semibold text-white group-hover:text-white/70 transition-colors">
-                      Calendly
-                    </p>
-                  </a>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.button>
+                    <a href={CONTACT_MEETING} target="_blank" rel="noopener noreferrer" className="group block" onClick={(e) => e.stopPropagation()}>
+                      <p className="text-[9px] text-white/35 uppercase tracking-[0.15em] mb-0.5">Schedule a call</p>
+                      <p className="text-[13px] font-semibold text-white group-hover:text-white/60 transition-colors">
+                        Calendly
+                      </p>
+                    </a>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
+          </div>
 
         </div>
 
