@@ -238,101 +238,88 @@ export default function AboutUsHalf() {
           />
         </div>
 
-        {/* ── Founder card — two chips, expands to contact card on click ── */}
-        <div ref={cardRef} className="relative z-20 mt-8 md:mt-10 self-end ml-auto">
+        {/* ── Two permanent cards: photo (left) + contact (right, grows on click) ── */}
+        <div ref={cardRef} className="relative z-20 mt-8 md:mt-10 self-end ml-auto flex items-end gap-2.5">
 
-          {/* Contact card — appears above chips */}
-          <AnimatePresence>
-            {contactOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: 10, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.96 }}
-                transition={{ duration: 0.22, ease: "easeOut" }}
-                className="absolute bottom-full mb-3 right-0 min-w-[260px] rounded-[20px] border border-white/10 bg-[#1c1c1e] backdrop-blur-xl px-5 pt-5 pb-10 shadow-[0_12px_40px_rgba(0,0,0,0.6)] overflow-visible"
-              >
-                {/* Green pulse — top right */}
-                <span className="absolute top-4 right-4 flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
-                </span>
-
-                {/* Email */}
-                <a href={`mailto:${CONTACT_EMAIL}`} className="group block mb-4">
-                  <p className="text-[10px] text-white/40 uppercase tracking-widest mb-0.5">Email</p>
-                  <p className="text-[15px] font-semibold text-white group-hover:text-white/80 transition-colors">
-                    {CONTACT_EMAIL}
-                  </p>
-                </a>
-
-                {/* Phone */}
-                <a href={`tel:${CONTACT_PHONE}`} className="group block mb-4">
-                  <p className="text-[10px] text-white/40 uppercase tracking-widest mb-0.5">Phone</p>
-                  <p className="text-[15px] font-semibold text-white group-hover:text-white/80 transition-colors">
-                    {CONTACT_PHONE}
-                  </p>
-                </a>
-
-                {/* Schedule */}
-                <a href={CONTACT_MEETING} target="_blank" rel="noopener noreferrer" className="group block">
-                  <p className="text-[10px] text-white/40 uppercase tracking-widest mb-0.5">Schedule a call</p>
-                  <p className="text-[15px] font-semibold text-[#e5192a] group-hover:text-[#ff2233] transition-colors">
-                    Book on Calendly →
-                  </p>
-                </a>
-
-                {/* Photo — peeks below card bottom-left */}
-                <div className="absolute bottom-[-20px] left-4 w-12 h-12 rounded-[12px] overflow-hidden border border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
-                  <Image
-                    src="https://res.cloudinary.com/dgio9uutc/image/upload/v1776064620/leonardo_icon_rkjxcx.webp"
-                    alt="Leonardo"
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Two resting chips */}
-          <div className="flex items-center gap-2">
-            {/* Photo chip */}
-            <button
-              type="button"
-              aria-label="Contact Leonardo"
-              onClick={() => setContactOpen((v) => !v)}
-              className="relative w-10 h-10 rounded-[12px] overflow-hidden border border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.4)] shrink-0 cursor-pointer"
-            >
-              <Image
-                src="https://res.cloudinary.com/dgio9uutc/image/upload/v1776064620/leonardo_icon_rkjxcx.webp"
-                alt="Leonardo"
-                fill
-                className="object-cover"
-                unoptimized
-              />
-            </button>
-
-            {/* Name chip */}
-            <button
-              type="button"
-              onClick={() => setContactOpen((v) => !v)}
-              className="inline-flex items-center gap-2.5 rounded-[14px] border border-white/10 bg-black/60 backdrop-blur-xl px-3.5 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.4)] cursor-pointer select-none"
-            >
-              <div className="flex flex-col text-left">
-                <span className="text-[13px] font-bold text-white leading-tight tracking-tight">
-                  Leonardo
-                </span>
-                <span className="text-[11px] text-white/50 leading-tight">
-                  {t.about.founderRole}
-                </span>
-              </div>
-              <span className="relative flex h-2 w-2 shrink-0">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
-              </span>
-            </button>
+          {/* Photo card — always static */}
+          <div className="relative w-[72px] h-[72px] rounded-[18px] overflow-hidden border border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.5)] shrink-0">
+            <Image
+              src="https://res.cloudinary.com/dgio9uutc/image/upload/v1776064620/leonardo_icon_rkjxcx.webp"
+              alt="Leonardo"
+              fill
+              className="object-cover"
+              unoptimized
+            />
           </div>
+
+          {/* Contact card — grows in place on click using layout animation */}
+          <motion.button
+            type="button"
+            layout
+            onClick={() => setContactOpen((v) => !v)}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            className="relative text-left rounded-[18px] border border-white/[0.12] shadow-[0_8px_32px_rgba(0,0,0,0.5)] cursor-pointer select-none overflow-hidden"
+            style={{
+              background: "rgba(28,28,30,0.82)",
+              backdropFilter: "blur(28px) saturate(1.6)",
+              WebkitBackdropFilter: "blur(28px) saturate(1.6)",
+            }}
+          >
+            {/* Red pulse — top right, always visible */}
+            <span className="absolute top-3 right-3 flex h-2 w-2 z-10">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#e5192a] opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#e5192a]" />
+            </span>
+
+            {/* Collapsed label */}
+            <motion.div layout="position" className="px-4 pt-3.5 pb-3.5 pr-8">
+              <p className="text-[14px] font-bold text-white leading-tight whitespace-nowrap">
+                Contact Leonardo
+              </p>
+              <p className="text-[11px] text-white/45 mt-0.5 whitespace-nowrap">
+                {t.about.founderRole}
+              </p>
+            </motion.div>
+
+            {/* Expanded contact rows — only rendered when open */}
+            <AnimatePresence>
+              {contactOpen && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1, transition: { delay: 0.15, duration: 0.2 } }}
+                  exit={{ opacity: 0, transition: { duration: 0.1 } }}
+                  className="px-4 pb-4 flex flex-col gap-3.5 min-w-[230px]"
+                >
+                  {/* Divider */}
+                  <div className="h-px bg-white/10 -mt-1" />
+
+                  {/* Email */}
+                  <a href={`mailto:${CONTACT_EMAIL}`} className="group block" onClick={(e) => e.stopPropagation()}>
+                    <p className="text-[9px] text-white/35 uppercase tracking-[0.15em] mb-0.5">Email</p>
+                    <p className="text-[13px] font-semibold text-white group-hover:text-white/70 transition-colors">
+                      {CONTACT_EMAIL}
+                    </p>
+                  </a>
+
+                  {/* Phone */}
+                  <a href={`tel:${CONTACT_PHONE}`} className="group block" onClick={(e) => e.stopPropagation()}>
+                    <p className="text-[9px] text-white/35 uppercase tracking-[0.15em] mb-0.5">Phone</p>
+                    <p className="text-[13px] font-semibold text-white group-hover:text-white/70 transition-colors">
+                      {CONTACT_PHONE}
+                    </p>
+                  </a>
+
+                  {/* Schedule */}
+                  <a href={CONTACT_MEETING} target="_blank" rel="noopener noreferrer" className="group block" onClick={(e) => e.stopPropagation()}>
+                    <p className="text-[9px] text-white/35 uppercase tracking-[0.15em] mb-0.5">Schedule a call</p>
+                    <p className="text-[13px] font-semibold text-white group-hover:text-white/70 transition-colors">
+                      Calendly
+                    </p>
+                  </a>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.button>
 
         </div>
 
