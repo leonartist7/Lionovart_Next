@@ -5,12 +5,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Locale } from "@/lib/i18n";
 
-const LANGUAGES: { code: Locale; label: string; flag?: string }[] = [
-  { code: "en", label: "EN", flag: "🇨🇦" },
-  { code: "fr", label: "FR", flag: "🇫🇷" },
-  { code: "es", label: "ES" },
-  { code: "it", label: "IT" },
-  { code: "ko", label: "KO" },
+const LANGUAGES: { code: Locale; label: string; flag: string }[] = [
+  { code: "en", label: "EN", flag: "https://flagcdn.com/w40/ca.png" },
+  { code: "fr", label: "FR", flag: "https://flagcdn.com/w40/fr.png" },
 ];
 
 export function LanguageSwitcher({ isHeroMode }: { isHeroMode?: boolean }) {
@@ -33,12 +30,17 @@ export function LanguageSwitcher({ isHeroMode }: { isHeroMode?: boolean }) {
     <div ref={ref} className="relative shrink-0">
       {/* Trigger pill */}
       <button
+        type="button"
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
         className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-white/90 transition-colors hover:text-white hover:bg-white/10 select-none"
       >
-        {current.flag && <span className="text-[14px] leading-none">{current.flag}</span>}
+        <img
+          src={current.flag}
+          alt={current.label}
+          className="w-[18px] h-[13px] rounded-[2px] object-cover"
+        />
         <span>{current.label}</span>
         {/* Chevron */}
         <svg
@@ -52,7 +54,7 @@ export function LanguageSwitcher({ isHeroMode }: { isHeroMode?: boolean }) {
         </svg>
       </button>
 
-      {/* Dropdown */}
+      {/* Dropdown — z-[9999] escapes any stacking context */}
       <AnimatePresence>
         {open && (
           <motion.ul
@@ -62,9 +64,9 @@ export function LanguageSwitcher({ isHeroMode }: { isHeroMode?: boolean }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.96 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute right-0 top-full mt-1.5 min-w-[96px] rounded-xl overflow-hidden z-[60]"
+            className="absolute right-0 top-full mt-1.5 min-w-[96px] rounded-xl z-[9999]"
             style={{
-              background: "rgba(0,0,0,0.80)",
+              background: "rgba(0,0,0,0.85)",
               backdropFilter: "blur(20px)",
               border: "1px solid rgba(255,255,255,0.12)",
               boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
@@ -75,23 +77,24 @@ export function LanguageSwitcher({ isHeroMode }: { isHeroMode?: boolean }) {
               return (
                 <li key={lang.code}>
                   <button
+                    type="button"
                     role="option"
                     aria-selected={isActive}
                     onClick={() => {
                       setLocale(lang.code);
                       setOpen(false);
                     }}
-                    className={`flex w-full items-center gap-2 px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.15em] transition-colors ${
+                    className={`flex w-full items-center gap-2 px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.15em] transition-colors rounded-xl ${
                       isActive
                         ? "text-white bg-white/15"
                         : "text-white/70 hover:text-white hover:bg-white/10"
                     }`}
                   >
-                    {lang.flag ? (
-                      <span className="text-[13px] leading-none">{lang.flag}</span>
-                    ) : (
-                      <span className="w-[13px]" />
-                    )}
+                    <img
+                      src={lang.flag}
+                      alt={lang.label}
+                      className="w-[18px] h-[13px] rounded-[2px] object-cover"
+                    />
                     {lang.label}
                     {isActive && (
                       <svg
