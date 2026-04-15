@@ -58,6 +58,19 @@
   &::-webkit-scrollbar { display: none; }
 }
 
+/* --- AI Strategist glass utilities --- */
+@utility glass-panel {
+  background: var(--strategist-bg);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid var(--strategist-border);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 80px var(--strategist-glow);
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /* =============================================
@@ -122,6 +135,38 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* --- AI Strategist panel colors --- */
+  --color-strategist-bg: var(--strategist-bg);
+  --color-strategist-border: var(--strategist-border);
+  --color-strategist-glow: var(--strategist-glow);
+  --color-strategist-overlay: var(--strategist-overlay);
+
+  /* --- Orb pulse animation (3-second cycle) --- */
+  --animate-orb-pulse: orb-pulse 3s ease-in-out infinite;
+
+  @keyframes orb-pulse {
+    0%, 100% {
+      box-shadow:
+        0 0 60px rgba(229, 25, 42, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+      box-shadow:
+        0 0 80px rgba(229, 25, 42, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  /* --- Typing indicator dots --- */
+  --animate-typing-dot: typing-dot 1.4s ease-in-out infinite;
+
+  @keyframes typing-dot {
+    0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+    30% { opacity: 1; transform: translateY(-4px); }
+  }
 }
 
 /* =============================================
@@ -163,6 +208,12 @@
 
   /* LumaShowcase — dynamic accent (Phase 2 swaps via JS) */
   --luma-accent: #e5192a;
+
+  /* AI Strategist panel */
+  --strategist-bg: rgba(13, 13, 13, 0.85);
+  --strategist-border: rgba(255, 255, 255, 0.1);
+  --strategist-glow: rgba(229, 25, 42, 0.06);
+  --strategist-overlay: rgba(0, 0, 0, 0.6);
 }
 
 @layer base {
@@ -208,5 +259,26 @@
   100% {
     transform: translate(-50%, -50%) scale(4);
     opacity: 0;
+  }
+}
+
+/* =============================================
+   Speaking ring — VoiceVisualizer
+   ============================================= */
+@keyframes speaking-ring {
+  0%   { transform: scale(0.8); opacity: 0.9; }
+  100% { transform: scale(2.2); opacity: 0;   }
+}
+
+/* =============================================
+   Reduced Motion — AI Strategist
+   ============================================= */
+@media (prefers-reduced-motion: reduce) {
+  .animate-orb-pulse {
+    animation: none !important;
+  }
+  .animate-typing-dot {
+    animation: none !important;
+    opacity: 0.6 !important;
   }
 }
