@@ -14,8 +14,8 @@ import Image from "next/image";
 import { useLenis } from "@studio-freight/react-lenis";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const CONTACT_PHONE   = "+1 (514) 000-0000";
-const CONTACT_EMAIL   = "hello@lionovart.com";
+const CONTACT_PHONE   = "+1-587-897-4772";
+const CONTACT_EMAIL   = "connect@lionovart.com";
 const CONTACT_MEETING = "https://cal.com/lionovart";
 
 /* ─── Lenis-compatible section scroll progress ──────────────
@@ -238,26 +238,10 @@ export default function AboutUsHalf() {
           />
         </div>
 
-        {/* ── Two permanent cards: photo (left) + contact (right, floats up on hover/click) ── */}
-        {/*
-          The contact card is absolute-positioned bottom-0 inside a fixed-height
-          shell so it grows UPWARD and overlaps content above — no layout shift.
-        */}
-        <div ref={cardRef} className="relative z-20 mt-8 md:mt-10 self-end ml-auto flex items-end gap-2.5">
-
-          {/* Photo card — always static */}
-          <div className="relative w-[72px] h-[72px] rounded-[18px] overflow-hidden border border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.5)] shrink-0">
-            <Image
-              src="https://res.cloudinary.com/dgio9uutc/image/upload/v1776064620/leonardo_icon_rkjxcx.webp"
-              alt="Leonardo"
-              fill
-              className="object-cover"
-              unoptimized
-            />
-          </div>
-
-          {/* Shell — fixed to the collapsed card height so the grow never shifts layout */}
-          <div className="relative h-[62px]">
+        {/* ── Contact card — fixed width, grows upward, photo inside ── */}
+        <div ref={cardRef} className="relative z-20 mt-8 md:mt-10 self-end ml-auto">
+          {/* Shell: fixed to collapsed height so upward growth never shifts layout below */}
+          <div className="relative h-[70px]">
             <motion.button
               type="button"
               layout
@@ -265,39 +249,58 @@ export default function AboutUsHalf() {
               onMouseEnter={() => setContactOpen(true)}
               onMouseLeave={() => setContactOpen(false)}
               transition={{ layout: { duration: 0.38, ease: [0.4, 0, 0.2, 1] } }}
-              className="absolute bottom-0 right-0 text-left rounded-[18px] border border-white/[0.12] shadow-[0_8px_32px_rgba(0,0,0,0.55)] cursor-pointer select-none overflow-hidden"
+              className="absolute bottom-0 right-0 w-[264px] text-left rounded-[20px] border border-white/[0.12] shadow-[0_8px_40px_rgba(0,0,0,0.55)] cursor-pointer select-none overflow-visible"
               style={{
                 background: "rgba(28,28,30,0.88)",
                 backdropFilter: "blur(32px) saturate(1.8)",
                 WebkitBackdropFilter: "blur(32px) saturate(1.8)",
               }}
             >
-              {/* Red pulse — top right, always visible */}
-              <span className="absolute top-3 right-3 flex h-2 w-2 z-10">
+              {/* Pulse dot — top right */}
+              <span className="absolute top-3 right-3 z-10 flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#e5192a] opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-[#e5192a]" />
               </span>
 
-              {/* Collapsed label — always rendered, anchors the card's base size */}
-              <motion.div layout="position" className="px-4 pt-3.5 pb-3.5 pr-8">
-                <p className="text-[14px] font-bold text-white leading-tight whitespace-nowrap">
-                  Contact Leonardo
-                </p>
-                <p className="text-[11px] text-white/45 mt-0.5 whitespace-nowrap">
-                  {t.about.founderRole}
-                </p>
-              </motion.div>
+              {/* Label row — always rendered, keeps card sized when collapsed */}
+              <div className="flex items-center gap-3 px-3 pt-3 pb-3 pr-8">
+                {/* Photo in label row when collapsed; layoutId moves it to bottom-left when expanded */}
+                {!contactOpen && (
+                  <motion.div
+                    layoutId="ccard-photo"
+                    className="relative w-[46px] h-[46px] rounded-[12px] overflow-hidden border border-white/10 shrink-0"
+                  >
+                    <Image
+                      src="https://res.cloudinary.com/dgio9uutc/image/upload/v1776064620/leonardo_icon_rkjxcx.webp"
+                      alt="Leonardo"
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </motion.div>
+                )}
+                {/* Spacer keeps text indented when photo is gone (expanded) */}
+                {contactOpen && <div className="w-[46px] h-[46px] shrink-0" />}
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[14px] font-bold text-white leading-tight whitespace-nowrap">
+                    Contact Leonardo
+                  </span>
+                  <span className="text-[11px] text-white/45 mt-0.5 whitespace-nowrap">
+                    {t.about.founderRole}
+                  </span>
+                </div>
+              </div>
 
-              {/* Expanded rows — fade in after card finishes growing */}
+              {/* Expanded contact rows */}
               <AnimatePresence>
                 {contactOpen && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1, transition: { delay: 0.18, duration: 0.18 } }}
                     exit={{ opacity: 0, transition: { duration: 0.08 } }}
-                    className="px-4 pb-4 flex flex-col gap-3.5 min-w-[230px]"
+                    className="px-4 pb-5 flex flex-col gap-3.5"
                   >
-                    <div className="h-px bg-white/10 -mt-1" />
+                    <div className="h-px bg-white/10" />
 
                     <a href={`mailto:${CONTACT_EMAIL}`} className="group block" onClick={(e) => e.stopPropagation()}>
                       <p className="text-[9px] text-white/35 uppercase tracking-[0.15em] mb-0.5">Email</p>
@@ -316,15 +319,28 @@ export default function AboutUsHalf() {
                     <a href={CONTACT_MEETING} target="_blank" rel="noopener noreferrer" className="group block" onClick={(e) => e.stopPropagation()}>
                       <p className="text-[9px] text-white/35 uppercase tracking-[0.15em] mb-0.5">Schedule a call</p>
                       <p className="text-[13px] font-semibold text-white group-hover:text-white/60 transition-colors">
-                        Calendly
+                        Google Meet
                       </p>
                     </a>
+
+                    {/* Photo peeks below card bottom-left — layoutId animates from label row */}
+                    <motion.div
+                      layoutId="ccard-photo"
+                      className="absolute bottom-[-22px] left-4 w-[52px] h-[52px] rounded-[14px] overflow-hidden border border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.5)]"
+                    >
+                      <Image
+                        src="https://res.cloudinary.com/dgio9uutc/image/upload/v1776064620/leonardo_icon_rkjxcx.webp"
+                        alt="Leonardo"
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </motion.div>
                   </motion.div>
                 )}
               </AnimatePresence>
             </motion.button>
           </div>
-
         </div>
 
         {/* ── Stat cards ── */}
