@@ -175,6 +175,15 @@ export default function AboutUsHalf() {
   const { t } = useLanguage();
   const [contactOpen, setContactOpen] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openContact  = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setContactOpen(true);
+  };
+  const closeContact = () => {
+    closeTimer.current = setTimeout(() => setContactOpen(false), 180);
+  };
 
   // Close on outside click
   useEffect(() => {
@@ -241,8 +250,8 @@ export default function AboutUsHalf() {
         {/* ── Two independent cards: photo (left, fixed) + contact (right, grows up) ── */}
         <div ref={cardRef} className="relative z-20 mt-8 md:mt-10 self-end ml-auto flex items-end gap-2.5">
 
-          {/* Photo card — completely independent, never moves */}
-          <div className="relative w-[72px] h-[72px] rounded-[18px] overflow-hidden border border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.5)] shrink-0">
+          {/* Photo card — completely independent, always in front */}
+          <div className="relative z-10 w-[72px] h-[72px] rounded-[18px] overflow-hidden border border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.5)] shrink-0">
             <Image
               src="https://res.cloudinary.com/dgio9uutc/image/upload/v1776064620/leonardo_icon_rkjxcx.webp"
               alt="Leonardo"
@@ -253,12 +262,12 @@ export default function AboutUsHalf() {
           </div>
 
           {/* Contact card shell — fixed height = collapsed card, card grows upward from here */}
-          <div className="relative h-[72px]">
+          <div className="relative z-0 h-[72px]">
             <motion.button
               type="button"
               layout
-              onMouseEnter={() => setContactOpen(true)}
-              onMouseLeave={() => setContactOpen(false)}
+              onMouseEnter={openContact}
+              onMouseLeave={closeContact}
               onClick={() => setContactOpen((v) => !v)}
               transition={{ layout: { duration: 0.38, ease: [0.4, 0, 0.2, 1] } }}
               className="absolute bottom-0 right-0 w-[220px] text-left rounded-[20px] border border-white/[0.12] shadow-[0_8px_40px_rgba(0,0,0,0.55)] cursor-pointer select-none overflow-visible"
