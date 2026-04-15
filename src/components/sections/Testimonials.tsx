@@ -60,7 +60,7 @@ function DesktopCard({
   index: number;
   progress: MotionValue<number>;
 }) {
-  const step = 1 / TESTIMONIALS.length; // 0.2 per card
+  const step = 1 / TESTIMONIALS_STATIC.length; // 0.2 per card
 
   // Card 0 starts fully visible and fades as card 1 rises to cover it.
   // Cards 1–4 rise from y:60 into position then fade in place.
