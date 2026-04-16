@@ -247,6 +247,8 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
 
     } catch (err) {
       console.error("Failed to start session:", err);
+      // Alert the user so it doesn't fail silently on mobile devices
+      alert(`Error starting session: ${err instanceof Error ? err.message : String(err)}`);
       stopSession();
     }
   }, [stopSession]);
