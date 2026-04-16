@@ -222,11 +222,9 @@
   }
   body {
     @apply bg-bg-dark text-text-main font-clash antialiased;
-    overflow-x: clip;
   }
   html {
     @apply font-clash scroll-smooth;
-    overflow-x: clip;
   }
 }
 

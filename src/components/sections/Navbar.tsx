@@ -185,17 +185,28 @@ export default function Navbar() {
               )}
             </AnimatePresence>
 
-            {/* CTA + language switcher + burger(s) */}
+            {/* Language switcher + burger(s) — CTA hidden in hero, lives in dropdown instead */}
             <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4 lg:gap-5">
-              <div className="shrink-0 origin-right scale-[0.85] sm:scale-100 transition-transform">
-                <LiquidMetalButton
-                  label={t.nav.cta}
-                  onClick={() => window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer")}
-                  width={140}
-                  variant="white"
-                  textColor="#ff0000ff"
-                />
-              </div>
+              <AnimatePresence>
+                {!heroMode && (
+                  <motion.div
+                    key="nav-cta"
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: "auto" }}
+                    exit={{ opacity: 0, width: 0 }}
+                    transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+                    className="shrink-0 overflow-hidden"
+                  >
+                    <LiquidMetalButton
+                      label={t.nav.cta}
+                      onClick={() => window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer")}
+                      width={140}
+                      variant="white"
+                      textColor="#ff0000ff"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Language switcher — visible in hero (red) mode, hidden after transition */}
               <AnimatePresence>
@@ -263,8 +274,8 @@ export default function Navbar() {
                 border: "1px solid rgba(255,255,255,0.6)",
               }}
             >
-              {/* pt-[82px] clears the bar; links + language all in one horizontal row */}
-              <nav className="flex flex-row items-center justify-center px-6 pt-[82px] pb-6 gap-x-6 flex-wrap">
+              {/* vertical on mobile/tablet, horizontal on desktop */}
+              <nav className="flex flex-col lg:flex-row items-center justify-center px-6 pt-[82px] pb-8 gap-5 lg:gap-x-6">
                 {NAV_LINKS.map((link, i) => (
                   <motion.div
                     key={link.href}
@@ -283,16 +294,38 @@ export default function Navbar() {
                     </Link>
                   </motion.div>
                 ))}
-                {/* Language switcher — rightmost item */}
+
+                {/* Language switcher */}
                 <motion.div
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 6 }}
                   transition={{ duration: 0.2, delay: NAV_LINKS.length * 0.06 }}
-                  className="ml-auto"
                 >
                   <LanguageSwitcher isHeroMode={false} />
                 </motion.div>
+
+                {/* CTA — only shown in hero mode (hidden in glass navbar) */}
+                {heroMode && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 6 }}
+                    transition={{ duration: 0.2, delay: (NAV_LINKS.length + 1) * 0.06 }}
+                    className="w-full lg:w-auto flex justify-center"
+                  >
+                    <LiquidMetalButton
+                      label={t.nav.cta}
+                      onClick={() => {
+                        window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer");
+                        setIsMobileOpen(false);
+                      }}
+                      width={168}
+                      variant="white"
+                      textColor="#ff0000ff"
+                    />
+                  </motion.div>
+                )}
               </nav>
             </motion.div>
           )}
