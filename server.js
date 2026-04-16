@@ -8,6 +8,10 @@ const { GoogleGenAI } = require("@google/genai");
 // Load .env.local manually for the custom server
 require("dotenv").config({ path: ".env.local" });
 
+// FORCE WEBPACK: Turbopack breaks GSAP/Lenis animations in this project
+process.env.TURBOPACK = '0';
+process.env.NEXT_TURBOPACK = '0';
+
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
 const port = parseInt(process.env.PORT || "3000", 10);
