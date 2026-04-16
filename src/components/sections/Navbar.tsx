@@ -203,6 +203,7 @@ export default function Navbar() {
                       width={140}
                       variant="white"
                       textColor="#ff0000ff"
+                      noShadow
                     />
                   </motion.div>
                 )}
@@ -323,6 +324,7 @@ export default function Navbar() {
                       width={168}
                       variant="white"
                       textColor="#ff0000ff"
+                      noShadow
                     />
                   </motion.div>
                 )}

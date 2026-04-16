@@ -27,7 +27,7 @@ function ProblemCard({
   const [isHovered, setIsHovered] = useState(false);
 
   const runReveal = async () => {
-    await pawControls.set({ x: "-110%", y: "0%", rotate: -6, scale: 0.9 });
+    await pawControls.set({ x: "-70%", y: "0%", rotate: -6, scale: 0.9 });
     pawControls.start({
       x: "-10%", y: "0%", rotate: 0, scale: 1.15,
       transition: { duration: PAW_IN_DURATION, ease: EASE_OUT },
@@ -45,7 +45,7 @@ function ProblemCard({
       pawControls.start({ y: "0%", x: "-10%", rotate: 0, scale: 1.15, transition: { duration: PULL_DURATION, ease: EASE_OUT } }),
     ]);
     await new Promise(r => setTimeout(r, 60));
-    await pawControls.start({ x: "-110%", rotate: -6, scale: 0.9, transition: { duration: PAW_IN_DURATION, ease: EASE_IN } });
+    await pawControls.start({ x: "-50%", rotate: -6, scale: 0.9, transition: { duration: PAW_IN_DURATION, ease: EASE_IN } });
     pawControls.set({ y: "0%" });
   };
 
@@ -118,31 +118,34 @@ function ProblemCard({
           </div>
         </motion.div>
 
-        {/* ── LION PAW ── z-20, bottom-left, clamped width for all breakpoints */}
+      {/* ── LION PAW ── inside overflow-hidden, clipped at card left edge */}
+      {/* ↓ Tune x in initial (and the matching line in runReset) to set the resting peek amount.
+           -75% shows ~25% of the paw as a sliver. More negative = less visible. */}
+      <motion.div
+        className="pointer-events-none absolute z-20 bottom-0"
+        initial={{ x: "-50%", y: "0%", rotate: -6, scale: 0.9 }}
+        animate={pawControls}
+        style={{ left: 0, width: "clamp(95px, 85%, 145px)", aspectRatio: "1 / 1" }}
+      >
+        {/* Inner wrapper — hover scale only, independent of reveal animation */}
         <motion.div
-          className="pointer-events-none absolute z-20 bottom-0"
-          initial={{ x: "-90%", y: "0%", rotate: -6, scale: 1.2 }}
-          animate={pawControls}
-          style={{ left: 0, width: "clamp(95px, 85%, 145px)", aspectRatio: "1 / 1" }}
+          className="relative w-full h-full"
+          animate={{ scale: isHovered && !isRevealed ? 1.12 : 1 }}
+          transition={{ type: "spring", stiffness: 350, damping: 24 }}
         >
-          {/* Inner wrapper — hover scale only, independent of reveal animation */}
-          <motion.div
-            className="relative w-full h-full"
-            animate={{ scale: isHovered && !isRevealed ? 1.12 : 1 }}
-            transition={{ type: "spring", stiffness: 350, damping: 24 }}
-          >
-            <div className="relative w-full h-full drop-shadow-[0_0_30px_rgba(240,201,23,0.55)]">
-              <Image
-                src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775085187/Untitled_design_4_muu53f.png"
-                alt=""
-                aria-hidden="true"
-                fill
-                sizes="50vw"
-                className="object-contain object-bottom-left"
-              />
-            </div>
-          </motion.div>
+          <div className="relative w-full h-full drop-shadow-[0_0_30px_rgba(240,201,23,0.55)]">
+            <Image
+              src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775085187/Untitled_design_4_muu53f.png"
+              alt=""
+              aria-hidden="true"
+              fill
+              sizes="50vw"
+              className="object-contain object-bottom-left"
+            />
+          </div>
         </motion.div>
+      </motion.div>
+
       </div>
     </div>
   );

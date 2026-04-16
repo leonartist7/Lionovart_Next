@@ -37,7 +37,7 @@ const SERVICES: ServiceItem[] = [
     id: "web",
     label: "WEB / APP",
     shortLabel: "WEB",
-    accent: "#10b981",
+    accent: "#2563eb",
     statValue: "70%",
     leftVisual:  { type: "image", src: `${CDN}1_1_bv3shm.avif`,        caption: "Web project showcase" },
     rightVisual: { type: "image", src: `${CDN}Thumb_2_p6ksrb.avif`,    caption: "Digital experience" },
@@ -46,7 +46,7 @@ const SERVICES: ServiceItem[] = [
     id: "av",
     label: "A/V PRODUCTION",
     shortLabel: "A/V",
-    accent: "#e5192a",
+    accent: "#c0392b",
     statValue: "82%",
     leftVisual:  { type: "image", src: `${CDN}Frame_1_zhyago.avif`,         caption: "Production reel" },
     rightVisual: { type: "image", src: `${CDN}freepik_a-highly-polished-professional-uiux-website-homepage-mockup-for-a-modern-luxury-car-dealership.-clean-gridbased-layout-with-a-dark-theme-featuring-charcoal-grey-backgrounds-metallic-silve_0001_zglhcb.avif`, caption: "Campaign results" },
@@ -56,7 +56,7 @@ const SERVICES: ServiceItem[] = [
     id: "default",
     label: "LIONOVART",
     shortLabel: "ALL",
-    accent: "#e5192a",
+    accent: "#7c3aed",
     statValue: "50+",
     leftVisual:  { type: "image", src: `${CDN}freepik_from-this-brand-help-me-make-a-mockup-of-her-landing-page-keeping-the-visual-identity..-looking-very-premium-and-elegant-and-perfect_0001_1_u6hnjz.avif`, caption: "Brand campaign" },
     rightVisual: { type: "image", src: `${CDN}freepik_from-this-brand-help-me-make-a-mockup-of-her-landing-page-keeping-the-visual-identity..-looking-very-premium-and-elegant-and-perfect_0001_2_cd1gee.avif`, caption: "Creative direction" },
@@ -65,7 +65,7 @@ const SERVICES: ServiceItem[] = [
     id: "branding",
     label: "BRANDING",
     shortLabel: "BRAND",
-    accent: "#f59e0b",
+    accent: "#d97706",
     statValue: "3x",
     leftVisual:  { type: "image", src: `${CDN}freepik_from-this-brand-identity-help-me-make-a-mockup-of-her-landing-page..-looking-premium-and-elegant_0001_bnk4us.avif`,  caption: "Brand identity" },
     rightVisual: { type: "image", src: `${CDN}freepik__design-a-highly-polished-professional-corporate-we__1650_qukgx3.avif`,    caption: "Corporate identity" },
@@ -74,7 +74,7 @@ const SERVICES: ServiceItem[] = [
     id: "print",
     label: "PRINTING",
     shortLabel: "PRINT",
-    accent: "#f59e0b",
+    accent: "#16a34a",
     statValue: "100%",
     leftVisual:  { type: "image", src: `${CDN}image_19_rnwg8w.avif`, caption: "Print spread" },
     rightVisual: { type: "image", src: `${CDN}Screenshots_2_apvmbr.avif`,        caption: "Deliverables" },
@@ -88,7 +88,7 @@ const DEFAULT_CENTER = 2;
    ═══════════════════════════════════════════════════════════════════════ */
 
 const getPillSize          = (): number => Math.max(44, Math.min(window.innerWidth * 0.05, 64));
-const getExpandedPillWidth = (): number => Math.max(140, Math.min(window.innerWidth * 0.22, 260));
+const getExpandedPillWidth = (): number => Math.max(120, Math.min(window.innerWidth * 0.17, 210));
 
 function hexToRgba(hex: string, alpha: number): string {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -677,10 +677,13 @@ export default function LumaShowcase() {
                   onClick={() => handlePillClick(globalIndex)}
                   animate={
                     isActive
-                      ? { background: item.accent, boxShadow: "none" }
+                      ? {
+                          background: `linear-gradient(145deg, ${hexToRgba(item.accent, 0.78)} 0%, ${item.accent} 52%, ${hexToRgba(item.accent, 0.88)} 100%)`,
+                          boxShadow:  `inset 0 1px 0 rgba(255,255,255,0.32), inset 0 -1px 3px rgba(0,0,0,0.22), 0 0 22px ${hexToRgba(item.accent, 0.48)}`,
+                        }
                       : {
-                          background: `radial-gradient(circle at 38% 32%, ${hexToRgba(item.accent, 0.92)}, ${hexToRgba(item.accent, 0.60)} 100%)`,
-                          boxShadow:  `0 8px 28px ${hexToRgba(item.accent, 0.50)}, inset 0 1px 0 rgba(255,255,255,0.55), inset 0 -2px 6px rgba(0,0,0,0.18)`,
+                          background: `radial-gradient(circle at 38% 32%, ${item.accent}, ${hexToRgba(item.accent, 0.52)} 100%)`,
+                          boxShadow:  `0 8px 28px ${hexToRgba(item.accent, 0.45)}, inset 0 1px 0 rgba(255,255,255,0.60), inset 0 -2px 6px rgba(0,0,0,0.20)`,
                         }
                   }
                   transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
