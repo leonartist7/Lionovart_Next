@@ -124,7 +124,13 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
 
       // 3. Connect WebSocket
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-      const wsUrl = `${protocol}//${window.location.host}/api/strategist/live`;
+      
+      // Development mode runs the WebSocket on port 3001
+      const isDev = process.env.NODE_ENV === "development";
+      const wsUrl = isDev 
+        ? `ws://${window.location.hostname}:3001/api/strategist/live`
+        : `${protocol}//${window.location.host}/api/strategist/live`;
+      
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
