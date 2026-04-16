@@ -22,7 +22,7 @@ export default function Comparison() {
   }));
 
   return (
-    <section className="bg-white py-[100px] md:py-[140px] px-4 md:px-8">
+    <section className="bg-[#f0f0f0] py-[100px] md:py-[140px] px-4 md:px-8">
       <div className="max-w-[1200px] mx-auto">
         <div className="mb-12 md:mb-20 flex flex-col items-center text-center">
           <motion.h2
@@ -37,7 +37,7 @@ export default function Comparison() {
         </div>
 
         <motion.div
-          className="rounded-[24px] overflow-hidden bg-white shadow-[8px_8px_24px_rgba(0,0,0,0.1),-8px_-8px_24px_rgba(255,255,255,0.9)] border border-black/5"
+          className="rounded-[24px] overflow-hidden bg-[#f0f0f0] shadow-[8px_8px_24px_rgba(0,0,0,0.12),-8px_-8px_24px_rgba(255,255,255,0.9)] border border-black/5"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}

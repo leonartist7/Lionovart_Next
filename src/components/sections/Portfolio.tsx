@@ -308,7 +308,7 @@ function OrbitPlatformsCard({
             }}
           >
             {/* Zero-size anchor at center */}
-            <div style={{ position: "relative", width: 0, height: 0 }}>
+            <div className="relative w-0 h-0">
               {/* Faint guide rings */}
               {([120, 190] as const).map((d) => (
                 <div
@@ -355,7 +355,7 @@ function OrbitPlatformsCard({
                   alt="Lionovart emblem"
                   width={50}
                   height={50}
-                  style={{ objectFit: "contain" }}
+                  className="object-contain"
                 />
               </div>
             </div>
@@ -370,8 +370,7 @@ function OrbitPlatformsCard({
             }}
           >
             <p
-              className="mb-[2px] text-[9px] font-bold uppercase tracking-[0.2em]"
-              style={{ color: "#e5192a" }}
+              className="mb-[2px] text-[9px] font-bold uppercase tracking-[0.2em] text-[#e5192a]"
             >
               {toolsLabel}
             </p>
@@ -379,8 +378,7 @@ function OrbitPlatformsCard({
               {project.title}
             </h3>
             <p
-              className="mt-[2px] text-[12px] leading-snug"
-              style={{ color: "#151515ff" }}
+              className="mt-[2px] text-[12px] leading-snug text-[#151515]"
             >
               {project.description}
             </p>
@@ -429,8 +427,7 @@ function BentoCard({
 
   return (
     <motion.div
-      className={`relative ${project.gridClasses}`}
-      style={{ perspective: 1200 }}
+      className={`relative [perspective:1200px] ${project.gridClasses}`}
     >
       <motion.div
         ref={cardRef}
@@ -491,8 +488,7 @@ function BentoCard({
           {/* Content */}
           <div className="relative z-10 flex flex-row items-end justify-between px-6 pt-6 pb-[15px] md:px-8 md:pt-8 md:pb-[19px]">
             <span
-              className="text-[2.5rem] font-[800] leading-none text-[#e5192a] mb-0"
-              style={{ textShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
+              className="text-[2.5rem] font-[800] leading-none text-[#e5192a] mb-0 [text-shadow:0_2px_8px_rgba(0,0,0,0.15)]"
             >
               {project.metric}
             </span>
