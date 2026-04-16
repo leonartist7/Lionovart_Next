@@ -12,16 +12,13 @@ const PULL_DURATION   = 0.70;
 const EASE_IN  = [0.2, 0, 0.6, 1]  as const;
 const EASE_OUT = [0.20, 1, 0.3, 1] as const;
 
-// Which cards use the golden solution background (cards 3 & 4 → index 2 & 3)
-const USE_GOLDEN = [false, false, true, true] as const;
-
 // ─── Single Card ──────────────────────────────────────────────────────────────
 function ProblemCard({
   item,
   isRevealed,
   onToggle,
 }: {
-  item: { useGoldenSolution: boolean; problem: { heading: string; body: string }; solution: { heading: string; body: string } };
+  item: { problem: { heading: string; body: string }; solution: { heading: string; body: string } };
   isRevealed: boolean;
   onToggle: () => void;
 }) {
@@ -73,55 +70,34 @@ function ProblemCard({
           h-[130px] sm:h-[145px] md:h-[160px] lg:h-[175px]
         "
       >
-        {/* ── BASE LAYER: SOLUTION ── */}
-        {item.useGoldenSolution ? (
-          <div className="absolute inset-0 flex flex-col justify-center">
-            <Image
-              src="/images/Card golden.avif"
-              alt=""
-              aria-hidden="true"
-              fill
-              sizes="(max-width: 900px) 120vw, 60vw"
-              className="object-cover object-[center_70%]"
-              priority
-            />
-            {/* Scrim for text legibility over the bright golden image */}
-            <div className="absolute inset-0 bg-black/35" />
-            {/* Centered content */}
-            <div className="relative z-10 p-5 md:p-7 flex flex-col items-center justify-center h-full text-center gap-2">
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#10b981] flex items-center justify-center shrink-0">
-                  <svg className="w-4 h-4 md:w-4.5 md:h-4.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <h3 className="text-white font-clash font-bold text-[14px] md:text-[18px] uppercase leading-tight m-0 drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
-                  {item.solution.heading}
-                </h3>
-              </div>
-              <p className="text-white/90 font-sans text-[13px] md:text-[15px] leading-[1.5] drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)] max-w-[90%]">
-                {item.solution.body}
-              </p>
-            </div>
-          </div>
-        ) : (
-          /* Cards 1 & 2 — white/off-white solution */
-          <div className="absolute inset-0 bg-bg-off-white p-5 md:p-7 flex flex-col items-center justify-center text-center gap-2">
+        {/* ── BASE LAYER: SOLUTION — cards.webp stretched to fill card shape ── */}
+        <div className="absolute inset-0 flex flex-col justify-center">
+          <Image
+            src="/images/cards.webp"
+            alt=""
+            aria-hidden="true"
+            fill
+            sizes="(max-width: 900px) 120vw, 60vw"
+            className="object-fill"
+            priority
+          />
+          {/* Centered content */}
+          <div className="relative z-10 p-5 md:p-7 flex flex-col items-center justify-center h-full text-center gap-2">
             <div className="flex items-center justify-center gap-2">
               <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#10b981] flex items-center justify-center shrink-0">
-                <svg className="w-3 h-3 md:w-3.5 md:h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                <svg className="w-4 h-4 md:w-4.5 md:h-4.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-bg-brand-black font-clash font-bold text-[14px] md:text-[18px] uppercase leading-tight m-0">
+              <h3 className="text-white font-clash font-bold text-[14px] md:text-[18px] uppercase leading-tight m-0 drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
                 {item.solution.heading}
               </h3>
             </div>
-            <p className="text-[#4a4a4a] font-sans text-[13px] md:text-[15px] leading-[1.5] max-w-[90%]">
+            <p className="text-white/90 font-sans text-[13px] md:text-[15px] leading-[1.5] drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)] max-w-[90%]">
               {item.solution.body}
             </p>
           </div>
-        )}
+        </div>
 
         {/*
           ── OVERLAY LAYER: PROBLEM (black, pulled down by paw) ──
@@ -177,8 +153,7 @@ export default function ProblemsSolvedSection() {
   const [revealedIds, setRevealedIds] = useState<number[]>([]);
   const { t } = useLanguage();
 
-  const items = t.problems.items.map((item, i) => ({
-    useGoldenSolution: USE_GOLDEN[i],
+  const items = t.problems.items.map((item) => ({
     problem: item.problem,
     solution: item.solution,
   }));
