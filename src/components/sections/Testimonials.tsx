@@ -198,9 +198,9 @@ export default function Testimonials() {
   return (
     <section id="testimonials" className="bg-[#fafafa] relative w-full">
 
-      {/* ── MOBILE / TABLET LAYOUT (< 1024px) ── */}
-      <div className="flex lg:hidden flex-col py-16 sm:py-24 px-6 sm:px-10">
-        <div className="mb-10">
+      {/* ── MOBILE / TABLET LAYOUT (< 1024px) — horizontal draggable marquee ── */}
+      <div className="flex lg:hidden flex-col py-16 sm:py-24">
+        <div className="mb-10 px-6 sm:px-10">
           <p className="text-[#e5192a] text-[12px] font-bold uppercase tracking-[0.2em] mb-2">
             {t.testimonials.eyebrow}
           </p>
@@ -209,18 +209,21 @@ export default function Testimonials() {
           </h2>
         </div>
 
-        <div className="flex flex-col gap-6">
-          {TESTIMONIALS.map((item, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.15 }}
-              transition={{ duration: 0.55, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <MobileCard item={item} />
-            </motion.div>
-          ))}
+        {/* Drag-scroll strip */}
+        <div className="overflow-hidden">
+          <motion.div
+            className="flex gap-4 px-6 sm:px-10 cursor-grab active:cursor-grabbing"
+            drag="x"
+            dragConstraints={{ right: 0, left: -((TESTIMONIALS.length - 1) * 320) }}
+            dragElastic={0.1}
+            whileTap={{ cursor: "grabbing" }}
+          >
+            {TESTIMONIALS.map((item, i) => (
+              <div key={i} className="shrink-0 w-[300px] sm:w-[360px]">
+                <MobileCard item={item} />
+              </div>
+            ))}
+          </motion.div>
         </div>
       </div>
 

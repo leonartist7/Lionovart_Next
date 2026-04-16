@@ -135,20 +135,22 @@ export default function Navbar() {
             {/* Logo */}
             <div className="z-40 flex flex-1 items-center">
               <Link href="/" className="inline-flex items-center gap-2">
-                <motion.img
-                  src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
-                  alt="Lionovart logo"
-                  aria-hidden="true"
-                  animate={{
-                    opacity: heroMode ? 1 : 0,
-                    width:   heroMode ? 56 : 0,
-                    marginRight: heroMode ? 0 : -8,
-                  }}
-                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                  className="h-14 object-contain shrink-0 overflow-hidden"
-                  style={{ filter: "brightness(1) invert(0)" }}
-                />
-                <span className="text-xl font-bold uppercase tracking-[0.08em] text-white">
+                <span className="hidden sm:inline-flex">
+                  <motion.img
+                    src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
+                    alt="Lionovart logo"
+                    aria-hidden="true"
+                    animate={{
+                      opacity: heroMode ? 1 : 0,
+                      width:   heroMode ? 56 : 0,
+                      marginRight: heroMode ? 0 : -8,
+                    }}
+                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                    className="h-14 object-contain shrink-0 overflow-hidden"
+                    style={{ filter: "brightness(1) invert(0)" }}
+                  />
+                </span>
+                <span className="text-base sm:text-xl font-bold uppercase tracking-[0.08em] text-white">
                   LIONOVART
                 </span>
               </Link>
@@ -200,6 +202,7 @@ export default function Navbar() {
                 {heroMode && (
                   <motion.div
                     key="lang-hero"
+                    className="hidden sm:block"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -260,8 +263,8 @@ export default function Navbar() {
                 border: "1px solid rgba(255,255,255,0.6)",
               }}
             >
-              {/* pt-[82px] clears the bar; links are horizontal */}
-              <nav className="flex flex-row flex-wrap items-center justify-center px-6 pt-[82px] pb-6 gap-x-6 gap-y-3">
+              {/* pt-[82px] clears the bar; links + language all in one horizontal row */}
+              <nav className="flex flex-row items-center justify-center px-6 pt-[82px] pb-6 gap-x-6 flex-wrap">
                 {NAV_LINKS.map((link, i) => (
                   <motion.div
                     key={link.href}
@@ -269,7 +272,6 @@ export default function Navbar() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 6 }}
                     transition={{ duration: 0.2, delay: i * 0.06 }}
-                    className="w-full"
                   >
                     <Link
                       href={link.href}
@@ -281,13 +283,13 @@ export default function Navbar() {
                     </Link>
                   </motion.div>
                 ))}
-                {/* Language switcher row inside mobile menu */}
+                {/* Language switcher — rightmost item */}
                 <motion.div
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 6 }}
                   transition={{ duration: 0.2, delay: NAV_LINKS.length * 0.06 }}
-                  className="mt-1 flex justify-center"
+                  className="ml-auto"
                 >
                   <LanguageSwitcher isHeroMode={false} />
                 </motion.div>

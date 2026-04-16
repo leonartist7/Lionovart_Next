@@ -1,259 +1,242 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { sendMessage } from "@/lib/gemini-client";
-import type { Message, HandoffData, SessionState } from "@/lib/strategist-config";
+import type { HandoffData, SessionState } from "@/lib/strategist-config";
+import { STRATEGIST_SYSTEM_PROMPT, STRATEGIST_TOOLS } from "@/lib/strategist-config";
 
-/* ─── Types ──────────────────────────────────────────────────── */
-interface UseStrategistSessionOptions {
-  onClose: () => void;
+export interface LeadData {
+  name: string;
+  phone: string;
+  email: string;
 }
 
 export interface UseStrategistSessionReturn {
+  isSessionActive: boolean;
   state: SessionState;
-  messages: Message[];
-  inputMode: "voice" | "text";
-  setInputMode: (mode: "voice" | "text") => void;
-  detectedLanguage: string;
+  leadData: LeadData;
+  setLeadData: (updater: (prev: LeadData) => LeadData) => void;
   handoffData: HandoffData | null;
-  hasSpeechSupport: boolean;
-  sendText: (text: string) => void;
-  startVoice: () => void;
-  stopVoice: () => void;
+  startSession: () => Promise<void>;
+  stopSession: () => void;
+  sendTextToAgent: (text: string) => void;
 }
 
-/* ─── Unique ID helper ───────────────────────────────────────── */
-let _idCounter = 0;
-function uid() {
-  return `msg_${Date.now()}_${++_idCounter}`;
+// Convert Int16Array to Base64 for the Gemini Live API
+function arrayBufferToBase64(buffer: ArrayBuffer) {
+  let binary = "";
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary);
 }
 
-/* ─── Hook ───────────────────────────────────────────────────── */
-export function useStrategistSession({
-  onClose,
-}: UseStrategistSessionOptions): UseStrategistSessionReturn {
+// Convert Base64 back to Int16Array
+function base64ToInt16Array(base64: string) {
+  const binary_string = window.atob(base64);
+  const len = binary_string.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binary_string.charCodeAt(i);
+  }
+  return new Int16Array(bytes.buffer);
+}
+
+export function useStrategistSession({ onClose }: { onClose: () => void }): UseStrategistSessionReturn {
+  const [isSessionActive, setIsSessionActive] = useState(false);
   const [state, setState] = useState<SessionState>("idle");
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMode, setInputMode] = useState<"voice" | "text">("voice");
-  const [detectedLanguage, setDetectedLanguage] = useState("en");
+  const [leadData, setLeadData] = useState<LeadData>({ name: "", phone: "", email: "" });
   const [handoffData, setHandoffData] = useState<HandoffData | null>(null);
-  const [hasSpeechSupport, setHasSpeechSupport] = useState(false);
 
-  const abortRef = useRef<AbortController | null>(null);
-  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const processorRef = useRef<AudioWorkletNode | null>(null);
 
-  /* ── Detect SpeechRecognition support on mount ── */
-  useEffect(() => {
-    const SR: SpeechRecognitionConstructor | undefined =
-      typeof window !== "undefined"
-        ? (window.SpeechRecognition ?? window.webkitSpeechRecognition)
-        : undefined;
-    const supported = SR != null;
-    setHasSpeechSupport(supported);
-    if (!supported) setInputMode("text");
-  }, []);
-
-  /* ── Cleanup on unmount ── */
-  useEffect(() => {
-    return () => {
-      abortRef.current?.abort();
-      stopRecognition();
-      window.speechSynthesis?.cancel();
-    };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  /* ── Speak agent message aloud (voice mode only) ── */
-  const speakText = useCallback(
-    (text: string) => {
-      if (inputMode !== "voice" || !window.speechSynthesis) return;
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = detectedLanguage.length === 2 ? `${detectedLanguage}-${detectedLanguage.toUpperCase()}` : detectedLanguage;
-      utterance.rate = 1.0;
-      const voices = window.speechSynthesis.getVoices();
-      const preferred = voices.find(
-        (v) => v.lang.startsWith(detectedLanguage) && (v.name.includes("Natural") || v.name.includes("Premium"))
-      );
-      if (preferred) utterance.voice = preferred;
-      utterance.onstart = () => setState("speaking");
-      utterance.onend = () => setState("idle");
-      utterance.onerror = () => setState("idle");
-      window.speechSynthesis.speak(utterance);
-    },
-    [inputMode, detectedLanguage]
-  );
-
-  /* ── Core send function ── */
-  const sendText = useCallback(
-    (text: string) => {
-      if (state === "thinking" || state === "speaking") return;
-
-      // Cancel any in-flight request
-      abortRef.current?.abort();
-      const controller = new AbortController();
-      abortRef.current = controller;
-
-      // Append user message
-      const userMsg: Message = { id: uid(), role: "user", content: text, timestamp: Date.now() };
-      setMessages((prev) => {
-        const updated = [...prev, userMsg];
-        startStreaming(text, updated, controller.signal);
-        return updated;
-      });
-    },
-    [state] // eslint-disable-line react-hooks/exhaustive-deps
-  );
-
-  /* ── Stream agent response ── */
-  function startStreaming(
-    text: string,
-    history: Message[],
-    signal: AbortSignal
-  ) {
-    setState("thinking");
-
-    // Exclude the last user message from history sent (it's sent as `message`)
-    const historyForApi = history.slice(0, -1);
-
-    const agentMsgId = uid();
-    let agentContent = "";
-    let firstChunk = true;
-
-    (async () => {
-      try {
-        for await (const event of sendMessage(text, historyForApi, signal)) {
-          if (signal.aborted) break;
-
-          switch (event.type) {
-            case "text": {
-              if (!event.content) break;
-              if (firstChunk) {
-                firstChunk = false;
-                setState("speaking");
-                // Add empty agent message to stream into
-                setMessages((prev) => [
-                  ...prev,
-                  { id: agentMsgId, role: "agent", content: "", timestamp: Date.now() },
-                ]);
-              }
-              agentContent += event.content;
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === agentMsgId ? { ...m, content: agentContent } : m
-                )
-              );
-              break;
-            }
-
-            case "function_result": {
-              // language_detected comes back in function results
-              const result = event.result as Record<string, unknown> | null;
-              if (result && typeof result.language_detected === "string") {
-                setDetectedLanguage(result.language_detected);
-              }
-              break;
-            }
-
-            case "handoff": {
-              if (event.whatsapp_url && event.booking_url) {
-                setHandoffData({
-                  whatsappUrl: event.whatsapp_url,
-                  bookingUrl: event.booking_url,
-                  summaryMessage: event.summary_message,
-                });
-                setState("handoff");
-              }
-              break;
-            }
-
-            case "done": {
-              if (agentContent && inputMode === "voice") {
-                speakText(agentContent);
-              } else {
-                setState("idle");
-              }
-              break;
-            }
-
-            case "error": {
-              const errMsg: Message = {
-                id: uid(),
-                role: "agent",
-                content: event.message ?? "Something went wrong. Please try again.",
-                timestamp: Date.now(),
-              };
-              setMessages((prev) => [...prev.filter((m) => m.id !== agentMsgId), errMsg]);
-              setState("idle");
-              break;
-            }
-          }
-        }
-      } catch {
-        if (!signal.aborted) {
-          setState("idle");
-        }
-      }
-    })();
-  }
-
-  /* ── Voice input ── */
-  function stopRecognition() {
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop();
-      } catch {}
-      recognitionRef.current = null;
+  const stopSession = useCallback(() => {
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
     }
-  }
-
-  const startVoice = useCallback(() => {
-    const SR: SpeechRecognitionConstructor | undefined =
-      window.SpeechRecognition ?? window.webkitSpeechRecognition;
-    if (!SR) return;
-
-    stopRecognition();
-
-    const recognition = new SR();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = detectedLanguage.length === 2 ? `${detectedLanguage}-${detectedLanguage.toUpperCase()}` : detectedLanguage;
-
-    recognition.onstart = () => setState("listening");
-    recognition.onend = () => {
-      recognitionRef.current = null;
-      if (state === "listening") setState("idle");
-    };
-    recognition.onerror = () => {
-      recognitionRef.current = null;
-      setState("idle");
-    };
-    recognition.onresult = (e: SpeechRecognitionEvent) => {
-      const transcript = Array.from(e.results)
-        .map((r: SpeechRecognitionResult) => r[0].transcript)
-        .join("")
-        .trim();
-      if (transcript) sendText(transcript);
-    };
-
-    recognition.start();
-    recognitionRef.current = recognition;
-  }, [detectedLanguage, state, sendText]);
-
-  const stopVoice = useCallback(() => {
-    stopRecognition();
+    if (processorRef.current) {
+      processorRef.current.disconnect();
+      processorRef.current = null;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    setIsSessionActive(false);
     setState("idle");
   }, []);
 
+  const sendTextToAgent = useCallback((text: string) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      // Send text back to Gemini
+      wsRef.current.send(
+        JSON.stringify({
+          clientContent: {
+            turns: [
+              {
+                role: "user",
+                parts: [{ text }],
+              },
+            ],
+            turnComplete: true,
+          },
+        })
+      );
+    }
+  }, []);
+
+  const startSession = useCallback(async () => {
+    try {
+      // 1. Initialize AudioContext at 16kHz
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({
+        sampleRate: 16000,
+      });
+      audioContextRef.current = audioCtx;
+
+      await audioCtx.audioWorklet.addModule("/audio-processor.js");
+
+      // 2. Request Mic
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          channelCount: 1,
+          echoCancellation: true,
+          autoGainControl: true,
+          noiseSuppression: true,
+        },
+      });
+      streamRef.current = stream;
+
+      const source = audioCtx.createMediaStreamSource(stream);
+      const processor = new AudioWorkletNode(audioCtx, "audio-processor");
+      processorRef.current = processor;
+
+      source.connect(processor);
+      processor.connect(audioCtx.destination);
+
+      // 3. Connect WebSocket
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const wsUrl = `${protocol}//${window.location.host}/api/strategist/live`;
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        // Send setup payload
+        ws.send(
+          JSON.stringify({
+            type: "setup",
+            config: {
+              systemInstruction: { parts: [{ text: STRATEGIST_SYSTEM_PROMPT }] },
+              tools: STRATEGIST_TOOLS,
+            },
+          })
+        );
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+
+        // Setup confirmed
+        if (data.type === "setup_complete") {
+          setIsSessionActive(true);
+          setState("listening");
+          
+          // Once setup is complete, start sending mic data from worklet
+          processor.port.onmessage = (e) => {
+            if (e.data.type === "audio" && ws.readyState === WebSocket.OPEN) {
+              const base64Audio = arrayBufferToBase64(e.data.pcm.buffer);
+              ws.send(
+                JSON.stringify({
+                  realtimeInput: {
+                    mediaChunks: [
+                      {
+                        mimeType: "audio/pcm;rate=16000",
+                        data: base64Audio,
+                      },
+                    ],
+                  },
+                })
+              );
+            }
+          };
+          return;
+        }
+
+        // Handle Audio from Gemini
+        if (data.serverContent && data.serverContent.modelTurn) {
+          const parts = data.serverContent.modelTurn.parts;
+          for (const part of parts) {
+            if (part.inlineData && part.inlineData.mimeType.startsWith("audio/pcm")) {
+              const pcm16 = base64ToInt16Array(part.inlineData.data);
+              processor.port.postMessage({ pcm: Array.from(pcm16) });
+              setState("speaking"); // Currently playing audio
+            }
+          }
+        }
+
+        // If turn is complete, revert to listening
+        if (data.serverContent && data.serverContent.turnComplete) {
+          setState("listening");
+        }
+
+        // Handle Client Tool Calls (update_screen_info, show_handoff_cards)
+        if (data.toolCall) {
+          const calls = data.toolCall.functionCalls;
+          for (const call of calls) {
+            if (call.name === "update_screen_info") {
+              const { name, phone, email } = call.args as Record<string, string>;
+              setLeadData((prev) => ({
+                name: name !== undefined ? name : prev.name,
+                phone: phone !== undefined ? phone : prev.phone,
+                email: email !== undefined ? email : prev.email,
+              }));
+            }
+            if (call.name === "show_handoff_cards") {
+              const { whatsapp_url, booking_url, summary_message } = call.args as Record<string, string>;
+              setHandoffData({
+                whatsappUrl: whatsapp_url,
+                bookingUrl: booking_url,
+                summaryMessage: summary_message,
+              });
+              setState("handoff");
+            }
+          }
+        }
+      };
+
+      ws.onclose = () => {
+        stopSession();
+      };
+
+    } catch (err) {
+      console.error("Failed to start session:", err);
+      stopSession();
+    }
+  }, [stopSession]);
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      stopSession();
+    };
+  }, [stopSession]);
+
   return {
+    isSessionActive,
     state,
-    messages,
-    inputMode,
-    setInputMode,
-    detectedLanguage,
+    leadData,
+    setLeadData,
     handoffData,
-    hasSpeechSupport,
-    sendText,
-    startVoice,
-    stopVoice,
+    startSession,
+    stopSession,
+    sendTextToAgent
   };
 }

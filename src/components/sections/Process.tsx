@@ -126,8 +126,7 @@ export default function Process() {
     <section
       ref={sectionRef}
       id="process"
-      className="relative bg-[#eceff3]"
-      style={{ height: "320vh" }}
+      className="relative bg-[#eceff3] h-[320vh]"
     >
       {/* ── Sticky viewport — stays at top while user scrolls through the section ── */}
       <div className="sticky top-0 h-screen overflow-hidden flex flex-col">
@@ -137,19 +136,17 @@ export default function Process() {
           <div className="flex items-end justify-between flex-wrap gap-4 mb-5">
             <div>
               <p
-                className="text-[12px] font-bold uppercase tracking-[0.22em] mb-2"
-                style={{ color: "#e5192a" }}
+                className="text-[12px] font-bold uppercase tracking-[0.22em] mb-2 text-[#e5192a]"
               >
                 {t.process.eyebrow}
               </p>
               <h2
-                className="text-[2.4rem] sm:text-[3.2rem] md:text-[4rem] font-bold uppercase leading-none tracking-tight"
-                style={{ color: "#111111" }}
+                className="text-[2.4rem] sm:text-[3.2rem] md:text-[4rem] font-bold uppercase leading-none tracking-tight text-[#111111]"
               >
-                {t.process.heading} <span style={{ color: "#e5192a" }}>{t.process.headingAccent}</span>
+                {t.process.heading} <span className="text-[#e5192a]">{t.process.headingAccent}</span>
               </h2>
             </div>
-            <p className="text-[11px] uppercase tracking-[0.18em]" style={{ color: "#bbb" }}>
+            <p className="text-[11px] uppercase tracking-[0.18em] text-[#bbb]">
               {t.process.scrollHint}
             </p>
           </div>
@@ -160,8 +157,7 @@ export default function Process() {
 
           {/* Floor line */}
           <div
-            className="absolute bottom-0 left-0 right-0 h-[1px] z-10"
-            style={{ background: "rgba(229,25,42,0.15)" }}
+            className="absolute bottom-0 left-0 right-0 h-[1px] z-10 bg-[rgba(229,25,42,0.15)]"
             aria-hidden
           />
 
@@ -274,7 +270,7 @@ export default function Process() {
               ))}
 
               {/* Trailing spacer keeps last column away from the edge */}
-              <div style={{ flexShrink: 0, width: "clamp(80px, 15vw, 200px)" }} aria-hidden />
+              <div className="shrink-0 w-[clamp(80px,15vw,200px)]" aria-hidden />
             </div>
           </motion.div>
         </div>

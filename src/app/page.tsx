@@ -20,9 +20,9 @@ export default function Home() {
       <AboutUsHalf />
       <LumaShowcase />
       <MarqueeSlanted />
+      <Services />
       <Portfolio />
       <Process />
-      <Services />
       <Comparison />
       <ProblemsSolvedSection />
       <Testimonials />

@@ -7,6 +7,8 @@ import { getWhatsAppUrl } from "@/lib/contact";
 import HeroCycling, { Word } from "@/components/sections/HeroCycling";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import MagneticOrb from "@/components/ai-strategist/MagneticOrb";
+import StrategistPanel from "@/components/ai-strategist/StrategistPanel";
 
 /* ─── Variants ─────────────────────────────────────────────────── */
 const containerVariants = {
@@ -267,7 +269,7 @@ function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; exp
   const inView = useInView(ref, { once: true, margin: "0px" });
 
   const brandsCount    = useCountUp(50, 1600, inView);
-  const countriesCount = useCountUp(10, 1400, inView);
+  const countriesCount = useCountUp(7, 1400, inView);
 
   const sideWidth = typeof window !== "undefined" && window.innerWidth < 768 ? 45 : 65;
   const midWidth  = typeof window !== "undefined" && window.innerWidth < 768 ? 70 : 100;
@@ -275,10 +277,11 @@ function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; exp
   return (
     <div
       ref={ref}
-      className="flex justify-center items-center gap-0 sm:gap-2 md:gap-4 w-full max-w-[1100px] mx-auto mt-4 md:mt-5 scale-[0.85] sm:scale-90 md:scale-100 origin-top"
+      className="flex flex-wrap justify-center items-center gap-y-2 gap-x-0 sm:gap-2 md:gap-4 w-full max-w-[1100px] mx-auto mt-4 md:mt-5"
     >
-      {/* ── Badge 1: Brands — entrance animation tied to inView ── */}
+      {/* ── Badge 1: Brands — mobile row 2, desktop row 1 ── */}
       <motion.div
+        className="order-2 sm:order-1"
         initial={{ opacity: 0, y: 16 }}
         animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
         transition={{ duration: 0.55, delay: 0.0, ease: [0.16, 1, 0.3, 1] }}
@@ -294,8 +297,9 @@ function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; exp
         </TrustBadge>
       </motion.div>
 
-      {/* ── Badge 2: Customer Experience — stars animate in staggered ── */}
+      {/* ── Badge 2: Customer Experience — mobile row 1 (full width), desktop center ── */}
       <motion.div
+        className="order-1 sm:order-2 basis-full sm:basis-auto flex justify-center"
         initial={{ opacity: 0, y: 16 }}
         animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
         transition={{ duration: 0.55, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
@@ -350,8 +354,9 @@ function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; exp
         </TrustBadge>
       </motion.div>
 
-      {/* ── Badge 3: Countries — entrance animation tied to inView ── */}
+      {/* ── Badge 3: Countries — mobile row 2, desktop row 1 ── */}
       <motion.div
+        className="order-3"
         initial={{ opacity: 0, y: 16 }}
         animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
         transition={{ duration: 0.55, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
@@ -410,7 +415,7 @@ function DynamicTrustBadges({ badges }: { badges: { brands: readonly string[]; e
 
   if (!isMounted) {
     return (
-      <div className="w-full max-w-[1100px] mx-auto mt-4 md:mt-5 opacity-0 invisible" style={{ height: "120px" }} />
+      <div className="w-full max-w-[1100px] mx-auto mt-4 md:mt-5 opacity-0 invisible h-[120px]" />
     );
   }
 
@@ -422,6 +427,7 @@ function DynamicTrustBadges({ badges }: { badges: { brands: readonly string[]; e
 /* -------------------------------------------------------------------------- */
 export default function HeroTop() {
   const [submitted, setSubmitted] = useState(false);
+  const [strategistOpen, setStrategistOpen] = useState(false);
   const { t } = useLanguage();
 
   const CYCLING_WORDS: Word[] = t.hero.cyclingWords.map((content) => ({
@@ -496,6 +502,14 @@ export default function HeroTop() {
           />
         </motion.div>
 
+        {/* AI Strategist Orb — between CTAs and carousel */}
+        <motion.div
+          variants={itemVariants}
+          className="flex items-center justify-center mt-4"
+        >
+          <MagneticOrb onOpen={() => setStrategistOpen(true)} />
+        </motion.div>
+
         
       </motion.div>
 
@@ -528,7 +542,11 @@ export default function HeroTop() {
         </motion.p>
       </motion.div>
 
-
+      {/* AI Strategist Panel (renders via portal to document.body) */}
+      <StrategistPanel
+        isOpen={strategistOpen}
+        onClose={() => setStrategistOpen(false)}
+      />
 
     </section>
   );

@@ -33,7 +33,12 @@
       "Bash(cmd /c \"wmic process where ProcessId=20956 get ProcessId,Name,CommandLine 2>&1\")",
       "Bash(cmd /c \"wmic process where \\\\\"ProcessId=20956\\\\\" get ProcessId 2>&1\")",
       "Bash(cmd /c \"del /F /Q \\\\\"C:\\\\Users\\\\Leonartist\\\\Documents\\\\WEB DEV\\\\LIONOVART_NEXTJS-TAILWIND\\\\.claude\\\\worktrees\\\\festive-jepsen\\\\.next\\\\dev\\\\server-info.json\\\\\" 2>&1\")",
-      "Bash(cmd /c \"dir \\\\\"C:\\\\Users\\\\Leonartist\\\\Documents\\\\WEB DEV\\\\LIONOVART_NEXTJS-TAILWIND\\\\.claude\\\\worktrees\\\\festive-jepsen\\\\.next\\\\dev\\\\\" 2>&1\")"
+      "Bash(cmd /c \"dir \\\\\"C:\\\\Users\\\\Leonartist\\\\Documents\\\\WEB DEV\\\\LIONOVART_NEXTJS-TAILWIND\\\\.claude\\\\worktrees\\\\festive-jepsen\\\\.next\\\\dev\\\\\" 2>&1\")",
+      "Bash(sed 's/\\(.*//')",
+      "Bash(wmic logicaldisk:*)",
+      "Bash(cmd /c \"robocopy /MIR /NFL /NDL /NJH /NJS /NC /NS /NP \\\\\"%TEMP%\\\\\\\\empty_dir_$$\\\\\" \\\\\"C:\\\\\\\\Users\\\\\\\\Leonartist\\\\\\\\Documents\\\\\\\\WEB DEV\\\\\\\\LIONOVART_NEXTJS-TAILWIND\\\\\\\\.claude\\\\\\\\worktrees\\\\\\\\crazy-taussig\\\\\"\")",
+      "Bash(mkdir -p /tmp/empty_rob)",
+      "Bash(cmd /c \"robocopy /MIR \\\\\"C:\\\\\\\\Users\\\\\\\\Leonartist\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\" \\\\\"C:\\\\\\\\Users\\\\\\\\Leonartist\\\\\\\\Documents\\\\\\\\WEB DEV\\\\\\\\LIONOVART_NEXTJS-TAILWIND\\\\\\\\.claude\\\\\\\\worktrees\\\\\\\\crazy-taussig\\\\\" /CREATE\")"
     ]
   }
 }
