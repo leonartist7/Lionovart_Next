@@ -13,7 +13,6 @@ process.env.TURBOPACK = '0';
 process.env.NEXT_TURBOPACK = '0';
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = "localhost";
 
 // Hostinger often provides named pipes or strings for PORT in production.
 // We must NOT run parseInt() on it if it's a pipe.
@@ -23,7 +22,7 @@ const port = isNaN(Number(portRaw)) ? portRaw : Number(portRaw);
 // For next(), it expects a numeric port. Pass undefined if it's a named pipe.
 const nextPort = typeof port === "number" ? port : undefined;
 
-const app = next({ dev, hostname, port: nextPort });
+const app = next({ dev, port: nextPort });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
@@ -152,4 +151,7 @@ app.prepare().then(() => {
       }`
     );
   });
+}).catch((err) => {
+  console.error("Next.js app.prepare() failed to start:", err);
+  process.exit(1);
 });
