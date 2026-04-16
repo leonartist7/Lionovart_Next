@@ -196,7 +196,7 @@ export default function AboutUsHalf() {
         <div ref={cardRef} className="flex items-end gap-3 mt-8 md:mt-10 self-end">
 
           {/* Photo — sits beside the contact card */}
-          <div className="w-[64px] h-[64px] shrink-0 rounded-[16px] overflow-hidden border border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
+          <div className="relative w-[64px] h-[64px] shrink-0 rounded-[16px] overflow-hidden border border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
             <Image
               src="https://res.cloudinary.com/dgio9uutc/image/upload/v1776064620/leonardo_icon_rkjxcx.webp"
               alt="Leonardo"
@@ -210,13 +210,13 @@ export default function AboutUsHalf() {
           <div className="relative h-[72px] w-[220px]">
             <motion.button
               type="button"
-              layout
-              layoutDependency={contactOpen}
+              initial={false}
+              animate={{ height: contactOpen ? "auto" : 72 }}
+              transition={{ duration: 0.38, ease: [0.4, 0, 0.2, 1] }}
               onMouseEnter={openContact}
               onMouseLeave={closeContact}
               onClick={() => setContactOpen((v) => !v)}
-              transition={{ layout: { duration: 0.38, ease: [0.4, 0, 0.2, 1] } }}
-              className="absolute bottom-0 right-0 w-[220px] text-left rounded-[20px] border border-white/[0.12] shadow-[0_8px_40px_rgba(0,0,0,0.55)] cursor-pointer select-none overflow-visible"
+              className="absolute bottom-0 right-0 w-[220px] text-left rounded-[20px] border border-white/[0.12] shadow-[0_8px_40px_rgba(0,0,0,0.55)] cursor-pointer select-none overflow-hidden"
               style={{
                 background: "rgba(28,28,30,0.88)",
                 backdropFilter: "blur(32px) saturate(1.8)",
@@ -229,14 +229,15 @@ export default function AboutUsHalf() {
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-[#e5192a]" />
               </span>
 
-              {/* Collapsed label — fades out when open */}
-              <AnimatePresence>
-                {!contactOpen && (
+              {/* Single AnimatePresence — mode="wait" ensures exit finishes before enter starts */}
+              <AnimatePresence mode="wait">
+                {!contactOpen ? (
                   <motion.div
                     key="label"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    exit={{ opacity: 0, transition: { duration: 0.1 } }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.12 }}
                     className="px-4 pt-[22px] pb-[22px] pr-8"
                   >
                     <p className="text-[14px] font-bold text-white leading-tight whitespace-nowrap">
@@ -246,17 +247,13 @@ export default function AboutUsHalf() {
                       {t.about.founderRole}
                     </p>
                   </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Expanded info — fades in after card finishes growing */}
-              <AnimatePresence>
-                {contactOpen && (
+                ) : (
                   <motion.div
                     key="info"
                     initial={{ opacity: 0 }}
-                    animate={{ opacity: 1, transition: { delay: 0.18, duration: 0.18 } }}
-                    exit={{ opacity: 0, transition: { duration: 0.08 } }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
                     className="px-4 pt-4 pb-4 flex flex-col gap-3.5"
                   >
                     <a href={`mailto:${CONTACT_EMAIL}`} className="group block" onClick={(e) => e.stopPropagation()}>
