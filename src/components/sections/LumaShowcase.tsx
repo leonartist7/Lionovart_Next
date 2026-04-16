@@ -87,15 +87,8 @@ const DEFAULT_CENTER = 2;
    Helpers
    ═══════════════════════════════════════════════════════════════════════ */
 
-const getPillSize          = (): number => Math.max(44, Math.min(window.innerWidth * 0.05, 64));
+const getPillSize     = (): number => Math.max(44, Math.min(window.innerWidth * 0.05, 64));
 const getExpandedPillWidth = (): number => Math.max(140, Math.min(window.innerWidth * 0.22, 260));
-
-function hexToRgba(hex: string, alpha: number): string {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r},${g},${b},${alpha})`;
-}
 
 function getOrderedServices(centerIdx: number): ServiceItem[] {
   const n = SERVICES.length;
@@ -173,7 +166,7 @@ export default function LumaShowcase() {
   const sectionRef      = useRef<HTMLElement>(null);
   const stickyRef       = useRef<HTMLDivElement>(null);
   const videoRef        = useRef<HTMLDivElement>(null);
-  const videoColorRef   = useRef<HTMLDivElement>(null);
+  const oneVisionRef    = useRef<HTMLDivElement>(null);
   const lionRef         = useRef<HTMLImageElement>(null);
   const glowRef         = useRef<HTMLDivElement>(null);
   const pillsRowRef     = useRef<HTMLDivElement>(null);
@@ -285,7 +278,7 @@ export default function LumaShowcase() {
         !sectionRef.current      ||
         !stickyRef.current       ||
         !videoRef.current        ||
-        !videoColorRef.current   ||
+        !oneVisionRef.current    ||
         !lionRef.current         ||
         !glowRef.current         ||
         !pillsRowRef.current     ||
@@ -326,7 +319,7 @@ export default function LumaShowcase() {
               trigger: sectionRef.current,
               start:   "top top",
               end:     "bottom bottom",
-              scrub:   1,
+              scrub:   0.05,
               invalidateOnRefresh: true,
               onEnter: () => {
                 if (isSoundOn && bassAudioRef.current) {
@@ -352,81 +345,67 @@ export default function LumaShowcase() {
             },
           });
 
-          /* ─────────────────────────────────────────────────────────────────
-             ENTRANCE SWEEP  (progress 0.00 → 0.50)
-             All timings are fractions of total scroll progress.
-             scrub:1 means 1 second of lag — each step feels weighty.
-          ───────────────────────────────────────────────────────────────── */
-
-          // Phase 0 — set lion off-screen below, invisible initially
+          /* ── Entrance sweep  (0 → 0.48) ── */
           tl.set(lionRef.current!, { y: () => window.innerHeight * 1.1, opacity: 1, width: lionEntryW }, 0);
 
-          // Phase 1 — Lion rises from below (0.00 → 0.26)
-          tl.to(lionRef.current!, { y: 0, duration: 0.26, ease: "power4.out" }, 0.00);
+          tl.to(oneVisionRef.current!, { y: "60vh", scale: 0.15, opacity: 0, duration: 0.14, ease: "power3.in" }, 0.02);
 
-          // Phase 3 — Lion shrinks width + Video shrinks to pill (0.26 → 0.46)
-          // These run together for a single cohesive "collapse" beat.
-          tl.to(lionRef.current!, { width: lionShrinkW, duration: 0.20, ease: "power3.inOut" }, 0.26);
+          tl.to(lionRef.current!, { y: 0, duration: 0.22, ease: "power3.out" }, 0.04);
+          tl.to(lionRef.current!, { width: lionShrinkW, duration: 0.16, ease: "power2.inOut" }, 0.22);
 
           tl.fromTo(
             videoRef.current!,
             { width: videoFromW, height: videoFromH, borderRadius: 20, x: 0, y: 0 },
             {
-              width:        () => getPillSize(),
-              height:       () => getPillSize(),
+              width: () => getPillSize(), height: () => getPillSize(),
               borderRadius: 9999,
-              x:            () => getDelta().x,
-              y:            () => getDelta().y,
-              duration: 0.30,
-              ease: "expo.inOut",  // smooth S-curve — accelerates then decelerates
+              x: () => getDelta().x, y: () => getDelta().y,
+              duration: 0.18, ease: "power2.inOut",
             },
-            0.24,
+            0.22,
           );
 
-          // Phase 4a — Colour overlay blooms in as video shrinks → video "becomes" a coloured sphere
-          tl.fromTo(videoColorRef.current!, { opacity: 0 }, { opacity: 1, duration: 0.22, ease: "power3.in" }, 0.24);
+          tl.fromTo(glowRef.current!, { opacity: 0 }, { opacity: 1.0, duration: 0.12 }, 0.28);
 
-          // Phase 4b — Glow blooms up while shrink finishes (0.30 → 0.44)
-          tl.fromTo(glowRef.current!, { opacity: 0 }, { opacity: 1, duration: 0.14 }, 0.30);
+          tl.to(videoRef.current!, { opacity: 0, duration: 0.04 }, 0.36);
+          tl.fromTo(pillsRowRef.current!, { opacity: 0 }, { opacity: 1, duration: 0.04 }, 0.36);
 
-          // Phase 5 — Content panel zooms in from behind (0.32 → 0.46)
-          tl.fromTo(
-            finalContentRef.current!,
-            { opacity: 0, scale: 0.50, filter: "blur(16px)" },
-            { opacity: 1, scale: 1,    filter: "blur(0px)", duration: 0.18, ease: "power3.out" },
-            0.32,
-          );
-
-          // Phase 6 — Video pill dissolves, pills row fades in (0.40 → 0.46)
-          tl.to(videoRef.current!, { opacity: 0, duration: 0.06 }, 0.40);
-          tl.fromTo(pillsRowRef.current!, { opacity: 0 }, { opacity: 1, duration: 0.06 }, 0.40);
-
-          // Phase 7 — Side pills cascade in inner-first, then outer (0.40 → 0.46)
+          // Side pills cascade in (inner → outer)
           tl.fromTo(
             pillsRowRef.current!,
             { "--pill-1-scale": 0, "--pill-1-opacity": 0, "--pill-3-scale": 0, "--pill-3-opacity": 0 },
-            { "--pill-1-scale": 1, "--pill-1-opacity": 1, "--pill-3-scale": 1, "--pill-3-opacity": 1, duration: 0.04, ease: "back.out(1.7)" },
-            0.40,
+            { "--pill-1-scale": 1, "--pill-1-opacity": 1, "--pill-3-scale": 1, "--pill-3-opacity": 1, duration: 0.05, ease: "back.out(1.7)" },
+            0.36,
           );
           tl.fromTo(
             pillsRowRef.current!,
             { "--pill-0-scale": 0, "--pill-0-opacity": 0, "--pill-4-scale": 0, "--pill-4-opacity": 0 },
-            { "--pill-0-scale": 1, "--pill-0-opacity": 1, "--pill-4-scale": 1, "--pill-4-opacity": 1, duration: 0.04, ease: "back.out(1.7)" },
-            0.43,
+            { "--pill-0-scale": 1, "--pill-0-opacity": 1, "--pill-4-scale": 1, "--pill-4-opacity": 1, duration: 0.05, ease: "back.out(1.7)" },
+            0.40,
           );
 
-          // Phase 8 — Center pill stretches open + label appears (0.43 → 0.50)
+          // Center pill stretches open
           tl.fromTo(
             pillsRowRef.current!,
             { "--center-pill-width": () => `${getPillSize()}px` },
-            { "--center-pill-width": () => `${getExpandedPillWidth()}px`, duration: 0.05, ease: "power2.out" },
-            0.43,
+            { "--center-pill-width": () => `${getExpandedPillWidth()}px`, duration: 0.06, ease: "power2.out" },
+            0.40,
           );
+
+          // Center label fades in
           tl.fromTo(
             pillsRowRef.current!,
             { "--center-label-opacity": 0 },
-            { "--center-label-opacity": 1, duration: 0.04 },
-            0.47,
+            { "--center-label-opacity": 1, duration: 0.05 },
+            0.44,
+          );
+
+          // Content zooms in from behind
+          tl.fromTo(
+            finalContentRef.current!,
+            { opacity: 0, scale: 0.55, filter: "blur(20px)" },
+            { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.22, ease: "power2.out" },
+            0.28,
           );
 
           /* ── Exit (progress 0.88 → 1.00 = time 1.936 → 2.2) ── */
@@ -446,7 +425,7 @@ export default function LumaShowcase() {
      Render
      ══════════════════════════════════════════════════════════════════════ */
   return (
-    <section ref={sectionRef} id="luma-showcase" className="relative h-[250vh] md:h-[300vh]">
+    <section ref={sectionRef} id="luma-showcase" className="relative h-[300vh] md:h-[350vh]">
       <motion.div
         ref={stickyRef}
         className="sticky top-0 h-screen bg-[#181818]"
@@ -497,7 +476,8 @@ export default function LumaShowcase() {
         >
           {/* Left image — desktop only */}
           <motion.div
-            className="relative hidden overflow-hidden rounded-[18px] border border-white/10 bg-white/5 md:block flex-shrink-0 w-[22%] aspect-[4/3] max-h-[24vh]"
+            className="relative hidden overflow-hidden rounded-[18px] border border-white/10 bg-white/5 md:block flex-shrink-0"
+            style={{ width: "22%", aspectRatio: "4/3", maxHeight: "24vh" }}
             animate={
               isScrollComplete
                 ? { opacity: 1, scale: 1, filter: "blur(0px)" }
@@ -522,7 +502,7 @@ export default function LumaShowcase() {
             transition={{ duration: 0.95, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.10 }}
           >
             {/* Hook text */}
-            <div className="w-full text-center min-h-[clamp(2.8rem,7vw,5rem)]">
+            <div className="w-full text-center" style={{ minHeight: "clamp(2.8rem, 7vw, 5rem)" }}>
               <AnimatePresence mode="wait">
                 <motion.p
                   key={`hook-${active.id}`}
@@ -530,7 +510,8 @@ export default function LumaShowcase() {
                   animate={{ opacity: 1, y: 0,  filter: "blur(0px)" }}
                   exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
                   transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-                  className="font-clash italic font-semibold leading-snug text-white/90 text-[clamp(0.95rem,2.8vw,1.7rem)]"
+                  className="font-clash italic font-semibold leading-snug text-white/90"
+                  style={{ fontSize: "clamp(0.95rem, 2.8vw, 1.7rem)" }}
                 >
                   {t.lumaShowcase[LUMA_ID_TO_KEY[active.id] ?? "web"].hookLines.map((line, i, arr) => (
                     <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
@@ -540,7 +521,7 @@ export default function LumaShowcase() {
             </div>
 
             {/* Stat */}
-            <div className="w-full text-center min-h-[clamp(4rem,10vw,8rem)]">
+            <div className="w-full text-center" style={{ minHeight: "clamp(4rem, 10vw, 8rem)" }}>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={`stat-${active.id}`}
@@ -551,12 +532,14 @@ export default function LumaShowcase() {
                   className="flex flex-col items-center gap-1"
                 >
                   <span
-                    className="font-clash font-black leading-none text-[var(--luma-accent)] text-[clamp(2.4rem,6vw,4.8rem)]"
+                    className="font-clash font-black leading-none"
+                    style={{ color: "var(--luma-accent)", fontSize: "clamp(2.4rem, 6vw, 4.8rem)" }}
                   >
                     {active.statValue}
                   </span>
                   <span
-                    className="font-semibold uppercase text-white/45 text-[clamp(0.55rem,1vw,0.78rem)] tracking-[0.22em]"
+                    className="font-semibold uppercase text-white/45"
+                    style={{ fontSize: "clamp(0.55rem, 1vw, 0.78rem)", letterSpacing: "0.22em" }}
                   >
                     {t.lumaShowcase[LUMA_ID_TO_KEY[active.id] ?? "web"].statLabel}
                   </span>
@@ -566,7 +549,8 @@ export default function LumaShowcase() {
 
             {/* Mobile image strip */}
             <div
-              className="relative w-full flex-shrink-0 overflow-hidden rounded-[12px] border border-white/10 bg-white/5 md:hidden aspect-[4/3] max-w-[60vw] max-h-[22vh]"
+              className="relative w-full flex-shrink-0 overflow-hidden rounded-[12px] border border-white/10 bg-white/5 md:hidden"
+              style={{ aspectRatio: "4/3", maxWidth: "60vw", maxHeight: "22vh" }}
             >
               <AnimatePresence mode="wait">
                 {activeIndex % 2 === 0 ? (
@@ -590,7 +574,8 @@ export default function LumaShowcase() {
 
           {/* Right image — desktop only */}
           <motion.div
-            className="relative hidden overflow-hidden rounded-[18px] border border-white/10 bg-white/5 md:block flex-shrink-0 w-[22%] aspect-[4/3] max-h-[24vh]"
+            className="relative hidden overflow-hidden rounded-[18px] border border-white/10 bg-white/5 md:block flex-shrink-0"
+            style={{ width: "22%", aspectRatio: "4/3", maxHeight: "24vh" }}
             animate={
               isScrollComplete
                 ? { opacity: 1, scale: 1, filter: "blur(0px)" }
@@ -605,10 +590,20 @@ export default function LumaShowcase() {
           </motion.div>
         </div>
 
+        {/* ── "One Vision" heading (Stage 1) ── */}
+        <div
+          ref={oneVisionRef}
+          className="absolute inset-x-0 bottom-1/2 mb-[25vw] md:mb-[22.5vw] lg:mb-[17.5vw] 2xl:mb-[14vw] z-[7] text-center pointer-events-none"
+        >
+          <h2 className="text-[2.5rem] sm:text-[4rem] md:text-[5rem] lg:text-[7rem] font-bold text-white uppercase tracking-widest font-clash leading-none">
+            One Vision
+          </h2>
+        </div>
+
         {/* ── Video pill (Phase 1 origin) ── */}
         <div
           ref={videoRef}
-          className="absolute left-0 right-0 mx-auto top-[10%] z-[8] overflow-hidden rounded-[20px] pointer-events-auto bg-black
+          className="absolute inset-0 z-[8] m-auto overflow-hidden rounded-[20px] pointer-events-auto bg-black
                      w-[70vw]  h-[50vw]
                      md:w-[75vw] md:h-[45vw]
                      lg:w-[60vw] lg:h-[35vw]
@@ -617,19 +612,14 @@ export default function LumaShowcase() {
           <video autoPlay muted loop playsInline className="h-full w-full object-cover">
             <source src="https://i.imgur.com/x9yWTNn.mp4" type="video/mp4" />
           </video>
-          {/* Dark film so video reads cleanly before shrink */}
           <div className="absolute inset-0 bg-black/20" />
-          {/* Colour overlay — GSAP fades this in during shrink so video "becomes" the accent sphere */}
-          <div
-            ref={videoColorRef}
-            className="absolute inset-0 z-[2] pointer-events-none opacity-0 bg-[var(--luma-accent)]"
-          />
         </div>
 
         {/* ── Glow ── */}
         <div
           ref={glowRef}
-          className="pointer-events-none absolute bottom-0 left-1/2 z-[0] h-[90vh] w-[110vw] -translate-x-1/2 opacity-0 blur-xl bg-[radial-gradient(ellipse_80%_60%_at_50%_100%,var(--luma-accent)_0%,var(--luma-accent)_25%,transparent_70%)]"
+          className="pointer-events-none absolute bottom-0 left-1/2 z-[0] h-[90vh] w-[110vw] -translate-x-1/2 opacity-0 blur-xl"
+          style={{ background: "radial-gradient(ellipse 80% 60% at 50% 100%, var(--luma-accent) 0%, var(--luma-accent) 25%, transparent 70%)" }}
         />
 
         {/* ── Lion cutout ── */}
@@ -675,15 +665,10 @@ export default function LumaShowcase() {
                 <motion.div
                   key={i}
                   onClick={() => handlePillClick(globalIndex)}
-                  animate={
-                    isActive
-                      ? { background: item.accent, boxShadow: "none" }
-                      : {
-                          background: `radial-gradient(circle at 38% 32%, ${hexToRgba(item.accent, 0.92)}, ${hexToRgba(item.accent, 0.60)} 100%)`,
-                          boxShadow:  `0 8px 28px ${hexToRgba(item.accent, 0.50)}, inset 0 1px 0 rgba(255,255,255,0.55), inset 0 -2px 6px rgba(0,0,0,0.18)`,
-                        }
-                  }
-                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  animate={{
+                    backgroundColor: isActive ? active.accent : "#3D3D3D",
+                  }}
+                  transition={{ backgroundColor: { duration: 0.4 } }}
                   className="relative shrink-0 flex items-center justify-center rounded-full overflow-hidden"
                   style={{
                     width: isActive
@@ -696,14 +681,9 @@ export default function LumaShowcase() {
                     transition: isScrollComplete
                       ? "opacity 0.25s ease, transform 0.25s ease"
                       : "none",
-                    border: isActive ? "none" : `1px solid ${hexToRgba(item.accent, 0.45)}`,
                   }}
                   title={item.label}
                 >
-                  {/* Glass specular highlight — only on side spheres */}
-                  {!isActive && (
-                    <span className="pointer-events-none absolute top-[8%] left-[10%] w-[55%] h-[42%] rounded-full bg-gradient-to-br from-white/65 to-transparent blur-[1.5px]" />
-                  )}
                   <AnimatePresence mode="wait">
                     {isActive ? (
                       <motion.span

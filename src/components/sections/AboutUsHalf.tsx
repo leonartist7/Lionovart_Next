@@ -39,29 +39,75 @@ function useLenisProgress(ref: React.RefObject<HTMLElement | null>): MotionValue
   return progress;
 }
 
-/* ─── Scroll-driven opacity fade (no movement) ──────────────────── */
-function ScrollFade({
+/* ─── Single animated word ───────────────────────────────── */
+function Word({
+  children,
   progress,
   start,
   end,
-  className,
-  children,
+  dim,
 }: {
+  children: string;
   progress: MotionValue<number>;
   start: number;
   end: number;
-  className?: string;
-  children: React.ReactNode;
+  dim?: boolean;
 }) {
-  const opacity = useSpring(useTransform(progress, [start, end], [0.08, 1]), {
-    stiffness: 80,
-    damping: 24,
-    mass: 0.6,
+  const opacity = useSpring(useTransform(progress, [start, end], [0, 1]), {
+    stiffness: 100,
+    damping: 22,
+    mass: 0.5,
   });
+  const y = useSpring(useTransform(progress, [start, end], [24, 0]), {
+    stiffness: 100,
+    damping: 22,
+    mass: 0.5,
+  });
+
   return (
-    <motion.span style={{ opacity }} className={className}>
+    <motion.span style={{ opacity, y, display: "inline-block" }} className={dim ? "text-white/25" : ""}>
       {children}
     </motion.span>
+  );
+}
+
+/* ─── Word-reveal paragraph ──────────────────────────────── */
+function WordReveal({
+  text,
+  progress,
+  blockStart,
+  blockEnd,
+  dimLastN = 0,
+  className,
+}: {
+  text: string;
+  progress: MotionValue<number>;
+  blockStart: number;
+  blockEnd: number;
+  dimLastN?: number;
+  className?: string;
+}) {
+  const words = text.split(" ");
+  const total = words.length;
+  const span = (blockEnd - blockStart) / total;
+
+  return (
+    <span className={className}>
+      {words.map((word, i) => {
+        const wordStart = blockStart + i * span * 0.65;
+        const wordEnd = Math.min(wordStart + span * 1.6, blockEnd + 0.05);
+        const isDim = dimLastN > 0 && i >= total - dimLastN;
+
+        return (
+          <span key={i}>
+            <Word progress={progress} start={wordStart} end={wordEnd} dim={isDim}>
+              {word}
+            </Word>
+            {i < total - 1 && <span> </span>}
+          </span>
+        );
+      })}
+    </span>
   );
 }
 
@@ -104,11 +150,11 @@ function StatCard({
   return (
     <div className="relative flex-1 flex flex-col justify-center items-center rounded-[20px] bg-[#181818] shadow-[10px_10px_28px_rgba(0,0,0,0.75),-6px_-6px_18px_rgba(255,255,255,0.06),inset_0_1px_0_rgba(255,255,255,0.04)] ring-1 ring-white/[0.04] p-6 md:p-10 text-center h-auto min-h-[160px] md:min-h-[220px] gap-1">
       <div className="flex items-baseline justify-center gap-0.5 leading-none">
-        <span className="text-[18px] sm:text-[22px] md:text-[28px] font-bold text-[#e5192a] font-clash leading-none mr-0.5">
-          {unit}
-        </span>
         <span className="text-[44px] sm:text-[56px] md:text-[72px] font-black text-[#e5192a] font-clash leading-none">
           {count}
+        </span>
+        <span className="text-[18px] sm:text-[22px] md:text-[28px] font-bold text-[#e5192a] font-clash leading-none ml-0.5">
+          {unit}
         </span>
       </div>
       <h4 className="text-[#e5192a] font-bold text-[12px] md:text-[14px] uppercase tracking-[0.18em] mt-2">
@@ -153,7 +199,7 @@ export default function AboutUsHalf() {
   const progress = useLenisProgress(sectionRef);
 
   // Divider line
-  const lineScaleX = useSpring(useTransform(progress, [0.08, 0.20], [0, 1]), {
+  const lineScaleX = useSpring(useTransform(progress, [0.18, 0.32], [0, 1]), {
     stiffness: 70,
     damping: 22,
   });
@@ -165,18 +211,24 @@ export default function AboutUsHalf() {
     >
       <div className="max-w-[700px] w-full flex flex-col items-center">
 
-        {/* ── Headline ── */}
-        <div className="text-text-main text-[20px] md:text-[34px] font-medium leading-[1.4] mb-2">
-          <ScrollFade progress={progress} start={0.0} end={0.12}>
-            In 2026, innovation is no longer a choice
-          </ScrollFade>
+        {/* ── Headline word reveal ── */}
+        <div className="text-text-main text-[16px] md:text-[28px] font-medium leading-[1.4] mb-2">
+          <WordReveal
+            text="In 2026, innovation is no longer a choice"
+            progress={progress}
+            blockStart={0.0}
+            blockEnd={0.22}
+          />
         </div>
 
         {/* ── Red accent ── */}
-        <div className="text-[22px] md:text-[38px] font-bold leading-[1.3] text-[#e5192a] mb-4">
-          <ScrollFade progress={progress} start={0.05} end={0.18}>
-            {"it's a necessity."}
-          </ScrollFade>
+        <div className="text-[18px] md:text-[32px] font-bold leading-[1.3] text-[#e5192a] mb-4">
+          <WordReveal
+            text="it's a necessity."
+            progress={progress}
+            blockStart={0.10}
+            blockEnd={0.26}
+          />
         </div>
 
         {/* ── Divider ── */}
@@ -185,18 +237,21 @@ export default function AboutUsHalf() {
           className="w-24 h-px bg-white/20 mb-6"
         />
 
-        {/* ── Body ── */}
-        <div className="text-[18px] md:text-[30px] font-semibold leading-[1.4] text-white">
-          <ScrollFade progress={progress} start={0.12} end={0.38}>
-            As a multidisciplinary team of artists and business owners, we provide what is needed to lead in today&#39;s digital landscape.
-          </ScrollFade>
+        {/* ── Body word reveal ── */}
+        <div className="text-text-main text-[16px] md:text-[28px] font-semibold leading-[1.4] text-white/60">
+          <WordReveal
+            text="As a multidisciplinary team of artists and business owners, we provide what is needed to lead in today's digital landscape."
+            progress={progress}
+            blockStart={0.20}
+            blockEnd={0.50}
+          />
         </div>
 
-        {/* ── Contact card — photo beside card ── */}
-        <div ref={cardRef} className="flex items-end gap-3 mt-8 md:mt-10 self-end">
+        {/* ── Two independent cards: photo (left, fixed) + contact (right, grows up) ── */}
+        <div ref={cardRef} className="relative z-20 mt-8 md:mt-10 self-end ml-auto flex items-end gap-2.5">
 
-          {/* Photo — sits beside the contact card */}
-          <div className="w-[64px] h-[64px] shrink-0 rounded-[16px] overflow-hidden border border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
+          {/* Photo card — completely independent, always in front */}
+          <div className="relative z-10 w-[72px] h-[72px] rounded-[18px] overflow-hidden border border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.5)] shrink-0">
             <Image
               src="https://res.cloudinary.com/dgio9uutc/image/upload/v1776064620/leonardo_icon_rkjxcx.webp"
               alt="Leonardo"
@@ -206,12 +261,11 @@ export default function AboutUsHalf() {
             />
           </div>
 
-          {/* Contact card shell */}
-          <div className="relative h-[72px] w-[220px]">
+          {/* Contact card shell — fixed height = collapsed card, card grows upward from here */}
+          <div className="relative z-0 h-[72px]">
             <motion.button
               type="button"
               layout
-              layoutDependency={contactOpen}
               onMouseEnter={openContact}
               onMouseLeave={closeContact}
               onClick={() => setContactOpen((v) => !v)}
@@ -291,8 +345,8 @@ export default function AboutUsHalf() {
           className="flex w-full max-w-[800px] gap-6 md:gap-10 mt-6 md:mt-16"
         >
           <StatCard
-            number={9}
-            unit="+"
+            number={10}
+            unit=""
             label={t.about.stat1Label}
             description={t.about.stat1Desc}
             active={statsInView}

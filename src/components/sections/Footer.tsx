@@ -16,7 +16,7 @@ export default function Footer() {
   const marqueeText = Array(20).fill("LIONOVART");
 
   return (
-    <footer ref={ref} className="bg-[#181818] pt-[100px] border-t border-border-dark relative z-0 shadow-[inset_4px_4px_16px_rgba(0,0,0,0.5),inset_-4px_-4px_16px_rgba(255,255,255,0.04)]">
+    <footer ref={ref} className="bg-[#050505] pt-[100px] border-t border-border-dark relative z-0">
       <div className="mx-auto max-w-[1200px] px-4 md:px-6 w-full">
 
         {/* Top Section: CTA CTA */}
@@ -44,15 +44,25 @@ export default function Footer() {
               href={getWhatsAppUrl("Hi! I visited Lionovart and I'm ready to book a sprint. Can we discuss my project?")}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-16 items-center justify-center rounded-full bg-brand-red border-2 border-brand-red px-10 text-[16px] font-bold uppercase tracking-widest text-white transition-all duration-200 hover:bg-white hover:text-brand-red hover:scale-105 focus:ring-4 focus:ring-brand-red/30"
+              className="inline-flex h-16 items-center justify-center rounded-full bg-brand-red px-10 text-[16px] font-bold uppercase tracking-widest text-white transition-all hover:scale-105 hover:bg-brand-red-secondary focus:ring-4 focus:ring-brand-red/30"
             >
               {t.footer.cta}
             </a>
           </motion.div>
         </div>
 
-        {/* Middle divider */}
-        <div className="border-t border-border-dark pt-12 mb-12" />
+        {/* Middle Section: Links */}
+        <div className="flex flex-col items-center text-center gap-12 border-t border-border-dark pt-12 mb-12">
+          {/* Middle Section: Removed Links, just preserving empty space or restructuring if needed */}
+          <div className="space-y-4 flex flex-col items-center">
+            <h3 className="text-[48px] md:text-[64px] font-bold font-clash uppercase text-white tracking-widest">
+              LIONOVART
+            </h3>
+            <p className="text-text-muted text-[14px] max-w-sm">
+              {t.footer.tagline}
+            </p>
+          </div>
+        </div>
 
         {/* Bottom Section: Copyright */}
         <div className="flex flex-col justify-center items-center pt-8 pb-12 gap-4">
