@@ -81,7 +81,12 @@ export default function MagneticOrb({ onOpen }: MagneticOrbProps) {
       {/* ── Orb Button ── */}
       <motion.button
         ref={buttonRef}
-        onClick={onOpen}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onOpen();
+        }}
+        onPointerDown={(e) => e.stopPropagation()}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         whileHover={prefersReduced ? { scale: 1.02 } : { scale: 1.08 }}
