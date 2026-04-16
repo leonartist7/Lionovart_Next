@@ -96,15 +96,7 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
 
   const startSession = useCallback(async () => {
     try {
-      // 1. Initialize AudioContext at 16kHz
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({
-        sampleRate: 16000,
-      });
-      audioContextRef.current = audioCtx;
-
-      await audioCtx.audioWorklet.addModule("/audio-processor.js");
-
-      // 2. Request Mic
+      // 1. Request Mic first (important for mobile safari to have immediate user gesture)
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           channelCount: 1,
@@ -115,12 +107,29 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       });
       streamRef.current = stream;
 
+      // 2. Initialize AudioContext at 16kHz
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({
+        sampleRate: 16000,
+      });
+      audioContextRef.current = audioCtx;
+
+      // Resume context on iOS
+      if (audioCtx.state === "suspended") {
+        await audioCtx.resume();
+      }
+
+      await audioCtx.audioWorklet.addModule("/audio-processor.js");
+
       const source = audioCtx.createMediaStreamSource(stream);
       const processor = new AudioWorkletNode(audioCtx, "audio-processor");
       processorRef.current = processor;
 
       source.connect(processor);
       processor.connect(audioCtx.destination);
+
+      // Switch UI to active/connecting state immediately to provide feedback
+      setIsSessionActive(true);
+      setState("thinking");
 
       // 3. Connect WebSocket
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -133,6 +142,8 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
+
+      let hasConnected = false;
 
       ws.onopen = () => {
         // Send setup payload
@@ -150,8 +161,17 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
 
+        // Handle backend errors
+        if (data.type === "error") {
+          console.error("Backend error:", data.message);
+          stopSession();
+          alert("Could not connect to AI Voice Agent: " + data.message);
+          return;
+        }
+
         // Setup confirmed
         if (data.type === "setup_complete") {
+          hasConnected = true;
           setIsSessionActive(true);
           setState("listening");
           
@@ -219,6 +239,9 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       };
 
       ws.onclose = () => {
+        if (!hasConnected) {
+          alert("Could not connect to Voice Server. Are you running npm run dev:ws?");
+        }
         stopSession();
       };
 
