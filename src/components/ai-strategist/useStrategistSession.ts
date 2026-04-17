@@ -132,11 +132,8 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       setState("thinking");
 
       // 3. Connect WebSocket
-      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-      
-      // Development mode runs the WebSocket on port 3001
-      const isDev = process.env.NODE_ENV === "development";
-      const wsUrl = isDev 
+      const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      const wsUrl = isLocal 
         ? `ws://${window.location.hostname}:3001/api/strategist/live`
         : "wss://lionovart-voice.onrender.com";
       
@@ -297,7 +294,7 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       ws.onclose = (event) => {
         console.log("WS Close event:", event);
         if (!hasConnected) {
-          alert(`Could not connect to Voice Server. (Code: ${event.code}, Reason: ${event.reason || "None"}). Hostinger may be blocking WebSockets.`);
+          alert(`Could not connect to Voice Server at ${wsUrl}\n\nCode: ${event.code}, Reason: ${event.reason || "None"}. If URL says Render, Render might be asleep (wait 50s). If it says Hostinger, clear cache!`);
         }
         stopSession();
       };
