@@ -136,10 +136,9 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       
       // Development mode runs the WebSocket on port 3001
       const isDev = process.env.NODE_ENV === "development";
-      const defaultProdUrl = "wss://lionovart-voice.onrender.com";
       const wsUrl = isDev 
         ? `ws://${window.location.hostname}:3001/api/strategist/live`
-        : process.env.NEXT_PUBLIC_VOICE_SERVER_URL || defaultProdUrl;
+        : "wss://lionovart-voice.onrender.com";
       
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
