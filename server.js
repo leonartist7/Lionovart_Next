@@ -1,85 +1,129 @@
 const { createServer } = require("http");
 const { parse } = require("url");
 const next = require("next");
+const { WebSocketServer } = require("ws");
+const { GoogleGenAI } = require("@google/genai");
 const fs = require("fs");
-const path = require("path");
 
-// FORCE WEBPACK IN PRODUCTION: Turbopack breaks GSAP/Lenis animations in this project (opacity: 0 bug)
+// Force Webpack (disables Turbopack bugs causing opacity:0)
 process.env.TURBOPACK = '0';
 process.env.NEXT_TURBOPACK = '0';
 
-// --- GLASS WINDOW LOGGER ---
-// This writes any fatal startup crashes directly to a public file so we can read it from the browser.
-function logCrash(errContext, err) {
-  try {
-    const pubDir = path.join(__dirname, "public");
-    if (!fs.existsSync(pubDir)) fs.mkdirSync(pubDir);
-    const errText = `[${new Date().toISOString()}] CRASH in ${errContext}:\n${err ? err.stack || err : "Unknown Error"}\n`;
-    fs.writeFileSync(path.join(pubDir, "crash.txt"), errText);
-    console.error(errText);
-  } catch (e) {
-    console.error("Failed to write crash log to public/crash.txt", e);
-  }
-}
+// Automatically handled by Google Cloud Run / Next.js
+const dev = process.env.NODE_ENV !== "production";
+const port = process.env.PORT || 8080;
 
-process.on("uncaughtException", (err) => logCrash("uncaughtException", err));
-process.on("unhandledRejection", (reason) => logCrash("unhandledRejection", reason));
+const app = next({ dev, port });
+const handle = app.getRequestHandler();
 
-try {
-  // FORCE PRODUCTION MODE! If NODE_ENV is missing, Next.js tries to boot the dev compiler 
-  // which instantly runs out of memory on shared hosting and causes a 503 crash.
-  const dev = false;
-  
-  // Passenger provides the socket via process.env.PORT. We must handle it as a string if it's a pipe.
-  const portRaw = process.env.PORT || 3000;
-  const port = isNaN(Number(portRaw)) ? portRaw : Number(portRaw);
-  
-  // Next.js strictly expects an integer or undefined.
-  const nextPort = typeof port === "number" ? port : undefined;
-
-  const app = next({ dev, port: nextPort });
-  let handle;
-
-  // Cleanup old Passenger sockets if they exist to prevent EADDRINUSE
-  if (typeof port === "string" && fs.existsSync(port)) {
-    try { fs.unlinkSync(port); } catch (e) {}
-  }
-
-  // To prevent Passenger from timing out (503), we must call listen() IMMEDIATELY,
-  // before app.prepare() has finished.
+app.prepare().then(() => {
   const server = createServer(async (req, res) => {
     try {
-      if (!handle) {
-        // Return 503 so load balancers know we aren't ready, but provide a friendly message.
-        res.statusCode = 503;
-        res.setHeader("Retry-After", "5");
-        res.setHeader("Content-Type", "text/html");
-        res.end("<h1>Next.js is warming up... Please refresh in 5 seconds.</h1>");
-        return;
-      }
       const parsedUrl = parse(req.url, true);
       await handle(req, res, parsedUrl);
     } catch (err) {
-      logCrash("handleRequest", err);
+      console.error("Error handling request:", req.url, err);
       res.statusCode = 500;
-      res.end("Internal Server Error during request handling");
+      res.end("Internal Server Error");
     }
   });
 
-  server.listen(port, () => {
-    console.log(`> Node server listening on ${port}. Preparing Next.js...`);
-    
-    app.prepare().then(() => {
-      handle = app.getRequestHandler();
-      console.log("> Next.js App prepared and ready to handle requests.");
-    }).catch((err) => {
-      logCrash("app.prepare()", err);
-      // We purposefully DO NOT exit the process here so that the server can still
-      // respond to the browser and the user can check /crash.txt
+  // WebSocket Proxy for Gemini Live API
+  const wss = new WebSocketServer({ noServer: true });
+
+  server.on("upgrade", (req, socket, head) => {
+    const { pathname } = parse(req.url || "", true);
+    if (pathname === "/api/strategist/live") {
+      wss.handleUpgrade(req, socket, head, (ws) => {
+        wss.emit("connection", ws, req);
+      });
+    } else {
+      socket.destroy();
+    }
+  });
+
+  wss.on("connection", async (ws, req) => {
+    console.log("[WS] Client connected to Live Strategist");
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      ws.send(JSON.stringify({ type: "error", message: "API key missing in environment variables" }));
+      ws.close();
+      return;
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
+    const model = process.env.GEMINI_MODEL || "gemini-3.1-flash-live-preview";
+    let liveSession;
+
+    ws.on("message", async (data) => {
+      try {
+        const payload = JSON.parse(data.toString());
+
+        if (payload.type === "setup" && !liveSession) {
+          console.log(`[WS] Setting up Gemini Live connection using model: ${model}...`);
+          try {
+            liveSession = await ai.live.connect({
+              model,
+              config: payload.config
+            });
+          } catch (connectErr) {
+            console.error("[WS] Failed to connect to Gemini Live API:", connectErr);
+            ws.send(JSON.stringify({ type: "error", message: `Gemini API Connection Failed: ${connectErr.message}` }));
+            ws.close();
+            return;
+          }
+
+          // Listen from Gemini -> Send to Client
+          (async () => {
+            try {
+              for await (const chunk of liveSession) {
+                if (chunk.toolCall) {
+                  if (ws.readyState === ws.OPEN) {
+                    ws.send(JSON.stringify({ toolCall: chunk.toolCall }));
+                  }
+                } else {
+                  if (ws.readyState === ws.OPEN) {
+                    ws.send(JSON.stringify(chunk));
+                  }
+                }
+              }
+            } catch (err) {
+              console.error("[WS] Gemini stream error:", err);
+            }
+          })();
+
+          ws.send(JSON.stringify({ type: "setup_complete" }));
+          return;
+        }
+
+        // Handle tool responses from the frontend
+        if (payload.type === "tool_response" && liveSession) {
+          if (liveSession.conn) {
+            liveSession.conn.send(JSON.stringify({ toolResponse: { functionResponses: payload.responses } }));
+          }
+          return;
+        }
+
+        // Forward normal payloads (audio/text) directly to raw Google WebSocket
+        // This is the CRITICAL FIX that prevents the 50-second idle timeout crash
+        if (liveSession && liveSession.conn) {
+          liveSession.conn.send(data.toString());
+        }
+      } catch (err) {
+        console.error("[WS] Error processing message:", err);
+      }
+    });
+
+    ws.on("close", () => {
+      console.log("[WS] Client disconnected");
     });
   });
 
-} catch (globalErr) {
-  logCrash("Global Execution", globalErr);
+  server.listen(port, () => {
+    console.log(`> Ready on http://localhost:${port}`);
+  });
+}).catch((err) => {
+  console.error("Next.js app.prepare failed:", err);
   process.exit(1);
-}
+});

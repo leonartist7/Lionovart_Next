@@ -133,9 +133,10 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
 
       // 3. Connect WebSocket
       const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-      const wsUrl = isLocal 
-        ? `ws://${window.location.hostname}:3001/api/strategist/live`
-        : "wss://lionovart-voice.onrender.com";
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = isLocal 
+         ? `ws://${window.location.hostname}:3001/api/strategist/live`
+         : `${protocol}//${window.location.host}/api/strategist/live`;
       
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
@@ -294,7 +295,7 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       ws.onclose = (event) => {
         console.log("WS Close event:", event);
         if (!hasConnected) {
-          alert(`Could not connect to Voice Server at ${wsUrl}\n\nCode: ${event.code}, Reason: ${event.reason || "None"}. If URL says Render, Render might be asleep (wait 50s). If it says Hostinger, clear cache!`);
+          alert(`Could not connect to Voice Server at ${wsUrl}\n\nCode: ${event.code}, Reason: ${event.reason || "None"}. Ensure the Cloud Run container has GEMINI_API_KEY set.`);
         }
         stopSession();
       };
