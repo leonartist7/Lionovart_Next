@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --webpack",
     "dev:ws": "node ws-dev.js",
-    "build": "next build",
+    "build": "node -e \"process.env.TURBOPACK='0'; process.env.NEXT_TURBOPACK='0'; require('child_process').execSync('npx next build', {stdio: 'inherit'})\"",
     "start": "node server.js",
     "lint": "eslint"
   },
