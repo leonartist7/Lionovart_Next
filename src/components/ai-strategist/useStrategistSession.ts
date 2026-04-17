@@ -154,6 +154,16 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
             config: {
               systemInstruction: { parts: [{ text: STRATEGIST_SYSTEM_PROMPT }] },
               tools: STRATEGIST_TOOLS,
+              generationConfig: {
+                responseModalities: ["AUDIO"],
+                speechConfig: {
+                  voiceConfig: {
+                    prebuiltVoiceConfig: {
+                      voiceName: "Aoede" // Options: Aoede, Charon, Fenrir, Kore, Puck
+                    }
+                  }
+                }
+              }
             },
           })
         );
@@ -184,7 +194,7 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
                   turns: [
                     {
                       role: "user",
-                      parts: [{ text: "Hello! Please introduce yourself and ask for my name." }],
+                      parts: [{ text: "Hello! Please give me a warm, brief 1-sentence greeting. You are the LIONOVART AI Strategist. Ask what I am building." }],
                     },
                   ],
                   turnComplete: true,
