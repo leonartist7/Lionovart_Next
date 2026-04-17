@@ -4,6 +4,10 @@ const next = require("next");
 const fs = require("fs");
 const path = require("path");
 
+// FORCE WEBPACK IN PRODUCTION: Turbopack breaks GSAP/Lenis animations in this project (opacity: 0 bug)
+process.env.TURBOPACK = '0';
+process.env.NEXT_TURBOPACK = '0';
+
 // --- GLASS WINDOW LOGGER ---
 // This writes any fatal startup crashes directly to a public file so we can read it from the browser.
 function logCrash(errContext, err) {
