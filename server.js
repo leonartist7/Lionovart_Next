@@ -22,7 +22,9 @@ process.on("uncaughtException", (err) => logCrash("uncaughtException", err));
 process.on("unhandledRejection", (reason) => logCrash("unhandledRejection", reason));
 
 try {
-  const dev = process.env.NODE_ENV !== "production";
+  // FORCE PRODUCTION MODE! If NODE_ENV is missing, Next.js tries to boot the dev compiler 
+  // which instantly runs out of memory on shared hosting and causes a 503 crash.
+  const dev = false;
   
   // Passenger provides the socket via process.env.PORT. We must handle it as a string if it's a pipe.
   const portRaw = process.env.PORT || 3000;
