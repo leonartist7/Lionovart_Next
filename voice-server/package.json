@@ -1,0 +1,14 @@
+{
+  "name": "lionovart-voice-server",
+  "version": "1.0.0",
+  "description": "Standalone WebSocket proxy for Gemini Live API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@google/genai": "^1.50.1",
+    "dotenv": "^16.4.5",
+    "ws": "^8.18.0"
+  }
+}

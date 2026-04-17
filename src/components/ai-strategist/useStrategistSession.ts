@@ -158,7 +158,7 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
         );
       };
 
-      ws.onmessage = (event) => {
+      ws.onmessage = async (event) => {
         const data = JSON.parse(event.data);
 
         // Handle backend errors
@@ -213,10 +213,14 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
           setState("listening");
         }
 
-        // Handle Client Tool Calls (update_screen_info, show_handoff_cards)
+        // Handle Tool Calls
         if (data.toolCall) {
           const calls = data.toolCall.functionCalls;
+          const serverTools = ["fetch_user_memory", "save_lead_data", "generate_whatsapp_link", "fetch_booking_link"];
+          const toolPromises: Promise<any>[] = [];
+
           for (const call of calls) {
+            // 1. Handle UI-only tools locally
             if (call.name === "update_screen_info") {
               const { name, phone, email } = call.args as Record<string, string>;
               setLeadData((prev) => ({
@@ -224,8 +228,7 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
                 phone: phone !== undefined ? phone : prev.phone,
                 email: email !== undefined ? email : prev.email,
               }));
-            }
-            if (call.name === "show_handoff_cards") {
+            } else if (call.name === "show_handoff_cards") {
               const { whatsapp_url, booking_url, summary_message } = call.args as Record<string, string>;
               setHandoffData({
                 whatsappUrl: whatsapp_url,
@@ -233,6 +236,32 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
                 summaryMessage: summary_message,
               });
               setState("handoff");
+            } 
+            // 2. Handle Server-side tools by calling Hostinger API
+            else if (serverTools.includes(call.name)) {
+              toolPromises.push(
+                (async () => {
+                  try {
+                    const res = await fetch('/api/strategist/tool', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ name: call.name, args: call.args })
+                    });
+                    const result = await res.json();
+                    return { id: call.id, name: call.name, response: result };
+                  } catch (e: any) {
+                    return { id: call.id, name: call.name, response: { error: e.message } };
+                  }
+                })()
+              );
+            }
+          }
+
+          // If we had server tools, wait for them to finish and send the response back to the WS proxy
+          if (toolPromises.length > 0) {
+            const responses = await Promise.all(toolPromises);
+            if (ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({ type: "tool_response", responses }));
             }
           }
         }
