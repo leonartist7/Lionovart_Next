@@ -1,6 +1,17 @@
 // server.js
 const fs = require("fs");
 
+process.on('uncaughtException', (err) => {
+  console.error("UNCAUGHT EXCEPTION:", err);
+  try { fs.writeFileSync("hostinger-crash.log", `Uncaught: ${err.message}\n${err.stack}`); } catch(e) {}
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error("UNHANDLED REJECTION:", reason);
+  try { fs.writeFileSync("hostinger-crash.log", `Unhandled Rejection: ${reason}\n`); } catch(e) {}
+});
+
 try {
   const { createServer } = require("http");
   const { parse } = require("url");
@@ -26,35 +37,39 @@ try {
   const nextPort = typeof port === "number" ? port : undefined;
 
   const app = next({ dev, port: nextPort });
-  const handle = app.getRequestHandler();
+  let handle;
 
-  app.prepare().then(() => {
-    const server = createServer(async (req, res) => {
-      try {
-        const parsedUrl = parse(req.url, true);
-        await handle(req, res, parsedUrl);
-      } catch (err) {
-        console.error("Error occurred handling", req.url, err);
-        res.statusCode = 500;
-        res.end("internal server error");
+  const server = createServer(async (req, res) => {
+    try {
+      if (!handle) {
+        res.statusCode = 503;
+        res.end("Server is still booting up. Please refresh in a few seconds.");
+        return;
       }
-    });
+      const parsedUrl = parse(req.url, true);
+      await handle(req, res, parsedUrl);
+    } catch (err) {
+      console.error("Error occurred handling", req.url, err);
+      res.statusCode = 500;
+      res.end("internal server error");
+    }
+  });
 
-    // Setup WebSocket Server for Gemini Live Proxy
-    const wss = new WebSocketServer({ noServer: true });
+  // Setup WebSocket Server for Gemini Live Proxy
+  const wss = new WebSocketServer({ noServer: true });
 
-    server.on("upgrade", (req, socket, head) => {
-      const { pathname } = parse(req.url || "", true);
-      if (pathname === "/api/strategist/live") {
-        wss.handleUpgrade(req, socket, head, (ws) => {
-          wss.emit("connection", ws, req);
-        });
-      } else {
-        socket.destroy();
-      }
-    });
+  server.on("upgrade", (req, socket, head) => {
+    const { pathname } = parse(req.url || "", true);
+    if (pathname === "/api/strategist/live") {
+      wss.handleUpgrade(req, socket, head, (ws) => {
+        wss.emit("connection", ws, req);
+      });
+    } else {
+      socket.destroy();
+    }
+  });
 
-    wss.on("connection", async (ws, req) => {
+  wss.on("connection", async (ws, req) => {
       console.log("[WS] Client connected to Live Strategist");
 
       const apiKey = process.env.GEMINI_API_KEY;
@@ -147,18 +162,30 @@ try {
       });
     });
 
+    if (typeof port === "string" && fs.existsSync(port)) {
+      try {
+        fs.unlinkSync(port);
+      } catch (err) {
+        console.error("Failed to unlink existing socket:", err);
+      }
+    }
+
     server.listen(port, () => {
       console.log(
         `> Server listening on port ${port} as ${
           dev ? "development" : process.env.NODE_ENV
         }`
       );
+      
+      app.prepare().then(() => {
+        handle = app.getRequestHandler();
+        console.log("> Next.js app prepared successfully.");
+      }).catch((err) => {
+        fs.writeFileSync("hostinger-crash.log", `app.prepare() failed: ${err.message}\n${err.stack}`);
+        console.error("Next.js app.prepare() failed to start:", err);
+        process.exit(1);
+      });
     });
-  }).catch((err) => {
-    fs.writeFileSync("hostinger-crash.log", `app.prepare() failed: ${err.message}\n${err.stack}`);
-    console.error("Next.js app.prepare() failed to start:", err);
-    process.exit(1);
-  });
 
 } catch (globalErr) {
   fs.writeFileSync("hostinger-crash.log", `Global crash: ${globalErr.message}\n${globalErr.stack}`);

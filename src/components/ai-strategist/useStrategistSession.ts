@@ -238,9 +238,10 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
         }
       };
 
-      ws.onclose = () => {
+      ws.onclose = (event) => {
+        console.log("WS Close event:", event);
         if (!hasConnected) {
-          alert("Could not connect to Voice Server. Are you running npm run dev:ws?");
+          alert(`Could not connect to Voice Server. (Code: ${event.code}, Reason: ${event.reason || "None"}). Hostinger may be blocking WebSockets.`);
         }
         stopSession();
       };
