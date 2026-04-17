@@ -33,10 +33,17 @@ wss.on("connection", async (ws, req) => {
 
       if (payload.type === "setup" && !liveSession) {
         console.log("[WS] Setting up Gemini Live connection...");
-        liveSession = await ai.live.connect({
-          model,
-          config: payload.config
-        });
+        try {
+          liveSession = await ai.live.connect({
+            model,
+            config: payload.config
+          });
+        } catch (connectErr) {
+          console.error("[WS] Failed to connect to Gemini Live API:", connectErr);
+          ws.send(JSON.stringify({ type: "error", message: `Gemini API Connection Failed: ${connectErr.message}` }));
+          ws.close();
+          return;
+        }
 
         // Listen from Gemini -> Send to Client
         (async () => {
