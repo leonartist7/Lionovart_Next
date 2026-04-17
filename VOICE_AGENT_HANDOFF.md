@@ -1,50 +1,47 @@
-# LIONOVART Voice Agent Handoff & Hostinger 503 Debug Guide
+# LIONOVART Voice Agent Handoff & Architecture Guide
 
-**Date:** April 15, 2026
-**Status:** Local Development is 100% functional. Production on Hostinger is throwing a `503 Service Unavailable` error.
+**Date:** April 17, 2026
+**Status:** Gemini 3.1 Flash Live Voice Agent is fully functional via a Split-Architecture deployment.
 
-To the next AI Agent assisting Leon: Please read this document carefully before modifying the codebase. We have established a complex, dual-server architecture to support the Gemini Live API, and standard Next.js assumptions may break it.
-
----
-
-## 1. Architecture Overview
-We successfully integrated a real-time **Gemini Live API** voice agent into the Hero section (`MagneticOrb.tsx` -> `StrategistPanel.tsx` -> `ConversationView.tsx`).
-
-Because the Gemini Live API requires a persistent bidirectional WebSocket for raw PCM audio, and Next.js API routes are stateless HTTP only, we built a custom WebSocket proxy to keep `GEMINI_API_KEY` secure:
-
-*   **Production Server (`server.js`):** A unified custom Next.js server. It handles standard Next.js HTTP routing AND upgrades `/api/strategist/live` to a `ws` WebSocket server. This runs on Hostinger via `npm run start`.
-*   **Local Dev Server (`ws-dev.js` + `next dev --webpack`):** We **cannot** use `node server.js` for local development because it forces Next.js 16 to use Turbopack, which *completely breaks Tailwind v4 and GSAP animations* in this specific project (sections render with `opacity: 0`). Therefore, local dev requires two terminals:
-    1.  `npm run dev` (Frontend on port 3000)
-    2.  `npm run dev:ws` (WebSocket proxy on port 3001)
-*   **Audio Pipeline:** The frontend uses `AudioContext` and `public/audio-processor.js` (an AudioWorklet) to capture 16kHz mic audio and convert it to Base64 PCM for Gemini, and vice versa.
-*   **Memory/Database:** The agent executes `save_lead_data` and `fetch_user_memory`. The WebSocket proxy securely forwards these to `src/app/api/strategist/tool/route.ts` to interact with Firebase.
+To the next AI Agent assisting Leon: Please read this document carefully. We encountered severe `503 Service Unavailable` errors when trying to run WebSockets on Hostinger, which required a complete architectural overhaul.
 
 ---
 
-## 2. Resolved Bugs (DO NOT REVERT THESE FIXES)
-1.  **React Strict Mode Crash:** `useStrategistSession.ts` cleanup used to call `onClose()`, causing the panel to instantly close on mount. Fixed.
-2.  **React Portal Event Bubbling:** Clicking the `MagneticOrb` bubbled the click to the `StrategistPanel` backdrop, instantly closing it. Fixed via `e.stopPropagation()` on the Orb.
-3.  **Turbopack Invisible Content Bug:** Running custom `server.js` locally invoked Turbopack, breaking Tailwind v4 classes and causing GSAP/Framer Motion to freeze at `opacity: 0`. Fixed by separating local dev into `next dev --webpack` and `ws-dev.js`.
-4.  **Mobile Safari Silence:** Added `audioCtx.resume()` after `getUserMedia` to prevent iOS from suspending the audio context. Added immediate "Thinking..." UI feedback and `alert()` dialogs to surface WebSocket connection errors on phones.
+## 1. The Architectural Split (Why we did it)
+The Gemini Live API requires a persistent, bidirectional WebSocket connection (`wss://`) to stream raw PCM audio in real-time. 
+
+**The Hostinger Problem:** Hostinger Shared/Cloud hosting uses Phusion Passenger. Passenger explicitly blocks/drops incoming WebSocket `Upgrade` headers. Any attempt to run the WebSocket proxy on Hostinger resulted in a hard `Code: 1006` Abnormal Closure. Furthermore, Passenger's strict startup timeouts caused Next.js to throw 503 errors when we tried to bundle the proxy into the main Next.js server.
+
+**The Solution:** We split the frontend and the Voice Proxy backend.
+1. **The Voice Proxy (Backend):** The `voice-server` folder in this repository was extracted into its own standalone Node.js microservice and deployed to **Render.com**. Render natively supports WebSockets. This microservice securely holds the `GEMINI_API_KEY` and passes the live audio stream back and forth to Gemini.
+2. **The Frontend (Hostinger):** The main Next.js website remains on Hostinger. In `useStrategistSession.ts`, the frontend explicitly opens its WebSocket connection to the Render URL (`wss://lionovart-voice.onrender.com`).
 
 ---
 
-## 3. The Current Issue: Hostinger 503 Error
-Local development works flawlessly. However, deploying `master` to Hostinger results in a `503 Service Unavailable` error for the entire site.
+## 2. Server Tools & Firebase
+Because the Voice Server was moved to Render, it can no longer directly access the local Next.js API routes or Firebase Admin logic without duplicating all the code and keys. 
 
-**What this means:** The `node server.js` process is crashing immediately on startup, or failing to bind to the port/socket provided by Hostinger's reverse proxy (Phusion Passenger / LiteSpeed). 
+**How tools work now:**
+When Gemini triggers a tool call (like `save_lead_data` or `fetch_booking_link`), the Render Voice Server forwards the raw tool call payload down the WebSocket to the client. The client (`useStrategistSession.ts`) intercepts the tool call, makes a standard HTTP POST request to Hostinger's `/api/strategist/tool`, receives the database response, and sends it back up the WebSocket to Gemini.
 
-### Next Agent Debug Checklist for Hostinger:
-1.  **Missing Dependencies:** Did Hostinger actually run `npm install`? We added `ws` and `@google/genai`. If they are missing, `server.js` throws `Cannot find module` and crashes instantly.
-2.  **Named Pipe Binding:** Hostinger often passes a named pipe (string) to `process.env.PORT` (e.g., `/tmp/passenger.1234`). 
-    *   *What I tried:* I updated `server.js` to NOT use `parseInt()` if the port is a string, and passed `port: undefined` to the Next.js constructor if it's a pipe. 
-    *   *What might still be broken:* Does `server.listen(port)` fail if the socket file already exists from a previous crashed run? Does Passenger require a specific `hostname`? 
-3.  **Environment Variables:** If Hostinger's environment is missing `.env.local` (expected), does `require("dotenv").config()` crash, or is there another required ENV variable missing that crashes `app.prepare()`?
-4.  **Build Output:** Did `npm run build` actually succeed on Hostinger? If the `.next` folder is malformed or missing, `app.prepare()` will throw a fatal error. I added a `.catch()` to `app.prepare()` to log the error and `process.exit(1)`, but we need to see Hostinger's `stderr` logs to know what it is.
+---
 
-### How the Next Agent should help Leon:
-1. Ask Leon to check the **Node.js Error Logs** in his Hostinger hPanel. The exact crash trace will be in `stderr.log` or the application logs.
-2. If Hostinger logs show an error related to `ws` or `@google/genai`, instruct Leon to manually run `npm install` via Hostinger SSH or the panel.
-3. If Hostinger logs show a `EADDRINUSE` or `EACCES` error on the port/pipe, adjust the `server.listen` logic in `server.js` to handle Passenger's socket cleanup, or revert production to `next start` and find a different hosting solution for the WebSocket proxy.
+## 3. Hostinger 503 Debugging ("The Glass Window")
+If Hostinger ever throws a `503 Service Unavailable` error again, it means `app.prepare()` crashed while Passenger was booting Next.js. Because Passenger hides the logs, we built a **"Glass Window" Logger** in `server.js`.
 
-Good luck! You've got this.
+If Next.js crashes on boot, `server.js` catches the fatal error and writes the entire stack trace to a public text file.
+**To view the error:** Simply navigate to `https://lionovart.com/crash.txt`.
+
+### Known Causes for 503s on Hostinger:
+*   **Next.js Cache Corruption:** If `next.config.ts` was modified (e.g., trying to use `output: "standalone"` with Turbopack), the `.next` folder gets corrupted. The fix is to run `npm run build` in the Hostinger terminal to flush the cache.
+*   **Passenger Socket Timeouts:** `server.js` is specifically written to call `.listen()` *before* `app.prepare()` so Passenger doesn't time out. DO NOT change the boot sequence in `server.js` or Passenger will 503.
+
+---
+
+## 4. Upgrading Models
+The system currently uses **Gemini 3.1 Flash Live Preview**. 
+If Google deprecates this model or releases a newer one, you must update the model string in:
+1. `voice-server/index.js`
+2. Redeploy the Render service via the Render dashboard.
+
+You do not need to redeploy Hostinger to change the model, as the model logic is entirely handled by Render.
