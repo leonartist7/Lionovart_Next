@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --webpack",
     "dev:ws": "node ws-dev.js",
-    "build": "TURBOPACK=0 NEXT_TURBOPACK=0 next build",
+    "build": "next build",
     "start": "node server.js",
     "lint": "eslint"
   },
