@@ -4,6 +4,7 @@
   "description": "Standalone WebSocket proxy for Gemini Live API",
   "main": "index.js",
   "scripts": {
+    "build": "echo 'No build step required'",
     "start": "node index.js"
   },
   "engines": {
