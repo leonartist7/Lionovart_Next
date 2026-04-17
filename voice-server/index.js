@@ -74,13 +74,13 @@ wss.on("connection", async (ws, req) => {
 
       // Handle tool responses from the frontend
       if (payload.type === "tool_response" && liveSession) {
-        await liveSession.send({ toolResponse: { functionResponses: payload.responses } });
+        liveSession.conn.send(JSON.stringify({ toolResponse: { functionResponses: payload.responses } }));
         return;
       }
 
-      // Forward normal payloads (audio/text) to Gemini
-      if (liveSession) {
-        await liveSession.send(payload);
+      // Forward normal payloads (audio/text) directly to the raw Google WebSocket to bypass SDK abstractions
+      if (liveSession && liveSession.conn) {
+        liveSession.conn.send(data.toString());
       }
     } catch (err) {
       console.error("[WS] Error processing message:", err);
