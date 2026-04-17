@@ -176,6 +176,23 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
           setIsSessionActive(true);
           setState("listening");
           
+          // Trigger the AI to speak first
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(
+              JSON.stringify({
+                clientContent: {
+                  turns: [
+                    {
+                      role: "user",
+                      parts: [{ text: "Hello! Please introduce yourself and ask for my name." }],
+                    },
+                  ],
+                  turnComplete: true,
+                },
+              })
+            );
+          }
+
           // Once setup is complete, start sending mic data from worklet
           processor.port.onmessage = (e) => {
             if (e.data.type === "audio" && ws.readyState === WebSocket.OPEN) {
