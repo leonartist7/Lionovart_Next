@@ -134,6 +134,7 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       // 3. Connect WebSocket
       const host = window.location.hostname;
       const isLocal = host === "localhost" || host === "127.0.0.1";
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
       const wsUrl = isLocal 
         ? `ws://localhost:3001/api/strategist/live`
         : `${protocol}//${window.location.host}/api/strategist/live`;
