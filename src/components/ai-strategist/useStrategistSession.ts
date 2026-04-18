@@ -132,12 +132,13 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       setState("thinking");
 
       // 3. Connect WebSocket
-      const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = isLocal 
-         ? `ws://${window.location.hostname}:3001/api/strategist/live`
-         : `${protocol}//${window.location.host}/api/strategist/live`;
+      const host = window.location.hostname;
+      const isLocal = host === "localhost" || host === "127.0.0.1";
+      const wsUrl = isLocal 
+        ? `ws://localhost:3001/api/strategist/live`
+        : `${protocol}//${window.location.host}/api/strategist/live`;
       
+      console.log("[DEBUG] Attempting WS connection to:", wsUrl);
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
