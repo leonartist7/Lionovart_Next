@@ -86,42 +86,6 @@ function useCountUp(target: number, duration: number = 1800, active: boolean = t
   return count;
 }
 
-function AnimatedStats({ labels }: { labels: { clients: string; industries: string; yearsExp: string } }) {
-  const ref = useRef<HTMLDivElement>(null);
-  // margin "0px" — triggers as soon as any pixel of the element enters the viewport.
-  // Previously "-40px" was causing it to miss on some viewport heights.
-  const inView = useInView(ref, { once: true, margin: "0px" });
-
-  const clients = useCountUp(50, 1600, inView);
-  const industries = useCountUp(20, 1400, inView);
-  const years = useCountUp(20, 1200, inView);
-
-  return (
-    <div ref={ref} className="flex items-center justify-center gap-6 md:gap-10">
-      {[
-        { value: clients, suffix: "+", label: labels.clients },
-        { value: industries, suffix: "+", label: labels.industries },
-        { value: years, suffix: "+", label: labels.yearsExp },
-      ].map((stat, i) => (
-        <motion.div
-          key={stat.label}
-          className="flex flex-col items-center"
-          initial={{ opacity: 0, y: 12 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-          transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
-        >
-          <span className="text-[22px] sm:text-[26px] font-black text-white leading-none tabular-nums">
-            {stat.value}{stat.suffix}
-          </span>
-          <span className="text-[10px] sm:text-[11px] uppercase tracking-widest text-white/50 mt-1">
-            {stat.label}
-          </span>
-        </motion.div>
-      ))}
-    </div>
-  );
-}
-
 /* ─── Cycling words are built inside the component from translations ─── */
 
 
