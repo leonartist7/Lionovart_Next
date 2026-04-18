@@ -19,5 +19,8 @@ steps:
     - '--region'
     - 'us-central1'
 
+options:
+  logging: CLOUD_LOGGING_ONLY
+
 images:
   - 'us-central1-docker.pkg.dev/gen-lang-client-0318381471/cloud-run-source-deploy/lionovart-web:$COMMIT_SHA'
