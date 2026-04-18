@@ -34,6 +34,7 @@ app.prepare().then(() => {
   server.on("upgrade", (req, socket, head) => {
     const { pathname } = parse(req.url || "", true);
     console.log("[WS] Upgrade request received for path:", pathname);
+    console.log("[WS] Upgrade request headers:", JSON.stringify(req.headers));
     if (pathname && pathname.startsWith("/api/strategist/live")) {
       wss.handleUpgrade(req, socket, head, (ws) => {
         console.log("[WS] Upgrade successful");
