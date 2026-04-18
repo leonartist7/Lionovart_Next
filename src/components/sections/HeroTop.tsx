@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
-import Image from "next/image";
 import { getWhatsAppUrl } from "@/lib/contact";
 import HeroCycling, { Word } from "@/components/sections/HeroCycling";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";

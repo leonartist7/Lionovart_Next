@@ -146,24 +146,29 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       let hasConnected = false;
 
       ws.onopen = () => {
-        // Send setup payload
+        // Send setup payload using the NEW SDK schema that completely avoids generationConfig deprecation warnings
         ws.send(
           JSON.stringify({
             type: "setup",
             config: {
-              systemInstruction: { parts: [{ text: STRATEGIST_SYSTEM_PROMPT }] },
+              systemInstruction: { 
+                parts: [
+                  { 
+                    text: STRATEGIST_SYSTEM_PROMPT + "\n\nCRITICAL DIRECTIVE: Your very first action immediately upon connecting must be a warm, brief 1-sentence verbal greeting. Introduce yourself as the LIONOVART AI Strategist and ask what they are building. Do not wait for the user to speak first." 
+                  }
+                ] 
+              },
               tools: STRATEGIST_TOOLS,
-              generationConfig: {
-                responseModalities: ["AUDIO"],
-                speechConfig: {
-                  voiceConfig: {
-                    prebuiltVoiceConfig: {
-                      voiceName: "Aoede" // Options: Aoede, Charon, Fenrir, Kore, Puck
-                    }
+              // Move these exactly to the root of 'config' per Google's new v1.50+ deprecation warning rules
+              responseModalities: ["AUDIO"],
+              speechConfig: {
+                voiceConfig: {
+                  prebuiltVoiceConfig: {
+                    voiceName: "Aoede" // Options: Aoede, Charon, Fenrir, Kore, Puck
                   }
                 }
               }
-            },
+            }
           })
         );
       };
@@ -193,7 +198,7 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
                   turns: [
                     {
                       role: "user",
-                      parts: [{ text: "Hello! Please give me a warm, brief 1-sentence greeting. You are the LIONOVART AI Strategist. Ask what I am building." }],
+                      parts: [{ text: "Hello. Please greet me out loud as instructed." }],
                     },
                   ],
                   turnComplete: true,
@@ -223,14 +228,21 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
           return;
         }
 
-        // Handle Audio from Gemini
+        // Handle Audio or Text from Gemini
         if (data.serverContent && data.serverContent.modelTurn) {
           const parts = data.serverContent.modelTurn.parts;
           for (const part of parts) {
+            // Check for Audio
             if (part.inlineData && part.inlineData.mimeType.startsWith("audio/pcm")) {
               const pcm16 = base64ToInt16Array(part.inlineData.data);
               processor.port.postMessage({ pcm: Array.from(pcm16) });
               setState("speaking"); // Currently playing audio
+            }
+            // Check for Text (Failsafe diagnostic check if Audio generation failed)
+            else if (part.text) {
+              console.log("[DEBUG - GEMINI REPLIED IN TEXT INSTEAD OF AUDIO]:", part.text);
+              // You can output this to the screen or a custom chat bubble if you want,
+              // but for now, logging it proves the model is working even if audio fails!
             }
           }
         }
