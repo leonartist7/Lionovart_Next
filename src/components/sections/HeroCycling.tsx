@@ -18,8 +18,8 @@ export interface Word {
 }
 
 export interface HeroCyclingProps {
-  /** Static first line. Default: "YOUR BRAND DESERVES" */
-  staticText?: string;
+  /** Static first line(s). Can be a string or array of strings for multiple lines. */
+  staticText?: string | string[];
   /** Ordered cycling sequence. Loops infinitely. */
   words?: Word[];
   /** CSS font-size for the static line. Default: clamp(2.5rem, 8vw, 6.5rem) */
@@ -198,11 +198,17 @@ export default function HeroCycling({
       aria-label="Hero tagline"
       style={{ fontFamily: "var(--font-heading)" }}
     >
-      {/* ── Line 1: Static ── */}
-      <h1 style={sharedTextStyle}>{staticText}</h1>
+      {/* ── Static Text Lines ── */}
+      {Array.isArray(staticText) ? (
+        staticText.map((line, idx) => (
+          <h1 key={idx} style={{ ...sharedTextStyle, whiteSpace: "normal" }}>{line}</h1>
+        ))
+      ) : (
+        <h1 style={{ ...sharedTextStyle, whiteSpace: "normal" }}>{staticText}</h1>
+      )}
 
       {/* ── Gap between static and cycling lines ── */}
-      <div style={{ height: "0.45em" }} />
+      <div style={{ height: "0.2em" }} />
 
       {/* ── Line 2: Cycling ── */}
       <div

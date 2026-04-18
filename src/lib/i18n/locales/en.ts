@@ -7,7 +7,7 @@ export const en = {
   },
 
   hero: {
-    staticText: "MAKE YOUR BRAND",
+    staticText: ["WE MAKE", "YOUR BRAND"],
     cyclingWords: ["ROAR", "STAND OUT", "MEMORABLE", "MAGNETIC", "SELL MORE", "DOMINATE"],
     subtitle:
       "We build brands, develop websites, and produce content so your business becomes impossible to ignore.",

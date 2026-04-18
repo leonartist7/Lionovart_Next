@@ -12,8 +12,8 @@ export const es: Translations = {
   },
   hero: {
     ...en.hero,
-    staticText: "HAZ QUE TU MARCA",
-    cyclingWords: ["RUGIR", "DESTACAR", "MEMORABLE", "MAGNÉTICA", "VENDER MÁS", "DOMINAR"],
+    staticText: ["HACEMOS QUE", "TU MARCA"],
+    cyclingWords: ["RUJA", "DESTAQUE", "SEA MEMORABLE", "SEA MAGNÉTICA", "VENDA MÁS", "DOMINE"],
     subtitle:
       "Diseñamos marcas, construimos sitios web y producimos contenido para que tu negocio sea imposible de ignorar.",
     ctaStart: "Comenzar",

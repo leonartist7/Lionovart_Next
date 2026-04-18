@@ -75,24 +75,27 @@ app.prepare().then(() => {
           }
 
           // Listen from Gemini -> Send to Client
-          (async () => {
+          // The new SDK Session object is not AsyncIterable, we must listen to the internal WebSocket 'conn'
+          liveSession.conn.on('message', (data) => {
             try {
-              for await (const chunk of liveSession) {
-                if (chunk.toolCall) {
-                  if (ws.readyState === ws.OPEN) {
-                    ws.send(JSON.stringify({ toolCall: chunk.toolCall }));
-                  }
-                } else {
-                  if (ws.readyState === ws.OPEN) {
-                    ws.send(JSON.stringify(chunk));
-                  }
+              const chunk = JSON.parse(data.toString());
+              if (chunk.toolCall) {
+                if (ws.readyState === ws.OPEN) {
+                  ws.send(JSON.stringify({ toolCall: chunk.toolCall }));
+                }
+              } else {
+                if (ws.readyState === ws.OPEN) {
+                  ws.send(JSON.stringify(chunk));
                 }
               }
             } catch (err) {
-              console.error("[WS] Gemini stream error:", err);
+              console.error("[WS] Error parsing/sending Gemini message:", err);
             }
-          })();
-
+          });
+          
+          liveSession.conn.on('error', (err) => console.error("[WS] Gemini internal connection error:", err));
+          liveSession.conn.on('close', () => console.log("[WS] Gemini connection closed"));
+          
           ws.send(JSON.stringify({ type: "setup_complete" }));
           return;
         }

@@ -12,7 +12,7 @@ export const it: Translations = {
   },
   hero: {
     ...en.hero,
-    staticText: "FAI DELLA TUA MARCA",
+    staticText: ["RENDIAMO", "LA TUA MARCA"],
     cyclingWords: ["RUGGIRE", "DISTINGUERTI", "MEMORABILE", "MAGNETICA", "VENDERE DI PIÙ", "DOMINARE"],
     subtitle:
       "Progettiamo brand, costruiamo siti web e produciamo contenuti per rendere la tua azienda impossibile da ignorare.",

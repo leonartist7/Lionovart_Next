@@ -9,7 +9,7 @@ export const fr: Translations = {
   },
 
   hero: {
-    staticText: "FAITES DE VOTRE MARQUE",
+    staticText: ["NOUS RENDONS", "VOTRE MARQUE"],
     cyclingWords: ["RUGIR", "SORTIR DU LOT", "MÉMORABLE", "MAGNÉTIQUE", "VENDRE PLUS", "DOMINER"],
     subtitle:
       "Nous créons des marques, développons des sites web et produisons du contenu pour que votre entreprise soit impossible à ignorer.",

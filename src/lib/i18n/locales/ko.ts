@@ -12,7 +12,7 @@ export const ko: Translations = {
   },
   hero: {
     ...en.hero,
-    staticText: "당신의 브랜드를",
+    staticText: ["우리는 만듭니다", "당신의 브랜드를"],
     cyclingWords: ["포효하라", "두드러져라", "기억에 남아라", "매력적으로", "더 많이 팔아라", "지배하라"],
     subtitle:
       "우리는 브랜드를 디자인하고, 웹사이트를 구축하며, 당신의 비즈니스가 무시할 수 없도록 만드는 콘텐츠를 제작합니다.",
