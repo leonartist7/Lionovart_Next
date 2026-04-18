@@ -69,6 +69,7 @@ app.prepare().then(() => {
               callbacks: {
                 onmessage: (chunk) => {
                   try {
+                    console.log("[WS] Received from Gemini:", Object.keys(chunk));
                     if (chunk.toolCall) {
                       if (ws.readyState === ws.OPEN) {
                         ws.send(JSON.stringify({ toolCall: chunk.toolCall }));
