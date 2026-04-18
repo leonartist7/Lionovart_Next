@@ -3,6 +3,7 @@ import HeroTop from "@/components/sections/HeroTop";
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
 import LumaShowcase from "@/components/sections/LumaShowcase";
+import ImageMarquee from "@/components/sections/ImageMarquee";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
 import Portfolio from "@/components/sections/Portfolio";
 import Services from "@/components/sections/Services";
@@ -17,9 +18,10 @@ export default function Home() {
     <main className="bg-bg-dark min-h-screen">
       <Navbar />
       <HeroTop />
+      <MarqueeSlanted />
       <AboutUsHalf />
       <LumaShowcase />
-      <MarqueeSlanted />
+      <ImageMarquee />
       <Services />
       <Portfolio />
       <Process />

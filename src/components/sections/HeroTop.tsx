@@ -30,119 +30,6 @@ const itemVariants = {
   },
 };
 
-/* ─── 3D Carousel images — Cloudinary portfolio shots ──────────── */
-const ORIGINAL_IMAGES = [
-  "https://res.cloudinary.com/dgio9uutc/image/upload/v1775277351/1_1_bv3shm.avif",
-  "https://res.cloudinary.com/dgio9uutc/image/upload/v1775277351/Thumb_2_p6ksrb.avif",
-  "https://res.cloudinary.com/dgio9uutc/image/upload/v1775277352/Frame_1_zhyago.avif",
-  "https://res.cloudinary.com/dgio9uutc/image/upload/v1775277353/freepik_a-highly-polished-professional-uiux-website-homepage-mockup-for-a-modern-luxury-car-dealership.-clean-gridbased-layout-with-a-dark-theme-featuring-charcoal-grey-backgrounds-metallic-silve_0001_zglhcb.avif",
-  "https://res.cloudinary.com/dgio9uutc/image/upload/v1775277354/freepik_from-this-brand-help-me-make-a-mockup-of-her-landing-page-keeping-the-visual-identity..-looking-very-premium-and-elegant-and-perfect_0001_1_u6hnjz.avif",
-  "https://res.cloudinary.com/dgio9uutc/image/upload/v1775277354/freepik_from-this-brand-help-me-make-a-mockup-of-her-landing-page-keeping-the-visual-identity..-looking-very-premium-and-elegant-and-perfect_0001_2_cd1gee.avif",
-  "https://res.cloudinary.com/dgio9uutc/image/upload/v1775277380/freepik_from-this-brand-identity-help-me-make-a-mockup-of-her-landing-page..-looking-premium-and-elegant_0001_bnk4us.avif",
-  "https://res.cloudinary.com/dgio9uutc/image/upload/v1775277351/Screenshots_2_apvmbr.avif",
-  "https://res.cloudinary.com/dgio9uutc/image/upload/v1775277352/freepik__design-a-highly-polished-professional-corporate-we__1650_qukgx3.avif",
-  "https://res.cloudinary.com/dgio9uutc/image/upload/v1775277350/image_19_rnwg8w.avif",
-];
-
-// Double the array to 20 items so the cylinder is massive and wraps fully around the screen width
-const CAROUSEL_IMAGES = [...ORIGINAL_IMAGES, ...ORIGINAL_IMAGES];
-const N = CAROUSEL_IMAGES.length;
-
-/* ─── 3D Carousel ───────────────────────────────────────────────── */
-function Carousel3D() {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [radius, setRadius] = useState(600);
-
-  useEffect(() => {
-    const compute = () => {
-      if (!cardRef.current) return;
-      const w = cardRef.current.offsetWidth;
-      // CodePen gap approximation
-      const r = (w * 0.5 + 12) / Math.tan(Math.PI / N);
-      setRadius(r);
-    };
-    compute();
-    window.addEventListener("resize", compute);
-    return () => window.removeEventListener("resize", compute);
-  }, []);
-
-  return (
-    <div
-      className="relative w-screen left-1/2 -translate-x-1/2 overflow-hidden flex justify-center"
-      style={{
-        // By scaling perspective dynamically with viewport width, the depth illusion 
-        // stays completely consistent whether on a phone or an ultrawide monitor.
-        // CodePen ratio: perspective is exactly 2x the card width.
-        perspective: "clamp(400px, 36vw, 800px)",
-        // Mask pushes the black fade exclusively to the very edges
-        maskImage: "linear-gradient(90deg, transparent, black 15%, black 85%, transparent)",
-        WebkitMaskImage: "linear-gradient(90deg, transparent, black 15%, black 85%, transparent)",
-      }}
-    >
-      <div
-        className="grid"
-        style={{
-          transformStyle: "preserve-3d",
-          animation: "carousel-spin 60s linear infinite",
-          // Taller container to allow the huge edge cards to fully expand without clipping
-          height: "clamp(260px, 35vw, 550px)",
-          placeItems: "center",
-        }}
-      >
-        {CAROUSEL_IMAGES.map((src, i) => {
-          const angleTurn = i / N;
-          return (
-            <div
-              key={i}
-              ref={i === 0 ? cardRef : undefined}
-              style={{
-                gridArea: "1 / 1",
-                // Dynamic width: ~18vw so they scale with screen, resulting in a huge cylinder diameter
-                width: "clamp(120px, 14vw, 240px)",
-                aspectRatio: "7 / 10",
-                // Negative Z creates the concave "stadium" effect. 
-                // Because N=20 and width is 14vw, the radius is huge. This pushes the 
-                // center cards far back, and makes the lateral cards massive as they pass the camera.
-                transform: `rotateY(${angleTurn}turn) translateZ(${-radius}px)`,
-                backfaceVisibility: "hidden",
-                WebkitBackfaceVisibility: "hidden",
-              }}
-              className="relative overflow-hidden rounded-[16px] md:rounded-[24px] border border-white/10"
-            >
-              <Image
-                src={src}
-                alt="Portfolio showcase"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 150px, (max-width: 1280px) 20vw, 300px"
-              />
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-/* ─── Count-Up Hook ─────────────────────────────────────────────── */
-function useCountUp(target: number, duration: number = 1800, active: boolean = true) {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!active) return;
-    let start: number | null = null;
-    const step = (ts: number) => {
-      if (!start) start = ts;
-      const elapsed = ts - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.floor(eased * target));
-      if (progress < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [active, target, duration]);
-  return count;
-}
-
 /* ─── Animated Stats Overlay ────────────────────────────────────── */
 function AnimatedStats({ labels }: { labels: { clients: string; industries: string; yearsExp: string } }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -512,17 +399,6 @@ export default function HeroTop() {
 
         
       </motion.div>
-
-      {/* 3D Rotating Carousel - full bleed */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 1.2 }}
-        className="relative z-10 mt-[5px] mb-0 md:-mb-8 w-full overflow-visible pointer-events-none"
-      >
-        <Carousel3D />
-      </motion.div>
-
 
       <motion.div
         variants={containerVariants}
