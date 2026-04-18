@@ -65,7 +65,26 @@ app.prepare().then(() => {
           try {
             liveSession = await ai.live.connect({
               model,
-              config: payload.config
+              config: payload.config,
+              callbacks: {
+                onmessage: (chunk) => {
+                  try {
+                    if (chunk.toolCall) {
+                      if (ws.readyState === ws.OPEN) {
+                        ws.send(JSON.stringify({ toolCall: chunk.toolCall }));
+                      }
+                    } else {
+                      if (ws.readyState === ws.OPEN) {
+                        ws.send(JSON.stringify(chunk));
+                      }
+                    }
+                  } catch (err) {
+                    console.error("[WS] Error forwarding Gemini message:", err);
+                  }
+                },
+                onerror: (err) => console.error("[WS] Gemini internal error:", err),
+                onclose: () => console.log("[WS] Gemini connection closed")
+              }
             });
           } catch (connectErr) {
             console.error("[WS] Failed to connect to Gemini Live API:", connectErr);
@@ -74,28 +93,6 @@ app.prepare().then(() => {
             return;
           }
 
-          // Listen from Gemini -> Send to Client
-          // The new SDK Session object is not AsyncIterable, we must listen to the internal WebSocket 'conn'
-          liveSession.conn.on('message', (data) => {
-            try {
-              const chunk = JSON.parse(data.toString());
-              if (chunk.toolCall) {
-                if (ws.readyState === ws.OPEN) {
-                  ws.send(JSON.stringify({ toolCall: chunk.toolCall }));
-                }
-              } else {
-                if (ws.readyState === ws.OPEN) {
-                  ws.send(JSON.stringify(chunk));
-                }
-              }
-            } catch (err) {
-              console.error("[WS] Error parsing/sending Gemini message:", err);
-            }
-          });
-          
-          liveSession.conn.on('error', (err) => console.error("[WS] Gemini internal connection error:", err));
-          liveSession.conn.on('close', () => console.log("[WS] Gemini connection closed"));
-          
           ws.send(JSON.stringify({ type: "setup_complete" }));
           return;
         }
@@ -109,7 +106,7 @@ app.prepare().then(() => {
         }
 
         // Forward normal payloads (audio/text) directly to raw Google WebSocket
-        // This is the CRITICAL FIX that prevents the 50-second idle timeout crash
+        // This bypasses the SDK's strict input validation
         if (liveSession && liveSession.conn) {
           liveSession.conn.send(data.toString());
         }
