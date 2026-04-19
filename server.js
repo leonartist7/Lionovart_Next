@@ -122,7 +122,7 @@ app.prepare().then(() => {
         // Forward normal payloads (audio/text) directly to raw Google WebSocket
         // This bypasses the SDK's strict input validation
         if (liveSession && liveSession.conn) {
-          liveSession.conn.send(data.toString());
+          liveSession.conn.send(JSON.stringify(payload));
         }
       } catch (err) {
         console.error("[WS] Error processing message:", err);
