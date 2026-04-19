@@ -56,6 +56,10 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
 
   const stopSession = useCallback(() => {
     if (wsRef.current) {
+      wsRef.current.onmessage = null;
+      wsRef.current.onerror = null;
+      wsRef.current.onopen = null;
+      wsRef.current.onclose = null;
       wsRef.current.close();
       wsRef.current = null;
     }

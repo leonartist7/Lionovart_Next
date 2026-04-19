@@ -99,6 +99,15 @@ app.prepare().then(() => {
           }
 
           ws.send(JSON.stringify({ type: "setup_complete" }));
+          
+          // Setup Ping/Pong Heartbeat to prevent Cloud Run idle timeout
+          const pingInterval = setInterval(() => {
+            if (ws.readyState === ws.OPEN) {
+              ws.ping();
+            }
+          }, 30000); // Ping every 30 seconds
+          
+          ws.on('close', () => clearInterval(pingInterval));
           return;
         }
 
