@@ -32,18 +32,14 @@ app.prepare().then(() => {
   const wss = new WebSocketServer({ noServer: true });
 
   server.on("upgrade", (req, socket, head) => {
-    const { pathname } = parse(req.url || "", true);
-    console.log("[WS] Upgrade request received for path:", pathname);
-    console.log("[WS] Upgrade request headers:", JSON.stringify(req.headers));
-    if (pathname && pathname.startsWith("/api/strategist/live")) {
-      wss.handleUpgrade(req, socket, head, (ws) => {
-        console.log("[WS] Upgrade successful");
-        wss.emit("connection", ws, req);
-      });
-    } else {
-      console.log("[WS] Upgrade rejected for path:", pathname);
-      socket.destroy();
-    }
+    // We completely bypass the strict pathname check. Google Cloud Run's load balancer 
+    // sometimes strips or mutates the URL path for WebSockets, causing false 1005 rejections.
+    // Since this server only handles one WebSocket endpoint, we allow all upgrades to pass through.
+    console.log("[WS] Allowing upgrade for incoming WebSocket connection...");
+    wss.handleUpgrade(req, socket, head, (ws) => {
+      console.log("[WS] Upgrade successful");
+      wss.emit("connection", ws, req);
+    });
   });
 
   wss.on("connection", async (ws, req) => {
