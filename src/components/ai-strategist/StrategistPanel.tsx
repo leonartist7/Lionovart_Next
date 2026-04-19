@@ -132,16 +132,17 @@ export default function StrategistPanel({ isOpen, onClose }: StrategistPanelProp
 
             {/* ── Live conversation view ── */}
             <div className="flex flex-1 flex-col min-h-0">
-              <ConversationView
-                isSessionActive={session.isSessionActive}
-                state={session.state}
-                leadData={session.leadData}
-                setLeadData={session.setLeadData}
-                handoffData={session.handoffData}
-                onStartSession={session.startSession}
-                onStopSession={session.stopSession}
-                onSendText={session.sendTextToAgent}
-              />
+                <ConversationView
+                  isSessionActive={session.isSessionActive}
+                  state={session.state}
+                  leadData={session.leadData}
+                  setLeadData={session.setLeadData}
+                  handoffData={session.handoffData}
+                  transcript={session.transcript}
+                  onStartSession={session.startSession}
+                  onStopSession={session.stopSession}
+                  onSendText={session.sendTextToAgent}
+                />
             </div>
           </motion.div>
         </>

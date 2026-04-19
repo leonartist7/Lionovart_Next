@@ -10,12 +10,18 @@ export interface LeadData {
   email: string;
 }
 
+export interface ChatMessage {
+  role: "user" | "agent";
+  text: string;
+}
+
 export interface UseStrategistSessionReturn {
   isSessionActive: boolean;
   state: SessionState;
   leadData: LeadData;
   setLeadData: (updater: (prev: LeadData) => LeadData) => void;
   handoffData: HandoffData | null;
+  transcript: ChatMessage[];
   startSession: () => Promise<void>;
   stopSession: () => void;
   sendTextToAgent: (text: string) => void;
@@ -48,13 +54,24 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
   const [state, setState] = useState<SessionState>("idle");
   const [leadData, setLeadData] = useState<LeadData>({ name: "", phone: "", email: "" });
   const [handoffData, setHandoffData] = useState<HandoffData | null>(null);
+  const [transcript, setTranscript] = useState<ChatMessage[]>([]);
 
   const wsRef = useRef<WebSocket | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const processorRef = useRef<AudioWorkletNode | null>(null);
+  
+  // Audio playback management refs
+  const nextPlaybackTimeRef = useRef(0);
+  const activeSourcesRef = useRef<AudioBufferSourceNode[]>([]);
 
   const stopSession = useCallback(() => {
+    // Clear all active audio sources (Barge-in / Stop)
+    activeSourcesRef.current.forEach((src) => {
+      try { src.stop(); } catch(e) {}
+    });
+    activeSourcesRef.current = [];
+    nextPlaybackTimeRef.current = 0;
     if (wsRef.current) {
       wsRef.current.onmessage = null;
       wsRef.current.onerror = null;
@@ -95,11 +112,16 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
           },
         })
       );
+      setTranscript(prev => [...prev, { role: "user", text }]);
     }
   }, []);
 
   const startSession = useCallback(async () => {
     try {
+      setTranscript([]);
+      activeSourcesRef.current.forEach((src) => { try { src.stop(); } catch(e){} });
+      activeSourcesRef.current = [];
+      nextPlaybackTimeRef.current = 0;
       // 1. Request Mic first (important for mobile safari to have immediate user gesture)
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -125,7 +147,10 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       await audioCtx.audioWorklet.addModule("/audio-processor.js");
 
       const source = audioCtx.createMediaStreamSource(stream);
-      const processor = new AudioWorkletNode(audioCtx, "audio-processor");
+      // Pass the hardware sampleRate into the worklet so it knows exactly how to downsample
+      const processor = new AudioWorkletNode(audioCtx, "audio-processor", {
+        processorOptions: { sampleRate: audioCtx.sampleRate }
+      });
       processorRef.current = processor;
 
       source.connect(processor);
@@ -165,6 +190,9 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
               tools: STRATEGIST_TOOLS,
               // Move these exactly to the root of 'config' per Google's new v1.50+ deprecation warning rules
               responseModalities: ["AUDIO"],
+              sessionResumption: {
+                transparent: true
+              },
               speechConfig: {
                 voiceConfig: {
                   prebuiltVoiceConfig: {
@@ -194,6 +222,9 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
           setIsSessionActive(true);
           setState("listening");
           
+          // Force UI to know we connected successfully
+          setTranscript([{ role: "agent", text: "Connected. Waiting for AI..." }]);
+
           // Trigger the AI to speak first
           if (ws.readyState === WebSocket.OPEN) {
             ws.send(
@@ -232,6 +263,15 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
           return;
         }
 
+        // Handle Barge-in (Interruption)
+        if (data.serverContent && data.serverContent.interrupted) {
+          activeSourcesRef.current.forEach((src) => { try { src.stop(); } catch(e){} });
+          activeSourcesRef.current = [];
+          if (audioContextRef.current) {
+            nextPlaybackTimeRef.current = audioContextRef.current.currentTime;
+          }
+        }
+
         // Handle Audio or Text from Gemini
         if (data.serverContent && data.serverContent.modelTurn) {
           const parts = data.serverContent.modelTurn.parts;
@@ -239,14 +279,51 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
             // Check for Audio
             if (part.inlineData && part.inlineData.mimeType.startsWith("audio/pcm")) {
               const pcm16 = base64ToInt16Array(part.inlineData.data);
-              processor.port.postMessage({ pcm: Array.from(pcm16) });
-              setState("speaking"); // Currently playing audio
+              const ctx = audioContextRef.current;
+              if (!ctx) continue;
+              
+              // 1. Convert Int16 to Float32
+              const float32Data = new Float32Array(pcm16.length);
+              for (let i = 0; i < pcm16.length; i++) {
+                float32Data[i] = pcm16[i] / 32768.0;
+              }
+              
+              // 2. Create a buffer specifically at 24000Hz (Gemini's output rate)
+              const audioBuffer = ctx.createBuffer(1, float32Data.length, 24000);
+              audioBuffer.getChannelData(0).set(float32Data);
+              
+              // 3. Play it natively via C++ AudioEngine (handles upsampling perfectly)
+              const source = ctx.createBufferSource();
+              source.buffer = audioBuffer;
+              source.connect(ctx.destination);
+              
+              const currentTime = ctx.currentTime;
+              if (nextPlaybackTimeRef.current < currentTime) {
+                nextPlaybackTimeRef.current = currentTime;
+              }
+              
+              source.start(nextPlaybackTimeRef.current);
+              nextPlaybackTimeRef.current += audioBuffer.duration;
+              
+              activeSourcesRef.current.push(source);
+              source.onended = () => {
+                activeSourcesRef.current = activeSourcesRef.current.filter((s) => s !== source);
+              };
+              
+              setState("speaking");
             }
-            // Check for Text (Failsafe diagnostic check if Audio generation failed)
+            // Check for Text (Live Transcript update)
             else if (part.text) {
-              console.log("[DEBUG - GEMINI REPLIED IN TEXT INSTEAD OF AUDIO]:", part.text);
-              // You can output this to the screen or a custom chat bubble if you want,
-              // but for now, logging it proves the model is working even if audio fails!
+              setTranscript((prev) => {
+                const newTranscript = [...prev];
+                const last = newTranscript[newTranscript.length - 1];
+                if (last && last.role === "agent") {
+                  last.text += part.text;
+                } else {
+                  newTranscript.push({ role: "agent", text: part.text });
+                }
+                return newTranscript;
+              });
             }
           }
         }

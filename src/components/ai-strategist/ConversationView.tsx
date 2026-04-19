@@ -4,7 +4,7 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, MicOff, Send, Play } from "lucide-react";
 import type { HandoffData, SessionState } from "@/lib/strategist-config";
-import type { LeadData } from "./useStrategistSession";
+import type { LeadData, ChatMessage } from "./useStrategistSession";
 import VoiceVisualizer from "./VoiceVisualizer";
 import HandoffCards from "./HandoffCards";
 
@@ -14,6 +14,7 @@ export interface ConversationViewProps {
   leadData: LeadData;
   setLeadData: (updater: (prev: LeadData) => LeadData) => void;
   handoffData: HandoffData | null;
+  transcript: ChatMessage[];
   onStartSession: () => void;
   onStopSession: () => void;
   onSendText: (text: string) => void;
@@ -25,6 +26,7 @@ export default function ConversationView({
   leadData,
   setLeadData,
   handoffData,
+  transcript,
   onStartSession,
   onStopSession,
   onSendText,
@@ -105,6 +107,35 @@ export default function ConversationView({
                 {isSpeaking ? "Speaking..." : isListening ? "Listening..." : "Thinking..."}
               </span>
             </motion.div>
+
+            {/* Live Transcript UI */}
+            <AnimatePresence>
+              {transcript.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="w-full max-w-sm max-h-[160px] overflow-y-auto no-scrollbar rounded-xl border border-white/10 bg-white/5 p-4 flex flex-col gap-3"
+                >
+                  {transcript.map((msg, idx) => (
+                    <div
+                      key={idx}
+                      className={`text-sm ${
+                        msg.role === "agent" ? "text-white/90 text-left" : "text-brand-red text-right font-medium"
+                      }`}
+                    >
+                      {msg.role === "agent" ? (
+                        <span className="font-bold text-[10px] uppercase tracking-widest text-white/40 block mb-0.5">Strategist</span>
+                      ) : (
+                        <span className="font-bold text-[10px] uppercase tracking-widest text-brand-red/60 block mb-0.5">You</span>
+                      )}
+                      {msg.text}
+                    </div>
+                  ))}
+                  {/* Auto-scroll anchor */}
+                  <div ref={(el) => el?.scrollIntoView({ behavior: "smooth" })} />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Interactive Lead UI Panel */}
             <AnimatePresence>
