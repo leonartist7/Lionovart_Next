@@ -199,9 +199,6 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
               tools: STRATEGIST_TOOLS,
               // Move these exactly to the root of 'config' per Google's new v1.50+ deprecation warning rules
               responseModalities: ["AUDIO"],
-              sessionResumption: {
-                transparent: true
-              },
               speechConfig: {
                 voiceConfig: {
                   prebuiltVoiceConfig: {
