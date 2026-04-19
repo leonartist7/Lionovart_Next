@@ -65,7 +65,16 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
   const nextPlaybackTimeRef = useRef(0);
   const activeSourcesRef = useRef<AudioBufferSourceNode[]>([]);
 
+  const sessionTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const fiveMinWarningFiredRef = useRef(false);
+
   const stopSession = useCallback(() => {
+    if (sessionTimerRef.current) {
+      clearInterval(sessionTimerRef.current);
+      sessionTimerRef.current = null;
+    }
+    fiveMinWarningFiredRef.current = false;
+
     // Clear all active audio sources (Barge-in / Stop)
     activeSourcesRef.current.forEach((src) => {
       try { src.stop(); } catch(e) {}
@@ -221,6 +230,40 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
           hasConnected = true;
           setIsSessionActive(true);
           setState("listening");
+
+          // Start the 30-minute session timer
+          const startTime = Date.now();
+          sessionTimerRef.current = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const timeLeftMs = (30 * 60 * 1000) - elapsed;
+            
+            // If exactly 5 minutes (300,000 ms) are left, trigger the AI
+            if (timeLeftMs <= 300000 && !fiveMinWarningFiredRef.current) {
+              fiveMinWarningFiredRef.current = true;
+              if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+                // Send a silent system prompt instructing her to wrap up
+                wsRef.current.send(
+                  JSON.stringify({
+                    clientContent: {
+                      turns: [
+                        {
+                          role: "user",
+                          parts: [{ text: "SYSTEM ALERT: The conversation will automatically disconnect in exactly 5 minutes. Please briefly mention to the user that we only have 5 minutes left to wrap up our thoughts." }],
+                        },
+                      ],
+                      turnComplete: true,
+                    },
+                  })
+                );
+              }
+            }
+            
+            // If time is up, forcefully close
+            if (timeLeftMs <= 0) {
+               stopSession();
+               alert("The 30-minute consultation has concluded. Please book a follow-up call to continue!");
+            }
+          }, 1000); // Check every second
           
           // Force UI to know we connected successfully
           setTranscript([{ role: "agent", text: "Connected. Waiting for AI..." }]);
