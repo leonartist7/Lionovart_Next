@@ -416,6 +416,7 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
     leadData,
     setLeadData,
     handoffData,
+    transcript,
     startSession,
     stopSession,
     sendTextToAgent
