@@ -324,6 +324,12 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
               const ctx = audioContextRef.current;
               if (!ctx) continue;
               
+              // Ensure audio context is actually running before we try to play
+              // Browsers (like Safari) aggressively suspend contexts even after initial resume
+              if (ctx.state === "suspended") {
+                ctx.resume().catch(err => console.error("Failed to resume AudioContext:", err));
+              }
+              
               // 1. Convert Int16 to Float32
               const float32Data = new Float32Array(pcm16.length);
               for (let i = 0; i < pcm16.length; i++) {
