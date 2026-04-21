@@ -53,8 +53,8 @@ app.prepare().then(() => {
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    // Hardcode the stable model to bypass the broken 3.1 Flash Live Preview in your Cloud Run variables
-    const model = "gemini-2.0-flash-exp";
+    // Reverting to gemini-3.1-flash-live-preview because 2.0-flash-exp forcefully drops the connection instantly
+    const model = process.env.GEMINI_MODEL || "gemini-3.1-flash-live-preview";
     let liveSession;
 
     ws.on("message", async (data) => {
