@@ -53,7 +53,7 @@ app.prepare().then(() => {
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    const model = process.env.GEMINI_MODEL || "gemini-3.1-flash-live-preview";
+    const model = process.env.GEMINI_MODEL || "gemini-2.0-flash-exp";
     let liveSession;
 
     ws.on("message", async (data) => {

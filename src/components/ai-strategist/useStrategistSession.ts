@@ -265,7 +265,9 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
           // Force UI to know we connected successfully
           setTranscript([{ role: "agent", text: "Connected. Waiting for AI..." }]);
 
-          // Trigger the AI to speak first
+          // Trigger the AI to speak first using the exact payload format the new Live API expects
+          // If this crashes the connection (50ms drop), it means the model is strictly audio-only right now.
+          // However, we will send it anyway, and if it fails, the fallback is the user's microphone.
           if (ws.readyState === WebSocket.OPEN) {
             ws.send(
               JSON.stringify({
