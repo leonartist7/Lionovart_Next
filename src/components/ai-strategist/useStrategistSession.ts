@@ -323,11 +323,11 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
               const pcm16 = base64ToInt16Array(part.inlineData.data);
               const ctx = audioContextRef.current;
               if (!ctx) continue;
-              
-              // Ensure audio context is actually running before we try to play
-              // Browsers (like Safari) aggressively suspend contexts even after initial resume
+
+              // Explicitly resume audio context when first receiving an audio buffer, 
+              // circumventing aggressive mobile browser sleep policies.
               if (ctx.state === "suspended") {
-                ctx.resume().catch(err => console.error("Failed to resume AudioContext:", err));
+                ctx.resume().catch(err => console.error("Failed to resume audio context:", err));
               }
               
               // 1. Convert Int16 to Float32

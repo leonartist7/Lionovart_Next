@@ -12,6 +12,7 @@ import { useStrategistSession } from "./useStrategistSession";
 interface StrategistPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  autoStart?: boolean;
 }
 
 /* ─── Animation config ──────────────────────────────────────── */
@@ -44,7 +45,7 @@ const panelVariants = {
 };
 
 /* ─── Component ─────────────────────────────────────────────── */
-export default function StrategistPanel({ isOpen, onClose }: StrategistPanelProps) {
+export default function StrategistPanel({ isOpen, onClose, autoStart = false }: StrategistPanelProps) {
   const [mounted, setMounted] = useState(false);
   const session = useStrategistSession({ onClose });
 
@@ -52,6 +53,17 @@ export default function StrategistPanel({ isOpen, onClose }: StrategistPanelProp
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  /* ── Auto-start handler ── */
+  useEffect(() => {
+    if (isOpen && autoStart && !session.isSessionActive) {
+      // Small timeout ensures the modal is fully rendered before requesting mic permissions
+      const t = setTimeout(() => {
+        session.startSession();
+      }, 300);
+      return () => clearTimeout(t);
+    }
+  }, [isOpen, autoStart, session.isSessionActive, session.startSession]);
 
   /* ── Scroll lock (Lenis + native) ── */
   useScrollLock(isOpen);

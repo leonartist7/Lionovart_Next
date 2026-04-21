@@ -53,8 +53,8 @@ app.prepare().then(() => {
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    // Reverting to gemini-3.1-flash-live-preview because 2.0-flash-exp forcefully drops the connection instantly
-    const model = process.env.GEMINI_MODEL || "gemini-3.1-flash-live-preview";
+    // Hardcoded model with exact prefix mandated by Vertex AI Master Prompt to prevent 1006 instant drop
+    const model = "models/gemini-2.0-flash-exp";
     let liveSession;
 
     ws.on("message", async (data) => {

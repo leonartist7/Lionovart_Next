@@ -331,21 +331,23 @@ function DynamicTrustBadges({ badges }: { badges: { brands: readonly string[]; e
 /* Main Component */
 /* -------------------------------------------------------------------------- */
 export default function HeroTop() {
+  const { t } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
   const [strategistOpen, setStrategistOpen] = useState(false);
-  const { t } = useLanguage();
+  const [autoStartVoice, setAutoStartVoice] = useState(false);
 
-  const CYCLING_WORDS: Word[] = t.hero.cyclingWords.map((content) => ({
-    type: "text" as const,
-    content,
-    holdMs: 4000,
-  }));
+  const handleConnectNow = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (submitted) {
+      window.open(getWhatsAppUrl("Hello Leon, I submitted my email. Can we talk about a project?"), "_blank");
+    } else {
+      window.open(getWhatsAppUrl("Hello Leon, I'm interested in discussing a new project."), "_blank");
+    }
+  };
 
-  const handleConnectNow = () => {
-    const url = getWhatsAppUrl();
-    window.open(url, "_blank", "noopener,noreferrer");
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+  const handleOpenStrategist = (autoStart = false) => {
+    setAutoStartVoice(autoStart);
+    setStrategistOpen(true);
   };
 
   return (
@@ -395,24 +397,25 @@ export default function HeroTop() {
           className="flex flex-row flex-wrap items-center justify-center gap-4"
         >
           <LiquidMetalButton
-            label={submitted ? t.hero.ctaStartOpening : t.hero.ctaStart}
-            onClick={handleConnectNow}
-            width={168}
+            label="Talk to AI Strategist Live"
+            onClick={() => handleOpenStrategist(true)}
+            width={240}
           />
           <LiquidMetalButton
-            label={t.hero.ctaWork}
+            label={submitted ? t.hero.ctaStartOpening : t.hero.ctaStart}
             variant="white"
+            onClick={handleConnectNow}
             width={168}
-            onClick={() => document.getElementById("work")?.scrollIntoView({ behavior: "smooth" })}
           />
         </motion.div>
 
         {/* AI Strategist Orb — between CTAs and carousel */}
         <motion.div
           variants={itemVariants}
-          className="flex items-center justify-center mt-4"
+          className="flex flex-col items-center justify-center mt-6 gap-3"
         >
-          <MagneticOrb onOpen={() => setStrategistOpen(true)} />
+          <span className="text-[10px] sm:text-[11px] uppercase tracking-widest text-white/50 font-bold">Or click the orb to begin</span>
+          <MagneticOrb onOpen={() => handleOpenStrategist(false)} />
         </motion.div>
 
         
@@ -439,6 +442,7 @@ export default function HeroTop() {
       {/* AI Strategist Panel (renders via portal to document.body) */}
       <StrategistPanel
         isOpen={strategistOpen}
+        autoStart={autoStartVoice}
         onClose={() => setStrategistOpen(false)}
       />
 
