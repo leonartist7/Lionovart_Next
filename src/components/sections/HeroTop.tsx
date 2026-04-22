@@ -336,8 +336,13 @@ export default function HeroTop() {
   const [strategistOpen, setStrategistOpen] = useState(false);
   const [autoStartVoice, setAutoStartVoice] = useState(false);
 
-  const handleConnectNow = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const CYCLING_WORDS: Word[] = t.hero.cyclingWords.map((content) => ({
+    content,
+    color: "text-brand-red",
+    type: "text" as const,
+  }));
+
+  const handleConnectNow = () => {
     if (submitted) {
       window.open(getWhatsAppUrl("Hello Leon, I submitted my email. Can we talk about a project?"), "_blank");
     } else {
@@ -404,7 +409,7 @@ export default function HeroTop() {
           <LiquidMetalButton
             label={submitted ? t.hero.ctaStartOpening : t.hero.ctaStart}
             variant="white"
-            onClick={handleConnectNow}
+            onClick={() => handleConnectNow()}
             width={168}
           />
         </motion.div>
