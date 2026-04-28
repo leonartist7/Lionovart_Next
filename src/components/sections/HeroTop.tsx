@@ -330,13 +330,21 @@ function DynamicTrustBadges({ badges }: { badges: { brands: readonly string[]; e
 /* -------------------------------------------------------------------------- */
 /* Main Component */
 /* -------------------------------------------------------------------------- */
-export default function HeroTop() {
+export default function HeroTop(props: any) {
   const { t } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
   const [strategistOpen, setStrategistOpen] = useState(false);
   const [autoStartVoice, setAutoStartVoice] = useState(false);
 
-  const CYCLING_WORDS: Word[] = t.hero.cyclingWords.map((content) => ({
+  const staticText = props.staticText || t.hero.staticText;
+  const cyclingWordsRaw = props.cyclingWords || t.hero.cyclingWords;
+  const subtitle = props.subtitle || t.hero.subtitle;
+  const ctaStart = props.ctaStart || t.hero.ctaStart;
+  const ctaStartOpening = props.ctaStartOpening || t.hero.ctaStartOpening;
+  const trustText = props.trustText || t.hero.trustText;
+  const badges = props.badges || t.hero.badges;
+
+  const CYCLING_WORDS: Word[] = cyclingWordsRaw.map((content: string) => ({
     content,
     color: "text-brand-red",
     type: "text" as const,
@@ -357,7 +365,8 @@ export default function HeroTop() {
 
   return (
     <section className="relative flex min-h-[72vh] flex-col items-center justify-center px-4 pt-40 pb-6 md:pt-60 md:px-6 overflow-hidden">
-      {/* Video background */}
+      {/* Video background (Deactivated) */}
+      {/*
       <video
         className="absolute inset-0 w-full h-full object-cover z-0"
         src="https://res.cloudinary.com/dgio9uutc/video/upload/v1775960150/hero-notext_eqjdin.mp4"
@@ -366,6 +375,7 @@ export default function HeroTop() {
         loop
         playsInline
       />
+      */}
       {/* Dark overlay to preserve text readability */}
       <div className="absolute inset-0 bg-bg-dark/10 z-0 pointer-events-none" />
       {/* Bottom gradient to blend into the next section */}
@@ -380,7 +390,7 @@ export default function HeroTop() {
         {/* Main Heading — cycling */}
         <motion.div variants={itemVariants} className="w-full text-center">
           <HeroCycling
-            staticText={t.hero.staticText}
+            staticText={staticText}
             words={CYCLING_WORDS}
             fontSize="clamp(2rem, 6vw, 7rem)"
             cyclingFontSize="clamp(2.8rem, 11vw, 11rem)"
@@ -393,7 +403,7 @@ export default function HeroTop() {
           variants={itemVariants}
           className="max-w-[520px] text-[15px] leading-[170%] text-text-muted md:text-[18px]"
         >
-          {t.hero.subtitle}
+          {subtitle}
         </motion.p>
 
         {/* CTAs — always one row, wraps on very small screens */}
@@ -407,7 +417,7 @@ export default function HeroTop() {
             width={240}
           />
           <LiquidMetalButton
-            label={submitted ? t.hero.ctaStartOpening : t.hero.ctaStart}
+            label={submitted ? ctaStartOpening : ctaStart}
             variant="white"
             onClick={() => handleConnectNow()}
             width={168}
@@ -433,14 +443,14 @@ export default function HeroTop() {
         className="relative z-20 flex w-full max-w-[1200px] flex-col items-center gap-2 text-center -mt-4"
       >
         {/* Dynamic Trust Badges */}
-        <DynamicTrustBadges badges={t.hero.badges} />
+        <DynamicTrustBadges badges={badges} />
 
         {/* Trust Text */}
         <motion.p
           variants={itemVariants}
           className="mt-1 text-[13px] font-medium tracking-wide text-text-muted md:text-[14px]"
         >
-          {t.hero.trustText}
+          {trustText}
         </motion.p>
       </motion.div>
 
