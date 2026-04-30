@@ -3,7 +3,6 @@ const { parse } = require("url");
 const next = require("next");
 const { WebSocketServer } = require("ws");
 const { GoogleGenAI } = require("@google/genai");
-const fs = require("fs");
 
 // Force Webpack (disables Turbopack bugs causing opacity:0)
 process.env.TURBOPACK = '0';
@@ -54,7 +53,7 @@ app.prepare().then(() => {
 
     const ai = new GoogleGenAI({ apiKey });
     // Hardcoded model with exact prefix mandated by Vertex AI Master Prompt to prevent 1006 instant drop
-    const model = "models/gemini-2.0-flash-exp";
+    const model = "gemini-live-2.5-flash-preview";
     let liveSession;
 
     ws.on("message", async (data) => {
@@ -66,27 +65,7 @@ app.prepare().then(() => {
           try {
             liveSession = await ai.live.connect({
               model,
-              config: payload.config,
-              callbacks: {
-                onmessage: (chunk) => {
-                  try {
-                    console.log("[WS] Received from Gemini:", Object.keys(chunk));
-                    if (chunk.toolCall) {
-                      if (ws.readyState === ws.OPEN) {
-                        ws.send(JSON.stringify({ toolCall: chunk.toolCall }));
-                      }
-                    } else {
-                      if (ws.readyState === ws.OPEN) {
-                        ws.send(JSON.stringify(chunk));
-                      }
-                    }
-                  } catch (err) {
-                    console.error("[WS] Error forwarding Gemini message:", err);
-                  }
-                },
-                onerror: (err) => console.error("[WS] Gemini internal error:", err),
-                onclose: () => console.log("[WS] Gemini connection closed")
-              }
+              config: payload.config
             });
           } catch (connectErr) {
             console.error("[WS] Failed to connect to Gemini Live API:", connectErr);
@@ -95,31 +74,47 @@ app.prepare().then(() => {
             return;
           }
 
+          // Async iterator: listen for Gemini responses and forward to client
+          (async () => {
+            try {
+              for await (const chunk of liveSession) {
+                if (chunk.toolCall) {
+                  if (ws.readyState === ws.OPEN) {
+                    ws.send(JSON.stringify({ toolCall: chunk.toolCall }));
+                  }
+                } else {
+                  if (ws.readyState === ws.OPEN) {
+                    ws.send(JSON.stringify(chunk));
+                  }
+                }
+              }
+            } catch (err) {
+              console.error("[WS] Gemini stream error:", err);
+            }
+          })();
+
           ws.send(JSON.stringify({ type: "setup_complete" }));
-          
+
           // Setup Ping/Pong Heartbeat to prevent Cloud Run idle timeout
           const pingInterval = setInterval(() => {
             if (ws.readyState === ws.OPEN) {
               ws.ping();
             }
           }, 30000); // Ping every 30 seconds
-          
+
           ws.on('close', () => clearInterval(pingInterval));
           return;
         }
 
         // Handle tool responses from the frontend
         if (payload.type === "tool_response" && liveSession) {
-          if (liveSession.conn) {
-            liveSession.conn.send(JSON.stringify({ toolResponse: { functionResponses: payload.responses } }));
-          }
+          await liveSession.send({ toolResponse: { functionResponses: payload.responses } });
           return;
         }
 
-        // Forward normal payloads (audio/text) directly to raw Google WebSocket
-        // This bypasses the SDK's strict input validation
-        if (liveSession && liveSession.conn) {
-          liveSession.conn.send(JSON.stringify(payload));
+        // Forward normal payloads (audio/text) via SDK method
+        if (liveSession) {
+          await liveSession.send(payload);
         }
       } catch (err) {
         console.error("[WS] Error processing message:", err);

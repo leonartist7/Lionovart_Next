@@ -546,7 +546,7 @@ export default function Portfolio() {
   }, [activeIdx]);
 
   return (
-    <section id="work" className="bg-[#eceff3] pt-[40px] pb-[80px] md:pt-[60px] md:pb-[120px]">
+    <section id="work" className="bg-bg-surface-light pt-[40px] pb-[80px] md:pt-[60px] md:pb-[120px]">
       <div className="mx-auto max-w-[1200px] px-4 md:px-6">
         {/* Header */}
         <div className="mb-12 flex flex-col items-center text-center">

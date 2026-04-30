@@ -158,16 +158,28 @@ function MobileCard({ item }: { item: TestimonialItem }) {
 }
 
 // ─── Main Section ──────────────────────────────────────────────────────────
-export default function Testimonials() {
+export default function Testimonials(props: any) {
   const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Merge translated hooks/industries with static quotes/author/role
-  const TESTIMONIALS: TestimonialItem[] = TESTIMONIALS_STATIC.map((s, i) => ({
-    industry: t.testimonials.industries[i] ?? "",
-    hook: t.testimonials.hooks[i] ?? "",
-    ...s,
-  }));
+  const eyebrow    = props.eyebrow    || t.testimonials.eyebrow;
+  const heading    = props.heading    || t.testimonials.heading;
+  const subheading = props.subheading || t.testimonials.subheading;
+
+  // Merge Sanity items with static data; fall back to static+i18n
+  const TESTIMONIALS: TestimonialItem[] = (props.items && props.items.length > 0)
+    ? props.items.map((item: any) => ({
+        industry: item.industry,
+        hook:     item.hook,
+        quote:    item.quote,
+        author:   item.author,
+        role:     item.role ?? '',
+      }))
+    : TESTIMONIALS_STATIC.map((s, i) => ({
+        industry: t.testimonials.industries[i] ?? "",
+        hook:     t.testimonials.hooks[i] ?? "",
+        ...s,
+      }));
 
   // Manually track scroll progress so we bypass Framer Motion v12's WAAPI
   // ScrollTimeline, which mis-calculates progress when Lenis smooth scroll
@@ -196,16 +208,16 @@ export default function Testimonials() {
   }, [progress]);
 
   return (
-    <section id="testimonials" className="bg-[#fafafa] relative w-full">
+    <section id="testimonials" className="bg-bg-surface-light relative w-full">
 
       {/* ── MOBILE / TABLET LAYOUT (< 1024px) — horizontal draggable marquee ── */}
       <div className="flex lg:hidden flex-col py-16 sm:py-24">
         <div className="mb-10 px-6 sm:px-10">
           <p className="text-[#e5192a] text-[12px] font-bold uppercase tracking-[0.2em] mb-2">
-            {t.testimonials.eyebrow}
+            {eyebrow}
           </p>
           <h2 className="text-[2.5rem] sm:text-[3.5rem] font-bold uppercase leading-none tracking-tight text-[#111]">
-            {t.testimonials.heading}
+            {heading}
           </h2>
         </div>
 
@@ -239,13 +251,13 @@ export default function Testimonials() {
             {/* Left: Sticky Header */}
             <div className="w-5/12 flex flex-col justify-center">
               <p className="text-[#e5192a] text-[13px] font-bold uppercase tracking-[0.2em] mb-4">
-                {t.testimonials.eyebrow}
+                {eyebrow}
               </p>
               <h2 className="text-[4rem] xl:text-[4.5rem] font-bold uppercase leading-[1.05] tracking-tight text-[#111] mb-6">
-                {t.testimonials.heading}
+                {heading}
               </h2>
               <p className="text-[#444] text-[17px] leading-[1.6] max-w-[400px]">
-                {t.testimonials.subheading}
+                {subheading}
               </p>
             </div>
 

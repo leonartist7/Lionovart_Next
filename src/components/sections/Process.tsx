@@ -6,6 +6,14 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+type ProcessStep = {
+  num: string;
+  title: string;
+  description: string;
+  tag: string;
+};
+
 // ─── Step data (3 pillars) ────────────────────────────────────────────────────
 const STEPS = [
   {
@@ -39,12 +47,20 @@ const COL_HEIGHTS = [
 ] as const;
 
 // ─── Component ────────────────────────────────────────────────────────────────
-export default function Process() {
+export default function Process(props: any) {
   const sectionRef  = useRef<HTMLElement>(null);
   const rowRef      = useRef<HTMLDivElement>(null);
   const pillarRefs  = useRef<(HTMLDivElement | null)[]>([]);
   const [snapPoints, setSnapPoints] = useState<number[]>([0, 0, 0]);
   const { t } = useLanguage();
+
+  const eyebrow     = props.eyebrow     || t.process.eyebrow;
+  const heading     = props.heading     || t.process.heading;
+  const headingAccent = props.headingAccent || t.process.headingAccent;
+  const scrollHint  = props.scrollHint  || t.process.scrollHint;
+  const steps: ProcessStep[] = props.steps && props.steps.length > 0
+    ? props.steps
+    : (STEPS as unknown as ProcessStep[]);
 
   // Discrete active step — drives progress lines and circle colors exactly on snap
   const [activeStep, setActiveStep] = useState(0);
@@ -126,7 +142,7 @@ export default function Process() {
     <section
       ref={sectionRef}
       id="process"
-      className="relative bg-[#eceff3] h-[320vh]"
+      className="relative bg-bg-surface-light h-[320vh]"
     >
       {/* ── Sticky viewport — stays at top while user scrolls through the section ── */}
       <div className="sticky top-0 h-screen overflow-hidden flex flex-col">
@@ -138,16 +154,16 @@ export default function Process() {
               <p
                 className="text-[12px] font-bold uppercase tracking-[0.22em] mb-2 text-[#e5192a]"
               >
-                {t.process.eyebrow}
+                {eyebrow}
               </p>
               <h2
                 className="text-[2.4rem] sm:text-[3.2rem] md:text-[4rem] font-bold uppercase leading-none tracking-tight text-[#111111]"
               >
-                {t.process.heading} <span className="text-[#e5192a]">{t.process.headingAccent}</span>
+                {heading} <span className="text-[#e5192a]">{headingAccent}</span>
               </h2>
             </div>
             <p className="text-[11px] uppercase tracking-[0.18em] text-[#bbb]">
-              {t.process.scrollHint}
+              {scrollHint}
             </p>
           </div>
         </div>
@@ -169,7 +185,7 @@ export default function Process() {
           >
             {/* Timeline Header Row */}
             <div className="flex items-start gap-8 md:gap-14 px-6 md:px-14 relative z-20">
-              {STEPS.map((step, i) => (
+              {steps.map((step, i) => (
                 <div
                   key={`tl-${step.num}`}
                   style={{ width: "clamp(240px, 32vw, 420px)" }}
@@ -212,7 +228,7 @@ export default function Process() {
 
             {/* Pillars Row */}
             <div className="flex items-end gap-8 md:gap-14 px-6 md:px-14 mt-auto relative z-10">
-              {STEPS.map((step, i) => (
+              {steps.map((step, i) => (
                 <div
                   key={`pl-${step.num}`}
                   ref={(el) => {
@@ -223,7 +239,7 @@ export default function Process() {
                     flexShrink: 0,
                     width: "clamp(240px, 32vw, 420px)",
                     height: COL_HEIGHTS[i],
-                    background: "#eceff3",
+                    background: "var(--color-bg-surface-light)",
                     borderRadius: "24px 24px 0 0",
                     boxShadow: "-8px 8px 24px rgba(0,0,0,0.15), 8px -8px 24px rgba(255,255,255,1)",
                     padding: "clamp(24px, 3vw, 40px)",

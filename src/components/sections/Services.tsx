@@ -22,24 +22,37 @@ const SERVICES_STATIC = [
   { id: "growth",        number: "7", media: { url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&q=80", alt: "Growth Marketing" } },
 ];
 
-export default function Services() {
+export default function Services(props: any) {
   const { t } = useLanguage();
   const lenis = useLenis();
 
-  // Merge static (id/number/media) with translated text (title/description/deliverables)
-  const SERVICES = SERVICES_STATIC.map((s, i) => ({
-    ...s,
-    title: t.services.items[i]?.title ?? "",
-    description: t.services.items[i]?.description ?? "",
-    deliverables: (t.services.items[i]?.deliverables as readonly string[] | undefined) ?? [],
-  }));
+  const eyebrow = props.eyebrow || t.services.eyebrow;
+  const heading = props.heading || t.services.heading;
+  const headingAccent = props.headingAccent || t.services.headingAccent;
+
+  // If Sanity provides items, use them; otherwise fall back to i18n + static data
+  const SERVICES = props.items
+    ? props.items.map((item: any, i: number) => ({
+        ...SERVICES_STATIC[i],
+        ...item,
+        id: SERVICES_STATIC[i]?.id ?? item._key ?? String(i),
+        number: String(i + 1),
+        media: SERVICES_STATIC[i]?.media,
+        deliverables: item.deliverables ?? [],
+      }))
+    : SERVICES_STATIC.map((s, i) => ({
+        ...s,
+        title: t.services.items[i]?.title ?? "",
+        description: t.services.items[i]?.description ?? "",
+        deliverables: (t.services.items[i]?.deliverables as readonly string[] | undefined) ?? [],
+      }));
 
   const [activeId, setActiveId] = useState<string>(SERVICES_STATIC[0]?.id ?? "branding");
 
   return (
     <section
       id="services"
-      className="relative bg-[#eceff3] pt-[60px] pb-[60px] md:pt-[80px] md:pb-[80px]"
+      className="relative bg-bg-surface-light pt-[60px] pb-[60px] md:pt-[80px] md:pb-[80px]"
     >
       <div className="mx-auto max-w-[1280px] px-4 md:px-8">
 
@@ -52,7 +65,7 @@ export default function Services() {
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
           >
-            {t.services.eyebrow}
+            {eyebrow}
           </motion.p>
           <motion.h2
             className="text-[2.5rem] sm:text-[3.5rem] md:text-[5rem] lg:text-[6rem] font-bold uppercase leading-[0.92] tracking-[-0.02em] text-[#111111] max-w-3xl"
@@ -61,7 +74,7 @@ export default function Services() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            {t.services.heading} <span className="text-brand-red">{t.services.headingAccent}</span>
+            {heading} <span className="text-brand-red">{headingAccent}</span>
           </motion.h2>
         </div>
 
@@ -95,7 +108,7 @@ export default function Services() {
                 value={activeId ? [activeId] : []}
                 onValueChange={(val: any) => setActiveId(Array.isArray(val) ? val[0] : val)}
               >
-                {SERVICES.map((service, index) => {
+                {SERVICES.map((service: any, index: number) => {
                   const isActive = activeId === service.id;
 
                   return (
@@ -143,7 +156,7 @@ export default function Services() {
                             {service.description}
                           </p>
                           <ul className="flex flex-wrap gap-x-6 gap-y-3 justify-start">
-                            {service.deliverables.map((item) => (
+                            {service.deliverables.map((item: string) => (
                               <li key={item} className="text-[12px] md:text-[13px] font-bold uppercase tracking-wider text-brand-red flex items-center gap-2">
                                 <span className="w-1.5 h-1.5 rounded-full bg-brand-red" />
                                 {item}

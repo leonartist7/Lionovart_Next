@@ -20,13 +20,13 @@ export function PageBuilder({ blocks }: { blocks: any[] }) {
         <ImageMarquee />
         <AboutUsHalf />
         <LumaShowcase />
-        <MarqueeSlanted />
+        <ProblemsSolvedSection />
         <Services />
         <Portfolio />
         <Process />
         <Comparison />
-        <ProblemsSolvedSection />
         <Testimonials />
+        <MarqueeSlanted />
         <FAQ />
       </>
     );

@@ -96,6 +96,12 @@
   --color-border-dark: rgba(38, 38, 38, 0.3);
   --color-nav-glass: rgba(0, 0, 0, 0.7);
 
+  /* --- Light surface & dark-on-light text --- */
+  --color-bg-surface-light: #eceff3;
+  --color-text-dark-primary: #111111;
+  --color-text-dark-secondary: #555555;
+  --color-text-dark-tertiary: #999999;
+
   /* --- Shadcn semantic tokens --- */
   --color-background: var(--background);
   --color-foreground: var(--foreground);

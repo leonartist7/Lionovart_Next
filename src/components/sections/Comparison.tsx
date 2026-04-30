@@ -12,17 +12,32 @@ const COMPARISON_BOOLEANS = [
   { speed: true,  flexibility: false, quality: false, scalability: true,  efficiency: true,  printing: false, support: false },
 ];
 
-export default function Comparison() {
+export default function Comparison(props: any) {
   const { t } = useLanguage();
 
-  const COMPARISON_DATA = t.comparison.competitors.map((c, i) => ({
+  const heading = props.heading || t.comparison.heading;
+  const headingAccent = props.headingAccent || t.comparison.headingAccent;
+
+  const COMPARISON_DATA = (props.competitors || t.comparison.competitors).map((c: any, i: number) => ({
     title: c.title,
     description: (c as { title: string; description?: string }).description ?? "",
     ...COMPARISON_BOOLEANS[i],
   }));
 
+  type ComparisonRow = {
+    title: string;
+    description: string;
+    speed: boolean;
+    flexibility: boolean;
+    quality: boolean;
+    scalability: boolean;
+    efficiency: boolean;
+    printing: boolean;
+    support: boolean;
+  };
+
   return (
-    <section className="bg-[#f0f0f0] py-[100px] md:py-[140px] px-4 md:px-8">
+    <section className="bg-bg-surface-light py-[100px] md:py-[140px] px-4 md:px-8">
       <div className="max-w-[1200px] mx-auto">
         <div className="mb-12 md:mb-20 flex flex-col items-center text-center">
           <motion.h2
@@ -32,12 +47,12 @@ export default function Comparison() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            {t.comparison.heading} <span className="text-brand-red">{t.comparison.headingAccent}</span>{t.comparison.headingSuffix}
+            {heading} <span className="text-brand-red">{headingAccent}</span>{t.comparison.headingSuffix}
           </motion.h2>
         </div>
 
         <motion.div
-          className="rounded-[24px] overflow-hidden bg-[#f0f0f0] shadow-[8px_8px_24px_rgba(0,0,0,0.12),-8px_-8px_24px_rgba(255,255,255,0.9)] border border-black/5"
+          className="rounded-[24px] overflow-hidden bg-bg-surface-light shadow-[8px_8px_24px_rgba(0,0,0,0.12),-8px_-8px_24px_rgba(255,255,255,0.9)] border border-black/5"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
@@ -77,7 +92,7 @@ export default function Comparison() {
               </div>
 
               {/* Competitor Rows */}
-              {COMPARISON_DATA.map((row, idx) => {
+              {COMPARISON_DATA.map((row: ComparisonRow, idx: number) => {
                 const fields = [
                   row.speed,
                   row.flexibility,

@@ -10,13 +10,19 @@ import {
 } from "@/components/ui/accordion";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export default function FAQ() {
+export default function FAQ(props: any) {
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { t } = useLanguage();
 
-  const FAQS = t.faq.items.map((item, i) => ({
-    id: `faq-${i + 1}`,
+  const eyebrow = props.eyebrow || t.faq.eyebrow;
+  const heading = props.heading || t.faq.heading;
+  const headingAccent = props.headingAccent || t.faq.headingAccent;
+
+  const faqItems = props.items || t.faq.items;
+
+  const FAQS = faqItems.map((item: any, i: number) => ({
+    id: item._key ?? `faq-${i + 1}`,
     question: item.question,
     answer: item.answer,
   }));
@@ -32,7 +38,7 @@ export default function FAQ() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.4 }}
           >
-            {t.faq.eyebrow}
+            {eyebrow}
           </motion.p>
           <motion.h2
             className="text-[2.5rem] sm:text-[3.5rem] md:text-[4.5rem] font-bold uppercase leading-none tracking-tight text-text-main"
@@ -40,7 +46,7 @@ export default function FAQ() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            {t.faq.heading} <span className="text-brand-red">{t.faq.headingAccent}</span>
+            {heading} <span className="text-brand-red">{headingAccent}</span>
           </motion.h2>
         </div>
 
@@ -52,7 +58,7 @@ export default function FAQ() {
           className="mx-auto max-w-[800px]"
         >
           <Accordion className="flex flex-col gap-4">
-            {FAQS.map((faq) => (
+            {FAQS.map((faq: { id: string; question: string; answer: string }) => (
               <AccordionItem 
                 key={faq.id} 
                 value={faq.id}
