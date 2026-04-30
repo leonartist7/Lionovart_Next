@@ -7,6 +7,9 @@ import { VisualEditorProvider } from "@/lib/visual-editor-context";
 import { VisualEditorOverlay } from "@/components/VisualEditorOverlay";
 import { VisualEditorHotkey } from "@/components/VisualEditorHotkey";
 import { VisualEditorShell } from "@/components/visual-editor/VisualEditorShell";
+import { SanityLive } from '@/sanity/lib/live'
+import { VisualEditing } from 'next-sanity/visual-editing'
+import { draftMode } from 'next/headers'
 
 const clashDisplay = localFont({
   src: [
@@ -40,7 +43,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -61,6 +64,8 @@ export default function RootLayout({
               <VisualEditorShell />
             </div>
             <SmoothScrollProvider>{children}</SmoothScrollProvider>
+            <SanityLive />
+            {(await draftMode()).isEnabled && <VisualEditing />}
           </VisualEditorProvider>
         </LanguageProvider>
       </body>

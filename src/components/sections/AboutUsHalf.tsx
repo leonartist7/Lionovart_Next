@@ -122,11 +122,20 @@ function StatCard({
 }
 
 /* ─── Main section ───────────────────────────────────────── */
-export default function AboutUsHalf() {
+export default function AboutUsHalf(props: any) {
   const sectionRef = useRef<HTMLElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const statsInView = useInView(statsRef, { once: true, margin: "-60px" });
   const { t } = useLanguage();
+  
+  const headlineTop = props.headlineTop || 'In 2026, innovation is no longer a choice';
+  const headlineBottom = props.headlineBottom || "it's a necessity.";
+  const bodyText = props.bodyText || "As a multidisciplinary team of artists and business owners, we provide what is needed to lead in today's digital landscape.";
+  const founderRole = props.founderRole || t.about.founderRole;
+  
+  const stat1 = props.stat1 || { number: 9, unit: "+", label: t.about.stat1Label, description: t.about.stat1Desc };
+  const stat2 = props.stat2 || { number: 7, unit: "+", label: "Countries", description: "A multilingual team serving clients across 4 continents." };
+
   const [contactOpen, setContactOpen] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -168,14 +177,14 @@ export default function AboutUsHalf() {
         {/* ── Headline ── */}
         <div className="text-text-main text-[20px] md:text-[34px] font-medium leading-[1.4] mb-2">
           <ScrollFade progress={progress} start={0.0} end={0.12}>
-            In 2026, innovation is no longer a choice
+            {headlineTop}
           </ScrollFade>
         </div>
 
         {/* ── Red accent ── */}
         <div className="text-[22px] md:text-[38px] font-bold leading-[1.3] text-[#e5192a] mb-4">
           <ScrollFade progress={progress} start={0.05} end={0.18}>
-            {"it's a necessity."}
+            {headlineBottom}
           </ScrollFade>
         </div>
 
@@ -188,7 +197,7 @@ export default function AboutUsHalf() {
         {/* ── Body ── */}
         <div className="text-[18px] md:text-[30px] font-semibold leading-[1.4] text-white">
           <ScrollFade progress={progress} start={0.12} end={0.38}>
-            As a multidisciplinary team of artists and business owners, we provide what is needed to lead in today&#39;s digital landscape.
+            {bodyText}
           </ScrollFade>
         </div>
 
@@ -244,7 +253,7 @@ export default function AboutUsHalf() {
                       Contact Leonardo
                     </p>
                     <p className="text-[11px] text-white/45 mt-0.5 whitespace-nowrap">
-                      {t.about.founderRole}
+                      {founderRole}
                     </p>
                   </motion.div>
                 ) : (
@@ -288,17 +297,17 @@ export default function AboutUsHalf() {
           className="flex w-full max-w-[800px] gap-6 md:gap-10 mt-6 md:mt-16"
         >
           <StatCard
-            number={9}
-            unit="+"
-            label={t.about.stat1Label}
-            description={t.about.stat1Desc}
+            number={stat1.number}
+            unit={stat1.unit}
+            label={stat1.label}
+            description={stat1.description}
             active={statsInView}
           />
           <StatCard
-            number={7}
-            unit="+"
-            label="Countries"
-            description="A multilingual team serving clients across 4 continents."
+            number={stat2.number}
+            unit={stat2.unit}
+            label={stat2.label}
+            description={stat2.description}
             active={statsInView}
           />
         </div>
