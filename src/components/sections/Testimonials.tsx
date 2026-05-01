@@ -54,13 +54,15 @@ type TestimonialItem = {
 function DesktopCard({
   item,
   index,
+  totalCards,
   progress,
 }: {
   item: TestimonialItem;
   index: number;
+  totalCards: number;
   progress: MotionValue<number>;
 }) {
-  const step = 1 / TESTIMONIALS_STATIC.length; // 0.2 per card
+  const step = 1 / totalCards;
 
   // Card 0 starts fully visible and fades as card 1 rises to cover it.
   // Cards 1–4 rise from y:60 into position then fade in place.
@@ -175,7 +177,7 @@ export default function Testimonials(props: any) {
         author:   item.author,
         role:     item.role ?? '',
       }))
-    : TESTIMONIALS_STATIC.map((s, i) => ({
+    : t.testimonials.reviews.map((s, i) => ({
         industry: t.testimonials.industries[i] ?? "",
         hook:     t.testimonials.hooks[i] ?? "",
         ...s,
@@ -267,6 +269,7 @@ export default function Testimonials(props: any) {
                 <DesktopCard
                   key={i}
                   index={i}
+                  totalCards={TESTIMONIALS.length}
                   item={item}
                   progress={progress}
                 />

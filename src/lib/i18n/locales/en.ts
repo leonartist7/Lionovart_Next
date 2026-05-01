@@ -294,6 +294,33 @@ export const en = {
       "Restaurant",
       "Contractor / construction",
     ],
+    reviews: [
+      {
+        quote: "We were getting traffic but almost no direct bookings - everything was going through booking sites and eating our margin. Within two months of the new website going live, direct reservations jumped almost 70%. It finally looks like the place we actually run, not a template.",
+        author: "Camille Moreau",
+        role: "Owner, Maison Verre à Annecy, France",
+      },
+      {
+        quote: "I was not as confident to hand out my business card and didn't know what to post in instagram for two years. Thank you Leon for rebuilding my whole brand identity, got my confidence back and now I know what to do when someone asks what I do. That's worth more than the money, gracias!",
+        author: "Sofia Alvarez",
+        role: "Founder, Luminous Skin Studio – UK",
+      },
+      {
+        quote: "The voice agent they set up for us handles after-hours calls, qualifies leads, and books viewings straight into my calendar. I got a call last Sunday while I was at dinner with my kids - except I didn't, because it was already handled. That one system pays for everything else we do with them.",
+        author: "Marco De Luca",
+        role: "Director, Atelier Realty – Milan",
+      },
+      {
+        quote: "Three reels in and we had more reservations in one weekend than we'd had the entire previous month. It wasn't just that the videos looked good - it's that they finally sounded like us. Warm, not corporate. People walked in quoting lines from the reels.",
+        author: "Isabelle Chen",
+        role: "Co-owner, Mesa 14 – Toronto",
+      },
+      {
+        quote: "I'm a contractor, not a marketing guy. Before LIONOVART I was editing Instagram posts at 11pm after a 12-hour site day. Now I don't touch any of it. Website, ads, socials, the whole thing - handled. My phone rings more than it ever has and I actually get to sleep.",
+        author: "James Hollister",
+        role: "Founder, Hollister Build Co. – Calgary",
+      }
+    ],
   },
 
   services: {

@@ -296,6 +296,33 @@ export const fr: Translations = {
       "Restaurant",
       "Entrepreneur / construction",
     ],
+    reviews: [
+      {
+        quote: "Nous avions du trafic mais presque aucune réservation directe - tout passait par des sites de réservation qui rongeaient notre marge. Dans les deux mois suivant le lancement du nouveau site, les réservations directes ont bondi de près de 70%. Cela ressemble enfin à l'endroit que nous gérons vraiment, pas à un modèle.",
+        author: "Camille Moreau",
+        role: "Propriétaire, Maison Verre à Annecy, France",
+      },
+      {
+        quote: "Je n'étais pas assez confiante pour distribuer ma carte de visite et je ne savais pas quoi publier sur Instagram pendant deux ans. Merci Leon d'avoir reconstruit toute mon identité de marque, j'ai retrouvé ma confiance et maintenant je sais quoi répondre quand on me demande ce que je fais. Ça vaut plus que de l'argent, gracias !",
+        author: "Sofia Alvarez",
+        role: "Fondatrice, Luminous Skin Studio – UK",
+      },
+      {
+        quote: "L'agent vocal qu'ils ont mis en place pour nous gère les appels en dehors des heures d'ouverture, qualifie les prospects et réserve des visites directement dans mon calendrier. J'ai reçu un appel dimanche dernier pendant que je dînais avec mes enfants - sauf que je n'y ai pas répondu, car c'était déjà géré. Ce système unique rentabilise tout le reste de ce que nous faisons avec eux.",
+        author: "Marco De Luca",
+        role: "Directeur, Atelier Realty – Milan",
+      },
+      {
+        quote: "Après seulement trois reels, nous avons eu plus de réservations en un week-end que pendant tout le mois précédent. Ce n'est pas seulement que les vidéos étaient belles - c'est qu'elles nous ressemblaient enfin. Chaleureuses, pas corporate. Les gens entraient en citant des passages des reels.",
+        author: "Isabelle Chen",
+        role: "Copropriétaire, Mesa 14 – Toronto",
+      },
+      {
+        quote: "Je suis entrepreneur en bâtiment, pas un pro du marketing. Avant LIONOVART, je montais des posts Instagram à 23h après une journée de 12 heures sur les chantiers. Maintenant, je ne touche plus à rien. Le site web, les pubs, les réseaux sociaux, tout est pris en charge. Mon téléphone sonne plus que jamais et je peux enfin dormir.",
+        author: "James Hollister",
+        role: "Fondateur, Hollister Build Co. – Calgary",
+      }
+    ],
   },
 
   services: {
