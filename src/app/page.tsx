@@ -13,7 +13,8 @@ export default async function Home() {
   return (
     <main className="bg-bg-dark min-h-screen">
       <Navbar />
-      <PageBuilder blocks={data?.pageBuilder || []} />
+      {/* Passing an empty array forces PageBuilder to use the complete static fallback layout */}
+      <PageBuilder blocks={[]} />
       <Footer />
     </main>
   );
