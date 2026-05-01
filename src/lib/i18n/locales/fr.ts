@@ -10,11 +10,12 @@ export const fr: Translations = {
 
   hero: {
     staticText: ["NOUS RENDONS", "VOTRE MARQUE"],
-    cyclingWords: ["RUGIR", "SORTIR DU LOT", "MÉMORABLE", "MAGNÉTIQUE", "VENDRE PLUS", "DOMINER"],
+    cyclingWords: ["RUGIR", "ATTIRANTE", "MÉMORABLE", "MAGNÉTIQUE", "VENDRE PLUS", "DOMINER"],
     subtitle:
       "Nous créons des marques, développons des sites web et produisons du contenu pour que votre entreprise soit impossible à ignorer.",
     ctaStart: "Commencer",
     ctaStartOpening: "Ouverture WhatsApp…",
+    ctaStrategist: "Parlez avec notre agent",
     ctaWork: "Voir Nos Projets",
     stats: {
       clients: "Clients",
@@ -25,7 +26,7 @@ export const fr: Translations = {
     badges: {
       brands: ["Marques", "propulsées"],
       experience: ["Expérience", "Client"],
-      countries: "Pays",
+      countries: "PAYS",
     },
   },
 

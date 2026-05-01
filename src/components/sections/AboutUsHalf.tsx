@@ -128,13 +128,13 @@ export default function AboutUsHalf(props: any) {
   const statsInView = useInView(statsRef, { once: true, margin: "-60px" });
   const { t } = useLanguage();
   
-  const headlineTop = props.headlineTop || 'In 2026, innovation is no longer a choice';
-  const headlineBottom = props.headlineBottom || "it's a necessity.";
-  const bodyText = props.bodyText || "As a multidisciplinary team of artists and business owners, we provide what is needed to lead in today's digital landscape.";
+  const headlineTop = props.headlineTop || t.about.line1;
+  const headlineBottom = props.headlineBottom || ""; // Merged into line1 mostly, or kept blank since it's dynamic
+  const bodyText = props.bodyText || t.about.line2;
   const founderRole = props.founderRole || t.about.founderRole;
   
   const stat1 = props.stat1 || { number: 9, unit: "+", label: t.about.stat1Label, description: t.about.stat1Desc };
-  const stat2 = props.stat2 || { number: 7, unit: "+", label: "Countries", description: "A multilingual team serving clients across 4 continents." };
+  const stat2 = props.stat2 || { number: 7, unit: "+", label: t.hero.badges.countries, description: t.about.stat2Desc };
 
   const [contactOpen, setContactOpen] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);

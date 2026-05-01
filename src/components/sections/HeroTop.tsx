@@ -412,7 +412,7 @@ export default function HeroTop(props: any) {
           className="flex flex-row flex-wrap items-center justify-center gap-4"
         >
           <LiquidMetalButton
-            label="Talk to AI Strategist Live"
+            label={t.hero.ctaStrategist}
             onClick={() => handleOpenStrategist(true)}
             width={240}
           />

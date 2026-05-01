@@ -12,7 +12,8 @@ export const en = {
     subtitle:
       "We build brands, develop websites, and produce content so your business becomes impossible to ignore.",
     ctaStart: "Get Started",
-    ctaStartOpening: "Opening WhatsApp…",
+    ctaStartOpening: "Opening WhatsApp.",
+    ctaStrategist: "Talk to AI Strategist Live",
     ctaWork: "See Our Work",
     stats: {
       clients: "Clients",

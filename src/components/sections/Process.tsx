@@ -60,7 +60,7 @@ export default function Process(props: any) {
   const scrollHint  = props.scrollHint  || t.process.scrollHint;
   const steps: ProcessStep[] = props.steps && props.steps.length > 0
     ? props.steps
-    : (STEPS as unknown as ProcessStep[]);
+    : (t.process.steps.map((step, idx) => ({ ...step, num: String(idx + 1) })) as unknown as ProcessStep[]);
 
   // Discrete active step — drives progress lines and circle colors exactly on snap
   const [activeStep, setActiveStep] = useState(0);
