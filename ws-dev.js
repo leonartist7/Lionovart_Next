@@ -61,7 +61,7 @@ wss.on("connection", async (ws, req) => {
                   }
                 }
                 if (toolResponses.length > 0) {
-                  await liveSession.send({ toolResponse: { functionResponses: toolResponses } });
+                  liveSession.sendToolResponse({ functionResponses: toolResponses });
                 }
               } else {
                 if (ws.readyState === ws.OPEN) {
@@ -78,8 +78,15 @@ wss.on("connection", async (ws, req) => {
         return;
       }
 
+      // Route payload to the correct SDK method (liveSession.send does NOT exist)
       if (liveSession) {
-        await liveSession.send(payload);
+        if (payload.realtimeInput) {
+          liveSession.sendRealtimeInput(payload.realtimeInput);
+        } else if (payload.clientContent) {
+          liveSession.sendClientContent(payload.clientContent);
+        } else if (payload.toolResponse) {
+          liveSession.sendToolResponse(payload.toolResponse);
+        }
       }
     } catch (err) {
       console.error("[WS-DEV] Error sending to Gemini:", err);

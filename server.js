@@ -108,13 +108,24 @@ app.prepare().then(() => {
 
         // Handle tool responses from the frontend
         if (payload.type === "tool_response" && liveSession) {
-          await liveSession.send({ toolResponse: { functionResponses: payload.responses } });
+          liveSession.sendToolResponse({ functionResponses: payload.responses });
           return;
         }
 
-        // Forward normal payloads (audio/text) via SDK method
+        // Route payload to the correct SDK method (liveSession.send does NOT exist in @google/genai)
         if (liveSession) {
-          await liveSession.send(payload);
+          if (payload.realtimeInput) {
+            // Audio chunks from the mic
+            liveSession.sendRealtimeInput(payload.realtimeInput);
+          } else if (payload.clientContent) {
+            // Text turns (greeting trigger, system alerts, user text)
+            liveSession.sendClientContent(payload.clientContent);
+          } else if (payload.toolResponse) {
+            // Tool responses sent directly (alternative path)
+            liveSession.sendToolResponse(payload.toolResponse);
+          } else {
+            console.warn("[WS] Unknown payload shape, skipping:", JSON.stringify(payload).substring(0, 100));
+          }
         }
       } catch (err) {
         console.error("[WS] Error processing message:", err);
