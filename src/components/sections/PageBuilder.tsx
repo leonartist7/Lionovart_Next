@@ -1,4 +1,5 @@
 import HeroTop from "@/components/sections/HeroTop";
+import TrustedBadgesSection from "@/components/sections/TrustedBadgesSection";
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
 import LumaShowcase from "@/components/sections/LumaShowcase";
@@ -18,6 +19,7 @@ export function PageBuilder({ blocks }: { blocks: any[] }) {
       <>
         <HeroTop />
         <ImageMarquee />
+        <TrustedBadgesSection />
         <AboutUsHalf />
         <LumaShowcase />
         <ProblemsSolvedSection />

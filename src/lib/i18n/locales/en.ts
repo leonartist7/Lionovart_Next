@@ -13,7 +13,7 @@ export const en = {
       "We build brands, develop websites, and produce content so your business becomes impossible to ignore.",
     ctaStart: "Get Started",
     ctaStartOpening: "Opening WhatsApp.",
-    ctaStrategist: "Talk to AI Strategist Live",
+    ctaStrategist: "Talk to our agent",
     ctaWork: "See Our Work",
     stats: {
       clients: "Clients",
@@ -42,9 +42,8 @@ export const en = {
   },
 
   about: {
-    line1: "In 2026, innovation is no longer a choice — it's a necessity.",
-    line2:
-      "LIONOVART is a multidisciplinary team of artists and entrepreneurs building brands with confidence, innovation, and emotion as pillars. We bridge digital and physical, strategy and feeling, craft and commerce — so your brand works as hard as you do. World-class creative, made accessible to every serious business that wants to stand out.",
+    line1: "In 2026, innovation is no longer a choice - it's a necessity.",
+    line2: "As a multidisciplinary team of artists and business owners, we provide what is needed to lead in today's digital era.",
     founderRole: "Creative & Business Director",
     founderStatus: "Available",
     stat1Label: "Years",

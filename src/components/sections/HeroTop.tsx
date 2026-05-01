@@ -442,16 +442,7 @@ export default function HeroTop(props: any) {
         animate="visible"
         className="relative z-20 flex w-full max-w-[1200px] flex-col items-center gap-2 text-center -mt-4"
       >
-        {/* Dynamic Trust Badges */}
-        <DynamicTrustBadges badges={badges} />
-
-        {/* Trust Text */}
-        <motion.p
-          variants={itemVariants}
-          className="mt-1 text-[13px] font-medium tracking-wide text-text-muted md:text-[14px]"
-        >
-          {trustText}
-        </motion.p>
+        {/* Badges moved to TrustedBadgesSection */}
       </motion.div>
 
       {/* AI Strategist Panel (renders via portal to document.body) */}
