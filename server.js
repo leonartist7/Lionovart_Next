@@ -52,8 +52,8 @@ app.prepare().then(() => {
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    // Hardcoded model with exact prefix mandated by Vertex AI Master Prompt to prevent 1006 instant drop
-    const model = "gemini-live-2.5-flash-preview";
+    // Use gemini-2.0-flash-exp as it is known to work with Live API for this API key
+    const model = process.env.GEMINI_MODEL || "gemini-2.0-flash-exp";
     let liveSession;
 
     ws.on("message", async (data) => {
