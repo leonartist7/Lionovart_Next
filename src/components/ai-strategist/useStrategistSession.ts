@@ -197,14 +197,19 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
                 ] 
               },
               tools: STRATEGIST_TOOLS,
-              // Move these exactly to the root of 'config' per Google's new v1.50+ deprecation warning rules
               responseModalities: ["AUDIO"],
               speechConfig: {
                 voiceConfig: {
                   prebuiltVoiceConfig: {
-                    voiceName: "Aoede" // Options: Aoede, Charon, Fenrir, Kore, Puck
+                    voiceName: "Aoede" // Options: Aoede, Charon, Fenrir, Kore, Puck, Sulafat
                   }
                 }
+              },
+              // Prevent context window overflow on long 30-min sessions
+              // Matches AI Studio reference: trigger at ~100k tokens, slide to ~50k
+              contextWindowCompression: {
+                triggerTokens: "104857",
+                slidingWindow: { targetTokens: "52428" },
               }
             }
           })

@@ -52,8 +52,8 @@ app.prepare().then(() => {
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    // Use gemini-2.0-flash-exp as it is known to work with Live API for this API key
-    const model = process.env.GEMINI_MODEL || "gemini-2.0-flash-exp";
+    // Must use models/ prefix per AI Studio reference code
+    const model = process.env.GEMINI_MODEL || "models/gemini-3.1-flash-live-preview";
     let liveSession;
 
     ws.on("message", async (data) => {
