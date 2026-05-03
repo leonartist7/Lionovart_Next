@@ -143,7 +143,7 @@ app.prepare().then(() => {
 
                 onerror: (e) => {
                   console.error("[WS] Gemini WebSocket error:", e);
-                  sendToClient({ type: "error", message: "Gemini connection error" });
+                  sendToClient({ type: "error", message: `Gemini connection error: ${e?.message || e?.error || JSON.stringify(e)}` });
                 },
 
                 onclose: (e) => {
@@ -151,7 +151,7 @@ app.prepare().then(() => {
                   liveSession = null;
                   // Notify client if still connected
                   if (ws.readyState === ws.OPEN) {
-                    sendToClient({ type: "error", message: "Gemini session ended" });
+                    sendToClient({ type: "error", message: `Gemini session ended. Code: ${e?.code}, Reason: ${e?.reason || 'none'}` });
                     ws.close();
                   }
                 },

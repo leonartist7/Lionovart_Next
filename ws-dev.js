@@ -139,14 +139,14 @@ wss.on("connection", (ws, req) => {
 
               onerror: (e) => {
                 console.error("[WS-DEV] Gemini WebSocket error:", e);
-                sendToClient({ type: "error", message: "Gemini connection error" });
+                sendToClient({ type: "error", message: `Gemini connection error: ${e?.message || e?.error || JSON.stringify(e)}` });
               },
 
               onclose: (e) => {
                 console.log("[WS-DEV] Gemini WebSocket closed. Code:", e?.code, "Reason:", e?.reason);
                 liveSession = null;
                 if (ws.readyState === ws.OPEN) {
-                  sendToClient({ type: "error", message: "Gemini session ended" });
+                  sendToClient({ type: "error", message: `Gemini session ended. Code: ${e?.code}, Reason: ${e?.reason || 'none'}` });
                   ws.close();
                 }
               },
