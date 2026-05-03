@@ -60,7 +60,7 @@ app.prepare().then(() => {
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    const model = process.env.GEMINI_MODEL || "models/gemini-3.1-flash-live-preview";
+    const model = process.env.GEMINI_MODEL || "gemini-live-2.5-flash-preview";
     let liveSession = null;
     let pingInterval = null;
 
