@@ -54,9 +54,7 @@ export default function MagneticOrb({ onOpen }: MagneticOrbProps) {
             <div
               className="rounded-xl px-4 py-2 text-[12px] font-medium tracking-wide text-white/90 whitespace-nowrap"
               style={{
-                background: "rgba(10, 10, 10, 0.7)",
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
+                background: "#000000",
                 border: "1px solid rgba(255, 255, 255, 0.12)",
                 boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
               }}
@@ -68,7 +66,7 @@ export default function MagneticOrb({ onOpen }: MagneticOrbProps) {
               <div
                 className="w-2.5 h-2.5 rotate-45"
                 style={{
-                  background: "rgba(10, 10, 10, 0.7)",
+                  background: "#000000",
                   borderRight: "1px solid rgba(255, 255, 255, 0.12)",
                   borderBottom: "1px solid rgba(255, 255, 255, 0.12)",
                 }}
@@ -101,9 +99,7 @@ export default function MagneticOrb({ onOpen }: MagneticOrbProps) {
           !prefersReduced ? "animate-orb-pulse" : "",
         ].join(" ")}
         style={{
-          background: "rgba(10, 10, 10, 0.6)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
+          background: "#000000",
           border: "1px solid rgba(255, 255, 255, 0.12)",
           /* Layered shadows — when not pulsing (reduced motion) use static shadow */
           ...(prefersReduced

@@ -101,10 +101,10 @@ function ProblemCard({
 
         {/*
           ── OVERLAY LAYER: PROBLEM (black, pulled down by paw) ──
-          All pain cards are #181818 black with centered text.
+          All pain cards are #000000 black with centered text.
         */}
         <motion.div
-          className="absolute inset-0 z-10 bg-[#181818] p-5 md:p-7 flex flex-col items-center justify-center text-center"
+          className="absolute inset-0 z-10 bg-[#000000] p-5 md:p-7 flex flex-col items-center justify-center text-center"
           initial={{ y: "0%" }}
           animate={cardControls}
         >

@@ -62,7 +62,7 @@ export default function FAQ(props: any) {
               <AccordionItem 
                 key={faq.id} 
                 value={faq.id}
-                className="bg-[#181818] rounded-[20px] px-6 py-2 overflow-hidden shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_16px_rgba(255,255,255,0.03)] ring-1 ring-white/[0.02] data-[state=open]:ring-brand-red/30 transition-all duration-300"
+                className="bg-[#000000] rounded-[20px] px-6 py-2 overflow-hidden shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_16px_rgba(255,255,255,0.03)] ring-1 ring-white/[0.02] data-[state=open]:ring-brand-red/30 transition-all duration-300"
                 title={""}
               >
                 <AccordionTrigger className="text-left text-[18px] md:text-[20px] font-bold text-text-main uppercase tracking-tight hover:no-underline py-4">

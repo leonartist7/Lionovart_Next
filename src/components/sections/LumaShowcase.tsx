@@ -449,7 +449,7 @@ export default function LumaShowcase() {
     <section ref={sectionRef} id="luma-showcase" className="relative h-[250vh] md:h-[300vh]">
       <motion.div
         ref={stickyRef}
-        className="sticky top-0 h-screen bg-[#181818]"
+        className="sticky top-0 h-screen bg-[#000000]"
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         initial={{ "--luma-accent": active.accent } as any}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

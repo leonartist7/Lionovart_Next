@@ -102,7 +102,7 @@ function StatCard({
   const count = useCountUp(number, 1400, active);
 
   return (
-    <div className="relative flex-1 flex flex-col justify-center items-center rounded-[20px] bg-[#181818] shadow-[10px_10px_28px_rgba(0,0,0,0.75),-6px_-6px_18px_rgba(255,255,255,0.06),inset_0_1px_0_rgba(255,255,255,0.04)] ring-1 ring-white/[0.04] p-6 md:p-10 text-center h-auto min-h-[160px] md:min-h-[220px] gap-1">
+    <div className="relative flex-1 flex flex-col justify-center items-center rounded-[20px] bg-[#000000] shadow-[10px_10px_28px_rgba(0,0,0,0.75),-6px_-6px_18px_rgba(255,255,255,0.06),inset_0_1px_0_rgba(255,255,255,0.04)] ring-1 ring-white/[0.04] p-6 md:p-10 text-center h-auto min-h-[160px] md:min-h-[220px] gap-1">
       <div className="flex items-baseline justify-center gap-0.5 leading-none">
         <span className="text-[18px] sm:text-[22px] md:text-[28px] font-bold text-[#e5192a] font-clash leading-none mr-0.5">
           {unit}
@@ -170,7 +170,7 @@ export default function AboutUsHalf(props: any) {
   return (
     <section
       ref={sectionRef}
-      className="relative flex flex-col items-center justify-start pt-6 md:pt-10 px-4 bg-[#181818] text-center min-h-0 md:min-h-[50vh] pb-6"
+      className="relative flex flex-col items-center justify-start pt-6 md:pt-10 px-4 bg-[#000000] text-center min-h-0 md:min-h-[50vh] pb-6"
     >
       <div className="max-w-[700px] w-full flex flex-col items-center">
 
@@ -226,11 +226,9 @@ export default function AboutUsHalf(props: any) {
               onMouseLeave={closeContact}
               onClick={() => setContactOpen((v) => !v)}
               className="absolute bottom-0 right-0 w-[220px] text-left rounded-[20px] border border-white/[0.12] shadow-[0_8px_40px_rgba(0,0,0,0.55)] cursor-pointer select-none overflow-hidden"
-              style={{
-                background: "rgba(28,28,30,0.88)",
-                backdropFilter: "blur(32px) saturate(1.8)",
-                WebkitBackdropFilter: "blur(32px) saturate(1.8)",
-              }}
+                style={{
+                  background: "#000000",
+                }}
             >
               {/* Pulse dot — top right, always visible */}
               <span className="absolute top-3 right-3 z-10 flex h-2 w-2">

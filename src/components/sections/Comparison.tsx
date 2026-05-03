@@ -62,7 +62,7 @@ export default function Comparison(props: any) {
             <div className="w-full min-w-[500px] lg:min-w-[1000px] grid grid-cols-[1.6fr_repeat(7,0.65fr)] lg:grid-cols-[2.4fr_repeat(7,0.65fr)] bg-white divide-y divide-black/5">
 
               {/* Header Row */}
-              <div className="col-span-8 grid grid-cols-subgrid bg-[#111111] text-white rounded-t-[24px]">
+              <div className="col-span-8 grid grid-cols-subgrid bg-[#000000] text-white rounded-t-[24px]">
                 <div className="p-1 lg:p-2 flex items-center justify-center">
                   <img
                     src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"

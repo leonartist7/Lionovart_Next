@@ -43,28 +43,48 @@ const FLAGS = [
   { src: "https://flagcdn.com/w40/gb.png", rot:  10, y:  0 },
 ];
 
-function TrustBadge({ title, children, contentWidth }: { title?: React.ReactNode; children: React.ReactNode; contentWidth: number }) {
+function TrustBadge({
+  children,
+  title,
+  contentWidth,
+}: {
+  children: React.ReactNode;
+  title?: React.ReactNode;
+  contentWidth: number;
+}) {
   return (
-    <div
-      className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-[12px] border border-border-light bg-bg-surface-light relative overflow-hidden"
-      style={{
-        width: "auto",
-        minWidth: contentWidth * 2.2,
-        boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
-      }}
-    >
-      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent pointer-events-none" />
-      <div className="flex items-center justify-center relative z-10 w-full mb-1 sm:mb-2" style={{ height: contentWidth * 0.4 }}>
+    <div className="flex items-center justify-center gap-1">
+      {/* ── Left Laurel ── fixed height to maintain arch, scaled down 50% */}
+      <img
+        src="/images/laurel-L.webp"
+        alt=""
+        aria-hidden="true"
+        className="h-[60px] sm:h-[70px] md:h-[80px] w-auto object-contain pointer-events-none select-none"
+      />
+
+      {/* ── Content Container ── exact width requested */}
+      <div
+        className="flex flex-col items-center justify-center text-center flex-shrink-0"
+        style={{ width: contentWidth }}
+      >
         {children}
+        {title && (
+          <span
+            className="text-[#999] font-bold uppercase tracking-tight leading-[1] mt-1"
+            style={{ fontSize: contentWidth * 0.14 }}
+          >
+            {title}
+          </span>
+        )}
       </div>
-      {title && (
-        <span
-          className="text-text-main font-bold uppercase tracking-tight text-center leading-[1.1] relative z-10"
-          style={{ fontSize: contentWidth * 0.18 }}
-        >
-          {title}
-        </span>
-      )}
+
+      {/* ── Right Laurel ── */}
+      <img
+        src="/images/laurel-R.webp"
+        alt=""
+        aria-hidden="true"
+        className="h-[60px] sm:h-[70px] md:h-[80px] w-auto object-contain pointer-events-none select-none"
+      />
     </div>
   );
 }

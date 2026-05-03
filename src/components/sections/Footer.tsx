@@ -16,7 +16,7 @@ export default function Footer() {
   const marqueeText = Array(20).fill("LIONOVART");
 
   return (
-    <footer ref={ref} className="bg-[#181818] pt-[100px] border-t border-border-dark relative z-0 shadow-[inset_4px_4px_16px_rgba(0,0,0,0.5),inset_-4px_-4px_16px_rgba(255,255,255,0.04)]">
+    <footer ref={ref} className="bg-[#000000] pt-[100px] border-t border-border-dark relative z-0 shadow-[inset_4px_4px_16px_rgba(0,0,0,0.5),inset_-4px_-4px_16px_rgba(255,255,255,0.04)]">
       <div className="mx-auto max-w-[1200px] px-4 md:px-6 w-full">
 
         {/* Top Section: CTA CTA */}

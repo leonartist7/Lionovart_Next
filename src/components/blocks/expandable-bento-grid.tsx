@@ -91,7 +91,7 @@ function BentoCard({
           : "0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 0px 0px rgba(229, 25, 42, 0)",
       }}
     >
-      <div className="relative w-full h-full overflow-hidden rounded-[24px] bg-[#111]">
+      <div className="relative w-full h-full overflow-hidden rounded-[24px] bg-[#000000]">
         {/* Background Image */}
         <motion.img
           layoutId={`card-image-${project.id}`}
@@ -177,7 +177,7 @@ function SlideshowModal({
       {/* Modal Container */}
       <motion.div
         layoutId={`card-container-${activeProject.id}`}
-        className="relative w-full max-w-[1000px] bg-[#111] rounded-[24px] overflow-hidden flex flex-col lg:flex-row h-[80vh] lg:h-[600px] shadow-2xl"
+        className="relative w-full max-w-[1000px] bg-[#000000] rounded-[24px] overflow-hidden flex flex-col lg:flex-row h-[80vh] lg:h-[600px] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Left: Image (55%) */}

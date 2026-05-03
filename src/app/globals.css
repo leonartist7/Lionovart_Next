@@ -60,9 +60,7 @@
 
 /* --- AI Strategist glass utilities --- */
 @utility glass-panel {
-  background: var(--strategist-bg);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  background: #000000;
   border: 1px solid var(--strategist-border);
   box-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.5),
@@ -85,8 +83,8 @@
   --font-heading: var(--font-clash-display);
 
   /* --- Brand Colors --- */
-  --color-bg-dark: #181818;
-  --color-bg-brand-black: #181818;
+  --color-bg-dark: #000000;
+  --color-bg-brand-black: #000000;
   --color-bg-off-white: #f5f0eb;
   --color-brand-red: #e5192a;
   --color-brand-red-secondary: #db0000;

@@ -98,11 +98,9 @@ export default function StrategistPanel({ isOpen, onClose, autoStart = false }: 
             exit="exit"
             transition={{ duration: 0.35 }}
             className="fixed inset-0 z-[9998]"
-            style={{
-              background: "var(--strategist-overlay)",
-              backdropFilter: "blur(8px)",
-              WebkitBackdropFilter: "blur(8px)",
-            }}
+              style={{
+                background: "rgba(0, 0, 0, 0.9)",
+              }}
             onClick={onClose}
             aria-hidden="true"
           />

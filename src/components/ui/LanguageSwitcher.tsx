@@ -69,12 +69,11 @@ export function LanguageSwitcher({ isHeroMode }: { isHeroMode?: boolean }) {
             exit={{ opacity: 0, y: -6, scale: 0.96 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
             className="absolute right-0 top-full mt-1.5 min-w-[96px] rounded-xl z-[9999]"
-            style={{
-              background: "rgba(0,0,0,0.85)",
-              backdropFilter: "blur(20px)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-            }}
+              style={{
+                background: "#000000",
+                border: "1px solid rgba(255,255,255,0.12)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+              }}
           >
             {LANGUAGES.map((lang) => {
               const isActive = lang.code === locale;
