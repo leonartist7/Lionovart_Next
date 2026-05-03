@@ -414,13 +414,13 @@ export default function HeroTop(props: any) {
           <LiquidMetalButton
             label={t.hero.ctaStrategist}
             onClick={() => handleOpenStrategist(true)}
-            width={240}
+            width={280}
           />
           <LiquidMetalButton
             label={submitted ? ctaStartOpening : ctaStart}
             variant="white"
             onClick={() => handleConnectNow()}
-            width={168}
+            width={200}
           />
         </motion.div>
 
