@@ -45,7 +45,7 @@ export default function ImageMarquee() {
       whileInView={{ opacity: 1 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 1.2 }}
-      className="relative z-10 w-full overflow-visible pointer-events-none py-10 md:py-20"
+      className="relative z-10 w-full overflow-visible pointer-events-none py-5 md:py-7"
     >
       <div
         className="relative w-screen left-1/2 -translate-x-1/2 overflow-hidden flex justify-center"
