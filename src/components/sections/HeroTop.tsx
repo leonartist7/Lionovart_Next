@@ -364,7 +364,7 @@ export default function HeroTop(props: any) {
   };
 
   return (
-    <section className="relative flex min-h-[72vh] flex-col items-center justify-center px-4 pt-40 pb-6 md:pt-60 md:px-6 overflow-hidden">
+    <section className="relative z-20 flex min-h-[72vh] flex-col items-center justify-center px-4 pt-40 pb-6 md:pt-60 md:px-6 overflow-visible">
       {/* Video background (Deactivated) */}
       {/*
       <video
