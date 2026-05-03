@@ -45,60 +45,58 @@ export default function ImageMarquee() {
       whileInView={{ opacity: 1 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 1.2 }}
-      className="relative z-10 w-full overflow-visible pointer-events-none py-5 md:py-7"
+      className="relative z-10 w-full overflow-visible pointer-events-none py-3"
     >
       <div
         className="relative w-screen left-1/2 -translate-x-1/2 overflow-hidden flex justify-center"
         style={{
-          // By scaling perspective dynamically with viewport width, the depth illusion 
-          // stays completely consistent whether on a phone or an ultrawide monitor.
           perspective: "clamp(400px, 36vw, 800px)",
-          // Mask pushes the black fade exclusively to the very edges
           maskImage: "linear-gradient(90deg, transparent, black 15%, black 85%, transparent)",
           WebkitMaskImage: "linear-gradient(90deg, transparent, black 15%, black 85%, transparent)",
         }}
       >
-        <div
-          className="grid"
-          style={{
-            transformStyle: "preserve-3d",
-            animation: "carousel-spin 60s linear infinite",
-            // Taller container to allow the huge edge cards to fully expand without clipping
-            height: "clamp(260px, 35vw, 550px)",
-            placeItems: "center",
-          }}
-        >
-          {CAROUSEL_IMAGES.map((src, i) => {
-            const angleTurn = i / N;
-            return (
-              <div
-                key={i}
-                ref={i === 0 ? cardRef : undefined}
-                style={{
-                  gridArea: "1 / 1",
-                  // Dynamic width: ~18vw so they scale with screen, resulting in a huge cylinder diameter
-                  width: "clamp(120px, 14vw, 240px)",
-                  aspectRatio: "7 / 10",
-                  // Negative Z creates the concave "stadium" effect. 
-                  // Because N=20 and width is 14vw, the radius is huge. This pushes the 
-                  // center cards far back, and makes the lateral cards massive as they pass the camera.
-                  transform: `rotateY(${angleTurn}turn) translateZ(${-radius}px)`,
-                  backfaceVisibility: "hidden",
-                  WebkitBackfaceVisibility: "hidden",
-                }}
-                className="relative overflow-hidden rounded-[16px] md:rounded-[24px] border border-white/10 bg-[#1a1a1a]"
-              >
-                {/* Using a standard <img> tag bypasses the strict Next.js Image Optimizer 
-                    which was throwing 400 Bad Request errors on Cloud Run. */}
-                <img
-                  src={src}
-                  alt="Portfolio showcase"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-            );
-          })}
+        {/* We use scale(1.4) to counteract the perspective shrink so the cards appear closer to their true CSS pixel size */}
+        <div style={{ transform: "scale(1.4)", transformStyle: "preserve-3d", display: "flex", justifyContent: "center" }}>
+          <div
+            className="grid"
+            style={{
+              transformStyle: "preserve-3d",
+              animation: "carousel-spin 75s linear infinite",
+              height: "clamp(240px, 30vw, 420px)",
+              placeItems: "center",
+            }}
+          >
+            {CAROUSEL_IMAGES.map((src, i) => {
+              const angleTurn = i / N;
+              return (
+                <div
+                  key={i}
+                  ref={i === 0 ? cardRef : undefined}
+                  style={{
+                    gridArea: "1 / 1",
+                    // Width based on 8/10 aspect ratio to achieve ~220px to ~400px height
+                    width: "clamp(176px, 20vw, 320px)",
+                    aspectRatio: "8 / 10",
+                    // Because N=20 and width is large, the radius is huge. 
+                    // This pushes cards back, but the parent translateZ brings them forward again.
+                    transform: `rotateY(${angleTurn}turn) translateZ(${-radius}px)`,
+                    backfaceVisibility: "hidden",
+                    WebkitBackfaceVisibility: "hidden",
+                  }}
+                  className="relative overflow-hidden rounded-[16px] md:rounded-[24px] border border-white/10 bg-[#1a1a1a]"
+                >
+                  {/* Using a standard <img> tag bypasses the strict Next.js Image Optimizer 
+                      which was throwing 400 Bad Request errors on Cloud Run. */}
+                  <img
+                    src={src}
+                    alt="Portfolio showcase"
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </motion.div>
