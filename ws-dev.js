@@ -24,7 +24,7 @@ wss.on("connection", (ws, req) => {
 
   const ai = new GoogleGenAI({ apiKey });
   // GEMINI_LIVE_MODEL is separate from GEMINI_MODEL (used by text chat route)
-  const model = process.env.GEMINI_LIVE_MODEL || "gemini-live-2.5-flash-preview";
+  const model = process.env.GEMINI_LIVE_MODEL || "models/gemini-3.1-flash-live-preview";
   let liveSession = null;
 
   // ── Helper: safely send JSON to client ───────────────────────────
