@@ -429,7 +429,7 @@ export default function HeroTop(props: any) {
           variants={itemVariants}
           className="flex flex-col items-center justify-center mt-6 gap-3"
         >
-          <span className="text-[10px] sm:text-[11px] uppercase tracking-widest text-white/50 font-bold">Or click the orb to begin</span>
+          
           <MagneticOrb onOpen={() => handleOpenStrategist(false)} />
         </motion.div>
 
