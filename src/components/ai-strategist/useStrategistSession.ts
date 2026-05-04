@@ -205,12 +205,8 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
                   }
                 }
               },
-              // Prevent context window overflow on long 30-min sessions
-              // Matches AI Studio reference: trigger at ~100k tokens, slide to ~50k
-              contextWindowCompression: {
-                triggerTokens: "104857",
-                slidingWindow: { targetTokens: "52428" },
-              }
+              // NOTE: contextWindowCompression was removed because it often triggers
+              // Code 1008 (UNIMPLEMENTED) on newer preview models.
             }
           })
         );
