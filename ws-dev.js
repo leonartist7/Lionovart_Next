@@ -175,7 +175,8 @@ wss.on("connection", (ws, req) => {
         // Client sends wire format: { mediaChunks: [{ mimeType, data }] }
         // SDK expects input key: { media: { mimeType, data } }
         if (ri.mediaChunks && Array.isArray(ri.mediaChunks) && ri.mediaChunks.length > 0) {
-          liveSession.sendRealtimeInput({ media: ri.mediaChunks[0] });
+          // Gemini 3.1 strictly requires `audio`, rejecting legacy `mediaChunks` format
+          liveSession.sendRealtimeInput({ audio: ri.mediaChunks[0] });
         } else {
           liveSession.sendRealtimeInput(ri);
         }

@@ -195,7 +195,8 @@ app.prepare().then(() => {
           // The SDK internally transforms "media" → "mediaChunks" on the wire.
           // Passing "mediaChunks" directly is silently ignored — audio never reaches Gemini.
           if (ri.mediaChunks && Array.isArray(ri.mediaChunks) && ri.mediaChunks.length > 0) {
-            liveSession.sendRealtimeInput({ media: ri.mediaChunks[0] });
+            // Gemini 3.1 strictly requires `audio`, rejecting legacy `mediaChunks` format
+            liveSession.sendRealtimeInput({ audio: ri.mediaChunks[0] });
           } else {
             // Pass through other realtimeInput shapes (text, audioStreamEnd, etc.)
             liveSession.sendRealtimeInput(ri);
