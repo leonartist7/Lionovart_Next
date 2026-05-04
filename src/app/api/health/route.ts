@@ -18,6 +18,7 @@ export async function GET() {
     model_config: {
       GEMINI_MODEL: process.env.GEMINI_MODEL || "not set",
       GEMINI_LIVE_MODEL: process.env.GEMINI_LIVE_MODEL || "not set (defaults to models/gemini-3.1-flash-live-preview)",
-    }
+    },
+    ws_logs: (global as any).wsDebugLog || []
   });
 }

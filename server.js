@@ -8,11 +8,22 @@ const { GoogleGenAI } = require("@google/genai");
 process.env.TURBOPACK = '0';
 process.env.NEXT_TURBOPACK = '0';
 
+// ── Global debug log for Cloud Run visibility ─────────
+global.wsDebugLog = [];
+function addDebugLog(msg) {
+  const line = `[${new Date().toISOString()}] ${msg}`;
+  console.log(line);
+  global.wsDebugLog.push(line);
+  if (global.wsDebugLog.length > 50) global.wsDebugLog.shift();
+}
+
 // ── Global safety nets — prevent Cloud Run container crashes ─────────
 process.on("uncaughtException", (err) => {
+  addDebugLog(`[FATAL] Uncaught exception: ${err.message}`);
   console.error("[FATAL] Uncaught exception (process kept alive):", err);
 });
 process.on("unhandledRejection", (reason) => {
+  addDebugLog(`[FATAL] Unhandled rejection: ${reason}`);
   console.error("[FATAL] Unhandled rejection (process kept alive):", reason);
 });
 
@@ -72,7 +83,7 @@ app.prepare().then(() => {
         try {
           ws.send(JSON.stringify(obj));
         } catch (e) {
-          console.error("[WS] Failed to send to client:", e.message);
+          addDebugLog(`[WS] Failed to send to client: ${e.message}`);
         }
       }
     }
@@ -96,7 +107,7 @@ app.prepare().then(() => {
 
         // ── SETUP ─────────────────────────────────────────────────────
         if (payload.type === "setup" && !liveSession) {
-          console.log(`[WS] Connecting to Gemini Live with model: ${model}`);
+          addDebugLog(`[WS] Connecting to Gemini Live with model: ${model}`);
 
           try {
             liveSession = await ai.live.connect({
@@ -104,7 +115,7 @@ app.prepare().then(() => {
               config: payload.config,
               callbacks: {
                 onopen: () => {
-                  console.log("[WS] Gemini internal WebSocket opened, waiting for setupComplete...");
+                  addDebugLog("[WS] Gemini internal WebSocket opened, waiting for setupComplete...");
                 },
 
                 // ── Main message handler: Gemini → Client ─────────────
@@ -112,7 +123,7 @@ app.prepare().then(() => {
                   try {
                     // Gemini finished setup — NOW tell the client it's safe to start
                     if (msg.setupComplete) {
-                      console.log("[WS] Gemini setupComplete received");
+                      addDebugLog("[WS] Gemini setupComplete received");
                       sendToClient({ type: "setup_complete" });
                     }
 
@@ -123,6 +134,7 @@ app.prepare().then(() => {
 
                     // Tool calls from Gemini → forward to client for dispatch
                     if (msg.toolCall) {
+                      addDebugLog(`[WS] Gemini sent toolCall`);
                       sendToClient({ toolCall: msg.toolCall });
                     }
 
@@ -133,21 +145,21 @@ app.prepare().then(() => {
 
                     // Gemini warning: session will disconnect soon
                     if (msg.goAway) {
-                      console.log("[WS] Gemini goAway — time left:", msg.goAway.timeLeft);
+                      addDebugLog(`[WS] Gemini goAway — time left: ${msg.goAway.timeLeft}`);
                       sendToClient({ goAway: msg.goAway });
                     }
                   } catch (err) {
-                    console.error("[WS] Error in Gemini onmessage handler:", err);
+                    addDebugLog(`[WS] Error in Gemini onmessage handler: ${err.message}`);
                   }
                 },
 
                 onerror: (e) => {
-                  console.error("[WS] Gemini WebSocket error:", e);
+                  addDebugLog(`[WS] Gemini WebSocket error: ${e?.message || JSON.stringify(e)}`);
                   sendToClient({ type: "error", message: `Gemini connection error: ${e?.message || e?.error || JSON.stringify(e)}` });
                 },
 
                 onclose: (e) => {
-                  console.log("[WS] Gemini WebSocket closed. Code:", e?.code, "Reason:", e?.reason);
+                  addDebugLog(`[WS] Gemini WebSocket closed. Code: ${e?.code}, Reason: ${e?.reason}`);
                   liveSession = null;
                   // Notify client if still connected
                   if (ws.readyState === ws.OPEN) {
@@ -158,7 +170,7 @@ app.prepare().then(() => {
               },
             });
           } catch (connectErr) {
-            console.error("[WS] Failed to connect to Gemini Live API:", connectErr);
+            addDebugLog(`[WS] Failed to connect to Gemini Live API: ${connectErr.message}`);
             sendToClient({ type: "error", message: `Gemini API Connection Failed: ${connectErr.message}` });
             ws.close();
             return;
@@ -176,12 +188,12 @@ app.prepare().then(() => {
 
         // ── GUARD: all remaining messages require an active session ──
         if (!liveSession) {
-          console.warn("[WS] No active Gemini session, ignoring message");
           return;
         }
 
         // ── TOOL RESPONSES from the frontend ────────────────────────
         if (payload.type === "tool_response") {
+          addDebugLog(`[WS] Forwarding tool_response to Gemini`);
           liveSession.sendToolResponse({ functionResponses: payload.responses });
           return;
         }
@@ -189,16 +201,9 @@ app.prepare().then(() => {
         // ── REALTIME INPUT (audio from mic) ─────────────────────────
         if (payload.realtimeInput) {
           const ri = payload.realtimeInput;
-
-          // Client sends wire format: { mediaChunks: [{ mimeType, data }] }
-          // SDK expects input key: { media: { mimeType, data } }
-          // The SDK internally transforms "media" → "mediaChunks" on the wire.
-          // Passing "mediaChunks" directly is silently ignored — audio never reaches Gemini.
           if (ri.mediaChunks && Array.isArray(ri.mediaChunks) && ri.mediaChunks.length > 0) {
-            // Gemini 3.1 strictly requires `audio`, rejecting legacy `mediaChunks` format
             liveSession.sendRealtimeInput({ audio: ri.mediaChunks[0] });
           } else {
-            // Pass through other realtimeInput shapes (text, audioStreamEnd, etc.)
             liveSession.sendRealtimeInput(ri);
           }
           return;
@@ -206,19 +211,20 @@ app.prepare().then(() => {
 
         // ── CLIENT CONTENT (text turns, system alerts) ──────────────
         if (payload.clientContent) {
+          addDebugLog(`[WS] Forwarding clientContent to Gemini`);
           liveSession.sendClientContent(payload.clientContent);
           return;
         }
 
         // ── TOOL RESPONSE (alternative direct path) ─────────────────
         if (payload.toolResponse) {
+          addDebugLog(`[WS] Forwarding toolResponse to Gemini`);
           liveSession.sendToolResponse(payload.toolResponse);
           return;
         }
 
-        console.warn("[WS] Unknown payload shape:", JSON.stringify(payload).substring(0, 120));
       } catch (err) {
-        console.error("[WS] Error processing client message:", err);
+        addDebugLog(`[WS] Error processing client message: ${err.message}`);
         sendToClient({ type: "error", message: `Server error: ${err.message}` });
       }
     });
