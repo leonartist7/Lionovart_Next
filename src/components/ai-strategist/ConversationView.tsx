@@ -2,7 +2,7 @@
 
 import { useRef, useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff, Send, Play } from "lucide-react";
+import { Mic, MicOff, Send, Play, AlertTriangle } from "lucide-react";
 import type { HandoffData, SessionState } from "@/lib/strategist-config";
 import type { LeadData, ChatMessage } from "./useStrategistSession";
 import VoiceVisualizer from "./VoiceVisualizer";
@@ -15,6 +15,7 @@ export interface ConversationViewProps {
   setLeadData: (updater: (prev: LeadData) => LeadData) => void;
   handoffData: HandoffData | null;
   transcript: ChatMessage[];
+  sessionWarning?: string | null;
   onStartSession: () => void;
   onStopSession: () => void;
   onSendText: (text: string) => void;
@@ -27,6 +28,7 @@ export default function ConversationView({
   setLeadData,
   handoffData,
   transcript,
+  sessionWarning,
   onStartSession,
   onStopSession,
   onSendText,
@@ -61,6 +63,25 @@ export default function ConversationView({
           )}
         </div>
       </div>
+
+      {/* Session-ending warning banner (from Gemini goAway signal) */}
+      <AnimatePresence>
+        {sessionWarning && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="shrink-0 overflow-hidden"
+          >
+            <div className="flex items-center justify-center gap-2 px-4 py-2 bg-amber-500/10 border-b border-amber-500/20">
+              <AlertTriangle size={12} className="text-amber-400 shrink-0" />
+              <span className="text-[11px] font-medium text-amber-400 uppercase tracking-wider">
+                {sessionWarning}
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col items-center justify-center p-6 gap-8 overflow-y-auto no-scrollbar">

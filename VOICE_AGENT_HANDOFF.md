@@ -1,47 +1,125 @@
-# LIONOVART Voice Agent Handoff & Architecture Guide
+# LIONOVART Voice Agent — Architecture & Handoff Guide
 
-**Date:** April 17, 2026
-**Status:** Gemini 3.1 Flash Live Voice Agent is fully functional via a Split-Architecture deployment.
-
-To the next AI Agent assisting Leon: Please read this document carefully. We encountered severe `503 Service Unavailable` errors when trying to run WebSockets on Hostinger, which required a complete architectural overhaul.
+**Last updated:** 2026-05-05  
+**Status:** Gemini 3.1 Flash Live — fully functional, single-server architecture.
 
 ---
 
-## 1. The Architectural Split (Why we did it)
-The Gemini Live API requires a persistent, bidirectional WebSocket connection (`wss://`) to stream raw PCM audio in real-time. 
+## Architecture Overview
 
-**The Hostinger Problem:** Hostinger Shared/Cloud hosting uses Phusion Passenger. Passenger explicitly blocks/drops incoming WebSocket `Upgrade` headers. Any attempt to run the WebSocket proxy on Hostinger resulted in a hard `Code: 1006` Abnormal Closure. Furthermore, Passenger's strict startup timeouts caused Next.js to throw 503 errors when we tried to bundle the proxy into the main Next.js server.
+Everything runs from a single Node.js server (`server.js`). There is no separate microservice or external voice proxy.
 
-**The Solution:** We split the frontend and the Voice Proxy backend.
-1. **The Voice Proxy (Backend):** The `voice-server` folder in this repository was extracted into its own standalone Node.js microservice and deployed to **Render.com**. Render natively supports WebSockets. This microservice securely holds the `GEMINI_API_KEY` and passes the live audio stream back and forth to Gemini.
-2. **The Frontend (Hostinger):** The main Next.js website remains on Hostinger. In `useStrategistSession.ts`, the frontend explicitly opens its WebSocket connection to the Render URL (`wss://lionovart-voice.onrender.com`).
+```
+server.js (port 8080 in production, controlled by $PORT)
+│
+├── HTTP — Next.js pages + API routes
+│     ├── /api/strategist/chat   (text chat, gemini-2.5-flash, SSE)
+│     ├── /api/strategist/tool   (server-side tool execution via Firebase)
+│     ├── /api/strategist/lead   (lead save to Firestore)
+│     └── /api/health
+│
+└── WebSocket — Gemini Live API proxy
+      └── All upgrade requests → wss proxy to Gemini Live
+```
 
----
+**Dev mode** runs two separate processes:
 
-## 2. Server Tools & Firebase
-Because the Voice Server was moved to Render, it can no longer directly access the local Next.js API routes or Firebase Admin logic without duplicating all the code and keys. 
+| Process | Command | Port |
+|---|---|---|
+| Next.js (webpack) | `npm run dev` | 3000 |
+| WS proxy | `npm run dev:ws` | 3001 |
 
-**How tools work now:**
-When Gemini triggers a tool call (like `save_lead_data` or `fetch_booking_link`), the Render Voice Server forwards the raw tool call payload down the WebSocket to the client. The client (`useStrategistSession.ts`) intercepts the tool call, makes a standard HTTP POST request to Hostinger's `/api/strategist/tool`, receives the database response, and sends it back up the WebSocket to Gemini.
-
----
-
-## 3. Hostinger 503 Debugging ("The Glass Window")
-If Hostinger ever throws a `503 Service Unavailable` error again, it means `app.prepare()` crashed while Passenger was booting Next.js. Because Passenger hides the logs, we built a **"Glass Window" Logger** in `server.js`.
-
-If Next.js crashes on boot, `server.js` catches the fatal error and writes the entire stack trace to a public text file.
-**To view the error:** Simply navigate to `https://lionovart.com/crash.txt`.
-
-### Known Causes for 503s on Hostinger:
-*   **Next.js Cache Corruption:** If `next.config.ts` was modified (e.g., trying to use `output: "standalone"` with Turbopack), the `.next` folder gets corrupted. The fix is to run `npm run build` in the Hostinger terminal to flush the cache.
-*   **Passenger Socket Timeouts:** `server.js` is specifically written to call `.listen()` *before* `app.prepare()` so Passenger doesn't time out. DO NOT change the boot sequence in `server.js` or Passenger will 503.
+The browser auto-detects: `localhost` → `ws://localhost:3001`, everything else → `wss://{host}/api/strategist/live`.
 
 ---
 
-## 4. Upgrading Models
-The system currently uses **Gemini 3.1 Flash Live Preview**. 
-If Google deprecates this model or releases a newer one, you must update the model string in:
-1. `voice-server/index.js`
-2. Redeploy the Render service via the Render dashboard.
+## How the Voice Session Works
 
-You do not need to redeploy Hostinger to change the model, as the model logic is entirely handled by Render.
+1. Browser opens WebSocket to the server
+2. Browser sends `{ type: "setup", config: { ... } }` — server calls `ai.live.connect()`
+3. Gemini confirms with `setupComplete` → server sends `{ type: "setup_complete" }` to browser
+4. Browser starts streaming 16kHz PCM audio via `AudioWorklet` → base64 → `{ realtimeInput: { audio: { mimeType, data } } }`
+5. Server passes audio directly: `liveSession.sendRealtimeInput(payload.realtimeInput)`
+6. Gemini streams back 24kHz PCM audio → server forwards `serverContent` to browser
+7. Browser decodes audio and queues it via `AudioBufferSourceNode` at 24kHz
+8. Transcriptions (`inputAudioTranscription` + `outputAudioTranscription`) are enabled so the UI shows text
+9. Tool calls from Gemini are forwarded to the browser; UI tools handled locally, server tools via `/api/strategist/tool`
+
+---
+
+## Key Files
+
+| File | Purpose |
+|---|---|
+| `server.js` | Production server — Next.js + WebSocket proxy combined |
+| `ws-dev.js` | Dev-only WebSocket proxy on :3001 |
+| `public/audio-processor.js` | AudioWorklet — captures mic, downsamples to 16kHz PCM |
+| `src/components/ai-strategist/useStrategistSession.ts` | Core React hook — session lifecycle, audio, tools |
+| `src/lib/strategist-config.ts` | System prompt + tool declarations |
+| `src/components/ai-strategist/StrategistPanel.tsx` | Modal panel wrapper |
+| `src/components/ai-strategist/ConversationView.tsx` | Session UI (visualizer, transcript, lead form, handoff cards) |
+
+---
+
+## Changing the Model
+
+Update the model string in **`server.js`**, line ~76:
+
+```js
+const model = process.env.GEMINI_LIVE_MODEL || "models/gemini-3.1-flash-live-preview";
+```
+
+Set `GEMINI_LIVE_MODEL` in the environment to override without touching code. The text chat model is separate — `GEMINI_MODEL` env var, used by `/api/strategist/chat`.
+
+---
+
+## Environment Variables
+
+| Variable | Required | Default | Purpose |
+|---|---|---|---|
+| `GEMINI_API_KEY` | YES | — | Authenticates all Gemini API calls |
+| `GEMINI_LIVE_MODEL` | no | `models/gemini-3.1-flash-live-preview` | Live voice model |
+| `GEMINI_MODEL` | no | `gemini-2.5-flash` | Text chat model |
+| `FIREBASE_PROJECT_ID` | no | — | Firestore for lead data |
+| `FIREBASE_ADMIN_CLIENT_EMAIL` | no | — | Firebase service account |
+| `FIREBASE_ADMIN_PRIVATE_KEY` | no | — | Firebase service account key |
+| `WHATSAPP_NUMBER` | no | `15878974772` | WhatsApp deep link number |
+| `BOOKING_URL` | no | `https://calendar.app.google/` | Calendar booking URL |
+| `PORT` | no | `8080` | HTTP server port |
+
+---
+
+## Audio Format Reference
+
+| Direction | Format | Rate | Encoding |
+|---|---|---|---|
+| Browser → Gemini | PCM 16-bit | 16 kHz | base64, little-endian |
+| Gemini → Browser | PCM 16-bit | 24 kHz | base64, little-endian |
+| Wire message (audio in) | `{ realtimeInput: { audio: { mimeType: "audio/pcm;rate=16000", data: "<base64>" } } }` | | |
+| Wire message (text in) | `{ realtimeInput: { text: "..." } }` | | |
+
+---
+
+## Tool Architecture
+
+Six tools are declared in `src/lib/strategist-config.ts`:
+
+| Tool | Executed by |
+|---|---|
+| `update_screen_info` | Browser (React state update only) |
+| `show_handoff_cards` | Browser (renders WhatsApp + booking cards) |
+| `fetch_user_memory` | Server via `/api/strategist/tool` → Firestore |
+| `save_lead_data` | Server via `/api/strategist/tool` → Firestore |
+| `generate_whatsapp_link` | Server via `/api/strategist/tool` |
+| `fetch_booking_link` | Server via `/api/strategist/tool` |
+
+Flow: Gemini triggers tool → server forwards to browser → browser calls `/api/strategist/tool` → browser sends `{ type: "tool_response", responses }` back → server calls `liveSession.sendToolResponse({ functionResponses: responses })`.
+
+---
+
+## Known Limitations
+
+- Proactive audio features (affective dialog) not yet available on `gemini-3.1-flash-live-preview`
+- `VoiceVisualizer` bars are cosmetic (random heights), not driven by actual audio amplitude
+- No automatic WebSocket reconnection if connection drops mid-session
+- `contextWindowCompression` was intentionally removed — triggers UNIMPLEMENTED (Code 1008) on this model

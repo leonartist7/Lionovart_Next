@@ -22,29 +22,26 @@ export interface UseStrategistSessionReturn {
   setLeadData: (updater: (prev: LeadData) => LeadData) => void;
   handoffData: HandoffData | null;
   transcript: ChatMessage[];
+  sessionWarning: string | null;
   startSession: () => Promise<void>;
   stopSession: () => void;
   sendTextToAgent: (text: string) => void;
 }
 
-// Convert Int16Array to Base64 for the Gemini Live API
 function arrayBufferToBase64(buffer: ArrayBuffer) {
   let binary = "";
   const bytes = new Uint8Array(buffer);
-  const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
+  for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
   return window.btoa(binary);
 }
 
-// Convert Base64 back to Int16Array
 function base64ToInt16Array(base64: string) {
-  const binary_string = window.atob(base64);
-  const len = binary_string.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binary_string.charCodeAt(i);
+  const binaryString = window.atob(base64);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
   }
   return new Int16Array(bytes.buffer);
 }
@@ -55,13 +52,13 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
   const [leadData, setLeadData] = useState<LeadData>({ name: "", phone: "", email: "" });
   const [handoffData, setHandoffData] = useState<HandoffData | null>(null);
   const [transcript, setTranscript] = useState<ChatMessage[]>([]);
+  const [sessionWarning, setSessionWarning] = useState<string | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const processorRef = useRef<AudioWorkletNode | null>(null);
-  
-  // Audio playback management refs
+
   const nextPlaybackTimeRef = useRef(0);
   const activeSourcesRef = useRef<AudioBufferSourceNode[]>([]);
 
@@ -75,12 +72,12 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
     }
     fiveMinWarningFiredRef.current = false;
 
-    // Clear all active audio sources (Barge-in / Stop)
     activeSourcesRef.current.forEach((src) => {
-      try { src.stop(); } catch(e) {}
+      try { src.stop(); } catch (_) {}
     });
     activeSourcesRef.current = [];
     nextPlaybackTimeRef.current = 0;
+
     if (wsRef.current) {
       wsRef.current.onmessage = null;
       wsRef.current.onerror = null;
@@ -103,35 +100,26 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
     }
     setIsSessionActive(false);
     setState("idle");
+    setSessionWarning(null);
   }, []);
 
+  // Use sendRealtimeInput text format — recommended by Gemini 3.1 migration guide
   const sendTextToAgent = useCallback((text: string) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      // Send text back to Gemini
-      wsRef.current.send(
-        JSON.stringify({
-          clientContent: {
-            turns: [
-              {
-                role: "user",
-                parts: [{ text }],
-              },
-            ],
-            turnComplete: true,
-          },
-        })
-      );
-      setTranscript(prev => [...prev, { role: "user", text }]);
+      wsRef.current.send(JSON.stringify({ realtimeInput: { text } }));
+      setTranscript((prev) => [...prev, { role: "user", text }]);
     }
   }, []);
 
   const startSession = useCallback(async () => {
     try {
       setTranscript([]);
-      activeSourcesRef.current.forEach((src) => { try { src.stop(); } catch(e){} });
+      setSessionWarning(null);
+      activeSourcesRef.current.forEach((src) => { try { src.stop(); } catch (_) {} });
       activeSourcesRef.current = [];
       nextPlaybackTimeRef.current = 0;
-      // 1. Request Mic first (important for mobile safari to have immediate user gesture)
+
+      // 1. Request mic (must be first on iOS Safari for immediate user-gesture binding)
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           channelCount: 1,
@@ -142,72 +130,71 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       });
       streamRef.current = stream;
 
-      // 2. Initialize AudioContext at 16kHz
+      // 2. AudioContext at 16kHz — matches Gemini's required input rate
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({
         sampleRate: 16000,
       });
       audioContextRef.current = audioCtx;
 
-      // Resume context on iOS
       if (audioCtx.state === "suspended") {
         await audioCtx.resume();
       }
 
       await audioCtx.audioWorklet.addModule("/audio-processor.js");
 
-      const source = audioCtx.createMediaStreamSource(stream);
-      // Pass the hardware sampleRate into the worklet so it knows exactly how to downsample
+      const micSource = audioCtx.createMediaStreamSource(stream);
       const processor = new AudioWorkletNode(audioCtx, "audio-processor", {
-        processorOptions: { sampleRate: audioCtx.sampleRate }
+        processorOptions: { sampleRate: audioCtx.sampleRate },
       });
       processorRef.current = processor;
-
-      source.connect(processor);
+      micSource.connect(processor);
       processor.connect(audioCtx.destination);
 
-      // Switch UI to active/connecting state immediately to provide feedback
       setIsSessionActive(true);
       setState("thinking");
 
-      // 3. Connect WebSocket
+      // 3. Connect WebSocket to the local dev proxy or production server
       const host = window.location.hostname;
       const isLocal = host === "localhost" || host === "127.0.0.1";
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-      const wsUrl = isLocal 
+      const wsUrl = isLocal
         ? `ws://localhost:3001/api/strategist/live`
         : `${protocol}//${window.location.host}/api/strategist/live`;
-      
-      console.log("[DEBUG] Attempting WS connection to:", wsUrl);
+
+      console.log("[WS] Connecting to:", wsUrl);
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       let hasConnected = false;
 
       ws.onopen = () => {
-        // Send setup payload using the NEW SDK schema that completely avoids generationConfig deprecation warnings
+        // Setup payload — transcriptions enabled so the conversation UI shows text
         ws.send(
           JSON.stringify({
             type: "setup",
             config: {
-              systemInstruction: { 
+              systemInstruction: {
                 parts: [
-                  { 
-                    text: STRATEGIST_SYSTEM_PROMPT + "\n\nCRITICAL DIRECTIVE: Your very first action immediately upon connecting must be a warm, brief 1-sentence verbal greeting. Introduce yourself as the LIONOVART AI Strategist and ask what they are building. Do not wait for the user to speak first." 
-                  }
-                ] 
+                  {
+                    text:
+                      STRATEGIST_SYSTEM_PROMPT +
+                      "\n\nCRITICAL DIRECTIVE: Your very first action immediately upon connecting must be a warm, brief 1-sentence verbal greeting. Introduce yourself as the LIONOVART AI Strategist and ask what they are building. Do not wait for the user to speak first.",
+                  },
+                ],
               },
               tools: STRATEGIST_TOOLS,
               responseModalities: ["AUDIO"],
               speechConfig: {
                 voiceConfig: {
                   prebuiltVoiceConfig: {
-                    voiceName: "Aoede" // Options: Aoede, Charon, Fenrir, Kore, Puck, Sulafat
-                  }
-                }
+                    voiceName: "Aoede",
+                  },
+                },
               },
-              // NOTE: contextWindowCompression was removed because it often triggers
-              // Code 1008 (UNIMPLEMENTED) on newer preview models.
-            }
+              // Transcription — surfaces user speech and AI speech as text in the UI
+              inputAudioTranscription: {},
+              outputAudioTranscription: {},
+            },
           })
         );
       };
@@ -215,89 +202,68 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       ws.onmessage = async (event) => {
         const data = JSON.parse(event.data);
 
-        // Handle backend errors
+        // ── Backend / proxy error ────────────────────────────────────
         if (data.type === "error") {
-          console.error("Backend error:", data.message);
+          console.error("[WS] Backend error:", data.message);
           stopSession();
           alert("Could not connect to AI Voice Agent: " + data.message);
           return;
         }
 
-        // Setup confirmed
+        // ── Setup confirmed ──────────────────────────────────────────
         if (data.type === "setup_complete") {
           hasConnected = true;
           setIsSessionActive(true);
           setState("listening");
 
-          // Start the 30-minute session timer
+          // 30-minute session timer with 5-minute wrap-up warning
           const startTime = Date.now();
           sessionTimerRef.current = setInterval(() => {
             const elapsed = Date.now() - startTime;
-            const timeLeftMs = (30 * 60 * 1000) - elapsed;
-            
-            // If exactly 5 minutes (300,000 ms) are left, trigger the AI
-            if (timeLeftMs <= 300000 && !fiveMinWarningFiredRef.current) {
+            const timeLeftMs = 30 * 60 * 1000 - elapsed;
+
+            if (timeLeftMs <= 300_000 && !fiveMinWarningFiredRef.current) {
               fiveMinWarningFiredRef.current = true;
-              if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-                // Send a silent system prompt instructing her to wrap up
+              if (wsRef.current?.readyState === WebSocket.OPEN) {
                 wsRef.current.send(
                   JSON.stringify({
-                    clientContent: {
-                      turns: [
-                        {
-                          role: "user",
-                          parts: [{ text: "SYSTEM ALERT: The conversation will automatically disconnect in exactly 5 minutes. Please briefly mention to the user that we only have 5 minutes left to wrap up our thoughts." }],
-                        },
-                      ],
-                      turnComplete: true,
+                    realtimeInput: {
+                      text: "SYSTEM ALERT: The conversation will automatically disconnect in exactly 5 minutes. Please briefly mention to the user that we only have 5 minutes left to wrap up our thoughts.",
                     },
                   })
                 );
               }
             }
-            
-            // If time is up, forcefully close
-            if (timeLeftMs <= 0) {
-               stopSession();
-               alert("The 30-minute consultation has concluded. Please book a follow-up call to continue!");
-            }
-          }, 1000); // Check every second
-          
-          // Force UI to know we connected successfully
-          setTranscript([{ role: "agent", text: "Connected. Waiting for AI..." }]);
 
-          // Trigger the AI to speak first using the exact payload format the new Live API expects
-          // If this crashes the connection (50ms drop), it means the model is strictly audio-only right now.
-          // However, we will send it anyway, and if it fails, the fallback is the user's microphone.
+            if (timeLeftMs <= 0) {
+              stopSession();
+              alert("The 30-minute consultation has concluded. Please book a follow-up call to continue!");
+            }
+          }, 1000);
+
+          // Trigger the AI greeting — use sendRealtimeInput per Gemini 3.1 migration guide
           if (ws.readyState === WebSocket.OPEN) {
             ws.send(
               JSON.stringify({
-                clientContent: {
-                  turns: [
-                    {
-                      role: "user",
-                      parts: [{ text: "Hello. Please greet me out loud as instructed." }],
-                    },
-                  ],
-                  turnComplete: true,
+                realtimeInput: {
+                  text: "Hello. Please greet me out loud as instructed.",
                 },
               })
             );
           }
 
-          // Once setup is complete, start sending mic data from worklet
+          // Start streaming mic audio once setup is confirmed
           processor.port.onmessage = (e) => {
             if (e.data.type === "audio" && ws.readyState === WebSocket.OPEN) {
               const base64Audio = arrayBufferToBase64(e.data.pcm.buffer);
+              // Correct SDK format: { audio: { mimeType, data } } — not legacy mediaChunks
               ws.send(
                 JSON.stringify({
                   realtimeInput: {
-                    mediaChunks: [
-                      {
-                        mimeType: "audio/pcm;rate=16000",
-                        data: base64Audio,
-                      },
-                    ],
+                    audio: {
+                      mimeType: "audio/pcm;rate=16000",
+                      data: base64Audio,
+                    },
                   },
                 })
               );
@@ -306,90 +272,119 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
           return;
         }
 
-        // Handle Barge-in (Interruption)
-        if (data.serverContent && data.serverContent.interrupted) {
-          activeSourcesRef.current.forEach((src) => { try { src.stop(); } catch(e){} });
+        // ── Gemini session-ending warning ────────────────────────────
+        if (data.goAway) {
+          const timeLeft = data.goAway.timeLeft ?? "soon";
+          setSessionWarning(`Session ending in ${timeLeft} — wrapping up now.`);
+        }
+
+        // ── Barge-in: user interrupted the AI ───────────────────────
+        if (data.serverContent?.interrupted) {
+          activeSourcesRef.current.forEach((src) => { try { src.stop(); } catch (_) {} });
           activeSourcesRef.current = [];
           if (audioContextRef.current) {
             nextPlaybackTimeRef.current = audioContextRef.current.currentTime;
           }
         }
 
-        // Handle Audio or Text from Gemini
-        if (data.serverContent && data.serverContent.modelTurn) {
+        // ── User speech transcription ────────────────────────────────
+        if (data.serverContent?.inputTranscription?.text) {
+          const text: string = data.serverContent.inputTranscription.text;
+          setTranscript((prev) => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+            if (last?.role === "user") {
+              last.text += text;
+            } else {
+              next.push({ role: "user", text });
+            }
+            return next;
+          });
+        }
+
+        // ── AI speech transcription ──────────────────────────────────
+        if (data.serverContent?.outputTranscription?.text) {
+          const text: string = data.serverContent.outputTranscription.text;
+          setTranscript((prev) => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+            if (last?.role === "agent") {
+              last.text += text;
+            } else {
+              next.push({ role: "agent", text });
+            }
+            return next;
+          });
+        }
+
+        // ── Audio + text parts from the model ───────────────────────
+        if (data.serverContent?.modelTurn?.parts) {
           const parts = data.serverContent.modelTurn.parts;
           for (const part of parts) {
-            // Check for Audio
-            if (part.inlineData && part.inlineData.mimeType.startsWith("audio/pcm")) {
+            if (part.inlineData?.mimeType?.startsWith("audio/pcm")) {
               const pcm16 = base64ToInt16Array(part.inlineData.data);
               const ctx = audioContextRef.current;
               if (!ctx) continue;
 
-              // Explicitly resume audio context when first receiving an audio buffer, 
-              // circumventing aggressive mobile browser sleep policies.
               if (ctx.state === "suspended") {
-                ctx.resume().catch(err => console.error("Failed to resume audio context:", err));
+                ctx.resume().catch((err) => console.error("[Audio] Failed to resume context:", err));
               }
-              
-              // 1. Convert Int16 to Float32
-              const float32Data = new Float32Array(pcm16.length);
+
+              // Int16 → Float32
+              const float32 = new Float32Array(pcm16.length);
               for (let i = 0; i < pcm16.length; i++) {
-                float32Data[i] = pcm16[i] / 32768.0;
+                float32[i] = pcm16[i] / 32768.0;
               }
-              
-              // 2. Create a buffer specifically at 24000Hz (Gemini's output rate)
-              const audioBuffer = ctx.createBuffer(1, float32Data.length, 24000);
-              audioBuffer.getChannelData(0).set(float32Data);
-              
-              // 3. Play it natively via C++ AudioEngine (handles upsampling perfectly)
-              const source = ctx.createBufferSource();
-              source.buffer = audioBuffer;
-              source.connect(ctx.destination);
-              
-              const currentTime = ctx.currentTime;
-              if (nextPlaybackTimeRef.current < currentTime) {
-                nextPlaybackTimeRef.current = currentTime;
+
+              // Buffer at 24kHz — Gemini outputs 24kHz audio
+              const audioBuffer = ctx.createBuffer(1, float32.length, 24000);
+              audioBuffer.getChannelData(0).set(float32);
+
+              const bufSource = ctx.createBufferSource();
+              bufSource.buffer = audioBuffer;
+              bufSource.connect(ctx.destination);
+
+              const now = ctx.currentTime;
+              if (nextPlaybackTimeRef.current < now) {
+                nextPlaybackTimeRef.current = now;
               }
-              
-              source.start(nextPlaybackTimeRef.current);
+              bufSource.start(nextPlaybackTimeRef.current);
               nextPlaybackTimeRef.current += audioBuffer.duration;
-              
-              activeSourcesRef.current.push(source);
-              source.onended = () => {
-                activeSourcesRef.current = activeSourcesRef.current.filter((s) => s !== source);
+
+              activeSourcesRef.current.push(bufSource);
+              bufSource.onended = () => {
+                activeSourcesRef.current = activeSourcesRef.current.filter((s) => s !== bufSource);
               };
-              
+
               setState("speaking");
-            }
-            // Check for Text (Live Transcript update)
-            else if (part.text) {
+            } else if (part.text) {
+              // Text parts — fallback for non-audio responses
               setTranscript((prev) => {
-                const newTranscript = [...prev];
-                const last = newTranscript[newTranscript.length - 1];
-                if (last && last.role === "agent") {
+                const next = [...prev];
+                const last = next[next.length - 1];
+                if (last?.role === "agent") {
                   last.text += part.text;
                 } else {
-                  newTranscript.push({ role: "agent", text: part.text });
+                  next.push({ role: "agent", text: part.text });
                 }
-                return newTranscript;
+                return next;
               });
             }
           }
         }
 
-        // If turn is complete, revert to listening
-        if (data.serverContent && data.serverContent.turnComplete) {
+        // ── Turn complete → back to listening ───────────────────────
+        if (data.serverContent?.turnComplete) {
           setState("listening");
         }
 
-        // Handle Tool Calls
+        // ── Tool calls from the model ────────────────────────────────
         if (data.toolCall) {
           const calls = data.toolCall.functionCalls;
           const serverTools = ["fetch_user_memory", "save_lead_data", "generate_whatsapp_link", "fetch_booking_link"];
-          const toolPromises: Promise<any>[] = [];
+          const toolPromises: Promise<{ id: string; name: string; response: unknown }>[] = [];
 
           for (const call of calls) {
-            // 1. Handle UI-only tools locally
             if (call.name === "update_screen_info") {
               const { name, phone, email } = call.args as Record<string, string>;
               setLeadData((prev) => ({
@@ -405,28 +400,26 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
                 summaryMessage: summary_message,
               });
               setState("handoff");
-            } 
-            // 2. Handle Server-side tools by calling Hostinger API
-            else if (serverTools.includes(call.name)) {
+            } else if (serverTools.includes(call.name)) {
               toolPromises.push(
                 (async () => {
                   try {
-                    const res = await fetch('/api/strategist/tool', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ name: call.name, args: call.args })
+                    const res = await fetch("/api/strategist/tool", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ name: call.name, args: call.args }),
                     });
                     const result = await res.json();
                     return { id: call.id, name: call.name, response: result };
-                  } catch (e: any) {
-                    return { id: call.id, name: call.name, response: { error: e.message } };
+                  } catch (e: unknown) {
+                    const msg = e instanceof Error ? e.message : String(e);
+                    return { id: call.id, name: call.name, response: { error: msg } };
                   }
                 })()
               );
             }
           }
 
-          // If we had server tools, wait for them to finish and send the response back to the WS proxy
           if (toolPromises.length > 0) {
             const responses = await Promise.all(toolPromises);
             if (ws.readyState === WebSocket.OPEN) {
@@ -437,22 +430,21 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       };
 
       ws.onclose = (event) => {
-        console.log("WS Close event:", event);
+        console.log("[WS] Closed. Code:", event.code, "Reason:", event.reason);
         if (!hasConnected) {
-          alert(`Could not connect to Voice Server at ${wsUrl}\n\nCode: ${event.code}, Reason: ${event.reason || "None"}. Ensure the Cloud Run container has GEMINI_API_KEY set.`);
+          alert(
+            `Could not connect to Voice Server at ${wsUrl}\n\nCode: ${event.code}, Reason: ${event.reason || "None"}.\nEnsure GEMINI_API_KEY is set in the environment.`
+          );
         }
         stopSession();
       };
-
     } catch (err) {
-      console.error("Failed to start session:", err);
-      // Alert the user so it doesn't fail silently on mobile devices
+      console.error("[WS] Failed to start session:", err);
       alert(`Error starting session: ${err instanceof Error ? err.message : String(err)}`);
       stopSession();
     }
   }, [stopSession]);
 
-  // Clean up on unmount
   useEffect(() => {
     return () => {
       stopSession();
@@ -466,8 +458,9 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
     setLeadData,
     handoffData,
     transcript,
+    sessionWarning,
     startSession,
     stopSession,
-    sendTextToAgent
+    sendTextToAgent,
   };
 }

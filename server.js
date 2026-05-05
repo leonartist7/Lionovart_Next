@@ -198,14 +198,9 @@ app.prepare().then(() => {
           return;
         }
 
-        // ── REALTIME INPUT (audio from mic) ─────────────────────────
+        // ── REALTIME INPUT (audio chunks or text) ───────────────────
         if (payload.realtimeInput) {
-          const ri = payload.realtimeInput;
-          if (ri.mediaChunks && Array.isArray(ri.mediaChunks) && ri.mediaChunks.length > 0) {
-            liveSession.sendRealtimeInput({ audio: ri.mediaChunks[0] });
-          } else {
-            liveSession.sendRealtimeInput(ri);
-          }
+          liveSession.sendRealtimeInput(payload.realtimeInput);
           return;
         }
 

@@ -168,18 +168,9 @@ wss.on("connection", (ws, req) => {
         return;
       }
 
-      // ── REALTIME INPUT (audio from mic) ─────────────────────────
+      // ── REALTIME INPUT (audio chunks or text) ───────────────────
       if (payload.realtimeInput) {
-        const ri = payload.realtimeInput;
-
-        // Client sends wire format: { mediaChunks: [{ mimeType, data }] }
-        // SDK expects input key: { media: { mimeType, data } }
-        if (ri.mediaChunks && Array.isArray(ri.mediaChunks) && ri.mediaChunks.length > 0) {
-          // Gemini 3.1 strictly requires `audio`, rejecting legacy `mediaChunks` format
-          liveSession.sendRealtimeInput({ audio: ri.mediaChunks[0] });
-        } else {
-          liveSession.sendRealtimeInput(ri);
-        }
+        liveSession.sendRealtimeInput(payload.realtimeInput);
         return;
       }
 

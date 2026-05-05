@@ -149,6 +149,7 @@ export default function StrategistPanel({ isOpen, onClose, autoStart = false }: 
                   setLeadData={session.setLeadData}
                   handoffData={session.handoffData}
                   transcript={session.transcript}
+                  sessionWarning={session.sessionWarning}
                   onStartSession={session.startSession}
                   onStopSession={session.stopSession}
                   onSendText={session.sendTextToAgent}
