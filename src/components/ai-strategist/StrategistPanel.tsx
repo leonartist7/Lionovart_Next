@@ -210,6 +210,8 @@ export default function StrategistPanel({ isOpen, onClose, autoStart = false }: 
                   onStartSession={session.startSession}
                   onStopSession={session.stopSession}
                   onSendText={session.sendTextToAgent}
+                  inputAnalyser={session.inputAnalyser}
+                  outputAnalyser={session.outputAnalyser}
                 />
               </div>
             </div>
@@ -319,6 +321,8 @@ export default function StrategistPanel({ isOpen, onClose, autoStart = false }: 
               onStartSession={session.startSession}
               onStopSession={session.stopSession}
               onSendText={session.sendTextToAgent}
+              inputAnalyser={session.inputAnalyser}
+              outputAnalyser={session.outputAnalyser}
             />
           </div>
         </motion.div>

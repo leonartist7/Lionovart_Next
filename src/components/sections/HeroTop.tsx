@@ -7,7 +7,7 @@ import HeroCycling, { Word } from "@/components/sections/HeroCycling";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import MagneticOrb from "@/components/ai-strategist/MagneticOrb";
-import StrategistPanel from "@/components/ai-strategist/StrategistPanel";
+import { useNovaStore } from "@/lib/stores/nova-store";
 
 /* ─── Variants ─────────────────────────────────────────────────── */
 const containerVariants = {
@@ -333,8 +333,7 @@ function DynamicTrustBadges({ badges }: { badges: { brands: readonly string[]; e
 export default function HeroTop(props: any) {
   const { t } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
-  const [strategistOpen, setStrategistOpen] = useState(false);
-  const [autoStartVoice, setAutoStartVoice] = useState(false);
+  const openNova = useNovaStore((s) => s.openNova);
 
   const staticText = props.staticText || t.hero.staticText;
   const cyclingWordsRaw = props.cyclingWords || t.hero.cyclingWords;
@@ -359,8 +358,7 @@ export default function HeroTop(props: any) {
   };
 
   const handleOpenStrategist = (autoStart = false) => {
-    setAutoStartVoice(autoStart);
-    setStrategistOpen(true);
+    openNova("hero", autoStart);
   };
 
   return (
@@ -430,7 +428,7 @@ export default function HeroTop(props: any) {
           className="flex flex-col items-center justify-center mt-6 gap-3"
         >
           
-          <MagneticOrb onOpen={() => handleOpenStrategist(false)} />
+          <MagneticOrb onOpen={() => openNova("orb", false)} />
         </motion.div>
 
         
@@ -445,12 +443,6 @@ export default function HeroTop(props: any) {
         {/* Badges moved to TrustedBadgesSection */}
       </motion.div>
 
-      {/* AI Strategist Panel (renders via portal to document.body) */}
-      <StrategistPanel
-        isOpen={strategistOpen}
-        autoStart={autoStartVoice}
-        onClose={() => setStrategistOpen(false)}
-      />
 
     </section>
   );

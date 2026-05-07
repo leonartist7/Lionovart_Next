@@ -6,14 +6,21 @@ export type VisualizerState = "idle" | "listening" | "speaking" | "thinking";
 
 interface VoiceVisualizerProps {
   state: VisualizerState;
+  inputAmplitude?: number;
+  outputAmplitude?: number;
 }
 
-/**
- * Fluid orb visualizer — replaces the older bar-based design.
- * State-driven; v2 will tap the input/output AnalyserNodes for true
- * amplitude-reactive motion.
- */
-export default function VoiceVisualizer({ state }: VoiceVisualizerProps) {
+export default function VoiceVisualizer({
+  state,
+  inputAmplitude = 0,
+  outputAmplitude = 0,
+}: VoiceVisualizerProps) {
+  // Amplitude-driven halo values — snaps to real signal with 80ms lag
+  const listenHaloScale = 0.95 + inputAmplitude * 0.35;
+  const listenHaloOpacity = 0.12 + inputAmplitude * 0.55;
+  const speakHaloScale = 0.85 + outputAmplitude * 0.4;
+  const speakHaloOpacity = 0.25 + outputAmplitude * 0.6;
+
   return (
     <div className="relative w-[120px] h-[120px] flex items-center justify-center">
       <AnimatePresence>
@@ -21,9 +28,9 @@ export default function VoiceVisualizer({ state }: VoiceVisualizerProps) {
           <motion.div
             key="speaking-halo"
             initial={{ scale: 0.6, opacity: 0 }}
-            animate={{ scale: [0.85, 1.25, 0.85], opacity: [0.35, 0.6, 0.35] }}
+            animate={{ scale: speakHaloScale, opacity: speakHaloOpacity }}
             exit={{ scale: 0.6, opacity: 0 }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+            transition={{ duration: 0.08 }}
             className="absolute inset-0 rounded-full"
             style={{
               background:
@@ -36,9 +43,9 @@ export default function VoiceVisualizer({ state }: VoiceVisualizerProps) {
           <motion.div
             key="listening-halo"
             initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: [0.95, 1.05, 0.95], opacity: [0.18, 0.32, 0.18] }}
+            animate={{ scale: listenHaloScale, opacity: listenHaloOpacity }}
             exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+            transition={{ duration: 0.08 }}
             className="absolute inset-0 rounded-full"
             style={{
               background:

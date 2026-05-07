@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, type RefObject } from "react";
 import type { HandoffData, SessionState, LeadFieldKey } from "@/lib/strategist-config";
-import { STRATEGIST_SYSTEM_PROMPT, STRATEGIST_TOOLS } from "@/lib/strategist-config";
+import { getSystemPrompt, STRATEGIST_TOOLS } from "@/lib/strategist-config";
+import type { NovaLocale } from "@/lib/strategist-config";
+import { trackNovaEvent, NOVA_EVENT } from "@/lib/nova-events";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface LeadData {
   name: string;
@@ -46,6 +49,9 @@ export interface UseStrategistSessionReturn {
   stopSession: () => void;
   sendTextToAgent: (text: string) => void;
   pushContextMessage: (note: string) => void;
+  conversationId: string | null;
+  inputAnalyser: RefObject<AnalyserNode | null>;
+  outputAnalyser: RefObject<AnalyserNode | null>;
 }
 
 const EMPTY_LEAD: LeadData = { name: "", phone: "", email: "", website: "", business_type: "" };
@@ -89,6 +95,7 @@ export function useStrategistSession({
 }: {
   onClose: () => void;
 }): UseStrategistSessionReturn {
+  const { locale } = useLanguage();
   const [isSessionActive, setIsSessionActive] = useState(false);
   const [state, setState] = useState<SessionState>("idle");
   const [leadData, setLeadData] = useState<LeadData>(EMPTY_LEAD);
@@ -121,12 +128,43 @@ export function useStrategistSession({
   const sessionTimerRef = useRef<NodeJS.Timeout | null>(null);
   const fiveMinWarningFiredRef = useRef(false);
 
+  // Analytics + audio analysis
+  const conversationIdRef = useRef<string | null>(null);
+  const distinctIdRef = useRef<string | null>(null);
+  const currentStageRef = useRef<string>("greeting");
+  const inputAnalyserRef = useRef<AnalyserNode | null>(null);
+  const outputAnalyserRef = useRef<AnalyserNode | null>(null);
+  const fieldConfirmationsRef = useRef<FieldConfirmations>(EMPTY_CONFIRMATIONS);
+
+  // Session resume / reconnect
+  const reconnectAttemptsRef = useRef(0);
+  const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     transcriptRef.current = transcript;
   }, [transcript]);
   useEffect(() => {
     leadDataRef.current = leadData;
   }, [leadData]);
+  useEffect(() => {
+    fieldConfirmationsRef.current = fieldConfirmations;
+  }, [fieldConfirmations]);
+
+  // Persist session state for reconnect resume (only while active)
+  useEffect(() => {
+    if (!isSessionActive) return;
+    try {
+      sessionStorage.setItem("nova_session_state", JSON.stringify({
+        conversationId: conversationIdRef.current,
+        leadData,
+        fieldConfirmations,
+        lastStage: currentStageRef.current,
+        transcript: transcript.slice(-10),
+        savedAt: Date.now(),
+      }));
+    } catch { /* storage full or unavailable */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSessionActive, leadData, fieldConfirmations, transcript]);
 
   const toggleMic = useCallback(() => {
     setIsMicMuted((prev) => {
@@ -140,7 +178,7 @@ export function useStrategistSession({
     setFieldConfirmations((prev) => ({ ...prev, [field]: true }));
   }, []);
 
-  const stopSession = useCallback(() => {
+  const stopSession = useCallback((reason = "user") => {
     if (sessionTimerRef.current) {
       clearInterval(sessionTimerRef.current);
       sessionTimerRef.current = null;
@@ -149,9 +187,24 @@ export function useStrategistSession({
 
     const startedAt = sessionStartedAtRef.current;
     const finalTranscript = transcriptRef.current;
+    const confirmedCount = Object.values(fieldConfirmationsRef.current).filter(Boolean).length;
+    if (startedAt) {
+      const durationMs = Date.now() - Date.parse(startedAt);
+      trackNovaEvent(NOVA_EVENT.SESSION_ENDED, {
+        reason,
+        stage_at_end: currentStageRef.current,
+        duration_ms: durationMs,
+        fields_confirmed_count: confirmedCount,
+        conversation_id: conversationIdRef.current,
+        $session_id: distinctIdRef.current,
+      });
+    }
     if (startedAt && finalTranscript.length > 0) {
       const endedAt = new Date().toISOString();
       const durationMs = Date.parse(endedAt) - Date.parse(startedAt);
+      const lead = leadDataRef.current;
+      const confirmations = fieldConfirmationsRef.current;
+      const convId = conversationIdRef.current;
       try {
         fetch("/api/strategist/conversation", {
           method: "POST",
@@ -159,16 +212,31 @@ export function useStrategistSession({
           keepalive: true,
           body: JSON.stringify({
             transcript: finalTranscript,
-            contact: leadDataRef.current,
+            contact: lead,
             session_started_at: startedAt,
             session_ended_at: endedAt,
             duration_ms: durationMs,
             source: "ai_strategist",
             user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
+            conversation_id: convId,
           }),
         }).catch((err) => console.error("[conversation] save failed:", err));
       } catch (err) {
         console.error("[conversation] save threw:", err);
+      }
+
+      // Send summary email if email was confirmed
+      if (confirmations.email && lead.email && convId) {
+        fetch("/api/strategist/summary", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          keepalive: true,
+          body: JSON.stringify({
+            conversation_id: convId,
+            email: lead.email,
+            name: lead.name || "there",
+          }),
+        }).catch((err) => console.error("[summary] request failed:", err));
       }
     }
     sessionStartedAtRef.current = null;
@@ -201,6 +269,8 @@ export function useStrategistSession({
       audioContextRef.current.close();
       audioContextRef.current = null;
     }
+    inputAnalyserRef.current = null;
+    outputAnalyserRef.current = null;
     setIsSessionActive(false);
     setState("idle");
     setIsMicMuted(false);
@@ -235,10 +305,23 @@ export function useStrategistSession({
       micEnabledRef.current = true;
       agentSpeakingRef.current = false;
       currentTurnIdRef.current = 0;
+      reconnectAttemptsRef.current = 0;
       sessionStartedAtRef.current = new Date().toISOString();
       activeSourcesRef.current.forEach((src) => { try { src.stop(); } catch (_) {} });
       activeSourcesRef.current = [];
       nextPlaybackTimeRef.current = 0;
+
+      // Generate stable ids for this session
+      const convId = crypto.randomUUID();
+      conversationIdRef.current = convId;
+      try { sessionStorage.setItem("nova_conversation_id", convId); } catch { /* ignore */ }
+      let distinctId = (() => { try { return sessionStorage.getItem("nova_distinct_id"); } catch { return null; } })();
+      if (!distinctId) {
+        distinctId = crypto.randomUUID();
+        try { sessionStorage.setItem("nova_distinct_id", distinctId); } catch { /* ignore */ }
+      }
+      distinctIdRef.current = distinctId;
+      currentStageRef.current = "greeting";
 
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -267,6 +350,14 @@ export function useStrategistSession({
         processorOptions: { sampleRate: audioCtx.sampleRate },
       });
       processorRef.current = processor;
+
+      // Input analyser — mic amplitude
+      const inputAnalyser = audioCtx.createAnalyser();
+      inputAnalyser.fftSize = 256;
+      inputAnalyser.smoothingTimeConstant = 0.7;
+      micSource.connect(inputAnalyser);
+      inputAnalyserRef.current = inputAnalyser;
+
       micSource.connect(processor);
       processor.connect(audioCtx.destination);
 
@@ -295,7 +386,7 @@ export function useStrategistSession({
                 parts: [
                   {
                     text:
-                      STRATEGIST_SYSTEM_PROMPT +
+                      getSystemPrompt(locale as NovaLocale) +
                       "\n\nCRITICAL DIRECTIVE: Your very first action immediately upon connecting must be a brief 1-sentence verbal greeting from Stage 0. Pick one of the rotation options. Do not wait for the user to speak first.",
                   },
                 ],
@@ -338,6 +429,21 @@ export function useStrategistSession({
           setIsSessionActive(true);
           setState("listening");
 
+          // Stamp server-side session start (only on fresh sessions, not reconnects)
+          if (reconnectAttemptsRef.current === 0 && conversationIdRef.current) {
+            fetch("/api/strategist/conversation/start", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ conversation_id: conversationIdRef.current }),
+            }).catch(() => {});
+          }
+
+          trackNovaEvent(NOVA_EVENT.SESSION_STARTED, {
+            conversation_id: conversationIdRef.current,
+            $session_id: distinctIdRef.current,
+            locale,
+          });
+
           const SESSION_LIMIT_MS = 45 * 60 * 1000;
           const startTime = Date.now();
           sessionTimerRef.current = setInterval(() => {
@@ -370,7 +476,34 @@ export function useStrategistSession({
             }
           }, 1000);
 
-          if (ws.readyState === WebSocket.OPEN) {
+          if (reconnectAttemptsRef.current > 0) {
+            try {
+              const raw = sessionStorage.getItem("nova_session_state");
+              if (raw) {
+                const saved = JSON.parse(raw) as {
+                  savedAt: number;
+                  lastStage: string;
+                  leadData: Record<string, string>;
+                };
+                if (Date.now() - saved.savedAt < 30_000) {
+                  const capturedFields = Object.entries(saved.leadData)
+                    .filter(([, v]) => v)
+                    .map(([k, v]) => `${k}=${v}`)
+                    .join(", ");
+                  ws.send(
+                    JSON.stringify({
+                      realtimeInput: {
+                        text: `[CONTEXT] Session resumed after a brief disconnect. Last stage: ${saved.lastStage}. Captured so far: ${capturedFields || "nothing yet"}. Pick up naturally — don't say "welcome back", just continue the conversation.`,
+                      },
+                    }),
+                  );
+                }
+              }
+            } catch {
+              // ignore storage errors
+            }
+            reconnectAttemptsRef.current = 0;
+          } else if (ws.readyState === WebSocket.OPEN) {
             ws.send(
               JSON.stringify({
                 realtimeInput: {
@@ -476,7 +609,20 @@ export function useStrategistSession({
 
               const bufSource = ctx.createBufferSource();
               bufSource.buffer = audioBuffer;
-              bufSource.connect(ctx.destination);
+
+              // Output analyser — TTS amplitude (create once per context)
+              if (!outputAnalyserRef.current && ctx) {
+                const outAnalyser = ctx.createAnalyser();
+                outAnalyser.fftSize = 256;
+                outAnalyser.smoothingTimeConstant = 0.7;
+                outputAnalyserRef.current = outAnalyser;
+                outAnalyser.connect(ctx.destination);
+              }
+              if (outputAnalyserRef.current) {
+                bufSource.connect(outputAnalyserRef.current);
+              } else {
+                bufSource.connect(ctx.destination);
+              }
 
               const now = ctx.currentTime;
               if (nextPlaybackTimeRef.current < now) {
@@ -558,7 +704,25 @@ export function useStrategistSession({
               const field = (call.args as { field: LeadFieldKey }).field;
               if (field in EMPTY_CONFIRMATIONS) {
                 setFieldConfirmations((prev) => ({ ...prev, [field]: true }));
+                trackNovaEvent(NOVA_EVENT.FIELD_CONFIRMED, {
+                  field,
+                  conversation_id: conversationIdRef.current,
+                  $session_id: distinctIdRef.current,
+                });
               }
+              if (call.id) {
+                toolPromises.push(
+                  Promise.resolve({ id: call.id, name: call.name, response: { ok: true } }),
+                );
+              }
+            } else if (call.name === "mark_stage") {
+              const stage = (call.args as { stage: string }).stage;
+              currentStageRef.current = stage;
+              trackNovaEvent(NOVA_EVENT.STAGE_REACHED, {
+                stage,
+                conversation_id: conversationIdRef.current,
+                $session_id: distinctIdRef.current,
+              });
               if (call.id) {
                 toolPromises.push(
                   Promise.resolve({ id: call.id, name: call.name, response: { ok: true } }),
@@ -586,24 +750,44 @@ export function useStrategistSession({
                 summaryMessage: summary_message,
               });
               setState("handoff");
+              trackNovaEvent(NOVA_EVENT.HANDOFF_OFFERED, {
+                conversation_id: conversationIdRef.current,
+                $session_id: distinctIdRef.current,
+              });
               if (call.id) {
                 toolPromises.push(
                   Promise.resolve({ id: call.id, name: call.name, response: { ok: true } }),
                 );
               }
             } else if (serverTools.includes(call.name)) {
+              trackNovaEvent(NOVA_EVENT.TOOL_CALLED, {
+                tool: call.name,
+                conversation_id: conversationIdRef.current,
+                $session_id: distinctIdRef.current,
+              });
               toolPromises.push(
                 (async () => {
                   try {
                     const res = await fetch("/api/strategist/tool", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ name: call.name, args: call.args }),
+                      body: JSON.stringify({
+                        name: call.name,
+                        args: call.args,
+                        conversation_id: conversationIdRef.current,
+                        distinct_id: distinctIdRef.current,
+                      }),
                     });
                     const result = await res.json();
                     return { id: call.id, name: call.name, response: result };
                   } catch (e: unknown) {
                     const msg = e instanceof Error ? e.message : String(e);
+                    trackNovaEvent(NOVA_EVENT.TOOL_ERROR, {
+                      tool: call.name,
+                      error: msg,
+                      conversation_id: conversationIdRef.current,
+                      $session_id: distinctIdRef.current,
+                    });
                     return { id: call.id, name: call.name, response: { error: msg } };
                   }
                 })(),
@@ -622,6 +806,8 @@ export function useStrategistSession({
 
       ws.onclose = (event) => {
         console.log("[WS] Closed. Code:", event.code, "Reason:", event.reason);
+
+        const closeReason = !hasConnected ? "error" : event.code === 1008 ? "timeout" : event.code === 1000 ? "clean" : "drop";
 
         if (!hasConnected) {
           setSessionNotice({
@@ -652,7 +838,22 @@ export function useStrategistSession({
           });
         }
 
-        stopSession();
+        stopSession(closeReason);
+
+        // Auto-reconnect on unexpected drop (max 3 attempts)
+        if (closeReason === "drop" && reconnectAttemptsRef.current < 3) {
+          reconnectAttemptsRef.current += 1;
+          setSessionNotice({
+            kind: "info" as const,
+            title: "Reconnecting…",
+            message: `Attempting to restore your session (${reconnectAttemptsRef.current}/3)…`,
+            canRestart: false,
+            dismissible: false,
+          });
+          reconnectTimerRef.current = setTimeout(() => {
+            startSession();
+          }, 2000);
+        }
       };
     } catch (err) {
       console.error("[WS] Failed to start session:", err);
@@ -707,5 +908,8 @@ export function useStrategistSession({
     stopSession,
     sendTextToAgent,
     pushContextMessage,
+    conversationId: conversationIdRef.current,
+    inputAnalyser: inputAnalyserRef,
+    outputAnalyser: outputAnalyserRef,
   };
 }

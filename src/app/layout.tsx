@@ -10,6 +10,9 @@ import { VisualEditorShell } from "@/components/visual-editor/VisualEditorShell"
 import { SanityLive } from '@/sanity/lib/live'
 import { VisualEditing } from 'next-sanity/visual-editing'
 import { draftMode } from 'next/headers'
+import { PostHogInit } from "@/components/PostHogInit";
+import { NovaPortalMount } from "@/components/ai-strategist/NovaPortalMount";
+import { StickyCTA } from "@/components/ai-strategist/StickyCTA";
 
 const clashDisplay = localFont({
   src: [
@@ -56,6 +59,7 @@ export default async function RootLayout({
         <link rel="preload" as="image" href="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif" />
       </head>
       <body className="min-h-full flex flex-col">
+        <PostHogInit />
         <LanguageProvider>
           <VisualEditorProvider>
             <VisualEditorHotkey />
@@ -64,6 +68,8 @@ export default async function RootLayout({
               <VisualEditorShell />
             </div>
             <SmoothScrollProvider>{children}</SmoothScrollProvider>
+            <NovaPortalMount />
+            <StickyCTA />
             <SanityLive />
             {(await draftMode()).isEnabled && <VisualEditing />}
           </VisualEditorProvider>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type RefObject } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Mic,
@@ -24,6 +24,11 @@ import type {
 } from "./useStrategistSession";
 import VoiceVisualizer from "./VoiceVisualizer";
 import HandoffCards from "./HandoffCards";
+import { PrivacyGate } from "./PrivacyGate";
+import { RecordingIndicator } from "./RecordingIndicator";
+import { useAudioAmplitude } from "./useAudioAmplitude";
+import { TextInputBar } from "./TextInputBar";
+import { trackNovaEvent, NOVA_EVENT } from "@/lib/nova-events";
 
 export interface ConversationViewProps {
   isSessionActive: boolean;
@@ -41,6 +46,8 @@ export interface ConversationViewProps {
   onStartSession: () => void;
   onStopSession: () => void;
   onSendText: (text: string) => void;
+  inputAnalyser: RefObject<AnalyserNode | null>;
+  outputAnalyser: RefObject<AnalyserNode | null>;
 }
 
 const FIELD_LABELS: Record<LeadFieldKey, string> = {
@@ -70,13 +77,31 @@ export default function ConversationView({
   onStartSession,
   onStopSession,
   onSendText,
+  inputAnalyser,
+  outputAnalyser,
 }: ConversationViewProps) {
   const isListening = state === "listening";
   const isSpeaking = state === "speaking";
   const isHandoff = state === "handoff";
 
+  const inputAmplitude = useAudioAmplitude(inputAnalyser, isSessionActive && !isMicMuted);
+  const outputAmplitude = useAudioAmplitude(outputAnalyser, isSessionActive && isSpeaking);
+
+  const [textMode, setTextMode] = useState(false);
   const [showTranscript, setShowTranscript] = useState(false);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
+
+  const [privacyAccepted, setPrivacyAccepted] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("nova_privacy_accepted") === "1";
+    }
+    return false;
+  });
+
+  const handlePrivacyAccept = () => {
+    sessionStorage.setItem("nova_privacy_accepted", "1");
+    setPrivacyAccepted(true);
+  };
 
   useEffect(() => {
     if (showTranscript) {
@@ -116,7 +141,9 @@ export default function ConversationView({
   return (
     <div className="flex flex-col h-full">
       {/* ── Header ── */}
-      <div className="flex items-center justify-center px-6 py-4 shrink-0 mt-2">
+      <div className="flex items-center justify-between px-6 py-4 shrink-0 mt-2">
+        {/* spacer keeps Nova branding centered */}
+        <div className="w-[90px]" />
         <div className="flex items-center gap-2.5">
           <div className="relative">
             <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-red via-brand-red to-[#a31222] flex items-center justify-center shadow-[0_0_12px_rgba(229,25,42,0.35)]">
@@ -142,6 +169,9 @@ export default function ConversationView({
                 : "LIONOVART"}
             </span>
           </div>
+        </div>
+        <div className="w-[90px] flex items-center justify-end">
+          <RecordingIndicator active={isSessionActive && !isMicMuted} />
         </div>
       </div>
 
@@ -183,6 +213,8 @@ export default function ConversationView({
             onDismiss={onDismissNotice}
             onRestart={onStartSession}
           />
+        ) : !isSessionActive && !privacyAccepted ? (
+          <PrivacyGate onAccept={handlePrivacyAccept} />
         ) : !isSessionActive ? (
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -190,7 +222,7 @@ export default function ConversationView({
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col items-center gap-6 text-center max-w-sm flex-1 justify-center"
           >
-            <VoiceVisualizer state="idle" />
+            <VoiceVisualizer state="idle" inputAmplitude={0} outputAmplitude={0} />
             <div className="flex flex-col gap-2">
               <h3 className="text-2xl font-bold text-white uppercase font-clash leading-tight">
                 Meet Nova
@@ -227,9 +259,9 @@ export default function ConversationView({
               className="flex flex-col items-center gap-3"
             >
               <VoiceVisualizer
-                state={
-                  isSpeaking ? "speaking" : isListening ? "listening" : "thinking"
-                }
+                state={isSpeaking ? "speaking" : isListening ? "listening" : "thinking"}
+                inputAmplitude={inputAmplitude}
+                outputAmplitude={outputAmplitude}
               />
             </motion.div>
 
@@ -352,23 +384,30 @@ export default function ConversationView({
         )}
       </div>
 
+      {/* ── Text input bar (text mode) ── */}
+      {isSessionActive && textMode && (
+        <TextInputBar onSend={onSendText} disabled={!isSessionActive} />
+      )}
+
       {/* ── Footer controls ── */}
       {isSessionActive && (
         <div className="shrink-0 px-6 py-4 flex justify-center items-center gap-4 border-t border-white/[0.06]">
-          <button
-            type="button"
-            onClick={onToggleMic}
-            className={[
-              "w-12 h-12 rounded-full border flex items-center justify-center transition-all active:scale-95",
-              isMicMuted
-                ? "bg-brand-red/15 border-brand-red/40 text-brand-red"
-                : "bg-white/[0.04] border-white/[0.1] text-white/70 hover:bg-white/[0.08] hover:text-white",
-            ].join(" ")}
-            aria-label={isMicMuted ? "Unmute microphone" : "Mute microphone"}
-            aria-pressed={isMicMuted ? "true" : "false"}
-          >
-            {isMicMuted ? <MicOff size={17} /> : <Mic size={17} />}
-          </button>
+          {!textMode && (
+            <button
+              type="button"
+              onClick={onToggleMic}
+              className={[
+                "w-12 h-12 rounded-full border flex items-center justify-center transition-all active:scale-95",
+                isMicMuted
+                  ? "bg-brand-red/15 border-brand-red/40 text-brand-red"
+                  : "bg-white/[0.04] border-white/[0.1] text-white/70 hover:bg-white/[0.08] hover:text-white",
+              ].join(" ")}
+              aria-label={isMicMuted ? "Unmute microphone" : "Mute microphone"}
+              aria-pressed={isMicMuted}
+            >
+              {isMicMuted ? <MicOff size={17} /> : <Mic size={17} />}
+            </button>
+          )}
           <button
             type="button"
             onClick={onStopSession}
@@ -380,6 +419,18 @@ export default function ConversationView({
             aria-label="End session"
           >
             <PhoneOff size={17} />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const next = !textMode;
+              setTextMode(next);
+              if (next && !isMicMuted) onToggleMic();
+              trackNovaEvent(NOVA_EVENT.TEXT_MODE_TOGGLED, { enabled: next });
+            }}
+            className="text-[11px] uppercase tracking-wider text-white/50 hover:text-white/85 transition-colors"
+          >
+            {textMode ? "Use voice" : "Type instead"}
           </button>
         </div>
       )}
@@ -402,6 +453,14 @@ function FieldRow({
   onChange: (v: string) => void;
   onConfirm: () => void;
 }) {
+  // Auto-confirm after 8s of stable value with no edits
+  useEffect(() => {
+    if (!value) return;
+    const t = setTimeout(onConfirm, 8000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
   return (
     <div
       className={[

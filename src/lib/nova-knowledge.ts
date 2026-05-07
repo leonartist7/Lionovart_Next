@@ -172,6 +172,8 @@ export const NOVA_KNOWLEDGE = {
       "Other agencies — we love working alongside, not over. We white-label brand and web for several agencies who'd rather hand off the craft and stay focused on their lane.",
     personal_brand:
       "Personal brands — the work is finding the one signature that's actually you, not a template. Once you've got that, everything else compounds: posts, partnerships, press.",
+    default:
+      "Most founders we partner with — across every niche — see their biggest gains not from more spend, but from tightening their positioning. The story before the click matters more than the click itself.",
   } as Record<string, string>,
 
   /**

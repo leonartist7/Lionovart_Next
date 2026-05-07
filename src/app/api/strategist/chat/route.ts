@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
-import { STRATEGIST_SYSTEM_PROMPT, STRATEGIST_TOOLS } from "@/lib/strategist-config";
+import { getSystemPrompt, STRATEGIST_TOOLS } from "@/lib/strategist-config";
 import type { HistoryEntry } from "@/lib/strategist-config";
 
 /* ─── Types ──────────────────────────────────────────────────── */
@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
         const chat = ai.chats.create({
           model,
           config: {
-            systemInstruction: STRATEGIST_SYSTEM_PROMPT,
+            systemInstruction: getSystemPrompt("en"),
             tools: STRATEGIST_TOOLS,
           },
           history,
