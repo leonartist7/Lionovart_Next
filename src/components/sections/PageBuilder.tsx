@@ -66,7 +66,7 @@ export function PageBuilder({ blocks }: { blocks: SanityBlock[] }) {
           case 'comparison':
             return <NovaSection key={block._key} id="comparison"><Comparison {...block} /></NovaSection>;
           case 'problems':
-            return <NovaSection key={block._key} id="problems"><ProblemsSolvedSection {...block} /></NovaSection>;
+            return <NovaSection key={block._key} id="problems"><ProblemsSolvedSection /></NovaSection>;
           case 'faq':
             return <NovaSection key={block._key} id="faq"><FAQ {...block} /></NovaSection>;
           default:
