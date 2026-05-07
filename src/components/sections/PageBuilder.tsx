@@ -12,24 +12,39 @@ import Process from "@/components/sections/Process";
 import Testimonials from "@/components/sections/Testimonials";
 import FAQ from "@/components/sections/FAQ";
 
-export function PageBuilder({ blocks }: { blocks: any[] }) {
+/**
+ * Tag wrapper — lets NOVA's section tracker observe which section is in view
+ * and lets the `scroll_to_section` tool find the target element.
+ *
+ * Section ids stay in sync with `NOVA_KNOWLEDGE.page_sections` and the prompt.
+ */
+function NovaSection({ id, children }: { id: string; children: React.ReactNode }) {
+  return (
+    <div data-nova-section={id}>
+      {children}
+    </div>
+  );
+}
+
+type SanityBlock = { _type?: string; _key?: string; [key: string]: unknown };
+
+export function PageBuilder({ blocks }: { blocks: SanityBlock[] }) {
   if (!blocks || blocks.length === 0) {
-    // Fallback to static if no content is published yet
     return (
       <>
-        <HeroTop />
+        <NovaSection id="hero"><HeroTop /></NovaSection>
         <ImageMarquee />
         <TrustedBadgesSection />
-        <AboutUsHalf />
-        <LumaShowcase />
-        <ProblemsSolvedSection />
-        <Services />
-        <Portfolio />
-        <Process />
-        <Comparison />
-        <Testimonials />
+        <NovaSection id="about"><AboutUsHalf /></NovaSection>
+        <NovaSection id="showcase"><LumaShowcase /></NovaSection>
+        <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
+        <NovaSection id="services"><Services /></NovaSection>
+        <NovaSection id="portfolio"><Portfolio /></NovaSection>
+        <NovaSection id="process"><Process /></NovaSection>
+        <NovaSection id="comparison"><Comparison /></NovaSection>
+        <NovaSection id="testimonials"><Testimonials /></NovaSection>
         <MarqueeSlanted />
-        <FAQ />
+        <NovaSection id="faq"><FAQ /></NovaSection>
       </>
     );
   }
@@ -39,21 +54,21 @@ export function PageBuilder({ blocks }: { blocks: any[] }) {
       {blocks.map((block) => {
         switch (block._type) {
           case 'heroTop':
-            return <HeroTop key={block._key} {...block} />;
+            return <NovaSection key={block._key} id="hero"><HeroTop {...block} /></NovaSection>;
           case 'aboutUsHalf':
-            return <AboutUsHalf key={block._key} {...block} />;
+            return <NovaSection key={block._key} id="about"><AboutUsHalf {...block} /></NovaSection>;
           case 'services':
-            return <Services key={block._key} {...block} />;
+            return <NovaSection key={block._key} id="services"><Services {...block} /></NovaSection>;
           case 'process':
-            return <Process key={block._key} {...block} />;
+            return <NovaSection key={block._key} id="process"><Process {...block} /></NovaSection>;
           case 'testimonials':
-            return <Testimonials key={block._key} {...block} />;
+            return <NovaSection key={block._key} id="testimonials"><Testimonials {...block} /></NovaSection>;
           case 'comparison':
-            return <Comparison key={block._key} {...block} />;
+            return <NovaSection key={block._key} id="comparison"><Comparison {...block} /></NovaSection>;
           case 'problems':
-            return <ProblemsSolvedSection key={block._key} {...block} />;
+            return <NovaSection key={block._key} id="problems"><ProblemsSolvedSection {...block} /></NovaSection>;
           case 'faq':
-            return <FAQ key={block._key} {...block} />;
+            return <NovaSection key={block._key} id="faq"><FAQ {...block} /></NovaSection>;
           default:
             return null;
         }

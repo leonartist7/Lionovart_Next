@@ -11,6 +11,7 @@ interface LeadBody {
   urgency?: "low" | "medium" | "high";
   user_agent?: string;
   source?: string;
+  conversation_id?: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { name, contact, contact_type, project_summary, language_detected, urgency, user_agent, source } = body;
+  const { name, contact, contact_type, project_summary, language_detected, urgency, user_agent, source, conversation_id } = body;
 
   if (!name || !contact) {
     return NextResponse.json({ error: "name and contact are required" }, { status: 400 });
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
       req.headers.get("x-real-ip") ??
       "unknown";
 
-    await adminDb.collection("leads").add({
+    const docRef = await adminDb.collection("leads").add({
       name,
       contact,
       contact_type: contact_type ?? "unknown",
@@ -47,11 +48,12 @@ export async function POST(req: NextRequest) {
       urgency: urgency ?? "medium",
       source: source ?? "ai_strategist",
       user_agent: user_agent ?? "unknown",
+      conversation_id: conversation_id ?? null,
       ip,
       created_at: FieldValue.serverTimestamp(),
     });
 
-    return NextResponse.json({ saved: true }, { status: 200 });
+    return NextResponse.json({ saved: true, id: docRef.id }, { status: 200 });
   } catch (err) {
     console.error("[lead route] Firestore write failed:", err);
     // Return 200 so the chat flow is not disrupted

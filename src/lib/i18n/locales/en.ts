@@ -330,7 +330,7 @@ export const en = {
       {
         title: "Brand Identity & Strategy",
         description:
-          "Your brand is the first thing people judge — and the last they forget. We create identity systems that communicate authority, build instant trust, and hold together across every touchpoint — digital and physical. We don't just design how your brand looks — we shape how it sounds. Audio logos, brand voice, sonic identity systems.",
+          "Your brand is the first thing people judge — and the last they forget. We build identity systems that command instant authority across every touchpoint, turning recognition into revenue.",
         deliverables: [
           "Logo System",
           "Brand Guidelines",
@@ -342,7 +342,7 @@ export const en = {
       {
         title: "Web & App Development",
         description:
-          "Performance-first websites and applications built to convert. Fast, beautiful, and designed to turn visitors into booked calls — with measurable results from day one. From marketing sites to custom web apps and mobile experiences, we build what your business actually needs.",
+          "A slow or generic website costs you clients every day. We build fast, conversion-focused sites and apps that turn visitors into booked calls — with measurable results from day one.",
         deliverables: [
           "UI/UX Design",
           "Web Development",
@@ -355,7 +355,7 @@ export const en = {
       {
         title: "Video Production",
         description:
-          "Brand films, product showcases, reels, and social content. We handle writing, shooting, and editing — delivering assets that stop the scroll and tell your story. With original music composition when your project needs a sonic identity, not stock audio.",
+          "Brands that move people get chosen over ones that don't. We produce brand films, reels, and social content that stop the scroll and make your business impossible to ignore.",
         deliverables: [
           "Brand Films",
           "Social Reels",
@@ -367,7 +367,7 @@ export const en = {
       {
         title: "Social Media & Content",
         description:
-          "Consistent, brand-true content that builds authority and drives engagement. Strategy, creative direction, copywriting, and monthly calendars — all managed.",
+          "Silence on social media means your competitors own that space. We run your content end-to-end — strategy, creative, copy, and calendar — so your brand stays top of mind every month.",
         deliverables: [
           "Content Strategy",
           "Creative Direction",
@@ -378,7 +378,7 @@ export const en = {
       {
         title: "Print & Physical Branding",
         description:
-          "Your brand can't live on screens alone. We design and produce the physical materials that make your business memorable in the real world — from business cards people keep to inflatable installations that command attention at events. With direct access to one of Canada's leading balloon production facilities, we deliver physical brand experiences most agencies can't.",
+          "The businesses people remember have a presence beyond the screen. We design and produce print materials, packaging, and physical brand experiences that make your company impossible to overlook in the real world.",
         deliverables: [
           "Business Cards & Stationery",
           "Packaging Design",
@@ -394,7 +394,7 @@ export const en = {
       {
         title: "Smart Systems & AI",
         description:
-          "Intelligent systems that work while you sleep. From AI voice receptionists that answer calls 24/7 to automated lead capture, custom customer agents, and workflow integrations — we build the automations that turn manual tasks into 24/7 growth. Human-led. Brand-aligned. Always on.",
+          "Every unanswered call and manual task is money left on the table. We build AI voice agents, lead automation, and smart workflows that keep your business running and converting 24/7 — without adding headcount.",
         deliverables: [
           "AI Voice Agents",
           "Virtual Receptionists",
@@ -407,7 +407,7 @@ export const en = {
       {
         title: "Growth Marketing",
         description:
-          "Visibility where it counts. We combine search optimization, local SEO, Google Business management, and strategic consulting so your business gets found by the right people — consistently, not accidentally. From ranking in search to owning your local market, we build the systems that bring qualified leads to your door.",
+          "If your business isn't showing up when buyers are searching, your competitors are taking those clients. We combine SEO, local search, paid ads, and strategic consulting to make sure the right people find you — consistently.",
         deliverables: [
           "SEO & AEO Optimization",
           "Google Business Management",

@@ -1,18 +1,32 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import type { HandoffData, SessionState } from "@/lib/strategist-config";
+import type { HandoffData, SessionState, LeadFieldKey } from "@/lib/strategist-config";
 import { STRATEGIST_SYSTEM_PROMPT, STRATEGIST_TOOLS } from "@/lib/strategist-config";
 
 export interface LeadData {
   name: string;
   phone: string;
   email: string;
+  website: string;
+  business_type: string;
 }
+
+export type FieldConfirmations = Record<LeadFieldKey, boolean>;
 
 export interface ChatMessage {
   role: "user" | "agent";
   text: string;
+}
+
+export type SessionNoticeKind = "info" | "warning" | "ended" | "error";
+
+export interface SessionNotice {
+  kind: SessionNoticeKind;
+  title: string;
+  message: string;
+  canRestart?: boolean;
+  dismissible?: boolean;
 }
 
 export interface UseStrategistSessionReturn {
@@ -20,13 +34,28 @@ export interface UseStrategistSessionReturn {
   state: SessionState;
   leadData: LeadData;
   setLeadData: (updater: (prev: LeadData) => LeadData) => void;
+  fieldConfirmations: FieldConfirmations;
+  confirmFieldLocal: (field: LeadFieldKey) => void;
   handoffData: HandoffData | null;
   transcript: ChatMessage[];
-  sessionWarning: string | null;
+  sessionNotice: SessionNotice | null;
+  dismissNotice: () => void;
+  isMicMuted: boolean;
+  toggleMic: () => void;
   startSession: () => Promise<void>;
   stopSession: () => void;
   sendTextToAgent: (text: string) => void;
+  pushContextMessage: (note: string) => void;
 }
+
+const EMPTY_LEAD: LeadData = { name: "", phone: "", email: "", website: "", business_type: "" };
+const EMPTY_CONFIRMATIONS: FieldConfirmations = {
+  name: false,
+  phone: false,
+  email: false,
+  website: false,
+  business_type: false,
+};
 
 function arrayBufferToBase64(buffer: ArrayBuffer) {
   let binary = "";
@@ -46,13 +75,32 @@ function base64ToInt16Array(base64: string) {
   return new Int16Array(bytes.buffer);
 }
 
-export function useStrategistSession({ onClose }: { onClose: () => void }): UseStrategistSessionReturn {
+/** Smooth-scroll to a [data-nova-section="<id>"] element on the page. */
+function scrollToNovaSection(sectionId: string): boolean {
+  if (typeof document === "undefined") return false;
+  const target = document.querySelector(`[data-nova-section="${sectionId}"], #${sectionId}`);
+  if (!target) return false;
+  target.scrollIntoView({ behavior: "smooth", block: "start" });
+  return true;
+}
+
+export function useStrategistSession({
+  onClose,
+}: {
+  onClose: () => void;
+}): UseStrategistSessionReturn {
   const [isSessionActive, setIsSessionActive] = useState(false);
   const [state, setState] = useState<SessionState>("idle");
-  const [leadData, setLeadData] = useState<LeadData>({ name: "", phone: "", email: "" });
+  const [leadData, setLeadData] = useState<LeadData>(EMPTY_LEAD);
+  const [fieldConfirmations, setFieldConfirmations] = useState<FieldConfirmations>(
+    EMPTY_CONFIRMATIONS,
+  );
   const [handoffData, setHandoffData] = useState<HandoffData | null>(null);
   const [transcript, setTranscript] = useState<ChatMessage[]>([]);
-  const [sessionWarning, setSessionWarning] = useState<string | null>(null);
+  const [sessionNotice, setSessionNotice] = useState<SessionNotice | null>(null);
+  const [isMicMuted, setIsMicMuted] = useState(false);
+
+  const dismissNotice = useCallback(() => setSessionNotice(null), []);
 
   const wsRef = useRef<WebSocket | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -62,8 +110,35 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
   const nextPlaybackTimeRef = useRef(0);
   const activeSourcesRef = useRef<AudioBufferSourceNode[]>([]);
 
+  const micEnabledRef = useRef(true);
+  const agentSpeakingRef = useRef(false);
+  const currentTurnIdRef = useRef(0);
+
+  const sessionStartedAtRef = useRef<string | null>(null);
+  const transcriptRef = useRef<ChatMessage[]>([]);
+  const leadDataRef = useRef<LeadData>(EMPTY_LEAD);
+
   const sessionTimerRef = useRef<NodeJS.Timeout | null>(null);
   const fiveMinWarningFiredRef = useRef(false);
+
+  useEffect(() => {
+    transcriptRef.current = transcript;
+  }, [transcript]);
+  useEffect(() => {
+    leadDataRef.current = leadData;
+  }, [leadData]);
+
+  const toggleMic = useCallback(() => {
+    setIsMicMuted((prev) => {
+      const next = !prev;
+      micEnabledRef.current = !next;
+      return next;
+    });
+  }, []);
+
+  const confirmFieldLocal = useCallback((field: LeadFieldKey) => {
+    setFieldConfirmations((prev) => ({ ...prev, [field]: true }));
+  }, []);
 
   const stopSession = useCallback(() => {
     if (sessionTimerRef.current) {
@@ -72,11 +147,39 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
     }
     fiveMinWarningFiredRef.current = false;
 
+    const startedAt = sessionStartedAtRef.current;
+    const finalTranscript = transcriptRef.current;
+    if (startedAt && finalTranscript.length > 0) {
+      const endedAt = new Date().toISOString();
+      const durationMs = Date.parse(endedAt) - Date.parse(startedAt);
+      try {
+        fetch("/api/strategist/conversation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          keepalive: true,
+          body: JSON.stringify({
+            transcript: finalTranscript,
+            contact: leadDataRef.current,
+            session_started_at: startedAt,
+            session_ended_at: endedAt,
+            duration_ms: durationMs,
+            source: "ai_strategist",
+            user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
+          }),
+        }).catch((err) => console.error("[conversation] save failed:", err));
+      } catch (err) {
+        console.error("[conversation] save threw:", err);
+      }
+    }
+    sessionStartedAtRef.current = null;
+
     activeSourcesRef.current.forEach((src) => {
       try { src.stop(); } catch (_) {}
     });
     activeSourcesRef.current = [];
     nextPlaybackTimeRef.current = 0;
+    agentSpeakingRef.current = false;
+    currentTurnIdRef.current = 0;
 
     if (wsRef.current) {
       wsRef.current.onmessage = null;
@@ -100,10 +203,10 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
     }
     setIsSessionActive(false);
     setState("idle");
-    setSessionWarning(null);
+    setIsMicMuted(false);
+    micEnabledRef.current = true;
   }, []);
 
-  // Use sendRealtimeInput text format — recommended by Gemini 3.1 migration guide
   const sendTextToAgent = useCallback((text: string) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({ realtimeInput: { text } }));
@@ -111,15 +214,32 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
     }
   }, []);
 
+  /**
+   * Pushes a system-style note into the agent's context without showing it
+   * in the user-visible transcript. Used by the page-section tracker.
+   */
+  const pushContextMessage = useCallback((note: string) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ realtimeInput: { text: note } }));
+    }
+  }, []);
+
   const startSession = useCallback(async () => {
     try {
       setTranscript([]);
-      setSessionWarning(null);
+      setSessionNotice(null);
+      setIsMicMuted(false);
+      setLeadData(EMPTY_LEAD);
+      setFieldConfirmations(EMPTY_CONFIRMATIONS);
+      setHandoffData(null);
+      micEnabledRef.current = true;
+      agentSpeakingRef.current = false;
+      currentTurnIdRef.current = 0;
+      sessionStartedAtRef.current = new Date().toISOString();
       activeSourcesRef.current.forEach((src) => { try { src.stop(); } catch (_) {} });
       activeSourcesRef.current = [];
       nextPlaybackTimeRef.current = 0;
 
-      // 1. Request mic (must be first on iOS Safari for immediate user-gesture binding)
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           channelCount: 1,
@@ -130,10 +250,10 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       });
       streamRef.current = stream;
 
-      // 2. AudioContext at 16kHz — matches Gemini's required input rate
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({
-        sampleRate: 16000,
-      });
+      const Ctor =
+        window.AudioContext ||
+        (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      const audioCtx = new Ctor!({ sampleRate: 16000 });
       audioContextRef.current = audioCtx;
 
       if (audioCtx.state === "suspended") {
@@ -153,7 +273,6 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       setIsSessionActive(true);
       setState("thinking");
 
-      // 3. Connect WebSocket to the local dev proxy or production server
       const host = window.location.hostname;
       const isLocal = host === "localhost" || host === "127.0.0.1";
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -168,7 +287,6 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
       let hasConnected = false;
 
       ws.onopen = () => {
-        // Setup payload — transcriptions enabled so the conversation UI shows text
         ws.send(
           JSON.stringify({
             type: "setup",
@@ -178,7 +296,7 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
                   {
                     text:
                       STRATEGIST_SYSTEM_PROMPT +
-                      "\n\nCRITICAL DIRECTIVE: Your very first action immediately upon connecting must be a warm, brief 1-sentence verbal greeting. Introduce yourself as the LIONOVART AI Strategist and ask what they are building. Do not wait for the user to speak first.",
+                      "\n\nCRITICAL DIRECTIVE: Your very first action immediately upon connecting must be a brief 1-sentence verbal greeting from Stage 0. Pick one of the rotation options. Do not wait for the user to speak first.",
                   },
                 ],
               },
@@ -191,36 +309,40 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
                   },
                 },
               },
-              // Transcription — surfaces user speech and AI speech as text in the UI
               inputAudioTranscription: {},
               outputAudioTranscription: {},
+              sessionResumption: {},
             },
-          })
+          }),
         );
       };
 
       ws.onmessage = async (event) => {
         const data = JSON.parse(event.data);
 
-        // ── Backend / proxy error ────────────────────────────────────
         if (data.type === "error") {
           console.error("[WS] Backend error:", data.message);
+          setSessionNotice({
+            kind: "error",
+            title: "Connection issue",
+            message: "We couldn't reach Nova right now. Please try again in a moment.",
+            canRestart: true,
+            dismissible: true,
+          });
           stopSession();
-          alert("Could not connect to AI Voice Agent: " + data.message);
           return;
         }
 
-        // ── Setup confirmed ──────────────────────────────────────────
         if (data.type === "setup_complete") {
           hasConnected = true;
           setIsSessionActive(true);
           setState("listening");
 
-          // 30-minute session timer with 5-minute wrap-up warning
+          const SESSION_LIMIT_MS = 45 * 60 * 1000;
           const startTime = Date.now();
           sessionTimerRef.current = setInterval(() => {
             const elapsed = Date.now() - startTime;
-            const timeLeftMs = 30 * 60 * 1000 - elapsed;
+            const timeLeftMs = SESSION_LIMIT_MS - elapsed;
 
             if (timeLeftMs <= 300_000 && !fiveMinWarningFiredRef.current) {
               fiveMinWarningFiredRef.current = true;
@@ -228,35 +350,44 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
                 wsRef.current.send(
                   JSON.stringify({
                     realtimeInput: {
-                      text: "SYSTEM ALERT: The conversation will automatically disconnect in exactly 5 minutes. Please briefly mention to the user that we only have 5 minutes left to wrap up our thoughts.",
+                      text: "SYSTEM ALERT: The conversation will automatically disconnect in exactly 5 minutes. Briefly mention to the user you only have 5 minutes left and start steering toward the handoff.",
                     },
-                  })
+                  }),
                 );
               }
             }
 
             if (timeLeftMs <= 0) {
+              setSessionNotice({
+                kind: "ended",
+                title: "Session complete",
+                message:
+                  "We've wrapped up this 45-minute consultation. Book a follow-up call to keep going — Leon will have full context ready.",
+                canRestart: true,
+                dismissible: true,
+              });
               stopSession();
-              alert("The 30-minute consultation has concluded. Please book a follow-up call to continue!");
             }
           }, 1000);
 
-          // Trigger the AI greeting — use sendRealtimeInput per Gemini 3.1 migration guide
           if (ws.readyState === WebSocket.OPEN) {
             ws.send(
               JSON.stringify({
                 realtimeInput: {
-                  text: "Hello. Please greet me out loud as instructed.",
+                  text: "Hello. Please greet me out loud as instructed in Stage 0.",
                 },
-              })
+              }),
             );
           }
 
-          // Start streaming mic audio once setup is confirmed
           processor.port.onmessage = (e) => {
-            if (e.data.type === "audio" && ws.readyState === WebSocket.OPEN) {
+            if (
+              e.data.type === "audio" &&
+              ws.readyState === WebSocket.OPEN &&
+              micEnabledRef.current &&
+              !agentSpeakingRef.current
+            ) {
               const base64Audio = arrayBufferToBase64(e.data.pcm.buffer);
-              // Correct SDK format: { audio: { mimeType, data } } — not legacy mediaChunks
               ws.send(
                 JSON.stringify({
                   realtimeInput: {
@@ -265,29 +396,33 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
                       data: base64Audio,
                     },
                   },
-                })
+                }),
               );
             }
           };
           return;
         }
 
-        // ── Gemini session-ending warning ────────────────────────────
         if (data.goAway) {
           const timeLeft = data.goAway.timeLeft ?? "soon";
-          setSessionWarning(`Session ending in ${timeLeft} — wrapping up now.`);
+          setSessionNotice({
+            kind: "warning",
+            title: "Wrapping up soon",
+            message: `Heads up — this session ends in ${timeLeft}. We'll save everything you've shared so far.`,
+            dismissible: true,
+          });
         }
 
-        // ── Barge-in: user interrupted the AI ───────────────────────
         if (data.serverContent?.interrupted) {
+          currentTurnIdRef.current += 1;
           activeSourcesRef.current.forEach((src) => { try { src.stop(); } catch (_) {} });
           activeSourcesRef.current = [];
           if (audioContextRef.current) {
             nextPlaybackTimeRef.current = audioContextRef.current.currentTime;
           }
+          agentSpeakingRef.current = false;
         }
 
-        // ── User speech transcription ────────────────────────────────
         if (data.serverContent?.inputTranscription?.text) {
           const text: string = data.serverContent.inputTranscription.text;
           setTranscript((prev) => {
@@ -302,7 +437,6 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
           });
         }
 
-        // ── AI speech transcription ──────────────────────────────────
         if (data.serverContent?.outputTranscription?.text) {
           const text: string = data.serverContent.outputTranscription.text;
           setTranscript((prev) => {
@@ -317,26 +451,26 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
           });
         }
 
-        // ── Audio + text parts from the model ───────────────────────
         if (data.serverContent?.modelTurn?.parts) {
           const parts = data.serverContent.modelTurn.parts;
           for (const part of parts) {
             if (part.inlineData?.mimeType?.startsWith("audio/pcm")) {
+              const turnAtDecode = currentTurnIdRef.current;
               const pcm16 = base64ToInt16Array(part.inlineData.data);
               const ctx = audioContextRef.current;
               if (!ctx) continue;
+
+              if (turnAtDecode !== currentTurnIdRef.current) continue;
 
               if (ctx.state === "suspended") {
                 ctx.resume().catch((err) => console.error("[Audio] Failed to resume context:", err));
               }
 
-              // Int16 → Float32
               const float32 = new Float32Array(pcm16.length);
               for (let i = 0; i < pcm16.length; i++) {
                 float32[i] = pcm16[i] / 32768.0;
               }
 
-              // Buffer at 24kHz — Gemini outputs 24kHz audio
               const audioBuffer = ctx.createBuffer(1, float32.length, 24000);
               audioBuffer.getChannelData(0).set(float32);
 
@@ -348,8 +482,13 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
               if (nextPlaybackTimeRef.current < now) {
                 nextPlaybackTimeRef.current = now;
               }
+
+              if (turnAtDecode !== currentTurnIdRef.current) continue;
+
               bufSource.start(nextPlaybackTimeRef.current);
               nextPlaybackTimeRef.current += audioBuffer.duration;
+
+              agentSpeakingRef.current = true;
 
               activeSourcesRef.current.push(bufSource);
               bufSource.onended = () => {
@@ -358,7 +497,6 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
 
               setState("speaking");
             } else if (part.text) {
-              // Text parts — fallback for non-audio responses
               setTranscript((prev) => {
                 const next = [...prev];
                 const last = next[next.length - 1];
@@ -373,25 +511,73 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
           }
         }
 
-        // ── Turn complete → back to listening ───────────────────────
         if (data.serverContent?.turnComplete) {
+          agentSpeakingRef.current = false;
+          currentTurnIdRef.current += 1;
           setState("listening");
         }
 
-        // ── Tool calls from the model ────────────────────────────────
         if (data.toolCall) {
           const calls = data.toolCall.functionCalls;
-          const serverTools = ["fetch_user_memory", "save_lead_data", "generate_whatsapp_link", "fetch_booking_link"];
+          const serverTools = [
+            "fetch_user_memory",
+            "save_lead_data",
+            "generate_whatsapp_link",
+            "fetch_booking_link",
+            "lookup_site_info",
+            "scrape_website",
+          ];
           const toolPromises: Promise<{ id: string; name: string; response: unknown }>[] = [];
 
           for (const call of calls) {
             if (call.name === "update_screen_info") {
-              const { name, phone, email } = call.args as Record<string, string>;
+              const args = call.args as Partial<LeadData>;
               setLeadData((prev) => ({
-                name: name !== undefined ? name : prev.name,
-                phone: phone !== undefined ? phone : prev.phone,
-                email: email !== undefined ? email : prev.email,
+                name: args.name !== undefined ? args.name : prev.name,
+                phone: args.phone !== undefined ? args.phone : prev.phone,
+                email: args.email !== undefined ? args.email : prev.email,
+                website: args.website !== undefined ? args.website : prev.website,
+                business_type:
+                  args.business_type !== undefined ? args.business_type : prev.business_type,
               }));
+              // Updating a field invalidates its prior confirmation
+              setFieldConfirmations((prev) => {
+                const next = { ...prev };
+                (Object.keys(args) as LeadFieldKey[]).forEach((k) => {
+                  if (k in next) next[k] = false;
+                });
+                return next;
+              });
+              // Fire-and-forget ack so Gemini knows the tool ran
+              if (call.id) {
+                toolPromises.push(
+                  Promise.resolve({ id: call.id, name: call.name, response: { ok: true } }),
+                );
+              }
+            } else if (call.name === "confirm_field") {
+              const field = (call.args as { field: LeadFieldKey }).field;
+              if (field in EMPTY_CONFIRMATIONS) {
+                setFieldConfirmations((prev) => ({ ...prev, [field]: true }));
+              }
+              if (call.id) {
+                toolPromises.push(
+                  Promise.resolve({ id: call.id, name: call.name, response: { ok: true } }),
+                );
+              }
+            } else if (call.name === "scroll_to_section") {
+              const sectionId = (call.args as { section_id: string }).section_id;
+              const ok = scrollToNovaSection(sectionId);
+              if (call.id) {
+                toolPromises.push(
+                  Promise.resolve({
+                    id: call.id,
+                    name: call.name,
+                    response: ok
+                      ? { ok: true, section: sectionId }
+                      : { ok: false, error: "Section not found on this page." },
+                  }),
+                );
+              }
             } else if (call.name === "show_handoff_cards") {
               const { whatsapp_url, booking_url, summary_message } = call.args as Record<string, string>;
               setHandoffData({
@@ -400,6 +586,11 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
                 summaryMessage: summary_message,
               });
               setState("handoff");
+              if (call.id) {
+                toolPromises.push(
+                  Promise.resolve({ id: call.id, name: call.name, response: { ok: true } }),
+                );
+              }
             } else if (serverTools.includes(call.name)) {
               toolPromises.push(
                 (async () => {
@@ -415,7 +606,7 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
                     const msg = e instanceof Error ? e.message : String(e);
                     return { id: call.id, name: call.name, response: { error: msg } };
                   }
-                })()
+                })(),
               );
             }
           }
@@ -431,16 +622,64 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
 
       ws.onclose = (event) => {
         console.log("[WS] Closed. Code:", event.code, "Reason:", event.reason);
+
         if (!hasConnected) {
-          alert(
-            `Could not connect to Voice Server at ${wsUrl}\n\nCode: ${event.code}, Reason: ${event.reason || "None"}.\nEnsure GEMINI_API_KEY is set in the environment.`
-          );
+          setSessionNotice({
+            kind: "error",
+            title: "Couldn't reach Nova",
+            message:
+              "Our voice service is briefly unavailable. Please try again in a moment, or reach us on WhatsApp instead.",
+            canRestart: true,
+            dismissible: true,
+          });
+        } else if (event.code === 1008) {
+          setSessionNotice({
+            kind: "ended",
+            title: "Conversation paused",
+            message:
+              "Your session reached its time limit. Everything you shared has been saved — start a new conversation to keep going.",
+            canRestart: true,
+            dismissible: true,
+          });
+        } else if (event.code !== 1000) {
+          setSessionNotice({
+            kind: "ended",
+            title: "Conversation ended",
+            message:
+              "We've ended this session. Your conversation is saved — feel free to start a new one anytime.",
+            canRestart: true,
+            dismissible: true,
+          });
         }
+
         stopSession();
       };
     } catch (err) {
       console.error("[WS] Failed to start session:", err);
-      alert(`Error starting session: ${err instanceof Error ? err.message : String(err)}`);
+      const msg = err instanceof Error ? err.message : String(err);
+      const isPermissionError =
+        msg.toLowerCase().includes("permission") ||
+        msg.toLowerCase().includes("denied") ||
+        msg.toLowerCase().includes("notallowed");
+      setSessionNotice(
+        isPermissionError
+          ? {
+              kind: "error",
+              title: "Microphone access needed",
+              message:
+                "Nova needs permission to use your microphone. Please allow access in your browser and try again.",
+              canRestart: true,
+              dismissible: true,
+            }
+          : {
+              kind: "error",
+              title: "Couldn't start the session",
+              message:
+                "Something went wrong starting your voice conversation. Please try again — if it keeps happening, reach us on WhatsApp.",
+              canRestart: true,
+              dismissible: true,
+            },
+      );
       stopSession();
     }
   }, [stopSession]);
@@ -456,11 +695,17 @@ export function useStrategistSession({ onClose }: { onClose: () => void }): UseS
     state,
     leadData,
     setLeadData,
+    fieldConfirmations,
+    confirmFieldLocal,
     handoffData,
     transcript,
-    sessionWarning,
+    sessionNotice,
+    dismissNotice,
+    isMicMuted,
+    toggleMic,
     startSession,
     stopSession,
     sendTextToAgent,
+    pushContextMessage,
   };
 }
