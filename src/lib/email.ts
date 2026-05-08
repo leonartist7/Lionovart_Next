@@ -2,7 +2,7 @@ import "server-only";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM = "Nova by LIONOVART <nova@lionovart.com>";
+const FROM = "Nova by LIONOVART <nova@nova.lionovart.com>";
 const LEON_EMAIL = "leonartist.cs@gmail.com";
 
 export async function sendSessionSummaryEmail({
