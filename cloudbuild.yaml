@@ -52,8 +52,12 @@ steps:
       - '--allow-unauthenticated'
       - '--timeout'
       - '1800'
+      # Only map vars that exist as SECRETS in Secret Manager.
+      # Plain env vars (FIREBASE_ADMIN_CLIENT_EMAIL, FIREBASE_PROJECT_ID,
+      # WHATSAPP_NUMBER, BOOKING_URL) are set directly in Cloud Run and
+      # survive redeploys automatically — do NOT include them here.
       - '--update-secrets'
-      - 'RESEND_API_KEY=RESEND_API_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,SANITY_API_READ_TOKEN=SANITY_API_READ_TOKEN:latest,FIREBASE_ADMIN_PRIVATE_KEY=FIREBASE_ADMIN_PRIVATE_KEY:latest,FIREBASE_ADMIN_CLIENT_EMAIL=FIREBASE_ADMIN_CLIENT_EMAIL:latest,FIREBASE_PROJECT_ID=FIREBASE_PROJECT_ID:latest,WHATSAPP_NUMBER=WHATSAPP_NUMBER:latest,BOOKING_URL=BOOKING_URL:latest'
+      - 'RESEND_API_KEY=RESEND_API_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,SANITY_API_READ_TOKEN=SANITY_API_READ_TOKEN:latest,FIREBASE_ADMIN_PRIVATE_KEY=FIREBASE_ADMIN_PRIVATE_KEY:latest'
 
 options:
   logging: CLOUD_LOGGING_ONLY
