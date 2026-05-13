@@ -1,26 +1,59 @@
 steps:
   # Step 1: Build the container image
+  # Only NEXT_PUBLIC_* vars need to be --build-arg (baked in by Next.js at build time)
+  # Server-side secrets (RESEND_API_KEY, GEMINI_API_KEY, etc.) are injected at runtime via Cloud Run
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/gen-lang-client-0318381471/cloud-run-source-deploy/lionovart-web:$COMMIT_SHA', '.']
+    args:
+      - 'build'
+      - '--no-cache'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_SANITY_DATASET=production'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_SANITY_PROJECT_ID=chd9fnkj'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyCCH7ej_5ksURSs_bvLVuBln-7fbxsFlH4'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=lionovart-nova-agent.firebaseapp.com'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_FIREBASE_PROJECT_ID=lionovart-nova-agent'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=lionovart-nova-agent.firebasestorage.app'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=790809554220'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_FIREBASE_APP_ID=1:790809554220:web:d945369d99dbea6153d089'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_POSTHOG_KEY=phc_se54cuL8AzG9RNeuMVfYZVoUQhr8wCCABP35EsFc5KhG'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/gen-lang-client-0318381471/cloud-run-source-deploy/lionovart-web:$COMMIT_SHA'
+      - '.'
 
   # Step 2: Push the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'us-central1-docker.pkg.dev/gen-lang-client-0318381471/cloud-run-source-deploy/lionovart-web:$COMMIT_SHA']
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/gen-lang-client-0318381471/cloud-run-source-deploy/lionovart-web:$COMMIT_SHA'
 
   # Step 3: Deploy to Cloud Run
+  # Server-side secrets are injected here as environment variables at runtime
+  # They are read from Secret Manager by Cloud Run itself (no build-time exposure)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'gcloud'
     args:
-    - 'run'
-    - 'deploy'
-    - 'lionovart-next-tailwind'
-    - '--image'
-    - 'us-central1-docker.pkg.dev/gen-lang-client-0318381471/cloud-run-source-deploy/lionovart-web:$COMMIT_SHA'
-    - '--region'
-    - 'us-central1'
-    - '--allow-unauthenticated'
-    - '--timeout'
-    - '1800'
+      - 'run'
+      - 'deploy'
+      - 'lionovart-next-tailwind'
+      - '--image'
+      - 'us-central1-docker.pkg.dev/gen-lang-client-0318381471/cloud-run-source-deploy/lionovart-web:$COMMIT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--allow-unauthenticated'
+      - '--timeout'
+      - '1800'
+      - '--update-secrets'
+      - 'RESEND_API_KEY=RESEND_API_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,SANITY_API_READ_TOKEN=SANITY_API_READ_TOKEN:latest,FIREBASE_ADMIN_PRIVATE_KEY=FIREBASE_ADMIN_PRIVATE_KEY:latest,FIREBASE_ADMIN_CLIENT_EMAIL=FIREBASE_ADMIN_CLIENT_EMAIL:latest,FIREBASE_PROJECT_ID=FIREBASE_PROJECT_ID:latest,WHATSAPP_NUMBER=WHATSAPP_NUMBER:latest,BOOKING_URL=BOOKING_URL:latest'
 
 options:
   logging: CLOUD_LOGGING_ONLY
