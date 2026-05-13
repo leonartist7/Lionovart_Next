@@ -43,15 +43,17 @@ steps:
       - 'FIREBASE_ADMIN_CLIENT_EMAIL=firebase-adminsdk-fbsvc@lionovart-nova-agent.iam.gserviceaccount.com'
       - '--build-arg'
       - 'FIREBASE_PROJECT_ID=lionovart-nova-agent'
-      # ── Secrets from Secret Manager (note double $$ — resolves via secretEnv) ──
+      # ── Secrets from Secret Manager ──
+      # secretEnv exposes these to the step's environment.
+      # By passing just the key to --build-arg, Docker automatically pulls the value from the environment.
       - '--build-arg'
-      - 'RESEND_API_KEY=$$RESEND_API_KEY'
+      - 'RESEND_API_KEY'
       - '--build-arg'
-      - 'GEMINI_API_KEY=$$GEMINI_API_KEY'
+      - 'GEMINI_API_KEY'
       - '--build-arg'
-      - 'SANITY_API_READ_TOKEN=$$SANITY_API_READ_TOKEN'
+      - 'SANITY_API_READ_TOKEN'
       - '--build-arg'
-      - 'FIREBASE_ADMIN_PRIVATE_KEY=$$FIREBASE_ADMIN_PRIVATE_KEY'
+      - 'FIREBASE_ADMIN_PRIVATE_KEY'
       - '-t'
       - 'us-central1-docker.pkg.dev/gen-lang-client-0318381471/cloud-run-source-deploy/lionovart-web:$COMMIT_SHA'
       - '.'
