@@ -171,47 +171,52 @@ export const fr: Translations = {
   },
 
   problems: {
-    eyebrow: "Vous Avez Construit Quelque Chose de Réel",
-    heading: "Ça Vous Parle ?",
+    eyebrow: "Votre Prochain Chapitre Commence Ici",
+    heading: "C'est Votre Nouvelle Réalité",
     items: [
       {
         problem: {
-          heading: "Vous Ressemblez à Tout Le Monde",
-          body: "Vous vous fondez dans la masse — et les clients choisissent celui dont ils se souviennent en premier.",
+          heading: "Votre Marque Impose Maintenant Le Respect",
+          body: "Vous avez investi dans votre savoir-faire, votre équipe, votre espace — mais votre image ressemble encore au premier jour. Les clients choisissent celui qui a l'air du meilleur choix, même quand il ne l'est pas.",
         },
         solution: {
-          heading: "Une Marque Qui Se Distingue Avant Même Que Vous Parliez",
-          body: "Les clients vous reconnaissent, se souviennent de vous et vous choisissent avant même que vous ayez lancé votre pitch.",
+          heading: "Une Marque Qui Impose Le Respect au Premier Regard",
+          body: "Nous créons des systèmes d'identité qui inspirent confiance avant même que vous ayez dit un mot — logo, web, print, tout aligné.",
+          stats: [
+            { value: "3x", label: "Valeur Perçue Après Refonte" },
+            { value: "94%", label: "Premières Impressions Basées sur le Design" },
+            { value: "50+", label: "Marques Élevées dans le Monde" },
+          ],
         },
       },
       {
         problem: {
-          heading: "Votre Téléphone Ne Sonne Pas Assez",
-          body: "Vous excellez dans ce que vous faites — vos clients vous adorent. Mais de nouveaux clients ?",
+          heading: "Vous Apparaissez Là Où Ça Compte",
+          body: "Vous excellez dans ce que vous faites — vos clients vous adorent. Mais la prochaine personne qui cherche exactement ce que vous proposez ? Elle trouve votre concurrent.",
         },
         solution: {
-          heading: "Apparaître en Premier Là Où Ça Compte",
-          body: "Nous vous rendons visible. La prochaine personne qui cherche ce que vous faites arrive chez vous — pas chez votre concurrent.",
+          heading: "Apparaître en Premier. Être Choisi en Premier.",
+          body: "Des moteurs de recherche aux réseaux sociaux, nous faisons en sorte que les bonnes personnes vous trouvent — de manière constante et aux bons endroits.",
+          stats: [
+            { value: "+70%", label: "De Réservations Directes — Résultat Client Réel" },
+            { value: "5x", label: "Plus de Leads Qualifiés en Moyenne" },
+            { value: "82%", label: "Du Trafic Internet Est Maintenant Vidéo" },
+          ],
         },
       },
       {
         problem: {
-          heading: "La Stratégie Marketing Ne Suffit Plus",
-          body: "Vous avez dépensé de l'argent pour croître — publicités Facebook, agences SEO, contenu générique — sans savoir ce qui a vraiment fonctionné.",
+          heading: "Vous Avez Maintenant Toute Une Équipe Derrière Vous",
+          body: "Le site web, les réseaux, les emails, le contenu — en plus de gérer votre entreprise. Il est 22h et vous montez encore un reel. Vous n'avez pas créé votre entreprise pour devenir un marketeur à plein temps.",
         },
         solution: {
-          heading: "Des Stratégies Qui Se Rentabilisent",
-          body: "Une seule équipe. Des rapports clairs. Des chiffres honnêtes. Nous suivons chaque euro, éliminons ce qui ne fonctionne pas et doublons la mise sur ce qui marche.",
-        },
-      },
-      {
-        problem: {
-          heading: "Vous Gérez L'Entreprise, Le Marketing, Le Site Web Et L'Instagram",
-          body: "Il est 22h. Vous montez encore un reel sur votre téléphone. Vous n'avez pas créé cette entreprise pour devenir créateur de contenu à temps plein — si ?",
-        },
-        solution: {
-          heading: "Votre Partenaire Créatif de Marque Complet",
-          body: "Pour vous permettre de récupérer votre temps. Vous faites ce que vous faites le mieux. Nous faisons en sorte que ça ressemble, sonne et croisse mieux que jamais.",
+          heading: "Votre Équipe Créative & Digitale Complète — À Un Appel",
+          body: "Marque, web, vidéo, réseaux, impression, IA — tout est géré. Concentrez-vous sur votre entreprise. Nous gérons son image, son son et sa croissance.",
+          stats: [
+            { value: "24/7", label: "Systèmes IA Capturant des Leads pour Vous" },
+            { value: "15h+", label: "Économisées par Semaine en Moyenne" },
+            { value: "100%", label: "Des Partenaires Ont Multiplié Leur ROI" },
+          ],
         },
       },
     ],

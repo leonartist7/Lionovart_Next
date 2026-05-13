@@ -10,6 +10,7 @@ import Services from "@/components/sections/Services";
 import Comparison from "@/components/sections/Comparison";
 import Process from "@/components/sections/Process";
 import Testimonials from "@/components/sections/Testimonials";
+import TestimonialsCarousel from "@/components/sections/TestimonialsCarousel";
 import FAQ from "@/components/sections/FAQ";
 
 /**
@@ -38,12 +39,13 @@ export function PageBuilder({ blocks }: { blocks: SanityBlock[] }) {
         <NovaSection id="about"><AboutUsHalf /></NovaSection>
         <NovaSection id="showcase"><LumaShowcase /></NovaSection>
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
+        <MarqueeSlanted />
         <NovaSection id="services"><Services /></NovaSection>
+        <TestimonialsCarousel />
         <NovaSection id="portfolio"><Portfolio /></NovaSection>
         <NovaSection id="process"><Process /></NovaSection>
         <NovaSection id="comparison"><Comparison /></NovaSection>
         <NovaSection id="testimonials"><Testimonials /></NovaSection>
-        <MarqueeSlanted />
         <NovaSection id="faq"><FAQ /></NovaSection>
       </>
     );

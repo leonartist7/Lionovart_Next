@@ -5,7 +5,7 @@ import { motion, useAnimation } from "framer-motion";
 import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-// ─── Animation timing constants ───────────────────────────────────────────────
+// ─── Animation timing constants (PRESERVED EXACTLY from original) ──────────────
 const PAW_IN_DURATION = 0.35;
 const PULL_DURATION   = 0.70;
 
@@ -17,15 +17,25 @@ function ProblemCard({
   item,
   isRevealed,
   onToggle,
+  index,
 }: {
-  item: { problem: { heading: string; body: string }; solution: { heading: string; body: string } };
+  item: {
+    problem: { heading: string; body: string };
+    solution: {
+      heading: string;
+      body: string;
+      stats: { value: string; label: string }[];
+    };
+  };
   isRevealed: boolean;
   onToggle: () => void;
+  index: number;
 }) {
   const cardControls = useAnimation();
   const pawControls  = useAnimation();
   const [isHovered, setIsHovered] = useState(false);
 
+  // PRESERVED EXACTLY from original
   const runReveal = async () => {
     await pawControls.set({ x: "-70%", y: "0%", rotate: -6, scale: 0.9 });
     pawControls.start({
@@ -39,6 +49,7 @@ function ProblemCard({
     ]);
   };
 
+  // PRESERVED EXACTLY from original
   const runReset = async () => {
     await Promise.all([
       cardControls.start({ y: "0%", transition: { duration: PULL_DURATION, ease: EASE_OUT } }),
@@ -56,96 +67,137 @@ function ProblemCard({
 
   return (
     <div
-      onClick={handleClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="relative w-full cursor-pointer"
+      className="sticky z-10"
+      style={{ top: `${80 + index * 72}px` }}
     >
       <div
-        className="
-          relative w-full overflow-hidden
-          rounded-[16px] md:rounded-[20px]
-          shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_16px_rgba(255,255,255,0.04)]
-          ring-1 ring-white/[0.06]
-          h-[130px] sm:h-[145px] md:h-[160px] lg:h-[175px]
-        "
+        onClick={handleClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="relative w-full cursor-pointer"
       >
-        {/* ── BASE LAYER: SOLUTION — cards.webp stretched to fill card shape ── */}
-        <div className="absolute inset-0 flex flex-col justify-center">
-          <Image
-            src="/images/cards.webp"
-            alt=""
-            aria-hidden="true"
-            fill
-            sizes="(max-width: 900px) 120vw, 60vw"
-            className="object-fill"
-            priority
-          />
-          {/* Centered content */}
-          <div className="relative z-10 p-5 md:p-7 flex flex-col items-center justify-center h-full text-center gap-2">
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#10b981] flex items-center justify-center shrink-0">
-                <svg className="w-4 h-4 md:w-4.5 md:h-4.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h3 className="text-white font-clash font-bold text-[14px] md:text-[18px] uppercase leading-tight m-0 drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
-                {item.solution.heading}
-              </h3>
-            </div>
-            <p className="text-white/90 font-sans text-[13px] md:text-[15px] leading-[1.5] drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)] max-w-[90%]">
-              {item.solution.body}
-            </p>
-          </div>
-        </div>
-
-        {/*
-          ── OVERLAY LAYER: PROBLEM (black, pulled down by paw) ──
-          All pain cards are #000000 black with centered text.
-        */}
-        <motion.div
-          className="absolute inset-0 z-10 bg-[#000000] p-5 md:p-7 flex flex-col items-center justify-center text-center"
-          initial={{ y: "0%" }}
-          animate={cardControls}
+        {/* Outer card — full-width, contains all layers */}
+        <div
+          className="
+            relative w-full overflow-hidden
+            rounded-[20px] md:rounded-[24px]
+            shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_16px_rgba(255,255,255,0.04)]
+            ring-1 ring-white/[0.06]
+            min-h-[260px] sm:min-h-[300px] md:min-h-[340px] lg:min-h-[380px]
+          "
         >
-          <div className="flex flex-col items-center gap-2 max-w-[90%]">
-            <h3 className="text-white font-clash font-bold text-[14px] md:text-[18px] uppercase leading-tight m-0">
+          {/* BASE LAYER: SOLUTION — always horizontal: image left, text right */}
+          <div className="absolute inset-0 bg-white flex flex-row">
+
+            {/* Image placeholder — narrow on mobile, wider on desktop */}
+            <div className="w-[30%] md:w-[38%] bg-[#f0f0f0] flex items-center justify-center shrink-0">
+              <div className="flex flex-col items-center gap-2 text-black/20 px-2">
+                <svg
+                  className="w-7 h-7 md:w-10 md:h-10"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z"
+                  />
+                </svg>
+                <span className="hidden sm:block text-[9px] md:text-[10px] uppercase tracking-[0.15em] font-medium text-center">
+                  Image Soon
+                </span>
+              </div>
+            </div>
+
+            {/* Text content — takes remaining 70%/62% */}
+            <div className="flex-1 flex flex-col justify-center p-4 sm:p-6 md:p-8 lg:p-10">
+              {/* Checkmark + heading */}
+              <div className="flex items-start gap-2 md:gap-3 mb-2 md:mb-3">
+                <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#10b981] flex items-center justify-center shrink-0 mt-0.5">
+                  <svg
+                    className="w-3 h-3 md:w-4 md:h-4 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={4}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-[#111] font-clash font-bold text-[13px] sm:text-[15px] md:text-[18px] lg:text-[21px] uppercase leading-tight">
+                  {item.solution.heading}
+                </h3>
+              </div>
+
+              {/* Description */}
+              <p className="text-[#555] font-sans text-[11px] sm:text-[13px] md:text-[14px] leading-[1.55] mb-4 md:mb-6 max-w-[520px]">
+                {item.solution.body}
+              </p>
+
+              {/* Trust stats row */}
+              <div className="flex flex-wrap gap-x-4 gap-y-3 sm:gap-x-6 md:gap-x-8">
+                {item.solution.stats.map((stat, si) => (
+                  <div key={si} className="flex flex-col">
+                    <span className="text-[#e5192a] font-clash font-bold text-[18px] sm:text-[22px] md:text-[26px] lg:text-[30px] leading-none">
+                      {stat.value}
+                    </span>
+                    <span className="text-[#888] text-[8px] sm:text-[9px] md:text-[10px] uppercase tracking-wider font-medium mt-1 max-w-[90px] sm:max-w-[110px] leading-tight">
+                      {stat.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/*
+            OVERLAY LAYER: PROBLEM — pure black, only big title, centered.
+            No description. Maximum impact, minimum overwhelm.
+            Pulled down by the lion paw to reveal the solution beneath.
+          */}
+          <motion.div
+            className="absolute inset-0 z-10 bg-[#000000] flex items-center justify-center p-6 sm:p-10 md:p-14 rounded-[20px] md:rounded-[24px] overflow-hidden"
+            initial={{ y: "0%" }}
+            animate={cardControls}
+          >
+            <h3 className="text-white font-clash font-bold text-[20px] sm:text-[28px] md:text-[38px] lg:text-[46px] uppercase leading-tight text-center max-w-[640px]">
               {item.problem.heading}
             </h3>
-            <p className="text-white/70 font-sans text-[13px] md:text-[15px] leading-[1.5]">
-              {item.problem.body}
-            </p>
-          </div>
-        </motion.div>
+          </motion.div>
 
-      {/* ── LION PAW ── inside overflow-hidden, clipped at card left edge */}
-      {/* ↓ Tune x in initial (and the matching line in runReset) to set the resting peek amount.
-           -75% shows ~25% of the paw as a sliver. More negative = less visible. */}
-      <motion.div
-        className="pointer-events-none absolute z-20 bottom-0"
-        initial={{ x: "-50%", y: "0%", rotate: -6, scale: 0.9 }}
-        animate={pawControls}
-        style={{ left: 0, width: "clamp(95px, 85%, 145px)", aspectRatio: "1 / 1" }}
-      >
-        {/* Inner wrapper — hover scale only, independent of reveal animation */}
-        <motion.div
-          className="relative w-full h-full"
-          animate={{ scale: isHovered && !isRevealed ? 1.12 : 1 }}
-          transition={{ type: "spring", stiffness: 350, damping: 24 }}
-        >
-          <div className="relative w-full h-full drop-shadow-[0_0_30px_rgba(240,201,23,0.55)]">
-            <Image
-              src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775085187/Untitled_design_4_muu53f.png"
-              alt=""
-              aria-hidden="true"
-              fill
-              sizes="50vw"
-              className="object-contain object-bottom-left"
-            />
-          </div>
-        </motion.div>
-      </motion.div>
+          {/*
+            ── LION PAW ── PRESERVED EXACTLY from original
+            Same image URL, same controls, same positioning, same timing,
+            same golden drop-shadow, same hover spring.
+          */}
+          <motion.div
+            className="pointer-events-none absolute z-20 bottom-0"
+            initial={{ x: "-50%", y: "0%", rotate: -6, scale: 0.9 }}
+            animate={pawControls}
+            style={{ left: 0, width: "clamp(95px, 85%, 145px)", aspectRatio: "1 / 1" }}
+          >
+            {/* Inner wrapper — hover scale only, independent of reveal animation */}
+            <motion.div
+              className="relative w-full h-full"
+              animate={{ scale: isHovered && !isRevealed ? 1.12 : 1 }}
+              transition={{ type: "spring", stiffness: 350, damping: 24 }}
+            >
+              <div className="relative w-full h-full drop-shadow-[0_0_30px_rgba(240,201,23,0.55)]">
+                <Image
+                  src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775085187/Untitled_design_4_muu53f.png"
+                  alt=""
+                  aria-hidden="true"
+                  fill
+                  sizes="50vw"
+                  className="object-contain object-bottom-left"
+                />
+              </div>
+            </motion.div>
+          </motion.div>
 
+        </div>
       </div>
     </div>
   );
@@ -181,12 +233,13 @@ export default function ProblemsSolvedSection() {
           </h2>
         </div>
 
-        {/* 2-column grid — equal height rows */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-stretch">
+        {/* Vertically stacked cards — each card is sticky with increasing top offset */}
+        <div className="flex flex-col gap-6 md:gap-8 pb-[200px]">
           {items.map((item, i) => (
             <ProblemCard
               key={i}
               item={item}
+              index={i}
               isRevealed={revealedIds.includes(i)}
               onToggle={() => toggleCard(i)}
             />

@@ -168,47 +168,52 @@ export const en = {
   },
 
   problems: {
-    eyebrow: "You've Built Something Real",
-    heading: "Sound Familiar?",
+    eyebrow: "Your Next Chapter Starts Here",
+    heading: "This Is Your New Reality",
     items: [
       {
         problem: {
-          heading: "You Look Like Everyone Else",
-          body: "You blend in — and customers choose whoever they remember first.",
+          heading: "Now Your Brand Commands The Room",
+          body: "You've invested in your craft, your team, your space — but your image still looks like day one. Clients pick the competitor who looks like the better choice, even when they're not.",
         },
         solution: {
-          heading: "A Brand That Stands Out Before You Say a Word",
-          body: "Clients recognize you, remember you, and choose you before you've even started your pitch.",
+          heading: "A Brand That Commands Respect on Sight",
+          body: "We build identity systems that make clients trust you before you've said a word — logo, web, print, everything aligned.",
+          stats: [
+            { value: "3x", label: "Perceived Value After Rebrand" },
+            { value: "94%", label: "First Impressions Are Design-Based" },
+            { value: "50+", label: "Brands Elevated Worldwide" },
+          ],
         },
       },
       {
         problem: {
-          heading: "Your Phone Isn't Ringing Enough",
-          body: "You're great at what you do — your clients love you. But new clients?",
+          heading: "Now You Show Up Where It Counts",
+          body: "You're great at what you do — your existing clients love you. But the next person searching for exactly what you offer? They're finding your competitor instead.",
         },
         solution: {
-          heading: "Show Up First Where It Counts",
-          body: "We make you visible. The next person searching for what you do lands on you — not your competitor.",
+          heading: "Show Up First. Get Chosen First.",
+          body: "From search engines to social feeds, we make sure the right people find you — consistently and in the right places.",
+          stats: [
+            { value: "+70%", label: "In Direct Bookings — Real Client Result" },
+            { value: "5x", label: "More Qualified Leads on Average" },
+            { value: "82%", label: "Of Internet Traffic Is Now Video" },
+          ],
         },
       },
       {
         problem: {
-          heading: "Marketing Strategy Isn't Enough Anymore",
-          body: "You've spent money trying to grow — Facebook ads, SEO agencies, generic content — without knowing what actually worked.",
+          heading: "Now You Have a Full Team Behind You",
+          body: "The website, the socials, the emails, the content — on top of actually running your business. It's 10pm and you're still editing a reel. You didn't start this to become a full-time marketer.",
         },
         solution: {
-          heading: "Strategies That Pay for Themselves",
-          body: "One team. Clear reports. Honest numbers. We track every dollar, cut what isn't working, and double down on what is.",
-        },
-      },
-      {
-        problem: {
-          heading: "You're Running the Business, the Marketing, the Website, and the Instagram",
-          body: "It's 10pm. You're still editing a reel on your phone. You didn't start this business to become a full-time content creator — did you?",
-        },
-        solution: {
-          heading: "Your Full-Service Brand Creative Partner",
-          body: "So you can get your time back. You do what you do best. We make it look, sound, and grow better than ever.",
+          heading: "Your Full Creative & Digital Team — One Call Away",
+          body: "Brand, web, video, social, print, AI — all handled. You focus on your business. We handle how it looks, sounds, and grows.",
+          stats: [
+            { value: "24/7", label: "AI Systems Capturing Leads for You" },
+            { value: "15h+", label: "Saved Weekly on Average" },
+            { value: "100%", label: "Of Partners Multiplied Their ROI" },
+          ],
         },
       },
     ],

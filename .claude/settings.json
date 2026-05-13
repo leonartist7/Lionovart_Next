@@ -18,7 +18,8 @@
       "WebFetch(domain:ai.google.dev)",
       "Bash(node -e ' *)",
       "Bash(grep -B 0 -A 5 \"src.components.ai-strategist\\\\\\\\\\\\\\\\\\\\\\(ConversationView\\\\|StrategistPanel\\\\|useStrategistSession\\\\|VoiceVisualizer\\\\|usePageSectionTracker\\\\\\)\")",
-      "Bash(npx eslint *)"
+      "Bash(npx eslint *)",
+      "Read(//c/Users/Leonartist/Documents/**)"
     ]
   }
 }
