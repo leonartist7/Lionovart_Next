@@ -1,11 +1,19 @@
 steps:
-  # Step 1: Build the container image
-  # Only NEXT_PUBLIC_* vars need to be --build-arg (baked in by Next.js at build time)
-  # Server-side secrets (RESEND_API_KEY, GEMINI_API_KEY, etc.) are injected at runtime via Cloud Run
+  # Step 1: Build the Docker image
+  # - NEXT_PUBLIC_* vars are hardcoded here (they're not sensitive)
+  # - Secrets from Secret Manager are accessed via secretEnv (double-$$ syntax)
+  # - Plain Cloud Run env vars (WHATSAPP_NUMBER, BOOKING_URL, etc.) are also passed
+  #   as build args so Next.js module-level code doesn't throw during `npm run build`
   - name: 'gcr.io/cloud-builders/docker'
+    secretEnv:
+      - 'RESEND_API_KEY'
+      - 'GEMINI_API_KEY'
+      - 'SANITY_API_READ_TOKEN'
+      - 'FIREBASE_ADMIN_PRIVATE_KEY'
     args:
       - 'build'
       - '--no-cache'
+      # ── NEXT_PUBLIC_ vars (baked into bundle at build time) ──────────────
       - '--build-arg'
       - 'NEXT_PUBLIC_SANITY_DATASET=production'
       - '--build-arg'
@@ -26,19 +34,37 @@ steps:
       - 'NEXT_PUBLIC_POSTHOG_KEY=phc_se54cuL8AzG9RNeuMVfYZVoUQhr8wCCABP35EsFc5KhG'
       - '--build-arg'
       - 'NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com'
+      # ── Plain server-side env vars (not in Secret Manager) ──────────────
+      - '--build-arg'
+      - 'WHATSAPP_NUMBER=15878974772'
+      - '--build-arg'
+      - 'BOOKING_URL=https://calendar.app.google/xk1LQjziPqAsxzHV8'
+      - '--build-arg'
+      - 'FIREBASE_ADMIN_CLIENT_EMAIL=firebase-adminsdk-fbsvc@lionovart-nova-agent.iam.gserviceaccount.com'
+      - '--build-arg'
+      - 'FIREBASE_PROJECT_ID=lionovart-nova-agent'
+      # ── Secrets from Secret Manager (note double $$ — resolves via secretEnv) ──
+      - '--build-arg'
+      - 'RESEND_API_KEY=$$RESEND_API_KEY'
+      - '--build-arg'
+      - 'GEMINI_API_KEY=$$GEMINI_API_KEY'
+      - '--build-arg'
+      - 'SANITY_API_READ_TOKEN=$$SANITY_API_READ_TOKEN'
+      - '--build-arg'
+      - 'FIREBASE_ADMIN_PRIVATE_KEY=$$FIREBASE_ADMIN_PRIVATE_KEY'
       - '-t'
       - 'us-central1-docker.pkg.dev/gen-lang-client-0318381471/cloud-run-source-deploy/lionovart-web:$COMMIT_SHA'
       - '.'
 
-  # Step 2: Push the container image
+  # Step 2: Push the container image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
       - 'us-central1-docker.pkg.dev/gen-lang-client-0318381471/cloud-run-source-deploy/lionovart-web:$COMMIT_SHA'
 
   # Step 3: Deploy to Cloud Run
-  # Server-side secrets are injected here as environment variables at runtime
-  # They are read from Secret Manager by Cloud Run itself (no build-time exposure)
+  # At runtime, Cloud Run injects secrets again (so the running container always has
+  # fresh values even if Secret Manager versions are rotated later)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'gcloud'
     args:
@@ -52,12 +78,23 @@ steps:
       - '--allow-unauthenticated'
       - '--timeout'
       - '1800'
-      # Only map vars that exist as SECRETS in Secret Manager.
-      # Plain env vars (FIREBASE_ADMIN_CLIENT_EMAIL, FIREBASE_PROJECT_ID,
-      # WHATSAPP_NUMBER, BOOKING_URL) are set directly in Cloud Run and
-      # survive redeploys automatically — do NOT include them here.
+      # Only map actual Secret Manager secrets for runtime injection
+      # Plain env vars (WHATSAPP_NUMBER, BOOKING_URL, etc.) already set in
+      # Cloud Run console — they survive redeploys automatically
       - '--update-secrets'
       - 'RESEND_API_KEY=RESEND_API_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,SANITY_API_READ_TOKEN=SANITY_API_READ_TOKEN:latest,FIREBASE_ADMIN_PRIVATE_KEY=FIREBASE_ADMIN_PRIVATE_KEY:latest'
+
+# Tell Cloud Build how to fetch the secrets from Secret Manager
+availableSecrets:
+  secretManager:
+    - versionName: projects/$PROJECT_ID/secrets/RESEND_API_KEY/versions/latest
+      env: 'RESEND_API_KEY'
+    - versionName: projects/$PROJECT_ID/secrets/GEMINI_API_KEY/versions/latest
+      env: 'GEMINI_API_KEY'
+    - versionName: projects/$PROJECT_ID/secrets/SANITY_API_READ_TOKEN/versions/latest
+      env: 'SANITY_API_READ_TOKEN'
+    - versionName: projects/$PROJECT_ID/secrets/FIREBASE_ADMIN_PRIVATE_KEY/versions/latest
+      env: 'FIREBASE_ADMIN_PRIVATE_KEY'
 
 options:
   logging: CLOUD_LOGGING_ONLY
