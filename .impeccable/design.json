@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-18T00:00:00.000Z",
+  "title": "Design System: LIONOVART",
+  "extensions": {
+    "colorMeta": {
+      "lacquer-red":      { "role": "primary",   "displayName": "Lacquer Red",       "canonical": "oklch(48% 0.24 25)",   "tonalRamp": ["#1a0304","#3d0709","#6b0c10","#99111a","#c71522","#e5192a","#ed5460","#f38f96","#f8bfc3","#fce8ea"] },
+      "lacquer-red-deep": { "role": "primary",   "displayName": "Lacquer Red Deep",  "canonical": "oklch(42% 0.22 25)",   "tonalRamp": ["#180203","#360508","#600a0d","#8a0f13","#b31319","#db0000","#e54040","#ef7b7b","#f6b0b0","#fadede"] },
+      "sovereign-gold":   { "role": "secondary", "displayName": "Sovereign Gold",    "canonical": "oklch(84% 0.18 95)",   "tonalRamp": ["#1a1500","#3d3200","#706000","#9e8a00","#ccb200","#f0c917","#f5d850","#f9e680","#fcf0b0","#fef8dc"] },
+      "void":             { "role": "neutral",   "displayName": "Void",              "canonical": "oklch(2% 0.002 250)",  "tonalRamp": ["#000000","#040404","#0a0a0a","#111111","#1a1a1a","#242424","#333333","#4d4d4d","#808080","#cccccc"] },
+      "obsidian":         { "role": "neutral",   "displayName": "Obsidian",          "canonical": "oklch(8% 0.003 250)",  "tonalRamp": ["#020202","#060606","#0d0d0d","#141414","#1c1c1c","#262626","#363636","#505050","#848484","#cfcfcf"] },
+      "carbon":           { "role": "neutral",   "displayName": "Carbon",            "canonical": "oklch(12% 0.003 250)", "tonalRamp": ["#030303","#080808","#101010","#161616","#1e1e1e","#282828","#383838","#535353","#878787","#d1d1d1"] },
+      "charcoal":         { "role": "neutral",   "displayName": "Charcoal",          "canonical": "oklch(14% 0.003 250)", "tonalRamp": ["#040404","#090909","#111111","#1a1a1a","#222222","#2c2c2c","#3d3d3d","#585858","#8c8c8c","#d4d4d4"] },
+      "light-steel":      { "role": "neutral",   "displayName": "Light Steel",       "canonical": "oklch(94% 0.008 240)", "tonalRamp": ["#1a1c1e","#2f3235","#44484c","#5a5f64","#717679","#888d91","#a4a8ac","#c0c4c7","#dce0e2","#eceff3"] },
+      "warm-ivory":       { "role": "neutral",   "displayName": "Warm Ivory",        "canonical": "oklch(95% 0.009 60)",  "tonalRamp": ["#1c1a17","#332f2a","#4b4540","#636057","#7b7a6d","#949082","#aaa89b","#c4c1b8","#dddad4","#f5f0eb"] },
+      "signal-white":     { "role": "neutral",   "displayName": "Signal White",      "canonical": "oklch(100% 0 0)",     "tonalRamp": ["#1a1a1a","#333333","#4d4d4d","#666666","#808080","#999999","#b3b3b3","#cccccc","#e6e6e6","#ffffff"] },
+      "ink":              { "role": "neutral",   "displayName": "Ink",               "canonical": "oklch(10% 0.005 250)", "tonalRamp": ["#040404","#080808","#0f0f0f","#111111","#191919","#222222","#333333","#4d4d4d","#808080","#cccccc"] },
+      "ash":              { "role": "neutral",   "displayName": "Ash",               "canonical": "oklch(42% 0.004 250)", "tonalRamp": ["#0d0d0d","#1c1c1c","#2c2c2c","#3d3d3d","#4e4e4e","#555555","#6d6d6d","#888888","#a8a8a8","#d4d4d4"] },
+      "stone":            { "role": "neutral",   "displayName": "Stone",             "canonical": "oklch(66% 0.004 250)", "tonalRamp": ["#161616","#2a2a2a","#404040","#575757","#6e6e6e","#999999","#b0b0b0","#c5c5c5","#dadada","#efefef"] }
+    },
+    "typographyMeta": {
+      "display":  { "displayName": "Display",  "purpose": "Hero cycling headline word only. One word at a time, maximum presence." },
+      "headline": { "displayName": "Headline", "purpose": "Section headings, hero static lines, footer CTA. Compressed leading." },
+      "title":    { "displayName": "Title",    "purpose": "Sub-section headings, service titles, process steps." },
+      "body":     { "displayName": "Body",     "purpose": "Subtitles, descriptions. Max 65–75ch. Only place where lines run long." },
+      "label":    { "displayName": "Label",    "purpose": "Nav links, eyebrows, stat labels, button text. All caps, extended tracking." }
+    },
+    "shadows": [
+      { "name": "ambient-float",   "value": "0 4px 30px rgba(0,0,0,0.10)",                                                                              "purpose": "Navbar glass layer. Barely visible. Does not float." },
+      { "name": "deep-float",      "value": "0 8px 32px rgba(0,0,0,0.18)",                                                                              "purpose": "Mobile dropdown panel. Grounds it." },
+      { "name": "glass-deep",      "value": "0 25px 50px -12px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.08)", "purpose": "AI Strategist panel. Long tail ambient." },
+      { "name": "chromatic-pulse", "value": "0 0 60px rgba(229,25,42,0.40)",                                                                            "purpose": "Nova orb at rest. Expands to 80px / 0.6 on pulse peak." },
+      { "name": "inset-depth",     "value": "inset 4px 4px 16px rgba(0,0,0,0.50), inset -4px -4px 16px rgba(255,255,255,0.04)",                         "purpose": "Footer container. Carves rather than floats." }
+    ],
+    "motion": [
+      { "name": "ease-standard",       "value": "cubic-bezier(0.4, 0, 0.2, 1)",    "purpose": "Default state transitions, navbar clip-path, mobile dropdown." },
+      { "name": "ease-out-smooth",     "value": "easeOut",                           "purpose": "Entrance animations, section reveals, count-up fades." },
+      { "name": "ease-spring-expo",    "value": "cubic-bezier(0.16, 1, 0.3, 1)",    "purpose": "Trust badge entrances. Fast snap, long tail." },
+      { "name": "ease-spring-bounce",  "value": "cubic-bezier(0.34, 1.56, 0.64, 1)", "purpose": "Star rating scale-in only. The one permitted spring overshoot." },
+      { "name": "spring-lenis",        "value": "stiffness: 80, damping: 24, mass: 0.6", "purpose": "AboutUs scroll-driven opacity spring. Smooth catch." }
+    ],
+    "breakpoints": [
+      { "name": "sm",  "value": "640px"  },
+      { "name": "md",  "value": "768px"  },
+      { "name": "lg",  "value": "1024px" },
+      { "name": "xl",  "value": "1280px" },
+      { "name": "2xl", "value": "1400px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "LiquidMetal Button — Primary",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "WebGL fragment shader metallic pill. The system's signature interaction. Bold and ceremonial.",
+      "html": "<button class=\"ds-btn-liquid-primary\"><span class=\"ds-btn-label\">GET STARTED</span></button>",
+      "css": ".ds-btn-liquid-primary { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 160px; height: 46px; border-radius: 100px; background: linear-gradient(135deg, #8b0d17 0%, #e5192a 40%, #ff4d5e 60%, #c0141f 100%); border: none; cursor: pointer; overflow: hidden; transition: transform 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s; } .ds-btn-liquid-primary:hover { transform: scale(1.03); box-shadow: 0 0 24px rgba(229,25,42,0.45); } .ds-btn-liquid-primary:active { transform: scale(0.97); } .ds-btn-label { font-family: 'Clash Display', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #ffffff; position: relative; z-index: 1; pointer-events: none; }"
+    },
+    {
+      "name": "LiquidMetal Button — White",
+      "kind": "button",
+      "refersTo": "button-white",
+      "description": "White metallic variant. Used on red backgrounds (navbar hero mode) for contrast inversion.",
+      "html": "<button class=\"ds-btn-liquid-white\"><span class=\"ds-btn-label-red\">COMENZAR</span></button>",
+      "css": ".ds-btn-liquid-white { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 140px; height: 46px; border-radius: 100px; background: linear-gradient(135deg, #d4d4d4 0%, #ffffff 40%, #f0f0f0 60%, #c8c8c8 100%); border: none; cursor: pointer; overflow: hidden; transition: transform 0.2s cubic-bezier(0.4,0,0.2,1); } .ds-btn-liquid-white:hover { transform: scale(1.03); } .ds-btn-liquid-white:active { transform: scale(0.97); } .ds-btn-label-red { font-family: 'Clash Display', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #ff0000; position: relative; z-index: 1; pointer-events: none; }"
+    },
+    {
+      "name": "CTA Button — Footer",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Solid fill CTA. Used in footer and section callouts. Not metallic — direct and decisive.",
+      "html": "<a class=\"ds-btn-cta\" href=\"#\">START YOUR PROJECT</a>",
+      "css": ".ds-btn-cta { display: inline-flex; height: 64px; align-items: center; justify-content: center; border-radius: 9999px; background-color: #e5192a; border: 2px solid #e5192a; padding: 0 40px; font-family: 'Clash Display', sans-serif; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #ffffff; text-decoration: none; transition: background-color 0.2s, color 0.2s, transform 0.2s; } .ds-btn-cta:hover { background-color: #ffffff; color: #e5192a; transform: scale(1.05); } .ds-btn-cta:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(229,25,42,0.30); }"
+    },
+    {
+      "name": "Navbar — Hero Mode",
+      "kind": "nav",
+      "refersTo": "nav-pill-hero",
+      "description": "Red pill at page top. Morphs to glass on scroll via clip-path circle transition.",
+      "html": "<nav class=\"ds-nav-hero\"><span class=\"ds-nav-logo\">LIONOVART</span><ul class=\"ds-nav-links\"><li><a href=\"#about\">NOSOTROS</a></li><li><a href=\"#services\">SERVICIOS</a></li></ul><button class=\"ds-nav-cta\">COMENZAR</button></nav>",
+      "css": ".ds-nav-hero { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 1400px; padding: 8px 28px; border-radius: 12px; background-color: #e5192a; position: relative; } .ds-nav-logo { font-family: 'Clash Display', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #ffffff; } .ds-nav-links { display: flex; gap: 56px; list-style: none; margin: 0; padding: 0; } .ds-nav-links a { font-family: 'Clash Display', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.9); text-decoration: none; transition: color 0.2s; } .ds-nav-links a:hover { color: #ffffff; } .ds-nav-cta { border-radius: 100px; border: none; background: #ffffff; color: #ff0000; padding: 8px 24px; font-family: 'Clash Display', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; }"
+    },
+    {
+      "name": "Navbar — Scrolled (Glass)",
+      "kind": "nav",
+      "refersTo": "nav-pill-scrolled",
+      "description": "Glass backdrop mode after hero. backdrop-blur-xl with white/10 border.",
+      "html": "<nav class=\"ds-nav-glass\"><span class=\"ds-nav-logo-glass\">LIONOVART</span><button class=\"ds-nav-cta\">COMENZAR</button></nav>",
+      "css": ".ds-nav-glass { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 1400px; padding: 8px 28px; border-radius: 12px; background: rgba(0,0,0,0.20); backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5); border: 1px solid rgba(255,255,255,0.10); box-shadow: 0 4px 30px rgba(0,0,0,0.10); } .ds-nav-logo-glass { font-family: 'Clash Display', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #ffffff; } .ds-nav-cta { border-radius: 100px; border: none; background: #ffffff; color: #ff0000; padding: 8px 24px; font-family: 'Clash Display', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; }"
+    },
+    {
+      "name": "Label / Eyebrow",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Section eyebrow tag. Uppercase, extended tracking, muted. Precedes headings.",
+      "html": "<span class=\"ds-eyebrow\">OUR SERVICES</span>",
+      "css": ".ds-eyebrow { font-family: 'Clash Display', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.50); display: inline-block; }"
+    },
+    {
+      "name": "Display Heading",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Full-width section heading. Clash Display black, tight leading, uppercase. The canyon is the hierarchy.",
+      "html": "<h2 class=\"ds-heading\">WE MAKE YOUR BRAND <span class=\"ds-heading-accent\">ROAR</span></h2>",
+      "css": ".ds-heading { font-family: 'Clash Display', sans-serif; font-size: clamp(2rem, 6vw, 7rem); font-weight: 700; line-height: 0.9; letter-spacing: -0.02em; text-transform: uppercase; color: #ffffff; margin: 0; } .ds-heading-accent { color: #e5192a; }"
+    },
+    {
+      "name": "Services Row Item",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Scroll-driven accordion row. On light-steel surface. Number + title + description; image panel on the right for active state.",
+      "html": "<div class=\"ds-service-row ds-service-active\"><span class=\"ds-service-num\">01</span><div class=\"ds-service-body\"><h3 class=\"ds-service-title\">Brand Identity</h3><p class=\"ds-service-desc\">We build brands that command attention before a word is read.</p></div></div>",
+      "css": ".ds-service-row { display: flex; align-items: flex-start; gap: 24px; padding: 24px 0; border-top: 1px solid rgba(17,17,17,0.12); cursor: pointer; transition: background 0.2s; } .ds-service-row.ds-service-active { background: transparent; } .ds-service-num { font-family: 'Clash Display', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.15em; color: #e5192a; flex-shrink: 0; padding-top: 4px; } .ds-service-title { font-family: 'Clash Display', sans-serif; font-size: clamp(1.5rem, 3vw, 2.5rem); font-weight: 700; color: #111111; margin: 0 0 8px; text-transform: uppercase; } .ds-service-desc { font-family: 'Clash Display', sans-serif; font-size: 18px; font-weight: 400; color: #555555; line-height: 1.6; max-width: 65ch; margin: 0; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Creative King",
+    "overview": "This is the design language of a studio that has already decided it is the best. Not cocky — sovereign. The black canvas is not chosen for atmosphere; it is the absolute baseline that makes the Lacquer Red (#e5192a) land with the force of a decree. Every surface, every animation, every typographic choice answers one question: does this prove we are world-class, or does it waste the frame?\n\nThe type is Clash Display, used exclusively, at every size. There is no body font and no serif contrast — this is a monolingual typographic system, which is unusual and correct. The voice is singular. The spacing is deliberate: sections breathe; headings compress. The ratio between a label at 11px and a display line at 11rem is not a scale — it is a canyon, and that canyon is the hierarchy.\n\nMotion is cinematic, not decorative. The curtain card that slides away on scroll, the sticky hero that sections scroll over, the 3D carousel spinning the portfolio on loop: these are not features, they are demonstrations. The site is the pitch. Every interaction is proof.",
+    "keyCharacteristics": [
+      "Single font family, entire scale from 11px to 11rem",
+      "Pure black canvas; color is signal, never decoration",
+      "Lacquer Red deployed with precision: CTAs, accents, cycling words, trust numbers",
+      "Sovereign Gold held in reserve: used rarely to mark a moment of triumph or distinction",
+      "Cinematic scroll architecture over conventional section stacking",
+      "Motion vocabulary: exponential ease-out, never bounce or elastic",
+      "Bold and ceremonial interactions: every button, badge, and transition is a statement"
+    ],
+    "rules": [
+      { "name": "The Lacquer Rule",           "body": "Red is a statement, not a tint. It appears where the eye should land next. Every other instance of red asks: is this the most important thing on screen right now? If not, remove it.",                                                   "section": "colors"     },
+      { "name": "The Gold Reserve Rule",      "body": "Sovereign Gold is forbidden in default content. It exists for one purpose: to mark the extraordinary. Treat it the way a general treats a medal — issue it rarely so it retains meaning.",                                              "section": "colors"     },
+      { "name": "The One Light Surface Rule", "body": "The Light Steel surface (#eceff3) exists for one architectural purpose: to create a register break between dense dark sections. Never place it adjacent to another light surface.",                                                      "section": "colors"     },
+      { "name": "The Single Voice Rule",      "body": "Clash Display is the only typeface. Never introduce a second family for body contrast, pull quotes, or code. Use weight and scale differential to create hierarchy.",                                                                    "section": "typography" },
+      { "name": "The Canyon Rule",            "body": "The display-to-label size ratio is not a comfortable scale — it is a canyon. Do not introduce intermediate sizes that would fill the gap. The contrast between 11rem and 11px is the hierarchy. Protect it.",                         "section": "typography" },
+      { "name": "The Tonal Canvas Rule",      "body": "Surfaces are flat at rest. Depth is expressed through background tonal lift (Void → Obsidian → Carbon → Charcoal), not drop shadows. Drop shadows appear only in three defined contexts: ambient blur, chromatic glow, and inset carving.", "section": "elevation"  },
+      { "name": "The No Decorative Glow Rule","body": "Chromatic glow is reserved for the primary accent — the Nova orb and active CTA states. Never apply colored glows to section backgrounds, cards, or text elements. If it looks like a gaming PC, it's wrong.",                       "section": "elevation"  }
+    ],
+    "dos": [
+      "Do use Lacquer Red (#e5192a) only where the eye should land next. It is a directive, not a tint.",
+      "Do let the black canvas breathe. Negative space is not empty — it is the stage.",
+      "Do use exponential ease-out curves for all state transitions. The motion should feel like a confident decision, not a performance.",
+      "Do introduce the Light Steel surface (#eceff3) only as an architectural register break — one section at a time.",
+      "Do keep body copy capped at 65–75ch and 18px. Founders read fast; give them a clean line.",
+      "Do hold the Sovereign Gold (#f0c917) in reserve for singular moments of distinction.",
+      "Do make every interaction statement-level. Buttons are ceremonial.",
+      "Do respect prefers-reduced-motion — disable orb pulse, carousel spin, and entrance stagger; preserve hierarchy.",
+      "Do use uppercase Clash Display with tracking 0.12–0.15em for all labels, eyebrows, and nav text."
+    ],
+    "donts": [
+      "Don't use border-left or border-right greater than 1px as a colored accent on any surface.",
+      "Don't use background-clip: text with any gradient. No gradient text.",
+      "Don't use glassmorphism decoratively. Blur is reserved for functional layers: navigation and the AI panel.",
+      "Don't build identical card grids. Icon + heading + text repeated in a 3-column grid is the most reliable way to produce AI-slop output.",
+      "Don't use the hero-metric template: big stat, small label, supporting copy row, gradient accent.",
+      "Don't introduce a second typeface. Clash Display is the only voice.",
+      "Don't add a colored drop shadow to anything that isn't the Nova orb.",
+      "Don't place Sovereign Gold adjacent to Lacquer Red in the same visual element. They compete; neither wins.",
+      "Don't make the light-steel section feel like a separate website."
+    ]
+  }
+}

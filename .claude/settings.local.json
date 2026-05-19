@@ -38,7 +38,9 @@
       "Bash(wmic logicaldisk:*)",
       "Bash(cmd /c \"robocopy /MIR /NFL /NDL /NJH /NJS /NC /NS /NP \\\\\"%TEMP%\\\\\\\\empty_dir_$$\\\\\" \\\\\"C:\\\\\\\\Users\\\\\\\\Leonartist\\\\\\\\Documents\\\\\\\\WEB DEV\\\\\\\\LIONOVART_NEXTJS-TAILWIND\\\\\\\\.claude\\\\\\\\worktrees\\\\\\\\crazy-taussig\\\\\"\")",
       "Bash(mkdir -p /tmp/empty_rob)",
-      "Bash(cmd /c \"robocopy /MIR \\\\\"C:\\\\\\\\Users\\\\\\\\Leonartist\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\" \\\\\"C:\\\\\\\\Users\\\\\\\\Leonartist\\\\\\\\Documents\\\\\\\\WEB DEV\\\\\\\\LIONOVART_NEXTJS-TAILWIND\\\\\\\\.claude\\\\\\\\worktrees\\\\\\\\crazy-taussig\\\\\" /CREATE\")"
+      "Bash(cmd /c \"robocopy /MIR \\\\\"C:\\\\\\\\Users\\\\\\\\Leonartist\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\" \\\\\"C:\\\\\\\\Users\\\\\\\\Leonartist\\\\\\\\Documents\\\\\\\\WEB DEV\\\\\\\\LIONOVART_NEXTJS-TAILWIND\\\\\\\\.claude\\\\\\\\worktrees\\\\\\\\crazy-taussig\\\\\" /CREATE\")",
+      "Bash(node *)",
+      "Skill(impeccable)"
     ]
   }
 }

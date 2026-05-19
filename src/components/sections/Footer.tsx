@@ -12,11 +12,8 @@ export default function Footer() {
 
   const currentYear = new Date().getFullYear();
 
-  // Create an array for the marquee text repetition
-  const marqueeText = Array(20).fill("LIONOVART");
-
   return (
-    <footer ref={ref} className="bg-[#000000] pt-[100px] border-t border-border-dark relative z-0 shadow-[inset_4px_4px_16px_rgba(0,0,0,0.5),inset_-4px_-4px_16px_rgba(255,255,255,0.04)]">
+    <footer ref={ref} className="bg-[#000000] pt-12 md:pt-16 lg:pt-[100px] border-t border-border-dark relative z-0 shadow-[inset_4px_4px_16px_rgba(0,0,0,0.5),inset_-4px_-4px_16px_rgba(255,255,255,0.04)]">
       <div className="mx-auto max-w-[1200px] px-4 md:px-6 w-full">
 
         {/* Top Section: CTA CTA */}
@@ -66,32 +63,6 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Infinite Text Marquee at the very bottom */}
-      <div className="w-full overflow-hidden py-6 bg-brand-red relative z-20 pointer-events-none">
-        <motion.div
-          className="flex w-max whitespace-nowrap"
-          animate={{ x: ["-50%", "0%"] }}
-          transition={{ duration: 800, ease: "linear", repeat: Infinity }}
-        >
-          {marqueeText.map((text, i) => (
-            <span
-              key={i}
-              className="px-6 text-[3.5rem] sm:text-[6rem] md:text-[9rem] font-bold uppercase font-clash text-white select-none"
-            >
-              {text}&reg;
-            </span>
-          ))}
-          {/* Duplicate set for seamless scrolling */}
-          {marqueeText.map((text, i) => (
-            <span
-              key={`dup-${i}`}
-              className="px-6 text-[3.5rem] sm:text-[6rem] md:text-[9rem] font-bold uppercase font-clash text-white select-none"
-            >
-              {text}&reg;
-            </span>
-          ))}
-        </motion.div>
-      </div>
     </footer>
   );
 }

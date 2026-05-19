@@ -136,17 +136,11 @@ export default function Navbar() {
             <div className="z-40 flex flex-1 items-center">
               <Link href="/" className="inline-flex items-center gap-2">
                 <span className="hidden sm:inline-flex">
-                  <motion.img
+                  <img
                     src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
                     alt="Lionovart logo"
                     aria-hidden="true"
-                    animate={{
-                      opacity: heroMode ? 1 : 0,
-                      width:   heroMode ? 56 : 0,
-                      marginRight: heroMode ? 0 : -8,
-                    }}
-                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                    className="h-14 object-contain shrink-0 overflow-hidden"
+                    className="h-14 w-14 object-contain shrink-0"
                     style={{ filter: "brightness(1) invert(0)" }}
                   />
                 </span>
@@ -185,30 +179,8 @@ export default function Navbar() {
               )}
             </AnimatePresence>
 
-            {/* Language switcher + burger(s) — CTA hidden in hero, lives in dropdown instead */}
+            {/* Language switcher + CTA (always) + burger(s) */}
             <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4 lg:gap-5">
-              <AnimatePresence>
-                {!heroMode && (
-                  <motion.div
-                    key="nav-cta"
-                    initial={{ opacity: 0, width: 0 }}
-                    animate={{ opacity: 1, width: "auto" }}
-                    exit={{ opacity: 0, width: 0 }}
-                    transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-                    className="shrink-0 overflow-hidden"
-                  >
-                    <LiquidMetalButton
-                      label={t.nav.cta}
-                      onClick={() => window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer")}
-                      width={140}
-                      variant="white"
-                      textColor="#ff0000ff"
-                      noShadow
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
               {/* Language switcher — visible in hero (red) mode, hidden after transition */}
               <AnimatePresence>
                 {heroMode && (
@@ -224,6 +196,18 @@ export default function Navbar() {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {/* CTA — always visible */}
+              <div className="shrink-0">
+                <LiquidMetalButton
+                  label={t.nav.cta}
+                  onClick={() => window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer")}
+                  width={140}
+                  variant="white"
+                  textColor="#ff0000ff"
+                  noShadow
+                />
+              </div>
 
               {/* Mobile burger — always visible on small screens */}
               <MenuBurgerLottie
@@ -266,7 +250,7 @@ export default function Navbar() {
               animate={{ y: 0 }}
               exit={{ y: "-100%" }}
               transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-              className="absolute top-0 left-[15%] right-[15%] lg:left-1/4 lg:right-1/4 lg:w-auto -z-10 rounded-xl overflow-hidden"
+              className="absolute top-0 left-[15%] right-[15%] lg:left-1/4 lg:right-1/4 lg:w-auto -z-10 rounded-xl"
               style={{
                 background: "rgba(255, 255, 255, 0.75)",
                 backdropFilter: "blur(28px) saturate(1.8)",
@@ -306,28 +290,6 @@ export default function Navbar() {
                   <LanguageSwitcher isHeroMode={false} />
                 </motion.div>
 
-                {/* CTA — only shown in hero mode (hidden in glass navbar) */}
-                {heroMode && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 6 }}
-                    transition={{ duration: 0.2, delay: (NAV_LINKS.length + 1) * 0.06 }}
-                    className="w-full lg:w-auto flex justify-center"
-                  >
-                    <LiquidMetalButton
-                      label={t.nav.cta}
-                      onClick={() => {
-                        window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer");
-                        setIsMobileOpen(false);
-                      }}
-                      width={168}
-                      variant="white"
-                      textColor="#ff0000ff"
-                      noShadow
-                    />
-                  </motion.div>
-                )}
               </nav>
             </motion.div>
           )}

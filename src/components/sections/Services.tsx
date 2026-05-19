@@ -79,7 +79,7 @@ export default function Services(props: any) {
     <section id="services" className="relative bg-bg-surface-light">
 
       {/* ── Section Header ─────────────────────────────────────── */}
-      <div className="mx-auto max-w-[1280px] px-4 md:px-8 pt-[80px] md:pt-[120px] pb-[60px] md:pb-[80px] flex flex-col items-center text-center">
+      <div className="mx-auto max-w-[1280px] px-4 md:px-8 pt-[60px] md:pt-[80px] pb-[40px] md:pb-[40px] lg:pb-0 flex flex-col items-center text-center">
         <motion.p
           className="text-brand-red text-[11px] md:text-[13px] font-bold uppercase tracking-[0.3em] mb-4"
           initial={{ opacity: 0, y: 10 }}
@@ -111,7 +111,7 @@ export default function Services(props: any) {
         style={{ height: `${SERVICES.length * 85}vh` } as React.CSSProperties}
       >
         {/* Sticky wrapper */}
-        <div className="sticky top-0 h-screen flex items-center overflow-hidden">
+        <div className="sticky top-0 h-screen flex items-start lg:pt-[10vh] overflow-hidden">
           <div className="mx-auto max-w-[1280px] w-full px-8 xl:px-12 grid grid-cols-[1fr_1fr] gap-12 xl:gap-20 items-center h-[80vh]">
 
             {/* ── Left: name list ─────────────────────────────── */}

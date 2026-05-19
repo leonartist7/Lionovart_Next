@@ -1,9 +1,33 @@
 "use client";
 
-import { useState } from "react";
-import { motion, useAnimation } from "framer-motion";
+import { useState, useRef } from "react";
+import { motion, useAnimation, useMotionValue, useTransform, useSpring, type MotionValue } from "framer-motion";
 import Image from "next/image";
+import { useLenis } from "@studio-freight/react-lenis";
 import { useLanguage } from "@/contexts/LanguageContext";
+import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
+
+function useLenisProgress(ref: React.RefObject<HTMLElement | null>): MotionValue<number> {
+  const progress = useMotionValue(0);
+  useLenis(({ scroll: _scroll }) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const elH = ref.current.offsetHeight;
+    const total = vh + elH;
+    const current = vh - rect.top;
+    progress.set(Math.max(0, Math.min(1, current / total)));
+  });
+  return progress;
+}
+
+const FEATURED = {
+  quote: "Within two months of the new website, direct reservations jumped almost 70%. It finally looks like the place we actually run.",
+  author: "Camille Moreau",
+  role: "Owner · Maison Verre",
+  avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&q=80",
+  flag: "https://flagcdn.com/w40/fr.png",
+};
 
 // ─── Animation timing constants (PRESERVED EXACTLY from original) ──────────────
 const PAW_IN_DURATION = 0.35;
@@ -207,6 +231,7 @@ function ProblemCard({
 export default function ProblemsSolvedSection() {
   const [revealedIds, setRevealedIds] = useState<number[]>([]);
   const { t } = useLanguage();
+  const sectionRef = useRef<HTMLElement>(null);
 
   const items = t.problems.items.map((item) => ({
     problem: item.problem,
@@ -219,32 +244,103 @@ export default function ProblemsSolvedSection() {
     );
   };
 
+  const progress = useLenisProgress(sectionRef);
+  const circleSize = useSpring(
+    useTransform(progress, [0.0, 0.35], [0, 150]),
+    { stiffness: 55, damping: 20 }
+  );
+  const clipPath = useTransform(circleSize, (v: number) => `circle(${v}% at 50% 8%)`);
+
   return (
-    <section className="relative bg-[#e5192a] py-12 lg:py-24 overflow-hidden">
-      <div className="mx-auto max-w-[1200px] px-4 relative z-10">
+    <section ref={sectionRef} className="bg-white py-16 lg:py-24">
+      <div className="max-w-[1300px] mx-auto px-4 md:px-6">
 
-        {/* Header */}
-        <div className="mb-8 md:mb-12 flex flex-col items-center text-center">
-          <p className="text-white text-[12px] md:text-[14px] font-clash uppercase tracking-[0.2em] mb-2 md:mb-3">
-            {t.problems.eyebrow}
-          </p>
-          <h2 className="text-[40px] sm:text-[56px] md:text-[76px] font-bold font-clash uppercase leading-[1.05] text-white max-w-4xl">
-            {t.problems.heading}
-          </h2>
+        {/* ── Contained red box with domed top ── */}
+        <motion.div
+          style={{
+            clipPath,
+            borderRadius: '50% 50% 32px 32px / 100px 100px 32px 32px',
+          }}
+          className="overflow-hidden bg-[#e5192a] shadow-[0_30px_60px_-15px_rgba(229,25,42,0.45)]"
+        >
+
+          {/* Heading */}
+          <div className="px-6 md:px-12 pt-12 md:pt-16">
+            <motion.div
+              className="mb-8 md:mb-12 flex flex-col items-center text-center"
+              initial={{ opacity: 0, scale: 0.88 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "0px 0px -30% 0px" }}
+              transition={{ duration: 0.65, ease: [0.34, 1.56, 0.64, 1] }}
+            >
+              <p className="text-white text-[12px] md:text-[14px] font-clash uppercase tracking-[0.2em] mb-2 md:mb-3">
+                {t.problems.eyebrow}
+              </p>
+              <h2 className="text-[40px] sm:text-[56px] md:text-[76px] font-bold font-clash uppercase leading-[1.05] text-white max-w-4xl">
+                {t.problems.heading}
+              </h2>
+            </motion.div>
+          </div>
+
+          {/* Cards — stagger entrance */}
+          <div className="px-4 md:px-8 flex flex-col gap-6 md:gap-8 pb-44 md:pb-56">
+            {items.map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 60 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "0px 0px -5% 0px" }}
+                transition={{ delay: i * 0.12, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <ProblemCard
+                  item={item}
+                  index={i}
+                  isRevealed={revealedIds.includes(i)}
+                  onToggle={() => toggleCard(i)}
+                />
+              </motion.div>
+            ))}
+          </div>
+
+        </motion.div>
+
+        {/* ── MarqueeSlanted band — z-20, renders on top of the glass card below ── */}
+        <div className="relative z-20 -mt-16 md:-mt-20">
+          <MarqueeSlanted />
         </div>
 
-        {/* Vertically stacked cards — each card is sticky with increasing top offset */}
-        <div className="flex flex-col gap-6 md:gap-8 pb-[200px]">
-          {items.map((item, i) => (
-            <ProblemCard
-              key={i}
-              item={item}
-              index={i}
-              isRevealed={revealedIds.includes(i)}
-              onToggle={() => toggleCard(i)}
+        {/* ── Glass testimonial card — z-10, pulls up past the marquee so its rounded
+             top is visible above the band; content starts below the band ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="relative z-10 -mt-24 md:-mt-28 max-w-[80%] mx-auto rounded-[20px]
+                     pt-28 md:pt-32 px-5 md:px-7 pb-4 md:pb-5
+                     backdrop-blur-xl bg-white/75 border border-black/[0.07]
+                     shadow-[0_12px_40px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.9)]"
+        >
+          <blockquote className="text-[15px] md:text-[17px] font-medium text-[#111] leading-[1.6] mb-4">
+            &ldquo;{FEATURED.quote}&rdquo;
+          </blockquote>
+          <div className="flex items-center gap-2.5">
+            <img
+              src={FEATURED.avatar}
+              alt={FEATURED.author}
+              className="w-9 h-9 rounded-full object-cover ring-1 ring-black/10 shrink-0"
             />
-          ))}
-        </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] md:text-[14px] font-bold text-[#111] leading-tight">{FEATURED.author}</p>
+              <p className="text-[12px] text-[#777] mt-0.5 truncate">{FEATURED.role}</p>
+            </div>
+            <img
+              src={FEATURED.flag}
+              alt="flag"
+              className="w-6 h-[15px] rounded-[2px] object-cover shrink-0 opacity-80"
+            />
+          </div>
+        </motion.div>
 
       </div>
     </section>

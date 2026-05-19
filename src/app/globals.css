@@ -81,6 +81,7 @@
   --font-sans: var(--font-clash-display);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-clash-display);
+  --font-body: var(--font-dm-sans);
 
   /* --- Brand Colors --- */
   --color-bg-dark: #000000;

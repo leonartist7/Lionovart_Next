@@ -6,7 +6,6 @@ import { getWhatsAppUrl } from "@/lib/contact";
 import HeroCycling, { Word } from "@/components/sections/HeroCycling";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import MagneticOrb from "@/components/ai-strategist/MagneticOrb";
 import { useNovaStore } from "@/lib/stores/nova-store";
 
 /* ─── Variants ─────────────────────────────────────────────────── */
@@ -362,7 +361,7 @@ export default function HeroTop(props: any) {
   };
 
   return (
-    <section className="relative z-20 flex min-h-[72vh] flex-col items-center justify-center px-4 pt-40 pb-6 md:pt-60 md:px-6 overflow-visible">
+    <section className="relative z-20 flex flex-col items-center justify-center px-4 pt-40 pb-0 md:pt-60 md:px-6 overflow-visible">
       {/* Video background (Deactivated) */}
       {/*
       <video
@@ -396,14 +395,6 @@ export default function HeroTop(props: any) {
           />
         </motion.div>
 
-        {/* Subtitle */}
-        <motion.p
-          variants={itemVariants}
-          className="max-w-[520px] text-[15px] leading-[170%] text-text-muted md:text-[18px]"
-        >
-          {subtitle}
-        </motion.p>
-
         {/* CTAs — always one row, wraps on very small screens */}
         <motion.div
           variants={itemVariants}
@@ -414,33 +405,9 @@ export default function HeroTop(props: any) {
             onClick={() => handleOpenStrategist(true)}
             width={280}
           />
-          <LiquidMetalButton
-            label={submitted ? ctaStartOpening : ctaStart}
-            variant="white"
-            onClick={() => handleConnectNow()}
-            width={200}
-          />
         </motion.div>
 
-        {/* AI Strategist Orb — between CTAs and carousel */}
-        <motion.div
-          variants={itemVariants}
-          className="flex flex-col items-center justify-center mt-6 gap-3"
-        >
-          
-          <MagneticOrb onOpen={() => openNova("orb", false)} />
-        </motion.div>
 
-        
-      </motion.div>
-
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="relative z-20 flex w-full max-w-[1200px] flex-col items-center gap-2 text-center -mt-4"
-      >
-        {/* Badges moved to TrustedBadgesSection */}
       </motion.div>
 
 

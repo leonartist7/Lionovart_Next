@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -13,6 +14,12 @@ import { draftMode } from 'next/headers'
 import { PostHogInit } from "@/components/PostHogInit";
 import { NovaPortalMount } from "@/components/ai-strategist/NovaPortalMount";
 import { StickyCTA } from "@/components/ai-strategist/StickyCTA";
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-dm-sans",
+  display: "swap",
+});
 
 const clashDisplay = localFont({
   src: [
@@ -52,7 +59,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${clashDisplay.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang="en" className={`${clashDisplay.variable} ${dmSans.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
         <link rel="preload" as="image" href="https://imgur.com/8czAkK3.png" />
         <link rel="preload" as="image" href="https://imgur.com/L6zJMEm.png" />

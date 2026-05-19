@@ -8,6 +8,7 @@ import type { Locale } from "@/lib/i18n";
 const LANGUAGES: { code: Locale; label: string; flag: string }[] = [
   { code: "en", label: "EN", flag: "https://flagcdn.com/w40/ca.png" },
   { code: "fr", label: "FR", flag: "https://flagcdn.com/w40/fr.png" },
+  { code: "es", label: "ES", flag: "https://flagcdn.com/w40/es.png" },
 ];
 
 export function LanguageSwitcher({ isHeroMode }: { isHeroMode?: boolean }) {
@@ -89,8 +90,8 @@ export function LanguageSwitcher({ isHeroMode }: { isHeroMode?: boolean }) {
                     }}
                     className={`flex w-full items-center gap-2 px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.15em] transition-colors rounded-xl ${
                       isActive
-                        ? "text-white bg-white/15"
-                        : "text-white/70 hover:text-white hover:bg-white/10"
+                        ? "text-white bg-transparent"
+                        : "text-white/70 hover:text-white bg-transparent"
                     }`}
                   >
                     <img

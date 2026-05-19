@@ -1,12 +1,35 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+/* ── Responsive size map ─────────────────────────────────── */
+type ScreenTier = "sm" | "md" | "lg" | "xl";
+
+const SIDE_WIDTHS: Record<ScreenTier, number> = { sm: 45, md: 65, lg: 72, xl: 84 };
+const MID_WIDTHS:  Record<ScreenTier, number> = { sm: 70, md: 100, lg: 112, xl: 128 };
+
+function useTier(): ScreenTier {
+  const [tier, setTier] = useState<ScreenTier>("sm");
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      if (w >= 1280) setTier("xl");
+      else if (w >= 1024) setTier("lg");
+      else if (w >= 768)  setTier("md");
+      else                setTier("sm");
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  return tier;
+}
+
+/* ── Count-up hook ──────────────────────────────────────── */
 function useCountUp(end: number, duration: number = 2000, startAnimating: boolean) {
   const [count, setCount] = useState(0);
-
   useEffect(() => {
     if (!startAnimating) return;
     let startTime: number | null = null;
@@ -15,13 +38,10 @@ function useCountUp(end: number, duration: number = 2000, startAnimating: boolea
       const progress = Math.min((currentTime - startTime) / duration, 1);
       const easeOutQuart = 1 - Math.pow(1 - progress, 4);
       setCount(Math.floor(easeOutQuart * end));
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
+      if (progress < 1) requestAnimationFrame(animate);
     };
     requestAnimationFrame(animate);
   }, [end, duration, startAnimating]);
-
   return count;
 }
 
@@ -43,6 +63,7 @@ const FLAGS = [
   { src: "https://flagcdn.com/w40/gb.png", rot:  10, y:  0 },
 ];
 
+/* ── Laurel-framed badge ────────────────────────────────── */
 function TrustBadge({
   children,
   title,
@@ -54,15 +75,12 @@ function TrustBadge({
 }) {
   return (
     <div className="flex items-center justify-center gap-1">
-      {/* ── Left Laurel ── fixed height to maintain arch, scaled down 50% */}
       <img
         src="/images/laurel-L.webp"
         alt=""
         aria-hidden="true"
-        className="h-[60px] sm:h-[70px] md:h-[80px] w-auto object-contain pointer-events-none select-none"
+        className="h-[60px] sm:h-[70px] md:h-[80px] lg:h-[88px] xl:h-[100px] w-auto object-contain pointer-events-none select-none"
       />
-
-      {/* ── Content Container ── exact width requested */}
       <div
         className="flex flex-col items-center justify-center text-center flex-shrink-0"
         style={{ width: contentWidth }}
@@ -70,47 +88,80 @@ function TrustBadge({
         {children}
         {title && (
           <span
-            className="text-[#999] font-bold uppercase tracking-tight leading-[1] mt-1"
+            className="text-black font-bold uppercase tracking-tight leading-[1] mt-1"
             style={{ fontSize: contentWidth * 0.14 }}
           >
             {title}
           </span>
         )}
       </div>
-
-      {/* ── Right Laurel ── */}
       <img
         src="/images/laurel-R.webp"
         alt=""
         aria-hidden="true"
-        className="h-[60px] sm:h-[70px] md:h-[80px] w-auto object-contain pointer-events-none select-none"
+        className="h-[60px] sm:h-[70px] md:h-[80px] lg:h-[88px] xl:h-[100px] w-auto object-contain pointer-events-none select-none"
       />
     </div>
   );
 }
 
-function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; experience: readonly string[]; countries: string } }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "0px" });
+/* ── Inner component (IO + animations) ─────────────────── */
+function TrustBadgesInner({
+  badges,
+  externalTrigger,
+}: {
+  badges: { brands: readonly string[]; experience: readonly string[]; countries: string };
+  externalTrigger?: boolean;
+}) {
+  const [inView, setInView] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const tier = useTier();
 
-  const brandsCount    = useCountUp(50, 1600, inView);
-  const countriesCount = useCountUp(7, 1400, inView);
+  /* IO for non-pinned contexts (mobile, standalone) */
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
-  const sideWidth = typeof window !== "undefined" && window.innerWidth < 768 ? 45 : 65;
-  const midWidth  = typeof window !== "undefined" && window.innerWidth < 768 ? 70 : 100;
+  /* External trigger from parent (e.g. GSAP scroll sequence) */
+  useEffect(() => {
+    if (externalTrigger) setInView(true);
+  }, [externalTrigger]);
+
+  const shouldAnimate = inView;
+  const brandsCount    = useCountUp(50, 1600, shouldAnimate);
+  const countriesCount = useCountUp(7,  1400, shouldAnimate);
+
+  const sideWidth = SIDE_WIDTHS[tier];
+  const midWidth  = MID_WIDTHS[tier];
 
   return (
     <div
-      ref={ref}
-      className="flex flex-wrap justify-center items-center gap-y-2 gap-x-0 sm:gap-2 md:gap-4 w-full max-w-[1100px] mx-auto mt-4 md:mt-5"
+      ref={containerRef}
+      className="flex flex-wrap justify-center items-center gap-y-2 gap-x-0 sm:gap-2 md:gap-4 lg:gap-6 w-full max-w-[1100px] mx-auto"
     >
+      {/* Badge 1 — Brands */}
       <motion.div
         className="order-2 sm:order-1"
         initial={{ opacity: 0, y: 16 }}
-        animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+        animate={shouldAnimate ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
         transition={{ duration: 0.55, delay: 0.0, ease: [0.16, 1, 0.3, 1] }}
       >
-        <TrustBadge title={<>{badges.brands[0]}<br />{badges.brands[1]}</>} contentWidth={sideWidth}>
+        <TrustBadge
+          title={<>{badges.brands[0]}<br />{badges.brands[1]}</>}
+          contentWidth={sideWidth}
+        >
           <div
             className="flex items-center text-[#e5192a] font-black leading-none tracking-tighter"
             style={{ fontSize: sideWidth * 0.7 }}
@@ -121,13 +172,17 @@ function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; exp
         </TrustBadge>
       </motion.div>
 
+      {/* Badge 2 — Client Experience */}
       <motion.div
         className="order-1 sm:order-2 basis-full sm:basis-auto flex justify-center"
         initial={{ opacity: 0, y: 16 }}
-        animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+        animate={shouldAnimate ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
         transition={{ duration: 0.55, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
       >
-        <TrustBadge title={<>{badges.experience[0]}<br />{badges.experience[1]}</>} contentWidth={midWidth}>
+        <TrustBadge
+          title={<>{badges.experience[0]}<br />{badges.experience[1]}</>}
+          contentWidth={midWidth}
+        >
           <div className="flex flex-col items-center gap-2 sm:gap-3 w-full">
             <div className="flex items-center justify-between w-[95%]">
               {[0, 1, 2, 3, 4].map((i) => (
@@ -137,12 +192,8 @@ function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; exp
                   fill="#e5192a"
                   style={{ width: midWidth * 0.16, height: midWidth * 0.16 }}
                   initial={{ scale: 0, opacity: 0 }}
-                  animate={inView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
-                  transition={{
-                    duration: 0.4,
-                    delay: 0.3 + i * 0.08,
-                    ease: [0.34, 1.56, 0.64, 1],
-                  }}
+                  animate={shouldAnimate ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
+                  transition={{ duration: 0.4, delay: 0.3 + i * 0.08, ease: [0.34, 1.56, 0.64, 1] }}
                 >
                   <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                 </motion.svg>
@@ -164,10 +215,14 @@ function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; exp
                     flexShrink: 0,
                   }}
                   initial={{ opacity: 0, scale: 0.6 }}
-                  animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.6 }}
+                  animate={shouldAnimate ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.6 }}
                   transition={{ duration: 0.35, delay: 0.5 + i * 0.07, ease: "easeOut" }}
                 >
-                  <img src={src} alt="client" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <img
+                    src={src}
+                    alt="client"
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
                 </motion.div>
               ))}
             </div>
@@ -175,10 +230,11 @@ function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; exp
         </TrustBadge>
       </motion.div>
 
+      {/* Badge 3 — Countries */}
       <motion.div
         className="order-3"
         initial={{ opacity: 0, y: 16 }}
-        animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+        animate={shouldAnimate ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
         transition={{ duration: 0.55, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
       >
         <TrustBadge contentWidth={sideWidth}>
@@ -210,7 +266,7 @@ function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; exp
                     transform: `rotate(${flag.rot}deg) translateY(${flag.y}px)`,
                   }}
                   initial={{ opacity: 0, scale: 0.5 }}
-                  animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
+                  animate={shouldAnimate ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
                   transition={{ duration: 0.3, delay: 0.6 + i * 0.06, ease: "easeOut" }}
                 />
               ))}
@@ -222,30 +278,46 @@ function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; exp
   );
 }
 
-function DynamicTrustBadges({ badges }: { badges: { brands: readonly string[]; experience: readonly string[]; countries: string } }) {
+/* ── SSR-safe wrapper ───────────────────────────────────── */
+function DynamicTrustBadges({
+  badges,
+  externalTrigger,
+}: {
+  badges: { brands: readonly string[]; experience: readonly string[]; countries: string };
+  externalTrigger?: boolean;
+}) {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => { setIsMounted(true); }, []);
-
-  if (!isMounted) {
-    return <div className="w-full max-w-[1100px] mx-auto mt-4 md:mt-5 opacity-0 invisible h-[120px]" />;
-  }
-
-  return <TrustBadgesInner badges={badges} />;
+  if (!isMounted) return <div className="w-full max-w-[1100px] mx-auto opacity-0 invisible h-[120px]" />;
+  return <TrustBadgesInner badges={badges} externalTrigger={externalTrigger} />;
 }
 
-export default function TrustedBadgesSection() {
+/* ── Public component ───────────────────────────────────── */
+export default function TrustedBadgesSection({
+  variant = "dark",
+  externalTrigger,
+}: {
+  variant?: "dark" | "light";
+  externalTrigger?: boolean;
+}) {
   const { t } = useLanguage();
-  const badges = t.hero.badges;
+  const badges   = t.hero.badges;
   const trustText = t.hero.trustText;
 
   return (
-    <section className="bg-bg-dark py-12 flex flex-col items-center gap-2 text-center">
-      <DynamicTrustBadges badges={badges} />
+    <section
+      className={`${
+        variant === "light" ? "bg-transparent" : "bg-bg-dark"
+      } pt-4 md:pt-6 pb-3 md:pb-6 flex flex-col items-center gap-2 text-center`}
+    >
+      <DynamicTrustBadges badges={badges} externalTrigger={externalTrigger} />
       <motion.p
         initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="mt-1 text-[13px] font-medium tracking-wide text-text-muted md:text-[14px]"
+        className={`mt-1 text-[13px] font-medium tracking-wide md:text-[14px] lg:text-[15px] ${
+          variant === "light" ? "text-black" : "text-text-muted"
+        }`}
       >
         {trustText}
       </motion.p>

@@ -180,7 +180,13 @@ wss.on("connection", (ws, req) => {
         return;
       }
 
-      // ── TOOL RESPONSE (from client after handling UI tools) ─────
+      // ── TOOL RESPONSES from the frontend (new format) ───────────
+      if (payload.type === "tool_response") {
+        liveSession.sendToolResponse({ functionResponses: payload.responses });
+        return;
+      }
+
+      // ── TOOL RESPONSE (legacy direct path) ──────────────────────
       if (payload.toolResponse) {
         liveSession.sendToolResponse(payload.toolResponse);
         return;

@@ -17,12 +17,19 @@ const ORIGINAL_IMAGES = [
   "https://res.cloudinary.com/dgio9uutc/image/upload/v1775277350/image_19_rnwg8w.avif",
 ];
 
-// Double the array to 20 items so the cylinder is massive and wraps fully around the screen width
-const CAROUSEL_IMAGES = [...ORIGINAL_IMAGES, ...ORIGINAL_IMAGES];
-const N = CAROUSEL_IMAGES.length;
+const CAROUSEL_IMAGES = [...ORIGINAL_IMAGES, ...ORIGINAL_IMAGES]; // 20 items for hero
+const N = CAROUSEL_IMAGES.length; // 20 — 18° steps
 
-/* ─── 3D Carousel Component ─────────────────────────────────────── */
-export default function ImageMarquee() {
+// 40 items for outward: 9° steps → much larger radius, smooth dome, edge-to-edge coverage
+const OUTWARD_IMAGES = [...ORIGINAL_IMAGES, ...ORIGINAL_IMAGES, ...ORIGINAL_IMAGES, ...ORIGINAL_IMAGES];
+const N_OUT = OUTWARD_IMAGES.length; // 40
+
+interface ImageMarqueeProps {
+  outward?: boolean;
+  bg?: string;
+}
+
+export default function ImageMarquee({ outward = false, bg }: ImageMarqueeProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [radius, setRadius] = useState(600);
 
@@ -30,14 +37,14 @@ export default function ImageMarquee() {
     const compute = () => {
       if (!cardRef.current) return;
       const w = cardRef.current.offsetWidth;
-      // CodePen gap approximation
-      const r = (w * 0.5 + 12) / Math.tan(Math.PI / N);
+      const n = outward ? N_OUT : N;
+      const r = (w * 0.5 + 12) / Math.tan(Math.PI / n);
       setRadius(r);
     };
     compute();
     window.addEventListener("resize", compute);
     return () => window.removeEventListener("resize", compute);
-  }, []);
+  }, [outward]);
 
   return (
     <motion.div
@@ -45,53 +52,54 @@ export default function ImageMarquee() {
       whileInView={{ opacity: 1 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 1.2 }}
-      className="relative z-0 w-full overflow-visible pointer-events-none py-3"
+      className={`relative z-0 w-full overflow-visible pointer-events-none${outward ? " pt-4 md:pt-6 pb-2 md:pb-3" : " py-2 md:py-3"}${bg ? ` ${bg}` : ""}`}
     >
       <div
         className="relative w-screen left-1/2 -translate-x-1/2 overflow-hidden flex justify-center"
         style={{
-          perspective: "clamp(400px, 36vw, 800px)",
-          maskImage: "linear-gradient(90deg, transparent, black 15%, black 85%, transparent)",
-          WebkitMaskImage: "linear-gradient(90deg, transparent, black 15%, black 85%, transparent)",
+          perspective: outward ? `${radius * 0.5}px` : "clamp(400px, 36vw, 800px)",
+          maskImage: "linear-gradient(90deg, transparent, black max(15%, calc(50% - 600px)), black min(85%, calc(50% + 600px)), transparent)",
+          WebkitMaskImage: "linear-gradient(90deg, transparent, black max(15%, calc(50% - 600px)), black min(85%, calc(50% + 600px)), transparent)",
         }}
       >
-        {/* We use scale(1.4) to counteract the perspective shrink so the cards appear closer to their true CSS pixel size */}
-        <div style={{ transform: "scale(1.4)", transformStyle: "preserve-3d", display: "flex", justifyContent: "center" }}>
+        <div style={{ transform: outward ? `scale(1.4) translateZ(${-radius}px)` : "scale(1.4)", transformStyle: "preserve-3d", display: "flex", justifyContent: "center" }}>
           <div
             className="grid"
             style={{
               transformStyle: "preserve-3d",
-              animation: "carousel-spin 75s linear infinite",
-              height: "clamp(240px, 30vw, 420px)",
+              animation: `carousel-spin ${outward ? "120s" : "75s"} linear infinite`,
+              animationDirection: outward ? "reverse" : "normal",
+              height: outward ? "clamp(247px, 28vw, 448px)" : "clamp(240px, 30vw, 420px)",
               placeItems: "center",
             }}
           >
-            {CAROUSEL_IMAGES.map((src, i) => {
-              const angleTurn = i / N;
+            {(outward ? OUTWARD_IMAGES : CAROUSEL_IMAGES).map((src, i) => {
+              const n = outward ? N_OUT : N;
+              const angleTurn = i / n;
               return (
                 <div
                   key={i}
                   ref={i === 0 ? cardRef : undefined}
                   style={{
                     gridArea: "1 / 1",
-                    // Width based on 8/10 aspect ratio to achieve ~220px to ~400px height
-                    width: "clamp(176px, 20vw, 320px)",
+                    width: "clamp(141px, 16vw, 256px)",
                     aspectRatio: "8 / 10",
-                    // Because N=20 and width is large, the radius is huge. 
-                    // This pushes cards back, but the parent translateZ brings them forward again.
-                    transform: `rotateY(${angleTurn}turn) translateZ(${-radius}px)`,
+                    transform: `rotateY(${angleTurn}turn) translateZ(${outward ? radius : -radius}px)`,
                     backfaceVisibility: "hidden",
                     WebkitBackfaceVisibility: "hidden",
                   }}
-                  className="relative overflow-hidden rounded-[16px] md:rounded-[24px] border border-white/10 bg-[#1a1a1a]"
+                  className={`relative ${
+                    outward
+                      ? "rounded-[16px] md:rounded-[24px] border border-black/10 bg-[#eceff3]"
+                      : "overflow-hidden rounded-[16px] md:rounded-[24px] border border-white/10 bg-[#1a1a1a]"
+                  }`}
                 >
-                  {/* Using a standard <img> tag bypasses the strict Next.js Image Optimizer 
-                      which was throwing 400 Bad Request errors on Cloud Run. */}
                   <img
                     src={src}
                     alt="Portfolio showcase"
                     className="w-full h-full object-cover"
                     loading="lazy"
+                    style={{ borderRadius: "inherit" }}
                   />
                 </div>
               );

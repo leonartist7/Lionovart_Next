@@ -1,11 +1,10 @@
 import HeroTop from "@/components/sections/HeroTop";
-import TrustedBadgesSection from "@/components/sections/TrustedBadgesSection";
+import VideoCurtainReveal from "@/components/sections/VideoCurtainReveal";
+import { HeroRevealWrapper } from "@/components/sections/HeroRevealWrapper";
+
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
-import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
-import LumaShowcase from "@/components/sections/LumaShowcase";
 import ImageMarquee from "@/components/sections/ImageMarquee";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
-import Portfolio from "@/components/sections/Portfolio";
 import Services from "@/components/sections/Services";
 import Comparison from "@/components/sections/Comparison";
 import Process from "@/components/sections/Process";
@@ -33,20 +32,39 @@ export function PageBuilder({ blocks }: { blocks: SanityBlock[] }) {
   if (!blocks || blocks.length === 0) {
     return (
       <>
-        <NovaSection id="hero"><HeroTop /></NovaSection>
-        <ImageMarquee />
-        <TrustedBadgesSection />
-        <NovaSection id="about"><AboutUsHalf /></NovaSection>
-        <NovaSection id="showcase"><LumaShowcase /></NovaSection>
-        <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
-        <MarqueeSlanted />
-        <NovaSection id="services"><Services /></NovaSection>
-        <TestimonialsCarousel />
-        <NovaSection id="portfolio"><Portfolio /></NovaSection>
-        <NovaSection id="process"><Process /></NovaSection>
-        <NovaSection id="comparison"><Comparison /></NovaSection>
-        <NovaSection id="testimonials"><Testimonials /></NovaSection>
-        <NovaSection id="faq"><FAQ /></NovaSection>
+        {/* Curtain card — fixed overlay, slides up on scroll */}
+        <VideoCurtainReveal />
+
+        {/*
+          Sticky hero group: stays pinned at top-0 while everything
+          below scrolls up over it. z-0 keeps it behind the curtain
+          (z-49) during the card animation, then behind all sections
+          that follow (z-[1]).
+        */}
+        {/* Hero fades in as card passes 50%, pushed up by About Us at 80% scroll speed */}
+        <HeroRevealWrapper>
+          <NovaSection id="hero"><HeroTop /></NovaSection>
+          <ImageMarquee />
+        </HeroRevealWrapper>
+
+        {/* Breathing room: 100vh so card fully exits before About Us enters */}
+        <div className="h-[60vh] md:h-[80vh] lg:h-[100vh]" />
+
+        {/*
+          All sections sit at z-[2] so they scroll over the fixed hero.
+          About Us is the first pusher — no ImageMarquee here anymore.
+        */}
+        <div className="relative z-[2]">
+          <NovaSection id="about"><AboutUsHalf /></NovaSection>
+          <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
+          <ImageMarquee outward bg="bg-bg-surface-light" />
+          <NovaSection id="services"><Services /></NovaSection>
+          <TestimonialsCarousel />
+          <NovaSection id="process"><Process /></NovaSection>
+          <NovaSection id="comparison"><Comparison /></NovaSection>
+          <NovaSection id="testimonials"><Testimonials /></NovaSection>
+          <NovaSection id="faq"><FAQ /></NovaSection>
+        </div>
       </>
     );
   }
