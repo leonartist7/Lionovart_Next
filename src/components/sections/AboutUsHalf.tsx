@@ -153,9 +153,9 @@ export default function AboutUsHalf(props: any) {
   const desktopRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
 
-  const headlineTop = props.headlineTop || t.about.line1;
-  const bodyText    = props.bodyText    || t.about.line2;
-  const founderRole = props.founderRole || t.about.founderRole;
+  const headlineTop: string = props.headlineTop || t.about.line1;
+  const bodyText: string    = props.bodyText    || t.about.line2;
+  const founderRole: string = props.founderRole || t.about.founderRole;
 
   const [contactOpen,   setContactOpen]   = useState(false);
   const [badgesTrigger, setBadgesTrigger] = useState(false);
