@@ -26,9 +26,9 @@ function NovaSection({ id, children }: { id: string; children: React.ReactNode }
   );
 }
 
-type SanityBlock = { _type?: string; _key?: string; [key: string]: unknown };
+type PageBlock = { _type?: string; _key?: string; [key: string]: unknown };
 
-export function PageBuilder({ blocks }: { blocks: SanityBlock[] }) {
+export function PageBuilder({ blocks }: { blocks: PageBlock[] }) {
   if (!blocks || blocks.length === 0) {
     return (
       <>

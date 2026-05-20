@@ -2,15 +2,7 @@ import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
 import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
 import { PageBuilder } from "@/components/sections/PageBuilder";
-import { sanityFetch } from "@/sanity/lib/live";
-import { PAGE_QUERY } from "@/sanity/lib/queries";
-
-export default async function Home() {
-  const { data } = await sanityFetch({
-    query: PAGE_QUERY,
-    params: { slug: "/" },
-  });
-
+export default function Home() {
   return (
     <>
       {/* z-10 stacking context: dark bg covers the sticky marquee below while scrolling */}

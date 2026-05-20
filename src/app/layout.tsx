@@ -4,13 +4,6 @@ import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { VisualEditorProvider } from "@/lib/visual-editor-context";
-import { VisualEditorOverlay } from "@/components/VisualEditorOverlay";
-import { VisualEditorHotkey } from "@/components/VisualEditorHotkey";
-import { VisualEditorShell } from "@/components/visual-editor/VisualEditorShell";
-import { SanityLive } from '@/sanity/lib/live'
-import { VisualEditing } from 'next-sanity/visual-editing'
-import { draftMode } from 'next/headers'
 import { PostHogInit } from "@/components/PostHogInit";
 import { NovaPortalMount } from "@/components/ai-strategist/NovaPortalMount";
 import { StickyCTA } from "@/components/ai-strategist/StickyCTA";
@@ -68,18 +61,9 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col">
         <PostHogInit />
         <LanguageProvider>
-          <VisualEditorProvider>
-            <VisualEditorHotkey />
-            <VisualEditorOverlay />
-            <div data-visual-editor="true">
-              <VisualEditorShell />
-            </div>
-            <SmoothScrollProvider>{children}</SmoothScrollProvider>
-            <NovaPortalMount />
-            <StickyCTA />
-            <SanityLive />
-            {(await draftMode()).isEnabled && <VisualEditing />}
-          </VisualEditorProvider>
+          <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          <NovaPortalMount />
+          <StickyCTA />
         </LanguageProvider>
       </body>
     </html>
