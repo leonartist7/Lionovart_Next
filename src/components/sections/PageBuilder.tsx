@@ -3,7 +3,7 @@ import VideoCurtainReveal from "@/components/sections/VideoCurtainReveal";
 import { HeroRevealWrapper } from "@/components/sections/HeroRevealWrapper";
 
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
-import ImageMarquee from "@/components/sections/ImageMarquee";
+import ImageMarquee from "@/components/ui/ImageMarquee";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
 import Services from "@/components/sections/Services";
 import Comparison from "@/components/sections/Comparison";
@@ -47,8 +47,8 @@ export function PageBuilder({ blocks }: { blocks: PageBlock[] }) {
           <ImageMarquee />
         </HeroRevealWrapper>
 
-        {/* Breathing room: 100vh so card fully exits before About Us enters */}
-        <div className="h-[60vh] md:h-[80vh] lg:h-[100vh]" />
+        {/* Breathing room: extended gap so curtain fully exits before About Us enters */}
+        <div className="h-[100vh] md:h-[120vh] lg:h-[150vh]" />
 
         {/*
           All sections sit at z-[2] so they scroll over the fixed hero.
@@ -57,7 +57,6 @@ export function PageBuilder({ blocks }: { blocks: PageBlock[] }) {
         <div className="relative z-[2]">
           <NovaSection id="about"><AboutUsHalf /></NovaSection>
           <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
-          <ImageMarquee outward bg="bg-bg-surface-light" />
           <NovaSection id="services"><Services /></NovaSection>
           <TestimonialsCarousel />
           <NovaSection id="process"><Process /></NovaSection>

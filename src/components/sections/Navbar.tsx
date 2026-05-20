@@ -13,6 +13,7 @@ import { getWhatsAppUrl } from "@/lib/contact";
 import { MenuBurgerLottie } from "@/components/ui/menu-burger-lottie";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useHeroImageStore } from "@/lib/stores/hero-image-store";
 
 export default function Navbar() {
   const [isPastHero, setIsPastHero] = useState(false);
@@ -21,6 +22,7 @@ export default function Navbar() {
   const [isVisible, setIsVisible] = useState(true);
   const { scrollY } = useScroll();
   const { t } = useLanguage();
+  const { images, currentIndex, next, prev } = useHeroImageStore();
 
   const NAV_LINKS = [
     { label: t.nav.we, href: "#about" },
@@ -29,15 +31,21 @@ export default function Navbar() {
   ];
 
   // Refs to avoid stale closures in scroll handler
-  const isInLumaRef   = useRef(false);
-  const isVisibleRef  = useRef(true);
-  const hideAtRef     = useRef(0);      // tracks lowest scrollY when hidden
-  const lastScrollRef = useRef(0);
+  const isInLumaRef      = useRef(false);
+  const isVisibleRef     = useRef(true);
+  const hideAtRef        = useRef(0);      // tracks lowest scrollY when hidden
+  const lastScrollRef    = useRef(0);
+  const isMobileOpenRef  = useRef(false);
 
   const setNavVisible = (val: boolean) => {
     isVisibleRef.current = val;
     setIsVisible(val);
   };
+
+  // Keep isMobileOpenRef in sync so the scroll handler never sees stale state
+  useEffect(() => {
+    isMobileOpenRef.current = isMobileOpen;
+  }, [isMobileOpen]);
 
   useEffect(() => {
     const calc = () => setHeroThreshold(window.innerHeight * 0.5);
@@ -68,6 +76,11 @@ export default function Navbar() {
     lastScrollRef.current = latest;
 
     setIsPastHero(latest > heroThreshold);
+
+    // Close mobile menu on any scroll ≥ 5px
+    if (isMobileOpenRef.current && Math.abs(delta) >= 5) {
+      setIsMobileOpen(false);
+    }
 
     if (!isInLumaRef.current) return;
 
@@ -193,6 +206,38 @@ export default function Navbar() {
                     transition={{ duration: 0.25 }}
                   >
                     <LanguageSwitcher isHeroMode={true} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Hero image cycler — hero mode only, only when >1 image */}
+              <AnimatePresence>
+                {heroMode && images.length > 1 && (
+                  <motion.div
+                    key="img-cycler"
+                    className="hidden sm:flex items-center gap-1"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    <button
+                      onClick={prev}
+                      aria-label="Previous hero image"
+                      className="text-white/60 hover:text-white transition-colors p-1 text-base leading-none"
+                    >
+                      ←
+                    </button>
+                    <span className="text-white/50 text-[11px] tabular-nums select-none w-[28px] text-center">
+                      {currentIndex + 1}/{images.length}
+                    </span>
+                    <button
+                      onClick={next}
+                      aria-label="Next hero image"
+                      className="text-white/60 hover:text-white transition-colors p-1 text-base leading-none"
+                    >
+                      →
+                    </button>
                   </motion.div>
                 )}
               </AnimatePresence>

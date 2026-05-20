@@ -278,6 +278,21 @@
 }
 
 /* =============================================
+   Testimonials — two-row drag marquee
+   ============================================= */
+@keyframes marquee-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes marquee-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+.animate-marquee-left  { animation: marquee-left  55s linear infinite; }
+.animate-marquee-right { animation: marquee-right 55s linear infinite; }
+
+/* =============================================
    Reduced Motion — AI Strategist
    ============================================= */
 @media (prefers-reduced-motion: reduce) {
@@ -287,5 +302,10 @@
   .animate-typing-dot {
     animation: none !important;
     opacity: 0.6 !important;
+  }
+  .animate-marquee-left,
+  .animate-marquee-right {
+    animation: none !important;
+    transform: translateX(0) !important;
   }
 }

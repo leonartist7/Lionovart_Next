@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import { useHeroImageStore } from "@/lib/stores/hero-image-store";
 import { getWhatsAppUrl } from "@/lib/contact";
 import HeroCycling, { Word } from "@/components/sections/HeroCycling";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
@@ -333,6 +334,12 @@ export default function HeroTop(props: any) {
   const { t } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
   const openNova = useNovaStore((s) => s.openNova);
+  const { images, currentIndex, init } = useHeroImageStore();
+  const currentBg = images[currentIndex];
+
+  useEffect(() => {
+    void init();
+  }, [init]);
 
   const staticText = props.staticText || t.hero.staticText;
   const cyclingWordsRaw = props.cyclingWords || t.hero.cyclingWords;
@@ -362,27 +369,34 @@ export default function HeroTop(props: any) {
 
   return (
     <section className="relative z-20 flex flex-col items-center justify-center px-4 pt-40 pb-0 md:pt-60 md:px-6 overflow-visible">
-      {/* Video background (Deactivated) */}
-      {/*
-      <video
-        className="absolute inset-0 w-full h-full object-cover z-0"
-        src="https://res.cloudinary.com/dgio9uutc/video/upload/v1775960150/hero-notext_eqjdin.mp4"
-        autoPlay
-        muted
-        loop
-        playsInline
-      />
-      */}
+      {/* Hero background image — fades between images when index changes */}
+      <AnimatePresence>
+        {currentBg && (
+          <motion.div
+            key={currentBg}
+            className="absolute inset-0 z-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            style={{
+              backgroundImage: `url(${currentBg})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          />
+        )}
+      </AnimatePresence>
       {/* Dark overlay to preserve text readability */}
-      <div className="absolute inset-0 bg-bg-dark/10 z-0 pointer-events-none" />
+      <div className="absolute inset-0 bg-bg-dark/40 z-[1] pointer-events-none" />
       {/* Bottom gradient to blend into the next section */}
-      <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-bg-dark to-transparent z-0 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-bg-dark to-transparent z-[1] pointer-events-none" />
 
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-20 flex w-full max-w-[1200px] flex-col items-center gap-2 text-center -mt-4"
+        className="relative z-[2] flex w-full max-w-[1200px] flex-col items-center gap-2 text-center -mt-4"
       >
         {/* Main Heading — cycling */}
         <motion.div variants={itemVariants} className="w-full text-center">

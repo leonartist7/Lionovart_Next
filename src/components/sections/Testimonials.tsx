@@ -1,11 +1,11 @@
 "use client";
 
-import { useRef, useEffect } from "react";
-import { motion, useMotionValue, useTransform, MotionValue } from "framer-motion";
-import { Star } from "lucide-react";
+import { useState } from "react";
+import { motion, useMotionValue } from "framer-motion";
+import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-// Static data — quotes, authors, roles stay in English (real client words)
+// Static fallback — real client words, used if i18n is unavailable.
 const TESTIMONIALS_STATIC = [
   {
     quote:
@@ -39,247 +39,139 @@ const TESTIMONIALS_STATIC = [
   },
 ];
 
-type TestimonialItem = {
-  industry: string;
-  hook: string;
-  quote: string;
-  author: string;
-  role: string;
-};
+type Testimonial = { quote: string; author: string; role: string };
 
-// ─── Desktop Card ───────────────────────────────────────────────────────────
-// Uses a manually-driven MotionValue (not useScroll) so it works correctly
-// alongside Lenis smooth scroll, which can confuse Framer Motion v12's
-// WAAPI-based ScrollTimeline implementation.
-function DesktopCard({
-  item,
-  index,
-  totalCards,
-  progress,
-}: {
-  item: TestimonialItem;
-  index: number;
-  totalCards: number;
-  progress: MotionValue<number>;
-}) {
-  const step = 1 / totalCards;
-
-  // Card 0 starts fully visible and fades as card 1 rises to cover it.
-  // Cards 1–4 rise from y:60 into position then fade in place.
-  // zIndex = index: each new card renders ON TOP of the one before it,
-  // so the rising card always covers the fading card cleanly.
-  let inputRange: number[];
-  let outOpacity: number[];
-  let outY: number[];
-  let outScale: number[];
-
-  if (index === 0) {
-    inputRange = [0, step];
-    outOpacity = [1, 0];
-    outY     = [0, 0];
-    outScale = [1, 1];
-  } else {
-    const preEnter = index * step - step * 0.5; // start rising half a step early
-    const enter    = index * step;
-    const exit     = Math.min(1, (index + 1) * step);
-    inputRange = [Math.max(0, preEnter), enter, exit];
-    outOpacity = [0, 1, 0];
-    outY       = [60, 0, 0];
-    outScale   = [0.95, 1, 1];
-  }
-
-  const scale   = useTransform(progress, inputRange, outScale);
-  const yOffset = useTransform(progress, inputRange, outY);
-  const opacity = useTransform(progress, inputRange, outOpacity);
-
+// ─── Card ─────────────────────────────────────────────────────────────────
+function TestimonialCard({ quote, author, role }: Testimonial) {
   return (
-    <motion.div
-      style={{ scale, y: yOffset, opacity, zIndex: index }}
-      className="absolute top-0 left-0 w-full h-full bg-white rounded-[24px] p-8 lg:p-10 xl:p-12 shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-gray-100 flex flex-col transition-none"
-    >
-      <div className="flex items-center justify-between mb-6">
-        <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#e5192a]">
-          {item.industry}
-        </span>
-        <div className="flex items-center gap-1">
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} className="w-4 h-4 fill-[#facc15] text-[#facc15]" />
-          ))}
-        </div>
-      </div>
-
-      <h3 className="text-[#111] font-bold text-lg lg:text-xl mb-4 leading-tight">
-        {item.hook}
-      </h3>
-
-      <p className="text-[#333] text-[15px] lg:text-[17px] leading-[1.6] mb-8 flex-1 italic">
-        &quot;{item.quote}&quot;
+    <div className="shrink-0 w-[340px] md:w-[400px] lg:w-[440px] bg-white border border-[#e8e8e8] rounded-2xl px-7 py-6 md:px-8 md:py-7 shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
+      <span
+        aria-hidden
+        className="font-clash text-[72px] leading-[0.8] text-brand-red font-bold mb-2 block select-none"
+      >
+        &ldquo;
+      </span>
+      <p className="font-body text-[15px] md:text-[16px] leading-[1.75] text-[#111111] font-normal">
+        {quote}
       </p>
-
-      <div className="mt-auto">
-        <p className="text-[#111] font-bold text-[15px] uppercase tracking-wide">
-          {item.author}
-        </p>
-        <p className="text-[#666] text-[13px] mt-1">{item.role}</p>
-      </div>
-    </motion.div>
-  );
-}
-
-// ─── Mobile Card ────────────────────────────────────────────────────────────
-function MobileCard({ item }: { item: TestimonialItem }) {
-  return (
-    <div className="bg-white rounded-[20px] p-6 sm:p-8 shadow-[0_12px_30px_rgba(0,0,0,0.06)] border border-gray-100 flex flex-col">
-      <div className="flex items-center justify-between mb-5">
-        <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] text-[#e5192a]">
-          {item.industry}
-        </span>
-        <div className="flex items-center gap-1">
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} className="w-3.5 h-3.5 fill-[#facc15] text-[#facc15]" />
-          ))}
-        </div>
-      </div>
-
-      <h3 className="text-[#111] font-bold text-[16px] sm:text-lg mb-3 leading-tight">
-        {item.hook}
-      </h3>
-
-      <p className="text-[#444] text-[14px] sm:text-[15px] leading-[1.6] mb-6 flex-1 italic">
-        &quot;{item.quote}&quot;
+      <div className="mt-5 mb-4 border-t border-[#e8e8e8]" />
+      <p className="font-clash text-[12px] font-bold uppercase tracking-[0.12em] text-[#111111]">
+        {author}
       </p>
-
-      <div className="mt-auto">
-        <p className="text-[#111] font-bold text-[14px] sm:text-[15px] uppercase tracking-wide">
-          {item.author}
-        </p>
-        <p className="text-[#666] text-[12px] sm:text-[13px] mt-1">{item.role}</p>
-      </div>
+      <p className="font-body text-[11px] text-[#666666] mt-0.5">{role}</p>
     </div>
   );
 }
 
-// ─── Main Section ──────────────────────────────────────────────────────────
-export default function Testimonials(props: any) {
-  const { t } = useLanguage();
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const eyebrow    = props.eyebrow    || t.testimonials.eyebrow;
-  const heading    = props.heading    || t.testimonials.heading;
-  const subheading = props.subheading || t.testimonials.subheading;
-
-  // Merge Sanity items with static data; fall back to static+i18n
-  const TESTIMONIALS: TestimonialItem[] = (props.items && props.items.length > 0)
-    ? props.items.map((item: any) => ({
-        industry: item.industry,
-        hook:     item.hook,
-        quote:    item.quote,
-        author:   item.author,
-        role:     item.role ?? '',
-      }))
-    : t.testimonials.reviews.map((s, i) => ({
-        industry: t.testimonials.industries[i] ?? "",
-        hook:     t.testimonials.hooks[i] ?? "",
-        ...s,
-      }));
-
-  // Manually track scroll progress so we bypass Framer Motion v12's WAAPI
-  // ScrollTimeline, which mis-calculates progress when Lenis smooth scroll
-  // is running (Lenis moves scroll differently than native window.scrollY).
-  const progress = useMotionValue(0);
-
-  useEffect(() => {
-    const update = () => {
-      const el = containerRef.current;
-      if (!el) return;
-      const rect  = el.getBoundingClientRect();
-      const total = el.offsetHeight - window.innerHeight;
-      if (total <= 0) return;
-      const p = Math.max(0, Math.min(1, -rect.top / total));
-      progress.set(p);
-    };
-
-    window.addEventListener("scroll", update, { passive: true });
-    // Also run on resize in case layout shifts
-    window.addEventListener("resize", update, { passive: true });
-    update(); // set initial value
-    return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
-  }, [progress]);
+// ─── Row ──────────────────────────────────────────────────────────────────
+// Each row owns its drag state + offset independently. The CSS marquee runs on
+// the inner track; the outer motion.div carries the persisted drag offset so
+// the auto-scroll resumes from wherever the user released.
+function MarqueeRow({
+  cards,
+  direction,
+}: {
+  cards: Testimonial[];
+  direction: "left" | "right";
+}) {
+  const dragX = useMotionValue(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const track = [...cards, ...cards];
 
   return (
-    <section id="testimonials" className="bg-bg-surface-light relative w-full">
-
-      {/* ── MOBILE / TABLET LAYOUT (< 1024px) — horizontal draggable marquee ── */}
-      <div className="flex lg:hidden flex-col py-16 sm:py-24">
-        <div className="mb-10 px-6 sm:px-10">
-          <p className="text-[#e5192a] text-[12px] font-bold uppercase tracking-[0.2em] mb-2">
-            {eyebrow}
-          </p>
-          <h2 className="text-[2.5rem] sm:text-[3.5rem] font-bold uppercase leading-none tracking-tight text-[#111]">
-            {heading}
-          </h2>
-        </div>
-
-        {/* Drag-scroll strip */}
-        <div className="overflow-hidden">
-          <motion.div
-            className="flex gap-4 px-6 sm:px-10 cursor-grab active:cursor-grabbing"
-            drag="x"
-            dragConstraints={{ right: 0, left: -((TESTIMONIALS.length - 1) * 320) }}
-            dragElastic={0.1}
-            whileTap={{ cursor: "grabbing" }}
-          >
-            {TESTIMONIALS.map((item, i) => (
-              <div key={i} className="shrink-0 w-[300px] sm:w-[360px]">
-                <MobileCard item={item} />
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </div>
-
-      {/* ── DESKTOP LAYOUT (>= 1024px) Cinematic Stack ── */}
-      {/* 500vh gives enough scroll runway for 5 cards (100vh each) */}
-      <div
-        ref={containerRef}
-        className="hidden lg:block relative w-full h-[500vh]"
+    <div className="overflow-hidden">
+      <motion.div
+        style={{ x: dragX }}
+        drag="x"
+        dragMomentum={false}
+        dragElastic={0}
+        onDragStart={() => setIsDragging(true)}
+        onDragEnd={() => setIsDragging(false)}
+        whileTap={{ cursor: "grabbing" }}
+        className="w-max cursor-grab"
       >
-        <div className="sticky top-0 w-full h-screen flex items-center justify-center overflow-hidden">
-          <div className="w-full max-w-[1280px] mx-auto px-10 flex items-center justify-between gap-12 xl:gap-20">
+        <div
+          className={cn(
+            "flex gap-5 w-max will-change-transform",
+            direction === "left"
+              ? "animate-marquee-left"
+              : "animate-marquee-right",
+            "group-hover:[animation-play-state:paused]",
+            isDragging && "[animation-play-state:paused]"
+          )}
+        >
+          {track.map((c, i) => (
+            <TestimonialCard key={i} {...c} />
+          ))}
+        </div>
+      </motion.div>
+    </div>
+  );
+}
 
-            {/* Left: Sticky Header */}
-            <div className="w-5/12 flex flex-col justify-center">
-              <p className="text-[#e5192a] text-[13px] font-bold uppercase tracking-[0.2em] mb-4">
-                {eyebrow}
-              </p>
-              <h2 className="text-[4rem] xl:text-[4.5rem] font-bold uppercase leading-[1.05] tracking-tight text-[#111] mb-6">
-                {heading}
-              </h2>
-              <p className="text-[#444] text-[17px] leading-[1.6] max-w-[400px]">
-                {subheading}
-              </p>
-            </div>
+// ─── Section ────────────────────────────────────────────────────────────────
+export default function Testimonials(props: any) {
+  const { t } = useLanguage();
 
-            {/* Right: Card Stack */}
-            <div className="w-6/12 relative h-[500px] xl:h-[550px]">
-              {TESTIMONIALS.map((item, i) => (
-                <DesktopCard
-                  key={i}
-                  index={i}
-                  totalCards={TESTIMONIALS.length}
-                  item={item}
-                  progress={progress}
-                />
-              ))}
-            </div>
+  const eyebrow = props.eyebrow || t.testimonials.eyebrow;
+  const heading = props.heading || t.testimonials.heading;
+  const headingAccent = props.headingAccent || "";
 
-          </div>
+  const source: Testimonial[] =
+    props.items && props.items.length > 0
+      ? props.items.map((item: any) => ({
+          quote: item.quote,
+          author: item.author,
+          role: item.role ?? "",
+        }))
+      : t.testimonials.reviews?.length
+      ? t.testimonials.reviews.map((r: any) => ({
+          quote: r.quote,
+          author: r.author,
+          role: r.role ?? "",
+        }))
+      : TESTIMONIALS_STATIC;
+
+  // Row 2 starts on a different card for visual variety.
+  const row2 = [...source.slice(2), ...source.slice(0, 2)];
+
+  return (
+    <section id="testimonials" className="bg-bg-surface-light overflow-hidden">
+      <div className="mx-auto max-w-[1280px] px-4 md:px-8 pt-[80px] md:pt-[100px]">
+        <div className="flex flex-col items-center text-center mb-[60px] md:mb-[80px]">
+          <motion.p
+            className="text-brand-red text-[11px] md:text-[13px] font-bold uppercase tracking-[0.3em] mb-4"
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4 }}
+          >
+            {eyebrow}
+          </motion.p>
+          <motion.h2
+            className="text-[2.5rem] sm:text-[3.5rem] md:text-[5rem] font-bold uppercase leading-[0.92] tracking-[-0.02em] text-[#111111]"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            {heading}
+            {headingAccent && (
+              <>
+                {" "}
+                <span className="text-brand-red">{headingAccent}</span>
+              </>
+            )}
+          </motion.h2>
         </div>
       </div>
 
+      <div className="group pb-[100px] md:pb-[120px]">
+        <MarqueeRow cards={source} direction="left" />
+        <div className="mt-5 md:mt-6">
+          <MarqueeRow cards={row2} direction="right" />
+        </div>
+      </div>
     </section>
   );
 }
