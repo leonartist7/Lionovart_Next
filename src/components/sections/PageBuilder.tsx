@@ -56,9 +56,9 @@ export function PageBuilder({ blocks }: { blocks: SanityBlock[] }) {
         */}
         <div className="relative z-[2]">
           <NovaSection id="about"><AboutUsHalf /></NovaSection>
+          <NovaSection id="services"><Services /></NovaSection>
           <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
           <ImageMarquee outward bg="bg-bg-surface-light" />
-          <NovaSection id="services"><Services /></NovaSection>
           <TestimonialsCarousel />
           <NovaSection id="process"><Process /></NovaSection>
           <NovaSection id="comparison"><Comparison /></NovaSection>
