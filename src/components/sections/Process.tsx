@@ -8,6 +8,7 @@ import {
   useMotionValueEvent,
   useReducedMotion,
 } from "framer-motion";
+import { animate, createScope } from "animejs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
 
@@ -63,6 +64,8 @@ export default function Process(props: any) {
   const sectionRef = useRef<HTMLElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const circleRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const railRef = useRef<HTMLDivElement>(null);
+  const cometRef = useRef<HTMLDivElement>(null);
 
   // Progress 0→1 as the section travels through the viewport.
   const { scrollYProgress } = useScroll({
@@ -99,7 +102,34 @@ export default function Process(props: any) {
 
   useMotionValueEvent(lineProgress, "change", (p) => {
     setActiveCount(thresholds.filter((th) => p >= th - 0.0001).length);
+    const rail = railRef.current;
+    const comet = cometRef.current;
+    if (rail && comet) {
+      const railH = rail.clientHeight;
+      const cometH = comet.clientHeight;
+      comet.style.transform = `translateY(${(railH - cometH / 2) * p}px)`;
+    }
   });
+
+  // Idle pulse on the comet via anime.js — keeps the rail "alive" even when
+  // the user isn't scrolling. Scoped so it tears down on unmount.
+  useEffect(() => {
+    const comet = cometRef.current;
+    if (!comet) return;
+    const scope = createScope({ root: comet }).add(() => {
+      animate(comet, {
+        scale: [1, 1.35],
+        opacity: [1, 0.75],
+        duration: 1200,
+        loop: true,
+        alternate: true,
+        ease: "inOutSine",
+      });
+    });
+    return () => {
+      scope.revert();
+    };
+  }, []);
 
   return (
     <section
@@ -137,6 +167,7 @@ export default function Process(props: any) {
         >
           {/* Rail overlay — desktop only, centered in the 72px right column */}
           <div
+            ref={railRef}
             aria-hidden
             className="hidden md:block absolute top-0 bottom-0 right-[35px] w-[2px]"
           >
@@ -144,6 +175,16 @@ export default function Process(props: any) {
             <motion.div
               style={{ scaleY: reduce ? 1 : lineProgress }}
               className="absolute inset-0 origin-top rounded-full bg-brand-red"
+            />
+            {/* Comet trailer — rides the leading edge of the red fill,
+                pulses via anime.js even when scroll is idle. */}
+            <div
+              ref={cometRef}
+              className="absolute -left-[6px] -top-[6px] w-[14px] h-[14px] rounded-full bg-brand-red will-change-transform"
+              style={{
+                filter: "drop-shadow(0 0 10px rgba(229,25,42,0.85))",
+                transform: "translateY(0px)",
+              }}
             />
           </div>
 

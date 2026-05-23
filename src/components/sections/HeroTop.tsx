@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
+import { animate, utils } from "animejs";
 import { useHeroImageStore } from "@/lib/stores/hero-image-store";
 import { getWhatsAppUrl } from "@/lib/contact";
 import HeroCycling, { Word } from "@/components/sections/HeroCycling";
@@ -71,16 +72,17 @@ function useCountUp(target: number, duration: number = 1800, active: boolean = t
   const [count, setCount] = useState(0);
   useEffect(() => {
     if (!active) return;
-    let start: number | null = null;
-    const step = (ts: number) => {
-      if (!start) start = ts;
-      const elapsed = ts - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.floor(eased * target));
-      if (progress < 1) requestAnimationFrame(step);
+    const obj = { n: 0 };
+    const tween = animate(obj, {
+      n: target,
+      duration,
+      ease: "out(3)",
+      modifier: utils.round(0),
+      onUpdate: () => setCount(obj.n),
+    });
+    return () => {
+      tween.revert();
     };
-    requestAnimationFrame(step);
   }, [active, target, duration]);
   return count;
 }

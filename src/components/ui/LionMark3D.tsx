@@ -56,6 +56,9 @@ export function LionMark3D({ className, hero = false }: Props) {
     const scope = createScope({ root: el }).add(() => {
       const strokes = el.querySelectorAll<SVGGeometryElement>(".lion-stroke");
       const layers = Array.from(el.querySelectorAll<HTMLElement>(".lion-layer"));
+      const particles = Array.from(
+        el.querySelectorAll<SVGCircleElement>(".lion-particle")
+      );
 
       // 1) Line-draw entrance, scroll-synced from center outward
       const drawables = svg.createDrawable(strokes);
@@ -97,7 +100,39 @@ export function LionMark3D({ className, hero = false }: Props) {
         }),
       });
 
-      // 4) Cursor parallax — each layer responds proportionally to its depth
+      // 4) Orbiting sparkles — each particle rides one of two circular paths
+      //    via svg.createMotionPath, infinite linear loops with phase offsets.
+      const innerOrbit = el.querySelector<SVGPathElement>("#lion-orbit-inner");
+      const outerOrbit = el.querySelector<SVGPathElement>("#lion-orbit-outer");
+      if (innerOrbit && outerOrbit && particles.length) {
+        const innerMP = svg.createMotionPath(innerOrbit);
+        const outerMP = svg.createMotionPath(outerOrbit);
+        particles.forEach((p, i) => {
+          const useOuter = i % 2 === 1;
+          const mp = useOuter ? outerMP : innerMP;
+          const baseDuration = useOuter ? 22000 : 16000;
+          animate(p, {
+            translateX: mp.translateX,
+            translateY: mp.translateY,
+            duration: baseDuration + i * 600,
+            ease: "linear",
+            loop: true,
+            delay: -((baseDuration + i * 600) * (i / particles.length)),
+          });
+          // Twinkle: opacity pulse so particles fade in/out as they travel.
+          animate(p, {
+            opacity: [0.35, 1],
+            scale: [0.8, 1.25],
+            duration: 1400 + i * 180,
+            loop: true,
+            alternate: true,
+            ease: "inOutSine",
+            delay: i * 220,
+          });
+        });
+      }
+
+      // 5) Cursor parallax — each layer responds proportionally to its depth
       const parallaxRange = hero ? 38 : 22;
       const onMove = (e: MouseEvent) => {
         const rect = el.getBoundingClientRect();
@@ -142,13 +177,24 @@ export function LionMark3D({ className, hero = false }: Props) {
         xmlns="http://www.w3.org/2000/svg"
         style={{ width: "100%", height: "100%", overflow: "visible" }}
       >
-        {/* Soft radial glow behind everything */}
+        {/* Soft radial glow behind everything + hidden orbit paths */}
         <defs>
           <radialGradient id="lionGlow" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="#e5192a" stopOpacity="0.22" />
             <stop offset="55%" stopColor="#f0c917" stopOpacity="0.06" />
             <stop offset="100%" stopColor="#0d0d0d" stopOpacity="0" />
           </radialGradient>
+          {/* Invisible orbit paths the sparkles ride via createMotionPath */}
+          <path
+            id="lion-orbit-inner"
+            d="M 68 200 A 132 132 0 1 1 332 200 A 132 132 0 1 1 68 200 Z"
+            fill="none"
+          />
+          <path
+            id="lion-orbit-outer"
+            d="M 22 200 A 178 178 0 1 1 378 200 A 178 178 0 1 1 22 200 Z"
+            fill="none"
+          />
         </defs>
 
         {/* L1: Halo — deepest layer */}
@@ -259,6 +305,17 @@ export function LionMark3D({ className, hero = false }: Props) {
             strokeLinecap="round"
             strokeLinejoin="round"
           />
+        </g>
+
+        {/* Orbiting sparkles — between mane ring and head; small filled
+            dots that ride the hidden orbit paths via createMotionPath. */}
+        <g style={{ mixBlendMode: "screen" }}>
+          <circle className="lion-particle" cx="0" cy="0" r="2.2" fill="#f0c917" />
+          <circle className="lion-particle" cx="0" cy="0" r="1.8" fill="#e5192a" />
+          <circle className="lion-particle" cx="0" cy="0" r="2.6" fill="#f0c917" />
+          <circle className="lion-particle" cx="0" cy="0" r="1.6" fill="#f5f0eb" />
+          <circle className="lion-particle" cx="0" cy="0" r="2" fill="#f0c917" />
+          <circle className="lion-particle" cx="0" cy="0" r="1.4" fill="#e5192a" />
         </g>
 
         {/* L5: Face details — frontmost layer */}
