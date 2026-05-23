@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { getWhatsAppUrl } from "@/lib/contact";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
 
 export default function Footer() {
   const ref = useRef<HTMLElement>(null);
@@ -24,9 +25,16 @@ export default function Footer() {
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="flex flex-col items-center"
           >
-            <h2 className="text-[3rem] sm:text-[4rem] md:text-[6rem] font-bold uppercase leading-[0.9] tracking-tight text-white max-w-3xl mb-6">
+            <SplitTextReveal
+              as="h2"
+              className="text-[3rem] sm:text-[4rem] md:text-[6rem] font-bold uppercase leading-[0.9] tracking-tight text-white max-w-3xl mb-6"
+              step={22}
+              delay={150}
+              from="center"
+              duration={1100}
+            >
               {t.footer.heading} <span className="text-brand-red">{t.footer.headingAccent}</span>
-            </h2>
+            </SplitTextReveal>
             <p className="text-[18px] text-text-muted max-w-lg">
               {t.footer.subtitle}
             </p>

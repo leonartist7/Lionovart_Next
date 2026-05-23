@@ -17,6 +17,7 @@
     "@paper-design/shaders": "^0.0.72",
     "@rive-app/react-canvas": "^4.27.3",
     "@studio-freight/react-lenis": "^0.0.47",
+    "animejs": "^4.4.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",

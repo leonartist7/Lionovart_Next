@@ -9,6 +9,7 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
 
 type ProcessStep = {
   num: string;
@@ -118,15 +119,15 @@ export default function Process(props: any) {
           >
             {eyebrow}
           </motion.p>
-          <motion.h2
+          <SplitTextReveal
+            as="h2"
             className="text-[2.5rem] sm:text-[3.5rem] md:text-[5rem] font-bold uppercase leading-[0.92] tracking-[-0.02em] text-[#111111]"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            step={16}
+            delay={100}
+            from="first"
           >
             {heading} <span className="text-brand-red">{headingAccent}</span>
-          </motion.h2>
+          </SplitTextReveal>
         </div>
 
         {/* ── Steps + rail ── */}
