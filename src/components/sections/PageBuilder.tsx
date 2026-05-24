@@ -13,7 +13,7 @@ import Process from "@/components/sections/Process";
 import Testimonials from "@/components/sections/Testimonials";
 import TestimonialsCarousel from "@/components/sections/TestimonialsCarousel";
 import FAQ from "@/components/sections/FAQ";
-import { SectionStinger } from "@/components/ui/SectionStinger";
+import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
 
 /**
  * Tag wrapper — lets NOVA's section tracker observe which section is in view
@@ -63,13 +63,17 @@ export function PageBuilder({ blocks }: { blocks: PageBlock[] }) {
           <NovaSection id="about"><AboutUsHalf /></NovaSection>
           <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
           <NovaSection id="services"><Services /></NovaSection>
-          <SectionStinger className="bg-bg-surface-light" />
+          {/* Cinematic chapter card — a single word that crosses the
+              viewport horizontally as the user scrolls past, like a film
+              title card. Provides structural breathing room between
+              chapters and reasserts the brand voice. */}
+          <SectionTitleCard word="PROOF." />
           <TestimonialsCarousel />
           <NovaSection id="process"><Process /></NovaSection>
-          <SectionStinger className="bg-bg-surface-light" />
+          <SectionTitleCard word="CONFIDENCE." />
           <NovaSection id="comparison"><Comparison /></NovaSection>
           <NovaSection id="testimonials"><Testimonials /></NovaSection>
-          <SectionStinger className="bg-bg-brand-black" />
+          <SectionTitleCard word="ASK." />
           <NovaSection id="faq"><FAQ /></NovaSection>
         </div>
       </>
