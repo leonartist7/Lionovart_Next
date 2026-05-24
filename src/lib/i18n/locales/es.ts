@@ -1,6 +1,33 @@
 import type { Translations } from "./en";
 
 export const es: Translations = {
+  whatWeDo: {
+    eyebrow: "Lo Que Hacemos",
+    statement: "Hacemos marcas imposibles de ignorar.",
+    trust: [
+      "+20 Marcas en la Manada del León",
+      "Presencia en 3 Continentes",
+      "9 Idiomas, Un Solo Estándar",
+    ],
+    disciplines: [
+      {
+        label: "Liderar",
+        kicker: "Marca y Marketing",
+        body: "Identidad y marketing que te convierten en la elección obvia — y en la que la gente recuerda.",
+      },
+      {
+        label: "Innovar",
+        kicker: "IA y Automatización",
+        body: "Sistemas a medida y agentes de voz 24/7 que recuperan tu tiempo y multiplican lo que tu negocio gana.",
+      },
+      {
+        label: "Crear",
+        kicker: "Contenido y Arte",
+        body: "Video y diseño de nivel Hollywood — creatividad premium al alcance de marcas ambiciosas.",
+      },
+    ],
+  },
+
   nav: {
     we: "Nosotros",
     services: "Servicios",

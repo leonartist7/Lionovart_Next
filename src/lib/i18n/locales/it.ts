@@ -4,6 +4,32 @@ import type { Translations } from "./en";
 
 export const it: Translations = {
   ...en,
+  whatWeDo: {
+    eyebrow: "Cosa Facciamo",
+    statement: "Rendiamo i brand impossibili da ignorare.",
+    trust: [
+      "+20 Brand nel Branco del Leone",
+      "Presenti su 3 Continenti",
+      "9 Lingue, Un Unico Standard",
+    ],
+    disciplines: [
+      {
+        label: "Guidare",
+        kicker: "Brand & Marketing",
+        body: "Identità e marketing che ti rendono la scelta ovvia — e quella che la gente ricorda.",
+      },
+      {
+        label: "Innovare",
+        kicker: "IA & Automazione",
+        body: "Sistemi su misura e agenti vocali 24/7 che ti restituiscono tempo e moltiplicano i guadagni.",
+      },
+      {
+        label: "Creare",
+        kicker: "Contenuti & Arte",
+        body: "Video e design da Hollywood — creatività premium accessibile ai brand ambiziosi.",
+      },
+    ],
+  },
   nav: {
     we: "Chi Siamo",
     services: "Servizi",

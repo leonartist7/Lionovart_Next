@@ -1,6 +1,33 @@
 import type { Translations } from "./en";
 
 export const fr: Translations = {
+  whatWeDo: {
+    eyebrow: "Ce Que Nous Faisons",
+    statement: "Nous rendons les marques impossibles à ignorer.",
+    trust: [
+      "+20 Marques dans la Meute du Lion",
+      "Présents sur 3 Continents",
+      "9 Langues, Un Seul Standard",
+    ],
+    disciplines: [
+      {
+        label: "Diriger",
+        kicker: "Marque & Marketing",
+        body: "Une identité et un marketing qui font de vous le choix évident — et celui dont on se souvient.",
+      },
+      {
+        label: "Innover",
+        kicker: "IA & Automatisation",
+        body: "Des systèmes sur mesure et des agents vocaux 24/7 qui vous redonnent du temps et multiplient vos revenus.",
+      },
+      {
+        label: "Créer",
+        kicker: "Contenu & Art",
+        body: "Vidéo et design dignes d'Hollywood — une créativité premium accessible aux marques ambitieuses.",
+      },
+    ],
+  },
+
   nav: {
     we: "Nous",
     services: "Services",

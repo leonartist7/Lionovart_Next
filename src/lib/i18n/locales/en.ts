@@ -1,4 +1,31 @@
 export const en = {
+  whatWeDo: {
+    eyebrow: "What We Do",
+    statement: "We make brands impossible to ignore.",
+    trust: [
+      "+20 Brands in the Lion's Pride",
+      "Trusted Across 3 Continents",
+      "9 Languages, One Standard",
+    ],
+    disciplines: [
+      {
+        label: "Lead",
+        kicker: "Brand & Marketing",
+        body: "Identity and marketing that make you the obvious choice — and the one people remember.",
+      },
+      {
+        label: "Innovate",
+        kicker: "AI & Automation",
+        body: "Custom systems and 24/7 voice agents that win back your time and multiply what your business earns.",
+      },
+      {
+        label: "Create",
+        kicker: "Content & Craft",
+        body: "Hollywood-grade video and design — premium creative made accessible for ambitious brands.",
+      },
+    ],
+  },
+
   nav: {
     we: "We",
     services: "Services",
@@ -7,7 +34,7 @@ export const en = {
   },
 
   hero: {
-    staticText: ["WE MAKE", "YOUR BRAND"],
+    staticText: ["LET'S MAKE", "YOUR BRAND"],
     cyclingWords: ["ROAR", "STAND OUT", "MEMORABLE", "MAGNETIC", "SELL MORE", "DOMINATE"],
     subtitle:
       "We build brands, develop websites, and produce content so your business becomes impossible to ignore.",

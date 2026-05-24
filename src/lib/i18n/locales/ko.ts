@@ -4,6 +4,32 @@ import type { Translations } from "./en";
 
 export const ko: Translations = {
   ...en,
+  whatWeDo: {
+    eyebrow: "우리가 하는 일",
+    statement: "브랜드를 무시할 수 없게 만듭니다.",
+    trust: [
+      "라이언 프라이드의 20+ 브랜드",
+      "3개 대륙에서 신뢰받는",
+      "9개 언어, 하나의 기준",
+    ],
+    disciplines: [
+      {
+        label: "리드",
+        kicker: "브랜드 & 마케팅",
+        body: "고객이 가장 먼저 떠올리고 기억하는 브랜드로 만드는 아이덴티티와 마케팅.",
+      },
+      {
+        label: "혁신",
+        kicker: "AI & 자동화",
+        body: "맞춤형 시스템과 24/7 음성 에이전트로 시간을 되찾고 수익을 배가합니다.",
+      },
+      {
+        label: "창작",
+        kicker: "콘텐츠 & 크래프트",
+        body: "할리우드급 영상과 디자인 — 야심 찬 브랜드를 위한 프리미엄 크리에이티브.",
+      },
+    ],
+  },
   nav: {
     we: "우리",
     services: "서비스",
