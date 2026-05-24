@@ -27,17 +27,30 @@ export default function VideoCurtainReveal() {
   const curtainY = useTransform(scrollY, [0, vh], ["0vh", "-100vh"]);
   // Subtle scale-down as card lifts (depth cue)
   const cardScale = useTransform(scrollY, [0, vh], [1, 0.9]);
+  // Black backdrop fades out (rather than lifting) so the hero background
+  // is revealed underneath as the user scrolls.
+  const backdropOpacity = useTransform(scrollY, [0, vh * 0.65], [1, 0]);
 
   return (
     <>
       {/*
+        Black backdrop — fixed full-viewport on every device. It stays put and
+        fades out on scroll instead of lifting with the card, so the hero
+        background appears underneath. z-[48] sits just below the card (z-[49])
+        and the Navbar (z-50).
+      */}
+      <motion.div
+        className="fixed inset-0 z-[48] bg-bg-dark pointer-events-none"
+        style={{ opacity: backdropOpacity }}
+      />
+
+      {/*
         position:fixed keeps the card always at viewport top regardless of
         document flow. z-[49] sits just below the Navbar (z-50) so the nav
         stays visible above the card at all times.
-        bg-bg-dark fills the margins around the card so nothing bleeds through.
       */}
       <motion.div
-        className="fixed inset-0 z-[49] bg-bg-dark will-change-transform pointer-events-none"
+        className="fixed inset-0 z-[49] will-change-transform pointer-events-none"
         style={{ y: curtainY }}
       >
         {/* Visual card: 80 vw wide, clears the fixed navbar at top */}
