@@ -11,6 +11,7 @@ import Process from "@/components/sections/Process";
 import Testimonials from "@/components/sections/Testimonials";
 import TestimonialsCarousel from "@/components/sections/TestimonialsCarousel";
 import FAQ from "@/components/sections/FAQ";
+import { SectionStinger } from "@/components/ui/SectionStinger";
 
 /**
  * Tag wrapper — lets NOVA's section tracker observe which section is in view
@@ -58,10 +59,13 @@ export function PageBuilder({ blocks }: { blocks: PageBlock[] }) {
           <NovaSection id="about"><AboutUsHalf /></NovaSection>
           <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
           <NovaSection id="services"><Services /></NovaSection>
+          <SectionStinger className="bg-bg-surface-light" />
           <TestimonialsCarousel />
           <NovaSection id="process"><Process /></NovaSection>
+          <SectionStinger className="bg-bg-surface-light" />
           <NovaSection id="comparison"><Comparison /></NovaSection>
           <NovaSection id="testimonials"><Testimonials /></NovaSection>
+          <SectionStinger className="bg-bg-brand-black" />
           <NovaSection id="faq"><FAQ /></NovaSection>
         </div>
       </>
