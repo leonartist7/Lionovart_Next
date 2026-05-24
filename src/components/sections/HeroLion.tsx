@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
+import { LionMark3D } from "@/components/ui/LionMark3D";
 
 const TOP_ITEMS = ["FREE TIME", "BRAND SUCCESS", "TRUSTED REPUTATION"];
 const BOTTOM_ITEMS = ["IMPROVED PRESENCE", "MORE SALES", "PREMIUM IMAGE"];
@@ -85,24 +86,17 @@ export default function HeroLion() {
 
   return (
     <section className="relative flex min-h-[80vh] flex-col overflow-hidden bg-bg-dark md:min-h-screen">
-      {/* Lion background image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage:
-            "url('/images/lion-bg.jpg')",
-          opacity: 0.12,
-        }}
-      />
-
-      {/* Dark gradient overlay */}
+      {/* Dark gradient overlay — sits behind the LionMark3D */}
       <div className="absolute inset-0 bg-gradient-to-b from-bg-dark/60 via-transparent to-bg-dark/90" />
 
-      {/* Center content placeholder */}
+      {/* Alive LionMark3D centerpiece — replaces the missing lion-bg.jpg.
+          Multi-layer SVG with idle breathing, scroll-synced color shift
+          (cream → red → gold), cursor parallax, and line-draw entrance. */}
       <div className="relative z-10 flex flex-1 items-center justify-center px-4 md:px-6">
-        <p className="text-center text-[14px] font-medium uppercase tracking-[0.3em] text-white/30">
-          {/* Optional center content can go here */}
-        </p>
+        <LionMark3D
+          hero
+          className="w-[min(78vw,560px)] aspect-square md:w-[min(46vw,640px)] drop-shadow-[0_30px_80px_rgba(229,25,42,0.18)]"
+        />
       </div>
 
       {/* Bottom Marquees */}

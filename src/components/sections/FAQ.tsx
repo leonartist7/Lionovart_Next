@@ -9,6 +9,7 @@ import {
   AccordionContent,
 } from "@/components/ui/accordion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
 
 export default function FAQ(props: any) {
   const ref = useRef<HTMLElement>(null);
@@ -40,14 +41,15 @@ export default function FAQ(props: any) {
           >
             {eyebrow}
           </motion.p>
-          <motion.h2
+          <SplitTextReveal
+            as="h2"
             className="text-[2.5rem] sm:text-[3.5rem] md:text-[4.5rem] font-bold uppercase leading-none tracking-tight text-text-main"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            step={18}
+            delay={120}
+            from="center"
           >
             {heading} <span className="text-brand-red">{headingAccent}</span>
-          </motion.h2>
+          </SplitTextReveal>
         </div>
 
         {/* Accordion */}

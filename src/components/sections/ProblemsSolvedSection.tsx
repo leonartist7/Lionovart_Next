@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useLenis } from "@studio-freight/react-lenis";
 import { useLanguage } from "@/contexts/LanguageContext";
 import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
+import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
 
 function useLenisProgress(ref: React.RefObject<HTMLElement | null>): MotionValue<number> {
   const progress = useMotionValue(0);
@@ -276,9 +277,15 @@ export default function ProblemsSolvedSection() {
               <p className="text-white text-[12px] md:text-[14px] font-clash uppercase tracking-[0.2em] mb-2 md:mb-3">
                 {t.problems.eyebrow}
               </p>
-              <h2 className="text-[40px] sm:text-[56px] md:text-[76px] font-bold font-clash uppercase leading-[1.05] text-white max-w-4xl">
+              <SplitTextReveal
+                as="h2"
+                className="text-[40px] sm:text-[56px] md:text-[76px] font-bold font-clash uppercase leading-[1.05] text-white max-w-4xl"
+                step={18}
+                delay={150}
+                from="center"
+              >
                 {t.problems.heading}
-              </h2>
+              </SplitTextReveal>
             </motion.div>
           </div>
 

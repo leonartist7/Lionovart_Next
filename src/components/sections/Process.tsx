@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState, Fragment } from "react";
+import { useRef, useEffect, useState, useMemo, Fragment } from "react";
 import {
   motion,
   useScroll,
@@ -8,7 +8,9 @@ import {
   useMotionValueEvent,
   useReducedMotion,
 } from "framer-motion";
+import { animate, createScope, onScroll, svg } from "animejs";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
 
 type ProcessStep = {
   num: string;
@@ -62,6 +64,9 @@ export default function Process(props: any) {
   const sectionRef = useRef<HTMLElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const circleRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const railRef = useRef<HTMLDivElement>(null);
+  const railFgPathRef = useRef<SVGPathElement>(null);
+  const svgCometRef = useRef<SVGCircleElement>(null);
 
   // Progress 0→1 as the section travels through the viewport.
   const { scrollYProgress } = useScroll({
@@ -78,6 +83,7 @@ export default function Process(props: any) {
   // lights exactly when the red fill reaches it (independent of text length).
   const [thresholds, setThresholds] = useState<number[]>([]);
   const [activeCount, setActiveCount] = useState(0);
+  const [railHeight, setRailHeight] = useState(0);
 
   useEffect(() => {
     const compute = () => {
@@ -85,6 +91,7 @@ export default function Process(props: any) {
       if (!grid) return;
       const h = grid.offsetHeight;
       if (h <= 0) return;
+      setRailHeight(h);
       setThresholds(
         circleRefs.current.map((c) =>
           c ? (c.offsetTop + c.offsetHeight / 2) / h : 1
@@ -99,6 +106,70 @@ export default function Process(props: any) {
   useMotionValueEvent(lineProgress, "change", (p) => {
     setActiveCount(thresholds.filter((th) => p >= th - 0.0001).length);
   });
+
+  // Curved rail path — gentle alternating S-curves between step circles.
+  // SVG x-range 0..50, y-range 0..railHeight; path centered at x=25 with
+  // ±8px amplitude. Recomputed when rail height or step count changes.
+  const pathD = useMemo(() => {
+    if (railHeight <= 0) return "M 25 0 L 25 1";
+    const cx = 25;
+    const amp = 9;
+    const periods = Math.max(2, steps.length);
+    const segH = railHeight / periods;
+    let d = `M ${cx} 0`;
+    for (let i = 0; i < periods; i++) {
+      const startY = i * segH;
+      const endY = (i + 1) * segH;
+      const dir = i % 2 === 0 ? 1 : -1;
+      d += ` C ${cx + amp * dir} ${startY + segH * 0.28}, ${cx + amp * dir} ${endY - segH * 0.28}, ${cx} ${endY}`;
+    }
+    return d;
+  }, [railHeight, steps.length]);
+
+  // Scroll-synced drawing of the red FG path + traveling SVG comet that
+  // rides the same path via createMotionPath. Both share an onScroll
+  // observer locked to the existing scroll range.
+  useEffect(() => {
+    const sectionEl = sectionRef.current;
+    const fgPath = railFgPathRef.current;
+    const comet = svgCometRef.current;
+    if (!sectionEl || !fgPath || railHeight <= 0) return;
+
+    const scope = createScope({ root: sectionEl }).add(() => {
+      const drawable = svg.createDrawable(fgPath);
+      animate(drawable, {
+        draw: ["0 0", "0 1"],
+        ease: "linear",
+        duration: 1,
+        autoplay: onScroll({
+          target: sectionEl,
+          enter: "80% start",
+          leave: "55% end",
+          sync: 1,
+        }),
+      });
+
+      if (comet) {
+        const mp = svg.createMotionPath(fgPath);
+        animate(comet, {
+          translateX: mp.translateX,
+          translateY: mp.translateY,
+          ease: "linear",
+          duration: 1,
+          autoplay: onScroll({
+            target: sectionEl,
+            enter: "80% start",
+            leave: "55% end",
+            sync: 1,
+          }),
+        });
+      }
+    });
+
+    return () => {
+      scope.revert();
+    };
+  }, [pathD, railHeight]);
 
   return (
     <section
@@ -118,15 +189,15 @@ export default function Process(props: any) {
           >
             {eyebrow}
           </motion.p>
-          <motion.h2
+          <SplitTextReveal
+            as="h2"
             className="text-[2.5rem] sm:text-[3.5rem] md:text-[5rem] font-bold uppercase leading-[0.92] tracking-[-0.02em] text-[#111111]"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            step={16}
+            delay={100}
+            from="first"
           >
             {heading} <span className="text-brand-red">{headingAccent}</span>
-          </motion.h2>
+          </SplitTextReveal>
         </div>
 
         {/* ── Steps + rail ── */}
@@ -134,16 +205,54 @@ export default function Process(props: any) {
           ref={gridRef}
           className="relative grid grid-cols-1 md:grid-cols-[1fr_72px] md:gap-x-14"
         >
-          {/* Rail overlay — desktop only, centered in the 72px right column */}
+          {/* Curved SVG rail — desktop only. Centered on the 72px right
+              column so step circles still align over its centerline.
+              Gray BG path is fully drawn; red FG path is animated via
+              anime.js svg.createDrawable, scroll-synced. A glowing comet
+              rides the same path via svg.createMotionPath. */}
           <div
+            ref={railRef}
             aria-hidden
-            className="hidden md:block absolute top-0 bottom-0 right-[35px] w-[2px]"
+            className="hidden md:block absolute top-0 bottom-0 right-[11px] w-[50px] pointer-events-none"
+            style={{ height: railHeight > 0 ? `${railHeight}px` : "100%" }}
           >
-            <div className="absolute inset-0 bg-[#d3d8df] rounded-full" />
-            <motion.div
-              style={{ scaleY: reduce ? 1 : lineProgress }}
-              className="absolute inset-0 origin-top rounded-full bg-brand-red"
-            />
+            {railHeight > 0 && (
+              <svg
+                width="50"
+                height={railHeight}
+                viewBox={`0 0 50 ${railHeight}`}
+                style={{ display: "block", overflow: "visible" }}
+              >
+                {/* BG: gray track always visible */}
+                <path
+                  d={pathD}
+                  stroke="#d3d8df"
+                  strokeWidth="2"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+                {/* FG: red drawable, scroll-synced */}
+                <path
+                  ref={railFgPathRef}
+                  d={pathD}
+                  stroke="#e5192a"
+                  strokeWidth="2.4"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+                {/* Comet — rides the FG path via createMotionPath */}
+                <circle
+                  ref={svgCometRef}
+                  cx="0"
+                  cy="0"
+                  r="6"
+                  fill="#e5192a"
+                  style={{
+                    filter: "drop-shadow(0 0 10px rgba(229,25,42,0.85))",
+                  }}
+                />
+              </svg>
+            )}
           </div>
 
           {steps.map((step, i) => {

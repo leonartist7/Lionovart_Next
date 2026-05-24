@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
+import { CyclingTextChars } from "@/components/ui/CyclingTextChars";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -186,7 +187,7 @@ export default function HeroCycling({
     }
 
     return (
-      <span style={cyclingTextStyle}>{word.content}</span>
+      <CyclingTextChars text={word.content} style={cyclingTextStyle} />
     );
   };
 
