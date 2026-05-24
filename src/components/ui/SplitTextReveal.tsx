@@ -8,42 +8,43 @@ type Tag = "h1" | "h2" | "h3" | "h4" | "p" | "span" | "div";
 interface Props {
   as?: Tag;
   className?: string;
-  /** Split granularity. `chars` for premium character-by-character reveals, `words` for lighter staggers. */
+  /** Split granularity. `chars` for character-by-character reveals, `words` for lighter, more editorial staggers. */
   by?: "chars" | "words";
-  /** Per-element stagger in ms. */
+  /** Per-element stagger in ms. Default 50 — deliberate, not frantic. */
   step?: number;
   /** Wave origin. */
   from?: "first" | "center" | "last" | "random" | number;
   /** Delay before the first element animates (ms). */
   delay?: number;
-  /** Total per-char animation duration (ms). */
+  /** Per-element animation duration (ms). Default 1100 — exponential ease-out wants room to breathe. */
   duration?: number;
-  /** Initial Y offset as % of the char height. */
+  /** Initial Y offset (percentage of element height). Use a clean 100% — no overshoot. */
   yFrom?: string;
-  /** Initial rotateX in degrees. */
-  rotateXFrom?: number;
   /** If true, the reveal can fire each time the section re-enters view. */
   repeat?: boolean;
   children: React.ReactNode;
 }
 
 /**
- * Character-level reveal driven by anime.js `splitText` + `onScroll` observer.
+ * Editorial text reveal driven by anime.js `splitText` + `onScroll`.
  *
- * The original HTML structure (including inline accent spans like
- * `<span className="text-brand-red">…</span>`) is preserved — colors and
- * styles on parent spans still apply to the wrapped chars.
+ * Motion is deliberate exponential ease-out per the brand vocabulary —
+ * no rotateX, no scale bounce, no elastic. Each element rises cleanly
+ * into place from below its clip mask, like type being set, not animated.
+ *
+ * The original HTML structure (inline accent spans like
+ * `<span className="text-brand-red">…</span>`) is preserved so highlight
+ * colors still apply per character.
  */
 export function SplitTextReveal({
   as = "h2",
   className,
   by = "chars",
-  step = 18,
+  step = 50,
   from = "first",
   delay = 0,
-  duration = 900,
-  yFrom = "110%",
-  rotateXFrom = -70,
+  duration = 1100,
+  yFrom = "100%",
   repeat = false,
   children,
 }: Props) {
@@ -65,9 +66,8 @@ export function SplitTextReveal({
       animate(targets, {
         y: [yFrom, "0%"],
         opacity: [0, 1],
-        rotateX: [rotateXFrom, 0],
         duration,
-        ease: "out(3)",
+        ease: "out(5)",
         delay: stagger(step, { from, start: delay }),
         autoplay: onScroll({
           target: el,
@@ -81,11 +81,11 @@ export function SplitTextReveal({
     return () => {
       scope.revert();
     };
-  }, [by, step, from, delay, duration, yFrom, rotateXFrom, repeat]);
+  }, [by, step, from, delay, duration, yFrom, repeat]);
 
   const Tag = as as React.ElementType;
   return (
-    <Tag ref={ref} className={className} style={{ perspective: 800 }}>
+    <Tag ref={ref} className={className}>
       {children}
     </Tag>
   );

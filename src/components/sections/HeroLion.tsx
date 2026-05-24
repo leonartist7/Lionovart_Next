@@ -2,7 +2,25 @@
 
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
-import { LionMark3D } from "@/components/ui/LionMark3D";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Hero centerpiece — the brand mark.
+//
+// Three variations are available; switch by changing the import + JSX below.
+//   A) <HeroWordmark />  — the brand wordmark "LIONOVART", letter-by-letter
+//      etched in with one light sweep and a single Sovereign Gold "O" moment.
+//      Default. The most legible, most identifiable, most ownable.
+//   B) <HeroDecree />    — a single rotating decree word ("ROAR", "REIGN",
+//      "UNDENIABLE", "SOVEREIGN") at viewport-filling scale. Most kinetic.
+//   C) <HeroMonogram />  — an architectural "L" etched as one continuous
+//      stroke with a crown bar accent and Lacquer Red period.
+//      Most heraldic, most reductive.
+//
+// All three are restrained, on-brand, and free of mascots/sparkles/parallax.
+// ─────────────────────────────────────────────────────────────────────────────
+import { HeroWordmark } from "@/components/ui/HeroWordmark";
+// import { HeroDecree } from "@/components/ui/HeroDecree";
+// import { HeroMonogram } from "@/components/ui/HeroMonogram";
 
 const TOP_ITEMS = ["FREE TIME", "BRAND SUCCESS", "TRUSTED REPUTATION"];
 const BOTTOM_ITEMS = ["IMPROVED PRESENCE", "MORE SALES", "PREMIUM IMAGE"];
@@ -86,17 +104,14 @@ export default function HeroLion() {
 
   return (
     <section className="relative flex min-h-[80vh] flex-col overflow-hidden bg-bg-dark md:min-h-screen">
-      {/* Dark gradient overlay — sits behind the LionMark3D */}
+      {/* Subtle dark gradient — sits behind the wordmark for depth. */}
       <div className="absolute inset-0 bg-gradient-to-b from-bg-dark/60 via-transparent to-bg-dark/90" />
 
-      {/* Alive LionMark3D centerpiece — replaces the missing lion-bg.jpg.
-          Multi-layer SVG with idle breathing, scroll-synced color shift
-          (cream → red → gold), cursor parallax, and line-draw entrance. */}
+      {/* Hero centerpiece — see the variation guide above. */}
       <div className="relative z-10 flex flex-1 items-center justify-center px-4 md:px-6">
-        <LionMark3D
-          hero
-          className="w-[min(78vw,560px)] aspect-square md:w-[min(46vw,640px)] drop-shadow-[0_30px_80px_rgba(229,25,42,0.18)]"
-        />
+        <HeroWordmark />
+        {/* <HeroDecree /> */}
+        {/* <HeroMonogram /> */}
       </div>
 
       {/* Bottom Marquees */}
