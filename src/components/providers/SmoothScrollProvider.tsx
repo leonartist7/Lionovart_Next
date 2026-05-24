@@ -34,8 +34,13 @@ function LenisGSAPBridge() {
     };
     gsap.ticker.add(tickerCallback);
 
-    // 3. Prevent GSAP from skipping frames during lag spikes
-    gsap.ticker.lagSmoothing(0);
+    // 3. Perf mitigation: re-enable GSAP's default frame-skip safety net.
+    // Previously this was set to lagSmoothing(0) — that forced every queued
+    // scroll-tick to fully execute, turning any 20ms hiccup (e.g. backdrop-filter
+    // repaint) into a visible stutter the user couldn't escape from. Restoring
+    // the default (500ms threshold, snap to 33ms) lets the scrub timelines
+    // recover gracefully under load.
+    gsap.ticker.lagSmoothing(500, 33);
 
     return () => {
       lenis.off('scroll', onScroll);
