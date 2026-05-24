@@ -7,7 +7,8 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import { useLanguage } from "@/contexts/LanguageContext";
-import TrustedBadgesSection from "@/components/sections/TrustedBadgesSection";
+// Trust badges now live at the top of <WhatWeDo /> — kept off About to avoid
+// the "two trust rows in a row" feel and to give the About headline real estate.
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -157,8 +158,7 @@ export default function AboutUsHalf(props: any) {
   const bodyText: string    = props.bodyText    || t.about.line2;
   const founderRole: string = props.founderRole || t.about.founderRole;
 
-  const [contactOpen,   setContactOpen]   = useState(false);
-  const [badgesTrigger, setBadgesTrigger] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
 
   const desktopCardRef = useRef<HTMLDivElement>(null);
   const mobileCardRef  = useRef<HTMLDivElement>(null);
@@ -192,17 +192,15 @@ export default function AboutUsHalf(props: any) {
       mm.add("(min-width: 1024px)", () => {
         const wordEls = gsap.utils.toArray<HTMLElement>(".about-word-inner");
 
-        // TL1 — Pre-pin: badges + words animate as section scrolls into view
+        // TL1 — Pre-pin: words animate as section scrolls into view
         gsap.timeline({
           scrollTrigger: {
             trigger: desktopRef.current,
             start: "top 60%",  // section 40% visible from bottom
             end: "top top",    // ends when pin starts
             scrub: 1.2,
-            onEnter: () => setBadgesTrigger(true),
           },
         })
-          .fromTo(".about-badges", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0)
           .fromTo(wordEls, { yPercent: 110 }, { yPercent: 0, duration: 1, stagger: 0.08, ease: "power3.out" }, 0.05);
 
         // TL2 — Pinned: body, image, contact reveal once section is at top
@@ -248,13 +246,10 @@ export default function AboutUsHalf(props: any) {
         ref={desktopRef}
         className="hidden lg:block relative h-screen overflow-hidden"
       >
-        {/* Trust badges — anchored below navbar */}
-        <div className="about-badges absolute top-20 inset-x-0 z-10 opacity-0">
-          <TrustedBadgesSection variant="light" externalTrigger={badgesTrigger} />
-        </div>
-
-        {/* Two-column grid: text left, portrait card right */}
-        <div className="absolute inset-0 pt-52 pb-12 px-12 xl:px-24 grid grid-cols-[1fr_360px] xl:grid-cols-[1fr_420px] gap-10 xl:gap-16 items-stretch z-[1]">
+        {/* Two-column grid: text left, portrait card right.
+            pt-28 (was pt-52) tightened after trust badges moved out — keeps the
+            headline anchored below the navbar without leaving an empty zone. */}
+        <div className="absolute inset-0 pt-28 pb-12 px-12 xl:px-24 grid grid-cols-[1fr_360px] xl:grid-cols-[1fr_420px] gap-10 xl:gap-16 items-stretch z-[1]">
 
           {/* LEFT COLUMN — headline, body, contact */}
           <div className="flex flex-col justify-center items-start text-left max-w-[640px]">
@@ -306,10 +301,8 @@ export default function AboutUsHalf(props: any) {
       </div>
 
       {/* ── MOBILE / TABLET: Stacked layout w/ word-stagger ── */}
-      <div className="lg:hidden pt-10 pb-16 px-5">
-        <TrustedBadgesSection variant="light" />
-
-        <div className="mt-6 text-center">
+      <div className="lg:hidden pt-8 pb-16 px-5">
+        <div className="text-center">
           <motion.h2
             variants={mobileHeadlineContainer}
             initial="hidden"

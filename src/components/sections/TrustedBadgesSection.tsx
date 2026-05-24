@@ -68,19 +68,23 @@ function TrustBadge({
   children,
   title,
   contentWidth,
+  titleColorClass = "text-black",
+  laurelInvert = false,
 }: {
   children: React.ReactNode;
   title?: React.ReactNode;
   contentWidth: number;
+  /** Tailwind text-* class for the small caption under the number. */
+  titleColorClass?: string;
+  /** Invert laurel PNGs so dark-on-transparent assets render readable on dark bg. */
+  laurelInvert?: boolean;
 }) {
+  const laurelClass = `h-[60px] sm:h-[70px] md:h-[80px] lg:h-[88px] xl:h-[100px] w-auto object-contain pointer-events-none select-none${
+    laurelInvert ? " invert" : ""
+  }`;
   return (
     <div className="flex items-center justify-center gap-1">
-      <img
-        src="/images/laurel-L.webp"
-        alt=""
-        aria-hidden="true"
-        className="h-[60px] sm:h-[70px] md:h-[80px] lg:h-[88px] xl:h-[100px] w-auto object-contain pointer-events-none select-none"
-      />
+      <img src="/images/laurel-L.webp" alt="" aria-hidden="true" className={laurelClass} />
       <div
         className="flex flex-col items-center justify-center text-center flex-shrink-0"
         style={{ width: contentWidth }}
@@ -88,19 +92,14 @@ function TrustBadge({
         {children}
         {title && (
           <span
-            className="text-black font-bold uppercase tracking-tight leading-[1] mt-1"
+            className={`${titleColorClass} font-bold uppercase tracking-tight leading-[1] mt-1`}
             style={{ fontSize: contentWidth * 0.14 }}
           >
             {title}
           </span>
         )}
       </div>
-      <img
-        src="/images/laurel-R.webp"
-        alt=""
-        aria-hidden="true"
-        className="h-[60px] sm:h-[70px] md:h-[80px] lg:h-[88px] xl:h-[100px] w-auto object-contain pointer-events-none select-none"
-      />
+      <img src="/images/laurel-R.webp" alt="" aria-hidden="true" className={laurelClass} />
     </div>
   );
 }
@@ -109,10 +108,16 @@ function TrustBadge({
 function TrustBadgesInner({
   badges,
   externalTrigger,
+  variant = "dark",
 }: {
   badges: { brands: readonly string[]; experience: readonly string[]; countries: string };
   externalTrigger?: boolean;
+  variant?: "dark" | "light";
 }) {
+  // Light bg = black title; dark bg = white title with inverted laurel PNGs
+  // (the laurel assets are dark-on-transparent, so `invert` flips them to gold/cream).
+  const titleColorClass = variant === "light" ? "text-black" : "text-white";
+  const laurelInvert = variant === "dark";
   const [inView, setInView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const tier = useTier();
@@ -161,6 +166,8 @@ function TrustBadgesInner({
         <TrustBadge
           title={<>{badges.brands[0]}<br />{badges.brands[1]}</>}
           contentWidth={sideWidth}
+          titleColorClass={titleColorClass}
+          laurelInvert={laurelInvert}
         >
           <div
             className="flex items-center text-[#e5192a] font-black leading-none tracking-tighter"
@@ -182,6 +189,8 @@ function TrustBadgesInner({
         <TrustBadge
           title={<>{badges.experience[0]}<br />{badges.experience[1]}</>}
           contentWidth={midWidth}
+          titleColorClass={titleColorClass}
+          laurelInvert={laurelInvert}
         >
           <div className="flex flex-col items-center gap-2 sm:gap-3 w-full">
             <div className="flex items-center justify-between w-[95%]">
@@ -237,7 +246,11 @@ function TrustBadgesInner({
         animate={shouldAnimate ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
         transition={{ duration: 0.55, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
       >
-        <TrustBadge contentWidth={sideWidth}>
+        <TrustBadge
+          contentWidth={sideWidth}
+          titleColorClass={titleColorClass}
+          laurelInvert={laurelInvert}
+        >
           <div className="flex flex-col items-center w-full">
             <div
               className="flex items-center text-[#e5192a] font-black leading-none tracking-tighter"
@@ -282,14 +295,16 @@ function TrustBadgesInner({
 function DynamicTrustBadges({
   badges,
   externalTrigger,
+  variant = "dark",
 }: {
   badges: { brands: readonly string[]; experience: readonly string[]; countries: string };
   externalTrigger?: boolean;
+  variant?: "dark" | "light";
 }) {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => { setIsMounted(true); }, []);
   if (!isMounted) return <div className="w-full max-w-[1100px] mx-auto opacity-0 invisible h-[120px]" />;
-  return <TrustBadgesInner badges={badges} externalTrigger={externalTrigger} />;
+  return <TrustBadgesInner badges={badges} externalTrigger={externalTrigger} variant={variant} />;
 }
 
 /* ── Public component ───────────────────────────────────── */
@@ -307,16 +322,16 @@ export default function TrustedBadgesSection({
   return (
     <section
       className={`${
-        variant === "light" ? "bg-transparent" : "bg-bg-dark"
-      } pt-4 md:pt-6 pb-3 md:pb-6 flex flex-col items-center gap-2 text-center`}
+        variant === "light" ? "bg-transparent" : "bg-transparent"
+      } pt-1 md:pt-2 pb-2 md:pb-3 flex flex-col items-center gap-1 text-center`}
     >
-      <DynamicTrustBadges badges={badges} externalTrigger={externalTrigger} />
+      <DynamicTrustBadges badges={badges} externalTrigger={externalTrigger} variant={variant} />
       <motion.p
         initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className={`mt-1 text-[13px] font-medium tracking-wide md:text-[14px] lg:text-[15px] ${
-          variant === "light" ? "text-black" : "text-text-muted"
+        className={`mt-0.5 text-[12px] font-medium tracking-wide md:text-[13px] lg:text-[14px] ${
+          variant === "light" ? "text-black/70" : "text-white/55"
         }`}
       >
         {trustText}

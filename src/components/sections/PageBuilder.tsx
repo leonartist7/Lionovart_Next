@@ -3,6 +3,7 @@ import VideoCurtainReveal from "@/components/sections/VideoCurtainReveal";
 import { HeroRevealWrapper } from "@/components/sections/HeroRevealWrapper";
 
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
+import WhatWeDo from "@/components/sections/WhatWeDo";
 import ImageMarquee from "@/components/ui/ImageMarquee";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
 import Services from "@/components/sections/Services";
@@ -55,6 +56,7 @@ export function PageBuilder({ blocks }: { blocks: PageBlock[] }) {
           About Us is the first pusher — no ImageMarquee here anymore.
         */}
         <div className="relative z-[2]">
+          <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
           <NovaSection id="about"><AboutUsHalf /></NovaSection>
           <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
           <NovaSection id="services"><Services /></NovaSection>
