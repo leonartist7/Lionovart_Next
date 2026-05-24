@@ -7,6 +7,11 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { PostHogInit } from "@/components/PostHogInit";
 import { NovaPortalMount } from "@/components/ai-strategist/NovaPortalMount";
 import { StickyCTA } from "@/components/ai-strategist/StickyCTA";
+// BackgroundTexture removed by request — kept on disk for later if needed.
+// import BackgroundTexture from "@/components/ui/BackgroundTexture";
+import CustomCursor from "@/components/ui/CustomCursor";
+import SplashScreen from "@/components/ui/SplashScreen";
+import PerfHud from "@/components/dev/PerfHud";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -60,11 +65,20 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <PostHogInit />
+        {/* <BackgroundTexture /> removed by request */}
         <LanguageProvider>
-          <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          <SmoothScrollProvider>
+            {/* First-load only; useLenis hook needs to live inside the provider */}
+            <SplashScreen />
+            {children}
+          </SmoothScrollProvider>
           <NovaPortalMount />
           <StickyCTA />
+          {/* Premium cursor — fixed, z:9999, hidden on touch + reduced-motion friendly */}
+          <CustomCursor />
         </LanguageProvider>
+        {/* Dev-only perf HUD — dead-code-eliminated in production */}
+        <PerfHud />
       </body>
     </html>
   );

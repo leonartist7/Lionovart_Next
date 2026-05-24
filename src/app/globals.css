@@ -69,6 +69,50 @@
     inset 0 0 80px var(--strategist-glow);
 }
 
+/* =============================================
+   Reusable Glass Surface — depth for cards/panels
+   Pairs with BackgroundTexture so elements visibly
+   float above the textured background.
+   ============================================= */
+@utility glass-surface {
+  position: relative;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.02) 40%,
+      rgba(255, 255, 255, 0.01) 100%
+    ),
+    rgba(13, 13, 13, 0.55);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    0 30px 60px -20px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+}
+
+@utility glass-surface-light {
+  position: relative;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0.35) 60%,
+      rgba(255, 255, 255, 0.25) 100%
+    ),
+    rgba(245, 240, 235, 0.45);
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  border: 1px solid rgba(240, 201, 23, 0.18);
+  box-shadow:
+    0 30px 60px -20px rgba(120, 90, 0, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /* =============================================
@@ -219,6 +263,18 @@
   --strategist-border: rgba(255, 255, 255, 0.1);
   --strategist-glow: rgba(229, 25, 42, 0.06);
   --strategist-overlay: rgba(0, 0, 0, 0.6);
+
+  /* --- BackgroundTexture tuning knobs (live-adjustable) ---
+     The layer sits ABOVE sections (z: 30) so it overlays opaque
+     section backgrounds. Opacities are tuned for "atmospheric"
+     intensity — visible but not tinting content. Bump any of these
+     in DevTools on :root to dial it in live. */
+  --texture-line-opacity: 0.04;        /* golden hairline intensity */
+  --texture-line-spacing: 130px;       /* distance between hairlines */
+  --texture-line-angle: 110deg;        /* diagonal direction of lines */
+  --texture-grain-opacity: 0.025;      /* film-grain noise overlay */
+  --texture-glow-gold: rgba(240, 201, 23, 0.08);
+  --texture-glow-red: rgba(229, 25, 42, 0.06);
 }
 
 @layer base {
@@ -308,4 +364,213 @@
     animation: none !important;
     transform: translateX(0) !important;
   }
+}
+
+/* =============================================
+   Custom Cursor — blend-mode dot + ring
+   Coarse pointers (touch) opt out automatically.
+   ============================================= */
+@media (pointer: fine) {
+  body.cursor-active {
+    cursor: none;
+  }
+  body.cursor-active a,
+  body.cursor-active button,
+  body.cursor-active [role="button"],
+  body.cursor-active input,
+  body.cursor-active textarea,
+  body.cursor-active select,
+  body.cursor-active [data-cursor] {
+    cursor: none;
+  }
+}
+
+.cursor-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: difference;
+  will-change: transform;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: #ffffff;
+  transform: translate(-50%, -50%);
+}
+
+.cursor-ring {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  border: 1.5px solid #ffffff;
+  background: transparent;
+  transform: translate(-50%, -50%);
+}
+
+.cursor-label {
+  /* Gold contextual cursor (Play / Drag) — NO blend mode so gold renders true */
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  width: 72px;
+  height: 72px;
+  border-radius: 9999px;
+  background: #f0c917;
+  color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-clash, var(--font-clash-display));
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+  box-shadow:
+    0 8px 24px rgba(240, 201, 23, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+@media (pointer: coarse) {
+  .cursor-layer,
+  .cursor-label {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-layer,
+  .cursor-label {
+    transition: none !important;
+  }
+}
+
+/* =============================================
+   Background Texture — golden hairlines + grain
+   Lightweight static layer behind <main> (z:0).
+   Composites without mix-blend-mode or filter: blur
+   so it stays GPU-cheap during Lenis scroll.
+   ============================================= */
+.bg-texture-root {
+  position: fixed;
+  inset: 0;
+  /* Sit above <main> (z:10) so opaque sections don't cover the texture,
+     but below Navbar (z:50), StickyCTA, NovaPortal, and CustomCursor. */
+  z-index: 30;
+  pointer-events: none;
+  overflow: hidden;
+  /* Hint compositor: this layer doesn't change. */
+  contain: strict;
+}
+
+.bg-texture-lines {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    var(--texture-line-angle),
+    rgba(240, 201, 23, var(--texture-line-opacity)) 0,
+    rgba(240, 201, 23, var(--texture-line-opacity)) 1px,
+    transparent 1px,
+    transparent var(--texture-line-spacing)
+  );
+}
+
+.bg-texture-lines-cross {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    calc(var(--texture-line-angle) + 90deg),
+    rgba(240, 201, 23, calc(var(--texture-line-opacity) * 0.45)) 0,
+    rgba(240, 201, 23, calc(var(--texture-line-opacity) * 0.45)) 1px,
+    transparent 1px,
+    transparent calc(var(--texture-line-spacing) * 1.6)
+  );
+}
+
+.bg-texture-grain {
+  position: absolute;
+  inset: 0;
+  opacity: var(--texture-grain-opacity);
+  /* tiny SVG turbulence noise — no asset request, no blend mode */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.85'/></svg>");
+  background-size: 160px 160px;
+}
+
+.bg-texture-glow-a {
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 60vw;
+  height: 60vw;
+  /* Soft radial — gradient stops do the blur, no filter needed */
+  background: radial-gradient(circle at center, var(--texture-glow-gold) 0%, transparent 70%);
+}
+
+.bg-texture-glow-b {
+  position: absolute;
+  bottom: -15%;
+  right: -10%;
+  width: 65vw;
+  height: 65vw;
+  background: radial-gradient(circle at center, var(--texture-glow-red) 0%, transparent 70%);
+}
+
+/* =============================================
+   Splash Screen — shimmer sweep on wordmark
+   ============================================= */
+@keyframes splash-shimmer {
+  0%   { background-position: -150% center; }
+  100% { background-position:  250% center; }
+}
+
+.splash-wordmark {
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.85) 35%,
+    #f0c917 50%,
+    rgba(255, 255, 255, 0.85) 65%,
+    rgba(255, 255, 255, 0.85) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: splash-shimmer 2.2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-wordmark {
+    animation: none;
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
+  }
+}
+
+/* =============================================
+   PerfHud kill-switches (dev only)
+   Toggled via classes on <body> by the PerfHud.
+   ============================================= */
+body.no-bdblur,
+body.no-bdblur * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Hides the hero CSS-background-image layer in HeroRevealWrapper.tsx.
+   The layer has no dedicated class, so we target the fixed wrapper's
+   first descendant that uses backgroundImage via inline style. We add
+   a stable class on it from PerfHud's CSS targeting, so we mark it
+   from the HeroRevealWrapper itself with .hero-bg-layer. */
+body.no-herobg .hero-bg-layer {
+  display: none !important;
 }
