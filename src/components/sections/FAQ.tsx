@@ -17,8 +17,6 @@ export default function FAQ(props: any) {
   const { t } = useLanguage();
 
   const eyebrow = props.eyebrow || t.faq.eyebrow;
-  const heading = props.heading || t.faq.heading;
-  const headingAccent = props.headingAccent || t.faq.headingAccent;
 
   const faqItems = props.items || t.faq.items;
 
@@ -32,7 +30,7 @@ export default function FAQ(props: any) {
     <section ref={ref} id="faq" className="bg-bg-brand-black py-[90px] lg:py-[180px]">
       <div className="mx-auto max-w-[1000px] px-4">
         {/* Header */}
-        <div className="mb-16 md:mb-20 text-center">
+        <div className="mb-16 md:mb-20 text-center md:text-left">
           <motion.p
             className="text-brand-red text-[13px] font-semibold uppercase tracking-[0.2em] mb-4"
             initial={{ opacity: 0, y: 10 }}
@@ -43,12 +41,12 @@ export default function FAQ(props: any) {
           </motion.p>
           <SplitTextReveal
             as="h2"
-            className="text-[2.5rem] sm:text-[3.5rem] md:text-[4.5rem] font-bold uppercase leading-none tracking-tight text-text-main"
+            className="text-[2.5rem] sm:text-[3.5rem] md:text-[6rem] font-bold uppercase leading-none tracking-tight text-text-main"
             step={18}
             delay={120}
             from="center"
           >
-            {heading} <span className="text-brand-red">{headingAccent}</span>
+            FAQ
           </SplitTextReveal>
         </div>
 

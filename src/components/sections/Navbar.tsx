@@ -146,16 +146,13 @@ export default function Navbar() {
             {/* Logo */}
             <div className="z-40 flex flex-1 items-center">
               <Link href="/" className="inline-flex items-center gap-2">
-                <span className="hidden sm:inline-flex">
-                  <img
-                    src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
-                    alt="Lionovart logo"
-                    aria-hidden="true"
-                    className="h-14 w-14 object-contain shrink-0"
-                    style={{ filter: "brightness(1) invert(0)" }}
-                  />
-                </span>
-                <span className="text-base sm:text-xl font-bold uppercase tracking-[0.08em] text-white">
+                <img
+                  src="/images/Icon.avif"
+                  alt="Lionovart logo"
+                  aria-hidden="true"
+                  className="h-10 w-10 sm:h-14 sm:w-14 object-contain shrink-0"
+                />
+                <span className="hidden sm:inline text-base sm:text-xl font-bold uppercase tracking-[0.08em] text-white">
                   LIONOVART
                 </span>
               </Link>

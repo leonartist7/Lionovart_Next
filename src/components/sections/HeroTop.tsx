@@ -362,13 +362,13 @@ export default function HeroTop(props: any) {
   };
 
   return (
-    <section className="relative z-20 flex flex-col items-center justify-center px-4 pt-40 pb-0 md:pt-60 md:px-6 overflow-visible">
+    <section className="relative z-20 flex flex-col items-center justify-center px-4 pt-56 pb-0 md:pt-80 md:px-6 overflow-visible">
 
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-[2] flex w-full max-w-[1200px] flex-col items-center gap-2 text-center -mt-4"
+        className="relative z-[2] flex w-full max-w-[1200px] flex-col items-center gap-2 text-center mt-0"
       >
         {/* Main Heading — cycling */}
         <motion.div variants={itemVariants} className="w-full text-center">

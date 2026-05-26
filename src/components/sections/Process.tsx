@@ -58,15 +58,20 @@ export default function Process(props: any) {
           (s: any, i: number) => ({ ...s, num: String(i + 1) })
         );
 
-  const reduce = useReducedMotion();
+  const prefersReduced = useReducedMotion() ?? false;
+  // Defer reduced-motion check to after mount so SSR and client initial
+  // render agree on displayIndex = 0, preventing hydration mismatch.
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => { setHasMounted(true); }, []);
+  const reduce = hasMounted && prefersReduced;
+
   const sectionRef = useRef<HTMLElement>(null);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
   const numberRef = useRef<HTMLDivElement>(null);
   const goldFiredRef = useRef(false);
 
   const [activeIndex, setActiveIndex] = useState(0);
-  // When reduced motion is on, treat the section as fully traversed —
-  // no scroll-driven step tracking, the final number is shown.
+  // When reduced motion is on (post-mount), treat as fully traversed.
   const displayIndex = reduce ? steps.length - 1 : activeIndex;
   const display = String(displayIndex + 1).padStart(2, "0");
 

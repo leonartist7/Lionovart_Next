@@ -390,26 +390,39 @@
   top: 0;
   left: 0;
   pointer-events: none;
-  z-index: 9999;
-  mix-blend-mode: difference;
   will-change: transform;
+  /* mix-blend-mode applied per-layer, not globally */
 }
 
 .cursor-dot {
+  /* 6px dot — sits on TOP of the ring (z-index: 10000).
+     mix-blend-mode: difference kept only here so the dot
+     inverts cleanly over any bg without affecting the glass ring. */
+  z-index: 10000;
   width: 6px;
   height: 6px;
   border-radius: 9999px;
   background: #ffffff;
-  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+  /* Centering via negative margin — framer-motion's style={{ x, y }}
+     generates its own transform, overriding CSS translate(-50%,-50%).
+     Negative margins are the correct approach: they shift the element's
+     layout position without touching the transform stack. */
+  margin: -3px 0 0 -3px;
 }
 
 .cursor-ring {
-  width: 36px;
-  height: 36px;
+  /* Pure circle outline — transparent fill, circumference only.
+     mix-blend-mode: difference so it inverts cleanly over any bg. */
+  z-index: 9999;
+  width: 32px;
+  height: 32px;
   border-radius: 9999px;
   border: 1.5px solid #ffffff;
   background: transparent;
-  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+  /* Center: 32px ÷ 2 = 16px */
+  margin: -16px 0 0 -16px;
 }
 
 .cursor-label {
@@ -432,7 +445,8 @@
   font-size: 13px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  transform: translate(-50%, -50%);
+  /* Center: 72px ÷ 2 = 36px */
+  margin: -36px 0 0 -36px;
   will-change: transform;
   box-shadow:
     0 8px 24px rgba(240, 201, 23, 0.35),

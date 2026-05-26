@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { animate, svg } from "animejs";
-
-const PLUS_D = "M 4 12 L 20 12 M 12 4 L 12 20";
-const MINUS_D = "M 4 12 L 20 12 M 12 12 L 12 12";
+import { animate } from "animejs";
 
 interface Props {
   className?: string;
@@ -12,32 +9,29 @@ interface Props {
 }
 
 /**
- * A single SVG path that morphs between `+` and `−` glyphs as the nearest
- * ancestor's `aria-expanded` attribute changes. Uses anime.js `svg.morphTo`.
+ * Two stacked `<line>` strokes that form a `+` at rest and rotate into a `−`
+ * when the nearest ancestor's `aria-expanded` flips to `true`. The horizontal
+ * stroke stays fixed; the second stroke rotates between -90deg (vertical) and
+ * 0deg (horizontal) so the geometry stays perfectly symmetric in both states.
  *
- * Designed as a drop-in replacement for chevron icons inside accessible
- * accordion / disclosure components — colors via `currentColor`.
+ * Drop-in for chevron icons inside accessible accordion / disclosure triggers.
  */
 export function MorphPlusMinus({ className, size = 20 }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const visiblePathRef = useRef<SVGPathElement>(null);
-  const plusRef = useRef<SVGPathElement>(null);
-  const minusRef = useRef<SVGPathElement>(null);
+  const rotatingRef = useRef<SVGLineElement>(null);
 
   useEffect(() => {
     const svgEl = svgRef.current;
-    const path = visiblePathRef.current;
-    if (!svgEl || !path) return;
+    const line = rotatingRef.current;
+    if (!svgEl || !line) return;
 
     const trigger = svgEl.closest("[aria-expanded]");
     if (!trigger) return;
 
     const update = () => {
       const open = trigger.getAttribute("aria-expanded") === "true";
-      const targetEl = open ? minusRef.current : plusRef.current;
-      if (!targetEl) return;
-      animate(path, {
-        d: svg.morphTo(targetEl),
+      animate(line, {
+        rotate: open ? 0 : -90,
         duration: 320,
         ease: "out(2)",
       });
@@ -64,17 +58,25 @@ export function MorphPlusMinus({ className, size = 20 }: Props) {
       aria-hidden="true"
       data-slot="accordion-trigger-icon"
     >
-      <defs>
-        <path ref={plusRef} d={PLUS_D} />
-        <path ref={minusRef} d={MINUS_D} />
-      </defs>
-      <path
-        ref={visiblePathRef}
-        d={PLUS_D}
-        fill="none"
+      <line
+        x1="4"
+        y1="12"
+        x2="20"
+        y2="12"
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
+      />
+      <line
+        ref={rotatingRef}
+        x1="4"
+        y1="12"
+        x2="20"
+        y2="12"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        style={{ transformOrigin: "12px 12px", transformBox: "view-box" }}
       />
     </svg>
   );
