@@ -162,11 +162,16 @@ function CurtainStage({
   label,
   variant,
   inkColor,
+  textureSrc,
+  blendMode,
 }: {
   bgClass: string;
   label: string;
   variant: "sweep" | "flick" | "double";
   inkColor: string;
+  /** Optional raster brush. When set, swaps procedural SVG for the photo texture. */
+  textureSrc?: string;
+  blendMode?: "multiply" | "normal" | "screen" | "overlay" | "darken";
 }) {
   const [nonce, setNonce] = useState(0);
 
@@ -182,6 +187,8 @@ function CurtainStage({
         baseFrequency={0.022}
         seed={3 + nonce}
         duration={1500}
+        textureSrc={textureSrc}
+        blendMode={blendMode}
       />
       <div className="relative z-10 flex flex-col items-center gap-6 px-8 text-center">
         <p className="font-clash text-[clamp(3rem,9vw,8rem)] font-black uppercase leading-[0.85] tracking-[-0.03em]">
@@ -239,6 +246,17 @@ export default function InkPreviewPage() {
         label="ASK."
         variant="double"
         inkColor="#111111"
+      />
+
+      {/* Role 1B — RASTER curtain. Same mechanic, real paint.
+          Save your brush as public/images/brush/sweep.png and this stage lights up. */}
+      <CurtainStage
+        bgClass="bg-[#0a0a0a] text-white"
+        label="REAL PAINT."
+        variant="sweep"
+        inkColor="#e5192a"
+        textureSrc="/images/brush/sweep.webp"
+        blendMode="normal"
       />
 
       {/* Role 2 — hero underline */}

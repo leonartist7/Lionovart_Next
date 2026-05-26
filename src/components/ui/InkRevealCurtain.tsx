@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { animate, createScope, onScroll, svg } from "animejs";
 
 interface Props {
-  /** Color of the ink. Default Lacquer Red. */
+  /** Color of the ink. Default Lacquer Red. (Ignored when textureSrc is set.) */
   inkColor?: string;
   /** Direction of the wipe. */
   direction?: "ltr" | "rtl";
@@ -24,6 +24,15 @@ interface Props {
   variant?: "sweep" | "flick" | "double";
   /** Duration of the paint stroke in ms. Default 1400. */
   duration?: number;
+  /**
+   * Optional path to a transparent-background brush PNG/WebP. When provided,
+   * the component switches from procedural SVG ink to a clip-revealed raster
+   * stroke — photographic bristles, real paint feel. The image's own colour
+   * is used as-is (set blendMode if you want it to tint into the background).
+   */
+  textureSrc?: string;
+  /** mix-blend-mode for the raster texture. Default "multiply" for inky paint feel. */
+  blendMode?: "multiply" | "normal" | "screen" | "overlay" | "darken";
   className?: string;
 }
 
@@ -43,6 +52,8 @@ export function InkRevealCurtain({
   seed = 4,
   variant = "sweep",
   duration = 1400,
+  textureSrc,
+  blendMode = "multiply",
   className,
 }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -53,9 +64,32 @@ export function InkRevealCurtain({
     if (!root) return;
 
     const scope = createScope({ root }).add(() => {
+      // RASTER MODE — soft-edge mask wipe.
+      // We animate a linear-gradient mask whose transition zone is ~14% wide.
+      // That feathered edge is what makes the stroke look *painted* rather
+      // than unveiled — no hard vertical cut crossing the bristles.
+      // Animating the `--reveal` CSS variable (rather than the whole mask
+      // string) is far cheaper: only one declaration recalculates per frame.
+      if (textureSrc) {
+        const img = root.querySelector<HTMLElement>(".ink-texture");
+        if (!img) return;
+        animate(img, {
+          // anime.js v4 accepts plain object property animations on HTMLElements
+          // including custom CSS properties via the `--name` key.
+          "--reveal": ["-14%", "114%"],
+          ease: "out(3)",
+          duration,
+          autoplay: onScroll({
+            target: root,
+            enter: "bottom-=20% top",
+          }),
+        } as Parameters<typeof animate>[1]);
+        return;
+      }
+
+      // SVG MODE — original procedural stroke draws itself in.
       const path = root.querySelector<SVGPathElement>(".ink-path");
       if (!path) return;
-
       const drawables = svg.createDrawable([path]);
       animate(drawables, {
         draw: ["0 0", "0 1"],
@@ -69,7 +103,7 @@ export function InkRevealCurtain({
     });
 
     return () => scope.revert();
-  }, [duration]);
+  }, [duration, textureSrc]);
 
   // Paths are designed inside a 1600x900 viewBox; preserveAspectRatio is
   // "none" so the brush scales to whatever container size we land in.
@@ -86,6 +120,40 @@ export function InkRevealCurtain({
   };
 
   const reverse = direction === "rtl";
+
+  // Raster mode — single <img>, soft-edge mask reveal driven by --reveal.
+  // The mask is a gradient: opaque up to --reveal, then a 14% feathered
+  // taper to transparent. As --reveal animates from -14% → 114% the
+  // taper sweeps across the stroke and the painterly bristles stay intact.
+  if (textureSrc) {
+    return (
+      <div
+        ref={rootRef}
+        className={`absolute inset-0 pointer-events-none ${className ?? ""}`}
+        aria-hidden="true"
+      >
+        <img
+          src={textureSrc}
+          alt=""
+          className="ink-texture absolute inset-0 w-full h-full object-contain select-none"
+          style={
+            {
+              mixBlendMode: blendMode,
+              transform: reverse ? "scaleX(-1)" : undefined,
+              // Start fully hidden, then anime.js animates --reveal across.
+              ["--reveal" as string]: "-14%",
+              WebkitMaskImage:
+                "linear-gradient(90deg, black 0%, black var(--reveal), transparent calc(var(--reveal) + 14%))",
+              maskImage:
+                "linear-gradient(90deg, black 0%, black var(--reveal), transparent calc(var(--reveal) + 14%))",
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+            } as CSSProperties
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div
