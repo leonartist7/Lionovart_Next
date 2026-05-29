@@ -5,6 +5,10 @@ import { motion, useInView } from "framer-motion";
 import { getWhatsAppUrl } from "@/lib/contact";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
+import VideoBackdrop from "@/components/ui/VideoBackdrop";
+
+const FOOTER_CLIP =
+  "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845599/Footage_02_chsoa3.mp4";
 
 export default function Footer() {
   const ref = useRef<HTMLElement>(null);
@@ -17,13 +21,14 @@ export default function Footer() {
     <footer ref={ref} className="bg-[#000000] pt-12 md:pt-16 lg:pt-[100px] border-t border-border-dark relative z-0 shadow-[inset_4px_4px_16px_rgba(0,0,0,0.5),inset_-4px_-4px_16px_rgba(255,255,255,0.04)]">
       <div className="mx-auto max-w-[1200px] px-4 md:px-6 w-full">
 
-        {/* Top Section: CTA CTA */}
-        <div className="flex flex-col items-center text-center mb-24 gap-8">
+        {/* Top Section: CTA — video bookend, mirrors the hero open. */}
+        <div className="relative isolate overflow-hidden rounded-[22px] md:rounded-[30px] mb-24 px-6 py-20 md:py-28 flex flex-col items-center text-center gap-8">
+          <VideoBackdrop src={FOOTER_CLIP} className="absolute inset-0 z-0" overlayClassName="bg-black/65" />
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="flex flex-col items-center"
+            className="relative z-10 flex flex-col items-center"
           >
             <SplitTextReveal
               as="h2"
@@ -44,6 +49,7 @@ export default function Footer() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={isInView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+            className="relative z-10"
           >
             <a
               href={getWhatsAppUrl("Hi! I visited Lionovart and I'm ready to book a sprint. Can we discuss my project?")}

@@ -110,7 +110,7 @@ export default function WhatWeDo() {
   return (
     <section
       ref={sectionRef}
-      className="relative isolate bg-bg-dark pt-8 pb-20 md:pt-10 md:pb-24 lg:pt-12 lg:pb-28"
+      className="relative isolate pt-8 pb-20 md:pt-10 md:pb-24 lg:pt-12 lg:pb-28"
     >
       <div className="mx-auto max-w-[1200px] px-4 md:px-6">
         {/* ── Trust badges — laurel-framed proof row (was on About) ── */}

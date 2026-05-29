@@ -4,9 +4,8 @@ import { useRef, useState, useEffect } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import ScrollTrigger from "gsap/ScrollTrigger";
-import SplitText from "gsap/SplitText";
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
+gsap.registerPlugin(ScrollTrigger);
 
 interface Discipline {
   label: string;
@@ -81,19 +80,16 @@ export default function DisciplineCards({ statement, disciplines, media }: Props
             return; // rendered in final state by default
           }
 
-          // Cinematic statement — line + word reveal
-          const split = new SplitText(headlineEl, {
-            type: "lines, words",
-            linesClass: "overflow-hidden",
-          });
-          gsap.set(headlineEl, { opacity: 1 });
+          // Statement — blur-in fade, no slide. Materializes in place while the
+          // section is pinned (the sticky hand-off lives in WhatWeDo.tsx).
+          gsap.set(headlineEl, { opacity: 0, filter: "blur(12px)" });
 
           const revealHeadline = () =>
-            gsap.from(split.words, {
-              yPercent: 115,
-              duration: 1,
-              stagger: 0.04,
-              ease: "power4.out",
+            gsap.to(headlineEl, {
+              opacity: 1,
+              filter: "blur(0px)",
+              duration: 1.1,
+              ease: "power3.out",
             });
 
           const revealCards = () =>
@@ -151,7 +147,6 @@ export default function DisciplineCards({ statement, disciplines, media }: Props
             });
           }
 
-          return () => split.revert();
         }
       );
 

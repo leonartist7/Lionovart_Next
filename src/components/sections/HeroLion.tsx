@@ -103,10 +103,7 @@ export default function HeroLion() {
   }, []);
 
   return (
-    <section className="relative flex min-h-[80vh] flex-col overflow-hidden bg-bg-dark md:min-h-screen">
-      {/* Subtle dark gradient — sits behind the wordmark for depth. */}
-      <div className="absolute inset-0 bg-gradient-to-b from-bg-dark/60 via-transparent to-bg-dark/90" />
-
+    <section className="relative flex min-h-[80vh] flex-col overflow-hidden md:min-h-screen">
       {/* Hero centerpiece — see the variation guide above. */}
       <div className="relative z-10 flex flex-1 items-center justify-center px-4 md:px-6">
         <HeroWordmark />
