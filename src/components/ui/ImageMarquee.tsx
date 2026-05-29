@@ -24,27 +24,71 @@ const N = CAROUSEL_IMAGES.length; // 20 — 18° steps
 const OUTWARD_IMAGES = [...ORIGINAL_IMAGES, ...ORIGINAL_IMAGES, ...ORIGINAL_IMAGES, ...ORIGINAL_IMAGES];
 const N_OUT = OUTWARD_IMAGES.length; // 40
 
+const BASE_SCALE = 1.4;
+const ASPECT_W_OVER_H = 8 / 10; // card aspect ratio (8:10) — width/height
+
 interface ImageMarqueeProps {
   outward?: boolean;
   bg?: string;
+  /**
+   * Hard cap on the *rendered* (scaled) marquee height in pixels.
+   * When provided, both the card height and the scale factor are
+   * reduced so the marquee never exceeds this budget. Used by
+   * HeroRevealWrapper to fit the marquee inside the viewport on
+   * tall/short desktops where it was clipping.
+   */
+  maxHeight?: number;
 }
 
-export default function ImageMarquee({ outward = false, bg }: ImageMarqueeProps) {
+export default function ImageMarquee({ outward = false, bg, maxHeight }: ImageMarqueeProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [radius, setRadius] = useState(600);
+  const [cardHeight, setCardHeight] = useState(320);
+  const [cardWidth, setCardWidth] = useState(256);
+  const [scale, setScale] = useState(BASE_SCALE);
 
   useEffect(() => {
     const compute = () => {
-      if (!cardRef.current) return;
-      const w = cardRef.current.offsetWidth;
+      const vw = window.innerWidth;
+
+      // Natural height = same clamp() formula previously expressed in CSS,
+      // now in JS so we can shrink it when maxHeight forces us to.
+      const naturalH = outward
+        ? Math.min(448, Math.max(247, vw * 0.28))
+        : Math.min(420, Math.max(240, vw * 0.30));
+
+      // Card width follows the same clamp(141, 16vw, 256) used below.
+      const widthFromVW = Math.min(256, Math.max(141, vw * 0.16));
+
+      let finalH = naturalH;
+      let finalScale = BASE_SCALE;
+
+      if (typeof maxHeight === "number" && maxHeight > 0) {
+        // Rendered height ≈ naturalH × scale. Reduce scale first (down to 1.0),
+        // then natural height if even unscaled it doesn't fit.
+        const neededScale = maxHeight / naturalH;
+        if (neededScale < BASE_SCALE) {
+          finalScale = Math.max(1.0, neededScale);
+          if (neededScale < 1.0) finalH = maxHeight; // collapse to budget
+        }
+      }
+
+      const finalW = finalH * ASPECT_W_OVER_H;
+      // Don't grow the card past the original width clamp.
+      const widthForRadius = Math.min(widthFromVW, finalW);
+
       const n = outward ? N_OUT : N;
-      const r = (w * 0.5 + 12) / Math.tan(Math.PI / n);
+      const r = (widthForRadius * 0.5 + 12) / Math.tan(Math.PI / n);
+
+      setCardHeight(finalH);
+      setCardWidth(widthForRadius);
+      setScale(finalScale);
       setRadius(r);
     };
     compute();
     window.addEventListener("resize", compute);
     return () => window.removeEventListener("resize", compute);
-  }, [outward]);
+  }, [outward, maxHeight]);
 
   return (
     <motion.div
@@ -62,14 +106,14 @@ export default function ImageMarquee({ outward = false, bg }: ImageMarqueeProps)
           WebkitMaskImage: "linear-gradient(90deg, transparent, black max(15%, calc(50% - 600px)), black min(85%, calc(50% + 600px)), transparent)",
         }}
       >
-        <div style={{ transform: outward ? `scale(1.4) translateZ(${-radius}px)` : "scale(1.4)", transformStyle: "preserve-3d", display: "flex", justifyContent: "center" }}>
+        <div style={{ transform: outward ? `scale(${scale}) translateZ(${-radius}px)` : `scale(${scale})`, transformStyle: "preserve-3d", display: "flex", justifyContent: "center" }}>
           <div
             className="grid"
             style={{
               transformStyle: "preserve-3d",
               animation: `carousel-spin ${outward ? "120s" : "75s"} linear infinite`,
               animationDirection: outward ? "reverse" : "normal",
-              height: outward ? "clamp(247px, 28vw, 448px)" : "clamp(240px, 30vw, 420px)",
+              height: `${cardHeight}px`,
               placeItems: "center",
             }}
           >
@@ -82,7 +126,7 @@ export default function ImageMarquee({ outward = false, bg }: ImageMarqueeProps)
                   ref={i === 0 ? cardRef : undefined}
                   style={{
                     gridArea: "1 / 1",
-                    width: "clamp(141px, 16vw, 256px)",
+                    width: `${cardWidth}px`,
                     aspectRatio: "8 / 10",
                     transform: `rotateY(${angleTurn}turn) translateZ(${outward ? radius : -radius}px)`,
                     backfaceVisibility: "hidden",

@@ -1,11 +1,11 @@
 import HeroTop from "@/components/sections/HeroTop";
 import VideoCurtainReveal from "@/components/sections/VideoCurtainReveal";
+import SceneVideoBackdrop from "@/components/sections/SceneVideoBackdrop";
 import { HeroRevealWrapper } from "@/components/sections/HeroRevealWrapper";
 
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import WhatWeDo from "@/components/sections/WhatWeDo";
 import HeroLion from "@/components/sections/HeroLion";
-import ImageMarquee from "@/components/ui/ImageMarquee";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
 import Services from "@/components/sections/Services";
 import Comparison from "@/components/sections/Comparison";
@@ -35,6 +35,9 @@ export function PageBuilder({ blocks }: { blocks: PageBlock[] }) {
   if (!blocks || blocks.length === 0) {
     return (
       <>
+        {/* Fixed video scene — sits behind Hero → WhatWeDo → HeroLion, fades at About */}
+        <SceneVideoBackdrop />
+
         {/* Curtain card — fixed overlay, slides up on scroll */}
         <VideoCurtainReveal />
 
@@ -45,10 +48,9 @@ export function PageBuilder({ blocks }: { blocks: PageBlock[] }) {
           that follow (z-[1]).
         */}
         {/* Hero fades in as card passes 50%, pushed up by About Us at 80% scroll speed */}
-        <HeroRevealWrapper>
-          <NovaSection id="hero"><HeroTop /></NovaSection>
-          <ImageMarquee />
-        </HeroRevealWrapper>
+        <HeroRevealWrapper
+          heroTop={<NovaSection id="hero"><HeroTop /></NovaSection>}
+        />
 
         {/* Breathing room: extended gap so curtain fully exits before About Us enters */}
         <div className="h-[100vh] md:h-[120vh] lg:h-[150vh]" />

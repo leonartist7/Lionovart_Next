@@ -1,64 +1,41 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
+import { useEffect, useState, useRef, type ReactNode } from "react";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useLenis } from "@studio-freight/react-lenis";
-import { useHeroImageStore } from "@/lib/stores/hero-image-store";
-import { HeroFocalPicker } from "@/components/ui/HeroFocalPicker";
-import { HeroImageCycler } from "@/components/ui/HeroImageCycler";
+import ImageMarquee from "@/components/ui/ImageMarquee";
 
-// Dev-only flag — Next/SWC inlines this at build time so production bundles
-// drop the dev-only branches entirely.
-const IS_DEV = process.env.NODE_ENV !== "production";
-
-/** True when the viewport is ≤768px (mobile/portrait) */
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 768px)");
-    // Mount-time platform detection; matchMedia is unavailable during SSR.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-  return isMobile;
+interface HeroRevealWrapperProps {
+  /** Top slot — HeroTop section. */
+  heroTop: ReactNode;
 }
 
-export function HeroRevealWrapper({ children }: { children: React.ReactNode }) {
+/**
+ * HeroRevealWrapper — pushes the hero *content* (HeroTop + ImageMarquee) up as
+ * the user scrolls, fading it in after the curtain. The video background lives
+ * in <SceneVideoBackdrop /> (a separate fixed z-[0] layer); this wrapper sits
+ * above it at z-[1].
+ */
+export function HeroRevealWrapper({ heroTop }: HeroRevealWrapperProps) {
   const scrollY = useMotionValue(0);
   const [vh, setVh] = useState(900);
   const [contentH, setContentH] = useState(900);
+  const [heroTopH, setHeroTopH] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
-
-  const { images, currentIndex, positions, pickerActive, init } = useHeroImageStore();
-  const current = images[currentIndex];
-  const isMobile = useIsMobile();
-
-  // Pick mobile src if available, fall back to desktop
-  const currentSrc = current
-    ? (isMobile && current.mobile ? current.mobile : current.desktop)
-    : null;
-
-  // Saved focal point for this image, default to 50% 70%
-  const focalPos = current ? (positions[current.id] ?? { x: 50, y: 70 }) : { x: 50, y: 70 };
-  const bgPosition = `${focalPos.x}% ${focalPos.y}%`;
-
-  useEffect(() => {
-    void init();
-  }, [init]);
+  const heroTopRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const measure = () => {
       setVh(window.innerHeight);
       if (contentRef.current) setContentH(contentRef.current.scrollHeight);
+      if (heroTopRef.current) setHeroTopH(heroTopRef.current.offsetHeight);
     };
     measure();
 
     // ResizeObserver catches ImageMarquee computing its 3D radius after mount
     const ro = new ResizeObserver(measure);
     if (contentRef.current) ro.observe(contentRef.current);
+    if (heroTopRef.current) ro.observe(heroTopRef.current);
     window.addEventListener("resize", measure);
 
     return () => {
@@ -80,54 +57,20 @@ export function HeroRevealWrapper({ children }: { children: React.ReactNode }) {
 
   const heroY = useTransform(scrollY, [pushStart, pushEnd], [0, -vh]);
 
+  // Marquee budget: whatever vh remains after HeroTop is laid out, minus a
+  // small breathing buffer. Floored at 160px so the carousel still renders
+  // even on absurdly squat viewports.
+  const marqueeMaxHeight = Math.max(160, vh - heroTopH - 24);
+
   return (
     <motion.div
       className="fixed top-0 left-0 right-0 h-screen overflow-hidden z-[1] pointer-events-none"
       style={{ opacity: heroOpacity, y: heroY }}
     >
-      {/* Full-viewport hero background — covers HeroTop + ImageMarquee */}
-      <AnimatePresence>
-        {currentSrc && (
-          <motion.div
-            key={currentSrc}
-            className="hero-bg-layer absolute inset-0 z-0"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.6, ease: "easeInOut" }}
-            style={{
-              backgroundImage: `url(${currentSrc})`,
-              backgroundSize: "cover",
-              backgroundPosition: bgPosition,
-            }}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Focal point picker overlay — dev tool, only mounted in development */}
-      {IS_DEV && (
-        <AnimatePresence>
-          {pickerActive && (
-            <motion.div
-              key="focal-picker"
-              className="absolute inset-0 z-[9]"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <HeroFocalPicker />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      )}
-
       <div ref={contentRef} className="pointer-events-auto relative z-[1]">
-        {children}
+        <div ref={heroTopRef}>{heroTop}</div>
+        <ImageMarquee maxHeight={marqueeMaxHeight} />
       </div>
-
-      {/* Hero image cycler — bottom-center pill, visible on all devices */}
-      <HeroImageCycler />
     </motion.div>
   );
 }

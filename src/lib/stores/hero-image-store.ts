@@ -34,6 +34,32 @@ function savePositions(positions: Record<string, FocalPoint>) {
   }
 }
 
+/**
+ * Cloudinary-hosted hero videos. Merged into the cycler alongside any
+ * local images discovered by /api/hero-images. Lets us preview heavy
+ * video backgrounds without committing large files to the repo.
+ */
+const CLOUDINARY_MEDIA: HeroMedia[] = [
+  {
+    id: "footage-02",
+    desktop: "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845599/Footage_02_chsoa3.mp4",
+    mobile: null,
+    type: "video",
+  },
+  {
+    id: "footage-05",
+    desktop: "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845553/Footage_05_yalbaj.mp4",
+    mobile: null,
+    type: "video",
+  },
+  {
+    id: "footage-07",
+    desktop: "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845634/Footage_07_o3rfbu.mp4",
+    mobile: null,
+    type: "video",
+  },
+];
+
 interface HeroImageState {
   images: HeroMedia[];
   currentIndex: number;
@@ -65,9 +91,9 @@ export const useHeroImageStore = create<HeroImageState>((set, get) => ({
       const res = await fetch("/api/hero-images");
       const { images } = (await res.json()) as { images: HeroMedia[] };
       const positions = loadPositions();
-      set({ images, positions, ready: true });
+      set({ images: [...images, ...CLOUDINARY_MEDIA], positions, ready: true });
     } catch {
-      set({ ready: true });
+      set({ images: [...CLOUDINARY_MEDIA], ready: true });
     }
   },
 
