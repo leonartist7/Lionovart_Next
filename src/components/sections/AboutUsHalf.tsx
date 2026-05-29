@@ -254,6 +254,11 @@ export default function AboutUsHalf(props: any) {
           {/* LEFT COLUMN — headline, body, contact */}
           <div className="flex flex-col justify-center items-start text-left max-w-[640px]">
             <h2 className="font-display text-black leading-[1.1] tracking-tight text-[clamp(2.2rem,3.8vw,4.6rem)]">
+              <span className="inline-block overflow-hidden align-bottom mr-[0.22em]">
+                <span className="about-word-inner inline-block">
+                  "
+                </span>
+              </span>
               {words.map((word, i) => (
                 <span
                   key={i}
@@ -268,6 +273,11 @@ export default function AboutUsHalf(props: any) {
                   </span>
                 </span>
               ))}
+              <span className="inline-block overflow-hidden align-bottom">
+                <span className="about-word-inner inline-block">
+                  "
+                </span>
+              </span>
             </h2>
 
             <div className="w-16 h-px bg-black/15 my-7" aria-hidden="true" />
@@ -310,6 +320,14 @@ export default function AboutUsHalf(props: any) {
             viewport={{ once: true, amount: 0.4 }}
             className="font-display text-black leading-[1.2] mb-6 text-[clamp(1.75rem,6vw,2.4rem)]"
           >
+            <span className="inline-block overflow-hidden align-bottom mr-[0.2em]">
+              <motion.span
+                variants={mobileHeadlineWord}
+                className="inline-block"
+              >
+                "
+              </motion.span>
+            </span>
             {words.map((word, i) => (
               <span
                 key={i}
@@ -325,6 +343,14 @@ export default function AboutUsHalf(props: any) {
                 </motion.span>
               </span>
             ))}
+            <span className="inline-block overflow-hidden align-bottom">
+              <motion.span
+                variants={mobileHeadlineWord}
+                className="inline-block"
+              >
+                "
+              </motion.span>
+            </span>
           </motion.h2>
 
           <motion.p

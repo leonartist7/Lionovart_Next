@@ -362,7 +362,7 @@ export default function HeroTop(props: any) {
   };
 
   return (
-    <section className="relative z-20 flex flex-col items-center justify-center px-4 pt-56 pb-0 md:pt-80 md:px-6 overflow-visible">
+    <section className="relative z-20 flex flex-col items-center justify-center px-4 pt-36 pb-0 md:pt-44 md:px-6 overflow-visible">
 
       <motion.div
         variants={containerVariants}
@@ -384,7 +384,7 @@ export default function HeroTop(props: any) {
         {/* CTAs — always one row, wraps on very small screens */}
         <motion.div
           variants={itemVariants}
-          className="flex flex-row flex-wrap items-center justify-center gap-4"
+          className="flex flex-row flex-wrap items-center justify-center gap-4 mt-6 md:mt-10"
         >
           <LiquidMetalButton
             label={t.hero.ctaStrategist}
