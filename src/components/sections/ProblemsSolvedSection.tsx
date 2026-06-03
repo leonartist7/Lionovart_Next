@@ -108,14 +108,14 @@ function ProblemCard({
             rounded-[20px] md:rounded-[24px]
             shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_16px_rgba(255,255,255,0.04)]
             ring-1 ring-white/[0.06]
-            min-h-[260px] sm:min-h-[300px] md:min-h-[340px] lg:min-h-[380px]
+            min-h-[260px] sm:min-h-[290px]
           "
         >
           {/* BASE LAYER: SOLUTION — always horizontal: image left, text right */}
           <div className="absolute inset-0 bg-white flex flex-row">
 
-            {/* Image placeholder — narrow on mobile, wider on desktop */}
-            <div className="w-[30%] md:w-[38%] bg-[#f0f0f0] flex items-center justify-center shrink-0">
+            {/* Image placeholder — hidden on mobile, shown from md up */}
+            <div className="hidden md:flex w-[38%] bg-[#f0f0f0] items-center justify-center shrink-0">
               <div className="flex flex-col items-center gap-2 text-black/20 px-2">
                 <svg
                   className="w-7 h-7 md:w-10 md:h-10"
@@ -198,10 +198,10 @@ function ProblemCard({
             same golden drop-shadow, same hover spring.
           */}
           <motion.div
-            className="pointer-events-none absolute z-20 bottom-0"
+            className="pointer-events-none absolute z-20 bottom-0 w-[clamp(95px,85%,145px)] md:w-[clamp(160px,30%,210px)] lg:w-[clamp(190px,22%,250px)]"
             initial={{ x: "-50%", y: "0%", rotate: -6, scale: 0.9 }}
             animate={pawControls}
-            style={{ left: 0, width: "clamp(95px, 85%, 145px)", aspectRatio: "1 / 1" }}
+            style={{ left: 0, aspectRatio: "1 / 1" }}
           >
             {/* Inner wrapper — hover scale only, independent of reveal animation */}
             <motion.div
@@ -253,8 +253,18 @@ export default function ProblemsSolvedSection() {
   const clipPath = useTransform(circleSize, (v: number) => `circle(${v}% at 50% 8%)`);
 
   return (
-    <section ref={sectionRef} className="bg-white py-16 lg:py-24">
-      <div className="max-w-[1300px] mx-auto px-4 md:px-6">
+    <section ref={sectionRef} className="bg-bg-surface-light pt-4 pb-16 md:pt-6 md:pb-24 lg:pt-8 lg:pb-24 xl:pt-10 xl:pb-32">
+      <div className="max-w-[1300px] xl:max-w-[1500px] 2xl:max-w-[1700px] mx-auto px-4 md:px-6 xl:px-10">
+
+        {/* ── Lion emblem — floats above and into the red card dome ── */}
+        <div className="relative z-10 flex justify-center pointer-events-none -mb-[100px] md:-mb-[160px] lg:-mb-[220px] xl:-mb-[280px] 2xl:-mb-[340px]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/LION-CIRCLE.avif"
+            alt="LIONOVART emblem"
+            className="w-[180px] md:w-[240px] lg:w-[300px] xl:w-[360px] 2xl:w-[420px] select-none"
+          />
+        </div>
 
         {/* ── Contained red box with domed top ── */}
         <motion.div
@@ -266,7 +276,7 @@ export default function ProblemsSolvedSection() {
         >
 
           {/* Heading */}
-          <div className="px-6 md:px-12 pt-12 md:pt-16">
+          <div className="px-6 md:px-12 pt-[120px] md:pt-[180px] lg:pt-[240px] xl:pt-[300px] 2xl:pt-[360px]">
             <motion.div
               className="mb-8 md:mb-12 flex flex-col items-center text-center"
               initial={{ opacity: 0, scale: 0.88 }}
@@ -279,7 +289,7 @@ export default function ProblemsSolvedSection() {
               </p>
               <SplitTextReveal
                 as="h2"
-                className="text-[40px] sm:text-[56px] md:text-[76px] font-bold font-clash uppercase leading-[1.05] text-white max-w-4xl"
+                className="text-[40px] sm:text-[56px] md:text-[76px] xl:text-[100px] 2xl:text-[120px] font-bold font-clash uppercase leading-[1.05] text-white max-w-4xl"
                 step={18}
                 delay={150}
                 from="center"
@@ -290,7 +300,7 @@ export default function ProblemsSolvedSection() {
           </div>
 
           {/* Cards — stagger entrance */}
-          <div className="px-4 md:px-8 flex flex-col gap-6 md:gap-8 pb-44 md:pb-56">
+          <div className="px-6 md:px-24 lg:px-36 xl:px-48 2xl:px-64 flex flex-col gap-6 md:gap-8 pb-44 md:pb-56">
             {items.map((item, i) => (
               <motion.div
                 key={i}
@@ -311,8 +321,11 @@ export default function ProblemsSolvedSection() {
 
         </motion.div>
 
+        {/* ── Red card continuation — passes behind marquee (z-20) and glass card (z-10) ── */}
+        <div className="relative z-0 -mt-2 bg-[#e5192a] h-[72px] rounded-b-[32px]" />
+
         {/* ── MarqueeSlanted band — z-20, renders on top of the glass card below ── */}
-        <div className="relative z-20 -mt-16 md:-mt-20">
+        <div className="relative z-20 -mt-[128px] md:-mt-[144px]">
           <MarqueeSlanted />
         </div>
 
@@ -323,7 +336,7 @@ export default function ProblemsSolvedSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "0px 0px -10% 0px" }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="relative z-10 -mt-24 md:-mt-28 max-w-[80%] mx-auto rounded-[20px]
+          className="relative z-10 -mt-24 md:-mt-28 max-w-[64%] mx-auto rounded-[20px]
                      pt-28 md:pt-32 px-5 md:px-7 pb-4 md:pb-5
                      backdrop-blur-xl bg-white/75 border border-black/[0.07]
                      shadow-[0_12px_40px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.9)]"

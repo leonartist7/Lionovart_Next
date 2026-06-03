@@ -78,7 +78,23 @@
       "Bash(curl -s -o /dev/null -w \"home:%{http_code}\\\\n\" http://localhost:3000/)",
       "Bash(awk '{print $5, $NF}')",
       "Bash(git lfs *)",
-      "Bash(git reset *)"
+      "Bash(git reset *)",
+      "Bash(python -c \"from PIL import Image; im=Image.open\\('public/images/laurel-L.webp'\\); print\\(im.size\\)\")",
+      "Bash(node -e \"const s=require\\('fs'\\).readFileSync\\('public/images/laurel-L.webp'\\);console.log\\('size bytes',s.length\\)\")",
+      "Bash(file public/images/laurel-L.webp)",
+      "Bash(curl -s -o /dev/null -w \"ca-flag:%{http_code}\\\\n\" https://flagcdn.com/w40/ca.png)",
+      "Bash(curl -s -o /dev/null -w \"es-flag:%{http_code}\\\\n\" https://flagcdn.com/w40/es.png)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/)",
+      "PowerShell(npx tsc --noEmit -p tsconfig.json)",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:3000/\" -UseBasicParsing -TimeoutSec 60; \"STATUS: $\\($r.StatusCode\\)\"; if \\($r.Content -match \"build-error|__next_error__|Unhandled Runtime Error|Failed to compile\"\\) { \"COMPILE ERROR MARKERS FOUND\" } else { \"no error markers in HTML\" } } catch { \"REQUEST FAILED: $\\($_.Exception.Message\\)\" })",
+      "PowerShell(npx tsc --noEmit 2>&1)",
+      "PowerShell(if \\(Test-Path package.json\\) { \\(Get-Content package.json -Raw | ConvertFrom-Json\\).scripts })",
+      "PowerShell(npm run dev)",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:3000/\" -UseBasicParsing -TimeoutSec 60; \"STATUS: $\\($r.StatusCode\\)  LEN: $\\($r.Content.Length\\)\" } catch { \"REQ ERROR: $\\($_.Exception.Message\\)\" })",
+      "PowerShell(try { $c = \\(Invoke-WebRequest -Uri \"http://localhost:3000/\" -UseBasicParsing -TimeoutSec 60\\).Content; \"Leonardo: $\\($c -match 'Leonardo'\\)\"; \"founderRole\\(Creative\\): $\\($c -match 'Creative & Business Director'\\)\"; \"PAINTCO: $\\($c -match 'PAINTCO'\\)\"; \"LION_CIRCLE: $\\($c -match 'LION_CIRCLE'\\)\"; \"Studioshot: $\\($c -match 'Leon-Studioshot'\\)\"; \"About-eval toggle: $\\($c -match 'About · eval'\\)\"; \"dome path gone: $\\(-not \\($c -match 'C360,0 1080'\\)\\)\" } catch { \"ERR $\\($_.Exception.Message\\)\" })",
+      "PowerShell(try { $c = \\(Invoke-WebRequest -Uri \"http://localhost:3000/\" -UseBasicParsing -TimeoutSec 60\\).Content; \"Creative present: $\\($c -match 'Creative'\\)\"; \"encoded role: $\\($c -match 'Creative &amp; Business Director'\\)\"; \"signature: $\\($c -match 'Founder, LIONOVART'\\)\"; \"eyebrow: $\\($c -match 'The Founder'\\)\"; \"stat 50+: $\\($c -match '50\\\\+'\\)\" } catch { \"ERR $\\($_.Exception.Message\\)\" })"
     ]
   }
 }

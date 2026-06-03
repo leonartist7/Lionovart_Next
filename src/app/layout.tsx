@@ -10,6 +10,7 @@ import { StickyCTA } from "@/components/ai-strategist/StickyCTA";
 // BackgroundTexture removed by request — kept on disk for later if needed.
 // import BackgroundTexture from "@/components/ui/BackgroundTexture";
 import CustomCursor from "@/components/ui/CustomCursor";
+import BottomBlur from "@/components/ui/BottomBlur";
 import SplashScreen from "@/components/ui/SplashScreen";
 import PerfHud from "@/components/dev/PerfHud";
 
@@ -76,6 +77,8 @@ export default async function RootLayout({
           <StickyCTA />
           {/* Premium cursor — fixed, z:9999, hidden on touch + reduced-motion friendly */}
           <CustomCursor />
+          {/* Frosted bottom edge — z:60, auto-hides over the footer marquee */}
+          <BottomBlur />
         </LanguageProvider>
         {/* Dev-only perf HUD — dead-code-eliminated in production */}
         <PerfHud />

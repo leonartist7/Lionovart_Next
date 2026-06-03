@@ -50,24 +50,30 @@ export default function ImageMarquee({ outward = false, bg, maxHeight }: ImageMa
   useEffect(() => {
     const compute = () => {
       const vw = window.innerWidth;
+      // Big screens get a taller card baseline + flatter scale so the dome's
+      // projected front cards don't balloon past the budget and clip.
+      const isLarge = vw >= 1280;
 
       // Natural height = same clamp() formula previously expressed in CSS,
       // now in JS so we can shrink it when maxHeight forces us to.
       const naturalH = outward
         ? Math.min(448, Math.max(247, vw * 0.28))
-        : Math.min(420, Math.max(240, vw * 0.30));
+        : Math.min(isLarge ? 520 : 420, Math.max(240, vw * 0.30));
 
       // Card width follows the same clamp(141, 16vw, 256) used below.
       const widthFromVW = Math.min(256, Math.max(141, vw * 0.16));
 
+      // Flatter base scale on large screens; mobile/tablet keep BASE_SCALE.
+      const baseScale = isLarge ? 1.15 : BASE_SCALE;
+
       let finalH = naturalH;
-      let finalScale = BASE_SCALE;
+      let finalScale = baseScale;
 
       if (typeof maxHeight === "number" && maxHeight > 0) {
         // Rendered height ≈ naturalH × scale. Reduce scale first (down to 1.0),
         // then natural height if even unscaled it doesn't fit.
         const neededScale = maxHeight / naturalH;
-        if (neededScale < BASE_SCALE) {
+        if (neededScale < baseScale) {
           finalScale = Math.max(1.0, neededScale);
           if (neededScale < 1.0) finalH = maxHeight; // collapse to budget
         }
@@ -99,7 +105,7 @@ export default function ImageMarquee({ outward = false, bg, maxHeight }: ImageMa
       className={`relative z-0 w-full overflow-visible pointer-events-none${outward ? " pt-4 md:pt-6 pb-2 md:pb-3" : " py-2 md:py-3"}${bg ? ` ${bg}` : ""}`}
     >
       <div
-        className="relative w-screen left-1/2 -translate-x-1/2 overflow-hidden flex justify-center"
+        className="relative w-screen left-1/2 -translate-x-1/2 overflow-x-hidden overflow-y-visible flex justify-center"
         style={{
           perspective: outward ? `${radius * 0.5}px` : "clamp(400px, 36vw, 800px)",
           maskImage: "linear-gradient(90deg, transparent, black max(15%, calc(50% - 600px)), black min(85%, calc(50% + 600px)), transparent)",
@@ -134,7 +140,7 @@ export default function ImageMarquee({ outward = false, bg, maxHeight }: ImageMa
                   }}
                   className={`relative ${
                     outward
-                      ? "rounded-[16px] md:rounded-[24px] border border-black/10 bg-[#eceff3]"
+                      ? "rounded-[16px] md:rounded-[24px] border border-black/10 bg-bg-surface-light"
                       : "overflow-hidden rounded-[16px] md:rounded-[24px] border border-white/10 bg-[#1a1a1a]"
                   }`}
                 >

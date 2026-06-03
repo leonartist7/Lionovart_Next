@@ -59,19 +59,19 @@ export const es: Translations = {
 
   marquee: {
     items: [
-      "Identidad de Marca y Estrategia",
-      "Diseño y Desarrollo Web",
-      "Producción de Video",
-      "Motion Design",
-      "Redes Sociales",
-      "Diseño UI/UX",
-      "Estrategia Creativa",
-      "Creación de Contenido",
+      "Restaurantes & Cafés",
+      "Belleza & Bienestar",
+      "Hoteles Boutique",
+      "Fitness & Deporte",
+      "Moda & Retail",
+      "Inmobiliaria",
+      "Servicios Profesionales",
+      "Turismo & Viajes",
     ],
   },
 
   about: {
-    line1: "En 2026, la innovación ya no es una opción — es una necesidad.",
+    line1: "La innovación ya no es una opción\n— es una necesidad.",
     line2: "Como equipo multidisciplinario de artistas y empresarios, ofrecemos lo necesario para liderar en la era digital.",
     founderRole: "Director Creativo y de Negocios",
     founderStatus: "Disponible",
@@ -129,7 +129,7 @@ export const es: Translations = {
 
   comparison: {
     heading: "¿Por qué",
-    headingAccent: "Lionovart",
+    headingAccent: "nosotros",
     headingSuffix: "?",
     columns: [
       "Velocidad",
@@ -141,10 +141,10 @@ export const es: Translations = {
       "Soporte",
     ],
     competitors: [
-      { title: "Equipo Interno" },
-      { title: "Agencias Creativas" },
-      { title: "Freelancers" },
-      { title: "Solo IA" },
+      { title: "Equipo Interno", description: "Contratar lleva tiempo, reemplazar es lento y los salarios se acumulan — sobre todo cuando tus necesidades cambian." },
+      { title: "Agencias Creativas", description: "Socios estratégicos, pero los altos costos fijos, alcances rígidos y plazos lentos los hacen poco prácticos para el día a día." },
+      { title: "Freelancers", description: "Suerte o azar. Buscar y gestionar talento en cada proyecto te hace perseguir consistencia en vez de construir tu marca." },
+      { title: "Solo IA", description: "Rápido de usar — pero el resultado es genérico, inconsistente y aún requiere mucho trabajo manual para terminarlo." },
     ],
   },
 
@@ -198,11 +198,11 @@ export const es: Translations = {
 
   problems: {
     eyebrow: "Tu Próximo Capítulo Comienza Aquí",
-    heading: "Esta Es Tu Nueva Realidad",
+    heading: "IMAGINA",
     items: [
       {
         problem: {
-          heading: "Ahora Tu Marca Manda en la Sala",
+          heading: "Tu Marca Manda en la Sala",
           body: "Has invertido en tu oficio, tu equipo, tu espacio — pero tu imagen todavía parece la del primer día. Los clientes eligen al competidor que luce como la mejor opción, aunque no lo sea.",
         },
         solution: {
@@ -217,7 +217,7 @@ export const es: Translations = {
       },
       {
         problem: {
-          heading: "Ahora Apareces Donde Importa",
+          heading: "Tu Negocio Aparece Donde Importa",
           body: "Eres excelente en lo que haces — tus clientes actuales te adoran. Pero la próxima persona que busca exactamente lo que ofreces, ¿a quién encuentra? A tu competidor.",
         },
         solution: {
@@ -232,7 +232,7 @@ export const es: Translations = {
       },
       {
         problem: {
-          heading: "Ahora Tienes un Equipo Completo Detrás de Ti",
+          heading: "Tienes un Equipo Completo Detrás de Ti",
           body: "El sitio web, las redes, los emails, el contenido — encima de gestionar tu negocio. Son las 10pm y todavía estás editando un reel. No empezaste esto para convertirte en marketer de tiempo completo.",
         },
         solution: {

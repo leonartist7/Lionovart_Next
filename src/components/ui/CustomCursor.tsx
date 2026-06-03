@@ -146,33 +146,24 @@ export default function CustomCursor() {
   const showLabel = mode === "label";
   // Ring hides only when the gold label disc takes over.
   const ringHidden = showLabel;
-  // Dot hides only for the gold label state — stays visible on hover.
-  const dotHidden = showLabel;
 
   return (
     <>
       {/* Circle ring — rendered FIRST so the dot sits visually on top.
-          Default: 32px outline. Hover: scales to ~56px (1.75×), stays
-          fully transparent — circumference only, never fills. */}
+          Default: 14px outline tight around the dot. Hover: grows to 36px
+          by animating real width/height (NOT scale) so the 1.5px border
+          stays pixel-crisp. Transparent fill — circumference only. */}
       <motion.div
         className="cursor-layer cursor-ring"
         style={{ x: ringX, y: ringY }}
         animate={{
           opacity: ringHidden ? 0 : 1,
-          scale: mode === "hover" ? 1.75 : 1,
+          width: mode === "hover" ? 36 : 14,
+          height: mode === "hover" ? 36 : 14,
+          marginTop: mode === "hover" ? -18 : -7,
+          marginLeft: mode === "hover" ? -18 : -7,
         }}
         transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-      />
-
-      {/* Inner dot — raw, no lag, on top of ring (rendered after). */}
-      <motion.div
-        className="cursor-layer cursor-dot"
-        style={{ x, y }}
-        animate={{
-          opacity: dotHidden ? 0 : 1,
-          scale: dotHidden ? 0.5 : 1,
-        }}
-        transition={{ duration: 0.18, ease: "easeOut" }}
       />
 
       {/* Contextual gold label (Play / Drag / …) — no blend mode */}

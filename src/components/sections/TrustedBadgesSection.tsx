@@ -46,45 +46,54 @@ function useCountUp(end: number, duration: number = 2000, startAnimating: boolea
 }
 
 const AVATARS = [
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&q=80",
+  "/images/Testimonials/UK/Jess-Beautysalon-W.jpg",
+  "/images/Testimonials/Canada/Marc-Cardealer-M.jpg",
+  "/images/Testimonials/Italy/Defne-Realestate.jpg",
+  "/images/Testimonials/Spain/Pablo-hotel-M.jpg",
+  "/images/Testimonials/Canada/Maya-Flowerstore-W.jpg",
 ];
 
 const FLAGS = [
   { src: "https://flagcdn.com/w40/kr.png", rot: -10, y: -2 },
-  { src: "https://flagcdn.com/w40/jp.png", rot: -6,  y:  0 },
+  { src: "https://flagcdn.com/w40/ca.png", rot: -6,  y:  0 },
   { src: "https://flagcdn.com/w40/it.png", rot: -3,  y:  1 },
   { src: "https://flagcdn.com/w40/ch.png", rot:  0,  y:  2 },
   { src: "https://flagcdn.com/w40/fr.png", rot:  3,  y:  2 },
-  { src: "https://flagcdn.com/w40/us.png", rot:  6,  y:  1 },
+  { src: "https://flagcdn.com/w40/es.png", rot:  6,  y:  1 },
   { src: "https://flagcdn.com/w40/gb.png", rot:  10, y:  0 },
 ];
 
 /* ── Laurel-framed badge ────────────────────────────────── */
+// Laurels are recolored to brand red via CSS mask (the .webp alpha = leaf shape).
+const LAUREL_CLASS =
+  "h-[60px] sm:h-[70px] md:h-[80px] lg:h-[88px] xl:h-[100px] aspect-[236/472] pointer-events-none select-none shrink-0";
+
+function laurelStyle(src: string): React.CSSProperties {
+  return {
+    backgroundColor: "#e5192a",
+    WebkitMaskImage: `url(${src})`,
+    maskImage: `url(${src})`,
+    WebkitMaskRepeat: "no-repeat",
+    maskRepeat: "no-repeat",
+    WebkitMaskSize: "contain",
+    maskSize: "contain",
+    WebkitMaskPosition: "center",
+    maskPosition: "center",
+  };
+}
+
 function TrustBadge({
   children,
   title,
   contentWidth,
-  titleColorClass = "text-black",
-  laurelInvert = false,
 }: {
   children: React.ReactNode;
   title?: React.ReactNode;
   contentWidth: number;
-  /** Tailwind text-* class for the small caption under the number. */
-  titleColorClass?: string;
-  /** Invert laurel PNGs so dark-on-transparent assets render readable on dark bg. */
-  laurelInvert?: boolean;
 }) {
-  const laurelClass = `h-[60px] sm:h-[70px] md:h-[80px] lg:h-[88px] xl:h-[100px] w-auto object-contain pointer-events-none select-none${
-    laurelInvert ? " invert" : ""
-  }`;
   return (
-    <div className="flex items-center justify-center gap-1">
-      <img src="/images/laurel-L.webp" alt="" aria-hidden="true" className={laurelClass} />
+    <div className="flex items-center justify-center gap-2.5 md:gap-4">
+      <span aria-hidden="true" className={LAUREL_CLASS} style={laurelStyle("/images/laurel-L.webp")} />
       <div
         className="flex flex-col items-center justify-center text-center flex-shrink-0"
         style={{ width: contentWidth }}
@@ -92,14 +101,14 @@ function TrustBadge({
         {children}
         {title && (
           <span
-            className={`${titleColorClass} font-bold uppercase tracking-tight leading-[1] mt-1`}
-            style={{ fontSize: contentWidth * 0.14 }}
+            className="text-[#e5192a] font-bold uppercase tracking-tight leading-[1.1] mt-1"
+            style={{ fontSize: contentWidth * 0.16 }}
           >
             {title}
           </span>
         )}
       </div>
-      <img src="/images/laurel-R.webp" alt="" aria-hidden="true" className={laurelClass} />
+      <span aria-hidden="true" className={LAUREL_CLASS} style={laurelStyle("/images/laurel-R.webp")} />
     </div>
   );
 }
@@ -108,16 +117,10 @@ function TrustBadge({
 function TrustBadgesInner({
   badges,
   externalTrigger,
-  variant = "dark",
 }: {
   badges: { brands: readonly string[]; experience: readonly string[]; countries: string };
   externalTrigger?: boolean;
-  variant?: "dark" | "light";
 }) {
-  // Light bg = black title; dark bg = white title with inverted laurel PNGs
-  // (the laurel assets are dark-on-transparent, so `invert` flips them to gold/cream).
-  const titleColorClass = variant === "light" ? "text-black" : "text-white";
-  const laurelInvert = variant === "dark";
   const [inView, setInView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const tier = useTier();
@@ -166,8 +169,6 @@ function TrustBadgesInner({
         <TrustBadge
           title={<>{badges.brands[0]}<br />{badges.brands[1]}</>}
           contentWidth={sideWidth}
-          titleColorClass={titleColorClass}
-          laurelInvert={laurelInvert}
         >
           <div
             className="flex items-center text-[#e5192a] font-black leading-none tracking-tighter"
@@ -189,8 +190,6 @@ function TrustBadgesInner({
         <TrustBadge
           title={<>{badges.experience[0]}<br />{badges.experience[1]}</>}
           contentWidth={midWidth}
-          titleColorClass={titleColorClass}
-          laurelInvert={laurelInvert}
         >
           <div className="flex flex-col items-center gap-2 sm:gap-3 w-full">
             <div className="flex items-center justify-between w-[95%]">
@@ -199,7 +198,7 @@ function TrustBadgesInner({
                   key={i}
                   viewBox="0 0 24 24"
                   fill="#e5192a"
-                  style={{ width: midWidth * 0.16, height: midWidth * 0.16 }}
+                  style={{ width: midWidth * 0.2, height: midWidth * 0.2 }}
                   initial={{ scale: 0, opacity: 0 }}
                   animate={shouldAnimate ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
                   transition={{ duration: 0.4, delay: 0.3 + i * 0.08, ease: [0.34, 1.56, 0.64, 1] }}
@@ -248,8 +247,6 @@ function TrustBadgesInner({
       >
         <TrustBadge
           contentWidth={sideWidth}
-          titleColorClass={titleColorClass}
-          laurelInvert={laurelInvert}
         >
           <div className="flex flex-col items-center w-full">
             <div
@@ -260,8 +257,8 @@ function TrustBadgesInner({
               {countriesCount}
             </div>
             <span
-              className="text-[#e5192a] font-bold leading-[1.2]"
-              style={{ fontSize: sideWidth * 0.2 }}
+              className="text-[#e5192a] font-bold uppercase tracking-tight leading-[1.1] mt-1"
+              style={{ fontSize: sideWidth * 0.16 }}
             >
               {badges.countries}
             </span>
@@ -295,16 +292,14 @@ function TrustBadgesInner({
 function DynamicTrustBadges({
   badges,
   externalTrigger,
-  variant = "dark",
 }: {
   badges: { brands: readonly string[]; experience: readonly string[]; countries: string };
   externalTrigger?: boolean;
-  variant?: "dark" | "light";
 }) {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => { setIsMounted(true); }, []);
   if (!isMounted) return <div className="w-full max-w-[1100px] mx-auto opacity-0 invisible h-[120px]" />;
-  return <TrustBadgesInner badges={badges} externalTrigger={externalTrigger} variant={variant} />;
+  return <TrustBadgesInner badges={badges} externalTrigger={externalTrigger} />;
 }
 
 /* ── Public component ───────────────────────────────────── */
@@ -325,13 +320,13 @@ export default function TrustedBadgesSection({
         variant === "light" ? "bg-transparent" : "bg-transparent"
       } pt-1 md:pt-2 pb-2 md:pb-3 flex flex-col items-center gap-1 text-center`}
     >
-      <DynamicTrustBadges badges={badges} externalTrigger={externalTrigger} variant={variant} />
+      <DynamicTrustBadges badges={badges} externalTrigger={externalTrigger} />
       <motion.p
         initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         className={`mt-0.5 text-[12px] font-medium tracking-wide md:text-[13px] lg:text-[14px] ${
-          variant === "light" ? "text-black/70" : "text-white/55"
+          variant === "light" ? "text-black/70" : "text-white"
         }`}
       >
         {trustText}

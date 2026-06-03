@@ -59,8 +59,10 @@ export function HeroRevealWrapper({ heroTop }: HeroRevealWrapperProps) {
 
   // Marquee budget: whatever vh remains after HeroTop is laid out, minus a
   // small breathing buffer. Floored at 160px so the carousel still renders
-  // even on absurdly squat viewports.
-  const marqueeMaxHeight = Math.max(160, vh - heroTopH - 24);
+  // even on absurdly squat viewports. Buffer trimmed to 12px so the dome
+  // reclaims vertical room on tall desktops (paired with overflow-y-visible
+  // on the dome so its projected front cards are no longer clipped).
+  const marqueeMaxHeight = Math.max(160, vh - heroTopH - 12);
 
   return (
     <motion.div

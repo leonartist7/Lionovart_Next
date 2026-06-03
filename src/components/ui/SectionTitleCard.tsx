@@ -6,7 +6,13 @@ import { animate, createScope, onScroll } from "animejs";
 interface Props {
   /** The single word that defines what's coming next. Add a trailing "." for the Lacquer Red accent. */
   word: string;
-  /** Background color of the title card section. Defaults to absolute Void. */
+  /**
+   * Surrounding surface the card blends into. "light" → warm near-white
+   * (`bg-bg-surface-light`) with a faded dark outline; "dark" → page dark bg
+   * with a faded light outline. Default `"dark"`.
+   */
+  theme?: "light" | "dark";
+  /** Override the blend background. Defaults to the theme's surface token. */
   bgClassName?: string;
   /** Height of the card section in CSS units. Default `38vh`. */
   height?: string;
@@ -16,17 +22,21 @@ interface Props {
  * SectionTitleCard — a single decisive word that traverses the viewport
  * horizontally as the user scrolls past, like a chapter card in a film.
  *
- * The word is rendered at viewport-filling scale in Clash Display, white,
- * with a Lacquer Red period as closing punctuation. Its horizontal
- * translation is locked 1:1 to scroll position via onScroll({ sync: 1 }).
- * The card section provides its own breathing room — a Void background
- * by default so the moment registers as a chapter break, not decoration.
+ * The word is rendered at viewport-filling scale in Clash Display as a soft
+ * faded outline (no fill), with a Lacquer Red period as closing punctuation.
+ * Its horizontal translation is locked 1:1 to scroll position via
+ * onScroll({ sync: 1 }). The card blends into the surrounding section surface
+ * (theme) so the moment registers as a ghosted chapter break, not a hard block.
  */
 export function SectionTitleCard({
   word,
-  bgClassName = "bg-[#000000]",
+  theme = "dark",
+  bgClassName,
   height = "38vh",
 }: Props) {
+  const isLight = theme === "light";
+  const surface = bgClassName ?? (isLight ? "bg-bg-surface-light" : "bg-bg-dark");
+  const strokeColor = isLight ? "rgba(17,17,17,0.22)" : "rgba(255,255,255,0.22)";
   const rootRef = useRef<HTMLDivElement>(null);
   const wordRef = useRef<HTMLHeadingElement>(null);
 
@@ -73,23 +83,28 @@ export function SectionTitleCard({
   return (
     <div
       ref={rootRef}
-      className={`relative w-full overflow-hidden ${bgClassName}`}
+      className={`relative w-full overflow-hidden ${surface}`}
       style={{ height }}
       aria-hidden="true"
     >
       <h2
         ref={wordRef}
-        className="absolute top-1/2 left-0 -translate-y-1/2 whitespace-nowrap font-clash font-black uppercase text-white"
+        className="absolute top-1/2 left-0 -translate-y-1/2 whitespace-nowrap font-clash font-bold uppercase"
         style={{
           fontSize: "clamp(7rem, 22vw, 22rem)",
           lineHeight: 0.82,
           letterSpacing: "-0.045em",
           margin: 0,
           willChange: "transform",
+          color: "transparent",
+          WebkitTextFillColor: "transparent",
+          WebkitTextStroke: `2px ${strokeColor}`,
         }}
       >
         {body}
-        {hasPeriod && <span style={{ color: "#e5192a" }}>.</span>}
+        {hasPeriod && (
+          <span style={{ color: "#e5192a", WebkitTextFillColor: "#e5192a", WebkitTextStroke: "0" }}>.</span>
+        )}
       </h2>
     </div>
   );

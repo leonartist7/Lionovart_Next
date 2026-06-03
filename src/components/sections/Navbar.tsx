@@ -9,24 +9,120 @@ import {
 } from "framer-motion";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import Link from "next/link";
+import { useLenis } from "@studio-freight/react-lenis";
 import { getWhatsAppUrl } from "@/lib/contact";
 import { MenuBurgerLottie } from "@/components/ui/menu-burger-lottie";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
+
+/** Pixels to clear the fixed navbar when scrolling to a section. */
+const SCROLL_OFFSET = -88;
+
+/** Nav links → section anchors (resolved via data-nova-section or DOM id). */
+const NAV_LINKS = [
+  { label: "We", target: "about" },
+  { label: "Expertise", target: "services", hasDropdown: true },
+  { label: "Work", target: "work" },
+  { label: "Results", target: "testimonials" },
+];
+
+/**
+ * Expertise dropdown stagger. Items fade/slide in top→down on open and fade
+ * out top→down (staggerDirection 1) on close — a slow, smooth cascade rather
+ * than a sharp snap.
+ */
+// Outer card (glass band / mobile group): on CLOSE the items cascade out first
+// (afterChildren) then the card height-collapses slowly & smoothly; on OPEN the
+// card expands first (beforeChildren) then items cascade in.
+const CARD_VARIANTS = {
+  hidden: {
+    opacity: 0,
+    height: 0,
+    transition: { duration: 0.4, ease: "easeInOut" as const, when: "afterChildren" as const },
+  },
+  show: {
+    opacity: 1,
+    height: "auto" as const,
+    transition: { duration: 0.3, ease: "easeOut" as const, when: "beforeChildren" as const },
+  },
+};
+// Inner container — only orchestrates the top→down item stagger.
+const STAGGER_VARIANTS = {
+  hidden: { transition: { staggerChildren: 0.05, staggerDirection: 1 as const } },
+  show: { transition: { staggerChildren: 0.05, delayChildren: 0.03 } },
+};
+// Flat list (mobile/burger Expertise) — combines height-collapse + stagger on a
+// single element whose direct children are the service buttons.
+const FLAT_LIST_VARIANTS = {
+  hidden: {
+    opacity: 0,
+    height: 0,
+    transition: {
+      duration: 0.35,
+      ease: "easeInOut" as const,
+      when: "afterChildren" as const,
+      staggerChildren: 0.05,
+      staggerDirection: 1 as const,
+    },
+  },
+  show: {
+    opacity: 1,
+    height: "auto" as const,
+    transition: {
+      duration: 0.3,
+      ease: "easeOut" as const,
+      when: "beforeChildren" as const,
+      staggerChildren: 0.05,
+      delayChildren: 0.03,
+    },
+  },
+};
+const SERVICE_ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: -6, transition: { duration: 0.35, ease: "easeInOut" as const } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" as const } },
+};
 
 export default function Navbar() {
   const [isPastHero, setIsPastHero] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [heroThreshold, setHeroThreshold] = useState(600);
   const [isVisible, setIsVisible] = useState(true);
+  const [isPhone, setIsPhone] = useState(false);
+  const [expertiseOpen, setExpertiseOpen] = useState(false);
+  const [mobileExpertiseOpen, setMobileExpertiseOpen] = useState(false);
   const { scrollY } = useScroll();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const lenis = useLenis() as any;
 
-  const NAV_LINKS = [
-    { label: t.nav.we, href: "#about" },
-    { label: t.nav.services, href: "#services" },
-    { label: t.nav.results, href: "#proof" },
-  ];
+  const services: string[] = (t.services?.items ?? []).map((s: { title: string }) => s.title);
+
+  // CTA button auto-fits its label so longer languages (FR "Commencer",
+  // ES "Empezar") never overflow the pill.
+  const ctaLabel = t.nav.cta;
+  const btnWidth = Math.max(isPhone ? 100 : 140, ctaLabel.length * 12 + 40);
+
+  const scrollToTarget = (target: string) => {
+    const el = document.querySelector(`[data-nova-section="${target}"], #${target}`);
+    if (!el) return;
+    if (lenis?.scrollTo) lenis.scrollTo(el, { offset: SCROLL_OFFSET });
+    else el.scrollIntoView({ behavior: "smooth", block: "start" });
+    setIsMobileOpen(false);
+    setMobileExpertiseOpen(false);
+    setExpertiseOpen(false);
+  };
+
+  // Mega-menu hover controller: a small close delay bridges the gap between the
+  // "Expertise" trigger and the band so the panel stays open across it.
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const openExpertise = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setExpertiseOpen(true);
+  };
+  const scheduleCloseExpertise = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setExpertiseOpen(false), 140);
+  };
 
   // Refs to avoid stale closures in scroll handler
   const isInLumaRef      = useRef(false);
@@ -34,6 +130,9 @@ export default function Navbar() {
   const hideAtRef        = useRef(0);      // tracks lowest scrollY when hidden
   const lastScrollRef    = useRef(0);
   const isMobileOpenRef  = useRef(false);
+  // After a language change the page reflows and nudges scroll — don't let that
+  // auto-close the mobile menu. Suppress scroll-close briefly.
+  const suppressCloseUntil = useRef(0);
 
   const setNavVisible = (val: boolean) => {
     isVisibleRef.current = val;
@@ -45,8 +144,22 @@ export default function Navbar() {
     isMobileOpenRef.current = isMobileOpen;
   }, [isMobileOpen]);
 
+  // Language change reflows the layout → suppress the scroll-driven menu close
+  // for a moment so the menu stays open after picking a language.
   useEffect(() => {
-    const calc = () => setHeroThreshold(window.innerHeight * 0.5);
+    suppressCloseUntil.current = Date.now() + 800;
+  }, [locale]);
+
+  // Close the Expertise band the moment we leave hero mode (links → burger).
+  useEffect(() => {
+    if (isPastHero) setExpertiseOpen(false);
+  }, [isPastHero]);
+
+  useEffect(() => {
+    const calc = () => {
+      setHeroThreshold(window.innerHeight * 1.15);
+      setIsPhone(window.innerWidth < 640);
+    };
     calc();
     window.addEventListener("resize", calc);
     return () => window.removeEventListener("resize", calc);
@@ -75,8 +188,13 @@ export default function Navbar() {
 
     setIsPastHero(latest > heroThreshold);
 
-    // Close mobile menu on any scroll ≥ 5px
-    if (isMobileOpenRef.current && Math.abs(delta) >= 5) {
+    // Close mobile menu on any scroll ≥ 5px — unless a recent language change
+    // is reflowing the page (which would otherwise close it spuriously).
+    if (
+      isMobileOpenRef.current &&
+      Math.abs(delta) >= 5 &&
+      Date.now() >= suppressCloseUntil.current
+    ) {
       setIsMobileOpen(false);
     }
 
@@ -150,9 +268,9 @@ export default function Navbar() {
                   src="/images/Icon.avif"
                   alt="Lionovart logo"
                   aria-hidden="true"
-                  className="h-10 w-10 sm:h-14 sm:w-14 object-contain shrink-0"
+                  className="h-8 w-8 sm:h-11 sm:w-11 rounded-full object-cover shrink-0"
                 />
-                <span className="hidden sm:inline text-base sm:text-xl font-bold uppercase tracking-[0.08em] text-white">
+                <span className="text-lg sm:text-xl font-bold uppercase tracking-[0.08em] text-white">
                   LIONOVART
                 </span>
               </Link>
@@ -170,16 +288,33 @@ export default function Navbar() {
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0, transition: { duration: 0.25 } }}
                 >
-                  <ul className="flex items-center justify-center gap-[3.5rem]">
+                  <ul className="flex items-center justify-center gap-9">
                     {NAV_LINKS.map((link) => (
-                      <li key={link.href}>
-                        <Link
-                          href={link.href}
-                          className="group relative text-[13px] font-semibold uppercase tracking-[0.15em] text-white/90 transition-colors hover:text-white"
+                      <li
+                        key={link.target}
+                        className="relative"
+                        onMouseEnter={link.hasDropdown ? openExpertise : undefined}
+                        onMouseLeave={link.hasDropdown ? scheduleCloseExpertise : undefined}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => scrollToTarget(link.target)}
+                          aria-expanded={link.hasDropdown ? expertiseOpen : undefined}
+                          className="group relative flex items-center gap-1 text-[13px] font-semibold uppercase tracking-[0.15em] text-white/90 transition-colors hover:text-white"
                         >
                           {link.label}
+                          {link.hasDropdown && (
+                            <svg
+                              width="10" height="10" viewBox="0 0 24 24" fill="none"
+                              stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                              className={`transition-transform duration-200 ${expertiseOpen ? "rotate-180" : ""}`}
+                              aria-hidden="true"
+                            >
+                              <path d="m6 9 6 6 6-6" />
+                            </svg>
+                          )}
                           <span className="absolute -bottom-1.5 left-0 h-[2px] w-full origin-left scale-x-0 bg-white transition-transform duration-300 group-hover:scale-x-100" />
-                        </Link>
+                        </button>
                       </li>
                     ))}
                   </ul>
@@ -212,7 +347,7 @@ export default function Navbar() {
                 <LiquidMetalButton
                   label={t.nav.cta}
                   onClick={() => window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer")}
-                  width={140}
+                  width={btnWidth}
                   variant="white"
                   textColor="#ff0000ff"
                   noShadow
@@ -246,6 +381,51 @@ export default function Navbar() {
         </motion.header>
 
         {/*
+          ── Expertise mega-band (desktop hero) ──────────────────────────────
+          Full-width white liquid-glass panel that emerges from BEHIND the bar
+          (-z-10) and overlays the page. Opens on hover of the Expertise zone;
+          on close the items cascade out top→down, then the card height-collapses.
+        */}
+        <AnimatePresence>
+          {expertiseOpen && heroMode && services.length > 0 && (
+            <motion.div
+              key="expertise-band"
+              initial="hidden"
+              animate="show"
+              exit="hidden"
+              variants={CARD_VARIANTS}
+              onMouseEnter={openExpertise}
+              onMouseLeave={scheduleCloseExpertise}
+              className="hidden lg:block absolute left-[15%] right-[15%] top-0 -z-10 overflow-hidden rounded-xl"
+              style={{
+                background: "rgba(255, 255, 255, 0.78)",
+                backdropFilter: "blur(28px) saturate(1.8)",
+                WebkitBackdropFilter: "blur(28px) saturate(1.8)",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.9)",
+                border: "1px solid rgba(255,255,255,0.6)",
+              }}
+            >
+              <motion.div
+                variants={STAGGER_VARIANTS}
+                className="mx-auto grid max-w-[700px] grid-cols-2 gap-2 px-8 pt-[92px] pb-9"
+              >
+                {services.map((title) => (
+                  <motion.button
+                    key={title}
+                    variants={SERVICE_ITEM_VARIANTS}
+                    type="button"
+                    onClick={() => scrollToTarget("services")}
+                    className="rounded-xl px-5 py-4 text-left text-[17px] font-semibold tracking-wide text-black/75 transition-colors hover:bg-black/[0.06] hover:text-black"
+                  >
+                    {title}
+                  </motion.button>
+                ))}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/*
           ── Mobile dropdown ──────────────────────────────────────────────────
           Lives OUTSIDE motion.header so overflow-hidden doesn't clip it.
           Shares the same max-w wrapper so width is inherited.
@@ -273,20 +453,67 @@ export default function Navbar() {
               <nav className="flex flex-col lg:flex-row items-center justify-center px-6 pt-[82px] pb-8 gap-5 lg:gap-x-6">
                 {NAV_LINKS.map((link, i) => (
                   <motion.div
-                    key={link.href}
+                    key={link.target}
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 6 }}
                     transition={{ duration: 0.2, delay: i * 0.06 }}
+                    className="flex flex-col items-center"
+                    onMouseEnter={link.hasDropdown ? () => setMobileExpertiseOpen(true) : undefined}
+                    onMouseLeave={link.hasDropdown ? () => setMobileExpertiseOpen(false) : undefined}
                   >
-                    <Link
-                      href={link.href}
-                      onClick={() => setIsMobileOpen(false)}
-                      className="group relative flex items-center py-1.5 text-[13px] font-semibold uppercase tracking-[0.12em] text-black/70 hover:text-black transition-colors whitespace-nowrap"
-                    >
-                      {link.label}
-                      <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-black/80 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
-                    </Link>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => scrollToTarget(link.target)}
+                        className="group relative flex items-center py-1.5 text-[15px] font-semibold uppercase tracking-[0.12em] text-black/70 hover:text-black transition-colors whitespace-nowrap"
+                      >
+                        {link.label}
+                        <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-black/80 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
+                      </button>
+                      {link.hasDropdown && (
+                        <button
+                          type="button"
+                          onClick={() => setMobileExpertiseOpen((v) => !v)}
+                          aria-label="Toggle expertise list"
+                          aria-expanded={mobileExpertiseOpen}
+                          className="p-1 text-black/60 hover:text-black"
+                        >
+                          <svg
+                            width="12" height="12" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                            className={`transition-transform duration-200 ${mobileExpertiseOpen ? "rotate-180" : ""}`}
+                            aria-hidden="true"
+                          >
+                            <path d="m6 9 6 6 6-6" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+
+                    <AnimatePresence>
+                      {link.hasDropdown && mobileExpertiseOpen && (
+                        <motion.div
+                          initial="hidden"
+                          animate="show"
+                          exit="hidden"
+                          variants={FLAT_LIST_VARIANTS}
+                          className="flex flex-col items-center gap-2 overflow-hidden"
+                        >
+                          {services.map((title) => (
+                            <motion.button
+                              key={title}
+                              variants={SERVICE_ITEM_VARIANTS}
+                              type="button"
+                              onClick={() => scrollToTarget("services")}
+                              className="text-[15px] font-semibold tracking-wide text-black/65 hover:text-black transition-colors"
+                            >
+                              {title}
+                            </motion.button>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </motion.div>
                 ))}
 

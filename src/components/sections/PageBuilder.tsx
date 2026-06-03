@@ -14,6 +14,8 @@ import Testimonials from "@/components/sections/Testimonials";
 import TestimonialsCarousel from "@/components/sections/TestimonialsCarousel";
 import FAQ from "@/components/sections/FAQ";
 import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
+import AboutVariantToggle from "@/components/sections/about/AboutVariantToggle";
+import ServicesVariantToggle from "@/components/sections/services/ServicesVariantToggle";
 
 /**
  * Tag wrapper — lets NOVA's section tracker observe which section is in view
@@ -53,7 +55,7 @@ export function PageBuilder({ blocks }: { blocks: PageBlock[] }) {
         />
 
         {/* Breathing room: extended gap so curtain fully exits before About Us enters */}
-        <div className="h-[100vh] md:h-[120vh] lg:h-[150vh]" />
+        <div className="h-[100vh] md:h-[100vh] lg:h-[110vh]" />
 
         {/*
           All sections sit at z-[2] so they scroll over the fixed hero.
@@ -69,15 +71,23 @@ export function PageBuilder({ blocks }: { blocks: PageBlock[] }) {
               viewport horizontally as the user scrolls past, like a film
               title card. Provides structural breathing room between
               chapters and reasserts the brand voice. */}
-          <SectionTitleCard word="PROOF." />
+          <SectionTitleCard word="PROOF." theme="light" />
           <TestimonialsCarousel />
           <NovaSection id="process"><Process /></NovaSection>
-          <SectionTitleCard word="CONFIDENCE." />
+          <SectionTitleCard word="CONFIDENCE." theme="light" />
           <NovaSection id="comparison"><Comparison /></NovaSection>
           <NovaSection id="testimonials"><Testimonials /></NovaSection>
-          <SectionTitleCard word="ASK." />
+          <SectionTitleCard word="ASK." theme="dark" />
           <NovaSection id="faq"><FAQ /></NovaSection>
         </div>
+
+        {/* TEMP eval scaffold — paint/lion placement toggle for "About".
+            Remove with about/aboutVariantStore once placements are chosen. */}
+        <AboutVariantToggle />
+
+        {/* TEMP eval scaffold — flat/neumorphic toggle for "Services".
+            Remove with services/servicesVariantStore once the style is chosen. */}
+        <ServicesVariantToggle />
       </>
     );
   }

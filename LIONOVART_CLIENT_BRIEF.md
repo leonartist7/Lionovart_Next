@@ -31,37 +31,39 @@
 | Signal | Details |
 |--------|---------|
 | **Who** | Local business owners — restaurants, salons, clinics, contractors, real estate agents, retail |
-| **Stage** | Making money but looking amateur online — bad logo, dead Instagram, ugly or no website |
-| **Pain** | Losing clients to competitors who look more professional |
+| **Stage** | Want high to medium clients down to Making money but looking amateur online — bad logo, dead Instagram, ugly or no website. ( I think People dont buy just a website or ad creatives anymore as its easier now but they buy solutions of their problems. Thinking about full ecosystems in packages bringing more value and results. But also Im open for you to be creative and give me your ideas) |
+| **Pain** | Losing clients to competitors who look more professional, doing everything themselves or have being running the same way for years. |
 | **Dream** | Be the obvious premium choice in their market |
 | **Budget range** | Entry $300–800 (easy yes) → upsell $2K–5K packages |
-| **Geography** | Calgary first, then remote/global |
+| **Geography** | Calgary first, then remote/global but also open to get opportunities in UK or EUROPE |
 
 ---
 
 ## Services (7 Pillars)
 
 1. **Brand Identity & Strategy** — Logo system, guidelines, typography, voice, sonic identity
-2. **Web & App Development** — Custom sites, UI/UX, e-commerce, CMS, SEO
-3. **Video Production** — Brand films, social reels, motion design, sound design
-4. **Social Media & Content** — Full content management, strategy, copy, monthly calendar
-5. **Print & Physical Branding** — Cards, packaging, signage, apparel, event branding, gifts
-6. **Smart Systems & AI** — Voice agents, lead automation, chatbots, CRM/email workflows
-7. **Growth Marketing** — SEO/AEO, Google Business, local search, paid ads, analytics
+2. **Web & App Design & Development** — Custom sites, personalized APPs, UI/UX, e-commerce, CMS, SEO, smart with voice/automation agents
+3. **Video Production** — Brand films, social reels, motion design, sound design, advertising content, and anything possible with ai
+4. **Social Media & Content** — Full content management, strategy, copy, monthly calendar, and anything possible with claude code
+5. **Print & Physical Branding** — Cards, packaging, signage, apparel, event branding, gifts (physical only for Calgary at the moment)
+6. **Smart Systems & AI** — Voice agents, automations, chatbots, CRM/email workflows, and anything possible and buildable with claude code
+7. **Growth Marketing** — SEO/AEO BOST, Google My Business Optimization, local search & citations, paid ads, analytics, and anything possible with claude code
+8. **BONUS COMING SOON** — Smart LED glass Transparent for business to proyect content & the vision to do audiovisual experiences
 
 **Entry offer (fastest to close):** Brand Starter — logo refresh + card + 3 IG templates → $400–600  
 **Highest LTV:** AI Systems + Growth Marketing retainers  
 **Sprint model:** 4–6 weeks, 50% deposit upfront
+**(OR PROPOSE ME YOUR IDEAS)**
 
 ---
 
 ## Key Differentiators
 
 - One contact, every medium — no freelancer chaos
-- 9 languages, 4 continents — multilingual team, no outside translators
-- AI-native — voice agents, automation built in-house
-- Results-focused, not aesthetic-focused
-
+- 9 languages, 4 continents — multilingual team, Busines owners and asrtist who understand tru needs of business and the meticulous craft of passion for art.
+- AI-native — voice agents, automation built in-house,
+- Results-focused, aesthetic-focused, creative partner.
+- **Help me find more differentiators maybe with some questions**
 ---
 
 ## Proof & Stats (Aspirational / Directional)
@@ -69,29 +71,20 @@
 - 94% of first impressions are design-based
 - 3x perceived value after rebrand
 - 82% of internet traffic is video
-- 24/7 AI lead capture
-- 15h/week saved for clients on average
-
----
-
-## Founder's Creative Arsenal (Critical — Shapes Every Tactic)
-
-- Has **demo/spec work already built** across: restaurants, real estate, wellness/beauty, retail, car dealers, e-commerce
-- Can produce elite-level output across **ALL 7 service pillars** — brand, web, video, motion, print, AI, growth
-- This means he can walk into ANY business with a **relevant, industry-specific demo already in hand**
-- The "public redesign" content play is **immediately executable** — no waiting, no building first
-- Every cold approach can open with: *"I already made something for a business like yours — want to see it?"*
-
+- 24/7 AI lead capture & unbeatable available presence
+- 15h/week time-back for clients on average
+- **(OR PROPOSE ME YOUR IDEAS)**
 ---
 
 ## Outreach Ideas Already Considered
 
 - **Door-to-door / walk-ins** to local businesses — show them their problem on a phone, offer a fix
-- **"$50 market research" hook** — offer $50 off their future project in exchange for a 5-min pain-point conversation. Real goal: understand their #1 problem, position the solution, close at low price, collect testimonial.
+- **"$70 market research" hook** — offer $70. (discount price for their future project or it could cover for some adcreative or something) in exchange for a 5-min pain-point conversation (I ask few questions to understand their main needs and say I'm new in town so I want to implement new strategies and systems I have developped abroad or something to make them feel theres is something new. And say if they have a personalized custom made for them platform that will give them benefits would it be something worth ).  Real goal: understand their #1 problem, position the solution, close at low price, collect testimonial.
 - Cold calling — founder feels it doesn't work well for him
 - Cold email — uncertain about effectiveness
 - Social media content — wants viral hooks and formats but doesn't know where to start
-- Business cards — considering printing some (~$20 at Staples)
+- Business cards — considering printing some (~$20 at local printer)
+- **(OR PROPOSE ME YOUR IDEAS & strategies)**
 
 ---
 
@@ -132,9 +125,9 @@
 
 ---
 
-You are the intersection of three people: **David Ogilvy** (psychological persuasion, brand authority), **Alex Hormozi** (irresistible offer engineering, acquisition math), and a **Forbes-featured CMO** who has launched premium creative agencies from zero in competitive markets. You think at the strategic altitude of a McKinsey partner but execute with the street-level instincts of a founder who has personally cold-walked into businesses and closed deals.
+You are the intersection of three people: **David Ogilvy** (psychological persuasion, brand authority), **Alex Hormozi** (irresistible offer engineering, acquisition math, money strategy giving bunch of perceive value feels like a steal), and a **Forbes-featured CMO** who has launched premium creative agencies from zero in competitive markets. You think at the strategic altitude of a McKinsey partner but execute with the street-level instincts of a founder who has personally cold-walked into businesses and closed deals.
 
-I am the Creative Director and founder of LIONOVART. I have full-stack creative and digital capabilities — brand identity, web, video, AI systems, growth marketing — and international experience. I am not a beginner. I am a master of my craft entering a new market (Calgary, Canada) and I am choosing to start lean and move fast rather than slow and institutional. My constraint is capital deployment ($25 available now), not skill, vision, or ambition.
+I am the Creative Director and founder of LIONOVART. I have full-stack creative and digital capabilities — brand identity, web, video, AI systems, growth marketing — and international experience. I am a beginner but I'M BECOMING A MASTER, HELP ME BECOME SUCESSFUL ULTIMATE MASTER ENTREPRENEUR. I am a master of my craft entering a new market (Calgary, Canada) and I am choosing to start lean and move fast rather than slow and institutional. My constraint is capital deployment ($25 available now), not skill, vision, or ambition.
 
 **My goal: engineer a market entry that a top-tier agency would be proud of — executed with precision, psychological depth, and creative audacity.**
 

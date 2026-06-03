@@ -59,19 +59,19 @@ export const fr: Translations = {
 
   marquee: {
     items: [
-      "Image de Marque & Identité",
-      "Design Web & Dev",
-      "Production Vidéo",
-      "Motion Design",
-      "Réseaux Sociaux",
-      "Design UI/UX",
-      "Stratégie Créative",
-      "Création de Contenu",
+      "Restaurants & Cafés",
+      "Beauté & Bien-être",
+      "Hôtels Boutique",
+      "Fitness & Sport",
+      "Mode & Retail",
+      "Immobilier",
+      "Services Professionnels",
+      "Tourisme & Voyages",
     ],
   },
 
   about: {
-    line1: "En 2026, l'innovation n'est plus un choix — c'est une nécessité.",
+    line1: "L'innovation n'est plus un choix\n— c'est une nécessité.",
     line2:
       "LIONOVART est une équipe multidisciplinaire d'artistes et d'entrepreneurs qui construisent des marques avec confiance, innovation et émotion comme piliers. Nous faisons le pont entre le numérique et le physique, la stratégie et le ressenti, le savoir-faire et le commerce — pour que votre marque travaille aussi dur que vous. Un niveau créatif mondial, rendu accessible à toute entreprise sérieuse qui veut se démarquer.",
     founderRole: "Directeur artistique & commercial",
@@ -130,7 +130,7 @@ export const fr: Translations = {
 
   comparison: {
     heading: "Pourquoi",
-    headingAccent: "Lionovart",
+    headingAccent: "nous",
     headingSuffix: " ?",
     columns: [
       "Rapidité",
@@ -142,10 +142,10 @@ export const fr: Translations = {
       "Support",
     ],
     competitors: [
-      { title: "Équipe interne" },
-      { title: "Agences créatives" },
-      { title: "Indépendants" },
-      { title: "Outils IA seulement" },
+      { title: "Équipe interne", description: "Recruter prend du temps, remplacer est lent et les salaires s'accumulent — surtout quand vos besoins fluctuent." },
+      { title: "Agences créatives", description: "Partenaires stratégiques, mais forfaits coûteux, périmètres rigides et délais lents les rendent peu adaptés au quotidien." },
+      { title: "Indépendants", description: "Au petit bonheur. Trouver et gérer les talents à chaque projet vous fait courir après la cohérence au lieu de bâtir votre marque." },
+      { title: "Outils IA seulement", description: "Rapides à utiliser — mais le rendu est générique, incohérent et demande encore beaucoup de travail manuel pour aboutir." },
     ],
   },
 
@@ -199,11 +199,11 @@ export const fr: Translations = {
 
   problems: {
     eyebrow: "Votre Prochain Chapitre Commence Ici",
-    heading: "C'est Votre Nouvelle Réalité",
+    heading: "IMAGINEZ",
     items: [
       {
         problem: {
-          heading: "Votre Marque Impose Maintenant Le Respect",
+          heading: "Votre Marque Impose Le Respect",
           body: "Vous avez investi dans votre savoir-faire, votre équipe, votre espace — mais votre image ressemble encore au premier jour. Les clients choisissent celui qui a l'air du meilleur choix, même quand il ne l'est pas.",
         },
         solution: {
@@ -218,7 +218,7 @@ export const fr: Translations = {
       },
       {
         problem: {
-          heading: "Vous Apparaissez Là Où Ça Compte",
+          heading: "Votre Entreprise Apparaît Là Où Ça Compte",
           body: "Vous excellez dans ce que vous faites — vos clients vous adorent. Mais la prochaine personne qui cherche exactement ce que vous proposez ? Elle trouve votre concurrent.",
         },
         solution: {
@@ -233,7 +233,7 @@ export const fr: Translations = {
       },
       {
         problem: {
-          heading: "Vous Avez Maintenant Toute Une Équipe Derrière Vous",
+          heading: "Vous Avez Toute Une Équipe Derrière Vous",
           body: "Le site web, les réseaux, les emails, le contenu — en plus de gérer votre entreprise. Il est 22h et vous montez encore un reel. Vous n'avez pas créé votre entreprise pour devenir un marketeur à plein temps.",
         },
         solution: {

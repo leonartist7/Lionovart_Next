@@ -5,7 +5,7 @@ import { motion, useMotionValue } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-type Testimonial = { quote: string; author: string; role: string; initials: string };
+type Testimonial = { quote: string; author: string; role: string; initials: string; image?: string };
 
 // Static fallback — real client words, used if i18n is unavailable.
 const TESTIMONIALS_STATIC: Testimonial[] = [
@@ -57,7 +57,7 @@ function initialsFor(name: string): string {
 }
 
 // ─── Card ─────────────────────────────────────────────────────────────────
-function TestimonialCard({ quote, author, role, initials }: Testimonial) {
+function TestimonialCard({ quote, author, role, initials, image }: Testimonial) {
   return (
     <div className="shrink-0 w-[340px] md:w-[400px] lg:w-[440px] bg-[#0d0d0d] border border-white/[0.06] rounded-2xl px-7 py-6 md:px-8 md:py-7 shadow-[0_2px_16px_rgba(0,0,0,0.4)]">
       <span
@@ -71,9 +71,18 @@ function TestimonialCard({ quote, author, role, initials }: Testimonial) {
       </p>
       <div className="mt-5 mb-4 border-t border-white/10" />
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-clash font-bold text-[14px] bg-brand-red shrink-0">
-          {initials}
-        </div>
+        {image ? (
+          <img
+            src={encodeURI(image)}
+            alt={author}
+            loading="lazy"
+            className="w-10 h-10 rounded-full object-cover ring-1 ring-white/15 shrink-0"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-clash font-bold text-[14px] bg-brand-red shrink-0">
+            {initials}
+          </div>
+        )}
         <div className="min-w-0">
           <p className="font-clash text-[12px] font-bold uppercase tracking-[0.12em] text-white truncate">
             {author}
@@ -146,6 +155,7 @@ export default function Testimonials(props: any) {
           author: item.author,
           role: item.role ?? "",
           initials: item.initials ?? initialsFor(item.author ?? ""),
+          image: item.image,
         }))
       : t.testimonials.reviews?.length
       ? t.testimonials.reviews.map((r: any) => ({
@@ -153,6 +163,7 @@ export default function Testimonials(props: any) {
           author: r.author,
           role: r.role ?? "",
           initials: r.initials ?? initialsFor(r.author ?? ""),
+          image: r.image,
         }))
       : TESTIMONIALS_STATIC;
 

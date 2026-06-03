@@ -103,7 +103,7 @@
       rgba(255, 255, 255, 0.35) 60%,
       rgba(255, 255, 255, 0.25) 100%
     ),
-    rgba(245, 240, 235, 0.45);
+    rgba(247, 244, 239, 0.45);
   backdrop-filter: blur(16px) saturate(130%);
   -webkit-backdrop-filter: blur(16px) saturate(130%);
   border: 1px solid rgba(240, 201, 23, 0.18);
@@ -130,7 +130,7 @@
   /* --- Brand Colors --- */
   --color-bg-dark: #000000;
   --color-bg-brand-black: #000000;
-  --color-bg-off-white: #f5f0eb;
+  --color-bg-off-white: #f7f4ef;
   --color-brand-red: #e5192a;
   --color-brand-red-secondary: #db0000;
   --color-brand-gold: #f0c917;
@@ -140,7 +140,7 @@
   --color-nav-glass: rgba(0, 0, 0, 0.7);
 
   /* --- Light surface & dark-on-light text --- */
-  --color-bg-surface-light: #eceff3;
+  --color-bg-surface-light: #f7f4ef;
   --color-text-dark-primary: #111111;
   --color-text-dark-secondary: #555555;
   --color-text-dark-tertiary: #999999;
@@ -243,7 +243,7 @@
   --chart-1: #e5192a;
   --chart-2: #f0c917;
   --chart-3: #db0000;
-  --chart-4: #f5f0eb;
+  --chart-4: #f7f4ef;
   --chart-5: #ffffff;
   --radius: 1.25rem;
   --sidebar: #0a0a0a;
@@ -415,14 +415,14 @@
   /* Pure circle outline — transparent fill, circumference only.
      mix-blend-mode: difference so it inverts cleanly over any bg. */
   z-index: 9999;
-  width: 32px;
-  height: 32px;
+  width: 14px;
+  height: 14px;
   border-radius: 9999px;
   border: 1.5px solid #ffffff;
   background: transparent;
   mix-blend-mode: difference;
-  /* Center: 32px ÷ 2 = 16px */
-  margin: -16px 0 0 -16px;
+  /* Center: 14px ÷ 2 = 7px */
+  margin: -7px 0 0 -7px;
 }
 
 .cursor-label {
@@ -568,6 +568,49 @@
     color: #ffffff;
     -webkit-text-fill-color: #ffffff;
   }
+}
+
+/* =============================================
+   Bottom progressive-blur overlay (BottomBlur.tsx)
+   3 stacked backdrop-filter layers; blur radius ramps
+   toward the bottom while each layer's mask fades up, so
+   the frosting is strongest at the bottom edge and clears
+   going up into the page. Opacity transition handles the
+   footer auto-hide.
+   ============================================= */
+.bottom-blur {
+  height: clamp(90px, 16vh, 240px);
+  transition: opacity 0.3s ease;
+}
+.bottom-blur__layer {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(var(--b));
+  -webkit-backdrop-filter: blur(var(--b));
+  /* Solid at the bottom edge, fading to transparent at --fade going up. */
+  -webkit-mask-image: linear-gradient(to top, #000 0%, transparent var(--fade));
+  mask-image: linear-gradient(to top, #000 0%, transparent var(--fade));
+}
+/* Layer 1 — gentlest, spans the full height. */
+.bottom-blur__layer[data-layer="1"] { --b: 4px;  --fade: 100%; }
+/* Layer 2 — medium, fades out by ~66% up. */
+.bottom-blur__layer[data-layer="2"] { --b: 10px; --fade: 66%; }
+/* Layer 3 — strongest, concentrated in the bottom ~33%. */
+.bottom-blur__layer[data-layer="3"] { --b: 22px; --fade: 33%; }
+
+/* Mobile: drop to a single light layer (backdrop-filter is costly here). */
+@media (max-width: 767px) {
+  .bottom-blur__layer[data-layer="1"] { --b: 7px; }
+  .bottom-blur__layer[data-layer="2"],
+  .bottom-blur__layer[data-layer="3"] { display: none; }
+}
+
+/* Reduced motion: keep a single minimal static blur. */
+@media (prefers-reduced-motion: reduce) {
+  .bottom-blur { transition: none; }
+  .bottom-blur__layer[data-layer="1"] { --b: 5px; }
+  .bottom-blur__layer[data-layer="2"],
+  .bottom-blur__layer[data-layer="3"] { display: none; }
 }
 
 /* =============================================

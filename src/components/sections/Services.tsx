@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useServicesStyle } from "@/components/sections/services/servicesVariantStore";
 
 const SERVICES_STATIC = [
   { id: "branding",      number: "01", imgUrl: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=900&q=80", imgAlt: "Brand Identity" },
@@ -40,6 +41,9 @@ export default function Services(props: any) {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const active = SERVICES[activeIndex] ?? SERVICES[0];
+
+  // TEMP eval — flat vs neumorphic styling, flipped live via <ServicesVariantToggle>.
+  const neu = useServicesStyle() === "neumorphic";
 
   /* ── Desktop: useScroll on the tall scroll zone ─────────────── */
   const desktopScrollRef = useRef<HTMLDivElement>(null);
@@ -131,24 +135,27 @@ export default function Services(props: any) {
                           window.scrollTo({ top: top + i * perService + perService * 0.5, behavior: "smooth" });
                         }
                       }}
-                      className="group flex items-baseline gap-4 text-left w-full py-[clamp(8px,1.2vh,18px)] transition-all duration-500"
+                      className={`group flex items-baseline gap-4 text-left w-full py-[clamp(8px,1.2vh,18px)] transition-all duration-500 ${
+                        neu && isActive
+                          ? "rounded-2xl px-4 shadow-[3px_3px_8px_rgba(0,0,0,0.10),-3px_-3px_8px_rgba(255,255,255,0.95)]"
+                          : ""
+                      }`}
                     >
                       <span
                         className={`font-mono text-[11px] xl:text-[12px] tracking-widest shrink-0 transition-all duration-500 ${
-                          isActive ? "text-brand-red opacity-100" : "text-brand-red opacity-25"
+                          isActive ? "text-brand-red opacity-100" : "text-brand-red opacity-10"
                         }`}
                       >
                         {s.number}
                       </span>
                       <span
                         className={`font-bold uppercase leading-none font-clash text-[clamp(1.6rem,2.8vw,2.6rem)] transition-colors duration-500 ${
-                          isActive ? "text-[#111111]" : "text-[#c8c8c8] group-hover:text-[#888]"
+                          isActive ? "text-[#111111]" : "text-[#e2e2e2] group-hover:text-[#aaa]"
                         }`}
                       >
                         {s.title}
                       </span>
                     </button>
-                    <div className={`transition-all duration-500 ${isActive ? "border-t border-[#d0d0d0]" : "border-t border-[#ebebeb]"}`} />
                   </div>
                 );
               })}
@@ -212,17 +219,21 @@ export default function Services(props: any) {
             <div
               key={s.id}
               ref={(el) => { mobileRefs.current[i] = el; }}
-              className="border-t border-[#e0e0e0]"
+              className=""
             >
               {/* Title row */}
               <button
                 type="button"
                 onClick={() => setActiveIndex(i)}
-                className="flex items-baseline gap-3 w-full text-left py-9 md:py-11"
+                className={`flex items-baseline gap-3 w-full text-left py-9 md:py-11 transition-all duration-500 ${
+                  neu && isActive
+                    ? "rounded-2xl px-4 shadow-[3px_3px_8px_rgba(0,0,0,0.10),-3px_-3px_8px_rgba(255,255,255,0.95)]"
+                    : ""
+                }`}
               >
                 <span
                   className={`font-mono text-[11px] tracking-widest shrink-0 transition-colors duration-400 ${
-                    isActive ? "text-brand-red" : "text-brand-red/30"
+                    isActive ? "text-brand-red" : "text-brand-red/15"
                   }`}
                 >
                   {s.number}
@@ -231,7 +242,7 @@ export default function Services(props: any) {
                   className={`font-bold uppercase leading-none font-clash transition-all duration-400 ${
                     isActive
                       ? "text-[#111] text-[1.75rem] sm:text-[2.2rem]"
-                      : "text-[#bbb] text-[1.6rem] sm:text-[2rem]"
+                      : "text-[#d8d8d8] text-[1.6rem] sm:text-[2rem]"
                   }`}
                 >
                   {s.title}

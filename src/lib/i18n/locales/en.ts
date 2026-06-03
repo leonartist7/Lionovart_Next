@@ -1,3 +1,11 @@
+interface ReviewItem {
+  quote: string;
+  author: string;
+  role: string;
+  image?: string;
+  initials?: string;
+}
+
 export const en = {
   whatWeDo: {
     eyebrow: "What We Do",
@@ -30,7 +38,7 @@ export const en = {
     we: "We",
     services: "Services",
     results: "Results",
-    cta: "Get Started",
+    cta: "Start",
   },
 
   hero: {
@@ -57,20 +65,20 @@ export const en = {
 
   marquee: {
     items: [
-      "Brand Identity & Strategy",
-      "Web Design & Dev",
-      "Video Production",
-      "Motion Design",
-      "Social Media",
-      "UI/UX Design",
-      "Creative Strategy",
-      "Content Creation",
+      "Restaurants & Cafés",
+      "Beauty & Wellness",
+      "Boutique Hotels",
+      "Fitness & Sport",
+      "Retail & Fashion",
+      "Real Estate",
+      "Professional Services",
+      "Tourism & Travel",
     ],
   },
 
   about: {
-    line1: "In 2026, innovation is no longer a choice - it's a necessity.",
-    line2: "As a multidisciplinary team of artists and business owners, we provide what is needed to lead in today's digital era.",
+    line1: "Innovation is no longer a choice\n-it's a necessity.",
+    line2: "As a multidisciplinary team of artists and business owners, we developed a custom system strategy and provide what is needed to lead in today's digital era.",
     founderRole: "Creative & Business Director",
     founderStatus: "Available",
     stat1Label: "Years",
@@ -127,7 +135,7 @@ export const en = {
 
   comparison: {
     heading: "Why",
-    headingAccent: "Lionovart",
+    headingAccent: "Us",
     headingSuffix: "?",
     columns: [
       "Speed",
@@ -139,10 +147,10 @@ export const en = {
       "Support",
     ],
     competitors: [
-      { title: "In-house Team" },
-      { title: "Creative Agencies" },
-      { title: "Freelancers" },
-      { title: "AI Tools Only" },
+      { title: "In-house Team", description: "Hiring takes time, replacements are slow, and salaries pile up — especially when your needs fluctuate." },
+      { title: "Creative Agencies", description: "Strategic partners, but high-cost retainers, rigid scopes, and slow timelines make them a poor everyday fit." },
+      { title: "Freelancers", description: "Hit or miss. Sourcing and managing talent for every project keeps you chasing consistency, not building your brand." },
+      { title: "AI Tools Only", description: "Quick to use — but the output is off-brand, inconsistent, and still needs heavy manual effort to finish." },
     ],
   },
 
@@ -196,11 +204,11 @@ export const en = {
 
   problems: {
     eyebrow: "Your Next Chapter Starts Here",
-    heading: "This Is Your New Reality",
+    heading: "IMAGINE",
     items: [
       {
         problem: {
-          heading: "Now Your Brand Commands The Room",
+          heading: "Your Brand Commands The Room",
           body: "You've invested in your craft, your team, your space — but your image still looks like day one. Clients pick the competitor who looks like the better choice, even when they're not.",
         },
         solution: {
@@ -215,7 +223,7 @@ export const en = {
       },
       {
         problem: {
-          heading: "Now You Show Up Where It Counts",
+          heading: "Your Business Shows Up Where It Counts",
           body: "You're great at what you do — your existing clients love you. But the next person searching for exactly what you offer? They're finding your competitor instead.",
         },
         solution: {
@@ -230,7 +238,7 @@ export const en = {
       },
       {
         problem: {
-          heading: "Now You Have a Full Team Behind You",
+          heading: "You Have a Full Team Behind You",
           body: "The website, the socials, the emails, the content — on top of actually running your business. It's 10pm and you're still editing a reel. You didn't start this to become a full-time marketer.",
         },
         solution: {
@@ -327,31 +335,160 @@ export const en = {
     ],
     reviews: [
       {
-        quote: "We were getting traffic but almost no direct bookings - everything was going through booking sites and eating our margin. Within two months of the new website going live, direct reservations jumped almost 70%. It finally looks like the place we actually run, not a template.",
-        author: "Camille Moreau",
-        role: "Owner, Maison Verre à Annecy, France",
+        quote: "Sold more cars off the new site in one quarter than I did all of last year online. LIONOVART rebuilt the whole thing and the leads actually show up ready to buy.",
+        author: "Marc",
+        role: "Owner, Northline Motors · Canada",
+        image: "/images/Testimonials/Canada/Marc-Cardealer-M.jpg",
+        initials: "MR",
       },
       {
-        quote: "I was not as confident to hand out my business card and didn't know what to post in instagram for two years. Thank you Leon for rebuilding my whole brand identity, got my confidence back and now I know what to do when someone asks what I do. That's worth more than the money, gracias!",
-        author: "Sofia Alvarez",
-        role: "Founder, Luminous Skin Studio – UK",
+        quote: "Our store looked like every other Shopify template. Leon redesigned it top to bottom and our conversion rate nearly doubled. Same traffic, way more checkouts. Best money we've spent on the business!",
+        author: "Mateo",
+        role: "Founder, e-commerce store · Canada",
+        image: "/images/Testimonials/Canada/Mateo-Ecommerce-M.jpg",
+        initials: "MT",
       },
       {
-        quote: "The voice agent they set up for us handles after-hours calls, qualifies leads, and books viewings straight into my calendar. I got a call last Sunday while I was at dinner with my kids - except I didn't, because it was already handled. That one system pays for everything else we do with them.",
-        author: "Marco De Luca",
-        role: "Director, Atelier Realty – Milan",
+        quote: "Booked solid three weeks out since the team relaunched our site. Couldn't be happier.",
+        author: "Matt",
+        role: "Director, private clinic · Canada",
+        image: "/images/Testimonials/Canada/Matt-Clinic.jpg",
+        initials: "MA",
       },
       {
-        quote: "Three reels in and we had more reservations in one weekend than we'd had the entire previous month. It wasn't just that the videos looked good - it's that they finally sounded like us. Warm, not corporate. People walked in quoting lines from the reels.",
-        author: "Isabelle Chen",
-        role: "Co-owner, Mesa 14 – Toronto",
+        quote: "Lionovart gave my little flower shop a brand as beautiful as the arrangements. Walk ins literally mention the logo!",
+        author: "Maya",
+        role: "Owner, Maison Fleur · Canada",
+        image: "/images/Testimonials/Canada/Maya-Flowerstore-W.jpg",
+        initials: "MY",
       },
       {
-        quote: "I'm a contractor, not a marketing guy. Before LIONOVART I was editing Instagram posts at 11pm after a 12-hour site day. Now I don't touch any of it. Website, ads, socials, the whole thing - handled. My phone rings more than it ever has and I actually get to sleep.",
-        author: "James Hollister",
-        role: "Founder, Hollister Build Co. – Calgary",
-      }
-    ],
+        quote: "Travailler avec Leon was effortless, he understood my aesthetic immediately. My portfolio finally brings in clients I could never reach before. Merci!",
+        author: "Inès",
+        role: "Independent designer · France",
+        image: "/images/Testimonials/France/Inès-Designer.jpg",
+        initials: "IN",
+      },
+      {
+        quote: "Their team turned our café's Instagram into something people actually screenshot. Saturdays are packed now.",
+        author: "Mathilde",
+        role: "Owner, café · France",
+        image: "/images/Testimonials/France/Mathilde-coffee.jpg",
+        initials: "ML",
+      },
+      {
+        quote: "The booking system and AI assistant they built handle enquiries while I'm showing properties. I closed two listings last month from leads it qualified overnight. LIONOVART changed how I work.",
+        author: "Defne",
+        role: "Agent, Lumina Realty · Italy",
+        image: "/images/Testimonials/Italy/Defne-Realestate.jpg",
+        initials: "DF",
+      },
+      {
+        quote: "The reels they shot of our tours sold out the summer by April! People said they booked because the video made them feel like they were already there.",
+        author: "Enzo",
+        role: "Founder, Apennine Adventures · Italy",
+        image: "/images/Testimonials/Italy/Enzo-Adventures-Tours.jpg",
+        initials: "EN",
+      },
+      {
+        quote: "Lionovart made my brand look premium and trustworthy. Sales up, returns down.",
+        author: "Ha-eun",
+        role: "Owner, lifestyle store · Korea",
+        image: "/images/Testimonials/Korea/Ha-eun-Store.jpg",
+        initials: "HE",
+      },
+      {
+        quote: "New website, new ads, new everything. The team doubled my showroom appointments in two months.",
+        author: "Jae",
+        role: "Owner, motorcycle dealership · Korea",
+        image: "/images/Testimonials/Korea/Jae-Motodeal.jpg",
+        initials: "JA",
+      },
+      {
+        quote: "I run small group tours and was drowning in email. Leon set up automated booking and a multilingual site, and now travellers book and pay before they even land. Game changer for a one man operation.",
+        author: "Jim",
+        role: "Founder, Sakura Trails · Korea",
+        image: "/images/Testimonials/Korea/Jim-JapaneseTour.jpg",
+        initials: "JM",
+      },
+      {
+        quote: "Best month we've ever had. The new site and menu photos did exactly what they promised.",
+        author: "KS",
+        role: "Owner, Japanese restaurant · Korea",
+        image: "/images/Testimonials/Korea/KS-Japaneserestaurant.jpg",
+        initials: "KS",
+      },
+      {
+        quote: "My online store finally matches the vibe of the clothes. LIONOVART gets fashion in a way other agencies just didn't.",
+        author: "Min-Ji",
+        role: "Founder, clothing label · Korea",
+        image: "/images/Testimonials/Korea/Min-Ji-Clothingstore.jpg",
+        initials: "MJ",
+      },
+      {
+        quote: "Their team rebranded our coffee shop and now people cross the city just for the aesthetic. Worth every won.",
+        author: "Seo-yeon",
+        role: "Owner, coffee shop · Korea",
+        image: "/images/Testimonials/Korea/Seo-yeon-coffee.jpg",
+        initials: "SY",
+      },
+      {
+        quote: "El agente de voz they built answers every call, qualifies the lead, books the viewing, even on Sundays. I got my evenings back and my calendar's fuller than ever. Gracias Leon!",
+        author: "Manu",
+        role: "Director, Costa Realty · Spain",
+        image: "/images/Testimonials/Spain/Manu-Realestate-M.jpg",
+        initials: "MN",
+      },
+      {
+        quote: "Direct bookings up over 60% since LIONOVART rebuilt our site. We finally stopped handing our margin to the booking platforms.",
+        author: "Pablo",
+        role: "Owner, boutique hotel · Spain",
+        image: "/images/Testimonials/Spain/Pablo-hotel-M.jpg",
+        initials: "PB",
+      },
+      {
+        quote: "My portfolio finally looks worthy of the work. Enquiries tripled.",
+        author: "Sergio",
+        role: "Photographer · Spain",
+        image: "/images/Testimonials/Spain/Sergio-photographer-M.jpg",
+        initials: "SG",
+      },
+      {
+        quote: "I've worked with a lot of agencies. Lionovart is the first that felt like an actual partner. Brand, site, ads, automation, all handled by one team. I just focus on growth now.",
+        author: "Andrin",
+        role: "Entrepreneur · Switzerland",
+        image: "/images/Testimonials/Switzerland/Andrin-Entrepreneur.jpg",
+        initials: "AN",
+      },
+      {
+        quote: "Leon understood exactly what my shop needed. Clean, premium, on time.",
+        author: "Fiona",
+        role: "Owner, boutique shop · Switzerland",
+        image: "/images/Testimonials/Switzerland/Fiona-Shop.jpg",
+        initials: "FI",
+      },
+      {
+        quote: "Our landing page wasn't converting and investors said the brand looked amateur. LIONOVART overhauled both and we closed our seed round six weeks later. The demo signups speak for themselves.",
+        author: "Ben",
+        role: "Founder, SaaS startup · UK",
+        image: "/images/Testimonials/UK/Ben-Saasfounder.jpg",
+        initials: "BN",
+      },
+      {
+        quote: "Patients tell us the website made them trust us before they walked in. The team nailed it.",
+        author: "Dan",
+        role: "Director, dental clinic · UK",
+        image: "/images/Testimonials/UK/Dan-Clinic-M.jpg",
+        initials: "DN",
+      },
+      {
+        quote: "For years I didn't know what to post or how to explain what I do. Leon rebuilt my whole brand and gave me my confidence back, now I hand my card out proud. Worth more than the money. x",
+        author: "Jess",
+        role: "Owner, Glow Beauty Studio · UK",
+        image: "/images/Testimonials/UK/Jess-Beautysalon-W.jpg",
+        initials: "JS",
+      },
+    ] as ReviewItem[],
   },
 
   services: {

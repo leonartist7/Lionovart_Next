@@ -60,7 +60,7 @@ export function LiquidMetalButton({
         shaderHeight: 46,
       };
     }
-  }, [viewMode]);
+  }, [viewMode, width]);
 
     const isInView = useInView(shaderRef, { margin: "200px" });
 

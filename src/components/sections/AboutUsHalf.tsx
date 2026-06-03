@@ -1,25 +1,33 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useRef } from "react";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import { useLanguage } from "@/contexts/LanguageContext";
-// Trust badges now live at the top of <WhatWeDo /> — kept off About to avoid
-// the "two trust rows in a row" feel and to give the About headline real estate.
+import { useImagePos } from "./about/aboutVariantStore";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const CONTACT_PHONE   = "+1-587-897-4772";
-const CONTACT_EMAIL   = "connect@lionovart.com";
-const CONTACT_MEETING = "https://cal.com/lionovart";
+/* ─── Brand assets ─────────────────────────────────────────── */
+const PORTRAIT_SRC = "/images/Leon-Studioshot.avif";
+const PAINT_SRC    = "/images/paintco.avif";
 
-const SIDE_IMAGE_URL =
-  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=900&h=1200&fit=crop&q=80";
+/* ─── Editable copy ────────────────────────────────────────── */
+const FOUNDER_NAME = "Leonardo";
+
+const ABOUT_STATS = [
+  { value: "15+",  label: "Years combined experience" },
+  { value: "10+",  label: "Industries expertise" },
+  { value: "100%", label: "On-Time Delivery" },
+];
 
 const RED_WORDS = new Set(["necessity."]);
+
+const CAPTION_MASK = "radial-gradient(130% 100% at 50% 100%, #000 0%, #000 30%, transparent 72%)";
+const CAPTION_GLOW = "radial-gradient(130% 100% at 50% 100%, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 38%, transparent 72%)";
 
 const mobileHeadlineContainer = {
   hidden: {},
@@ -30,120 +38,73 @@ const mobileHeadlineWord = {
   visible: { y: 0, opacity: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
-/* ─── Shared contact card content ─────────────────────────── */
-function ContactCardInner({
-  contactOpen,
-  founderRole,
-}: {
-  contactOpen: boolean;
-  founderRole: string;
-}) {
+/* ─── Credibility metrics ────────────────────────────────────── */
+function CredStrip() {
   return (
     <>
-      <span className="absolute top-3 right-3 z-10 flex h-2 w-2">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#e5192a] opacity-75" />
-        <span className="relative inline-flex h-2 w-2 rounded-full bg-[#e5192a]" />
-      </span>
-      <AnimatePresence mode="wait">
-        {!contactOpen ? (
-          <motion.div
-            key="label"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.12 }}
-            className="px-4 pt-[22px] pb-[22px] pr-8"
-          >
-            <p className="text-[14px] font-bold text-white leading-tight whitespace-nowrap">
-              Contact Leonardo
-            </p>
-            <p className="text-[11px] text-white/45 mt-0.5 whitespace-nowrap">
-              {founderRole}
-            </p>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="info"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="px-4 pt-4 pb-4 flex flex-col gap-3.5"
-          >
-            <a href={`mailto:${CONTACT_EMAIL}`} className="group block" onClick={(e) => e.stopPropagation()}>
-              <p className="text-[9px] text-white/35 uppercase tracking-[0.15em] mb-0.5">Email</p>
-              <p className="text-[13px] font-semibold text-white group-hover:text-white/60 transition-colors">
-                {CONTACT_EMAIL}
-              </p>
-            </a>
-            <a href={`tel:${CONTACT_PHONE}`} className="group block" onClick={(e) => e.stopPropagation()}>
-              <p className="text-[9px] text-white/35 uppercase tracking-[0.15em] mb-0.5">Phone</p>
-              <p className="text-[13px] font-semibold text-white group-hover:text-white/60 transition-colors">
-                {CONTACT_PHONE}
-              </p>
-            </a>
-            <a
-              href={CONTACT_MEETING}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group block"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <p className="text-[9px] text-white/35 uppercase tracking-[0.15em] mb-0.5">Schedule a call</p>
-              <p className="text-[13px] font-semibold text-white group-hover:text-white/60 transition-colors">
-                Google Meet
-              </p>
-            </a>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {ABOUT_STATS.map((s, i) => (
+        <div
+          key={s.label}
+          className={`px-3 text-center ${i > 0 ? "border-l border-black/10" : ""}`}
+        >
+          <p className="font-display text-[clamp(1.375rem,3.2vw,2.5rem)] font-bold leading-none text-black">
+            {s.value}
+          </p>
+          <p className="mt-1.5 text-[clamp(0.625rem,0.9vw,0.75rem)] leading-snug text-[#666]">
+            {s.label}
+          </p>
+        </div>
+      ))}
     </>
   );
 }
 
-/* ─── Contact card cluster (avatar + expandable button) ───── */
-function ContactCardCluster({
-  containerRef,
-  className,
-  contactOpen,
+/* ─── Portrait card ─────────────────────────────────────────── */
+function PortraitFrame({
+  frameClassName,
+  revealClass = "",
   founderRole,
-  onOpen,
-  onClose,
-  onToggle,
 }: {
-  containerRef: React.RefObject<HTMLDivElement | null>;
-  className?: string;
-  contactOpen: boolean;
+  frameClassName: string;
+  revealClass?: string;
   founderRole: string;
-  onOpen: () => void;
-  onClose: () => void;
-  onToggle: () => void;
 }) {
   return (
-    <div ref={containerRef} className={`flex items-end gap-3 ${className ?? ""}`}>
-      <div className="relative w-[64px] h-[64px] shrink-0 rounded-[16px] overflow-hidden border border-black/10 shadow-[0_8px_24px_rgba(0,0,0,0.25)]">
+    <div className={`relative ${frameClassName}`}>
+      <div
+        className={`relative z-[1] h-full w-full overflow-hidden rounded-3xl shadow-[0_24px_60px_rgba(0,0,0,0.18)] ${revealClass}`}
+      >
         <Image
-          src="https://res.cloudinary.com/dgio9uutc/image/upload/v1776064620/leonardo_icon_rkjxcx.webp"
-          alt="Leonardo"
+          src={PORTRAIT_SRC}
+          alt={`${FOUNDER_NAME} — ${founderRole}`}
           fill
+          sizes="(max-width: 1024px) 85vw, clamp(260px,28vw,400px)"
           className="object-cover"
-          unoptimized
         />
+        {/* Radial-faded blur + glow caption */}
+        <div className="absolute inset-x-0 bottom-0 z-20 h-[48%]">
+          <div
+            className="absolute inset-0 backdrop-blur-md"
+            style={{ WebkitMaskImage: CAPTION_MASK, maskImage: CAPTION_MASK }}
+          />
+          <div className="absolute inset-0" style={{ background: CAPTION_GLOW }} />
+          <div className="absolute inset-x-0 bottom-0 px-5 pb-5">
+            <p className="font-display text-[clamp(1rem,1.4vw,1.375rem)] font-bold leading-tight text-white">
+              {FOUNDER_NAME}
+            </p>
+            <p className="mt-0.5 text-[0.8125rem] text-white/70">{founderRole}</p>
+          </div>
+        </div>
       </div>
-      <div className="relative h-[72px] w-[220px]">
-        <motion.button
-          type="button"
-          initial={false}
-          animate={{ height: contactOpen ? "auto" : 72 }}
-          transition={{ duration: 0.38, ease: [0.4, 0, 0.2, 1] }}
-          onMouseEnter={onOpen}
-          onMouseLeave={onClose}
-          onClick={onToggle}
-          className="absolute bottom-0 right-0 w-[220px] text-left rounded-[20px] border border-black/[0.10] shadow-[0_8px_40px_rgba(0,0,0,0.35)] cursor-pointer select-none overflow-hidden bg-black"
-        >
-          <ContactCardInner contactOpen={contactOpen} founderRole={founderRole} />
-        </motion.button>
-      </div>
+
+      {/* PAINTCO — fixed bottom-right corner, on top of the photo */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={PAINT_SRC}
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-24 -right-20 z-30 w-[65%] select-none"
+      />
     </div>
   );
 }
@@ -154,34 +115,11 @@ export default function AboutUsHalf(props: any) {
   const desktopRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
 
+  const imagePos = useImagePos();
+
   const headlineTop: string = props.headlineTop || t.about.line1;
   const bodyText: string    = props.bodyText    || t.about.line2;
   const founderRole: string = props.founderRole || t.about.founderRole;
-
-  const [contactOpen, setContactOpen] = useState(false);
-
-  const desktopCardRef = useRef<HTMLDivElement>(null);
-  const mobileCardRef  = useRef<HTMLDivElement>(null);
-  const closeTimer     = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const openContact  = () => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-    setContactOpen(true);
-  };
-  const closeContact = () => {
-    closeTimer.current = setTimeout(() => setContactOpen(false), 180);
-  };
-  const toggleContact = () => setContactOpen((v) => !v);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      const inDesktop = desktopCardRef.current?.contains(e.target as Node);
-      const inMobile  = mobileCardRef.current?.contains(e.target as Node);
-      if (!inDesktop && !inMobile) setContactOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
 
   const words = headlineTop.split(" ");
 
@@ -192,31 +130,28 @@ export default function AboutUsHalf(props: any) {
       mm.add("(min-width: 1024px)", () => {
         const wordEls = gsap.utils.toArray<HTMLElement>(".about-word-inner");
 
-        // TL1 — Pre-pin: words animate as section scrolls into view
         gsap.timeline({
           scrollTrigger: {
             trigger: desktopRef.current,
-            start: "top 60%",  // section 40% visible from bottom
-            end: "top top",    // ends when pin starts
+            start: "top 60%",
+            end: "top top",
             scrub: 1.2,
           },
         })
           .fromTo(wordEls, { yPercent: 110 }, { yPercent: 0, duration: 1, stagger: 0.08, ease: "power3.out" }, 0.05);
 
-        // TL2 — Pinned: body, image, contact reveal once section is at top
         gsap.timeline({
           scrollTrigger: {
             trigger: desktopRef.current,
             start: "top top",
-            end: "+=80%",   // 80vh pin budget
+            end: "+=80%",
             pin: true,
             scrub: 1.5,
             pinSpacing: true,
           },
         })
-          .fromTo(".about-body",    { opacity: 0, y: 20 },            { opacity: 1, y: 0,    duration: 0.5, ease: "power2.out" },    0)
-          .fromTo(".about-image",   { opacity: 0, scale: 0.92, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.7, ease: "power2.out" }, 0.3)
-          .fromTo(".about-contact", { opacity: 0, y: 24 },             { opacity: 1, y: 0,    duration: 0.5, ease: "back.out(1.4)" }, 0.9);
+          .fromTo(".about-body",  { opacity: 0, y: 20 },              { opacity: 1, y: 0, duration: 0.5, stagger: 0.12, ease: "power2.out" }, 0)
+          .fromTo(".about-image", { opacity: 0, scale: 0.92, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.7, ease: "power2.out" }, 0.3);
       });
 
       return () => mm.revert();
@@ -225,108 +160,108 @@ export default function AboutUsHalf(props: any) {
   );
 
   return (
-    <section ref={sectionRef} className="relative bg-white">
-      {/* White dome arch — bridges from dark section above */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute top-0 -translate-y-[calc(100%-4px)] left-0 right-0 w-full h-[58px] overflow-hidden z-[3]"
-      >
-        <svg
-          viewBox="0 0 1440 58"
-          preserveAspectRatio="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full"
-        >
-          <path d="M0,58 C360,0 1080,0 1440,58 L1440,58 L0,58 Z" fill="white" />
-        </svg>
-      </div>
+    <section ref={sectionRef} className="relative bg-bg-surface-light">
 
       {/* ── DESKTOP: Pinned two-column magazine layout ──────── */}
       <div
         ref={desktopRef}
         className="hidden lg:block relative h-screen overflow-hidden"
       >
-        {/* Two-column grid: text left, portrait card right.
-            pt-28 (was pt-52) tightened after trust badges moved out — keeps the
-            headline anchored below the navbar without leaving an empty zone. */}
-        <div className="absolute inset-0 pt-28 pb-12 px-12 xl:px-24 grid grid-cols-[1fr_360px] xl:grid-cols-[1fr_420px] gap-10 xl:gap-16 items-stretch z-[1]">
+        {/*
+          items-center → grid auto-height centered in 100vh, zero dead bands.
+          items-start on grid → both cols top-align; portrait extends below text naturally.
+        */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pt-[clamp(4rem,7vh,6rem)] pb-[clamp(1.5rem,3vh,3rem)] gap-[clamp(1.5rem,3vh,2.5rem)] z-[1]">
 
-          {/* LEFT COLUMN — headline, body, contact */}
-          <div className="flex flex-col justify-center items-start text-left max-w-[640px]">
-            <h2 className="font-display text-black leading-[1.1] tracking-tight text-[clamp(2.2rem,3.8vw,4.6rem)]">
+          {/* ROW 1 — Line 0 spans full width above the grid */}
+          <div className="w-full max-w-[1400px] px-[max(3rem,6vw)]">
+            <p className="font-display text-black leading-[1.05] tracking-tight text-[clamp(2rem,3.5vw,5rem)] whitespace-nowrap">
               <span className="inline-block overflow-hidden align-bottom mr-[0.22em]">
-                <span className="about-word-inner inline-block">
-                  "
-                </span>
+                <span className="about-word-inner inline-block">&ldquo;</span>
               </span>
-              {words.map((word, i) => (
-                <span
-                  key={i}
-                  className="inline-block overflow-hidden align-bottom mr-[0.22em] last:mr-0"
-                >
-                  <span
-                    className={`about-word-inner inline-block${
-                      RED_WORDS.has(word) ? " text-[#e5192a]" : ""
-                    }`}
-                  >
-                    {word}
-                  </span>
+              {headlineTop.split('\n')[0].split(' ').filter(Boolean).map((word, wi) => (
+                <span key={wi} className="inline-block overflow-hidden align-bottom mr-[0.22em]">
+                  <span className="about-word-inner inline-block">{word}</span>
                 </span>
               ))}
-              <span className="inline-block overflow-hidden align-bottom">
-                <span className="about-word-inner inline-block">
-                  "
-                </span>
-              </span>
-            </h2>
-
-            <div className="w-16 h-px bg-black/15 my-7" aria-hidden="true" />
-
-            <p className="about-body font-body text-[16px] xl:text-[17px] leading-[1.7] text-[#333] max-w-[520px] opacity-0">
-              {bodyText}
             </p>
-
-            <ContactCardCluster
-              containerRef={desktopCardRef}
-              className="about-contact mt-8 opacity-0"
-              contactOpen={contactOpen}
-              founderRole={founderRole}
-              onOpen={openContact}
-              onClose={closeContact}
-              onToggle={toggleContact}
-            />
           </div>
 
-          {/* RIGHT COLUMN — compact portrait card, bottom-anchored */}
-          <div className="flex justify-center items-end self-end pb-10 h-full">
-            <div className="about-image relative w-full max-w-[360px] xl:max-w-[420px] aspect-[3/4] max-h-[60vh] rounded-3xl overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.18)]">
-              <img
-                src={SIDE_IMAGE_URL}
-                alt="Founder"
-                className="w-full h-full object-cover"
+          {/* ROW 2 — 2-col grid */}
+          <div className="w-full max-w-[1400px] px-[max(3rem,6vw)] grid grid-cols-[1fr_34%] gap-[clamp(2rem,4vw,5rem)] items-start">
+
+            {/* LEFT COLUMN — line 2, divider, body, stats */}
+            <div className="flex flex-col items-start w-full">
+              <h2 className="font-display text-black leading-[1.05] tracking-tight text-[clamp(2rem,3.5vw,5rem)]">
+                {(headlineTop.split('\n')[1] ?? '').split(' ').filter(Boolean).map((word, wi) => (
+                  <span key={wi} className="inline-block overflow-hidden align-bottom mr-[0.22em]">
+                    <span className={`about-word-inner inline-block${RED_WORDS.has(word) ? ' text-[#e5192a]' : ''}`}>
+                      {word}
+                    </span>
+                  </span>
+                ))}
+                <span className="inline-block overflow-hidden align-bottom">
+                  <span className="about-word-inner inline-block">&rdquo;</span>
+                </span>
+              </h2>
+
+              <div className="w-14 h-px bg-black/15 mt-[clamp(1rem,2vh,1.75rem)] mb-[clamp(1.25rem,2.5vh,2rem)]" aria-hidden="true" />
+
+              <p
+                className="about-body font-display text-[clamp(1rem,1.3vw,1.375rem)] leading-[1.6] text-[#333] max-w-[clamp(300px,34vw,480px)] opacity-0"
+                style={{ textAlign: 'justify' }}
+              >
+                {bodyText}
+              </p>
+
+              <div className="about-body mt-[clamp(1.5rem,2.5vh,2rem)] grid w-full max-w-[clamp(300px,34vw,480px)] grid-cols-3 opacity-0">
+                <CredStrip />
+              </div>
+            </div>
+
+            {/* RIGHT COLUMN — portrait, top-anchored */}
+            <div className="flex justify-center items-start">
+              <PortraitFrame
+                frameClassName="w-full aspect-[3/4] max-h-[clamp(60vh,78vh,90vh)]"
+                revealClass="about-image opacity-0"
+                founderRole={founderRole}
               />
             </div>
           </div>
+
         </div>
       </div>
 
-      {/* ── MOBILE / TABLET: Stacked layout w/ word-stagger ── */}
-      <div className="lg:hidden pt-8 pb-16 px-5">
+      {/* ── MOBILE / TABLET: Stacked layout ──────────────────── */}
+      <div className="lg:hidden pt-[clamp(1.5rem,4vw,2.5rem)] pb-[clamp(2.5rem,6vw,4rem)] px-[max(1.25rem,4vw)]">
+
+        {/* Portrait top position */}
+        {imagePos === "top" && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.94, y: 24 }}
+            whileInView={{ opacity: 1, scale: 1, y: 0 }}
+            viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="mb-10 mx-auto w-full max-w-[min(360px,85vw)]"
+          >
+            <PortraitFrame
+              frameClassName="w-full aspect-[3/4]"
+              founderRole={founderRole}
+            />
+          </motion.div>
+        )}
+
+        {/* Text content */}
         <div className="text-center">
           <motion.h2
             variants={mobileHeadlineContainer}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.4 }}
-            className="font-display text-black leading-[1.2] mb-6 text-[clamp(1.75rem,6vw,2.4rem)]"
+            className="font-display text-black leading-[1.2] mb-6 text-[clamp(1.5rem,5.5vw,2.25rem)]"
           >
             <span className="inline-block overflow-hidden align-bottom mr-[0.2em]">
-              <motion.span
-                variants={mobileHeadlineWord}
-                className="inline-block"
-              >
-                "
-              </motion.span>
+              <motion.span variants={mobileHeadlineWord} className="inline-block">&ldquo;</motion.span>
             </span>
             {words.map((word, i) => (
               <span
@@ -335,21 +270,14 @@ export default function AboutUsHalf(props: any) {
               >
                 <motion.span
                   variants={mobileHeadlineWord}
-                  className={`inline-block${
-                    RED_WORDS.has(word) ? " text-[#e5192a]" : ""
-                  }`}
+                  className={`inline-block${RED_WORDS.has(word) ? " text-[#e5192a]" : ""}`}
                 >
                   {word}
                 </motion.span>
               </span>
             ))}
             <span className="inline-block overflow-hidden align-bottom">
-              <motion.span
-                variants={mobileHeadlineWord}
-                className="inline-block"
-              >
-                "
-              </motion.span>
+              <motion.span variants={mobileHeadlineWord} className="inline-block">&rdquo;</motion.span>
             </span>
           </motion.h2>
 
@@ -358,43 +286,37 @@ export default function AboutUsHalf(props: any) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "0px 0px -10% 0px" }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="font-body text-[15px] md:text-[17px] leading-[1.7] text-[#333] max-w-[560px] mx-auto"
+            className="font-display text-[0.9375rem] md:text-[1.0625rem] leading-[1.7] text-[#333] max-w-[min(480px,90vw)] mx-auto text-justify"
           >
             {bodyText}
           </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="mt-9 mx-auto grid w-full max-w-[min(360px,90vw)] grid-cols-3"
+          >
+            <CredStrip />
+          </motion.div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.55 }}
-          className="mt-6 flex justify-center"
-        >
-          <ContactCardCluster
-            containerRef={mobileCardRef}
-            contactOpen={contactOpen}
-            founderRole={founderRole}
-            onOpen={openContact}
-            onClose={closeContact}
-            onToggle={toggleContact}
-          />
-        </motion.div>
-
-        {/* Portrait image card — below content on mobile/tablet */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.94, y: 24 }}
-          whileInView={{ opacity: 1, scale: 1, y: 0 }}
-          viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-          transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-          className="mt-8 mx-auto w-full max-w-[360px] aspect-[3/4] rounded-3xl overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.18)]"
-        >
-          <img
-            src={SIDE_IMAGE_URL}
-            alt="Founder"
-            className="w-full h-full object-cover"
-          />
-        </motion.div>
+        {/* Portrait bottom position */}
+        {imagePos === "bottom" && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.94, y: 24 }}
+            whileInView={{ opacity: 1, scale: 1, y: 0 }}
+            viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+            transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+            className="mt-10 mx-auto w-full max-w-[min(360px,85vw)]"
+          >
+            <PortraitFrame
+              frameClassName="w-full aspect-[3/4]"
+              founderRole={founderRole}
+            />
+          </motion.div>
+        )}
       </div>
     </section>
   );
