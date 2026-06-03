@@ -572,11 +572,12 @@
 
 /* =============================================
    Bottom progressive-blur overlay (BottomBlur.tsx)
-   3 stacked backdrop-filter layers; blur radius ramps
-   toward the bottom while each layer's mask fades up, so
-   the frosting is strongest at the bottom edge and clears
-   going up into the page. Opacity transition handles the
-   footer auto-hide.
+   Single masked backdrop-filter layer: the mask fades the
+   frosting from solid at the bottom edge to transparent going
+   up, so it reads as "strongest at the bottom" without paying
+   for three stacked blur passes per frame. Promoted to its own
+   compositor layer so Lenis scroll doesn't re-rasterize it.
+   Opacity transition handles the footer auto-hide.
    ============================================= */
 .bottom-blur {
   height: clamp(90px, 16vh, 240px);
@@ -585,32 +586,32 @@
 .bottom-blur__layer {
   position: absolute;
   inset: 0;
-  backdrop-filter: blur(var(--b));
-  -webkit-backdrop-filter: blur(var(--b));
-  /* Solid at the bottom edge, fading to transparent at --fade going up. */
-  -webkit-mask-image: linear-gradient(to top, #000 0%, transparent var(--fade));
-  mask-image: linear-gradient(to top, #000 0%, transparent var(--fade));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  /* Solid at the bottom edge, fading to transparent toward the top so the
+     frosting concentrates at the bottom (replaces the old radius ramp). */
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 16%, transparent 92%);
+  mask-image: linear-gradient(to top, #000 0%, #000 16%, transparent 92%);
+  /* Isolate as its own GPU layer — caches the blur between identical frames. */
+  transform: translateZ(0);
+  contain: paint;
 }
-/* Layer 1 — gentlest, spans the full height. */
-.bottom-blur__layer[data-layer="1"] { --b: 4px;  --fade: 100%; }
-/* Layer 2 — medium, fades out by ~66% up. */
-.bottom-blur__layer[data-layer="2"] { --b: 10px; --fade: 66%; }
-/* Layer 3 — strongest, concentrated in the bottom ~33%. */
-.bottom-blur__layer[data-layer="3"] { --b: 22px; --fade: 33%; }
 
-/* Mobile: drop to a single light layer (backdrop-filter is costly here). */
+/* Mobile: backdrop-filter is costly here — drop to a gentler radius. */
 @media (max-width: 767px) {
-  .bottom-blur__layer[data-layer="1"] { --b: 7px; }
-  .bottom-blur__layer[data-layer="2"],
-  .bottom-blur__layer[data-layer="3"] { display: none; }
+  .bottom-blur__layer {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
 }
 
-/* Reduced motion: keep a single minimal static blur. */
+/* Reduced motion: keep a minimal static blur. */
 @media (prefers-reduced-motion: reduce) {
   .bottom-blur { transition: none; }
-  .bottom-blur__layer[data-layer="1"] { --b: 5px; }
-  .bottom-blur__layer[data-layer="2"],
-  .bottom-blur__layer[data-layer="3"] { display: none; }
+  .bottom-blur__layer {
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
 }
 
 /* =============================================

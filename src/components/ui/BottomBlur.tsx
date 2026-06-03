@@ -4,9 +4,11 @@
  * BottomBlur — premium frosted bottom edge.
  * ----------------------------------------
  * Fixed overlay pinned to the viewport bottom. Blur is strongest at the
- * very bottom and ramps to fully transparent going up into the page, via
- * 3 stacked backdrop-filter layers whose blur RADIUS increases toward the
- * bottom (a single masked layer only fades opacity at a constant radius).
+ * very bottom and fades to fully transparent going up into the page via a
+ * single masked backdrop-filter layer (the mask gradient makes the frosting
+ * read as "strongest at the bottom"). Promoted to its own compositor layer
+ * (`contain: paint` + translateZ) so Lenis scroll doesn't force a fresh
+ * rasterization of three stacked blur passes every frame.
  *
  * - z-[60]: above page content, below StickyCTA (z-9990) + cursor (z-9999),
  *   so it never blurs the floating CTA/cursor. pointer-events-none.
@@ -50,9 +52,7 @@ export default function BottomBlur() {
       style={{ opacity: hidden ? 0 : 1 }}
       aria-hidden
     >
-      <div className="bottom-blur__layer" data-layer="1" />
-      <div className="bottom-blur__layer" data-layer="2" />
-      <div className="bottom-blur__layer" data-layer="3" />
+      <div className="bottom-blur__layer" />
     </div>
   );
 }
