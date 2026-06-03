@@ -249,13 +249,15 @@ export default function Navbar() {
           {/* Glass layer — fades in after hero */}
           <motion.div
             aria-hidden
-            className="absolute inset-0 backdrop-blur-xl border border-white/10 rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)]"
+            className="absolute inset-0 backdrop-blur-lg border border-white/10 rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)]"
             animate={{
               opacity: isPastHero ? 1 : 0,
               backgroundColor: "rgba(0,0,0,0.20)",
             }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            style={{ pointerEvents: "none" }}
+            // Isolate as its own GPU layer so Lenis scroll re-uses the cached
+            // blur instead of re-rasterizing the fixed glass bar every frame.
+            style={{ pointerEvents: "none", transform: "translateZ(0)", contain: "paint" }}
           />
 
           {/* Nav inner row */}
