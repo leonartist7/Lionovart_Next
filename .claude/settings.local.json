@@ -94,7 +94,8 @@
       "PowerShell(npm run dev)",
       "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:3000/\" -UseBasicParsing -TimeoutSec 60; \"STATUS: $\\($r.StatusCode\\)  LEN: $\\($r.Content.Length\\)\" } catch { \"REQ ERROR: $\\($_.Exception.Message\\)\" })",
       "PowerShell(try { $c = \\(Invoke-WebRequest -Uri \"http://localhost:3000/\" -UseBasicParsing -TimeoutSec 60\\).Content; \"Leonardo: $\\($c -match 'Leonardo'\\)\"; \"founderRole\\(Creative\\): $\\($c -match 'Creative & Business Director'\\)\"; \"PAINTCO: $\\($c -match 'PAINTCO'\\)\"; \"LION_CIRCLE: $\\($c -match 'LION_CIRCLE'\\)\"; \"Studioshot: $\\($c -match 'Leon-Studioshot'\\)\"; \"About-eval toggle: $\\($c -match 'About · eval'\\)\"; \"dome path gone: $\\(-not \\($c -match 'C360,0 1080'\\)\\)\" } catch { \"ERR $\\($_.Exception.Message\\)\" })",
-      "PowerShell(try { $c = \\(Invoke-WebRequest -Uri \"http://localhost:3000/\" -UseBasicParsing -TimeoutSec 60\\).Content; \"Creative present: $\\($c -match 'Creative'\\)\"; \"encoded role: $\\($c -match 'Creative &amp; Business Director'\\)\"; \"signature: $\\($c -match 'Founder, LIONOVART'\\)\"; \"eyebrow: $\\($c -match 'The Founder'\\)\"; \"stat 50+: $\\($c -match '50\\\\+'\\)\" } catch { \"ERR $\\($_.Exception.Message\\)\" })"
+      "PowerShell(try { $c = \\(Invoke-WebRequest -Uri \"http://localhost:3000/\" -UseBasicParsing -TimeoutSec 60\\).Content; \"Creative present: $\\($c -match 'Creative'\\)\"; \"encoded role: $\\($c -match 'Creative &amp; Business Director'\\)\"; \"signature: $\\($c -match 'Founder, LIONOVART'\\)\"; \"eyebrow: $\\($c -match 'The Founder'\\)\"; \"stat 50+: $\\($c -match '50\\\\+'\\)\" } catch { \"ERR $\\($_.Exception.Message\\)\" })",
+      "Bash(cp /root/.claude/uploads/9634d897-3f8b-4447-961b-63b8bca67cb4/d81d9049-SKILL_1.md /home/user/Lionovart_Next/.claude/skills/ui-ux-pro-max/SKILL.md)"
     ]
   }
 }
