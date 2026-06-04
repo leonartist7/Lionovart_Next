@@ -7,7 +7,7 @@
  * All copy/numbers are placeholders until final copy + real terms land.
  */
 
-import { useRouter } from "next/navigation";
+import { useNovaStore } from "@/lib/stores/nova-store";
 import { motion, useReducedMotion } from "framer-motion";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 
@@ -36,8 +36,9 @@ const STACK = [
 
 export default function VideoLowerActs() {
   const reduce = useReducedMotion();
-  const router = useRouter();
-  const go = () => router.push("/contact"); // /contact to be built next
+  const openNova = useNovaStore((s) => s.openNova);
+  // The voice agent (Nova) handles every lead, no form. CTA opens it and auto-starts.
+  const go = () => openNova("hero", true);
 
   const motionProps = reduce ? {} : reveal;
 
