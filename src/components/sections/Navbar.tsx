@@ -276,10 +276,15 @@ export default function Navbar() {
               backgroundColor: "rgba(0,0,0,0.20)",
             }}
             transition={{ duration: 0.5, ease: "easeOut" }}
+            // backdrop-filter forced to `none` in hero mode (computes nothing
+            // until revealed) + isolate as its own GPU layer so Lenis scroll
+            // re-uses the cached blur instead of re-rasterizing every frame.
             style={{
               pointerEvents: "none",
               backdropFilter: isPastHero ? undefined : "none",
               WebkitBackdropFilter: isPastHero ? undefined : "none",
+              transform: "translateZ(0)",
+              contain: "paint",
             }}
           />
 

@@ -13,10 +13,13 @@ import { useLenis } from "@studio-freight/react-lenis";
  * z-[0]: paints above `main`'s bg-bg-dark box but below the sections (z-[2]),
  * which are transparent through this region, so the video shows through them.
  */
+// f_auto,q_auto → Cloudinary serves a modern codec (AV1/VP9/H.265) at
+// perceptually-optimized quality per browser: same look behind the dark
+// tint, meaningfully smaller download + cheaper decode per frame.
 const CLIPS = [
-  "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845599/Footage_02_chsoa3.mp4",
-  "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845553/Footage_05_yalbaj.mp4",
-  "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845634/Footage_07_o3rfbu.mp4",
+  "https://res.cloudinary.com/dgio9uutc/video/upload/f_auto,q_auto/v1779845634/Footage_07_o3rfbu.mp4",
+  "https://res.cloudinary.com/dgio9uutc/video/upload/f_auto,q_auto/v1779845599/Footage_02_chsoa3.mp4",
+  "https://res.cloudinary.com/dgio9uutc/video/upload/f_auto,q_auto/v1779845553/Footage_05_yalbaj.mp4",
 ];
 
 const CLIP_DURATION_MS = 14000;

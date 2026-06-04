@@ -4,10 +4,12 @@
  * BottomBlur — premium frosted bottom edge.
  * ----------------------------------------
  * Fixed overlay pinned to the viewport bottom. A single masked
- * backdrop-filter layer: the blur radius is constant and the mask fades it
- * up the strip, so the frost reads strongest at the bottom edge and clears
- * going up into the page. (Was a 3-layer radius ramp; collapsed to one pass
- * per scroll frame for paint cost.)
+ * backdrop-filter layer: the blur radius is constant and the mask gradient
+ * fades it up the strip, so the frost reads strongest at the bottom edge and
+ * clears going up into the page. (Was a 3-layer radius ramp; collapsed to one
+ * pass per scroll frame.) Promoted to its own compositor layer
+ * (`contain: paint` + translateZ) so Lenis scroll re-uses the cached blur
+ * instead of re-rasterizing every frame.
  *
  * - z-[60]: above page content, below StickyCTA (z-9990) + cursor (z-9999),
  *   so it never blurs the floating CTA/cursor. pointer-events-none.

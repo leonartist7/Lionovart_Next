@@ -46,19 +46,30 @@ export default function WhatWeDo() {
       }
 
       gsap.set(fade, { opacity: 0, filter: "blur(14px)" });
+      const scrollTrigger = {
+        trigger: badges,
+        start: "top bottom",
+        end: "center 65%",
+        scrub: true,
+      } as const;
+      // Opacity is cheap on the compositor — scrub it smoothly.
       gsap.to(fade, {
         opacity: 1,
-        filter: "blur(0px)",
         ease: "none",
         scrollTrigger: {
-          trigger: badges,
-          start: "top bottom",
-          end: "center 65%",
-          scrub: true,
+          ...scrollTrigger,
           onUpdate: (self) => {
             if (self.progress > 0.1) setBadgesRevealed(true);
           },
         },
+      });
+      // filter:blur is an expensive main-thread repaint. Stepping the scrub
+      // quantizes it to a handful of distinct radii instead of recomputing a
+      // Gaussian blur every scroll frame — the blur masks the steps visually.
+      gsap.to(fade, {
+        filter: "blur(0px)",
+        ease: "steps(5)",
+        scrollTrigger,
       });
     },
     { scope: sectionRef, dependencies: [] }

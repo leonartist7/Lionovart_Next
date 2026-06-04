@@ -575,8 +575,9 @@
    Single masked backdrop-filter layer (was a 3-layer
    radius ramp). One blur pass per scroll frame instead of
    three; the upward mask keeps the frost strongest at the
-   bottom edge and clears going up. Opacity transition
-   handles the footer auto-hide.
+   bottom edge and clears going up. Promoted to its own
+   compositor layer so Lenis scroll doesn't re-rasterize it.
+   Opacity transition handles the footer auto-hide.
    ============================================= */
 .bottom-blur {
   height: clamp(90px, 16vh, 240px);
@@ -595,6 +596,8 @@
   -webkit-backdrop-filter: blur(var(--b));
   -webkit-mask-image: linear-gradient(to top, #000 0%, transparent var(--fade));
   mask-image: linear-gradient(to top, #000 0%, transparent var(--fade));
+  /* Isolate as its own GPU layer — caches the blur between identical frames. */
+  transform: translateZ(0);
   contain: paint;
 }
 
