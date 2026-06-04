@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Act 1 — Curtain hook for /services/video.
+ * Act 1 — Curtain hook for /services/content-studio (Content Studio).
  * A fixed showreel card that lifts up on scroll (same entry language as the
  * homepage VideoCurtainReveal, so the page reads as the same caliber), then
  * the page begins underneath. Placeholder copy + the existing no-text hero
@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { motion, useMotionValue, useTransform, useReducedMotion } from "framer-motion";
 import { useLenis } from "@studio-freight/react-lenis";
 
-export default function VideoCurtainHero() {
+export default function CurtainHero() {
   const reduce = useReducedMotion();
   const scrollY = useMotionValue(0);
   const [vh, setVh] = useState(900);
@@ -61,16 +61,20 @@ export default function VideoCurtainHero() {
 
           <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center select-none -translate-y-[8%]">
             <p className="mb-6 text-[12px] md:text-[14px] uppercase tracking-[0.35em] text-white/70">
-              Video Production
+              Content Studio
             </p>
 
             <h1
               className="font-normal leading-[1.02] tracking-tight text-white"
               style={{ fontSize: "clamp(2rem, 7vw, 8.5rem)", fontFamily: "var(--font-clash)" }}
             >
-              <span className="block">We make people</span>
-              <span className="block font-semibold text-brand-red">stop scrolling</span>
+              <span className="block">We make brands</span>
+              <span className="block font-semibold text-brand-red">impossible to ignore</span>
             </h1>
+
+            <p className="mt-7 text-[12px] md:text-[13px] uppercase tracking-[0.3em] text-white/55">
+              Creative content &amp; film
+            </p>
 
             <motion.div
               className="absolute bottom-8 flex flex-col items-center gap-2"

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Act 3 — Capability proof for /services/video.
+ * Act 3 — Capability proof for /services/content-studio.
  * A pinned showreel with capability tags that reveal in scroll-synced zones,
  * so the demonstration feels like an edit (show-don't-tell authority). The
  * medium is the argument: the page behaves like film.
@@ -21,6 +21,7 @@ const CAPABILITIES = [
   "Brand films",
   "Social reels",
   "Motion design",
+  "Content strategy",
   "Sound design",
   "AI-assisted",
 ];

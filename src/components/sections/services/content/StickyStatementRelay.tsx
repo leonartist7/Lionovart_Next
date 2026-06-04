@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Act 2 — Sticky statement relay for /services/video.
+ * Act 2 — Sticky statement relay for /services/content-studio.
  * The page pins a centered line, holds it, fades it out, and brings the next
  * one as you scroll (PAS: name the stakes, raise the cost of inaction). The
  * scroll IS the pacing. Placeholder copy until final lines are written.

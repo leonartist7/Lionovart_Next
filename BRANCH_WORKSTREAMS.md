@@ -19,20 +19,30 @@ and Social Media & Content.
   conversion/psychology rationale (the 7-act persuasion spine). This is the source of truth.
 - Installed skills used for this work: `.claude/skills/design-taste-frontend`, `.claude/skills/ui-ux-pro-max`
   (reference docs; ui-ux-pro-max's Python search CLI was not included so only its rules apply).
-- **Building now:** Video Production flagship at route `/services/video` (working coded frames,
-  placeholder copy/media). See `src/app/services/video/` and `src/components/sections/services/video/`.
+- **DECISION: Video + Social merged** into ONE umbrella service "Content Studio" (brand-facing
+  name) with two offers inside: Films & Campaigns (project) + Content Engine (monthly retainer).
+- **Built:** merged flagship at route `/services/content-studio` (working coded frames, placeholder
+  copy/media). Components in `src/components/sections/services/content/`:
+  CurtainHero, StickyStatementRelay, CapabilityScrollScene, SocialScene, OffersAndClose.
+  (The old `/services/video` route + `services/video/` folder were renamed into this; no `video`
+  route exists anymore.)
 
 **Next:**
-1. Finish + locally verify `/services/video` (no node_modules in the cloud container, so the
+1. Locally verify `/services/content-studio` (no node_modules in the cloud container, so the
    author cannot run it here; verify with `npm run dev` locally).
-2. Build Social Media flagship `/services/social`.
-3. Extract a shared `ServicePageShell` from the two flagships, then Tier-2 pages
-   (`/brand`, `/web`, `/ai`, `/growth`).
-4. Add `/work` index, `/contact`, `/services` overview.
+2. Update the HOMEPAGE to reflect the merge: 7 services -> 6 in `Services.tsx` (SERVICES_STATIC),
+   the EN/ES/FR locale `services.items` arrays, and `src/lib/nova-knowledge.ts`. (Not done yet,
+   contained edit, doesn't block the page.)
+3. Next flagship: Brand Identity, or Web & App. Then extract a shared `ServicePageShell`.
+4. Add `/work` index, `/services` overview. (No `/contact` form needed, see below.)
 
-**Decisions locked:** scope = overview/sitemap delivered then build; fidelity = working coded
-frames w/ placeholder copy; content = concept/demo placeholders; single conversion goal per page
-(confirm whether the true endpoint is "book a call / send brief" vs the "$70 market-research hook").
+**Decisions locked:**
+- CONVERSION ENDPOINT = the Nova voice agent, NOT a form. CTAs call
+  `useNovaStore().openNova("hero", true)`. The "$70 market-research hook" is dropped.
+- Scope = overview/sitemap delivered then build; fidelity = working coded frames w/ placeholder
+  copy; content = concept/demo placeholders.
+- Naming = "Content Studio" (H1/nav) with "creative content & film" as supporting line; SEO terms
+  ride in the page `<title>`/description/eyebrows.
 
 ---
 
