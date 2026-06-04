@@ -26,15 +26,25 @@ and Social Media & Content.
   CurtainHero, StickyStatementRelay, CapabilityScrollScene, SocialScene, OffersAndClose.
   (The old `/services/video` route + `services/video/` folder were renamed into this; no `video`
   route exists anymore.)
+- **Built: shared service-page shell** in `src/components/sections/services/_shared/`
+  (data-driven, reused by the pages below): `ServiceCurtainHero`, `StatementRelay`, `ProcessBand`,
+  `OfferCards`, `ProofAndClose`. All CTAs open Nova.
+- **Built: Brand Identity** at `/services/brand` — signature scene `MonogramDrawScene` (a geometric
+  mark draws itself stroke-by-stroke on scroll) + `BrandSystemReveal` (type/palette/voice assembling).
+- **Built: Web & App** at `/services/web` — signature scene `DeviceBuildScene` (a site assembles
+  section-by-section in a browser frame on scroll; schematic wireframe blocks + a real hero clip,
+  NOT a fake screenshot).
 
 **Next:**
-1. Locally verify `/services/content-studio` (no node_modules in the cloud container, so the
-   author cannot run it here; verify with `npm run dev` locally).
-2. Update the HOMEPAGE to reflect the merge: 7 services -> 6 in `Services.tsx` (SERVICES_STATIC),
-   the EN/ES/FR locale `services.items` arrays, and `src/lib/nova-knowledge.ts`. (Not done yet,
-   contained edit, doesn't block the page.)
-3. Next flagship: Brand Identity, or Web & App. Then extract a shared `ServicePageShell`.
-4. Add `/work` index, `/services` overview. (No `/contact` form needed, see below.)
+1. Locally verify `/services/content-studio`, `/services/brand`, `/services/web` (`npm run dev`;
+   no node_modules in the cloud container so they can't run here).
+2. Update the HOMEPAGE to reflect the Video+Social merge: 7 services -> 6 in `Services.tsx`
+   (SERVICES_STATIC), EN/ES/FR locale `services.items`, and `src/lib/nova-knowledge.ts`. Also add the
+   new service routes to nav/links. (Not done yet, contained edit.)
+3. Optional: retrofit `/services/content-studio` to use the shared `_shared` components (it predates
+   the shell; left working as-is to avoid an untested refactor).
+4. Remaining service pages: Smart Systems & AI, Growth Marketing (Print/LED deferred).
+5. Add `/work` index, `/services` overview. (No `/contact` form, Nova is the endpoint.)
 
 **Decisions locked:**
 - CONVERSION ENDPOINT = the Nova voice agent, NOT a form. CTAs call
