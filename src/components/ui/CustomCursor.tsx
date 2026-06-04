@@ -13,9 +13,10 @@
  * Perf notes:
  * - Position updates are RAF-throttled to 1 paint per frame regardless of
  *   mouse poll rate (matters for 1000Hz gaming mice).
- * - Hover detection is folded into the same RAF tick via elementFromPoint
- *   instead of listening to bubbling pointerover/pointerout, which on deep
- *   DOMs fire dozens of events per second of pointer movement.
+ * - Hover detection runs on pointerover (event delegation) instead of a
+ *   per-frame elementFromPoint hit-test, which forced a synchronous layout
+ *   flush every frame. closest() on the event target is far cheaper and
+ *   only fires when the element under the pointer changes.
  * - State is only updated when the resolved mode/label actually changes.
  */
 
@@ -62,7 +63,7 @@ export default function CustomCursor() {
     };
   }, []);
 
-  /* ── Single RAF loop — handles position + hover detection ──────────── */
+  /* ── RAF loop (position only) + pointerover hover delegation ───────── */
   useEffect(() => {
     if (!enabled) return;
 
@@ -88,6 +89,37 @@ export default function CustomCursor() {
       inside = true;
     };
 
+    // Hover detection via event delegation — fires only when the element
+    // under the pointer changes, not every frame. No elementFromPoint, so
+    // no per-frame synchronous layout flush.
+    const handleOver = (e: PointerEvent) => {
+      const target = e.target;
+      const el =
+        target instanceof Element
+          ? (target.closest(INTERACTIVE_SELECTOR) as HTMLElement | null)
+          : null;
+
+      let nextMode: CursorMode = "default";
+      let nextLabel = "";
+      if (el) {
+        const attr = el.getAttribute("data-cursor");
+        if (attr && attr !== "true" && attr !== "false") {
+          nextMode = "label";
+          nextLabel = attr;
+        } else {
+          nextMode = "hover";
+        }
+      }
+      if (nextMode !== modeRef.current) {
+        setMode(nextMode);
+        modeRef.current = nextMode;
+      }
+      if (nextLabel !== labelRef.current) {
+        setLabelText(nextLabel);
+        labelRef.current = nextLabel;
+      }
+    };
+
     const tick = () => {
       if (dirty) {
         if (!inside) {
@@ -96,32 +128,6 @@ export default function CustomCursor() {
         } else {
           x.set(px);
           y.set(py);
-
-          // Hover detection — ONE elementFromPoint call per frame.
-          const target = document.elementFromPoint(px, py);
-          const el = target
-            ? (target.closest(INTERACTIVE_SELECTOR) as HTMLElement | null)
-            : null;
-
-          let nextMode: CursorMode = "default";
-          let nextLabel = "";
-          if (el) {
-            const attr = el.getAttribute("data-cursor");
-            if (attr && attr !== "true" && attr !== "false") {
-              nextMode = "label";
-              nextLabel = attr;
-            } else {
-              nextMode = "hover";
-            }
-          }
-          if (nextMode !== modeRef.current) {
-            setMode(nextMode);
-            modeRef.current = nextMode;
-          }
-          if (nextLabel !== labelRef.current) {
-            setLabelText(nextLabel);
-            labelRef.current = nextLabel;
-          }
         }
         dirty = false;
       }
@@ -130,12 +136,14 @@ export default function CustomCursor() {
     rafId = requestAnimationFrame(tick);
 
     window.addEventListener("pointermove", handleMove, { passive: true });
+    window.addEventListener("pointerover", handleOver, { passive: true });
     document.addEventListener("mouseleave", handleLeaveWindow);
     document.addEventListener("mouseenter", handleEnterWindow);
 
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener("pointermove", handleMove);
+      window.removeEventListener("pointerover", handleOver);
       document.removeEventListener("mouseleave", handleLeaveWindow);
       document.removeEventListener("mouseenter", handleEnterWindow);
     };
