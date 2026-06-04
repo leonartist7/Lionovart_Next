@@ -246,16 +246,24 @@ export default function Navbar() {
             style={{ pointerEvents: "none" }}
           />
 
-          {/* Glass layer — fades in after hero */}
+          {/* Glass layer — fades in after hero.
+              backdrop-blur-md (12px) instead of -xl (24px): near-identical
+              for a thin bar over content, ~half the per-frame blur cost.
+              backdrop-filter is forced to `none` while the bar sits at
+              opacity 0 in hero mode, so it computes nothing until revealed. */}
           <motion.div
             aria-hidden
-            className="absolute inset-0 backdrop-blur-xl border border-white/10 rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)]"
+            className="absolute inset-0 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)]"
             animate={{
               opacity: isPastHero ? 1 : 0,
               backgroundColor: "rgba(0,0,0,0.20)",
             }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            style={{ pointerEvents: "none" }}
+            style={{
+              pointerEvents: "none",
+              backdropFilter: isPastHero ? undefined : "none",
+              WebkitBackdropFilter: isPastHero ? undefined : "none",
+            }}
           />
 
           {/* Nav inner row */}
