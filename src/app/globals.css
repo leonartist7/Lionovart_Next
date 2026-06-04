@@ -572,11 +572,11 @@
 
 /* =============================================
    Bottom progressive-blur overlay (BottomBlur.tsx)
-   3 stacked backdrop-filter layers; blur radius ramps
-   toward the bottom while each layer's mask fades up, so
-   the frosting is strongest at the bottom edge and clears
-   going up into the page. Opacity transition handles the
-   footer auto-hide.
+   Single masked backdrop-filter layer (was a 3-layer
+   radius ramp). One blur pass per scroll frame instead of
+   three; the upward mask keeps the frost strongest at the
+   bottom edge and clears going up. Opacity transition
+   handles the footer auto-hide.
    ============================================= */
 .bottom-blur {
   height: clamp(90px, 16vh, 240px);
@@ -585,32 +585,28 @@
 .bottom-blur__layer {
   position: absolute;
   inset: 0;
+  /* One masked layer replaces the former 3-layer radius ramp: a single
+     backdrop-filter pass per scroll frame instead of three. Radius sits
+     mid-high and the mask fades it up so the frost still reads strongest
+     at the bottom edge. */
+  --b: 16px;
+  --fade: 82%;
   backdrop-filter: blur(var(--b));
   -webkit-backdrop-filter: blur(var(--b));
-  /* Solid at the bottom edge, fading to transparent at --fade going up. */
   -webkit-mask-image: linear-gradient(to top, #000 0%, transparent var(--fade));
   mask-image: linear-gradient(to top, #000 0%, transparent var(--fade));
+  contain: paint;
 }
-/* Layer 1 — gentlest, spans the full height. */
-.bottom-blur__layer[data-layer="1"] { --b: 4px;  --fade: 100%; }
-/* Layer 2 — medium, fades out by ~66% up. */
-.bottom-blur__layer[data-layer="2"] { --b: 10px; --fade: 66%; }
-/* Layer 3 — strongest, concentrated in the bottom ~33%. */
-.bottom-blur__layer[data-layer="3"] { --b: 22px; --fade: 33%; }
 
-/* Mobile: drop to a single light layer (backdrop-filter is costly here). */
+/* Mobile: backdrop-filter is costly here — drop the radius. */
 @media (max-width: 767px) {
-  .bottom-blur__layer[data-layer="1"] { --b: 7px; }
-  .bottom-blur__layer[data-layer="2"],
-  .bottom-blur__layer[data-layer="3"] { display: none; }
+  .bottom-blur__layer { --b: 8px; }
 }
 
-/* Reduced motion: keep a single minimal static blur. */
+/* Reduced motion: minimal static blur. */
 @media (prefers-reduced-motion: reduce) {
   .bottom-blur { transition: none; }
-  .bottom-blur__layer[data-layer="1"] { --b: 5px; }
-  .bottom-blur__layer[data-layer="2"],
-  .bottom-blur__layer[data-layer="3"] { display: none; }
+  .bottom-blur__layer { --b: 6px; }
 }
 
 /* =============================================

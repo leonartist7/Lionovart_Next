@@ -3,15 +3,16 @@
 /**
  * BottomBlur — premium frosted bottom edge.
  * ----------------------------------------
- * Fixed overlay pinned to the viewport bottom. Blur is strongest at the
- * very bottom and ramps to fully transparent going up into the page, via
- * 3 stacked backdrop-filter layers whose blur RADIUS increases toward the
- * bottom (a single masked layer only fades opacity at a constant radius).
+ * Fixed overlay pinned to the viewport bottom. A single masked
+ * backdrop-filter layer: the blur radius is constant and the mask fades it
+ * up the strip, so the frost reads strongest at the bottom edge and clears
+ * going up into the page. (Was a 3-layer radius ramp; collapsed to one pass
+ * per scroll frame for paint cost.)
  *
  * - z-[60]: above page content, below StickyCTA (z-9990) + cursor (z-9999),
  *   so it never blurs the floating CTA/cursor. pointer-events-none.
- * - Mobile collapses to a single light layer (CSS @media); the perf
- *   kill-switch `body.no-bdblur *` zeroes it for free.
+ * - Mobile drops the blur radius (CSS @media); the perf kill-switch
+ *   `body.no-bdblur *` zeroes it for free.
  * - Auto-hides when the red footer marquee is revealed at page end, keeping
  *   the wordmark crisp.
  */
@@ -50,9 +51,7 @@ export default function BottomBlur() {
       style={{ opacity: hidden ? 0 : 1 }}
       aria-hidden
     >
-      <div className="bottom-blur__layer" data-layer="1" />
-      <div className="bottom-blur__layer" data-layer="2" />
-      <div className="bottom-blur__layer" data-layer="3" />
+      <div className="bottom-blur__layer" />
     </div>
   );
 }
