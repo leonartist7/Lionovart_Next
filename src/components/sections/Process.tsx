@@ -5,6 +5,7 @@ import {
   motion,
   AnimatePresence,
   useReducedMotion,
+  useScroll,
 } from "framer-motion";
 import { animate, createScope } from "animejs";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -66,9 +67,16 @@ export default function Process(props: any) {
   const reduce = hasMounted && prefersReduced;
 
   const sectionRef = useRef<HTMLElement>(null);
+  const stepsRef = useRef<HTMLDivElement>(null);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
   const numberRef = useRef<HTMLDivElement>(null);
   const goldFiredRef = useRef(false);
+
+  // Mobile/tablet progress rail: fill grows as the step column scrolls past.
+  const { scrollYProgress: railProgress } = useScroll({
+    target: stepsRef,
+    offset: ["start 35%", "end 65%"],
+  });
 
   const [activeIndex, setActiveIndex] = useState(0);
   // When reduced motion is on (post-mount), treat as fully traversed.
@@ -143,9 +151,20 @@ export default function Process(props: any) {
             The number does the work: as the active step shifts, the digit
             replaces itself with deliberate vertical motion. Sticky on
             desktop so it stays present while the eye reads the text. */}
-        <div className="relative grid grid-cols-1 md:grid-cols-[1fr_auto] md:gap-x-16 lg:gap-x-24">
+        <div className="relative grid grid-cols-[auto_1fr] gap-x-5 sm:gap-x-8 lg:grid-cols-[1fr_auto] lg:gap-x-24">
+          {/* Progress rail — mobile & tablet only.
+              A single line whose red fill grows as the steps scroll past. */}
+          <div className="lg:hidden relative flex justify-center w-4 sm:w-6 lg:col-start-2">
+            <div className="absolute top-0 bottom-0 w-[2px] rounded-full bg-[#dde1e7] overflow-hidden">
+              <motion.div
+                className="absolute inset-x-0 top-0 h-full origin-top rounded-full bg-brand-red"
+                style={{ scaleY: reduce ? 1 : railProgress }}
+              />
+            </div>
+          </div>
+
           {/* Step text column */}
-          <div className="md:col-start-1">
+          <div ref={stepsRef} className="lg:col-start-1">
             {steps.map((step, i) => (
               <Fragment key={step.num}>
                 <motion.div
@@ -181,7 +200,7 @@ export default function Process(props: any) {
 
           {/* Monumental morphing step number — desktop only.
               Sticky during the section's scroll travel. */}
-          <div className="hidden md:block md:col-start-2 self-start sticky top-[24vh]">
+          <div className="hidden lg:block lg:col-start-2 self-start sticky top-[24vh]">
             <div
               ref={numberRef}
               className="relative font-clash font-black tabular-nums select-none text-[#111111]"
