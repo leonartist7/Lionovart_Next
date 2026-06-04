@@ -14,9 +14,9 @@ import { useLenis } from "@studio-freight/react-lenis";
  * which are transparent through this region, so the video shows through them.
  */
 const CLIPS = [
+  "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845634/Footage_07_o3rfbu.mp4",
   "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845599/Footage_02_chsoa3.mp4",
   "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845553/Footage_05_yalbaj.mp4",
-  "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845634/Footage_07_o3rfbu.mp4",
 ];
 
 const CLIP_DURATION_MS = 14000;
