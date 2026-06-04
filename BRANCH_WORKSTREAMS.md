@@ -35,16 +35,24 @@ and Social Media & Content.
   section-by-section in a browser frame on scroll; schematic wireframe blocks + a real hero clip,
   NOT a fake screenshot).
 
+**Phase 1 (Verify & Wire) — DONE in code, pending local verify:**
+- HOMEPAGE merged 7 -> 6 services (Video+Social -> "Content Studio") across `Services.tsx`
+  (SERVICES_STATIC), EN/ES/FR locales `services.items`, and `nova-knowledge.ts`.
+- Route map `src/lib/service-routes.ts` (localized title -> href; `ready` flag gates linking so we
+  never link to an unbuilt page).
+- Homepage `Services` items now link to their pages; Navbar expertise menu routes to service pages
+  (unbuilt ones fall back to in-page scroll). New `/services` overview hub built.
+
 **Next:**
-1. Locally verify `/services/content-studio`, `/services/brand`, `/services/web` (`npm run dev`;
-   no node_modules in the cloud container so they can't run here).
-2. Update the HOMEPAGE to reflect the Video+Social merge: 7 services -> 6 in `Services.tsx`
-   (SERVICES_STATIC), EN/ES/FR locale `services.items`, and `src/lib/nova-knowledge.ts`. Also add the
-   new service routes to nav/links. (Not done yet, contained edit.)
-3. Optional: retrofit `/services/content-studio` to use the shared `_shared` components (it predates
-   the shell; left working as-is to avoid an untested refactor).
-4. Remaining service pages: Smart Systems & AI, Growth Marketing (Print/LED deferred).
-5. Add `/work` index, `/services` overview. (No `/contact` form, Nova is the endpoint.)
+1. Locally verify (`npm run dev`): `/services`, `/services/content-studio`, `/services/brand`,
+   `/services/web`, the homepage Services section (6 items + working links), and the nav expertise
+   menu. (No node_modules in the cloud container, so verify locally.)
+2. Phase 2: build remaining pages on the shared shell — Smart Systems & AI, Growth Marketing,
+   Print & Physical, LED Glass (user chose FULL pages for all). Flip `ready:true` in
+   `service-routes.ts` as each ships so nav/overview start linking them.
+3. Phase 3: 3-skill audit (impeccable critique/audit + design-taste pre-flight + ui-ux-pro-max).
+4. Optional: retrofit `/services/content-studio` onto the shared `_shared` components.
+5. Add `/work` index. (No `/contact` form, Nova is the endpoint.)
 
 **Decisions locked:**
 - CONVERSION ENDPOINT = the Nova voice agent, NOT a form. CTAs call

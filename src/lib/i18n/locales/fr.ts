@@ -388,26 +388,16 @@ export const fr: Translations = {
         ],
       },
       {
-        title: "Production Vidéo",
+        title: "Studio de Contenu",
         description:
-          "Films de marque, présentations de produits, reels et contenu pour les réseaux. Nous gérons l'écriture, le tournage et le montage — livrant des assets qui arrêtent le scroll et racontent votre histoire. Avec composition musicale originale quand votre projet a besoin d'une identité sonore, pas d'une musique de stock.",
+          "Les marques qui émeuvent sont celles que l'on choisit. Nous créons films de marque, reels et tout votre contenu social, puis nous le gérons de bout en bout pour que votre entreprise reste impossible à ignorer chaque mois.",
         deliverables: [
           "Films de Marque",
           "Reels Sociaux",
-          "Vidéos Produit",
           "Motion Design",
-          "Design Sonore & Musique sur Mesure",
-        ],
-      },
-      {
-        title: "Réseaux Sociaux & Contenu",
-        description:
-          "Du contenu cohérent et fidèle à votre marque qui construit l'autorité et génère de l'engagement. Stratégie, direction créative, rédaction et calendriers mensuels — tout est géré.",
-        deliverables: [
           "Stratégie de Contenu",
-          "Direction Créative",
-          "Rédaction",
           "Calendrier Mensuel",
+          "Design Sonore",
         ],
       },
       {

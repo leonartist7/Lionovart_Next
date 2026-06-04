@@ -1,18 +1,18 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useServicesStyle } from "@/components/sections/services/servicesVariantStore";
 
 const SERVICES_STATIC = [
-  { id: "branding",      number: "01", imgUrl: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=900&q=80", imgAlt: "Brand Identity" },
-  { id: "web",           number: "02", imgUrl: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=900&q=80", imgAlt: "Web Development" },
-  { id: "video",         number: "03", imgUrl: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=900&q=80", imgAlt: "Video Production" },
-  { id: "social",        number: "04", imgUrl: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=900&q=80", imgAlt: "Social Media" },
-  { id: "print",         number: "05", imgUrl: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=900&q=80", imgAlt: "Print Branding" },
-  { id: "smart-systems", number: "06", imgUrl: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=900&q=80", imgAlt: "Smart Systems & AI" },
-  { id: "growth",        number: "07", imgUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&q=80", imgAlt: "Growth Marketing" },
+  { id: "branding",       number: "01", href: "/services/brand",           imgUrl: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=900&q=80", imgAlt: "Brand Identity" },
+  { id: "web",            number: "02", href: "/services/web",             imgUrl: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=900&q=80", imgAlt: "Web Development" },
+  { id: "content-studio", number: "03", href: "/services/content-studio",  imgUrl: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=900&q=80", imgAlt: "Content Studio" },
+  { id: "print",          number: "04", href: "/services/print",           imgUrl: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=900&q=80", imgAlt: "Print Branding" },
+  { id: "smart-systems",  number: "05", href: "/services/ai",              imgUrl: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=900&q=80", imgAlt: "Smart Systems & AI" },
+  { id: "growth",         number: "06", href: "/services/growth",          imgUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&q=80", imgAlt: "Growth Marketing" },
 ];
 
 export default function Services(props: any) {
@@ -190,6 +190,15 @@ export default function Services(props: any) {
                     </div>
                   </div>
 
+                  {active.href && (
+                    <Link
+                      href={active.href}
+                      className="inline-flex items-center gap-2 text-[12px] xl:text-[13px] font-bold uppercase tracking-wider text-brand-red transition-all hover:gap-3"
+                    >
+                      View {active.title} <span aria-hidden>&rarr;</span>
+                    </Link>
+                  )}
+
                   {/* Image card */}
                   <div className="w-full rounded-[18px] xl:rounded-[22px] overflow-hidden flex-1 min-h-0 max-h-[200px] xl:max-h-[240px] shadow-[0_12px_40px_-8px_rgba(0,0,0,0.14)]">
                     <img
@@ -276,6 +285,14 @@ export default function Services(props: any) {
                           </span>
                         ))}
                       </div>
+                      {s.href && (
+                        <Link
+                          href={s.href}
+                          className="inline-flex items-center gap-2 text-[11px] sm:text-[12px] font-bold uppercase tracking-wider text-brand-red"
+                        >
+                          View {s.title} <span aria-hidden>&rarr;</span>
+                        </Link>
+                      )}
                       {/* Image — below tags */}
                       <div className="w-full aspect-[16/9] max-h-[150px] sm:max-h-[180px] md:max-h-[210px] rounded-[14px] overflow-hidden shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12)]">
                         <img

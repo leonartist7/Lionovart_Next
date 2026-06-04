@@ -522,26 +522,16 @@ export const en = {
         ],
       },
       {
-        title: "Video Production",
+        title: "Content Studio",
         description:
-          "Brands that move people get chosen over ones that don't. We produce brand films, reels, and social content that stop the scroll and make your business impossible to ignore.",
+          "Brands that move people get chosen. We make brand films, reels, and full social content, then run it end to end, so your business stays impossible to ignore every month.",
         deliverables: [
           "Brand Films",
           "Social Reels",
-          "Product Videos",
           "Motion Design",
-          "Sound Design & Custom Music",
-        ],
-      },
-      {
-        title: "Social Media & Content",
-        description:
-          "Silence on social media means your competitors own that space. We run your content end-to-end — strategy, creative, copy, and calendar — so your brand stays top of mind every month.",
-        deliverables: [
           "Content Strategy",
-          "Creative Direction",
-          "Copywriting",
           "Monthly Calendar",
+          "Sound Design",
         ],
       },
       {

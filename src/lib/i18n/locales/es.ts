@@ -386,26 +386,16 @@ export const es: Translations = {
         ],
       },
       {
-        title: "Producción de Video",
+        title: "Estudio de Contenido",
         description:
-          "Las marcas que emocionan a la gente son elegidas sobre las que no. Producimos films de marca, reels y contenido social que detienen el scroll y hacen que tu negocio sea imposible de ignorar.",
+          "Las marcas que emocionan son las elegidas. Creamos films de marca, reels y todo tu contenido social, y lo gestionamos de principio a fin para que tu negocio sea imposible de ignorar cada mes.",
         deliverables: [
           "Films de Marca",
           "Reels Sociales",
-          "Videos de Producto",
           "Motion Design",
-          "Diseño Sonoro y Música Personalizada",
-        ],
-      },
-      {
-        title: "Redes Sociales y Contenido",
-        description:
-          "El silencio en redes sociales significa que tus competidores dominan ese espacio. Gestionamos tu contenido de principio a fin — estrategia, creatividad, redacción y calendario — para que tu marca sea la primera en la mente de todos cada mes.",
-        deliverables: [
           "Estrategia de Contenido",
-          "Dirección Creativa",
-          "Redacción",
           "Calendario Mensual",
+          "Diseño Sonoro",
         ],
       },
       {

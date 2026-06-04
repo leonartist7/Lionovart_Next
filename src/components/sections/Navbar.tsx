@@ -9,6 +9,8 @@ import {
 } from "framer-motion";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { hrefForTitle } from "@/lib/service-routes";
 import { useLenis } from "@studio-freight/react-lenis";
 import { getWhatsAppUrl } from "@/lib/contact";
 import { MenuBurgerLottie } from "@/components/ui/menu-burger-lottie";
@@ -94,6 +96,7 @@ export default function Navbar() {
   const { t, locale } = useLanguage();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lenis = useLenis() as any;
+  const router = useRouter();
 
   const services: string[] = (t.services?.items ?? []).map((s: { title: string }) => s.title);
 
@@ -110,6 +113,20 @@ export default function Navbar() {
     setIsMobileOpen(false);
     setMobileExpertiseOpen(false);
     setExpertiseOpen(false);
+  };
+
+  // Expertise item click: go to the service page if it exists, else scroll to
+  // the homepage Services section (services without a page yet).
+  const goToService = (title: string) => {
+    const href = hrefForTitle(title);
+    if (!href) {
+      scrollToTarget("services");
+      return;
+    }
+    setIsMobileOpen(false);
+    setMobileExpertiseOpen(false);
+    setExpertiseOpen(false);
+    router.push(href);
   };
 
   // Mega-menu hover controller: a small close delay bridges the gap between the
@@ -422,7 +439,7 @@ export default function Navbar() {
                     key={title}
                     variants={SERVICE_ITEM_VARIANTS}
                     type="button"
-                    onClick={() => scrollToTarget("services")}
+                    onClick={() => goToService(title)}
                     className="rounded-xl px-5 py-4 text-left text-[17px] font-semibold tracking-wide text-black/75 transition-colors hover:bg-black/[0.06] hover:text-black"
                   >
                     {title}
@@ -513,7 +530,7 @@ export default function Navbar() {
                               key={title}
                               variants={SERVICE_ITEM_VARIANTS}
                               type="button"
-                              onClick={() => scrollToTarget("services")}
+                              onClick={() => goToService(title)}
                               className="text-[15px] font-semibold tracking-wide text-black/65 hover:text-black transition-colors"
                             >
                               {title}

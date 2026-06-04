@@ -71,28 +71,17 @@ export const NOVA_KNOWLEDGE = {
       ],
     },
     {
-      id: "video",
-      title: "Video Production",
+      id: "content-studio",
+      title: "Content Studio",
       summary:
-        "Brand films, reels, and social content that stop the scroll and make a business impossible to ignore.",
+        "Brand films, reels, and full social content, made and run end to end, so a business stays impossible to ignore every month.",
       deliverables: [
         "Brand Films",
         "Social Reels",
-        "Product Videos",
         "Motion Design",
-        "Sound Design & Custom Music",
-      ],
-    },
-    {
-      id: "social",
-      title: "Social Media & Content",
-      summary:
-        "End-to-end social — strategy, creative, copy, calendar — so the brand stays top of mind every month.",
-      deliverables: [
         "Content Strategy",
-        "Creative Direction",
-        "Copywriting",
         "Monthly Calendar",
+        "Sound Design",
       ],
     },
     {
