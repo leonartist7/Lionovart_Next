@@ -384,18 +384,19 @@ export default function HeroTop(props: any) {
         animate="visible"
         className="relative z-[2] flex w-full max-w-[920px] flex-col items-center gap-8 md:gap-10"
       >
-        {/* Headline — ALL WHITE, always 2 lines, rem-bounded clamp (never crops) */}
+        {/* Headline — ALL WHITE, always 3 lines, rem-bounded clamp (never crops) */}
         <motion.h1
           variants={itemVariants}
-          className="font-clash font-black uppercase text-white"
+          className="font-clash font-black uppercase text-white text-center w-full"
           style={{
-            fontSize: "clamp(2.4rem, 9vw, 6rem)",
+            fontSize: "clamp(2.8rem, 11vw, 7rem)",
             lineHeight: 0.92,
             letterSpacing: "-0.03em",
           }}
         >
-          <span className="block">Let&apos;s make</span>
-          <span className="block">your brand roar</span>
+          <span className="block">Making</span>
+          <span className="block">Brands</span>
+          <span className="block">Roar</span>
         </motion.h1>
 
         {/* Sub — one clear line */}
