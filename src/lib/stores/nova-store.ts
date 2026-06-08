@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 
-export type NovaSource = "hero" | "orb" | "sticky" | "nav";
+export type NovaSource = "hero" | "orb" | "sticky" | "nav" | "offer";
 
 interface NovaStore {
   isOpen: boolean;

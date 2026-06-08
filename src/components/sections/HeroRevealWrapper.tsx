@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef, type ReactNode } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useLenis } from "@studio-freight/react-lenis";
-import ImageMarquee from "@/components/ui/ImageMarquee";
 
 interface HeroRevealWrapperProps {
   /** Top slot — HeroTop section. */
@@ -71,7 +70,7 @@ export function HeroRevealWrapper({ heroTop }: HeroRevealWrapperProps) {
     >
       <div ref={contentRef} className="pointer-events-auto relative z-[1]">
         <div ref={heroTopRef}>{heroTop}</div>
-        <ImageMarquee maxHeight={marqueeMaxHeight} />
+        {/* Portfolio arc relocated out of the hero (lives on the Work page). */}
       </div>
     </motion.div>
   );

@@ -222,6 +222,10 @@
    Root variables — LIONOVART dark theme default
    ============================================= */
 :root {
+  /* Process lion circle (the "i" dot) and the IMAGINE card width.
+     Decoupled: circle ~20% smaller than the card. */
+  --lion-circle-d: clamp(272px, 64vmin, 600px);
+  --imagine-card-d: clamp(360px, 90vmin, 900px);
   --background: #0d0d0d;
   --foreground: #ffffff;
   --card: #161616;
@@ -412,17 +416,14 @@
 }
 
 .cursor-ring {
-  /* Pure circle outline — transparent fill, circumference only.
-     mix-blend-mode: difference so it inverts cleanly over any bg. */
+  /* Solid brand-red dot — no blend mode so the red renders true. */
   z-index: 9999;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border-radius: 9999px;
-  border: 1.5px solid #ffffff;
-  background: transparent;
-  mix-blend-mode: difference;
-  /* Center: 14px ÷ 2 = 7px */
-  margin: -7px 0 0 -7px;
+  background: #e5192a;
+  /* Center: 12px ÷ 2 = 6px */
+  margin: -6px 0 0 -6px;
 }
 
 .cursor-label {

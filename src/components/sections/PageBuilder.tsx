@@ -1,12 +1,11 @@
 import HeroTop from "@/components/sections/HeroTop";
-import VideoCurtainReveal from "@/components/sections/VideoCurtainReveal";
 import SceneVideoBackdrop from "@/components/sections/SceneVideoBackdrop";
-import { HeroRevealWrapper } from "@/components/sections/HeroRevealWrapper";
+import { HeroLogoFly } from "@/components/ui/HeroLogoFly";
 
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import WhatWeDo from "@/components/sections/WhatWeDo";
-import HeroLion from "@/components/sections/HeroLion";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
+import SignatureOffer from "@/components/sections/SignatureOffer";
 import Services from "@/components/sections/Services";
 import Comparison from "@/components/sections/Comparison";
 import Process from "@/components/sections/Process";
@@ -14,8 +13,6 @@ import Testimonials from "@/components/sections/Testimonials";
 import TestimonialsCarousel from "@/components/sections/TestimonialsCarousel";
 import FAQ from "@/components/sections/FAQ";
 import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
-import AboutVariantToggle from "@/components/sections/about/AboutVariantToggle";
-import ServicesVariantToggle from "@/components/sections/services/ServicesVariantToggle";
 
 /**
  * Tag wrapper — lets NOVA's section tracker observe which section is in view
@@ -40,54 +37,37 @@ export function PageBuilder({ blocks }: { blocks: PageBlock[] }) {
         {/* Fixed video scene — sits behind Hero → WhatWeDo → HeroLion, fades at About */}
         <SceneVideoBackdrop />
 
-        {/* Curtain card — fixed overlay, slides up on scroll */}
-        <VideoCurtainReveal />
+        {/* Logo flier — top-level so it escapes the hero's z-20 stacking context
+            and can ride ABOVE the navbar (z-50) when it docks. */}
+        <HeroLogoFly />
 
-        {/*
-          Sticky hero group: stays pinned at top-0 while everything
-          below scrolls up over it. z-0 keeps it behind the curtain
-          (z-49) during the card animation, then behind all sections
-          that follow (z-[1]).
-        */}
-        {/* Hero fades in as card passes 50%, pushed up by About Us at 80% scroll speed */}
-        <HeroRevealWrapper
-          heroTop={<NovaSection id="hero"><HeroTop /></NovaSection>}
-        />
+        {/* Hero — normal flow: visible at load, scrolls away naturally.
+            SceneVideoBackdrop (fixed z-0) shows behind it and fades out
+            as the hero exits. */}
+        <NovaSection id="hero"><HeroTop /></NovaSection>
 
-        {/* Breathing room: extended gap so curtain fully exits before About Us enters */}
-        <div className="h-[100vh] md:h-[100vh] lg:h-[110vh]" />
-
-        {/*
-          All sections sit at z-[2] so they scroll over the fixed hero.
-          About Us is the first pusher — no ImageMarquee here anymore.
-        */}
+        {/* Body — opaque sections in normal flow below the hero. */}
         <div className="relative z-[2]">
+          {/* Converting arc: Hook → triad → pain → offer → what's included →
+              how → who → proof. */}
           <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
-          <NovaSection id="lion"><HeroLion /></NovaSection>
           <NovaSection id="about"><AboutUsHalf /></NovaSection>
           <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
+          <NovaSection id="offer"><SignatureOffer /></NovaSection>
           <NovaSection id="services"><Services /></NovaSection>
+          <NovaSection id="process"><Process /></NovaSection>
           {/* Cinematic chapter card — a single word that crosses the
               viewport horizontally as the user scrolls past, like a film
               title card. Provides structural breathing room between
               chapters and reasserts the brand voice. */}
           <SectionTitleCard word="PROOF." theme="light" />
           <TestimonialsCarousel />
-          <NovaSection id="process"><Process /></NovaSection>
           <SectionTitleCard word="CONFIDENCE." theme="light" />
           <NovaSection id="comparison"><Comparison /></NovaSection>
           <NovaSection id="testimonials"><Testimonials /></NovaSection>
           <SectionTitleCard word="ASK." theme="dark" />
           <NovaSection id="faq"><FAQ /></NovaSection>
         </div>
-
-        {/* TEMP eval scaffold — paint/lion placement toggle for "About".
-            Remove with about/aboutVariantStore once placements are chosen. */}
-        <AboutVariantToggle />
-
-        {/* TEMP eval scaffold — flat/neumorphic toggle for "Services".
-            Remove with services/servicesVariantStore once the style is chosen. */}
-        <ServicesVariantToggle />
       </>
     );
   }

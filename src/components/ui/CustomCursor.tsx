@@ -157,21 +157,19 @@ export default function CustomCursor() {
 
   return (
     <>
-      {/* Circle ring — rendered FIRST so the dot sits visually on top.
-          Default: 14px outline tight around the dot. Hover: grows to 36px
-          by animating real width/height (NOT scale) so the 1.5px border
-          stays pixel-crisp. Transparent fill — circumference only. */}
+      {/* Solid red dot — bound to RAW x/y (no spring) so it tracks the
+          pointer with zero lag. Grows slightly on interactive hover. */}
       <motion.div
         className="cursor-layer cursor-ring"
-        style={{ x: ringX, y: ringY }}
+        style={{ x, y }}
         animate={{
           opacity: ringHidden ? 0 : 1,
-          width: mode === "hover" ? 36 : 14,
-          height: mode === "hover" ? 36 : 14,
-          marginTop: mode === "hover" ? -18 : -7,
-          marginLeft: mode === "hover" ? -18 : -7,
+          width: mode === "hover" ? 20 : 12,
+          height: mode === "hover" ? 20 : 12,
+          marginTop: mode === "hover" ? -10 : -6,
+          marginLeft: mode === "hover" ? -10 : -6,
         }}
-        transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.18, ease: "easeOut" }}
       />
 
       {/* Contextual gold label (Play / Drag / …) — no blend mode */}

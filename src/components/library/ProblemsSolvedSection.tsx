@@ -1,11 +1,26 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { motion, useAnimation } from "framer-motion";
+import { motion, useAnimation, useMotionValue, useTransform, useSpring, type MotionValue } from "framer-motion";
 import Image from "next/image";
+import { useLenis } from "@studio-freight/react-lenis";
 import { useLanguage } from "@/contexts/LanguageContext";
 import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
 import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
+
+function useLenisProgress(ref: React.RefObject<HTMLElement | null>): MotionValue<number> {
+  const progress = useMotionValue(0);
+  useLenis(({ scroll: _scroll }) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const elH = ref.current.offsetHeight;
+    const total = vh + elH;
+    const current = vh - rect.top;
+    progress.set(Math.max(0, Math.min(1, current / total)));
+  });
+  return progress;
+}
 
 const FEATURED = {
   quote: "Within two months of the new website, direct reservations jumped almost 70%. It finally looks like the place we actually run.",
@@ -230,69 +245,84 @@ export default function ProblemsSolvedSection() {
     );
   };
 
+  const progress = useLenisProgress(sectionRef);
+  const circleSize = useSpring(
+    useTransform(progress, [0.0, 0.35], [0, 150]),
+    { stiffness: 55, damping: 20 }
+  );
+  const clipPath = useTransform(circleSize, (v: number) => `circle(${v}% at 50% 8%)`);
+
   return (
-    <section ref={sectionRef} className="bg-bg-surface-light pt-0 pb-16 md:pb-24 lg:pb-24 xl:pb-32">
+    <section ref={sectionRef} className="bg-bg-surface-light pt-4 pb-16 md:pt-6 md:pb-24 lg:pt-8 lg:pb-24 xl:pt-10 xl:pb-32">
       <div className="max-w-[1300px] xl:max-w-[1500px] 2xl:max-w-[1700px] mx-auto px-4 md:px-6 xl:px-10">
 
-        {/* ── IMAGINE card — width shared with the Process lion circle via
-             --lion-circle-d, so card width === that circle Ø at every breakpoint.
-             The lion circle itself lives in the Process section above and hands
-             down into this card. ── */}
-        <div
-          className="relative mx-auto flex flex-col items-center"
-          style={{ width: "var(--imagine-card-d)", maxWidth: "100%" }}
+        {/* ── Lion emblem — floats above and into the red card dome ── */}
+        <div className="relative z-10 flex justify-center pointer-events-none -mb-[100px] md:-mb-[160px] lg:-mb-[220px] xl:-mb-[280px] 2xl:-mb-[340px]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/LION-CIRCLE.avif"
+            alt="LIONOVART emblem"
+            className="w-[180px] md:w-[240px] lg:w-[300px] xl:w-[360px] 2xl:w-[420px] select-none"
+          />
+        </div>
+
+        {/* ── Contained red box with domed top ── */}
+        <motion.div
+          style={{
+            clipPath,
+            borderRadius: '50% 50% 32px 32px / 100px 100px 32px 32px',
+          }}
+          className="overflow-hidden bg-[#e5192a] shadow-[0_30px_60px_-15px_rgba(229,25,42,0.45)]"
         >
-          {/* Red card */}
-          <div className="relative z-10 w-full bg-[#e5192a] rounded-[32px] px-5 sm:px-7 pt-12 md:pt-16 pb-12 shadow-[0_30px_60px_-15px_rgba(229,25,42,0.45)]">
-            {/* Heading */}
+
+          {/* Heading */}
+          <div className="px-6 md:px-12 pt-[120px] md:pt-[180px] lg:pt-[240px] xl:pt-[300px] 2xl:pt-[360px]">
             <motion.div
-              className="mb-8 md:mb-10 flex flex-col items-center text-center"
-              initial={{ opacity: 0, y: 22 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "0px 0px -25% 0px" }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="mb-8 md:mb-12 flex flex-col items-center text-center"
+              initial={{ opacity: 0, scale: 0.88 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "0px 0px -30% 0px" }}
+              transition={{ duration: 0.65, ease: [0.34, 1.56, 0.64, 1] }}
             >
-              <p className="text-white text-[11px] md:text-[12px] font-clash uppercase tracking-[0.2em] mb-2">
+              <p className="text-white text-[12px] md:text-[14px] font-clash uppercase tracking-[0.2em] mb-2 md:mb-3">
                 {t.problems.eyebrow}
               </p>
               <SplitTextReveal
                 as="h2"
-                className="text-[44px] sm:text-[56px] font-bold font-clash uppercase leading-[1.0] text-white"
+                className="text-[40px] sm:text-[56px] md:text-[76px] xl:text-[100px] 2xl:text-[120px] font-bold font-clash uppercase leading-[1.05] text-white max-w-4xl"
                 step={18}
-                delay={120}
+                delay={150}
                 from="center"
               >
                 {t.problems.heading}
               </SplitTextReveal>
             </motion.div>
-
-            {/* Cards — stacked in the narrow column */}
-            <div className="flex flex-col gap-6 md:gap-8 pb-4">
-              {items.map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "0px 0px -5% 0px" }}
-                  transition={{ delay: i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <ProblemCard
-                    item={item}
-                    index={i}
-                    isRevealed={revealedIds.includes(i)}
-                    onToggle={() => toggleCard(i)}
-                  />
-                </motion.div>
-              ))}
-            </div>
           </div>
-        </div>
 
-        {/* ── Red continuation — narrowed to match the column ── */}
-        <div
-          className="relative z-0 -mt-2 mx-auto bg-[#e5192a] h-[72px] rounded-b-[32px]"
-          style={{ width: "var(--imagine-card-d)", maxWidth: "100%" }}
-        />
+          {/* Cards — stagger entrance */}
+          <div className="px-6 md:px-24 lg:px-36 xl:px-48 2xl:px-64 flex flex-col gap-6 md:gap-8 pb-44 md:pb-56">
+            {items.map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 60 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "0px 0px -5% 0px" }}
+                transition={{ delay: i * 0.12, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <ProblemCard
+                  item={item}
+                  index={i}
+                  isRevealed={revealedIds.includes(i)}
+                  onToggle={() => toggleCard(i)}
+                />
+              </motion.div>
+            ))}
+          </div>
+
+        </motion.div>
+
+        {/* ── Red card continuation — passes behind marquee (z-20) and glass card (z-10) ── */}
+        <div className="relative z-0 -mt-2 bg-[#e5192a] h-[72px] rounded-b-[32px]" />
 
         {/* ── MarqueeSlanted band — z-20, renders on top of the glass card below ── */}
         <div className="relative z-20 -mt-[128px] md:-mt-[144px]">

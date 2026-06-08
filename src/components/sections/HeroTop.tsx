@@ -8,6 +8,8 @@ import HeroCycling, { Word } from "@/components/sections/HeroCycling";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNovaStore } from "@/lib/stores/nova-store";
+import TrustedBadgesSection from "@/components/sections/TrustedBadgesSection";
+import HeroEmailCapture from "@/components/ui/HeroEmailCapture";
 
 /* ─── Variants ─────────────────────────────────────────────────── */
 const containerVariants = {
@@ -362,40 +364,58 @@ export default function HeroTop(props: any) {
   };
 
   return (
-    <section className="relative z-20 flex flex-col items-center justify-center px-4 pt-36 pb-0 md:pt-44 md:px-6 overflow-visible">
+    <section className="relative z-20 flex min-h-[90vh] flex-col items-center justify-start px-6 pt-[24vh] md:pt-[28vh] pb-16 text-center overflow-hidden">
+
+      {/* Controlled dark stage + soft red glow up top; clears toward the
+          bottom so the video behind PEEKS at the fold and pulls scroll. */}
+      <div aria-hidden className="absolute inset-0 pointer-events-none">
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(100% 70% at 50% 28%, rgba(229,25,42,0.10) 0%, transparent 52%), linear-gradient(180deg, rgba(7,7,9,0.50) 0%, rgba(7,7,9,0.42) 45%, rgba(7,7,9,0.80) 82%, rgba(10,10,10,0.98) 100%)",
+          }}
+        />
+      </div>
 
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-[2] flex w-full max-w-[1200px] flex-col items-center gap-2 text-center mt-0"
+        className="relative z-[2] flex w-full max-w-[920px] flex-col items-center gap-8 md:gap-10"
       >
-        {/* Main Heading — cycling */}
-        <motion.div variants={itemVariants} className="w-full text-center">
-          <HeroCycling
-            staticText={staticText}
-            words={CYCLING_WORDS}
-            fontSize="clamp(2rem, 6vw, 7rem)"
-            cyclingFontSize="clamp(2.8rem, 11vw, 11rem)"
-            forceAnimate
-          />
-        </motion.div>
-
-        {/* CTAs — always one row, wraps on very small screens */}
-        <motion.div
+        {/* Headline — ALL WHITE, always 2 lines, rem-bounded clamp (never crops) */}
+        <motion.h1
           variants={itemVariants}
-          className="flex flex-row flex-wrap items-center justify-center gap-4 mt-6 md:mt-10"
+          className="font-clash font-black uppercase text-white"
+          style={{
+            fontSize: "clamp(2.4rem, 9vw, 6rem)",
+            lineHeight: 0.92,
+            letterSpacing: "-0.03em",
+          }}
         >
-          <LiquidMetalButton
-            label={t.hero.ctaStrategist}
-            onClick={() => handleOpenStrategist(true)}
-            width={280}
-          />
+          <span className="block">Let&apos;s make</span>
+          <span className="block">your brand roar</span>
+        </motion.h1>
+
+        {/* Sub — one clear line */}
+        <motion.p
+          variants={itemVariants}
+          className="font-body text-[16px] md:text-[19px] leading-[1.6] text-white/60 max-w-[46ch]"
+        >
+          {subtitle}
+        </motion.p>
+
+        {/* Email capture — glass pill, metallic outline, red Start */}
+        <motion.div variants={itemVariants} className="w-full mt-2">
+          <HeroEmailCapture />
         </motion.div>
 
-
+        {/* Trust badges — restored, as before */}
+        <motion.div variants={itemVariants} className="mt-2 w-full">
+          <TrustedBadgesSection variant="dark" />
+        </motion.div>
       </motion.div>
-
 
     </section>
   );

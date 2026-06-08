@@ -97,7 +97,10 @@
       "PowerShell(try { $c = \\(Invoke-WebRequest -Uri \"http://localhost:3000/\" -UseBasicParsing -TimeoutSec 60\\).Content; \"Creative present: $\\($c -match 'Creative'\\)\"; \"encoded role: $\\($c -match 'Creative &amp; Business Director'\\)\"; \"signature: $\\($c -match 'Founder, LIONOVART'\\)\"; \"eyebrow: $\\($c -match 'The Founder'\\)\"; \"stat 50+: $\\($c -match '50\\\\+'\\)\" } catch { \"ERR $\\($_.Exception.Message\\)\" })",
       "Bash(mkdir -p .claude/skills/design-taste-frontend .claude/skills/ui-ux-pro-max)",
       "Bash(cp \"/root/.claude/uploads/926f56c7-dce0-4eb6-a417-31dd0738c979/a168b2ba-SKILL.md\" .claude/skills/design-taste-frontend/SKILL.md)",
-      "Bash(cp \"/root/.claude/uploads/926f56c7-dce0-4eb6-a417-31dd0738c979/61c31b29-SKILL_1.md\" .claude/skills/ui-ux-pro-max/SKILL.md)"
+      "Bash(cp \"/root/.claude/uploads/926f56c7-dce0-4eb6-a417-31dd0738c979/61c31b29-SKILL_1.md\" .claude/skills/ui-ux-pro-max/SKILL.md)",
+      "Bash(git fetch *)",
+      "Bash(git stash *)",
+      "Bash(powershell -Command 'try { $r = Invoke-WebRequest -Uri '\\\\''http://localhost:3000/'\\\\'' -UseBasicParsing -TimeoutSec 20; \"STATUS: $\\($r.StatusCode\\)\" } catch { \"NOT UP: $\\($_.Exception.Message\\)\" }')"
     ]
   }
 }

@@ -60,12 +60,9 @@ export default function SceneVideoBackdrop() {
       startTimer.current = setTimeout(() => setStarted(true), 2000);
     }
 
-    // Fade + pause once the white About section covers the backdrop.
-    const about = document.querySelector('[data-nova-section="about"]');
-    if (!about) return;
-    const top = about.getBoundingClientRect().top;
-    // Fade out as About's top travels from 90%→40% of the viewport.
-    const o = Math.min(1, Math.max(0, (top - vh * 0.4) / (vh * 0.5)));
+    // Fade + pause as the hero exits — video lives behind the hero only,
+    // then the light body takes over. Full until 0.7vh, gone by 1.4vh.
+    const o = Math.min(1, Math.max(0, 1 - (scroll - vh * 0.7) / (vh * 0.7)));
     sceneOpacity.set(o);
 
     const v = activeVideoRef.current;
@@ -107,9 +104,10 @@ export default function SceneVideoBackdrop() {
         />
       </AnimatePresence>
 
-      {/* Dark tint + bottom gradient for text contrast across the scene. */}
+      {/* Light, even tint — the hero's own overlay governs the dark stage +
+          the fold peek, so keep this subtle to preserve video detail. */}
       <motion.div
-        className="absolute inset-0 bg-black/45 bg-gradient-to-b from-black/30 via-transparent to-black/55"
+        className="absolute inset-0 bg-black/25"
         style={{ opacity: tintOpacity }}
       />
     </motion.div>

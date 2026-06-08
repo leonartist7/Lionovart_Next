@@ -492,7 +492,7 @@ export const en = {
   },
 
   services: {
-    eyebrow: "What We Do",
+    eyebrow: "What's Included",
     heading: "Our",
     headingAccent: "Services",
     items: [

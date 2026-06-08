@@ -9,7 +9,7 @@ import {
 } from "framer-motion";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { hrefForTitle } from "@/lib/service-routes";
 import { useLenis } from "@studio-freight/react-lenis";
 import { getWhatsAppUrl } from "@/lib/contact";
@@ -93,6 +93,8 @@ export default function Navbar() {
   const [expertiseOpen, setExpertiseOpen] = useState(false);
   const [mobileExpertiseOpen, setMobileExpertiseOpen] = useState(false);
   const { scrollY } = useScroll();
+  const pathname = usePathname();
+  const isHome = pathname === "/";
   const { t, locale } = useLanguage();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lenis = useLenis() as any;
@@ -174,7 +176,8 @@ export default function Navbar() {
 
   useEffect(() => {
     const calc = () => {
-      setHeroThreshold(window.innerHeight * 1.15);
+      // Glass appears just after the hero logo finishes docking (~0.55vh).
+      setHeroThreshold(window.innerHeight * 0.62);
       setIsPhone(window.innerWidth < 640);
     };
     calc();
@@ -246,22 +249,8 @@ export default function Navbar() {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="relative w-full rounded-xl shadow-sm"
         >
-          {/* Red hero layer */}
-          <motion.div
-            aria-hidden
-            className="absolute inset-0 bg-brand-red rounded-xl"
-            initial={{ clipPath: "circle(150% at 50% 50%)", opacity: 1 }}
-            animate={
-              isPastHero
-                ? { clipPath: "circle(0% at 50% 50%)", opacity: 0 }
-                : { clipPath: "circle(150% at 50% 50%)", opacity: 1 }
-            }
-            transition={{
-              clipPath: { duration: 0.75, ease: [0.4, 0, 0.2, 1] },
-              opacity:  { duration: 0.5,  ease: "easeOut", delay: 0.15 },
-            }}
-            style={{ pointerEvents: "none" }}
-          />
+          {/* Navbar is transparent over the hero (no red bar) — the dark glass
+              layer below fades in once scrolled. Red is reserved for the CTA. */}
 
           {/* Glass layer — fades in after hero.
               backdrop-blur-md (12px) instead of -xl (24px): near-identical
@@ -300,9 +289,16 @@ export default function Navbar() {
                   aria-hidden="true"
                   className="h-8 w-8 sm:h-11 sm:w-11 rounded-full object-cover shrink-0"
                 />
-                <span className="text-lg sm:text-xl font-bold uppercase tracking-[0.08em] text-white">
-                  LIONOVART
-                </span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/LOGO.svg"
+                  alt="LIONOVART"
+                  data-nav-logo
+                  className="h-5 sm:h-6 w-auto"
+                  // On home the hero flier IS the visible logo (it docks here);
+                  // keep this as an invisible click target. Elsewhere show it.
+                  style={{ opacity: isHome ? 0 : 1 }}
+                />
               </Link>
             </div>
 
@@ -372,16 +368,16 @@ export default function Navbar() {
 
               {/* Hero image cycler relocated to HeroImageCycler inside the hero. */}
 
-              {/* CTA — always visible */}
+              {/* CTA — always visible (flat, performant) */}
               <div className="shrink-0">
-                <LiquidMetalButton
-                  label={t.nav.cta}
+                <button
+                  type="button"
                   onClick={() => window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer")}
-                  width={btnWidth}
-                  variant="white"
-                  textColor="#ff0000ff"
-                  noShadow
-                />
+                  style={{ minWidth: btnWidth }}
+                  className="rounded-full bg-brand-red text-white font-bold uppercase tracking-[0.08em] text-[13px] px-6 py-2.5 hover:bg-[#c8121f] transition-colors"
+                >
+                  {ctaLabel}
+                </button>
               </div>
 
               {/* Mobile burger — always visible on small screens */}
