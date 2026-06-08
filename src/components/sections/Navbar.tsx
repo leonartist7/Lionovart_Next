@@ -95,6 +95,9 @@ export default function Navbar() {
   const { scrollY } = useScroll();
   const pathname = usePathname();
   const isHome = pathname === "/";
+  // On home the hero flier provides the visible logo; navbar logo is the
+  // invisible click target underneath until the flier docks onto it.
+  const heroLogoHidden = isHome;
   const { t, locale } = useLanguage();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lenis = useLenis() as any;
@@ -297,7 +300,7 @@ export default function Navbar() {
                   className="h-5 sm:h-6 w-auto"
                   // On home the hero flier IS the visible logo (it docks here);
                   // keep this as an invisible click target. Elsewhere show it.
-                  style={{ opacity: isHome ? 0 : 1 }}
+                  style={{ opacity: heroLogoHidden ? 0 : 1 }}
                 />
               </Link>
             </div>

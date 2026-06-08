@@ -13,6 +13,7 @@ import Testimonials from "@/components/sections/Testimonials";
 import TestimonialsCarousel from "@/components/sections/TestimonialsCarousel";
 import FAQ from "@/components/sections/FAQ";
 import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
+import ClosingCTA from "@/components/sections/ClosingCTA";
 
 /**
  * Tag wrapper — lets NOVA's section tracker observe which section is in view
@@ -61,12 +62,14 @@ export function PageBuilder({ blocks }: { blocks: PageBlock[] }) {
               title card. Provides structural breathing room between
               chapters and reasserts the brand voice. */}
           <SectionTitleCard word="PROOF." theme="light" />
-          <TestimonialsCarousel />
-          <SectionTitleCard word="CONFIDENCE." theme="light" />
           <NovaSection id="comparison"><Comparison /></NovaSection>
+          <SectionTitleCard word="CONFIDENCE." theme="light" />
+          <TestimonialsCarousel />
           <NovaSection id="testimonials"><Testimonials /></NovaSection>
           <SectionTitleCard word="ASK." theme="dark" />
           <NovaSection id="faq"><FAQ /></NovaSection>
+          {/* Final ask — cycling headline + email capture. */}
+          <NovaSection id="closing-cta"><ClosingCTA /></NovaSection>
         </div>
       </>
     );

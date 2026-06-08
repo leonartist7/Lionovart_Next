@@ -8,6 +8,9 @@ import {
   type MotionValue,
 } from "framer-motion";
 
+// Locked tag style (flip to red here if preferred).
+const TAG_CLASS = "border-white/25 text-white/75";
+
 interface Card {
   title: string;
   body: string;
@@ -32,14 +35,14 @@ function Slice({
   card,
   video,
   isDesktop,
-  tagClass,
+  setVideoRef,
 }: {
   i: number;
   p: MotionValue<number>;
   card: Card;
   video: string;
   isDesktop: boolean;
-  tagClass: string;
+  setVideoRef: (el: HTMLVideoElement | null) => void;
 }) {
   const dir = i - 1; // -1, 0, 1
   const x = useTransform(p, [0, 1], ["0px", isDesktop ? `${dir * 2.2}vw` : "0px"]);
@@ -63,6 +66,7 @@ function Slice({
       style={{ x, y, rotateY, rotateX, borderRadius: radius, transformStyle: "preserve-3d" }}
     >
       <motion.video
+        ref={setVideoRef}
         className="absolute max-w-none object-cover"
         style={{ ...videoStyle, opacity: vidOpacity }}
         src={video}
@@ -100,7 +104,7 @@ function Slice({
           {card.tags.map((t) => (
             <span
               key={t}
-              className={`rounded-full border px-2.5 py-0.5 text-[9px] md:text-[10px] font-semibold uppercase tracking-[0.14em] ${tagClass}`}
+              className={`rounded-full border px-2.5 py-0.5 text-[9px] md:text-[10px] font-semibold uppercase tracking-[0.14em] ${TAG_CLASS}`}
             >
               {t}
             </span>
@@ -114,12 +118,7 @@ function Slice({
 export default function DisciplineSplit3D({ cards, video }: Props) {
   const sectionRef = useRef<HTMLElement>(null);
   const [isDesktop, setIsDesktop] = useState(true);
-  // TEMP dev control — pick the tag colour, then I'll lock it.
-  const [tagColor, setTagColor] = useState<"white" | "red">("white");
-  const tagClass =
-    tagColor === "red"
-      ? "border-brand-red/50 text-brand-red"
-      : "border-white/25 text-white/75";
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
@@ -129,6 +128,25 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
     return () => mq.removeEventListener("change", u);
   }, []);
 
+  // Perf: only decode/play the slice videos while the section is in view.
+  useEffect(() => {
+    const sec = sectionRef.current;
+    if (!sec) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        videoRefs.current.forEach((v) => {
+          if (!v) return;
+          if (entry.isIntersecting) void v.play().catch(() => {});
+          else v.pause();
+        });
+      },
+      { rootMargin: "300px 0px" }
+    );
+    io.observe(sec);
+    return () => io.disconnect();
+  }, []);
+
+  // All hooks run unconditionally (before any early return) — hook order safe.
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end end"],
@@ -148,21 +166,13 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
       className="relative"
       style={{ height: "230vh", backgroundColor: bgColor }}
     >
-      {/* TEMP tag-colour toggle */}
-      <button
-        type="button"
-        onClick={() => setTagColor((c) => (c === "white" ? "red" : "white"))}
-        className="fixed bottom-4 left-4 z-[70] rounded-full border border-white/30 bg-black/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white backdrop-blur"
-      >
-        Tags: {tagColor}
-      </button>
       <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden px-3 md:px-4">
         <div
-          className="relative w-[min(94vw,560px)] lg:w-[min(94vw,1180px)]"
+          className="relative w-[min(80vw,450px)] lg:w-[min(80vw,945px)]"
           style={{ perspective: "1400px" }}
         >
           <div
-            className="flex h-[clamp(440px,82vh,820px)] w-full flex-col gap-0 lg:h-[clamp(340px,62vh,620px)] lg:flex-row"
+            className="flex h-[clamp(350px,66vh,660px)] w-full flex-col gap-0 lg:h-[clamp(270px,50vh,500px)] lg:flex-row"
             style={{ transformStyle: "preserve-3d" }}
           >
             {cards.map((card, i) => (
@@ -173,7 +183,9 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
                 card={card}
                 video={video}
                 isDesktop={isDesktop}
-                tagClass={tagClass}
+                setVideoRef={(el) => {
+                  videoRefs.current[i] = el;
+                }}
               />
             ))}
           </div>

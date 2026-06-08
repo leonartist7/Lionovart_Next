@@ -244,6 +244,11 @@ export default function ProblemsSolvedSection() {
         >
           {/* Red card */}
           <div className="relative z-10 w-full bg-[#e5192a] rounded-[32px] px-5 sm:px-7 pt-12 md:pt-16 pb-12 shadow-[0_30px_60px_-15px_rgba(229,25,42,0.45)]">
+            {/* Slanted marquee band near the top — card's rounded corners stay
+                visible above it (sits below the pt). Clipped to the card width. */}
+            <div className="-mx-5 sm:-mx-7 mb-9 md:mb-12 overflow-hidden">
+              <MarqueeSlanted />
+            </div>
             {/* Heading */}
             <motion.div
               className="mb-8 md:mb-10 flex flex-col items-center text-center"
@@ -287,50 +292,6 @@ export default function ProblemsSolvedSection() {
             </div>
           </div>
         </div>
-
-        {/* ── Red continuation — narrowed to match the column ── */}
-        <div
-          className="relative z-0 -mt-2 mx-auto bg-[#e5192a] h-[72px] rounded-b-[32px]"
-          style={{ width: "var(--imagine-card-d)", maxWidth: "100%" }}
-        />
-
-        {/* ── MarqueeSlanted band — z-20, renders on top of the glass card below ── */}
-        <div className="relative z-20 -mt-[128px] md:-mt-[144px]">
-          <MarqueeSlanted />
-        </div>
-
-        {/* ── Glass testimonial card — z-10, pulls up past the marquee so its rounded
-             top is visible above the band; content starts below the band ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="relative z-10 -mt-24 md:-mt-28 max-w-[64%] mx-auto rounded-[20px]
-                     pt-28 md:pt-32 px-5 md:px-7 pb-4 md:pb-5
-                     backdrop-blur-xl bg-white/75 border border-black/[0.07]
-                     shadow-[0_12px_40px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.9)]"
-        >
-          <blockquote className="text-[15px] md:text-[17px] font-medium text-[#111] leading-[1.6] mb-4">
-            &ldquo;{FEATURED.quote}&rdquo;
-          </blockquote>
-          <div className="flex items-center gap-2.5">
-            <img
-              src={FEATURED.avatar}
-              alt={FEATURED.author}
-              className="w-9 h-9 rounded-full object-cover ring-1 ring-black/10 shrink-0"
-            />
-            <div className="flex-1 min-w-0">
-              <p className="text-[13px] md:text-[14px] font-bold text-[#111] leading-tight">{FEATURED.author}</p>
-              <p className="text-[12px] text-[#777] mt-0.5 truncate">{FEATURED.role}</p>
-            </div>
-            <img
-              src={FEATURED.flag}
-              alt="flag"
-              className="w-6 h-[15px] rounded-[2px] object-cover shrink-0 opacity-80"
-            />
-          </div>
-        </motion.div>
 
       </div>
     </section>
