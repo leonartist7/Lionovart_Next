@@ -59,7 +59,7 @@ export const SERVICE_ROUTES: ServiceRoute[] = [
     titles: ["Smart Systems & AI", "Sistemas Inteligentes e IA", "Systèmes Intelligents & IA"],
     blurb: "Voice agents, automation, and workflows that run and convert 24/7.",
     signature: "Your business, always on.",
-    ready: false,
+    ready: true,
   },
   {
     id: "growth",
@@ -68,7 +68,7 @@ export const SERVICE_ROUTES: ServiceRoute[] = [
     titles: ["Growth Marketing", "Marketing de Crecimiento", "Marketing de Croissance"],
     blurb: "SEO, local search, ads, and analytics that put you where buyers look.",
     signature: "Found first, chosen first.",
-    ready: false,
+    ready: true,
   },
 ];
 
