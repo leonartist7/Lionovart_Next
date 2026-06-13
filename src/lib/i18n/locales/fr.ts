@@ -37,7 +37,7 @@ export const fr: Translations = {
 
   hero: {
     staticText: ["NOUS RENDONS", "VOTRE MARQUE"],
-    cyclingWords: ["RUGIR", "ATTIRANTE", "MÉMORABLE", "MAGNÉTIQUE", "VENDRE PLUS", "DOMINER"],
+    cyclingWords: ["RUGISSANTE", "ATTIRANTE", "MÉMORABLE", "MAGNÉTIQUE", "RENTABLE", "DOMINANTE"],
     subtitle:
       "Nous créons des marques, développons des sites web et produisons du contenu pour que votre entreprise soit impossible à ignorer.",
     ctaStart: "Commencer",
@@ -162,7 +162,7 @@ export const fr: Translations = {
       {
         question: "Proposez-vous un suivi après le lancement ?",
         answer:
-          "Oui, nous proposons des forfaits de retainer pour un support continu en design, développement et marketing afin que votre marque continue de se développer après le lancement.",
+          "Oui, nous proposons des forfaits de suivi mensuel pour un support continu en design, développement et marketing afin que votre marque continue de se développer après le lancement.",
       },
       {
         question: "Sur quelles plateformes construisez-vous les sites web ?",
@@ -257,22 +257,22 @@ export const fr: Translations = {
     projects: [
       {
         id: 1,
-        title: "Alture Brand Identity",
+        title: "Identité de Marque Alture",
         description: "Refonte complète — système logo, typographie, palette de couleurs",
       },
       {
         id: 2,
-        title: "Top Platform Expertise",
+        title: "Expertise des Meilleures Plateformes",
         description: "Toujours les meilleurs outils disponibles",
       },
       {
         id: 4,
-        title: "Arpeggio Music App",
+        title: "App Musicale Arpeggio",
         description: "Design UI/UX & prototype interactif",
       },
       {
         id: 3,
-        title: "Fluora Campaign",
+        title: "Campagne Fluora",
         description: "Campagne réseaux sociaux & production vidéo",
       },
     ],
@@ -337,7 +337,7 @@ export const fr: Translations = {
       {
         quote: "Je n'étais pas assez confiante pour distribuer ma carte de visite et je ne savais pas quoi publier sur Instagram pendant deux ans. Merci Leon d'avoir reconstruit toute mon identité de marque, j'ai retrouvé ma confiance et maintenant je sais quoi répondre quand on me demande ce que je fais. Ça vaut plus que de l'argent, gracias !",
         author: "Sofia Alvarez",
-        role: "Fondatrice, Luminous Skin Studio – UK",
+        role: "Fondatrice, Luminous Skin Studio – Royaume-Uni",
       },
       {
         quote: "L'agent vocal qu'ils ont mis en place pour nous gère les appels en dehors des heures d'ouverture, qualifie les prospects et réserve des visites directement dans mon calendrier. J'ai reçu un appel dimanche dernier pendant que je dînais avec mes enfants - sauf que je n'y ai pas répondu, car c'était déjà géré. Ce système unique rentabilise tout le reste de ce que nous faisons avec eux.",
@@ -358,7 +358,7 @@ export const fr: Translations = {
   },
 
   services: {
-    eyebrow: "Ce Que Nous Faisons",
+    eyebrow: "Ce Qui Est Inclus",
     heading: "Nos",
     headingAccent: "Services",
     items: [
