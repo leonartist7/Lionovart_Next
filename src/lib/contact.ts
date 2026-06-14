@@ -8,6 +8,9 @@
    ═══════════════════════════════════════════════════════════════════ */
 export const WHATSAPP_NUMBER = "15878974772"; // +1 (587) 897-4772
 
+/** Public contact email — single source for footer / contact surfaces. */
+export const CONTACT_EMAIL = "connect@lionovart.com";
+
 const DEFAULT_MESSAGE =
   "Hi! I just visited Lionovart and I'm interested in discussing a project. Can we connect?";
 
