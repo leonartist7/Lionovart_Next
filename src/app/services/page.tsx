@@ -3,6 +3,7 @@ import Link from "next/link";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
 import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
+import ClosingCTA from "@/components/sections/ClosingCTA";
 import { SERVICE_ROUTES } from "@/lib/service-routes";
 
 export const metadata: Metadata = {
@@ -74,6 +75,7 @@ export default function ServicesIndexPage() {
           </ul>
         </section>
 
+        <ClosingCTA />
         <Footer />
       </main>
       <StickyFooterMarquee />

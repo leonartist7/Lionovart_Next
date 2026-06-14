@@ -1,38 +1,38 @@
 "use client";
 
 import HeroCycling, { type Word } from "@/components/sections/HeroCycling";
-import HeroEmailCapture from "@/components/ui/HeroEmailCapture";
+import VideoBackdrop from "@/components/ui/VideoBackdrop";
+import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
+import { useNovaStore } from "@/lib/stores/nova-store";
 import { useLanguage } from "@/contexts/LanguageContext";
+import BrandCrest from "@/components/sections/services/brand/branding/BrandCrest";
+
+const FOOTER_CLIP =
+  "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845599/Footage_02_chsoa3.mp4";
 
 /**
- * ClosingCTA — the page's final ask. Dark cinematic close that reuses the
- * kinetic cycling-words headline + the hero email-capture pill so the visitor
- * converts at the bottom (mirrors the hero promise).
+ * ClosingCTA — the single, canonical page close. Cinematic video backdrop +
+ * the kinetic cycling-words headline + one liquid-metal button that opens Nova.
+ * Used once per page (the footer is now navigation/legal only), so pages never
+ * double-close. `crest` adds the brand crest beside the button (branding page).
  */
-export default function ClosingCTA() {
+export default function ClosingCTA({ crest = false }: { crest?: boolean }) {
   const { t } = useLanguage();
+  const openNova = useNovaStore((s) => s.openNova);
   const words: Word[] = (t.hero.cyclingWords || []).map((c: string) => ({
     content: c,
-    color: "text-brand-red",
     type: "text" as const,
   }));
 
   return (
     <section
       id="closing-cta"
-      className="relative bg-[#0a0a0a] text-white overflow-hidden px-6 py-24 md:py-32 text-center"
+      className="relative isolate overflow-hidden bg-[#0a0a0a] px-6 py-28 text-center text-white md:py-36"
     >
-      {/* Soft red glow, low */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[120vmin] w-[120vmin] -translate-x-1/2 -translate-y-1/2 rounded-full"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(229,25,42,0.12) 0%, transparent 60%)",
-        }}
-      />
+      <VideoBackdrop src={FOOTER_CLIP} className="absolute inset-0 z-0" overlayClassName="bg-black/70" />
+
       <div className="relative z-10 mx-auto flex max-w-[1000px] flex-col items-center gap-8 md:gap-10">
-        <p className="text-brand-red text-[11px] md:text-[13px] font-bold uppercase tracking-[0.3em]">
+        <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red md:text-[13px]">
           One partnership — fully done for you
         </p>
 
@@ -46,13 +46,13 @@ export default function ClosingCTA() {
           />
         </div>
 
-        <p className="font-body text-[15px] md:text-[18px] leading-[1.6] text-white/65 max-w-[46ch]">
-          Brand, web, content, AI and print — built and run for you. Start with a
-          free brand audit.
+        <p className="max-w-[46ch] font-body text-[15px] leading-[1.6] text-white/70 md:text-[18px]">
+          Brand, web, content, AI and print — built and run for you.
         </p>
 
-        <div className="w-full">
-          <HeroEmailCapture />
+        <div className="mt-2 flex items-center gap-5">
+          {crest && <BrandCrest className="h-12 w-auto md:h-14" />}
+          <LiquidMetalButton label="Start your brand" width={220} onClick={() => openNova("offer", true)} />
         </div>
       </div>
     </section>
