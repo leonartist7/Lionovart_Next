@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, type ReactNode } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
-import { useLenis } from "@studio-freight/react-lenis";
+import { useLenis } from "lenis/react";
 
 interface HeroRevealWrapperProps {
   /** Top slot — HeroTop section. */

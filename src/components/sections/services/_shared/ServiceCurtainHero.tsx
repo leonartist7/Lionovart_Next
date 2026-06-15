@@ -8,7 +8,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, useMotionValue, useTransform, useReducedMotion } from "framer-motion";
-import { useLenis } from "@studio-freight/react-lenis";
+import { useLenis } from "lenis/react";
 
 export interface CurtainLine {
   text: string;

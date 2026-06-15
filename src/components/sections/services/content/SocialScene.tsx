@@ -12,7 +12,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useTransform, useReducedMotion, type MotionValue } from "framer-motion";
-import { useLenis } from "@studio-freight/react-lenis";
+import { useLenis } from "lenis/react";
 
 // Resting position (x: vw, y: vh from center) + dispersal vector (dx, dy) + size.
 const TILES = [

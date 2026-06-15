@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactLenis, useLenis } from '@studio-freight/react-lenis';
+import { ReactLenis, useLenis } from 'lenis/react';
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import gsap from 'gsap';
@@ -8,7 +8,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// @studio-freight/react-lenis ships bundled React 18 types; React 19 adds
+// lenis/react ships bundled React 18 types; React 19 adds
 // bigint to ReactNode causing a type mismatch. Cast to any to suppress.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const LenisProvider = ReactLenis as any;
@@ -23,6 +23,13 @@ function LenisGSAPBridge() {
 
   useEffect(() => {
     if (!lenis) return;
+
+    // Dev-only: expose the Lenis instance so PerfHud can live-tune wheel
+    // smoothing (smoothWheel / duration / lerp) to A/B the scroll-tail theory
+    // without a remount. Stripped from prod builds.
+    if (process.env.NODE_ENV !== 'production') {
+      (window as unknown as { __lenis?: unknown }).__lenis = lenis;
+    }
 
     // 1. When Lenis scrolls, push the new scroll position into ScrollTrigger
     const onScroll = () => ScrollTrigger.update();
@@ -59,10 +66,15 @@ export default function SmoothScrollProvider({
   return (
     <LenisProvider
       root
-      autoRaf={false}
       options={{
-        lerp: 0.1,
-        duration: 1.2,
+        // autoRaf:false → GSAP's ticker is the single RAF driver (see bridge),
+        // so Lenis must NOT also run its own loop (double-stepping = jank).
+        autoRaf: false,
+        // lerp drives wheel/touch smoothing. `duration` was also set before,
+        // but Lenis's Animate uses lerp OR duration — never both — so duration
+        // was dead config. 0.12 (was 0.10) shortens the smoothing tail a touch
+        // so fewer frames of per-subscriber work follow each wheel notch.
+        lerp: 0.12,
         smoothWheel: true,
       }}
     >

@@ -8,7 +8,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useTransform, useReducedMotion, type MotionValue } from "framer-motion";
-import { useLenis } from "@studio-freight/react-lenis";
+import { useLenis } from "lenis/react";
 
 // Each stroke draws within its own progress window, so the mark assembles in order.
 const STROKES: { d: string; from: number; to: number; accent?: boolean }[] = [

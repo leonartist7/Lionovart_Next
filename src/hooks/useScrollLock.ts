@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useLenis } from "@studio-freight/react-lenis";
+import { useLenis } from "lenis/react";
 
 /**
  * Locks both Lenis smooth scrolling AND native browser scrollbar

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
-import { useLenis } from "@studio-freight/react-lenis";
+import { useLenis } from "lenis/react";
 
 export default function VideoCurtainReveal() {
   // useScroll is bypassed: Lenis drives RAF via GSAP ticker (autoRaf:false)

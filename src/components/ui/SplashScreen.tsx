@@ -18,7 +18,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
-import { useLenis } from "@studio-freight/react-lenis";
+import { useLenis } from "lenis/react";
 
 const SESSION_KEY = "lionovart_splash_seen";
 const TOTAL_DURATION_MS = 1800;
