@@ -12,7 +12,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useTransform, useReducedMotion } from "framer-motion";
-import { useLenis } from "@studio-freight/react-lenis";
+import { useLenis } from "lenis/react";
 
 // Placeholder beats. Keep to 3-4; each is a single thought.
 const BEATS = [

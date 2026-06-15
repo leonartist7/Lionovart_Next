@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
+// Required Lenis stylesheet — sets html/body height:auto, neutralizes native
+// scroll-behavior, disables iframe pointer capture during smooth scroll, and
+// handles [data-lenis-prevent] overscroll. Missing this causes the browser's
+// native scroll to fight Lenis every frame (a primary scroll-lag source).
+import "lenis/dist/lenis.css";
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { PostHogInit } from "@/components/PostHogInit";

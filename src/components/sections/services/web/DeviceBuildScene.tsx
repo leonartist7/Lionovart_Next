@@ -11,7 +11,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, useMotionValue, useTransform, useReducedMotion, type MotionValue } from "framer-motion";
-import { useLenis } from "@studio-freight/react-lenis";
+import { useLenis } from "lenis/react";
 
 const HERO_CLIP =
   "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845553/Footage_05_yalbaj.mp4";

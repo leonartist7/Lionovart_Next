@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { motion, useAnimation, useMotionValue, useTransform, useSpring, type MotionValue } from "framer-motion";
 import Image from "next/image";
-import { useLenis } from "@studio-freight/react-lenis";
+import { useLenis } from "lenis/react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
 import { SplitTextReveal } from "@/components/ui/SplitTextReveal";

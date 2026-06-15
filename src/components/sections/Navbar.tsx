@@ -11,7 +11,7 @@ import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { hrefForTitle } from "@/lib/service-routes";
-import { useLenis } from "@studio-freight/react-lenis";
+import { useLenis } from "lenis/react";
 import { getWhatsAppUrl } from "@/lib/contact";
 import { MenuBurgerLottie } from "@/components/ui/menu-burger-lottie";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
