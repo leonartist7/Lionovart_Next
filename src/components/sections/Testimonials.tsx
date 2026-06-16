@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -109,8 +109,24 @@ function MarqueeRow({
   const [isDragging, setIsDragging] = useState(false);
   const track = [...cards, ...cards];
 
+  // Pause the infinite marquee while the row is offscreen — the duplicated
+  // track is thousands of px wide, and animating its transform from page
+  // load costs compositor work for the whole session otherwise.
+  const rowRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = rowRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { rootMargin: "100px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <div className="overflow-hidden">
+    <div ref={rowRef} className="overflow-hidden">
       <motion.div
         style={{ x: dragX }}
         drag="x"
@@ -127,9 +143,15 @@ function MarqueeRow({
             direction === "left"
               ? "animate-marquee-left"
               : "animate-marquee-right",
-            "group-hover:[animation-play-state:paused]",
-            isDragging && "[animation-play-state:paused]"
+            "group-hover:[animation-play-state:paused]"
           )}
+          // Inline style: the .animate-marquee-* shorthand (unlayered in
+          // globals.css) wins the cascade over Tailwind's layered
+          // [animation-play-state:paused] utility, so class-based pausing
+          // silently never applied. Inline always wins.
+          style={{
+            animationPlayState: isDragging || !inView ? "paused" : "running",
+          }}
         >
           {track.map((c, i) => (
             <TestimonialCard key={i} {...c} />

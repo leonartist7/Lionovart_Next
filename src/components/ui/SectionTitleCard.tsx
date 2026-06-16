@@ -83,6 +83,7 @@ export function SectionTitleCard({
   return (
     <div
       ref={rootRef}
+      data-titlecard
       className={`relative w-full overflow-hidden ${surface}`}
       style={{ height }}
       aria-hidden="true"

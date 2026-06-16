@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
 import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
-import ServiceCurtainHero from "@/components/sections/services/_shared/ServiceCurtainHero";
-import StatementRelay from "@/components/sections/services/_shared/StatementRelay";
-import ProcessBand from "@/components/sections/services/_shared/ProcessBand";
 import OfferCards from "@/components/sections/services/_shared/OfferCards";
 import ProofAndClose from "@/components/sections/services/_shared/ProofAndClose";
-import DeviceBuildScene from "@/components/sections/services/web/DeviceBuildScene";
+import StickyMockupHero from "@/components/sections/services/web/StickyMockupHero";
+import OutcomeBand from "@/components/sections/services/web/OutcomeBand";
+import BuildShowcase from "@/components/sections/services/web/BuildShowcase";
+import MobileDemoScene from "@/components/sections/services/web/MobileDemoScene";
+import WebProofStrip from "@/components/sections/services/web/WebProofStrip";
 
 export const metadata: Metadata = {
   title: "Web & App Development",
@@ -19,31 +20,15 @@ export const metadata: Metadata = {
 export default function WebServicePage() {
   return (
     <>
-      <main className="bg-bg-dark min-h-screen relative z-10">
-        <Navbar />
-        <ServiceCurtainHero
-          eyebrow="Web & Apps"
-          lines={[{ text: "A site that" }, { text: "books the call", accent: true }]}
-          sub="Sites · Apps · UI/UX · SEO"
-        />
-        <StatementRelay
-          beats={[
-            "A slow site costs you clients every day.",
-            "Generic looks like everyone else.",
-            "Visitors don't browse. They decide.",
-          ]}
-        />
-        <DeviceBuildScene />
-        <ProcessBand
-          heading="How we build it"
-          steps={[
-            { n: "01", t: "Map", d: "Goals, funnel, and the one action every page drives." },
-            { n: "02", t: "Design", d: "UI/UX that earns trust and removes every reason to leave." },
-            { n: "03", t: "Build", d: "Fast, custom, accessible. Built to rank and convert." },
-            { n: "04", t: "Launch", d: "Analytics, SEO, and a site you can actually run." },
-          ]}
-        />
+      <main className="bg-white min-h-screen relative z-10">
+        <Navbar solid />
+        <StickyMockupHero />
+        <OutcomeBand />
+        <BuildShowcase />
+        <MobileDemoScene />
+        <WebProofStrip />
         <OfferCards
+          theme="light"
           eyebrow="Two ways in"
           heading="Make it once, or grow it monthly."
           offers={[
@@ -84,7 +69,8 @@ export default function WebServicePage() {
           ]}
         />
         <ProofAndClose
-          quote="[ A client says, in one line, that the new site started booking calls. ]"
+          theme="light"
+          quote="I've worked with a lot of agencies. LIONOVART is the first that felt like an actual partner — brand, site, ads, automation, all handled."
           closingLine="Let's build yours"
           closingAccent="to convert."
         />

@@ -9,7 +9,7 @@
  */
 
 import { useNovaStore } from "@/lib/stores/nova-store";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 
 const reveal = {
@@ -43,12 +43,13 @@ const ENGINE = [
 ];
 
 export default function OffersAndClose() {
-  const reduce = useReducedMotion();
   const openNova = useNovaStore((s) => s.openNova);
   // The voice agent (Nova) handles every lead, no form. CTA opens it and auto-starts.
   const go = () => openNova("hero", true);
 
-  const motionProps = reduce ? {} : reveal;
+  // Effects always on (founder decision): ignore the OS reduced-motion flag.
+  // Also keeps SSR/client markup identical (the flag differs per machine).
+  const motionProps = reveal;
 
   return (
     <>
@@ -158,18 +159,36 @@ export default function OffersAndClose() {
         </div>
       </section>
 
-      {/* ── Proof slot (placeholder → real testimonial) ─────────────── */}
+      {/* ── Cross-sell band: the One-Studio mechanism, made visible ─── */}
+      <section className="bg-bg-dark px-6 py-20 md:py-24">
+        <motion.div {...motionProps} className="mx-auto max-w-4xl text-center">
+          <p className="mb-5 text-[11px] uppercase tracking-[0.3em] text-white/50">One studio</p>
+          <p
+            className="font-clash font-medium leading-[1.12] text-white"
+            style={{ fontSize: "clamp(1.5rem, 3.6vw, 2.6rem)" }}
+          >
+            Filmed for social. <span className="text-brand-red">Built for everywhere.</span>
+          </p>
+          <p className="mx-auto mt-5 max-w-[52ch] text-[15px] leading-relaxed text-white/55">
+            The same footage powers your website, your ads, your events, and your
+            print. One shoot, every medium.
+          </p>
+        </motion.div>
+      </section>
+
+      {/* ── Proof ───────────────────────────────────────────────────── */}
       <section className="bg-bg-dark px-6 py-28 md:py-32">
         <motion.figure {...motionProps} className="mx-auto max-w-4xl text-center">
           <blockquote
             className="font-clash font-medium leading-[1.15] text-white"
             style={{ fontSize: "clamp(1.6rem, 4vw, 3rem)" }}
           >
-            &ldquo;[ A client says, in one line, that the content changed how their
-            market sees them. ]&rdquo;
+            &ldquo;The reels they shot of our tours sold out the summer by April!
+            People said they booked because the video made them feel like they
+            were already there.&rdquo;
           </blockquote>
           <figcaption className="mt-8 text-[13px] uppercase tracking-[0.18em] text-white/45">
-            [ Name ], [ Role ], [ Business ]
+            Enzo &middot; Founder, Apennine Adventures &middot; Italy
           </figcaption>
         </motion.figure>
       </section>

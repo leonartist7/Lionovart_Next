@@ -631,3 +631,11 @@ body.no-bdblur * {
 body.no-herobg .hero-bg-layer {
   display: none !important;
 }
+
+/* Hides the SectionTitleCard chapter words. They paint a ~350px
+   -webkit-text-stroke glyph that translates 1:1 with scroll (anime onScroll),
+   which repaints a huge bbox every frame. visibility:hidden keeps layout
+   (so scrollHeight is unchanged mid-profile) while killing the paint. */
+body.no-titlecards [data-titlecard] {
+  visibility: hidden !important;
+}
