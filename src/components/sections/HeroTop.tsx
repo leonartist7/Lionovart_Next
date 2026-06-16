@@ -94,11 +94,11 @@ function useCountUp(target: number, duration: number = 1800, active: boolean = t
 /* ─── Trust Badge Components ────────────────────────────────────── */
 
 const AVATARS = [
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&q=80",
+  "/images/Testimonials/Forty Seven - Hotel/logo.webp",
+  "/images/Testimonials/Canada/Marc-Cardealer-M.jpg",
+  "/images/Testimonials/CocoRocco  - Resto/cocorocco-logo.svg",
+  "/images/Testimonials/Spain/Pablo-hotel-M.jpg",
+  "/images/Testimonials/Canada/Maya-Flowerstore-W.jpg",
 ];
 
 const FLAGS = [
@@ -236,27 +236,40 @@ function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; exp
             </div>
             {/* Avatars */}
             <div className="flex items-center justify-center w-full">
-              {AVATARS.map((src, i) => (
-                <motion.div
-                  key={i}
-                  style={{
-                    width: midWidth * 0.22,
-                    height: midWidth * 0.22,
-                    borderRadius: "50%",
-                    border: "1px solid #e5192a",
-                    overflow: "hidden",
-                    marginLeft: i === 0 ? 0 : -(midWidth * 0.05),
-                    position: "relative",
-                    zIndex: AVATARS.length - i,
-                    flexShrink: 0,
-                  }}
-                  initial={{ opacity: 0, scale: 0.6 }}
-                  animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.6 }}
-                  transition={{ duration: 0.35, delay: 0.5 + i * 0.07, ease: "easeOut" }}
-                >
-                  <img src={src} alt="client" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                </motion.div>
-              ))}
+              {AVATARS.map((src, i) => {
+                const isLogo = src.includes("logo");
+                return (
+                  <motion.div
+                    key={i}
+                    style={{
+                      width: midWidth * 0.22,
+                      height: midWidth * 0.22,
+                      borderRadius: "50%",
+                      border: "1px solid #e5192a",
+                      overflow: "hidden",
+                      marginLeft: i === 0 ? 0 : -(midWidth * 0.05),
+                      position: "relative",
+                      zIndex: AVATARS.length - i,
+                      flexShrink: 0,
+                      backgroundColor: isLogo ? "rgba(255, 255, 255, 0.08)" : "transparent",
+                    }}
+                    initial={{ opacity: 0, scale: 0.6 }}
+                    animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.6 }}
+                    transition={{ duration: 0.35, delay: 0.5 + i * 0.07, ease: "easeOut" }}
+                  >
+                    <img
+                      src={src}
+                      alt="client"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: isLogo ? "contain" : "cover",
+                        padding: isLogo ? "18%" : "0%",
+                      }}
+                    />
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </TrustBadge>

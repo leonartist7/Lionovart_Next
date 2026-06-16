@@ -61,7 +61,7 @@ export function PageBuilder({ blocks }: { blocks: PageBlock[] }) {
               viewport horizontally as the user scrolls past, like a film
               title card. Provides structural breathing room between
               chapters and reasserts the brand voice. */}
-          <SectionTitleCard word="PROOF." theme="light" />
+          <SectionTitleCard word="LIONOVART." theme="light" />
           <NovaSection id="comparison"><Comparison /></NovaSection>
           <SectionTitleCard word="CONFIDENCE." theme="light" />
           <TestimonialsCarousel />

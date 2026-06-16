@@ -231,7 +231,7 @@ export default function InkPreviewPage() {
       {/* Role 1 — section reveal curtain */}
       <CurtainStage
         bgClass="bg-[#f4efe6] text-[#111]"
-        label="PROOF."
+        label="LIONOVART."
         variant="sweep"
         inkColor="#e5192a"
       />
