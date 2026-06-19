@@ -208,46 +208,46 @@ export const en = {
     items: [
       {
         problem: {
-          heading: "Your Brand Commands The Room",
-          body: "You've invested in your craft, your team, your space — but your image still looks like day one. Clients pick the competitor who looks like the better choice, even when they're not.",
+          heading: "You Stop Guessing What Works",
+          body: "",
         },
         solution: {
-          heading: "A Brand That Commands Respect on Sight",
-          body: "We build identity systems that make clients trust you before you've said a word — logo, web, print, everything aligned.",
-          stats: [
-            { value: "3x", label: "Perceived Value After Rebrand" },
-            { value: "94%", label: "First Impressions Are Design-Based" },
-            { value: "50+", label: "Brands Elevated Worldwide" },
-          ],
-        },
-      },
-      {
-        problem: {
-          heading: "Your Business Shows Up Where It Counts",
-          body: "You're great at what you do — your existing clients love you. But the next person searching for exactly what you offer? They're finding your competitor instead.",
-        },
-        solution: {
-          heading: "Show Up First. Get Chosen First.",
-          body: "From search engines to social feeds, we make sure the right people find you — consistently and in the right places.",
+          heading: "Strategy From Experts, Not Hunches",
+          body: "No more eyeballing it or pouring budget into guesswork. We bring what's proven to work right now — so every move is deliberate, tracked and measurable.",
           stats: [
             { value: "+70%", label: "In Direct Bookings — Real Client Result" },
             { value: "5x", label: "More Qualified Leads on Average" },
-            { value: "82%", label: "Of Internet Traffic Is Now Video" },
+            { value: "100%", label: "Tracked, Reported, Accountable" },
           ],
         },
       },
       {
         problem: {
-          heading: "You Have a Full Team Behind You",
-          body: "The website, the socials, the emails, the content — on top of actually running your business. It's 10pm and you're still editing a reel. You didn't start this to become a full-time marketer.",
+          heading: "You Hand Off The Whole Thing",
+          body: "",
         },
         solution: {
-          heading: "Your Full Creative & Digital Team — One Call Away",
-          body: "Brand, web, video, social, print, AI — all handled. You focus on your business. We handle how it looks, sounds, and grows.",
+          heading: "One Team For Everything — One Call Away",
+          body: "Brand, web, video, social, print — handled end to end. Stop being the owner, the marketer and the editor all at once. You run the business; we run the rest.",
+          stats: [
+            { value: "15h+", label: "Saved Weekly on Average" },
+            { value: "1", label: "Team, Not Five Freelancers" },
+            { value: "100%", label: "Of Partners Multiplied Their ROI" },
+          ],
+        },
+      },
+      {
+        problem: {
+          heading: "You Run On Smart, Modern Systems",
+          body: "",
+        },
+        solution: {
+          heading: "Cutting-Edge Creative & AI, Built For You",
+          body: "The modern design and AI systems the big players use — made for your brand. Capturing leads, creating content and scaling your output around the clock.",
           stats: [
             { value: "24/7", label: "AI Systems Capturing Leads for You" },
-            { value: "15h+", label: "Saved Weekly on Average" },
-            { value: "100%", label: "Of Partners Multiplied Their ROI" },
+            { value: "82%", label: "Of Internet Traffic Is Now Video" },
+            { value: "5x", label: "Faster Content Production" },
           ],
         },
       },

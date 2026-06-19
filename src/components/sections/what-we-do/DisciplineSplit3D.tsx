@@ -166,7 +166,9 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
       className="relative"
       style={{ height: "230vh", backgroundColor: bgColor }}
     >
-      <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden px-3 md:px-4">
+      {/* items-start + small top pad: video sits high (just under the navbar /
+          hero badges) instead of centered, closing the blank band above it. */}
+      <div className="sticky top-0 flex h-screen items-start justify-center overflow-hidden px-3 md:px-4 pt-[7vh] md:pt-[8vh]">
         <div
           className="relative w-[min(80vw,450px)] lg:w-[min(80vw,945px)]"
           style={{ perspective: "1400px" }}

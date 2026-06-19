@@ -203,46 +203,46 @@ export const fr: Translations = {
     items: [
       {
         problem: {
-          heading: "Votre Marque Impose Le Respect",
-          body: "Vous avez investi dans votre savoir-faire, votre équipe, votre espace — mais votre image ressemble encore au premier jour. Les clients choisissent celui qui a l'air du meilleur choix, même quand il ne l'est pas.",
+          heading: "Vous Arrêtez de Deviner Ce Qui Marche",
+          body: "",
         },
         solution: {
-          heading: "Une Marque Qui Impose Le Respect au Premier Regard",
-          body: "Nous créons des systèmes d'identité qui inspirent confiance avant même que vous ayez dit un mot — logo, web, print, tout aligné.",
-          stats: [
-            { value: "3x", label: "Valeur Perçue Après Refonte" },
-            { value: "94%", label: "Premières Impressions Basées sur le Design" },
-            { value: "50+", label: "Marques Élevées dans le Monde" },
-          ],
-        },
-      },
-      {
-        problem: {
-          heading: "Votre Entreprise Apparaît Là Où Ça Compte",
-          body: "Vous excellez dans ce que vous faites — vos clients vous adorent. Mais la prochaine personne qui cherche exactement ce que vous proposez ? Elle trouve votre concurrent.",
-        },
-        solution: {
-          heading: "Apparaître en Premier. Être Choisi en Premier.",
-          body: "Des moteurs de recherche aux réseaux sociaux, nous faisons en sorte que les bonnes personnes vous trouvent — de manière constante et aux bons endroits.",
+          heading: "Une Stratégie d'Experts, Pas des Suppositions",
+          body: "Fini le pifomètre et le budget jeté dans l'inconnu. Nous apportons ce qui fonctionne vraiment aujourd'hui — chaque action est réfléchie, suivie et mesurable.",
           stats: [
             { value: "+70%", label: "De Réservations Directes — Résultat Client Réel" },
             { value: "5x", label: "Plus de Leads Qualifiés en Moyenne" },
-            { value: "82%", label: "Du Trafic Internet Est Maintenant Vidéo" },
+            { value: "100%", label: "Suivi, Rapporté, Transparent" },
           ],
         },
       },
       {
         problem: {
-          heading: "Vous Avez Toute Une Équipe Derrière Vous",
-          body: "Le site web, les réseaux, les emails, le contenu — en plus de gérer votre entreprise. Il est 22h et vous montez encore un reel. Vous n'avez pas créé votre entreprise pour devenir un marketeur à plein temps.",
+          heading: "Vous Déléguez Absolument Tout",
+          body: "",
         },
         solution: {
-          heading: "Votre Équipe Créative & Digitale Complète — À Un Appel",
-          body: "Marque, web, vidéo, réseaux, impression, IA — tout est géré. Concentrez-vous sur votre entreprise. Nous gérons son image, son son et sa croissance.",
+          heading: "Une Seule Équipe Pour Tout — À Un Appel",
+          body: "Marque, web, vidéo, réseaux, impression — gérés de A à Z. Arrêtez d'être à la fois le patron, le marketeur et le monteur. Vous gérez l'entreprise ; nous gérons le reste.",
+          stats: [
+            { value: "15h+", label: "Économisées par Semaine en Moyenne" },
+            { value: "1", label: "Équipe, Pas Cinq Freelances" },
+            { value: "100%", label: "Des Partenaires Ont Multiplié Leur ROI" },
+          ],
+        },
+      },
+      {
+        problem: {
+          heading: "Vous Tournez Sur des Systèmes Modernes",
+          body: "",
+        },
+        solution: {
+          heading: "Créatif & IA de Pointe, Conçus Pour Vous",
+          body: "Le design moderne et les systèmes IA des grands acteurs — adaptés à votre marque. Capter des leads, créer du contenu et démultiplier votre production, 24h/24.",
           stats: [
             { value: "24/7", label: "Systèmes IA Capturant des Leads pour Vous" },
-            { value: "15h+", label: "Économisées par Semaine en Moyenne" },
-            { value: "100%", label: "Des Partenaires Ont Multiplié Leur ROI" },
+            { value: "82%", label: "Du Trafic Internet Est Maintenant Vidéo" },
+            { value: "5x", label: "Production de Contenu Plus Rapide" },
           ],
         },
       },

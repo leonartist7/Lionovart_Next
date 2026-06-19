@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
 
 const ASPECT = 57.75 / 360; // LOGO.svg height/width
 
@@ -51,6 +51,18 @@ export function HeroLogoFly() {
     const d = dims.current;
     return Math.min(1, Math.max(0, v / d.end));
   };
+
+  // Stacking: BEHIND the navbar while flying down (so nav controls stay on top),
+  // then ON TOP once it reaches the navbar slot and stays docked.
+  const [docked, setDocked] = useState(false);
+  useMotionValueEvent(scrollY, "change", (v) => {
+    const isDocked = v >= dims.current.end * 0.99;
+    setDocked((prev) => (prev === isDocked ? prev : isDocked));
+  });
+  // Initial state for loads that start already scrolled past the dock point.
+  useEffect(() => {
+    setDocked(scrollY.get() >= dims.current.end * 0.99);
+  }, [scrollY]);
   const x = useTransform(scrollY, (v) => prog(v) * dims.current.tx);
   const y = useTransform(scrollY, (v) => prog(v) * dims.current.ty);
   const scale = useTransform(scrollY, (v) => {
@@ -59,7 +71,7 @@ export function HeroLogoFly() {
   });
 
   return (
-    <div className="fixed top-[11vh] left-1/2 -translate-x-1/2 z-[60] pointer-events-none select-none">
+    <div className={`fixed top-[11vh] left-1/2 -translate-x-1/2 ${docked ? "z-[60]" : "z-30"} pointer-events-none select-none`}>
       <motion.div style={{ x, y, scale, transformOrigin: "center" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

@@ -93,20 +93,21 @@ export default function HeroEmailCapture() {
         </form>
       )}
 
-      <p
-        className={`mt-3 text-center text-[12px] md:text-[13px] tracking-wide ${
-          status === "error" ? "text-brand-red" : "text-white/45"
-        }`}
-      >
-        {status === "error" ? (
-          "Please enter a valid email."
-        ) : (
-          <>
-            <span className="md:hidden">Get your custom demo &amp; audit</span>
-            <span className="hidden md:inline">Get your free brand audit</span>
-          </>
-        )}
-      </p>
+      {status === "error" ? (
+        <p className="mt-3 text-center text-[12px] md:text-[13px] tracking-wide text-brand-red">
+          Please enter a valid email.
+        </p>
+      ) : (
+        <div className="mt-3 text-center">
+          <p className="text-[12px] md:text-[13px] tracking-wide text-white/55 font-medium">
+            <span className="md:hidden">Get your custom demo — free brand audit included.</span>
+            <span className="hidden md:inline">Get your custom demo, with a free brand audit on the house.</span>
+          </p>
+          <p className="mt-1 text-[11px] md:text-[12px] tracking-wide text-white/35">
+            No fluff, no retainer trap — delivered on time, every time.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

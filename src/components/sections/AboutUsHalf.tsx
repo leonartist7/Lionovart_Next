@@ -34,8 +34,8 @@ const mobileHeadlineContainer = {
   visible: { transition: { staggerChildren: 0.05 } },
 };
 const mobileHeadlineWord = {
-  hidden:  { y: "110%", opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
+  hidden:  { clipPath: "inset(0 100% 0 0)", opacity: 0 },
+  visible: { clipPath: "inset(0 0% 0 0)", opacity: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
 /* ─── Credibility metrics ────────────────────────────────────── */
@@ -103,7 +103,7 @@ function PortraitFrame({
         src={PAINT_SRC}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-24 -right-20 z-30 w-[65%] select-none"
+        className="pointer-events-none absolute -bottom-24 -right-20 z-30 w-[65%] select-none lg:-bottom-16 lg:-right-4 lg:w-[56%]"
       />
     </div>
   );
@@ -138,7 +138,12 @@ export default function AboutUsHalf(props: any) {
             scrub: 1.2,
           },
         })
-          .fromTo(wordEls, { yPercent: 110 }, { yPercent: 0, duration: 1, stagger: 0.08, ease: "power3.out" }, 0.05);
+          .fromTo(
+            wordEls,
+            { clipPath: "inset(0 100% 0 0)" },
+            { clipPath: "inset(0 0% 0 0)", duration: 1, stagger: 0.08, ease: "power3.out" },
+            0.05
+          );
 
         gsap.timeline({
           scrollTrigger: {
@@ -171,11 +176,11 @@ export default function AboutUsHalf(props: any) {
           items-center → grid auto-height centered in 100vh, zero dead bands.
           items-start on grid → both cols top-align; portrait extends below text naturally.
         */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center pt-[clamp(4rem,7vh,6rem)] pb-[clamp(1.5rem,3vh,3rem)] gap-[clamp(1.5rem,3vh,2.5rem)] z-[1]">
+        <div className="absolute inset-0 flex flex-col items-center justify-center pt-[clamp(2rem,4vh,3.5rem)] pb-[clamp(1.5rem,3vh,3rem)] gap-[clamp(1.5rem,3vh,2.5rem)] z-[1]">
 
           {/* ROW 1 — Line 0 spans full width above the grid */}
           <div className="w-full max-w-[1400px] px-[max(3rem,6vw)]">
-            <p className="font-display text-black leading-[1.05] tracking-tight text-[clamp(2rem,3.5vw,5rem)] whitespace-nowrap">
+            <p className="font-display font-bold text-black leading-[1.05] tracking-tight text-[clamp(2rem,3.5vw,5rem)] whitespace-nowrap">
               <span className="inline-block overflow-hidden align-bottom mr-[0.22em]">
                 <span className="about-word-inner inline-block">&ldquo;</span>
               </span>
@@ -192,7 +197,7 @@ export default function AboutUsHalf(props: any) {
 
             {/* LEFT COLUMN — line 2, divider, body, stats */}
             <div className="flex flex-col items-start w-full">
-              <h2 className="font-display text-black leading-[1.05] tracking-tight text-[clamp(2rem,3.5vw,5rem)]">
+              <h2 className="font-display font-bold text-black leading-[1.05] tracking-tight text-[clamp(2rem,3.5vw,5rem)]">
                 {(headlineTop.split('\n')[1] ?? '').split(' ').filter(Boolean).map((word, wi) => (
                   <span key={wi} className="inline-block overflow-hidden align-bottom mr-[0.22em]">
                     <span className={`about-word-inner inline-block${RED_WORDS.has(word) ? ' text-[#e5192a]' : ''}`}>
@@ -258,7 +263,7 @@ export default function AboutUsHalf(props: any) {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.4 }}
-            className="font-display text-black leading-[1.2] mb-6 text-[clamp(1.5rem,5.5vw,2.25rem)]"
+            className="font-display font-bold text-black leading-[1.2] mb-6 text-[clamp(1.5rem,5.5vw,2.25rem)]"
           >
             <span className="inline-block overflow-hidden align-bottom mr-[0.2em]">
               <motion.span variants={mobileHeadlineWord} className="inline-block">&ldquo;</motion.span>

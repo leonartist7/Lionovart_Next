@@ -121,8 +121,9 @@ function ProblemCard({
               </div>
             </div>
 
-            {/* Text content — takes remaining 70%/62% */}
-            <div className="flex-1 flex flex-col justify-center p-4 sm:p-6 md:p-8 lg:p-10">
+            {/* Text content — takes remaining 70%/62%.
+                Extra lateral padding on phone/tablet (where the inner image is hidden). */}
+            <div className="flex-1 flex flex-col justify-center px-6 py-5 sm:px-7 sm:py-6 md:p-8 lg:p-10">
               {/* Checkmark + heading */}
               <div className="flex items-start gap-2 md:gap-3 mb-2 md:mb-3">
                 <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#10b981] flex items-center justify-center shrink-0 mt-0.5">
@@ -141,15 +142,15 @@ function ProblemCard({
                 </h3>
               </div>
 
-              {/* Description */}
-              <p className="text-[#555] font-sans text-[11px] sm:text-[13px] md:text-[14px] leading-[1.55] mb-4 md:mb-6 max-w-[520px]">
+              {/* Description — dropped on phone to cut overwhelm, shown from sm up */}
+              <p className="hidden sm:block text-[#555] font-sans text-[11px] sm:text-[13px] md:text-[14px] leading-[1.55] mb-4 md:mb-6 max-w-[520px]">
                 {item.solution.body}
               </p>
 
-              {/* Trust stats row */}
+              {/* Trust stats row — 3rd stat hidden on phone (keep the two strongest) */}
               <div className="flex flex-wrap gap-x-4 gap-y-3 sm:gap-x-6 md:gap-x-8">
                 {item.solution.stats.map((stat, si) => (
-                  <div key={si} className="flex flex-col">
+                  <div key={si} className={`${si === 2 ? "hidden sm:flex" : "flex"} flex-col`}>
                     <span className="text-[#e5192a] font-clash font-bold text-[18px] sm:text-[22px] md:text-[26px] lg:text-[30px] leading-none">
                       {stat.value}
                     </span>
@@ -244,11 +245,6 @@ export default function ProblemsSolvedSection() {
         >
           {/* Red card */}
           <div className="relative z-10 w-full bg-[#e5192a] rounded-[32px] px-5 sm:px-7 pt-12 md:pt-16 pb-12 shadow-[0_30px_60px_-15px_rgba(229,25,42,0.45)]">
-            {/* Slanted marquee band near the top — card's rounded corners stay
-                visible above it (sits below the pt). Clipped to the card width. */}
-            <div className="-mx-5 sm:-mx-7 mb-9 md:mb-12 overflow-hidden">
-              <MarqueeSlanted />
-            </div>
             {/* Heading */}
             <motion.div
               className="mb-8 md:mb-10 flex flex-col items-center text-center"
@@ -257,6 +253,16 @@ export default function ProblemsSolvedSection() {
               viewport={{ once: true, margin: "0px 0px -25% 0px" }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             >
+              {/* Lion-circle emblem — same mark as the Process section, scaled to a header badge */}
+              <div className="mb-4 md:mb-5 h-16 w-16 md:h-20 md:w-20 overflow-hidden rounded-full ring-2 ring-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.35)]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/LION-CIRCLE.avif"
+                  alt="LIONOVART"
+                  decoding="async"
+                  className="h-full w-full object-cover"
+                />
+              </div>
               <p className="text-white text-[11px] md:text-[12px] font-clash uppercase tracking-[0.2em] mb-2">
                 {t.problems.eyebrow}
               </p>
@@ -293,6 +299,20 @@ export default function ProblemsSolvedSection() {
           </div>
         </div>
 
+      </div>
+
+      {/* ── Crossed diagonal marquees ──────────────────────────────────
+           Two counter-rotated, counter-scrolling red bands overlapping in
+           an X across the seam into the next section. Bars are wider than
+           the viewport and the container clips horizontally, so the rotation
+           never introduces a horizontal scrollbar. */}
+      <div className="relative mt-12 md:mt-20 -mb-8 md:-mb-14 h-[110px] md:h-[150px] overflow-hidden">
+        <div className="pointer-events-none absolute left-1/2 top-1/2 w-[140%] -translate-x-1/2 -translate-y-1/2 rotate-[5deg]">
+          <MarqueeSlanted />
+        </div>
+        <div className="pointer-events-none absolute left-1/2 top-1/2 w-[140%] -translate-x-1/2 -translate-y-1/2 -rotate-[5deg]">
+          <MarqueeSlanted reverse />
+        </div>
       </div>
     </section>
   );

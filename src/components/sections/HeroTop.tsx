@@ -373,9 +373,11 @@ export default function HeroTop(props: any) {
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(100% 70% at 50% 28%, rgba(229,25,42,0.10) 0%, transparent 52%), linear-gradient(180deg, rgba(7,7,9,0.50) 0%, rgba(7,7,9,0.42) 45%, rgba(7,7,9,0.80) 82%, rgba(10,10,10,0.98) 100%)",
+              "radial-gradient(100% 70% at 50% 28%, rgba(229,25,42,0.10) 0%, transparent 52%), linear-gradient(180deg, rgba(7,7,9,0.50) 0%, rgba(7,7,9,0.42) 45%, rgba(7,7,9,0.80) 80%, rgba(2,2,2,1) 97%, #000 100%)",
           }}
         />
+        {/* Thin near-black sliver at the very bottom — smooths the seam into the next (black) section */}
+        <div className="absolute inset-x-0 bottom-0 h-[5px] bg-black" />
       </div>
 
       <motion.div
@@ -384,6 +386,17 @@ export default function HeroTop(props: any) {
         animate="visible"
         className="relative z-[2] flex w-full max-w-[920px] flex-col items-center gap-8 md:gap-10"
       >
+        {/* Scarcity notice — subtle brand-red pill, value not distraction */}
+        <motion.div variants={itemVariants}>
+          <span className="inline-flex items-center gap-2 rounded-full border border-brand-red/30 bg-brand-red/10 px-4 py-1.5 text-[11px] md:text-[12px] font-semibold uppercase tracking-[0.18em] text-white/80 backdrop-blur-sm">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-red opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand-red" />
+            </span>
+            Only a few partner spots left this month
+          </span>
+        </motion.div>
+
         {/* Headline — ALL WHITE, always 3 lines, rem-bounded clamp (never crops) */}
         <motion.h1
           variants={itemVariants}
