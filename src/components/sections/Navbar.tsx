@@ -95,9 +95,11 @@ export default function Navbar({ solid = false }: { solid?: boolean }) {
   const { scrollY } = useScroll();
   const pathname = usePathname();
   const isHome = pathname === "/";
-  // On home the hero flier provides the visible logo; navbar logo is the
-  // invisible click target underneath until the flier docks onto it.
-  const heroLogoHidden = isHome;
+  // On home the hero flier provides the visible logo while in hero mode; the
+  // navbar logo is the invisible click target underneath. Once past the hero
+  // (flier sits behind the glass at z-45), reveal the real navbar logo so it
+  // stays visible above the glass.
+  const heroLogoHidden = isHome && !isPastHero;
   const { t, locale } = useLanguage();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lenis = useLenis() as any;

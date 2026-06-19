@@ -34,8 +34,8 @@ const mobileHeadlineContainer = {
   visible: { transition: { staggerChildren: 0.05 } },
 };
 const mobileHeadlineWord = {
-  hidden:  { y: "110%", opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
+  hidden:  { clipPath: "inset(0 100% 0 0)", opacity: 0 },
+  visible: { clipPath: "inset(0 0% 0 0)", opacity: 1, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
 /* ─── Credibility metrics ────────────────────────────────────── */
@@ -138,7 +138,12 @@ export default function AboutUsHalf(props: any) {
             scrub: 1.2,
           },
         })
-          .fromTo(wordEls, { yPercent: 110 }, { yPercent: 0, duration: 1, stagger: 0.08, ease: "power3.out" }, 0.05);
+          .fromTo(
+            wordEls,
+            { clipPath: "inset(0 100% 0 0)", opacity: 0 },
+            { clipPath: "inset(0 0% 0 0)", opacity: 1, duration: 1, stagger: 0.08, ease: "power2.out" },
+            0.05
+          );
 
         gsap.timeline({
           scrollTrigger: {

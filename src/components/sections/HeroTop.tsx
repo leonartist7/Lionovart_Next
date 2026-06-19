@@ -397,6 +397,20 @@ export default function HeroTop(props: any) {
         animate="visible"
         className="relative z-[2] flex w-full max-w-[920px] flex-col items-center gap-8 md:gap-10"
       >
+        {/* Notice strip — subtle scarcity cue, value-add not distraction */}
+        <motion.div
+          variants={itemVariants}
+          className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 backdrop-blur-md"
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-red opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-red" />
+          </span>
+          <span className="text-[11px] md:text-[12px] font-semibold uppercase tracking-[0.18em] text-white/70">
+            Booking 3 brands this month
+          </span>
+        </motion.div>
+
         {/* Headline — ALL WHITE, always 3 lines, rem-bounded clamp (never crops) */}
         <motion.h1
           variants={itemVariants}

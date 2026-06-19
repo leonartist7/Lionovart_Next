@@ -165,6 +165,17 @@ batches B and the copy work (A/4.4) gated on the Open Questions below.
 
 ---
 
+## Implementation status (all batches shipped)
+
+- **Batch C** ✅ 1.4, 2.1, 3.1, 3.2, 3.4, 4.1, 4.2, 4.3 (padding) — commit `02a2b31`
+- **Batch A** ✅ 1.1 (copy + charisma line), 1.3 (notice strip), 4.3 (mobile trim), 4.4 (3-reason rewrite EN/FR/ES)
+- **Batch B** ✅ 1.2 — flier dropped to z-45 (cards now render above docked logo), docks sooner (0.42vh), navbar reveals its own logo past hero. Sticky-pin avoided in favour of dock-sooner (lower risk).
+- **Batch D** ✅ 3.3 (clip-mask wipe reveal), 4.5 (in-card marquee removed → `MarqueeCross` diagonal X between Problems/Offer)
+
+Build verified locally: TypeScript clean, 24/24 static pages generated. Vercel
+failures are pre-existing missing env vars (`WHATSAPP_NUMBER`, `BOOKING_URL`,
+`RESEND_API_KEY`) — unrelated to these changes.
+
 ## Resolved decisions
 
 - **(1.2)** Logo sits **behind** the dropdown cards once docked; **short sticky pin** for the hold. ✅
