@@ -21,45 +21,57 @@ export default function ProofAndClose({
   attribution = "[ Name ], [ Role ], [ Business ]",
   closingLine,
   closingAccent,
+  theme = "dark",
 }: {
   quote?: string;
   attribution?: string;
   closingLine: string;
   closingAccent: string;
+  theme?: "dark" | "light";
 }) {
   const reduce = useReducedMotion();
   const openNova = useNovaStore((s) => s.openNova);
   const go = () => openNova("hero", true);
   const mp = reduce ? {} : reveal;
+  const light = theme === "light";
+
+  const c = {
+    proofSection: light ? "bg-bg-off-white" : "bg-bg-dark",
+    closeSection: light ? "bg-white" : "bg-bg-dark",
+    quote: light ? "text-[#111]" : "text-white",
+    attribution: light ? "text-[#777]" : "text-white/45",
+    heading: light ? "text-[#111]" : "text-white",
+    sub: light ? "text-[#777]" : "text-white/40",
+  };
 
   return (
     <>
-      <section className="bg-bg-dark px-6 py-28 md:py-32">
+      <section className={`${c.proofSection} px-6 py-28 md:py-32`}>
         <motion.figure {...mp} className="mx-auto max-w-4xl text-center">
           <blockquote
-            className="font-clash font-medium leading-[1.15] text-white"
+            className={`font-clash font-medium leading-[1.15] ${c.quote}`}
             style={{ fontSize: "clamp(1.6rem, 4vw, 3rem)" }}
           >
             &ldquo;{quote}&rdquo;
           </blockquote>
-          <figcaption className="mt-8 text-[13px] uppercase tracking-[0.18em] text-white/45">
+          <figcaption className={`mt-8 text-[13px] uppercase tracking-[0.18em] ${c.attribution}`}>
             {attribution}
           </figcaption>
         </motion.figure>
       </section>
 
-      <section className="relative overflow-hidden bg-bg-dark px-6 py-36 md:py-48">
+      <section className={`relative overflow-hidden ${c.closeSection} px-6 py-36 md:py-48`}>
         <div className="mx-auto max-w-5xl text-center">
           <motion.h2
             {...mp}
-            className="font-clash font-semibold uppercase leading-[0.92] tracking-tight text-white"
+            className={`font-clash font-semibold uppercase leading-[0.92] tracking-tight ${c.heading}`}
             style={{ fontSize: "clamp(2.8rem, 9vw, 8rem)" }}
           >
             {closingLine} <span className="text-brand-red">{closingAccent}</span>
           </motion.h2>
           <motion.div {...mp} className="mt-12 flex flex-col items-center gap-5">
             <LiquidMetalButton label="Talk to Nova" width={200} onClick={go} />
-            <p className="text-[12px] uppercase tracking-[0.2em] text-white/40">
+            <p className={`text-[12px] uppercase tracking-[0.2em] ${c.sub}`}>
               Tell our voice agent what you need. She takes it from there.
             </p>
           </motion.div>

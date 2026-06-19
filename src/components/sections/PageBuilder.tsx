@@ -5,6 +5,7 @@ import { HeroLogoFly } from "@/components/ui/HeroLogoFly";
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import WhatWeDo from "@/components/sections/WhatWeDo";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
+import MarqueeCross from "@/components/sections/MarqueeCross";
 import SignatureOffer from "@/components/sections/SignatureOffer";
 import Services from "@/components/sections/Services";
 import Comparison from "@/components/sections/Comparison";
@@ -38,8 +39,9 @@ export function PageBuilder({ blocks }: { blocks: PageBlock[] }) {
         {/* Fixed video scene — sits behind Hero → WhatWeDo → HeroLion, fades at About */}
         <SceneVideoBackdrop />
 
-        {/* Logo flier — top-level so it escapes the hero's z-20 stacking context
-            and can ride ABOVE the navbar (z-50) when it docks. */}
+        {/* Logo flier — top-level so it escapes the hero's z-20 stacking context.
+            Sits at z-45: above the hero during flight, but below the navbar (z-50)
+            so the Expertise dropdown cards render on top once it docks. */}
         <HeroLogoFly />
 
         {/* Hero — normal flow: visible at load, scrolls away naturally.
@@ -54,6 +56,8 @@ export function PageBuilder({ blocks }: { blocks: PageBlock[] }) {
           <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
           <NovaSection id="about"><AboutUsHalf /></NovaSection>
           <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
+          {/* Diagonal crossed marquee — divider between Problems and Offer */}
+          <MarqueeCross />
           <NovaSection id="offer"><SignatureOffer /></NovaSection>
           <NovaSection id="services"><Services /></NovaSection>
           <NovaSection id="process"><Process /></NovaSection>
@@ -61,7 +65,7 @@ export function PageBuilder({ blocks }: { blocks: PageBlock[] }) {
               viewport horizontally as the user scrolls past, like a film
               title card. Provides structural breathing room between
               chapters and reasserts the brand voice. */}
-          <SectionTitleCard word="PROOF." theme="light" />
+          <SectionTitleCard word="LIONOVART." theme="light" />
           <NovaSection id="comparison"><Comparison /></NovaSection>
           <SectionTitleCard word="CONFIDENCE." theme="light" />
           <TestimonialsCarousel />

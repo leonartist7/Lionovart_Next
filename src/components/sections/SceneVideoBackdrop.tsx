@@ -13,13 +13,14 @@ import { useLenis } from "lenis/react";
  * z-[0]: paints above `main`'s bg-bg-dark box but below the sections (z-[2]),
  * which are transparent through this region, so the video shows through them.
  */
-// f_auto,q_auto → Cloudinary serves a modern codec (AV1/VP9/H.265) at
-// perceptually-optimized quality per browser: same look behind the dark
-// tint, meaningfully smaller download + cheaper decode per frame.
+// q_auto,w_1920,c_limit → H.264 MP4 capped at 1080p. The originals are 4K
+// (4× the decode cost), and `f_auto` was serving VP9/AV1 — codecs that
+// fall back to laggy SOFTWARE decode on GPUs without hardware support.
+// H.264 hardware decode is universal, so playback stays off the CPU.
 const CLIPS = [
-  "https://res.cloudinary.com/dgio9uutc/video/upload/f_auto,q_auto/v1779845634/Footage_07_o3rfbu.mp4",
-  "https://res.cloudinary.com/dgio9uutc/video/upload/f_auto,q_auto/v1779845599/Footage_02_chsoa3.mp4",
-  "https://res.cloudinary.com/dgio9uutc/video/upload/f_auto,q_auto/v1779845553/Footage_05_yalbaj.mp4",
+  "https://res.cloudinary.com/dgio9uutc/video/upload/q_auto,w_1920,c_limit/v1779845634/Footage_07_o3rfbu.mp4",
+  "https://res.cloudinary.com/dgio9uutc/video/upload/q_auto,w_1920,c_limit/v1779845599/Footage_02_chsoa3.mp4",
+  "https://res.cloudinary.com/dgio9uutc/video/upload/q_auto,w_1920,c_limit/v1779845553/Footage_05_yalbaj.mp4",
 ];
 
 const CLIP_DURATION_MS = 14000;
@@ -29,6 +30,9 @@ export default function SceneVideoBackdrop() {
   // Playback starts ~1s after the user first scrolls into the hero (past the
   // curtain), not on load — so the entrance feels deliberate.
   const [started, setStarted] = useState(false);
+  // False once the scene has faded out (user scrolled past the hero). Gates
+  // the clip cycle AND play() so no hidden 4K decode happens below the fold.
+  const [visible, setVisible] = useState(true);
   const startTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeVideoRef = useRef<HTMLVideoElement>(null);
 
@@ -38,14 +42,16 @@ export default function SceneVideoBackdrop() {
   // text contrast over busier footage (kept subtle).
   const tintOpacity = useTransform(sceneOpacity, [0, 1], [0, 1]);
 
-  // Auto-advance the clip every 14s — only once playback has started.
+  // Auto-advance the clip every 14s — only while playing AND visible.
+  // Without the `visible` gate the cycle kept mounting + playing a fresh
+  // 4K video behind an opacity-0 layer for the entire session.
   useEffect(() => {
-    if (!started) return;
+    if (!started || !visible) return;
     const id = setInterval(() => {
       setIndex((i) => (i + 1) % CLIPS.length);
     }, CLIP_DURATION_MS);
     return () => clearInterval(id);
-  }, [started]);
+  }, [started, visible]);
 
   useEffect(() => () => { if (startTimer.current) clearTimeout(startTimer.current); }, []);
 
@@ -65,21 +71,25 @@ export default function SceneVideoBackdrop() {
     const o = Math.min(1, Math.max(0, 1 - (scroll - vh * 0.7) / (vh * 0.7)));
     sceneOpacity.set(o);
 
+    const isVisible = o > 0.01;
+    setVisible((prev) => (prev === isVisible ? prev : isVisible));
+
     const v = activeVideoRef.current;
     if (!v || !started) return;
-    if (o <= 0.01) {
+    if (!isVisible) {
       if (!v.paused) v.pause();
     } else if (v.paused) {
       void v.play().catch(() => {});
     }
   });
 
-  // Kick off playback on the active video the moment it's allowed.
+  // Kick off playback on the active video the moment it's allowed — but
+  // never while the scene is faded out below the fold.
   useEffect(() => {
-    if (!started) return;
+    if (!started || !visible) return;
     const v = activeVideoRef.current;
     if (v) void v.play().catch(() => {});
-  }, [started, index]);
+  }, [started, visible, index]);
 
   return (
     <motion.div

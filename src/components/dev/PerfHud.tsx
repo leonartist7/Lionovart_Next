@@ -32,12 +32,18 @@ type PerfState = {
   noBdblur: boolean;
   noHeroBg: boolean;
   noScrubs: boolean;
+  noTitlecards: boolean;
+  noVideo: boolean;
+  lenisFast: boolean;
 };
 
 const defaultState: PerfState = {
   noBdblur: false,
   noHeroBg: false,
   noScrubs: false,
+  noTitlecards: false,
+  noVideo: false,
+  lenisFast: false,
 };
 
 function loadState(): PerfState {
@@ -76,6 +82,13 @@ function PerfHudInner() {
   const [maxMs, setMaxMs] = useState(0);
   const [stCount, setStCount] = useState(0);
 
+  // Auto-profiler
+  const [profiling, setProfiling] = useState(false);
+  const [profileStatus, setProfileStatus] = useState("");
+  const [profileRows, setProfileRows] = useState<
+    { key: string; avgFps: number; p95ms: number; jank: number }[]
+  >([]);
+
   // RAF + sampling refs (no state updates from RAF — that would defeat the point)
   const lastTimeRef = useRef<number>(performance.now());
   const frameTimesRef = useRef<number[]>([]); // ms per frame, ring of ~120
@@ -94,6 +107,29 @@ function PerfHudInner() {
 
     document.body.classList.toggle("no-bdblur", state.noBdblur);
     document.body.classList.toggle("no-herobg", state.noHeroBg);
+    document.body.classList.toggle("no-titlecards", state.noTitlecards);
+
+    // Pause/resume all <video> decode (the real cost, not just paint).
+    document.querySelectorAll("video").forEach((v) => {
+      if (state.noVideo) v.pause();
+      else void v.play().catch(() => {});
+    });
+
+    // Live-tune Lenis wheel smoothing to A/B the "scroll-tail" theory.
+    // OFF must restore the SmoothScrollProvider's real config (lerp 0.12,
+    // smoothWheel true) — do NOT write `duration` (Lenis ignores it when lerp
+    // is set, and forcing it here previously clobbered the provider config).
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const lenis = (window as any).__lenis;
+    if (lenis?.options) {
+      if (state.lenisFast) {
+        lenis.options.smoothWheel = false; // closest to "native wheel" for A/B
+        lenis.options.lerp = 0.25;
+      } else {
+        lenis.options.smoothWheel = true;
+        lenis.options.lerp = 0.12;
+      }
+    }
 
     if (state.noScrubs) {
       // Lazy-import GSAP only on demand. Disables ALL ScrollTriggers.
@@ -161,6 +197,100 @@ function PerfHudInner() {
       window.clearInterval(sampleId);
     };
   }, []);
+
+  /* ── Auto-profiler ─────────────────────────────────────────────────────
+     Sweeps the page top→bottom under each condition, sampling frame time, so
+     the user gets a ranked avg-fps table on THEIR machine. The condition whose
+     removal most raises fps is the culprit. Programmatic scroll exercises the
+     same ScrollTrigger.update + per-frame subscriber path as a wheel scroll. */
+  async function runProfile() {
+    if (profiling) return;
+    setProfiling(true);
+    setProfileRows([]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const lenis = (window as any).__lenis;
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    // Sweep: scroll to top, then animate to bottom over `dur` ms while
+    // recording frame deltas. Falls back to window.scrollTo if Lenis absent.
+    const sweep = (dur: number) =>
+      new Promise<{ avgFps: number; p95ms: number; jank: number }>((resolve) => {
+        const maxY = document.documentElement.scrollHeight - window.innerHeight;
+        const deltas: number[] = [];
+        let start = 0;
+        let last = 0;
+        const step = (now: number) => {
+          if (!start) {
+            start = now;
+            last = now;
+          } else {
+            deltas.push(now - last);
+            last = now;
+          }
+          const t = Math.min(1, (now - start) / dur);
+          const y = Math.round(maxY * t);
+          if (lenis?.scrollTo) lenis.scrollTo(y, { immediate: true });
+          else window.scrollTo(0, y);
+          if (t < 1) {
+            requestAnimationFrame(step);
+          } else {
+            deltas.shift();
+            const sorted = [...deltas].sort((a, b) => a - b);
+            const avg = deltas.reduce((a, b) => a + b, 0) / (deltas.length || 1);
+            resolve({
+              avgFps: Math.round(1000 / avg),
+              p95ms: Math.round(sorted[Math.floor(sorted.length * 0.95)] || 0),
+              jank: deltas.filter((d) => d > 33).length,
+            });
+          }
+        };
+        if (lenis?.scrollTo) lenis.scrollTo(0, { immediate: true });
+        else window.scrollTo(0, 0);
+        requestAnimationFrame(() => requestAnimationFrame(step));
+      });
+
+    const setBody = (cls: string, on: boolean) =>
+      document.body.classList.toggle(cls, on);
+    const setVideos = (paused: boolean) =>
+      document.querySelectorAll("video").forEach((v) => {
+        if (paused) v.pause();
+        else void v.play().catch(() => {});
+      });
+    const ST = (await import("gsap/ScrollTrigger")).default;
+
+    const conditions: { key: string; on: () => void; off: () => void }[] = [
+      { key: "baseline", on: () => {}, off: () => {} },
+      { key: "no-scrubs", on: () => ST.disable(false, false), off: () => ST.enable() },
+      { key: "no-bdblur", on: () => setBody("no-bdblur", true), off: () => setBody("no-bdblur", false) },
+      { key: "no-titlecards", on: () => setBody("no-titlecards", true), off: () => setBody("no-titlecards", false) },
+      { key: "no-video", on: () => setVideos(true), off: () => setVideos(false) },
+      { key: "no-herobg", on: () => setBody("no-herobg", true), off: () => setBody("no-herobg", false) },
+    ];
+
+    const rows: { key: string; avgFps: number; p95ms: number; jank: number }[] = [];
+    for (const c of conditions) {
+      setProfileStatus(`measuring ${c.key}…`);
+      c.on();
+      await wait(250);
+      const r = await sweep(2600);
+      rows.push({ key: c.key, ...r });
+      c.off();
+      await wait(250);
+    }
+
+    // Rank by fps gain vs baseline (bigger gain = bigger culprit).
+    const base = rows.find((r) => r.key === "baseline")?.avgFps ?? 0;
+    const ranked = rows
+      .map((r) => ({ ...r, gain: r.key === "baseline" ? 0 : r.avgFps - base }))
+      .sort((a, b) => b.gain - a.gain);
+
+    // eslint-disable-next-line no-console
+    console.table(ranked.map((r) => ({ condition: r.key, avgFps: r.avgFps, p95ms: r.p95ms, jankFrames: r.jank, fpsGainVsBaseline: r.gain })));
+    setProfileRows(ranked.map(({ key, avgFps, p95ms, jank }) => ({ key, avgFps, p95ms, jank })));
+    setProfileStatus(`baseline ${base}fps — top culprit: ${ranked[0]?.key}`);
+    if (lenis?.scrollTo) lenis.scrollTo(0, { immediate: true });
+    setProfiling(false);
+  }
 
   if (!hydrated) return null;
 
@@ -245,6 +375,58 @@ function PerfHudInner() {
             on={state.noHeroBg}
             onChange={(v) => setState((s) => ({ ...s, noHeroBg: v }))}
           />
+          <Toggle
+            label="no title cards"
+            on={state.noTitlecards}
+            onChange={(v) => setState((s) => ({ ...s, noTitlecards: v }))}
+          />
+          <Toggle
+            label="no video"
+            on={state.noVideo}
+            onChange={(v) => setState((s) => ({ ...s, noVideo: v }))}
+          />
+          <Toggle
+            label="lenis fast wheel"
+            on={state.lenisFast}
+            onChange={(v) => setState((s) => ({ ...s, lenisFast: v }))}
+          />
+
+          {/* Auto-profiler — sweeps the page under each condition, ranks fps */}
+          <button
+            onClick={runProfile}
+            disabled={profiling}
+            style={{
+              marginTop: 6,
+              background: profiling ? "rgba(240,201,23,0.15)" : "rgba(126,231,135,0.12)",
+              border: "1px solid rgba(255,255,255,0.18)",
+              color: profiling ? "#f0c917" : "#7ee787",
+              borderRadius: 4,
+              padding: "4px 6px",
+              fontSize: 10,
+              cursor: profiling ? "wait" : "pointer",
+              fontFamily: "inherit",
+              fontWeight: 700,
+            }}
+          >
+            {profiling ? "profiling…" : "▶ auto-profile (rank culprits)"}
+          </button>
+          {profileStatus && (
+            <div style={{ fontSize: 9, color: "#f0c917", marginTop: 2 }}>{profileStatus}</div>
+          )}
+          {profileRows.length > 0 && (
+            <div style={{ marginTop: 4, fontSize: 9.5, lineHeight: 1.5 }}>
+              {profileRows.map((r) => (
+                <div key={r.key} style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                  <span style={{ opacity: 0.7 }}>{r.key}</span>
+                  <span>
+                    <span style={{ color: r.avgFps >= 50 ? "#7ee787" : r.avgFps >= 30 ? "#f0c917" : "#ff6b6b", fontWeight: 700 }}>{r.avgFps}</span>
+                    <span style={{ opacity: 0.4 }}>fps · {r.jank}j</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
           <button
             onClick={() => {
               setState(defaultState);

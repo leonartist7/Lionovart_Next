@@ -208,46 +208,46 @@ export const en = {
     items: [
       {
         problem: {
-          heading: "Your Brand Commands The Room",
-          body: "You've invested in your craft, your team, your space — but your image still looks like day one. Clients pick the competitor who looks like the better choice, even when they're not.",
+          heading: "You're Guessing What Actually Works",
+          body: "A bit of everything, hoping something sticks — ads here, a post there, advice from five different people. Effort without a system rarely compounds.",
         },
         solution: {
-          heading: "A Brand That Commands Respect on Sight",
-          body: "We build identity systems that make clients trust you before you've said a word — logo, web, print, everything aligned.",
+          heading: "Experts Who Know What Works Right Now",
+          body: "Stop eyeballing it. We bring proven, current strategy to every move — so your budget and energy go only where they actually drive results.",
           stats: [
             { value: "3x", label: "Perceived Value After Rebrand" },
-            { value: "94%", label: "First Impressions Are Design-Based" },
             { value: "50+", label: "Brands Elevated Worldwide" },
+            { value: "94%", label: "First Impressions Are Design-Based" },
           ],
         },
       },
       {
         problem: {
-          heading: "Your Business Shows Up Where It Counts",
-          body: "You're great at what you do — your existing clients love you. But the next person searching for exactly what you offer? They're finding your competitor instead.",
+          heading: "You're Running Everything Alone",
+          body: "The website, the socials, the emails, the content — on top of actually running your business. It's 10pm and you're still editing a reel.",
         },
         solution: {
-          heading: "Show Up First. Get Chosen First.",
-          body: "From search engines to social feeds, we make sure the right people find you — consistently and in the right places.",
+          heading: "One Team That Handles It All",
+          body: "Brand, web, video, social, print, AI — all under one roof. You focus on what you do best; we take care of how it looks, sounds, and grows.",
+          stats: [
+            { value: "15h+", label: "Saved Weekly on Average" },
+            { value: "100%", label: "Of Partners Multiplied Their ROI" },
+            { value: "24/7", label: "AI Systems Capturing Leads for You" },
+          ],
+        },
+      },
+      {
+        problem: {
+          heading: "Your Brand Is Stuck in Last Year",
+          body: "The market moved to video, AI and automation. Doing it the old way quietly costs you reach, leads, and the clients who pick whoever looks ahead.",
+        },
+        solution: {
+          heading: "Cutting-Edge Creative & Smart Systems — Made Accessible",
+          body: "The edge big brands pay fortunes for — modern design and AI-driven systems — built for your brand, at your scale.",
           stats: [
             { value: "+70%", label: "In Direct Bookings — Real Client Result" },
             { value: "5x", label: "More Qualified Leads on Average" },
             { value: "82%", label: "Of Internet Traffic Is Now Video" },
-          ],
-        },
-      },
-      {
-        problem: {
-          heading: "You Have a Full Team Behind You",
-          body: "The website, the socials, the emails, the content — on top of actually running your business. It's 10pm and you're still editing a reel. You didn't start this to become a full-time marketer.",
-        },
-        solution: {
-          heading: "Your Full Creative & Digital Team — One Call Away",
-          body: "Brand, web, video, social, print, AI — all handled. You focus on your business. We handle how it looks, sounds, and grows.",
-          stats: [
-            { value: "24/7", label: "AI Systems Capturing Leads for You" },
-            { value: "15h+", label: "Saved Weekly on Average" },
-            { value: "100%", label: "Of Partners Multiplied Their ROI" },
           ],
         },
       },

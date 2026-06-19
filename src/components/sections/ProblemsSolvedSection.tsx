@@ -4,7 +4,6 @@ import { useState, useRef } from "react";
 import { motion, useAnimation } from "framer-motion";
 import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
-import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
 import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
 
 const FEATURED = {
@@ -122,7 +121,7 @@ function ProblemCard({
             </div>
 
             {/* Text content — takes remaining 70%/62% */}
-            <div className="flex-1 flex flex-col justify-center p-4 sm:p-6 md:p-8 lg:p-10">
+            <div className="flex-1 flex flex-col justify-center p-4 sm:p-8 md:p-10 lg:p-12">
               {/* Checkmark + heading */}
               <div className="flex items-start gap-2 md:gap-3 mb-2 md:mb-3">
                 <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#10b981] flex items-center justify-center shrink-0 mt-0.5">
@@ -141,15 +140,15 @@ function ProblemCard({
                 </h3>
               </div>
 
-              {/* Description */}
-              <p className="text-[#555] font-sans text-[11px] sm:text-[13px] md:text-[14px] leading-[1.55] mb-4 md:mb-6 max-w-[520px]">
+              {/* Description — hidden on the smallest screens so the stats always fit */}
+              <p className="hidden sm:block text-[#555] font-sans text-[11px] sm:text-[13px] md:text-[14px] leading-[1.55] mb-4 md:mb-6 max-w-[520px]">
                 {item.solution.body}
               </p>
 
-              {/* Trust stats row */}
-              <div className="flex flex-wrap gap-x-4 gap-y-3 sm:gap-x-6 md:gap-x-8">
+              {/* Trust stats row — 3rd stat dropped on mobile, keeping the two strongest */}
+              <div className="flex flex-wrap gap-x-4 gap-y-3 sm:gap-x-6 md:gap-x-8 mt-1 sm:mt-0">
                 {item.solution.stats.map((stat, si) => (
-                  <div key={si} className="flex flex-col">
+                  <div key={si} className={`flex flex-col ${si === 2 ? "hidden sm:flex" : ""}`}>
                     <span className="text-[#e5192a] font-clash font-bold text-[18px] sm:text-[22px] md:text-[26px] lg:text-[30px] leading-none">
                       {stat.value}
                     </span>
@@ -244,10 +243,14 @@ export default function ProblemsSolvedSection() {
         >
           {/* Red card */}
           <div className="relative z-10 w-full bg-[#e5192a] rounded-[32px] px-5 sm:px-7 pt-12 md:pt-16 pb-12 shadow-[0_30px_60px_-15px_rgba(229,25,42,0.45)]">
-            {/* Slanted marquee band near the top — card's rounded corners stay
-                visible above it (sits below the pt). Clipped to the card width. */}
-            <div className="-mx-5 sm:-mx-7 mb-9 md:mb-12 overflow-hidden">
-              <MarqueeSlanted />
+            {/* LION-CIRCLE emblem */}
+            <div className="flex justify-center mb-8 md:mb-10">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/LION-CIRCLE.avif"
+                alt="LIONOVART"
+                className="w-20 h-20 md:w-28 md:h-28 rounded-full object-cover ring-2 ring-white/20"
+              />
             </div>
             {/* Heading */}
             <motion.div

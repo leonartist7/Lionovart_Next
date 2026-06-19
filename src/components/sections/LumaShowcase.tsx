@@ -615,7 +615,7 @@ export default function LumaShowcase() {
                      2xl:w-[50vw] 2xl:h-[28vw]"
         >
           <video autoPlay muted loop playsInline className="h-full w-full object-cover">
-            <source src="https://res.cloudinary.com/dgio9uutc/video/upload/v1776405459/AI_power_4_wheudr.mp4" type="video/mp4" />
+            <source src="https://res.cloudinary.com/dgio9uutc/video/upload/q_auto,w_1920,c_limit/v1776405459/AI_power_4_wheudr.mp4" type="video/mp4" />
           </video>
           {/* Dark film so video reads cleanly before shrink */}
           <div className="absolute inset-0 bg-black/20" />

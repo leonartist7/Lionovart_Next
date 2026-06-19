@@ -7,9 +7,10 @@ const ASPECT = 57.75 / 360; // LOGO.svg height/width
 
 /**
  * HeroLogoFly — the LOGO.svg wordmark sits at the top of the hero and, on scroll,
- * MOVES (one element, no fade) to land exactly on the navbar logo slot and stay
- * there. The navbar's own LOGO.svg ([data-nav-logo]) is an invisible click target
- * underneath; this measures it to dock precisely.
+ * MOVES (one element, no fade) to land exactly on the navbar logo slot. It sits
+ * at z-45 (below the navbar's z-50) so the Expertise dropdown renders above it.
+ * Once past the hero the navbar's own LOGO.svg ([data-nav-logo]) becomes visible
+ * and takes over; this measures that slot to dock precisely onto it.
  */
 export function HeroLogoFly() {
   const imgRef = useRef<HTMLImageElement>(null);
@@ -30,7 +31,7 @@ export function HeroLogoFly() {
       const startTopY = 0.11 * vh; // wrapper top: 11vh
       // Center-to-center docking → lands vertically centered on the navbar slot.
       dims.current = {
-        end: Math.max(1, vh * 0.55),
+        end: Math.max(1, vh * 0.42),
         tx: r.left + r.width / 2 - vw / 2,
         ty: r.top + r.height / 2 - (startTopY + H0 / 2),
         s: targetH / H0,
@@ -59,7 +60,7 @@ export function HeroLogoFly() {
   });
 
   return (
-    <div className="fixed top-[11vh] left-1/2 -translate-x-1/2 z-[60] pointer-events-none select-none">
+    <div className="fixed top-[11vh] left-1/2 -translate-x-1/2 z-[45] pointer-events-none select-none">
       <motion.div style={{ x, y, scale, transformOrigin: "center" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
