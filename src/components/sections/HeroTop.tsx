@@ -377,7 +377,7 @@ export default function HeroTop(props: any) {
   };
 
   return (
-    <section className="relative z-20 flex min-h-[90vh] flex-col items-center justify-start px-6 pt-[24vh] md:pt-[28vh] pb-16 text-center overflow-hidden">
+    <section className="relative z-20 flex min-h-[90vh] flex-col items-center justify-start px-6 pt-[24vh] md:pt-[28vh] pb-16 text-center overflow-hidden border-b-[5px] border-black">
 
       {/* Controlled dark stage + soft red glow up top; clears toward the
           bottom so the video behind PEEKS at the fold and pulls scroll. */}
@@ -386,7 +386,7 @@ export default function HeroTop(props: any) {
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(100% 70% at 50% 28%, rgba(229,25,42,0.10) 0%, transparent 52%), linear-gradient(180deg, rgba(7,7,9,0.50) 0%, rgba(7,7,9,0.42) 45%, rgba(7,7,9,0.80) 82%, rgba(10,10,10,0.98) 100%)",
+              "radial-gradient(100% 70% at 50% 28%, rgba(229,25,42,0.10) 0%, transparent 52%), linear-gradient(180deg, rgba(7,7,9,0.50) 0%, rgba(7,7,9,0.42) 45%, rgba(7,7,9,0.80) 82%, rgba(10,10,10,0.99) 94%, #000 100%)",
           }}
         />
       </div>

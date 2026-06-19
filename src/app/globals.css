@@ -225,7 +225,7 @@
   /* Process lion circle (the "i" dot) and the IMAGINE card width.
      Decoupled: circle ~20% smaller than the card. */
   --lion-circle-d: clamp(272px, 64vmin, 600px);
-  --imagine-card-d: clamp(360px, 90vmin, 900px);
+  --imagine-card-d: clamp(360px, 90vmin, 1035px);
   --background: #0d0d0d;
   --foreground: #ffffff;
   --card: #161616;

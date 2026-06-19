@@ -151,7 +151,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
     target: sectionRef,
     offset: ["start start", "end end"],
   });
-  const p = useTransform(scrollYProgress, [0.12, 0.62], [0, 1], { clamp: true });
+  const p = useTransform(scrollYProgress, [0, 0.5], [0, 1], { clamp: true });
   // Scroll-linked background: black through the split, then morphs to off-white
   // over the section's tail → smooth colour transition into the About section.
   const bgColor = useTransform(
