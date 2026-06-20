@@ -8,6 +8,8 @@ import { CONTACT_EMAIL } from "@/lib/contact";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description: "The terms that govern your use of LIONOVART's website and services.",
+  alternates: { canonical: "/terms" },
+  robots: { index: true, follow: true },
 };
 
 export default function TermsPage() {

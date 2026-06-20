@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
@@ -18,7 +18,7 @@ import CustomCursor from "@/components/ui/CustomCursor";
 import BottomBlur from "@/components/ui/BottomBlur";
 import SplashScreen from "@/components/ui/SplashScreen";
 import PerfHud from "@/components/dev/PerfHud";
-import { SITE, SITE_URL } from "@/lib/seo/config";
+import { SITE, SITE_URL, OG_IMAGE } from "@/lib/seo/config";
 import { JsonLd } from "@/lib/seo/JsonLd";
 import {
   organizationSchema,
@@ -75,19 +75,24 @@ export const metadata: Metadata = {
     siteName: SITE.name,
     locale: "en_CA",
     type: "website",
-    images: [{ url: "/images/og-default.jpg", width: 1200, height: 630, alt: "LIONOVART" }],
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "LIONOVART" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "LIONOVART — Creative & Digital Agency in Calgary",
     description: SITE.description,
-    images: ["/images/og-default.jpg"],
+    images: [OG_IMAGE],
   },
   robots: {
     index: true,
     follow: true,
     googleBot: { index: true, follow: true, "max-image-preview": "large" },
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: SITE.themeColor,
+  colorScheme: "dark",
 };
 
 export default async function RootLayout({

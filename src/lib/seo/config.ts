@@ -29,6 +29,13 @@ export const SITE = {
   accentColor: "#c1121f",
 } as const;
 
+/** Brand assets referenced by metadata + JSON-LD. These point at files that
+ *  actually exist in /public so schema `logo`/`image` and OG tags never 404.
+ *  TODO: replace OG_IMAGE with a dedicated 1200x630 JPG/PNG for best social
+ *  previews (AVIF has limited support in social scrapers). */
+export const LOGO_PATH = "/images/LOGO.svg";
+export const OG_IMAGE = "/images/LION-CIRCLE.avif";
+
 /** Name/Address/Phone for LocalBusiness schema + GBP consistency.
  *  Street is intentionally omitted until the Google Business Profile is
  *  set up (see master plan, Phase 1). Locality-level data is valid. */

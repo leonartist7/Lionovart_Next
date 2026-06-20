@@ -93,7 +93,9 @@ version that gets a sharper result next time you brief an AI on this:
 | 10 | `images.unoptimized: true` + hotlinked imgur/cloudinary | Core Web Vitals / LCP risk → ranking + UX | ⏳ §7 (perf track) |
 | 11 | i18n via `localStorage` (client-only), not URL-based | 5 locales of content are **invisible** to search & AI; no hreflang | ⏳ §8 (structural, separate pass) |
 | 12 | `HeroCycling` renders multiple `<h1>` in a loop | Diluted primary-heading signal | ⏳ §7 (copy pass) |
-| 13 | No real `og-default.jpg` / logo PNG asset | Social shares + schema `logo`/`image` 404 | ⏳ Asset TODO (§6) |
+| 13 | Schema/OG referenced image paths that 404 | Social shares + schema `logo`/`image` broken | ✅ Fixed — pointed at real assets (`LOGO.svg`, `LION-CIRCLE.avif`); TODO: dedicated 1200×630 |
+| 15 | No `viewport`/`theme-color`, no canonicals on privacy/terms | Minor mobile + duplicate-URL signals | ✅ Fixed (`viewport` export, canonicals) |
+| 16 | No `Review`/`aggregateRating` schema | Missing rich-result stars | ⏸ Intentionally deferred — **no real reviews yet; faking them risks a manual penalty.** Add when reviews exist. |
 | 14 | Google Business Profile not created | Losing the #1 local lever entirely | 🔴 §9 — **do first** |
 
 ---
@@ -167,11 +169,18 @@ src/app/page.tsx           ← FAQPage schema from live EN FAQ copy
 src/app/services/*         ← Service + Breadcrumb schema, canonicals, sharper titles
 ```
 
-**Two asset TODOs** (replace placeholders — schema/OG reference these paths):
-- `public/images/og-default.jpg` — 1200×630 social share image.
-- `public/images/lionovart-logo.png` — square logo for schema `logo`.
+Schema/OG now point at **real existing assets** (`LOGO_PATH`, `OG_IMAGE` in
+`config.ts`) so nothing 404s. Remaining polish (optional, not blocking):
+- Add a dedicated `public/images/og-default.jpg` (1200×630 JPG/PNG) and swap
+  `OG_IMAGE` → it, for the best social previews (AVIF support in scrapers is spotty).
 - When social accounts go live, uncomment handles in `SOCIAL_PROFILES`
   (`src/lib/seo/config.ts`) → they flow into schema `sameAs` automatically.
+
+> **Deploy pipeline note:** this project ships via **Google Cloud Build**
+> (`cloudbuild.yaml` + `Dockerfile` + custom `server.js`), not Vercel. The Vercel
+> preview attached to the PR fails because Vercel can't run a custom-server Next
+> app — that's a platform mismatch, **not a code error.** Cloud Build is the
+> source of truth for build health.
 
 **Verify after deploy:** `/{robots.txt, sitemap.xml, manifest.webmanifest, llms.txt}`
 resolve, and paste the homepage into Google's Rich Results Test → expect

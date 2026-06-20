@@ -12,6 +12,8 @@ import {
   KNOWS_LANGUAGES,
   SOCIAL_PROFILES,
   SERVICES,
+  LOGO_PATH,
+  OG_IMAGE,
   abs,
 } from "./config";
 
@@ -34,10 +36,18 @@ export function organizationSchema() {
     description: SITE.description,
     logo: {
       "@type": "ImageObject",
-      url: abs("/images/lionovart-logo.png"),
+      url: abs(LOGO_PATH),
     },
-    image: abs("/images/og-default.jpg"),
+    image: abs(OG_IMAGE),
     knowsLanguage: [...KNOWS_LANGUAGES],
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: SITE.phone,
+      email: SITE.email,
+      contactType: "sales",
+      areaServed: ["CA", "GB", "EU"],
+      availableLanguage: [...KNOWS_LANGUAGES],
+    },
     areaServed: [
       { "@type": "City", name: "Calgary" },
       { "@type": "AdministrativeArea", name: "Alberta" },
@@ -57,7 +67,7 @@ export function localBusinessSchema() {
     "@id": LOCALBIZ_ID,
     name: SITE.name,
     url: SITE_URL,
-    image: abs("/images/og-default.jpg"),
+    image: abs(OG_IMAGE),
     telephone: SITE.phone,
     email: SITE.email,
     priceRange: "$$",
