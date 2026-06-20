@@ -7,13 +7,16 @@ import StickyStatementRelay from "@/components/sections/services/content/StickyS
 import CapabilityScrollScene from "@/components/sections/services/content/CapabilityScrollScene";
 import SocialScene from "@/components/sections/services/content/SocialScene";
 import OffersAndClose from "@/components/sections/services/content/OffersAndClose";
+import { JsonLd } from "@/lib/seo/JsonLd";
+import { serviceSchema, breadcrumbSchema } from "@/lib/seo/schema";
 
 // Brand-facing name is "Content Studio"; the title/description carry the terms
 // people actually search (video production, social media, brand films, content).
 export const metadata: Metadata = {
-  title: "Content Studio — Video & Social Content",
+  title: "Video Production & Social Media Content",
   description:
-    "Brand films, social reels, motion design, and full social media content. One studio that makes your brand impossible to ignore.",
+    "Brand films, social reels, motion design, and full social media management in Calgary. One studio that makes your brand impossible to ignore.",
+  alternates: { canonical: "/services/content-studio" },
 };
 
 /**
@@ -25,6 +28,16 @@ export const metadata: Metadata = {
 export default function ContentStudioPage() {
   return (
     <>
+      <JsonLd
+        data={[
+          serviceSchema("content-studio")!,
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Services", path: "/services" },
+            { name: "Content Studio — Video & Social", path: "/services/content-studio" },
+          ]),
+        ]}
+      />
       <main className="bg-bg-dark min-h-screen relative z-10">
         <Navbar />
         <CurtainHero />

@@ -3,11 +3,14 @@ import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
 import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
 import BrandingExperience from "@/components/sections/services/brand/branding/BrandingExperience";
+import { JsonLd } from "@/lib/seo/JsonLd";
+import { serviceSchema, breadcrumbSchema } from "@/lib/seo/schema";
 
 export const metadata: Metadata = {
-  title: "Branding",
+  title: "Brand Identity & Logo Design",
   description:
-    "Identity, voice, and motion — crafted into one presence people remember. A brand they can feel.",
+    "Identity, voice, and motion — crafted into one presence people remember. Brand identity, logo systems, and guidelines for Calgary businesses ready to look premium.",
+  alternates: { canonical: "/services/brand" },
 };
 
 /**
@@ -18,6 +21,16 @@ export const metadata: Metadata = {
 export default function BrandServicePage() {
   return (
     <>
+      <JsonLd
+        data={[
+          serviceSchema("brand")!,
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Services", path: "/services" },
+            { name: "Brand Identity & Strategy", path: "/services/brand" },
+          ]),
+        ]}
+      />
       <main className="relative z-10 min-h-screen bg-bg-dark">
         <Navbar />
         <BrandingExperience />
