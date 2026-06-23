@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -179,15 +179,16 @@ function Logo({ src, className = "" }: { src: string; className?: string }) {
 // ─── Variant: photo ───────────────────────────────────────────────────────────
 // Full-bleed person photo, dimmed at rest → brightens on hover. Stat top-left,
 // quote + name/role over a red→dark bottom scrim.
-function PhotoContent({ card, isHovered }: { card: ReviewCard; isHovered: boolean }) {
+function PhotoContent({ card, isHovered, preload }: { card: ReviewCard; isHovered: boolean; preload: boolean }) {
   return (
     <>
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: `url(${imgUrl(card.image!)})`,
+          backgroundImage: preload ? `url(${imgUrl(card.image!)})` : undefined,
+          opacity: preload ? 1 : 0,
           filter: isHovered ? "brightness(1)" : "brightness(0.62)",
-          transition: "filter 0.5s cubic-bezier(0.16,1,0.3,1)",
+          transition: "filter 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.6s ease",
         }}
       />
       <div
@@ -212,15 +213,16 @@ function PhotoContent({ card, isHovered }: { card: ReviewCard; isHovered: boolea
 
 // ─── Variant: image-left ──────────────────────────────────────────────────────
 // Portrait fills left ~40%, dark right panel holds quote + stat + logo/name.
-function ImageLeftContent({ card, isHovered }: { card: ReviewCard; isHovered: boolean }) {
+function ImageLeftContent({ card, isHovered, preload }: { card: ReviewCard; isHovered: boolean; preload: boolean }) {
   return (
     <div className="flex h-full">
       <div
         className="w-[40%] sm:w-[38%] shrink-0 bg-cover bg-center"
         style={{
-          backgroundImage: `url(${imgUrl(card.image!)})`,
+          backgroundImage: preload ? `url(${imgUrl(card.image!)})` : undefined,
+          opacity: preload ? 1 : 0,
           filter: isHovered ? "brightness(1.04)" : "brightness(0.82)",
-          transition: "filter 0.5s cubic-bezier(0.16,1,0.3,1)",
+          transition: "filter 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.6s ease",
         }}
       />
       <div className="flex flex-col justify-between flex-1 min-w-0 p-5 md:p-7 bg-[#0c0c0c]">
@@ -239,15 +241,16 @@ function ImageLeftContent({ card, isHovered }: { card: ReviewCard; isHovered: bo
 
 // ─── Variant: brand-bg ────────────────────────────────────────────────────────
 // Venue image, blurred + dimmed at rest → sharper + brighter on hover.
-function BrandBgContent({ card, isHovered }: { card: ReviewCard; isHovered: boolean }) {
+function BrandBgContent({ card, isHovered, preload }: { card: ReviewCard; isHovered: boolean; preload: boolean }) {
   return (
     <>
       <div
         className="absolute inset-0 bg-cover bg-center scale-110"
         style={{
-          backgroundImage: `url(${imgUrl(card.back!)})`,
+          backgroundImage: preload ? `url(${imgUrl(card.back!)})` : undefined,
+          opacity: preload ? 1 : 0,
           filter: isHovered ? "blur(1px) brightness(0.8)" : "blur(5px) brightness(0.5)",
-          transition: "filter 0.5s cubic-bezier(0.16,1,0.3,1)",
+          transition: "filter 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.6s ease",
         }}
       />
       <div
@@ -278,8 +281,29 @@ function BrandBgContent({ card, isHovered }: { card: ReviewCard; isHovered: bool
 function Card({ card, index }: { card: ReviewCard; index: number }) {
   const [isHovered, setIsHovered] = useState(false);
 
+  // Fetch this card's image ~one screen before it scrolls into view, then fade
+  // it in — no image is requested on page load, and nothing pops in on arrival.
+  const ref = useRef<HTMLDivElement>(null);
+  const [preload, setPreload] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setPreload(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "800px 0px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
     <motion.div
+      ref={ref}
       className={`col-span-1 ${card.span}`}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -302,9 +326,9 @@ function Card({ card, index }: { card: ReviewCard; index: number }) {
         }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
       >
-        {card.variant === "photo" && <PhotoContent card={card} isHovered={isHovered} />}
-        {card.variant === "image-left" && <ImageLeftContent card={card} isHovered={isHovered} />}
-        {card.variant === "brand-bg" && <BrandBgContent card={card} isHovered={isHovered} />}
+        {card.variant === "photo" && <PhotoContent card={card} isHovered={isHovered} preload={preload} />}
+        {card.variant === "image-left" && <ImageLeftContent card={card} isHovered={isHovered} preload={preload} />}
+        {card.variant === "brand-bg" && <BrandBgContent card={card} isHovered={isHovered} preload={preload} />}
       </motion.div>
     </motion.div>
   );
