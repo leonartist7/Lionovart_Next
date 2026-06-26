@@ -311,7 +311,7 @@ export const fr: Translations = {
 
   testimonials: {
     eyebrow: "Témoignages Clients",
-    heading: "Le Verdict",
+    heading: "Dans Leurs Mots",
     subheading:
       "Ne nous croyez pas sur parole. Écoutez les fondateurs et directeurs qui ont transformé leur marque et leur entreprise avec nous.",
     hooks: [

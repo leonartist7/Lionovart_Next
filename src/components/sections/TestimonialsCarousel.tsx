@@ -108,7 +108,7 @@ export default function TestimonialsCarousel() {
         {/* Section label */}
         <div className="mb-8 md:mb-12 text-center">
           <p className="text-[#e5192a] text-[11px] md:text-[13px] font-bold uppercase tracking-[0.3em] mb-3">
-            Our Latest Partnerships
+            Featured Partnerships
           </p>
           <h2 className="text-[2rem] sm:text-[2.8rem] md:text-[3.5rem] font-bold font-clash uppercase leading-[1.05] tracking-tight text-[#111]">
             Real Results, Real Words
