@@ -50,7 +50,7 @@ export const SERVICE_ROUTES: ServiceRoute[] = [
     titles: ["Print & Physical Branding", "Branding Físico e Impresión", "Impression & Marque Physique"],
     blurb: "Cards, packaging, signage, and physical brand experiences.",
     signature: "Presence beyond the screen.",
-    ready: false,
+    ready: true,
   },
   {
     id: "ai",
