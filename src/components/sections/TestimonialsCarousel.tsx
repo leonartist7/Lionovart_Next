@@ -149,7 +149,7 @@ export default function TestimonialsCarousel() {
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0.38, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className="absolute inset-0 flex flex-col md:flex-row items-center md:items-stretch p-8 sm:p-10 md:p-12 lg:p-14 gap-8 md:gap-12"
+                className="absolute inset-0 flex flex-col-reverse md:flex-row items-center md:items-stretch p-8 sm:p-10 md:p-12 lg:p-14 gap-8 md:gap-12"
               >
                 {/* Left: Avatar + Info */}
                 <div className="relative z-10 flex flex-col items-center md:items-start justify-center shrink-0 md:w-[200px] lg:w-[220px]">
