@@ -10,7 +10,7 @@ const IMG = [
 
 // The cinematic clip that plays across the card before it splits.
 const SPLIT_VIDEO =
-  "https://res.cloudinary.com/dgio9uutc/video/upload/f_auto,q_auto/v1779845634/Footage_07_o3rfbu.mp4";
+  "https://res.cloudinary.com/dgio9uutc/video/upload/q_auto,w_1920,c_limit/v1779845634/Footage_07_o3rfbu.mp4";
 
 // 3 outcome pillars; all 6 services map onto them as tags (unique).
 const CARDS = [

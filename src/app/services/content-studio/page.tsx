@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
 import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
-import CurtainHero from "@/components/sections/services/content/CurtainHero";
+import ArcHero from "@/components/sections/services/content/ArcHero";
 import StickyStatementRelay from "@/components/sections/services/content/StickyStatementRelay";
 import CapabilityScrollScene from "@/components/sections/services/content/CapabilityScrollScene";
-import SocialScene from "@/components/sections/services/content/SocialScene";
+import DragGallery from "@/components/sections/services/content/DragGallery";
+import RedShowcaseRail from "@/components/sections/services/content/RedShowcaseRail";
 import OffersAndClose from "@/components/sections/services/content/OffersAndClose";
 
 // Brand-facing name is "Content Studio"; the title/description carry the terms
@@ -18,19 +19,22 @@ export const metadata: Metadata = {
 
 /**
  * /services/content-studio — merged flagship (Video + Social) per
- * SERVICE_PAGES_SPEC.md. Working coded frames, placeholder copy/media.
- * Spine: curtain hook -> stakes relay -> film capability -> social/feed scene
- *        -> process -> two offers (project + monthly) -> proof -> Nova CTA.
+ * SERVICE_PAGES_SPEC.md. Working coded frames, placeholder media.
+ * Spine: arc hero (rainbow of content cards) -> stakes relay (black)
+ *        -> film capability (black) -> draggable media wall (white)
+ *        -> "what we make" glass rail (red, ends in black ink-flood)
+ *        -> process -> two offers -> proof -> Nova CTA (black).
  */
 export default function ContentStudioPage() {
   return (
     <>
       <main className="bg-bg-dark min-h-screen relative z-10">
         <Navbar />
-        <CurtainHero />
+        <ArcHero />
         <StickyStatementRelay />
         <CapabilityScrollScene />
-        <SocialScene />
+        <DragGallery />
+        <RedShowcaseRail />
         <OffersAndClose />
         <Footer />
       </main>

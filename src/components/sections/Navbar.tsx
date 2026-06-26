@@ -84,7 +84,7 @@ const SERVICE_ITEM_VARIANTS = {
   show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" as const } },
 };
 
-export default function Navbar() {
+export default function Navbar({ solid = false }: { solid?: boolean }) {
   const [isPastHero, setIsPastHero] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [heroThreshold, setHeroThreshold] = useState(600);
@@ -95,9 +95,11 @@ export default function Navbar() {
   const { scrollY } = useScroll();
   const pathname = usePathname();
   const isHome = pathname === "/";
-  // On home the hero flier provides the visible logo; navbar logo is the
-  // invisible click target underneath until the flier docks onto it.
-  const heroLogoHidden = isHome;
+  // On home the hero flier provides the visible logo while in hero mode; the
+  // navbar logo is the invisible click target underneath. Once past the hero
+  // (flier sits behind the glass at z-45), reveal the real navbar logo so it
+  // stays visible above the glass.
+  const heroLogoHidden = isHome && !isPastHero;
   const { t, locale } = useLanguage();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lenis = useLenis() as any;
@@ -235,7 +237,10 @@ export default function Navbar() {
     }
   });
 
-  const heroMode = !isPastHero;
+  // `solid` forces the glass bar on load (e.g. light/white pages) so the white
+  // logo + text read against a blurred dark texture instead of vanishing.
+  const glassOn = isPastHero || solid;
+  const heroMode = !glassOn;
 
   return (
     <motion.div
@@ -264,7 +269,7 @@ export default function Navbar() {
             aria-hidden
             className="absolute inset-0 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)]"
             animate={{
-              opacity: isPastHero ? 1 : 0,
+              opacity: glassOn ? 1 : 0,
               backgroundColor: "rgba(0,0,0,0.20)",
             }}
             transition={{ duration: 0.5, ease: "easeOut" }}
@@ -273,8 +278,8 @@ export default function Navbar() {
             // re-uses the cached blur instead of re-rasterizing every frame.
             style={{
               pointerEvents: "none",
-              backdropFilter: isPastHero ? undefined : "none",
-              WebkitBackdropFilter: isPastHero ? undefined : "none",
+              backdropFilter: glassOn ? undefined : "none",
+              WebkitBackdropFilter: glassOn ? undefined : "none",
               transform: "translateZ(0)",
               contain: "paint",
             }}

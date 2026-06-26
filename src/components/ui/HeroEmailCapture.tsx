@@ -102,11 +102,17 @@ export default function HeroEmailCapture() {
           "Please enter a valid email."
         ) : (
           <>
-            <span className="md:hidden">Get your custom demo &amp; audit</span>
-            <span className="hidden md:inline">Get your free brand audit</span>
+            <span className="md:hidden">Get your custom demo &amp; brand audit</span>
+            <span className="hidden md:inline">Get your custom demo — brand audit included</span>
           </>
+
         )}
       </p>
+      {status !== "error" && status !== "done" && (
+        <p className="mt-2 text-center text-[11px] tracking-widest text-white/25 uppercase">
+          100% on-time delivery &nbsp;·&nbsp; 50+ brands elevated &nbsp;·&nbsp; zero guesswork
+        </p>
+      )}
     </div>
   );
 }

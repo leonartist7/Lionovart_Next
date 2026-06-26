@@ -19,7 +19,7 @@ export default function ServiceCurtainHero({
   eyebrow,
   lines,
   sub,
-  videoSrc = "https://res.cloudinary.com/dgio9uutc/video/upload/v1775960150/hero-notext_eqjdin.mp4",
+  videoSrc = "https://res.cloudinary.com/dgio9uutc/video/upload/q_auto,w_1920,c_limit/v1775960150/hero-notext_eqjdin.mp4",
 }: {
   eyebrow: string;
   lines: CurtainLine[];

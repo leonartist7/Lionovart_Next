@@ -94,11 +94,11 @@ function useCountUp(target: number, duration: number = 1800, active: boolean = t
 /* ─── Trust Badge Components ────────────────────────────────────── */
 
 const AVATARS = [
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&q=80",
+  "/images/Testimonials/Forty Seven - Hotel/logo.webp",
+  "/images/Testimonials/Canada/Marc-Cardealer-M.jpg",
+  "/images/Testimonials/CocoRocco  - Resto/cocorocco-logo.svg",
+  "/images/Testimonials/Spain/Pablo-hotel-M.jpg",
+  "/images/Testimonials/Canada/Maya-Flowerstore-W.jpg",
 ];
 
 const FLAGS = [
@@ -236,27 +236,40 @@ function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; exp
             </div>
             {/* Avatars */}
             <div className="flex items-center justify-center w-full">
-              {AVATARS.map((src, i) => (
-                <motion.div
-                  key={i}
-                  style={{
-                    width: midWidth * 0.22,
-                    height: midWidth * 0.22,
-                    borderRadius: "50%",
-                    border: "1px solid #e5192a",
-                    overflow: "hidden",
-                    marginLeft: i === 0 ? 0 : -(midWidth * 0.05),
-                    position: "relative",
-                    zIndex: AVATARS.length - i,
-                    flexShrink: 0,
-                  }}
-                  initial={{ opacity: 0, scale: 0.6 }}
-                  animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.6 }}
-                  transition={{ duration: 0.35, delay: 0.5 + i * 0.07, ease: "easeOut" }}
-                >
-                  <img src={src} alt="client" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                </motion.div>
-              ))}
+              {AVATARS.map((src, i) => {
+                const isLogo = src.includes("logo");
+                return (
+                  <motion.div
+                    key={i}
+                    style={{
+                      width: midWidth * 0.22,
+                      height: midWidth * 0.22,
+                      borderRadius: "50%",
+                      border: "1px solid #e5192a",
+                      overflow: "hidden",
+                      marginLeft: i === 0 ? 0 : -(midWidth * 0.05),
+                      position: "relative",
+                      zIndex: AVATARS.length - i,
+                      flexShrink: 0,
+                      backgroundColor: isLogo ? "rgba(255, 255, 255, 0.08)" : "transparent",
+                    }}
+                    initial={{ opacity: 0, scale: 0.6 }}
+                    animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.6 }}
+                    transition={{ duration: 0.35, delay: 0.5 + i * 0.07, ease: "easeOut" }}
+                  >
+                    <img
+                      src={src}
+                      alt="client"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: isLogo ? "contain" : "cover",
+                        padding: isLogo ? "18%" : "0%",
+                      }}
+                    />
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </TrustBadge>
@@ -364,7 +377,7 @@ export default function HeroTop(props: any) {
   };
 
   return (
-    <section className="relative z-20 flex min-h-[90vh] flex-col items-center justify-start px-6 pt-[24vh] md:pt-[28vh] pb-16 text-center overflow-hidden">
+    <section className="relative z-20 flex min-h-[90vh] flex-col items-center justify-start px-6 pt-[24vh] md:pt-[28vh] pb-16 text-center overflow-hidden border-b-[5px] border-black">
 
       {/* Controlled dark stage + soft red glow up top; clears toward the
           bottom so the video behind PEEKS at the fold and pulls scroll. */}
@@ -373,7 +386,7 @@ export default function HeroTop(props: any) {
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(100% 70% at 50% 28%, rgba(229,25,42,0.10) 0%, transparent 52%), linear-gradient(180deg, rgba(7,7,9,0.50) 0%, rgba(7,7,9,0.42) 45%, rgba(7,7,9,0.80) 82%, rgba(10,10,10,0.98) 100%)",
+              "radial-gradient(100% 70% at 50% 28%, rgba(229,25,42,0.10) 0%, transparent 52%), linear-gradient(180deg, rgba(7,7,9,0.50) 0%, rgba(7,7,9,0.42) 45%, rgba(7,7,9,0.80) 82%, rgba(10,10,10,0.99) 94%, #000 100%)",
           }}
         />
       </div>
@@ -384,6 +397,20 @@ export default function HeroTop(props: any) {
         animate="visible"
         className="relative z-[2] flex w-full max-w-[920px] flex-col items-center gap-8 md:gap-10"
       >
+        {/* Notice strip — subtle scarcity cue, value-add not distraction */}
+        <motion.div
+          variants={itemVariants}
+          className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 backdrop-blur-md"
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-red opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-red" />
+          </span>
+          <span className="text-[11px] md:text-[12px] font-semibold uppercase tracking-[0.18em] text-white/70">
+            Booking 3 brands this month
+          </span>
+        </motion.div>
+
         {/* Headline — ALL WHITE, always 3 lines, rem-bounded clamp (never crops) */}
         <motion.h1
           variants={itemVariants}

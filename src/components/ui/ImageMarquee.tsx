@@ -42,10 +42,24 @@ interface ImageMarqueeProps {
 
 export default function ImageMarquee({ outward = false, bg, maxHeight }: ImageMarqueeProps) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const spinRef = useRef<HTMLDivElement>(null);
   const [radius, setRadius] = useState(600);
   const [cardHeight, setCardHeight] = useState(320);
   const [cardWidth, setCardWidth] = useState(256);
   const [scale, setScale] = useState(BASE_SCALE);
+
+  // Pause the infinite 3D spin while the marquee is offscreen (e.g. after
+  // the hero is pushed away) — 20 preserve-3d cards otherwise keep costing
+  // style/composite work every frame for the whole session.
+  useEffect(() => {
+    const el = spinRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => {
+      el.style.animationPlayState = entry.isIntersecting ? "running" : "paused";
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   useEffect(() => {
     const compute = () => {
@@ -114,6 +128,7 @@ export default function ImageMarquee({ outward = false, bg, maxHeight }: ImageMa
       >
         <div style={{ transform: outward ? `scale(${scale}) translateZ(${-radius}px)` : `scale(${scale})`, transformStyle: "preserve-3d", display: "flex", justifyContent: "center" }}>
           <div
+            ref={spinRef}
             className="grid"
             style={{
               transformStyle: "preserve-3d",

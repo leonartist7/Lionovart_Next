@@ -202,46 +202,46 @@ export const es: Translations = {
     items: [
       {
         problem: {
-          heading: "Tu Marca Manda en la Sala",
-          body: "Has invertido en tu oficio, tu equipo, tu espacio — pero tu imagen todavía parece la del primer día. Los clientes eligen al competidor que luce como la mejor opción, aunque no lo sea.",
+          heading: "Estás Adivinando Qué Funciona de Verdad",
+          body: "Un poco de todo, esperando que algo pegue — anuncios aquí, una publicación allá, consejos de cinco personas distintas. El esfuerzo sin un sistema casi nunca se acumula.",
         },
         solution: {
-          heading: "Una Marca que Genera Respeto a Primera Vista",
-          body: "Construimos sistemas de identidad que hacen que los clientes confíen en ti antes de que digas una palabra — logo, web, impresión, todo alineado.",
+          heading: "Expertos que Saben Qué Funciona Ahora",
+          body: "Deja de improvisar. Aportamos estrategia probada y actual a cada decisión — para que tu presupuesto y tu energía vayan solo donde realmente dan resultados.",
           stats: [
             { value: "3x", label: "Valor Percibido Tras el Rebrand" },
-            { value: "94%", label: "de las Primeras Impresiones se Basan en el Diseño" },
             { value: "50+", label: "Marcas Elevadas en Todo el Mundo" },
+            { value: "94%", label: "de las Primeras Impresiones se Basan en el Diseño" },
           ],
         },
       },
       {
         problem: {
-          heading: "Tu Negocio Aparece Donde Importa",
-          body: "Eres excelente en lo que haces — tus clientes actuales te adoran. Pero la próxima persona que busca exactamente lo que ofreces, ¿a quién encuentra? A tu competidor.",
+          heading: "Estás Gestionando Todo Tú Solo",
+          body: "El sitio web, las redes, los emails, el contenido — encima de gestionar tu negocio. Son las 10pm y todavía estás editando un reel.",
         },
         solution: {
-          heading: "Aparece Primero. Sé Elegido Primero.",
-          body: "De los motores de búsqueda a las redes sociales, nos aseguramos de que las personas correctas te encuentren — de forma consistente y en los lugares adecuados.",
+          heading: "Un Solo Equipo que se Encarga de Todo",
+          body: "Marca, web, video, redes, impresión, IA — todo bajo un mismo techo. Tú te enfocas en lo que mejor haces; nosotros nos encargamos de cómo luce, suena y crece.",
+          stats: [
+            { value: "15h+", label: "Ahorradas a la Semana en Promedio" },
+            { value: "100%", label: "de los Socios Multiplicaron su ROI" },
+            { value: "24/7", label: "Sistemas de IA Captando Leads por Ti" },
+          ],
+        },
+      },
+      {
+        problem: {
+          heading: "Tu Marca se Quedó en el Año Pasado",
+          body: "El mercado se movió al video, la IA y la automatización. Hacerlo a la antigua te cuesta en silencio alcance, leads y los clientes que eligen a quien va por delante.",
+        },
+        solution: {
+          heading: "Creatividad de Vanguardia y Sistemas Inteligentes — Hechos Accesibles",
+          body: "La ventaja que las grandes marcas pagan fortunas — diseño moderno y sistemas impulsados por IA — construido para tu marca, a tu escala.",
           stats: [
             { value: "+70%", label: "en Reservas Directas — Resultado Real de Cliente" },
             { value: "5x", label: "Más Leads Calificados en Promedio" },
             { value: "82%", label: "del Tráfico de Internet Ahora es Video" },
-          ],
-        },
-      },
-      {
-        problem: {
-          heading: "Tienes un Equipo Completo Detrás de Ti",
-          body: "El sitio web, las redes, los emails, el contenido — encima de gestionar tu negocio. Son las 10pm y todavía estás editando un reel. No empezaste esto para convertirte en marketer de tiempo completo.",
-        },
-        solution: {
-          heading: "Tu Equipo Creativo y Digital Completo — A Una Llamada",
-          body: "Marca, web, video, redes sociales, impresión, IA — todo resuelto. Tú te enfocas en tu negocio. Nosotros nos encargamos de cómo luce, suena y crece.",
-          stats: [
-            { value: "24/7", label: "Sistemas de IA Captando Leads por Ti" },
-            { value: "15h+", label: "Ahorradas a la Semana en Promedio" },
-            { value: "100%", label: "de los Socios Multiplicaron su ROI" },
           ],
         },
       },

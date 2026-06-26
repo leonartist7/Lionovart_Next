@@ -60,7 +60,7 @@ export default function VideoCurtainReveal() {
         >
           <video
             className="absolute inset-0 h-full w-full object-cover"
-            src="https://res.cloudinary.com/dgio9uutc/video/upload/v1775960150/hero-notext_eqjdin.mp4"
+            src="https://res.cloudinary.com/dgio9uutc/video/upload/q_auto,w_1920,c_limit/v1775960150/hero-notext_eqjdin.mp4"
             autoPlay
             loop
             muted

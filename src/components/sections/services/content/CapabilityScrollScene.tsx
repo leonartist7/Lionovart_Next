@@ -14,7 +14,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValue, useTransform, useReducedMotion } from "framer-motion";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useLenis } from "lenis/react";
 
 const CAPABILITIES = [
@@ -27,10 +27,11 @@ const CAPABILITIES = [
 ];
 
 const SCENE_CLIP =
-  "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845634/Footage_07_o3rfbu.mp4";
+  "https://res.cloudinary.com/dgio9uutc/video/upload/q_auto,w_1920,c_limit/v1779845634/Footage_07_o3rfbu.mp4";
 
 export default function CapabilityScrollScene() {
-  const reduce = useReducedMotion();
+  // Effects always on (founder decision): ignore the OS reduced-motion flag.
+  const reduce = false;
   const sectionRef = useRef<HTMLDivElement>(null);
   const progress = useMotionValue(0);
   const [vh, setVh] = useState(900);

@@ -11,18 +11,19 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValue, useTransform, useReducedMotion } from "framer-motion";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useLenis } from "lenis/react";
 
-// Placeholder beats. Keep to 3-4; each is a single thought.
+// Keep to 3-4; each is a single thought. Last beat is the mantra, verbatim.
 const BEATS = [
-  "82% of internet traffic is video.",
-  "Your competitor's reel is already winning the room.",
-  "You have three seconds. Then they scroll.",
+  "Nobody follows a brand out of politeness.",
+  "Your customers watch 3 hours of video a day. None of it is yours.",
+  "Impossible to ignore.",
 ];
 
 export default function StickyStatementRelay() {
-  const reduce = useReducedMotion();
+  // Effects always on (founder decision): ignore the OS reduced-motion flag.
+  const reduce = false;
   const sectionRef = useRef<HTMLDivElement>(null);
   const progress = useMotionValue(0);
   const [vh, setVh] = useState(900);

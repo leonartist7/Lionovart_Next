@@ -225,7 +225,7 @@
   /* Process lion circle (the "i" dot) and the IMAGINE card width.
      Decoupled: circle ~20% smaller than the card. */
   --lion-circle-d: clamp(272px, 64vmin, 600px);
-  --imagine-card-d: clamp(360px, 90vmin, 900px);
+  --imagine-card-d: clamp(360px, 90vmin, 1035px);
   --background: #0d0d0d;
   --foreground: #ffffff;
   --card: #161616;
@@ -630,4 +630,12 @@ body.no-bdblur * {
    from the HeroRevealWrapper itself with .hero-bg-layer. */
 body.no-herobg .hero-bg-layer {
   display: none !important;
+}
+
+/* Hides the SectionTitleCard chapter words. They paint a ~350px
+   -webkit-text-stroke glyph that translates 1:1 with scroll (anime onScroll),
+   which repaints a huge bbox every frame. visibility:hidden keeps layout
+   (so scrollHeight is unchanged mid-profile) while killing the paint. */
+body.no-titlecards [data-titlecard] {
+  visibility: hidden !important;
 }

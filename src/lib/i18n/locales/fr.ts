@@ -203,46 +203,46 @@ export const fr: Translations = {
     items: [
       {
         problem: {
-          heading: "Votre Marque Impose Le Respect",
-          body: "Vous avez investi dans votre savoir-faire, votre équipe, votre espace — mais votre image ressemble encore au premier jour. Les clients choisissent celui qui a l'air du meilleur choix, même quand il ne l'est pas.",
+          heading: "Vous Devinez Ce Qui Marche Vraiment",
+          body: "Un peu de tout, en espérant que ça prenne — des pubs ici, un post là, les conseils de cinq personnes différentes. L'effort sans système ne s'accumule presque jamais.",
         },
         solution: {
-          heading: "Une Marque Qui Impose Le Respect au Premier Regard",
-          body: "Nous créons des systèmes d'identité qui inspirent confiance avant même que vous ayez dit un mot — logo, web, print, tout aligné.",
+          heading: "Des Experts Qui Savent Ce Qui Marche Maintenant",
+          body: "Fini l'approximation. Nous apportons une stratégie éprouvée et actuelle à chaque décision — pour que votre budget et votre énergie n'aillent que là où ça donne des résultats.",
           stats: [
             { value: "3x", label: "Valeur Perçue Après Refonte" },
-            { value: "94%", label: "Premières Impressions Basées sur le Design" },
             { value: "50+", label: "Marques Élevées dans le Monde" },
+            { value: "94%", label: "Premières Impressions Basées sur le Design" },
           ],
         },
       },
       {
         problem: {
-          heading: "Votre Entreprise Apparaît Là Où Ça Compte",
-          body: "Vous excellez dans ce que vous faites — vos clients vous adorent. Mais la prochaine personne qui cherche exactement ce que vous proposez ? Elle trouve votre concurrent.",
+          heading: "Vous Gérez Tout Tout Seul",
+          body: "Le site web, les réseaux, les emails, le contenu — en plus de gérer votre entreprise. Il est 22h et vous montez encore un reel.",
         },
         solution: {
-          heading: "Apparaître en Premier. Être Choisi en Premier.",
-          body: "Des moteurs de recherche aux réseaux sociaux, nous faisons en sorte que les bonnes personnes vous trouvent — de manière constante et aux bons endroits.",
+          heading: "Une Seule Équipe Qui Gère Tout",
+          body: "Marque, web, vidéo, réseaux, impression, IA — le tout sous un même toit. Concentrez-vous sur ce que vous faites de mieux ; nous gérons son image, son son et sa croissance.",
+          stats: [
+            { value: "15h+", label: "Économisées par Semaine en Moyenne" },
+            { value: "100%", label: "Des Partenaires Ont Multiplié Leur ROI" },
+            { value: "24/7", label: "Systèmes IA Capturant des Leads pour Vous" },
+          ],
+        },
+      },
+      {
+        problem: {
+          heading: "Votre Marque Est Restée à L'Année Dernière",
+          body: "Le marché est passé à la vidéo, à l'IA et à l'automatisation. Faire à l'ancienne vous coûte discrètement en portée, en leads, et en clients qui choisissent ceux qui ont une longueur d'avance.",
+        },
+        solution: {
+          heading: "Créativité de Pointe & Systèmes Intelligents — Rendus Accessibles",
+          body: "L'avantage que les grandes marques paient une fortune — design moderne et systèmes pilotés par l'IA — conçu pour votre marque, à votre échelle.",
           stats: [
             { value: "+70%", label: "De Réservations Directes — Résultat Client Réel" },
             { value: "5x", label: "Plus de Leads Qualifiés en Moyenne" },
             { value: "82%", label: "Du Trafic Internet Est Maintenant Vidéo" },
-          ],
-        },
-      },
-      {
-        problem: {
-          heading: "Vous Avez Toute Une Équipe Derrière Vous",
-          body: "Le site web, les réseaux, les emails, le contenu — en plus de gérer votre entreprise. Il est 22h et vous montez encore un reel. Vous n'avez pas créé votre entreprise pour devenir un marketeur à plein temps.",
-        },
-        solution: {
-          heading: "Votre Équipe Créative & Digitale Complète — À Un Appel",
-          body: "Marque, web, vidéo, réseaux, impression, IA — tout est géré. Concentrez-vous sur votre entreprise. Nous gérons son image, son son et sa croissance.",
-          stats: [
-            { value: "24/7", label: "Systèmes IA Capturant des Leads pour Vous" },
-            { value: "15h+", label: "Économisées par Semaine en Moyenne" },
-            { value: "100%", label: "Des Partenaires Ont Multiplié Leur ROI" },
           ],
         },
       },
