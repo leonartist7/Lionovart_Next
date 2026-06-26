@@ -407,7 +407,7 @@ export default function HeroTop(props: any) {
             <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-red" />
           </span>
           <span className="text-[11px] md:text-[12px] font-semibold uppercase tracking-[0.18em] text-white/70">
-            Booking 3 brands this month
+            Only a few partner spots left this month
           </span>
         </motion.div>
 
