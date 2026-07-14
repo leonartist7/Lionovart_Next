@@ -76,7 +76,7 @@ export const es: Translations = {
     founderRole: "Director Creativo y de Negocios",
     founderStatus: "Disponible",
     stat1Label: "Años",
-    stat1Desc: "Expertise en innovación digital, marketing y medios impresos.",
+    stat1Desc: "Experiencia en innovación digital, marketing y medios impresos.",
     stat2Label: "Países — Alcance Global",
     stat2Desc: "Un equipo multilingüe que sirve a clientes en 4 continentes.",
   },
@@ -161,7 +161,7 @@ export const es: Translations = {
       {
         question: "¿Ofrecen soporte después del lanzamiento?",
         answer:
-          "Sí, ofrecemos paquetes de retención para soporte continuo en diseño, desarrollo y marketing para que tu marca siga creciendo después del lanzamiento.",
+          "Sí, ofrecemos planes de servicio continuo para diseño, desarrollo y marketing, para que tu marca siga creciendo después del lanzamiento.",
       },
       {
         question: "¿En qué plataformas construyen sitios web?",
@@ -356,7 +356,7 @@ export const es: Translations = {
   },
 
   services: {
-    eyebrow: "Lo Que Hacemos",
+    eyebrow: "Lo Que Incluye",
     heading: "Nuestros",
     headingAccent: "Servicios",
     items: [

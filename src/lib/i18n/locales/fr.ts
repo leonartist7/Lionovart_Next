@@ -37,7 +37,7 @@ export const fr: Translations = {
 
   hero: {
     staticText: ["NOUS RENDONS", "VOTRE MARQUE"],
-    cyclingWords: ["RUGIR", "ATTIRANTE", "MÉMORABLE", "MAGNÉTIQUE", "VENDRE PLUS", "DOMINER"],
+    cyclingWords: ["RUGISSANTE", "ATTIRANTE", "MÉMORABLE", "MAGNÉTIQUE", "PLUS VENDEUSE", "DOMINANTE"],
     subtitle:
       "Nous créons des marques, développons des sites web et produisons du contenu pour que votre entreprise soit impossible à ignorer.",
     ctaStart: "Commencer",
@@ -53,7 +53,7 @@ export const fr: Translations = {
     badges: {
       brands: ["Marques", "propulsées"],
       experience: ["Expérience", "Client"],
-      countries: "PAYS",
+      countries: "Pays",
     },
   },
 
@@ -162,7 +162,7 @@ export const fr: Translations = {
       {
         question: "Proposez-vous un suivi après le lancement ?",
         answer:
-          "Oui, nous proposons des forfaits de retainer pour un support continu en design, développement et marketing afin que votre marque continue de se développer après le lancement.",
+          "Oui, nous proposons des forfaits récurrents pour un accompagnement continu en design, développement et marketing afin que votre marque continue de se développer après le lancement.",
       },
       {
         question: "Sur quelles plateformes construisez-vous les sites web ?",
@@ -303,7 +303,7 @@ export const fr: Translations = {
       hookLines: [
         "Ce que vous tenez dans les mains",
         "dit tout sur qui vous êtes.",
-        "De l'imprimé qui commande l'attention — et qu'on garde.",
+        "De l'imprimé qui capte l'attention — et qu'on garde.",
       ],
       statLabel: "de cohérence de marque sur tous les livrables",
     },
@@ -358,7 +358,7 @@ export const fr: Translations = {
   },
 
   services: {
-    eyebrow: "Ce Que Nous Faisons",
+    eyebrow: "Ce Qui Est Inclus",
     heading: "Nos",
     headingAccent: "Services",
     items: [
