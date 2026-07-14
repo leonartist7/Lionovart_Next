@@ -269,3 +269,110 @@ Rules: every `<video>` is `muted loop playsInline preload="none"` with a poster,
 
 ## Out of scope (do not do)
 No edits outside `src/app/v2/**`, `src/components/v2/**`, `docs/V2_REBRAND_MASTER_PLAN.md`. No new npm dependencies (incl. three.js) without explicit user approval. No i18n. No full navigation menu (HeaderV2 stays). One draft PR per branch max; if the GitHub connector is unauthenticated, pushing the branch is sufficient.
+
+---
+
+# PART A.3 — LAUNCHER PROMPT FOR GLM 5.2 (or any other cold-start coding agent)
+
+Use this instead of A.1 when handing a chapter off to a different model/agent (confirmed: GLM 5.2 running as a coding agent with direct repo read/write access, not a plain chat window). It is more explicit and repeats the highest-risk-to-drop constraints inline, because a model with no shared history on this project needs the guardrails stated, not implied. Copy the whole block, fill in the bracketed chapter name, and send it as the first message of a fresh session.
+
+```
+You are implementing exactly ONE chapter of an existing, partially-built
+landing page. This is not a greenfield task and not a creative-freedom
+task: a full design spec already exists and you must follow it literally,
+not reinterpret or improve it.
+
+STEP 1 — READ ONLY THESE FILES, IN THIS ORDER, BEFORE WRITING ANY CODE:
+1. docs/V2_REBRAND_MASTER_PLAN.md — read Part B.1 (Global rules), Part B.2
+   (Foundations, only if your chapter needs them), Part B.3 → the section
+   for YOUR chapter only, and Part D (Verification Protocol).
+2. src/components/v2/ChapterHero.tsx — copy its button class strings, its
+   framer-motion variant objects (container/rise), and its
+   useReducedMotion() pattern EXACTLY. Do not invent new button styles.
+3. src/components/v2/ChapterTruth.tsx — a second reference implementation
+   already matching this spec. Match its code shape and quality bar.
+4. src/app/v2/page.tsx and src/app/v2/v2.css — see how chapters are
+   assembled and which tokens/utilities already exist.
+
+Do NOT read any other file in this repository. Do NOT read Next.js docs,
+node_modules, or any file outside src/app/v2/**, src/components/v2/**,
+and docs/V2_REBRAND_MASTER_PLAN.md. Everything you need is in the plan.
+If your chapter's spec seems ambiguous on some small detail, pick the
+simplest interpretation that satisfies the rules below, note the decision
+in one sentence in your final summary, and keep moving. Do not stop to
+ask questions.
+
+STEP 2 — NON-NEGOTIABLE RULES (also in the plan doc, repeated here because
+dropping any one of these breaks the page):
+- Build ONLY the chapter named below. Do not build other chapters. Do not
+  add navigation, a footer, or anything not in that chapter's spec.
+- Files you may create or edit: new files under src/components/v2/ for
+  this chapter (and shared foundations in Part B.2 ONLY if your chapter
+  is Chapter 3, which introduces them), plus wiring the import into
+  src/app/v2/page.tsx. Nothing else. Never touch src/app/page.tsx,
+  src/app/layout.tsx, src/app/globals.css, src/components/sections/**,
+  or src/components/ui/**.
+- Zero em-dashes (—) or en-dashes (–) anywhere in visible text. Use
+  periods or commas instead. This is checked mechanically before you
+  finish (grep below) — do not skip this.
+- Use the EXACT copy text given in the chapter spec, word for word.
+  Do not paraphrase or "improve" the copy.
+- No new npm dependencies. The one exception (@paper-design/shaders for
+  the V2Silk component in Chapter 3/4/10) is already installed — check
+  package.json, do not run npm install for it.
+- Reuse getWhatsAppUrl() and CONTACT_EMAIL from src/lib/contact.ts, and
+  the existing POST /api/strategist/lead route, exactly as documented in
+  Part B.1 — do not create new contact/lead-capture logic.
+- Every animated element must degrade to static under
+  useReducedMotion() / prefers-reduced-motion. Animate only transform
+  and opacity. Never use window.addEventListener("scroll").
+- One CTA label per intent, page-wide, using the exact hrefs specified in
+  the CTA intent lock table in Part B.1. Do not invent new CTA copy.
+
+STEP 3 — BUILD the chapter to its spec in Part B.3.
+
+STEP 4 — VERIFY (adapt exact commands to whatever shell/sandbox you are
+running in; the checks themselves are not optional):
+1. Type-check the project (e.g. `npx tsc --noEmit`) and fix any errors.
+2. Run: grep -rn '—\|–' src/components/v2 src/app/v2
+   This MUST return nothing. If it finds a match, fix the copy and
+   re-run until clean.
+3. Start the dev server and confirm the /v2 route renders with no
+   console errors and no hydration warnings. (This repo's dev server
+   needs WHATSAPP_NUMBER set, e.g.
+   `WHATSAPP_NUMBER=15878974772 npm run dev` — this is a pre-existing,
+   unrelated env requirement, not something to fix.)
+4. Take a screenshot (or describe precisely what you visually verified)
+   at a desktop width (~1440px) and a mobile width (~390px). Confirm:
+   no horizontal overflow, text is readable against its actual
+   background, CTA buttons fit on one line, nothing from earlier
+   chapters broke.
+5. If your chapter is Chapter 4, additionally verify the scroll-scrub
+   transition at roughly 25/50/75 percent scroll through the section,
+   and verify the static reduced-motion fallback separately.
+   If your chapter is Chapter 9, additionally submit the form with test
+   data and confirm you get an HTTP 200 from /api/strategist/lead, and
+   verify the success and error UI states render correctly.
+
+STEP 5 — COMMIT AND STOP.
+- Stage only the files you created/edited for this chapter.
+- Write a plain, factual commit message describing what was added
+  (no marketing language). Sign it with YOUR actual identity as the
+  co-author (do not write "Claude" or any Anthropic model name in the
+  commit — you are not Claude; use your own model/tool name, or omit
+  a co-author trailer entirely if you are unsure what's appropriate).
+- Push to branch: claude/lionovart-rebrand-v2-8624vy
+- Then STOP. Do not proceed to the next chapter. Do not open or update
+  a pull request. Report back: what you built, what you verified, any
+  ambiguity you resolved and how, and the two screenshots/descriptions
+  from Step 4. Wait for review before anything else happens on this
+  branch.
+
+Chapter to build: [N — Name, e.g. "5 — The Brand World System"]
+```
+
+### Notes on why this differs from the Claude launcher prompt (A.1)
+- Constraints that Part B.1 states once are repeated inline here, because a cold-start agent with no accumulated project context is more likely to drop a rule it read once in a long document than one restated at point of use.
+- The commit-authorship instruction is explicit: the repo's existing commits are signed "Claude Fable 5" because a Claude Code session wrote them. A different model must not reuse that trailer; it would misattribute the work.
+- Verification commands are phrased as "adapt to your environment" rather than the exact scratchpad/proxy paths used in this container, since GLM 5.2 will most likely run in a different sandbox.
+- The prompt forbids opening/updating the PR, since PR management for this branch is being handled from this Claude Code session (subscribed to leonartist7/Lionovart_Next#16); a second agent pushing commits to the same branch is fine, a second agent also touching the PR description/state is not.
