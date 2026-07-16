@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { getWhatsAppUrl } from "@/lib/contact";
 import MagneticCTA from "@/components/v2/MagneticCTA";
@@ -14,6 +15,21 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 
 export default function ChapterFinal() {
   const reduceMotion = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { rootMargin: "15% 0px", threshold: 0.05 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const useEmbers = inView && !reduceMotion;
 
   const lineReveal = {
     hidden: { y: "100%" },
@@ -24,18 +40,35 @@ export default function ChapterFinal() {
   };
 
   return (
-    <section className="relative flex min-h-[90vh] items-center justify-center overflow-hidden bg-[#0d0d0d]">
-      {/* Backdrop: silk + ember plate + scrim + red glow */}
+    <section
+      ref={sectionRef}
+      className="relative flex min-h-[90vh] items-center justify-center overflow-hidden bg-[#0d0d0d]"
+    >
+      {/* Backdrop: silk + embers plate/video + scrim + red glow */}
       <div aria-hidden className="absolute inset-0">
         <V2Silk className="absolute inset-0" />
         <div className="absolute inset-0">
-          <Image
-            src="/images/hero_img/1341.webp"
-            alt=""
-            fill
-            sizes="100vw"
-            className="object-cover opacity-70"
-          />
+          {useEmbers ? (
+            <video
+              key="final-embers"
+              className="absolute inset-0 h-full w-full object-cover opacity-70"
+              src="/videos/v2/final-embers.mp4"
+              poster="/images/hero_img/1341.webp"
+              muted
+              loop
+              playsInline
+              autoPlay
+              preload="none"
+            />
+          ) : (
+            <Image
+              src="/images/hero_img/1341.webp"
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover opacity-70"
+            />
+          )}
         </div>
         <div className="absolute inset-0 bg-[#0d0d0d]/55" />
         <div

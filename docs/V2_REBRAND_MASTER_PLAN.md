@@ -3,7 +3,7 @@
 
 This single document is the source of truth for building the LIONOVART v2 landing page. It contains: the research digest (what makes a site read as premium), the improved master prompt (Part A), the complete chapter-by-chapter implementation spec (Part B), the asset generation kit (Part C), and the verification protocol (Part D). It is written so lighter models can implement each chapter without re-reading anything else.
 
-**State:** Chapters 1–10 are built and the Part D final pass is complete on branch `claude/lionovart-rebrand-v2-8624vy` (open PR #18). Optional next: Part C video/still upgrades, visual polish from supervisor QA, production cutover when ready.
+**State:** Chapters 1–10 + Part D final pass + Part C asset kit are on branch `claude/lionovart-rebrand-v2-8624vy` (open PR #18). Optional next: supervisor visual QA polish, production cutover when ready.
 
 ---
 
@@ -285,7 +285,8 @@ Rules: every `<video>` is `muted loop playsInline preload="none"` with a poster,
 - **Chapter 9 — Brand Presence Audit.** `src/components/v2/ChapterAudit.tsx`. `id="audit"`; eyebrow 3/3; form POST `/api/strategist/lead`; idle/submitting/success/error.
 - **Chapter 10 — Final CTA + Footer.** `src/components/v2/ChapterFinal.tsx` + `src/components/v2/FooterV2.tsx`. V2Silk + 1341 backdrop; story line ends at LOGO mark; dual CTAs; minimal footer.
 - `src/app/v2/page.tsx` now renders Header → all 10 chapters → FooterV2.
-- **Part D final pass (post-Ch 10):** `npx tsc --noEmit` clean; dash-guard hits only in `/* */` comments (known false positives); `npm run build` compiled successfully (`/v2` static); full scroll-through desktop 1440 and mobile 390 (10 sections + footer, no horizontal overflow, 0 hydration errors); eyebrow count exactly 3 (Ch1 / Ch5 / Ch9); theme by section height ~49/51 dark/cream desktop and ~46/54 mobile (cream weighted by tall Work grid; red remains accent-only, not a fill band); load ~2.1s to interactive content in local dev; no `<video>` elements currently (all Part C slots use still/Ken Burns fallbacks). Screenshots under `docs/v2-screenshots/final-*` (local only, not required in git).
+- **Part D final pass (post-Ch 10):** `npx tsc --noEmit` clean; dash-guard hits only in `/* */` comments (known false positives); `npm run build` compiled successfully (`/v2` static); full scroll-through desktop 1440 and mobile 390 (10 sections + footer, no horizontal overflow, 0 hydration errors); eyebrow count exactly 3 (Ch1 / Ch5 / Ch9); theme by section height ~49/51 dark/cream desktop and ~46/54 mobile (cream weighted by tall Work grid; red remains accent-only, not a fill band); load ~2.1s to interactive content in local dev.
+- **Part C asset kit (generated + wired):** `public/videos/v2/` holds silk-loop, hero-lion, lab-loop, final-embers (H.264, all ≤1.5MB), film-frame/platform-frame stills, and work-1..6 stills. Wired into ChapterHero (deferred hero video), ChapterSystem chips, ChapterWork tiles, ChapterLab (in-view video), ChapterFinal (embers under silk). V2Silk stays shader-first; silk-loop is available as a spare plate.
 - **Verify/debug pass (post-Chapter 4):** fixed the reduced-motion hydration bug across Chapters 1-3 + MagneticCTA (see the FIXED section below), re-verified hydration (0 errors both motion modes), reduced-motion visuals (all content visible, 59-60fps), and typecheck. The hydration-safe motion pattern is now a mandatory rule in Part B.1's taste layer.
 
 ## Chapter 5 QA findings (supervisor gate; FIXED)

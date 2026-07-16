@@ -20,33 +20,33 @@ type WorkItem = {
 };
 
 /* Drop-in replaceable. Labels only from the approved list.
-   Local studio assets until Part C work-1..6 stills land. */
+   Part C kit stills at /videos/v2/work-{1..6}.jpg */
 const WORK_TOP: WorkItem[] = [
   {
     label: "Website Build",
     title: "Lionovart.com",
-    src: "/images/luminous_work.avif",
+    src: "/videos/v2/work-1.jpg",
     col: "md:col-span-7",
     aspect: "aspect-[4/3]",
   },
   {
     label: "Brand Identity",
     title: "Identity system in progress",
-    src: "/images/paintco.avif",
+    src: "/videos/v2/work-2.jpg",
     col: "md:col-span-5",
     aspect: "aspect-[3/4]",
   },
   {
     label: "Creative Study",
     title: "Cinematic still exploration",
-    src: "/images/Card golden.avif",
+    src: "/videos/v2/work-3.jpg",
     col: "md:col-span-5",
     aspect: "aspect-[3/4]",
   },
   {
     label: "Concept Direction",
     title: "Immersive space concept",
-    src: "/images/LION-CIRCLE.avif",
+    src: "/videos/v2/work-4.jpg",
     col: "md:col-span-7",
     aspect: "aspect-[16/10]",
   },
@@ -56,14 +56,14 @@ const WORK_BOTTOM: WorkItem[] = [
   {
     label: "Content System",
     title: "Short-form story system",
-    src: "/images/cards.webp",
+    src: "/videos/v2/work-5.jpg",
     col: "md:col-span-8",
     aspect: "aspect-[16/10]",
   },
   {
     label: "Campaign Direction",
     title: "Launch campaign direction",
-    src: "/images/brush/sweep.webp",
+    src: "/videos/v2/work-6.jpg",
     col: "md:col-span-4",
     aspect: "aspect-[3/4]",
   },

@@ -10,8 +10,7 @@ import { motion, useReducedMotion } from "framer-motion";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-/* Local studio stills until Part C kit frames land at
-   /videos/v2/film-frame.jpg and platform-frame.jpg. */
+/* Part C kit stills at /videos/v2/* */
 type Pillar = {
   name: string;
   outcome: string;
@@ -33,7 +32,7 @@ const PILLARS: Pillar[] = [
     outcome: "One story, told in every format that matters.",
     capabilities: "Brand films, founder stories, campaign and short-form content.",
     offset: true,
-    imageSrc: "/images/hero_img/1235.webp",
+    imageSrc: "/videos/v2/film-frame.jpg",
   },
   {
     name: "Brand Platforms",
@@ -41,7 +40,7 @@ const PILLARS: Pillar[] = [
     capabilities:
       "Cinematic websites, digital ecosystems, intelligent brand experiences.",
     offset: false,
-    imageSrc: "/images/hero_img/123613.webp",
+    imageSrc: "/videos/v2/platform-frame.jpg",
   },
   {
     name: "Experience Lab",

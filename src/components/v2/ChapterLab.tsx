@@ -1,19 +1,36 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
 /* ─── Chapter 7 — Experience Lab (dark) ──────────────────────────────
    Full-bleed scene: brand presence beyond the screen. No CTA.
-   Backdrop: still + Ken Burns until Part C drops /videos/v2/lab-loop.mp4
-   (then swap to lazy in-view video with this image as poster).
+   Backdrop: Part C lab-loop.mp4 when in view; poster/still under
+   reduced motion or off-screen.
    ─────────────────────────────────────────────────────────────────── */
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const POSTER = "/images/hero_img/123613.webp";
+const LAB_VIDEO = "/videos/v2/lab-loop.mp4";
 
 export default function ChapterLab() {
   const reduceMotion = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { rootMargin: "15% 0px", threshold: 0.05 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const useVideo = inView && !reduceMotion;
 
   const lineReveal = {
     hidden: { y: "100%" },
@@ -24,36 +41,51 @@ export default function ChapterLab() {
   };
 
   return (
-    <section className="relative flex min-h-[90vh] items-end overflow-hidden bg-[#0d0d0d]">
-      {/* Backdrop: gold particle field + Ken Burns (ambient exception) */}
+    <section
+      ref={sectionRef}
+      className="relative flex min-h-[90vh] items-end overflow-hidden bg-[#0d0d0d]"
+    >
       <div aria-hidden className="absolute inset-0">
-        <motion.div
-          className="absolute inset-0"
-          initial={{ scale: 1 }}
-          animate={{ scale: 1.06 }}
-          transition={
-            reduceMotion
-              ? { duration: 0 }
-              : {
-                  duration: 12,
-                  ease: "linear",
-                  repeat: Infinity,
-                  repeatType: "reverse",
-                }
-          }
-        >
-          <Image
-            src={POSTER}
-            alt=""
-            fill
-            sizes="100vw"
-            className="object-cover"
+        {useVideo ? (
+          <video
+            key="lab-loop"
+            className="absolute inset-0 h-full w-full object-cover"
+            src={LAB_VIDEO}
+            poster={POSTER}
+            muted
+            loop
+            playsInline
+            autoPlay
+            preload="none"
           />
-        </motion.div>
+        ) : (
+          <motion.div
+            className="absolute inset-0"
+            initial={{ scale: 1 }}
+            animate={{ scale: 1.06 }}
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : {
+                    duration: 12,
+                    ease: "linear",
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                  }
+            }
+          >
+            <Image
+              src={POSTER}
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover"
+            />
+          </motion.div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] via-[#0d0d0d]/60 to-[#0d0d0d]/30" />
       </div>
 
-      {/* Copy bottom-left */}
       <div className="relative z-10 w-full max-w-[620px] px-6 pb-24 md:px-12">
         <motion.div
           className="overflow-hidden"

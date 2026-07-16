@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { getWhatsAppUrl } from "@/lib/contact";
 import MagneticCTA from "@/components/v2/MagneticCTA";
@@ -14,6 +15,13 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 
 export default function ChapterHero() {
   const reduceMotion = useReducedMotion();
+  /* Defer hero video until after mount so LCP stays on the still poster. */
+  const [playHeroVideo, setPlayHeroVideo] = useState(false);
+  useEffect(() => {
+    if (reduceMotion) return;
+    const id = window.setTimeout(() => setPlayHeroVideo(true), 600);
+    return () => window.clearTimeout(id);
+  }, [reduceMotion]);
 
   /* Reduced motion is expressed ONLY through transition timing
      (duration 0), never by branching rendered styles on reduceMotion:
@@ -61,6 +69,18 @@ export default function ChapterHero() {
             sizes="(max-width: 1024px) 100vw, 64vw"
             className="object-cover object-[center_18%] lg:object-[center_30%]"
           />
+          {playHeroVideo ? (
+            <video
+              className="absolute inset-0 h-full w-full object-cover object-[center_18%] lg:object-[center_30%]"
+              src="/videos/v2/hero-lion.mp4"
+              poster="/images/hero_img/34513451.webp"
+              muted
+              loop
+              playsInline
+              autoPlay
+              preload="none"
+            />
+          ) : null}
           {/* Melt the plate into the stage — no hard photo edges */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] via-[#0d0d0d]/35 to-[#0d0d0d]/60 lg:bg-gradient-to-r lg:from-[#0d0d0d] lg:via-[#0d0d0d]/25 lg:to-transparent" />
           <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0d0d0d] to-transparent" />
