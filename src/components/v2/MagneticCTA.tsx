@@ -41,11 +41,17 @@ export default function MagneticCTA({
   };
 
   return (
+    // The motion-value style is passed unconditionally: values rest at 0
+    // (transform "none") and the pointer handlers above already no-op
+    // under reduced motion, so the element simply never moves. Branching
+    // the style prop on reduceMotion instead caused a hydration mismatch,
+    // because useReducedMotion() is null during SSR but resolves
+    // instantly on the client (see the master plan's Progress Log).
     <motion.span
       ref={ref}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
-      style={reduceMotion ? undefined : { x: sx, y: sy }}
+      style={{ x: sx, y: sy }}
       className={`inline-block ${className}`}
     >
       {children}

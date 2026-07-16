@@ -9,14 +9,7 @@ import { motion, useReducedMotion } from "framer-motion";
    itself reads as "scattered"; each slides in from a different side.
    ─────────────────────────────────────────────────────────────────── */
 
-const rise = {
-  hidden: { opacity: 0, y: 28 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] as const },
-  },
-};
+const EASE = [0.16, 1, 0.3, 1] as const;
 
 const POINTS = [
   {
@@ -42,6 +35,21 @@ const POINTS = [
 export default function ChapterTruth() {
   const reduceMotion = useReducedMotion();
 
+  /* Reduced motion is expressed ONLY through transition timing
+     (duration 0), never by branching rendered styles on reduceMotion:
+     useReducedMotion() is null during SSR but resolves instantly on the
+     client, so a style-affecting branch makes server HTML and a
+     reduced-motion client's first paint disagree (hydration mismatch,
+     see the master plan's Progress Log). */
+  const rise = {
+    hidden: { opacity: 0, y: 28 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: reduceMotion ? { duration: 0 } : { duration: 0.9, ease: EASE },
+    },
+  };
+
   return (
     <section className="relative overflow-hidden bg-[#0d0d0d] py-28 md:py-40">
       {/* Faint ember texture grounding the chapter; heavy dark overlay
@@ -65,15 +73,15 @@ export default function ChapterTruth() {
           height: "clamp(64px, 10vh, 120px)",
           background: "linear-gradient(to bottom, #e5192a, transparent)",
         }}
-        initial={reduceMotion ? false : { scaleY: 0 }}
+        initial={{ scaleY: 0 }}
         whileInView={{ scaleY: 1 }}
         viewport={{ once: true, amount: 0.4 }}
-        transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+        transition={reduceMotion ? { duration: 0 } : { duration: 1.1, ease: EASE }}
       />
 
       <div className="relative z-10 mx-auto w-full max-w-[1400px] px-6 md:px-12">
         <motion.h2
-          initial={reduceMotion ? false : "hidden"}
+          initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.5 }}
           variants={rise}
@@ -83,7 +91,7 @@ export default function ChapterTruth() {
         </motion.h2>
 
         <motion.p
-          initial={reduceMotion ? false : "hidden"}
+          initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.5 }}
           variants={rise}
@@ -99,16 +107,14 @@ export default function ChapterTruth() {
             <motion.div
               key={point.title}
               className={`max-w-[420px] ${point.indent}`}
-              initial={
-                reduceMotion ? false : { opacity: 0, x: point.fromX, y: 16 }
-              }
+              initial={{ opacity: 0, x: point.fromX, y: 16 }}
               whileInView={{ opacity: 1, x: 0, y: 0 }}
               viewport={{ once: true, amount: 0.5 }}
-              transition={{
-                duration: 0.85,
-                delay: i * 0.12,
-                ease: [0.16, 1, 0.3, 1],
-              }}
+              transition={
+                reduceMotion
+                  ? { duration: 0 }
+                  : { duration: 0.85, delay: i * 0.12, ease: EASE }
+              }
             >
               <h3 className="v2-display text-lg font-semibold text-white md:text-2xl">
                 {point.title}

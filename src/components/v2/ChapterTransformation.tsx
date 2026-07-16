@@ -22,6 +22,12 @@ const BEFORE_OFFSETS: { left: string; top: string; rotate: number }[] = [
 
 export default function ChapterTransformation() {
   const reduceMotion = useReducedMotion();
+  /* Reduced motion is expressed ONLY through transition timing (duration
+     0), never by branching rendered styles/animate on reduceMotion, which
+     is null during SSR but resolves instantly on the client and caused a
+     hydration mismatch (see the master plan's Progress Log). With
+     duration 0 the drift keyframes end where they start (0), so the
+     ambient loop collapses to static for reduced-motion users. */
 
   return (
     <section className="relative overflow-hidden bg-[#0d0d0d] py-28 md:py-40">
@@ -37,10 +43,10 @@ export default function ChapterTransformation() {
       <div className="relative z-10 mx-auto w-full max-w-[1400px] px-6 md:px-12">
         <div className="overflow-hidden">
           <motion.h2
-            initial={reduceMotion ? false : { y: "100%" }}
+            initial={{ y: "100%" }}
             whileInView={{ y: "0%" }}
             viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 1, ease: EASE }}
+            transition={reduceMotion ? { duration: 0 } : { duration: 1, ease: EASE }}
             className="v2-serif mx-auto max-w-[18ch] text-center text-[clamp(2.4rem,5.5vw,4.5rem)] font-medium leading-[1.05] text-[#f2ede3]"
           >
             Strong alone. Stronger together.
@@ -48,10 +54,10 @@ export default function ChapterTransformation() {
         </div>
 
         <motion.p
-          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.9, delay: 0.1, ease: EASE }}
+          transition={reduceMotion ? { duration: 0 } : { duration: 0.9, delay: 0.1, ease: EASE }}
           className="mx-auto mt-6 max-w-[46ch] text-center text-base leading-[1.7] text-white/60 md:text-lg"
         >
           You bring the vision, the drive, the standard. We bring the direction that pulls it into
@@ -67,18 +73,20 @@ export default function ChapterTransformation() {
                 key={word}
                 className="absolute"
                 style={{ left: BEFORE_OFFSETS[i].left, top: BEFORE_OFFSETS[i].top }}
-                initial={reduceMotion ? false : { opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
+                initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.5 }}
-                transition={{ duration: 0.8, delay: i * 0.1, ease: EASE }}
+                transition={
+                  reduceMotion ? { duration: 0 } : { duration: 0.8, delay: i * 0.1, ease: EASE }
+                }
               >
                 <motion.span
                   className="v2-display block text-lg font-semibold uppercase tracking-[0.08em] text-white/35 md:text-xl"
                   style={{ rotate: `${BEFORE_OFFSETS[i].rotate}deg` }}
-                  animate={reduceMotion ? undefined : { x: [0, 4, -3, 0], y: [0, -4, 3, 0] }}
+                  animate={{ x: [0, 4, -3, 0], y: [0, -4, 3, 0] }}
                   transition={
                     reduceMotion
-                      ? undefined
+                      ? { duration: 0 }
                       : { duration: 6 + i, repeat: Infinity, ease: "easeInOut" }
                   }
                 >
@@ -94,17 +102,19 @@ export default function ChapterTransformation() {
               aria-hidden
               className="absolute left-1/2 -top-16 h-16 w-px -translate-x-1/2 origin-top md:-top-24 md:h-24"
               style={{ background: "linear-gradient(to bottom, transparent, #e5192a)" }}
-              initial={reduceMotion ? false : { scaleY: 0 }}
+              initial={{ scaleY: 0 }}
               whileInView={{ scaleY: 1 }}
               viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 1, ease: EASE }}
+              transition={reduceMotion ? { duration: 0 } : { duration: 1, ease: EASE }}
             />
 
             <motion.div
-              initial={reduceMotion ? false : { opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 1.1, delay: 0.3, ease: EASE }}
+              transition={
+                reduceMotion ? { duration: 0 } : { duration: 1.1, delay: 0.3, ease: EASE }
+              }
               className="relative aspect-square w-56 overflow-hidden rounded-full border border-[#e5192a]/40 md:w-72"
               style={{ boxShadow: "0 0 80px rgba(229,25,42,0.25)" }}
             >
@@ -121,10 +131,12 @@ export default function ChapterTransformation() {
               aria-hidden
               className="absolute left-1/2 top-full h-16 w-px -translate-x-1/2 origin-top md:h-24"
               style={{ background: "linear-gradient(to bottom, #e5192a, transparent)" }}
-              initial={reduceMotion ? false : { scaleY: 0 }}
+              initial={{ scaleY: 0 }}
               whileInView={{ scaleY: 1 }}
               viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 1, delay: 0.6, ease: EASE }}
+              transition={
+                reduceMotion ? { duration: 0 } : { duration: 1, delay: 0.6, ease: EASE }
+              }
             />
           </div>
 
@@ -146,10 +158,14 @@ export default function ChapterTransformation() {
               {FRAGMENTS.map((word, i) => (
                 <motion.span
                   key={word}
-                  initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+                  initial={{ opacity: 0, y: 12 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.5 }}
-                  transition={{ duration: 0.85, delay: 0.9 + i * 0.1, ease: EASE }}
+                  transition={
+                    reduceMotion
+                      ? { duration: 0 }
+                      : { duration: 0.85, delay: 0.9 + i * 0.1, ease: EASE }
+                  }
                   className="v2-display text-lg font-semibold uppercase tracking-[0.08em] text-white md:text-xl"
                 >
                   {word}

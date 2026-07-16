@@ -10,24 +10,35 @@ import MagneticCTA from "@/components/v2/MagneticCTA";
    from the right, red story line exiting the chapter at the bottom.
    ─────────────────────────────────────────────────────────────────── */
 
-const container = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.14, delayChildren: 0.3 },
-  },
-};
-
-const rise = {
-  hidden: { opacity: 0, y: 28 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] as const },
-  },
-};
+const EASE = [0.16, 1, 0.3, 1] as const;
 
 export default function ChapterHero() {
   const reduceMotion = useReducedMotion();
+
+  /* Reduced motion is expressed ONLY through transition timing
+     (duration 0), never by branching rendered styles on reduceMotion:
+     useReducedMotion() is null during SSR but resolves instantly on the
+     client, so any style-affecting branch on it makes the server HTML
+     and a reduced-motion client's first paint disagree — a hydration
+     mismatch (see the master plan's Progress Log). Transitions never
+     appear in SSR output, so gating them is hydration-safe. */
+  const container = {
+    hidden: {},
+    visible: {
+      transition: reduceMotion
+        ? { duration: 0 }
+        : { staggerChildren: 0.14, delayChildren: 0.3 },
+    },
+  };
+
+  const rise = {
+    hidden: { opacity: 0, y: 28 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: reduceMotion ? { duration: 0 } : { duration: 0.9, ease: EASE },
+    },
+  };
 
   return (
     <section className="relative flex min-h-[100dvh] flex-col justify-end overflow-hidden lg:justify-center">
@@ -38,9 +49,9 @@ export default function ChapterHero() {
             asset without touching layout. */}
         <motion.div
           className="absolute inset-x-0 top-0 h-[48vh] lg:inset-y-0 lg:left-auto lg:right-0 lg:h-full lg:w-[64%]"
-          initial={reduceMotion ? false : { opacity: 0, scale: 1.06 }}
+          initial={{ opacity: 0, scale: 1.06 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
+          transition={reduceMotion ? { duration: 0 } : { duration: 2.2, ease: EASE }}
         >
           <Image
             src="/images/hero_img/34513451.webp"
@@ -68,7 +79,7 @@ export default function ChapterHero() {
       {/* ── Copy — anchored left, generous negative space right ── */}
       <motion.div
         variants={container}
-        initial={reduceMotion ? false : "hidden"}
+        initial="hidden"
         animate="visible"
         className="relative z-10 mx-auto w-full max-w-[1400px] px-6 pb-14 pt-[40vh] md:px-12 lg:py-0 lg:pt-24"
       >
@@ -130,9 +141,9 @@ export default function ChapterHero() {
           height: "clamp(64px, 10vh, 120px)",
           background: "linear-gradient(to bottom, transparent, #e5192a)",
         }}
-        initial={reduceMotion ? false : { scaleY: 0 }}
+        initial={{ scaleY: 0 }}
         animate={{ scaleY: 1 }}
-        transition={{ duration: 1.1, delay: 1.6, ease: [0.16, 1, 0.3, 1] }}
+        transition={reduceMotion ? { duration: 0 } : { duration: 1.1, delay: 1.6, ease: EASE }}
       />
     </section>
   );
