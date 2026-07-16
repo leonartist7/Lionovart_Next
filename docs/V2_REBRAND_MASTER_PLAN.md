@@ -3,7 +3,7 @@
 
 This single document is the source of truth for building the LIONOVART v2 landing page. It contains: the research digest (what makes a site read as premium), the improved master prompt (Part A), the complete chapter-by-chapter implementation spec (Part B), the asset generation kit (Part C), and the verification protocol (Part D). It is written so lighter models can implement each chapter without re-reading anything else.
 
-**State:** Chapters 1–7 are built, wired into `src/app/v2/page.tsx`, verified, and pushed on branch `claude/lionovart-rebrand-v2-8624vy` (open PR #18; chapters 1–2 previously merged to master via PR #16). Chapters 8–10 remain. Build ONE chapter at a time, in order. Read the Progress Log near the end of this doc first — it records real bugs and learnings that will save you multiple debugging cycles.
+**State:** Chapters 1–8 are built, wired into `src/app/v2/page.tsx`, verified, and pushed on branch `claude/lionovart-rebrand-v2-8624vy` (open PR #18; chapters 1–2 previously merged to master via PR #16). Chapters 9–10 remain. Build ONE chapter at a time, in order. Read the Progress Log near the end of this doc first — it records real bugs and learnings that will save you multiple debugging cycles.
 
 ---
 
@@ -133,7 +133,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
 
 ## B.3 Chapter specifications
 
-> **Chapters 2–7 are DONE** (built, wired into `page.tsx`, verified, committed). Read them as the reference implementations for this spec's quality bar, including the CORRECTED masked-reveal recipe (viewport props on the overflow wrapper). Do not rebuild them. Start at Chapter 8.
+> **Chapters 2–8 are DONE** (built, wired into `page.tsx`, verified, committed). Read them as the reference implementations for this spec's quality bar, including the CORRECTED masked-reveal recipe (viewport props on the overflow wrapper). Do not rebuild them. Start at Chapter 9.
 
 ### Chapter 2 — The Truth (dark) · editorial offset stack · DONE
 **File:** `src/components/v2/ChapterTruth.tsx` (client).
@@ -204,7 +204,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
   - Capability row (one Outfit line, `text-white/45 text-sm`): **"Smart glass, transparent LED, projection mapping, audiovisual spaces."**
 - No CTA here (intent budget stays clean).
 
-### Chapter 8 — Founder-Led (warm cream) · portrait split
+### Chapter 8 — Founder-Led (warm cream) · portrait split · DONE
 **File:** `src/components/v2/ChapterFounder.tsx` (client).
 - `bg-[#f2ede3] text-[#171412]`; top edge is a diagonal light wedge: `clip-path: polygon(0 4vw, 100% 0, 100% 100%, 0 100%)` + `margin-top: -4vw` slicing over Ch 7's dark bottom (mobile `2.5vw`).
 - Desktop split: portrait right ~42% (`Leon-Studioshot.avif`, `rounded-2xl`, warm overlay `from-[#8a6d2f]/15 to-transparent` bottom-up so gold reads as light); copy left. Mobile: portrait first.
@@ -281,7 +281,8 @@ Rules: every `<video>` is `muted loop playsInline preload="none"` with a poster,
 - **Chapter 5 QA corrections (applied):** continuous rail at constant x; corrected masked-reveal recipe on Ch 5 + Ch 3 headlines; picsum replaced with local `/images` assets.
 - **Chapter 6 — Selected Work.** `src/components/v2/ChapterWork.tsx`. `id="work"`; asymmetric 7+5 / 5+7 / 8+4 grid; cream→dark band with light captions on last row; closing + Start Your Project WhatsApp CTA; local studio tile images.
 - **Chapter 7 — Experience Lab.** `src/components/v2/ChapterLab.tsx`. Full-bleed dark scene; `123613.webp` Ken Burns backdrop (lab-loop.mp4 not produced yet); bottom-left copy; no CTA.
-- `src/app/v2/page.tsx` now renders Header → Hero → Truth → Transformation → Reveal → System → Work → Lab.
+- **Chapter 8 — Founder-Led.** `src/components/v2/ChapterFounder.tsx`. Cream diagonal wedge over Lab; portrait split; beliefs litany.
+- `src/app/v2/page.tsx` now renders Header → Hero → Truth → Transformation → Reveal → System → Work → Lab → Founder.
 - **Verify/debug pass (post-Chapter 4):** fixed the reduced-motion hydration bug across Chapters 1-3 + MagneticCTA (see the FIXED section below), re-verified hydration (0 errors both motion modes), reduced-motion visuals (all content visible, 59-60fps), and typecheck. The hydration-safe motion pattern is now a mandatory rule in Part B.1's taste layer.
 
 ## Chapter 5 QA findings (supervisor gate; FIXED)
