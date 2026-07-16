@@ -3,7 +3,7 @@
 
 This single document is the source of truth for building the LIONOVART v2 landing page. It contains: the research digest (what makes a site read as premium), the improved master prompt (Part A), the complete chapter-by-chapter implementation spec (Part B), the asset generation kit (Part C), and the verification protocol (Part D). It is written so lighter models can implement each chapter without re-reading anything else.
 
-**State:** Chapters 1–4 are built, wired into `src/app/v2/page.tsx`, verified, and pushed on branch `claude/lionovart-rebrand-v2-8624vy` (open PR #18; chapters 1–2 previously merged to master via PR #16). A dedicated verify/debug pass has also landed (reduced-motion hydration fix across chapters 1–3 + MagneticCTA). Chapters 5–10 remain. Build ONE chapter at a time, in order. Read the Progress Log near the end of this doc first — it records real bugs and learnings that will save you multiple debugging cycles.
+**State:** Chapters 1–5 are built, wired into `src/app/v2/page.tsx`, verified, and pushed on branch `claude/lionovart-rebrand-v2-8624vy` (open PR #18; chapters 1–2 previously merged to master via PR #16). A dedicated verify/debug pass has also landed (reduced-motion hydration fix across chapters 1–3 + MagneticCTA). Chapters 6–10 remain. Build ONE chapter at a time, in order. Read the Progress Log near the end of this doc first — it records real bugs and learnings that will save you multiple debugging cycles.
 
 ---
 
@@ -133,7 +133,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
 
 ## B.3 Chapter specifications
 
-> **Chapters 2, 3, and 4 are DONE** (built, wired into `page.tsx`, verified, committed). Read them as the reference implementations for this spec's quality bar: `src/components/v2/ChapterTruth.tsx`, `src/components/v2/ChapterTransformation.tsx`, `src/components/v2/ChapterReveal.tsx`, plus the foundations `src/components/v2/MagneticCTA.tsx` and `src/components/v2/V2Silk.tsx`. Do not rebuild them. Start at Chapter 5.
+> **Chapters 2–5 are DONE** (built, wired into `page.tsx`, verified, committed). Read them as the reference implementations for this spec's quality bar: `src/components/v2/ChapterTruth.tsx`, `src/components/v2/ChapterTransformation.tsx`, `src/components/v2/ChapterReveal.tsx`, `src/components/v2/ChapterSystem.tsx`, plus the foundations `src/components/v2/MagneticCTA.tsx` and `src/components/v2/V2Silk.tsx`. Do not rebuild them. Start at Chapter 6.
 
 ### Chapter 2 — The Truth (dark) · editorial offset stack · DONE
 **File:** `src/components/v2/ChapterTruth.tsx` (client).
@@ -168,7 +168,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
 - Reduced-motion fallback (gate with `useReducedMotion()`, skip GSAP entirely): single static layer, `background: linear-gradient(180deg, #0d0d0d 0%, #0d0d0d 35%, var(--v2-cream) 65%)`, line centered in cream-on-dark upper half.
 - All following cream sections declare `bg-[#f2ede3]` explicitly.
 
-### Chapter 5 — The Brand World System (cream) · connected vertical rail · eyebrow 2/3
+### Chapter 5 — The Brand World System (cream) · connected vertical rail · eyebrow 2/3 · DONE
 **File:** `src/components/v2/ChapterSystem.tsx` (client).
 - `bg-[#f2ede3] text-[#171412] py-28 md:py-40`.
 - Eyebrow (red, Ch 1 classes): **"The Brand World System"**. Headline (serif): **"One story. Four forces. Endless momentum."** Intro (secondary): **"Everything your brand needs, connected into one world."**
@@ -277,7 +277,8 @@ Rules: every `<video>` is `muted loop playsInline preload="none"` with a poster,
 - **Chapter 2 — The Truth.** `src/components/v2/ChapterTruth.tsx`. Built earlier as an unwired reference file, wired into `page.tsx` and verified in the same cycle as Chapter 3.
 - **Chapter 3 — The Transformation.** `src/components/v2/ChapterTransformation.tsx`, plus the two foundations from Part B.2: `src/components/v2/MagneticCTA.tsx` and `src/components/v2/V2Silk.tsx`. `MagneticCTA` is retrofitted onto both Chapter 1 CTAs.
 - **Chapter 4 — The Reveal.** `src/components/v2/ChapterReveal.tsx`. This is the first chapter to actually render `V2Silk`, which surfaced three real bugs in code that Chapter 3 had only built and unit-tested in isolation, never mounted for real. All three are fixed and verified; read the entries below before touching `V2Silk.tsx` or writing another chapter with a structurally-different reduced-motion fallback.
-- `src/app/v2/page.tsx` now renders Header → Hero → Truth → Transformation → Reveal, in that order.
+- **Chapter 5 — The Brand World System.** `src/components/v2/ChapterSystem.tsx`. Cream section after the Reveal; connected vertical red rail with four pillar rows (rows 2 and 4 offset); eyebrow 2/3; image chips on pillars 2 and 3 use picsum seeds until Part C kit stills land. Plain `<img>` for remote picsum (next.config remotePatterns out of scope).
+- `src/app/v2/page.tsx` now renders Header → Hero → Truth → Transformation → Reveal → System, in that order.
 - **Verify/debug pass (post-Chapter 4):** fixed the reduced-motion hydration bug across Chapters 1-3 + MagneticCTA (see the FIXED section below), re-verified hydration (0 errors both motion modes), reduced-motion visuals (all content visible, 59-60fps), and typecheck. The hydration-safe motion pattern is now a mandatory rule in Part B.1's taste layer.
 
 ## Bugs found building Chapter 4 (read before reusing V2Silk or a structural reduced-motion branch)
