@@ -73,7 +73,7 @@ Base `#0d0d0d` · charcoal `#171412` · cream `#f2ede3` · red `#e5192a` · wine
 - **Motion is slow and expensive.** One easing everywhere: `[0.16, 1, 0.3, 1]`. Durations 0.8–2.2s. Reveals fire once (`viewport={{ once: true }}`). Nothing loops (except ambient shader/video), nothing bounces.
 - **Type carries emotion.** Serif = feeling (sentence case, `font-medium`, `leading-[1.05]`). Display sans = conviction (short uppercase tracked lines). Body = clarity (65% opacity, `leading-[1.65+]`, ≤52ch).
 - **Red is narrative, gold is precious.** Red: story line, eyebrows, CTAs only. Gold: at most once per chapter, always as light, never fill.
-- **Headline masked line reveals** (the type-led premium move): wrap each headline line in `overflow-hidden` + animate inner span `y: "100%" → 0`. Use for every chapter's serif headline.
+- **Headline masked line reveals** (the type-led premium move), CORRECTED RECIPE: the `overflow-hidden` wrapper must be a `motion.div` that CARRIES `initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }}`, and the inner `motion.h2` animates via variants propagation (`hidden: { y: "100%" }`, `visible: { y: "0%", transition: ... }`). NEVER put `whileInView` on the clipped inner element itself: IntersectionObserver computes intersection AFTER ancestor clipping, so an element translated fully out of an overflow-hidden wrapper has intersection ratio 0 forever and the reveal never fires — the headline stays permanently invisible. This exact bug shipped in Chapters 3 and 5 via the earlier version of this recipe (caught at the Chapter 5 QA gate; see the Progress Log).
 - **Reduced-motion pattern (MANDATORY, hydration-safe):** pass `initial`/`animate`/`whileInView`/`style` props UNCONDITIONALLY, and express reduced motion only through the `transition` prop: `transition={reduceMotion ? { duration: 0 } : { duration: 0.9, ease: EASE }}`. NEVER write `initial={reduceMotion ? false : ...}` or `style={reduceMotion ? undefined : ...}` — `useReducedMotion()` is null during SSR but resolves instantly on the client, so any branch that changes RENDERED OUTPUT causes a hydration mismatch (this exact bug shipped in Chapters 1-3 and was fixed in a dedicated pass; see the Progress Log). Transitions never appear in SSR HTML, so gating them is safe. The only exception is a structurally different reduced-motion layout (like Chapter 4's `StaticReveal`), which must be gated behind a post-mount flag (see `ChapterReveal.tsx`).
 
 ### Hard content rules
@@ -168,7 +168,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
 - Reduced-motion fallback (gate with `useReducedMotion()`, skip GSAP entirely): single static layer, `background: linear-gradient(180deg, #0d0d0d 0%, #0d0d0d 35%, var(--v2-cream) 65%)`, line centered in cream-on-dark upper half.
 - All following cream sections declare `bg-[#f2ede3]` explicitly.
 
-### Chapter 5 — The Brand World System (cream) · connected vertical rail · eyebrow 2/3 · DONE
+### Chapter 5 — The Brand World System (cream) · connected vertical rail · eyebrow 2/3 · DONE, CORRECTIONS PENDING (see Progress Log: "Chapter 5 QA findings")
 **File:** `src/components/v2/ChapterSystem.tsx` (client).
 - `bg-[#f2ede3] text-[#171412] py-28 md:py-40`.
 - Eyebrow (red, Ch 1 classes): **"The Brand World System"**. Headline (serif): **"One story. Four forces. Endless momentum."** Intro (secondary): **"Everything your brand needs, connected into one world."**
@@ -280,6 +280,16 @@ Rules: every `<video>` is `muted loop playsInline preload="none"` with a poster,
 - **Chapter 5 — The Brand World System.** `src/components/v2/ChapterSystem.tsx`. Cream section after the Reveal; connected vertical red rail with four pillar rows (rows 2 and 4 offset); eyebrow 2/3; image chips on pillars 2 and 3 use picsum seeds until Part C kit stills land. Plain `<img>` for remote picsum (next.config remotePatterns out of scope).
 - `src/app/v2/page.tsx` now renders Header → Hero → Truth → Transformation → Reveal → System, in that order.
 - **Verify/debug pass (post-Chapter 4):** fixed the reduced-motion hydration bug across Chapters 1-3 + MagneticCTA (see the FIXED section below), re-verified hydration (0 errors both motion modes), reduced-motion visuals (all content visible, 59-60fps), and typecheck. The hydration-safe motion pattern is now a mandatory rule in Part B.1's taste layer.
+
+## Chapter 5 QA findings (supervisor gate; corrections assigned to the executing model)
+
+Chapter 5's first submission passed copy fidelity, the eyebrow budget, the hydration gate (0/0 in both motion modes), typecheck, and the taste layer's motion pattern. Three findings, two of them visual-gate failures:
+
+**1. The rail is not continuous (spec deviation).** Each row's rail segment was placed inside the row and the `md:ml-[6%]` offset was applied to the whole `<li>`, so the rail's x-position jogs at rows 2 and 4, and each row's body below its node has no line at all (the `i === 0` segment was 0.5rem tall). The spec's layout family is a CONTINUOUS vertical rail: constant x for the line across all rows (offset the CONTENT block, not the rail column), each segment running DOWN from its node to the next row's node (`top: 0.5rem`, `height: calc(100% + <ul gap>)`, last row ends at its own node).
+
+**2. Masked headline never renders (spec-level defect, NOT the executing model's fault).** The old masked-reveal recipe put `whileInView` on the clipped inner element; IntersectionObserver computes intersection after ancestor clipping, so the reveal never fires and the headline is permanently invisible. The recipe in Part B.1's taste layer is now corrected (wrapper carries the viewport props; inner element animates via variants). This same defect shipped in Chapter 3 (`ChapterTransformation.tsx`) — fixing that file's headline with the corrected recipe is explicitly in scope for the Chapter 5 correction pass, and ONLY that (change nothing else in Chapter 3).
+
+**3. Remote picsum chips are an external runtime dependency and unverifiable in the build sandbox** (outbound proxy blocks picsum.photos, so the chips render broken here). Amended direction: use LOCAL repo assets via `next/image` for placeholder chips/tiles instead of picsum — on-brand studio imagery beats random stock anyway. Chapter 5 chips: pillar 2 → `/images/hero_img/1235.webp`, pillar 3 → `/images/hero_img/123613.webp` (`sizes="(max-width: 768px) 100vw, 224px"`). Chapter 6 tiles should likewise draw from `/images` local assets (e.g. `luminous_work.avif`, `paintco.avif`, `Card golden.avif`, `LION-CIRCLE.avif`, `cards.webp`, `brush/sweep.webp`); the supervisor has not visually verified the `.avif` contents, so the Chapter 6 QA gate will review them on screen. Part C kit stills still replace all of these when generated.
 
 ## Bugs found building Chapter 4 (read before reusing V2Silk or a structural reduced-motion branch)
 
