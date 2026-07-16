@@ -1,0 +1,36 @@
+/* =============================================
+   LIONOVART v2 — Rebrand tokens & type utilities
+   Scoped under .v2-root so nothing leaks into the
+   production homepage or shared components.
+   ============================================= */
+
+.v2-root {
+  --v2-base: #0d0d0d;
+  --v2-charcoal: #171412;
+  --v2-cream: #f2ede3;
+  --v2-red: #e5192a;
+  --v2-wine: #4a0d14;
+
+  background-color: var(--v2-base);
+  color: var(--v2-cream);
+  font-family: var(--font-outfit), system-ui, sans-serif;
+}
+
+/* Emotional headlines — editorial serif (rebrand-only) */
+.v2-serif {
+  font-family: var(--font-fraunces), Georgia, serif;
+}
+
+/* Impact statements & CTAs — existing display sans */
+.v2-display {
+  font-family: var(--font-clash-display), system-ui, sans-serif;
+}
+
+/* Gold rendered as light, never a flat fill (hard brand rule) */
+.v2-gold-text {
+  background: linear-gradient(105deg, #8a6d2f 0%, #d9b45c 38%, #f3dfa4 50%, #d9b45c 62%, #8a6d2f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
