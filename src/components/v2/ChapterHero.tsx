@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { getWhatsAppUrl } from "@/lib/contact";
+import MagneticCTA from "@/components/v2/MagneticCTA";
 
 /* ─── Chapter 1 — Hero (dark, cinematic) ─────────────────────────────
    Asymmetric stage: copy anchored left, lion presence dissolving in
@@ -97,20 +98,24 @@ export default function ChapterHero() {
           </motion.p>
 
           <motion.div variants={rise} className="mt-10 flex flex-wrap items-center gap-4">
-            <a
-              href={getWhatsAppUrl("Hello Leon, I'd like to start a project with LIONOVART.")}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="v2-display w-full rounded-full bg-[#e5192a] px-8 py-4 text-center text-[13px] font-semibold uppercase tracking-[0.14em] text-white transition-all duration-300 hover:-translate-y-[1px] hover:bg-[#c9101f] active:scale-[0.98] sm:w-auto"
-            >
-              Start Your Project
-            </a>
-            <a
-              href="#work"
-              className="v2-display w-full rounded-full border border-white/25 px-8 py-4 text-center text-[13px] font-semibold uppercase tracking-[0.14em] text-white transition-colors duration-300 hover:border-white/70 active:scale-[0.98] sm:w-auto"
-            >
-              View Our Work
-            </a>
+            <MagneticCTA className="w-full sm:w-auto">
+              <a
+                href={getWhatsAppUrl("Hello Leon, I'd like to start a project with LIONOVART.")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="v2-display block w-full rounded-full bg-[#e5192a] px-8 py-4 text-center text-[13px] font-semibold uppercase tracking-[0.14em] text-white transition-all duration-300 hover:-translate-y-[1px] hover:bg-[#c9101f] active:scale-[0.98] sm:w-auto"
+              >
+                Start Your Project
+              </a>
+            </MagneticCTA>
+            <MagneticCTA className="w-full sm:w-auto">
+              <a
+                href="#work"
+                className="v2-display block w-full rounded-full border border-white/25 px-8 py-4 text-center text-[13px] font-semibold uppercase tracking-[0.14em] text-white transition-colors duration-300 hover:border-white/70 active:scale-[0.98] sm:w-auto"
+              >
+                View Our Work
+              </a>
+            </MagneticCTA>
           </motion.div>
         </div>
       </motion.div>
