@@ -7,9 +7,10 @@ import ChapterSystem from "@/components/v2/ChapterSystem";
 import ChapterWork from "@/components/v2/ChapterWork";
 import ChapterLab from "@/components/v2/ChapterLab";
 import ChapterFounder from "@/components/v2/ChapterFounder";
+import ChapterAudit from "@/components/v2/ChapterAudit";
 
 /* LIONOVART rebrand v2 — built chapter by chapter.
-   Chapters 1-8 wired. Chapters 9-10 land after review. */
+   Chapters 1-9 wired. Chapter 10 lands after review. */
 export default function V2Page() {
   return (
     <main className="relative min-h-[100dvh]">
@@ -22,6 +23,7 @@ export default function V2Page() {
       <ChapterWork />
       <ChapterLab />
       <ChapterFounder />
+      <ChapterAudit />
     </main>
   );
 }

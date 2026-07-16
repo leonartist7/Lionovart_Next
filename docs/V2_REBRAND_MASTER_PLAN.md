@@ -3,7 +3,7 @@
 
 This single document is the source of truth for building the LIONOVART v2 landing page. It contains: the research digest (what makes a site read as premium), the improved master prompt (Part A), the complete chapter-by-chapter implementation spec (Part B), the asset generation kit (Part C), and the verification protocol (Part D). It is written so lighter models can implement each chapter without re-reading anything else.
 
-**State:** Chapters 1–8 are built, wired into `src/app/v2/page.tsx`, verified, and pushed on branch `claude/lionovart-rebrand-v2-8624vy` (open PR #18; chapters 1–2 previously merged to master via PR #16). Chapters 9–10 remain. Build ONE chapter at a time, in order. Read the Progress Log near the end of this doc first — it records real bugs and learnings that will save you multiple debugging cycles.
+**State:** Chapters 1–9 are built, wired into `src/app/v2/page.tsx`, verified, and pushed on branch `claude/lionovart-rebrand-v2-8624vy` (open PR #18; chapters 1–2 previously merged to master via PR #16). Chapter 10 remains. Build ONE chapter at a time, in order. Read the Progress Log near the end of this doc first — it records real bugs and learnings that will save you multiple debugging cycles.
 
 ---
 
@@ -133,7 +133,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
 
 ## B.3 Chapter specifications
 
-> **Chapters 2–8 are DONE** (built, wired into `page.tsx`, verified, committed). Read them as the reference implementations for this spec's quality bar, including the CORRECTED masked-reveal recipe (viewport props on the overflow wrapper). Do not rebuild them. Start at Chapter 9.
+> **Chapters 2–9 are DONE** (built, wired into `page.tsx`, verified, committed). Read them as the reference implementations for this spec's quality bar, including the CORRECTED masked-reveal recipe (viewport props on the overflow wrapper). Do not rebuild them. Start at Chapter 10.
 
 ### Chapter 2 — The Truth (dark) · editorial offset stack · DONE
 **File:** `src/components/v2/ChapterTruth.tsx` (client).
@@ -214,7 +214,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
 - Beliefs litany (stacked, staggered, NOT bullets): `.v2-display` uppercase `text-[13px] tracking-[0.14em] text-[#171412]/70 space-y-3`:
   **"Story before content." / "Feeling before format." / "Strategy before design." / "Direction before production." / "Legacy over trends."**
 
-### Chapter 9 — Brand Presence Audit (warm cream) · centered form · id="audit" · eyebrow 3/3
+### Chapter 9 — Brand Presence Audit (warm cream) · centered form · id="audit" · eyebrow 3/3 · DONE
 **File:** `src/components/v2/ChapterAudit.tsx` (client).
 - `bg-[#f2ede3] text-[#171412] py-28 md:py-36`; column `max-w-[560px] mx-auto`.
 - Eyebrow (red): **"Free Brand Presence Audit"**. Headline (serif): **"Clarity begins with one conversation."** Body: **"A free, personalized review of your brand, website, content, and first impression, with clear next steps."**
@@ -282,7 +282,8 @@ Rules: every `<video>` is `muted loop playsInline preload="none"` with a poster,
 - **Chapter 6 — Selected Work.** `src/components/v2/ChapterWork.tsx`. `id="work"`; asymmetric 7+5 / 5+7 / 8+4 grid; cream→dark band with light captions on last row; closing + Start Your Project WhatsApp CTA; local studio tile images.
 - **Chapter 7 — Experience Lab.** `src/components/v2/ChapterLab.tsx`. Full-bleed dark scene; `123613.webp` Ken Burns backdrop (lab-loop.mp4 not produced yet); bottom-left copy; no CTA.
 - **Chapter 8 — Founder-Led.** `src/components/v2/ChapterFounder.tsx`. Cream diagonal wedge over Lab; portrait split; beliefs litany.
-- `src/app/v2/page.tsx` now renders Header → Hero → Truth → Transformation → Reveal → System → Work → Lab → Founder.
+- **Chapter 9 — Brand Presence Audit.** `src/components/v2/ChapterAudit.tsx`. `id="audit"`; eyebrow 3/3; form POST `/api/strategist/lead`; idle/submitting/success/error.
+- `src/app/v2/page.tsx` now renders Header → Hero → Truth → Transformation → Reveal → System → Work → Lab → Founder → Audit.
 - **Verify/debug pass (post-Chapter 4):** fixed the reduced-motion hydration bug across Chapters 1-3 + MagneticCTA (see the FIXED section below), re-verified hydration (0 errors both motion modes), reduced-motion visuals (all content visible, 59-60fps), and typecheck. The hydration-safe motion pattern is now a mandatory rule in Part B.1's taste layer.
 
 ## Chapter 5 QA findings (supervisor gate; FIXED)
