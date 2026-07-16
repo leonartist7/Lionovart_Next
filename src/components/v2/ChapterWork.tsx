@@ -92,7 +92,11 @@ function WorkTile({
       }
       className={`col-span-1 ${item.col}`}
     >
-      <div className={`group relative overflow-hidden rounded-2xl ${item.aspect}`}>
+      <div
+        className={`group relative overflow-hidden rounded-2xl ${item.aspect} ${
+          light ? "v2-plate-melt" : "v2-plate-melt-cream"
+        }`}
+      >
         <Image
           src={item.src}
           alt=""
@@ -101,12 +105,12 @@ function WorkTile({
           className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
         />
       </div>
-      <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.18em] text-[#e5192a]">
+      <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.18em] text-[#e5192a] md:mt-4">
         {item.label}
       </p>
       <p
-        className={`mt-1 text-base font-medium md:text-lg ${
-          light ? "text-white" : "text-[#171412]"
+        className={`mt-1 text-base font-medium leading-snug md:text-lg ${
+          light ? "text-white/95" : "text-[#171412]"
         }`}
       >
         {item.title}
@@ -129,7 +133,7 @@ export default function ChapterWork() {
   return (
     <section
       id="work"
-      className="relative overflow-hidden bg-[#f2ede3] pt-28 md:pt-40"
+      className="relative overflow-hidden bg-[#f2ede3] pt-28 md:pt-36"
     >
       <div className="relative z-10 mx-auto w-full max-w-[1400px] px-6 md:px-12">
         <div className="max-w-[720px]">
@@ -163,8 +167,8 @@ export default function ChapterWork() {
           </motion.p>
         </div>
 
-        {/* Rows 1-2 on cream: 7+5 / 5+7 */}
-        <div className="mt-16 grid grid-cols-1 gap-8 md:mt-24 md:grid-cols-12 md:gap-x-6 md:gap-y-10">
+        {/* Rows 1-2 on cream: 7+5 / 5+7 — tighter rhythm than first cut */}
+        <div className="mt-14 grid grid-cols-1 gap-7 md:mt-20 md:grid-cols-12 md:gap-x-5 md:gap-y-8">
           {WORK_TOP.map((item, i) => (
             <WorkTile
               key={item.title}
@@ -177,15 +181,14 @@ export default function ChapterWork() {
         </div>
       </div>
 
-      {/* Final band: cream -> dark (~30vh+), last row 8+4 with light captions,
-          closing line + Start Your Project */}
-      <div className="relative mt-8 min-h-[30vh] md:mt-10">
+      {/* Final band: cream -> dark, last row 8+4 with light captions */}
+      <div className="relative mt-6 min-h-[28vh] md:mt-8">
         <div
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-b from-[#f2ede3] via-[#f2ede3]/40 to-[#0d0d0d]"
+          className="absolute inset-0 bg-gradient-to-b from-[#f2ede3] via-[#1a1210] to-[#0d0d0d]"
         />
-        <div className="relative z-10 mx-auto w-full max-w-[1400px] px-6 pb-28 pt-2 md:px-12 md:pb-40">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:gap-x-6 md:gap-y-10">
+        <div className="relative z-10 mx-auto w-full max-w-[1400px] px-6 pb-24 pt-4 md:px-12 md:pb-32">
+          <div className="grid grid-cols-1 gap-7 md:grid-cols-12 md:gap-x-5 md:gap-y-8">
             {WORK_BOTTOM.map((item, i) => (
               <WorkTile
                 key={item.title}
@@ -204,7 +207,7 @@ export default function ChapterWork() {
             transition={
               reduceMotion ? { duration: 0 } : { duration: 0.9, ease: EASE }
             }
-            className="mt-16 max-w-[46ch] text-base leading-[1.7] text-white/60 md:mt-20 md:text-lg"
+            className="mt-14 max-w-[46ch] text-base leading-[1.7] text-white/60 md:mt-16 md:text-lg"
           >
             The full stories are told on a call.
           </motion.p>
@@ -218,7 +221,7 @@ export default function ChapterWork() {
                 ? { duration: 0 }
                 : { duration: 0.9, delay: 0.08, ease: EASE }
             }
-            className="mt-8"
+            className="mt-7"
           >
             <MagneticCTA className="w-full sm:w-auto">
               <a

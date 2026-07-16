@@ -14,6 +14,14 @@
   background-color: var(--v2-base);
   color: var(--v2-cream);
   font-family: var(--font-outfit), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.v2-root ::selection {
+  background: color-mix(in srgb, var(--v2-red) 35%, transparent);
+  color: var(--v2-cream);
 }
 
 /* Emotional headlines — editorial serif (rebrand-only) */
@@ -33,4 +41,51 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+}
+
+/* Soft plate melt for image chips/tiles (light-as-material) */
+.v2-plate-melt::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(13, 13, 13, 0.28) 0%,
+    transparent 42%
+  );
+  opacity: 0.85;
+}
+
+.v2-plate-melt-cream::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(242, 237, 227, 0.35) 0%,
+    transparent 40%
+  );
+}
+
+/* Production chrome hide while this route's CSS is loaded + data-v2 set */
+html[data-v2] .bottom-blur {
+  display: none !important;
+}
+
+html[data-v2] body > a.fixed.bottom-6.right-6,
+html[data-v2] body a.fixed[class*="bottom-6"][class*="right-6"] {
+  display: none !important;
+}
+
+/* Custom cursor layer lives as fixed high-z nodes */
+html[data-v2] .cursor-layer,
+html[data-v2] .cursor-ring,
+html[data-v2] .cursor-label {
+  display: none !important;
+}
+
+html[data-v2] {
+  cursor: auto;
 }

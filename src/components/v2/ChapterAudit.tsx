@@ -79,9 +79,18 @@ export default function ChapterAudit() {
   return (
     <section
       id="audit"
-      className="relative bg-[#f2ede3] py-28 text-[#171412] md:py-36"
+      className="relative bg-[#f2ede3] py-28 text-[#171412] md:py-40"
     >
-      <div className="mx-auto w-full max-w-[560px] px-6 md:px-0">
+      <div className="relative mx-auto w-full max-w-[560px] px-6 md:px-0">
+        {/* Soft radial warmth behind the form column */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-[28%] -z-0 h-[48vh] w-[min(92vw,540px)] -translate-x-1/2 -translate-y-1/2"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, rgba(229,25,42,0.07) 0%, transparent 70%)",
+          }}
+        />
         <motion.p
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -89,7 +98,7 @@ export default function ChapterAudit() {
           transition={
             reduceMotion ? { duration: 0 } : { duration: 0.8, ease: EASE }
           }
-          className="mb-6 text-center text-[11px] font-medium uppercase tracking-[0.32em] text-[#e5192a] md:text-xs"
+          className="relative mb-6 text-center text-[11px] font-medium uppercase tracking-[0.32em] text-[#e5192a] md:text-xs"
         >
           Free Brand Presence Audit
         </motion.p>

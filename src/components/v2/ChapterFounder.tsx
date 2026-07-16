@@ -55,7 +55,12 @@ export default function ChapterFounder() {
             {/* Gold as light, bottom-up, never a flat fill */}
             <div
               aria-hidden
-              className="absolute inset-0 bg-gradient-to-t from-[#8a6d2f]/15 to-transparent"
+              className="absolute inset-0 bg-gradient-to-t from-[#8a6d2f]/20 via-[#8a6d2f]/05 to-transparent"
+            />
+            {/* Soft edge melt into cream stage */}
+            <div
+              aria-hidden
+              className="absolute inset-0 ring-1 ring-inset ring-[#171412]/10"
             />
           </motion.div>
 

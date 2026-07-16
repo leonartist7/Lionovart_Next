@@ -186,7 +186,7 @@ export default function ChapterSystem() {
                   </div>
 
                   {pillar.imageSrc ? (
-                    <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-2xl md:ml-auto md:w-56">
+                    <div className="v2-plate-melt-cream relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-2xl md:ml-auto md:w-56">
                       <Image
                         src={pillar.imageSrc}
                         alt=""
