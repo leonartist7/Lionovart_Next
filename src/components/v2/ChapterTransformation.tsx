@@ -41,17 +41,29 @@ export default function ChapterTransformation() {
       />
 
       <div className="relative z-10 mx-auto w-full max-w-[1400px] px-6 md:px-12">
-        <div className="overflow-hidden">
+        {/* Masked reveal: viewport on overflow wrapper; inner uses variants.
+            whileInView on the clipped child never fires (IO after clip). */}
+        <motion.div
+          className="overflow-hidden"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.5 }}
+        >
           <motion.h2
-            initial={{ y: "100%" }}
-            whileInView={{ y: "0%" }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={reduceMotion ? { duration: 0 } : { duration: 1, ease: EASE }}
+            variants={{
+              hidden: { y: "100%" },
+              visible: {
+                y: "0%",
+                transition: reduceMotion
+                  ? { duration: 0 }
+                  : { duration: 1, ease: EASE },
+              },
+            }}
             className="v2-serif mx-auto max-w-[18ch] text-center text-[clamp(2.4rem,5.5vw,4.5rem)] font-medium leading-[1.05] text-[#f2ede3]"
           >
             Strong alone. Stronger together.
           </motion.h2>
-        </div>
+        </motion.div>
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}
