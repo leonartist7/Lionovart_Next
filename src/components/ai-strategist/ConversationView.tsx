@@ -26,7 +26,6 @@ import VoiceVisualizer from "./VoiceVisualizer";
 import HandoffCards from "./HandoffCards";
 import { PrivacyGate } from "./PrivacyGate";
 import { RecordingIndicator } from "./RecordingIndicator";
-import { useAudioAmplitude } from "./useAudioAmplitude";
 import { TextInputBar } from "./TextInputBar";
 import { trackNovaEvent, NOVA_EVENT } from "@/lib/nova-events";
 
@@ -83,9 +82,6 @@ export default function ConversationView({
   const isListening = state === "listening";
   const isSpeaking = state === "speaking";
   const isHandoff = state === "handoff";
-
-  const inputAmplitude = useAudioAmplitude(inputAnalyser, isSessionActive && !isMicMuted);
-  const outputAmplitude = useAudioAmplitude(outputAnalyser, isSessionActive && isSpeaking);
 
   const [textMode, setTextMode] = useState(false);
   const [showTranscript, setShowTranscript] = useState(false);
@@ -222,7 +218,11 @@ export default function ConversationView({
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col items-center gap-6 text-center max-w-sm flex-1 justify-center"
           >
-            <VoiceVisualizer state="idle" inputAmplitude={0} outputAmplitude={0} />
+            <VoiceVisualizer
+              state="idle"
+              inputAnalyser={inputAnalyser}
+              outputAnalyser={outputAnalyser}
+            />
             <div className="flex flex-col gap-2">
               <h3 className="text-2xl font-bold text-white uppercase font-clash leading-tight">
                 Meet Nova
@@ -260,8 +260,10 @@ export default function ConversationView({
             >
               <VoiceVisualizer
                 state={isSpeaking ? "speaking" : isListening ? "listening" : "thinking"}
-                inputAmplitude={inputAmplitude}
-                outputAmplitude={outputAmplitude}
+                inputAnalyser={inputAnalyser}
+                outputAnalyser={outputAnalyser}
+                inputActive={isSessionActive && !isMicMuted}
+                outputActive={isSessionActive && isSpeaking}
               />
             </motion.div>
 

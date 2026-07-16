@@ -1,25 +1,35 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useTransform, type MotionValue } from "framer-motion";
+import type { RefObject } from "react";
+import { useAudioAmplitude } from "./useAudioAmplitude";
 
 export type VisualizerState = "idle" | "listening" | "speaking" | "thinking";
 
 interface VoiceVisualizerProps {
   state: VisualizerState;
-  inputAmplitude?: number;
-  outputAmplitude?: number;
+  inputAnalyser: RefObject<AnalyserNode | null>;
+  outputAnalyser: RefObject<AnalyserNode | null>;
+  inputActive?: boolean;
+  outputActive?: boolean;
 }
 
 export default function VoiceVisualizer({
   state,
-  inputAmplitude = 0,
-  outputAmplitude = 0,
+  inputAnalyser,
+  outputAnalyser,
+  inputActive = false,
+  outputActive = false,
 }: VoiceVisualizerProps) {
-  // Amplitude-driven halo values — snaps to real signal with 80ms lag
-  const listenHaloScale = 0.95 + inputAmplitude * 0.35;
-  const listenHaloOpacity = 0.12 + inputAmplitude * 0.55;
-  const speakHaloScale = 0.85 + outputAmplitude * 0.4;
-  const speakHaloOpacity = 0.25 + outputAmplitude * 0.6;
+  // Amplitude-driven MotionValues — updated imperatively at RAF rate,
+  // never through React state, so the panel around this component never re-renders for them.
+  const inputAmplitude = useAudioAmplitude(inputAnalyser, inputActive);
+  const outputAmplitude = useAudioAmplitude(outputAnalyser, outputActive);
+
+  const listenHaloScale = useTransform(inputAmplitude, (v) => 0.95 + v * 0.35);
+  const listenHaloOpacity = useTransform(inputAmplitude, (v) => 0.12 + v * 0.55);
+  const speakHaloScale = useTransform(outputAmplitude, (v) => 0.85 + v * 0.4);
+  const speakHaloOpacity = useTransform(outputAmplitude, (v) => 0.25 + v * 0.6);
 
   return (
     <div className="relative w-[120px] h-[120px] flex items-center justify-center">
@@ -28,31 +38,35 @@ export default function VoiceVisualizer({
           <motion.div
             key="speaking-halo"
             initial={{ scale: 0.6, opacity: 0 }}
-            animate={{ scale: speakHaloScale, opacity: speakHaloOpacity }}
+            animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.6, opacity: 0 }}
             transition={{ duration: 0.08 }}
             className="absolute inset-0 rounded-full"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(229,25,42,0.45) 0%, rgba(229,25,42,0) 70%)",
-              filter: "blur(8px)",
-            }}
-          />
+          >
+            <AmplitudeHalo
+              scale={speakHaloScale}
+              opacity={speakHaloOpacity}
+              background="radial-gradient(circle, rgba(229,25,42,0.45) 0%, rgba(229,25,42,0) 70%)"
+              blur={8}
+            />
+          </motion.div>
         )}
         {state === "listening" && (
           <motion.div
             key="listening-halo"
             initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: listenHaloScale, opacity: listenHaloOpacity }}
+            animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ duration: 0.08 }}
             className="absolute inset-0 rounded-full"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(229,25,42,0.28) 0%, rgba(229,25,42,0) 65%)",
-              filter: "blur(6px)",
-            }}
-          />
+          >
+            <AmplitudeHalo
+              scale={listenHaloScale}
+              opacity={listenHaloOpacity}
+              background="radial-gradient(circle, rgba(229,25,42,0.28) 0%, rgba(229,25,42,0) 65%)"
+              blur={6}
+            />
+          </motion.div>
         )}
         {state === "idle" && (
           <motion.div
@@ -146,5 +160,26 @@ export default function VoiceVisualizer({
         />
       )}
     </div>
+  );
+}
+
+/** Inner halo layer — scale/opacity are bound directly to amplitude MotionValues,
+ * updated at RAF rate without going through React state or re-rendering the parent. */
+function AmplitudeHalo({
+  scale,
+  opacity,
+  background,
+  blur,
+}: {
+  scale: MotionValue<number>;
+  opacity: MotionValue<number>;
+  background: string;
+  blur: number;
+}) {
+  return (
+    <motion.div
+      className="absolute inset-0 rounded-full"
+      style={{ scale, opacity, background, filter: `blur(${blur}px)` }}
+    />
   );
 }

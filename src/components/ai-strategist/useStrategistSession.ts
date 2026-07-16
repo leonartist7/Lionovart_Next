@@ -64,10 +64,14 @@ const EMPTY_CONFIRMATIONS: FieldConfirmations = {
 };
 
 function arrayBufferToBase64(buffer: ArrayBuffer) {
-  let binary = "";
   const bytes = new Uint8Array(buffer);
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
+  let binary = "";
+  const CHUNK_SIZE = 8192; // headroom under engine argument-count limits for String.fromCharCode.apply
+  for (let i = 0; i < bytes.byteLength; i += CHUNK_SIZE) {
+    binary += String.fromCharCode.apply(
+      null,
+      bytes.subarray(i, i + CHUNK_SIZE) as unknown as number[],
+    );
   }
   return window.btoa(binary);
 }
