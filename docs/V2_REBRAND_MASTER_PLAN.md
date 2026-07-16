@@ -3,7 +3,7 @@
 
 This single document is the source of truth for building the LIONOVART v2 landing page. It contains: the research digest (what makes a site read as premium), the improved master prompt (Part A), the complete chapter-by-chapter implementation spec (Part B), the asset generation kit (Part C), and the verification protocol (Part D). It is written so lighter models can implement each chapter without re-reading anything else.
 
-**State:** Chapters 1–5 are built, wired into `src/app/v2/page.tsx`, verified, and pushed on branch `claude/lionovart-rebrand-v2-8624vy` (open PR #18; chapters 1–2 previously merged to master via PR #16). A dedicated verify/debug pass has also landed (reduced-motion hydration fix across chapters 1–3 + MagneticCTA). Chapters 6–10 remain. Build ONE chapter at a time, in order. Read the Progress Log near the end of this doc first — it records real bugs and learnings that will save you multiple debugging cycles.
+**State:** Chapters 1–6 are built, wired into `src/app/v2/page.tsx`, verified, and pushed on branch `claude/lionovart-rebrand-v2-8624vy` (open PR #18; chapters 1–2 previously merged to master via PR #16). Chapter 5 QA corrections (rail, masked reveal, local chips) and the Chapter 3 headline mask fix are applied. Chapters 7–10 remain. Build ONE chapter at a time, in order. Read the Progress Log near the end of this doc first — it records real bugs and learnings that will save you multiple debugging cycles.
 
 ---
 
@@ -133,7 +133,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
 
 ## B.3 Chapter specifications
 
-> **Chapters 2–5 are DONE** (built, wired into `page.tsx`, verified, committed). Read them as the reference implementations for this spec's quality bar: `src/components/v2/ChapterTruth.tsx`, `src/components/v2/ChapterTransformation.tsx`, `src/components/v2/ChapterReveal.tsx`, `src/components/v2/ChapterSystem.tsx`, plus the foundations `src/components/v2/MagneticCTA.tsx` and `src/components/v2/V2Silk.tsx`. Do not rebuild them. Start at Chapter 6.
+> **Chapters 2–6 are DONE** (built, wired into `page.tsx`, verified, committed). Read them as the reference implementations for this spec's quality bar, including the CORRECTED masked-reveal recipe (viewport props on the overflow wrapper). Do not rebuild them. Start at Chapter 7.
 
 ### Chapter 2 — The Truth (dark) · editorial offset stack · DONE
 **File:** `src/components/v2/ChapterTruth.tsx` (client).
@@ -168,7 +168,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
 - Reduced-motion fallback (gate with `useReducedMotion()`, skip GSAP entirely): single static layer, `background: linear-gradient(180deg, #0d0d0d 0%, #0d0d0d 35%, var(--v2-cream) 65%)`, line centered in cream-on-dark upper half.
 - All following cream sections declare `bg-[#f2ede3]` explicitly.
 
-### Chapter 5 — The Brand World System (cream) · connected vertical rail · eyebrow 2/3 · DONE, CORRECTIONS PENDING (see Progress Log: "Chapter 5 QA findings")
+### Chapter 5 — The Brand World System (cream) · connected vertical rail · eyebrow 2/3 · DONE
 **File:** `src/components/v2/ChapterSystem.tsx` (client).
 - `bg-[#f2ede3] text-[#171412] py-28 md:py-40`.
 - Eyebrow (red, Ch 1 classes): **"The Brand World System"**. Headline (serif): **"One story. Four forces. Endless momentum."** Intro (secondary): **"Everything your brand needs, connected into one world."**
@@ -180,7 +180,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
   4. **Experience Lab** / *"Brand presence beyond the screen."* / "Smart glass, projection, audiovisual environments. Concept-led, produced with partners."
 - Visual diversity: rows 2 and 3 get an image chip (`rounded-2xl overflow-hidden w-full md:w-56 aspect-[4/3]`, right-aligned): `/videos/v2/film-frame.jpg` and `/videos/v2/platform-frame.jpg` if the Part C kit has produced them, else `picsum.photos/seed/lionovart-film-frame/640/480` and `.../lionovart-platform/640/480`.
 
-### Chapter 6 — Selected Work & Creative Directions (cream→dark) · asymmetric editorial grid · id="work"
+### Chapter 6 — Selected Work & Creative Directions (cream→dark) · asymmetric editorial grid · id="work" · DONE
 **File:** `src/components/v2/ChapterWork.tsx` (client).
 - `bg-[#f2ede3]`; final ~30vh is `bg-gradient-to-b from-[#f2ede3] to-[#0d0d0d]` (tiles inside it switch captions to light text).
 - Headline (serif, charcoal): **"Selected work and creative directions."** Support: **"Built work, creative studies, and directions in progress. Labeled honestly."**
@@ -277,19 +277,21 @@ Rules: every `<video>` is `muted loop playsInline preload="none"` with a poster,
 - **Chapter 2 — The Truth.** `src/components/v2/ChapterTruth.tsx`. Built earlier as an unwired reference file, wired into `page.tsx` and verified in the same cycle as Chapter 3.
 - **Chapter 3 — The Transformation.** `src/components/v2/ChapterTransformation.tsx`, plus the two foundations from Part B.2: `src/components/v2/MagneticCTA.tsx` and `src/components/v2/V2Silk.tsx`. `MagneticCTA` is retrofitted onto both Chapter 1 CTAs.
 - **Chapter 4 — The Reveal.** `src/components/v2/ChapterReveal.tsx`. This is the first chapter to actually render `V2Silk`, which surfaced three real bugs in code that Chapter 3 had only built and unit-tested in isolation, never mounted for real. All three are fixed and verified; read the entries below before touching `V2Silk.tsx` or writing another chapter with a structurally-different reduced-motion fallback.
-- **Chapter 5 — The Brand World System.** `src/components/v2/ChapterSystem.tsx`. Cream section after the Reveal; connected vertical red rail with four pillar rows (rows 2 and 4 offset); eyebrow 2/3; image chips on pillars 2 and 3 use picsum seeds until Part C kit stills land. Plain `<img>` for remote picsum (next.config remotePatterns out of scope).
-- `src/app/v2/page.tsx` now renders Header → Hero → Truth → Transformation → Reveal → System, in that order.
+- **Chapter 5 — The Brand World System.** `src/components/v2/ChapterSystem.tsx`. Cream section; continuous vertical red rail (content offset only); eyebrow 2/3; local next/image chips on pillars 2–3.
+- **Chapter 5 QA corrections (applied):** continuous rail at constant x; corrected masked-reveal recipe on Ch 5 + Ch 3 headlines; picsum replaced with local `/images` assets.
+- **Chapter 6 — Selected Work.** `src/components/v2/ChapterWork.tsx`. `id="work"`; asymmetric 7+5 / 5+7 / 8+4 grid; cream→dark band with light captions on last row; closing + Start Your Project WhatsApp CTA; local studio tile images.
+- `src/app/v2/page.tsx` now renders Header → Hero → Truth → Transformation → Reveal → System → Work.
 - **Verify/debug pass (post-Chapter 4):** fixed the reduced-motion hydration bug across Chapters 1-3 + MagneticCTA (see the FIXED section below), re-verified hydration (0 errors both motion modes), reduced-motion visuals (all content visible, 59-60fps), and typecheck. The hydration-safe motion pattern is now a mandatory rule in Part B.1's taste layer.
 
-## Chapter 5 QA findings (supervisor gate; corrections assigned to the executing model)
+## Chapter 5 QA findings (supervisor gate; FIXED)
 
-Chapter 5's first submission passed copy fidelity, the eyebrow budget, the hydration gate (0/0 in both motion modes), typecheck, and the taste layer's motion pattern. Three findings, two of them visual-gate failures:
+Chapter 5's first submission passed copy fidelity, the eyebrow budget, the hydration gate (0/0 in both motion modes), typecheck, and the taste layer's motion pattern. Three findings, then fixed:
 
-**1. The rail is not continuous (spec deviation).** Each row's rail segment was placed inside the row and the `md:ml-[6%]` offset was applied to the whole `<li>`, so the rail's x-position jogs at rows 2 and 4, and each row's body below its node has no line at all (the `i === 0` segment was 0.5rem tall). The spec's layout family is a CONTINUOUS vertical rail: constant x for the line across all rows (offset the CONTENT block, not the rail column), each segment running DOWN from its node to the next row's node (`top: 0.5rem`, `height: calc(100% + <ul gap>)`, last row ends at its own node).
+**1. The rail is not continuous (spec deviation). FIXED.** Rail column stays at constant x; `md:ml-[6%]` offsets content only; segments run down from each node through the list gap; last row ends at its node.
 
-**2. Masked headline never renders (spec-level defect, NOT the executing model's fault).** The old masked-reveal recipe put `whileInView` on the clipped inner element; IntersectionObserver computes intersection after ancestor clipping, so the reveal never fires and the headline is permanently invisible. The recipe in Part B.1's taste layer is now corrected (wrapper carries the viewport props; inner element animates via variants). This same defect shipped in Chapter 3 (`ChapterTransformation.tsx`) — fixing that file's headline with the corrected recipe is explicitly in scope for the Chapter 5 correction pass, and ONLY that (change nothing else in Chapter 3).
+**2. Masked headline never renders. FIXED** on Chapter 5 and Chapter 3 via the corrected recipe (viewport on overflow wrapper, variants on inner).
 
-**3. Remote picsum chips are an external runtime dependency and unverifiable in the build sandbox** (outbound proxy blocks picsum.photos, so the chips render broken here). Amended direction: use LOCAL repo assets via `next/image` for placeholder chips/tiles instead of picsum — on-brand studio imagery beats random stock anyway. Chapter 5 chips: pillar 2 → `/images/hero_img/1235.webp`, pillar 3 → `/images/hero_img/123613.webp` (`sizes="(max-width: 768px) 100vw, 224px"`). Chapter 6 tiles should likewise draw from `/images` local assets (e.g. `luminous_work.avif`, `paintco.avif`, `Card golden.avif`, `LION-CIRCLE.avif`, `cards.webp`, `brush/sweep.webp`); the supervisor has not visually verified the `.avif` contents, so the Chapter 6 QA gate will review them on screen. Part C kit stills still replace all of these when generated.
+**3. Remote picsum chips. FIXED** with local next/image assets. Chapter 5 chips: pillar 2 → `/images/hero_img/1235.webp`, pillar 3 → `/images/hero_img/123613.webp`. Chapter 6 tiles use local `/images` studio assets (see ChapterWork.tsx WORK arrays). Part C kit stills still replace all of these when generated.
 
 ## Bugs found building Chapter 4 (read before reusing V2Silk or a structural reduced-motion branch)
 

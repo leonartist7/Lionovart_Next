@@ -4,10 +4,10 @@ import ChapterTruth from "@/components/v2/ChapterTruth";
 import ChapterTransformation from "@/components/v2/ChapterTransformation";
 import ChapterReveal from "@/components/v2/ChapterReveal";
 import ChapterSystem from "@/components/v2/ChapterSystem";
+import ChapterWork from "@/components/v2/ChapterWork";
 
 /* LIONOVART rebrand v2 — built chapter by chapter.
-   Chapters 1-5: Hero, Truth, Transformation, Reveal, System.
-   Chapters 6-10 land after review. */
+   Chapters 1-6 wired. Chapters 7-10 land after review. */
 export default function V2Page() {
   return (
     <main className="relative min-h-[100dvh]">
@@ -17,6 +17,7 @@ export default function V2Page() {
       <ChapterTransformation />
       <ChapterReveal />
       <ChapterSystem />
+      <ChapterWork />
     </main>
   );
 }
