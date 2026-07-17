@@ -27,64 +27,31 @@ function NovaSection({ id, children }: { id: string; children: React.ReactNode }
   );
 }
 
-type PageBlock = { _type?: string; _key?: string; [key: string]: unknown };
-
-export function PageBuilder({ blocks }: { blocks: PageBlock[] }) {
-  if (!blocks || blocks.length === 0) {
-    return (
-      <>
-        {/* Fixed video behind hero / early sections; fades at About */}
-        <SceneVideoBackdrop />
-
-        {/* Top-level so the logo can dock above the navbar (z-50) */}
-        <HeroLogoFly />
-
-        <NovaSection id="hero"><HeroTop /></NovaSection>
-
-        <div className="relative z-[2]">
-          <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
-          <NovaSection id="about"><AboutUsHalf /></NovaSection>
-          <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
-          <NovaSection id="offer"><SignatureOffer /></NovaSection>
-          <NovaSection id="services"><Services /></NovaSection>
-          <NovaSection id="process"><Process /></NovaSection>
-          <SectionTitleCard word="PROOF." theme="light" />
-          <NovaSection id="comparison"><Comparison /></NovaSection>
-          <SectionTitleCard word="CONFIDENCE." theme="light" />
-          <TestimonialsCarousel />
-          <NovaSection id="testimonials"><Testimonials /></NovaSection>
-          <SectionTitleCard word="ASK." theme="dark" />
-          <NovaSection id="faq"><FAQ /></NovaSection>
-          <NovaSection id="closing-cta"><ClosingCTA /></NovaSection>
-        </div>
-      </>
-    );
-  }
-
+/** Static landing layout — CMS block map removed (unused; restore from git if needed). */
+export function PageBuilder() {
   return (
     <>
-      {blocks.map((block) => {
-        switch (block._type) {
-          case "heroTop":
-            return <NovaSection key={block._key} id="hero"><HeroTop {...block} /></NovaSection>;
-          case "aboutUsHalf":
-            return <NovaSection key={block._key} id="about"><AboutUsHalf {...block} /></NovaSection>;
-          case "services":
-            return <NovaSection key={block._key} id="services"><Services {...block} /></NovaSection>;
-          case "process":
-            return <NovaSection key={block._key} id="process"><Process {...block} /></NovaSection>;
-          case "testimonials":
-            return <NovaSection key={block._key} id="testimonials"><Testimonials {...block} /></NovaSection>;
-          case "comparison":
-            return <NovaSection key={block._key} id="comparison"><Comparison {...block} /></NovaSection>;
-          case "problems":
-            return <NovaSection key={block._key} id="problems"><ProblemsSolvedSection /></NovaSection>;
-          case "faq":
-            return <NovaSection key={block._key} id="faq"><FAQ {...block} /></NovaSection>;
-          default:
-            return null;
-        }
-      })}
+      <SceneVideoBackdrop />
+      <HeroLogoFly />
+
+      <NovaSection id="hero"><HeroTop /></NovaSection>
+
+      <div className="relative z-[2]">
+        <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
+        <NovaSection id="about"><AboutUsHalf /></NovaSection>
+        <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
+        <NovaSection id="offer"><SignatureOffer /></NovaSection>
+        <NovaSection id="services"><Services /></NovaSection>
+        <NovaSection id="process"><Process /></NovaSection>
+        <SectionTitleCard word="PROOF." theme="light" />
+        <NovaSection id="comparison"><Comparison /></NovaSection>
+        <SectionTitleCard word="CONFIDENCE." theme="light" />
+        <TestimonialsCarousel />
+        <NovaSection id="testimonials"><Testimonials /></NovaSection>
+        <SectionTitleCard word="ASK." theme="dark" />
+        <NovaSection id="faq"><FAQ /></NovaSection>
+        <NovaSection id="closing-cta"><ClosingCTA /></NovaSection>
+      </div>
     </>
   );
 }

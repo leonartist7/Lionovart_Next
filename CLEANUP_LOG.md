@@ -163,3 +163,20 @@ JPGs under `public/images/Testimonials/` were already deleted in the working tre
 
 **Expected impact:** Hero trust badges no longer 404; slightly better LCP/network (AVIF where available).  
 **Note:** Staging deleted JPGs as part of this branch is correct once paths are updated.
+
+---
+
+## Phase 6 — Finish remaining follow-ups (done)
+
+| Item | Resolution |
+|------|------------|
+| **CWV / media** | Scene video mounts only after scroll-arm; `VideoBackdrop` `preload=metadata`; Services images → Cloudinary `f_auto,q_auto,w_900`; Clash font drop 200/300 weights; Unsplash avatars → local testimonial assets |
+| **next.config** | Drop unused Imgur/Unsplash remotePatterns (Cloudinary only) |
+| **PageBuilder** | Static-only layout; dead CMS `blocks` switch removed |
+| **docs/v2-screenshots** | gitignored (local dumps, ~11MB) |
+| **scripts/** | `scripts/README.md` — convention for future one-offs |
+| **`_archive/`** | **Kept** (user declined hard-delete; still excluded from TS) |
+| **`/v2`** | **Kept** parallel rebrand track |
+| **Visual editor APIs** | **Kept** for local tooling |
+| **Defne photo** | Still Lumura stand-in until a real asset exists |
+| **Ship** | Branch pushed + PR (see git/gh) |

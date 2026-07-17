@@ -11,7 +11,7 @@ const FEATURED = {
   quote: "Within two months of the new website, direct reservations jumped almost 70%. It finally looks like the place we actually run.",
   author: "Camille Moreau",
   role: "Owner · Maison Verre",
-  avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&q=80",
+  avatar: "/images/Testimonials/France/Mathilde-coffee.avif",
   flag: "https://flagcdn.com/w40/fr.png",
 };
 

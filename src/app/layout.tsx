@@ -20,10 +20,9 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
+// Only weights used in UI (medium/semibold/bold/black→700). Skip 200/300 to cut font bytes.
 const clashDisplay = localFont({
   src: [
-    { path: "../fonts/ClashDisplay-200.woff2", weight: "200", style: "normal" },
-    { path: "../fonts/ClashDisplay-300.woff2", weight: "300", style: "normal" },
     { path: "../fonts/ClashDisplay-400.woff2", weight: "400", style: "normal" },
     { path: "../fonts/ClashDisplay-500.woff2", weight: "500", style: "normal" },
     { path: "../fonts/ClashDisplay-600.woff2", weight: "600", style: "normal" },
