@@ -73,7 +73,7 @@ export const fr: Translations = {
   about: {
     line1: "L'innovation n'est plus un choix\n— c'est une nécessité.",
     line2:
-      "LIONOVART est une équipe multidisciplinaire d'artistes et d'entrepreneurs qui construisent des marques avec confiance, innovation et émotion comme piliers. Nous faisons le pont entre le numérique et le physique, la stratégie et le ressenti, le savoir-faire et le commerce — pour que votre marque travaille aussi dur que vous. Un niveau créatif mondial, rendu accessible à toute entreprise sérieuse qui veut se démarquer.",
+      "En tant qu'équipe multidisciplinaire d'artistes et d'entrepreneurs, nous avons développé une stratégie de système sur mesure et fournissons tout le nécessaire pour dominer l'ère numérique d'aujourd'hui.",
     founderRole: "Directeur artistique & commercial",
     founderStatus: "Disponible",
     stat1Label: "Années d'Expérience",
@@ -335,22 +335,22 @@ export const fr: Translations = {
         role: "Propriétaire, Maison Verre à Annecy, France",
       },
       {
-        quote: "Je n'étais pas assez confiante pour distribuer ma carte de visite et je ne savais pas quoi publier sur Instagram pendant deux ans. Merci Leon d'avoir reconstruit toute mon identité de marque, j'ai retrouvé ma confiance et maintenant je sais quoi répondre quand on me demande ce que je fais. Ça vaut plus que de l'argent, gracias !",
+        quote: "Je n'étais pas assez confiante pour distribuer ma carte de visite et je n'ai pas su quoi publier sur Instagram pendant deux ans. Merci Leon d'avoir reconstruit toute mon identité de marque — j'ai retrouvé ma confiance et je sais maintenant quoi répondre quand on me demande ce que je fais. Ça vaut plus que de l'argent. Merci !",
         author: "Sofia Alvarez",
-        role: "Fondatrice, Luminous Skin Studio – UK",
+        role: "Fondatrice, Luminous Skin Studio – Royaume-Uni",
       },
       {
-        quote: "L'agent vocal qu'ils ont mis en place pour nous gère les appels en dehors des heures d'ouverture, qualifie les prospects et réserve des visites directement dans mon calendrier. J'ai reçu un appel dimanche dernier pendant que je dînais avec mes enfants - sauf que je n'y ai pas répondu, car c'était déjà géré. Ce système unique rentabilise tout le reste de ce que nous faisons avec eux.",
+        quote: "L'agent vocal qu'ils ont mis en place gère les appels en dehors des heures d'ouverture, qualifie les prospects et réserve les visites directement dans mon calendrier. J'ai reçu un appel dimanche dernier pendant que je dînais avec mes enfants — sauf que je n'ai pas eu à répondre, car c'était déjà géré. À lui seul, ce système rentabilise tout le reste de ce que nous faisons avec eux.",
         author: "Marco De Luca",
         role: "Directeur, Atelier Realty – Milan",
       },
       {
-        quote: "Après seulement trois reels, nous avons eu plus de réservations en un week-end que pendant tout le mois précédent. Ce n'est pas seulement que les vidéos étaient belles - c'est qu'elles nous ressemblaient enfin. Chaleureuses, pas corporate. Les gens entraient en citant des passages des reels.",
+        quote: "Après seulement trois reels, nous avons eu plus de réservations en un week-end que pendant tout le mois précédent. Ce n'est pas seulement que les vidéos étaient belles — c'est qu'elles nous ressemblaient enfin. Chaleureuses, pas corporate. Les gens entraient en citant des passages des reels.",
         author: "Isabelle Chen",
         role: "Copropriétaire, Mesa 14 – Toronto",
       },
       {
-        quote: "Je suis entrepreneur en bâtiment, pas un pro du marketing. Avant LIONOVART, je montais des posts Instagram à 23h après une journée de 12 heures sur les chantiers. Maintenant, je ne touche plus à rien. Le site web, les pubs, les réseaux sociaux, tout est pris en charge. Mon téléphone sonne plus que jamais et je peux enfin dormir.",
+        quote: "Je suis entrepreneur en bâtiment, pas un pro du marketing. Avant LIONOVART, je montais des publications Instagram à 23 h après une journée de 12 heures sur les chantiers. Maintenant, je ne touche plus à rien. Le site web, les publicités, les réseaux sociaux — tout est pris en charge. Mon téléphone sonne plus que jamais et je peux enfin dormir.",
         author: "James Hollister",
         role: "Fondateur, Hollister Build Co. – Calgary",
       }
@@ -358,14 +358,14 @@ export const fr: Translations = {
   },
 
   services: {
-    eyebrow: "Ce Que Nous Faisons",
+    eyebrow: "Ce Qui Est Inclus",
     heading: "Nos",
     headingAccent: "Services",
     items: [
       {
         title: "Image de Marque & Identité",
         description:
-          "Votre marque est la première chose que les gens jugent — et la dernière qu'ils oublient. Nous créons des systèmes d'identité qui communiquent l'autorité, instaurent une confiance immédiate et tiennent ensemble sur chaque point de contact — numérique et physique. Nous ne concevons pas seulement comment votre marque ressemble — nous façonnons comment elle sonne. Logos audio, ton de voix de marque, systèmes d'identité sonore.",
+          "Votre marque est la première chose que les gens jugent — et la dernière qu'ils oublient. Nous créons des systèmes d'identité qui imposent une autorité immédiate sur chaque point de contact, transformant la reconnaissance en revenus.",
         deliverables: [
           "Système de Logo",
           "Charte Graphique",
@@ -377,7 +377,7 @@ export const fr: Translations = {
       {
         title: "Développement Web & App",
         description:
-          "Des sites web et applications orientés performance, conçus pour convertir. Rapides, beaux et conçus pour transformer les visiteurs en appels réservés — avec des résultats mesurables dès le premier jour. Des sites marketing aux applications web personnalisées et expériences mobiles, nous construisons ce dont votre entreprise a vraiment besoin.",
+          "Un site lent ou générique vous coûte des clients chaque jour. Nous construisons des sites et applications rapides, orientés conversion, qui transforment les visiteurs en appels réservés — avec des résultats mesurables dès le premier jour.",
         deliverables: [
           "Design UI/UX",
           "Développement Web",
@@ -390,7 +390,7 @@ export const fr: Translations = {
       {
         title: "Studio de Contenu",
         description:
-          "Les marques qui émeuvent sont celles que l'on choisit. Nous créons films de marque, reels et tout votre contenu social, puis nous le gérons de bout en bout pour que votre entreprise reste impossible à ignorer chaque mois.",
+          "Les marques qui touchent les gens sont celles que l'on choisit. Nous réalisons des films de marque, des reels et tout votre contenu social, puis nous le gérons de bout en bout pour que votre entreprise reste impossible à ignorer chaque mois.",
         deliverables: [
           "Films de Marque",
           "Reels Sociaux",
@@ -403,15 +403,15 @@ export const fr: Translations = {
       {
         title: "Impression & Marque Physique",
         description:
-          "Votre marque ne peut pas vivre que sur des écrans. Nous concevons et produisons les supports physiques qui rendent votre entreprise mémorable dans le monde réel — des cartes de visite que l'on garde aux installations gonflables qui attirent l'attention lors d'événements. Avec accès direct à l'une des principales installations de production de ballons au Canada, nous livrons des expériences de marque physiques que la plupart des agences ne peuvent pas offrir.",
+          "Les entreprises dont on se souvient ont une présence au-delà de l'écran. Nous concevons et produisons des supports imprimés, des emballages et des expériences de marque physiques qui rendent votre entreprise impossible à ignorer dans le monde réel.",
         deliverables: [
           "Cartes de Visite & Papeterie",
           "Design d'Emballage",
-          "Impression numérique",
-          "Impression commerciale",
-          "Ballons personnalisés",
-          "Design de vêtements",
-          "Cadeaux d'entreprise",
+          "Impression Numérique",
+          "Impression Commerciale",
+          "Ballons Personnalisés",
+          "Design de Vêtements",
+          "Cadeaux d'Entreprise",
           "Signalétique & Affichage",
           "Branding Événementiel",
         ],
@@ -419,7 +419,7 @@ export const fr: Translations = {
       {
         title: "Systèmes Intelligents & IA",
         description:
-          "Des systèmes intelligents qui travaillent pendant que vous dormez. Des réceptionnistes vocaux IA qui répondent aux appels 24h/24 à la capture automatisée de prospects, agents clients personnalisés et intégrations de flux de travail — nous construisons les automatisations qui transforment les tâches manuelles en croissance 24/7. Piloté par l'humain. Aligné sur la marque. Toujours actif.",
+          "Chaque appel manqué et chaque tâche manuelle, c'est de l'argent laissé sur la table. Nous construisons des agents vocaux IA, de l'automatisation de prospects et des flux de travail intelligents qui gardent votre entreprise active et en conversion 24/7 — sans embaucher davantage.",
         deliverables: [
           "Agents Vocaux IA",
           "Réceptionnistes Virtuels",
@@ -432,7 +432,7 @@ export const fr: Translations = {
       {
         title: "Marketing de Croissance",
         description:
-          "De la visibilité là où ça compte. Nous combinons l'optimisation de recherche, le SEO local, la gestion de Google Business et le conseil stratégique pour que votre entreprise soit trouvée par les bonnes personnes — de façon constante, pas accidentelle. Du classement dans les recherches à la domination de votre marché local, nous construisons les systèmes qui amènent des prospects qualifiés à votre porte.",
+          "Si votre entreprise n'apparaît pas quand les acheteurs cherchent, vos concurrents récupèrent ces clients. Nous combinons SEO, recherche locale, publicités payantes et conseil stratégique pour que les bonnes personnes vous trouvent — de façon constante.",
         deliverables: [
           "Optimisation SEO & AEO",
           "Gestion Google Business",
