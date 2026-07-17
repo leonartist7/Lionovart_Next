@@ -46,11 +46,11 @@ function useCountUp(end: number, duration: number = 2000, startAnimating: boolea
 }
 
 const AVATARS = [
-  "/images/Testimonials/UK/Jess-Beautysalon-W.jpg",
-  "/images/Testimonials/Canada/Marc-Cardealer-M.jpg",
-  "/images/Testimonials/Italy/Defne-Realestate.jpg",
-  "/images/Testimonials/Spain/Pablo-hotel-M.jpg",
-  "/images/Testimonials/Canada/Maya-Flowerstore-W.jpg",
+  "/images/Testimonials/UK/Jess-Beautysalon-W.avif",
+  "/images/Testimonials/Northlinemotors/Marc-Cardealer-M.jpg",
+  "/images/Testimonials/Italy/Lumura/Team2025.avif",
+  "/images/Testimonials/Spain/Pablo-hotel-M.avif",
+  "/images/Testimonials/Canada/Maya-Flowerstore-W.avif",
 ];
 
 const FLAGS = [

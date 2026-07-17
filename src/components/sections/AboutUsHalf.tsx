@@ -7,7 +7,6 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useImagePos } from "./about/aboutVariantStore";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -114,8 +113,6 @@ export default function AboutUsHalf(props: any) {
   const sectionRef = useRef<HTMLElement>(null);
   const desktopRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
-
-  const imagePos = useImagePos();
 
   const headlineTop: string = props.headlineTop || t.about.line1;
   const bodyText: string    = props.bodyText    || t.about.line2;
@@ -232,26 +229,8 @@ export default function AboutUsHalf(props: any) {
         </div>
       </div>
 
-      {/* ── MOBILE / TABLET: Stacked layout ──────────────────── */}
+      {/* ── MOBILE / TABLET: Stacked layout (portrait below text) ── */}
       <div className="lg:hidden pt-[clamp(1.5rem,4vw,2.5rem)] pb-[clamp(2.5rem,6vw,4rem)] px-[max(1.25rem,4vw)]">
-
-        {/* Portrait top position */}
-        {imagePos === "top" && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.94, y: 24 }}
-            whileInView={{ opacity: 1, scale: 1, y: 0 }}
-            viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
-            className="mb-10 mx-auto w-full max-w-[min(360px,85vw)]"
-          >
-            <PortraitFrame
-              frameClassName="w-full aspect-[3/4]"
-              founderRole={founderRole}
-            />
-          </motion.div>
-        )}
-
-        {/* Text content */}
         <div className="text-center">
           <motion.h2
             variants={mobileHeadlineContainer}
@@ -302,21 +281,18 @@ export default function AboutUsHalf(props: any) {
           </motion.div>
         </div>
 
-        {/* Portrait bottom position */}
-        {imagePos === "bottom" && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.94, y: 24 }}
-            whileInView={{ opacity: 1, scale: 1, y: 0 }}
-            viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-            transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-            className="mt-10 mx-auto w-full max-w-[min(360px,85vw)]"
-          >
-            <PortraitFrame
-              frameClassName="w-full aspect-[3/4]"
-              founderRole={founderRole}
-            />
-          </motion.div>
-        )}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.94, y: 24 }}
+          whileInView={{ opacity: 1, scale: 1, y: 0 }}
+          viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+          transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+          className="mt-10 mx-auto w-full max-w-[min(360px,85vw)]"
+        >
+          <PortraitFrame
+            frameClassName="w-full aspect-[3/4]"
+            founderRole={founderRole}
+          />
+        </motion.div>
       </div>
     </section>
   );

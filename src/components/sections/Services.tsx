@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useServicesStyle } from "@/components/sections/services/servicesVariantStore";
 
 const SERVICES_STATIC = [
   { id: "branding",       number: "01", href: "/services/brand",           imgUrl: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=900&q=80", imgAlt: "Brand Identity" },
@@ -41,9 +40,6 @@ export default function Services(props: any) {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const active = SERVICES[activeIndex] ?? SERVICES[0];
-
-  // TEMP eval — flat vs neumorphic styling, flipped live via <ServicesVariantToggle>.
-  const neu = useServicesStyle() === "neumorphic";
 
   /* ── Desktop: useScroll on the tall scroll zone ─────────────── */
   const desktopScrollRef = useRef<HTMLDivElement>(null);
@@ -135,11 +131,7 @@ export default function Services(props: any) {
                           window.scrollTo({ top: top + i * perService + perService * 0.5, behavior: "smooth" });
                         }
                       }}
-                      className={`group flex items-baseline gap-4 text-left w-full py-[clamp(8px,1.2vh,18px)] transition-all duration-500 ${
-                        neu && isActive
-                          ? "rounded-2xl px-4 shadow-[3px_3px_8px_rgba(0,0,0,0.10),-3px_-3px_8px_rgba(255,255,255,0.95)]"
-                          : ""
-                      }`}
+                      className="group flex items-baseline gap-4 text-left w-full py-[clamp(8px,1.2vh,18px)] transition-all duration-500"
                     >
                       <span
                         className={`font-mono text-[11px] xl:text-[12px] tracking-widest shrink-0 transition-all duration-500 ${
@@ -234,11 +226,7 @@ export default function Services(props: any) {
               <button
                 type="button"
                 onClick={() => setActiveIndex(i)}
-                className={`flex items-baseline gap-3 w-full text-left py-9 md:py-11 transition-all duration-500 ${
-                  neu && isActive
-                    ? "rounded-2xl px-4 shadow-[3px_3px_8px_rgba(0,0,0,0.10),-3px_-3px_8px_rgba(255,255,255,0.95)]"
-                    : ""
-                }`}
+                className="flex items-baseline gap-3 w-full text-left py-9 md:py-11 transition-all duration-500"
               >
                 <span
                   className={`font-mono text-[11px] tracking-widest shrink-0 transition-colors duration-400 ${

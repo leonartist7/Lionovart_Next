@@ -13,18 +13,6 @@
   }
 }
 
-/* Metallic border shimmer — used in Portfolio cards */
-@keyframes metal-shimmer {
-  0%   { background-position: -200% center, 0 0; }
-  100% { background-position:  200% center, 0 0; }
-}
-
-/* 3D Carousel spin — used in HeroTop */
-@keyframes carousel-spin {
-  from { transform: rotateY(0turn); }
-  to   { transform: rotateY(1turn); }
-}
-
 @custom-variant data-open {
   &:where([data-state="open"]), &:where([data-open]:not([data-open="false"])) { @slot; }
 }
@@ -58,22 +46,7 @@
   &::-webkit-scrollbar { display: none; }
 }
 
-/* --- AI Strategist glass utilities --- */
-@utility glass-panel {
-  background: #000000;
-  border: 1px solid var(--strategist-border);
-  box-shadow:
-    0 25px 50px -12px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 0 80px var(--strategist-glow);
-}
-
-/* =============================================
-   Reusable Glass Surface — depth for cards/panels
-   Pairs with BackgroundTexture so elements visibly
-   float above the textured background.
-   ============================================= */
+/* Glass surface — service branding GlassStack cards */
 @utility glass-surface {
   position: relative;
   background:
@@ -92,25 +65,6 @@
     0 0 0 1px rgba(255, 255, 255, 0.03),
     inset 0 1px 0 rgba(255, 255, 255, 0.10),
     inset 0 -1px 0 rgba(0, 0, 0, 0.4);
-}
-
-@utility glass-surface-light {
-  position: relative;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.55) 0%,
-      rgba(255, 255, 255, 0.35) 60%,
-      rgba(255, 255, 255, 0.25) 100%
-    ),
-    rgba(247, 244, 239, 0.45);
-  backdrop-filter: blur(16px) saturate(130%);
-  -webkit-backdrop-filter: blur(16px) saturate(130%);
-  border: 1px solid rgba(240, 201, 23, 0.18);
-  box-shadow:
-    0 30px 60px -20px rgba(120, 90, 0, 0.18),
-    0 0 0 1px rgba(255, 255, 255, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -259,26 +213,11 @@
   --sidebar-border: rgba(38, 38, 38, 0.3);
   --sidebar-ring: #e5192a;
 
-  /* LumaShowcase — dynamic accent (Phase 2 swaps via JS) */
-  --luma-accent: #e5192a;
-
   /* AI Strategist panel */
   --strategist-bg: rgba(13, 13, 13, 0.85);
   --strategist-border: rgba(255, 255, 255, 0.1);
   --strategist-glow: rgba(229, 25, 42, 0.06);
   --strategist-overlay: rgba(0, 0, 0, 0.6);
-
-  /* --- BackgroundTexture tuning knobs (live-adjustable) ---
-     The layer sits ABOVE sections (z: 30) so it overlays opaque
-     section backgrounds. Opacities are tuned for "atmospheric"
-     intensity — visible but not tinting content. Bump any of these
-     in DevTools on :root to dial it in live. */
-  --texture-line-opacity: 0.04;        /* golden hairline intensity */
-  --texture-line-spacing: 130px;       /* distance between hairlines */
-  --texture-line-angle: 110deg;        /* diagonal direction of lines */
-  --texture-grain-opacity: 0.025;      /* film-grain noise overlay */
-  --texture-glow-gold: rgba(240, 201, 23, 0.08);
-  --texture-glow-red: rgba(229, 25, 42, 0.06);
 }
 
 @layer base {
@@ -327,14 +266,6 @@
     transform: translate(-50%, -50%) scale(4);
     opacity: 0;
   }
-}
-
-/* =============================================
-   Speaking ring — VoiceVisualizer
-   ============================================= */
-@keyframes speaking-ring {
-  0%   { transform: scale(0.8); opacity: 0.9; }
-  100% { transform: scale(2.2); opacity: 0;   }
 }
 
 /* =============================================
@@ -469,76 +400,6 @@
 }
 
 /* =============================================
-   Background Texture — golden hairlines + grain
-   Lightweight static layer behind <main> (z:0).
-   Composites without mix-blend-mode or filter: blur
-   so it stays GPU-cheap during Lenis scroll.
-   ============================================= */
-.bg-texture-root {
-  position: fixed;
-  inset: 0;
-  /* Sit above <main> (z:10) so opaque sections don't cover the texture,
-     but below Navbar (z:50), StickyCTA, NovaPortal, and CustomCursor. */
-  z-index: 30;
-  pointer-events: none;
-  overflow: hidden;
-  /* Hint compositor: this layer doesn't change. */
-  contain: strict;
-}
-
-.bg-texture-lines {
-  position: absolute;
-  inset: 0;
-  background-image: repeating-linear-gradient(
-    var(--texture-line-angle),
-    rgba(240, 201, 23, var(--texture-line-opacity)) 0,
-    rgba(240, 201, 23, var(--texture-line-opacity)) 1px,
-    transparent 1px,
-    transparent var(--texture-line-spacing)
-  );
-}
-
-.bg-texture-lines-cross {
-  position: absolute;
-  inset: 0;
-  background-image: repeating-linear-gradient(
-    calc(var(--texture-line-angle) + 90deg),
-    rgba(240, 201, 23, calc(var(--texture-line-opacity) * 0.45)) 0,
-    rgba(240, 201, 23, calc(var(--texture-line-opacity) * 0.45)) 1px,
-    transparent 1px,
-    transparent calc(var(--texture-line-spacing) * 1.6)
-  );
-}
-
-.bg-texture-grain {
-  position: absolute;
-  inset: 0;
-  opacity: var(--texture-grain-opacity);
-  /* tiny SVG turbulence noise — no asset request, no blend mode */
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.85'/></svg>");
-  background-size: 160px 160px;
-}
-
-.bg-texture-glow-a {
-  position: absolute;
-  top: -10%;
-  left: -10%;
-  width: 60vw;
-  height: 60vw;
-  /* Soft radial — gradient stops do the blur, no filter needed */
-  background: radial-gradient(circle at center, var(--texture-glow-gold) 0%, transparent 70%);
-}
-
-.bg-texture-glow-b {
-  position: absolute;
-  bottom: -15%;
-  right: -10%;
-  width: 65vw;
-  height: 65vw;
-  background: radial-gradient(circle at center, var(--texture-glow-red) 0%, transparent 70%);
-}
-
-/* =============================================
    Splash Screen — shimmer sweep on wordmark
    ============================================= */
 @keyframes splash-shimmer {
@@ -623,11 +484,4 @@ body.no-bdblur * {
   -webkit-backdrop-filter: none !important;
 }
 
-/* Hides the hero CSS-background-image layer in HeroRevealWrapper.tsx.
-   The layer has no dedicated class, so we target the fixed wrapper's
-   first descendant that uses backgroundImage via inline style. We add
-   a stable class on it from PerfHud's CSS targeting, so we mark it
-   from the HeroRevealWrapper itself with .hero-bg-layer. */
-body.no-herobg .hero-bg-layer {
-  display: none !important;
-}
+
