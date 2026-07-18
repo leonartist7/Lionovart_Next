@@ -17,6 +17,9 @@ import { resolve } from "path";
  */
 
 export async function POST(request: NextRequest) {
+  if (process.env.NODE_ENV === "production") {
+    return new Response(null, { status: 404 });
+  }
   try {
     const { filePath, changes } = await request.json();
 

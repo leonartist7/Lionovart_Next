@@ -49,6 +49,38 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No transcript found" }, { status: 404 });
   }
 
+  // Prefer an already-generated dossier's content — richer and free of a
+  // second Gemini call. The dossier fire-and-forget request from
+  // stopSession races this one, so a dossier may not exist yet; that's
+  // fine, we fall through to the cheap 4-line summary below.
+  if (adminDb) {
+    try {
+      // Query by the `email` field specifically, not `contact` — save_lead_data
+      // sets `contact` to phone-or-email (phone wins when both are known), so
+      // a contact-keyed lookup here would miss leads captured with both.
+      const leadSnap = await adminDb.collection("leads").where("email", "==", email).limit(1).get();
+      if (!leadSnap.empty) {
+        const dossierSnap = await adminDb
+          .collection("leads")
+          .doc(leadSnap.docs[0].id)
+          .collection("dossiers")
+          .orderBy("created_at", "desc")
+          .limit(1)
+          .get();
+        if (!dossierSnap.empty) {
+          const d = dossierSnap.docs[0].data();
+          const dossierSummary = `${d.business_snapshot}\n\n${d.draft_follow_up_message}`.trim();
+          if (dossierSummary) {
+            await sendSessionSummaryEmail({ toEmail: email, toName: name || "there", summary: dossierSummary, conversationId: conversation_id });
+            return NextResponse.json({ ok: true, source: "dossier" });
+          }
+        }
+      }
+    } catch (err) {
+      console.error("[summary] dossier lookup failed, falling back:", err);
+    }
+  }
+
   // Generate summary with Gemini Flash
   const apiKey = process.env.GEMINI_API_KEY;
   let summary = "";

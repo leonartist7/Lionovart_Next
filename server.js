@@ -3,6 +3,8 @@ const { parse } = require("url");
 const next = require("next");
 const { WebSocketServer } = require("ws");
 const { GoogleGenAI } = require("@google/genai");
+const { verifyWsToken, isAllowedOrigin, getRequestIp, tryAcquireSlot, releaseSlot } = require("./ws-auth");
+const { getAgentConfig, buildLiveConfig } = require("./nova-agent-config");
 
 // Force Webpack (disables Turbopack bugs causing opacity:0)
 process.env.TURBOPACK = '0';
@@ -53,6 +55,35 @@ app.prepare().then(() => {
     // We completely bypass the strict pathname check. Google Cloud Run's load balancer
     // sometimes strips or mutates the URL path for WebSockets, causing false 1005 rejections.
     // Since this server only handles one WebSocket endpoint, we allow all upgrades to pass through.
+    // Origin allowlist + token verification are unconditional, though.
+    const origin = req.headers.origin;
+    if (!isAllowedOrigin(origin, dev)) {
+      addDebugLog(`[WS] Rejected upgrade — disallowed origin: ${origin}`);
+      socket.destroy();
+      return;
+    }
+
+    const secret = process.env.NOVA_WS_SECRET;
+    if (secret) {
+      const { query } = parse(req.url, true);
+      const tokenPayload = verifyWsToken(query.t, secret);
+      if (!tokenPayload) {
+        addDebugLog("[WS] Rejected upgrade — invalid or expired session token");
+        socket.destroy();
+        return;
+      }
+    } else {
+      addDebugLog("[WS] NOVA_WS_SECRET not set — allowing unauthenticated WS connections");
+    }
+
+    const ip = getRequestIp(req);
+    if (!tryAcquireSlot(ip)) {
+      addDebugLog(`[WS] Rejected upgrade — concurrency cap reached for ip=${ip}`);
+      socket.destroy();
+      return;
+    }
+    req.__novaIp = ip;
+
     console.log("[WS] Allowing upgrade for incoming WebSocket connection...");
     wss.handleUpgrade(req, socket, head, (ws) => {
       console.log("[WS] Upgrade successful");
@@ -63,19 +94,25 @@ app.prepare().then(() => {
   wss.on("connection", (ws, req) => {
     console.log("[WS] Client connected to Live Strategist");
 
+    const ip = req.__novaIp || getRequestIp(req);
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       ws.send(JSON.stringify({ type: "error", message: "API key missing in environment variables" }));
       ws.close();
+      releaseSlot(ip);
       return;
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    // GEMINI_LIVE_MODEL is separate from GEMINI_MODEL (used by text chat route)
-    // so they don't collide — the text chat route uses gemini-2.5-flash, Live API needs a live-capable model
-    const model = process.env.GEMINI_LIVE_MODEL || "models/gemini-3.1-flash-live-preview";
     let liveSession = null;
     let pingInterval = null;
+    let slotReleased = false;
+
+    function releaseSlotOnce() {
+      if (slotReleased) return;
+      slotReleased = true;
+      releaseSlot(ip);
+    }
 
     // ── Helper: safely send JSON to client ───────────────────────────
     function sendToClient(obj) {
@@ -107,12 +144,26 @@ app.prepare().then(() => {
 
         // ── SETUP ─────────────────────────────────────────────────────
         if (payload.type === "setup" && !liveSession) {
-          addDebugLog(`[WS] Connecting to Gemini Live with model: ${model}`);
+          // Config hot-swap spine: read agent_config/live (60s cache) or
+          // agent_config/draft (10s cache, Agent Studio test-calls) — falls
+          // back to hardcoded defaults if Firestore is null/unreachable.
+          const agentConfig = await getAgentConfig(payload.draft ? "draft" : "live");
+          const { model, config: liveConfig, resolvedVoice } = buildLiveConfig(
+            payload.config,
+            agentConfig,
+            payload.locale,
+            payload.conversationId,
+          );
+          addDebugLog(`[WS] Connecting to Gemini Live with model: ${model}, voice: ${resolvedVoice}`);
+          // Tells the client which voice A/B variant it landed on (if any) so
+          // it can tag SESSION_STARTED — sent before connect() so it always
+          // arrives ahead of setupComplete.
+          sendToClient({ type: "voice_resolved", voice: resolvedVoice });
 
           try {
             liveSession = await ai.live.connect({
               model,
-              config: payload.config,
+              config: liveConfig,
               callbacks: {
                 onopen: () => {
                   addDebugLog("[WS] Gemini internal WebSocket opened, waiting for setupComplete...");
@@ -147,6 +198,12 @@ app.prepare().then(() => {
                     if (msg.goAway) {
                       addDebugLog(`[WS] Gemini goAway — time left: ${msg.goAway.timeLeft}`);
                       sendToClient({ goAway: msg.goAway });
+                    }
+
+                    // Session resumption handle — forward so the client can
+                    // store it and replay it verbatim on reconnect.
+                    if (msg.sessionResumptionUpdate) {
+                      sendToClient({ sessionResumptionUpdate: msg.sessionResumptionUpdate });
                     }
                   } catch (err) {
                     addDebugLog(`[WS] Error in Gemini onmessage handler: ${err.message}`);
@@ -228,11 +285,13 @@ app.prepare().then(() => {
     ws.on("close", () => {
       console.log("[WS] Client disconnected — closing Gemini session");
       closeLiveSession();
+      releaseSlotOnce();
     });
 
     ws.on("error", (err) => {
       console.error("[WS] Client WebSocket error:", err.message);
       closeLiveSession();
+      releaseSlotOnce();
     });
   });
 

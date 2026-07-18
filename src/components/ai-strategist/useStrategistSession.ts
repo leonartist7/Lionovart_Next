@@ -139,6 +139,15 @@ export function useStrategistSession({
   // Session resume / reconnect
   const reconnectAttemptsRef = useRef(0);
   const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const resumptionHandleRef = useRef<string | null>(null);
+  // Voice A/B: which variant the proxy resolved for this conversationId
+  // (null when no experiment is configured — uses agentConfig.voice as-is).
+  const voiceVariantRef = useRef<string | null>(null);
+  // When true, stopSession()/startSession() reuse the live mic stream + audio
+  // graph instead of tearing down and re-calling getUserMedia (avoids a
+  // permission re-prompt on reconnect).
+  const preserveStreamRef = useRef(false);
+  const goAwayReconnectRef = useRef(false);
 
   useEffect(() => {
     transcriptRef.current = transcript;
@@ -238,6 +247,18 @@ export function useStrategistSession({
           }),
         }).catch((err) => console.error("[summary] request failed:", err));
       }
+
+      // Fire-and-forget dossier generation — only when there's a contact to
+      // key a lead record on; the route no-ops gracefully otherwise anyway.
+      const contact = lead.phone || lead.email;
+      if (contact) {
+        fetch("/api/strategist/dossier", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          keepalive: true,
+          body: JSON.stringify({ conversation_id: convId, contact }),
+        }).catch((err) => console.error("[dossier] request failed:", err));
+      }
     }
     sessionStartedAtRef.current = null;
 
@@ -257,20 +278,25 @@ export function useStrategistSession({
       wsRef.current.close();
       wsRef.current = null;
     }
-    if (processorRef.current) {
-      processorRef.current.disconnect();
-      processorRef.current = null;
+    if (!preserveStreamRef.current) {
+      // Full teardown — reconnects set preserveStreamRef so the mic stream and
+      // audio graph survive and getUserMedia isn't re-prompted.
+      if (processorRef.current) {
+        processorRef.current.disconnect();
+        processorRef.current = null;
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+        audioContextRef.current = null;
+      }
+      inputAnalyserRef.current = null;
+      outputAnalyserRef.current = null;
+      resumptionHandleRef.current = null;
     }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-    }
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-      audioContextRef.current = null;
-    }
-    inputAnalyserRef.current = null;
-    outputAnalyserRef.current = null;
     setIsSessionActive(false);
     setState("idle");
     setIsMicMuted(false);
@@ -305,7 +331,9 @@ export function useStrategistSession({
       micEnabledRef.current = true;
       agentSpeakingRef.current = false;
       currentTurnIdRef.current = 0;
-      reconnectAttemptsRef.current = 0;
+      // NOTE: reconnectAttemptsRef is intentionally NOT reset here — it must
+      // survive into setup_complete (resume branch + max-3 cap). It resets to
+      // 0 on successful connection.
       sessionStartedAtRef.current = new Date().toISOString();
       activeSourcesRef.current.forEach((src) => { try { src.stop(); } catch (_) {} });
       activeSourcesRef.current = [];
@@ -323,43 +351,57 @@ export function useStrategistSession({
       distinctIdRef.current = distinctId;
       currentStageRef.current = "greeting";
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          channelCount: 1,
-          echoCancellation: true,
-          autoGainControl: true,
-          noiseSuppression: true,
-        },
-      });
-      streamRef.current = stream;
+      const canReuseAudio =
+        preserveStreamRef.current &&
+        !!streamRef.current &&
+        streamRef.current.getTracks().some((t) => t.readyState === "live") &&
+        !!audioContextRef.current &&
+        audioContextRef.current.state !== "closed" &&
+        !!processorRef.current;
+      preserveStreamRef.current = false;
 
-      const Ctor =
-        window.AudioContext ||
-        (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-      const audioCtx = new Ctor!({ sampleRate: 16000 });
-      audioContextRef.current = audioCtx;
+      if (!canReuseAudio) {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            channelCount: 1,
+            echoCancellation: true,
+            autoGainControl: true,
+            noiseSuppression: true,
+          },
+        });
+        streamRef.current = stream;
 
-      if (audioCtx.state === "suspended") {
-        await audioCtx.resume();
+        const Ctor =
+          window.AudioContext ||
+          (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        const audioCtx = new Ctor!({ sampleRate: 16000 });
+        audioContextRef.current = audioCtx;
+
+        if (audioCtx.state === "suspended") {
+          await audioCtx.resume();
+        }
+
+        await audioCtx.audioWorklet.addModule("/audio-processor.js");
+
+        const micSource = audioCtx.createMediaStreamSource(stream);
+        const newProcessor = new AudioWorkletNode(audioCtx, "audio-processor", {
+          processorOptions: { sampleRate: audioCtx.sampleRate },
+        });
+        processorRef.current = newProcessor;
+
+        // Input analyser — mic amplitude
+        const inputAnalyser = audioCtx.createAnalyser();
+        inputAnalyser.fftSize = 256;
+        inputAnalyser.smoothingTimeConstant = 0.7;
+        micSource.connect(inputAnalyser);
+        inputAnalyserRef.current = inputAnalyser;
+
+        micSource.connect(newProcessor);
+        newProcessor.connect(audioCtx.destination);
+      } else if (audioContextRef.current!.state === "suspended") {
+        await audioContextRef.current!.resume();
       }
-
-      await audioCtx.audioWorklet.addModule("/audio-processor.js");
-
-      const micSource = audioCtx.createMediaStreamSource(stream);
-      const processor = new AudioWorkletNode(audioCtx, "audio-processor", {
-        processorOptions: { sampleRate: audioCtx.sampleRate },
-      });
-      processorRef.current = processor;
-
-      // Input analyser — mic amplitude
-      const inputAnalyser = audioCtx.createAnalyser();
-      inputAnalyser.fftSize = 256;
-      inputAnalyser.smoothingTimeConstant = 0.7;
-      micSource.connect(inputAnalyser);
-      inputAnalyserRef.current = inputAnalyser;
-
-      micSource.connect(processor);
-      processor.connect(audioCtx.destination);
+      const processor = processorRef.current!;
 
       setIsSessionActive(true);
       setState("thinking");
@@ -371,16 +413,33 @@ export function useStrategistSession({
         ? `ws://localhost:3001/api/strategist/live`
         : `${protocol}//${window.location.host}/api/strategist/live`;
 
+      // Short-lived HMAC token authenticates the WS upgrade. token:null means
+      // NOVA_WS_SECRET isn't configured — the proxy allows the connection.
+      let authedWsUrl = wsUrl;
+      try {
+        const tokRes = await fetch("/api/strategist/session-token", { method: "POST" });
+        const { token } = await tokRes.json();
+        if (token) authedWsUrl = `${wsUrl}?t=${encodeURIComponent(token)}`;
+      } catch {
+        // Proxy decides whether unauthenticated connections are allowed.
+      }
+
       console.log("[WS] Connecting to:", wsUrl);
-      const ws = new WebSocket(wsUrl);
+      const ws = new WebSocket(authedWsUrl);
       wsRef.current = ws;
 
       let hasConnected = false;
 
       ws.onopen = () => {
+        const isDraftTestCall =
+          typeof window !== "undefined" &&
+          new URLSearchParams(window.location.search).get("novaDraft") === "1";
         ws.send(
           JSON.stringify({
             type: "setup",
+            locale,
+            draft: isDraftTestCall,
+            conversationId: conversationIdRef.current,
             config: {
               systemInstruction: {
                 parts: [
@@ -402,14 +461,25 @@ export function useStrategistSession({
               },
               inputAudioTranscription: {},
               outputAudioTranscription: {},
-              sessionResumption: {},
+              // With a stored handle, Gemini restores the prior session's
+              // context server-side (true resume, not a context blurb).
+              sessionResumption: resumptionHandleRef.current
+                ? { handle: resumptionHandleRef.current }
+                : {},
+              contextWindowCompression: { slidingWindow: {} },
             },
           }),
         );
       };
 
       ws.onmessage = async (event) => {
-        const data = JSON.parse(event.data);
+        let data;
+        try {
+          data = JSON.parse(event.data);
+        } catch {
+          console.error("[WS] Malformed frame ignored");
+          return;
+        }
 
         if (data.type === "error") {
           console.error("[WS] Backend error:", data.message);
@@ -421,6 +491,11 @@ export function useStrategistSession({
             dismissible: true,
           });
           stopSession();
+          return;
+        }
+
+        if (data.type === "voice_resolved") {
+          voiceVariantRef.current = data.voice ?? null;
           return;
         }
 
@@ -442,6 +517,7 @@ export function useStrategistSession({
             conversation_id: conversationIdRef.current,
             $session_id: distinctIdRef.current,
             locale,
+            voice_variant: voiceVariantRef.current,
           });
 
           const SESSION_LIMIT_MS = 45 * 60 * 1000;
@@ -513,12 +589,15 @@ export function useStrategistSession({
             );
           }
 
+          // Mic streams CONTINUOUSLY — including while the agent speaks. This
+          // is what makes barge-in possible: Gemini's server VAD detects the
+          // user talking over the agent and sends `interrupted`. Echo of the
+          // agent's own voice is handled by echoCancellation on getUserMedia.
           processor.port.onmessage = (e) => {
             if (
               e.data.type === "audio" &&
               ws.readyState === WebSocket.OPEN &&
-              micEnabledRef.current &&
-              !agentSpeakingRef.current
+              micEnabledRef.current
             ) {
               const base64Audio = arrayBufferToBase64(e.data.pcm.buffer);
               ws.send(
@@ -536,12 +615,24 @@ export function useStrategistSession({
           return;
         }
 
+        if (data.sessionResumptionUpdate) {
+          // Store the latest resumable handle; replayed in the setup message
+          // on reconnect for a true server-side session resume.
+          const update = data.sessionResumptionUpdate;
+          if (update.newHandle && update.resumable !== false) {
+            resumptionHandleRef.current = update.newHandle;
+          }
+          return;
+        }
+
         if (data.goAway) {
-          const timeLeft = data.goAway.timeLeft ?? "soon";
+          // Gemini is about to close this connection. Flag a seamless
+          // reconnect (with the resumption handle) instead of ending.
+          goAwayReconnectRef.current = true;
           setSessionNotice({
-            kind: "warning",
-            title: "Wrapping up soon",
-            message: `Heads up — this session ends in ${timeLeft}. We'll save everything you've shared so far.`,
+            kind: "info",
+            title: "One moment",
+            message: "Refreshing the connection — Nova remembers everything.",
             dismissible: true,
           });
         }
@@ -672,8 +763,19 @@ export function useStrategistSession({
             "fetch_booking_link",
             "lookup_site_info",
             "scrape_website",
+            "load_skill",
+            "flag_objection",
+            "enrich_business",
+            "check_availability",
+            "book_meeting",
+            "send_follow_up_email",
           ];
-          const toolPromises: Promise<{ id: string; name: string; response: unknown }>[] = [];
+          const toolPromises: Promise<{
+            id: string;
+            name: string;
+            response: unknown;
+            scheduling?: "SILENT";
+          }>[] = [];
 
           for (const call of calls) {
             if (call.name === "update_screen_info") {
@@ -743,11 +845,14 @@ export function useStrategistSession({
                 );
               }
             } else if (call.name === "show_handoff_cards") {
-              const { whatsapp_url, booking_url, summary_message } = call.args as Record<string, string>;
+              const { whatsapp_url, booking_url, summary_message, booking_confirmed, booking_time_label } =
+                call.args as Record<string, string | boolean>;
               setHandoffData({
-                whatsappUrl: whatsapp_url,
-                bookingUrl: booking_url,
-                summaryMessage: summary_message,
+                whatsappUrl: whatsapp_url as string,
+                bookingUrl: booking_url as string,
+                summaryMessage: summary_message as string | undefined,
+                bookingConfirmed: booking_confirmed as boolean | undefined,
+                bookingTimeLabel: booking_time_label as string | undefined,
               });
               setState("handoff");
               trackNovaEvent(NOVA_EVENT.HANDOFF_OFFERED, {
@@ -779,7 +884,12 @@ export function useStrategistSession({
                       }),
                     });
                     const result = await res.json();
-                    return { id: call.id, name: call.name, response: result };
+                    return {
+                      id: call.id,
+                      name: call.name,
+                      response: result,
+                      ...(call.name === "save_lead_data" ? { scheduling: "SILENT" as const } : {}),
+                    };
                   } catch (e: unknown) {
                     const msg = e instanceof Error ? e.message : String(e);
                     trackNovaEvent(NOVA_EVENT.TOOL_ERROR, {
@@ -808,6 +918,15 @@ export function useStrategistSession({
         console.log("[WS] Closed. Code:", event.code, "Reason:", event.reason);
 
         const closeReason = !hasConnected ? "error" : event.code === 1008 ? "timeout" : event.code === 1000 ? "clean" : "drop";
+
+        // Reconnect on unexpected drops AND on goAway-initiated closes.
+        // Preserve the mic stream + audio graph across the gap so
+        // startSession doesn't re-prompt for permissions.
+        const willReconnect =
+          (closeReason === "drop" || (closeReason === "clean" && goAwayReconnectRef.current)) &&
+          reconnectAttemptsRef.current < 3;
+        goAwayReconnectRef.current = false;
+        if (willReconnect) preserveStreamRef.current = true;
 
         if (!hasConnected) {
           setSessionNotice({
@@ -838,10 +957,12 @@ export function useStrategistSession({
           });
         }
 
+        // preserveStreamRef stays true through stopSession (skips audio
+        // teardown) until the scheduled startSession consumes and clears it.
         stopSession(closeReason);
 
-        // Auto-reconnect on unexpected drop (max 3 attempts)
-        if (closeReason === "drop" && reconnectAttemptsRef.current < 3) {
+        // Auto-reconnect (max 3 attempts) — drop or goAway
+        if (willReconnect) {
           reconnectAttemptsRef.current += 1;
           setSessionNotice({
             kind: "info" as const,
@@ -887,6 +1008,13 @@ export function useStrategistSession({
 
   useEffect(() => {
     return () => {
+      // Unmount = hard stop: cancel any pending reconnect and force full
+      // audio teardown so a preserved mic stream can't leak.
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
+      preserveStreamRef.current = false;
       stopSession();
     };
   }, [stopSession]);

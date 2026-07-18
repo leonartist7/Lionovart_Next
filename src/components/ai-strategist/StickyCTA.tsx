@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic } from "lucide-react";
 import { useNovaStore } from "@/lib/stores/nova-store";
 
 export function StickyCTA() {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const isOpen = useNovaStore((s) => s.isOpen);
   const openNova = useNovaStore((s) => s.openNova);
@@ -17,7 +19,7 @@ export function StickyCTA() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  if (isOpen) return null;
+  if (isOpen || pathname?.startsWith("/admin")) return null;
 
   return (
     <AnimatePresence>

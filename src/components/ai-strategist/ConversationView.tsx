@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, type RefObject } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Mic,
   MicOff,
@@ -22,7 +22,7 @@ import type {
   SessionNotice,
   FieldConfirmations,
 } from "./useStrategistSession";
-import VoiceVisualizer from "./VoiceVisualizer";
+import NovaOrb from "./NovaOrb";
 import HandoffCards from "./HandoffCards";
 import { PrivacyGate } from "./PrivacyGate";
 import { RecordingIndicator } from "./RecordingIndicator";
@@ -83,6 +83,7 @@ export default function ConversationView({
   const isListening = state === "listening";
   const isSpeaking = state === "speaking";
   const isHandoff = state === "handoff";
+  const shouldReduceMotion = !!useReducedMotion();
 
   const inputAmplitude = useAudioAmplitude(inputAnalyser, isSessionActive && !isMicMuted);
   const outputAmplitude = useAudioAmplitude(outputAnalyser, isSessionActive && isSpeaking);
@@ -222,7 +223,13 @@ export default function ConversationView({
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col items-center gap-6 text-center max-w-sm flex-1 justify-center"
           >
-            <VoiceVisualizer state="idle" inputAmplitude={0} outputAmplitude={0} />
+            <NovaOrb
+              state="idle"
+              inputAmplitude={0}
+              outputAmplitude={0}
+              inputAnalyser={inputAnalyser}
+              outputAnalyser={outputAnalyser}
+            />
             <div className="flex flex-col gap-2">
               <h3 className="text-2xl font-bold text-white uppercase font-clash leading-tight">
                 Meet Nova
@@ -258,10 +265,12 @@ export default function ConversationView({
               transition={{ duration: 0.4 }}
               className="flex flex-col items-center gap-3"
             >
-              <VoiceVisualizer
+              <NovaOrb
                 state={isSpeaking ? "speaking" : isListening ? "listening" : "thinking"}
                 inputAmplitude={inputAmplitude}
                 outputAmplitude={outputAmplitude}
+                inputAnalyser={inputAnalyser}
+                outputAnalyser={outputAnalyser}
               />
             </motion.div>
 
@@ -281,7 +290,11 @@ export default function ConversationView({
                       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                     >
                       {confirmed ? (
-                        <ConfirmedPill label={FIELD_LABELS[field]} value={value} />
+                        <ConfirmedPill
+                          label={FIELD_LABELS[field]}
+                          value={value}
+                          shouldReduceMotion={shouldReduceMotion}
+                        />
                       ) : (
                         <FieldRow
                           field={field}
@@ -323,6 +336,8 @@ export default function ConversationView({
                     whatsappUrl={handoffData.whatsappUrl}
                     bookingUrl={handoffData.bookingUrl}
                     summaryMessage={handoffData.summaryMessage}
+                    bookingConfirmed={handoffData.bookingConfirmed}
+                    bookingTimeLabel={handoffData.bookingTimeLabel}
                   />
                 </motion.div>
               )}
@@ -352,27 +367,40 @@ export default function ConversationView({
                       className="w-full overflow-hidden"
                     >
                       <div className="max-h-[180px] overflow-y-auto no-scrollbar rounded-xl border border-white/[0.06] bg-white/[0.02] p-3.5 flex flex-col gap-3 mt-1">
-                        {transcript.slice(-6).map((msg, idx) => (
-                          <div key={idx} className="flex flex-col gap-1">
-                            <span
-                              className={`text-[9px] uppercase tracking-[0.25em] ${
-                                msg.role === "agent" ? "text-white/35" : "text-white/45"
-                              }`}
+                        {/* Message text streams in ~100ms token chunks — only the bubble's
+                            entrance animates (mount-only, via key stability across re-renders).
+                            Word-level fade-in was skipped: it would re-trigger on every token
+                            append and thrash performance for no visible gain at that cadence. */}
+                        <AnimatePresence initial={false}>
+                          {transcript.slice(-6).map((msg, idx) => (
+                            <motion.div
+                              key={idx}
+                              layout="position"
+                              initial={shouldReduceMotion ? false : { opacity: 0, y: 6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                              className="flex flex-col gap-1"
                             >
-                              {msg.role === "agent" ? "Nova" : "You"}
-                            </span>
-                            <span
-                              className={[
-                                "text-[13px] leading-snug text-white/85",
-                                msg.role === "user"
-                                  ? "border-l border-white/15 pl-2.5"
-                                  : "",
-                              ].join(" ")}
-                            >
-                              {msg.text}
-                            </span>
-                          </div>
-                        ))}
+                              <span
+                                className={`text-[9px] uppercase tracking-[0.25em] ${
+                                  msg.role === "agent" ? "text-white/35" : "text-white/45"
+                                }`}
+                              >
+                                {msg.role === "agent" ? "Nova" : "You"}
+                              </span>
+                              <span
+                                className={[
+                                  "text-[13px] leading-snug text-white/85 transition-opacity duration-150",
+                                  msg.role === "user"
+                                    ? "border-l border-white/15 pl-2.5"
+                                    : "",
+                                ].join(" ")}
+                              >
+                                {msg.text}
+                              </span>
+                            </motion.div>
+                          ))}
+                        </AnimatePresence>
                         <div ref={transcriptEndRef} />
                       </div>
                     </motion.div>
@@ -508,15 +536,41 @@ function FieldRow({
 
 /* ─── Confirmed pill — collapsed state ────────────────────────────────── */
 
-function ConfirmedPill({ label, value }: { label: string; value: string }) {
+function ConfirmedPill({
+  label,
+  value,
+  shouldReduceMotion,
+}: {
+  label: string;
+  value: string;
+  shouldReduceMotion: boolean;
+}) {
+  // "Filed away" moment — the pill flashes brand-gold once as it collapses
+  // into its compact confirmed state, then settles back to the quiet glass look.
   return (
-    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.025] border border-white/[0.05] text-[11px]">
+    <motion.div
+      layout
+      initial={
+        shouldReduceMotion
+          ? false
+          : { scale: 0.97, backgroundColor: "rgba(240,201,23,0.22)", boxShadow: "0 0 0px rgba(240,201,23,0)" }
+      }
+      animate={{
+        scale: 1,
+        backgroundColor: "rgba(255,255,255,0.025)",
+        boxShadow: shouldReduceMotion
+          ? "0 0 0px rgba(240,201,23,0)"
+          : ["0 0 14px rgba(240,201,23,0.5)", "0 0 0px rgba(240,201,23,0)"],
+      }}
+      transition={{ duration: shouldReduceMotion ? 0 : 0.7, ease: [0.16, 1, 0.3, 1] }}
+      className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/[0.05] text-[11px]"
+    >
       <Check size={10} className="text-emerald-400/70 shrink-0" strokeWidth={3} />
       <span className="text-white/35 uppercase tracking-[0.2em] text-[9px]">
         {label}
       </span>
       <span className="text-white/70 truncate flex-1">{value}</span>
-    </div>
+    </motion.div>
   );
 }
 

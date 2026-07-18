@@ -1,7 +1,10 @@
-import { Type } from "@google/genai";
+import { Type, Behavior } from "@google/genai";
 import type { Tool } from "@google/genai";
 import { SYSTEM_PROMPT as EN_PROMPT } from "./strategist-prompts/en";
 import { SYSTEM_PROMPT as ES_PROMPT } from "./strategist-prompts/es";
+import { SYSTEM_PROMPT as FR_PROMPT } from "./strategist-prompts/fr";
+import { SYSTEM_PROMPT as IT_PROMPT } from "./strategist-prompts/it";
+import { SYSTEM_PROMPT as KO_PROMPT } from "./strategist-prompts/ko";
 
 /* ─── System Prompt ──────────────────────────────────────────── */
 
@@ -10,6 +13,9 @@ export type NovaLocale = "en" | "es" | "fr" | "it" | "ko";
 export function getSystemPrompt(locale: NovaLocale): string {
   switch (locale) {
     case "es": return ES_PROMPT;
+    case "fr": return FR_PROMPT;
+    case "it": return IT_PROMPT;
+    case "ko": return KO_PROMPT;
     case "en":
     default: return EN_PROMPT;
   }
@@ -21,6 +27,65 @@ export function getSystemPrompt(locale: NovaLocale): string {
 export const STRATEGIST_TOOLS: Tool[] = [
   {
     functionDeclarations: [
+      {
+        name: "load_skill",
+        description:
+          "Load a deep playbook (skill) before responding in its territory — objection handling, LIONOVART FAQs, booking flow, lead qualification. Silent and instant. Call it the moment the conversation enters a skill's territory, absorb the returned instructions, then respond. Once loaded, a skill stays with you for the session.",
+        // Runs while you keep speaking — never wait for it in silence.
+        behavior: Behavior.NON_BLOCKING,
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            skill_id: {
+              type: Type.STRING,
+              enum: ["objections", "faq", "scheduling", "qualification"],
+              description: "The skill to load",
+            },
+          },
+          required: ["skill_id"],
+        },
+      },
+      {
+        name: "flag_objection",
+        description:
+          "Silently records which objection type you're handling. Call it the moment you recognize the objection, right after load_skill('objections') resolves — before or while you respond. Silent, does not affect the conversation.",
+        behavior: Behavior.NON_BLOCKING,
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            type: {
+              type: Type.STRING,
+              enum: [
+                "price",
+                "needs-time",
+                "has-agency",
+                "diy",
+                "no-time",
+                "ai-trust",
+                "past-failure",
+                "send-info",
+                "too-small",
+              ],
+              description: "Which objection pattern this matches",
+            },
+          },
+          required: ["type"],
+        },
+      },
+      {
+        name: "enrich_business",
+        description:
+          "Looks up a business's public Google Business Profile data (rating, review count, category) silently in the background. Call once you know their business name and, if mentioned, their city — right after or alongside scrape_website. Never announce the lookup; weave one specific detail naturally into the conversation later if useful, never recite it as a stat.",
+        behavior: Behavior.NON_BLOCKING,
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            name: { type: Type.STRING, description: "The business name" },
+            city: { type: Type.STRING, description: "City, if mentioned — improves match accuracy" },
+          },
+          required: ["name"],
+        },
+      },
       {
         name: "update_screen_info",
         description:
@@ -114,6 +179,8 @@ export const STRATEGIST_TOOLS: Tool[] = [
         name: "save_lead_data",
         description:
           "Save the lead's full discovery profile to the CRM. Call once at handoff (Stage 7) before generating links.",
+        // Persisted silently in the background — never stalls speech waiting for the write to finish.
+        behavior: Behavior.NON_BLOCKING,
         parameters: {
           type: Type.OBJECT,
           properties: {
@@ -166,10 +233,57 @@ export const STRATEGIST_TOOLS: Tool[] = [
       {
         name: "fetch_booking_link",
         description:
-          "Get the Google Calendar appointment booking link for scheduling a 20-minute call with Leon.",
+          "Get the booking page link for scheduling a call with Leon. Use this when check_availability isn't available (returns available:false) — the link-handoff fallback.",
         parameters: {
           type: Type.OBJECT,
           properties: {},
+        },
+      },
+      {
+        name: "check_availability",
+        description:
+          "Checks real calendar availability for the next 7 days. Returns { available: false } when real-time booking isn't set up — in that case, silently fall back to fetch_booking_link + the link handoff, never mention it failed. When available, returns up to 3 slots as { start (ISO), label (human-readable) } — offer at most 3 aloud.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            timezone: {
+              type: Type.STRING,
+              description: "IANA timezone if the user mentioned one (e.g. 'America/Edmonton'). Omit if unknown — never ask for it explicitly, infer or omit.",
+            },
+          },
+        },
+      },
+      {
+        name: "book_meeting",
+        description:
+          "Books a real calendar slot returned by check_availability. Call once the user picks a time and you have their name + email. Confirm aloud once it returns booked:true, then call show_handoff_cards with booking_confirmed:true.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            start: { type: Type.STRING, description: "The exact ISO start time from a check_availability slot" },
+            name: { type: Type.STRING, description: "Lead's name" },
+            email: { type: Type.STRING, description: "Lead's email — required by the booking system" },
+            phone: { type: Type.STRING, description: "Lead's phone, if known" },
+            notes: { type: Type.STRING, description: "One-line context for Leon ahead of the call" },
+            timezone: { type: Type.STRING, description: "IANA timezone, if known" },
+          },
+          required: ["start", "name", "email"],
+        },
+      },
+      {
+        name: "send_follow_up_email",
+        description:
+          "Sends a follow-up email recap to the lead. ONLY call this after the user has explicitly said yes to receiving an email in this conversation — never as a silent default. Never call twice in one session.",
+        // Fire-and-forget — never stalls speech waiting for Resend.
+        behavior: Behavior.NON_BLOCKING,
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            email: { type: Type.STRING, description: "Lead's email address" },
+            name: { type: Type.STRING, description: "Lead's name" },
+            summary: { type: Type.STRING, description: "2-3 sentence recap of what was discussed, in your own words" },
+          },
+          required: ["email", "name", "summary"],
         },
       },
       {
@@ -191,15 +305,23 @@ export const STRATEGIST_TOOLS: Tool[] = [
       {
         name: "show_handoff_cards",
         description:
-          "Display WhatsApp and booking cards to transition the user to the human conversation with Leon. Call after save_lead_data, generate_whatsapp_link, fetch_booking_link.",
+          "Display WhatsApp and booking cards to transition the user to the human conversation with Leon. Call after save_lead_data, generate_whatsapp_link, and either fetch_booking_link (link mode) or book_meeting (real booking, calcom mode).",
         parameters: {
           type: Type.OBJECT,
           properties: {
             whatsapp_url: { type: Type.STRING, description: "The full WhatsApp deep link URL" },
-            booking_url: { type: Type.STRING, description: "The Google Calendar booking URL" },
+            booking_url: { type: Type.STRING, description: "The booking page URL (link mode), or the confirmed booking's view link (calcom mode, from book_meeting's manage_url)" },
             summary_message: {
               type: Type.STRING,
               description: "A brief, warm closing message to display above the cards",
+            },
+            booking_confirmed: {
+              type: Type.BOOLEAN,
+              description: "Pass true only when book_meeting already succeeded — the card shows a confirmed state instead of a schedule button.",
+            },
+            booking_time_label: {
+              type: Type.STRING,
+              description: "Human-readable confirmed time, e.g. 'Tuesday, July 21 at 2:00 PM' — required when booking_confirmed is true.",
             },
           },
           required: ["whatsapp_url", "booking_url"],
@@ -222,6 +344,8 @@ export interface HandoffData {
   whatsappUrl: string;
   bookingUrl: string;
   summaryMessage?: string;
+  bookingConfirmed?: boolean;
+  bookingTimeLabel?: string;
 }
 
 export type SessionState = "idle" | "listening" | "thinking" | "speaking" | "handoff";

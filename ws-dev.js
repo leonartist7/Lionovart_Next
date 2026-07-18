@@ -1,30 +1,74 @@
 const { createServer } = require("http");
+const { parse } = require("url");
 const { WebSocketServer } = require("ws");
 const { GoogleGenAI } = require("@google/genai");
+const { verifyWsToken, isAllowedOrigin, getRequestIp, tryAcquireSlot, releaseSlot } = require("./ws-auth");
+const { getAgentConfig, buildLiveConfig } = require("./nova-agent-config");
 
 require("dotenv").config({ path: ".env.local" });
 
 const port = 3001; // Separate port for local dev
 const server = createServer();
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({ noServer: true });
 
 // Server-side tools that the dev proxy handles directly
 // (in prod, these are forwarded to the client which calls /api/strategist/tool)
 const SERVER_TOOLS = ["fetch_user_memory", "save_lead_data", "generate_whatsapp_link", "fetch_booking_link"];
 
+server.on("upgrade", (req, socket, head) => {
+  const origin = req.headers.origin;
+  if (!isAllowedOrigin(origin, true)) {
+    console.warn("[WS-DEV] Rejected upgrade — disallowed origin:", origin);
+    socket.destroy();
+    return;
+  }
+
+  const secret = process.env.NOVA_WS_SECRET;
+  if (secret) {
+    const { query } = parse(req.url, true);
+    const tokenPayload = verifyWsToken(query.t, secret);
+    if (!tokenPayload) {
+      console.warn("[WS-DEV] Rejected upgrade — invalid or expired session token");
+      socket.destroy();
+      return;
+    }
+  } else {
+    console.warn("[WS-DEV] NOVA_WS_SECRET not set — allowing unauthenticated WS connections (dev mode)");
+  }
+
+  const ip = getRequestIp(req);
+  if (!tryAcquireSlot(ip)) {
+    console.warn("[WS-DEV] Rejected upgrade — concurrency cap reached for ip:", ip);
+    socket.destroy();
+    return;
+  }
+  req.__novaIp = ip;
+
+  wss.handleUpgrade(req, socket, head, (ws) => {
+    wss.emit("connection", ws, req);
+  });
+});
+
 wss.on("connection", (ws, req) => {
   console.log("[WS-DEV] Client connected to Live Strategist");
+
+  const ip = req.__novaIp || getRequestIp(req);
+  let slotReleased = false;
+  function releaseSlotOnce() {
+    if (slotReleased) return;
+    slotReleased = true;
+    releaseSlot(ip);
+  }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     ws.send(JSON.stringify({ type: "error", message: "API key missing" }));
     ws.close();
+    releaseSlotOnce();
     return;
   }
 
   const ai = new GoogleGenAI({ apiKey });
-  // GEMINI_LIVE_MODEL is separate from GEMINI_MODEL (used by text chat route)
-  const model = process.env.GEMINI_LIVE_MODEL || "models/gemini-3.1-flash-live-preview";
   let liveSession = null;
 
   // ── Helper: safely send JSON to client ───────────────────────────
@@ -71,10 +115,23 @@ wss.on("connection", (ws, req) => {
       if (payload.type === "setup" && !liveSession) {
         console.log("[WS-DEV] Setting up Live API...");
 
+        // Config hot-swap spine: read agent_config/live (60s cache) or
+        // agent_config/draft (10s cache, Agent Studio test-calls) — falls
+        // back to hardcoded defaults if Firestore is null/unreachable.
+        const agentConfig = await getAgentConfig(payload.draft ? "draft" : "live");
+        const { model, config: liveConfig, resolvedVoice } = buildLiveConfig(
+          payload.config,
+          agentConfig,
+          payload.locale,
+          payload.conversationId,
+        );
+        console.log(`[WS-DEV] model: ${model}, voice: ${resolvedVoice}`);
+        sendToClient({ type: "voice_resolved", voice: resolvedVoice });
+
         try {
           liveSession = await ai.live.connect({
             model,
-            config: payload.config,
+            config: liveConfig,
             callbacks: {
               onopen: () => {
                 console.log("[WS-DEV] Gemini internal WebSocket opened");
@@ -131,6 +188,12 @@ wss.on("connection", (ws, req) => {
                   if (msg.goAway) {
                     console.log("[WS-DEV] Gemini goAway — time left:", msg.goAway.timeLeft);
                     sendToClient({ goAway: msg.goAway });
+                  }
+
+                  // Session resumption handle — forward so the client can
+                  // store it and replay it verbatim on reconnect.
+                  if (msg.sessionResumptionUpdate) {
+                    sendToClient({ sessionResumptionUpdate: msg.sessionResumptionUpdate });
                   }
                 } catch (err) {
                   console.error("[WS-DEV] Error in Gemini onmessage handler:", err);
@@ -200,11 +263,13 @@ wss.on("connection", (ws, req) => {
   ws.on("close", () => {
     console.log("[WS-DEV] Client disconnected — closing Gemini session");
     closeLiveSession();
+    releaseSlotOnce();
   });
 
   ws.on("error", (err) => {
     console.error("[WS-DEV] Client WebSocket error:", err.message);
     closeLiveSession();
+    releaseSlotOnce();
   });
 });
 

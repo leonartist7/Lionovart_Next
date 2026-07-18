@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { getSystemPrompt, STRATEGIST_TOOLS } from "@/lib/strategist-config";
 import type { HistoryEntry } from "@/lib/strategist-config";
+import { executeServerTool } from "@/lib/strategist-tools";
 
 /* ─── Types ──────────────────────────────────────────────────── */
 interface ChatRequest {
@@ -18,81 +19,28 @@ function sseEvent(data: object): string {
 async function executeFn(
   name: string,
   args: Record<string, unknown>,
-  req: NextRequest
+  req: NextRequest,
 ): Promise<{ result: unknown; handoffEvent?: string }> {
-  switch (name) {
-    case "detect_user_location": {
-      try {
-        const ip =
-          req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-          req.headers.get("x-real-ip") ??
-          "unknown";
-        if (ip === "unknown" || ip.startsWith("127.") || ip.startsWith("::1")) {
-          return { result: { country: "CA", city: "Unknown", ip } };
-        }
-        const geo = await fetch(`https://ipapi.co/${ip}/json/`, {
-          headers: { "User-Agent": "LIONOVART/1.0" },
-        }).then((r) => r.json());
-        return { result: { country: geo.country_code, city: geo.city, ip } };
-      } catch {
-        return { result: { country: "unknown" } };
-      }
-    }
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    req.headers.get("x-real-ip") ??
+    "unknown";
 
-    case "save_lead_data": {
-      // Fire-and-forget — lead saved asynchronously, don't block the stream
-      try {
-        const origin = req.headers.get("origin") ?? req.nextUrl.origin;
-        fetch(`${origin}/api/strategist/lead`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...args,
-            user_agent: req.headers.get("user-agent") ?? "unknown",
-            source: "ai_strategist",
-          }),
-        }).catch(() => {}); // intentional fire-and-forget
-      } catch {}
-      return {
-        result: {
-          saved: true,
-          language_detected: (args.language_detected as string | undefined) ?? "en",
-        },
-      };
-    }
+  const { body } = await executeServerTool(name, args, { ip });
 
-    case "generate_whatsapp_link": {
-      const number = process.env.WHATSAPP_NUMBER ?? "15878974772";
-      const name = (args.name as string | undefined) ?? "there";
-      const summary = (args.project_summary as string | undefined) ?? "";
-      const text = encodeURIComponent(
-        `Hi Leon, I'm ${name}. ${summary} — I'd love to continue our conversation.`
-      );
-      return { result: { url: `https://wa.me/${number}?text=${text}` } };
-    }
-
-    case "fetch_booking_link": {
-      return {
-        result: { url: process.env.BOOKING_URL ?? "https://calendar.app.google/" },
-      };
-    }
-
-    case "show_handoff_cards": {
-      // This one returns a special SSE event the client acts on
-      return {
-        result: { shown: true },
-        handoffEvent: sseEvent({
-          type: "handoff",
-          whatsapp_url: args.whatsapp_url,
-          booking_url: args.booking_url,
-          summary_message: args.summary_message ?? "",
-        }),
-      };
-    }
-
-    default:
-      return { result: { error: `Unknown function: ${name}` } };
+  if (name === "show_handoff_cards") {
+    return {
+      result: body,
+      handoffEvent: sseEvent({
+        type: "handoff",
+        whatsapp_url: args.whatsapp_url,
+        booking_url: args.booking_url,
+        summary_message: args.summary_message ?? "",
+      }),
+    };
   }
+
+  return { result: body };
 }
 
 /* ─── Route Handler ──────────────────────────────────────────── */

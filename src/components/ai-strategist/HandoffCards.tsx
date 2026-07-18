@@ -1,18 +1,33 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, Calendar, X } from "lucide-react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { MessageSquare, Calendar, X, CheckCircle2 } from "lucide-react";
 import { trackNovaEvent, NOVA_EVENT } from "@/lib/nova-events";
 
 interface HandoffCardsProps {
   whatsappUrl: string;
   bookingUrl: string;
   summaryMessage?: string;
+  /** True once book_meeting already created a real Cal.com event — the
+   * booking card shows a confirmed state instead of a schedule button. */
+  bookingConfirmed?: boolean;
+  bookingTimeLabel?: string;
 }
 
-export default function HandoffCards({ whatsappUrl, bookingUrl, summaryMessage }: HandoffCardsProps) {
+export default function HandoffCards({
+  whatsappUrl,
+  bookingUrl,
+  summaryMessage,
+  bookingConfirmed,
+  bookingTimeLabel,
+}: HandoffCardsProps) {
   const [showCalendly, setShowCalendly] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (bookingConfirmed) trackNovaEvent(NOVA_EVENT.BOOKING_COMPLETED, { via: "calcom" });
+  }, [bookingConfirmed]);
 
   useEffect(() => {
     if (!showCalendly) return;
@@ -56,9 +71,21 @@ export default function HandoffCards({ whatsappUrl, bookingUrl, summaryMessage }
       <div className="flex flex-col sm:flex-row gap-3">
         {/* WhatsApp card */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 24, scale: 0.95 }}
+          animate={{
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            boxShadow: shouldReduceMotion
+              ? "0 0 0px rgba(37,211,102,0)"
+              : ["0 0 0px rgba(37,211,102,0)", "0 0 26px rgba(37,211,102,0.45)", "0 0 0px rgba(37,211,102,0)"],
+          }}
+          transition={{
+            default: shouldReduceMotion
+              ? { duration: 0 }
+              : { type: "spring", stiffness: 260, damping: 20, delay: 0 },
+            boxShadow: shouldReduceMotion ? { duration: 0 } : { duration: 0.9, delay: 0.25, ease: "easeOut" },
+          }}
           className="flex-1 flex flex-col rounded-2xl p-4 gap-3 bg-white/[0.04] border border-white/[0.08] border-l-[3px] border-l-[#25D366]"
         >
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-[#25D366]/10">
@@ -81,29 +108,69 @@ export default function HandoffCards({ whatsappUrl, bookingUrl, summaryMessage }
 
         {/* Booking card */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
-          className="flex-1 flex flex-col rounded-2xl p-4 gap-3 bg-white/[0.04] border border-white/[0.08] border-l-[3px] border-l-brand-red"
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 24, scale: 0.95 }}
+          animate={{
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            boxShadow: shouldReduceMotion
+              ? "0 0 0px rgba(229,25,42,0)"
+              : ["0 0 0px rgba(229,25,42,0)", "0 0 26px rgba(229,25,42,0.4)", "0 0 0px rgba(229,25,42,0)"],
+          }}
+          transition={{
+            default: shouldReduceMotion
+              ? { duration: 0 }
+              : { type: "spring", stiffness: 260, damping: 20, delay: 0.12 },
+            boxShadow: shouldReduceMotion ? { duration: 0 } : { duration: 0.9, delay: 0.37, ease: "easeOut" },
+          }}
+          className={`flex-1 flex flex-col rounded-2xl p-4 gap-3 bg-white/[0.04] border border-white/[0.08] border-l-[3px] ${
+            bookingConfirmed ? "border-l-emerald-400" : "border-l-brand-red"
+          }`}
         >
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-brand-red/20">
-            <Calendar size={16} className="text-brand-red" strokeWidth={1.8} />
+          <div
+            className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+              bookingConfirmed ? "bg-emerald-400/15" : "bg-brand-red/20"
+            }`}
+          >
+            {bookingConfirmed ? (
+              <CheckCircle2 size={16} className="text-emerald-400" strokeWidth={1.8} />
+            ) : (
+              <Calendar size={16} className="text-brand-red" strokeWidth={1.8} />
+            )}
           </div>
           <div className="flex flex-col gap-1">
-            <p className="text-[13px] font-semibold text-white leading-tight">Book a Call with Leon</p>
-            <p className="text-[12px] text-white/50 leading-relaxed">30 minutes. No pressure. Honest strategic advice from our founder.</p>
+            <p className="text-[13px] font-semibold text-white leading-tight">
+              {bookingConfirmed ? "You're booked" : "Book a Call with Leon"}
+            </p>
+            <p className="text-[12px] text-white/50 leading-relaxed">
+              {bookingConfirmed
+                ? bookingTimeLabel || "Your call with Leon is locked in."
+                : "30 minutes. No pressure. Honest strategic advice from our founder."}
+            </p>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              trackNovaEvent(NOVA_EVENT.HANDOFF_CARD_CLICKED, { kind: "booking" });
-              trackNovaEvent(NOVA_EVENT.BOOKING_EMBED_OPENED);
-              setShowCalendly(true);
-            }}
-            className="mt-auto block w-full text-center text-[12px] font-semibold text-white px-3 py-2 rounded-xl bg-brand-red hover:opacity-90 transition-opacity duration-150"
-          >
-            Schedule Meeting
-          </button>
+          {bookingConfirmed ? (
+            <a
+              href={bookingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackNovaEvent(NOVA_EVENT.HANDOFF_CARD_CLICKED, { kind: "booking_confirmed" })}
+              className="mt-auto block text-center text-[12px] font-semibold text-white px-3 py-2 rounded-xl bg-emerald-500/90 hover:opacity-90 transition-opacity duration-150"
+            >
+              View booking
+            </a>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                trackNovaEvent(NOVA_EVENT.HANDOFF_CARD_CLICKED, { kind: "booking" });
+                trackNovaEvent(NOVA_EVENT.BOOKING_EMBED_OPENED);
+                setShowCalendly(true);
+              }}
+              className="mt-auto block w-full text-center text-[12px] font-semibold text-white px-3 py-2 rounded-xl bg-brand-red hover:opacity-90 transition-opacity duration-150"
+            >
+              Schedule Meeting
+            </button>
+          )}
         </motion.div>
       </div>
 

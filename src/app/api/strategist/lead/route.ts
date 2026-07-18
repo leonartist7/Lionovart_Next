@@ -51,6 +51,10 @@ export async function POST(req: NextRequest) {
       conversation_id: conversation_id ?? null,
       ip,
       created_at: FieldValue.serverTimestamp(),
+      // Console leads list orders by updated_at — Firestore excludes docs
+      // missing the field entirely from that query, so every write path
+      // must set it.
+      updated_at: FieldValue.serverTimestamp(),
     });
 
     return NextResponse.json({ saved: true, id: docRef.id }, { status: 200 });
