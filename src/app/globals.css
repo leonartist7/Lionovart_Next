@@ -352,6 +352,18 @@
 .animate-marquee-left  { animation: marquee-left  55s linear infinite; }
 .animate-marquee-right { animation: marquee-right 55s linear infinite; }
 
+/* Generic marquee primitive (src/components/ui/marquee.tsx) */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-100% - var(--gap))); }
+}
+@keyframes marquee-vertical {
+  from { transform: translateY(0); }
+  to   { transform: translateY(calc(-100% - var(--gap))); }
+}
+.animate-marquee          { animation: marquee var(--duration) linear infinite; }
+.animate-marquee-vertical { animation: marquee-vertical var(--duration) linear infinite; }
+
 /* =============================================
    Reduced Motion — AI Strategist
    ============================================= */
@@ -367,6 +379,11 @@
   .animate-marquee-right {
     animation: none !important;
     transform: translateX(0) !important;
+  }
+  .animate-marquee,
+  .animate-marquee-vertical {
+    animation: none !important;
+    transform: none !important;
   }
 }
 

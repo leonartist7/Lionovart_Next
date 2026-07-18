@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Marquee } from "@/components/ui/marquee";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 // Encode each path segment — folders contain spaces (some doubled) and & chars
@@ -362,7 +362,7 @@ function SmallContent({ card, isHovered }: { card: Review; isHovered: boolean })
 }
 
 // ─── Card wrapper — lazy-load + color highlight (no scale / glow) ───────────────
-function Card({ card, layout }: { card: Review; layout: "grid" | "marquee" }) {
+function Card({ card }: { card: Review }) {
   const [isHovered, setIsHovered] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const [preload, setPreload] = useState(false);
@@ -384,50 +384,59 @@ function Card({ card, layout }: { card: Review; layout: "grid" | "marquee" }) {
   }, []);
 
   const big = card.variant === "big";
-  const outer = layout === "grid" ? (big ? "col-span-2" : "col-span-1") : "shrink-0 w-[300px] h-[400px]";
 
-  const inner = (
+  return (
     <div
       ref={ref}
-      className="relative overflow-hidden rounded-2xl border border-white/[0.06] h-full min-h-[300px] shadow-[0_2px_12px_-2px_rgba(0,0,0,0.35)]"
+      className="relative shrink-0 w-[300px] h-[400px] overflow-hidden rounded-2xl border border-white/[0.06] shadow-[0_2px_12px_-2px_rgba(0,0,0,0.35)]"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {big ? (
-        <BigContent card={card} isHovered={isHovered} preload={preload} stacked={layout === "marquee"} />
+        <BigContent card={card} isHovered={isHovered} preload={preload} stacked />
       ) : (
         <SmallContent card={card} isHovered={isHovered} />
       )}
     </div>
   );
-
-  // Grid cards fade in on scroll; marquee cards render immediately (the row animates).
-  if (layout === "marquee") return <div className={outer}>{inner}</div>;
-
-  return (
-    <motion.div
-      className={outer}
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-    >
-      {inner}
-    </motion.div>
-  );
 }
 
-// ─── Arrow button (desktop pagination) ─────────────────────────────────────────
-function Arrow({ dir, onClick }: { dir: "prev" | "next"; onClick: () => void }) {
+// ─── Marquee card — compact, for the 3D perspective column marquee ────────────
+function MarqueeCard({ card }: { card: Review }) {
+  const avatar = card.image ?? card.logo;
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={dir === "prev" ? "Previous reviews" : "Next reviews"}
-      className="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center text-white/60 hover:text-white hover:border-white/40 hover:bg-white/5 transition-all duration-200"
-    >
-      {dir === "prev" ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-    </button>
+    <figure className="relative w-64 md:w-72 shrink-0 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 transition-colors duration-300 hover:bg-white/[0.06]">
+      <div className="flex items-center gap-3">
+        {avatar && (
+          <img
+            src={imgUrl(avatar)}
+            alt={card.name}
+            loading="lazy"
+            className={cn(
+              "w-9 h-9 rounded-full object-cover ring-1 ring-white/15 shrink-0",
+              !card.image && card.logo && "bg-white/90 object-contain p-1.5"
+            )}
+          />
+        )}
+        <div className="min-w-0">
+          <figcaption className="font-clash text-xs font-bold uppercase tracking-[0.08em] text-white truncate">
+            {card.name}
+          </figcaption>
+          <p className="font-body text-[11px] text-white/50 truncate">{card.role}</p>
+        </div>
+      </div>
+      <blockquote className="font-body mt-3 text-[13px] leading-relaxed text-white/80 line-clamp-4">
+        &ldquo;{card.quote}&rdquo;
+      </blockquote>
+      {card.stat && (
+        <div className="mt-3 flex items-baseline gap-1.5">
+          <span className="font-clash text-lg font-bold text-brand-gold leading-none">{card.stat}</span>
+          <span className="font-body text-[10px] uppercase tracking-[0.06em] text-white/50">
+            {card.statLabel}
+          </span>
+        </div>
+      )}
+    </figure>
   );
 }
 
@@ -466,7 +475,7 @@ function MobileMarquee() {
           style={{ animationPlayState: dragging || !inView ? "paused" : "running" }}
         >
           {track.map((card, i) => (
-            <Card key={`${card.id}-${i}`} card={card} layout="marquee" />
+            <Card key={`${card.id}-${i}`} card={card} />
           ))}
         </div>
       </motion.div>
@@ -483,9 +492,10 @@ export default function Testimonials(props: any) {
   const heading = props.heading || t.testimonials.heading;
   const headingAccent = props.headingAccent || "";
 
-  const [page, setPage] = useState(0);
-  const next = () => setPage((p) => (p + 1) % PAGES.length);
-  const prev = () => setPage((p) => (p - 1 + PAGES.length) % PAGES.length);
+  const col1 = ALL.slice(0, 5);
+  const col2 = ALL.slice(5, 10);
+  const col3 = ALL.slice(10, 15);
+  const col4 = ALL.slice(15, 20);
 
   return (
     <section id="testimonials" className="bg-bg-brand-black overflow-hidden">
@@ -519,30 +529,41 @@ export default function Testimonials(props: any) {
           </motion.h2>
         </div>
 
-        {/* Desktop (lg+) — paginated alternating bento */}
-        <div className="hidden lg:block">
-          <div className="flex items-center justify-end gap-4 mb-6">
-            <span className="font-body text-sm text-white/45 tabular-nums">
-              {page + 1} / {PAGES.length}
-            </span>
-            <div className="flex items-center gap-2">
-              <Arrow dir="prev" onClick={prev} />
-              <Arrow dir="next" onClick={next} />
-            </div>
+        {/* Desktop (lg+) — 3D perspective column marquee */}
+        <div className="hidden lg:flex relative h-[560px] w-full flex-row items-center justify-center gap-4 overflow-hidden [perspective:300px]">
+          <div
+            className="flex flex-row items-start gap-4 xl:gap-5"
+            style={{
+              transform:
+                "translateX(-60px) translateY(0px) translateZ(-100px) rotateX(20deg) rotateY(-10deg) rotateZ(20deg)",
+            }}
+          >
+            <Marquee vertical pauseOnHover repeat={3} className="[--duration:26s] [--gap:1.25rem]">
+              {col1.map((card) => (
+                <MarqueeCard key={card.id} card={card} />
+              ))}
+            </Marquee>
+            <Marquee vertical reverse pauseOnHover repeat={3} className="[--duration:30s] [--gap:1.25rem]">
+              {col2.map((card) => (
+                <MarqueeCard key={card.id} card={card} />
+              ))}
+            </Marquee>
+            <Marquee vertical reverse pauseOnHover repeat={3} className="[--duration:28s] [--gap:1.25rem]">
+              {col3.map((card) => (
+                <MarqueeCard key={card.id} card={card} />
+              ))}
+            </Marquee>
+            <Marquee vertical pauseOnHover repeat={3} className="[--duration:32s] [--gap:1.25rem]">
+              {col4.map((card) => (
+                <MarqueeCard key={card.id} card={card} />
+              ))}
+            </Marquee>
           </div>
 
-          {/* Keyed remount on page change → fade/slide in. */}
-          <motion.div
-            key={page}
-            className="grid grid-cols-4 auto-rows-[minmax(300px,1fr)] gap-4"
-            initial={{ opacity: 0, x: 28 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          >
-            {PAGES[page].map((card) => (
-              <Card key={card.id} card={card} layout="grid" />
-            ))}
-          </motion.div>
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-bg-brand-black to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-bg-brand-black to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-1/6 bg-gradient-to-r from-bg-brand-black to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-1/6 bg-gradient-to-l from-bg-brand-black to-transparent" />
         </div>
 
         {/* Mobile + tablet (<lg) — auto-scroll draggable marquee */}
