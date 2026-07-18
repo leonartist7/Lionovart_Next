@@ -103,7 +103,7 @@ export async function sendDossierEmail({
   `;
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: FROM,
       to: LEON_EMAIL,
       subject: `Lead dossier: ${leadName} (${qualificationScore}/100)`,
