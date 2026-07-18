@@ -1,7 +1,11 @@
 import "server-only";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend: Resend | null = null;
+function getResend() {
+  if (!resend) resend = new Resend(process.env.RESEND_API_KEY);
+  return resend;
+}
 const FROM = "Nova by LIONOVART <nova@nova.lionovart.com>";
 const LEON_EMAIL = "leonartist.cs@gmail.com";
 
@@ -40,7 +44,7 @@ export async function sendSessionSummaryEmail({
   `;
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: FROM,
       to: toEmail,
       cc: LEON_EMAIL,
