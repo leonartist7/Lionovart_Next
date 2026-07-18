@@ -76,7 +76,7 @@ export const es: Translations = {
     founderRole: "Director Creativo y de Negocios",
     founderStatus: "Disponible",
     stat1Label: "Años",
-    stat1Desc: "Expertise en innovación digital, marketing y medios impresos.",
+    stat1Desc: "Especialización en innovación digital, marketing y medios impresos.",
     stat2Label: "Países — Alcance Global",
     stat2Desc: "Un equipo multilingüe que sirve a clientes en 4 continentes.",
   },
