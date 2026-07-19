@@ -358,7 +358,7 @@ export const fr: Translations = {
   },
 
   services: {
-    eyebrow: "Ce Que Nous Faisons",
+    eyebrow: "Ce Qui Est Inclus",
     heading: "Nos",
     headingAccent: "Services",
     items: [
