@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValue } from "framer-motion";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Marquee } from "@/components/ui/marquee";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -29,14 +28,6 @@ type Review = {
   statLabel?: string;
   tone?: number; // small-card palette index
 };
-
-// Muted sunset tones — elegant, low-saturation. White text. Subtle gradient.
-const TONES = [
-  "linear-gradient(150deg,#a9542b 0%,#7c3922 100%)", // terracotta
-  "linear-gradient(150deg,#996020 0%,#6f3e19 100%)", // amber / ochre
-  "linear-gradient(150deg,#9c3f2c 0%,#682922 100%)", // rust
-  "linear-gradient(150deg,#8a4926 0%,#5d3220 100%)", // clay
-];
 
 // Each desktop page is ordered so the big card (col-span-2) alternates L / R / L:
 //   row1: big sm sm   row2: sm sm big   row3: big sm sm
@@ -231,255 +222,44 @@ const PAGES: Review[][] = [
 
 const ALL: Review[] = PAGES.flat();
 
-// ─── Shared bits ──────────────────────────────────────────────────────────────
-function Logo({ src, className = "" }: { src: string; className?: string }) {
-  return (
-    <img
-      src={imgUrl(src)}
-      alt="client logo"
-      loading="lazy"
-      className={`w-auto object-contain brightness-0 invert ${className}`}
-    />
-  );
-}
-
-function NameRole({ name, role }: { name: string; role: string }) {
-  return (
-    <div className="min-w-0">
-      <p className="font-clash text-[13px] md:text-[15px] font-bold uppercase tracking-[0.1em] text-white truncate">
-        {name}
-      </p>
-      <p className="font-body text-[11px] md:text-xs text-white/55 mt-0.5 truncate">{role}</p>
-    </div>
-  );
-}
-
-// ─── Big card — image-left (grid) / image-top (marquee) · quote on TOP ──────────
-function BigContent({
-  card,
-  isHovered,
-  preload,
-  stacked,
-}: {
-  card: Review;
-  isHovered: boolean;
-  preload: boolean;
-  stacked: boolean;
-}) {
-  return (
-    <div className={stacked ? "flex flex-col h-full" : "flex h-full"}>
-      <div
-        className={
-          stacked ? "h-[150px] w-full shrink-0 bg-cover bg-center" : "w-[38%] shrink-0 bg-cover bg-center"
-        }
-        style={{
-          backgroundImage: preload && card.image ? `url(${imgUrl(card.image)})` : undefined,
-          opacity: preload ? 1 : 0,
-          filter: isHovered ? "brightness(1.04)" : "brightness(0.85)",
-          transition: "filter 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.6s ease",
-        }}
-      />
-      <div className="flex flex-col flex-1 min-w-0 p-5 md:p-7 bg-[#0c0c0c]">
-        {/* Quote — top */}
-        <p className="font-body text-sm md:text-[15px] text-white/85 leading-relaxed flex-1 line-clamp-5">
-          &ldquo;{card.quote}&rdquo;
-        </p>
-        {/* Attribution — bottom */}
-        <div className="mt-5">
-          {card.stat && (
-            <div className="mb-3">
-              <span className="font-clash text-2xl md:text-3xl font-bold text-brand-gold leading-none">
-                {card.stat}
-              </span>{" "}
-              <span className="font-body text-xs text-white/60">{card.statLabel}</span>
-            </div>
-          )}
-          <div className="flex items-end justify-between gap-3">
-            <NameRole name={card.name} role={card.role} />
-            {card.logo && <Logo src={card.logo} className="h-7 md:h-8 max-w-[120px] shrink-0" />}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Small card — colored · quote on TOP, avatar + name on BOTTOM ───────────────
-function SmallContent({ card, isHovered }: { card: Review; isHovered: boolean }) {
-  return (
-    <div className="relative h-full">
-      <div
-        className="absolute inset-0"
-        style={{
-          background: TONES[card.tone ?? 0],
-          filter: isHovered ? "brightness(1.08)" : "brightness(1)",
-          transition: "filter 0.45s cubic-bezier(0.16,1,0.3,1)",
-        }}
-      />
-      {/* subtle top-left sheen for depth */}
-      <div
-        className="absolute inset-0"
-        style={{ background: "linear-gradient(150deg, rgba(255,255,255,0.08) 0%, transparent 42%)" }}
-      />
-      <div className="relative z-10 flex flex-col h-full p-5 md:p-6">
-        {/* Quote — top */}
-        <p className="font-body text-[13px] md:text-sm text-white/90 leading-relaxed flex-1 line-clamp-6">
-          &ldquo;{card.quote}&rdquo;
-        </p>
-        {/* Stat (optional) */}
-        {card.stat && (
-          <div className="flex items-baseline gap-2 mt-4">
-            <span className="font-clash text-2xl font-bold text-white leading-none">{card.stat}</span>
-            <span className="font-body text-[11px] text-white/70 uppercase tracking-[0.08em]">
-              {card.statLabel}
-            </span>
-          </div>
-        )}
-        {/* Avatar / logo + name — bottom */}
-        <div className="flex items-center gap-3 mt-4">
-          {card.image ? (
-            <img
-              src={imgUrl(card.image)}
-              alt={card.name}
-              loading="lazy"
-              className="w-11 h-11 rounded-full object-cover ring-2 ring-white/25 shrink-0"
-            />
-          ) : card.logo ? (
-            <div className="w-11 h-11 rounded-full bg-white/90 ring-2 ring-white/25 flex items-center justify-center p-2 shrink-0">
-              <img
-                src={imgUrl(card.logo)}
-                alt={card.name}
-                loading="lazy"
-                className="max-w-full max-h-full object-contain"
-              />
-            </div>
-          ) : null}
-          <NameRole name={card.name} role={card.role} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Card wrapper — lazy-load + color highlight (no scale / glow) ───────────────
-function Card({ card }: { card: Review }) {
-  const [isHovered, setIsHovered] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const [preload, setPreload] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setPreload(true);
-          io.disconnect();
-        }
-      },
-      { rootMargin: "800px 0px" }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
-  const big = card.variant === "big";
-
-  return (
-    <div
-      ref={ref}
-      className="relative shrink-0 w-[300px] h-[400px] overflow-hidden rounded-2xl border border-white/[0.06] shadow-[0_2px_12px_-2px_rgba(0,0,0,0.35)]"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {big ? (
-        <BigContent card={card} isHovered={isHovered} preload={preload} stacked />
-      ) : (
-        <SmallContent card={card} isHovered={isHovered} />
-      )}
-    </div>
-  );
-}
-
 // ─── Marquee card — compact, for the 3D perspective column marquee ────────────
 function MarqueeCard({ card }: { card: Review }) {
   const avatar = card.image ?? card.logo;
   return (
-    <figure className="relative w-64 md:w-72 shrink-0 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 transition-colors duration-300 hover:bg-white/[0.06]">
-      <div className="flex items-center gap-3">
+    <figure className="relative w-36 sm:w-48 md:w-60 lg:w-72 shrink-0 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-3 sm:p-4 lg:p-5 transition-colors duration-300 hover:bg-white/[0.06]">
+      <div className="flex items-center gap-2 sm:gap-3">
         {avatar && (
           <img
             src={imgUrl(avatar)}
             alt={card.name}
             loading="lazy"
             className={cn(
-              "w-9 h-9 rounded-full object-cover ring-1 ring-white/15 shrink-0",
+              "w-7 h-7 sm:w-9 sm:h-9 rounded-full object-cover ring-1 ring-white/15 shrink-0",
               !card.image && card.logo && "bg-white/90 object-contain p-1.5"
             )}
           />
         )}
         <div className="min-w-0">
-          <figcaption className="font-clash text-xs font-bold uppercase tracking-[0.08em] text-white truncate">
+          <figcaption className="font-clash text-[11px] sm:text-xs font-bold uppercase tracking-[0.08em] text-white truncate">
             {card.name}
           </figcaption>
-          <p className="font-body text-[11px] text-white/50 truncate">{card.role}</p>
+          <p className="font-body text-[10px] sm:text-[11px] text-white/50 truncate">{card.role}</p>
         </div>
       </div>
-      <blockquote className="font-body mt-3 text-[13px] leading-relaxed text-white/80 line-clamp-4">
+      <blockquote className="font-body mt-2 sm:mt-3 text-xs sm:text-[13px] leading-relaxed text-white/80 line-clamp-4">
         &ldquo;{card.quote}&rdquo;
       </blockquote>
       {card.stat && (
-        <div className="mt-3 flex items-baseline gap-1.5">
-          <span className="font-clash text-lg font-bold text-brand-gold leading-none">{card.stat}</span>
-          <span className="font-body text-[10px] uppercase tracking-[0.06em] text-white/50">
+        <div className="mt-2 sm:mt-3 flex items-baseline gap-1.5">
+          <span className="font-clash text-base sm:text-lg font-bold text-brand-gold leading-none">
+            {card.stat}
+          </span>
+          <span className="font-body text-[9px] sm:text-[10px] uppercase tracking-[0.06em] text-white/50">
             {card.statLabel}
           </span>
         </div>
       )}
     </figure>
-  );
-}
-
-// ─── Mobile / tablet — auto-scroll draggable marquee ───────────────────────────
-function MobileMarquee() {
-  const dragX = useMotionValue(0);
-  const [dragging, setDragging] = useState(false);
-  const rowRef = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
-
-  // Pause the infinite marquee while offscreen (the duplicated track is wide).
-  useEffect(() => {
-    const el = rowRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { rootMargin: "100px" });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
-  const track = [...ALL, ...ALL]; // duplicate for a seamless loop
-
-  return (
-    <div ref={rowRef} className="lg:hidden overflow-hidden" data-lenis-prevent>
-      <motion.div
-        style={{ x: dragX }}
-        drag="x"
-        dragMomentum={false}
-        dragElastic={0.04}
-        onDragStart={() => setDragging(true)}
-        onDragEnd={() => setDragging(false)}
-        whileTap={{ cursor: "grabbing" }}
-        className="w-max cursor-grab"
-      >
-        <div
-          className={cn("flex gap-4 w-max will-change-transform animate-marquee-left")}
-          style={{ animationPlayState: dragging || !inView ? "paused" : "running" }}
-        >
-          {track.map((card, i) => (
-            <Card key={`${card.id}-${i}`} card={card} />
-          ))}
-        </div>
-      </motion.div>
-    </div>
   );
 }
 
@@ -529,35 +309,39 @@ export default function Testimonials(props: any) {
           </motion.h2>
         </div>
 
-        {/* Desktop (lg+) — 3D perspective column marquee */}
-        <div className="hidden lg:flex relative h-[560px] w-full flex-row items-center justify-center gap-4 overflow-hidden [perspective:300px]">
+        {/* 3D perspective column marquee — all devices; 2 columns on mobile, up to 4 on lg+ */}
+        <div className="relative flex h-[380px] sm:h-[440px] md:h-[500px] lg:h-[560px] w-full flex-row items-center justify-center gap-3 sm:gap-4 overflow-hidden [perspective:300px]">
           <div
-            className="flex flex-row items-start gap-4 xl:gap-5"
+            className="flex flex-row items-start gap-3 sm:gap-4 xl:gap-5"
             style={{
               transform:
-                "translateX(-60px) translateY(0px) translateZ(-100px) rotateX(20deg) rotateY(-10deg) rotateZ(20deg)",
+                "translateX(-30px) translateY(0px) translateZ(-100px) rotateX(20deg) rotateY(-10deg) rotateZ(20deg)",
             }}
           >
-            <Marquee vertical pauseOnHover repeat={3} className="[--duration:26s] [--gap:1.25rem]">
+            <Marquee vertical pauseOnHover repeat={3} className="[--duration:26s] [--gap:1rem]">
               {col1.map((card) => (
                 <MarqueeCard key={card.id} card={card} />
               ))}
             </Marquee>
-            <Marquee vertical reverse pauseOnHover repeat={3} className="[--duration:30s] [--gap:1.25rem]">
+            <Marquee vertical reverse pauseOnHover repeat={3} className="[--duration:30s] [--gap:1rem]">
               {col2.map((card) => (
                 <MarqueeCard key={card.id} card={card} />
               ))}
             </Marquee>
-            <Marquee vertical reverse pauseOnHover repeat={3} className="[--duration:28s] [--gap:1.25rem]">
-              {col3.map((card) => (
-                <MarqueeCard key={card.id} card={card} />
-              ))}
-            </Marquee>
-            <Marquee vertical pauseOnHover repeat={3} className="[--duration:32s] [--gap:1.25rem]">
-              {col4.map((card) => (
-                <MarqueeCard key={card.id} card={card} />
-              ))}
-            </Marquee>
+            <div className="hidden sm:flex">
+              <Marquee vertical reverse pauseOnHover repeat={3} className="[--duration:28s] [--gap:1rem]">
+                {col3.map((card) => (
+                  <MarqueeCard key={card.id} card={card} />
+                ))}
+              </Marquee>
+            </div>
+            <div className="hidden lg:flex">
+              <Marquee vertical pauseOnHover repeat={3} className="[--duration:32s] [--gap:1.25rem]">
+                {col4.map((card) => (
+                  <MarqueeCard key={card.id} card={card} />
+                ))}
+              </Marquee>
+            </div>
           </div>
 
           <div className="pointer-events-none absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-bg-brand-black to-transparent" />
@@ -565,9 +349,6 @@ export default function Testimonials(props: any) {
           <div className="pointer-events-none absolute inset-y-0 left-0 w-1/6 bg-gradient-to-r from-bg-brand-black to-transparent" />
           <div className="pointer-events-none absolute inset-y-0 right-0 w-1/6 bg-gradient-to-l from-bg-brand-black to-transparent" />
         </div>
-
-        {/* Mobile + tablet (<lg) — auto-scroll draggable marquee */}
-        <MobileMarquee />
 
       </div>
     </section>
