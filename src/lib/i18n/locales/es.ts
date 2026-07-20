@@ -333,7 +333,7 @@ export const es: Translations = {
         role: "Propietaria, Maison Verre à Annecy, Francia",
       },
       {
-        quote: "No tenía confianza para entregar mi tarjeta de visita y no sabía qué publicar en Instagram durante dos años. Gracias León por reconstruir toda mi identidad de marca — recuperé mi confianza y ahora sé qué decir cuando alguien me pregunta a qué me dedico. Eso vale más que el dinero. ¡Gracias!",
+        quote: "No tenía confianza para entregar mi tarjeta de visita y no sabía qué publicar en Instagram durante dos años. Gracias Leon por reconstruir toda mi identidad de marca — recuperé mi confianza y ahora sé qué decir cuando alguien me pregunta a qué me dedico. Eso vale más que el dinero. ¡Gracias!",
         author: "Sofia Alvarez",
         role: "Fundadora, Luminous Skin Studio – Reino Unido",
       },
@@ -356,7 +356,7 @@ export const es: Translations = {
   },
 
   services: {
-    eyebrow: "Lo Que Hacemos",
+    eyebrow: "Lo Que Incluye",
     heading: "Nuestros",
     headingAccent: "Servicios",
     items: [
