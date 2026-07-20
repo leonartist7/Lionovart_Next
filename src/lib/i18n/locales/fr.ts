@@ -162,7 +162,7 @@ export const fr: Translations = {
       {
         question: "Proposez-vous un suivi après le lancement ?",
         answer:
-          "Oui, nous proposons des forfaits de retainer pour un support continu en design, développement et marketing afin que votre marque continue de se développer après le lancement.",
+          "Oui, nous proposons des forfaits d'accompagnement pour un suivi continu en design, développement et marketing afin que votre marque continue de se développer après le lancement.",
       },
       {
         question: "Sur quelles plateformes construisez-vous les sites web ?",
@@ -226,7 +226,7 @@ export const fr: Translations = {
           body: "Des moteurs de recherche aux réseaux sociaux, nous faisons en sorte que les bonnes personnes vous trouvent — de manière constante et aux bons endroits.",
           stats: [
             { value: "+70%", label: "De Réservations Directes — Résultat Client Réel" },
-            { value: "5x", label: "Plus de Leads Qualifiés en Moyenne" },
+            { value: "5x", label: "Plus de Prospects Qualifiés en Moyenne" },
             { value: "82%", label: "Du Trafic Internet Est Maintenant Vidéo" },
           ],
         },
@@ -240,7 +240,7 @@ export const fr: Translations = {
           heading: "Votre Équipe Créative & Digitale Complète — À Un Appel",
           body: "Marque, web, vidéo, réseaux, impression, IA — tout est géré. Concentrez-vous sur votre entreprise. Nous gérons son image, son son et sa croissance.",
           stats: [
-            { value: "24/7", label: "Systèmes IA Capturant des Leads pour Vous" },
+            { value: "24/7", label: "Systèmes IA Capturant des Prospects pour Vous" },
             { value: "15h+", label: "Économisées par Semaine en Moyenne" },
             { value: "100%", label: "Des Partenaires Ont Multiplié Leur ROI" },
           ],
@@ -335,9 +335,9 @@ export const fr: Translations = {
         role: "Propriétaire, Maison Verre à Annecy, France",
       },
       {
-        quote: "Je n'étais pas assez confiante pour distribuer ma carte de visite et je ne savais pas quoi publier sur Instagram pendant deux ans. Merci Leon d'avoir reconstruit toute mon identité de marque, j'ai retrouvé ma confiance et maintenant je sais quoi répondre quand on me demande ce que je fais. Ça vaut plus que de l'argent, gracias !",
+        quote: "Je n'étais pas assez confiante pour distribuer ma carte de visite et je ne savais pas quoi publier sur Instagram pendant deux ans. Merci Leon d'avoir reconstruit toute mon identité de marque, j'ai retrouvé ma confiance et maintenant je sais quoi répondre quand on me demande ce que je fais. Ça vaut plus que de l'argent, merci !",
         author: "Sofia Alvarez",
-        role: "Fondatrice, Luminous Skin Studio – UK",
+        role: "Fondatrice, Luminous Skin Studio – Royaume-Uni",
       },
       {
         quote: "L'agent vocal qu'ils ont mis en place pour nous gère les appels en dehors des heures d'ouverture, qualifie les prospects et réserve des visites directement dans mon calendrier. J'ai reçu un appel dimanche dernier pendant que je dînais avec mes enfants - sauf que je n'y ai pas répondu, car c'était déjà géré. Ce système unique rentabilise tout le reste de ce que nous faisons avec eux.",
