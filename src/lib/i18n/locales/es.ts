@@ -356,7 +356,7 @@ export const es: Translations = {
   },
 
   services: {
-    eyebrow: "Lo Que Hacemos",
+    eyebrow: "Lo Que Incluye",
     heading: "Nuestros",
     headingAccent: "Servicios",
     items: [
