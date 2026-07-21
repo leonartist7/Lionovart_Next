@@ -8,17 +8,30 @@ import ProcessBand from "@/components/sections/services/_shared/ProcessBand";
 import OfferCards from "@/components/sections/services/_shared/OfferCards";
 import ProofAndClose from "@/components/sections/services/_shared/ProofAndClose";
 import DeviceBuildScene from "@/components/sections/services/web/DeviceBuildScene";
+import { JsonLd } from "@/lib/seo/JsonLd";
+import { serviceSchema, breadcrumbSchema } from "@/lib/seo/schema";
 
 export const metadata: Metadata = {
-  title: "Web & App Development",
+  title: "Web Design & App Development",
   description:
-    "Fast, conversion-focused websites and apps with UI/UX, CMS, e-commerce, and SEO. Sites that turn visitors into booked calls.",
+    "Fast, conversion-focused websites and apps with UI/UX, CMS, e-commerce, and SEO. Custom web design for Calgary businesses that turns visitors into booked calls.",
+  alternates: { canonical: "/services/web" },
 };
 
 /** /services/web — Tier-2 flagship. Signature: a site that builds itself on scroll. */
 export default function WebServicePage() {
   return (
     <>
+      <JsonLd
+        data={[
+          serviceSchema("web")!,
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Services", path: "/services" },
+            { name: "Web & App Design & Development", path: "/services/web" },
+          ]),
+        ]}
+      />
       <main className="bg-bg-dark min-h-screen relative z-10">
         <Navbar />
         <ServiceCurtainHero
