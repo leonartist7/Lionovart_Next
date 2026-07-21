@@ -9,6 +9,9 @@ const LANGUAGES: { code: Locale; label: string; flag: string }[] = [
   { code: "en", label: "EN", flag: "https://flagcdn.com/w40/ca.png" },
   { code: "fr", label: "FR", flag: "https://flagcdn.com/w40/fr.png" },
   { code: "es", label: "ES", flag: "https://flagcdn.com/w40/es.png" },
+  { code: "it", label: "IT", flag: "https://flagcdn.com/w40/it.png" },
+  { code: "ja", label: "JA", flag: "https://flagcdn.com/w40/jp.png" },
+  { code: "ko", label: "KO", flag: "https://flagcdn.com/w40/kr.png" },
 ];
 
 export function LanguageSwitcher({ isHeroMode }: { isHeroMode?: boolean }) {
