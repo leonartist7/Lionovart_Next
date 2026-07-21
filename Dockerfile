@@ -82,7 +82,8 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/server.js ./server.js
+# Custom server files are not bundled or dependency-traced by Next.js.
+COPY --from=builder /app/server.js /app/ws-auth.js /app/nova-agent-config.js ./
 
 # Ensure permissions are correct
 RUN chown -R nextjs:nodejs /app/.next
