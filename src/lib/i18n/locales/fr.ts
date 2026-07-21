@@ -53,7 +53,7 @@ export const fr: Translations = {
     badges: {
       brands: ["Marques", "propulsées"],
       experience: ["Expérience", "Client"],
-      countries: "PAYS",
+      countries: "Pays",
     },
   },
 
@@ -358,7 +358,7 @@ export const fr: Translations = {
   },
 
   services: {
-    eyebrow: "Ce Que Nous Faisons",
+    eyebrow: "Ce Qui Est Inclus",
     heading: "Nos",
     headingAccent: "Services",
     items: [

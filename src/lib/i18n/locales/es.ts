@@ -292,8 +292,9 @@ export const es: Translations = {
     },
     branding: {
       hookLines: [
-        "Tu marca es lo primero que la gente juzga",
-        "— y lo último que olvidan.",
+        "Tu marca es lo primero",
+        "que la gente juzga — y lo último",
+        "que olvidan.",
       ],
       statLabel: "de aumento en valor percibido tras el rebrand — Lucidpress",
     },
@@ -356,7 +357,7 @@ export const es: Translations = {
   },
 
   services: {
-    eyebrow: "Lo Que Hacemos",
+    eyebrow: "Lo Que Incluye",
     heading: "Nuestros",
     headingAccent: "Servicios",
     items: [
