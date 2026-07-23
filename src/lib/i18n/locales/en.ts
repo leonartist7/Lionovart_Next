@@ -316,7 +316,7 @@ export const en = {
 
   testimonials: {
     eyebrow: "Client Testimonials",
-    heading: "In Their Words",
+    heading: "More Successful Results.",
     subheading:
       "Don't take our word for it. Hear from founders and directors who transformed their brand and business with us.",
     hooks: [

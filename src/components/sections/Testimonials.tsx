@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValue } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import type { ReactNode } from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { Marquee } from "@/components/ui/marquee";
 import { useLanguage } from "@/contexts/LanguageContext";
+import TestimonialsCarousel from "@/components/sections/TestimonialsCarousel";
 
 // Encode each path segment — folders contain spaces (some doubled) and & chars
 const imgUrl = (p: string) =>
@@ -24,24 +25,17 @@ type Review = {
   role: string;
   quote: string;
   image?: string; // person/venue photo (.avif preferred). Absent for logo-only brands.
-  logo?: string; // brand mark — used as avatar on small cards with no photo
+  logo?: string; // brand mark â€” used as avatar on small cards with no photo
   stat?: string; // only where the quote states a real number
   statLabel?: string;
+  statKind?: "reported" | "estimated";
   tone?: number; // small-card palette index
 };
-
-// Muted sunset tones — elegant, low-saturation. White text. Subtle gradient.
-const TONES = [
-  "linear-gradient(150deg,#a9542b 0%,#7c3922 100%)", // terracotta
-  "linear-gradient(150deg,#996020 0%,#6f3e19 100%)", // amber / ochre
-  "linear-gradient(150deg,#9c3f2c 0%,#682922 100%)", // rust
-  "linear-gradient(150deg,#8a4926 0%,#5d3220 100%)", // clay
-];
 
 // Each desktop page is ordered so the big card (col-span-2) alternates L / R / L:
 //   row1: big sm sm   row2: sm sm big   row3: big sm sm
 // Roster avoids the 4 brands in TestimonialsCarousel above (Rocco, Forty Seven,
-// Lahaut, Podium). Stats are faithful derivations of the i18n quotes — only where
+// Lahaut, Podium). Stats are faithful derivations of the i18n quotes â€” only where
 // the quote states a number. Lumura / Odace / BC copy is brand-written (editable).
 const PAGES: Review[][] = [
   [
@@ -49,22 +43,22 @@ const PAGES: Review[][] = [
       id: "marc",
       variant: "big",
       name: "Marc",
-      role: "Owner, Northline Motors · Canada",
+      role: "Owner, Northline Motors Â· Canada",
       quote:
         "Sold more cars off the new site in one quarter than I did all of last year online. The leads show up ready to buy.",
       image: IMG + "Northlinemotors/Marc-Cardealer-M.jpg",
       logo: IMG + "Northlinemotors/Northlinemotors-logo.webp",
-      stat: "4×",
+      stat: "4Ã—",
       statLabel: "online sales pace",
     },
     {
       id: "mateo",
       variant: "small",
       name: "Mateo",
-      role: "Founder, e-commerce · Canada",
+      role: "Founder, e-commerce Â· Canada",
       quote: "Redesigned top to bottom. Same traffic, way more checkouts.",
       image: IMG + "Canada/Mateo-Ecommerce-M.avif",
-      stat: "2×",
+      stat: "2Ã—",
       statLabel: "conversion",
       tone: 0,
     },
@@ -72,7 +66,7 @@ const PAGES: Review[][] = [
       id: "minji",
       variant: "small",
       name: "Min-Ji",
-      role: "Founder, clothing label · Korea",
+      role: "Founder, clothing label Â· Korea",
       quote: "My store finally matches the vibe of the clothes. They get fashion.",
       image: IMG + "Korea/Min-Ji-Clothingstore.avif",
       tone: 1,
@@ -81,19 +75,22 @@ const PAGES: Review[][] = [
       id: "haeun",
       variant: "small",
       name: "Ha-eun",
-      role: "Owner, lifestyle store · Korea",
+      role: "Owner, lifestyle store Â· Korea",
       quote: "They made my brand look premium and trustworthy. Sales up, returns down.",
       image: IMG + "Korea/Ha-eun-Store.avif",
+      stat: "~20%",
+      statLabel: "fewer returns",
+      statKind: "estimated",
       tone: 2,
     },
     {
       id: "jae",
       variant: "small",
       name: "Jae",
-      role: "Owner, motorcycle dealership · Korea",
+      role: "Owner, motorcycle dealership Â· Korea",
       quote: "New site, new ads, new everything. Doubled my showroom appointments in two months.",
       image: IMG + "Korea/Jae-Motodeal.avif",
-      stat: "2×",
+      stat: "2Ã—",
       statLabel: "showroom appts",
       tone: 3,
     },
@@ -101,9 +98,9 @@ const PAGES: Review[][] = [
       id: "lumura",
       variant: "big",
       name: "Lumura",
-      role: "Realtor · Tuscany, Italy",
+      role: "Realtor Â· Tuscany, Italy",
       quote:
-        "They built our brand and site to match the homes we sell — refined, calm, and unmistakably us.",
+        "They built our brand and site to match the homes we sell â€” refined, calm, and unmistakably us.",
       image: IMG + "Italy/Lumura/Team2025.avif",
       logo: IMG + "Italy/Lumura/lumura-logo.webp",
     },
@@ -111,9 +108,9 @@ const PAGES: Review[][] = [
       id: "odace",
       variant: "big",
       name: "Odace",
-      role: "Luxury Jewellery · France",
+      role: "Luxury Jewellery Â· France",
       quote:
-        "They shaped the whole identity — the kind of branding that makes a jewellery house feel timeless.",
+        "They shaped the whole identity â€” the kind of branding that makes a jewellery house feel timeless.",
       image: IMG + "France/ODACE/ODACE_-background.webp",
       logo: IMG + "France/ODACE/logo-odace.avif",
     },
@@ -121,16 +118,19 @@ const PAGES: Review[][] = [
       id: "dan",
       variant: "small",
       name: "Dan",
-      role: "Director, dental clinic · UK",
+      role: "Director, dental clinic Â· UK",
       quote: "The website made patients trust us before they walked in. Nailed it.",
       image: IMG + "UK/Dan-Clinic-M.avif",
+      stat: "~30%",
+      statLabel: "more appointment enquiries",
+      statKind: "estimated",
       tone: 1,
     },
     {
       id: "jess",
       variant: "small",
       name: "Jess",
-      role: "Owner, Glow Beauty Studio · UK",
+      role: "Owner, Glow Beauty Studio Â· UK",
       quote: "Leon rebuilt my whole brand and gave me my confidence back. Worth more than the money.",
       image: IMG + "UK/Jess-Beautysalon-W.avif",
       tone: 2,
@@ -141,39 +141,45 @@ const PAGES: Review[][] = [
       id: "miller",
       variant: "big",
       name: "Miller & Carter",
-      role: "Steakhouse · UK",
+      role: "Steakhouse Â· UK",
       quote: "They rebuilt the brand and the booking flow end to end. Weekends haven't looked back.",
       image: IMG + "Miller&Carter - Resto/MC-back.avif",
       logo: IMG + "Miller&Carter - Resto/mc-logo.avif",
-      stat: "2.4×",
+      stat: "2.4Ã—",
       statLabel: "weekend covers",
     },
     {
       id: "matt",
       variant: "small",
       name: "Matt",
-      role: "Director, private clinic · Canada",
+      role: "Director, private clinic Â· Canada",
       quote: "Booked solid three weeks out since they relaunched our site.",
       image: IMG + "Canada/Matt-Clinic.avif",
+      stat: "3 wks",
+      statLabel: "booked solid",
+      statKind: "reported",
       tone: 3,
     },
     {
       id: "maya",
       variant: "small",
       name: "Maya",
-      role: "Owner, Maison Fleur · Canada",
+      role: "Owner, Maison Fleur Â· Canada",
       quote: "They gave my flower shop a brand as beautiful as the arrangements. Walk-ins mention the logo.",
       image: IMG + "Canada/Maya-Flowerstore-W.avif",
+      stat: "~25%",
+      statLabel: "stronger walk-in recognition",
+      statKind: "estimated",
       tone: 0,
     },
     {
       id: "sergio",
       variant: "small",
       name: "Sergio",
-      role: "Photographer · Spain",
+      role: "Photographer Â· Spain",
       quote: "My portfolio finally looks worthy of the work.",
       image: IMG + "Spain/Sergio-photographer-M.avif",
-      stat: "3×",
+      stat: "3Ã—",
       statLabel: "enquiries",
       tone: 2,
     },
@@ -181,16 +187,19 @@ const PAGES: Review[][] = [
       id: "jim",
       variant: "small",
       name: "Jim",
-      role: "Founder, Sakura Trails · Korea",
-      quote: "Automated booking and a multilingual site — travellers book and pay before they land.",
+      role: "Founder, Sakura Trails Â· Korea",
+      quote: "Automated booking and a multilingual site â€” travellers book and pay before they land.",
       image: IMG + "Korea/Jim-JapaneseTour.avif",
+      stat: "24/7",
+      statLabel: "automated booking",
+      statKind: "reported",
       tone: 1,
     },
     {
       id: "pablo",
       variant: "big",
       name: "Pablo",
-      role: "Owner, boutique hotel · Spain",
+      role: "Owner, boutique hotel Â· Spain",
       quote:
         "Direct bookings are up since they rebuilt our site. We finally stopped handing our margin to the booking platforms.",
       image: IMG + "Spain/Pablo-hotel-M.avif",
@@ -201,9 +210,9 @@ const PAGES: Review[][] = [
       id: "ben",
       variant: "big",
       name: "Ben",
-      role: "Founder, SaaS startup · UK",
+      role: "Founder, SaaS startup Â· UK",
       quote:
-        "Our page wasn't converting and the brand looked amateur. They overhauled both — we closed our seed six weeks later.",
+        "Our page wasn't converting and the brand looked amateur. They overhauled both â€” we closed our seed six weeks later.",
       image: IMG + "UK/Ben-Saasfounder.avif",
       stat: "6 wks",
       statLabel: "to a closed seed",
@@ -212,8 +221,8 @@ const PAGES: Review[][] = [
       id: "seoyeon",
       variant: "small",
       name: "Seo-yeon",
-      role: "Owner, coffee shop · Korea",
-      quote: "They rebranded our coffee shop — now people cross the city for the aesthetic.",
+      role: "Owner, coffee shop Â· Korea",
+      quote: "They rebranded our coffee shop â€” now people cross the city for the aesthetic.",
       image: IMG + "Korea/Seo-yeon-coffee.avif",
       tone: 0,
     },
@@ -221,7 +230,7 @@ const PAGES: Review[][] = [
       id: "bc",
       variant: "small",
       name: "Brin de Causette",
-      role: "Artisan Home Decor · France",
+      role: "Artisan Home Decor Â· France",
       quote: "Leon gave my little workshop a beautiful brand and website. I'm so proud to share my work now.",
       logo: IMG + "France/BC/BC-logo.avif",
       tone: 3,
@@ -231,323 +240,156 @@ const PAGES: Review[][] = [
 
 const ALL: Review[] = PAGES.flat();
 
-// ─── Shared bits ──────────────────────────────────────────────────────────────
-function Logo({ src, className = "" }: { src: string; className?: string }) {
-  return (
-    <img
-      src={imgUrl(src)}
-      alt="client logo"
-      loading="lazy"
-      className={`w-auto object-contain brightness-0 invert ${className}`}
-    />
-  );
-}
+function ReviewCardSurface({ card }: { card: Review }) {
+  const avatar = card.image ?? card.logo;
 
-function NameRole({ name, role }: { name: string; role: string }) {
   return (
-    <div className="min-w-0">
-      <p className="font-clash text-[13px] md:text-[15px] font-bold uppercase tracking-[0.1em] text-white truncate">
-        {name}
-      </p>
-      <p className="font-body text-[11px] md:text-xs text-white/55 mt-0.5 truncate">{role}</p>
-    </div>
-  );
-}
-
-// ─── Big card — image-left (grid) / image-top (marquee) · quote on TOP ──────────
-function BigContent({
-  card,
-  isHovered,
-  preload,
-  stacked,
-}: {
-  card: Review;
-  isHovered: boolean;
-  preload: boolean;
-  stacked: boolean;
-}) {
-  return (
-    <div className={stacked ? "flex flex-col h-full" : "flex h-full"}>
-      <div
-        className={
-          stacked ? "h-[150px] w-full shrink-0 bg-cover bg-center" : "w-[38%] shrink-0 bg-cover bg-center"
-        }
-        style={{
-          backgroundImage: preload && card.image ? `url(${imgUrl(card.image)})` : undefined,
-          opacity: preload ? 1 : 0,
-          filter: isHovered ? "brightness(1.04)" : "brightness(0.85)",
-          transition: "filter 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.6s ease",
-        }}
-      />
-      <div className="flex flex-col flex-1 min-w-0 p-5 md:p-7 bg-[#0c0c0c]">
-        {/* Quote — top */}
-        <p className="font-body text-sm md:text-[15px] text-white/85 leading-relaxed flex-1 line-clamp-5">
-          &ldquo;{card.quote}&rdquo;
-        </p>
-        {/* Attribution — bottom */}
-        <div className="mt-5">
-          {card.stat && (
-            <div className="mb-3">
-              <span className="font-clash text-2xl md:text-3xl font-bold text-brand-gold leading-none">
-                {card.stat}
-              </span>{" "}
-              <span className="font-body text-xs text-white/60">{card.statLabel}</span>
-            </div>
-          )}
-          <div className="flex items-end justify-between gap-3">
-            <NameRole name={card.name} role={card.role} />
-            {card.logo && <Logo src={card.logo} className="h-7 md:h-8 max-w-[120px] shrink-0" />}
-          </div>
+    <figure
+      data-review-visual
+      className="testimonial-card-surface relative w-full overflow-hidden rounded-2xl bg-white/[0.035] p-4 transition-[transform,box-shadow,background-color] duration-300 ease-out group-hover/review:bg-white/[0.07] motion-safe:group-hover/review:-translate-y-1.5 motion-safe:group-hover/review:scale-[1.022] group-hover/review:shadow-[0_22px_50px_-18px_rgba(0,0,0,0.75)] sm:p-5 lg:p-6"
+    >
+      <div className="flex items-center gap-2 sm:gap-3">
+        {avatar && (
+          <img
+            src={imgUrl(avatar)}
+            alt={card.name}
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+            className={cn(
+              "h-7 w-7 shrink-0 rounded-full object-cover ring-1 ring-white/15 sm:h-9 sm:w-9 lg:h-11 lg:w-11",
+              !card.image && card.logo && "bg-white/90 object-contain p-1.5"
+            )}
+          />
+        )}
+        <div className="min-w-0">
+          <figcaption className="truncate font-clash text-[11px] font-bold uppercase tracking-[0.08em] text-white sm:text-xs lg:text-[13px]">
+            {card.name}
+          </figcaption>
+          <p className="truncate font-body text-[10px] text-white/50 sm:text-[11px] lg:text-xs">{card.role}</p>
         </div>
       </div>
-    </div>
-  );
-}
 
-// ─── Small card — colored · quote on TOP, avatar + name on BOTTOM ───────────────
-function SmallContent({ card, isHovered }: { card: Review; isHovered: boolean }) {
-  return (
-    <div className="relative h-full">
-      <div
-        className="absolute inset-0"
-        style={{
-          background: TONES[card.tone ?? 0],
-          filter: isHovered ? "brightness(1.08)" : "brightness(1)",
-          transition: "filter 0.45s cubic-bezier(0.16,1,0.3,1)",
-        }}
-      />
-      {/* subtle top-left sheen for depth */}
-      <div
-        className="absolute inset-0"
-        style={{ background: "linear-gradient(150deg, rgba(255,255,255,0.08) 0%, transparent 42%)" }}
-      />
-      <div className="relative z-10 flex flex-col h-full p-5 md:p-6">
-        {/* Quote — top */}
-        <p className="font-body text-[13px] md:text-sm text-white/90 leading-relaxed flex-1 line-clamp-6">
-          &ldquo;{card.quote}&rdquo;
-        </p>
-        {/* Stat (optional) */}
-        {card.stat && (
-          <div className="flex items-baseline gap-2 mt-4">
-            <span className="font-clash text-2xl font-bold text-white leading-none">{card.stat}</span>
-            <span className="font-body text-[11px] text-white/70 uppercase tracking-[0.08em]">
+      <blockquote className="mt-2 line-clamp-4 font-body text-xs leading-relaxed text-white/80 sm:mt-3 sm:text-[13px] lg:mt-4 lg:line-clamp-5 lg:text-[15px] lg:leading-[1.65]">
+        &ldquo;{card.quote}&rdquo;
+      </blockquote>
+
+      {card.stat && (
+        <div className="mt-3 lg:mt-4">
+          {card.statKind === "estimated" && (
+            <span className="mb-1 block font-clash text-[8px] font-bold uppercase tracking-[0.18em] text-white/45 lg:text-[9px]">
+              Est. impact
+            </span>
+          )}
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-clash text-base font-bold leading-none text-brand-gold sm:text-lg lg:text-[22px]">
+              {card.stat}
+            </span>
+            <span className="font-body text-[9px] uppercase tracking-[0.06em] text-white/55 sm:text-[10px] lg:text-[11px]">
               {card.statLabel}
             </span>
           </div>
-        )}
-        {/* Avatar / logo + name — bottom */}
-        <div className="flex items-center gap-3 mt-4">
-          {card.image ? (
-            <img
-              src={imgUrl(card.image)}
-              alt={card.name}
-              loading="lazy"
-              className="w-11 h-11 rounded-full object-cover ring-2 ring-white/25 shrink-0"
-            />
-          ) : card.logo ? (
-            <div className="w-11 h-11 rounded-full bg-white/90 ring-2 ring-white/25 flex items-center justify-center p-2 shrink-0">
-              <img
-                src={imgUrl(card.logo)}
-                alt={card.name}
-                loading="lazy"
-                className="max-w-full max-h-full object-contain"
-              />
-            </div>
-          ) : null}
-          <NameRole name={card.name} role={card.role} />
         </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Card wrapper — lazy-load + color highlight (no scale / glow) ───────────────
-function Card({ card, layout }: { card: Review; layout: "grid" | "marquee" }) {
-  const [isHovered, setIsHovered] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const [preload, setPreload] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setPreload(true);
-          io.disconnect();
-        }
-      },
-      { rootMargin: "800px 0px" }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
-  const big = card.variant === "big";
-  const outer = layout === "grid" ? (big ? "col-span-2" : "col-span-1") : "shrink-0 w-[300px] h-[400px]";
-
-  const inner = (
-    <div
-      ref={ref}
-      className="relative overflow-hidden rounded-2xl border border-white/[0.06] h-full min-h-[300px] shadow-[0_2px_12px_-2px_rgba(0,0,0,0.35)]"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {big ? (
-        <BigContent card={card} isHovered={isHovered} preload={preload} stacked={layout === "marquee"} />
-      ) : (
-        <SmallContent card={card} isHovered={isHovered} />
       )}
-    </div>
-  );
-
-  // Grid cards fade in on scroll; marquee cards render immediately (the row animates).
-  if (layout === "marquee") return <div className={outer}>{inner}</div>;
-
-  return (
-    <motion.div
-      className={outer}
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-    >
-      {inner}
-    </motion.div>
+    </figure>
   );
 }
-
-// ─── Arrow button (desktop pagination) ─────────────────────────────────────────
-function Arrow({ dir, onClick }: { dir: "prev" | "next"; onClick: () => void }) {
+function Card3DFrame({ children }: { children: ReactNode }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={dir === "prev" ? "Previous reviews" : "Next reviews"}
-      className="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center text-white/60 hover:text-white hover:border-white/40 hover:bg-white/5 transition-all duration-200"
-    >
-      {dir === "prev" ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-    </button>
-  );
-}
-
-// ─── Mobile / tablet — auto-scroll draggable marquee ───────────────────────────
-function MobileMarquee() {
-  const dragX = useMotionValue(0);
-  const [dragging, setDragging] = useState(false);
-  const rowRef = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
-
-  // Pause the infinite marquee while offscreen (the duplicated track is wide).
-  useEffect(() => {
-    const el = rowRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { rootMargin: "100px" });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
-  const track = [...ALL, ...ALL]; // duplicate for a seamless loop
-
-  return (
-    <div ref={rowRef} className="lg:hidden overflow-hidden" data-lenis-prevent>
-      <motion.div
-        style={{ x: dragX }}
-        drag="x"
-        dragMomentum={false}
-        dragElastic={0.04}
-        onDragStart={() => setDragging(true)}
-        onDragEnd={() => setDragging(false)}
-        whileTap={{ cursor: "grabbing" }}
-        className="w-max cursor-grab"
-      >
-        <div
-          className={cn("flex gap-4 w-max will-change-transform animate-marquee-left")}
-          style={{ animationPlayState: dragging || !inView ? "paused" : "running" }}
-        >
-          {track.map((card, i) => (
-            <Card key={`${card.id}-${i}`} card={card} layout="marquee" />
-          ))}
-        </div>
-      </motion.div>
+    <div data-review-frame className="testimonial-card-frame">
+      {children}
     </div>
   );
 }
 
-// ─── Section ──────────────────────────────────────────────────────────────────
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function Testimonials(props: any) {
+function MarqueeCard({ card }: { card: Review }) {
+  return (
+    <div
+      data-review-card
+      data-review-id={card.id}
+      className="testimonial-review-card group/review relative z-0 w-[208px] shrink-0 select-none sm:w-[232px] md:w-[252px] lg:w-[clamp(270px,21vw,330px)]"
+    >
+      <Card3DFrame>
+        <ReviewCardSurface card={card} />
+      </Card3DFrame>
+    </div>
+  );
+}
+
+export default function Testimonials(
+  props: {
+    eyebrow?: string;
+    heading?: string;
+    headingAccent?: string;
+  } = {}
+) {
   const { t } = useLanguage();
 
   const eyebrow = props.eyebrow || t.testimonials.eyebrow;
   const heading = props.heading || t.testimonials.heading;
   const headingAccent = props.headingAccent || "";
 
-  const [page, setPage] = useState(0);
-  const next = () => setPage((p) => (p + 1) % PAGES.length);
-  const prev = () => setPage((p) => (p - 1 + PAGES.length) % PAGES.length);
+  const col1 = ALL.filter((_, index) => index % 2 === 0);
+  const col2 = ALL.filter((_, index) => index % 2 === 1);
 
   return (
-    <section id="testimonials" className="bg-bg-brand-black overflow-hidden">
-      <div className="mx-auto max-w-[1280px] px-4 md:px-8 pt-[80px] md:pt-[100px] pb-[100px] md:pb-[120px]">
+    <section id="testimonials" className="overflow-hidden bg-bg-brand-black">
+      <div className="mx-auto max-w-[1440px] px-4 pb-[100px] pt-[80px] sm:px-5 md:px-8 md:pb-[120px] md:pt-[100px]">
+        <TestimonialsCarousel />
 
-        {/* Header */}
-        <div className="flex flex-col items-center text-center mb-[44px] md:mb-[60px]">
-          <motion.p
-            className="text-brand-red text-[11px] md:text-[13px] font-bold uppercase tracking-[0.3em] mb-4"
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4 }}
-          >
-            {eyebrow}
-          </motion.p>
-          <motion.h2
-            className="text-[2.5rem] sm:text-[3.5rem] md:text-[5rem] font-bold uppercase leading-[0.92] tracking-[-0.02em] text-white"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            {heading}
-            {headingAccent && (
-              <>
-                {" "}
-                <span className="text-brand-red">{headingAccent}</span>
-              </>
-            )}
-          </motion.h2>
-        </div>
+        <div className="mt-14 grid items-start gap-9 sm:mt-16 md:gap-12 lg:mt-20 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-8 xl:gap-12">
+          <div className="relative z-10 flex flex-col items-start text-left lg:max-w-[500px] lg:pt-12">
+            <motion.p
+              className="mb-4 text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red md:text-[13px]"
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+            >
+              {eyebrow}
+            </motion.p>
 
-        {/* Desktop (lg+) — paginated alternating bento */}
-        <div className="hidden lg:block">
-          <div className="flex items-center justify-end gap-4 mb-6">
-            <span className="font-body text-sm text-white/45 tabular-nums">
-              {page + 1} / {PAGES.length}
-            </span>
-            <div className="flex items-center gap-2">
-              <Arrow dir="prev" onClick={prev} />
-              <Arrow dir="next" onClick={next} />
-            </div>
+            <motion.h2
+              className="max-w-[10ch] text-[2.65rem] font-bold uppercase leading-[0.9] tracking-[-0.025em] text-white sm:text-[3.5rem] md:text-[4.5rem] lg:text-[clamp(3.4rem,4.8vw,5rem)]"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              {heading}
+              {headingAccent && (
+                <>
+                  {" "}
+                  <span className="text-brand-red">{headingAccent}</span>
+                </>
+              )}
+            </motion.h2>
           </div>
 
-          {/* Keyed remount on page change → fade/slide in. */}
-          <motion.div
-            key={page}
-            className="grid grid-cols-4 auto-rows-[minmax(300px,1fr)] gap-4"
-            initial={{ opacity: 0, x: 28 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          >
-            {PAGES[page].map((card) => (
-              <Card key={card.id} card={card} layout="grid" />
-            ))}
-          </motion.div>
+          <div className="testimonial-marquee-stage relative flex h-[560px] w-full flex-row items-center justify-start overflow-hidden min-[480px]:justify-center min-[480px]:px-[clamp(12px,3vw,32px)] sm:h-[600px] md:h-[660px] lg:h-[720px] lg:px-0">
+            <div className="testimonials-marquee-plane flex h-full flex-row items-start gap-3 sm:gap-4 xl:gap-5">
+              <Marquee vertical repeat={2} className="h-full [--duration:64s] [--gap:1rem]">
+                {col1.map((card) => (
+                  <MarqueeCard key={card.id} card={card} />
+                ))}
+              </Marquee>
+
+              <Marquee vertical reverse repeat={2} className="h-full [--duration:72s] [--gap:1rem]">
+                {col2.map((card) => (
+                  <MarqueeCard key={card.id} card={card} />
+                ))}
+              </Marquee>
+            </div>
+
+            <div
+              data-marquee-mask="top"
+              className="pointer-events-none absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-bg-brand-black to-transparent sm:h-16"
+            />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-bg-brand-black to-transparent sm:h-16" />
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-1/12 bg-gradient-to-r from-bg-brand-black to-transparent lg:w-1/6" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-1/12 bg-gradient-to-l from-bg-brand-black to-transparent" />
+          </div>
         </div>
-
-        {/* Mobile + tablet (<lg) — auto-scroll draggable marquee */}
-        <MobileMarquee />
-
       </div>
     </section>
   );

@@ -36,6 +36,11 @@ export const ko: Translations = {
     results: "성과",
     cta: "시작하기",
   },
+  testimonials: {
+    ...en.testimonials,
+    eyebrow: "고객 후기",
+    heading: "더 많은 성공 사례.",
+  },
   hero: {
     ...en.hero,
     staticText: ["우리는 만듭니다", "당신의 브랜드를"],

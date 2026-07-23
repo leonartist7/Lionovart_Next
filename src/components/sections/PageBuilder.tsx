@@ -10,7 +10,6 @@ import Services from "@/components/sections/Services";
 import Comparison from "@/components/sections/Comparison";
 import Process from "@/components/sections/Process";
 import Testimonials from "@/components/sections/Testimonials";
-import TestimonialsCarousel from "@/components/sections/TestimonialsCarousel";
 import FAQ from "@/components/sections/FAQ";
 import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
 import ClosingCTA from "@/components/sections/ClosingCTA";
@@ -42,11 +41,10 @@ export function PageBuilder() {
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
         <NovaSection id="offer"><SignatureOffer /></NovaSection>
         <NovaSection id="services"><Services /></NovaSection>
-        <NovaSection id="process"><Process /></NovaSection>
         <SectionTitleCard word="PROOF." theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>
+        <NovaSection id="process"><Process /></NovaSection>
         <SectionTitleCard word="CONFIDENCE." theme="light" />
-        <TestimonialsCarousel />
         <NovaSection id="testimonials"><Testimonials /></NovaSection>
         <SectionTitleCard word="ASK." theme="dark" />
         <NovaSection id="faq"><FAQ /></NovaSection>

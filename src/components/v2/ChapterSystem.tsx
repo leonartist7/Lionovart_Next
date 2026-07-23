@@ -1,23 +1,22 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 
-/* ─── Chapter 5 — The Brand World System (cream) ─────────────────────
-   Connected vertical rail: four pillars hang off a continuous red
-   story line. Eyebrow 2 of 3 page-wide. No cards, no borders.
-   ─────────────────────────────────────────────────────────────────── */
+/* Chapter 5 - The Brand World System (cream)
+   Image-led service panels with real mass and service links. */
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-/* Part C kit stills at /videos/v2/* */
 type Pillar = {
   name: string;
   outcome: string;
   capabilities: string;
-  /** Offset CONTENT only (not the rail) on desktop rows 2 and 4 */
-  offset: boolean;
-  imageSrc?: string;
+  imageSrc: string;
+  href: string;
+  imageRight: boolean;
+  fullBleed?: boolean;
 };
 
 const PILLARS: Pillar[] = [
@@ -25,37 +24,42 @@ const PILLARS: Pillar[] = [
     name: "Brand Worlds",
     outcome: "A brand people recognize, trust, and remember.",
     capabilities: "Strategy, identity, naming, visual systems.",
-    offset: false,
+    imageSrc: "/videos/v2/work-1.jpg",
+    href: "/services/brand",
+    imageRight: true,
   },
   {
     name: "Brand Films & Content Universe",
     outcome: "One story, told in every format that matters.",
-    capabilities: "Brand films, founder stories, campaign and short-form content.",
-    offset: true,
+    capabilities:
+      "Brand films, founder stories, campaign and short-form content.",
     imageSrc: "/videos/v2/film-frame.jpg",
+    href: "/services/content-studio",
+    imageRight: false,
   },
   {
     name: "Brand Platforms",
     outcome: "A digital home built to move people and perform.",
     capabilities:
       "Cinematic websites, digital ecosystems, intelligent brand experiences.",
-    offset: false,
     imageSrc: "/videos/v2/platform-frame.jpg",
+    href: "/services/web",
+    imageRight: true,
+    fullBleed: true,
   },
   {
     name: "Experience Lab",
     outcome: "Brand presence beyond the screen.",
     capabilities:
       "Smart glass, projection, audiovisual environments. Concept-led, produced with partners.",
-    offset: true,
+    imageSrc: "/videos/v2/work-6.jpg",
+    href: "#lab",
+    imageRight: false,
   },
 ];
 
 export default function ChapterSystem() {
   const reduceMotion = useReducedMotion();
-
-  /* Reduced motion is expressed ONLY through transition timing
-     (duration 0), never by branching rendered styles on reduceMotion. */
 
   const lineReveal = {
     hidden: { y: "100%" },
@@ -81,8 +85,6 @@ export default function ChapterSystem() {
             The Brand World System
           </motion.p>
 
-          {/* Masked reveal: viewport props on the overflow wrapper, not the
-              clipped child (IO measures after clipping; see Progress Log). */}
           <motion.div
             className="overflow-hidden"
             initial="hidden"
@@ -112,95 +114,119 @@ export default function ChapterSystem() {
           </motion.p>
         </div>
 
-        {/* Continuous rail: constant x. Offset content blocks only. */}
-        <ul className="mt-20 flex list-none flex-col gap-16 p-0 md:mt-28 md:gap-20">
+        <div className="mt-20 flex flex-col gap-16 md:mt-28 md:gap-24">
           {PILLARS.map((pillar, i) => {
-            const isLast = i === PILLARS.length - 1;
-            return (
-              <li key={pillar.name} className="relative flex gap-6 md:gap-10">
-                <div className="relative w-2 shrink-0 self-stretch">
-                  {/* Segment runs DOWN from this node through the list gap to
-                      the next node. Last row ends at its node (no segment).
-                      gap-16 = 4rem; md:gap-20 = 5rem. */}
-                  {!isLast ? (
-                    <motion.div
-                      aria-hidden
-                      className="absolute left-1/2 top-2 h-[calc(100%+4rem)] w-px origin-top -translate-x-1/2 bg-[#e5192a] md:top-2.5 md:h-[calc(100%+5rem)]"
-                      initial={{ scaleY: 0 }}
-                      whileInView={{ scaleY: 1 }}
-                      viewport={{ once: true, amount: 0.15 }}
-                      transition={
-                        reduceMotion
-                          ? { duration: 0 }
-                          : { duration: 1.1, delay: i * 0.08, ease: EASE }
-                      }
-                    />
-                  ) : null}
-                  <motion.span
-                    aria-hidden
-                    className="absolute left-1/2 top-2 z-10 block h-2 w-2 -translate-x-1/2 rounded-full bg-[#e5192a] md:top-2.5"
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true, amount: 0.5 }}
-                    transition={
-                      reduceMotion
-                        ? { duration: 0 }
-                        : {
-                            duration: 0.6,
-                            delay: 0.1 + i * 0.08,
-                            ease: EASE,
-                          }
-                    }
-                  />
-                </div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.35 }}
-                  transition={
-                    reduceMotion
-                      ? { duration: 0 }
-                      : {
-                          duration: 0.9,
-                          delay: 0.12 + i * 0.08,
-                          ease: EASE,
-                        }
+            const isExternal = pillar.href.startsWith("/");
+            const media = (
+              <div
+                className={`v2-plate-melt-cream relative overflow-hidden rounded-2xl ${
+                  pillar.fullBleed
+                    ? "aspect-[16/9] w-full lg:aspect-[21/9]"
+                    : "aspect-[4/3] w-full"
+                }`}
+              >
+                <Image
+                  src={pillar.imageSrc}
+                  alt=""
+                  fill
+                  sizes={
+                    pillar.fullBleed
+                      ? "100vw"
+                      : "(max-width: 1024px) 100vw, 50vw"
                   }
-                  className={`min-w-0 flex-1 ${pillar.offset ? "md:ml-[6%]" : ""} ${
-                    pillar.imageSrc
-                      ? "flex flex-col gap-6 md:flex-row md:items-start md:justify-between md:gap-12"
-                      : "max-w-[560px]"
-                  }`}
-                >
-                  <div className="min-w-0 max-w-[560px] flex-1">
-                    <h3 className="v2-display text-2xl font-semibold text-[#171412] md:text-3xl">
-                      {pillar.name}
-                    </h3>
-                    <p className="v2-serif mt-3 pb-1 text-lg font-normal italic leading-[1.2] text-[#171412]">
-                      {pillar.outcome}
-                    </p>
-                    <p className="mt-3 text-base leading-[1.65] text-[#171412]/65">
-                      {pillar.capabilities}
-                    </p>
-                  </div>
+                  className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                />
+              </div>
+            );
 
-                  {pillar.imageSrc ? (
-                    <div className="v2-plate-melt-cream relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-2xl md:ml-auto md:w-56">
-                      <Image
-                        src={pillar.imageSrc}
-                        alt=""
-                        fill
-                        sizes="(max-width: 768px) 100vw, 224px"
-                        className="object-cover"
-                      />
+            const copy = (
+              <div className="flex min-w-0 flex-col justify-center">
+                <div className="mb-4 flex items-center gap-3">
+                  <span
+                    aria-hidden
+                    className="block h-2 w-2 shrink-0 rounded-full bg-[#e5192a]"
+                  />
+                  <span className="v2-display text-[11px] font-semibold uppercase tracking-[0.2em] text-[#e5192a]">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                </div>
+                <h3 className="v2-display text-2xl font-semibold text-[#171412] md:text-3xl">
+                  {pillar.name}
+                </h3>
+                <p className="v2-serif mt-3 text-lg font-normal italic leading-[1.25] text-[#171412]">
+                  {pillar.outcome}
+                </p>
+                <p className="mt-3 max-w-[42ch] text-base leading-[1.65] text-[#171412]/65">
+                  {pillar.capabilities}
+                </p>
+                {isExternal ? (
+                  <Link
+                    href={pillar.href}
+                    className="v2-display mt-7 inline-flex w-fit items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-[#e5192a] transition-colors hover:text-[#c9101f]"
+                  >
+                    Explore
+                    <span aria-hidden className="text-base leading-none">
+                      {"->"}
+                    </span>
+                  </Link>
+                ) : (
+                  <a
+                    href={pillar.href}
+                    className="v2-display mt-7 inline-flex w-fit items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-[#e5192a] transition-colors hover:text-[#c9101f]"
+                  >
+                    Explore
+                    <span aria-hidden className="text-base leading-none">
+                      {"->"}
+                    </span>
+                  </a>
+                )}
+              </div>
+            );
+
+            return (
+              <motion.article
+                key={pillar.name}
+                initial={{ opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.25 }}
+                transition={
+                  reduceMotion
+                    ? { duration: 0 }
+                    : {
+                        duration: 0.9,
+                        delay: 0.06 + i * 0.05,
+                        ease: EASE,
+                      }
+                }
+                className="group"
+              >
+                {pillar.fullBleed ? (
+                  <div className="flex flex-col gap-8">
+                    {media}
+                    <div className="max-w-[560px]">{copy}</div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-12">
+                    <div
+                      className={`lg:col-span-6 ${
+                        pillar.imageRight ? "lg:order-2" : "lg:order-1"
+                      }`}
+                    >
+                      {media}
                     </div>
-                  ) : null}
-                </motion.div>
-              </li>
+                    <div
+                      className={`lg:col-span-6 ${
+                        pillar.imageRight ? "lg:order-1" : "lg:order-2"
+                      }`}
+                    >
+                      {copy}
+                    </div>
+                  </div>
+                )}
+              </motion.article>
             );
           })}
-        </ul>
+        </div>
       </div>
     </section>
   );

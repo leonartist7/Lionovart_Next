@@ -283,6 +283,91 @@
 .animate-marquee-left  { animation: marquee-left  55s linear infinite; }
 .animate-marquee-right { animation: marquee-right 55s linear infinite; }
 
+/* Generic vertical marquee primitive (src/components/ui/marquee.tsx) */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-100% - var(--gap))); }
+}
+@keyframes marquee-vertical {
+  from { transform: translateY(0); }
+  to   { transform: translateY(calc(-100% - var(--gap))); }
+}
+.animate-marquee          { animation: marquee var(--duration) linear infinite; }
+.animate-marquee-vertical { animation: marquee-vertical var(--duration) linear infinite; }
+
+.marquee-pause-on-hover:hover > .animate-marquee,
+.marquee-pause-on-hover:hover > .animate-marquee-vertical {
+  animation-play-state: paused;
+}
+
+.testimonials-marquee-plane {
+  --review-perspective: 460px;
+  --review-depth: -40px;
+  --review-rotate-x: 12deg;
+  --review-rotate-y: -3deg;
+  --review-rotate-z: 2deg;
+  transform:
+    perspective(var(--review-perspective))
+    translateX(12px)
+    translateZ(var(--review-depth))
+    rotateY(var(--review-rotate-y))
+    rotateZ(var(--review-rotate-z));
+  transform-origin: center center;
+  transform-style: preserve-3d;
+}
+
+.testimonial-card-frame {
+  --review-rotate-x: 12deg;
+  transform: rotateX(var(--review-rotate-x));
+  transform-origin: center center;
+  transform-style: preserve-3d;
+}
+
+.testimonial-marquee-stage {
+  contain: layout paint style;
+  isolation: isolate;
+}
+
+@media (min-width: 48rem) {
+  .testimonial-carousel-fullbleed {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+  }
+}
+
+.testimonials-marquee-plane .animate-marquee-vertical {
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+@media (min-width: 480px) and (max-width: 1023px) {
+  .testimonials-marquee-plane {
+    --review-depth: -48px;
+    --review-rotate-y: -4deg;
+    transform:
+      perspective(var(--review-perspective))
+      translateX(0)
+      translateZ(var(--review-depth))
+      rotateY(var(--review-rotate-y))
+      rotateZ(var(--review-rotate-z));
+  }
+}
+
+@media (min-width: 1024px) {
+  .testimonials-marquee-plane {
+    --review-perspective: 360px;
+    --review-depth: -70px;
+    --review-rotate-y: -6deg;
+    --review-rotate-z: 3deg;
+    transform:
+      perspective(var(--review-perspective))
+      translateX(clamp(20px, 2.5vw, 36px))
+      translateZ(var(--review-depth))
+      rotateY(var(--review-rotate-y))
+      rotateZ(var(--review-rotate-z));
+  }
+}
+
 /* =============================================
    Reduced Motion — AI Strategist
    ============================================= */
@@ -298,6 +383,11 @@
   .animate-marquee-right {
     animation: none !important;
     transform: translateX(0) !important;
+  }
+  .animate-marquee,
+  .animate-marquee-vertical {
+    animation: none !important;
+    transform: none !important;
   }
 }
 

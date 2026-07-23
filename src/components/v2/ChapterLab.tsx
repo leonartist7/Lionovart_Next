@@ -4,11 +4,8 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
-/* ─── Chapter 7 — Experience Lab (dark) ──────────────────────────────
-   Full-bleed scene: brand presence beyond the screen. No CTA.
-   Backdrop: Part C lab-loop.mp4 when in view; poster/still under
-   reduced motion or off-screen.
-   ─────────────────────────────────────────────────────────────────── */
+/* Chapter 7 - Experience Lab (dark)
+   Full-bleed scene: brand presence beyond the screen. No CTA. */
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const POSTER = "/images/hero_img/123613.webp";
@@ -42,6 +39,7 @@ export default function ChapterLab() {
 
   return (
     <section
+      id="lab"
       ref={sectionRef}
       className="relative flex min-h-[90vh] items-end overflow-hidden bg-[#0d0d0d]"
     >
