@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Inlined from shadcn/dist/tailwind.css — avoids Turbopack bare-specifier CSS import issue */
+/* Inlined from shadcn/dist/tailwind.css â€” avoids Turbopack bare-specifier CSS import issue */
 @theme inline {
   @keyframes accordion-down {
     from { height: 0; }
@@ -12,19 +12,6 @@
     to { height: 0; }
   }
 }
-
-/* Metallic border shimmer — used in Portfolio cards */
-@keyframes metal-shimmer {
-  0%   { background-position: -200% center, 0 0; }
-  100% { background-position:  200% center, 0 0; }
-}
-
-/* 3D Carousel spin — used in HeroTop */
-@keyframes carousel-spin {
-  from { transform: rotateY(0turn); }
-  to   { transform: rotateY(1turn); }
-}
-
 @custom-variant data-open {
   &:where([data-state="open"]), &:where([data-open]:not([data-open="false"])) { @slot; }
 }
@@ -57,23 +44,7 @@
   scrollbar-width: none;
   &::-webkit-scrollbar { display: none; }
 }
-
-/* --- AI Strategist glass utilities --- */
-@utility glass-panel {
-  background: #000000;
-  border: 1px solid var(--strategist-border);
-  box-shadow:
-    0 25px 50px -12px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 0 80px var(--strategist-glow);
-}
-
-/* =============================================
-   Reusable Glass Surface — depth for cards/panels
-   Pairs with BackgroundTexture so elements visibly
-   float above the textured background.
-   ============================================= */
+/* Glass surface â€” service branding GlassStack cards */
 @utility glass-surface {
   position: relative;
   background:
@@ -93,30 +64,10 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.10),
     inset 0 -1px 0 rgba(0, 0, 0, 0.4);
 }
-
-@utility glass-surface-light {
-  position: relative;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.55) 0%,
-      rgba(255, 255, 255, 0.35) 60%,
-      rgba(255, 255, 255, 0.25) 100%
-    ),
-    rgba(247, 244, 239, 0.45);
-  backdrop-filter: blur(16px) saturate(130%);
-  -webkit-backdrop-filter: blur(16px) saturate(130%);
-  border: 1px solid rgba(240, 201, 23, 0.18);
-  box-shadow:
-    0 30px 60px -20px rgba(120, 90, 0, 0.18),
-    0 0 0 1px rgba(255, 255, 255, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7);
-}
-
 @custom-variant dark (&:is(.dark *));
 
 /* =============================================
-   LIONOVART — Brand Design Tokens (Tailwind v4)
+   LIONOVART â€” Brand Design Tokens (Tailwind v4)
    ============================================= */
 
 @theme inline {
@@ -217,9 +168,8 @@
     30% { opacity: 1; transform: translateY(-4px); }
   }
 }
-
 /* =============================================
-   Root variables — LIONOVART dark theme default
+   Root variables â€” LIONOVART dark theme default
    ============================================= */
 :root {
   /* Process lion circle (the "i" dot) and the IMAGINE card width.
@@ -259,28 +209,12 @@
   --sidebar-border: rgba(38, 38, 38, 0.3);
   --sidebar-ring: #e5192a;
 
-  /* LumaShowcase — dynamic accent (Phase 2 swaps via JS) */
-  --luma-accent: #e5192a;
-
   /* AI Strategist panel */
   --strategist-bg: rgba(13, 13, 13, 0.85);
   --strategist-border: rgba(255, 255, 255, 0.1);
   --strategist-glow: rgba(229, 25, 42, 0.06);
   --strategist-overlay: rgba(0, 0, 0, 0.6);
-
-  /* --- BackgroundTexture tuning knobs (live-adjustable) ---
-     The layer sits ABOVE sections (z: 30) so it overlays opaque
-     section backgrounds. Opacities are tuned for "atmospheric"
-     intensity — visible but not tinting content. Bump any of these
-     in DevTools on :root to dial it in live. */
-  --texture-line-opacity: 0.04;        /* golden hairline intensity */
-  --texture-line-spacing: 130px;       /* distance between hairlines */
-  --texture-line-angle: 110deg;        /* diagonal direction of lines */
-  --texture-grain-opacity: 0.025;      /* film-grain noise overlay */
-  --texture-glow-gold: rgba(240, 201, 23, 0.08);
-  --texture-glow-red: rgba(229, 25, 42, 0.06);
 }
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -330,15 +264,7 @@
 }
 
 /* =============================================
-   Speaking ring — VoiceVisualizer
-   ============================================= */
-@keyframes speaking-ring {
-  0%   { transform: scale(0.8); opacity: 0.9; }
-  100% { transform: scale(2.2); opacity: 0;   }
-}
-
-/* =============================================
-   Testimonials — two-row drag marquee
+   Testimonials â€” two-row drag marquee
    ============================================= */
 @keyframes marquee-left {
   from { transform: translateX(0); }
@@ -352,7 +278,7 @@
 .animate-marquee-left  { animation: marquee-left  55s linear infinite; }
 .animate-marquee-right { animation: marquee-right 55s linear infinite; }
 
-/* Generic marquee primitive (src/components/ui/marquee.tsx) */
+/* Generic vertical marquee primitive (src/components/ui/marquee.tsx) */
 @keyframes marquee {
   from { transform: translateX(0); }
   to   { transform: translateX(calc(-100% - var(--gap))); }
@@ -364,8 +290,80 @@
 .animate-marquee          { animation: marquee var(--duration) linear infinite; }
 .animate-marquee-vertical { animation: marquee-vertical var(--duration) linear infinite; }
 
+.marquee-pause-on-hover:hover > .animate-marquee,
+.marquee-pause-on-hover:hover > .animate-marquee-vertical {
+  animation-play-state: paused;
+}
+
+.testimonials-marquee-plane {
+  --review-perspective: 460px;
+  --review-depth: -40px;
+  --review-rotate-x: 12deg;
+  --review-rotate-y: -3deg;
+  --review-rotate-z: 2deg;
+  transform:
+    perspective(var(--review-perspective))
+    translateX(12px)
+    translateZ(var(--review-depth))
+    rotateY(var(--review-rotate-y))
+    rotateZ(var(--review-rotate-z));
+  transform-origin: center center;
+  transform-style: preserve-3d;
+}
+
+.testimonial-card-frame {
+  --review-rotate-x: 12deg;
+  transform: rotateX(var(--review-rotate-x));
+  transform-origin: center center;
+  transform-style: preserve-3d;
+}
+
+.testimonial-marquee-stage {
+  contain: layout paint style;
+  isolation: isolate;
+}
+
+@media (min-width: 48rem) {
+  .testimonial-carousel-fullbleed {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+  }
+}
+
+.testimonials-marquee-plane .animate-marquee-vertical {
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+@media (min-width: 480px) and (max-width: 1023px) {
+  .testimonials-marquee-plane {
+    --review-depth: -48px;
+    --review-rotate-y: -4deg;
+    transform:
+      perspective(var(--review-perspective))
+      translateX(0)
+      translateZ(var(--review-depth))
+      rotateY(var(--review-rotate-y))
+      rotateZ(var(--review-rotate-z));
+  }
+}
+
+@media (min-width: 1024px) {
+  .testimonials-marquee-plane {
+    --review-perspective: 360px;
+    --review-depth: -70px;
+    --review-rotate-y: -6deg;
+    --review-rotate-z: 3deg;
+    transform:
+      perspective(var(--review-perspective))
+      translateX(clamp(20px, 2.5vw, 36px))
+      translateZ(var(--review-depth))
+      rotateY(var(--review-rotate-y))
+      rotateZ(var(--review-rotate-z));
+  }
+}
 /* =============================================
-   Reduced Motion — AI Strategist
+   Reduced Motion â€” AI Strategist
    ============================================= */
 @media (prefers-reduced-motion: reduce) {
   .animate-orb-pulse {
@@ -388,7 +386,7 @@
 }
 
 /* =============================================
-   Custom Cursor — blend-mode dot + ring
+   Custom Cursor â€” blend-mode dot + ring
    Coarse pointers (touch) opt out automatically.
    ============================================= */
 @media (pointer: fine) {
@@ -416,7 +414,7 @@
 }
 
 .cursor-dot {
-  /* 6px dot — sits on TOP of the ring (z-index: 10000).
+  /* 6px dot â€” sits on TOP of the ring (z-index: 10000).
      mix-blend-mode: difference kept only here so the dot
      inverts cleanly over any bg without affecting the glass ring. */
   z-index: 10000;
@@ -425,7 +423,7 @@
   border-radius: 9999px;
   background: #ffffff;
   mix-blend-mode: difference;
-  /* Centering via negative margin — framer-motion's style={{ x, y }}
+  /* Centering via negative margin â€” framer-motion's style={{ x, y }}
      generates its own transform, overriding CSS translate(-50%,-50%).
      Negative margins are the correct approach: they shift the element's
      layout position without touching the transform stack. */
@@ -433,18 +431,18 @@
 }
 
 .cursor-ring {
-  /* Solid brand-red dot — no blend mode so the red renders true. */
+  /* Solid brand-red dot â€” no blend mode so the red renders true. */
   z-index: 9999;
   width: 12px;
   height: 12px;
   border-radius: 9999px;
   background: #e5192a;
-  /* Center: 12px ÷ 2 = 6px */
+  /* Center: 12px Ã· 2 = 6px */
   margin: -6px 0 0 -6px;
 }
 
 .cursor-label {
-  /* Gold contextual cursor (Play / Drag) — NO blend mode so gold renders true */
+  /* Gold contextual cursor (Play / Drag) â€” NO blend mode so gold renders true */
   position: fixed;
   top: 0;
   left: 0;
@@ -463,7 +461,7 @@
   font-size: 13px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  /* Center: 72px ÷ 2 = 36px */
+  /* Center: 72px Ã· 2 = 36px */
   margin: -36px 0 0 -36px;
   will-change: transform;
   box-shadow:
@@ -486,77 +484,7 @@
 }
 
 /* =============================================
-   Background Texture — golden hairlines + grain
-   Lightweight static layer behind <main> (z:0).
-   Composites without mix-blend-mode or filter: blur
-   so it stays GPU-cheap during Lenis scroll.
-   ============================================= */
-.bg-texture-root {
-  position: fixed;
-  inset: 0;
-  /* Sit above <main> (z:10) so opaque sections don't cover the texture,
-     but below Navbar (z:50), StickyCTA, NovaPortal, and CustomCursor. */
-  z-index: 30;
-  pointer-events: none;
-  overflow: hidden;
-  /* Hint compositor: this layer doesn't change. */
-  contain: strict;
-}
-
-.bg-texture-lines {
-  position: absolute;
-  inset: 0;
-  background-image: repeating-linear-gradient(
-    var(--texture-line-angle),
-    rgba(240, 201, 23, var(--texture-line-opacity)) 0,
-    rgba(240, 201, 23, var(--texture-line-opacity)) 1px,
-    transparent 1px,
-    transparent var(--texture-line-spacing)
-  );
-}
-
-.bg-texture-lines-cross {
-  position: absolute;
-  inset: 0;
-  background-image: repeating-linear-gradient(
-    calc(var(--texture-line-angle) + 90deg),
-    rgba(240, 201, 23, calc(var(--texture-line-opacity) * 0.45)) 0,
-    rgba(240, 201, 23, calc(var(--texture-line-opacity) * 0.45)) 1px,
-    transparent 1px,
-    transparent calc(var(--texture-line-spacing) * 1.6)
-  );
-}
-
-.bg-texture-grain {
-  position: absolute;
-  inset: 0;
-  opacity: var(--texture-grain-opacity);
-  /* tiny SVG turbulence noise — no asset request, no blend mode */
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.85'/></svg>");
-  background-size: 160px 160px;
-}
-
-.bg-texture-glow-a {
-  position: absolute;
-  top: -10%;
-  left: -10%;
-  width: 60vw;
-  height: 60vw;
-  /* Soft radial — gradient stops do the blur, no filter needed */
-  background: radial-gradient(circle at center, var(--texture-glow-gold) 0%, transparent 70%);
-}
-
-.bg-texture-glow-b {
-  position: absolute;
-  bottom: -15%;
-  right: -10%;
-  width: 65vw;
-  height: 65vw;
-  background: radial-gradient(circle at center, var(--texture-glow-red) 0%, transparent 70%);
-}
-
-/* =============================================
-   Splash Screen — shimmer sweep on wordmark
+   Splash Screen â€” shimmer sweep on wordmark
    ============================================= */
 @keyframes splash-shimmer {
   0%   { background-position: -150% center; }
@@ -614,12 +542,12 @@
   -webkit-backdrop-filter: blur(var(--b));
   -webkit-mask-image: linear-gradient(to top, #000 0%, transparent var(--fade));
   mask-image: linear-gradient(to top, #000 0%, transparent var(--fade));
-  /* Isolate as its own GPU layer — caches the blur between identical frames. */
+  /* Isolate as its own GPU layer â€” caches the blur between identical frames. */
   transform: translateZ(0);
   contain: paint;
 }
 
-/* Mobile: backdrop-filter is costly here — drop the radius. */
+/* Mobile: backdrop-filter is costly here â€” drop the radius. */
 @media (max-width: 767px) {
   .bottom-blur__layer { --b: 8px; }
 }
@@ -638,13 +566,4 @@ body.no-bdblur,
 body.no-bdblur * {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-}
-
-/* Hides the hero CSS-background-image layer in HeroRevealWrapper.tsx.
-   The layer has no dedicated class, so we target the fixed wrapper's
-   first descendant that uses backgroundImage via inline style. We add
-   a stable class on it from PerfHud's CSS targeting, so we mark it
-   from the HeroRevealWrapper itself with .hero-bg-layer. */
-body.no-herobg .hero-bg-layer {
-  display: none !important;
 }

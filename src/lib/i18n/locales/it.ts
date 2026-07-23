@@ -36,6 +36,11 @@ export const it: Translations = {
     results: "Risultati",
     cta: "Inizia Ora",
   },
+  testimonials: {
+    ...en.testimonials,
+    eyebrow: "Testimonianze dei Clienti",
+    heading: "Più Risultati di Successo.",
+  },
   hero: {
     ...en.hero,
     staticText: ["RENDIAMO", "LA TUA MARCA"],

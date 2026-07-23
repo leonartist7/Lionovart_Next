@@ -3,7 +3,7 @@
 
 This single document is the source of truth for building the LIONOVART v2 landing page. It contains: the research digest (what makes a site read as premium), the improved master prompt (Part A), the complete chapter-by-chapter implementation spec (Part B), the asset generation kit (Part C), and the verification protocol (Part D). It is written so lighter models can implement each chapter without re-reading anything else.
 
-**State:** Chapters 1–3 are built, wired into `src/app/v2/page.tsx`, and verified on branch `claude/lionovart-rebrand-v2-8624vy`. Chapters 4–10 remain. Build ONE chapter per review cycle, then stop. See the Progress Log near the end of this doc before starting Chapter 4 — it records two implementation learnings that will save you a debugging cycle.
+**State:** Chapters 1–10 + Part D final pass + Part C asset kit are on branch `claude/lionovart-rebrand-v2-8624vy` (open PR #18). Optional next: supervisor visual QA polish, production cutover when ready.
 
 ---
 
@@ -73,7 +73,8 @@ Base `#0d0d0d` · charcoal `#171412` · cream `#f2ede3` · red `#e5192a` · wine
 - **Motion is slow and expensive.** One easing everywhere: `[0.16, 1, 0.3, 1]`. Durations 0.8–2.2s. Reveals fire once (`viewport={{ once: true }}`). Nothing loops (except ambient shader/video), nothing bounces.
 - **Type carries emotion.** Serif = feeling (sentence case, `font-medium`, `leading-[1.05]`). Display sans = conviction (short uppercase tracked lines). Body = clarity (65% opacity, `leading-[1.65+]`, ≤52ch).
 - **Red is narrative, gold is precious.** Red: story line, eyebrows, CTAs only. Gold: at most once per chapter, always as light, never fill.
-- **Headline masked line reveals** (the type-led premium move): wrap each headline line in `overflow-hidden` + animate inner span `y: "100%" → 0`. Use for every chapter's serif headline.
+- **Headline masked line reveals** (the type-led premium move), CORRECTED RECIPE: the `overflow-hidden` wrapper must be a `motion.div` that CARRIES `initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }}`, and the inner `motion.h2` animates via variants propagation (`hidden: { y: "100%" }`, `visible: { y: "0%", transition: ... }`). NEVER put `whileInView` on the clipped inner element itself: IntersectionObserver computes intersection AFTER ancestor clipping, so an element translated fully out of an overflow-hidden wrapper has intersection ratio 0 forever and the reveal never fires — the headline stays permanently invisible. This exact bug shipped in Chapters 3 and 5 via the earlier version of this recipe (caught at the Chapter 5 QA gate; see the Progress Log).
+- **Reduced-motion pattern (MANDATORY, hydration-safe):** pass `initial`/`animate`/`whileInView`/`style` props UNCONDITIONALLY, and express reduced motion only through the `transition` prop: `transition={reduceMotion ? { duration: 0 } : { duration: 0.9, ease: EASE }}`. NEVER write `initial={reduceMotion ? false : ...}` or `style={reduceMotion ? undefined : ...}` — `useReducedMotion()` is null during SSR but resolves instantly on the client, so any branch that changes RENDERED OUTPUT causes a hydration mismatch (this exact bug shipped in Chapters 1-3 and was fixed in a dedicated pass; see the Progress Log). Transitions never appear in SSR HTML, so gating them is safe. The only exception is a structurally different reduced-motion layout (like Chapter 4's `StaticReveal`), which must be gated behind a post-mount flag (see `ChapterReveal.tsx`).
 
 ### Hard content rules
 - Zero em/en-dashes (`—`/`–`) in visible strings; use periods, commas, colons. Grep before commit.
@@ -132,7 +133,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
 
 ## B.3 Chapter specifications
 
-> **Chapters 2 and 3 are DONE** (built, wired into `page.tsx`, verified, committed). Read them as the reference implementations for this spec's quality bar: `src/components/v2/ChapterTruth.tsx` (Chapter 2) and `src/components/v2/ChapterTransformation.tsx` (Chapter 3, plus the two Chapter 3 foundations: `src/components/v2/MagneticCTA.tsx` and `src/components/v2/V2Silk.tsx`). Do not rebuild them. Start at Chapter 4.
+> **Chapters 2–10 are DONE** (built, wired into `page.tsx`, verified, committed). Full `/v2` arc complete. Optional next work: Part C assets and Part D final pass.
 
 ### Chapter 2 — The Truth (dark) · editorial offset stack · DONE
 **File:** `src/components/v2/ChapterTruth.tsx` (client).
@@ -157,7 +158,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
   - **After (cols 9–12):** the same four words aligned in a clean stack, full opacity, under a small `LOGO.svg` (h-6) lit by a faint gold radial (gold-as-light budget for this chapter).
 - Orchestration: fragments in first, portal scales 0.9→1, aligned stack settles last (staggered delays, durations ≥0.8s). Elegant; no arrows.
 
-### Chapter 4 — The Reveal (dark → cream) · pinned scrub scene (the only GSAP chapter)
+### Chapter 4 — The Reveal (dark → cream) · pinned scrub scene (the only GSAP chapter) · DONE
 **File:** `src/components/v2/ChapterReveal.tsx` (client).
 - Outer `<section class="relative h-[220vh]">`; inner `sticky top-0 h-[100dvh] flex items-center justify-center overflow-hidden`.
 - Layers inside the sticky frame, bottom→top: (1) dark `#0d0d0d` layer with `<V2Silk />` breathing slowly behind the text and the promise line in cream serif; (2) cream `var(--v2-cream)` layer with the SAME line in `#171412`, hidden via `clipPath: "circle(0% at 50% 55%)"`.
@@ -167,7 +168,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
 - Reduced-motion fallback (gate with `useReducedMotion()`, skip GSAP entirely): single static layer, `background: linear-gradient(180deg, #0d0d0d 0%, #0d0d0d 35%, var(--v2-cream) 65%)`, line centered in cream-on-dark upper half.
 - All following cream sections declare `bg-[#f2ede3]` explicitly.
 
-### Chapter 5 — The Brand World System (cream) · connected vertical rail · eyebrow 2/3
+### Chapter 5 — The Brand World System (cream) · connected vertical rail · eyebrow 2/3 · DONE
 **File:** `src/components/v2/ChapterSystem.tsx` (client).
 - `bg-[#f2ede3] text-[#171412] py-28 md:py-40`.
 - Eyebrow (red, Ch 1 classes): **"The Brand World System"**. Headline (serif): **"One story. Four forces. Endless momentum."** Intro (secondary): **"Everything your brand needs, connected into one world."**
@@ -179,7 +180,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
   4. **Experience Lab** / *"Brand presence beyond the screen."* / "Smart glass, projection, audiovisual environments. Concept-led, produced with partners."
 - Visual diversity: rows 2 and 3 get an image chip (`rounded-2xl overflow-hidden w-full md:w-56 aspect-[4/3]`, right-aligned): `/videos/v2/film-frame.jpg` and `/videos/v2/platform-frame.jpg` if the Part C kit has produced them, else `picsum.photos/seed/lionovart-film-frame/640/480` and `.../lionovart-platform/640/480`.
 
-### Chapter 6 — Selected Work & Creative Directions (cream→dark) · asymmetric editorial grid · id="work"
+### Chapter 6 — Selected Work & Creative Directions (cream→dark) · asymmetric editorial grid · id="work" · DONE
 **File:** `src/components/v2/ChapterWork.tsx` (client).
 - `bg-[#f2ede3]`; final ~30vh is `bg-gradient-to-b from-[#f2ede3] to-[#0d0d0d]` (tiles inside it switch captions to light text).
 - Headline (serif, charcoal): **"Selected work and creative directions."** Support: **"Built work, creative studies, and directions in progress. Labeled honestly."**
@@ -193,7 +194,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
   5. Content System / "Short-form story system" / seed `lionovart-content-system`
   6. Campaign Direction / "Launch campaign direction" / seed `lionovart-campaign`
 
-### Chapter 7 — Experience Lab (dark) · full-bleed scene
+### Chapter 7 — Experience Lab (dark) · full-bleed scene · DONE
 **File:** `src/components/v2/ChapterLab.tsx` (client).
 - `relative min-h-[90vh] bg-[#0d0d0d] flex items-end overflow-hidden`.
 - Backdrop: `/videos/v2/lab-loop.mp4` if produced (lazy `<video muted loop playsInline preload="none">`, poster `123613.webp`, mounted only in-view and not reduced-motion), else `123613.webp` with a slow Ken Burns (scale 1→1.06 over 12s, ambient exception). Scrim `bg-gradient-to-t from-[#0d0d0d] via-[#0d0d0d]/60 to-[#0d0d0d]/30`.
@@ -203,7 +204,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
   - Capability row (one Outfit line, `text-white/45 text-sm`): **"Smart glass, transparent LED, projection mapping, audiovisual spaces."**
 - No CTA here (intent budget stays clean).
 
-### Chapter 8 — Founder-Led (warm cream) · portrait split
+### Chapter 8 — Founder-Led (warm cream) · portrait split · DONE
 **File:** `src/components/v2/ChapterFounder.tsx` (client).
 - `bg-[#f2ede3] text-[#171412]`; top edge is a diagonal light wedge: `clip-path: polygon(0 4vw, 100% 0, 100% 100%, 0 100%)` + `margin-top: -4vw` slicing over Ch 7's dark bottom (mobile `2.5vw`).
 - Desktop split: portrait right ~42% (`Leon-Studioshot.avif`, `rounded-2xl`, warm overlay `from-[#8a6d2f]/15 to-transparent` bottom-up so gold reads as light); copy left. Mobile: portrait first.
@@ -213,7 +214,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
 - Beliefs litany (stacked, staggered, NOT bullets): `.v2-display` uppercase `text-[13px] tracking-[0.14em] text-[#171412]/70 space-y-3`:
   **"Story before content." / "Feeling before format." / "Strategy before design." / "Direction before production." / "Legacy over trends."**
 
-### Chapter 9 — Brand Presence Audit (warm cream) · centered form · id="audit" · eyebrow 3/3
+### Chapter 9 — Brand Presence Audit (warm cream) · centered form · id="audit" · eyebrow 3/3 · DONE
 **File:** `src/components/v2/ChapterAudit.tsx` (client).
 - `bg-[#f2ede3] text-[#171412] py-28 md:py-36`; column `max-w-[560px] mx-auto`.
 - Eyebrow (red): **"Free Brand Presence Audit"**. Headline (serif): **"Clarity begins with one conversation."** Body: **"A free, personalized review of your brand, website, content, and first impression, with clear next steps."**
@@ -223,7 +224,7 @@ Either way: lazy-mount via IntersectionObserver, unmount off-screen, render stat
 - POST `/api/strategist/lead`: `{ name, contact: email, contact_type: "email", project_summary: "Brand Presence Audit request. Website: <w|not provided>. Wants to be known for: <k|not provided>", source: "v2_audit" }`.
 - Four states: idle → submitting ("Sending...", disabled) → success (replace form: serif **"Request received."** + **"Leonardo will review your brand personally and reply with clear next steps."**) → error (inline: **"Something went wrong. Email us instead at connect@lionovart.com."** with `mailto:` via `CONTACT_EMAIL`).
 
-### Chapter 10 — Final CTA + Footer (dark) · centered manifesto close
+### Chapter 10 — Final CTA + Footer (dark) · centered manifesto close · DONE
 **Files:** `src/components/v2/ChapterFinal.tsx` (client) + `src/components/v2/FooterV2.tsx` (server).
 - `relative min-h-[90vh] bg-[#0d0d0d] flex items-center justify-center overflow-hidden`.
 - Backdrop: `<V2Silk />` (or its video/image fallback chain) + `1341.webp` at `opacity-70` under a dark scrim + low red ember glow (Ch 1 recipe).
@@ -269,13 +270,44 @@ Rules: every `<video>` is `muted loop playsInline preload="none"` with a poster,
 
 ---
 
-# PROGRESS LOG (read before starting Chapter 4)
+# PROGRESS LOG (read before starting Chapter 5)
 
 ## Done
 - **Chapter 1 — Hero.** `src/components/v2/ChapterHero.tsx`, `src/components/v2/HeaderV2.tsx`. Commit `a01d66f`.
 - **Chapter 2 — The Truth.** `src/components/v2/ChapterTruth.tsx`. Built earlier as an unwired reference file, wired into `page.tsx` and verified in the same cycle as Chapter 3.
-- **Chapter 3 — The Transformation.** `src/components/v2/ChapterTransformation.tsx`, plus the two foundations from Part B.2: `src/components/v2/MagneticCTA.tsx` and `src/components/v2/V2Silk.tsx`. `MagneticCTA` is retrofitted onto both Chapter 1 CTAs. `V2Silk` is built and verified in isolation (its own effect/cleanup logic exercised via mount and unmount) but is **not yet visually placed anywhere** — per spec it first renders in Chapter 4.
-- `src/app/v2/page.tsx` now renders Header → Hero → Truth → Transformation, in that order.
+- **Chapter 3 — The Transformation.** `src/components/v2/ChapterTransformation.tsx`, plus the two foundations from Part B.2: `src/components/v2/MagneticCTA.tsx` and `src/components/v2/V2Silk.tsx`. `MagneticCTA` is retrofitted onto both Chapter 1 CTAs.
+- **Chapter 4 — The Reveal.** `src/components/v2/ChapterReveal.tsx`. This is the first chapter to actually render `V2Silk`, which surfaced three real bugs in code that Chapter 3 had only built and unit-tested in isolation, never mounted for real. All three are fixed and verified; read the entries below before touching `V2Silk.tsx` or writing another chapter with a structurally-different reduced-motion fallback.
+- **Chapter 5 — The Brand World System.** `src/components/v2/ChapterSystem.tsx`. Cream section; continuous vertical red rail (content offset only); eyebrow 2/3; local next/image chips on pillars 2–3.
+- **Chapter 5 QA corrections (applied):** continuous rail at constant x; corrected masked-reveal recipe on Ch 5 + Ch 3 headlines; picsum replaced with local `/images` assets.
+- **Chapter 6 — Selected Work.** `src/components/v2/ChapterWork.tsx`. `id="work"`; asymmetric 7+5 / 5+7 / 8+4 grid; cream→dark band with light captions on last row; closing + Start Your Project WhatsApp CTA; local studio tile images.
+- **Chapter 7 — Experience Lab.** `src/components/v2/ChapterLab.tsx`. Full-bleed dark scene; `123613.webp` Ken Burns backdrop (lab-loop.mp4 not produced yet); bottom-left copy; no CTA.
+- **Chapter 8 — Founder-Led.** `src/components/v2/ChapterFounder.tsx`. Cream diagonal wedge over Lab; portrait split; beliefs litany.
+- **Chapter 9 — Brand Presence Audit.** `src/components/v2/ChapterAudit.tsx`. `id="audit"`; eyebrow 3/3; form POST `/api/strategist/lead`; idle/submitting/success/error.
+- **Chapter 10 — Final CTA + Footer.** `src/components/v2/ChapterFinal.tsx` + `src/components/v2/FooterV2.tsx`. V2Silk + 1341 backdrop; story line ends at LOGO mark; dual CTAs; minimal footer.
+- `src/app/v2/page.tsx` now renders Header → all 10 chapters → FooterV2.
+- **Part D final pass (post-Ch 10):** `npx tsc --noEmit` clean; dash-guard hits only in `/* */` comments (known false positives); `npm run build` compiled successfully (`/v2` static); full scroll-through desktop 1440 and mobile 390 (10 sections + footer, no horizontal overflow, 0 hydration errors); eyebrow count exactly 3 (Ch1 / Ch5 / Ch9); theme by section height ~49/51 dark/cream desktop and ~46/54 mobile (cream weighted by tall Work grid; red remains accent-only, not a fill band); load ~2.1s to interactive content in local dev.
+- **Part C asset kit (generated + wired):** `public/videos/v2/` holds silk-loop, hero-lion, lab-loop, final-embers (H.264, all ≤1.5MB), film-frame/platform-frame stills, and work-1..6 stills. Wired into ChapterHero (deferred hero video), ChapterSystem chips, ChapterWork tiles, ChapterLab (in-view video), ChapterFinal (embers under silk). V2Silk stays shader-first; silk-loop is available as a spare plate.
+- **Verify/debug pass (post-Chapter 4):** fixed the reduced-motion hydration bug across Chapters 1-3 + MagneticCTA (see the FIXED section below), re-verified hydration (0 errors both motion modes), reduced-motion visuals (all content visible, 59-60fps), and typecheck. The hydration-safe motion pattern is now a mandatory rule in Part B.1's taste layer.
+
+## Chapter 5 QA findings (supervisor gate; FIXED)
+
+Chapter 5's first submission passed copy fidelity, the eyebrow budget, the hydration gate (0/0 in both motion modes), typecheck, and the taste layer's motion pattern. Three findings, then fixed:
+
+**1. The rail is not continuous (spec deviation). FIXED.** Rail column stays at constant x; `md:ml-[6%]` offsets content only; segments run down from each node through the list gap; last row ends at its node.
+
+**2. Masked headline never renders. FIXED** on Chapter 5 and Chapter 3 via the corrected recipe (viewport on overflow wrapper, variants on inner).
+
+**3. Remote picsum chips. FIXED** with local next/image assets. Chapter 5 chips: pillar 2 → `/images/hero_img/1235.webp`, pillar 3 → `/images/hero_img/123613.webp`. Chapter 6 tiles use local `/images` studio assets (see ChapterWork.tsx WORK arrays). Part C kit stills still replace all of these when generated.
+
+## Bugs found building Chapter 4 (read before reusing V2Silk or a structural reduced-motion branch)
+
+**1. `V2Silk`'s wrapper hardcoded `position: relative`, which conflicts with callers passing `absolute`.** Both target the same CSS property; the cascade winner between two same-specificity Tailwind utilities is undefined by class-string order. Fixed: the wrapper no longer sets a default position. Callers MUST supply one via `className` (`absolute inset-0`, `relative w-56 h-56`, etc.) — same convention as `next/image`'s `fill`.
+
+**2. The noise-texture uniform raced against image decode, and `.complete` alone doesn't catch it.** `getShaderNoiseTexture()` returns an `<img>` pointed at a data: URI. `ShaderMount` throws `"image for uniform u_noiseTexture must be fully loaded"` if bound before decode finishes. `image.complete` can read `true` for a data URI before `naturalWidth` is actually populated (a real browser timing quirk) — checking `.complete` and falling back to a `load` listener otherwise still hit the race. The fix that actually works: `image.decode()` (a Promise that resolves only once the image is genuinely safe to use as a paint/texture source). See the current `V2Silk.tsx` for the full pattern, including the fallback path for browsers without `decode()`.
+
+**3. Stacking-context bug: a `z-10` element inside an unpositioned parent escapes and paints above unrelated siblings.** Chapter 4 stacks a dark layer and a cream layer as siblings, each `absolute inset-0`, relying on DOM order (cream, painted second, on top) for the reveal to work. The dark layer's heading had `relative z-10` (to sit above its own `V2Silk` background), but neither layer wrapper `div` established its own stacking context. Result: the dark layer's `z-10` heading escaped upward and painted above the *cream* layer too, regardless of DOM order. Because that heading is cream-colored text (`#f2ede3`, identical to the cream layer's own background), the bleed-through was invisible except at anti-aliased glyph edges — it rendered as a ghostly text outline once the cream layer became visible (looked fine at 0%/25% scroll, visibly broken at 75%/100%; don't assume the first frame you check is representative). Fixed by adding `isolate` to both layer wrapper divs. **General lesson: any element using `z-index` inside a layered/absolute composition needs its intended containing layer to have `isolate` (or its own explicit `z-index`), or the z-index isn't actually scoped to that layer.**
+
+**4. This environment's WebGL is software-rendered (SwiftShader), not real GPU hardware** (confirm via `WEBGL_debug_renderer_info` → `UNMASKED_RENDERER_WEBGL`; it will report `SwiftShader Device`). A live warp shader at the default 2x pixel ratio measured 2fps here with zero screenshot contention. **Do not use FPS readings from this sandbox to judge shader performance or decide to simplify a shader** — real GPUs, including mobile ones, render this same shader trivially at 60fps. That said, `ShaderMount`'s `minPixelRatio` defaults to 2 (retina-quality), which is real, avoidable cost even on real hardware for a soft ambient background layer. `V2Silk` now passes `minPixelRatio: 1` (roughly halved the SwiftShader reading here, confirming the change takes effect; expect no perceptible fidelity loss on a blurred/noisy shader like this one). Keep this cap when reusing `V2Silk` in Chapter 10.
 
 ## Two implementation learnings (save yourself a debugging cycle)
 
@@ -292,6 +324,12 @@ Rules: every `<video>` is `muted loop playsInline preload="none"` with a poster,
 If you drive this page with Playwright, do not use `page.hover()` synthetically on CTAs as a verification step: this repo's global `CustomCursor` component (root layout, outside `/v2` scope) can produce a visually confusing composited screenshot around the cursor position (looked like wrapped button text in one throwaway test here; it was not, confirmed via direct `getBoundingClientRect()`/`getComputedStyle()` measurement showing correct single-line `nowrap` layout on a clean, no-hover load). Verify CTA layout via DOM measurement or a clean-load screenshot, not a post-hover screenshot.
 
 Also: this site uses Lenis in `root` virtual-scroll mode (`src/components/providers/SmoothScrollProvider.tsx`). **Playwright's `page.screenshot({ fullPage: true })` is unreliable on this site** — it can render with large, incorrect gaps because Lenis positions content via CSS transform, not native scroll. For chapter verification, either take viewport-sized screenshots at specific scroll depths, or scroll precisely via `window.__lenis.scrollTo(y, { immediate: true })` (exposed in dev builds only) using each chapter's `getBoundingClientRect().top` measured immediately after page load, before anything has scrolled.
+
+## Reduced-motion hydration bug in Chapters 1-3: FIXED (dedicated debug pass)
+
+Previously flagged here as a known issue: loading `/v2` with `prefers-reduced-motion: reduce` active from the start produced a React hydration warning, because `useReducedMotion()` is null during SSR but resolves instantly on the client, and Chapters 1-3 branched RENDERED styles on it (`initial={reduceMotion ? false : "hidden"}`, `style={reduceMotion ? undefined : {...}}`), so server HTML and a reduced-motion client's first paint disagreed.
+
+Fixed in a dedicated verify/debug pass across `ChapterHero.tsx`, `ChapterTruth.tsx`, `ChapterTransformation.tsx`, and `MagneticCTA.tsx` using the pattern now mandated in Part B.1's taste layer: all rendered props (`initial`/`animate`/`whileInView`/`style`) are passed unconditionally, and reduced motion is expressed only through `transition={reduceMotion ? { duration: 0 } : {...}}` (transitions never appear in SSR output). The Chapter 3 ambient drift loop keeps its keyframes but collapses to static under duration 0 (keyframes start and end at 0); MagneticCTA passes its motion values unconditionally since they rest at 0 and its pointer handlers already no-op under reduced motion. Verified after the fix: **0 hydration errors in BOTH normal and reduced motion modes** (was 1 under reduced motion), reduced-motion rendering visually intact at 59-60fps (all content visible, layouts unchanged), typecheck clean. Follow this fixed pattern in Chapters 5-10; the current chapter files are the reference implementations.
 
 ## Out of scope (do not do)
 No edits outside `src/app/v2/**`, `src/components/v2/**`, `docs/V2_REBRAND_MASTER_PLAN.md`. No new npm dependencies (incl. three.js) without explicit user approval. No i18n. No full navigation menu (HeaderV2 stays). One draft PR per branch max; if the GitHub connector is unauthenticated, pushing the branch is sufficient.
@@ -402,3 +440,89 @@ Chapter to build: [N — Name, e.g. "5 — The Brand World System"]
 - The commit-authorship instruction is explicit: the repo's existing commits are signed "Claude Fable 5" because a Claude Code session wrote them. A different model must not reuse that trailer; it would misattribute the work.
 - Verification commands are phrased as "adapt to your environment" rather than the exact scratchpad/proxy paths used in this container, since GLM 5.2 will most likely run in a different sandbox.
 - The prompt forbids opening/updating the PR, since PR management for this branch is being handled from this Claude Code session (subscribed to leonartist7/Lionovart_Next#16); a second agent pushing commits to the same branch is fine, a second agent also touching the PR description/state is not.
+
+---
+
+# PART A.4 — EXECUTION DIRECTIVE FOR GROK 4.5: CHAPTERS 5-10
+
+This supersedes A.1 and A.3 for the remaining work. Written by the supervising session after Chapters 1-4 shipped; it reflects the true current state. Copy the block below as the first message of a fresh Grok 4.5 session with repo access.
+
+```
+You are executing chapters 5 through 10 of a partially-built landing
+page for LIONOVART under an executive director who has already built
+chapters 1-4 and written a full spec. Your job is disciplined
+execution, not creative reinterpretation. Follow the spec literally.
+Do not introduce WebGPU, Three.js, or any new dependency: that is a
+separate later phase.
+
+STEP 0 - BRANCH AND PR (the state you are inheriting)
+Work on the EXISTING branch claude/lionovart-rebrand-v2-8624vy (do not
+create a new branch; chapters 1-4 and the master plan live there, and
+draft PR #18 already tracks it). Commit after each chapter and push to
+that branch; the PR updates automatically. Do NOT open, edit, close,
+or merge any PR - PR management is handled by the supervising session.
+
+STEP 1 - READ, IN THIS ORDER, BEFORE WRITING ANY CODE
+1. docs/V2_REBRAND_MASTER_PLAN.md: the PROGRESS LOG first (real bugs
+   already found and fixed - do not re-debug or reintroduce them),
+   then Part B.1 (global rules, especially the taste layer's MANDATORY
+   reduced-motion pattern), then Part B.3 sections for chapters 5-10,
+   then Part D (verification protocol).
+2. src/components/v2/ChapterTruth.tsx and ChapterTransformation.tsx -
+   the quality bar and the exact motion/reveal patterns to copy
+   (unconditional initial + transition gated on useReducedMotion()).
+3. src/components/v2/ChapterReveal.tsx - reference for GSAP usage and
+   the mounted-gate pattern, though no chapter in 5-10 needs GSAP.
+4. src/components/v2/MagneticCTA.tsx and V2Silk.tsx - foundations.
+   Chapter 10 renders <V2Silk className="absolute inset-0" /> as-is;
+   never modify V2Silk's implementation or public API. Note its
+   className contract: the caller supplies the position.
+5. src/app/v2/page.tsx and src/app/v2/v2.css - assembly and tokens.
+Read nothing else in the repo. If a small detail is ambiguous, pick
+the simplest interpretation satisfying the global rules, note it in
+one sentence in your report, and keep moving.
+
+STEP 2 - NON-NEGOTIABLE RULES (the ones most often dropped)
+- Chapters 5, 6, 7, 8, 9, 10, in order, one commit per chapter.
+- Files you may touch: new chapter files under src/components/v2/,
+  their imports in src/app/v2/page.tsx, and nothing else. Never touch
+  src/app/page.tsx, src/app/layout.tsx, src/app/globals.css,
+  src/components/sections/**, src/components/ui/**, or V2Silk.tsx.
+- EXACT copy text from each chapter's spec, word for word. Zero
+  em-dashes or en-dashes in visible text (grep per Part D; matches
+  inside /* */ comment banners are known false positives - ignore
+  those, never "fix" them).
+- Reduced-motion pattern from Part B.1's taste layer is mandatory:
+  render props unconditional, gate ONLY the transition. Never
+  initial={reduceMotion ? false : ...}.
+- Reuse getWhatsAppUrl()/CONTACT_EMAIL from src/lib/contact.ts and
+  POST /api/strategist/lead for the Chapter 9 form. No new lead logic.
+- framer-motion whileInView only; no GSAP in chapters 5-10; animate
+  only transform/opacity; never window.addEventListener("scroll").
+- CTA intent lock per Part B.1: exact labels and hrefs, no new CTA copy.
+- Dev server needs WHATSAPP_NUMBER=15878974772 (pre-existing quirk).
+- Playwright on this site: no fullPage screenshots, no hover-based CTA
+  checks; scroll via window.__lenis.scrollTo(y, { immediate: true })
+  with offsets measured at load (details in the Progress Log). WebGL
+  here is SwiftShader (software): do NOT judge shader performance by
+  this sandbox's FPS.
+
+STEP 3 - BUILD each chapter to its Part B.3 spec.
+
+STEP 4 - VERIFY per chapter (Part D): typecheck, dash-guard grep,
+/v2 renders with no console errors AND no hydration warnings in BOTH
+normal and reduced motion modes (this is now a hard gate; chapters 1-4
+currently measure 0/0), desktop ~1440px and mobile ~390px screenshots
+at the chapter's scroll depth, earlier chapters unbroken. Chapter 9
+extra: form submit returns HTTP 200 (saved:false without Firebase is
+success), success and error UI states verified.
+
+STEP 5 - COMMIT after each chapter with a plain factual message.
+Sign with YOUR own identity as co-author, never "Claude" or any
+Anthropic model name. Push after each chapter. After Chapter 10, run
+Part D's final pass, push, and STOP with a full report: what you
+built, what you verified, every ambiguity you resolved and how.
+```
+
+### Supervisor's QA gates (held by the directing session, not Grok)
+On each pushed chapter the supervisor reviews: layout-family fidelity to the ledger in B.1, copy fidelity word-for-word, eyebrow budget (exactly 3 page-wide: Ch 1, Ch 5, Ch 9), theme arc correctness at the chapter's seams, hydration 0/0, and the taste layer (spacing, light-as-material, motion restraint). Chapter 9's form and Chapter 10's V2Silk reuse get a functional pass. Deviations get sent back with a one-line correction, not silently patched, so the executing model's context stays coherent.

@@ -44,3 +44,6 @@ nul
 
 # graphify knowledge graph (local cache, rebuild with /graphify --update)
 graphify-out/
+
+# Local v2 capture dumps (regenerate as needed; ~11MB+)
+docs/v2-screenshots/

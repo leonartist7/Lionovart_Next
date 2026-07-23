@@ -4,15 +4,16 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useServicesStyle } from "@/components/sections/services/servicesVariantStore";
 
+// Cloudinary (same account as rest of site) — f_auto/q_auto/w_900 for CWV-friendly delivery.
+const C = "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_900,c_fill,g_auto";
 const SERVICES_STATIC = [
-  { id: "branding",       number: "01", href: "/services/brand",           imgUrl: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=900&q=80", imgAlt: "Brand Identity" },
-  { id: "web",            number: "02", href: "/services/web",             imgUrl: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=900&q=80", imgAlt: "Web Development" },
-  { id: "content-studio", number: "03", href: "/services/content-studio",  imgUrl: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=900&q=80", imgAlt: "Content Studio" },
-  { id: "print",          number: "04", href: "/services/print",           imgUrl: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=900&q=80", imgAlt: "Print Branding" },
-  { id: "smart-systems",  number: "05", href: "/services/ai",              imgUrl: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=900&q=80", imgAlt: "Smart Systems & AI" },
-  { id: "growth",         number: "06", href: "/services/growth",          imgUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&q=80", imgAlt: "Growth Marketing" },
+  { id: "branding",       number: "01", href: "/services/brand",          imgUrl: `${C}/v1775277351/1_1_bv3shm.avif`, imgAlt: "Brand Identity" },
+  { id: "web",            number: "02", href: "/services/web",            imgUrl: `${C}/v1775277353/freepik_a-highly-polished-professional-uiux-website-homepage-mockup-for-a-modern-luxury-car-dealership.-clean-gridbased-layout-with-a-dark-theme-featuring-charcoal-grey-backgrounds-metallic-silve_0001_zglhcb.avif`, imgAlt: "Web Development" },
+  { id: "content-studio", number: "03", href: "/services/content-studio", imgUrl: `${C}/v1775277354/freepik_from-this-brand-help-me-make-a-mockup-of-her-landing-page-keeping-the-visual-identity..-looking-very-premium-and-elegant-and-perfect_0001_1_u6hnjz.avif`, imgAlt: "Content Studio" },
+  { id: "print",          number: "04", href: "/services/print",          imgUrl: `${C}/v1775277351/Thumb_2_p6ksrb.avif`, imgAlt: "Print Branding" },
+  { id: "smart-systems",  number: "05", href: "/services/ai",             imgUrl: `${C}/v1775277352/Frame_1_zhyago.avif`, imgAlt: "Smart Systems & AI" },
+  { id: "growth",         number: "06", href: "/services/growth",         imgUrl: `${C}/v1775277350/image_19_rnwg8w.avif`, imgAlt: "Growth Marketing" },
 ];
 
 export default function Services(props: any) {
@@ -41,9 +42,6 @@ export default function Services(props: any) {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const active = SERVICES[activeIndex] ?? SERVICES[0];
-
-  // TEMP eval — flat vs neumorphic styling, flipped live via <ServicesVariantToggle>.
-  const neu = useServicesStyle() === "neumorphic";
 
   /* ── Desktop: useScroll on the tall scroll zone ─────────────── */
   const desktopScrollRef = useRef<HTMLDivElement>(null);
@@ -135,11 +133,7 @@ export default function Services(props: any) {
                           window.scrollTo({ top: top + i * perService + perService * 0.5, behavior: "smooth" });
                         }
                       }}
-                      className={`group flex items-baseline gap-4 text-left w-full py-[clamp(8px,1.2vh,18px)] transition-all duration-500 ${
-                        neu && isActive
-                          ? "rounded-2xl px-4 shadow-[3px_3px_8px_rgba(0,0,0,0.10),-3px_-3px_8px_rgba(255,255,255,0.95)]"
-                          : ""
-                      }`}
+                      className="group flex items-baseline gap-4 text-left w-full py-[clamp(8px,1.2vh,18px)] transition-all duration-500"
                     >
                       <span
                         className={`font-mono text-[11px] xl:text-[12px] tracking-widest shrink-0 transition-all duration-500 ${
@@ -234,11 +228,7 @@ export default function Services(props: any) {
               <button
                 type="button"
                 onClick={() => setActiveIndex(i)}
-                className={`flex items-baseline gap-3 w-full text-left py-9 md:py-11 transition-all duration-500 ${
-                  neu && isActive
-                    ? "rounded-2xl px-4 shadow-[3px_3px_8px_rgba(0,0,0,0.10),-3px_-3px_8px_rgba(255,255,255,0.95)]"
-                    : ""
-                }`}
+                className="flex items-baseline gap-3 w-full text-left py-9 md:py-11 transition-all duration-500"
               >
                 <span
                   className={`font-mono text-[11px] tracking-widest shrink-0 transition-colors duration-400 ${

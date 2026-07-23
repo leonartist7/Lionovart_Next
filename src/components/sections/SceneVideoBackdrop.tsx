@@ -87,22 +87,25 @@ export default function SceneVideoBackdrop() {
       style={{ opacity: sceneOpacity }}
       aria-hidden="true"
     >
-      <AnimatePresence>
-        <motion.video
-          key={index}
-          ref={activeVideoRef}
-          className="absolute inset-0 h-full w-full object-cover"
-          src={CLIPS[index]}
-          loop
-          muted
-          playsInline
-          preload="auto"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1, ease: "easeInOut" }}
-        />
-      </AnimatePresence>
+      {/* No video element until armed — avoids multi-MB download on first paint. */}
+      {started && (
+        <AnimatePresence>
+          <motion.video
+            key={index}
+            ref={activeVideoRef}
+            className="absolute inset-0 h-full w-full object-cover"
+            src={CLIPS[index]}
+            loop
+            muted
+            playsInline
+            preload="auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1, ease: "easeInOut" }}
+          />
+        </AnimatePresence>
+      )}
 
       {/* Light, even tint — the hero's own overlay governs the dark stage +
           the fold peek, so keep this subtle to preserve video detail. */}
