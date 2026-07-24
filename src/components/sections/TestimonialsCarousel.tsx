@@ -4,15 +4,15 @@ import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "re
 import { AnimatePresence, motion, type PanInfo, useReducedMotion } from "framer-motion";
 
 const AUTO_PLAY_INTERVAL = 3000;
-const TRANSITION_DURATION = 0.6;
+const TRANSITION_DURATION = 0.95;
 const TRANSITION_MS = TRANSITION_DURATION * 1000;
 const SWIPE_DISTANCE = 48;
 const SWIPE_VELOCITY = 420;
 const TRACK_OFFSETS = [-2, -1, 0, 1, 2] as const;
-const TRACK_EASE = [0.16, 1, 0.3, 1] as const;
+const TRACK_EASE = [0.22, 1, 0.36, 1] as const;
 const SIDE_SCALE = 0.85;
 const SIDE_VISIBLE_RATIO = 0.15;
-const CONTENT_REVEAL_DELAY_MS = 400;
+const CONTENT_REVEAL_DELAY_MS = 360;
 
 type CarouselItem = {
   brand: string;
@@ -96,7 +96,7 @@ function PartnerCard({
 
       <div
         style={{ transitionDelay: contentVisible ? `${contentDelayMs}ms` : "0ms" }}
-        className={`relative z-10 flex h-full flex-col p-5 transition-[opacity,transform] duration-200 ease-out sm:p-6 lg:px-8 lg:py-7 ${
+        className={`relative z-10 flex h-full flex-col p-5 transition-[opacity,transform] duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:p-6 lg:px-8 lg:py-7 ${
           contentVisible
             ? "translate-y-0 opacity-100"
             : "pointer-events-none translate-y-2 opacity-0"
@@ -105,11 +105,11 @@ function PartnerCard({
         <div className="flex min-h-0 flex-1 flex-col">
           <span
             aria-hidden="true"
-            className="block h-10 font-serif text-[58px] font-bold leading-[0.75] text-brand-red sm:h-11 sm:text-[64px]"
+            className="block h-[3.65rem] font-serif text-[clamp(4.75rem,8.5vw,6.5rem)] font-bold leading-[0.68] text-brand-red sm:h-[4.25rem]"
           >
             &ldquo;
           </span>
-          <blockquote className="mt-2 max-w-[58ch] font-clash text-[15px] font-medium leading-[1.55] text-white/90 sm:text-[16px] lg:text-[18px]">
+          <blockquote className="mt-[0.65em] max-w-[58ch] font-clash text-[clamp(1.05rem,1.35vw,1.4rem)] font-medium leading-[1.6] text-white/90">
             {partner.shortQuote}&rdquo;
           </blockquote>
 

@@ -1,6 +1,5 @@
 import HeroTop from "@/components/sections/HeroTop";
 import SceneVideoBackdrop from "@/components/sections/SceneVideoBackdrop";
-import { HeroLogoFly } from "@/components/ui/HeroLogoFly";
 
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import WhatWeDo from "@/components/sections/WhatWeDo";
@@ -31,7 +30,6 @@ export function PageBuilder() {
   return (
     <>
       <SceneVideoBackdrop />
-      <HeroLogoFly />
 
       <NovaSection id="hero"><HeroTop /></NovaSection>
 

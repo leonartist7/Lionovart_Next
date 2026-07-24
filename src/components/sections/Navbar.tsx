@@ -7,9 +7,8 @@ import {
   useMotionValueEvent,
   AnimatePresence,
 } from "framer-motion";
-import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { hrefForTitle } from "@/lib/service-routes";
 import { useLenis } from "lenis/react";
 import { getWhatsAppUrl } from "@/lib/contact";
@@ -89,15 +88,9 @@ export default function Navbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [heroThreshold, setHeroThreshold] = useState(600);
   const [isVisible, setIsVisible] = useState(true);
-  const [isPhone, setIsPhone] = useState(false);
   const [expertiseOpen, setExpertiseOpen] = useState(false);
   const [mobileExpertiseOpen, setMobileExpertiseOpen] = useState(false);
   const { scrollY } = useScroll();
-  const pathname = usePathname();
-  const isHome = pathname === "/";
-  // On home the hero flier provides the visible logo; navbar logo is the
-  // invisible click target underneath until the flier docks onto it.
-  const heroLogoHidden = isHome;
   const { t, locale } = useLanguage();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lenis = useLenis() as any;
@@ -105,10 +98,7 @@ export default function Navbar() {
 
   const services: string[] = (t.services?.items ?? []).map((s: { title: string }) => s.title);
 
-  // CTA button auto-fits its label so longer languages (FR "Commencer",
-  // ES "Empezar") never overflow the pill.
   const ctaLabel = t.nav.cta;
-  const btnWidth = Math.max(isPhone ? 100 : 140, ctaLabel.length * 12 + 40);
 
   const scrollToTarget = (target: string) => {
     const el = document.querySelector(`[data-nova-section="${target}"], #${target}`);
@@ -132,6 +122,13 @@ export default function Navbar() {
     setMobileExpertiseOpen(false);
     setExpertiseOpen(false);
     router.push(href);
+  };
+
+  const openNavCta = () => {
+    setIsMobileOpen(false);
+    setMobileExpertiseOpen(false);
+    setExpertiseOpen(false);
+    window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer");
   };
 
   // Mega-menu hover controller: a small close delay bridges the gap between the
@@ -179,9 +176,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const calc = () => {
-      // Glass appears just after the hero logo finishes docking (~0.55vh).
       setHeroThreshold(window.innerHeight * 0.62);
-      setIsPhone(window.innerWidth < 640);
     };
     calc();
     window.addEventListener("resize", calc);
@@ -283,27 +278,24 @@ export default function Navbar() {
           {/* Nav inner row */}
           <div className="relative mx-auto flex w-full items-center justify-between px-4 pt-2 pb-1 lg:px-7">
 
-            {/* Logo */}
-            <div className="z-40 flex flex-1 items-center">
-              <Link href="/" className="inline-flex items-center gap-2">
-                <img
-                  src="/images/Icon.avif"
-                  alt="Lionovart logo"
-                  aria-hidden="true"
-                  className="h-8 w-8 sm:h-11 sm:w-11 rounded-full object-cover shrink-0"
-                />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/images/LOGO.svg"
-                  alt="LIONOVART"
-                  data-nav-logo
-                  className="h-5 sm:h-6 w-auto"
-                  // On home the hero flier IS the visible logo (it docks here);
-                  // keep this as an invisible click target. Elsewhere show it.
-                  style={{ opacity: heroLogoHidden ? 0 : 1 }}
-                />
-              </Link>
-            </div>
+            {/* Icon at the left edge, with the wordmark held at true center. */}
+            <Link href="/" className="relative z-40 inline-flex shrink-0 items-center">
+              <img
+                src="/images/Icon.avif"
+                alt="Lionovart home"
+                className="h-[2rem] w-[2rem] rounded-full object-cover sm:h-[2.25rem] sm:w-[2.25rem] lg:h-[2.5rem] lg:w-[2.5rem]"
+              />
+            </Link>
+
+            <Link href="/" className="absolute left-1/2 z-40 -translate-x-1/2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/LOGO.svg"
+                alt="LIONOVART"
+                data-nav-logo
+                className="h-[1.25rem] w-auto sm:h-[1.375rem] lg:h-[1.5rem]"
+              />
+            </Link>
 
             {/*
               Desktop nav links — hero mode only.
@@ -313,11 +305,11 @@ export default function Navbar() {
               {heroMode && (
                 <motion.div
                   key="desktop-links"
-                  className="hidden lg:flex flex-auto items-center justify-center"
+                  className="hidden xl:flex flex-1 items-center justify-start pl-[3.5rem]"
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0, transition: { duration: 0.25 } }}
                 >
-                  <ul className="flex items-center justify-center gap-9">
+                  <ul className="flex items-center justify-start gap-6 xl:gap-8">
                     {NAV_LINKS.map((link) => (
                       <li
                         key={link.target}
@@ -351,7 +343,7 @@ export default function Navbar() {
               )}
             </AnimatePresence>
 
-            {/* Language switcher + CTA (always) + burger(s) */}
+            {/* Language switcher and menu */}
             <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4 lg:gap-5">
               {/* Language switcher — visible in hero (red) mode, hidden after transition */}
               <AnimatePresence>
@@ -369,20 +361,6 @@ export default function Navbar() {
                 )}
               </AnimatePresence>
 
-              {/* Hero image cycler relocated to HeroImageCycler inside the hero. */}
-
-              {/* CTA — always visible (flat, performant) */}
-              <div className="shrink-0">
-                <button
-                  type="button"
-                  onClick={() => window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer")}
-                  style={{ minWidth: btnWidth }}
-                  className="rounded-full bg-brand-red text-white font-bold uppercase tracking-[0.08em] text-[13px] px-6 py-2.5 hover:bg-[#c8121f] transition-colors"
-                >
-                  {ctaLabel}
-                </button>
-              </div>
-
               {/* Mobile burger — always visible on small screens */}
               <MenuBurgerLottie
                 isOpen={isMobileOpen}
@@ -390,21 +368,12 @@ export default function Navbar() {
                 className="lg:hidden"
               />
 
-              {/*
-                Desktop burger — hidden on mobile (span is hidden lg:flex).
-                Fades in smoothly when transitioning from hero → glass mode.
-              */}
-              <motion.span
-                className="hidden lg:flex"
-                animate={{ opacity: heroMode ? 0 : 1 }}
-                transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                style={{ pointerEvents: heroMode ? "none" : "auto" }}
-              >
+              <span className="hidden lg:flex">
                 <MenuBurgerLottie
                   isOpen={isMobileOpen}
                   onToggle={() => setIsMobileOpen((v) => !v)}
                 />
-              </motion.span>
+              </span>
             </div>
           </div>
         </motion.header>
@@ -546,12 +515,28 @@ export default function Navbar() {
                   </motion.div>
                 ))}
 
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 6 }}
+                  transition={{ duration: 0.25, delay: NAV_LINKS.length * 0.06 }}
+                  className="flex w-full justify-center lg:w-auto"
+                >
+                  <button
+                    type="button"
+                    onClick={openNavCta}
+                    className="w-full rounded-full bg-brand-red px-6 py-2.5 text-[0.8125rem] font-bold uppercase tracking-[0.08em] text-white transition-colors hover:bg-[#c8121f] lg:w-auto"
+                  >
+                    {ctaLabel}
+                  </button>
+                </motion.div>
+
                 {/* Language switcher */}
                 <motion.div
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 6 }}
-                  transition={{ duration: 0.2, delay: NAV_LINKS.length * 0.06 }}
+                  transition={{ duration: 0.2, delay: (NAV_LINKS.length + 1) * 0.06 }}
                 >
                   <LanguageSwitcher isHeroMode={false} />
                 </motion.div>
