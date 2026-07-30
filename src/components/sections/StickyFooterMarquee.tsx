@@ -2,9 +2,12 @@
 
 export default function StickyFooterMarquee() {
   return (
-    <div id="footer-marquee" className="sticky bottom-0 z-0 w-full overflow-hidden bg-brand-red py-6 pointer-events-none">
+    <div
+      id="footer-marquee"
+      className="pointer-events-none sticky bottom-0 z-0 w-full overflow-hidden bg-brand-red py-[clamp(1rem,2.2vw,1.5rem)]"
+    >
       <div className="flex w-full justify-center whitespace-nowrap">
-        <span className="px-6 text-[3.5rem] sm:text-[6rem] md:text-[9rem] font-bold uppercase font-clash text-white select-none">
+        <span className="select-none px-4 font-clash text-[clamp(3.25rem,11vw,9rem)] font-bold uppercase leading-[0.82] tracking-[-0.045em] text-white sm:px-6">
           LIONOVART®
         </span>
       </div>

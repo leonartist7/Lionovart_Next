@@ -4,6 +4,21 @@ import type { Translations } from "./en";
 
 export const ko: Translations = {
   ...en,
+  bridge: {
+    line1: "혼자서도 강하게,",
+    line2: "더 강하게",
+    accent: "함께",
+  },
+  footer: {
+    ...en.footer,
+    explore: "둘러보기",
+    services: "서비스",
+    about: "회사 소개",
+    whyUs: "왜 Lionovart인가",
+    howWeWork: "진행 방식",
+    results: "성과",
+    whatsapp: "WhatsApp",
+  },
   whatWeDo: {
     eyebrow: "우리가 하는 일",
     statement: "브랜드를 무시할 수 없게 만듭니다.",

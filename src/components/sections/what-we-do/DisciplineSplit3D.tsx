@@ -152,19 +152,11 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
     offset: ["start start", "end end"],
   });
   const p = useTransform(scrollYProgress, [0.12, 0.62], [0, 1], { clamp: true });
-  // Scroll-linked background: black through the split, then morphs to off-white
-  // over the section's tail → smooth colour transition into the About section.
-  const bgColor = useTransform(
-    scrollYProgress,
-    [0, 0.45, 0.72, 1],
-    ["#0a0a0a", "#0a0a0a", "#7d736b", "#f7f4ef"]
-  );
-
   return (
     <motion.section
       ref={sectionRef}
-      className="relative"
-      style={{ height: "230vh", backgroundColor: bgColor }}
+      className="relative bg-[#0a0a0a]"
+      style={{ height: "230vh" }}
     >
       <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden px-3 md:px-4">
         <div

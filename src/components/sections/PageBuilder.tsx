@@ -1,5 +1,6 @@
 import HeroTop from "@/components/sections/HeroTop";
 import SceneVideoBackdrop from "@/components/sections/SceneVideoBackdrop";
+import BridgeStatement from "@/components/sections/BridgeStatement";
 
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import WhatWeDo from "@/components/sections/WhatWeDo";
@@ -35,12 +36,13 @@ export function PageBuilder() {
 
       <div className="relative z-[2]">
         <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
-        <NovaSection id="about"><AboutUsHalf /></NovaSection>
+        <BridgeStatement />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
         <NovaSection id="offer"><SignatureOffer /></NovaSection>
         <NovaSection id="services"><Services /></NovaSection>
         <SectionTitleCard word="PROOF." theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>
+        <NovaSection id="about"><AboutUsHalf /></NovaSection>
         <NovaSection id="process"><Process /></NovaSection>
         <SectionTitleCard word="CONFIDENCE." theme="light" />
         <NovaSection id="testimonials"><Testimonials /></NovaSection>

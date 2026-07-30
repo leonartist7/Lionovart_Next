@@ -64,23 +64,8 @@ const FLAGS = [
 ];
 
 /* ── Laurel-framed badge ────────────────────────────────── */
-// Laurels are recolored to brand red via CSS mask (the .webp alpha = leaf shape).
 const LAUREL_CLASS =
-  "h-[60px] sm:h-[70px] md:h-[80px] lg:h-[88px] xl:h-[100px] aspect-[236/472] pointer-events-none select-none shrink-0";
-
-function laurelStyle(src: string): React.CSSProperties {
-  return {
-    backgroundColor: "#e5192a",
-    WebkitMaskImage: `url(${src})`,
-    maskImage: `url(${src})`,
-    WebkitMaskRepeat: "no-repeat",
-    maskRepeat: "no-repeat",
-    WebkitMaskSize: "contain",
-    maskSize: "contain",
-    WebkitMaskPosition: "center",
-    maskPosition: "center",
-  };
-}
+  "h-[60px] w-auto object-contain sm:h-[70px] md:h-[80px] lg:h-[88px] xl:h-[100px] pointer-events-none select-none shrink-0";
 
 function TrustBadge({
   children,
@@ -93,7 +78,12 @@ function TrustBadge({
 }) {
   return (
     <div className="flex items-center justify-center gap-2.5 md:gap-4">
-      <span aria-hidden="true" className={LAUREL_CLASS} style={laurelStyle("/images/laurel-L.webp")} />
+      <img
+        aria-hidden="true"
+        src="/images/hero_img/Laurel-L.avif"
+        alt=""
+        className={LAUREL_CLASS}
+      />
       <div
         className="flex flex-col items-center justify-center text-center flex-shrink-0"
         style={{ width: contentWidth }}
@@ -101,14 +91,19 @@ function TrustBadge({
         {children}
         {title && (
           <span
-            className="text-[#e5192a] font-bold uppercase tracking-tight leading-[1.1] mt-1"
+            className="text-white font-bold uppercase tracking-tight leading-[1.1] mt-1"
             style={{ fontSize: contentWidth * 0.16 }}
           >
             {title}
           </span>
         )}
       </div>
-      <span aria-hidden="true" className={LAUREL_CLASS} style={laurelStyle("/images/laurel-R.webp")} />
+      <img
+        aria-hidden="true"
+        src="/images/hero_img/Laurel-R.avif"
+        alt=""
+        className={LAUREL_CLASS}
+      />
     </div>
   );
 }
@@ -194,17 +189,17 @@ function TrustBadgesInner({
           <div className="flex flex-col items-center gap-2 sm:gap-3 w-full">
             <div className="flex items-center justify-between w-[95%]">
               {[0, 1, 2, 3, 4].map((i) => (
-                <motion.svg
+                <motion.img
                   key={i}
-                  viewBox="0 0 24 24"
-                  fill="#e5192a"
-                  style={{ width: midWidth * 0.2, height: midWidth * 0.2 }}
+                  src="/images/hero_img/Gold Start_stats.avif"
+                  alt=""
+                  aria-hidden="true"
+                  className="h-auto object-contain"
+                  style={{ width: midWidth * 0.2 }}
                   initial={{ scale: 0, opacity: 0 }}
                   animate={shouldAnimate ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
                   transition={{ duration: 0.4, delay: 0.3 + i * 0.08, ease: [0.34, 1.56, 0.64, 1] }}
-                >
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </motion.svg>
+                />
               ))}
             </div>
             <div className="flex items-center justify-center w-full">
@@ -257,7 +252,7 @@ function TrustBadgesInner({
               {countriesCount}
             </div>
             <span
-              className="text-[#e5192a] font-bold uppercase tracking-tight leading-[1.1] mt-1"
+              className="text-white font-bold uppercase tracking-tight leading-[1.1] mt-1"
               style={{ fontSize: sideWidth * 0.16 }}
             >
               {badges.countries}

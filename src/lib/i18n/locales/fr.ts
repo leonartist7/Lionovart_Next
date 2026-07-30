@@ -115,6 +115,12 @@ export const fr: Translations = {
     ],
   },
 
+  bridge: {
+    line1: "Forts seuls,",
+    line2: "Plus forts",
+    accent: "ensemble",
+  },
+
   footer: {
     heading: "Prêt à",
     headingAccent: "Dominer ?",
@@ -126,6 +132,13 @@ export const fr: Translations = {
     privacy: "Confidentialité",
     terms: "Conditions",
     copyright: "Tous droits réservés.",
+    explore: "Explorer",
+    services: "Services",
+    about: "À propos",
+    whyUs: "Pourquoi nous",
+    howWeWork: "Notre méthode",
+    results: "Résultats",
+    whatsapp: "WhatsApp",
   },
 
   comparison: {

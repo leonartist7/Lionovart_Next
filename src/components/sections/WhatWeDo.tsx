@@ -36,8 +36,7 @@ const CARDS = [
 
 export default function WhatWeDo() {
   return (
-    // Transparent wrapper so the split section's top gradient shows the
-    // still-fading hero video through it (smooth seam).
+    // The split sequence now owns a stable dark surface from start to finish.
     <div className="text-white">
       <DisciplineSplit3D cards={CARDS} video={SPLIT_VIDEO} />
     </div>

@@ -4,6 +4,21 @@ import type { Translations } from "./en";
 
 export const it: Translations = {
   ...en,
+  bridge: {
+    line1: "Forti da soli,",
+    line2: "Più forti",
+    accent: "insieme",
+  },
+  footer: {
+    ...en.footer,
+    explore: "Esplora",
+    services: "Servizi",
+    about: "Chi siamo",
+    whyUs: "Perché noi",
+    howWeWork: "Come lavoriamo",
+    results: "Risultati",
+    whatsapp: "WhatsApp",
+  },
   whatWeDo: {
     eyebrow: "Cosa Facciamo",
     statement: "Rendiamo i brand impossibili da ignorare.",

@@ -5,13 +5,6 @@ import { getWhatsAppUrl, CONTACT_EMAIL } from "@/lib/contact";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SERVICE_ROUTES } from "@/lib/service-routes";
 
-const COMPANY_LINKS = [
-  { label: "About", href: "/#about" },
-  { label: "Work", href: "/#work" },
-  { label: "Results", href: "/#testimonials" },
-  { label: "Services", href: "/services" },
-];
-
 /**
  * Global footer — slim, professional. The closing CTA now lives in its own
  * <ClosingCTA/> section (one per page), so the footer is just navigation +
@@ -21,11 +14,17 @@ const COMPANY_LINKS = [
 export default function Footer() {
   const { t } = useLanguage();
   const year = new Date().getFullYear();
+  const exploreLinks = [
+    { label: t.footer.about, href: "/#about" },
+    { label: t.footer.whyUs, href: "/#comparison" },
+    { label: t.footer.howWeWork, href: "/#process" },
+    { label: t.footer.results, href: "/#testimonials" },
+  ];
 
   return (
     <footer className="relative z-0 border-t border-border-dark bg-[#000000]">
       <div className="mx-auto w-full max-w-[1200px] px-6 py-16 md:px-8 md:py-20">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+        <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 md:grid-cols-[1.5fr_0.85fr_1.2fr] md:gap-10">
           {/* Brand + contact */}
           <div className="flex flex-col gap-5">
             <span className="font-clash text-2xl font-bold uppercase tracking-tight text-white">
@@ -47,45 +46,27 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="text-[14px] text-white/80 transition-colors hover:text-brand-red"
               >
-                WhatsApp
+                {t.footer.whatsapp}
               </a>
             </div>
           </div>
 
-          {/* Services */}
-          <FooterCol heading="Services">
-            {SERVICE_ROUTES.map((s) =>
-              s.ready ? (
-                <FooterLink key={s.id} href={s.href}>
-                  {s.name}
-                </FooterLink>
-              ) : (
-                <span
-                  key={s.id}
-                  className="flex items-center gap-2 text-[14px] text-white/35"
-                >
-                  {s.name}
-                  <span className="rounded-full border border-white/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em]">
-                    Soon
-                  </span>
-                </span>
-              ),
-            )}
-          </FooterCol>
-
-          {/* Company */}
-          <FooterCol heading="Company">
-            {COMPANY_LINKS.map((l) => (
-              <FooterLink key={l.href} href={l.href}>
-                {l.label}
+          {/* Explore */}
+          <FooterCol heading={t.footer.explore}>
+            {exploreLinks.map((link) => (
+              <FooterLink key={link.href} href={link.href}>
+                {link.label}
               </FooterLink>
             ))}
           </FooterCol>
 
-          {/* Legal */}
-          <FooterCol heading="Legal">
-            <FooterLink href="/privacy">{t.footer.privacy}</FooterLink>
-            <FooterLink href="/terms">{t.footer.terms}</FooterLink>
+          {/* Available services */}
+          <FooterCol heading={t.footer.services}>
+            {SERVICE_ROUTES.filter((service) => service.ready).map((service) => (
+              <FooterLink key={service.id} href={service.href}>
+                {service.name}
+              </FooterLink>
+            ))}
           </FooterCol>
         </div>
 

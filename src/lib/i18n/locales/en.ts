@@ -120,6 +120,12 @@ export const en = {
     ],
   },
 
+  bridge: {
+    line1: "Strong alone,",
+    line2: "Stronger",
+    accent: "together",
+  },
+
   footer: {
     heading: "Ready to",
     headingAccent: "Dominate?",
@@ -131,6 +137,13 @@ export const en = {
     privacy: "Privacy",
     terms: "Terms",
     copyright: "All rights reserved.",
+    explore: "Explore",
+    services: "Services",
+    about: "About",
+    whyUs: "Why Us",
+    howWeWork: "How We Work",
+    results: "Results",
+    whatsapp: "WhatsApp",
   },
 
   comparison: {
