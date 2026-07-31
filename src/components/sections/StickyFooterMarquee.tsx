@@ -11,7 +11,7 @@ export default function StickyFooterMarquee() {
     >
       <div className="flex w-full justify-center whitespace-nowrap">
         <span className="select-none px-4 font-clash text-[clamp(3.25rem,11vw,9rem)] font-bold uppercase leading-[0.82] tracking-[-0.045em] text-white sm:px-6">
-          LIONOVARTÂ®
+          LIONOVART®
         </span>
       </div>
     </div>
