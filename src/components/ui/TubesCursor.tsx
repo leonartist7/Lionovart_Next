@@ -23,6 +23,9 @@ type TubesCursorConstructor = (
   options: unknown,
 ) => TubesApp;
 
+const TUBES_CURSOR_MODULE_URL =
+  "https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js";
+
 /**
  * Full-viewport pointer canvas for the interactive Tubes cursor effect.
  * The canvas never captures input, so the site's existing links and controls
@@ -49,11 +52,11 @@ export default function TubesCursor({
     void (async () => {
       try {
         // The Tubes runtime is intentionally loaded by the browser from a CDN.
-        // It has no local TypeScript declaration or npm package entry point.
-        // @ts-ignore -- external HTTPS module is resolved at runtime.
+        // Keeping the URL in a variable prevents the TypeScript compiler from
+        // treating it as a local module that must have a declaration file.
         const mod = await import(
           /* webpackIgnore: true */
-          "https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js"
+          TUBES_CURSOR_MODULE_URL
         );
         const TubesCursorCtor =
           (mod as { default?: TubesCursorConstructor }).default ??
