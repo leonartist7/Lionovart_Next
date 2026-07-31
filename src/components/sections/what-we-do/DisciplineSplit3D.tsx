@@ -7,6 +7,7 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
+import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 // Locked tag style (flip to red here if preferred).
 const TAG_CLASS = "border-white/25 text-white/75";
@@ -24,7 +25,7 @@ interface Props {
 }
 
 /**
- * DisciplineSplit3D — a cinematic card that starts as one seamless video and, on
+ * DisciplineSplit3D â€” a cinematic card that starts as one seamless video and, on
  * scroll, splits into three angled 3D cards (the outcome pillars). Desktop: three
  * horizontal slices. Mobile/tablet: three vertical slices. Bottom shadow appears
  * only as the cards split + content reveals.
@@ -83,12 +84,12 @@ function Slice({
         className="absolute inset-0 h-full w-full object-cover"
         style={{ opacity: imgOpacity }}
       />
-      {/* Legibility shadow — appears only as the cards split + text reveals */}
+      {/* Legibility shadow â€” appears only as the cards split + text reveals */}
       <motion.div
         className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"
         style={{ opacity: shadowOpacity }}
       />
-      {/* Content — revealed with the split */}
+      {/* Content â€” revealed with the split */}
       <motion.div
         className="absolute inset-x-0 bottom-0 p-5 md:p-6 text-left"
         style={{ y: contentShift, opacity: contentOpacity }}
@@ -99,7 +100,7 @@ function Slice({
         <p className="font-body text-[12.5px] md:text-[14px] leading-[1.5] text-white/65 mt-2 max-w-[34ch]">
           {card.body}
         </p>
-        {/* Tags — at the bottom */}
+        {/* Tags â€” at the bottom */}
         <div className="flex flex-wrap gap-1.5 mt-4">
           {card.tags.map((t) => (
             <span
@@ -116,6 +117,7 @@ function Slice({
 }
 
 export default function DisciplineSplit3D({ cards, video }: Props) {
+  const flow = useLandingFlow();
   const sectionRef = useRef<HTMLElement>(null);
   const [isDesktop, setIsDesktop] = useState(true);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
@@ -146,12 +148,17 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
     return () => io.disconnect();
   }, []);
 
-  // All hooks run unconditionally (before any early return) — hook order safe.
+  // All hooks run unconditionally (before any early return) â€” hook order safe.
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end end"],
   });
-  const p = useTransform(scrollYProgress, [0.12, 0.62], [0, 1], { clamp: true });
+  const logicalProgress = useTransform(
+    scrollYProgress,
+    [0, 1],
+    flow === "inverse" ? [1, 0] : [0, 1],
+  );
+  const p = useTransform(logicalProgress, [0.12, 0.62], [0, 1], { clamp: true });
   return (
     <motion.section
       ref={sectionRef}

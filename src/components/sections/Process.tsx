@@ -10,6 +10,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useLandingFlow } from "@/contexts/LandingFlowContext";
 import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
 
 type ProcessStep = {
@@ -35,7 +36,7 @@ const STEPS_STATIC = [
   {
     title: "Development & Refinement",
     description:
-      "We bring concepts to life — websites, video, social, and print. Everything is built to the same standard and reviewed with you at every stage.",
+      "We bring concepts to life â€” websites, video, social, and print. Everything is built to the same standard and reviewed with you at every stage.",
     tag: "Execution",
   },
   {
@@ -50,7 +51,7 @@ const clamp = (n: number, lo: number, hi: number) =>
   Math.min(Math.max(n, lo), hi);
 
 // Ring + lion frame share this radius so the line traces the exact circle edge.
-const RING_RADIUS = 48; // viewBox 0–100 → circle Ø = 96% of the stage
+const RING_RADIUS = 48; // viewBox 0â€“100 â†’ circle Ã˜ = 96% of the stage
 const RED = "#e5192a";
 
 // Vision copy (hardcoded for now; i18n type is `typeof en` across 5 locales).
@@ -58,6 +59,7 @@ const VISION_KICKER = "Not artificial.";
 const VISION = "Artistic Intelligence";
 
 export default function Process(props: any) {
+  const flow = useLandingFlow();
   const { t } = useLanguage();
 
   const eyebrow = props.eyebrow || t.process.eyebrow;
@@ -88,10 +90,15 @@ export default function Process(props: any) {
     target: sectionRef,
     offset: ["start start", "end end"],
   });
+  const logicalProgress = useTransform(
+    scrollYProgress,
+    [0, 1],
+    flow === "inverse" ? [1, 0] : [0, 1],
+  );
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [reveal, setReveal] = useState(false);
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
+  useMotionValueEvent(logicalProgress, "change", (v) => {
     const raw = clamp(Math.floor(v * frames), 0, frames - 1);
     const nextReveal = raw >= steps.length;
     const nextIdx = Math.min(raw, steps.length - 1);
@@ -102,13 +109,13 @@ export default function Process(props: any) {
   const active = steps[activeIndex] ?? steps[0];
 
   // Line fills across the step beats; full when the lion reveal begins.
-  const lineProgress = useTransform(scrollYProgress, [0, ringEnd], [0, 1], {
+  const lineProgress = useTransform(logicalProgress, [0, ringEnd], [0, 1], {
     clamp: true,
   });
   const runnerRotate = useTransform(lineProgress, [0, 1], [0, 360]);
   // Fade ticks/runner/step-text out as the lion takes the circle.
   const auxFade = useTransform(
-    scrollYProgress,
+    logicalProgress,
     [ringEnd, ringEnd + (1 - ringEnd) * 0.5],
     [1, 0],
     { clamp: true }
@@ -131,7 +138,7 @@ export default function Process(props: any) {
       style={{ height: `${frames * 100}vh` }}
     >
       <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden px-4">
-        {/* ── Header — crossfades from "How We Work" to the vision ── */}
+        {/* â”€â”€ Header â€” crossfades from "How We Work" to the vision â”€â”€ */}
         <div className="relative z-10 flex flex-col items-center text-center mb-8 md:mb-10 min-h-[6.5rem]">
           <AnimatePresence mode="wait">
             {reveal ? (
@@ -183,7 +190,7 @@ export default function Process(props: any) {
           </AnimatePresence>
         </div>
 
-        {/* ── The big circle = the dot of a giant "i" ── */}
+        {/* â”€â”€ The big circle = the dot of a giant "i" â”€â”€ */}
         <div
           className="relative z-10 shrink-0"
           style={{
@@ -191,7 +198,7 @@ export default function Process(props: any) {
             height: "var(--lion-circle-d)",
           }}
         >
-          {/* Lion — fills exactly inside the ring; only on reveal */}
+          {/* Lion â€” fills exactly inside the ring; only on reveal */}
           <motion.div
             className="absolute inset-[2%] rounded-full overflow-hidden z-0"
             initial={false}
@@ -207,7 +214,7 @@ export default function Process(props: any) {
             />
           </motion.div>
 
-          {/* Progress ring — stays as the circle frame (track + filling arc) */}
+          {/* Progress ring â€” stays as the circle frame (track + filling arc) */}
           <svg
             viewBox="0 0 100 100"
             className="absolute inset-0 w-full h-full -rotate-90 z-10"
@@ -233,7 +240,7 @@ export default function Process(props: any) {
             />
           </svg>
 
-          {/* Aux: ticks + runner + step text — fade/clear on reveal */}
+          {/* Aux: ticks + runner + step text â€” fade/clear on reveal */}
           <motion.div
             className="absolute inset-0 z-20"
             style={{ opacity: reduce ? 1 : auxFade }}
@@ -282,7 +289,7 @@ export default function Process(props: any) {
               </motion.div>
             )}
 
-            {/* Step text — centered, removed entirely once revealing */}
+            {/* Step text â€” centered, removed entirely once revealing */}
             <div className="absolute inset-0 flex items-center justify-center text-center px-[16%]">
               <AnimatePresence mode="wait">
                 {!reveal && (
@@ -314,7 +321,7 @@ export default function Process(props: any) {
             </div>
           </motion.div>
 
-          {/* The "i" stem — red bar below the dot; descends toward IMAGINE */}
+          {/* The "i" stem â€” red bar below the dot; descends toward IMAGINE */}
           <motion.div
             aria-hidden
             className="absolute left-1/2 top-full -translate-x-1/2 rounded-full"
@@ -331,7 +338,7 @@ export default function Process(props: any) {
           />
         </div>
 
-        {/* Description — mobile only, beneath the circle (cleared on reveal) */}
+        {/* Description â€” mobile only, beneath the circle (cleared on reveal) */}
         <motion.div
           className="md:hidden relative z-10 mt-8 px-4 max-w-[40ch] text-center min-h-[6rem]"
           style={{ opacity: reduce ? 1 : auxFade }}

@@ -4,8 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
-// Cloudinary (same account as rest of site) — f_auto/q_auto/w_900 for CWV-friendly delivery.
+// Cloudinary (same account as rest of site) â€” f_auto/q_auto/w_900 for CWV-friendly delivery.
 const C = "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_900,c_fill,g_auto";
 const SERVICES_STATIC = [
   { id: "branding",       number: "01", href: "/services/brand",          imgUrl: `${C}/v1775277351/1_1_bv3shm.avif`, imgAlt: "Brand Identity" },
@@ -17,6 +18,7 @@ const SERVICES_STATIC = [
 ];
 
 export default function Services(props: any) {
+  const flow = useLandingFlow();
   const { t } = useLanguage();
 
   const eyebrow     = props.eyebrow      || t.services.eyebrow;
@@ -43,18 +45,19 @@ export default function Services(props: any) {
   const [activeIndex, setActiveIndex] = useState(0);
   const active = SERVICES[activeIndex] ?? SERVICES[0];
 
-  /* ── Desktop: useScroll on the tall scroll zone ─────────────── */
+  /* â”€â”€ Desktop: useScroll on the tall scroll zone â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   const desktopScrollRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: desktopScrollRef,
     offset: ["start start", "end end"],
   });
   useMotionValueEvent(scrollYProgress, "change", (p) => {
-    const idx = Math.min(SERVICES.length - 1, Math.max(0, Math.floor(p * SERVICES.length)));
+    const logical = flow === "inverse" ? 1 - p : p;
+    const idx = Math.min(SERVICES.length - 1, Math.max(0, Math.floor(logical * SERVICES.length)));
     setActiveIndex(idx);
   });
 
-  /* ── Mobile: IntersectionObserver on each card ───────────────── */
+  /* â”€â”€ Mobile: IntersectionObserver on each card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   const mobileRefs = useRef<(HTMLDivElement | null)[]>([]);
   // Cooldown prevents the accordion expand/collapse layout shift from triggering
   // a cascade of observer callbacks (the "up and down" feedback loop).
@@ -78,9 +81,9 @@ export default function Services(props: any) {
   }, [SERVICES.length]);
 
   return (
-    <section id="services" className="relative bg-bg-surface-light">
+    <section id="services" className={`relative bg-bg-surface-light flex flex-col ${flow === "inverse" ? "flex-col-reverse" : ""}`}>
 
-      {/* ── Section Header ─────────────────────────────────────── */}
+      {/* â”€â”€ Section Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="mx-auto max-w-[1280px] px-4 md:px-8 pt-[60px] md:pt-[80px] pb-[40px] md:pb-[40px] lg:pb-0 flex flex-col items-center text-center">
         <motion.p
           className="text-brand-red text-[11px] md:text-[13px] font-bold uppercase tracking-[0.3em] mb-4"
@@ -102,11 +105,11 @@ export default function Services(props: any) {
         </motion.h2>
       </div>
 
-      {/* ══════════════════════════════════════════════════════════
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           DESKTOP LAYOUT (lg+)
-          Tall scroll zone — sticky two-column panel inside.
-          Left: names list · Right: active detail
-      ══════════════════════════════════════════════════════════ */}
+          Tall scroll zone â€” sticky two-column panel inside.
+          Left: names list Â· Right: active detail
+      â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <div
         ref={desktopScrollRef}
         className="hidden lg:block relative"
@@ -116,7 +119,7 @@ export default function Services(props: any) {
         <div className="sticky top-0 h-screen flex items-start lg:pt-[10vh] overflow-hidden">
           <div className="mx-auto max-w-[1280px] w-full px-8 xl:px-12 grid grid-cols-[1fr_1fr] gap-12 xl:gap-20 items-center h-[80vh]">
 
-            {/* ── Left: name list ─────────────────────────────── */}
+            {/* â”€â”€ Left: name list â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
             <div className="flex flex-col justify-center h-full">
               {SERVICES.map((s: any, i: number) => {
                 const isActive = i === activeIndex;
@@ -130,7 +133,10 @@ export default function Services(props: any) {
                         if (el) {
                           const top = el.getBoundingClientRect().top + window.scrollY;
                           const perService = (el.offsetHeight / SERVICES.length);
-                          window.scrollTo({ top: top + i * perService + perService * 0.5, behavior: "smooth" });
+                          const segment = flow === "inverse"
+                            ? SERVICES.length - i - 0.5
+                            : i + 0.5;
+                          window.scrollTo({ top: top + segment * perService, behavior: "smooth" });
                         }
                       }}
                       className="group flex items-baseline gap-4 text-left w-full py-[clamp(8px,1.2vh,18px)] transition-all duration-500"
@@ -155,7 +161,7 @@ export default function Services(props: any) {
               })}
             </div>
 
-            {/* ── Right: active service detail ────────────────── */}
+            {/* â”€â”€ Right: active service detail â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
             <div className="relative h-full">
               <AnimatePresence>
                 <motion.div
@@ -210,12 +216,12 @@ export default function Services(props: any) {
         </div>
       </div>
 
-      {/* ══════════════════════════════════════════════════════════
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           MOBILE / TABLET LAYOUT (<lg)
-          Vertical list — IntersectionObserver activates each item.
-          Active item expands: description → tags → image.
-      ══════════════════════════════════════════════════════════ */}
-      <div className="lg:hidden mx-auto max-w-[640px] px-4 md:px-8 pb-[80px]">
+          Vertical list â€” IntersectionObserver activates each item.
+          Active item expands: description â†’ tags â†’ image.
+      â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      <div className={`lg:hidden mx-auto w-full max-w-[640px] px-4 md:px-8 pb-[80px] ${flow === "inverse" ? "flex flex-col-reverse" : ""}`}>
         {SERVICES.map((s: any, i: number) => {
           const isActive = i === activeIndex;
           return (
@@ -283,7 +289,7 @@ export default function Services(props: any) {
                           View {s.title} <span aria-hidden>&rarr;</span>
                         </Link>
                       )}
-                      {/* Image — below tags */}
+                      {/* Image â€” below tags */}
                       <div className="w-full aspect-[16/9] max-h-[150px] sm:max-h-[180px] md:max-h-[210px] rounded-[14px] overflow-hidden shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12)]">
                         <img
                           src={s.imgUrl}

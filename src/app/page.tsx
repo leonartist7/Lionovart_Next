@@ -2,6 +2,7 @@ import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
 import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
 import { PageBuilder } from "@/components/sections/PageBuilder";
+import ExperienceSwitch from "@/components/inverse/ExperienceSwitch";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       </main>
       {/* z-0: pinned red marquee revealed as main scrolls away */}
       <StickyFooterMarquee />
+      <ExperienceSwitch />
     </>
   );
 }

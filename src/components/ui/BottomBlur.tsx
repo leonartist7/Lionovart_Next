@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * BottomBlur — premium frosted bottom edge.
+ * BottomBlur â€” premium frosted bottom edge.
  * ----------------------------------------
  * Fixed overlay pinned to the viewport bottom. A single masked
  * backdrop-filter layer: the blur radius is constant and the mask gradient
@@ -20,12 +20,14 @@
  */
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function BottomBlur() {
+  const inverse = usePathname() === "/inverse";
   const [hidden, setHidden] = useState(false);
 
   // The footer marquee is `sticky bottom-0`, so it geometrically sits at the
-  // viewport bottom from first paint — an IntersectionObserver would report it
+  // viewport bottom from first paint â€” an IntersectionObserver would report it
   // visible immediately. Instead, hide the blur only once the page is scrolled
   // to within the footer's height of the document bottom (i.e. it's actually
   // being revealed from under <main>).
@@ -33,9 +35,10 @@ export default function BottomBlur() {
     const footer = document.getElementById("footer-marquee");
     const onScroll = () => {
       const reveal = footer?.offsetHeight ?? 160;
-      const dist =
-        document.documentElement.scrollHeight -
-        (window.scrollY + window.innerHeight);
+      const dist = inverse
+        ? window.scrollY
+        : document.documentElement.scrollHeight -
+          (window.scrollY + window.innerHeight);
       setHidden(dist <= reveal * 0.5);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -45,7 +48,7 @@ export default function BottomBlur() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, []);
+  }, [inverse]);
 
   return (
     <div

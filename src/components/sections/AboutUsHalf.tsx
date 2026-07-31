@@ -7,14 +7,15 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/* ─── Brand assets ─────────────────────────────────────────── */
+/* â”€â”€â”€ Brand assets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const PORTRAIT_SRC = "/images/Leon-Studioshot.avif";
 const PAINT_SRC    = "/images/paintco.avif";
 
-/* ─── Editable copy ────────────────────────────────────────── */
+/* â”€â”€â”€ Editable copy â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const FOUNDER_NAME = "Leonardo";
 
 const ABOUT_STATS = [
@@ -37,7 +38,7 @@ const mobileHeadlineWord = {
   visible: { y: 0, opacity: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
-/* ─── Credibility metrics ────────────────────────────────────── */
+/* â”€â”€â”€ Credibility metrics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function CredStrip() {
   return (
     <>
@@ -58,7 +59,7 @@ function CredStrip() {
   );
 }
 
-/* ─── Portrait card ─────────────────────────────────────────── */
+/* â”€â”€â”€ Portrait card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function PortraitFrame({
   frameClassName,
   revealClass = "",
@@ -75,7 +76,7 @@ function PortraitFrame({
       >
         <Image
           src={PORTRAIT_SRC}
-          alt={`${FOUNDER_NAME} — ${founderRole}`}
+          alt={`${FOUNDER_NAME} â€” ${founderRole}`}
           fill
           sizes="(max-width: 1024px) 85vw, clamp(260px,28vw,400px)"
           className="object-cover"
@@ -96,7 +97,7 @@ function PortraitFrame({
         </div>
       </div>
 
-      {/* PAINTCO — fixed bottom-right corner, on top of the photo */}
+      {/* PAINTCO â€” fixed bottom-right corner, on top of the photo */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={PAINT_SRC}
@@ -108,8 +109,9 @@ function PortraitFrame({
   );
 }
 
-/* ─── Main component ─────────────────────────────────────── */
+/* â”€â”€â”€ Main component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export default function AboutUsHalf(props: any) {
+  const flow = useLandingFlow();
   const sectionRef = useRef<HTMLElement>(null);
   const desktopRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
@@ -120,7 +122,7 @@ export default function AboutUsHalf(props: any) {
 
   const words = headlineTop.split(" ");
 
-  /* ── GSAP — desktop pinned scroll sequence ─────────────── */
+  /* â”€â”€ GSAP â€” desktop pinned scroll sequence â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
@@ -135,7 +137,12 @@ export default function AboutUsHalf(props: any) {
             scrub: 1.2,
           },
         })
-          .fromTo(wordEls, { yPercent: 110 }, { yPercent: 0, duration: 1, stagger: 0.08, ease: "power3.out" }, 0.05);
+          .fromTo(
+            wordEls,
+            { yPercent: flow === "inverse" ? 0 : 110 },
+            { yPercent: flow === "inverse" ? 110 : 0, duration: 1, stagger: 0.08, ease: "power3.out" },
+            0.05,
+          );
 
         gsap.timeline({
           scrollTrigger: {
@@ -147,30 +154,44 @@ export default function AboutUsHalf(props: any) {
             pinSpacing: true,
           },
         })
-          .fromTo(".about-body",  { opacity: 0, y: 20 },              { opacity: 1, y: 0, duration: 0.5, stagger: 0.12, ease: "power2.out" }, 0)
-          .fromTo(".about-image", { opacity: 0, scale: 0.92, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.7, ease: "power2.out" }, 0.3);
+          .fromTo(
+            ".about-body",
+            flow === "inverse" ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 },
+            flow === "inverse"
+              ? { opacity: 0, y: 20, duration: 0.5, stagger: 0.12, ease: "power2.out" }
+              : { opacity: 1, y: 0, duration: 0.5, stagger: 0.12, ease: "power2.out" },
+            0,
+          )
+          .fromTo(
+            ".about-image",
+            flow === "inverse" ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.92, y: 30 },
+            flow === "inverse"
+              ? { opacity: 0, scale: 0.92, y: 30, duration: 0.7, ease: "power2.out" }
+              : { opacity: 1, scale: 1, y: 0, duration: 0.7, ease: "power2.out" },
+            0.3,
+          );
       });
 
       return () => mm.revert();
     },
-    { scope: sectionRef, dependencies: [] }
+    { scope: sectionRef, dependencies: [flow] }
   );
 
   return (
     <section ref={sectionRef} className="relative bg-bg-surface-light">
 
-      {/* ── DESKTOP: Pinned two-column magazine layout ──────── */}
+      {/* â”€â”€ DESKTOP: Pinned two-column magazine layout â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div
         ref={desktopRef}
         className="hidden lg:block relative h-screen overflow-hidden"
       >
         {/*
-          items-center → grid auto-height centered in 100vh, zero dead bands.
-          items-start on grid → both cols top-align; portrait extends below text naturally.
+          items-center â†’ grid auto-height centered in 100vh, zero dead bands.
+          items-start on grid â†’ both cols top-align; portrait extends below text naturally.
         */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pt-[clamp(4rem,7vh,6rem)] pb-[clamp(1.5rem,3vh,3rem)] gap-[clamp(1.5rem,3vh,2.5rem)] z-[1]">
 
-          {/* ROW 1 — Line 0 spans full width above the grid */}
+          {/* ROW 1 â€” Line 0 spans full width above the grid */}
           <div className="w-full max-w-[1400px] px-[max(3rem,6vw)]">
             <p className="font-display text-black leading-[1.05] tracking-tight text-[clamp(2rem,3.5vw,5rem)] whitespace-nowrap">
               <span className="inline-block overflow-hidden align-bottom mr-[0.22em]">
@@ -184,10 +205,10 @@ export default function AboutUsHalf(props: any) {
             </p>
           </div>
 
-          {/* ROW 2 — 2-col grid */}
+          {/* ROW 2 â€” 2-col grid */}
           <div className="w-full max-w-[1400px] px-[max(3rem,6vw)] grid grid-cols-[1fr_34%] gap-[clamp(2rem,4vw,5rem)] items-start">
 
-            {/* LEFT COLUMN — line 2, divider, body, stats */}
+            {/* LEFT COLUMN â€” line 2, divider, body, stats */}
             <div className="flex flex-col items-start w-full">
               <h2 className="font-display text-black leading-[1.05] tracking-tight text-[clamp(2rem,3.5vw,5rem)]">
                 {(headlineTop.split('\n')[1] ?? '').split(' ').filter(Boolean).map((word, wi) => (
@@ -216,7 +237,7 @@ export default function AboutUsHalf(props: any) {
               </div>
             </div>
 
-            {/* RIGHT COLUMN — portrait, top-anchored */}
+            {/* RIGHT COLUMN â€” portrait, top-anchored */}
             <div className="flex justify-center items-start">
               <PortraitFrame
                 frameClassName="w-full aspect-[3/4] max-h-[clamp(60vh,78vh,90vh)]"
@@ -229,7 +250,7 @@ export default function AboutUsHalf(props: any) {
         </div>
       </div>
 
-      {/* ── MOBILE / TABLET: Stacked layout (portrait below text) ── */}
+      {/* â”€â”€ MOBILE / TABLET: Stacked layout (portrait below text) â”€â”€ */}
       <div className="lg:hidden pt-[clamp(1.5rem,4vw,2.5rem)] pb-[clamp(2.5rem,6vw,4rem)] px-[max(1.25rem,4vw)]">
         <div className="text-center">
           <motion.h2

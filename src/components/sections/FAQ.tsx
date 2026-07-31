@@ -10,8 +10,10 @@ import {
 } from "@/components/ui/accordion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
+import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 export default function FAQ(props: any) {
+  const flow = useLandingFlow();
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { t } = useLanguage();
@@ -28,7 +30,7 @@ export default function FAQ(props: any) {
 
   return (
     <section ref={ref} id="faq" className="bg-bg-brand-black py-[90px] lg:py-[180px]">
-      <div className="mx-auto max-w-[1000px] px-4">
+      <div className={`mx-auto max-w-[1000px] px-4 ${flow === "inverse" ? "flex flex-col-reverse" : ""}`}>
         {/* Header */}
         <div className="mb-16 md:mb-20 text-center md:text-left">
           <motion.p
@@ -57,7 +59,7 @@ export default function FAQ(props: any) {
           transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
           className="mx-auto max-w-[800px]"
         >
-          <Accordion className="flex flex-col gap-4">
+          <Accordion className={`flex flex-col gap-4 ${flow === "inverse" ? "flex-col-reverse" : ""}`}>
             {FAQS.map((faq: { id: string; question: string; answer: string }) => (
               <AccordionItem 
                 key={faq.id} 

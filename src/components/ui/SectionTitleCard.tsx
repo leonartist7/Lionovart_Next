@@ -2,13 +2,14 @@
 
 import { useEffect, useRef } from "react";
 import { animate, createScope, onScroll } from "animejs";
+import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 interface Props {
   /** The single word that defines what's coming next. Add a trailing "." for the Lacquer Red accent. */
   word: string;
   /**
-   * Surrounding surface the card blends into. "light" → warm near-white
-   * (`bg-bg-surface-light`) with a faded dark outline; "dark" → page dark bg
+   * Surrounding surface the card blends into. "light" â†’ warm near-white
+   * (`bg-bg-surface-light`) with a faded dark outline; "dark" â†’ page dark bg
    * with a faded light outline. Default `"dark"`.
    */
   theme?: "light" | "dark";
@@ -19,7 +20,7 @@ interface Props {
 }
 
 /**
- * SectionTitleCard — a single decisive word that traverses the viewport
+ * SectionTitleCard â€” a single decisive word that traverses the viewport
  * horizontally as the user scrolls past, like a chapter card in a film.
  *
  * The word is rendered at viewport-filling scale in Clash Display as a soft
@@ -34,6 +35,7 @@ export function SectionTitleCard({
   bgClassName,
   height = "38vh",
 }: Props) {
+  const flow = useLandingFlow();
   const isLight = theme === "light";
   const surface = bgClassName ?? (isLight ? "bg-bg-surface-light" : "bg-bg-dark");
   const strokeColor = isLight ? "rgba(17,17,17,0.22)" : "rgba(255,255,255,0.22)";
@@ -51,8 +53,8 @@ export function SectionTitleCard({
       if (scope) scope.revert();
       const ww = window.innerWidth;
       const wordW = w.offsetWidth;
-      const startX = ww;
-      const endX = -wordW;
+      const startX = flow === "inverse" ? -wordW : ww;
+      const endX = flow === "inverse" ? ww : -wordW;
 
       scope = createScope({ root }).add(() => {
         animate(w, {
@@ -75,7 +77,7 @@ export function SectionTitleCard({
       window.removeEventListener("resize", setup);
       scope?.revert();
     };
-  }, [word]);
+  }, [flow, word]);
 
   const body = word.endsWith(".") ? word.slice(0, -1) : word;
   const hasPeriod = word.endsWith(".");

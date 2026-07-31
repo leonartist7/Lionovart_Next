@@ -4,25 +4,26 @@ import { useState, useRef } from "react";
 import { motion, useAnimation } from "framer-motion";
 import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useLandingFlow } from "@/contexts/LandingFlowContext";
 import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
 import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
 
 const FEATURED = {
   quote: "Within two months of the new website, direct reservations jumped almost 70%. It finally looks like the place we actually run.",
   author: "Camille Moreau",
-  role: "Owner · Maison Verre",
+  role: "Owner Â· Maison Verre",
   avatar: "/images/Testimonials/France/Mathilde-coffee.avif",
   flag: "https://flagcdn.com/w40/fr.png",
 };
 
-// ─── Animation timing constants (PRESERVED EXACTLY from original) ──────────────
+// â”€â”€â”€ Animation timing constants (PRESERVED EXACTLY from original) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const PAW_IN_DURATION = 0.35;
 const PULL_DURATION   = 0.70;
 
 const EASE_IN  = [0.2, 0, 0.6, 1]  as const;
 const EASE_OUT = [0.20, 1, 0.3, 1] as const;
 
-// ─── Single Card ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Single Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ProblemCard({
   item,
   isRevealed,
@@ -86,7 +87,7 @@ function ProblemCard({
         onMouseLeave={() => setIsHovered(false)}
         className="relative w-full cursor-pointer"
       >
-        {/* Outer card — full-width, contains all layers */}
+        {/* Outer card â€” full-width, contains all layers */}
         <div
           className="
             relative w-full overflow-hidden
@@ -96,10 +97,10 @@ function ProblemCard({
             min-h-[260px] sm:min-h-[290px]
           "
         >
-          {/* BASE LAYER: SOLUTION — always horizontal: image left, text right */}
+          {/* BASE LAYER: SOLUTION â€” always horizontal: image left, text right */}
           <div className="absolute inset-0 bg-white flex flex-row">
 
-            {/* Image placeholder — hidden on mobile, shown from md up */}
+            {/* Image placeholder â€” hidden on mobile, shown from md up */}
             <div className="hidden md:flex w-[38%] bg-[#f0f0f0] items-center justify-center shrink-0">
               <div className="flex flex-col items-center gap-2 text-black/20 px-2">
                 <svg
@@ -121,7 +122,7 @@ function ProblemCard({
               </div>
             </div>
 
-            {/* Text content — takes remaining 70%/62% */}
+            {/* Text content â€” takes remaining 70%/62% */}
             <div className="flex-1 flex flex-col justify-center p-4 sm:p-6 md:p-8 lg:p-10">
               {/* Checkmark + heading */}
               <div className="flex items-start gap-2 md:gap-3 mb-2 md:mb-3">
@@ -163,7 +164,7 @@ function ProblemCard({
           </div>
 
           {/*
-            OVERLAY LAYER: PROBLEM — pure black, only big title, centered.
+            OVERLAY LAYER: PROBLEM â€” pure black, only big title, centered.
             No description. Maximum impact, minimum overwhelm.
             Pulled down by the lion paw to reveal the solution beneath.
           */}
@@ -178,7 +179,7 @@ function ProblemCard({
           </motion.div>
 
           {/*
-            ── LION PAW ── PRESERVED EXACTLY from original
+            â”€â”€ LION PAW â”€â”€ PRESERVED EXACTLY from original
             Same image URL, same controls, same positioning, same timing,
             same golden drop-shadow, same hover spring.
           */}
@@ -188,7 +189,7 @@ function ProblemCard({
             animate={pawControls}
             style={{ left: 0, aspectRatio: "1 / 1" }}
           >
-            {/* Inner wrapper — hover scale only, independent of reveal animation */}
+            {/* Inner wrapper â€” hover scale only, independent of reveal animation */}
             <motion.div
               className="relative w-full h-full"
               animate={{ scale: isHovered && !isRevealed ? 1.12 : 1 }}
@@ -213,8 +214,9 @@ function ProblemCard({
   );
 }
 
-// ─── Section ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function ProblemsSolvedSection() {
+  const flow = useLandingFlow();
   const [revealedIds, setRevealedIds] = useState<number[]>([]);
   const { t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
@@ -234,17 +236,17 @@ export default function ProblemsSolvedSection() {
     <section ref={sectionRef} className="bg-bg-surface-light pt-0 pb-16 md:pb-24 lg:pb-24 xl:pb-32">
       <div className="max-w-[1300px] xl:max-w-[1500px] 2xl:max-w-[1700px] mx-auto px-4 md:px-6 xl:px-10">
 
-        {/* ── IMAGINE card — width shared with the Process lion circle via
-             --lion-circle-d, so card width === that circle Ø at every breakpoint.
+        {/* â”€â”€ IMAGINE card â€” width shared with the Process lion circle via
+             --lion-circle-d, so card width === that circle Ã˜ at every breakpoint.
              The lion circle itself lives in the Process section above and hands
-             down into this card. ── */}
+             down into this card. â”€â”€ */}
         <div
           className="relative mx-auto flex flex-col items-center"
           style={{ width: "var(--imagine-card-d)", maxWidth: "100%" }}
         >
           {/* Red card */}
-          <div className="relative z-10 w-full bg-[#e5192a] rounded-[32px] px-5 sm:px-7 pt-12 md:pt-16 pb-12 shadow-[0_30px_60px_-15px_rgba(229,25,42,0.45)]">
-            {/* Slanted marquee band near the top — card's rounded corners stay
+          <div className={`relative z-10 w-full bg-[#e5192a] rounded-[32px] px-5 sm:px-7 pt-12 md:pt-16 pb-12 shadow-[0_30px_60px_-15px_rgba(229,25,42,0.45)] ${flow === "inverse" ? "flex flex-col-reverse" : ""}`}>
+            {/* Slanted marquee band near the top â€” card's rounded corners stay
                 visible above it (sits below the pt). Clipped to the card width. */}
             <div className="-mx-5 sm:-mx-7 mb-9 md:mb-12 overflow-hidden">
               <MarqueeSlanted />
@@ -271,8 +273,8 @@ export default function ProblemsSolvedSection() {
               </SplitTextReveal>
             </motion.div>
 
-            {/* Cards — stacked in the narrow column */}
-            <div className="flex flex-col gap-6 md:gap-8 pb-4">
+            {/* Cards â€” stacked in the narrow column */}
+            <div className={`flex flex-col gap-6 md:gap-8 pb-4 ${flow === "inverse" ? "flex-col-reverse" : ""}`}>
               {items.map((item, i) => (
                 <motion.div
                   key={i}

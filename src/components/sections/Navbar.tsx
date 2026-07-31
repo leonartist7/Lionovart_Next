@@ -15,11 +15,12 @@ import { getWhatsAppUrl } from "@/lib/contact";
 import { MenuBurgerLottie } from "@/components/ui/menu-burger-lottie";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 /** Pixels to clear the fixed navbar when scrolling to a section. */
 const SCROLL_OFFSET = -88;
 
-/** Nav links → section anchors (resolved via data-nova-section or DOM id). */
+/** Nav links â†’ section anchors (resolved via data-nova-section or DOM id). */
 const NAV_LINKS = [
   { label: "We", target: "about" },
   { label: "Expertise", target: "services", hasDropdown: true },
@@ -28,8 +29,8 @@ const NAV_LINKS = [
 ];
 
 /**
- * Expertise dropdown stagger. Items fade/slide in top→down on open and fade
- * out top→down (staggerDirection 1) on close — a slow, smooth cascade rather
+ * Expertise dropdown stagger. Items fade/slide in topâ†’down on open and fade
+ * out topâ†’down (staggerDirection 1) on close â€” a slow, smooth cascade rather
  * than a sharp snap.
  */
 // Outer card (glass band / mobile group): on CLOSE the items cascade out first
@@ -47,12 +48,12 @@ const CARD_VARIANTS = {
     transition: { duration: 0.3, ease: "easeOut" as const, when: "beforeChildren" as const },
   },
 };
-// Inner container — only orchestrates the top→down item stagger.
+// Inner container â€” only orchestrates the topâ†’down item stagger.
 const STAGGER_VARIANTS = {
   hidden: { transition: { staggerChildren: 0.05, staggerDirection: 1 as const } },
   show: { transition: { staggerChildren: 0.05, delayChildren: 0.03 } },
 };
-// Flat list (mobile/burger Expertise) — combines height-collapse + stagger on a
+// Flat list (mobile/burger Expertise) â€” combines height-collapse + stagger on a
 // single element whose direct children are the service buttons.
 const FLAT_LIST_VARIANTS = {
   hidden: {
@@ -84,6 +85,7 @@ const SERVICE_ITEM_VARIANTS = {
 };
 
 export default function Navbar() {
+  const flow = useLandingFlow();
   const [isPastHero, setIsPastHero] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [heroThreshold, setHeroThreshold] = useState(600);
@@ -101,9 +103,14 @@ export default function Navbar() {
   const ctaLabel = t.nav.cta;
 
   const scrollToTarget = (target: string) => {
-    const el = document.querySelector(`[data-nova-section="${target}"], #${target}`);
+    const el = document.querySelector<HTMLElement>(`[data-nova-section="${target}"], #${target}`);
     if (!el) return;
-    if (lenis?.scrollTo) lenis.scrollTo(el, { offset: SCROLL_OFFSET });
+    if (lenis?.scrollTo && flow === "inverse") {
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      const startFromBottom = top + el.offsetHeight - window.innerHeight;
+      lenis.scrollTo(Math.max(0, startFromBottom), { force: true });
+      window.history.replaceState(null, "", `#${target}`);
+    } else if (lenis?.scrollTo) lenis.scrollTo(el, { offset: SCROLL_OFFSET });
     else el.scrollIntoView({ behavior: "smooth", block: "start" });
     setIsMobileOpen(false);
     setMobileExpertiseOpen(false);
@@ -149,7 +156,7 @@ export default function Navbar() {
   const hideAtRef        = useRef(0);      // tracks lowest scrollY when hidden
   const lastScrollRef    = useRef(0);
   const isMobileOpenRef  = useRef(false);
-  // After a language change the page reflows and nudges scroll — don't let that
+  // After a language change the page reflows and nudges scroll â€” don't let that
   // auto-close the mobile menu. Suppress scroll-close briefly.
   const suppressCloseUntil = useRef(0);
 
@@ -163,13 +170,13 @@ export default function Navbar() {
     isMobileOpenRef.current = isMobileOpen;
   }, [isMobileOpen]);
 
-  // Language change reflows the layout → suppress the scroll-driven menu close
+  // Language change reflows the layout â†’ suppress the scroll-driven menu close
   // for a moment so the menu stays open after picking a language.
   useEffect(() => {
     suppressCloseUntil.current = Date.now() + 800;
   }, [locale]);
 
-  // Close the Expertise band the moment we leave hero mode (links → burger).
+  // Close the Expertise band the moment we leave hero mode (links â†’ burger).
   useEffect(() => {
     if (isPastHero) setExpertiseOpen(false);
   }, [isPastHero]);
@@ -183,7 +190,7 @@ export default function Navbar() {
     return () => window.removeEventListener("resize", calc);
   }, []);
 
-  // ── Hide navbar when the Luma / ONE VISION section is in view ────────────────
+  // â”€â”€ Hide navbar when the Luma / ONE VISION section is in view â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   useEffect(() => {
     const el = document.getElementById("luma-showcase");
     if (!el) return;
@@ -200,13 +207,16 @@ export default function Navbar() {
   }, []);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
+    const logicalLatest = flow === "inverse"
+      ? Math.max(0, (lenis?.limit ?? latest) - latest)
+      : latest;
     const prev = lastScrollRef.current;
-    const delta = latest - prev;
-    lastScrollRef.current = latest;
+    const delta = logicalLatest - prev;
+    lastScrollRef.current = logicalLatest;
 
-    setIsPastHero(latest > heroThreshold);
+    setIsPastHero(logicalLatest > heroThreshold);
 
-    // Close mobile menu on any scroll ≥ 5px — unless a recent language change
+    // Close mobile menu on any scroll â‰¥ 5px â€” unless a recent language change
     // is reflowing the page (which would otherwise close it spuriously).
     if (
       isMobileOpenRef.current &&
@@ -219,12 +229,12 @@ export default function Navbar() {
     if (!isInLumaRef.current) return;
 
     if (delta > 0) {
-      // Scrolling down → hide; keep tracking the lowest position
+      // Scrolling down â†’ hide; keep tracking the lowest position
       if (isVisibleRef.current) setNavVisible(false);
-      hideAtRef.current = latest;
+      hideAtRef.current = logicalLatest;
     } else if (delta < 0) {
-      // Scrolling up → restore once user moves ≥15 px upward
-      if (!isVisibleRef.current && hideAtRef.current - latest >= 15) {
+      // Scrolling up â†’ restore once user moves â‰¥15 px upward
+      if (!isVisibleRef.current && hideAtRef.current - logicalLatest >= 15) {
         setNavVisible(true);
       }
     }
@@ -240,17 +250,17 @@ export default function Navbar() {
     >
       <div className="relative w-full max-w-[1400px]">
 
-        {/* ── Nav bar pill ── */}
+        {/* â”€â”€ Nav bar pill â”€â”€ */}
         <motion.header
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="relative w-full rounded-xl shadow-sm"
         >
-          {/* Navbar is transparent over the hero (no red bar) — the dark glass
+          {/* Navbar is transparent over the hero (no red bar) â€” the dark glass
               layer below fades in once scrolled. Red is reserved for the CTA. */}
 
-          {/* Glass layer — fades in after hero.
+          {/* Glass layer â€” fades in after hero.
               backdrop-blur-md (12px) instead of -xl (24px): near-identical
               for a thin bar over content, ~half the per-frame blur cost.
               backdrop-filter is forced to `none` while the bar sits at
@@ -298,8 +308,8 @@ export default function Navbar() {
             </Link>
 
             {/*
-              Desktop nav links — hero mode only.
-              AnimatePresence fades them out during the red→glass transition.
+              Desktop nav links â€” hero mode only.
+              AnimatePresence fades them out during the redâ†’glass transition.
             */}
             <AnimatePresence>
               {heroMode && (
@@ -345,7 +355,7 @@ export default function Navbar() {
 
             {/* Language switcher and menu */}
             <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4 lg:gap-5">
-              {/* Language switcher — visible in hero (red) mode, hidden after transition */}
+              {/* Language switcher â€” visible in hero (red) mode, hidden after transition */}
               <AnimatePresence>
                 {heroMode && (
                   <motion.div
@@ -361,7 +371,7 @@ export default function Navbar() {
                 )}
               </AnimatePresence>
 
-              {/* Mobile burger — always visible on small screens */}
+              {/* Mobile burger â€” always visible on small screens */}
               <MenuBurgerLottie
                 isOpen={isMobileOpen}
                 onToggle={() => setIsMobileOpen((v) => !v)}
@@ -379,10 +389,10 @@ export default function Navbar() {
         </motion.header>
 
         {/*
-          ── Expertise mega-band (desktop hero) ──────────────────────────────
+          â”€â”€ Expertise mega-band (desktop hero) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Full-width white liquid-glass panel that emerges from BEHIND the bar
           (-z-10) and overlays the page. Opens on hover of the Expertise zone;
-          on close the items cascade out top→down, then the card height-collapses.
+          on close the items cascade out topâ†’down, then the card height-collapses.
         */}
         <AnimatePresence>
           {expertiseOpen && heroMode && services.length > 0 && (
@@ -424,10 +434,10 @@ export default function Navbar() {
         </AnimatePresence>
 
         {/*
-          ── Mobile dropdown ──────────────────────────────────────────────────
+          â”€â”€ Mobile dropdown â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Lives OUTSIDE motion.header so overflow-hidden doesn't clip it.
           Shares the same max-w wrapper so width is inherited.
-          Mobile:  left-[15%] right-[15%]  — 70% width, centered.
+          Mobile:  left-[15%] right-[15%]  â€” 70% width, centered.
           Desktop: centered pill, fixed 260 px wide.
           Links:   horizontal, underline-only on hover, pushed below the bar.
         */}

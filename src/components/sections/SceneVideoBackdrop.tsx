@@ -3,17 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import { useLenis } from "lenis/react";
+import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 /**
- * SceneVideoBackdrop — a single fixed, full-viewport video that sits behind the
- * Hero → WhatWeDo → HeroLion "scene". Auto-crossfades through 3 clips (14s each)
+ * SceneVideoBackdrop â€” a single fixed, full-viewport video that sits behind the
+ * Hero â†’ WhatWeDo â†’ HeroLion "scene". Auto-crossfades through 3 clips (14s each)
  * and fades out / pauses once the white About section scrolls over it, so it
  * stops decoding for the rest of the page.
  *
  * z-[0]: paints above `main`'s bg-bg-dark box but below the sections (z-[2]),
  * which are transparent through this region, so the video shows through them.
  */
-// f_auto,q_auto → Cloudinary serves a modern codec (AV1/VP9/H.265) at
+// f_auto,q_auto â†’ Cloudinary serves a modern codec (AV1/VP9/H.265) at
 // perceptually-optimized quality per browser: same look behind the dark
 // tint, meaningfully smaller download + cheaper decode per frame.
 const CLIPS = [
@@ -25,9 +26,10 @@ const CLIPS = [
 const CLIP_DURATION_MS = 14000;
 
 export default function SceneVideoBackdrop() {
+  const flow = useLandingFlow();
   const [index, setIndex] = useState(0);
   // Playback starts ~1s after the user first scrolls into the hero (past the
-  // curtain), not on load — so the entrance feels deliberate.
+  // curtain), not on load â€” so the entrance feels deliberate.
   const [started, setStarted] = useState(false);
   const startTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeVideoRef = useRef<HTMLVideoElement>(null);
@@ -38,7 +40,7 @@ export default function SceneVideoBackdrop() {
   // text contrast over busier footage (kept subtle).
   const tintOpacity = useTransform(sceneOpacity, [0, 1], [0, 1]);
 
-  // Auto-advance the clip every 14s — only once playback has started.
+  // Auto-advance the clip every 14s â€” only once playback has started.
   useEffect(() => {
     if (!started) return;
     const id = setInterval(() => {
@@ -52,7 +54,10 @@ export default function SceneVideoBackdrop() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   useLenis((lenis: any) => {
     const vh = window.innerHeight;
-    const scroll = lenis?.scroll ?? 0;
+    const rawScroll = lenis?.scroll ?? 0;
+    const scroll = flow === "inverse"
+      ? Math.max(0, (lenis?.limit ?? rawScroll) - rawScroll)
+      : rawScroll;
 
     // Arm playback: once the user scrolls into the hero (past ~half the curtain),
     // wait 1s, then begin. Fires once.
@@ -60,7 +65,7 @@ export default function SceneVideoBackdrop() {
       startTimer.current = setTimeout(() => setStarted(true), 2000);
     }
 
-    // Fade + pause as the hero exits — video lives behind the hero only,
+    // Fade + pause as the hero exits â€” video lives behind the hero only,
     // then the light body takes over. Full until 0.7vh, gone by 1.4vh.
     const o = Math.min(1, Math.max(0, 1 - (scroll - vh * 0.7) / (vh * 0.7)));
     sceneOpacity.set(o);
@@ -87,7 +92,7 @@ export default function SceneVideoBackdrop() {
       style={{ opacity: sceneOpacity }}
       aria-hidden="true"
     >
-      {/* No video element until armed — avoids multi-MB download on first paint. */}
+      {/* No video element until armed â€” avoids multi-MB download on first paint. */}
       {started && (
         <AnimatePresence>
           <motion.video
@@ -107,7 +112,7 @@ export default function SceneVideoBackdrop() {
         </AnimatePresence>
       )}
 
-      {/* Light, even tint — the hero's own overlay governs the dark stage +
+      {/* Light, even tint â€” the hero's own overlay governs the dark stage +
           the fold peek, so keep this subtle to preserve video detail. */}
       <motion.div
         className="absolute inset-0 bg-black/25"
