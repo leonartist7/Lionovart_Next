@@ -50,7 +50,7 @@ export default function TubesCursor({
       try {
         // The Tubes runtime is intentionally loaded by the browser from a CDN.
         // It has no local TypeScript declaration or npm package entry point.
-        // @ts-expect-error -- external HTTPS module is resolved at runtime.
+        // @ts-ignore -- external HTTPS module is resolved at runtime.
         const mod = await import(
           /* webpackIgnore: true */
           "https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js"
