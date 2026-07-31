@@ -100,9 +100,13 @@ export default function TubesCursor({
   return (
     <div
       aria-hidden="true"
-      className={`pointer-events-none fixed inset-0 z-[9997] overflow-hidden ${className}`}
+      className={`pointer-events-none fixed inset-0 z-[9997] overflow-hidden mix-blend-screen ${className}`}
     >
-      <canvas ref={canvasRef} className="block h-full w-full" />
+      <canvas
+        ref={canvasRef}
+        className="block h-full w-full bg-transparent"
+        style={{ backgroundColor: "transparent" }}
+      />
     </div>
   );
 }
