@@ -11,6 +11,9 @@ import { useLandingFlow } from "@/contexts/LandingFlowContext";
  * and fades out / pauses once the white About section scrolls over it, so it
  * stops decoding for the rest of the page.
  *
+ * Playback starts a fixed 3s after mount (not gated on scroll), then fades +
+ * pauses as the hero scrolls away.
+ *
  * z-[0]: paints above `main`'s bg-bg-dark box but below the sections (z-[2]),
  * which are transparent through this region, so the video shows through them.
  */
@@ -28,10 +31,8 @@ const CLIP_DURATION_MS = 14000;
 export default function SceneVideoBackdrop() {
   const flow = useLandingFlow();
   const [index, setIndex] = useState(0);
-  // Playback starts ~1s after the user first scrolls into the hero (past the
-  // curtain), not on load â€” so the entrance feels deliberate.
+  // Playback starts 3s after page load, regardless of scroll position.
   const [started, setStarted] = useState(false);
-  const startTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeVideoRef = useRef<HTMLVideoElement>(null);
 
   // Scene opacity is driven by scroll: full until About approaches, then 0.
@@ -49,7 +50,10 @@ export default function SceneVideoBackdrop() {
     return () => clearInterval(id);
   }, [started]);
 
-  useEffect(() => () => { if (startTimer.current) clearTimeout(startTimer.current); }, []);
+  useEffect(() => {
+    const t = setTimeout(() => setStarted(true), 3000);
+    return () => clearTimeout(t);
+  }, []);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   useLenis((lenis: any) => {
@@ -58,12 +62,6 @@ export default function SceneVideoBackdrop() {
     const scroll = flow === "inverse"
       ? Math.max(0, (lenis?.limit ?? rawScroll) - rawScroll)
       : rawScroll;
-
-    // Arm playback: once the user scrolls into the hero (past ~half the curtain),
-    // wait 1s, then begin. Fires once.
-    if (!started && scroll > vh * 0.5 && !startTimer.current) {
-      startTimer.current = setTimeout(() => setStarted(true), 2000);
-    }
 
     // Fade + pause as the hero exits â€” video lives behind the hero only,
     // then the light body takes over. Full until 0.7vh, gone by 1.4vh.

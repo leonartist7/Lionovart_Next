@@ -15,7 +15,8 @@ interface VideoBackdropProps {
 }
 
 /**
- * Reusable looping video backdrop. Plays only while in view (see
+ * Reusable looping video backdrop. Doesn't request the video at all until
+ * scroll brings it near the viewport, plays only while actually in view (see
  * useVideoAutoPause), paints a Cloudinary poster instantly to avoid a black
  * flash, and can fall back to a static image on mobile.
  */
@@ -25,6 +26,7 @@ export default function VideoBackdrop({
   overlayClassName,
   posterOnlyMobile = true,
 }: VideoBackdropProps) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const poster = src.replace(/\.(mp4|webm|mov)$/i, ".jpg");
 
@@ -38,15 +40,33 @@ export default function VideoBackdrop({
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  useVideoAutoPause(videoRef);
+  // Defer mounting the <video> (and its network request) until scroll
+  // brings the backdrop within 800px, instead of loading it on page load.
+  const [nearView, setNearView] = useState(false);
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setNearView(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "800px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   const showPosterOnly = posterOnlyMobile && isMobile;
+  const showVideo = nearView && !showPosterOnly;
+
+  useVideoAutoPause(videoRef, undefined, showVideo);
 
   return (
-    <div className={`${className} overflow-hidden`} aria-hidden="true">
-      {showPosterOnly ? (
-        <img src={poster} alt="" className="h-full w-full object-cover" />
-      ) : (
+    <div ref={wrapperRef} className={`${className} overflow-hidden`} aria-hidden="true">
+      {showVideo ? (
         <video
           ref={videoRef}
           src={src}
@@ -58,6 +78,8 @@ export default function VideoBackdrop({
           preload="metadata"
           className="h-full w-full object-cover"
         />
+      ) : (
+        <img src={poster} alt="" className="h-full w-full object-cover" />
       )}
       {overlayClassName && <div className={`absolute inset-0 ${overlayClassName}`} />}
     </div>

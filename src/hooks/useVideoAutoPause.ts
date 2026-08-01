@@ -19,8 +19,11 @@ interface Options {
 export function useVideoAutoPause(
   ref: RefObject<HTMLVideoElement | null>,
   { rootMargin = "200px", threshold = 0.1 }: Options = {},
+  /** Re-runs the effect once the video actually mounts (e.g. after a deferred render). */
+  active: boolean = true,
 ) {
   useEffect(() => {
+    if (!active) return;
     const video = ref.current;
     if (!video) return;
 
@@ -38,5 +41,5 @@ export function useVideoAutoPause(
 
     io.observe(video);
     return () => io.disconnect();
-  }, [ref, rootMargin, threshold]);
+  }, [ref, rootMargin, threshold, active]);
 }
