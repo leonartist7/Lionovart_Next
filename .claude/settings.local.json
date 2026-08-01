@@ -104,7 +104,8 @@
       "Bash(npx tsc *)",
       "Bash(wc -l /tmp_baseline_tsc.txt)",
       "Bash(tail -50 /tmp_baseline_tsc.txt)",
-      "mcp__Claude_Code_Remote__send_later"
+      "mcp__Claude_Code_Remote__send_later",
+      "mcp__Claude_Code_Remote__list_triggers"
     ]
   }
 }
