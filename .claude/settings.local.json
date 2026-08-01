@@ -103,7 +103,8 @@
       "Bash(powershell -Command 'try { $r = Invoke-WebRequest -Uri '\\\\''http://localhost:3000/'\\\\'' -UseBasicParsing -TimeoutSec 20; \"STATUS: $\\($r.StatusCode\\)\" } catch { \"NOT UP: $\\($_.Exception.Message\\)\" }')",
       "Bash(npx tsc *)",
       "Bash(wc -l /tmp_baseline_tsc.txt)",
-      "Bash(tail -50 /tmp_baseline_tsc.txt)"
+      "Bash(tail -50 /tmp_baseline_tsc.txt)",
+      "mcp__Claude_Code_Remote__send_later"
     ]
   }
 }
