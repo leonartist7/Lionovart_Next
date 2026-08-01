@@ -14,7 +14,7 @@ import { motion, useMotionValue, useTransform, useReducedMotion, type MotionValu
 import { useLenis } from "lenis/react";
 
 const HERO_CLIP =
-  "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845553/Footage_05_yalbaj.mp4";
+  "https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto/v1779845553/Footage_05_yalbaj.mp4";
 
 export default function DeviceBuildScene() {
   const reduce = useReducedMotion();

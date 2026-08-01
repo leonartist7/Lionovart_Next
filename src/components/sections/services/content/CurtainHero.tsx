@@ -51,7 +51,7 @@ export default function CurtainHero() {
         >
           <video
             className="absolute inset-0 h-full w-full object-cover"
-            src="https://res.cloudinary.com/dgio9uutc/video/upload/v1775960150/hero-notext_eqjdin.mp4"
+            src="https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto/v1775960150/hero-notext_eqjdin.mp4"
             autoPlay
             loop
             muted

@@ -34,16 +34,12 @@ function Slice({
   i,
   p,
   card,
-  video,
   isDesktop,
-  setVideoRef,
 }: {
   i: number;
   p: MotionValue<number>;
   card: Card;
-  video: string;
   isDesktop: boolean;
-  setVideoRef: (el: HTMLVideoElement | null) => void;
 }) {
   const dir = i - 1; // -1, 0, 1
   const x = useTransform(p, [0, 1], ["0px", isDesktop ? `${dir * 2.2}vw` : "0px"]);
@@ -51,32 +47,16 @@ function Slice({
   const rotateY = useTransform(p, [0, 1], [0, isDesktop ? dir * -11 : 0]);
   const rotateX = useTransform(p, [0, 1], [0, isDesktop ? 0 : dir * 11]);
   const radius = useTransform(p, [0, 1], [0, 16]);
-  const vidOpacity = useTransform(p, [0.08, 0.42], [1, 0]);
   const imgOpacity = useTransform(p, [0.18, 0.5], [0, 1]);
   const shadowOpacity = useTransform(p, [0.22, 0.5], [0, 1]);
   const contentShift = useTransform(p, [0.5, 0.78], [20, 0]);
   const contentOpacity = useTransform(p, [0.5, 0.78], [0, 1]);
-
-  const videoStyle: React.CSSProperties = isDesktop
-    ? { width: "300%", height: "100%", left: `${-i * 100}%`, top: 0 }
-    : { width: "100%", height: "300%", left: 0, top: `${-i * 100}%` };
 
   return (
     <motion.div
       className="relative flex-1 overflow-hidden bg-[#0c0c0c]"
       style={{ x, y, rotateY, rotateX, borderRadius: radius, transformStyle: "preserve-3d" }}
     >
-      <motion.video
-        ref={setVideoRef}
-        className="absolute max-w-none object-cover"
-        style={{ ...videoStyle, opacity: vidOpacity }}
-        src={video}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="metadata"
-      />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <motion.img
         src={card.image}
@@ -120,7 +100,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
   const flow = useLandingFlow();
   const sectionRef = useRef<HTMLElement>(null);
   const [isDesktop, setIsDesktop] = useState(true);
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
@@ -130,17 +110,16 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
     return () => mq.removeEventListener("change", u);
   }, []);
 
-  // Perf: only decode/play the slice videos while the section is in view.
+  // Perf: only decode/play the video while the section is in view.
   useEffect(() => {
     const sec = sectionRef.current;
     if (!sec) return;
     const io = new IntersectionObserver(
       ([entry]) => {
-        videoRefs.current.forEach((v) => {
-          if (!v) return;
-          if (entry.isIntersecting) void v.play().catch(() => {});
-          else v.pause();
-        });
+        const v = videoRef.current;
+        if (!v) return;
+        if (entry.isIntersecting) void v.play().catch(() => {});
+        else v.pause();
       },
       { rootMargin: "300px 0px" }
     );
@@ -159,6 +138,10 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
     flow === "inverse" ? [1, 0] : [0, 1],
   );
   const p = useTransform(logicalProgress, [0.12, 0.62], [0, 1], { clamp: true });
+  // One video across the whole card, not one per slice: three <video> elements
+  // on the same src meant three independent decode pipelines (and they drifted
+  // out of sync, so the "seamless" clip never really was).
+  const vidOpacity = useTransform(p, [0.08, 0.42], [1, 0]);
   return (
     <motion.section
       ref={sectionRef}
@@ -180,14 +163,23 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
                 i={i}
                 p={p}
                 card={card}
-                video={video}
                 isDesktop={isDesktop}
-                setVideoRef={(el) => {
-                  videoRefs.current[i] = el;
-                }}
               />
             ))}
           </div>
+
+          {/* Sits above the slices and dissolves into them as they split. */}
+          <motion.video
+            ref={videoRef}
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+            style={{ opacity: vidOpacity }}
+            src={video}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+          />
         </div>
       </div>
     </motion.section>

@@ -27,7 +27,7 @@ const CAPABILITIES = [
 ];
 
 const SCENE_CLIP =
-  "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845634/Footage_07_o3rfbu.mp4";
+  "https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto/v1779845634/Footage_07_o3rfbu.mp4";
 
 export default function CapabilityScrollScene() {
   const reduce = useReducedMotion();

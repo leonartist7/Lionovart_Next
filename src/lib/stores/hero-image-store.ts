@@ -42,19 +42,19 @@ function savePositions(positions: Record<string, FocalPoint>) {
 const CLOUDINARY_MEDIA: HeroMedia[] = [
   {
     id: "footage-02",
-    desktop: "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845599/Footage_02_chsoa3.mp4",
+    desktop: "https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto/v1779845599/Footage_02_chsoa3.mp4",
     mobile: null,
     type: "video",
   },
   {
     id: "footage-05",
-    desktop: "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845553/Footage_05_yalbaj.mp4",
+    desktop: "https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto/v1779845553/Footage_05_yalbaj.mp4",
     mobile: null,
     type: "video",
   },
   {
     id: "footage-07",
-    desktop: "https://res.cloudinary.com/dgio9uutc/video/upload/v1779845634/Footage_07_o3rfbu.mp4",
+    desktop: "https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto/v1779845634/Footage_07_o3rfbu.mp4",
     mobile: null,
     type: "video",
   },
