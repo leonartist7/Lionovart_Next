@@ -9,8 +9,11 @@ const IMG = [
 ];
 
 // The cinematic clip that plays across the card before it splits.
+// The card is at most 945px wide (and the object-cover crop on mobile uses
+// ~1170px of source width), so the 4K master was ~7x more pixels than any
+// screen ever shows. w_1440 keeps retina headroom at a fraction of the decode.
 const SPLIT_VIDEO =
-  "https://res.cloudinary.com/dgio9uutc/video/upload/f_auto,q_auto/v1779845634/Footage_07_o3rfbu.mp4";
+  "https://res.cloudinary.com/dgio9uutc/video/upload/w_1440,c_limit,f_auto,q_auto/v1779845634/Footage_07_o3rfbu.mp4";
 
 // 3 outcome pillars; all 6 services map onto them as tags (unique).
 const CARDS = [

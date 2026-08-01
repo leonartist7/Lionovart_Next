@@ -20,10 +20,14 @@ import { useLandingFlow } from "@/contexts/LandingFlowContext";
 // f_auto,q_auto â†’ Cloudinary serves a modern codec (AV1/VP9/H.265) at
 // perceptually-optimized quality per browser: same look behind the dark
 // tint, meaningfully smaller download + cheaper decode per frame.
+// The masters are 3840x2160 (~16MB / 15s each). f_auto,q_auto alone picks a
+// modern codec + quality but KEEPS the 4K frame, so every visitor was
+// downloading and decoding 4K for a tinted background layer. w_1920,c_limit
+// caps it at 1080p (a quarter of the pixels); c_limit only ever downscales.
 const CLIPS = [
-  "https://res.cloudinary.com/dgio9uutc/video/upload/f_auto,q_auto/v1779845634/Footage_07_o3rfbu.mp4",
-  "https://res.cloudinary.com/dgio9uutc/video/upload/f_auto,q_auto/v1779845599/Footage_02_chsoa3.mp4",
-  "https://res.cloudinary.com/dgio9uutc/video/upload/f_auto,q_auto/v1779845553/Footage_05_yalbaj.mp4",
+  "https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto/v1779845634/Footage_07_o3rfbu.mp4",
+  "https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto/v1779845599/Footage_02_chsoa3.mp4",
+  "https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto/v1779845553/Footage_05_yalbaj.mp4",
 ];
 
 const CLIP_DURATION_MS = 14000;

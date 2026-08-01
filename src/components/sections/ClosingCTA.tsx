@@ -7,8 +7,10 @@ import { useNovaStore } from "@/lib/stores/nova-store";
 import { useLanguage } from "@/contexts/LanguageContext";
 import BrandCrest from "@/components/sections/services/brand/branding/BrandCrest";
 
+// Capped at 1080p (master is 4K) and q_auto:eco — this sits under a bg-black/70
+// scrim, so the extra quality was never visible.
 const FOOTER_CLIP =
-  "https://res.cloudinary.com/dgio9uutc/video/upload/f_auto,q_auto/v1779845599/Footage_02_chsoa3.mp4";
+  "https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto:eco/v1779845599/Footage_02_chsoa3.mp4";
 
 /**
  * ClosingCTA — the single, canonical page close. Cinematic video backdrop +
