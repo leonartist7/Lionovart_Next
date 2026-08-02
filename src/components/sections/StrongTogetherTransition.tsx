@@ -131,7 +131,7 @@ export default function StrongTogetherTransition() {
           className="absolute inset-y-0 right-0 z-[3] w-1/2 bg-[#f2ede3]"
         />
 
-        <div className="pointer-events-none absolute inset-x-0 top-[10%] z-[5] px-6 text-center md:top-[11%] md:px-12">
+        <div className="pointer-events-none absolute inset-x-0 top-[15%] z-[5] px-6 text-center md:top-[14%] md:px-12">
           <h2
             ref={aloneRef}
             aria-hidden="true"
@@ -143,7 +143,7 @@ export default function StrongTogetherTransition() {
           <h2
             id="strong-together-title"
             ref={togetherRef}
-            className="absolute inset-x-0 top-0 mx-auto max-w-[12ch] font-clash text-[clamp(3.4rem,8vw,7.5rem)] font-semibold uppercase leading-[0.88] tracking-[-0.045em] text-[#171412]"
+            className="absolute inset-x-0 top-0 mx-auto max-w-[12ch] px-4 font-clash text-[clamp(3.4rem,8vw,7.5rem)] font-semibold uppercase leading-[0.88] tracking-[-0.045em] text-[#171412]"
           >
             STRONGER TOGETHER
           </h2>
