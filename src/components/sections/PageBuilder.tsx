@@ -1,6 +1,5 @@
 import HeroTop from "@/components/sections/HeroTop";
 import SceneVideoBackdrop from "@/components/sections/SceneVideoBackdrop";
-import BridgeStatement from "@/components/sections/BridgeStatement";
 import StrongTogetherTransition from "@/components/sections/StrongTogetherTransition";
 
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
@@ -29,7 +28,7 @@ function NovaSection({ id, children }: { id: string; children: React.ReactNode }
   );
 }
 
-/** Static landing layout â€” CMS block map removed (unused; restore from git if needed). */
+/** Static landing layout Ã¢â‚¬â€ CMS block map removed (unused; restore from git if needed). */
 export function PageBuilder() {
   return (
     <TrailAttractionProvider>
@@ -41,7 +40,6 @@ export function PageBuilder() {
       <div>
         <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
         <StrongTogetherTransition />
-        <BridgeStatement />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
         <NovaSection id="offer"><SignatureOffer /></NovaSection>
         <NovaSection id="services"><Services /></NovaSection>
@@ -58,4 +56,5 @@ export function PageBuilder() {
     </TrailAttractionProvider>
   );
 }
+
 
