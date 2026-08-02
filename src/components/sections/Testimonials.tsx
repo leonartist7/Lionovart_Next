@@ -325,7 +325,7 @@ function MarqueeCard({ card }: { card: Review }) {
     <div
       data-review-card
       data-review-id={card.id}
-      className="testimonial-review-card group/review relative z-0 w-[208px] shrink-0 select-none sm:w-[232px] md:w-[252px] lg:w-[clamp(270px,21vw,330px)]"
+      className="testimonial-review-card group/review relative z-40 w-[208px] shrink-0 select-none sm:w-[232px] md:w-[252px] lg:w-[clamp(270px,21vw,330px)]"
     >
       <Card3DFrame>
         <ReviewCardSurface card={card} />
@@ -356,7 +356,7 @@ export default function Testimonials(
         <TestimonialsCarousel />
 
         <div className="mt-14 grid items-start gap-9 sm:mt-16 md:gap-12 lg:mt-20 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-8 xl:gap-12">
-          <div className="relative z-10 flex flex-col items-start text-left lg:max-w-[500px] lg:pt-12">
+          <div className="relative z-40 flex flex-col items-start text-left lg:max-w-[500px] lg:pt-12">
             <motion.p
               className="mb-4 text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red md:text-[13px]"
               initial={{ opacity: 0, y: 10 }}
@@ -384,7 +384,7 @@ export default function Testimonials(
             </motion.h2>
           </div>
 
-          <div className="testimonial-marquee-stage relative flex h-[560px] w-full flex-row items-center justify-start overflow-hidden min-[480px]:justify-center min-[480px]:px-[clamp(12px,3vw,32px)] sm:h-[600px] md:h-[660px] lg:h-[720px] lg:px-0">
+          <div className="testimonial-marquee-stage relative z-40 flex h-[560px] w-full flex-row items-center justify-start overflow-hidden min-[480px]:justify-center min-[480px]:px-[clamp(12px,3vw,32px)] sm:h-[600px] md:h-[660px] lg:h-[720px] lg:px-0">
             <div className="testimonials-marquee-plane flex h-full flex-row items-start gap-3 sm:gap-4 xl:gap-5">
               <Marquee vertical repeat={2} className="h-full [--duration:64s] [--gap:1rem]">
                 {col1.map((card) => (

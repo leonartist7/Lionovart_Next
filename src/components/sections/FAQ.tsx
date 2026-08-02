@@ -32,7 +32,7 @@ export default function FAQ(props: any) {
     <section ref={ref} id="faq" className="bg-bg-brand-black py-[90px] lg:py-[180px]">
       <div className={`mx-auto max-w-[1000px] px-4 ${flow === "inverse" ? "flex flex-col-reverse" : ""}`}>
         {/* Header */}
-        <div className="mb-16 md:mb-20 text-center md:text-left">
+        <div className="relative z-40 mb-16 text-center md:mb-20 md:text-left">
           <motion.p
             className="text-brand-red text-[13px] font-semibold uppercase tracking-[0.2em] mb-4"
             initial={{ opacity: 0, y: 10 }}
@@ -57,7 +57,7 @@ export default function FAQ(props: any) {
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-          className="mx-auto max-w-[800px]"
+          className="relative z-40 mx-auto max-w-[800px]"
         >
           <Accordion className={`flex flex-col gap-4 ${flow === "inverse" ? "flex-col-reverse" : ""}`}>
             {FAQS.map((faq: { id: string; question: string; answer: string }) => (

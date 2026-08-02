@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
+import TrailAttractionTarget from "@/components/ui/TrailAttractionTarget";
 
 /**
  * HeroEmailCapture — glass (transparent) pill with a simple light border, an
@@ -80,7 +81,7 @@ export default function HeroEmailCapture() {
               aria-label="Email"
               className="min-w-0 flex-1 bg-transparent text-[14px] md:text-[15px] text-white placeholder:text-white/45 outline-none"
             />
-            <div className="shrink-0">
+            <TrailAttractionTarget>
               <LiquidMetalButton
                 label={status === "loading" ? "…" : "Start"}
                 onClick={() => void doSubmit()}
@@ -88,7 +89,7 @@ export default function HeroEmailCapture() {
                 width={120}
                 noShadow
               />
-            </div>
+            </TrailAttractionTarget>
           </div>
         </form>
       )}

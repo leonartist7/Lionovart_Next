@@ -309,7 +309,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
     >
       <div
         ref={stageRef}
-        className="relative w-[min(80vw,450px)] lg:w-[min(80vw,945px)]"
+        className="relative z-40 w-[min(80vw,450px)] lg:w-[min(80vw,945px)]"
         style={{ perspective: "1400px" }}
         onPointerEnter={measure}
         onPointerMove={handleMove}

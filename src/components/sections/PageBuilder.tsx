@@ -15,6 +15,7 @@ import FAQ from "@/components/sections/FAQ";
 import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
 import ClosingCTA from "@/components/sections/ClosingCTA";
 import TubesCursor from "@/components/ui/TubesCursor";
+import { TrailAttractionProvider } from "@/contexts/TrailAttractionContext";
 
 /**
  * Wraps a section for NOVA's in-view tracker and `scroll_to_section` tool.
@@ -31,7 +32,7 @@ function NovaSection({ id, children }: { id: string; children: React.ReactNode }
 /** Static landing layout â€” CMS block map removed (unused; restore from git if needed). */
 export function PageBuilder() {
   return (
-    <>
+    <TrailAttractionProvider>
       <SceneVideoBackdrop />
       <TubesCursor layer="landing" />
 
@@ -54,7 +55,7 @@ export function PageBuilder() {
         <NovaSection id="faq"><FAQ /></NovaSection>
         <NovaSection id="closing-cta"><ClosingCTA /></NovaSection>
       </div>
-    </>
+    </TrailAttractionProvider>
   );
 }
 
