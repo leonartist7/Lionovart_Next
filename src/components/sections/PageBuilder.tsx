@@ -1,6 +1,7 @@
 import HeroTop from "@/components/sections/HeroTop";
 import SceneVideoBackdrop from "@/components/sections/SceneVideoBackdrop";
 import BridgeStatement from "@/components/sections/BridgeStatement";
+import StrongTogetherTransition from "@/components/sections/StrongTogetherTransition";
 
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import WhatWeDo from "@/components/sections/WhatWeDo";
@@ -13,6 +14,7 @@ import Testimonials from "@/components/sections/Testimonials";
 import FAQ from "@/components/sections/FAQ";
 import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
 import ClosingCTA from "@/components/sections/ClosingCTA";
+import TubesCursor from "@/components/ui/TubesCursor";
 
 /**
  * Wraps a section for NOVA's in-view tracker and `scroll_to_section` tool.
@@ -26,16 +28,18 @@ function NovaSection({ id, children }: { id: string; children: React.ReactNode }
   );
 }
 
-/** Static landing layout — CMS block map removed (unused; restore from git if needed). */
+/** Static landing layout â€” CMS block map removed (unused; restore from git if needed). */
 export function PageBuilder() {
   return (
     <>
       <SceneVideoBackdrop />
+      <TubesCursor layer="landing" />
 
       <NovaSection id="hero"><HeroTop /></NovaSection>
 
-      <div className="relative z-[2]">
+      <div>
         <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
+        <StrongTogetherTransition />
         <BridgeStatement />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
         <NovaSection id="offer"><SignatureOffer /></NovaSection>
@@ -53,3 +57,4 @@ export function PageBuilder() {
     </>
   );
 }
+
