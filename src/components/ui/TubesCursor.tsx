@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 const LANDING_TUBE_RADIUS = {
-  minRadius: 0.002,
-  maxRadius: 0.022,
+  minRadius: 0.0008,
+  maxRadius: 0.011,
 };
+const LANDING_LIGHT_INTENSITY_CAP = 95;
 
 export type TubesCursorProps = {
   initialColors?: string[];
@@ -45,10 +47,14 @@ export default function TubesCursor({
   className = "",
   layer = "global",
 }: TubesCursorProps) {
+  const pathname = usePathname();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const appRef = useRef<TubesApp | null>(null);
+  const isLandingRoute = pathname === "/" || pathname.startsWith("/inverse");
+  const hidden = layer === "global" && isLandingRoute;
 
   useEffect(() => {
+    if (hidden) return;
     if (typeof window === "undefined") return;
     if (!window.matchMedia("(pointer: fine)").matches) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -74,7 +80,13 @@ export default function TubesCursor({
         const app = TubesCursorCtor(canvasRef.current, {
           tubes: {
             colors: initialColors,
-            lights: { intensity: lightIntensity, colors: lightColors },
+            lights: {
+              intensity:
+                layer === "landing"
+                  ? Math.min(lightIntensity, LANDING_LIGHT_INTENSITY_CAP)
+                  : lightIntensity,
+              colors: lightColors,
+            },
             ...(layer === "landing" ? LANDING_TUBE_RADIUS : {}),
           },
         });
@@ -103,13 +115,15 @@ export default function TubesCursor({
       }
       appRef.current = null;
     };
-  }, [initialColors, lightColors, lightIntensity, enableRandomizeOnClick, layer]);
+  }, [initialColors, lightColors, lightIntensity, enableRandomizeOnClick, hidden, layer]);
+
+  if (hidden) return null;
 
   return (
     <div
       aria-hidden="true"
       className={`pointer-events-none fixed inset-0 ${
-        layer === "landing" ? "z-[35]" : "z-[9997]"
+        layer === "landing" ? "z-[35] opacity-[0.78]" : "z-[9997]"
       } overflow-hidden mix-blend-screen ${className}`}
     >
       <canvas

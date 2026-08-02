@@ -14,6 +14,7 @@ import ClosingCTA from "@/components/sections/ClosingCTA";
 import Footer from "@/components/sections/Footer";
 import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
 import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
+import TubesCursor from "@/components/ui/TubesCursor";
 
 function InverseItem({
   id,
@@ -33,6 +34,7 @@ export default function InversePageBuilder() {
   return (
     <>
       <SceneVideoBackdrop />
+      <TubesCursor layer="landing" />
       <div className="inverse-stack flex min-h-screen flex-col-reverse">
         <InverseItem id="hero"><HeroTop /></InverseItem>
         <InverseItem id="what-we-do"><WhatWeDo /></InverseItem>
