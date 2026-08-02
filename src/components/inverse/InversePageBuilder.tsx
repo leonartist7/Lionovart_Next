@@ -14,6 +14,8 @@ import ClosingCTA from "@/components/sections/ClosingCTA";
 import Footer from "@/components/sections/Footer";
 import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
 import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
+import TubesCursor from "@/components/ui/TubesCursor";
+import { TrailAttractionProvider } from "@/contexts/TrailAttractionContext";
 
 function InverseItem({
   id,
@@ -23,7 +25,7 @@ function InverseItem({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative z-[2] shrink-0" {...(id ? { "data-nova-section": id } : {})}>
+    <div className="relative shrink-0" {...(id ? { "data-nova-section": id } : {})}>
       {children}
     </div>
   );
@@ -31,8 +33,9 @@ function InverseItem({
 
 export default function InversePageBuilder() {
   return (
-    <>
+    <TrailAttractionProvider>
       <SceneVideoBackdrop />
+      <TubesCursor layer="landing" />
       <div className="inverse-stack flex min-h-screen flex-col-reverse">
         <InverseItem id="hero"><HeroTop /></InverseItem>
         <InverseItem id="what-we-do"><WhatWeDo /></InverseItem>
@@ -52,6 +55,6 @@ export default function InversePageBuilder() {
         <InverseItem><Footer /></InverseItem>
         <StickyFooterMarquee />
       </div>
-    </>
+    </TrailAttractionProvider>
   );
 }

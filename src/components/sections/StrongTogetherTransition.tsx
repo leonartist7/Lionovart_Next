@@ -22,6 +22,8 @@ export default function StrongTogetherTransition() {
   const togetherRef = useRef<HTMLHeadingElement>(null);
   const supportRef = useRef<HTMLParagraphElement>(null);
   const handsRef = useRef<HTMLDivElement>(null);
+  const lionRef = useRef<HTMLDivElement>(null);
+  const humanRef = useRef<HTMLDivElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -33,6 +35,8 @@ export default function StrongTogetherTransition() {
       !togetherRef.current ||
       !supportRef.current ||
       !handsRef.current ||
+      !lionRef.current ||
+      !humanRef.current ||
       !lineRef.current
     ) {
       return;
@@ -46,7 +50,8 @@ export default function StrongTogetherTransition() {
         gsap.set(aloneRef.current, { opacity: 0, y: -24 });
         gsap.set(togetherRef.current, { opacity: 1, y: 0 });
         gsap.set(supportRef.current, { opacity: 1, y: 0 });
-        gsap.set(handsRef.current, { opacity: 1, scale: 1 });
+        gsap.set(handsRef.current, { opacity: 1 });
+        gsap.set([lionRef.current, humanRef.current], { xPercent: 0 });
         gsap.set(lineRef.current, { scaleY: 1 });
         return;
       }
@@ -55,7 +60,9 @@ export default function StrongTogetherTransition() {
       gsap.set(rightDoorRef.current, { xPercent: 100 });
       gsap.set(aloneRef.current, { opacity: 1, y: 0 });
       gsap.set([togetherRef.current, supportRef.current], { opacity: 0, y: 28 });
-      gsap.set(handsRef.current, { opacity: 0, scale: 1.04 });
+      gsap.set(handsRef.current, { opacity: 0 });
+      gsap.set(lionRef.current, { xPercent: -100 });
+      gsap.set(humanRef.current, { xPercent: 100 });
       gsap.set(lineRef.current, { scaleY: 0 });
 
       const timeline = gsap.timeline({
@@ -71,8 +78,10 @@ export default function StrongTogetherTransition() {
         .to(aloneRef.current, { opacity: 0, y: -34, ease: "none" }, 0.04)
         .to(leftDoorRef.current, { xPercent: 0, ease: "none" }, 0.15)
         .to(rightDoorRef.current, { xPercent: 0, ease: "none" }, 0.15)
+        .set(handsRef.current, { opacity: 1 }, 0.22)
         .to(lineRef.current, { scaleY: 1, ease: "none" }, 0.38)
-        .to(handsRef.current, { opacity: 1, scale: 1, ease: "none" }, 0.46)
+        .to(lionRef.current, { xPercent: 0, ease: "power3.out" }, 0.22)
+        .to(humanRef.current, { xPercent: 0, ease: "power3.out" }, 0.22)
         .to(togetherRef.current, { opacity: 1, y: 0, ease: "power4.out" }, 0.58)
         .to(supportRef.current, { opacity: 1, y: 0, ease: "power4.out" }, 0.66);
     }, sectionRef);
@@ -94,7 +103,10 @@ export default function StrongTogetherTransition() {
           aria-hidden
           className="pointer-events-none absolute inset-x-0 top-[32%] z-[4] h-[54%] opacity-0 md:top-[30%] md:h-[62%]"
         >
-          <div className="absolute left-[-22%] top-0 h-full w-[76%] md:left-[-8%] md:w-[58%]">
+          <div
+            ref={lionRef}
+            className="absolute left-[-22%] top-0 h-full w-[76%] md:left-[-8%] md:w-[58%]"
+          >
             <Image
               src={LION_PAW}
               alt=""
@@ -103,7 +115,10 @@ export default function StrongTogetherTransition() {
               className="object-contain object-right mix-blend-multiply"
             />
           </div>
-          <div className="absolute right-[-22%] top-0 h-full w-[76%] md:right-[-8%] md:w-[58%]">
+          <div
+            ref={humanRef}
+            className="absolute right-[-22%] top-0 h-full w-[76%] md:right-[-8%] md:w-[58%]"
+          >
             <Image
               src={HUMAN_HAND}
               alt=""
@@ -163,4 +178,5 @@ export default function StrongTogetherTransition() {
     </section>
   );
 }
+
 

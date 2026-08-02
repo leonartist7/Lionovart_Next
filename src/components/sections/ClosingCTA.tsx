@@ -6,6 +6,7 @@ import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { useNovaStore } from "@/lib/stores/nova-store";
 import { useLanguage } from "@/contexts/LanguageContext";
 import BrandCrest from "@/components/sections/services/brand/branding/BrandCrest";
+import TrailAttractionTarget from "@/components/ui/TrailAttractionTarget";
 
 // Capped at 1080p (master is 4K) and q_auto:eco — this sits under a bg-black/70
 // scrim, so the extra quality was never visible.
@@ -29,11 +30,11 @@ export default function ClosingCTA({ crest = false }: { crest?: boolean }) {
   return (
     <section
       id="closing-cta"
-      className="relative isolate overflow-hidden bg-[#0a0a0a] px-6 py-28 text-center text-white md:py-36"
+      className="relative overflow-hidden bg-[#0a0a0a] px-6 py-28 text-center text-white md:py-36"
     >
       <VideoBackdrop src={FOOTER_CLIP} className="absolute inset-0 z-0" overlayClassName="bg-black/70" />
 
-      <div className="relative z-10 mx-auto flex max-w-[1000px] flex-col items-center gap-8 md:gap-10">
+      <div className="relative z-40 mx-auto flex max-w-[1000px] flex-col items-center gap-8 md:gap-10">
         <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red md:text-[13px]">
           One partnership — fully done for you
         </p>
@@ -54,7 +55,9 @@ export default function ClosingCTA({ crest = false }: { crest?: boolean }) {
 
         <div className="mt-2 flex items-center gap-5">
           {crest && <BrandCrest className="h-12 w-auto md:h-14" />}
-          <LiquidMetalButton label="Start your brand" width={220} onClick={() => openNova("offer", true)} />
+          <TrailAttractionTarget>
+            <LiquidMetalButton label="Start your brand" width={220} onClick={() => openNova("offer", true)} />
+          </TrailAttractionTarget>
         </div>
       </div>
     </section>

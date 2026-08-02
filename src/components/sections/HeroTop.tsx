@@ -364,7 +364,7 @@ export default function HeroTop(props: any) {
   };
 
   return (
-    <section className="relative z-20 flex min-h-[90vh] flex-col items-center justify-start overflow-hidden px-6 pb-16 pt-[clamp(7.5rem,14vh,10rem)] text-center sm:pt-[clamp(8rem,14vh,10.5rem)] lg:pt-[clamp(8.5rem,15vh,11.5rem)]">
+    <section className="relative flex min-h-[90vh] flex-col items-center justify-start overflow-hidden px-6 pb-16 pt-[clamp(7.5rem,14vh,10rem)] text-center sm:pt-[clamp(8rem,14vh,10.5rem)] lg:pt-[clamp(8.5rem,15vh,11.5rem)]">
 
       {/* Controlled dark stage + soft red glow up top; clears toward the
           bottom so the video behind PEEKS at the fold and pulls scroll. */}
@@ -382,7 +382,7 @@ export default function HeroTop(props: any) {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-[2] flex w-full max-w-[920px] flex-col items-center gap-8 md:gap-10"
+        className="relative z-40 flex w-full max-w-[920px] flex-col items-center gap-8 md:gap-10"
       >
         {/* Headline — ALL WHITE, always 3 lines, rem-bounded clamp (never crops) */}
         <motion.h1
