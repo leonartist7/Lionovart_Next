@@ -2,12 +2,18 @@
 
 import { useEffect, useRef } from "react";
 
-type TubesCursorProps = {
+const LANDING_TUBE_RADIUS = {
+  minRadius: 0.002,
+  maxRadius: 0.022,
+};
+
+export type TubesCursorProps = {
   initialColors?: string[];
   lightColors?: string[];
   lightIntensity?: number;
   enableRandomizeOnClick?: boolean;
   className?: string;
+  layer?: "global" | "landing";
 };
 
 type TubesApp = {
@@ -37,6 +43,7 @@ export default function TubesCursor({
   lightIntensity = 160,
   enableRandomizeOnClick = true,
   className = "",
+  layer = "global",
 }: TubesCursorProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const appRef = useRef<TubesApp | null>(null);
@@ -68,6 +75,7 @@ export default function TubesCursor({
           tubes: {
             colors: initialColors,
             lights: { intensity: lightIntensity, colors: lightColors },
+            ...(layer === "landing" ? LANDING_TUBE_RADIUS : {}),
           },
         });
         appRef.current = app;
@@ -95,12 +103,14 @@ export default function TubesCursor({
       }
       appRef.current = null;
     };
-  }, [initialColors, lightColors, lightIntensity, enableRandomizeOnClick]);
+  }, [initialColors, lightColors, lightIntensity, enableRandomizeOnClick, layer]);
 
   return (
     <div
       aria-hidden="true"
-      className={`pointer-events-none fixed inset-0 z-[9997] overflow-hidden mix-blend-screen ${className}`}
+      className={`pointer-events-none fixed inset-0 ${
+        layer === "landing" ? "z-[35]" : "z-[9997]"
+      } overflow-hidden mix-blend-screen ${className}`}
     >
       <canvas
         ref={canvasRef}
