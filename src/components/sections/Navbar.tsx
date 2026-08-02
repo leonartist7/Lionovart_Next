@@ -15,6 +15,7 @@ import { getWhatsAppUrl } from "@/lib/contact";
 import { MenuBurgerLottie } from "@/components/ui/menu-burger-lottie";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 /** Pixels to clear the fixed navbar when scrolling to a section. */
 const SCROLL_OFFSET = -88;
@@ -84,6 +85,8 @@ const SERVICE_ITEM_VARIANTS = {
 };
 
 export default function Navbar() {
+  const flow = useLandingFlow();
+  const isInverse = flow === "inverse";
   const [isPastHero, setIsPastHero] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [heroThreshold, setHeroThreshold] = useState(600);
@@ -101,9 +104,14 @@ export default function Navbar() {
   const ctaLabel = t.nav.cta;
 
   const scrollToTarget = (target: string) => {
-    const el = document.querySelector(`[data-nova-section="${target}"], #${target}`);
+    const el = document.querySelector<HTMLElement>(`[data-nova-section="${target}"], #${target}`);
     if (!el) return;
-    if (lenis?.scrollTo) lenis.scrollTo(el, { offset: SCROLL_OFFSET });
+    if (lenis?.scrollTo && flow === "inverse") {
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      const startFromBottom = top + el.offsetHeight - window.innerHeight;
+      lenis.scrollTo(Math.max(0, startFromBottom), { force: true });
+      window.history.replaceState(null, "", `#${target}`);
+    } else if (lenis?.scrollTo) lenis.scrollTo(el, { offset: SCROLL_OFFSET });
     else el.scrollIntoView({ behavior: "smooth", block: "start" });
     setIsMobileOpen(false);
     setMobileExpertiseOpen(false);
@@ -169,11 +177,6 @@ export default function Navbar() {
     suppressCloseUntil.current = Date.now() + 800;
   }, [locale]);
 
-  // Close the Expertise band the moment we leave hero mode (links → burger).
-  useEffect(() => {
-    if (isPastHero) setExpertiseOpen(false);
-  }, [isPastHero]);
-
   useEffect(() => {
     const calc = () => {
       setHeroThreshold(window.innerHeight * 0.62);
@@ -200,11 +203,18 @@ export default function Navbar() {
   }, []);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
+    const logicalLatest = flow === "inverse"
+      ? Math.max(0, (lenis?.limit ?? latest) - latest)
+      : latest;
     const prev = lastScrollRef.current;
-    const delta = latest - prev;
-    lastScrollRef.current = latest;
+    const delta = logicalLatest - prev;
+    lastScrollRef.current = logicalLatest;
 
-    setIsPastHero(latest > heroThreshold);
+    const nextIsPastHero = logicalLatest > heroThreshold;
+    setIsPastHero(nextIsPastHero);
+    // Close the Expertise band as soon as the inverse/classic hero boundary is
+    // crossed, without introducing a state-setting effect in the render path.
+    if (nextIsPastHero) setExpertiseOpen((open) => (open ? false : open));
 
     // Close mobile menu on any scroll ≥ 5px — unless a recent language change
     // is reflowing the page (which would otherwise close it spuriously).
@@ -221,10 +231,10 @@ export default function Navbar() {
     if (delta > 0) {
       // Scrolling down → hide; keep tracking the lowest position
       if (isVisibleRef.current) setNavVisible(false);
-      hideAtRef.current = latest;
+      hideAtRef.current = logicalLatest;
     } else if (delta < 0) {
       // Scrolling up → restore once user moves ≥15 px upward
-      if (!isVisibleRef.current && hideAtRef.current - latest >= 15) {
+      if (!isVisibleRef.current && hideAtRef.current - logicalLatest >= 15) {
         setNavVisible(true);
       }
     }
@@ -234,15 +244,17 @@ export default function Navbar() {
 
   return (
     <motion.div
-      className="fixed top-[3px] left-0 right-0 z-50 flex justify-center px-3"
-      animate={{ y: isVisible ? 0 : "-120%" }}
+      className={`fixed left-0 right-0 z-50 flex justify-center px-3 ${
+        isInverse ? "bottom-[3px]" : "top-[3px]"
+      }`}
+      animate={{ y: isVisible ? 0 : isInverse ? "120%" : "-120%" }}
       transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
     >
       <div className="relative w-full max-w-[1400px]">
 
         {/* ── Nav bar pill ── */}
-        <motion.header
-          initial={{ opacity: 0, y: -16 }}
+          <motion.header
+          initial={{ opacity: 0, y: isInverse ? 16 : -16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="relative w-full rounded-xl shadow-sm"
@@ -394,7 +406,9 @@ export default function Navbar() {
               variants={CARD_VARIANTS}
               onMouseEnter={openExpertise}
               onMouseLeave={scheduleCloseExpertise}
-              className="hidden lg:block absolute left-[15%] right-[15%] top-0 -z-10 overflow-hidden rounded-xl"
+              className={`hidden lg:block absolute left-[15%] right-[15%] -z-10 overflow-hidden rounded-xl ${
+                isInverse ? "bottom-0" : "top-0"
+              }`}
               style={{
                 background: "rgba(255, 255, 255, 0.78)",
                 backdropFilter: "blur(28px) saturate(1.8)",
@@ -405,7 +419,9 @@ export default function Navbar() {
             >
               <motion.div
                 variants={STAGGER_VARIANTS}
-                className="mx-auto grid max-w-[700px] grid-cols-2 gap-2 px-8 pt-[92px] pb-9"
+                className={`mx-auto grid max-w-[700px] grid-cols-2 gap-2 px-8 ${
+                  isInverse ? "pt-9 pb-[92px]" : "pt-[92px] pb-9"
+                }`}
               >
                 {services.map((title) => (
                   <motion.button
@@ -434,11 +450,13 @@ export default function Navbar() {
         <AnimatePresence>
           {isMobileOpen && (
             <motion.div
-              initial={{ y: "-100%" }}
+              initial={{ y: isInverse ? "100%" : "-100%" }}
               animate={{ y: 0 }}
-              exit={{ y: "-100%" }}
+              exit={{ y: isInverse ? "100%" : "-100%" }}
               transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-              className="absolute top-0 left-[15%] right-[15%] lg:left-1/4 lg:right-1/4 lg:w-auto -z-10 rounded-xl"
+              className={`absolute left-[15%] right-[15%] lg:left-1/4 lg:right-1/4 lg:w-auto -z-10 rounded-xl ${
+                isInverse ? "bottom-0" : "top-0"
+              }`}
               style={{
                 background: "rgba(255, 255, 255, 0.75)",
                 backdropFilter: "blur(28px) saturate(1.8)",
@@ -448,7 +466,11 @@ export default function Navbar() {
               }}
             >
               {/* vertical on mobile/tablet, horizontal on desktop */}
-              <nav className="flex flex-col lg:flex-row items-center justify-center px-6 pt-[82px] pb-8 gap-5 lg:gap-x-6">
+              <nav
+                className={`flex flex-col lg:flex-row items-center justify-center px-6 gap-5 lg:gap-x-6 ${
+                  isInverse ? "pt-8 pb-[82px]" : "pt-[82px] pb-8"
+                }`}
+              >
                 {NAV_LINKS.map((link, i) => (
                   <motion.div
                     key={link.target}

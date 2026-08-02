@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { motion, useAnimation } from "framer-motion";
 import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useLandingFlow } from "@/contexts/LandingFlowContext";
 import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
 import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
 
@@ -215,6 +216,7 @@ function ProblemCard({
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 export default function ProblemsSolvedSection() {
+  const flow = useLandingFlow();
   const [revealedIds, setRevealedIds] = useState<number[]>([]);
   const { t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
@@ -243,7 +245,7 @@ export default function ProblemsSolvedSection() {
           style={{ width: "var(--imagine-card-d)", maxWidth: "100%" }}
         >
           {/* Red card */}
-          <div className="relative z-10 w-full bg-[#e5192a] rounded-[32px] px-5 sm:px-7 pt-12 md:pt-16 pb-12 shadow-[0_30px_60px_-15px_rgba(229,25,42,0.45)]">
+          <div className={`relative z-10 w-full bg-[#e5192a] rounded-[32px] px-5 sm:px-7 pt-12 md:pt-16 pb-12 shadow-[0_30px_60px_-15px_rgba(229,25,42,0.45)] ${flow === "inverse" ? "flex flex-col-reverse" : ""}`}>
             {/* Slanted marquee band near the top — card's rounded corners stay
                 visible above it (sits below the pt). Clipped to the card width. */}
             <div className="-mx-5 sm:-mx-7 mb-9 md:mb-12 overflow-hidden">
@@ -272,7 +274,7 @@ export default function ProblemsSolvedSection() {
             </motion.div>
 
             {/* Cards — stacked in the narrow column */}
-            <div className="flex flex-col gap-6 md:gap-8 pb-4">
+            <div className={`flex flex-col gap-6 md:gap-8 pb-4 ${flow === "inverse" ? "flex-col-reverse" : ""}`}>
               {items.map((item, i) => (
                 <motion.div
                   key={i}

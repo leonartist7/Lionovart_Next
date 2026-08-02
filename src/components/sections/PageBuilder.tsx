@@ -13,6 +13,7 @@ import Testimonials from "@/components/sections/Testimonials";
 import FAQ from "@/components/sections/FAQ";
 import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
 import ClosingCTA from "@/components/sections/ClosingCTA";
+import TubesCursor from "@/components/ui/TubesCursor";
 
 /**
  * Wraps a section for NOVA's in-view tracker and `scroll_to_section` tool.
@@ -31,10 +32,11 @@ export function PageBuilder() {
   return (
     <>
       <SceneVideoBackdrop />
+      <TubesCursor layer="landing" />
 
       <NovaSection id="hero"><HeroTop /></NovaSection>
 
-      <div className="relative z-[2]">
+      <div>
         <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
         <BridgeStatement />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import { useLenis } from "lenis/react";
+import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 /**
  * SceneVideoBackdrop — a single fixed, full-viewport video that sits behind the
@@ -25,6 +26,7 @@ const CLIPS = [
 const CLIP_DURATION_MS = 14000;
 
 export default function SceneVideoBackdrop() {
+  const flow = useLandingFlow();
   const [index, setIndex] = useState(0);
   // Playback starts ~1s after the user first scrolls into the hero (past the
   // curtain), not on load — so the entrance feels deliberate.
@@ -52,7 +54,10 @@ export default function SceneVideoBackdrop() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   useLenis((lenis: any) => {
     const vh = window.innerHeight;
-    const scroll = lenis?.scroll ?? 0;
+    const rawScroll = lenis?.scroll ?? 0;
+    const scroll = flow === "inverse"
+      ? Math.max(0, (lenis?.limit ?? rawScroll) - rawScroll)
+      : rawScroll;
 
     // Arm playback: once the user scrolls into the hero (past ~half the curtain),
     // wait 1s, then begin. Fires once.

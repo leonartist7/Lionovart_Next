@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getWhatsAppUrl, CONTACT_EMAIL } from "@/lib/contact";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SERVICE_ROUTES } from "@/lib/service-routes";
+import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 /**
  * Global footer — slim, professional. The closing CTA now lives in its own
@@ -12,13 +13,15 @@ import { SERVICE_ROUTES } from "@/lib/service-routes";
  * Privacy/Terms right).
  */
 export default function Footer() {
+  const flow = useLandingFlow();
   const { t } = useLanguage();
   const year = new Date().getFullYear();
+  const landingBase = flow === "inverse" ? "/inverse" : "/";
   const exploreLinks = [
-    { label: t.footer.about, href: "/#about" },
-    { label: t.footer.whyUs, href: "/#comparison" },
-    { label: t.footer.howWeWork, href: "/#process" },
-    { label: t.footer.results, href: "/#testimonials" },
+    { label: t.footer.about, href: `${landingBase}#about` },
+    { label: t.footer.whyUs, href: `${landingBase}#comparison` },
+    { label: t.footer.howWeWork, href: `${landingBase}#process` },
+    { label: t.footer.results, href: `${landingBase}#testimonials` },
   ];
 
   return (

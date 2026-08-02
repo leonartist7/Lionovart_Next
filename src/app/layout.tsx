@@ -68,7 +68,7 @@ export default async function RootLayout({
           </SmoothScrollProvider>
           <NovaPortalMount />
           <StickyCTA />
-          <TubesCursor />
+          <TubesCursor layer="global" />
           <CustomCursor />
           <BottomBlur />
         </LanguageProvider>

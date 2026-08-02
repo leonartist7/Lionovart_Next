@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { CheckCircle, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 // Boolean fields stay static — only text is translated
 const COMPARISON_BOOLEANS = [
@@ -13,6 +14,7 @@ const COMPARISON_BOOLEANS = [
 ];
 
 export default function Comparison(props: any) {
+  const flow = useLandingFlow();
   const { t } = useLanguage();
 
   const heading = props.heading || t.comparison.heading;
@@ -38,7 +40,7 @@ export default function Comparison(props: any) {
 
   return (
     <section className="bg-bg-surface-light py-[100px] md:py-[140px] px-4 md:px-8">
-      <div className="max-w-[1200px] lg:max-w-[1400px] mx-auto">
+      <div className={`max-w-[1200px] lg:max-w-[1400px] mx-auto ${flow === "inverse" ? "flex flex-col-reverse" : ""}`}>
         <div className="mb-12 md:mb-20 flex flex-col items-center text-center">
           <motion.h2
             className="text-[2.5rem] sm:text-[3.5rem] md:text-[5rem] lg:text-[6rem] font-bold uppercase leading-[0.92] tracking-[-0.02em] text-[#111111] max-w-4xl"

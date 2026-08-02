@@ -10,6 +10,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useLandingFlow } from "@/contexts/LandingFlowContext";
 import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
 
 type ProcessStep = {
@@ -58,6 +59,7 @@ const VISION_KICKER = "Not artificial.";
 const VISION = "Artistic Intelligence";
 
 export default function Process(props: any) {
+  const flow = useLandingFlow();
   const { t } = useLanguage();
 
   const eyebrow = props.eyebrow || t.process.eyebrow;
@@ -88,10 +90,15 @@ export default function Process(props: any) {
     target: sectionRef,
     offset: ["start start", "end end"],
   });
+  const logicalProgress = useTransform(
+    scrollYProgress,
+    [0, 1],
+    flow === "inverse" ? [1, 0] : [0, 1],
+  );
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [reveal, setReveal] = useState(false);
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
+  useMotionValueEvent(logicalProgress, "change", (v) => {
     const raw = clamp(Math.floor(v * frames), 0, frames - 1);
     const nextReveal = raw >= steps.length;
     const nextIdx = Math.min(raw, steps.length - 1);
@@ -102,13 +109,13 @@ export default function Process(props: any) {
   const active = steps[activeIndex] ?? steps[0];
 
   // Line fills across the step beats; full when the lion reveal begins.
-  const lineProgress = useTransform(scrollYProgress, [0, ringEnd], [0, 1], {
+  const lineProgress = useTransform(logicalProgress, [0, ringEnd], [0, 1], {
     clamp: true,
   });
   const runnerRotate = useTransform(lineProgress, [0, 1], [0, 360]);
   // Fade ticks/runner/step-text out as the lion takes the circle.
   const auxFade = useTransform(
-    scrollYProgress,
+    logicalProgress,
     [ringEnd, ringEnd + (1 - ringEnd) * 0.5],
     [1, 0],
     { clamp: true }

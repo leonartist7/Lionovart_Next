@@ -47,3 +47,6 @@ graphify-out/
 
 # Local v2 capture dumps (regenerate as needed; ~11MB+)
 docs/v2-screenshots/
+
+# Claude Code session worktrees (ephemeral scratch, not project state)
+.claude/worktrees/

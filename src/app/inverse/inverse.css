@@ -1,0 +1,18 @@
+html.inverse-flow {
+  scroll-behavior: auto !important;
+  overscroll-behavior-y: none;
+}
+
+body.inverse-flow {
+  overscroll-behavior-y: none;
+}
+
+.inverse-stack > * {
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-inverse-ready] {
+    transition: none !important;
+  }
+}

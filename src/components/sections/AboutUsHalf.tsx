@@ -7,6 +7,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -110,6 +111,7 @@ function PortraitFrame({
 
 /* ─── Main component ─────────────────────────────────────── */
 export default function AboutUsHalf(props: any) {
+  const flow = useLandingFlow();
   const sectionRef = useRef<HTMLElement>(null);
   const desktopRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
@@ -135,7 +137,12 @@ export default function AboutUsHalf(props: any) {
             scrub: 1.2,
           },
         })
-          .fromTo(wordEls, { yPercent: 110 }, { yPercent: 0, duration: 1, stagger: 0.08, ease: "power3.out" }, 0.05);
+          .fromTo(
+            wordEls,
+            { yPercent: flow === "inverse" ? 0 : 110 },
+            { yPercent: flow === "inverse" ? 110 : 0, duration: 1, stagger: 0.08, ease: "power3.out" },
+            0.05,
+          );
 
         gsap.timeline({
           scrollTrigger: {
@@ -147,13 +154,27 @@ export default function AboutUsHalf(props: any) {
             pinSpacing: true,
           },
         })
-          .fromTo(".about-body",  { opacity: 0, y: 20 },              { opacity: 1, y: 0, duration: 0.5, stagger: 0.12, ease: "power2.out" }, 0)
-          .fromTo(".about-image", { opacity: 0, scale: 0.92, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.7, ease: "power2.out" }, 0.3);
+          .fromTo(
+            ".about-body",
+            flow === "inverse" ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 },
+            flow === "inverse"
+              ? { opacity: 0, y: 20, duration: 0.5, stagger: 0.12, ease: "power2.out" }
+              : { opacity: 1, y: 0, duration: 0.5, stagger: 0.12, ease: "power2.out" },
+            0,
+          )
+          .fromTo(
+            ".about-image",
+            flow === "inverse" ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.92, y: 30 },
+            flow === "inverse"
+              ? { opacity: 0, scale: 0.92, y: 30, duration: 0.7, ease: "power2.out" }
+              : { opacity: 1, scale: 1, y: 0, duration: 0.7, ease: "power2.out" },
+            0.3,
+          );
       });
 
       return () => mm.revert();
     },
-    { scope: sectionRef, dependencies: [] }
+    { scope: sectionRef, dependencies: [flow] }
   );
 
   return (

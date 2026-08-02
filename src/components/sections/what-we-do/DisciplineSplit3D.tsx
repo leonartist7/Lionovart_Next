@@ -7,6 +7,7 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
+import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 // Locked tag style (flip to red here if preferred).
 const TAG_CLASS = "border-white/25 text-white/75";
@@ -116,6 +117,7 @@ function Slice({
 }
 
 export default function DisciplineSplit3D({ cards, video }: Props) {
+  const flow = useLandingFlow();
   const sectionRef = useRef<HTMLElement>(null);
   const [isDesktop, setIsDesktop] = useState(true);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
@@ -151,7 +153,12 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
     target: sectionRef,
     offset: ["start start", "end end"],
   });
-  const p = useTransform(scrollYProgress, [0.12, 0.62], [0, 1], { clamp: true });
+  const logicalProgress = useTransform(
+    scrollYProgress,
+    [0, 1],
+    flow === "inverse" ? [1, 0] : [0, 1],
+  );
+  const p = useTransform(logicalProgress, [0.12, 0.62], [0, 1], { clamp: true });
   return (
     <motion.section
       ref={sectionRef}
