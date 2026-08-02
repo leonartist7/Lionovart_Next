@@ -1,6 +1,3 @@
-Exit code: 0
-Wall time: 2.7 seconds
-Output:
 "use client";
 
 import Image from "next/image";
