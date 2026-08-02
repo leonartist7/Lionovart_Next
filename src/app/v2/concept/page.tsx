@@ -1,4 +1,7 @@
-≠rá^—f•ñÿ¶{oly 'v√Æ∂õ≠import HandsTogetherConcept from "@/components/v2/HandsTogetherConcept";
+Exit code: 0
+Wall time: 3 seconds
+Output:
+import HandsTogetherConcept from "@/components/v2/HandsTogetherConcept";
 import V2Shell from "@/components/v2/V2Shell";
 
 export default function HandsTogetherConceptPage() {
@@ -10,3 +13,4 @@ export default function HandsTogetherConceptPage() {
     </V2Shell>
   );
 }
+
