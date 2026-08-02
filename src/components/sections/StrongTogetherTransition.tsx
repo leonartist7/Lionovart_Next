@@ -20,11 +20,9 @@ export default function StrongTogetherTransition() {
   const rightDoorRef = useRef<HTMLDivElement>(null);
   const aloneRef = useRef<HTMLHeadingElement>(null);
   const togetherRef = useRef<HTMLHeadingElement>(null);
-  const supportRef = useRef<HTMLParagraphElement>(null);
   const handsRef = useRef<HTMLDivElement>(null);
   const lionRef = useRef<HTMLDivElement>(null);
   const humanRef = useRef<HTMLDivElement>(null);
-  const lineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (
@@ -33,11 +31,9 @@ export default function StrongTogetherTransition() {
       !rightDoorRef.current ||
       !aloneRef.current ||
       !togetherRef.current ||
-      !supportRef.current ||
       !handsRef.current ||
       !lionRef.current ||
-      !humanRef.current ||
-      !lineRef.current
+      !humanRef.current
     ) {
       return;
     }
@@ -47,23 +43,20 @@ export default function StrongTogetherTransition() {
 
       if (reduceMotion) {
         gsap.set(doors, { xPercent: 0 });
-        gsap.set(aloneRef.current, { opacity: 0, y: -24 });
+        gsap.set(aloneRef.current, { opacity: 0, y: 0 });
         gsap.set(togetherRef.current, { opacity: 1, y: 0 });
-        gsap.set(supportRef.current, { opacity: 1, y: 0 });
         gsap.set(handsRef.current, { opacity: 1 });
         gsap.set([lionRef.current, humanRef.current], { xPercent: 0 });
-        gsap.set(lineRef.current, { scaleY: 1 });
         return;
       }
 
       gsap.set(leftDoorRef.current, { xPercent: -100 });
       gsap.set(rightDoorRef.current, { xPercent: 100 });
       gsap.set(aloneRef.current, { opacity: 1, y: 0 });
-      gsap.set([togetherRef.current, supportRef.current], { opacity: 0, y: 28 });
+      gsap.set(togetherRef.current, { opacity: 0, y: 0 });
       gsap.set(handsRef.current, { opacity: 0 });
       gsap.set(lionRef.current, { xPercent: -100 });
       gsap.set(humanRef.current, { xPercent: 100 });
-      gsap.set(lineRef.current, { scaleY: 0 });
 
       const timeline = gsap.timeline({
         scrollTrigger: {
@@ -75,15 +68,13 @@ export default function StrongTogetherTransition() {
       });
 
       timeline
-        .to(aloneRef.current, { opacity: 0, y: -34, ease: "none" }, 0.04)
-        .to(leftDoorRef.current, { xPercent: 0, ease: "none" }, 0.15)
-        .to(rightDoorRef.current, { xPercent: 0, ease: "none" }, 0.15)
+        .to(leftDoorRef.current, { xPercent: 0, duration: 0.45, ease: "none" }, 0.12)
+        .to(rightDoorRef.current, { xPercent: 0, duration: 0.45, ease: "none" }, 0.12)
         .set(handsRef.current, { opacity: 1 }, 0.22)
-        .to(lineRef.current, { scaleY: 1, ease: "none" }, 0.38)
-        .to(lionRef.current, { xPercent: 0, ease: "power3.out" }, 0.22)
-        .to(humanRef.current, { xPercent: 0, ease: "power3.out" }, 0.22)
-        .to(togetherRef.current, { opacity: 1, y: 0, ease: "power4.out" }, 0.58)
-        .to(supportRef.current, { opacity: 1, y: 0, ease: "power4.out" }, 0.66);
+        .to(lionRef.current, { xPercent: 0, duration: 0.55, ease: "power3.out" }, 0.22)
+        .to(humanRef.current, { xPercent: 0, duration: 0.55, ease: "power3.out" }, 0.22)
+        .to(aloneRef.current, { opacity: 0, duration: 0.12, ease: "none" }, 0.42)
+        .to(togetherRef.current, { opacity: 1, duration: 0.3, ease: "power4.out" }, 0.58);
     }, sectionRef);
 
     return () => ctx.revert();
@@ -101,7 +92,7 @@ export default function StrongTogetherTransition() {
         <div
           ref={handsRef}
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-[32%] z-[4] h-[54%] opacity-0 md:top-[30%] md:h-[62%]"
+          className="pointer-events-none absolute inset-x-0 top-[42%] z-[4] h-[50%] opacity-0 md:top-[39%] md:h-[57%]"
         >
           <div
             ref={lionRef}
@@ -140,43 +131,25 @@ export default function StrongTogetherTransition() {
           className="absolute inset-y-0 right-0 z-[3] w-1/2 bg-[#f2ede3]"
         />
 
-        <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center px-6 text-center md:px-12">
+        <div className="pointer-events-none absolute inset-x-0 top-[10%] z-[5] px-6 text-center md:top-[11%] md:px-12">
           <h2
             ref={aloneRef}
-            className="max-w-[12ch] font-clash text-[clamp(3rem,8vw,7rem)] font-semibold leading-[0.88] tracking-[-0.045em] text-[#f2ede3]"
+            aria-hidden="true"
+            className="mx-auto max-w-[12ch] font-clash text-[clamp(4rem,11vw,10rem)] font-semibold leading-[0.88] tracking-[-0.045em] text-[#f2ede3]"
           >
             Strong alone.
           </h2>
 
-          <div className="absolute inset-x-0 top-[12%] flex flex-col items-center px-6 text-[#171412] md:top-[13%]">
-            <h2
-              id="strong-together-title"
-              ref={togetherRef}
-              className="max-w-[13ch] font-clash text-[clamp(2.8rem,6vw,5.5rem)] font-semibold leading-[0.9] tracking-[-0.045em]"
-            >
-              Stronger together.
-            </h2>
-            <p
-              ref={supportRef}
-              className="mt-5 max-w-[34ch] text-center font-clash text-sm leading-[1.6] text-[#171412]/65 md:text-base"
-            >
-              One vision becomes more powerful when it has the right force beside it.
-            </p>
-          </div>
-
-          <div
-            ref={lineRef}
-            aria-hidden
-            className="absolute bottom-[10%] left-1/2 h-20 w-px origin-top -translate-x-1/2 bg-[#e5192a] md:bottom-[8%] md:h-28"
-          />
-        </div>
-
-        <div className="absolute bottom-5 left-1/2 z-[5] -translate-x-1/2 text-center font-clash text-[10px] font-semibold uppercase tracking-[0.18em] text-[#171412]/45">
-          Strong alone / stronger together
+          <h2
+            id="strong-together-title"
+            ref={togetherRef}
+            className="absolute inset-x-0 top-0 mx-auto max-w-[12ch] font-clash text-[clamp(3.4rem,8vw,7.5rem)] font-semibold uppercase leading-[0.88] tracking-[-0.045em] text-[#171412]"
+          >
+            STRONGER TOGETHER
+          </h2>
         </div>
       </div>
     </section>
   );
 }
-
 
