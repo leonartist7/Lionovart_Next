@@ -1,4 +1,7 @@
-≠rá^—f•ñÿ¶{ç¨y 'v√Æ∂õ≠"use client";
+Exit code: 0
+Wall time: 2.7 seconds
+Output:
+"use client";
 
 import Image from "next/image";
 import { useEffect, useRef } from "react";
@@ -160,3 +163,4 @@ export default function HandsTogetherConcept() {
     </section>
   );
 }
+
