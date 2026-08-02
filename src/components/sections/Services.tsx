@@ -17,7 +17,31 @@ const SERVICES_STATIC = [
   { id: "growth",         number: "06", href: "/services/growth",         imgUrl: `${C}/v1775277350/image_19_rnwg8w.avif`, imgAlt: "Growth Marketing" },
 ];
 
-export default function Services(props: any) {
+type ServiceCopy = {
+  deliverables?: readonly string[];
+  description?: string;
+  title?: string;
+};
+
+type Service = {
+  deliverables: readonly string[];
+  description: string;
+  href?: string;
+  id: string;
+  imgAlt?: string;
+  imgUrl?: string;
+  number: string;
+  title: string;
+};
+
+type ServicesProps = {
+  eyebrow?: string;
+  heading?: string;
+  headingAccent?: string;
+  items?: readonly ServiceCopy[];
+};
+
+export default function Services(props: ServicesProps) {
   const flow = useLandingFlow();
   const { t } = useLanguage();
 
@@ -25,17 +49,18 @@ export default function Services(props: any) {
   const heading     = props.heading      || t.services.heading;
   const headingAccent = props.headingAccent || t.services.headingAccent;
 
-  const SERVICES = props.items
-    ? props.items.map((item: any, i: number) => ({
-        ...SERVICES_STATIC[i],
-        ...item,
-        id:          SERVICES_STATIC[i]?.id     ?? String(i),
-        number:      SERVICES_STATIC[i]?.number ?? String(i + 1).padStart(2, "0"),
-        imgUrl:      SERVICES_STATIC[i]?.imgUrl,
-        imgAlt:      SERVICES_STATIC[i]?.imgAlt,
+  const SERVICES: Service[] = props.items
+    ? props.items.map((item, i) => ({
+        id: SERVICES_STATIC[i]?.id ?? String(i),
+        number: SERVICES_STATIC[i]?.number ?? String(i + 1).padStart(2, "0"),
+        href: SERVICES_STATIC[i]?.href,
+        imgUrl: SERVICES_STATIC[i]?.imgUrl,
+        imgAlt: SERVICES_STATIC[i]?.imgAlt,
+        title: item.title ?? "",
+        description: item.description ?? "",
         deliverables: item.deliverables ?? [],
       }))
-    : SERVICES_STATIC.map((s, i) => ({
+    : SERVICES_STATIC.map((s, i): Service => ({
         ...s,
         title:        t.services.items[i]?.title        ?? "",
         description:  t.services.items[i]?.description  ?? "",
@@ -121,7 +146,7 @@ export default function Services(props: any) {
 
             {/* ── Left: name list ─────────────────────────────── */}
             <div className="flex flex-col justify-center h-full">
-              {SERVICES.map((s: any, i: number) => {
+              {SERVICES.map((s, i) => {
                 const isActive = i === activeIndex;
                 return (
                   <div key={s.id}>
@@ -222,7 +247,7 @@ export default function Services(props: any) {
           Active item expands: description → tags → image.
       ══════════════════════════════════════════════════════════ */}
       <div className={`lg:hidden mx-auto w-full max-w-[640px] px-4 md:px-8 pb-[80px] ${flow === "inverse" ? "flex flex-col-reverse" : ""}`}>
-        {SERVICES.map((s: any, i: number) => {
+        {SERVICES.map((s, i) => {
           const isActive = i === activeIndex;
           return (
             <div

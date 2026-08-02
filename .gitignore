@@ -50,3 +50,8 @@ docs/v2-screenshots/
 
 # Claude Code session worktrees (ephemeral scratch, not project state)
 .claude/worktrees/
+
+# Temporary browser capture profiles and scripts
+.tmp-chrome-concept/
+.tmp-capture-*.mjs
+tmp-capture-*.mjs

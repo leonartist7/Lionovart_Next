@@ -13,6 +13,13 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    files: ["src/components/**/*.{js,jsx,ts,tsx}"],
+    rules: {
+      // These components intentionally use native images for animated and remote media.
+      "@next/next/no-img-element": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

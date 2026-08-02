@@ -300,8 +300,7 @@ export default function Navbar() {
             </Link>
 
             <Link href="/" className="absolute left-1/2 z-40 -translate-x-1/2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+                <img
                 src="/images/LOGO.svg"
                 alt="LIONOVART"
                 data-nav-logo

@@ -21,6 +21,8 @@ export default function MagneticOrb({ onOpen }: MagneticOrbProps) {
   /* ── Detect reduced motion (matches HeroCycling.tsx pattern) ── */
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    // This browser preference is unavailable during the server render.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPrefersReduced(mq.matches);
     const onChange = (e: MediaQueryListEvent) => setPrefersReduced(e.matches);
     mq.addEventListener("change", onChange);

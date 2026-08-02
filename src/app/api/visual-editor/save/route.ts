@@ -2,6 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeFileSync, readFileSync } from "fs";
 import { resolve } from "path";
 
+type EditorChange = {
+  classes?: string;
+  text?: string;
+};
+
+function isEditorChanges(value: unknown): value is Record<string, EditorChange> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+
+  return Object.values(value).every(
+    (change) =>
+      change &&
+      typeof change === "object" &&
+      !Array.isArray(change) &&
+      ("classes" in change ? typeof change.classes === "string" : true) &&
+      ("text" in change ? typeof change.text === "string" : true)
+  );
+}
+
 /**
  * POST /api/visual-editor/save
  *
@@ -21,9 +41,17 @@ export async function POST(request: NextRequest) {
     return new Response(null, { status: 404 });
   }
   try {
-    const { filePath, changes } = await request.json();
+    const body: unknown = await request.json();
+    const filePath =
+      body && typeof body === "object" && "filePath" in body
+        ? body.filePath
+        : undefined;
+    const changes =
+      body && typeof body === "object" && "changes" in body
+        ? body.changes
+        : undefined;
 
-    if (!filePath || !changes) {
+    if (typeof filePath !== "string" || !isEditorChanges(changes)) {
       return NextResponse.json(
         { error: "Missing filePath or changes" },
         { status: 400 }
@@ -46,13 +74,12 @@ export async function POST(request: NextRequest) {
 
     // Apply changes
     // This is a simple text replacement. For production, use AST parsing (e.g., babel parser)
-    for (const [elemId, props] of Object.entries(changes)) {
-      const changeProps = props as Record<string, any>;
+    for (const [elemId, changeProps] of Object.entries(changes)) {
 
       // Simple regex-based replacement (for demo)
       if (changeProps.text) {
         // Find and replace text in quotes
-        const textRegex = new RegExp(
+        void new RegExp(
           `(["\`])([^"]+)["\`].*?{.*?${elemId}.*?}`,
           "g"
         );
@@ -63,10 +90,7 @@ export async function POST(request: NextRequest) {
         // Replace className values
         content = content.replace(
           /className="([^"]*)"/g,
-          (match, classStr) => {
-            // Only replace if it looks like this is the right element
-            return `className="${changeProps.classes}"`;
-          }
+          () => `className="${changeProps.classes}"`
         );
       }
     }

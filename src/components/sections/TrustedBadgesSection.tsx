@@ -137,12 +137,7 @@ function TrustBadgesInner({
     return () => observer.disconnect();
   }, []);
 
-  /* External trigger from parent (e.g. GSAP scroll sequence) */
-  useEffect(() => {
-    if (externalTrigger) setInView(true);
-  }, [externalTrigger]);
-
-  const shouldAnimate = inView;
+  const shouldAnimate = inView || Boolean(externalTrigger);
   const brandsCount    = useCountUp(50, 1600, shouldAnimate);
   const countriesCount = useCountUp(7,  1400, shouldAnimate);
 
@@ -292,7 +287,11 @@ function DynamicTrustBadges({
   externalTrigger?: boolean;
 }) {
   const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => { setIsMounted(true); }, []);
+  useEffect(() => {
+    // Avoid a server/client layout mismatch while the animated badge strip hydrates.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMounted(true);
+  }, []);
   if (!isMounted) return <div className="w-full max-w-[1100px] mx-auto opacity-0 invisible h-[120px]" />;
   return <TrustBadgesInner badges={badges} externalTrigger={externalTrigger} />;
 }

@@ -55,6 +55,7 @@ export default function StrategistPanel({ isOpen, onClose, autoStart = false }: 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState(false);
   const session = useStrategistSession({ onClose });
+  const { isSessionActive, startSession } = session;
 
   // Page-section tracking — only active while session is live
   usePageSectionTracker({
@@ -75,13 +76,13 @@ export default function StrategistPanel({ isOpen, onClose, autoStart = false }: 
   }, []);
 
   useEffect(() => {
-    if (isOpen && autoStart && !session.isSessionActive) {
+    if (isOpen && autoStart && !isSessionActive) {
       const t = setTimeout(() => {
-        session.startSession();
+        void startSession();
       }, 300);
       return () => clearTimeout(t);
     }
-  }, [isOpen, autoStart, session.isSessionActive, session.startSession]);
+  }, [isOpen, autoStart, isSessionActive, startSession]);
 
   // Scroll lock — only on mobile (desktop right-rail keeps page scrollable)
   useScrollLock(isOpen && !isDesktop && mobileExpanded);

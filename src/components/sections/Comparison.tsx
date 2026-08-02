@@ -13,30 +13,38 @@ const COMPARISON_BOOLEANS = [
   { speed: true,  flexibility: false, quality: false, scalability: true,  efficiency: true,  printing: false, support: false },
 ];
 
-export default function Comparison(props: any) {
+type ComparisonRow = {
+  title: string;
+  description: string;
+  speed: boolean;
+  flexibility: boolean;
+  quality: boolean;
+  scalability: boolean;
+  efficiency: boolean;
+  printing: boolean;
+  support: boolean;
+};
+
+type Competitor = Pick<ComparisonRow, "title" | "description">;
+
+type ComparisonProps = {
+  competitors?: readonly Competitor[];
+  heading?: string;
+  headingAccent?: string;
+};
+
+export default function Comparison(props: ComparisonProps) {
   const flow = useLandingFlow();
   const { t } = useLanguage();
 
   const heading = props.heading || t.comparison.heading;
   const headingAccent = props.headingAccent || t.comparison.headingAccent;
 
-  const COMPARISON_DATA = (props.competitors || t.comparison.competitors).map((c: any, i: number) => ({
+  const COMPARISON_DATA: ComparisonRow[] = (props.competitors || t.comparison.competitors).map((c: Competitor, i: number) => ({
     title: c.title,
-    description: (c as { title: string; description?: string }).description ?? "",
-    ...COMPARISON_BOOLEANS[i],
+    description: c.description ?? "",
+    ...(COMPARISON_BOOLEANS[i] ?? COMPARISON_BOOLEANS[0]),
   }));
-
-  type ComparisonRow = {
-    title: string;
-    description: string;
-    speed: boolean;
-    flexibility: boolean;
-    quality: boolean;
-    scalability: boolean;
-    efficiency: boolean;
-    printing: boolean;
-    support: boolean;
-  };
 
   return (
     <section className="bg-bg-surface-light py-[100px] md:py-[140px] px-4 md:px-8">

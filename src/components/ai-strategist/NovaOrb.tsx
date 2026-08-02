@@ -180,21 +180,25 @@ function NovaOrbWebGL({
   const stateRef = useRef(state);
   const inAmpRef = useRef(inputAmplitude);
   const outAmpRef = useRef(outputAmplitude);
-  stateRef.current = state;
-  inAmpRef.current = inputAmplitude;
-  outAmpRef.current = outputAmplitude;
 
   useEffect(() => {
-    if (reduceMotion || !mountRef.current) return;
+    stateRef.current = state;
+    inAmpRef.current = inputAmplitude;
+    outAmpRef.current = outputAmplitude;
+  }, [state, inputAmplitude, outputAmplitude]);
+
+  useEffect(() => {
+    const mount = mountRef.current;
+    if (reduceMotion || !mount) return;
 
     let raf = 0;
     let cancelled = false;
 
     const init = (noiseTexture: ReturnType<typeof getShaderNoiseTexture>) => {
-      if (cancelled || !mountRef.current) return;
+      if (cancelled) return;
       try {
         shaderRef.current = new ShaderMount(
-          mountRef.current,
+          mount,
           warpFragmentShader,
           {
             u_colors: ORB_COLORS,
@@ -263,12 +267,9 @@ function NovaOrbWebGL({
     // ShaderMount will accept it (V2Silk sidesteps this via its in-view lazy
     // mount; we mount immediately, so wait for the load explicitly).
     const noise = getShaderNoiseTexture();
-    if (!noise) {
-      // SSR / no-DOM edge — CSS orb stays.
-      setLive(false);
-    } else if (noise.complete && noise.naturalWidth > 0) {
+    if (noise?.complete && noise.naturalWidth > 0) {
       init(noise);
-    } else {
+    } else if (noise) {
       noise.addEventListener("load", () => init(noise), { once: true });
       noise.addEventListener(
         "error",
@@ -283,7 +284,7 @@ function NovaOrbWebGL({
     return () => {
       cancelled = true;
       cancelAnimationFrame(raf);
-      const canvas = mountRef.current?.querySelector("canvas");
+      const canvas = mount.querySelector("canvas");
       shaderRef.current?.dispose();
       shaderRef.current = null;
       if (canvas) {
@@ -293,7 +294,6 @@ function NovaOrbWebGL({
       }
       setLive(false);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reduceMotion]);
 
   // Reduced motion → CSS orb outright. Shader init failure / no WebGL is

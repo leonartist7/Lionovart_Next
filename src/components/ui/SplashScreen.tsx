@@ -51,6 +51,8 @@ export default function SplashScreen() {
     // Check if user has already seen splash this session
     const seen = sessionStorage.getItem(SESSION_KEY);
     if (seen) {
+      // Session storage is available only after hydration, so this dismissal is client-only.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVisible(false);
       return;
     }

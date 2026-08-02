@@ -77,13 +77,15 @@ function PerfHudInner() {
   const [stCount, setStCount] = useState(0);
 
   // RAF + sampling refs (no state updates from RAF — that would defeat the point)
-  const lastTimeRef = useRef<number>(performance.now());
+  const lastTimeRef = useRef<number>(0);
   const frameTimesRef = useRef<number[]>([]); // ms per frame, ring of ~120
   const rafRef = useRef<number>(0);
 
   /* ── Restore toggles from session on mount ─────────────────────────── */
   useEffect(() => {
     const s = loadState();
+    // Session storage is deliberately read only after client hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setState(s);
     setHydrated(true);
   }, []);
@@ -123,6 +125,11 @@ function PerfHudInner() {
     let alive = true;
 
     const tick = (now: number) => {
+      if (lastTimeRef.current === 0) {
+        lastTimeRef.current = now;
+        if (alive) rafRef.current = requestAnimationFrame(tick);
+        return;
+      }
       const dt = now - lastTimeRef.current;
       lastTimeRef.current = now;
       const arr = frameTimesRef.current;

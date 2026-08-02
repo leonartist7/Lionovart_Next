@@ -3,11 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import { animate, utils } from "animejs";
-import { getWhatsAppUrl } from "@/lib/contact";
-import HeroCycling, { Word } from "@/components/sections/HeroCycling";
-import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useNovaStore } from "@/lib/stores/nova-store";
 import TrustedBadgesSection from "@/components/sections/TrustedBadgesSection";
 import HeroEmailCapture from "@/components/ui/HeroEmailCapture";
 
@@ -32,6 +28,8 @@ const itemVariants = {
 };
 
 /* ─── Animated Stats Overlay ────────────────────────────────────── */
+// Retained for the alternate hero variant while the page-builder migration completes.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function AnimatedStats({ labels }: { labels: { clients: string; industries: string; yearsExp: string } }) {
   const ref = useRef<HTMLDivElement>(null);
   // margin "0px" — triggers as soon as any pixel of the element enters the viewport.
@@ -317,9 +315,15 @@ function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; exp
  * layout shift. After hydration, swaps to the real animated component
  * so the ref attaches cleanly and useInView fires correctly.
  */
+// Retained for the alternate hero variant while the page-builder migration completes.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function DynamicTrustBadges({ badges }: { badges: { brands: readonly string[]; experience: readonly string[]; countries: string } }) {
   const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => { setIsMounted(true); }, []);
+  useEffect(() => {
+    // The placeholder prevents a hydration-time layout shift before observers attach.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMounted(true);
+  }, []);
 
   if (!isMounted) {
     return (
@@ -333,35 +337,19 @@ function DynamicTrustBadges({ badges }: { badges: { brands: readonly string[]; e
 /* -------------------------------------------------------------------------- */
 /* Main Component */
 /* -------------------------------------------------------------------------- */
-export default function HeroTop(props: any) {
+type HeroTopProps = {
+  badges?: { brands: readonly string[]; experience: readonly string[]; countries: string };
+  ctaStart?: string;
+  ctaStartOpening?: string;
+  cyclingWords?: readonly string[];
+  staticText?: string;
+  subtitle?: string;
+  trustText?: string;
+};
+
+export default function HeroTop(props: HeroTopProps) {
   const { t } = useLanguage();
-  const [submitted, setSubmitted] = useState(false);
-  const openNova = useNovaStore((s) => s.openNova);
-  const staticText = props.staticText || t.hero.staticText;
-  const cyclingWordsRaw = props.cyclingWords || t.hero.cyclingWords;
   const subtitle = props.subtitle || t.hero.subtitle;
-  const ctaStart = props.ctaStart || t.hero.ctaStart;
-  const ctaStartOpening = props.ctaStartOpening || t.hero.ctaStartOpening;
-  const trustText = props.trustText || t.hero.trustText;
-  const badges = props.badges || t.hero.badges;
-
-  const CYCLING_WORDS: Word[] = cyclingWordsRaw.map((content: string) => ({
-    content,
-    color: "text-brand-red",
-    type: "text" as const,
-  }));
-
-  const handleConnectNow = () => {
-    if (submitted) {
-      window.open(getWhatsAppUrl("Hello Leon, I submitted my email. Can we talk about a project?"), "_blank");
-    } else {
-      window.open(getWhatsAppUrl("Hello Leon, I'm interested in discussing a new project."), "_blank");
-    }
-  };
-
-  const handleOpenStrategist = (autoStart = false) => {
-    openNova("hero", autoStart);
-  };
 
   return (
     <section className="relative z-20 flex min-h-[90vh] flex-col items-center justify-start overflow-hidden px-6 pb-16 pt-[clamp(7.5rem,14vh,10rem)] text-center sm:pt-[clamp(8rem,14vh,10.5rem)] lg:pt-[clamp(8.5rem,15vh,11.5rem)]">

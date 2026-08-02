@@ -30,7 +30,7 @@ interface ConversationDoc {
   objection_flags?: string[];
 }
 
-function excerptForType(transcript: ConversationDoc["transcript"], _type: string): string {
+function excerptForType(transcript: ConversationDoc["transcript"]): string {
   // The transcript has no per-turn objection tag (flag_objection only marks
   // the conversation), so we surface the most recent user turn as the
   // best-effort excerpt — good enough to jog memory when reviewing patterns.
@@ -78,7 +78,7 @@ export default async function ObjectionsPage() {
     const recent = matches.slice(0, 3).map((c) => ({
       conversationId: c.id,
       contact: c.contact?.name || c.contact?.phone || c.contact?.email || "—",
-      excerpt: excerptForType(c.transcript, t.id),
+      excerpt: excerptForType(c.transcript),
     }));
     return { ...t, count: matches.length, recent, skillSection: extractSection(skillSource, t.heading) };
   }).sort((a, b) => b.count - a.count);

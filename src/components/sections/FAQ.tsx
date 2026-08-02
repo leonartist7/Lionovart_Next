@@ -12,7 +12,18 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
 import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
-export default function FAQ(props: any) {
+type FaqItem = {
+  _key?: string;
+  answer: string;
+  question: string;
+};
+
+type FAQProps = {
+  eyebrow?: string;
+  items?: readonly FaqItem[];
+};
+
+export default function FAQ(props: FAQProps) {
   const flow = useLandingFlow();
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
@@ -22,7 +33,7 @@ export default function FAQ(props: any) {
 
   const faqItems = props.items || t.faq.items;
 
-  const FAQS = faqItems.map((item: any, i: number) => ({
+  const FAQS = faqItems.map((item: FaqItem, i: number) => ({
     id: item._key ?? `faq-${i + 1}`,
     question: item.question,
     answer: item.answer,

@@ -97,6 +97,8 @@ export default function HeroCycling({
 
   // ── Detect reduced motion (client-only) ──────────────────────────────────
   useEffect(() => {
+    // Browser motion preferences are intentionally read after hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasMounted(true);
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     setPrefersReduced(mq.matches);
@@ -117,7 +119,7 @@ export default function HeroCycling({
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [currentIndex, hasMounted, isPaused, prefersReduced, words]);
+  }, [currentIndex, forceAnimate, hasMounted, isPaused, prefersReduced, words]);
 
   // ── Pause when tab is hidden ─────────────────────────────────────────────
   useEffect(() => {

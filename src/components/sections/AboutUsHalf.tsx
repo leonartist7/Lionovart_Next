@@ -98,7 +98,6 @@ function PortraitFrame({
       </div>
 
       {/* PAINTCO — fixed bottom-right corner, on top of the photo */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={PAINT_SRC}
         alt=""
@@ -110,7 +109,13 @@ function PortraitFrame({
 }
 
 /* ─── Main component ─────────────────────────────────────── */
-export default function AboutUsHalf(props: any) {
+type AboutUsHalfProps = {
+  bodyText?: string;
+  founderRole?: string;
+  headlineTop?: string;
+};
+
+export default function AboutUsHalf(props: AboutUsHalfProps) {
   const flow = useLandingFlow();
   const sectionRef = useRef<HTMLElement>(null);
   const desktopRef = useRef<HTMLDivElement>(null);

@@ -13,7 +13,6 @@
 
 import { useRef } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { useReducedMotion } from "framer-motion";
 import { ParallaxLayer } from "./ParallaxLayer";

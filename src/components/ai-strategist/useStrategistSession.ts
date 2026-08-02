@@ -95,6 +95,7 @@ export function useStrategistSession({
 }: {
   onClose: () => void;
 }): UseStrategistSessionReturn {
+  void onClose;
   const { locale } = useLanguage();
   const [isSessionActive, setIsSessionActive] = useState(false);
   const [state, setState] = useState<SessionState>("idle");
@@ -106,6 +107,7 @@ export function useStrategistSession({
   const [transcript, setTranscript] = useState<ChatMessage[]>([]);
   const [sessionNotice, setSessionNotice] = useState<SessionNotice | null>(null);
   const [isMicMuted, setIsMicMuted] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
 
   const dismissNotice = useCallback(() => setSessionNotice(null), []);
 
@@ -130,6 +132,7 @@ export function useStrategistSession({
 
   // Analytics + audio analysis
   const conversationIdRef = useRef<string | null>(null);
+  const startSessionRef = useRef<(() => Promise<void>) | null>(null);
   const distinctIdRef = useRef<string | null>(null);
   const currentStageRef = useRef<string>("greeting");
   const inputAnalyserRef = useRef<AnalyserNode | null>(null);
@@ -172,7 +175,6 @@ export function useStrategistSession({
         savedAt: Date.now(),
       }));
     } catch { /* storage full or unavailable */ }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSessionActive, leadData, fieldConfirmations, transcript]);
 
   const toggleMic = useCallback(() => {
@@ -263,7 +265,7 @@ export function useStrategistSession({
     sessionStartedAtRef.current = null;
 
     activeSourcesRef.current.forEach((src) => {
-      try { src.stop(); } catch (_) {}
+      try { src.stop(); } catch {}
     });
     activeSourcesRef.current = [];
     nextPlaybackTimeRef.current = 0;
@@ -335,13 +337,14 @@ export function useStrategistSession({
       // survive into setup_complete (resume branch + max-3 cap). It resets to
       // 0 on successful connection.
       sessionStartedAtRef.current = new Date().toISOString();
-      activeSourcesRef.current.forEach((src) => { try { src.stop(); } catch (_) {} });
+      activeSourcesRef.current.forEach((src) => { try { src.stop(); } catch {} });
       activeSourcesRef.current = [];
       nextPlaybackTimeRef.current = 0;
 
       // Generate stable ids for this session
       const convId = crypto.randomUUID();
       conversationIdRef.current = convId;
+      setConversationId(convId);
       try { sessionStorage.setItem("nova_conversation_id", convId); } catch { /* ignore */ }
       let distinctId = (() => { try { return sessionStorage.getItem("nova_distinct_id"); } catch { return null; } })();
       if (!distinctId) {
@@ -639,7 +642,7 @@ export function useStrategistSession({
 
         if (data.serverContent?.interrupted) {
           currentTurnIdRef.current += 1;
-          activeSourcesRef.current.forEach((src) => { try { src.stop(); } catch (_) {} });
+          activeSourcesRef.current.forEach((src) => { try { src.stop(); } catch {} });
           activeSourcesRef.current = [];
           if (audioContextRef.current) {
             nextPlaybackTimeRef.current = audioContextRef.current.currentTime;
@@ -972,7 +975,7 @@ export function useStrategistSession({
             dismissible: false,
           });
           reconnectTimerRef.current = setTimeout(() => {
-            startSession();
+            void startSessionRef.current?.();
           }, 2000);
         }
       };
@@ -1004,7 +1007,16 @@ export function useStrategistSession({
       );
       stopSession();
     }
-  }, [stopSession]);
+  }, [locale, stopSession]);
+
+  useEffect(() => {
+    startSessionRef.current = startSession;
+    return () => {
+      if (startSessionRef.current === startSession) {
+        startSessionRef.current = null;
+      }
+    };
+  }, [startSession]);
 
   useEffect(() => {
     return () => {
@@ -1036,7 +1048,7 @@ export function useStrategistSession({
     stopSession,
     sendTextToAgent,
     pushContextMessage,
-    conversationId: conversationIdRef.current,
+    conversationId,
     inputAnalyser: inputAnalyserRef,
     outputAnalyser: outputAnalyserRef,
   };

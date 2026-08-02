@@ -43,7 +43,6 @@ export default function HeaderV2() {
     >
       <div className="mx-auto flex h-[72px] max-w-[1400px] items-center justify-between px-6 md:px-12">
         <Link href="/" className="inline-flex items-center" aria-label="LIONOVART home">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/LOGO.svg"
             alt="LIONOVART"

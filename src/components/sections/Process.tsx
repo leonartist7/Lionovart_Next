@@ -20,6 +20,15 @@ type ProcessStep = {
   tag: string;
 };
 
+type ProcessInput = Omit<ProcessStep, "num">;
+
+type ProcessProps = {
+  eyebrow?: string;
+  heading?: string;
+  headingAccent?: string;
+  steps?: readonly ProcessInput[];
+};
+
 const STEPS_STATIC = [
   {
     title: "Discovery & Strategy",
@@ -56,9 +65,8 @@ const RED = "#e5192a";
 
 // Vision copy (hardcoded for now; i18n type is `typeof en` across 5 locales).
 const VISION_KICKER = "Not artificial.";
-const VISION = "Artistic Intelligence";
 
-export default function Process(props: any) {
+export default function Process(props: ProcessProps) {
   const flow = useLandingFlow();
   const { t } = useLanguage();
 
@@ -68,14 +76,16 @@ export default function Process(props: any) {
 
   const steps: ProcessStep[] =
     props.steps && props.steps.length > 0
-      ? props.steps.map((s: any, i: number) => ({ ...s, num: String(i + 1) }))
+      ? props.steps.map((s, i): ProcessStep => ({ ...s, num: String(i + 1) }))
       : (t.process.steps?.length ? t.process.steps : STEPS_STATIC).map(
-          (s: any, i: number) => ({ ...s, num: String(i + 1) })
+          (s: ProcessInput, i: number): ProcessStep => ({ ...s, num: String(i + 1) })
         );
 
   const prefersReduced = useReducedMotion() ?? false;
   const [hasMounted, setHasMounted] = useState(false);
   useEffect(() => {
+    // Keep the server and first client render aligned before reading motion preference.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasMounted(true);
   }, []);
   const reduce = hasMounted && prefersReduced;
@@ -205,7 +215,6 @@ export default function Process(props: any) {
             animate={{ opacity: reveal ? 1 : 0, scale: reveal ? 1 : 1.03 }}
             transition={{ duration: reduce ? 0.2 : 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/LION-CIRCLE.avif"
               alt="LIONOVART"

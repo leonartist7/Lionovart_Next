@@ -35,8 +35,7 @@ export function LiquidMetalButton({
     Array<{ x: number; y: number; id: number }>
   >([]);
   const shaderRef = useRef<HTMLDivElement>(null);
-  // biome-ignore lint/suspicious/noExplicitAny: External library without types
-  const shaderMount = useRef<any>(null);
+  const shaderMount = useRef<ShaderMount | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const rippleId = useRef(0);
 
@@ -65,12 +64,13 @@ export function LiquidMetalButton({
     const isInView = useInView(shaderRef, { margin: "200px" });
 
   useEffect(() => {
+    const shaderContainer = shaderRef.current;
     const loadShader = async () => {
       try {
-        if (shaderRef.current) {
-          if (shaderMount.current?.destroy) shaderMount.current.destroy();
+        if (shaderContainer) {
+          shaderMount.current?.dispose();
           shaderMount.current = new ShaderMount(
-            shaderRef.current,
+            shaderContainer,
             liquidMetalFragmentShader,
             { u_repetition: 4, u_softness: 0.5, u_shiftRed: 0.65, u_shiftBlue: 0.0, u_distortion: 0, u_contour: 0, u_angle: 45, u_scale: 8, u_shape: 1, u_offsetX: 0.1, u_offsetY: -0.1 },
             undefined,
@@ -85,14 +85,15 @@ export function LiquidMetalButton({
     loadShader();
 
     return () => {
-      if (shaderMount.current?.destroy) {
-        const canvas = shaderRef.current?.querySelector("canvas");
+      const mountedShader = shaderMount.current;
+      if (mountedShader) {
+        const canvas = shaderContainer?.querySelector("canvas");
         if (canvas) {
           const gl = (canvas.getContext("webgl") || canvas.getContext("experimental-webgl")) as WebGLRenderingContext | null;
           gl?.getExtension("WEBGL_lose_context")?.loseContext();
         }
-        shaderMount.current.destroy();
-        shaderMount.current = null;
+        mountedShader.dispose();
+        if (shaderMount.current === mountedShader) shaderMount.current = null;
       }
     };
   }, []);

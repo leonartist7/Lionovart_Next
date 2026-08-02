@@ -64,7 +64,11 @@ export default function ChapterReveal() {
   // structural swap behind a mounted flag so the server and the first
   // client pass always agree, and only swap after hydration completes.
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    // The mounted flag intentionally protects the server/client structural match.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!mounted || reduceMotion || !sectionRef.current || !creamRef.current) return;

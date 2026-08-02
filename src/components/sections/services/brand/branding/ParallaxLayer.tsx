@@ -108,8 +108,6 @@ export const ParallaxLayer = forwardRef<HTMLDivElement, ParallaxLayerProps>(
       amp: 2 + depth * 4, // 2–6px
       period: 18 + depth * 12, // 18–30s loops
     });
-    meta.current.depth = depth;
-
     useEffect(() => {
       if (!api || !innerRef.current) return;
       return api.register(innerRef.current, meta.current);

@@ -134,7 +134,7 @@ export async function scrapeWebsite(rawUrl: string): Promise<ScrapeResult> {
         received += value.byteLength;
         html += decoder.decode(value, { stream: true });
         if (received >= MAX_BYTES) {
-          try { await reader.cancel(); } catch (_) {}
+          try { await reader.cancel(); } catch {}
           break;
         }
       }

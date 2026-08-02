@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 
+type DebugGlobal = typeof globalThis & {
+  wsDebugLog?: unknown[];
+};
+
 export const dynamic = "force-dynamic"; // Ensure it doesn't cache the result
 
 export async function GET() {
@@ -19,6 +23,6 @@ export async function GET() {
       GEMINI_MODEL: process.env.GEMINI_MODEL || "not set",
       GEMINI_LIVE_MODEL: process.env.GEMINI_LIVE_MODEL || "not set (defaults to models/gemini-3.1-flash-live-preview)",
     },
-    ws_logs: (global as any).wsDebugLog || []
+    ws_logs: (globalThis as DebugGlobal).wsDebugLog ?? []
   });
 }

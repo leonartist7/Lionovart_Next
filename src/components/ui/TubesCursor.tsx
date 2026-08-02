@@ -15,6 +15,10 @@ const SETTLE_DURATION = 2400;
 const RELEASE_DURATION = 450;
 const PRESS_DURATION = 240;
 const CAPSULE_PADDING = 16;
+const LANDING_TUBE_RADIUS = {
+  minRadius: 0.004,
+  maxRadius: 0.04,
+};
 
 type TubesCursorProps = {
   initialColors?: string[];
@@ -96,6 +100,7 @@ export default function TubesCursor({
 
     let frame: number | null = null;
     const svgNamespace = "http://www.w3.org/2000/svg";
+    mask.setAttribute("mask-type", "luminance");
 
     const addRect = (rect: DOMRect, kind: "text" | "control") => {
       if (
@@ -311,6 +316,7 @@ export default function TubesCursor({
           tubes: {
             colors: initialColors,
             lights: { intensity: lightIntensity, colors: lightColors },
+            ...(layer === "landing" ? LANDING_TUBE_RADIUS : {}),
           },
         });
         appRef.current = app;
@@ -511,6 +517,8 @@ export default function TubesCursor({
       ? {
           maskImage: `url(#${maskId})`,
           WebkitMaskImage: `url(#${maskId})`,
+          maskSize: "100% 100%",
+          WebkitMaskSize: "100% 100%",
           maskRepeat: "no-repeat",
           WebkitMaskRepeat: "no-repeat",
         }

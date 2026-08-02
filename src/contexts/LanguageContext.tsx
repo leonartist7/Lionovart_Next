@@ -18,7 +18,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem("lionovart-locale") as Locale | null;
-      if (saved && saved in locales) setLocaleState(saved);
+      if (saved && saved in locales) {
+        // Stored locale is client-only, so it is restored after hydration.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setLocaleState(saved);
+      }
     } catch {
       // localStorage unavailable — stay on "en"
     }

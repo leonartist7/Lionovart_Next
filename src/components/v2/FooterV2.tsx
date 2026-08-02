@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { CONTACT_EMAIL } from "@/lib/contact";
 
 /* ─── FooterV2 — minimal close ───────────────────────────────────────
@@ -24,12 +25,12 @@ export default function FooterV2() {
           >
             {CONTACT_EMAIL}
           </a>
-          <a
+          <Link
             href="/"
             className="transition-colors duration-300 hover:text-white"
           >
             lionovart.com
-          </a>
+          </Link>
           <p className="text-white/35">
             © 2026 LIONOVART. All rights reserved.
           </p>

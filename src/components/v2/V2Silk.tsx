@@ -44,15 +44,16 @@ export default function V2Silk({ className = "" }: { className?: string }) {
   const [live, setLive] = useState(false);
 
   useEffect(() => {
-    if (reduceMotion || !isInView || !mountRef.current) return;
+    const mount = mountRef.current;
+    if (reduceMotion || !isInView || !mount) return;
 
     let cancelled = false;
 
-    function mountShader(noiseTexture?: HTMLImageElement) {
-      if (cancelled || !mountRef.current) return;
+    function mountShader(mountElement: HTMLDivElement, noiseTexture?: HTMLImageElement) {
+      if (cancelled) return;
       try {
         shaderRef.current = new ShaderMount(
-          mountRef.current,
+          mountElement,
           warpFragmentShader,
           {
             u_colors: SILK_COLORS,
@@ -102,22 +103,22 @@ export default function V2Silk({ className = "" }: { className?: string }) {
     // the image is genuinely safe to use as a paint/texture source.
     const noiseTexture = getShaderNoiseTexture();
     if (!noiseTexture) {
-      mountShader(undefined);
+      mountShader(mount, undefined);
     } else if (typeof noiseTexture.decode === "function") {
       noiseTexture
         .decode()
-        .then(() => mountShader(noiseTexture))
-        .catch(() => mountShader(undefined));
+        .then(() => mountShader(mount, noiseTexture))
+        .catch(() => mountShader(mount, undefined));
     } else if (noiseTexture.complete) {
-      mountShader(noiseTexture);
+      mountShader(mount, noiseTexture);
     } else {
-      noiseTexture.addEventListener("load", () => mountShader(noiseTexture), { once: true });
-      noiseTexture.addEventListener("error", () => mountShader(undefined), { once: true });
+      noiseTexture.addEventListener("load", () => mountShader(mount, noiseTexture), { once: true });
+      noiseTexture.addEventListener("error", () => mountShader(mount, undefined), { once: true });
     }
 
     return () => {
       cancelled = true;
-      const canvas = mountRef.current?.querySelector("canvas");
+      const canvas = mount.querySelector("canvas");
       shaderRef.current?.dispose();
       shaderRef.current = null;
       if (canvas) {

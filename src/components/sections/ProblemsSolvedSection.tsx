@@ -8,7 +8,7 @@ import { useLandingFlow } from "@/contexts/LandingFlowContext";
 import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
 import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
 
-const FEATURED = {
+export const FEATURED = {
   quote: "Within two months of the new website, direct reservations jumped almost 70%. It finally looks like the place we actually run.",
   author: "Camille Moreau",
   role: "Owner · Maison Verre",

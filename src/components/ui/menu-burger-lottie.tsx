@@ -40,6 +40,8 @@ export function MenuBurgerLottie({
 
   useEffect(() => {
     if (!dotLottie) {
+      // The animation instance can be removed after it has been ready.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLottieReady(false);
       return;
     }
