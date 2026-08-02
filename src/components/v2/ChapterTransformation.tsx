@@ -1,237 +1,170 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
-import V2Silk from "@/components/v2/V2Silk";
+import { useEffect, useRef } from "react";
+import { useReducedMotion } from "framer-motion";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-/* Chapter 3 - The Transformation (dark, red energy)
-   Alone: misaligned media plates. Threshold: shader portal.
-   Together: aligned system under the mark. */
+gsap.registerPlugin(ScrollTrigger);
 
-const EASE = [0.16, 1, 0.3, 1] as const;
+const HUMAN_HAND =
+  "https://res.cloudinary.com/dgio9uutc/image/upload/v1785658409/right_hand_sru02d.avif";
+const LION_PAW =
+  "https://res.cloudinary.com/dgio9uutc/image/upload/v1785658409/left_paw_xsgfna.avif";
 
-const FRAGMENTS = ["Identity", "Content", "Website", "Socials"] as const;
-
-const ALONE_PLATES: {
-  src: string;
-  label: string;
-  className: string;
-}[] = [
-  {
-    src: "/videos/v2/work-2.jpg",
-    label: "Identity",
-    className: "left-0 top-0 w-[48%] aspect-[4/3] -rotate-3",
-  },
-  {
-    src: "/videos/v2/film-frame.jpg",
-    label: "Content",
-    className: "right-0 top-[6%] w-[46%] aspect-[3/4] rotate-2",
-  },
-  {
-    src: "/videos/v2/platform-frame.jpg",
-    label: "Website",
-    className: "left-[4%] bottom-[4%] w-[44%] aspect-[16/10] rotate-[-2deg]",
-  },
-  {
-    src: "/videos/v2/work-4.jpg",
-    label: "Socials",
-    className: "right-[2%] bottom-0 w-[42%] aspect-[4/3] rotate-3",
-  },
-];
-
+/* Chapter 3 - The Transformation
+   A black stage opens into a warm shared frame as the human hand and lion paw
+   move toward one another. The scroll beat is the section, not a separate demo
+   route, so the story now lives in the main v2 experience. */
 export default function ChapterTransformation() {
   const reduceMotion = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+  const leftDoorRef = useRef<HTMLDivElement>(null);
+  const rightDoorRef = useRef<HTMLDivElement>(null);
+  const aloneRef = useRef<HTMLHeadingElement>(null);
+  const togetherRef = useRef<HTMLHeadingElement>(null);
+  const supportRef = useRef<HTMLParagraphElement>(null);
+  const handsRef = useRef<HTMLDivElement>(null);
+  const lineRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (
+      !sectionRef.current ||
+      !leftDoorRef.current ||
+      !rightDoorRef.current ||
+      !aloneRef.current ||
+      !togetherRef.current ||
+      !supportRef.current ||
+      !handsRef.current ||
+      !lineRef.current
+    ) {
+      return;
+    }
+
+    const ctx = gsap.context(() => {
+      const doors = [leftDoorRef.current, rightDoorRef.current];
+
+      if (reduceMotion) {
+        gsap.set(doors, { xPercent: 0 });
+        gsap.set(aloneRef.current, { opacity: 0, y: -24 });
+        gsap.set(togetherRef.current, { opacity: 1, y: 0 });
+        gsap.set(supportRef.current, { opacity: 1, y: 0 });
+        gsap.set(handsRef.current, { opacity: 1, x: 0, scale: 1 });
+        gsap.set(lineRef.current, { scaleY: 1 });
+        return;
+      }
+
+      gsap.set(leftDoorRef.current, { xPercent: -100 });
+      gsap.set(rightDoorRef.current, { xPercent: 100 });
+      gsap.set(aloneRef.current, { opacity: 1, y: 0 });
+      gsap.set([togetherRef.current, supportRef.current], { opacity: 0, y: 28 });
+      gsap.set(handsRef.current, { opacity: 0, x: 0, scale: 1.04 });
+      gsap.set(lineRef.current, { scaleY: 0 });
+
+      const timeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1,
+        },
+      });
+
+      timeline
+        .to(aloneRef.current, { opacity: 0, y: -34, ease: "none" }, 0.04)
+        .to(leftDoorRef.current, { xPercent: 0, ease: "none" }, 0.15)
+        .to(rightDoorRef.current, { xPercent: 0, ease: "none" }, 0.15)
+        .to(lineRef.current, { scaleY: 1, ease: "none" }, 0.38)
+        .to(handsRef.current, { opacity: 1, scale: 1, ease: "none" }, 0.46)
+        .to(togetherRef.current, { opacity: 1, y: 0, ease: "power4.out" }, 0.58)
+        .to(supportRef.current, { opacity: 1, y: 0, ease: "power4.out" }, 0.66);
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, [reduceMotion]);
 
   return (
-    <section className="relative overflow-hidden bg-[#0d0d0d] py-28 md:py-40">
-      <div
-        aria-hidden
-        className="absolute left-1/2 top-1/2 h-[80vh] w-[80vh] -translate-x-1/2 -translate-y-1/2"
-        style={{
-          background:
-            "radial-gradient(circle at center, rgba(229,25,42,0.12) 0%, transparent 70%)",
-        }}
-      />
+    <section
+      ref={sectionRef}
+      aria-labelledby="transformation-title"
+      className="relative h-[220vh] overflow-clip bg-[#0d0d0d]"
+    >
+      <div className="sticky top-0 min-h-[100dvh] overflow-hidden bg-[#f2ede3]">
+        <div className="absolute inset-0 bg-[#0d0d0d]" />
 
-      <div className="relative z-10 mx-auto w-full max-w-[1400px] px-6 md:px-12">
-        <motion.div
-          className="overflow-hidden"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.5 }}
+        <div
+          ref={handsRef}
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-[32%] z-[4] h-[54%] opacity-0 md:top-[30%] md:h-[62%]"
         >
-          <motion.h2
-            variants={{
-              hidden: { y: "100%" },
-              visible: {
-                y: "0%",
-                transition: reduceMotion
-                  ? { duration: 0 }
-                  : { duration: 1, ease: EASE },
-              },
-            }}
-            className="v2-serif mx-auto max-w-[18ch] text-center text-[clamp(2.4rem,5.5vw,4.5rem)] font-medium leading-[1.05] text-[#f2ede3]"
+          <div className="absolute left-[-22%] top-0 h-full w-[76%] md:left-[-8%] md:w-[58%]">
+            <Image
+              src={LION_PAW}
+              alt=""
+              fill
+              sizes="(max-width: 768px) 76vw, 58vw"
+              className="object-contain object-right mix-blend-multiply"
+            />
+          </div>
+          <div className="absolute right-[-22%] top-0 h-full w-[76%] md:right-[-8%] md:w-[58%]">
+            <Image
+              src={HUMAN_HAND}
+              alt=""
+              fill
+              sizes="(max-width: 768px) 76vw, 58vw"
+              className="object-contain object-left mix-blend-multiply"
+            />
+          </div>
+        </div>
+
+        <div
+          ref={leftDoorRef}
+          aria-hidden
+          className="absolute inset-y-0 left-0 z-[3] w-1/2 bg-[#f2ede3]"
+        />
+        <div
+          ref={rightDoorRef}
+          aria-hidden
+          className="absolute inset-y-0 right-0 z-[3] w-1/2 bg-[#f2ede3]"
+        />
+
+        <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center px-6 text-center md:px-12">
+          <h2
+            ref={aloneRef}
+            className="v2-serif max-w-[12ch] text-[clamp(3rem,8vw,7rem)] font-medium leading-[0.96] text-[#f2ede3]"
           >
-            Strong alone. Stronger together.
-          </motion.h2>
-        </motion.div>
+            Strong alone.
+          </h2>
 
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={
-            reduceMotion
-              ? { duration: 0 }
-              : { duration: 0.9, delay: 0.1, ease: EASE }
-          }
-          className="mx-auto mt-6 max-w-[46ch] text-center text-base leading-[1.7] text-white/60 md:text-lg"
-        >
-          You bring the vision, the drive, the standard. We bring the direction
-          that pulls it into one world.
-        </motion.p>
-
-        <div className="mt-20 grid grid-cols-1 items-center gap-14 md:mt-28 md:grid-cols-12 md:gap-8">
-          <div className="relative order-1 h-72 md:col-span-4 md:h-80">
-            {ALONE_PLATES.map((plate, i) => (
-              <motion.div
-                key={plate.label}
-                className={`absolute overflow-hidden rounded-xl border border-white/10 ${plate.className}`}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.35 }}
-                transition={
-                  reduceMotion
-                    ? { duration: 0 }
-                    : { duration: 0.85, delay: i * 0.08, ease: EASE }
-                }
-              >
-                <Image
-                  src={plate.src}
-                  alt=""
-                  fill
-                  sizes="(max-width: 768px) 45vw, 18vw"
-                  className="object-cover opacity-55 grayscale-[40%]"
-                />
-                <div className="absolute inset-0 bg-[#0d0d0d]/35" />
-                <span className="v2-display absolute bottom-2 left-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/55 md:text-[11px]">
-                  {plate.label}
-                </span>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="relative order-2 flex justify-center md:col-span-4">
-            <motion.div
-              aria-hidden
-              className="absolute left-1/2 -top-16 h-16 w-px -translate-x-1/2 origin-top md:-top-24 md:h-24"
-              style={{
-                background: "linear-gradient(to bottom, transparent, #e5192a)",
-              }}
-              initial={{ scaleY: 0 }}
-              whileInView={{ scaleY: 1 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={reduceMotion ? { duration: 0 } : { duration: 1, ease: EASE }}
-            />
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={
-                reduceMotion
-                  ? { duration: 0 }
-                  : { duration: 1.1, delay: 0.25, ease: EASE }
-              }
-              className="relative aspect-square w-56 overflow-hidden rounded-full border border-[#e5192a]/45 md:w-72"
-              style={{ boxShadow: "0 0 80px rgba(229,25,42,0.28)" }}
+          <div className="absolute inset-x-0 top-[12%] flex flex-col items-center px-6 text-[#171412] md:top-[13%]">
+            <h2
+              id="transformation-title"
+              ref={togetherRef}
+              className="v2-serif max-w-[13ch] text-[clamp(2.8rem,6vw,5.5rem)] font-medium leading-[0.98]"
             >
-              <V2Silk className="absolute inset-0" />
-              <div className="absolute inset-0 bg-[#0d0d0d]/25" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="v2-display text-[11px] font-semibold uppercase tracking-[0.22em] text-[#f2ede3]/85 md:text-xs">
-                  One world
-                </span>
-              </div>
-            </motion.div>
-
-            <motion.div
-              aria-hidden
-              className="absolute left-1/2 top-full h-16 w-px -translate-x-1/2 origin-top md:h-24"
-              style={{
-                background: "linear-gradient(to bottom, #e5192a, transparent)",
-              }}
-              initial={{ scaleY: 0 }}
-              whileInView={{ scaleY: 1 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={
-                reduceMotion
-                  ? { duration: 0 }
-                  : { duration: 1, delay: 0.55, ease: EASE }
-              }
-            />
-          </div>
-
-          <div className="relative order-3 flex flex-col items-center gap-8 md:col-span-4 md:items-start">
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={
-                reduceMotion
-                  ? { duration: 0 }
-                  : { duration: 0.85, delay: 0.7, ease: EASE }
-              }
-              className="relative inline-flex"
+              Stronger together.
+            </h2>
+            <p
+              ref={supportRef}
+              className="mt-5 max-w-[34ch] text-center text-sm leading-[1.6] text-[#171412]/65 md:text-base"
             >
-              <div
-                aria-hidden
-                className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-36 w-36 -translate-x-1/2 -translate-y-1/2"
-                style={{
-                  background:
-                    "radial-gradient(circle at center, rgba(240,201,23,0.22) 0%, transparent 70%)",
-                }}
-              />
-              <Image
-                src="/images/LOGO.svg"
-                alt=""
-                width={360}
-                height={58}
-                className="h-6 w-auto"
-              />
-            </motion.div>
-
-            <ul className="flex w-full max-w-[280px] list-none flex-col gap-0 p-0">
-              {FRAGMENTS.map((word, i) => (
-                <motion.li
-                  key={word}
-                  initial={{ opacity: 0, y: 12 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={
-                    reduceMotion
-                      ? { duration: 0 }
-                      : {
-                          duration: 0.85,
-                          delay: 0.85 + i * 0.09,
-                          ease: EASE,
-                        }
-                  }
-                  className="flex items-center gap-4 border-t border-white/10 py-3.5 first:border-t-0 first:pt-0"
-                >
-                  <span
-                    aria-hidden
-                    className="block h-1.5 w-1.5 shrink-0 rounded-full bg-[#e5192a]"
-                  />
-                  <span className="v2-display text-lg font-semibold uppercase tracking-[0.08em] text-white md:text-xl">
-                    {word}
-                  </span>
-                </motion.li>
-              ))}
-            </ul>
+              One vision becomes more powerful when it has the right force beside it.
+            </p>
           </div>
+
+          <div
+            ref={lineRef}
+            aria-hidden
+            className="absolute bottom-[10%] left-1/2 h-20 w-px origin-top -translate-x-1/2 bg-[#e5192a] md:bottom-[8%] md:h-28"
+          />
+        </div>
+
+        <div className="absolute bottom-5 left-1/2 z-[5] -translate-x-1/2 text-center text-[10px] font-semibold uppercase tracking-[0.18em] text-[#171412]/45">
+          Strong alone / stronger together
         </div>
       </div>
     </section>
   );
 }
+
