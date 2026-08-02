@@ -6,8 +6,8 @@ import { useTrailAttraction } from "@/contexts/TrailAttractionContext";
 
 const DEFAULT_TUBE_COLORS = ["#e5192a", "#f0c917", "#ffffff"];
 const DEFAULT_LIGHT_COLORS = ["#e5192a", "#f0c917", "#ffffff", "#60aed5"];
-const LANDING_TUBE_RADIUS = { minRadius: 0.00065, maxRadius: 0.0092 };
-const LANDING_LIGHT_INTENSITY_CAP = 95;
+const LANDING_TUBE_RADIUS = { minRadius: 0.00052, maxRadius: 0.00736 };
+const LANDING_LIGHT_INTENSITY_CAP = 108;
 
 const APPROACH_DISTANCE = 150;
 const RELEASE_DISTANCE = 180;
