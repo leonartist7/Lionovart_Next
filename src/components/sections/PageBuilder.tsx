@@ -28,7 +28,7 @@ function NovaSection({ id, children }: { id: string; children: React.ReactNode }
   );
 }
 
-/** Static landing layout Ã¢â‚¬â€ CMS block map removed (unused; restore from git if needed). */
+/** Static landing layout â€” CMS block map removed (unused; restore from git if needed). */
 export function PageBuilder() {
   return (
     <TrailAttractionProvider>
@@ -49,12 +49,11 @@ export function PageBuilder() {
         <NovaSection id="process"><Process /></NovaSection>
         <SectionTitleCard word="CONFIDENCE." theme="light" />
         <NovaSection id="testimonials"><Testimonials /></NovaSection>
-        <SectionTitleCard word="ANSWERS." theme="dark" height="22vh" />
+        <SectionTitleCard word="ANSWERS." theme="dark" height="16vh" />
         <NovaSection id="faq"><FAQ /></NovaSection>
         <NovaSection id="closing-cta"><ClosingCTA /></NovaSection>
       </div>
     </TrailAttractionProvider>
   );
 }
-
 

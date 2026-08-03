@@ -61,9 +61,9 @@ export default function TermsPage() {
         </section>
 
         <ClosingCTA />
+        <StickyFooterMarquee />
         <Footer />
       </main>
-      <StickyFooterMarquee />
     </>
   );
 }

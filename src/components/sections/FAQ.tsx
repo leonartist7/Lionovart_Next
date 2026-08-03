@@ -39,7 +39,7 @@ export default function FAQ(props: FAQProps) {
   }));
 
   return (
-    <section ref={ref} id="faq" className="bg-bg-brand-black py-14 sm:py-16 lg:py-24">
+    <section ref={ref} id="faq" className="bg-bg-brand-black pb-14 pt-8 sm:pb-16 sm:pt-10 lg:pb-24 lg:pt-14">
       <div className="mx-auto grid max-w-[1240px] gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)] lg:items-start lg:gap-x-20 lg:px-8">
         {/* Header */}
         <div
@@ -71,12 +71,12 @@ export default function FAQ(props: FAQProps) {
               : "lg:col-start-1"
           }`}
         >
-          <Accordion className={`flex flex-col ${flow === "inverse" ? "flex-col-reverse" : ""}`}>
+          <Accordion className={`flex flex-col gap-4 ${flow === "inverse" ? "flex-col-reverse" : ""}`}>
             {FAQS.map((faq: { id: string; question: string; answer: string }) => (
               <AccordionItem
                 key={faq.id}
                 value={faq.id}
-                className="overflow-hidden border-b border-white/10 first:border-t data-[state=open]:border-brand-red/45 transition-colors duration-300"
+                className="overflow-hidden rounded-[20px] bg-bg-brand-black px-6 py-2 shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_16px_rgba(255,255,255,0.03)] ring-1 ring-white/[0.02] data-[state=open]:ring-brand-red/30 transition-all duration-300"
               >
                 <AccordionTrigger className="text-left text-[17px] font-semibold leading-[1.2] text-text-main normal-case tracking-tight hover:no-underline py-4 pr-2 sm:text-[18px] lg:py-5 lg:text-[19px]">
                   {faq.question}
