@@ -86,7 +86,8 @@ export default function StrongTogetherTransition() {
       aria-labelledby="strong-together-title"
       className="relative h-[220vh] overflow-visible bg-[#0d0d0d]"
     >
-      <div className="sticky top-0 min-h-[100dvh] overflow-visible bg-[#f2ede3]">
+      {/* Keep the artwork inside the transition viewport so it can never bleed through the next marquee. */}
+      <div className="sticky top-0 min-h-[100dvh] overflow-hidden bg-[#f2ede3]">
         <div className="absolute inset-0 bg-[#0d0d0d]" />
 
         <div
