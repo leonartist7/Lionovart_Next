@@ -290,6 +290,7 @@
 
 .imagine-marquee__band {
   box-shadow:
+    0 -6px 12px -9px rgba(0, 0, 0, 0.24),
     0 20px 32px -14px rgba(0, 0, 0, 0.68),
     0 7px 10px -7px rgba(0, 0, 0, 0.34);
 }
@@ -298,7 +299,7 @@
   display: flex;
   width: max-content;
   white-space: nowrap;
-  animation: imagine-marquee-left 25s linear infinite;
+  animation: imagine-marquee-left 120s linear infinite;
   will-change: transform;
 }
 
