@@ -247,8 +247,8 @@ export default function ProblemsSolvedSection() {
           {/* Red card */}
           <div className={`relative z-10 w-full bg-[#e5192a] rounded-[32px] px-5 sm:px-7 pt-12 md:pt-16 pb-12 shadow-[0_30px_60px_-15px_rgba(229,25,42,0.45)] ${flow === "inverse" ? "flex flex-col-reverse" : ""}`}>
             {/* Slanted marquee band near the top â€” card's rounded corners stay
-                visible above it (sits below the pt). Clipped to the card width. */}
-            <div className="-mx-5 sm:-mx-7 mb-9 md:mb-12 overflow-hidden">
+                visible above it (sits below the pt). Full-bleed across the viewport. */}
+            <div className="mb-9 md:mb-12">
               <MarqueeSlanted />
             </div>
             {/* Heading */}

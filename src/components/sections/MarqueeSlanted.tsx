@@ -8,16 +8,23 @@ function MarqueeTrack({ items }: { items: readonly string[] }) {
   const text = items.join(SEPARATOR) + SEPARATOR;
 
   return (
-    <div
-      className="flex shrink-0 whitespace-nowrap"
-      style={{ animation: "marquee-left 25s linear infinite" }}
-    >
-      <span className="shrink-0 px-2 text-[22px] font-semibold uppercase tracking-wider text-white md:text-[24px]">
-        {text}
-      </span>
-      <span className="shrink-0 px-2 text-[22px] font-semibold uppercase tracking-wider text-white md:text-[24px]" aria-hidden="true">
-        {text}
-      </span>
+    <div className="imagine-marquee__track">
+      <div className="imagine-marquee__group">
+        <span className="imagine-marquee__text shrink-0 px-2 text-[22px] font-semibold uppercase tracking-wider text-white md:text-[24px]">
+          {text}
+        </span>
+        <span className="imagine-marquee__text shrink-0 px-2 text-[22px] font-semibold uppercase tracking-wider text-white md:text-[24px]" aria-hidden="true">
+          {text}
+        </span>
+      </div>
+      <div className="imagine-marquee__group" aria-hidden="true">
+        <span className="imagine-marquee__text shrink-0 px-2 text-[22px] font-semibold uppercase tracking-wider text-white md:text-[24px]">
+          {text}
+        </span>
+        <span className="imagine-marquee__text shrink-0 px-2 text-[22px] font-semibold uppercase tracking-wider text-white md:text-[24px]">
+          {text}
+        </span>
+      </div>
     </div>
   );
 }
@@ -26,10 +33,8 @@ export default function MarqueeSlanted() {
   const { t } = useLanguage();
 
   return (
-    <section className="relative z-10 overflow-visible">
-      <div
-        className="overflow-hidden bg-brand-red py-4 md:py-5 shadow-[0_12px_24px_-4px_rgba(0,0,0,0.5)]"
-      >
+    <section className="imagine-marquee relative z-10 overflow-visible">
+      <div className="imagine-marquee__band overflow-hidden bg-brand-red py-4 md:py-5">
         <MarqueeTrack items={t.marquee.items} />
       </div>
     </section>

@@ -275,6 +275,39 @@
   to   { transform: translateX(0); }
 }
 
+/* =============================================
+   Imagine marquee - full-bleed, seamless text loop
+   ============================================= */
+@keyframes imagine-marquee-left {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+.imagine-marquee {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+}
+
+.imagine-marquee__band {
+  box-shadow:
+    0 20px 32px -14px rgba(0, 0, 0, 0.68),
+    0 7px 10px -7px rgba(0, 0, 0, 0.34);
+}
+
+.imagine-marquee__track {
+  display: flex;
+  width: max-content;
+  white-space: nowrap;
+  animation: imagine-marquee-left 25s linear infinite;
+  will-change: transform;
+}
+
+.imagine-marquee__group {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
 .animate-marquee-left  { animation: marquee-left  55s linear infinite; }
 .animate-marquee-right { animation: marquee-right 55s linear infinite; }
 
@@ -380,6 +413,10 @@
   }
   .animate-marquee,
   .animate-marquee-vertical {
+    animation: none !important;
+    transform: none !important;
+  }
+  .imagine-marquee__track {
     animation: none !important;
     transform: none !important;
   }
