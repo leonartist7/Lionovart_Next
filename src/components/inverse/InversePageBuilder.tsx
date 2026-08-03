@@ -49,7 +49,7 @@ export default function InversePageBuilder() {
         <InverseItem id="process"><Process /></InverseItem>
         <InverseItem><SectionTitleCard word="CONFIDENCE." theme="light" /></InverseItem>
         <InverseItem id="testimonials"><Testimonials /></InverseItem>
-        <InverseItem><SectionTitleCard word="ASK." theme="dark" /></InverseItem>
+        <InverseItem><SectionTitleCard word="ANSWERS." theme="dark" height="16vh" /></InverseItem>
         <InverseItem id="faq"><FAQ /></InverseItem>
         <InverseItem id="closing-cta"><ClosingCTA /></InverseItem>
         <InverseItem><Footer /></InverseItem>

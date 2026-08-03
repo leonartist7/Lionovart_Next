@@ -236,7 +236,7 @@ export default function TestimonialsCarousel() {
 
   return (
     <section
-      className="testimonial-carousel-fullbleed relative z-40 mx-auto w-full"
+      className="testimonial-carousel-fullbleed relative mx-auto w-full"
       onMouseEnter={() => setHoverPaused(true)}
       onMouseLeave={() => setHoverPaused(false)}
       onFocusCapture={() => setFocusPaused(true)}
