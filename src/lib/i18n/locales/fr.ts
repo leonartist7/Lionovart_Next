@@ -168,9 +168,9 @@ export const fr: Translations = {
     headingAccent: "Posées",
     items: [
       {
-        question: "Combien de temps dure un projet type ?",
+        question: "Combien de temps dure un projet ?",
         answer:
-          "Un sprint standard d'identité de marque et de site web prend entre 4 et 6 semaines selon la complexité des exigences et la rapidité des retours.",
+          "La plupart des sprints de marque et de site web durent 4 à 6 semaines, selon le périmètre et la rapidité des retours.",
       },
       {
         question: "Proposez-vous un suivi après le lancement ?",
@@ -178,34 +178,29 @@ export const fr: Translations = {
           "Oui, nous proposons des forfaits de retainer pour un support continu en design, développement et marketing afin que votre marque continue de se développer après le lancement.",
       },
       {
-        question: "Sur quelles plateformes construisez-vous les sites web ?",
+        question: "Sur quelles plateformes travaillez-vous ?",
         answer:
-          "Nous développons des sites web et applications entièrement sur mesure pour un contrôle total sur la performance et le design. Nous travaillons également sur Webflow et Shopify selon vos besoins et objectifs.",
+          "Nous créons des sites et applications sur mesure, et travaillons avec Webflow ou Shopify quand ils conviennent au projet.",
       },
       {
-        question: "Comment fonctionne la structure de paiement ?",
+        question: "Comment fonctionne le paiement ?",
         answer:
-          "Nous travaillons généralement avec un acompte de 50 % pour réserver votre place dans notre calendrier, le reste étant dû à la livraison et remise du projet.",
+          "Nous demandons généralement un acompte de 50 % pour réserver le projet. Le solde est dû à la livraison.",
       },
       {
-        question: "Pouvez-vous aider avec la rédaction et le contenu ?",
+        question: "Pouvez-vous aider pour le contenu ?",
         answer:
-          "Absolument. Nous disposons d'une équipe interne de rédacteurs et stratèges de contenu pour que vos messages s'alignent parfaitement avec votre nouvelle identité visuelle.",
+          "Oui. Nos rédacteurs et stratèges de contenu peuvent définir le message avec la nouvelle identité.",
       },
       {
         question: "Travaillez-vous avec des clients dans d'autres langues ?",
         answer:
-          "Oui. Notre équipe travaille dans 9 langues et a livré des projets sur 4 continents. Que vous ayez besoin d'éléments en anglais, espagnol, portugais, arabe ou autre, nous le gérons en interne. Pas de traducteurs externes.",
-      },
-      {
-        question: "Pourquoi ne pas simplement engager un indépendant ?",
-        answer:
-          "Les indépendants sont excellents pour des tâches isolées. Mais la marque, le web, la vidéo, le contenu et l'automatisation nécessitent chacun un spécialiste différent — et les coordonner vous coûte du temps, de la cohérence et souvent plus d'argent que prévu. Nous réunissons toutes les disciplines sous un même toit.",
+          "Oui. Nous travaillons dans 9 langues et gérons les supports multilingues en interne.",
       },
       {
         question: "Comment démarrer ?",
         answer:
-          "Envoyez-nous un message sur WhatsApp ou remplissez le formulaire sur cette page. Nous organiserons un court appel de découverte — généralement 20 à 30 minutes — pour comprendre vos objectifs, votre calendrier et votre budget. Ensuite, nous établissons un périmètre et vous décidez si c'est le bon choix. Aucune pression.",
+          "Écrivez-nous sur WhatsApp ou utilisez le formulaire. Nous organiserons un appel de 20 à 30 minutes, puis définirons la suite.",
       },
     ],
   },

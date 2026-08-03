@@ -173,9 +173,9 @@ export const en = {
     headingAccent: "Questions",
     items: [
       {
-        question: "How long does a typical project take?",
+        question: "How long does a project take?",
         answer:
-          "A standard brand identity and website sprint takes 4–6 weeks depending on the complexity of requirements and the speed of feedback.",
+          "Most brand and website sprints take 4-6 weeks, depending on scope and feedback speed.",
       },
       {
         question: "Do you offer post-launch support?",
@@ -183,34 +183,29 @@ export const en = {
           "Yes, we offer retainer packages for ongoing design, development, and marketing support so your brand keeps growing after launch.",
       },
       {
-        question: "What platforms do you build websites on?",
+        question: "What platforms do you build on?",
         answer:
-          "We build fully custom websites and applications for total control over performance and design. We also work on Webflow and Shopify depending on your needs and goals.",
+          "We build custom websites and apps, and work with Webflow or Shopify when they fit the brief.",
       },
       {
-        question: "How does the payment structure work?",
+        question: "How does payment work?",
         answer:
-          "We typically work with a 50% deposit to reserve your spot in our schedule, with the remainder due on delivery and handoff.",
+          "We usually take a 50% deposit to reserve your project, with the balance due on delivery.",
       },
       {
-        question: "Can you help with copywriting and content?",
+        question: "Can you help with copy and content?",
         answer:
-          "Absolutely. We have an in-house team of writers and content strategists to make sure your messaging aligns perfectly with your new visual identity.",
+          "Yes. Our writers and content strategists can shape the messaging alongside the new identity.",
       },
       {
         question: "Do you work with clients in other languages?",
         answer:
-          "Yes. Our team works across 9 languages and has delivered projects on 4 continents. Whether you need assets in Spanish, Portuguese, Arabic, or beyond — we handle it in-house. No outside translators.",
-      },
-      {
-        question: "Why not just hire a freelancer?",
-        answer:
-          "Freelancers are great for isolated tasks. But brand, web, video, content, and automation each need a different specialist — and coordinating them costs you time, consistency, and often more money than expected. We bring every discipline under one roof.",
+          "Yes. We work across 9 languages and handle multilingual assets in-house.",
       },
       {
         question: "How do I get started?",
         answer:
-          "Send us a message on WhatsApp or fill out the form on this page. We'll set up a short discovery call — usually 20–30 minutes — to understand your goals, timeline, and budget. Then we scope it out and you decide if it's the right fit. No pressure.",
+          "Send us a WhatsApp message or use the form. We'll book a 20-30 minute discovery call, then scope the right next step.",
       },
     ],
   },
