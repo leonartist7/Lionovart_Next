@@ -11,6 +11,8 @@ const LANDING_TUBE_RADIUS = {
   maxRadius: 0.00736,
   minTubularSegments: 26,
   maxTubularSegments: 102,
+  lerp: 0.62,
+  noise: 0.025,
 };
 const LANDING_LIGHT_INTENSITY_CAP = 108;
 

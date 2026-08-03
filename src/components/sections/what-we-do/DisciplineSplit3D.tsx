@@ -492,7 +492,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
 
   return (
     <section ref={sectionRef} className="relative bg-[#0a0a0a]" style={{ height: `${SECTION_HEIGHT_VH}vh` }}>
-      <div className="sticky top-0 flex min-h-screen flex-col items-center justify-center gap-[clamp(2.5rem,6vh,5rem)] overflow-hidden px-3 py-24 md:px-4">
+      <div className="sticky top-0 z-40 flex min-h-screen flex-col items-center justify-center gap-[clamp(2.5rem,6vh,5rem)] overflow-hidden px-3 py-24 md:px-4">
         <div
           ref={stageRef}
           className="relative z-40 w-[min(80vw,450px)] lg:w-[min(80vw,945px)]"
