@@ -83,33 +83,64 @@ export const es: Translations = {
 
   process: {
     eyebrow: "Nuestro Proceso",
-    heading: "Cómo",
-    headingAccent: "Trabajamos",
+    heading: "De Desconocida A",
+    headingAccent: "Inconfundible",
     scrollHint: "desplaza para avanzar →",
+    triggerLabel: "Iniciar el proceso",
+    triggerSub: "60 segundos. Mira exactamente lo que recibes.",
+    expectLabel: "Qué esperar",
+    deliverLabel: "Qué recibes",
+    gainLabel: "Qué ganas",
+    cta: "Empezar etapa 01",
+    ctaSub: "Auditoría de marca gratuita de 20 minutos.",
     steps: [
       {
-        title: "Descubrimiento y Estrategia",
+        title: "Identidad",
         description:
-          "Conocemos tu negocio, tu audiencia y tus estándares. Hacemos las preguntas que la mayoría de las agencias omiten, porque el mejor trabajo creativo comienza con claridad.",
+          "Una lectura profunda de quién eres — mercado, voz, ambición. Hacemos las preguntas que la mayoría de las agencias omiten.",
         tag: "Base",
+        timeline: "Semana 1–2",
+        expect:
+          "Una lectura profunda de quién eres — mercado, voz, ambición. Hacemos las preguntas que la mayoría de las agencias omiten.",
+        deliver:
+          "Sistema de logo, tipografía, color, manual de marca, impresión y packaging de alto nivel.",
+        gain: "Una marca que reconocen antes de leer el nombre.",
       },
       {
-        title: "Conceptos Creativos",
+        title: "Presencia",
         description:
-          "Desarrollamos dos o tres direcciones creativas y las refinamos contigo hasta que el lenguaje visual se sienta inconfundiblemente tuyo. Sin sorpresas. Sin revisiones perdidas.",
+          "Tomamos los canales que parecen heredados y los hacemos inconfundiblemente tuyos.",
         tag: "Diseño",
+        timeline: "Semana 3–4",
+        expect:
+          "Tomamos los canales que parecen heredados y los hacemos inconfundiblemente tuyos.",
+        deliver:
+          "Arquitectura de perfiles, pilares de contenido, plantillas, creatividad que detiene el scroll.",
+        gain: "Redes que transmiten autoridad, no actividad.",
       },
       {
-        title: "Desarrollo y Refinamiento",
+        title: "Sistemas",
         description:
-          "Damos vida a los conceptos — sitios web, video, redes sociales e impresión. Todo se construye bajo el mismo estándar y se revisa contigo en cada etapa.",
+          "Mapeamos dónde se fuga el crecimiento y cerramos las brechas con sistemas que funcionan sin ti.",
         tag: "Ejecución",
+        timeline: "Semana 5–6",
+        expect:
+          "Mapeamos dónde se fuga el crecimiento y cerramos las brechas con sistemas que funcionan sin ti.",
+        deliver:
+          "Embudos, automatización, integración de CRM, reportes que se entienden.",
+        gain: "Crecimiento que sigue aunque no estés mirando.",
       },
       {
-        title: "Lanzamiento y Crecimiento",
+        title: "Confianza",
         description:
-          "Tu marca sale al mundo. No solo te entregamos las llaves. Configuramos los sistemas, medimos resultados y seguimos disponibles para lo que venga después.",
+          "La entrega completa. Nada retenido, nada bajo llave con nosotros.",
         tag: "Crecimiento",
+        timeline: "Entrega",
+        expect:
+          "La entrega completa. Nada retenido, nada bajo llave con nosotros.",
+        deliver:
+          "Guías de marca, la biblioteca completa de activos, formación del equipo.",
+        gain: "Compartes tu marca donde sea, sin dudarlo.",
       },
     ],
   },

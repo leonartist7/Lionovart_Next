@@ -89,33 +89,63 @@ export const en = {
 
   process: {
     eyebrow: "Our Process",
-    heading: "How We",
-    headingAccent: "Work",
+    heading: "From Unknown To",
+    headingAccent: "Unmistakable",
     scrollHint: "scroll to advance →",
+    triggerLabel: "Run the process",
+    triggerSub: "60 seconds. See exactly what you get.",
+    expectLabel: "Expect",
+    deliverLabel: "You get",
+    gainLabel: "You gain",
+    cta: "Start stage 01",
+    ctaSub: "Free 20-minute brand audit.",
     steps: [
       {
-        title: "Discovery & Strategy",
+        title: "Identity",
         description:
-          "We learn your business, your audience, and your standards. We ask the questions most agencies skip, because the best creative work starts with clarity.",
+          "A deep read of who you are — market, voice, ambition. We ask the questions most agencies skip.",
         tag: "Foundation",
+        timeline: "Week 1–2",
+        expect:
+          "A deep read of who you are — market, voice, ambition. We ask the questions most agencies skip.",
+        deliver:
+          "Logo system, typography, colour, brand book, elevated print & packaging.",
+        gain: "A brand people recognise before they read the name.",
       },
       {
-        title: "Creative Concepts",
+        title: "Presence",
         description:
-          "We develop two to three creative directions and refine with you until the visual language feels undeniably yours. No surprises. No lost revisions.",
+          "We take the channels that look inherited and make them unmistakably yours.",
         tag: "Design",
+        timeline: "Week 3–4",
+        expect:
+          "We take the channels that look inherited and make them unmistakably yours.",
+        deliver:
+          "Profile architecture, content pillars, templates, scroll-stopping creative.",
+        gain: "Social that reads as authority, not activity.",
       },
       {
-        title: "Development & Refinement",
+        title: "Systems",
         description:
-          "We bring concepts to life — websites, video, social, and print. Everything is built to the same standard and reviewed with you at every stage.",
+          "We map where growth leaks and close the gaps with systems that run without you.",
         tag: "Execution",
+        timeline: "Week 5–6",
+        expect:
+          "We map where growth leaks and close the gaps with systems that run without you.",
+        deliver:
+          "Funnels, automation, CRM wiring, reporting that stays readable.",
+        gain: "Growth that runs whether or not you're watching.",
       },
       {
-        title: "Launch & Growth",
+        title: "Confidence",
         description:
-          "Your brand goes live. We don't just hand over the keys. We set up the systems, track results, and stay available for what comes next.",
+          "The full handover. Nothing gatekept, nothing locked behind us.",
         tag: "Growth",
+        timeline: "Handover",
+        expect:
+          "The full handover. Nothing gatekept, nothing locked behind us.",
+        deliver: "Brand guidelines, the full asset library, team training.",
+        gain: "You share your brand anywhere, without hesitating.",
       },
     ],
   },

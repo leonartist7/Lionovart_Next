@@ -84,33 +84,64 @@ export const fr: Translations = {
 
   process: {
     eyebrow: "Notre Processus",
-    heading: "Comment Nous",
-    headingAccent: "Travaillons",
+    heading: "D'Inconnue À",
+    headingAccent: "Incontournable",
     scrollHint: "défiler pour avancer →",
+    triggerLabel: "Lancer le processus",
+    triggerSub: "60 secondes. Voyez exactement ce que vous obtenez.",
+    expectLabel: "À prévoir",
+    deliverLabel: "Vous obtenez",
+    gainLabel: "Vous gagnez",
+    cta: "Démarrer l'étape 01",
+    ctaSub: "Audit de marque gratuit de 20 minutes.",
     steps: [
       {
-        title: "Découverte & Stratégie",
+        title: "Identité",
         description:
-          "Nous apprenons à connaître votre entreprise, votre audience et vos standards. Nous posons les questions que la plupart des agences évitent, car le meilleur travail créatif commence par la clarté.",
+          "Une lecture en profondeur de qui vous êtes — marché, voix, ambition. Nous posons les questions que la plupart des agences évitent.",
         tag: "Fondation",
+        timeline: "Semaine 1–2",
+        expect:
+          "Une lecture en profondeur de qui vous êtes — marché, voix, ambition. Nous posons les questions que la plupart des agences évitent.",
+        deliver:
+          "Système de logo, typographie, couleur, charte de marque, impression et packaging haut de gamme.",
+        gain: "Une marque reconnue avant même d'être lue.",
       },
       {
-        title: "Concepts Créatifs",
+        title: "Présence",
         description:
-          "Nous développons deux à trois directions créatives et affinons avec vous jusqu'à ce que le langage visuel vous ressemble de façon indéniable. Pas de surprises. Pas de révisions perdues.",
+          "Nous reprenons les canaux qui semblent hérités et les rendons indéniablement vôtres.",
         tag: "Design",
+        timeline: "Semaine 3–4",
+        expect:
+          "Nous reprenons les canaux qui semblent hérités et les rendons indéniablement vôtres.",
+        deliver:
+          "Architecture des profils, piliers de contenu, gabarits, créations qui arrêtent le scroll.",
+        gain: "Des réseaux qui inspirent l'autorité, pas l'activité.",
       },
       {
-        title: "Développement & Raffinement",
+        title: "Systèmes",
         description:
-          "Nous donnons vie aux concepts — sites web, vidéo, réseaux sociaux et impression. Tout est construit selon le même standard et révisé avec vous à chaque étape.",
+          "Nous cartographions les fuites de croissance et comblons les écarts avec des systèmes qui tournent sans vous.",
         tag: "Exécution",
+        timeline: "Semaine 5–6",
+        expect:
+          "Nous cartographions les fuites de croissance et comblons les écarts avec des systèmes qui tournent sans vous.",
+        deliver:
+          "Tunnels, automatisation, intégration CRM, rapports qui restent lisibles.",
+        gain: "Une croissance qui tourne, que vous regardiez ou non.",
       },
       {
-        title: "Lancement & Croissance",
+        title: "Confiance",
         description:
-          "Votre marque est en ligne. Nous ne faisons pas que remettre les clés. Nous mettons en place les systèmes, suivons les résultats et restons disponibles pour la suite.",
+          "La passation complète. Rien de retenu, rien verrouillé chez nous.",
         tag: "Croissance",
+        timeline: "Passation",
+        expect:
+          "La passation complète. Rien de retenu, rien verrouillé chez nous.",
+        deliver:
+          "Charte de marque, bibliothèque complète d'actifs, formation de l'équipe.",
+        gain: "Vous partagez votre marque partout, sans hésiter.",
       },
     ],
   },
