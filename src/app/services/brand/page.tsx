@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
-import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
 import BrandingExperience from "@/components/sections/services/brand/branding/BrandingExperience";
 
 export const metadata: Metadata = {
@@ -23,7 +22,6 @@ export default function BrandServicePage() {
         <BrandingExperience />
         <Footer />
       </main>
-      <StickyFooterMarquee />
     </>
   );
 }

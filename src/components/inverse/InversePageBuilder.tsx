@@ -12,7 +12,6 @@ import Testimonials from "@/components/sections/Testimonials";
 import FAQ from "@/components/sections/FAQ";
 import ClosingCTA from "@/components/sections/ClosingCTA";
 import Footer from "@/components/sections/Footer";
-import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
 import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
 import TubesCursor from "@/components/ui/TubesCursor";
 import { TrailAttractionProvider } from "@/contexts/TrailAttractionContext";
@@ -53,7 +52,6 @@ export default function InversePageBuilder() {
         <InverseItem id="faq"><FAQ /></InverseItem>
         <InverseItem id="closing-cta"><ClosingCTA /></InverseItem>
         <InverseItem><Footer /></InverseItem>
-        <StickyFooterMarquee />
       </div>
     </TrailAttractionProvider>
   );

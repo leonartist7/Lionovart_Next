@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
-import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
 import CurtainHero from "@/components/sections/services/content/CurtainHero";
 import StickyStatementRelay from "@/components/sections/services/content/StickyStatementRelay";
 import CapabilityScrollScene from "@/components/sections/services/content/CapabilityScrollScene";
@@ -34,7 +33,6 @@ export default function ContentStudioPage() {
         <OffersAndClose />
         <Footer />
       </main>
-      <StickyFooterMarquee />
     </>
   );
 }
