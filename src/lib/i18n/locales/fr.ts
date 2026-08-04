@@ -182,7 +182,6 @@ export const fr: Translations = {
       "Qualité",
       "Évolutivité",
       "Efficacité",
-      "Impression",
       "Support",
     ],
     competitors: [
