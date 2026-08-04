@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
+import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
 
 /** The closing CTA owns the final visual moment; this rail owns legal links. */
 export default function Footer() {
@@ -32,6 +33,7 @@ export default function Footer() {
           </Link>
         </nav>
       </div>
+      <StickyFooterMarquee />
     </footer>
   );
 }

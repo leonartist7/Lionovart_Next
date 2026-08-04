@@ -1,6 +1,5 @@
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
-import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
 import { PageBuilder } from "@/components/sections/PageBuilder";
 import ExperienceSwitch from "@/components/inverse/ExperienceSwitch";
 
@@ -11,7 +10,6 @@ export default function Home() {
       <main className="bg-bg-dark min-h-screen relative z-10">
         <Navbar />
         <PageBuilder />
-        <StickyFooterMarquee />
         <Footer />
       </main>
       <ExperienceSwitch />
