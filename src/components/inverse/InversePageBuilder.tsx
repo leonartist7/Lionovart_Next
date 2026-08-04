@@ -40,8 +40,8 @@ export default function InversePageBuilder() {
         <InverseItem id="what-we-do"><WhatWeDo /></InverseItem>
         <InverseItem><BridgeStatement /></InverseItem>
         <InverseItem id="problems"><ProblemsSolvedSection /></InverseItem>
-        <InverseItem id="offer"><SignatureOffer /></InverseItem>
         <InverseItem id="services"><Services /></InverseItem>
+        <InverseItem id="offer"><SignatureOffer /></InverseItem>
         <InverseItem><SectionTitleCard word="PROOF." theme="light" /></InverseItem>
         <InverseItem id="comparison"><Comparison /></InverseItem>
         <InverseItem id="about"><AboutUsHalf /></InverseItem>
