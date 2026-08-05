@@ -181,7 +181,7 @@ export const es: Translations = {
       "Calidad",
       "Escalabilidad",
       "Eficiencia",
-      "Impacto",
+      "Print",
       "Soporte",
     ],
     competitors: [
