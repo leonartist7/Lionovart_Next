@@ -42,7 +42,7 @@ export default function InversePageBuilder() {
         <InverseItem id="problems"><ProblemsSolvedSection /></InverseItem>
         <InverseItem id="services"><Services /></InverseItem>
         <InverseItem id="offer"><SignatureOffer /></InverseItem>
-        <InverseItem><SectionTitleCard word="WHY WE'RE CHOSEN" theme="light" /></InverseItem>
+        <InverseItem><SectionTitleCard word="WHY US" theme="light" /></InverseItem>
         <InverseItem id="comparison"><Comparison /></InverseItem>
         <InverseItem id="about"><AboutUsHalf /></InverseItem>
         <InverseItem id="process"><Process /></InverseItem>
