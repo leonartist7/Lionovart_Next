@@ -3,7 +3,7 @@ export default function StickyFooterMarquee() {
     <div
       id="footer-marquee"
       aria-hidden="true"
-      className="pointer-events-none relative z-0 w-full overflow-hidden bg-brand-red py-[clamp(1rem,2.2vw,1.5rem)] opacity-80"
+      className="pointer-events-none relative z-0 w-full overflow-hidden py-[clamp(1rem,2.2vw,1.5rem)]"
     >
       <div
         aria-hidden="true"
