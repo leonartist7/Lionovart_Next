@@ -8,10 +8,10 @@ import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 // Boolean fields stay static Ã¢â‚¬â€ only text is translated
 const COMPARISON_BOOLEANS = [
-  { speed: false, flexibility: true,  quality: true,  scalability: false, efficiency: false, impact: false, support: true  },
-  { speed: false, flexibility: false, quality: true,  scalability: false, efficiency: false, impact: true,  support: true  },
-  { speed: false, flexibility: true,  quality: false, scalability: false, efficiency: false, impact: false, support: true  },
-  { speed: true,  flexibility: false, quality: false, scalability: true,  efficiency: true,  impact: false, support: false },
+  { speed: false, flexibility: true,  quality: true,  scalability: false, efficiency: false, print: false, support: true  },
+  { speed: false, flexibility: false, quality: true,  scalability: false, efficiency: false, print: true,  support: true  },
+  { speed: false, flexibility: true,  quality: false, scalability: false, efficiency: false, print: false, support: true  },
+  { speed: true,  flexibility: false, quality: false, scalability: true,  efficiency: true,  print: false, support: false },
 ];
 
 export default function Comparison(props: any) {
@@ -32,7 +32,7 @@ export default function Comparison(props: any) {
     quality: boolean;
     scalability: boolean;
     efficiency: boolean;
-    impact: boolean;
+    print: boolean;
     support: boolean;
   };
 
@@ -89,7 +89,7 @@ export default function Comparison(props: any) {
                   row.quality,
                   row.scalability,
                   row.efficiency,
-                  row.impact,
+                  row.print,
                   row.support
                 ];
 
