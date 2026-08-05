@@ -186,7 +186,7 @@ export const en = {
       "Quality",
       "Scalability",
       "Efficiency",
-      "Impact",
+      "Print",
       "Support",
     ],
     competitors: [
@@ -295,7 +295,7 @@ export const en = {
   portfolio: {
     eyebrow: "Selected Work",
     heading: "Designed for",
-    headingAccent: "Impact",
+    headingAccent: "Print",
     toolsLabel: "OUR TOOLS",
     projects: [
       {
