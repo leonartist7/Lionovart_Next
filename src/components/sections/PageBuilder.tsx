@@ -43,7 +43,7 @@ export function PageBuilder() {
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
         <NovaSection id="services"><Services /></NovaSection>
         <NovaSection id="offer"><SignatureOffer /></NovaSection>
-        <SectionTitleCard word="WHY WE'RE CHOSEN" theme="light" />
+        <SectionTitleCard word="WHY US" theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>
         <NovaSection id="about"><AboutUsHalf /></NovaSection>
         <NovaSection id="process"><Process /></NovaSection>
