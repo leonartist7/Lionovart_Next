@@ -186,6 +186,7 @@ export const en = {
       "Quality",
       "Scalability",
       "Efficiency",
+      "Impact",
       "Support",
     ],
     competitors: [
