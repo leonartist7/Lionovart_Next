@@ -2,21 +2,21 @@
 
 import { motion } from "framer-motion";
 import { CheckCircle, X } from "lucide-react";
+import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
-// Boolean fields stay static â€” only text is translated
+// Boolean fields stay static Ã¢â‚¬â€ only text is translated
 const COMPARISON_BOOLEANS = [
-  { speed: false, flexibility: true,  quality: true,  scalability: false, efficiency: false, support: true  },
-  { speed: false, flexibility: false, quality: true,  scalability: false, efficiency: false, support: true  },
-  { speed: false, flexibility: true,  quality: false, scalability: false, efficiency: false, support: true  },
-  { speed: true,  flexibility: false, quality: false, scalability: true,  efficiency: true, support: false },
+  { speed: false, flexibility: true,  quality: true,  scalability: false, efficiency: false, impact: false, support: true  },
+  { speed: false, flexibility: false, quality: true,  scalability: false, efficiency: false, impact: true,  support: true  },
+  { speed: false, flexibility: true,  quality: false, scalability: false, efficiency: false, impact: false, support: true  },
+  { speed: true,  flexibility: false, quality: false, scalability: true,  efficiency: true,  impact: false, support: false },
 ];
 
 export default function Comparison(props: any) {
   const flow = useLandingFlow();
   const { t } = useLanguage();
-
 
   const COMPARISON_DATA = (props.competitors || t.comparison.competitors).map((c: any, i: number) => ({
     title: c.title,
@@ -32,13 +32,14 @@ export default function Comparison(props: any) {
     quality: boolean;
     scalability: boolean;
     efficiency: boolean;
+    impact: boolean;
     support: boolean;
   };
 
   return (
     <section className="bg-bg-surface-light py-[100px] md:py-[140px] px-4 md:px-8">
       <div className={`max-w-[1200px] lg:max-w-[1400px] mx-auto ${flow === "inverse" ? "flex flex-col-reverse" : ""}`}>
-heading block        <motion.div
+        <motion.div
           className="rounded-[24px] overflow-hidden bg-bg-surface-light shadow-[8px_8px_24px_rgba(0,0,0,0.12),-8px_-8px_24px_rgba(255,255,255,0.9)] border border-black/5"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -46,14 +47,16 @@ heading block        <motion.div
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
           <div className="w-full overflow-x-auto">
-            <div className="w-full min-w-[560px] lg:min-w-[1000px] grid grid-cols-[minmax(0,1fr)_repeat(6,max-content)] bg-white divide-y divide-black/5">
+            <div className="w-full min-w-[560px] lg:min-w-[1000px] grid grid-cols-[minmax(0,1fr)_repeat(7,max-content)] bg-white divide-y divide-black/5">
 
               {/* Header Row */}
-              <div className="col-span-7 grid grid-cols-subgrid bg-[#000000] text-white rounded-t-[24px]">
+              <div className="col-span-8 grid grid-cols-subgrid bg-[#000000] text-white rounded-t-[24px]">
                 <div className="p-2 md:p-4 lg:p-6 flex items-center justify-center">
-                  <img
-                    src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451//images/LOGO.svg"
+                  <Image
+                    src="/images/LOGO.svg"
                     alt="Lionovart logo"
+                    width={480}
+                    height={77}
                     className="h-auto w-[clamp(7.5rem,16vw,15rem)] max-w-full object-contain filter drop-shadow-md brightness-150"
                   />
                 </div>
@@ -71,7 +74,7 @@ heading block        <motion.div
                     LIONOVART
                   </span>
                 </div>
-                {[1, 2, 3, 4, 5, 6].map((idx) => (
+                {[1, 2, 3, 4, 5, 6, 7].map((idx) => (
                   <div key={idx} className="p-0.5 sm:p-1 lg:p-1.5 flex items-center justify-center border-r border-white/20 last:border-r-0">
                     <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-8 lg:h-8" strokeWidth={1.5} />
                   </div>
@@ -86,6 +89,7 @@ heading block        <motion.div
                   row.quality,
                   row.scalability,
                   row.efficiency,
+                  row.impact,
                   row.support
                 ];
 
@@ -121,3 +125,4 @@ heading block        <motion.div
     </section>
   );
 }
+
