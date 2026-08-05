@@ -47,7 +47,7 @@ export function PageBuilder() {
         <NovaSection id="comparison"><Comparison /></NovaSection>
         <NovaSection id="about"><AboutUsHalf /></NovaSection>
         <NovaSection id="process"><Process /></NovaSection>
-        <SectionTitleCard word="CONFIDENCE." theme="light" />
+        <SectionTitleCard word="RESULTS." theme="dark" />
         <NovaSection id="testimonials"><Testimonials /></NovaSection>
         <SectionTitleCard word="ANSWERS." theme="dark" height="16vh" />
         <NovaSection id="faq"><FAQ /></NovaSection>
