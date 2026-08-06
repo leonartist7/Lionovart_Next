@@ -15,7 +15,7 @@
  *   so it never blurs the floating CTA/cursor. pointer-events-none.
  * - Mobile drops the blur radius (CSS @media); the perf kill-switch
  *   `body.no-bdblur *` zeroes it for free.
- * - Auto-hides when the red footer marquee is revealed at page end, keeping
+ * - Auto-hides when the homepage curtain footer is revealed at page end, keeping
  *   the wordmark crisp.
  */
 
@@ -26,20 +26,22 @@ export default function BottomBlur() {
   const inverse = usePathname() === "/inverse";
   const [hidden, setHidden] = useState(false);
 
-  // The footer marquee is `sticky bottom-0`, so it geometrically sits at the
+  // The homepage curtain footer is `sticky bottom-0`, so it geometrically sits at the
   // viewport bottom from first paint â€” an IntersectionObserver would report it
-  // visible immediately. Instead, hide the blur only once the page is scrolled
+  // visible immediately. Hide the blur once the page is scrolled
   // to within the footer's height of the document bottom (i.e. it's actually
   // being revealed from under <main>).
   useEffect(() => {
-    const footer = document.getElementById("footer-marquee");
+    const footer =
+      document.getElementById("footer-curtain") ??
+      document.getElementById("footer-marquee");
     const onScroll = () => {
       const reveal = footer?.offsetHeight ?? 160;
       const dist = inverse
         ? window.scrollY
         : document.documentElement.scrollHeight -
           (window.scrollY + window.innerHeight);
-      setHidden(dist <= reveal * 0.5);
+      setHidden(dist <= reveal);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
