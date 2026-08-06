@@ -15,11 +15,11 @@ export default function Footer({ variant = "standard" }: { variant?: FooterVaria
   return (
     <footer
       id={isCurtain ? "footer-curtain" : undefined}
-      className={`relative z-0 overflow-hidden bg-brand-red/80 ${isCurtain ? "sticky bottom-0" : ""}`}
+      className={`relative z-0 overflow-hidden bg-brand-red ${isCurtain ? "sticky bottom-0" : ""}`}
     >
       <StickyFooterMarquee goldHorizon={isCurtain} />
       <div
-        className={`relative z-10 mx-auto flex w-full max-w-[1200px] flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 md:px-8 md:py-5 ${
+        className={`relative z-10 mx-auto flex w-full max-w-[1200px] flex-col gap-2 px-6 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-6 md:px-8 md:py-3 ${
           isCurtain ? "" : "border-t border-black/20"
         }`}
       >
