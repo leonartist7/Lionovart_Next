@@ -70,11 +70,11 @@ export default function StrongTogetherTransition() {
       timeline
         .to(leftDoorRef.current, { xPercent: 0, duration: 0.45, ease: "none" }, 0.12)
         .to(rightDoorRef.current, { xPercent: 0, duration: 0.45, ease: "none" }, 0.12)
-        .set(handsRef.current, { opacity: 1 }, 0.22)
-        .to(lionRef.current, { xPercent: 0, duration: 0.55, ease: "power3.out" }, 0.22)
-        .to(humanRef.current, { xPercent: 0, duration: 0.55, ease: "power3.out" }, 0.22)
-        .to(aloneRef.current, { opacity: 0, duration: 0.12, ease: "none" }, 0.42)
-        .to(togetherRef.current, { opacity: 1, duration: 0.3, ease: "power4.out" }, 0.58);
+        .to(aloneRef.current, { opacity: 0, duration: 0.12, ease: "none" }, 0.52)
+        .set(handsRef.current, { opacity: 1 }, 0.12)
+        .to(lionRef.current, { xPercent: 0, duration: 0.45, ease: "power3.out" }, 0.12)
+        .to(humanRef.current, { xPercent: 0, duration: 0.45, ease: "power3.out" }, 0.12)
+        .to(togetherRef.current, { opacity: 1, duration: 0.24, ease: "power4.out" }, 0.58);
     }, sectionRef);
 
     return () => ctx.revert();
@@ -84,15 +84,16 @@ export default function StrongTogetherTransition() {
     <section
       ref={sectionRef}
       aria-labelledby="strong-together-title"
-      className="relative h-[220vh] overflow-clip bg-[#0d0d0d]"
+      className="relative h-[220vh] overflow-visible bg-[#0d0d0d]"
     >
+      {/* Keep the artwork inside the transition viewport so it can never bleed through the next marquee. */}
       <div className="sticky top-0 min-h-[100dvh] overflow-hidden bg-[#f2ede3]">
         <div className="absolute inset-0 bg-[#0d0d0d]" />
 
         <div
           ref={handsRef}
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-[42%] z-[4] h-[50%] opacity-0 md:top-[39%] md:h-[57%]"
+          className="pointer-events-none absolute inset-x-0 top-[45%] z-[4] h-[70%] opacity-0 md:top-[42%] md:h-[72%]"
         >
           <div
             ref={lionRef}
@@ -152,4 +153,3 @@ export default function StrongTogetherTransition() {
     </section>
   );
 }
-

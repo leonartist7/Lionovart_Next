@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
-import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
 import ClosingCTA from "@/components/sections/ClosingCTA";
 import { CONTACT_EMAIL } from "@/lib/contact";
 
@@ -61,7 +60,6 @@ export default function TermsPage() {
         </section>
 
         <ClosingCTA />
-        <StickyFooterMarquee />
         <Footer />
       </main>
     </>

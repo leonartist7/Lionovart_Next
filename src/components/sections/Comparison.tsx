@@ -2,23 +2,21 @@
 
 import { motion } from "framer-motion";
 import { CheckCircle, X } from "lucide-react";
+import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 // Boolean fields stay static â€” only text is translated
 const COMPARISON_BOOLEANS = [
-  { speed: false, flexibility: true,  quality: true,  scalability: false, efficiency: false, printing: false, support: true  },
-  { speed: false, flexibility: false, quality: true,  scalability: false, efficiency: false, printing: false, support: true  },
-  { speed: false, flexibility: true,  quality: false, scalability: false, efficiency: false, printing: false, support: true  },
-  { speed: true,  flexibility: false, quality: false, scalability: true,  efficiency: true,  printing: false, support: false },
+  { speed: false, flexibility: true,  quality: true,  scalability: false, efficiency: false, print: false, support: true  },
+  { speed: false, flexibility: false, quality: true,  scalability: false, efficiency: false, print: true,  support: true  },
+  { speed: false, flexibility: true,  quality: false, scalability: false, efficiency: false, print: false, support: true  },
+  { speed: true,  flexibility: false, quality: false, scalability: true,  efficiency: true,  print: false, support: false },
 ];
 
 export default function Comparison(props: any) {
   const flow = useLandingFlow();
   const { t } = useLanguage();
-
-  const heading = props.heading || t.comparison.heading;
-  const headingAccent = props.headingAccent || t.comparison.headingAccent;
 
   const COMPARISON_DATA = (props.competitors || t.comparison.competitors).map((c: any, i: number) => ({
     title: c.title,
@@ -34,25 +32,13 @@ export default function Comparison(props: any) {
     quality: boolean;
     scalability: boolean;
     efficiency: boolean;
-    printing: boolean;
+    print: boolean;
     support: boolean;
   };
 
   return (
     <section className="bg-bg-surface-light py-[100px] md:py-[140px] px-4 md:px-8">
       <div className={`max-w-[1200px] lg:max-w-[1400px] mx-auto ${flow === "inverse" ? "flex flex-col-reverse" : ""}`}>
-        <div className="mb-12 md:mb-20 flex flex-col items-center text-center">
-          <motion.h2
-            className="text-[2.5rem] sm:text-[3.5rem] md:text-[5rem] lg:text-[6rem] font-bold uppercase leading-[0.92] tracking-[-0.02em] text-[#111111] max-w-4xl"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            {heading} <span className="text-brand-red">{headingAccent}</span>{t.comparison.headingSuffix}
-          </motion.h2>
-        </div>
-
         <motion.div
           className="rounded-[24px] overflow-hidden bg-bg-surface-light shadow-[8px_8px_24px_rgba(0,0,0,0.12),-8px_-8px_24px_rgba(255,255,255,0.9)] border border-black/5"
           initial={{ opacity: 0, y: 40 }}
@@ -61,19 +47,21 @@ export default function Comparison(props: any) {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
           <div className="w-full overflow-x-auto">
-            <div className="w-full min-w-[560px] lg:min-w-[1000px] grid grid-cols-[1.6fr_repeat(7,0.6fr)] md:grid-cols-[2fr_repeat(7,0.6fr)] lg:grid-cols-[2.4fr_repeat(7,0.55fr)] bg-white divide-y divide-black/5">
+            <div className="w-full min-w-[560px] lg:min-w-[1000px] grid grid-cols-[minmax(0,1fr)_repeat(7,max-content)] bg-white divide-y divide-black/5">
 
               {/* Header Row */}
               <div className="col-span-8 grid grid-cols-subgrid bg-[#000000] text-white rounded-t-[24px]">
                 <div className="p-2 md:p-4 lg:p-6 flex items-center justify-center">
-                  <img
-                    src="https://res.cloudinary.com/dgio9uutc/image/upload/v1775553451/Lion_emblem2PGbCnR_-_Imgur_t6jkfg.avif"
+                  <Image
+                    src="/images/LOGO.svg"
                     alt="Lionovart logo"
-                    className="max-h-[28px] md:max-h-[44px] lg:max-h-[64px] w-auto object-contain filter drop-shadow-md brightness-150"
+                    width={480}
+                    height={77}
+                    className="h-auto w-[clamp(7.5rem,16vw,15rem)] max-w-full object-contain filter drop-shadow-md brightness-150"
                   />
                 </div>
                 {t.comparison.columns.map((label) => (
-                  <div key={label} className="px-1 py-2 md:px-2 md:py-3 lg:p-4 flex items-center justify-center text-[12px] sm:text-[14px] md:text-[15px] lg:text-[18px] font-semibold tracking-wide text-center">
+                  <div key={label} className="px-[2px] py-2 sm:py-2 md:py-3 lg:py-4 flex items-center justify-center text-[12px] sm:text-[14px] md:text-[15px] lg:text-[18px] font-semibold tracking-wide text-center">
                     {label}
                   </div>
                 ))}
@@ -101,7 +89,7 @@ export default function Comparison(props: any) {
                   row.quality,
                   row.scalability,
                   row.efficiency,
-                  row.printing,
+                  row.print,
                   row.support
                 ];
 

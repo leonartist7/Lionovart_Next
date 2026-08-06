@@ -17,6 +17,8 @@ interface Props {
   bgClassName?: string;
   /** Height of the card section in CSS units. Default `38vh`. */
   height?: string;
+  /** Optional display size for compact title-card bands. */
+  fontSize?: string;
 }
 
 /**
@@ -34,6 +36,7 @@ export function SectionTitleCard({
   theme = "dark",
   bgClassName,
   height = "38vh",
+  fontSize = "clamp(7rem, 22vw, 22rem)",
 }: Props) {
   const flow = useLandingFlow();
   const isLight = theme === "light";
@@ -93,7 +96,7 @@ export function SectionTitleCard({
         ref={wordRef}
         className="absolute top-1/2 left-0 -translate-y-1/2 whitespace-nowrap font-clash font-bold uppercase"
         style={{
-          fontSize: "clamp(7rem, 22vw, 22rem)",
+          fontSize,
           lineHeight: 0.82,
           letterSpacing: "-0.045em",
           margin: 0,

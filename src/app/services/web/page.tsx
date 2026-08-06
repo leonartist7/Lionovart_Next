@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
-import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
 import ServiceCurtainHero from "@/components/sections/services/_shared/ServiceCurtainHero";
 import StatementRelay from "@/components/sections/services/_shared/StatementRelay";
 import ProcessBand from "@/components/sections/services/_shared/ProcessBand";
@@ -90,7 +89,6 @@ export default function WebServicePage() {
         />
         <Footer />
       </main>
-      <StickyFooterMarquee />
     </>
   );
 }

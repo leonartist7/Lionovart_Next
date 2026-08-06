@@ -41,7 +41,7 @@ interface CropRect {
   sh: number;
 }
 
-/* â”€â”€â”€ Motion tuning â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Motion tuning ───────────────────────────────────────────────── */
 
 // Soft enough that releasing the cursor glides home instead of snapping.
 const CURSOR_SPRING = { stiffness: 140, damping: 22, mass: 0.6 } as const;
@@ -71,7 +71,7 @@ function flipEndDelay(dir: number) {
   return FLIP_DELAY_BASE + Math.abs(dir) * FLIP_STAGGER_STEP + FLIP_DURATION;
 }
 
-/* â”€â”€â”€ Variants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Variants ────────────────────────────────────────────────────── */
 
 const paneVariants = {
   joined: { x: "0vw", y: "0vh", rotateX: 0, rotateY: 0, borderRadius: 0 },
@@ -83,7 +83,7 @@ const paneVariants = {
     borderRadius: 18,
     transition: {
       duration: 1.05,
-      // Centre pane leads, outer two follow â€” reads as choreographed
+      // Centre pane leads, outer two follow — reads as choreographed
       // rather than three things moving on the same frame.
       delay: 0.15 + Math.abs(dir) * 0.06,
       ease: EASE_OUT,
@@ -91,7 +91,7 @@ const paneVariants = {
   }),
 };
 
-// The flip itself â€” a separate nested rotateY, independent of the split's
+// The flip itself — a separate nested rotateY, independent of the split's
 // own rotateY tilt and the cursor rig's group tilt. Three different nodes,
 // three different timelines; the browser composes them, we don't have to.
 const flipVariants = {
@@ -106,7 +106,7 @@ const flipVariants = {
   }),
 };
 
-// Front-face ring crystallises in step with the split-apart translate â€”
+// Front-face ring crystallises in step with the split-apart translate —
 // there's nothing else on the front face to reveal, it's just the crop.
 const frontRingVariants = {
   joined: { opacity: 0 },
@@ -147,7 +147,7 @@ const contentVariants = {
   }),
 };
 
-/* â”€â”€â”€ Pane â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Pane ────────────────────────────────────────────────────────── */
 
 function Pane({
   card,
@@ -171,7 +171,7 @@ function Pane({
       whileHover={armed ? { z: 46, transition: { duration: 0.4, ease: "easeOut" } } : undefined}
       style={{ transformStyle: "preserve-3d" }}
     >
-      {/* The flip â€” its own nested rotateY, separate from the pane's resting
+      {/* The flip — its own nested rotateY, separate from the pane's resting
           tilt above and the cursor rig further up the tree. */}
       <motion.div
         className="absolute inset-0"
@@ -179,7 +179,7 @@ function Pane({
         custom={custom}
         style={{ transformStyle: "preserve-3d", borderRadius: "inherit" }}
       >
-        {/* Front face â€” this pane's own crop of the one shared video. */}
+        {/* Front face — this pane's own crop of the one shared video. */}
         <div
           className="absolute inset-0 overflow-hidden rounded-[inherit]"
           style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
@@ -200,7 +200,7 @@ function Pane({
           />
         </div>
 
-        {/* Back face â€” revealed once the pane has turned to face forward. */}
+        {/* Back face — revealed once the pane has turned to face forward. */}
         <div
           className="absolute inset-0 overflow-hidden rounded-[inherit] bg-[#111111]"
           style={{
@@ -263,16 +263,16 @@ function Pane({
     </motion.div>
   );
 }
-/* â”€â”€â”€ Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Section ─────────────────────────────────────────────────────── */
 
 /**
- * DisciplineSplit3D â€” plays the clip joined and full-frame, then, once
+ * DisciplineSplit3D — plays the clip joined and full-frame, then, once
  * scroll crosses a threshold further into the section, splits the three
  * panes apart and flips each one from its own crop of that footage to a
  * glass card (the outcome pillars). Desktop splits horizontally, mobile
  * vertically.
  *
- * Scroll only decides *when* the sequence fires â€” a one-shot boolean, not a
+ * Scroll only decides *when* the sequence fires — a one-shot boolean, not a
  * scrubbed progress value. The animation itself plays on authored easing,
  * same as before; this just adds scroll-gated timing on top instead of
  * firing the instant the section enters view.
@@ -304,8 +304,8 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
     return () => mq.removeEventListener("change", u);
   }, []);
 
-  /* â”€â”€â”€ Scroll-gated trigger: plays joined, then fires the split+flip once
-     and never reverses, even if the user scrolls back up. â”€â”€â”€ */
+  /* ─── Scroll-gated trigger: plays joined, then fires the split+flip once
+     and never reverses, even if the user scrolls back up. ─── */
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
   const hasTriggeredRef = useRef(false);
   const [hasTriggered, setHasTriggered] = useState(false);
@@ -318,9 +318,9 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
     }
   });
 
-  /* â”€â”€â”€ Video mirror: one decode, drawn into 3 cropped canvases via rAF.
-     Stops for good once every pane has finished flipping â€” the front
-     faces are then permanently hidden by backface-visibility. â”€â”€â”€ */
+  /* ─── Video mirror: one decode, drawn into 3 cropped canvases via rAF.
+     Stops for good once every pane has finished flipping — the front
+     faces are then permanently hidden by backface-visibility. ─── */
   const loopStoppedRef = useRef(false);
   const rafRef = useRef<number | null>(null);
 
@@ -350,7 +350,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
   }, []);
 
   // Recomputes each pane's source crop rect (and its canvas's backing-store
-  // size) from the stage's current box and the video's intrinsic size â€”
+  // size) from the stage's current box and the video's intrinsic size —
   // reproduces an object-cover fill across the *combined* 3-pane box, then
   // slices that into thirds, so joined panes read as one continuous frame.
   const recomputeCrops = useCallback(() => {
@@ -398,7 +398,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
   }, [recomputeCrops]);
 
   // Perf: only decode/play the video (and run the mirror loop) while the
-  // section is in view â€” and never again once every pane has flipped.
+  // section is in view — and never again once every pane has flipped.
   useEffect(() => {
     const sec = sectionRef.current;
     if (!sec) return;
@@ -426,7 +426,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
   }, [startLoop, stopLoop]);
 
   // Once the outermost pane's flip has landed, the front-face crops will
-  // never be seen again â€” stop mirroring and release the decoder for good.
+  // never be seen again — stop mirroring and release the decoder for good.
   useEffect(() => {
     if (!hasTriggered || reduce) return;
     const t = setTimeout(() => {
@@ -445,7 +445,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
     return () => clearTimeout(t);
   }, [hasTriggered, reduce]);
 
-  /* Cursor rig â€” normalised -1..1, spring-smoothed. Releasing sets the raw
+  /* Cursor rig — normalised -1..1, spring-smoothed. Releasing sets the raw
      values to 0 and the spring carries them home; no exit animation needed,
      and no snap. */
   const px = useMotionValue(0);
@@ -457,7 +457,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
   const rotateX = useTransform(sy, [-1, 1], [TILT_X, -TILT_X]);
   const sheen = useTransform(sx, [-1, 0, 1], [0.55, 0.14, 0.55]);
 
-  // Cache the stage rect instead of measuring on every pointermove â€” a
+  // Cache the stage rect instead of measuring on every pointermove — a
   // getBoundingClientRect() per move forces sync layout, which is exactly the
   // kind of main-thread work Lenis-smoothed pages can least afford.
   const measure = useCallback(() => {
@@ -503,7 +503,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
         >
           {/* Hidden source: the section's only decoder. Kept at real layout
               size via opacity (not display/visibility) so nothing throttles
-              its decode â€” the canvases are what's actually seen. */}
+              its decode — the canvases are what's actually seen. */}
           <video
             ref={videoRef}
             className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-0"
@@ -516,7 +516,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
             aria-hidden="true"
           />
 
-          {/* Glass plane â€” tilts as one sheet so the three panes stay a single
+          {/* Glass plane — tilts as one sheet so the three panes stay a single
               object. Individual feedback lives on the panes' hover lift. */}
           <motion.div
             className="relative flex h-[clamp(350px,66vh,660px)] w-full flex-col lg:h-[clamp(270px,50vh,500px)] lg:flex-row"

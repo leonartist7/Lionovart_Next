@@ -150,7 +150,7 @@ export const es: Translations = {
       "Calidad",
       "Escalabilidad",
       "Eficiencia",
-      "Impresión",
+      "Print",
       "Soporte",
     ],
     competitors: [
@@ -167,9 +167,9 @@ export const es: Translations = {
     headingAccent: "Frecuentes",
     items: [
       {
-        question: "¿Cuánto tarda un proyecto típico?",
+        question: "¿Cuánto tarda un proyecto?",
         answer:
-          "Un sprint estándar de identidad de marca y sitio web toma entre 4 y 6 semanas según la complejidad de los requisitos y la velocidad del feedback.",
+          "La mayoría de los sprints de marca y sitio web duran entre 4 y 6 semanas, según el alcance y la rapidez del feedback.",
       },
       {
         question: "¿Ofrecen soporte después del lanzamiento?",
@@ -177,34 +177,29 @@ export const es: Translations = {
           "Sí, ofrecemos paquetes de retención para soporte continuo en diseño, desarrollo y marketing para que tu marca siga creciendo después del lanzamiento.",
       },
       {
-        question: "¿En qué plataformas construyen sitios web?",
+        question: "¿En qué plataformas trabajan?",
         answer:
-          "Construimos sitios y aplicaciones completamente personalizados para tener control total sobre el rendimiento y el diseño. También trabajamos en Webflow y Shopify según tus necesidades y objetivos.",
+          "Construimos sitios y aplicaciones a medida, y trabajamos con Webflow o Shopify cuando encajan con el proyecto.",
       },
       {
-        question: "¿Cómo funciona la estructura de pago?",
+        question: "¿Cómo funciona el pago?",
         answer:
-          "Generalmente trabajamos con un anticipo del 50% para reservar tu lugar en nuestro calendario, y el saldo restante se paga al momento de la entrega.",
+          "Normalmente pedimos un anticipo del 50% para reservar el proyecto. El resto se paga con la entrega.",
       },
       {
-        question: "¿Pueden ayudar con la redacción y el contenido?",
+        question: "¿Ayudan con copy y contenido?",
         answer:
-          "Por supuesto. Contamos con un equipo interno de redactores y estrategas de contenido para asegurarnos de que tu mensaje se alinee perfectamente con tu nueva identidad visual.",
+          "Sí. Nuestros redactores y estrategas de contenido pueden definir el mensaje junto con la nueva identidad.",
       },
       {
         question: "¿Trabajan con clientes en otros idiomas?",
         answer:
-          "Sí. Nuestro equipo trabaja en 9 idiomas y ha entregado proyectos en 4 continentes. Ya sea que necesites materiales en español, portugués, árabe o cualquier otro idioma — lo manejamos internamente. Sin traductores externos.",
-      },
-      {
-        question: "¿Por qué no contratar a un freelancer?",
-        answer:
-          "Los freelancers son ideales para tareas aisladas. Pero marca, web, video, contenido y automatización requieren cada uno un especialista diferente — y coordinarlos te cuesta tiempo, consistencia y a menudo más dinero del esperado. Nosotros reunimos todas las disciplinas bajo un mismo techo.",
+          "Sí. Trabajamos en 9 idiomas y gestionamos los materiales multilingües internamente.",
       },
       {
         question: "¿Cómo empiezo?",
         answer:
-          "Envíanos un mensaje por WhatsApp o llena el formulario en esta página. Agendaremos una breve llamada de descubrimiento — generalmente de 20 a 30 minutos — para entender tus objetivos, plazos y presupuesto. Luego definimos el alcance y tú decides si es la opción correcta. Sin presión.",
+          "Escríbenos por WhatsApp o usa el formulario. Agendaremos una llamada de 20 a 30 minutos y definiremos el siguiente paso.",
       },
     ],
   },

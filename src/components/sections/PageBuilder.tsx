@@ -41,15 +41,15 @@ export function PageBuilder() {
         <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
         <StrongTogetherTransition />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
-        <NovaSection id="offer"><SignatureOffer /></NovaSection>
         <NovaSection id="services"><Services /></NovaSection>
-        <SectionTitleCard word="PROOF." theme="light" />
+        <NovaSection id="offer"><SignatureOffer /></NovaSection>
+        <SectionTitleCard word="WHY US" theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>
         <NovaSection id="about"><AboutUsHalf /></NovaSection>
         <NovaSection id="process"><Process /></NovaSection>
         <SectionTitleCard word="CONFIDENCE." theme="light" />
         <NovaSection id="testimonials"><Testimonials /></NovaSection>
-        <SectionTitleCard word="ANSWERS." theme="dark" height="16vh" />
+        <SectionTitleCard word="ANSWERS." theme="dark" height="16vh" fontSize="clamp(4.5rem, 10vw, 9rem)" />
         <NovaSection id="faq"><FAQ /></NovaSection>
         <NovaSection id="closing-cta"><ClosingCTA /></NovaSection>
       </div>

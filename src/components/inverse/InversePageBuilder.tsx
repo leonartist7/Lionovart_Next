@@ -12,7 +12,6 @@ import Testimonials from "@/components/sections/Testimonials";
 import FAQ from "@/components/sections/FAQ";
 import ClosingCTA from "@/components/sections/ClosingCTA";
 import Footer from "@/components/sections/Footer";
-import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
 import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
 import TubesCursor from "@/components/ui/TubesCursor";
 import { TrailAttractionProvider } from "@/contexts/TrailAttractionContext";
@@ -41,19 +40,18 @@ export default function InversePageBuilder() {
         <InverseItem id="what-we-do"><WhatWeDo /></InverseItem>
         <InverseItem><BridgeStatement /></InverseItem>
         <InverseItem id="problems"><ProblemsSolvedSection /></InverseItem>
-        <InverseItem id="offer"><SignatureOffer /></InverseItem>
         <InverseItem id="services"><Services /></InverseItem>
-        <InverseItem><SectionTitleCard word="PROOF." theme="light" /></InverseItem>
+        <InverseItem id="offer"><SignatureOffer /></InverseItem>
+        <InverseItem><SectionTitleCard word="WHY US" theme="light" /></InverseItem>
         <InverseItem id="comparison"><Comparison /></InverseItem>
         <InverseItem id="about"><AboutUsHalf /></InverseItem>
         <InverseItem id="process"><Process /></InverseItem>
         <InverseItem><SectionTitleCard word="CONFIDENCE." theme="light" /></InverseItem>
         <InverseItem id="testimonials"><Testimonials /></InverseItem>
-        <InverseItem><SectionTitleCard word="ANSWERS." theme="dark" height="16vh" /></InverseItem>
+        <InverseItem><SectionTitleCard word="ANSWERS." theme="dark" height="16vh" fontSize="clamp(4.5rem, 10vw, 9rem)" /></InverseItem>
         <InverseItem id="faq"><FAQ /></InverseItem>
         <InverseItem id="closing-cta"><ClosingCTA /></InverseItem>
         <InverseItem><Footer /></InverseItem>
-        <StickyFooterMarquee />
       </div>
     </TrailAttractionProvider>
   );
