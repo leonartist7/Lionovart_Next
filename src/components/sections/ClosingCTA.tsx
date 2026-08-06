@@ -30,7 +30,7 @@ export default function ClosingCTA({ crest = false }: { crest?: boolean }) {
   return (
     <section
       id="closing-cta"
-      className="relative overflow-hidden bg-[#0a0a0a] px-6 py-28 text-center text-white md:py-36"
+      className="relative overflow-hidden bg-[#0a0a0a] px-6 pb-16 pt-28 text-center text-white md:pb-20 md:pt-36"
     >
       <VideoBackdrop src={FOOTER_CLIP} className="absolute inset-0 z-0" overlayClassName="bg-black/70" />
 
