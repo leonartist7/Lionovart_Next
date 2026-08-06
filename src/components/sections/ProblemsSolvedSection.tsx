@@ -7,6 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useLandingFlow } from "@/contexts/LandingFlowContext";
 import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
 import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
+import { SovereignFoilContour } from "@/components/ui/SovereignFoilContour";
 
 const FEATURED = {
   quote: "Within two months of the new website, direct reservations jumped almost 70%. It finally looks like the place we actually run.",
@@ -97,35 +98,14 @@ function ProblemCard({
             min-h-[260px] sm:min-h-[290px]
           "
         >
-          {/* BASE LAYER: SOLUTION Ã¢â‚¬â€ always horizontal: image left, text right */}
-          <div className="absolute inset-0 bg-white flex flex-row">
+          {/* BASE LAYER: SOLUTION */}
+          <div className="absolute inset-0 bg-white">
+            <SovereignFoilContour active={isRevealed} />
 
-            {/* Image placeholder Ã¢â‚¬â€ hidden on mobile, shown from md up */}
-            <div className="hidden md:flex w-[38%] bg-[#f0f0f0] items-center justify-center shrink-0">
-              <div className="flex flex-col items-center gap-2 text-black/20 px-2">
-                <svg
-                  className="w-7 h-7 md:w-10 md:h-10"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z"
-                  />
-                </svg>
-                <span className="hidden sm:block text-[9px] md:text-[10px] uppercase tracking-[0.15em] font-medium text-center">
-                  Image Soon
-                </span>
-              </div>
-            </div>
-
-            {/* Text content Ã¢â‚¬â€ takes remaining 70%/62% */}
-            <div className="flex-1 flex flex-col justify-center p-4 sm:p-6 md:p-8 lg:p-10">
+            {/* Centered solution content */}
+            <div className="relative z-[3] flex h-full w-full flex-col items-center justify-center px-5 py-5 text-center sm:px-8 sm:py-6 md:px-12 md:py-8 lg:px-16">
               {/* Checkmark + heading */}
-              <div className="flex items-start gap-2 md:gap-3 mb-2 md:mb-3">
+              <div className="mb-2 flex max-w-[680px] items-start justify-center gap-2 md:mb-3 md:gap-3">
                 <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#10b981] flex items-center justify-center shrink-0 mt-0.5">
                   <svg
                     className="w-3 h-3 md:w-4 md:h-4 text-white"
@@ -137,24 +117,24 @@ function ProblemCard({
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h3 className="text-[#111] font-clash font-bold text-[13px] sm:text-[15px] md:text-[18px] lg:text-[21px] uppercase leading-tight">
+                <h3 className="text-center text-[#111] font-clash font-bold text-[13px] sm:text-[15px] md:text-[18px] lg:text-[21px] uppercase leading-tight">
                   {item.solution.heading}
                 </h3>
               </div>
 
               {/* Description */}
-              <p className="text-[#555] font-sans text-[11px] sm:text-[13px] md:text-[14px] leading-[1.55] mb-4 md:mb-6 max-w-[520px]">
+              <p className="mb-4 max-w-[620px] text-center text-[#555] font-sans text-[11px] leading-[1.55] sm:text-[13px] md:mb-6 md:text-[14px]">
                 {item.solution.body}
               </p>
 
               {/* Trust stats row */}
-              <div className="flex flex-wrap gap-x-4 gap-y-3 sm:gap-x-6 md:gap-x-8">
+              <div className="grid w-full max-w-[620px] grid-cols-3 gap-x-2 sm:gap-x-4 md:gap-x-7">
                 {item.solution.stats.map((stat, si) => (
-                  <div key={si} className="flex flex-col">
+                  <div key={si} className="flex min-w-0 flex-col items-center text-center">
                     <span className="text-[#e5192a] font-clash font-bold text-[18px] sm:text-[22px] md:text-[26px] lg:text-[30px] leading-none">
                       {stat.value}
                     </span>
-                    <span className="text-[#888] text-[8px] sm:text-[9px] md:text-[10px] uppercase tracking-wider font-medium mt-1 max-w-[90px] sm:max-w-[110px] leading-tight">
+                    <span className="mt-1 max-w-[120px] text-center text-[#888] text-[7.5px] sm:text-[9px] md:text-[10px] uppercase tracking-wider font-medium leading-tight">
                       {stat.label}
                     </span>
                   </div>
