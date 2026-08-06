@@ -49,7 +49,12 @@ export function PageBuilder() {
         <NovaSection id="process"><Process /></NovaSection>
         <SectionTitleCard word="RESULTS." theme="dark" />
         <NovaSection id="testimonials"><Testimonials /></NovaSection>
-        <SectionTitleCard word="ANSWERS." theme="dark" height="16vh" />
+        <SectionTitleCard
+          word="ANSWERS."
+          theme="dark"
+          height="16vh"
+          fontSize="clamp(4.5rem, 10vw, 9rem)"
+        />
         <NovaSection id="faq"><FAQ /></NovaSection>
         <NovaSection id="closing-cta"><ClosingCTA /></NovaSection>
       </div>
