@@ -36,7 +36,12 @@ export default function BottomBlur() {
       document.getElementById("footer-curtain") ??
       document.getElementById("footer-marquee");
     const onScroll = () => {
-      const reveal = footer?.offsetHeight ?? 160;
+      const footerHeight = footer?.offsetHeight ?? 160;
+      // Clear the blur before the sticky red footer can enter the viewport.
+      // The extra allowance is the blur strip itself, so it never mutes the
+      // red surface or the white wordmark during the curtain reveal.
+      const blurHeight = Math.min(Math.max(window.innerHeight * 0.16, 90), 240);
+      const reveal = footerHeight + blurHeight;
       const dist = inverse
         ? window.scrollY
         : document.documentElement.scrollHeight -
