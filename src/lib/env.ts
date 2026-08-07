@@ -14,9 +14,20 @@ function optional(key: string): string | undefined {
   return process.env[key] || undefined;
 }
 
+/**
+ * The `required` entries are getters, not plain values: as eagerly-evaluated
+ * properties they threw the moment any module imported `env`, which crashed
+ * `next build` during page-data collection whenever the variable was unset —
+ * even for routes that never read it. Reading them still throws, so a genuinely
+ * missing variable fails fast at the point of use.
+ */
 export const env = {
-  WHATSAPP_NUMBER: required("WHATSAPP_NUMBER"),
-  BOOKING_URL: required("BOOKING_URL"),
+  get WHATSAPP_NUMBER() {
+    return required("WHATSAPP_NUMBER");
+  },
+  get BOOKING_URL() {
+    return required("BOOKING_URL");
+  },
   SLACK_WEBHOOK_URL: optional("SLACK_WEBHOOK_URL"),
   NEXT_PUBLIC_POSTHOG_KEY: optional("NEXT_PUBLIC_POSTHOG_KEY"),
   RESEND_API_KEY: optional("RESEND_API_KEY"),
