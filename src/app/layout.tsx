@@ -13,7 +13,6 @@ import CustomCursor from "@/components/ui/CustomCursor";
 import TubesCursor from "@/components/ui/TubesCursor";
 import BottomBlur from "@/components/ui/BottomBlur";
 import SplashScreen from "@/components/ui/SplashScreen";
-import PerfHud from "@/components/dev/PerfHud";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -72,8 +71,6 @@ export default async function RootLayout({
           <CustomCursor />
           <BottomBlur />
         </LanguageProvider>
-        {/* Dev-only; tree-shaken from production builds */}
-        <PerfHud />
       </body>
     </html>
   );
