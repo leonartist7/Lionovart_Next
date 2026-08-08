@@ -143,10 +143,10 @@ interface UniformTargets {
 
 // Base character of each state — amplitude is layered on top per frame.
 const STATE_TARGETS: Record<VisualizerState, UniformTargets> = {
-  idle: { speed: 0.12, distortion: 0.32, swirl: 0.35, proportion: 0.38, scale: 1.0 },
-  listening: { speed: 0.28, distortion: 0.42, swirl: 0.4, proportion: 0.46, scale: 1.0 },
-  thinking: { speed: 0.95, distortion: 0.5, swirl: 0.9, proportion: 0.5, scale: 0.94 },
-  speaking: { speed: 0.5, distortion: 0.48, swirl: 0.5, proportion: 0.52, scale: 1.0 },
+  idle: { speed: 0.12, distortion: 0.36, swirl: 0.35, proportion: 0.52, scale: 1.0 },
+  listening: { speed: 0.28, distortion: 0.42, swirl: 0.4, proportion: 0.6, scale: 1.0 },
+  thinking: { speed: 0.95, distortion: 0.5, swirl: 0.9, proportion: 0.64, scale: 0.94 },
+  speaking: { speed: 0.5, distortion: 0.48, swirl: 0.5, proportion: 0.66, scale: 1.0 },
 };
 
 interface NovaOrbWebGLProps {

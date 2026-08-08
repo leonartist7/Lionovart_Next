@@ -115,7 +115,7 @@ fn respawn(p: ptr<function, Particle>, i: u32) {
     let y = -0.82 + (h2 - 0.5) * 0.08;
     (*p).pos = vec2f(x, y);
     (*p).vel = vec2f((h2 - 0.5) * 0.15, 0.15 + 0.1 * h1);
-    (*p).heat = 0.15 + 0.1 * h2;
+    (*p).heat = 0.28 + 0.12 * h2;
     (*p).ttl = 3.0 + 2.5 * h1;
   }
 }
@@ -163,7 +163,7 @@ fn cs_main(@builtin(global_invocation_id) gid: vec3u) {
   // Heat: attacks/thinking spike it (sparks, the vortex stoking the fire),
   // sustained amplitude brightens rather than agitates, edges dim softly —
   // nothing has a hard boundary.
-  var targetHeat = 0.25 + 0.35 * u.stateThink + 0.3 * u.amp * u.stateSpeak;
+  var targetHeat = 0.34 + 0.08 * u.stateListen + 0.35 * u.stateThink + 0.3 * u.amp * u.stateSpeak;
   targetHeat -= 0.15 * clamp(distC - 0.5, 0.0, 1.0);
   p.heat += (targetHeat - p.heat) * clamp(u.dt * 4.0, 0.0, 1.0);
 
@@ -194,9 +194,9 @@ fn vs_main(@builtin(vertex_index) vIdx: u32, @builtin(instance_index) iIdx: u32)
   let corner = QUAD[vIdx];
 
   // Instanced quad, not point-list — WebGPU has no point-size. Quad size in
-  // physical px (~1.5-3px) scales with heat so hot particles read slightly
-  // larger, not just brighter.
-  let pxSize = mix(1.5, 3.0, clamp(p.heat, 0.0, 1.0));
+  // physical px (~2.5-5.5px) scales with heat so hot particles read larger,
+  // not just brighter.
+  let pxSize = mix(2.5, 5.5, clamp(p.heat, 0.0, 1.0));
   let clipSize = vec2f(pxSize / u.canvasPx.x, pxSize / u.canvasPx.y) * 2.0;
 
   var out: VSOut;
@@ -209,7 +209,11 @@ fn vs_main(@builtin(vertex_index) vIdx: u32, @builtin(instance_index) iIdx: u32)
 @fragment
 fn fs_main(in: VSOut) -> @location(0) vec4f {
   let d = length(in.uv);
-  let falloff = smoothstep(1.0, 0.0, d); // soft radial, no texture
+  // Bright core + soft outer halo within the same quad — cheap per-particle
+  // glow, no extra draw calls or bloom pass.
+  let core = smoothstep(0.55, 0.0, d);
+  let halo = smoothstep(1.0, 0.0, d) * 0.4;
+  let falloff = clamp(core + halo, 0.0, 1.0);
   let heat = clamp(in.heat, 0.0, 1.0);
 
   // Strict 3-stop gold heat gradient — no red anywhere in the ramp.
@@ -224,7 +228,7 @@ fn fs_main(in: VSOut) -> @location(0) vec4f {
     color = mix(deepGold, brightGold, (heat - 0.55) / 0.45);
   }
 
-  let alpha = falloff * (0.15 + 0.5 * heat);
+  let alpha = min(falloff * (0.32 + 0.55 * heat), 0.95);
   return vec4f(color * alpha, alpha);
 }
 `;

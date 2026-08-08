@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback, type RefObject } from "react";
+import { useState, useEffect, useRef, useCallback, type RefObject } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Mic, MicOff, PhoneOff, Check } from "lucide-react";
+import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";
 import type { HandoffData, SessionState, LeadFieldKey } from "@/lib/strategist-config";
 import type { LeadData, SessionNotice, FieldConfirmations } from "./useStrategistSession";
 import NovaOrb from "./NovaOrb";
@@ -132,53 +133,115 @@ export default function ConversationView({
   ) : null;
 
   return (
-    <div className="flex flex-col items-center gap-3">
-      <div className="min-h-[1px] flex items-center justify-center">
+    <div className="flex flex-col items-center">
+      <div className="mb-3 min-h-[1px] flex items-center justify-center">
         <AnimatePresence mode="wait">{pill}</AnimatePresence>
       </div>
 
+      <div className="flex flex-col items-center gap-[3px]">
+        <button
+          type="button"
+          onClick={handleBlobClick}
+          disabled={isSessionActive}
+          aria-label={isSessionActive ? "Nova is listening" : "Start conversation with Nova"}
+          className={isSessionActive ? "cursor-default" : "cursor-pointer"}
+        >
+          <NovaOrb
+            state={!isSessionActive ? "idle" : isSpeaking ? "speaking" : isListening ? "listening" : "thinking"}
+            inputAmplitude={inputAmplitude}
+            outputAmplitude={outputAmplitude}
+            inputAnalyser={inputAnalyser}
+            outputAnalyser={outputAnalyser}
+          />
+        </button>
+
+        {isSessionActive && (
+          <ControlPill isMicMuted={isMicMuted} onToggleMic={onToggleMic} onStopSession={onStopSession} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Control pill — mic toggle + end call, liquid-glass shader background ── */
+
+function ControlPill({
+  isMicMuted,
+  onToggleMic,
+  onStopSession,
+}: {
+  isMicMuted: boolean;
+  onToggleMic: () => void;
+  onStopSession: () => void;
+}) {
+  const shaderRef = useRef<HTMLDivElement>(null);
+  const shaderMount = useRef<ShaderMount | null>(null);
+  const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (shouldReduceMotion || !shaderRef.current) return;
+    shaderMount.current = new ShaderMount(
+      shaderRef.current,
+      liquidMetalFragmentShader,
+      {
+        u_repetition: 3,
+        u_softness: 0.65,
+        u_shiftRed: 0.15,
+        u_shiftBlue: -0.35,
+        u_distortion: 0.05,
+        u_contour: 0,
+        u_angle: 45,
+        u_scale: 6,
+        u_shape: 1,
+        u_offsetX: 0.1,
+        u_offsetY: -0.1,
+      },
+      undefined,
+      0.5,
+    );
+
+    return () => {
+      const canvas = shaderRef.current?.querySelector("canvas");
+      if (canvas) {
+        const gl = (canvas.getContext("webgl") || canvas.getContext("experimental-webgl")) as WebGLRenderingContext | null;
+        gl?.getExtension("WEBGL_lose_context")?.loseContext();
+      }
+      shaderMount.current?.dispose();
+      shaderMount.current = null;
+    };
+  }, [shouldReduceMotion]);
+
+  return (
+    <div
+      className="relative flex items-center gap-1.5 rounded-full p-1.5 overflow-hidden"
+      onMouseEnter={() => shaderMount.current?.setSpeed(0.8)}
+      onMouseLeave={() => shaderMount.current?.setSpeed(0.5)}
+    >
+      <div ref={shaderRef} className="absolute inset-0 z-0 bg-white/[0.06]" />
+      <div className="absolute inset-0 z-10 rounded-full border border-white/[0.12] pointer-events-none" />
+
       <button
         type="button"
-        onClick={handleBlobClick}
-        disabled={isSessionActive}
-        aria-label={isSessionActive ? "Nova is listening" : "Start conversation with Nova"}
-        className={isSessionActive ? "cursor-default" : "cursor-pointer"}
+        onClick={onToggleMic}
+        className={[
+          "relative z-20 w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95",
+          isMicMuted
+            ? "bg-brand-red/15 text-brand-red"
+            : "text-white/70 hover:bg-white/[0.08] hover:text-white",
+        ].join(" ")}
+        aria-label={isMicMuted ? "Unmute microphone" : "Mute microphone"}
+        aria-pressed={isMicMuted}
       >
-        <NovaOrb
-          state={!isSessionActive ? "idle" : isSpeaking ? "speaking" : isListening ? "listening" : "thinking"}
-          inputAmplitude={inputAmplitude}
-          outputAmplitude={outputAmplitude}
-          inputAnalyser={inputAnalyser}
-          outputAnalyser={outputAnalyser}
-        />
+        {isMicMuted ? <MicOff size={16} /> : <Mic size={16} />}
       </button>
-
-      {isSessionActive && (
-        <div className="flex items-center gap-1.5 rounded-full bg-white/[0.06] border border-white/[0.1] backdrop-blur-sm p-1.5">
-          <button
-            type="button"
-            onClick={onToggleMic}
-            className={[
-              "w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95",
-              isMicMuted
-                ? "bg-brand-red/15 text-brand-red"
-                : "text-white/70 hover:bg-white/[0.08] hover:text-white",
-            ].join(" ")}
-            aria-label={isMicMuted ? "Unmute microphone" : "Mute microphone"}
-            aria-pressed={isMicMuted}
-          >
-            {isMicMuted ? <MicOff size={16} /> : <Mic size={16} />}
-          </button>
-          <button
-            type="button"
-            onClick={onStopSession}
-            className="w-10 h-10 rounded-full bg-brand-red text-white flex items-center justify-center hover:bg-brand-red/90 transition-all active:scale-95"
-            aria-label="End session"
-          >
-            <PhoneOff size={16} />
-          </button>
-        </div>
-      )}
+      <button
+        type="button"
+        onClick={onStopSession}
+        className="relative z-20 w-10 h-10 rounded-full bg-brand-red text-white flex items-center justify-center hover:bg-brand-red/90 transition-all active:scale-95"
+        aria-label="End session"
+      >
+        <PhoneOff size={16} />
+      </button>
     </div>
   );
 }

@@ -87,7 +87,7 @@ export default function StrategistPanel({ isOpen, onClose, autoStart = false }: 
           initial="hidden"
           animate="visible"
           exit="exit"
-          className="fixed z-[9999] bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8"
+          className="fixed z-[9999] bottom-[calc(1rem+20vh)] right-4 sm:bottom-[calc(1.5rem+20vh)] sm:right-6 md:bottom-[calc(2rem+20vh)] md:right-8"
         >
           <ConversationView
             isSessionActive={session.isSessionActive}
