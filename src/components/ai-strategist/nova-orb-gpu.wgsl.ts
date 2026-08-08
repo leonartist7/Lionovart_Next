@@ -5,8 +5,9 @@
  * like embers and drifting ash off a low fire, occasionally sparking upward
  * like a mane catching wind. Figurative, not literal — no lion shape, no
  * fire shape, just ember physics (buoyant drift, coherent wander, occasional
- * fast streak) in a strict 3-stop heat gradient (near-black → brand-red →
- * brand-gold-as-highlight-only) on transparent black.
+ * fast streak) in a strict 3-stop gold heat gradient (near-black → deep
+ * bronze → bright brand-gold) on a fully transparent canvas — gold only,
+ * no red.
  *
  * Particle struct (32 bytes, matches the JS-side layout in NovaOrbGPU.tsx):
  *   pos: vec2f, vel: vec2f, age: f32, ttl: f32, heat: f32, seed: f32
@@ -211,16 +212,16 @@ fn fs_main(in: VSOut) -> @location(0) vec4f {
   let falloff = smoothstep(1.0, 0.0, d); // soft radial, no texture
   let heat = clamp(in.heat, 0.0, 1.0);
 
-  // Strict 3-stop heat gradient — gold is a highlight, never a base color.
-  let emberBase = vec3f(0.102, 0.020, 0.020); // #1a0505
-  let brandRed = vec3f(0.898, 0.098, 0.165);  // #e5192a
-  let brandGold = vec3f(0.941, 0.788, 0.090); // #f0c917
+  // Strict 3-stop gold heat gradient — no red anywhere in the ramp.
+  let emberBase = vec3f(0.05, 0.04, 0.02);  // near-black, warm dark
+  let deepGold = vec3f(0.55, 0.38, 0.05);   // deep bronze mid-tone
+  let brightGold = vec3f(0.941, 0.788, 0.090); // #f0c917
 
   var color: vec3f;
   if (heat < 0.55) {
-    color = mix(emberBase, brandRed, heat / 0.55);
+    color = mix(emberBase, deepGold, heat / 0.55);
   } else {
-    color = mix(brandRed, brandGold, (heat - 0.55) / 0.45);
+    color = mix(deepGold, brightGold, (heat - 0.55) / 0.45);
   }
 
   let alpha = falloff * (0.15 + 0.5 * heat);
