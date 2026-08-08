@@ -12,6 +12,15 @@ interface VoiceVisualizerProps {
 
 const BLOB_RADII = ["58% 42% 55% 45% / 45% 55% 45% 55%", "42% 58% 45% 55% / 55% 45% 55% 45%"];
 
+// Small fixed glints inside the blob — cheap stand-in for the WebGPU tier's
+// particle sparkle, clipped to the blob's own animated shape (no separate
+// glow/shadow layer behind it).
+const GLINTS =
+  "radial-gradient(circle 4px at 26% 64%, rgba(255,255,255,1) 0%, rgba(255,255,255,0.5) 45%, transparent 70%)," +
+  "radial-gradient(circle 3px at 70% 38%, rgba(255,255,255,1) 0%, rgba(255,255,255,0.5) 45%, transparent 70%)," +
+  "radial-gradient(circle 3.5px at 46% 80%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.45) 45%, transparent 70%)," +
+  "radial-gradient(circle 2px at 64% 66%, rgba(255,255,255,0.9) 0%, transparent 70%)";
+
 export default function VoiceVisualizer({
   state,
   inputAmplitude = 0,
@@ -38,12 +47,19 @@ export default function VoiceVisualizer({
           opacity: { duration: 1.3, repeat: state === "thinking" ? Infinity : 0, ease: "easeInOut" },
           scale: { duration: 0.1 },
         }}
-        className="w-[76px] h-[76px]"
+        className="relative w-[76px] h-[76px] overflow-hidden"
         style={{
           background:
-            "radial-gradient(circle at 35% 28%, #fffae0 0%, #f0c917 45%, #b8850a 100%)",
+            "radial-gradient(circle at 35% 28%, #ffffff 0%, #fff5c2 15%, #f7cf1f 40%, #d9a30f 75%, #a67208 100%)",
         }}
-      />
+      >
+        <motion.div
+          animate={{ opacity: [0.8, 1, 0.8] }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute inset-0"
+          style={{ background: GLINTS, mixBlendMode: "screen" }}
+        />
+      </motion.div>
     </div>
   );
 }

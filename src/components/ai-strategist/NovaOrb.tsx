@@ -131,7 +131,7 @@ export default function NovaOrb({
    the permanent fallback tier, do not touch casually.
    ─────────────────────────────────────────────────────────────────── */
 
-const ORB_COLORS = ["#0d0d0d", "#5c4408", "#f0c917"].map((c) => getShaderColorFromString(c));
+const ORB_COLORS = ["#2b1d04", "#c9930a", "#ffd93d"].map((c) => getShaderColorFromString(c));
 
 interface UniformTargets {
   speed: number;
@@ -143,10 +143,10 @@ interface UniformTargets {
 
 // Base character of each state — amplitude is layered on top per frame.
 const STATE_TARGETS: Record<VisualizerState, UniformTargets> = {
-  idle: { speed: 0.12, distortion: 0.36, swirl: 0.35, proportion: 0.52, scale: 1.0 },
-  listening: { speed: 0.28, distortion: 0.42, swirl: 0.4, proportion: 0.6, scale: 1.0 },
-  thinking: { speed: 0.95, distortion: 0.5, swirl: 0.9, proportion: 0.64, scale: 0.94 },
-  speaking: { speed: 0.5, distortion: 0.48, swirl: 0.5, proportion: 0.66, scale: 1.0 },
+  idle: { speed: 0.12, distortion: 0.36, swirl: 0.35, proportion: 0.62, scale: 1.0 },
+  listening: { speed: 0.28, distortion: 0.42, swirl: 0.4, proportion: 0.7, scale: 1.0 },
+  thinking: { speed: 0.95, distortion: 0.5, swirl: 0.9, proportion: 0.74, scale: 0.94 },
+  speaking: { speed: 0.5, distortion: 0.48, swirl: 0.5, proportion: 0.78, scale: 1.0 },
 };
 
 interface NovaOrbWebGLProps {
