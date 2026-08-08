@@ -94,6 +94,8 @@ ${SHARED_STRUCTS}
 @group(0) @binding(1) var<storage, read_write> particlesOut: array<Particle>;
 @group(0) @binding(2) var<uniform> u: Uniforms;
 
+const RING_R: f32 = 0.58;
+
 fn respawn(p: ptr<function, Particle>, i: u32) {
   let h1 = hash21(vec2f(f32(i), u.time));
   let h2 = hash21(vec2f(u.time, f32(i)) + vec2f(7.0, 3.0));
@@ -101,8 +103,8 @@ fn respawn(p: ptr<function, Particle>, i: u32) {
   (*p).age = 0.0;
 
   // Speaking + a real onset (attack > 0.08, per spec) spawns a spark at the
-  // core with a radial kick. Otherwise: the base ring, low, near the
-  // bottom — embers rising off a low fire.
+  // core with a radial kick. Otherwise: ring spawn — born already
+  // orbiting, not rising from one source.
   if (u.stateSpeak > 0.5 && u.attack > 0.08) {
     let ang = h2 * 6.2831853;
     let dir = vec2f(cos(ang), sin(ang));
@@ -111,10 +113,13 @@ fn respawn(p: ptr<function, Particle>, i: u32) {
     (*p).heat = 0.9;
     (*p).ttl = 0.5 + 0.4 * h1;
   } else {
-    let x = (h1 - 0.5) * 0.85;
-    let y = -0.82 + (h2 - 0.5) * 0.08;
-    (*p).pos = vec2f(x, y);
-    (*p).vel = vec2f((h2 - 0.5) * 0.15, 0.15 + 0.1 * h1);
+    let ang = h2 * 6.2831853;
+    let r = RING_R + (h1 - 0.5) * 0.16; // band: 0.50–0.66
+    let dir = vec2f(cos(ang), sin(ang));        // outward radial
+    let tan = vec2f(-dir.y, dir.x);             // fixed CCW handedness
+
+    (*p).pos = r * dir;
+    (*p).vel = tan * (0.55 + 0.3 * h1) + dir * (h2 - 0.5) * 0.06;
     (*p).heat = 0.28 + 0.12 * h2;
     (*p).ttl = 3.0 + 2.5 * h1;
   }
@@ -136,26 +141,30 @@ fn cs_main(@builtin(global_invocation_id) gid: vec3u) {
     return;
   }
 
-  // Buoyancy — constant upward drift (this IS "up": +y in this local space).
-  let buoyancy = 0.35 + 0.15 * u.stateListen + 0.05 * u.stateSpeak;
-  var accel = vec2f(0.0, buoyancy);
-
-  // Coherent wander — the difference between "living" and "jittery".
-  let wander = curlFbm(p.pos * 1.6 + vec2f(0.0, u.time * 0.15), p.seed);
-  accel += wander * (0.5 + 0.3 * u.stateIdle);
-
   let distC = length(p.pos) + 1e-4;
-  let toCenter = -p.pos / distC;
+  let outward = p.pos / distC;
 
-  // Listening — gentle centripetal pull, "leaning in to hear you".
-  accel += toCenter * (0.35 * u.stateListen);
+  // Target ring radius — one topology, state only changes the number.
+  var targetR = RING_R;
+  targetR -= 0.12 * u.stateThink;              // tighter, faster vortex
+  targetR -= 0.05 * u.stateListen;             // leaning in
+  targetR += 0.05 * u.amp * u.stateSpeak;      // breathing with voice energy
 
-  // Thinking — the one state allowed to look distinctly different: a tight,
-  // fast vortex (tangential + centripetal), the latency window made
-  // beautiful instead of dead.
+  // Radial spring — keeps drift legible as a ring, not a rigid cage.
+  let springK = 1.1 + 1.4 * u.stateThink + 0.3 * u.stateListen;
+  var accel = outward * (targetR - distC) * springK;
+
+  // Tangential orbit — fixed handedness always; states only scale speed.
   let tangent = vec2f(-p.pos.y, p.pos.x) / distC;
-  accel += tangent * (1.8 * u.stateThink);
-  accel += toCenter * (0.9 * u.stateThink);
+  let tangentSpeed = 0.9 + 1.6 * u.stateThink - 0.15 * u.stateListen
+      + 0.4 * u.stateSpeak * (0.5 + 0.5 * u.amp);
+  accel += tangent * tangentSpeed;
+
+  // Coherent wander — the difference between "living" and "jittery",
+  // toned down so the ring stays legible; a bit more freedom at idle,
+  // reeled in during the tight thinking vortex.
+  let wander = curlFbm(p.pos * 1.6 + vec2f(0.0, u.time * 0.15), p.seed);
+  accel += wander * (0.35 + 0.15 * u.stateIdle) * (1.0 - 0.35 * u.stateThink);
 
   p.vel = p.vel * (1.0 - 1.6 * u.dt) + accel * u.dt;
   p.pos += p.vel * u.dt;

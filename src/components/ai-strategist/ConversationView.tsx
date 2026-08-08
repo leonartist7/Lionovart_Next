@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, type RefObject } from "react";
+import { useState, useEffect, useCallback, type RefObject } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Mic, MicOff, PhoneOff, Check } from "lucide-react";
-import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";
 import type { HandoffData, SessionState, LeadFieldKey } from "@/lib/strategist-config";
 import type { LeadData, SessionNotice, FieldConfirmations } from "./useStrategistSession";
 import NovaOrb from "./NovaOrb";
@@ -163,7 +162,7 @@ export default function ConversationView({
   );
 }
 
-/* ─── Control pill — mic toggle + end call, liquid-glass shader background ── */
+/* ─── Control pill — mic toggle + end call, flat brand-red CTA style ────── */
 
 function ControlPill({
   isMicMuted,
@@ -174,60 +173,14 @@ function ControlPill({
   onToggleMic: () => void;
   onStopSession: () => void;
 }) {
-  const shaderRef = useRef<HTMLDivElement>(null);
-  const shaderMount = useRef<ShaderMount | null>(null);
-  const shouldReduceMotion = useReducedMotion();
-
-  useEffect(() => {
-    if (shouldReduceMotion || !shaderRef.current) return;
-    shaderMount.current = new ShaderMount(
-      shaderRef.current,
-      liquidMetalFragmentShader,
-      {
-        u_repetition: 3,
-        u_softness: 0.65,
-        u_shiftRed: 0.15,
-        u_shiftBlue: -0.35,
-        u_distortion: 0.05,
-        u_contour: 0,
-        u_angle: 45,
-        u_scale: 6,
-        u_shape: 1,
-        u_offsetX: 0.1,
-        u_offsetY: -0.1,
-      },
-      undefined,
-      0.5,
-    );
-
-    return () => {
-      const canvas = shaderRef.current?.querySelector("canvas");
-      if (canvas) {
-        const gl = (canvas.getContext("webgl") || canvas.getContext("experimental-webgl")) as WebGLRenderingContext | null;
-        gl?.getExtension("WEBGL_lose_context")?.loseContext();
-      }
-      shaderMount.current?.dispose();
-      shaderMount.current = null;
-    };
-  }, [shouldReduceMotion]);
-
   return (
-    <div
-      className="relative flex items-center gap-1.5 rounded-full p-1.5 overflow-hidden"
-      onMouseEnter={() => shaderMount.current?.setSpeed(0.8)}
-      onMouseLeave={() => shaderMount.current?.setSpeed(0.5)}
-    >
-      <div ref={shaderRef} className="absolute inset-0 z-0 bg-white/[0.06]" />
-      <div className="absolute inset-0 z-10 rounded-full border border-white/[0.12] pointer-events-none" />
-
+    <div className="flex items-center gap-1.5 rounded-full bg-brand-red p-1.5 shadow-lg shadow-brand-red/30">
       <button
         type="button"
         onClick={onToggleMic}
         className={[
-          "relative z-20 w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95",
-          isMicMuted
-            ? "bg-brand-red/15 text-brand-red"
-            : "text-white/70 hover:bg-white/[0.08] hover:text-white",
+          "w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95",
+          isMicMuted ? "bg-white text-brand-red" : "bg-white/15 text-white hover:bg-white/25",
         ].join(" ")}
         aria-label={isMicMuted ? "Unmute microphone" : "Mute microphone"}
         aria-pressed={isMicMuted}
@@ -237,7 +190,7 @@ function ControlPill({
       <button
         type="button"
         onClick={onStopSession}
-        className="relative z-20 w-10 h-10 rounded-full bg-brand-red text-white flex items-center justify-center hover:bg-brand-red/90 transition-all active:scale-95"
+        className="w-10 h-10 rounded-full bg-white text-brand-red flex items-center justify-center hover:bg-white/90 transition-all active:scale-95"
         aria-label="End session"
       >
         <PhoneOff size={16} />
