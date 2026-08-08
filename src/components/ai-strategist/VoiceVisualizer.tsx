@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence, useTransform, type MotionValue } from "framer-motion";
+import { motion, useTransform } from "framer-motion";
 import type { RefObject } from "react";
 import { useAudioAmplitude } from "./useAudioAmplitude";
 
@@ -14,6 +14,8 @@ interface VoiceVisualizerProps {
   outputActive?: boolean;
 }
 
+const BLOB_RADII = ["58% 42% 55% 45% / 45% 55% 45% 55%", "42% 58% 45% 55% / 55% 45% 55% 45%"];
+
 export default function VoiceVisualizer({
   state,
   inputAnalyser,
@@ -26,160 +28,54 @@ export default function VoiceVisualizer({
   const inputAmplitude = useAudioAmplitude(inputAnalyser, inputActive);
   const outputAmplitude = useAudioAmplitude(outputAnalyser, outputActive);
 
-  const listenHaloScale = useTransform(inputAmplitude, (v) => 0.95 + v * 0.35);
-  const listenHaloOpacity = useTransform(inputAmplitude, (v) => 0.12 + v * 0.55);
-  const speakHaloScale = useTransform(outputAmplitude, (v) => 0.85 + v * 0.4);
-  const speakHaloOpacity = useTransform(outputAmplitude, (v) => 0.25 + v * 0.6);
+  const amplitude = state === "speaking" ? outputAmplitude : inputAmplitude;
+  const blobScale = useTransform(amplitude, (v) => 1 + v * 0.22);
+  const glowScale = useTransform(amplitude, (v) => 1.1 + v * 0.5);
+  const glowOpacity = useTransform(amplitude, (v) => 0.35 + v * 0.5);
 
   return (
     <div className="relative w-[120px] h-[120px] flex items-center justify-center">
-      <AnimatePresence>
-        {state === "speaking" && (
-          <motion.div
-            key="speaking-halo"
-            initial={{ scale: 0.6, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.6, opacity: 0 }}
-            transition={{ duration: 0.08 }}
-            className="absolute inset-0 rounded-full"
-          >
-            <AmplitudeHalo
-              scale={speakHaloScale}
-              opacity={speakHaloOpacity}
-              background="radial-gradient(circle, rgba(229,25,42,0.45) 0%, rgba(229,25,42,0) 70%)"
-              blur={8}
-            />
-          </motion.div>
-        )}
-        {state === "listening" && (
-          <motion.div
-            key="listening-halo"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ duration: 0.08 }}
-            className="absolute inset-0 rounded-full"
-          >
-            <AmplitudeHalo
-              scale={listenHaloScale}
-              opacity={listenHaloOpacity}
-              background="radial-gradient(circle, rgba(229,25,42,0.28) 0%, rgba(229,25,42,0) 65%)"
-              blur={6}
-            />
-          </motion.div>
-        )}
-        {state === "idle" && (
-          <motion.div
-            key="idle-halo"
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: [0.95, 1.0, 0.95], opacity: [0.08, 0.16, 0.08] }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute inset-0 rounded-full"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 70%)",
-              filter: "blur(8px)",
-            }}
-          />
-        )}
-      </AnimatePresence>
-
+      {/* Soft reactive glow */}
       <motion.div
-        animate={
-          state === "speaking"
-            ? { scale: [1, 1.08, 1] }
-            : state === "listening"
-            ? { scale: [1, 1.02, 1] }
-            : { scale: 1 }
-        }
-        transition={{
-          duration: state === "speaking" ? 0.9 : state === "listening" ? 2 : 0.5,
-          repeat: state === "speaking" || state === "listening" ? Infinity : 0,
-          ease: "easeInOut",
-        }}
-        className="relative w-[78px] h-[78px] rounded-full"
+        className="absolute inset-0 rounded-full"
         style={{
+          scale: glowScale,
+          opacity: glowOpacity,
           background:
-            state === "speaking" || state === "listening"
-              ? "radial-gradient(circle at 35% 30%, rgba(255,255,255,0.18) 0%, rgba(229,25,42,0.45) 40%, rgba(149,15,28,0.7) 100%)"
-              : "radial-gradient(circle at 35% 30%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0.02) 100%)",
-          boxShadow:
-            state === "speaking"
-              ? "0 0 40px rgba(229,25,42,0.55), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -2px 6px rgba(0,0,0,0.3)"
-              : state === "listening"
-              ? "0 0 26px rgba(229,25,42,0.32), inset 0 1px 1px rgba(255,255,255,0.18), inset 0 -2px 6px rgba(0,0,0,0.25)"
-              : "0 0 14px rgba(255,255,255,0.04), inset 0 1px 1px rgba(255,255,255,0.12), inset 0 -2px 6px rgba(0,0,0,0.2)",
+            "radial-gradient(circle, rgba(240,201,23,0.55) 0%, rgba(240,201,23,0) 70%)",
+          filter: "blur(14px)",
         }}
+      />
+
+      {/* Golden blob */}
+      <motion.div
+        animate={{
+          borderRadius: BLOB_RADII,
+          opacity: state === "thinking" ? [1, 0.55, 1] : 1,
+        }}
+        transition={{
+          borderRadius: {
+            duration: state === "idle" ? 7 : 3.5,
+            repeat: Infinity,
+            repeatType: "mirror",
+            ease: "easeInOut",
+          },
+          opacity: { duration: 1.3, repeat: state === "thinking" ? Infinity : 0, ease: "easeInOut" },
+        }}
+        style={{ scale: blobScale }}
+        className="relative w-[76px] h-[76px]"
       >
         <div
-          className="absolute top-[10%] left-[18%] w-[40%] h-[28%] rounded-full opacity-60"
+          className="w-full h-full"
           style={{
+            borderRadius: "inherit",
             background:
-              "radial-gradient(ellipse at center, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 70%)",
-            filter: "blur(4px)",
+              "radial-gradient(circle at 35% 28%, rgba(255,250,224,0.9) 0%, #f0c917 45%, #c99a0a 100%)",
+            boxShadow:
+              "0 0 30px rgba(240,201,23,0.45), inset 0 1px 1px rgba(255,255,255,0.4), inset 0 -3px 8px rgba(0,0,0,0.15)",
           }}
         />
-
-        <AnimatePresence>
-          {state === "thinking" && (
-            <motion.div
-              key="thinking-dots"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 flex items-center justify-center gap-1.5"
-            >
-              {[0, 1, 2].map((i) => (
-                <motion.span
-                  key={i}
-                  animate={{
-                    y: [0, -4, 0],
-                    opacity: [0.5, 1, 0.5],
-                  }}
-                  transition={{
-                    duration: 1.1,
-                    repeat: Infinity,
-                    delay: i * 0.18,
-                    ease: "easeInOut",
-                  }}
-                  className="w-1.5 h-1.5 rounded-full bg-white/85"
-                />
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
       </motion.div>
-
-      {state === "listening" && (
-        <motion.div
-          initial={{ scale: 1 }}
-          animate={{ scale: [1, 1.18, 1.3], opacity: [0.5, 0.2, 0] }}
-          transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
-          className="absolute inset-[10%] rounded-full border border-brand-red/40"
-        />
-      )}
     </div>
-  );
-}
-
-/** Inner halo layer — scale/opacity are bound directly to amplitude MotionValues,
- * updated at RAF rate without going through React state or re-rendering the parent. */
-function AmplitudeHalo({
-  scale,
-  opacity,
-  background,
-  blur,
-}: {
-  scale: MotionValue<number>;
-  opacity: MotionValue<number>;
-  background: string;
-  blur: number;
-}) {
-  return (
-    <motion.div
-      className="absolute inset-0 rounded-full"
-      style={{ scale, opacity, background, filter: `blur(${blur}px)` }}
-    />
   );
 }

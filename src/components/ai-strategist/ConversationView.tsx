@@ -81,7 +81,6 @@ export default function ConversationView({
 }: ConversationViewProps) {
   const isListening = state === "listening";
   const isSpeaking = state === "speaking";
-  const isHandoff = state === "handoff";
 
   const [textMode, setTextMode] = useState(false);
   const [showTranscript, setShowTranscript] = useState(false);
@@ -115,11 +114,13 @@ export default function ConversationView({
     onSendText(`Confirmed my ${FIELD_LABELS[field].toLowerCase()} on screen.`);
   };
 
-  // Visible fields: have a value AND aren't yet confirmed (still need confirmation)
-  // OR were just confirmed (still showing as a pill briefly)
   const fieldsWithValue = FIELD_ORDER.filter((f) => leadData[f]);
   const allFieldsConfirmed =
     fieldsWithValue.length > 0 && fieldsWithValue.every((f) => fieldConfirmations[f]);
+
+  // Only one field is ever shown at a time — the first one with a value that
+  // isn't confirmed yet. Once confirmed it fades out and the next one fades in.
+  const currentField = FIELD_ORDER.find((f) => leadData[f] && !fieldConfirmations[f]);
 
   // Show the "all details saved" line briefly after every field is confirmed.
   // Intentionally drives a setState from an effect — the trigger is a derived
@@ -267,35 +268,44 @@ export default function ConversationView({
               />
             </motion.div>
 
-            {/* Progressive lead capture */}
-            <div className="w-full max-w-sm flex flex-col gap-2">
-              <AnimatePresence mode="popLayout">
-                {fieldsWithValue.map((field) => {
-                  const value = leadData[field];
-                  const confirmed = fieldConfirmations[field];
-                  return (
-                    <motion.div
-                      key={field}
-                      layout
-                      initial={{ opacity: 0, y: 12, scale: 0.96 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.94, height: 0, marginTop: 0, marginBottom: 0 }}
-                      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                    >
-                      {confirmed ? (
-                        <ConfirmedPill label={FIELD_LABELS[field]} value={value} />
-                      ) : (
-                        <FieldRow
-                          field={field}
-                          label={FIELD_LABELS[field]}
-                          value={value}
-                          onChange={(v) => handleLeadEdit(field, v)}
-                          onConfirm={() => handleConfirmField(field)}
-                        />
-                      )}
-                    </motion.div>
-                  );
-                })}
+            {/* Progressive lead capture — one field at a time */}
+            <div className="w-full max-w-sm flex flex-col gap-3">
+              {fieldsWithValue.length > 0 && (
+                <div className="flex items-center justify-center gap-1.5">
+                  {FIELD_ORDER.map((f) => (
+                    <span
+                      key={f}
+                      className={[
+                        "w-1.5 h-1.5 rounded-full transition-colors duration-300",
+                        fieldConfirmations[f]
+                          ? "bg-emerald-400/70"
+                          : f === currentField
+                          ? "bg-white/70"
+                          : "bg-white/15",
+                      ].join(" ")}
+                    />
+                  ))}
+                </div>
+              )}
+
+              <AnimatePresence mode="wait">
+                {currentField && (
+                  <motion.div
+                    key={currentField}
+                    initial={{ opacity: 0, y: 10, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.97 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <FieldRow
+                      field={currentField}
+                      label={FIELD_LABELS[currentField]}
+                      value={leadData[currentField]}
+                      onChange={(v) => handleLeadEdit(currentField, v)}
+                      onConfirm={() => handleConfirmField(currentField)}
+                    />
+                  </motion.div>
+                )}
               </AnimatePresence>
 
               <AnimatePresence>
@@ -315,7 +325,7 @@ export default function ConversationView({
 
             {/* Handoff cards */}
             <AnimatePresence>
-              {isHandoff && handoffData && (
+              {handoffData && (
                 <motion.div
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -393,35 +403,36 @@ export default function ConversationView({
 
       {/* ── Footer controls ── */}
       {isSessionActive && (
-        <div className="shrink-0 px-6 py-4 flex justify-center items-center gap-4 border-t border-white/[0.06]">
-          {!textMode && (
+        <div className="shrink-0 px-6 py-4 flex flex-col items-center gap-2.5 border-t border-white/[0.06]">
+          <div className="flex items-center gap-1.5 rounded-full bg-white/[0.06] border border-white/[0.1] backdrop-blur-sm p-1.5">
+            {!textMode && (
+              <button
+                type="button"
+                onClick={onToggleMic}
+                className={[
+                  "w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95",
+                  isMicMuted
+                    ? "bg-brand-red/15 text-brand-red"
+                    : "text-white/70 hover:bg-white/[0.08] hover:text-white",
+                ].join(" ")}
+                aria-label={isMicMuted ? "Unmute microphone" : "Mute microphone"}
+                aria-pressed={isMicMuted}
+              >
+                {isMicMuted ? <MicOff size={16} /> : <Mic size={16} />}
+              </button>
+            )}
             <button
               type="button"
-              onClick={onToggleMic}
+              onClick={onStopSession}
               className={[
-                "w-12 h-12 rounded-full border flex items-center justify-center transition-all active:scale-95",
-                isMicMuted
-                  ? "bg-brand-red/15 border-brand-red/40 text-brand-red"
-                  : "bg-white/[0.04] border-white/[0.1] text-white/70 hover:bg-white/[0.08] hover:text-white",
+                "w-10 h-10 rounded-full bg-brand-red text-white flex items-center justify-center",
+                "hover:bg-brand-red/90 transition-all active:scale-95",
               ].join(" ")}
-              aria-label={isMicMuted ? "Unmute microphone" : "Mute microphone"}
-              aria-pressed={isMicMuted}
+              aria-label="End session"
             >
-              {isMicMuted ? <MicOff size={17} /> : <Mic size={17} />}
+              <PhoneOff size={16} />
             </button>
-          )}
-          <button
-            type="button"
-            onClick={onStopSession}
-            className={[
-              "w-12 h-12 rounded-full bg-brand-red text-white flex items-center justify-center",
-              "hover:bg-brand-red/90 transition-all active:scale-95",
-              "shadow-[0_0_18px_rgba(229,25,42,0.35)]",
-            ].join(" ")}
-            aria-label="End session"
-          >
-            <PhoneOff size={17} />
-          </button>
+          </div>
           <button
             type="button"
             onClick={() => {
@@ -455,10 +466,11 @@ function FieldRow({
   onChange: (v: string) => void;
   onConfirm: () => void;
 }) {
-  // Auto-confirm after 8s of stable value with no edits
+  // Auto-confirm after 20s of stable value with no edits — generous enough
+  // to notice and correct a misheard name/email before it locks in.
   useEffect(() => {
     if (!value) return;
-    const t = setTimeout(onConfirm, 8000);
+    const t = setTimeout(onConfirm, 20000);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
@@ -504,20 +516,6 @@ function FieldRow({
       >
         <Check size={14} strokeWidth={2.5} />
       </button>
-    </div>
-  );
-}
-
-/* ─── Confirmed pill — collapsed state ────────────────────────────────── */
-
-function ConfirmedPill({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.025] border border-white/[0.05] text-[11px]">
-      <Check size={10} className="text-emerald-400/70 shrink-0" strokeWidth={3} />
-      <span className="text-white/35 uppercase tracking-[0.2em] text-[9px]">
-        {label}
-      </span>
-      <span className="text-white/70 truncate flex-1">{value}</span>
     </div>
   );
 }
