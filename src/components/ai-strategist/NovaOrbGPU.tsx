@@ -17,7 +17,7 @@ import type { VisualizerState } from "./VoiceVisualizer";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type GPUAny = any;
 
-const PARTICLE_COUNT = 98_304; // 384 workgroups × 256 — divisible, mid-spec-friendly
+const PARTICLE_COUNT = 24_576; // 96 workgroups × 256 — divisible, a cleaner/less noisy ring
 const PARTICLE_FLOATS = 8; // pos.xy, vel.xy, age, ttl, heat, seed = 32 bytes
 const WORKGROUP_SIZE = 256;
 const UNIFORM_FLOATS = 12; // dt, time, canvasPx.xy, 4 state weights, amp, attack, lowBand, highBand
