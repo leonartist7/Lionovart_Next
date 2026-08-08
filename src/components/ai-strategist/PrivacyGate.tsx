@@ -12,7 +12,7 @@ export function PrivacyGate({ onAccept, onDismiss }: { onAccept: () => void; onD
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: shouldReduceMotion ? 0 : 1 }}
-      className="flex flex-col items-center gap-2.5 px-4 py-3 rounded-2xl bg-white/[0.06] border border-white/[0.1] backdrop-blur-sm max-w-[260px] text-center"
+      className="flex flex-col items-center gap-2.5 px-4 py-3 rounded-2xl bg-black/70 border border-white/[0.1] backdrop-blur-md max-w-[260px] text-center"
     >
       <p className="text-[11px] text-white/70 leading-relaxed">
         Nova listens through your microphone to have a real conversation. Saved so
