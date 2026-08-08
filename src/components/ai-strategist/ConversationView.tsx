@@ -238,7 +238,7 @@ function FieldConfirmPill({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: shouldReduceMotion ? 0 : 1 }}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/[0.1] backdrop-blur-sm text-[12px] text-white/85"
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/70 border border-white/[0.1] backdrop-blur-md text-[12px] text-white/85"
     >
       {confirmed && <Check size={11} className="text-brand-gold shrink-0" strokeWidth={3} />}
       <span className="text-white/40 uppercase tracking-[0.15em] text-[9px]">{label}</span>
@@ -259,8 +259,7 @@ function NoticePill({
   onRestart: () => void;
 }) {
   const shouldReduceMotion = useReducedMotion();
-  const color =
-    notice.kind === "error" ? "text-brand-red" : notice.kind === "warning" ? "text-amber-300" : "text-white/80";
+  const color = notice.kind === "warning" ? "text-amber-300" : "text-white/80";
 
   return (
     <motion.div
@@ -268,7 +267,7 @@ function NoticePill({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: shouldReduceMotion ? 0 : 1 }}
-      className="flex flex-col items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-white/[0.06] border border-white/[0.1] backdrop-blur-sm max-w-[240px] text-center"
+      className="flex flex-col items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-black/70 border border-white/[0.1] backdrop-blur-md max-w-[240px] text-center"
       role="status"
       aria-live="polite"
     >
