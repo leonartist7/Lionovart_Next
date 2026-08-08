@@ -5,8 +5,9 @@
  * like embers and drifting ash off a low fire, occasionally sparking upward
  * like a mane catching wind. Figurative, not literal — no lion shape, no
  * fire shape, just ember physics (buoyant drift, coherent wander, occasional
- * fast streak) in a strict 3-stop heat gradient (near-black → brand-red →
- * brand-gold-as-highlight-only) on transparent black.
+ * fast streak) in a strict 3-stop gold heat gradient (near-black → deep
+ * bronze → bright brand-gold) on a fully transparent canvas — gold only,
+ * no red.
  *
  * Particle struct (32 bytes, matches the JS-side layout in NovaOrbGPU.tsx):
  *   pos: vec2f, vel: vec2f, age: f32, ttl: f32, heat: f32, seed: f32
@@ -114,7 +115,7 @@ fn respawn(p: ptr<function, Particle>, i: u32) {
     let y = -0.82 + (h2 - 0.5) * 0.08;
     (*p).pos = vec2f(x, y);
     (*p).vel = vec2f((h2 - 0.5) * 0.15, 0.15 + 0.1 * h1);
-    (*p).heat = 0.15 + 0.1 * h2;
+    (*p).heat = 0.28 + 0.12 * h2;
     (*p).ttl = 3.0 + 2.5 * h1;
   }
 }
@@ -162,7 +163,7 @@ fn cs_main(@builtin(global_invocation_id) gid: vec3u) {
   // Heat: attacks/thinking spike it (sparks, the vortex stoking the fire),
   // sustained amplitude brightens rather than agitates, edges dim softly —
   // nothing has a hard boundary.
-  var targetHeat = 0.25 + 0.35 * u.stateThink + 0.3 * u.amp * u.stateSpeak;
+  var targetHeat = 0.34 + 0.08 * u.stateListen + 0.35 * u.stateThink + 0.3 * u.amp * u.stateSpeak;
   targetHeat -= 0.15 * clamp(distC - 0.5, 0.0, 1.0);
   p.heat += (targetHeat - p.heat) * clamp(u.dt * 4.0, 0.0, 1.0);
 
@@ -193,9 +194,9 @@ fn vs_main(@builtin(vertex_index) vIdx: u32, @builtin(instance_index) iIdx: u32)
   let corner = QUAD[vIdx];
 
   // Instanced quad, not point-list — WebGPU has no point-size. Quad size in
-  // physical px (~1.5-3px) scales with heat so hot particles read slightly
-  // larger, not just brighter.
-  let pxSize = mix(1.5, 3.0, clamp(p.heat, 0.0, 1.0));
+  // physical px (~2.5-5.5px) scales with heat so hot particles read larger,
+  // not just brighter.
+  let pxSize = mix(2.5, 5.5, clamp(p.heat, 0.0, 1.0));
   let clipSize = vec2f(pxSize / u.canvasPx.x, pxSize / u.canvasPx.y) * 2.0;
 
   var out: VSOut;
@@ -208,22 +209,26 @@ fn vs_main(@builtin(vertex_index) vIdx: u32, @builtin(instance_index) iIdx: u32)
 @fragment
 fn fs_main(in: VSOut) -> @location(0) vec4f {
   let d = length(in.uv);
-  let falloff = smoothstep(1.0, 0.0, d); // soft radial, no texture
+  // Bright core + soft outer halo within the same quad — cheap per-particle
+  // glow, no extra draw calls or bloom pass.
+  let core = smoothstep(0.55, 0.0, d);
+  let halo = smoothstep(1.0, 0.0, d) * 0.4;
+  let falloff = clamp(core + halo, 0.0, 1.0);
   let heat = clamp(in.heat, 0.0, 1.0);
 
-  // Strict 3-stop heat gradient — gold is a highlight, never a base color.
-  let emberBase = vec3f(0.102, 0.020, 0.020); // #1a0505
-  let brandRed = vec3f(0.898, 0.098, 0.165);  // #e5192a
-  let brandGold = vec3f(0.941, 0.788, 0.090); // #f0c917
+  // Strict 3-stop gold heat gradient — no red anywhere in the ramp.
+  let emberBase = vec3f(0.05, 0.04, 0.02);  // near-black, warm dark
+  let deepGold = vec3f(0.55, 0.38, 0.05);   // deep bronze mid-tone
+  let brightGold = vec3f(0.941, 0.788, 0.090); // #f0c917
 
   var color: vec3f;
   if (heat < 0.55) {
-    color = mix(emberBase, brandRed, heat / 0.55);
+    color = mix(emberBase, deepGold, heat / 0.55);
   } else {
-    color = mix(brandRed, brandGold, (heat - 0.55) / 0.45);
+    color = mix(deepGold, brightGold, (heat - 0.55) / 0.45);
   }
 
-  let alpha = falloff * (0.15 + 0.5 * heat);
+  let alpha = min(falloff * (0.32 + 0.55 * heat), 0.95);
   return vec4f(color * alpha, alpha);
 }
 `;
