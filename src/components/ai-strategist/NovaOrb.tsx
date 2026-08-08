@@ -96,9 +96,16 @@ export default function NovaOrb({
   }
 
   if (engine === "gpu" && inputAnalyser && outputAnalyser) {
+    // Reactive voice-agent pulsate — the orb breathes with Nova's own voice
+    // instead of spawning a center spark burst (that lived in the WGSL
+    // respawn logic; removed in favor of this whole-orb scale reaction).
+    const pulse = state === "speaking" ? 1 + Math.min(outputAmplitude, 1) * 0.14 : 1;
     return (
       <div className="relative w-[120px] h-[120px] flex items-center justify-center" aria-hidden>
-        <div className="relative w-[110px] h-[110px] rounded-full overflow-hidden">
+        <div
+          className="relative w-[110px] h-[110px] rounded-full overflow-hidden transition-transform duration-100 ease-out"
+          style={{ transform: `scale(${pulse})` }}
+        >
           <NovaOrbGPU
             state={state}
             inputAnalyser={inputAnalyser}
@@ -235,7 +242,7 @@ function NovaOrbWebGL({
             u_distortion: current.distortion + inAmp * 0.35 + outAmp * 0.5,
             u_swirl: current.swirl,
             u_proportion: Math.min(1, current.proportion + outAmp * 0.3),
-            u_scale: current.scale + inAmp * 0.05 + outAmp * 0.08,
+            u_scale: current.scale + inAmp * 0.05 + outAmp * 0.16,
           });
           shader.setSpeed(current.speed + outAmp * 0.4);
 

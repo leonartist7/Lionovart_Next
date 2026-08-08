@@ -102,27 +102,18 @@ fn respawn(p: ptr<function, Particle>, i: u32) {
   (*p).seed = h1;
   (*p).age = 0.0;
 
-  // Speaking + a real onset (attack > 0.08, per spec) spawns a spark at the
-  // core with a radial kick. Otherwise: ring spawn — born already
-  // orbiting, not rising from one source.
-  if (u.stateSpeak > 0.5 && u.attack > 0.08) {
-    let ang = h2 * 6.2831853;
-    let dir = vec2f(cos(ang), sin(ang));
-    (*p).pos = dir * 0.03;
-    (*p).vel = dir * (1.2 + 2.5 * u.attack);
-    (*p).heat = 0.9;
-    (*p).ttl = 0.5 + 0.4 * h1;
-  } else {
-    let ang = h2 * 6.2831853;
-    let r = RING_R + (h1 - 0.5) * 0.16; // band: 0.50–0.66
-    let dir = vec2f(cos(ang), sin(ang));        // outward radial
-    let tan = vec2f(-dir.y, dir.x);             // fixed CCW handedness
+  // Ring spawn only — born already orbiting, not rising from one source.
+  // Speaking no longer spawns a center spark burst; voice reactivity comes
+  // from the whole-orb pulsate scale (see NovaOrb.tsx) instead.
+  let ang = h2 * 6.2831853;
+  let r = RING_R + (h1 - 0.5) * 0.1; // band: 0.53–0.63, tightened for fewer particles
+  let dir = vec2f(cos(ang), sin(ang));        // outward radial
+  let tan = vec2f(-dir.y, dir.x);             // fixed CCW handedness
 
-    (*p).pos = r * dir;
-    (*p).vel = tan * (0.55 + 0.3 * h1) + dir * (h2 - 0.5) * 0.06;
-    (*p).heat = 0.28 + 0.12 * h2;
-    (*p).ttl = 3.0 + 2.5 * h1;
-  }
+  (*p).pos = r * dir;
+  (*p).vel = tan * (0.55 + 0.3 * h1) + dir * (h2 - 0.5) * 0.06;
+  (*p).heat = 0.28 + 0.12 * h2;
+  (*p).ttl = 3.0 + 2.5 * h1;
 }
 
 @compute @workgroup_size(256)
