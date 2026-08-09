@@ -110,6 +110,7 @@ export function useStrategistSession({
   const dismissNotice = useCallback(() => setSessionNotice(null), []);
 
   const wsRef = useRef<WebSocket | null>(null);
+  const toolTokenRef = useRef<string | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const processorRef = useRef<AudioWorkletNode | null>(null);
@@ -417,11 +418,17 @@ export function useStrategistSession({
       // NOVA_WS_SECRET isn't configured — the proxy allows the connection.
       let authedWsUrl = wsUrl;
       try {
-        const tokRes = await fetch("/api/strategist/session-token", { method: "POST" });
-        const { token } = await tokRes.json();
+        const tokRes = await fetch("/api/strategist/session-token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ conversationId: convId }),
+        });
+        const { token, toolToken } = await tokRes.json();
         if (token) authedWsUrl = `${wsUrl}?t=${encodeURIComponent(token)}`;
+        toolTokenRef.current = toolToken ?? null;
       } catch {
-        // Proxy decides whether unauthenticated connections are allowed.
+        // Proxy/tool route decide whether unauthenticated requests are allowed.
+        toolTokenRef.current = null;
       }
 
       console.log("[WS] Connecting to:", wsUrl);
@@ -875,7 +882,10 @@ export function useStrategistSession({
                   try {
                     const res = await fetch("/api/strategist/tool", {
                       method: "POST",
-                      headers: { "Content-Type": "application/json" },
+                      headers: {
+                        "Content-Type": "application/json",
+                        ...(toolTokenRef.current ? { Authorization: `Bearer ${toolTokenRef.current}` } : {}),
+                      },
                       body: JSON.stringify({
                         name: call.name,
                         args: call.args,

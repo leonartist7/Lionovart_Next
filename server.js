@@ -36,6 +36,12 @@ const port = process.env.PORT || 8080;
 const app = next({ dev, port });
 const handle = app.getRequestHandler();
 
+if (!dev && !process.env.NOVA_WS_SECRET) {
+  addDebugLog(
+    "[WS] FATAL config: NOVA_WS_SECRET is unset in production — the Nova voice proxy will refuse all WS upgrades until it's set.",
+  );
+}
+
 app.prepare().then(() => {
   const server = createServer(async (req, res) => {
     try {
@@ -72,8 +78,14 @@ app.prepare().then(() => {
         socket.destroy();
         return;
       }
+    } else if (!dev) {
+      // Fail closed in production — an unset secret must never silently
+      // leave the voice proxy open to the internet on the project's API key.
+      addDebugLog("[WS] Rejected upgrade — NOVA_WS_SECRET not configured in production");
+      socket.destroy();
+      return;
     } else {
-      addDebugLog("[WS] NOVA_WS_SECRET not set — allowing unauthenticated WS connections");
+      addDebugLog("[WS] NOVA_WS_SECRET not set — allowing unauthenticated WS connections (dev only)");
     }
 
     const ip = getRequestIp(req);

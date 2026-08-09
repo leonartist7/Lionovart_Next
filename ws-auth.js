@@ -1,5 +1,7 @@
-// Shared WS-auth + abuse-control helpers used by BOTH server.js (prod) and
-// ws-dev.js (local dev) so the two proxies stay behaviorally in sync.
+// Shared token + abuse-control helpers. mintToken/verifyToken back BOTH the
+// WS upgrade token (verified by server.js/ws-dev.js, a separate process from
+// Next.js) and the tool-call bearer token (verified in-process by
+// /api/strategist/tool) — one HMAC scheme, one place it can drift.
 const crypto = require("crypto");
 
 const MAX_PER_IP = 2;
@@ -8,9 +10,19 @@ const MAX_GLOBAL = parseInt(process.env.NOVA_WS_MAX_GLOBAL || "20", 10);
 const sessionsByIp = new Map();
 let globalSessions = 0;
 
-// Verifies a token minted by /api/strategist/session-token:
-// `${base64url(JSON payload)}.${hmacSha256(payload)}`, payload = {sid, iat, exp, ip}.
-function verifyWsToken(token, secret) {
+// Mints `${base64url(JSON payload)}.${hmacSha256(payload)}`. Caller supplies
+// the payload fields; iat/exp are added here from ttlMs.
+function mintToken(payload, secret, ttlMs) {
+  const now = Date.now();
+  const full = { ...payload, iat: now, exp: now + ttlMs };
+  const payloadB64 = Buffer.from(JSON.stringify(full)).toString("base64url");
+  const sig = crypto.createHmac("sha256", secret).update(payloadB64).digest("base64url");
+  return `${payloadB64}.${sig}`;
+}
+
+// Verifies a token minted by mintToken. Returns the decoded payload, or null
+// if the signature is bad, malformed, or expired.
+function verifyToken(token, secret) {
   if (!token || typeof token !== "string") return null;
   const parts = token.split(".");
   if (parts.length !== 2) return null;
@@ -34,6 +46,12 @@ function verifyWsToken(token, secret) {
   }
   if (!payload || typeof payload.exp !== "number" || Date.now() > payload.exp) return null;
   return payload;
+}
+
+// Thin wrapper kept for server.js/ws-dev.js call sites — WS token payload is
+// {sid, iat, exp, ip}.
+function verifyWsToken(token, secret) {
+  return verifyToken(token, secret);
 }
 
 function isAllowedOrigin(origin, isDev) {
@@ -68,4 +86,12 @@ function releaseSlot(ip) {
   globalSessions = Math.max(0, globalSessions - 1);
 }
 
-module.exports = { verifyWsToken, isAllowedOrigin, getRequestIp, tryAcquireSlot, releaseSlot };
+module.exports = {
+  mintToken,
+  verifyToken,
+  verifyWsToken,
+  isAllowedOrigin,
+  getRequestIp,
+  tryAcquireSlot,
+  releaseSlot,
+};
