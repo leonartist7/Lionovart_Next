@@ -11,13 +11,14 @@ try {
   admin = null;
 }
 
+const { buildSystemInstructionText, STRATEGIST_TOOLS } = require("./nova-brain");
+
 const LIVE_CACHE_TTL_MS = 60_000;
 const DRAFT_CACHE_TTL_MS = 10_000;
 const cache = new Map(); // docId -> { config, cachedAt }
 
-// Mirrors the ids in src/lib/nova-skills/index.ts NOVA_SKILLS. Used only to
-// know which "- id: ..." index lines to strip when Agent Studio disables a
-// skill — the skill content itself still lives in the TS module.
+// Mirrors the ids in nova-brain/skills' NOVA_SKILLS. Used only to know which
+// "- id: ..." index lines to strip when Agent Studio disables a skill.
 const ALL_SKILL_IDS = ["objections", "faq", "scheduling", "qualification"];
 
 const DEFAULTS = {
@@ -135,9 +136,15 @@ function filterSkillIndex(promptText, enabledIds) {
 // prompt override, if any, from agentConfig.prompt_overrides. `conversationId`
 // deterministically assigns a voice-A/B variant when one is configured — same
 // visitor always gets the same voice across reconnects, never re-rolled.
+//
+// systemInstruction and tools are always built here from nova-brain, never
+// taken from clientConfig — the client stopped sending them, and even if a
+// forged setup frame included them, they're overwritten below before this
+// config ever reaches Gemini.
 function buildLiveConfig(clientConfig, agentConfig, locale, conversationId) {
   const model = agentConfig.model || DEFAULTS.model;
   const config = { ...(clientConfig || {}) };
+  config.tools = STRATEGIST_TOOLS;
 
   const resolvedVoice = assignVoiceVariant(conversationId, agentConfig.voice_experiment) || agentConfig.voice;
   if (resolvedVoice) {
@@ -174,15 +181,12 @@ function buildLiveConfig(clientConfig, agentConfig, locale, conversationId) {
     }
   }
 
-  // Prompt overrides + skill-index filtering, applied to whatever prompt
-  // text the client sent for the session's locale.
-  const part = config.systemInstruction?.parts?.[0];
-  if (part && typeof part.text === "string") {
-    const override = locale && agentConfig.prompt_overrides ? agentConfig.prompt_overrides[locale] : null;
-    let text = override && override.trim() ? override : part.text;
-    text = filterSkillIndex(text, agentConfig.skills_enabled);
-    config.systemInstruction = { parts: [{ text }] };
-  }
+  // Prompt overrides + skill-index filtering, applied to the server-built
+  // base text for this locale (never the client's).
+  const override = locale && agentConfig.prompt_overrides ? agentConfig.prompt_overrides[locale] : null;
+  let text = override && override.trim() ? override : buildSystemInstructionText(locale);
+  text = filterSkillIndex(text, agentConfig.skills_enabled);
+  config.systemInstruction = { parts: [{ text }] };
 
   return { model, config, resolvedVoice };
 }

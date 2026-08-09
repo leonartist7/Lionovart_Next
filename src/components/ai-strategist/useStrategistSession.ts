@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback, type RefObject } from "react";
 import type { HandoffData, SessionState, LeadFieldKey } from "@/lib/strategist-config";
-import { getSystemPrompt, STRATEGIST_TOOLS } from "@/lib/strategist-config";
-import type { NovaLocale } from "@/lib/strategist-config";
 import { trackNovaEvent, NOVA_EVENT } from "@/lib/nova-events";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -441,6 +439,11 @@ export function useStrategistSession({
         const isDraftTestCall =
           typeof window !== "undefined" &&
           new URLSearchParams(window.location.search).get("novaDraft") === "1";
+        // systemInstruction and tools are no longer sent from here — the
+        // proxy builds both itself from nova-brain, keyed on `locale` below.
+        // Sending them from the client meant the browser dictated Nova's
+        // entire prompt and toolset, and shipped the whole playbook into the
+        // page bundle besides.
         ws.send(
           JSON.stringify({
             type: "setup",
@@ -448,24 +451,7 @@ export function useStrategistSession({
             draft: isDraftTestCall,
             conversationId: conversationIdRef.current,
             config: {
-              systemInstruction: {
-                parts: [
-                  {
-                    text:
-                      getSystemPrompt(locale as NovaLocale) +
-                      "\n\nCRITICAL DIRECTIVE: Your very first action immediately upon connecting must be a brief 1-sentence verbal greeting from Stage 0. Pick one of the rotation options. Do not wait for the user to speak first.",
-                  },
-                ],
-              },
-              tools: STRATEGIST_TOOLS,
               responseModalities: ["AUDIO"],
-              speechConfig: {
-                voiceConfig: {
-                  prebuiltVoiceConfig: {
-                    voiceName: "Aoede",
-                  },
-                },
-              },
               inputAudioTranscription: {},
               outputAudioTranscription: {},
               // With a stored handle, Gemini restores the prior session's

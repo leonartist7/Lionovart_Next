@@ -1,6 +1,4 @@
-import type { NovaSkill } from "./index";
-
-export const SCHEDULING_SKILL: NovaSkill = {
+const SCHEDULING_SKILL = {
   id: "scheduling",
   title: "Booking the call with Leon",
   triggers:
@@ -48,3 +46,5 @@ Never send an email as a silent default. If it feels natural, ASK once: "Want me
 - Never ask "does that work for you?" twice in a row.
 - Never keep selling after they've said yes — the deal closes the moment you stop talking.`,
 };
+
+module.exports = { SCHEDULING_SKILL };
