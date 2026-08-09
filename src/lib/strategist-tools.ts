@@ -413,21 +413,6 @@ const handlers: Record<string, ToolHandler> = {
       return { body: { available: true, found: false, error: err instanceof Error ? err.message : String(err) } };
     }
   },
-
-  async detect_user_location(_args, ctx) {
-    try {
-      const ip = ctx.ip ?? "unknown";
-      if (ip === "unknown" || ip.startsWith("127.") || ip.startsWith("::1")) {
-        return { body: { country: "CA", city: "Unknown", ip } };
-      }
-      const geo = await fetch(`https://ipapi.co/${ip}/json/`, {
-        headers: { "User-Agent": "LIONOVART/1.0" },
-      }).then((r) => r.json());
-      return { body: { country: geo.country_code, city: geo.city, ip } };
-    } catch {
-      return { body: { country: "unknown" } };
-    }
-  },
 };
 
 export async function executeServerTool(

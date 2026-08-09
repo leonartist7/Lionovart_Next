@@ -279,7 +279,16 @@ export function useStrategistSession({
     }
     if (!preserveStreamRef.current) {
       // Full teardown — reconnects set preserveStreamRef so the mic stream and
-      // audio graph survive and getUserMedia isn't re-prompted.
+      // audio graph survive and getUserMedia isn't re-prompted. This is also
+      // the point where the session is genuinely over (not mid-reconnect), so
+      // it's safe to drop the persisted lead data + transcript snippet —
+      // startSession's reconnect-restore read (above) only ever runs before
+      // this branch is reached.
+      try {
+        sessionStorage.removeItem("nova_session_state");
+      } catch {
+        /* storage unavailable */
+      }
       if (processorRef.current) {
         processorRef.current.disconnect();
         processorRef.current = null;
