@@ -3,12 +3,19 @@
 // Next.js) and the tool-call bearer token (verified in-process by
 // /api/strategist/tool) — one HMAC scheme, one place it can drift.
 const crypto = require("crypto");
+const { LRUCache } = require("lru-cache");
 
 const MAX_PER_IP = 2;
 const MAX_GLOBAL = parseInt(process.env.NOVA_WS_MAX_GLOBAL || "20", 10);
 
 const sessionsByIp = new Map();
 let globalSessions = 0;
+
+// Spent WS-token sids — a token is single-use, so a captured/leaked one
+// can't be replayed a second time within its own validity window. TTL only
+// needs to outlive the token's own TTL (120s, session-token route); once
+// the token itself has expired, verifyToken already rejects it regardless.
+const usedWsTokenSids = new LRUCache({ max: 10_000, ttl: 3 * 60 * 1000 });
 
 // Mints `${base64url(JSON payload)}.${hmacSha256(payload)}`. Caller supplies
 // the payload fields; iat/exp are added here from ttlMs.
@@ -48,10 +55,17 @@ function verifyToken(token, secret) {
   return payload;
 }
 
-// Thin wrapper kept for server.js/ws-dev.js call sites — WS token payload is
-// {sid, iat, exp, ip}.
-function verifyWsToken(token, secret) {
-  return verifyToken(token, secret);
+// Verifies a token minted by /api/strategist/session-token, additionally
+// binding it to the connecting IP and enforcing single-use — a captured
+// token is neither bearer-transferable to another origin IP nor replayable
+// a second time within its 120s window. WS token payload is {sid, iat, exp, ip}.
+function verifyWsToken(token, secret, connectingIp) {
+  const payload = verifyToken(token, secret);
+  if (!payload || typeof payload.sid !== "string") return null;
+  if (payload.ip !== connectingIp) return null;
+  if (usedWsTokenSids.has(payload.sid)) return null;
+  usedWsTokenSids.set(payload.sid, true);
+  return payload;
 }
 
 function isAllowedOrigin(origin, isDev) {

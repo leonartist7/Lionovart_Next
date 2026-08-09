@@ -69,12 +69,14 @@ app.prepare().then(() => {
       return;
     }
 
+    const ip = getRequestIp(req);
+
     const secret = process.env.NOVA_WS_SECRET;
     if (secret) {
       const { query } = parse(req.url, true);
-      const tokenPayload = verifyWsToken(query.t, secret);
+      const tokenPayload = verifyWsToken(query.t, secret, ip);
       if (!tokenPayload) {
-        addDebugLog("[WS] Rejected upgrade — invalid or expired session token");
+        addDebugLog("[WS] Rejected upgrade — invalid/expired/replayed session token or IP mismatch");
         socket.destroy();
         return;
       }
@@ -88,7 +90,6 @@ app.prepare().then(() => {
       addDebugLog("[WS] NOVA_WS_SECRET not set — allowing unauthenticated WS connections (dev only)");
     }
 
-    const ip = getRequestIp(req);
     if (!tryAcquireSlot(ip)) {
       addDebugLog(`[WS] Rejected upgrade — concurrency cap reached for ip=${ip}`);
       socket.destroy();
