@@ -86,7 +86,7 @@ export const es: Translations = {
     heading: "De Desconocida A",
     headingAccent: "Inconfundible",
     scrollHint: "desplaza para avanzar →",
-    triggerLabel: "Iniciar el proceso",
+    triggerLabel: "Haz clic para ver el proceso",
     triggerSub: "60 segundos. Mira exactamente lo que recibes.",
     expectLabel: "Qué esperar",
     deliverLabel: "Qué recibes",
