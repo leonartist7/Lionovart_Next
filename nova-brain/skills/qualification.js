@@ -1,6 +1,4 @@
-import type { NovaSkill } from "./index";
-
-export const QUALIFICATION_SKILL: NovaSkill = {
+const QUALIFICATION_SKILL = {
   id: "qualification",
   title: "Reading the lead — qualify, fast-track, or nurture",
   triggers:
@@ -35,3 +33,5 @@ If they name a deadline or event ("we open in March", "launch next quarter"), th
 ### Save it all
 Whatever you learned — signals, urgency, energy read, objections raised — compress it honestly into project_summary/painpoints/vision when saving lead data. Leon reads these before every call; write for him, one founder briefing another.`,
 };
+
+module.exports = { QUALIFICATION_SKILL };
