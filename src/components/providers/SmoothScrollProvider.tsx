@@ -3,7 +3,6 @@
 import { ReactLenis, useLenis } from 'lenis/react';
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
-import { usePathname } from 'next/navigation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -50,8 +49,6 @@ function LenisGSAPBridge() {
 }
 
 export default function SmoothScrollProvider({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
-  const inverse = pathname === '/inverse';
   const reducedMotion = useSyncExternalStore(
     subscribeToReducedMotion,
     getReducedMotionSnapshot,
@@ -62,26 +59,12 @@ export default function SmoothScrollProvider({ children }: { children: ReactNode
     // Keep the classic route's original motion curve exactly.
     lerp: reducedMotion ? 1 : 0.12,
     smoothWheel: true,
-    syncTouch: inverse,
-    touchMultiplier: inverse ? 1.1 : 1,
     prevent: (node: HTMLElement) => Boolean(node.closest?.('[data-lenis-prevent]')),
-    // Forward wheel and touch gestures travel toward smaller native scroll
-    // values on the inverse route. Layout and semantic order stay conventional.
-    virtualScroll: inverse
-      ? (input: { deltaY: number; event: Event }) => {
-          const target = input.event.target;
-          if (target instanceof HTMLElement && target.closest('[data-lenis-prevent]')) {
-            return false;
-          }
-          input.deltaY *= -1;
-          return true;
-        }
-      : undefined,
-  }), [inverse, reducedMotion]);
+  }), [reducedMotion]);
 
   return (
     <LenisProvider
-      key={`${inverse ? 'inverse' : 'standard'}-${reducedMotion ? 'reduced' : 'motion'}`}
+      key={reducedMotion ? 'reduced' : 'motion'}
       root
       options={options}
     >

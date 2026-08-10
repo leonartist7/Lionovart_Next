@@ -4,7 +4,6 @@ import { useRef, useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ArrowDown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useLandingFlow } from "@/contexts/LandingFlowContext";
 import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
 
 type ProcessStep = {
@@ -65,7 +64,6 @@ const nodeDelay = (i: number, count: number) =>
 const VISION_KICKER = "Not artificial.";
 
 export default function Process(props: any) {
-  const flow = useLandingFlow();
   const { t } = useLanguage();
 
   const eyebrow = props.eyebrow || t.process.eyebrow;
@@ -112,7 +110,7 @@ export default function Process(props: any) {
     if (started) return;
 
     // Measure the wipe origin from the trigger, falling back to section centre
-    // (inverse flow and the auto-run safety net have no click point).
+    // when the auto-run safety net has no click point.
     const sectionBox = sectionRef.current?.getBoundingClientRect();
     if (sectionBox) {
       const triggerBox = triggerRef.current?.getBoundingClientRect();
@@ -163,9 +161,7 @@ export default function Process(props: any) {
     []
   );
 
-  // Safety net: a visitor who never clicks must not lose the content. In inverse
-  // flow the section is entered from the far side, so it always self-arms.
-  const autoStart = flow === "inverse";
+  // Safety net: a visitor who never clicks must not lose the content.
   useEffect(() => {
     const el = sectionRef.current;
     if (!el || started) return;
@@ -179,7 +175,7 @@ export default function Process(props: any) {
         const filled = entry.intersectionRect.height / window.innerHeight;
         if (entry.isIntersecting && filled >= 0.5) {
           if (hold === undefined) {
-            hold = window.setTimeout(run, autoStart ? 300 : 1500);
+            hold = window.setTimeout(run, 1500);
           }
         } else if (hold !== undefined) {
           clearTimeout(hold);
@@ -193,7 +189,7 @@ export default function Process(props: any) {
       io.disconnect();
       if (hold) clearTimeout(hold);
     };
-  }, [run, started, autoStart]);
+  }, [run, started]);
 
   const revealed = stage > steps.length;
   const unlocked = (i: number) => stage > i;

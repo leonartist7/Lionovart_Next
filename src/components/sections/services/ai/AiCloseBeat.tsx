@@ -70,8 +70,7 @@ export default function AiCloseBeat({ children }: { children: React.ReactNode })
     // Space Grotesk with display:'swap' — if the font swaps in after GSAP has
     // already cached this trigger's pixel range, every heading upstream can
     // reflow, and the range goes stale until something else refreshes it.
-    // Same bug class InverseScrollController.tsx already fixes for /inverse;
-    // this is the same idiom, scoped to the one trigger actually at risk here.
+    // Refresh after the font settles, scoped to the one trigger at risk here.
     const refresh = () => {
       if (!cancelled) ScrollTrigger.refresh();
     };

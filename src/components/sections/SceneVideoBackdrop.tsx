@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import { useLenis } from "lenis/react";
-import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 /**
  * SceneVideoBackdrop â€” a single fixed, full-viewport video that sits behind the
@@ -33,7 +32,6 @@ const CLIPS = [
 const CLIP_DURATION_MS = 14000;
 
 export default function SceneVideoBackdrop() {
-  const flow = useLandingFlow();
   const [index, setIndex] = useState(0);
   // Playback starts 3s after page load, regardless of scroll position.
   const [started, setStarted] = useState(false);
@@ -62,10 +60,7 @@ export default function SceneVideoBackdrop() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   useLenis((lenis: any) => {
     const vh = window.innerHeight;
-    const rawScroll = lenis?.scroll ?? 0;
-    const scroll = flow === "inverse"
-      ? Math.max(0, (lenis?.limit ?? rawScroll) - rawScroll)
-      : rawScroll;
+    const scroll = lenis?.scroll ?? 0;
 
     // Fade + pause as the hero exits â€” video lives behind the hero only,
     // then the light body takes over. Full until 0.7vh, gone by 1.4vh.

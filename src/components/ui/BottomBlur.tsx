@@ -24,7 +24,6 @@ import { usePathname } from "next/navigation";
 
 export default function BottomBlur() {
   const pathname = usePathname();
-  const inverse = pathname === "/inverse";
   // /services/ai repaints a full-viewport WebGL canvas every frame, which is
   // the one kind of content a backdrop-filter can never cache. Skip it there.
   const lionRoute = pathname.startsWith("/services/ai");
@@ -41,10 +40,8 @@ export default function BottomBlur() {
       document.getElementById("footer-marquee");
     const onScroll = () => {
       const reveal = footer?.offsetHeight ?? 160;
-      const dist = inverse
-        ? window.scrollY
-        : document.documentElement.scrollHeight -
-          (window.scrollY + window.innerHeight);
+      const dist = document.documentElement.scrollHeight -
+        (window.scrollY + window.innerHeight);
       setHidden(dist <= reveal);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -54,7 +51,7 @@ export default function BottomBlur() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [inverse]);
+  }, []);
 
   if (lionRoute) return null;
 

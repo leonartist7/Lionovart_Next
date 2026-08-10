@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 // Cloudinary (same account as rest of site) â€” f_auto/q_auto/w_900 for CWV-friendly delivery.
 const C = "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_900,c_fill,g_auto";
@@ -18,7 +17,6 @@ const SERVICES_STATIC = [
 ];
 
 export default function Services(props: any) {
-  const flow = useLandingFlow();
   const { t } = useLanguage();
 
   const eyebrow     = props.eyebrow      || t.services.eyebrow;
@@ -52,8 +50,7 @@ export default function Services(props: any) {
     offset: ["start start", "end end"],
   });
   useMotionValueEvent(scrollYProgress, "change", (p) => {
-    const logical = flow === "inverse" ? 1 - p : p;
-    const idx = Math.min(SERVICES.length - 1, Math.max(0, Math.floor(logical * SERVICES.length)));
+    const idx = Math.min(SERVICES.length - 1, Math.max(0, Math.floor(p * SERVICES.length)));
     setActiveIndex(idx);
   });
 
@@ -81,7 +78,7 @@ export default function Services(props: any) {
   }, [SERVICES.length]);
 
   return (
-    <section id="services" className={`relative bg-bg-surface-light flex flex-col ${flow === "inverse" ? "flex-col-reverse" : ""}`}>
+    <section id="services" className="relative bg-bg-surface-light flex flex-col">
 
       {/* â”€â”€ Section Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="mx-auto max-w-[1280px] px-4 md:px-8 pt-[60px] md:pt-[80px] pb-[40px] md:pb-[40px] lg:pb-0 flex flex-col items-center text-center">
@@ -133,9 +130,7 @@ export default function Services(props: any) {
                         if (el) {
                           const top = el.getBoundingClientRect().top + window.scrollY;
                           const perService = (el.offsetHeight / SERVICES.length);
-                          const segment = flow === "inverse"
-                            ? SERVICES.length - i - 0.5
-                            : i + 0.5;
+                          const segment = i + 0.5;
                           window.scrollTo({ top: top + segment * perService, behavior: "smooth" });
                         }
                       }}
@@ -221,7 +216,7 @@ export default function Services(props: any) {
           Vertical list â€” IntersectionObserver activates each item.
           Active item expands: description â†’ tags â†’ image.
       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
-      <div className={`lg:hidden mx-auto w-full max-w-[640px] px-4 md:px-8 pb-[80px] ${flow === "inverse" ? "flex flex-col-reverse" : ""}`}>
+      <div className="lg:hidden mx-auto w-full max-w-[640px] px-4 md:px-8 pb-[80px]">
         {SERVICES.map((s: any, i: number) => {
           const isActive = i === activeIndex;
           return (

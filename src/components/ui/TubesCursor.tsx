@@ -69,7 +69,7 @@ export default function TubesCursor({
   const attraction = useTrailAttraction();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const appRef = useRef<TubesApp | null>(null);
-  const isLandingRoute = pathname === "/" || pathname.startsWith("/inverse");
+  const isLandingRoute = pathname === "/";
   // /services/ai runs its own full-viewport WebGL canvas. Two stacked
   // mix-blend-screen contexts wash each other out, and this component
   // randomizes its palette on every document click, which would fight the

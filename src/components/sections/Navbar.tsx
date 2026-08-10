@@ -15,7 +15,6 @@ import { getWhatsAppUrl } from "@/lib/contact";
 import { MenuBurgerLottie } from "@/components/ui/menu-burger-lottie";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 /** Pixels to clear the fixed navbar when scrolling to a section. */
 const SCROLL_OFFSET = -88;
@@ -85,7 +84,6 @@ const SERVICE_ITEM_VARIANTS = {
 };
 
 export default function Navbar() {
-  const flow = useLandingFlow();
   const [isPastHero, setIsPastHero] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [heroThreshold, setHeroThreshold] = useState(600);
@@ -105,12 +103,7 @@ export default function Navbar() {
   const scrollToTarget = (target: string) => {
     const el = document.querySelector<HTMLElement>(`[data-nova-section="${target}"], #${target}`);
     if (!el) return;
-    if (lenis?.scrollTo && flow === "inverse") {
-      const top = el.getBoundingClientRect().top + window.scrollY;
-      const startFromBottom = top + el.offsetHeight - window.innerHeight;
-      lenis.scrollTo(Math.max(0, startFromBottom), { force: true });
-      window.history.replaceState(null, "", `#${target}`);
-    } else if (lenis?.scrollTo) lenis.scrollTo(el, { offset: SCROLL_OFFSET });
+    if (lenis?.scrollTo) lenis.scrollTo(el, { offset: SCROLL_OFFSET });
     else el.scrollIntoView({ behavior: "smooth", block: "start" });
     setIsMobileOpen(false);
     setMobileExpertiseOpen(false);
@@ -207,14 +200,11 @@ export default function Navbar() {
   }, []);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
-    const logicalLatest = flow === "inverse"
-      ? Math.max(0, (lenis?.limit ?? latest) - latest)
-      : latest;
     const prev = lastScrollRef.current;
-    const delta = logicalLatest - prev;
-    lastScrollRef.current = logicalLatest;
+    const delta = latest - prev;
+    lastScrollRef.current = latest;
 
-    setIsPastHero(logicalLatest > heroThreshold);
+    setIsPastHero(latest > heroThreshold);
 
     // Close mobile menu on any scroll â‰¥ 5px â€” unless a recent language change
     // is reflowing the page (which would otherwise close it spuriously).
@@ -231,10 +221,10 @@ export default function Navbar() {
     if (delta > 0) {
       // Scrolling down â†’ hide; keep tracking the lowest position
       if (isVisibleRef.current) setNavVisible(false);
-      hideAtRef.current = logicalLatest;
+      hideAtRef.current = latest;
     } else if (delta < 0) {
       // Scrolling up â†’ restore once user moves â‰¥15 px upward
-      if (!isVisibleRef.current && hideAtRef.current - logicalLatest >= 15) {
+      if (!isVisibleRef.current && hideAtRef.current - latest >= 15) {
         setNavVisible(true);
       }
     }
