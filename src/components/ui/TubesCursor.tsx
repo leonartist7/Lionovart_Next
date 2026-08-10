@@ -70,7 +70,13 @@ export default function TubesCursor({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const appRef = useRef<TubesApp | null>(null);
   const isLandingRoute = pathname === "/" || pathname.startsWith("/inverse");
-  const hidden = layer === "global" && isLandingRoute;
+  // /services/ai runs its own full-viewport WebGL canvas. Two stacked
+  // mix-blend-screen contexts wash each other out, and this component
+  // randomizes its palette on every document click, which would fight the
+  // brand recolor on the one page where the palette is the point. Continuity
+  // is carried there by the palette instead (the lion uses these same colors).
+  const isLionRoute = pathname.startsWith("/services/ai");
+  const hidden = layer === "global" && (isLandingRoute || isLionRoute);
 
   useEffect(() => {
     if (hidden || typeof window === "undefined") return;

@@ -23,7 +23,11 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 export default function BottomBlur() {
-  const inverse = usePathname() === "/inverse";
+  const pathname = usePathname();
+  const inverse = pathname === "/inverse";
+  // /services/ai repaints a full-viewport WebGL canvas every frame, which is
+  // the one kind of content a backdrop-filter can never cache. Skip it there.
+  const lionRoute = pathname.startsWith("/services/ai");
   const [hidden, setHidden] = useState(false);
 
   // The homepage curtain footer is `sticky bottom-0`, so it geometrically sits at the
@@ -51,6 +55,8 @@ export default function BottomBlur() {
       window.removeEventListener("resize", onScroll);
     };
   }, [inverse]);
+
+  if (lionRoute) return null;
 
   return (
     <div
