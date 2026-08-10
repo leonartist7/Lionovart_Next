@@ -69,7 +69,7 @@ export default function TubesCursor({
   const attraction = useTrailAttraction();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const appRef = useRef<TubesApp | null>(null);
-  const isLandingRoute = pathname === "/" || pathname.startsWith("/inverse");
+  const isLandingRoute = pathname === "/";
   const hidden = layer === "global" && isLandingRoute;
 
   useEffect(() => {

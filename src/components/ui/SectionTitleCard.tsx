@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import { animate, createScope, onScroll } from "animejs";
-import { useLandingFlow } from "@/contexts/LandingFlowContext";
 
 interface Props {
   /** The single word that defines what's coming next. Add a trailing "." for the Lacquer Red accent. */
@@ -38,7 +37,6 @@ export function SectionTitleCard({
   height = "38vh",
   fontSize = "clamp(7rem, 22vw, 22rem)",
 }: Props) {
-  const flow = useLandingFlow();
   const isLight = theme === "light";
   const surface = bgClassName ?? (isLight ? "bg-bg-surface-light" : "bg-bg-dark");
   const strokeColor = isLight ? "rgba(17,17,17,0.22)" : "rgba(255,255,255,0.22)";
@@ -55,9 +53,8 @@ export function SectionTitleCard({
     const setup = () => {
       if (scope) scope.revert();
       const ww = window.innerWidth;
-      const wordW = w.offsetWidth;
-      const startX = flow === "inverse" ? -wordW : ww;
-      const endX = flow === "inverse" ? ww : -wordW;
+      const startX = ww;
+      const endX = -w.offsetWidth;
 
       scope = createScope({ root }).add(() => {
         animate(w, {
@@ -80,7 +77,7 @@ export function SectionTitleCard({
       window.removeEventListener("resize", setup);
       scope?.revert();
     };
-  }, [flow, word]);
+  }, [word]);
 
   const body = word.endsWith(".") ? word.slice(0, -1) : word;
   const hasPeriod = word.endsWith(".");

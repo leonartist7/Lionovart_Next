@@ -20,10 +20,8 @@
  */
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
 
 export default function BottomBlur() {
-  const inverse = usePathname() === "/inverse";
   const [hidden, setHidden] = useState(false);
 
   // The homepage curtain footer is `sticky bottom-0`, so it geometrically sits at the
@@ -37,10 +35,8 @@ export default function BottomBlur() {
       document.getElementById("footer-marquee");
     const onScroll = () => {
       const reveal = footer?.offsetHeight ?? 160;
-      const dist = inverse
-        ? window.scrollY
-        : document.documentElement.scrollHeight -
-          (window.scrollY + window.innerHeight);
+      const dist = document.documentElement.scrollHeight -
+        (window.scrollY + window.innerHeight);
       setHidden(dist <= reveal);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -50,7 +46,7 @@ export default function BottomBlur() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [inverse]);
+  }, []);
 
   return (
     <div

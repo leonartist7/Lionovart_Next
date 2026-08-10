@@ -1,7 +1,6 @@
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
 import { PageBuilder } from "@/components/sections/PageBuilder";
-import ExperienceSwitch from "@/components/inverse/ExperienceSwitch";
 
 export default function Home() {
   return (
@@ -11,7 +10,6 @@ export default function Home() {
         <PageBuilder />
       </main>
       <Footer variant="curtain" />
-      <ExperienceSwitch />
     </>
   );
 }
