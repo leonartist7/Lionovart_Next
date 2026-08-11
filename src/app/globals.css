@@ -595,13 +595,3 @@
   .bottom-blur { transition: none; }
   .bottom-blur__layer { --b: 6px; }
 }
-
-/* =============================================
-   PerfHud kill-switches (dev only)
-   Toggled via classes on <body> by the PerfHud.
-   ============================================= */
-body.no-bdblur,
-body.no-bdblur * {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}

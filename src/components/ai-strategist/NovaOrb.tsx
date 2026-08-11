@@ -96,19 +96,15 @@ export default function NovaOrb({
   }
 
   if (engine === "gpu" && inputAnalyser && outputAnalyser) {
+    // Reactive voice-agent pulsate — the orb breathes with Nova's own voice
+    // instead of spawning a center spark burst (that lived in the WGSL
+    // respawn logic; removed in favor of this whole-orb scale reaction).
+    const pulse = state === "speaking" ? 1 + Math.min(outputAmplitude, 1) * 0.14 : 1;
     return (
       <div className="relative w-[120px] h-[120px] flex items-center justify-center" aria-hidden>
         <div
-          className="relative w-[110px] h-[110px] rounded-full overflow-hidden"
-          style={{
-            boxShadow:
-              state === "speaking"
-                ? "0 0 44px rgba(229,25,42,0.5), inset 0 1px 1px rgba(255,255,255,0.15)"
-                : state === "listening"
-                  ? "0 0 28px rgba(229,25,42,0.3), inset 0 1px 1px rgba(255,255,255,0.12)"
-                  : "0 0 16px rgba(229,25,42,0.14), inset 0 1px 1px rgba(255,255,255,0.08)",
-            transition: "box-shadow 500ms ease",
-          }}
+          className="relative w-[110px] h-[110px] rounded-full overflow-hidden transition-transform duration-100 ease-out"
+          style={{ transform: `scale(${pulse})` }}
         >
           <NovaOrbGPU
             state={state}
@@ -133,7 +129,7 @@ export default function NovaOrb({
      listening → silk leans toward the user's voice (input amplitude)
      thinking  → tight fast inward churn — the latency window made
                  beautiful instead of dead
-     speaking  → red surges with Nova's voice (output amplitude)
+     speaking  → gold surges with Nova's voice (output amplitude)
 
    State morphs are exponentially smoothed so transitions feel organic,
    never switched. Falls back to the CSS VoiceVisualizer under
@@ -142,7 +138,7 @@ export default function NovaOrb({
    the permanent fallback tier, do not touch casually.
    ─────────────────────────────────────────────────────────────────── */
 
-const ORB_COLORS = ["#0d0d0d", "#4a0d14", "#e5192a"].map((c) => getShaderColorFromString(c));
+const ORB_COLORS = ["#2b1d04", "#c9930a", "#ffd93d"].map((c) => getShaderColorFromString(c));
 
 interface UniformTargets {
   speed: number;
@@ -154,10 +150,10 @@ interface UniformTargets {
 
 // Base character of each state — amplitude is layered on top per frame.
 const STATE_TARGETS: Record<VisualizerState, UniformTargets> = {
-  idle: { speed: 0.12, distortion: 0.32, swirl: 0.35, proportion: 0.38, scale: 1.0 },
-  listening: { speed: 0.28, distortion: 0.42, swirl: 0.4, proportion: 0.46, scale: 1.0 },
-  thinking: { speed: 0.95, distortion: 0.5, swirl: 0.9, proportion: 0.5, scale: 0.94 },
-  speaking: { speed: 0.5, distortion: 0.48, swirl: 0.5, proportion: 0.52, scale: 1.0 },
+  idle: { speed: 0.12, distortion: 0.36, swirl: 0.35, proportion: 0.62, scale: 1.0 },
+  listening: { speed: 0.28, distortion: 0.42, swirl: 0.4, proportion: 0.7, scale: 1.0 },
+  thinking: { speed: 0.95, distortion: 0.5, swirl: 0.9, proportion: 0.74, scale: 0.94 },
+  speaking: { speed: 0.5, distortion: 0.48, swirl: 0.5, proportion: 0.78, scale: 1.0 },
 };
 
 interface NovaOrbWebGLProps {
@@ -246,7 +242,7 @@ function NovaOrbWebGL({
             u_distortion: current.distortion + inAmp * 0.35 + outAmp * 0.5,
             u_swirl: current.swirl,
             u_proportion: Math.min(1, current.proportion + outAmp * 0.3),
-            u_scale: current.scale + inAmp * 0.05 + outAmp * 0.08,
+            u_scale: current.scale + inAmp * 0.05 + outAmp * 0.16,
           });
           shader.setSpeed(current.speed + outAmp * 0.4);
 
@@ -310,19 +306,8 @@ function NovaOrbWebGL({
 
   return (
     <div className="relative w-[120px] h-[120px] flex items-center justify-center" aria-hidden>
-      {/* Shader orb, circular-masked with a soft vignette edge */}
-      <div
-        className="relative w-[110px] h-[110px] rounded-full overflow-hidden"
-        style={{
-          boxShadow:
-            state === "speaking"
-              ? "0 0 44px rgba(229,25,42,0.5), inset 0 1px 1px rgba(255,255,255,0.15)"
-              : state === "listening"
-                ? "0 0 28px rgba(229,25,42,0.3), inset 0 1px 1px rgba(255,255,255,0.12)"
-                : "0 0 16px rgba(229,25,42,0.14), inset 0 1px 1px rgba(255,255,255,0.08)",
-          transition: "box-shadow 500ms ease",
-        }}
-      >
+      {/* Shader orb, circular-masked — no shadow, no background layers */}
+      <div className="relative w-[110px] h-[110px] rounded-full overflow-hidden">
         <div ref={mountRef} className="absolute inset-0" />
         {/* CSS orb shows through until (or if) the shader goes live */}
         {!live && (
@@ -334,23 +319,6 @@ function NovaOrbWebGL({
             />
           </div>
         )}
-        {/* Soft edge vignette so the silk melts into the panel */}
-        <div
-          className="absolute inset-0 rounded-full pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(0,0,0,0) 55%, rgba(0,0,0,0.55) 88%, rgba(0,0,0,0.85) 100%)",
-          }}
-        />
-        {/* Specular highlight — keeps the glassy identity of the CSS orb */}
-        <div
-          className="absolute top-[8%] left-[16%] w-[42%] h-[30%] rounded-full opacity-50 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(ellipse at center, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 70%)",
-            filter: "blur(5px)",
-          }}
-        />
       </div>
     </div>
   );

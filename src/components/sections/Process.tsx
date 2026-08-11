@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { ArrowDown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
 
@@ -10,9 +11,6 @@ type ProcessStep = {
   title: string;
   description: string;
   tag: string;
-  timeline?: string;
-  expect?: string;
-  deliver?: string;
   gain?: string;
 };
 
@@ -22,11 +20,6 @@ const STEPS_STATIC = [
     description:
       "A deep read of who you are — market, voice, ambition. We ask the questions most agencies skip.",
     tag: "Foundation",
-    timeline: "Week 1–2",
-    expect:
-      "A deep read of who you are — market, voice, ambition. We ask the questions most agencies skip.",
-    deliver:
-      "Logo system, typography, colour, brand book, elevated print & packaging.",
     gain: "A brand people recognise before they read the name.",
   },
   {
@@ -34,11 +27,6 @@ const STEPS_STATIC = [
     description:
       "We take the channels that look inherited and make them unmistakably yours.",
     tag: "Design",
-    timeline: "Week 3–4",
-    expect:
-      "We take the channels that look inherited and make them unmistakably yours.",
-    deliver:
-      "Profile architecture, content pillars, templates, scroll-stopping creative.",
     gain: "Social that reads as authority, not activity.",
   },
   {
@@ -46,19 +34,12 @@ const STEPS_STATIC = [
     description:
       "We map where growth leaks and close the gaps with systems that run without you.",
     tag: "Execution",
-    timeline: "Week 5–6",
-    expect:
-      "We map where growth leaks and close the gaps with systems that run without you.",
-    deliver: "Funnels, automation, CRM wiring, reporting that stays readable.",
     gain: "Growth that runs whether or not you're watching.",
   },
   {
     title: "Confidence",
     description: "The full handover. Nothing gatekept, nothing locked behind us.",
     tag: "Growth",
-    timeline: "Handover",
-    expect: "The full handover. Nothing gatekept, nothing locked behind us.",
-    deliver: "Brand guidelines, the full asset library, team training.",
     gain: "You share your brand anywhere, without hesitating.",
   },
 ];
@@ -68,12 +49,13 @@ const GOLD = "#f0c917";
 const INK = "#141414";
 const INK_MUTED = "#5a5550";
 const EASE = [0.16, 1, 0.3, 1] as const;
+const POP = { type: "spring", stiffness: 300, damping: 20 } as const;
 
 /** Sequence timing (ms). The gaps between nodes are the point — don't tighten them. */
 const T_WIPE_START = 200;
 const T_WIPE = 650;
 const T_LINE_START = 750;
-const T_LINE = 3600;
+const T_LINE = 2800;
 
 const nodeDelay = (i: number, count: number) =>
   T_LINE_START + T_LINE * ((i + 0.5) / count);
@@ -88,15 +70,7 @@ export default function Process(props: any) {
   const heading = props.heading || t.process.heading;
   const headingAccent = props.headingAccent || t.process.headingAccent;
 
-  const {
-    triggerLabel,
-    triggerSub,
-    expectLabel,
-    deliverLabel,
-    gainLabel,
-    cta: ctaLabel,
-    ctaSub,
-  } = t.process;
+  const { triggerLabel, cta: ctaLabel, ctaSub } = t.process;
 
   const steps: ProcessStep[] =
     props.steps && props.steps.length > 0
@@ -123,6 +97,8 @@ export default function Process(props: any) {
       circle never has to cover the taller layout the final reveal creates. */
   const [settled, setSettled] = useState(false);
   const [flash, setFlash] = useState(false);
+  /** Which card is mid-pop, for the gold burst behind it. Only one at a time. */
+  const [cardFlash, setCardFlash] = useState<number | null>(null);
   /** Wipe circle geometry, measured from the trigger at click time. */
   const [wipe, setWipe] = useState<{ x: number; y: number; r: number } | null>(
     null
@@ -169,7 +145,10 @@ export default function Process(props: any) {
     push(() => setFlash(true), T_WIPE_START);
     push(() => setFlash(false), T_WIPE_START + 260);
     steps.forEach((_, i) => {
-      push(() => setStage(i + 1), nodeDelay(i, steps.length));
+      const at = nodeDelay(i, steps.length);
+      push(() => setStage(i + 1), at);
+      push(() => setCardFlash(i), at);
+      push(() => setCardFlash(null), at + 320);
     });
     push(() => setStage(steps.length + 1), T_LINE_START + T_LINE + 300);
   }, [started, reduce, steps]);
@@ -245,7 +224,7 @@ export default function Process(props: any) {
         />
       )}
 
-      <div className="relative z-10 mx-auto max-w-6xl">
+      <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center">
         {/* ── Header ── */}
         <div className="flex flex-col items-center text-center">
           <p
@@ -269,11 +248,11 @@ export default function Process(props: any) {
           </div>
         </div>
 
-        {/* ── Trigger ── */}
+        {/* ── Trigger — a big circle and an arrow ── */}
         <motion.div
           className="relative flex flex-col items-center justify-center overflow-hidden"
           initial={false}
-          animate={{ height: started ? 24 : 132, marginTop: started ? 8 : 40 }}
+          animate={{ height: started ? 24 : 224, marginTop: started ? 8 : 48 }}
           transition={{ duration: reduce ? 0 : 0.45, delay: reduce ? 0 : 0.2, ease: EASE }}
         >
           <AnimatePresence>
@@ -287,7 +266,8 @@ export default function Process(props: any) {
                   ref={triggerRef}
                   type="button"
                   onClick={run}
-                  className="group relative grid h-[104px] w-[104px] place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-4"
+                  aria-label={triggerLabel}
+                  className="group relative grid h-[160px] w-[160px] place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-4"
                   style={{ color: RED }}
                 >
                   <svg
@@ -315,15 +295,17 @@ export default function Process(props: any) {
                       className="[stroke-dasharray:1] [stroke-dashoffset:1] transition-[stroke-dashoffset] duration-[600ms] ease-out group-hover:[stroke-dashoffset:0] group-focus-visible:[stroke-dashoffset:0]"
                     />
                   </svg>
-                  <span className="max-w-[70px] font-clash text-[12px] font-bold uppercase leading-[1.15] tracking-[0.12em]">
-                    {triggerLabel}
-                  </span>
+                  <ArrowDown
+                    aria-hidden
+                    className="h-9 w-9 transition-transform duration-300 group-hover:translate-y-1"
+                    strokeWidth={2.25}
+                  />
                 </button>
                 <p
-                  className="mt-5 font-body text-[13px]"
-                  style={{ color: textMuted }}
+                  className="mt-6 max-w-[16ch] text-center font-clash text-[13px] font-bold uppercase leading-snug tracking-[0.14em]"
+                  style={{ color: RED }}
                 >
-                  {triggerSub}
+                  {triggerLabel}
                 </p>
               </motion.div>
             )}
@@ -334,9 +316,9 @@ export default function Process(props: any) {
             {flash && (
               <motion.span
                 aria-hidden
-                className="pointer-events-none absolute h-[104px] w-[104px] rounded-full"
+                className="pointer-events-none absolute h-[160px] w-[160px] rounded-full"
                 initial={{ opacity: 0.9, scale: 1 }}
-                animate={{ opacity: 0, scale: 1.9 }}
+                animate={{ opacity: 0, scale: 1.7 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.42, ease: EASE }}
                 style={{ boxShadow: `0 0 0 2px ${GOLD}` }}
@@ -345,166 +327,130 @@ export default function Process(props: any) {
           </AnimatePresence>
         </motion.div>
 
-        {/* ── The spine + the four stages ── */}
-        <div className="relative mt-4 pl-10 md:mt-8 md:pl-16">
-          {/* Track */}
-          <div
-            aria-hidden
-            className="absolute bottom-0 left-[7px] top-0 w-px"
-            style={{ backgroundColor: hairline }}
-          />
-          {/* Travelling line */}
-          <motion.div
-            aria-hidden
-            className="absolute left-[7px] top-0 w-px origin-top"
-            initial={{ scaleY: 0 }}
-            animate={{ scaleY: started ? 1 : 0 }}
-            transition={{
-              duration: reduce ? 0 : T_LINE / 1000,
-              delay: reduce ? 0 : T_LINE_START / 1000,
-              ease: "linear",
-            }}
-            style={{ bottom: 0, backgroundColor: RED }}
-          />
+        {/* ── The center gold line + achievement cards ── */}
+        {/* Collapsed to zero height while dormant: nothing here is meant to be
+            seen until the trigger fires, so there's no faint "preview" to render
+            and no reserved void to sit on beforehand. */}
+        <motion.div
+          className="w-full overflow-hidden"
+          initial={false}
+          animate={{ height: dark ? "auto" : 0 }}
+          transition={{ duration: reduce ? 0 : 0.4, ease: EASE }}
+        >
+          <div className="relative w-full">
+            {/* Track */}
+            <div
+              aria-hidden
+              className="absolute bottom-0 left-1/2 top-0 w-px -translate-x-1/2"
+              style={{ backgroundColor: hairline }}
+            />
+            {/* Travelling line */}
+            <motion.div
+              aria-hidden
+              className="absolute left-1/2 top-0 w-px origin-top -translate-x-1/2"
+              initial={{ scaleY: 0 }}
+              animate={{ scaleY: started ? 1 : 0 }}
+              transition={{
+                duration: reduce ? 0 : T_LINE / 1000,
+                delay: reduce ? 0 : T_LINE_START / 1000,
+                ease: "linear",
+              }}
+              style={{ bottom: 0, backgroundColor: GOLD }}
+            />
 
-          <ol className="space-y-10 md:space-y-14">
-            {steps.map((step, i) => {
-              const on = unlocked(i);
-              return (
-                <li key={step.num} className="relative">
-                  {/* Node */}
-                  <motion.span
-                    aria-hidden
-                    className="absolute -left-10 top-[6px] block rounded-full md:-left-16"
-                    initial={false}
-                    animate={{
-                      backgroundColor: on ? RED : hairline,
-                      scale: on ? 1 : 0.7,
-                    }}
-                    transition={{ duration: reduce ? 0 : 0.4, ease: EASE }}
-                    style={{
-                      width: 15,
-                      height: 15,
-                      marginLeft: 0,
-                      transform: "translateX(0)",
-                    }}
-                  />
+            <ol className="relative flex flex-col items-center gap-10 py-2 md:gap-14">
+              {steps.map((step, i) => {
+                const on = unlocked(i);
+                return (
+                  <li key={step.num} className="relative flex justify-center">
+                    {/* Node — a bead on the line where it meets the card */}
+                    <motion.span
+                      aria-hidden
+                      className="absolute -top-5 left-1/2 block -translate-x-1/2 rounded-full"
+                      initial={false}
+                      animate={{ scale: on ? 1 : 0, opacity: on ? 1 : 0 }}
+                      transition={reduce ? { duration: 0 } : POP}
+                      style={{ width: 12, height: 12, backgroundColor: GOLD }}
+                    />
 
-                  <motion.div
-                    initial={false}
-                    animate={{
-                      opacity: on ? (stage === i + 1 || revealed ? 1 : 0.45) : 0.18,
-                      x: reduce ? 0 : on ? 0 : 18,
-                    }}
-                    transition={{ duration: reduce ? 0 : 0.5, ease: EASE }}
-                  >
-                    <div className="flex items-baseline gap-3">
+                    {/* The achievement card */}
+                    <motion.div
+                      className="relative w-[280px] rounded-2xl bg-white px-7 py-7 text-center sm:w-[340px] sm:px-9 sm:py-8"
+                      initial={false}
+                      animate={{
+                        scale: on ? 1 : 0.6,
+                        opacity: on ? 1 : 0,
+                        y: on ? 0 : 10,
+                      }}
+                      transition={reduce ? { duration: 0 } : POP}
+                      style={{
+                        border: `2px solid ${GOLD}`,
+                        boxShadow:
+                          "0 0 0 1px rgba(240,201,23,0.25), 0 12px 34px rgba(0,0,0,0.35)",
+                      }}
+                    >
+                      {/* Gold burst on unlock */}
+                      <AnimatePresence>
+                        {cardFlash === i && (
+                          <motion.span
+                            aria-hidden
+                            className="pointer-events-none absolute inset-0 rounded-2xl"
+                            initial={{ opacity: 0.8, scale: 1 }}
+                            animate={{ opacity: 0, scale: 1.18 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.5, ease: EASE }}
+                            style={{ boxShadow: `0 0 0 3px ${GOLD}` }}
+                          />
+                        )}
+                      </AnimatePresence>
+
                       <span
                         className="font-clash text-[13px] font-black tabular-nums"
-                        style={{ color: RED }}
+                        style={{ color: GOLD }}
                       >
                         {String(i + 1).padStart(2, "0")}
                       </span>
-                      {step.timeline && (
-                        <span
-                          className="font-body text-[11px] uppercase tracking-[0.22em]"
-                          style={{
-                            color: textMuted,
-                            transition: "color 500ms linear",
-                          }}
-                        >
-                          {step.timeline}
-                        </span>
-                      )}
-                    </div>
-
-                    <h3
-                      className="mt-1 font-clash text-[1.5rem] font-bold uppercase leading-[1.05] tracking-[-0.015em] sm:text-[2rem]"
-                      style={{ color: textMain, transition: "color 500ms linear" }}
-                    >
-                      {step.title}
-                    </h3>
-
-                    <dl className="mt-4 max-w-[52ch] space-y-2.5">
-                      {step.expect && (
-                        <div className="hidden sm:block">
-                          <dt
-                            className="font-body text-[10px] font-bold uppercase tracking-[0.24em]"
-                            style={{ color: textMuted }}
-                          >
-                            {expectLabel}
-                          </dt>
-                          <dd
-                            className="font-body text-[14px] leading-[1.55]"
-                            style={{
-                              color: textMuted,
-                              transition: "color 500ms linear",
-                            }}
-                          >
-                            {step.expect}
-                          </dd>
-                        </div>
-                      )}
-                      <div>
-                        <dt
-                          className="font-body text-[10px] font-bold uppercase tracking-[0.24em]"
-                          style={{ color: textMuted }}
-                        >
-                          {deliverLabel}
-                        </dt>
-                        <dd
-                          className="font-body text-[14px] leading-[1.55]"
-                          style={{
-                            color: textMuted,
-                            transition: "color 500ms linear",
-                          }}
-                        >
-                          {step.deliver ?? step.description}
-                        </dd>
-                      </div>
+                      <h3
+                        className="mt-1 font-clash text-[1.4rem] font-bold uppercase leading-[1.05] tracking-[-0.01em] sm:text-[1.7rem]"
+                        style={{ color: INK }}
+                      >
+                        {step.title}
+                      </h3>
                       {step.gain && (
-                        <div>
-                          <dt
-                            className="font-body text-[10px] font-bold uppercase tracking-[0.24em]"
-                            style={{ color: textMuted }}
-                          >
-                            {gainLabel}
-                          </dt>
-                          <dd
-                            className="font-clash text-[15px] font-bold leading-[1.35] sm:text-[17px]"
-                            style={{ color: RED }}
-                          >
-                            {step.gain}
-                          </dd>
-                        </div>
+                        <p
+                          className="mx-auto mt-2 max-w-[26ch] font-body text-[13px] leading-[1.5] sm:text-[14px]"
+                          style={{ color: INK_MUTED }}
+                        >
+                          {step.gain}
+                        </p>
                       )}
-                    </dl>
-                  </motion.div>
-                </li>
-              );
-            })}
-          </ol>
-        </div>
+                    </motion.div>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        </motion.div>
 
         {/* ── Final reveal — the line becomes the stem of the "i" ── */}
         {/* Collapsed to zero height while dormant, so the section doesn't sit on a
             few hundred px of reserved void before anyone triggers it. */}
         <motion.div
-          className="overflow-hidden"
+          className="w-full overflow-hidden"
           initial={false}
           animate={{ height: revealed ? "auto" : 0 }}
           transition={{ duration: reduce ? 0 : 0.6, ease: EASE }}
         >
           <div className="mt-16 flex flex-col items-center text-center md:mt-20">
             <motion.div
-            className="flex flex-col items-center"
-            initial={false}
-            /* inert keeps the CTA out of the tab order while it's still invisible */
-            inert={!revealed}
-            animate={{ opacity: revealed ? 1 : 0, y: revealed || reduce ? 0 : 14 }}
-            transition={{ duration: reduce ? 0.2 : 0.6, ease: EASE }}
-          >
-              {/* The dot and stem of the "i" — solid brand red. Kept as flat marks
+              className="flex flex-col items-center"
+              initial={false}
+              /* inert keeps the CTA out of the tab order while it's still invisible */
+              inert={!revealed}
+              animate={{ opacity: revealed ? 1 : 0, y: revealed || reduce ? 0 : 14 }}
+              transition={{ duration: reduce ? 0.2 : 0.6, ease: EASE }}
+            >
+              {/* The dot and stem of the "i" — solid gold. Kept as flat marks
                   rather than the lion artwork so it stays crisp at this size. */}
               <motion.span
                 aria-hidden
@@ -512,7 +458,7 @@ export default function Process(props: any) {
                 initial={false}
                 animate={{ scale: revealed ? 1 : 0.4 }}
                 transition={{ duration: reduce ? 0.2 : 0.5, ease: EASE }}
-                style={{ width: 46, height: 46, backgroundColor: RED }}
+                style={{ width: 46, height: 46, backgroundColor: GOLD }}
               />
               <motion.span
                 aria-hidden
@@ -528,31 +474,31 @@ export default function Process(props: any) {
                   transformOrigin: "top center",
                   width: 14,
                   height: 64,
-                  backgroundColor: RED,
+                  backgroundColor: GOLD,
                 }}
               />
 
-            <p
-              className="mt-8 text-[11px] font-bold uppercase tracking-[0.3em] md:text-[13px]"
-              style={{ color: RED }}
-            >
-              {VISION_KICKER}
-            </p>
-            <h3
-              className="mt-3 font-clash text-[2rem] font-bold uppercase leading-[0.92] tracking-[-0.02em] sm:text-[2.8rem] md:text-[3.4rem]"
-              style={{ color: textMain, transition: "color 500ms linear" }}
-            >
-              Artistic <span style={{ color: RED }}>Intelligence</span>
-            </h3>
+              <p
+                className="mt-8 text-[11px] font-bold uppercase tracking-[0.3em] md:text-[13px]"
+                style={{ color: GOLD }}
+              >
+                {VISION_KICKER}
+              </p>
+              <h3
+                className="mt-3 font-clash text-[2rem] font-bold uppercase leading-[0.92] tracking-[-0.02em] sm:text-[2.8rem] md:text-[3.4rem]"
+                style={{ color: textMain, transition: "color 500ms linear" }}
+              >
+                Artistic <span style={{ color: GOLD }}>Intelligence</span>
+              </h3>
 
-            {/* The ask — they just watched stage 01 unlock, so offer them the real one */}
-            <a
-              href="#closing-cta"
-              className="mt-9 inline-flex items-center rounded-full px-9 py-4 font-clash text-[13px] font-bold uppercase tracking-[0.16em] text-white outline-none transition-transform duration-300 hover:scale-[1.04] focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2"
-              style={{ backgroundColor: RED }}
-            >
-              {ctaLabel}
-            </a>
+              {/* The ask — they just watched stage 01 unlock, so offer them the real one */}
+              <a
+                href="#closing-cta"
+                className="mt-9 inline-flex items-center rounded-full px-9 py-4 font-clash text-[13px] font-bold uppercase tracking-[0.16em] outline-none transition-transform duration-300 hover:scale-[1.04] focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2"
+                style={{ backgroundColor: GOLD, color: INK }}
+              >
+                {ctaLabel}
+              </a>
               <p className="mt-4 font-body text-[13px]" style={{ color: textMuted }}>
                 {ctaSub}
               </p>

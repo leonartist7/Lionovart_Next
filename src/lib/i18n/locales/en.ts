@@ -92,7 +92,7 @@ export const en = {
     heading: "From Unknown To",
     headingAccent: "Unmistakable",
     scrollHint: "scroll to advance →",
-    triggerLabel: "Run the process",
+    triggerLabel: "Click to see the process",
     triggerSub: "60 seconds. See exactly what you get.",
     expectLabel: "Expect",
     deliverLabel: "You get",

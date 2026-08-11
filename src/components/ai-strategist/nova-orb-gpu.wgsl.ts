@@ -5,8 +5,9 @@
  * like embers and drifting ash off a low fire, occasionally sparking upward
  * like a mane catching wind. Figurative, not literal — no lion shape, no
  * fire shape, just ember physics (buoyant drift, coherent wander, occasional
- * fast streak) in a strict 3-stop heat gradient (near-black → brand-red →
- * brand-gold-as-highlight-only) on transparent black.
+ * fast streak) in a strict 3-stop gold heat gradient (near-black → deep
+ * bronze → bright brand-gold) on a fully transparent canvas — gold only,
+ * no red.
  *
  * Particle struct (32 bytes, matches the JS-side layout in NovaOrbGPU.tsx):
  *   pos: vec2f, vel: vec2f, age: f32, ttl: f32, heat: f32, seed: f32
@@ -93,30 +94,26 @@ ${SHARED_STRUCTS}
 @group(0) @binding(1) var<storage, read_write> particlesOut: array<Particle>;
 @group(0) @binding(2) var<uniform> u: Uniforms;
 
+const RING_R: f32 = 0.58;
+
 fn respawn(p: ptr<function, Particle>, i: u32) {
   let h1 = hash21(vec2f(f32(i), u.time));
   let h2 = hash21(vec2f(u.time, f32(i)) + vec2f(7.0, 3.0));
   (*p).seed = h1;
   (*p).age = 0.0;
 
-  // Speaking + a real onset (attack > 0.08, per spec) spawns a spark at the
-  // core with a radial kick. Otherwise: the base ring, low, near the
-  // bottom — embers rising off a low fire.
-  if (u.stateSpeak > 0.5 && u.attack > 0.08) {
-    let ang = h2 * 6.2831853;
-    let dir = vec2f(cos(ang), sin(ang));
-    (*p).pos = dir * 0.03;
-    (*p).vel = dir * (1.2 + 2.5 * u.attack);
-    (*p).heat = 0.9;
-    (*p).ttl = 0.5 + 0.4 * h1;
-  } else {
-    let x = (h1 - 0.5) * 0.85;
-    let y = -0.82 + (h2 - 0.5) * 0.08;
-    (*p).pos = vec2f(x, y);
-    (*p).vel = vec2f((h2 - 0.5) * 0.15, 0.15 + 0.1 * h1);
-    (*p).heat = 0.15 + 0.1 * h2;
-    (*p).ttl = 3.0 + 2.5 * h1;
-  }
+  // Ring spawn only — born already orbiting, not rising from one source.
+  // Speaking no longer spawns a center spark burst; voice reactivity comes
+  // from the whole-orb pulsate scale (see NovaOrb.tsx) instead.
+  let ang = h2 * 6.2831853;
+  let r = RING_R + (h1 - 0.5) * 0.1; // band: 0.53–0.63, tightened for fewer particles
+  let dir = vec2f(cos(ang), sin(ang));        // outward radial
+  let tan = vec2f(-dir.y, dir.x);             // fixed CCW handedness
+
+  (*p).pos = r * dir;
+  (*p).vel = tan * (0.55 + 0.3 * h1) + dir * (h2 - 0.5) * 0.06;
+  (*p).heat = 0.28 + 0.12 * h2;
+  (*p).ttl = 3.0 + 2.5 * h1;
 }
 
 @compute @workgroup_size(256)
@@ -135,26 +132,30 @@ fn cs_main(@builtin(global_invocation_id) gid: vec3u) {
     return;
   }
 
-  // Buoyancy — constant upward drift (this IS "up": +y in this local space).
-  let buoyancy = 0.35 + 0.15 * u.stateListen + 0.05 * u.stateSpeak;
-  var accel = vec2f(0.0, buoyancy);
-
-  // Coherent wander — the difference between "living" and "jittery".
-  let wander = curlFbm(p.pos * 1.6 + vec2f(0.0, u.time * 0.15), p.seed);
-  accel += wander * (0.5 + 0.3 * u.stateIdle);
-
   let distC = length(p.pos) + 1e-4;
-  let toCenter = -p.pos / distC;
+  let outward = p.pos / distC;
 
-  // Listening — gentle centripetal pull, "leaning in to hear you".
-  accel += toCenter * (0.35 * u.stateListen);
+  // Target ring radius — one topology, state only changes the number.
+  var targetR = RING_R;
+  targetR -= 0.12 * u.stateThink;              // tighter, faster vortex
+  targetR -= 0.05 * u.stateListen;             // leaning in
+  targetR += 0.05 * u.amp * u.stateSpeak;      // breathing with voice energy
 
-  // Thinking — the one state allowed to look distinctly different: a tight,
-  // fast vortex (tangential + centripetal), the latency window made
-  // beautiful instead of dead.
+  // Radial spring — keeps drift legible as a ring, not a rigid cage.
+  let springK = 1.1 + 1.4 * u.stateThink + 0.3 * u.stateListen;
+  var accel = outward * (targetR - distC) * springK;
+
+  // Tangential orbit — fixed handedness always; states only scale speed.
   let tangent = vec2f(-p.pos.y, p.pos.x) / distC;
-  accel += tangent * (1.8 * u.stateThink);
-  accel += toCenter * (0.9 * u.stateThink);
+  let tangentSpeed = 0.9 + 1.6 * u.stateThink - 0.15 * u.stateListen
+      + 0.4 * u.stateSpeak * (0.5 + 0.5 * u.amp);
+  accel += tangent * tangentSpeed;
+
+  // Coherent wander — the difference between "living" and "jittery",
+  // toned down so the ring stays legible; a bit more freedom at idle,
+  // reeled in during the tight thinking vortex.
+  let wander = curlFbm(p.pos * 1.6 + vec2f(0.0, u.time * 0.15), p.seed);
+  accel += wander * (0.35 + 0.15 * u.stateIdle) * (1.0 - 0.35 * u.stateThink);
 
   p.vel = p.vel * (1.0 - 1.6 * u.dt) + accel * u.dt;
   p.pos += p.vel * u.dt;
@@ -162,7 +163,7 @@ fn cs_main(@builtin(global_invocation_id) gid: vec3u) {
   // Heat: attacks/thinking spike it (sparks, the vortex stoking the fire),
   // sustained amplitude brightens rather than agitates, edges dim softly —
   // nothing has a hard boundary.
-  var targetHeat = 0.25 + 0.35 * u.stateThink + 0.3 * u.amp * u.stateSpeak;
+  var targetHeat = 0.34 + 0.08 * u.stateListen + 0.35 * u.stateThink + 0.3 * u.amp * u.stateSpeak;
   targetHeat -= 0.15 * clamp(distC - 0.5, 0.0, 1.0);
   p.heat += (targetHeat - p.heat) * clamp(u.dt * 4.0, 0.0, 1.0);
 
@@ -193,9 +194,9 @@ fn vs_main(@builtin(vertex_index) vIdx: u32, @builtin(instance_index) iIdx: u32)
   let corner = QUAD[vIdx];
 
   // Instanced quad, not point-list — WebGPU has no point-size. Quad size in
-  // physical px (~1.5-3px) scales with heat so hot particles read slightly
-  // larger, not just brighter.
-  let pxSize = mix(1.5, 3.0, clamp(p.heat, 0.0, 1.0));
+  // physical px (~2.5-5.5px) scales with heat so hot particles read larger,
+  // not just brighter.
+  let pxSize = mix(2.5, 5.5, clamp(p.heat, 0.0, 1.0));
   let clipSize = vec2f(pxSize / u.canvasPx.x, pxSize / u.canvasPx.y) * 2.0;
 
   var out: VSOut;
@@ -208,22 +209,26 @@ fn vs_main(@builtin(vertex_index) vIdx: u32, @builtin(instance_index) iIdx: u32)
 @fragment
 fn fs_main(in: VSOut) -> @location(0) vec4f {
   let d = length(in.uv);
-  let falloff = smoothstep(1.0, 0.0, d); // soft radial, no texture
+  // Bright core + soft outer halo within the same quad — cheap per-particle
+  // glow, no extra draw calls or bloom pass.
+  let core = smoothstep(0.55, 0.0, d);
+  let halo = smoothstep(1.0, 0.0, d) * 0.4;
+  let falloff = clamp(core + halo, 0.0, 1.0);
   let heat = clamp(in.heat, 0.0, 1.0);
 
-  // Strict 3-stop heat gradient — gold is a highlight, never a base color.
-  let emberBase = vec3f(0.102, 0.020, 0.020); // #1a0505
-  let brandRed = vec3f(0.898, 0.098, 0.165);  // #e5192a
-  let brandGold = vec3f(0.941, 0.788, 0.090); // #f0c917
+  // Strict 3-stop gold heat gradient — no red anywhere in the ramp.
+  let emberBase = vec3f(0.05, 0.04, 0.02);  // near-black, warm dark
+  let deepGold = vec3f(0.55, 0.38, 0.05);   // deep bronze mid-tone
+  let brightGold = vec3f(0.941, 0.788, 0.090); // #f0c917
 
   var color: vec3f;
   if (heat < 0.55) {
-    color = mix(emberBase, brandRed, heat / 0.55);
+    color = mix(emberBase, deepGold, heat / 0.55);
   } else {
-    color = mix(brandRed, brandGold, (heat - 0.55) / 0.45);
+    color = mix(deepGold, brightGold, (heat - 0.55) / 0.45);
   }
 
-  let alpha = falloff * (0.15 + 0.5 * heat);
+  let alpha = min(falloff * (0.32 + 0.55 * heat), 0.95);
   return vec4f(color * alpha, alpha);
 }
 `;

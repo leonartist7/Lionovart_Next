@@ -1,4 +1,5 @@
 steps:
+  # Master redeploy marker: rebuild the current source for Cloud Build trigger history.
   # Step 1: Build the Docker image
   # - NEXT_PUBLIC_* vars are hardcoded here (they're not sensitive)
   # - Secrets from Secret Manager are accessed via secretEnv (double-$$ syntax)

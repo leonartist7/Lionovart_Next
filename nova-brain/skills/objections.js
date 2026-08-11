@@ -1,6 +1,4 @@
-import type { NovaSkill } from "./index";
-
-export const OBJECTIONS_SKILL: NovaSkill = {
+const OBJECTIONS_SKILL = {
   id: "objections",
   title: "Objection handling & investment framing",
   triggers:
@@ -71,3 +69,5 @@ Do not celebrate. No "Great!" — just flow forward naturally into the next ques
 ### TRACKING
 The moment you recognize which objection you're handling — before or while you respond — silently call flag_objection with its type: price, needs-time, has-agency, diy, no-time, ai-trust, past-failure, send-info, or too-small. One call per objection, silent, never mentioned. Also include it in painpoints/notes when you save lead data — which objections came up and whether they resolved is gold for Leon's follow-up.`,
 };
+
+module.exports = { OBJECTIONS_SKILL };

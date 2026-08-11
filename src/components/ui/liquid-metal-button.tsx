@@ -303,6 +303,7 @@ export function LiquidMetalButton({
 
           <button
             ref={buttonRef}
+            data-cta-target
             onClick={handleClick}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}

@@ -1,6 +1,4 @@
-import type { NovaSkill } from "./index";
-
-export const FAQ_SKILL: NovaSkill = {
+const FAQ_SKILL = {
   id: "faq",
   title: "Answering questions about LIONOVART",
   triggers:
@@ -35,3 +33,5 @@ Never bluff. "That one's genuinely Leon territory — I'd rather he give you the
 ### The demo answer
 If they ask about the AI/voice-agent service specifically: you ARE the case study. "Fair warning, I'm biased — I'm the product. But everything I'm doing with you right now — greeting, qualifying, booking — is what we build for partners' businesses. Imagine me answering your customers at two a.m."`,
 };
+
+module.exports = { FAQ_SKILL };

@@ -81,6 +81,12 @@ async function updateLeadByContact(contact: string, fields: Record<string, unkno
 }
 
 const handlers: Record<string, ToolHandler> = {
+  // Deliberately shallow: `contact` is caller-supplied and unverified — a
+  // visitor can simply say someone else's email. Returning that lead's
+  // business snapshot, pains, or vision would hand a stranger's private
+  // discovery notes to whoever types their contact info. First name only,
+  // no dossier read. Full recall is a follow-up item gated behind a signed
+  // per-lead link (proof of possession), not a typed string.
   async fetch_user_memory(args) {
     if (!adminDb) return { body: { memory: "No past memory (Firebase not configured)." } };
     const contact = args.contact;
@@ -89,39 +95,11 @@ const handlers: Record<string, ToolHandler> = {
       if (snap.empty) {
         return { body: { memory: "This is a new user." } };
       }
-      const leadRef = snap.docs[0].ref;
       const data = snap.docs[0].data();
-
-      // A dossier — if one exists from a prior conversation — gives Nova
-      // genuine continuity (persona, pains, what mattered) instead of a bare
-      // name-and-project recap. Falls back to raw lead fields when none
-      // exists yet (first-ever repeat visit, before any dossier has run).
-      const dossierSnap = await leadRef
-        .collection("dossiers")
-        .orderBy("created_at", "desc")
-        .limit(1)
-        .get()
-        .catch(() => null);
-
-      if (dossierSnap && !dossierSnap.empty) {
-        const d = dossierSnap.docs[0].data();
-        const topPain = Array.isArray(d.pains_ranked) && d.pains_ranked.length > 0 ? d.pains_ranked[0] : null;
-        const memory = [
-          `[USER_MEMORY] Returning partner: ${data.name}.`,
-          `Business: ${data.business_type || "Unknown"}.`,
-          d.business_snapshot ? `Where things stood: ${d.business_snapshot}` : null,
-          topPain ? `Their top pain last time: ${topPain}` : null,
-          d.whats_changed_since_last_time ? `What changed since then: ${d.whats_changed_since_last_time}` : null,
-          `Reference this naturally and specifically — never recite it as a list, never say "according to my notes."`,
-        ]
-          .filter(Boolean)
-          .join(" ");
-        return { body: { memory } };
-      }
-
+      const firstName = (data.name || "").toString().trim().split(/\s+/)[0] || "there";
       return {
         body: {
-          memory: `[USER_MEMORY] Returning partner: ${data.name}. Last project: ${data.project_summary}. Business: ${data.business_type || "Unknown"}.`,
+          memory: `[USER_MEMORY] Returning visitor, first name: ${firstName}. Greet them warmly by name. Do not reference past projects, pains, or business details — this match is on contact info alone and isn't verified identity.`,
         },
       };
     } catch (err) {
@@ -433,21 +411,6 @@ const handlers: Record<string, ToolHandler> = {
     } catch (err) {
       console.error("enrich_business error:", err);
       return { body: { available: true, found: false, error: err instanceof Error ? err.message : String(err) } };
-    }
-  },
-
-  async detect_user_location(_args, ctx) {
-    try {
-      const ip = ctx.ip ?? "unknown";
-      if (ip === "unknown" || ip.startsWith("127.") || ip.startsWith("::1")) {
-        return { body: { country: "CA", city: "Unknown", ip } };
-      }
-      const geo = await fetch(`https://ipapi.co/${ip}/json/`, {
-        headers: { "User-Agent": "LIONOVART/1.0" },
-      }).then((r) => r.json());
-      return { body: { country: geo.country_code, city: geo.city, ip } };
-    } catch {
-      return { body: { country: "unknown" } };
     }
   },
 };
