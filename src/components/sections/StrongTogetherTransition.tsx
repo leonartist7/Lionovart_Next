@@ -1,84 +1,88 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import InkRevealArtwork, {
+  type InkRevealArtworkHandle,
+} from "@/components/sections/strong-together/InkRevealArtwork";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const HUMAN_HAND =
-  "https://res.cloudinary.com/dgio9uutc/image/upload/v1785658409/right_hand_sru02d.avif";
-const LION_PAW =
-  "https://res.cloudinary.com/dgio9uutc/image/upload/v1785658409/left_paw_xsgfna.avif";
+type TransitionMode = "ink" | "doors";
+
+const isDev = process.env.NODE_ENV !== "production";
 
 export default function StrongTogetherTransition() {
   const reduceMotion = useReducedMotion();
+  const [mode, setMode] = useState<TransitionMode>("ink");
   const sectionRef = useRef<HTMLElement>(null);
-  const leftDoorRef = useRef<HTMLDivElement>(null);
-  const rightDoorRef = useRef<HTMLDivElement>(null);
+  const artHandleRef = useRef<InkRevealArtworkHandle>(null);
+  const leftHalfRef = useRef<HTMLDivElement>(null);
+  const rightHalfRef = useRef<HTMLDivElement>(null);
   const aloneRef = useRef<HTMLHeadingElement>(null);
   const togetherRef = useRef<HTMLHeadingElement>(null);
-  const handsRef = useRef<HTMLDivElement>(null);
-  const lionRef = useRef<HTMLDivElement>(null);
-  const humanRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (
-      !sectionRef.current ||
-      !leftDoorRef.current ||
-      !rightDoorRef.current ||
-      !aloneRef.current ||
-      !togetherRef.current ||
-      !handsRef.current ||
-      !lionRef.current ||
-      !humanRef.current
-    ) {
-      return;
-    }
+    const section = sectionRef.current;
+    if (!section || !aloneRef.current || !togetherRef.current) return;
 
     const ctx = gsap.context(() => {
-      const doors = [leftDoorRef.current, rightDoorRef.current];
-
       if (reduceMotion) {
-        gsap.set(doors, { xPercent: 0 });
+        if (mode === "ink" && artHandleRef.current?.blooms.length && artHandleRef.current.art) {
+          gsap.set(artHandleRef.current.blooms, { attr: { r: (_, el) => Number(el.dataset.rFinal) } });
+          gsap.set(artHandleRef.current.art, { opacity: 1 });
+        } else if (mode === "doors" && leftHalfRef.current && rightHalfRef.current) {
+          gsap.set([leftHalfRef.current, rightHalfRef.current], { xPercent: 0, yPercent: 0 });
+        }
         gsap.set(aloneRef.current, { opacity: 0, y: 0 });
         gsap.set(togetherRef.current, { opacity: 1, y: 0 });
-        gsap.set(handsRef.current, { opacity: 1 });
-        gsap.set([lionRef.current, humanRef.current], { xPercent: 0 });
         return;
       }
 
-      gsap.set(leftDoorRef.current, { xPercent: -100 });
-      gsap.set(rightDoorRef.current, { xPercent: 100 });
-      gsap.set(aloneRef.current, { opacity: 1, y: 0 });
-      gsap.set(togetherRef.current, { opacity: 0, y: 0 });
-      gsap.set(handsRef.current, { opacity: 0 });
-      gsap.set(lionRef.current, { xPercent: -100 });
-      gsap.set(humanRef.current, { xPercent: 100 });
-
       const timeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 1,
-        },
+        scrollTrigger: { trigger: section, start: "top top", end: "bottom bottom", scrub: 1 },
       });
 
-      timeline
-        .to(leftDoorRef.current, { xPercent: 0, duration: 0.45, ease: "none" }, 0.12)
-        .to(rightDoorRef.current, { xPercent: 0, duration: 0.45, ease: "none" }, 0.12)
-        .to(aloneRef.current, { opacity: 0, duration: 0.12, ease: "none" }, 0.52)
-        .set(handsRef.current, { opacity: 1 }, 0.12)
-        .to(lionRef.current, { xPercent: 0, duration: 0.45, ease: "power3.out" }, 0.12)
-        .to(humanRef.current, { xPercent: 0, duration: 0.45, ease: "power3.out" }, 0.12)
-        .to(togetherRef.current, { opacity: 1, duration: 0.24, ease: "power4.out" }, 0.58);
+      if (mode === "ink") {
+        const handle = artHandleRef.current;
+        if (!handle || handle.blooms.length === 0 || !handle.art) return;
+        const blooms = handle.blooms;
+        const art = handle.art;
+        const [primary, ...secondaries] = blooms;
+
+        gsap.set(art, { opacity: 0.75 });
+        gsap.set(aloneRef.current, { opacity: 1, y: 0 });
+        gsap.set(togetherRef.current, { opacity: 0, y: 0 });
+
+        timeline
+          .to(primary, { attr: { r: () => Number(primary.dataset.rFinal) }, duration: 0.42, ease: "power2.inOut" }, 0.12)
+          .to(secondaries, { attr: { r: (_, el) => Number(el.dataset.rFinal) }, duration: 0.42, ease: "power2.inOut", stagger: 0.035 }, 0.15)
+          .to(art, { opacity: 1, duration: 0.3, ease: "none" }, 0.2)
+          .to(aloneRef.current, { opacity: 0, duration: 0.12, ease: "none" }, 0.48)
+          .to(togetherRef.current, { opacity: 1, duration: 0.24, ease: "power4.out" }, 0.58);
+      } else {
+        const left = leftHalfRef.current;
+        const right = rightHalfRef.current;
+        if (!left || !right) return;
+
+        gsap.set(left, { xPercent: -30, yPercent: 130 });
+        gsap.set(right, { xPercent: 30, yPercent: 130 });
+        gsap.set(aloneRef.current, { opacity: 1, y: 0 });
+        gsap.set(togetherRef.current, { opacity: 0, y: 0 });
+
+        timeline
+          .to(left, { xPercent: 0, yPercent: 0, duration: 0.46, ease: "power3.out" }, 0.12)
+          .to(right, { xPercent: 0, yPercent: 0, duration: 0.46, ease: "power3.out" }, 0.12)
+          .to(aloneRef.current, { opacity: 0, duration: 0.12, ease: "none" }, 0.52)
+          .to(togetherRef.current, { opacity: 1, duration: 0.24, ease: "power4.out" }, 0.58);
+      }
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [reduceMotion]);
+  }, [reduceMotion, mode]);
 
   return (
     <section
@@ -86,51 +90,47 @@ export default function StrongTogetherTransition() {
       aria-labelledby="strong-together-title"
       className="relative h-[220vh] overflow-visible bg-[#0d0d0d]"
     >
-      {/* Keep the artwork inside the transition viewport so it can never bleed through the next marquee. */}
-      <div className="sticky top-0 min-h-[100dvh] overflow-hidden bg-[#f2ede3]">
-        <div className="absolute inset-0 bg-[#0d0d0d]" />
-
-        <div
-          ref={handsRef}
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-[45%] z-[4] h-[70%] opacity-0 md:top-[42%] md:h-[72%]"
-        >
-          <div
-            ref={lionRef}
-            className="absolute left-[-22%] top-0 h-full w-[76%] md:left-[-8%] md:w-[58%]"
-          >
-            <Image
-              src={LION_PAW}
-              alt=""
-              fill
-              sizes="(max-width: 768px) 76vw, 58vw"
-              className="object-contain object-right mix-blend-multiply"
+      <div className="sticky top-0 min-h-[100dvh] overflow-hidden bg-[#0d0d0d]">
+        {mode === "ink" ? (
+          <div className="pointer-events-none absolute inset-0 z-[4]" aria-hidden="true">
+            <InkRevealArtwork
+              ref={artHandleRef}
+              reducedMotion={!!reduceMotion}
+              className="h-full w-full"
             />
           </div>
-          <div
-            ref={humanRef}
-            className="absolute right-[-22%] top-0 h-full w-[76%] md:right-[-8%] md:w-[58%]"
-          >
-            <Image
-              src={HUMAN_HAND}
-              alt=""
-              fill
-              sizes="(max-width: 768px) 76vw, 58vw"
-              className="object-contain object-left mix-blend-multiply"
-            />
+        ) : (
+          <div className="pointer-events-none absolute inset-0 z-[4]" aria-hidden="true">
+            <div
+              ref={leftHalfRef}
+              className="absolute left-0 top-0 z-[1] h-full w-1/2 overflow-hidden bg-[#f2ede3]"
+            >
+              <div className="absolute inset-0">
+                <Image
+                  src="/images/pawnl.png"
+                  alt=""
+                  fill
+                  sizes="50vw"
+                  className="object-contain object-right mix-blend-multiply"
+                />
+              </div>
+            </div>
+            <div
+              ref={rightHalfRef}
+              className="absolute top-0 z-[2] h-full w-1/2 overflow-hidden bg-[#f2ede3] left-[calc(50%-5px)]"
+            >
+              <div className="absolute inset-0">
+                <Image
+                  src="/images/handr.png"
+                  alt=""
+                  fill
+                  sizes="50vw"
+                  className="object-contain object-left mix-blend-multiply"
+                />
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div
-          ref={leftDoorRef}
-          aria-hidden
-          className="absolute inset-y-0 left-0 z-[3] w-1/2 bg-[#f2ede3]"
-        />
-        <div
-          ref={rightDoorRef}
-          aria-hidden
-          className="absolute inset-y-0 right-0 z-[3] w-1/2 bg-[#f2ede3]"
-        />
+        )}
 
         <div className="pointer-events-none absolute inset-x-0 top-[15%] z-[5] px-6 text-center md:top-[14%] md:px-12">
           <h2
@@ -149,8 +149,18 @@ export default function StrongTogetherTransition() {
             STRONGER TOGETHER
           </h2>
         </div>
+
+        {isDev && (
+          <button
+            type="button"
+            onClick={() => setMode((m) => (m === "ink" ? "doors" : "ink"))}
+            className="absolute right-3 top-3 z-[100] flex items-center gap-1.5 rounded-full border border-[#f2ede3]/30 bg-[#171412]/90 px-3 py-1.5 text-[11px] font-medium uppercase tracking-wider text-[#f2ede3] shadow-lg backdrop-blur-sm transition-colors hover:bg-[#171412]"
+          >
+            <span className="inline-block h-2 w-2 rounded-full bg-brand-red" />
+            {mode}
+          </button>
+        )}
       </div>
     </section>
   );
 }
-
