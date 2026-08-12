@@ -86,6 +86,7 @@ const SERVICE_ITEM_VARIANTS = {
 export default function Navbar() {
   const [isPastHero, setIsPastHero] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [squareCorners, setSquareCorners] = useState(false);
   const [heroThreshold, setHeroThreshold] = useState(600);
   const [isVisible, setIsVisible] = useState(true);
   const [expertiseOpen, setExpertiseOpen] = useState(false);
@@ -99,6 +100,26 @@ export default function Navbar() {
   const services: string[] = (t.services?.items ?? []).map((s: { title: string }) => s.title);
 
   const ctaLabel = t.nav.cta;
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const isSquare = window.localStorage.getItem("lionovart-corner-style") === "square";
+      setSquareCorners(isSquare);
+      document.documentElement.dataset.cornerStyle = isSquare ? "square" : "rounded";
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  const toggleCornerStyle = () => {
+    setSquareCorners((current) => {
+      const next = !current;
+      const style = next ? "square" : "rounded";
+      document.documentElement.dataset.cornerStyle = style;
+      window.localStorage.setItem("lionovart-corner-style", style);
+      return next;
+    });
+  };
 
   const scrollToTarget = (target: string) => {
     const el = document.querySelector<HTMLElement>(`[data-nova-section="${target}"], #${target}`);
@@ -540,6 +561,34 @@ export default function Navbar() {
                 >
                   <LanguageSwitcher isHeroMode={false} />
                 </motion.div>
+
+                <motion.button
+                  type="button"
+                  onClick={toggleCornerStyle}
+                  aria-label={`Use ${squareCorners ? "rounded" : "square"} corners`}
+                  aria-pressed={squareCorners}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 6 }}
+                  transition={{ duration: 0.2, delay: (NAV_LINKS.length + 2) * 0.06 }}
+                  className="group flex items-center gap-2 border border-black/15 bg-black/[0.04] px-3 py-2 text-black/70 transition-colors hover:border-black/30 hover:bg-black/[0.08] hover:text-black"
+                >
+                  <span className="text-[10px] font-bold uppercase tracking-[0.14em]">
+                    Sharp
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className={`relative h-4 w-7 border border-black/25 bg-black/10 transition-colors ${
+                      squareCorners ? "bg-black/20" : "rounded-full"
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 bg-black transition-[left,border-radius] duration-200 ${
+                        squareCorners ? "left-[14px]" : "left-[2px] rounded-full"
+                      }`}
+                    />
+                  </span>
+                </motion.button>
 
               </nav>
             </motion.div>

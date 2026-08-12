@@ -229,6 +229,14 @@
   }
 }
 
+/* Burger-menu preview: compare the existing soft geometry with a fully sharp
+   visual system without rewriting each component's Tailwind radius utility. */
+html[data-corner-style="square"] *,
+html[data-corner-style="square"] *::before,
+html[data-corner-style="square"] *::after {
+  border-radius: 0 !important;
+}
+
 /* =============================================
    Liquid Metal Shader Canvas Utilities
    ============================================= */
