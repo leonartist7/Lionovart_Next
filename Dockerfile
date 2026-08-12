@@ -83,7 +83,11 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 # Custom server files are not bundled or dependency-traced by Next.js.
-COPY --from=builder /app/server.js /app/ws-auth.js /app/nova-agent-config.js ./
+# Keep the Nova configuration module and every one of its CJS dependencies in
+# the runtime image; otherwise Cloud Run fails on startup when
+# `nova-agent-config.js` requires `./nova-brain`.
+COPY --from=builder /app/server.js /app/ws-auth.js /app/nova-agent-config.js /app/nova-brain.js ./
+COPY --from=builder /app/nova-brain ./nova-brain
 
 # Ensure permissions are correct
 RUN chown -R nextjs:nodejs /app/.next
