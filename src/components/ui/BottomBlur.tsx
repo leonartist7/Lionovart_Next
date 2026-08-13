@@ -53,7 +53,11 @@ export default function BottomBlur() {
     };
   }, []);
 
-  if (lionRoute) return null;
+  // The homepage uses a curtain footer: the red wordmark is intentionally
+  // revealed from behind the main content at the end of the document. A
+  // fixed backdrop-filter over that reveal makes the footer look washed out
+  // on wide screens, so leave that surface untouched.
+  if (lionRoute || pathname === "/") return null;
 
   return (
     <div

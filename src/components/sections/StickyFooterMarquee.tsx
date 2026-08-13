@@ -3,11 +3,11 @@ export default function StickyFooterMarquee({ goldHorizon = false }: { goldHoriz
     <div
       id="footer-marquee"
       aria-hidden="true"
-      className="pointer-events-none relative z-0 w-full overflow-hidden py-[clamp(0.5rem,1vw,0.75rem)]"
+      className="pointer-events-none relative z-0 w-full overflow-hidden pb-[clamp(0.5rem,1vw,0.75rem)] pt-[clamp(2.25rem,5vw,4.5rem)]"
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-black/45 to-transparent"
+        className="pointer-events-none absolute inset-x-0 top-0 h-6 bg-gradient-to-b from-black/15 to-transparent"
       />
       {goldHorizon && (
         <div
