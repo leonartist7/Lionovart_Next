@@ -23,6 +23,40 @@ const PULL_DURATION   = 0.70;
 const EASE_IN  = [0.2, 0, 0.6, 1]  as const;
 const EASE_OUT = [0.20, 1, 0.3, 1] as const;
 
+function ClickToRevealHint() {
+  return (
+    <div
+      className="pointer-events-none absolute -right-[clamp(5rem,7vw,7rem)] top-[34%] z-30 hidden w-[clamp(8rem,11vw,10.5rem)] flex-col items-center gap-1 lg:flex"
+      aria-hidden="true"
+    >
+      <span className="font-clash text-[10px] font-bold uppercase tracking-[0.16em] text-[#111]">
+        Click to reveal
+      </span>
+      <motion.svg
+        width="100%"
+        height="70"
+        viewBox="0 0 96 40"
+        className="h-auto w-full overflow-visible"
+        fill="none"
+        initial={{ opacity: 0.45 }}
+        animate={{ opacity: [0.45, 1, 0.45] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <motion.path
+          d="M93.0681 3C72.3063 18.0061 57.7731 25.925 32.2716 21.1435C26.0822 19.983 15.9133 18.8754 10.945 14.459C8.12295 11.9505 3.74946 11.7165 9.24741 9.57834C13.7751 7.81753 20.3406 4.90981 25.2689 4.90981C27.0487 4.90981 9.62202 9.55411 4.26061 10.7455C-2.59384 12.2686 20.5637 33.6269 24.314 37.3771"
+          stroke="#000000"
+          strokeWidth="3"
+          strokeLinecap="round"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+        />
+      </motion.svg>
+    </div>
+  );
+}
+
+
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Single Card Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 function ProblemCard({
   item,
@@ -250,8 +284,17 @@ export default function ProblemsSolvedSection() {
               </SplitTextReveal>
             </motion.div>
 
-            {/* Cards Ã¢â‚¬â€ stacked in the narrow column */}
-            <div className="flex flex-col gap-6 md:gap-8 pb-4">
+            {/* Cards — stacked in the narrow column */}
+
+
+            <div className="relative">
+
+
+              <ClickToRevealHint />
+
+
+              <div className="flex flex-col gap-6 pb-4 md:gap-8">
+
               {items.map((item, i) => (
                 <motion.div
                   key={i}
@@ -268,6 +311,11 @@ export default function ProblemsSolvedSection() {
                   />
                 </motion.div>
               ))}
+
+
+              </div>
+
+
             </div>
           </div>
         </div>
