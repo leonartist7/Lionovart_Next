@@ -12,12 +12,17 @@ export default function InteractiveNeuralVortex() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pointer = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
   const animationFrame = useRef<number | null>(null);
+  const story = useRef({ opacity: 0, lionOpacity: 1, stream: 1, gold: 0 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext("webgl", { alpha: true, antialias: false });
+    const gl = canvas.getContext("webgl", {
+      alpha: true,
+      antialias: false,
+      premultipliedAlpha: true,
+    });
     if (!gl) return;
 
     const vertexSource = `
@@ -38,6 +43,8 @@ export default function InteractiveNeuralVortex() {
       uniform float u_ratio;
       uniform vec2 u_pointer_position;
       uniform float u_scroll_progress;
+      uniform float u_stream;
+      uniform float u_gold;
 
       vec2 rotate(vec2 uv, float angle) {
         return mat2(cos(angle), sin(angle), -sin(angle), cos(angle)) * uv;
@@ -63,6 +70,7 @@ export default function InteractiveNeuralVortex() {
       void main() {
         vec2 uv = 0.5 * vUv;
         uv.x *= u_ratio;
+        uv.y += 0.00008 * u_time * u_stream;
 
         vec2 pointer = vUv - u_pointer_position;
         pointer.x *= u_ratio;
@@ -74,9 +82,15 @@ export default function InteractiveNeuralVortex() {
         noise = max(0.0, noise - 0.5);
         noise *= 1.0 - length(vUv - 0.5);
 
+        float distanceToStream = abs(vUv.x - 0.5);
+        float streamMask = 1.0 - smoothstep(0.035, 0.18, distanceToStream);
+        float streamPulse = 0.72 + 0.42 * sin(vUv.y * 42.0 - 0.004 * u_time);
+        noise *= mix(1.0, streamMask * streamPulse, u_stream);
+
         vec3 color = vec3(0.5, 0.15, 0.65);
         color = mix(color, vec3(0.02, 0.7, 0.9), 0.32 + 0.16 * sin(2.0 * u_scroll_progress + 1.2));
         color += vec3(0.15, 0.0, 0.6) * sin(2.0 * u_scroll_progress + 1.5);
+        color = mix(color, vec3(0.95, 0.67, 0.12), u_gold);
 
         gl_FragColor = vec4(color * noise, noise);
       }
@@ -123,7 +137,7 @@ export default function InteractiveNeuralVortex() {
 
     gl.useProgram(program);
     gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(0, 0, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
@@ -136,7 +150,94 @@ export default function InteractiveNeuralVortex() {
     const ratio = gl.getUniformLocation(program, "u_ratio");
     const pointerPosition = gl.getUniformLocation(program, "u_pointer_position");
     const scrollProgress = gl.getUniformLocation(program, "u_scroll_progress");
+    const stream = gl.getUniformLocation(program, "u_stream");
+    const gold = gl.getUniformLocation(program, "u_gold");
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const lionCanvas = document.querySelector<HTMLCanvasElement>("[data-ai-lion-stage]");
+    type SceneName = "stakes" | "flow" | "neural" | "close";
+    const sceneElements: Record<SceneName, HTMLElement | null> = {
+      stakes: document.querySelector<HTMLElement>('[data-ai-scene="stakes"]'),
+      flow: document.querySelector<HTMLElement>('[data-ai-scene="flow"]'),
+      neural: document.querySelector<HTMLElement>('[data-ai-scene="neural"]'),
+      close: document.querySelector<HTMLElement>('[data-ai-scene="close"]'),
+    };
+    const scenePositions: Record<SceneName, { top: number; height: number }> = {
+      stakes: { top: 0, height: 1 },
+      flow: { top: 0, height: 1 },
+      neural: { top: 0, height: 1 },
+      close: { top: 0, height: 1 },
+    };
+
+    const measureScenes = () => {
+      (Object.entries(sceneElements) as [SceneName, HTMLElement | null][]).forEach(([name, element]) => {
+        if (!element) return;
+        const rect = element.getBoundingClientRect();
+        scenePositions[name] = {
+          top: rect.top + window.scrollY,
+          height: Math.max(rect.height, 1),
+        };
+      });
+    };
+
+    const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);
+    const between = (position: number, start: number, end: number) =>
+      clamp01((position - start) / Math.max(end - start, 1));
+    const mix = (start: number, end: number, progress: number) =>
+      start + (end - start) * progress;
+
+    const getStoryTargets = () => {
+      const position = window.scrollY + window.innerHeight * 0.5;
+      const stakesStart = scenePositions.stakes.top;
+      const flowStart = scenePositions.flow.top;
+      const neuralStart = scenePositions.neural.top;
+      const closeStart = scenePositions.close.top;
+
+      if (position < stakesStart) {
+        return { opacity: 0, lionOpacity: 1, stream: 1, gold: 0 };
+      }
+
+      if (position < flowStart) {
+        const progress = between(position, stakesStart, flowStart);
+        return {
+          opacity: mix(0, 0.32, progress),
+          lionOpacity: mix(1, 0.52, progress),
+          stream: 1,
+          gold: 0,
+        };
+      }
+
+      if (position < neuralStart) {
+        const progress = between(position, flowStart, neuralStart);
+        return {
+          opacity: mix(0.32, 1, progress),
+          lionOpacity: mix(0.52, 0, progress),
+          stream: mix(1, 0, progress),
+          gold: 0,
+        };
+      }
+
+      if (position < closeStart) {
+        return { opacity: 1, lionOpacity: 0, stream: 0, gold: 0 };
+      }
+
+      const progress = between(
+        position,
+        closeStart,
+        closeStart + scenePositions.close.height * 0.78,
+      );
+      return {
+        opacity: 1 - progress,
+        lionOpacity: progress,
+        stream: progress,
+        gold: progress,
+      };
+    };
+
+    const resizeObserver = new ResizeObserver(measureScenes);
+    Object.values(sceneElements).forEach((element) => {
+      if (element) resizeObserver.observe(element);
+    });
 
     const resize = () => {
       const pixelRatio = Math.min(window.devicePixelRatio, 1.5);
@@ -148,12 +249,25 @@ export default function InteractiveNeuralVortex() {
 
     const draw = (timestamp: number) => {
       gl.clear(gl.COLOR_BUFFER_BIT);
+
+      const targets = getStoryTargets();
+      story.current.opacity += (targets.opacity - story.current.opacity) * 0.08;
+      story.current.lionOpacity += (targets.lionOpacity - story.current.lionOpacity) * 0.08;
+      story.current.stream += (targets.stream - story.current.stream) * 0.08;
+      story.current.gold += (targets.gold - story.current.gold) * 0.08;
+
+      canvas.style.opacity = String(story.current.opacity);
+      if (lionCanvas) lionCanvas.style.opacity = String(story.current.lionOpacity);
+      if (story.current.opacity <= 0.003) return;
+
       pointer.current.x += (pointer.current.targetX - pointer.current.x) * 0.2;
       pointer.current.y += (pointer.current.targetY - pointer.current.y) * 0.2;
 
       gl.uniform1f(time, timestamp);
       gl.uniform2f(pointerPosition, pointer.current.x / window.innerWidth, 1 - pointer.current.y / window.innerHeight);
       gl.uniform1f(scrollProgress, window.scrollY / (2 * window.innerHeight));
+      gl.uniform1f(stream, story.current.stream);
+      gl.uniform1f(gold, story.current.gold);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
 
@@ -175,6 +289,8 @@ export default function InteractiveNeuralVortex() {
     pointer.current.x = pointer.current.targetX = window.innerWidth / 2;
     pointer.current.y = pointer.current.targetY = window.innerHeight / 2;
     resize();
+    measureScenes();
+    document.fonts?.ready.then(measureScenes);
     window.addEventListener("resize", resize);
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
     window.addEventListener("touchmove", handleTouchMove, { passive: true });
@@ -189,6 +305,8 @@ export default function InteractiveNeuralVortex() {
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("touchmove", handleTouchMove);
+      resizeObserver.disconnect();
+      if (lionCanvas) lionCanvas.style.opacity = "";
       if (animationFrame.current !== null) window.cancelAnimationFrame(animationFrame.current);
       gl.deleteBuffer(vertexBuffer);
       gl.deleteProgram(program);
@@ -201,7 +319,7 @@ export default function InteractiveNeuralVortex() {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-[1] h-full w-full bg-transparent opacity-95 will-change-transform"
+      className="pointer-events-none fixed inset-0 z-[1] h-full w-full bg-transparent opacity-0 will-change-transform"
     />
   );
 }

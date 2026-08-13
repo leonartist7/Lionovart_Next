@@ -85,7 +85,7 @@ export default function AiCloseBeat({ children }: { children: React.ReactNode })
   }, []);
 
   return (
-    <div ref={wrapRef} data-lion-zone>
+    <div ref={wrapRef} data-ai-scene="close" data-lion-zone>
       {children}
     </div>
   );

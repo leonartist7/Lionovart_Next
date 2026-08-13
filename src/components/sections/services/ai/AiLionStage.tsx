@@ -69,6 +69,7 @@ export default function AiLionStage() {
   return (
     <canvas
       ref={canvasRef}
+      data-ai-lion-stage
       aria-hidden="true"
       // will-change forces its own persistent GPU compositing layer. Without
       // it, the ~5 stacked backdrop-filter glass panels down the page (heaviest
