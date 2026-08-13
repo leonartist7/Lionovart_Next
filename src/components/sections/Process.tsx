@@ -441,35 +441,6 @@ export default function Process(props: any) {
     target: sectionRef,
     offset: ["start start", "end end"],
   });
-  // The section opens like a lion's vertical pupil: a black slit expands into
-  // the creative chamber, with two gold edges carrying the transition outward.
-  // The final value intentionally overshoots to prevent sub-pixel seams when
-  // the sticky scene hands off to the following black chapter card.
-  const eclipseReveal = useTransform(
-    scrollYProgress,
-    [0, 0.018, 0.065],
-    [0, 0.025, 1.02],
-  );
-  const eclipseEdge = useTransform(
-    scrollYProgress,
-    [0, 0.018, 0.055, 0.072],
-    [0, 1, 1, 0],
-  );
-  const eclipseGlow = useTransform(
-    scrollYProgress,
-    [0, 0.018, 0.045, 0.075],
-    [0, 1, 0.75, 0],
-  );
-  const eclipseLeftEdge = useTransform(
-    eclipseReveal,
-    [0, 1.02],
-    ["0vw", "-51vw"],
-  );
-  const eclipseRightEdge = useTransform(
-    eclipseReveal,
-    [0, 1.02],
-    ["0vw", "51vw"],
-  );
   const contentOpacity = useTransform(scrollYProgress, [0.068, 0.09], [0, 1]);
   const contentY = useTransform(scrollYProgress, [0.068, 0.09], [14, 0]);
 
@@ -511,51 +482,31 @@ export default function Process(props: any) {
     >
       {/* Desktop: a pinned viewport turns physical scroll into visible progress. */}
       <div className="sticky top-0 hidden h-[100svh] overflow-hidden bg-[#f7f4ef] lg:block">
-        <motion.div
-          aria-hidden
-          className="absolute -inset-x-[1%] inset-y-0 origin-center bg-black will-change-transform"
-          style={{ scaleX: prefersReducedMotion ? 1.02 : eclipseReveal }}
-        />
-
-        {/* Lion Eclipse — the pupil's gold edges travel apart as black activates. */}
-        {!prefersReducedMotion && (
-          <motion.div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 z-20"
-            style={{ opacity: eclipseEdge }}
-          >
-            <motion.span
-              className="absolute inset-y-0 left-1/2 w-px origin-center bg-[#f0c917]"
-              style={{
-                x: eclipseLeftEdge,
-                boxShadow: "0 0 18px rgba(240,201,23,.75)",
-              }}
-            />
-            <motion.span
-              className="absolute inset-y-0 left-1/2 w-px origin-center bg-[#f0c917]"
-              style={{
-                x: eclipseRightEdge,
-                boxShadow: "0 0 18px rgba(240,201,23,.75)",
-              }}
-            />
-          </motion.div>
-        )}
-
-        {!prefersReducedMotion && (
-          <motion.div
-            aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 z-30 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#e5192a]"
-            style={{
-              opacity: eclipseGlow,
-              scale: eclipseGlow,
-              boxShadow:
-                "0 0 0 5px rgba(240,201,23,.16), 0 0 38px 12px rgba(229,25,42,.55)",
-            }}
-          />
-        )}
+        {/* The supplied impasto wave is the quiet bridge from the light chapter
+            above into the black Process chapter below. It stays behind every
+            piece of UI so cards, copy, and future art can sit on top of it. */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.045]"
+          className="pointer-events-none absolute inset-0 z-0 bg-[#f7f4ef] bg-center bg-cover bg-no-repeat"
+          style={{
+            backgroundImage: "url('/images/process-impasto-transition.webp')",
+          }}
+        />
+
+        {/* Dedicated color fades make the white top and black bottom disappear
+            into their neighboring sections instead of ending at a hard edge. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-[19%] bg-gradient-to-b from-[#f7f4ef] via-[#f7f4ef]/80 to-transparent"
+        />
+
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-[23%] bg-gradient-to-t from-black via-black/80 to-transparent"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-[2] opacity-[0.045]"
           style={{
             backgroundImage:
               "linear-gradient(rgba(255,255,255,.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.7) 1px, transparent 1px)",
