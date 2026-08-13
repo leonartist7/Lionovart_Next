@@ -56,7 +56,6 @@ function ClickToRevealHint() {
   );
 }
 
-
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Single Card Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 function ProblemCard({
   item,
@@ -285,35 +284,28 @@ export default function ProblemsSolvedSection() {
             </motion.div>
 
             {/* Cards — stacked in the narrow column */}
-
-
             <div className="relative">
-
-
               <ClickToRevealHint />
-
-
               <div className="flex flex-col gap-6 pb-4 md:gap-8">
-
-              {items.map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "0px 0px -5% 0px" }}
-                  transition={{ delay: i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <ProblemCard
-                    item={item}
-                    index={i}
-                    isRevealed={revealedIds.includes(i)}
-                    onToggle={() => toggleCard(i)}
-                  />
-                </motion.div>
-              ))}
-
-
+                {items.map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "0px 0px -5% 0px" }}
+                    transition={{ delay: i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <ProblemCard
+                      item={item}
+                      index={i}
+                      isRevealed={revealedIds.includes(i)}
+                      onToggle={() => toggleCard(i)}
+                    />
+                  </motion.div>
+                ))}
               </div>
+            </div>
+          </div>
 
 
             </div>
