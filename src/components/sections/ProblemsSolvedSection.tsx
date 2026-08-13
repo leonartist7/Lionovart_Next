@@ -26,11 +26,12 @@ const EASE_OUT = [0.20, 1, 0.3, 1] as const;
 function ClickToRevealHint() {
   return (
     <div
-      className="pointer-events-none absolute -right-[clamp(5rem,7vw,7rem)] top-[34%] z-30 hidden w-[clamp(8rem,11vw,10.5rem)] flex-col items-center gap-1 lg:flex"
+      className="pointer-events-none absolute -right-[clamp(5rem,7vw,7rem)] top-[34%] z-30 hidden w-[clamp(8rem,11vw,10.5rem)] flex-col items-center gap-2 lg:flex"
       aria-hidden="true"
     >
-      <span className="font-clash text-[10px] font-bold uppercase tracking-[0.16em] text-[#111]">
-        Click to reveal
+      <span className="text-center font-clash text-[10px] font-bold uppercase leading-[1.05] tracking-[0.16em] text-[#111]">
+        <span className="block">Click</span>
+        <span className="block">to reveal</span>
       </span>
       <motion.svg
         width="100%"
