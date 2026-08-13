@@ -392,9 +392,37 @@ export default function Process(props: any) {
     target: sectionRef,
     offset: ["start start", "end end"],
   });
-  const backdropReveal = useTransform(scrollYProgress, [0, 0.055], [0, 1]);
-  const contentOpacity = useTransform(scrollYProgress, [0.015, 0.07], [0, 1]);
-  const contentY = useTransform(scrollYProgress, [0.015, 0.07], [24, 0]);
+  // The section opens like a lion's vertical pupil: a black slit expands into
+  // the creative chamber, with two gold edges carrying the transition outward.
+  // The final value intentionally overshoots to prevent sub-pixel seams when
+  // the sticky scene hands off to the following black chapter card.
+  const eclipseReveal = useTransform(
+    scrollYProgress,
+    [0, 0.018, 0.065],
+    [0, 0.025, 1.02],
+  );
+  const eclipseEdge = useTransform(
+    scrollYProgress,
+    [0, 0.018, 0.055, 0.072],
+    [0, 1, 1, 0],
+  );
+  const eclipseGlow = useTransform(
+    scrollYProgress,
+    [0, 0.018, 0.045, 0.075],
+    [0, 1, 0.75, 0],
+  );
+  const eclipseLeftEdge = useTransform(
+    eclipseReveal,
+    [0, 1.02],
+    ["0vw", "-51vw"],
+  );
+  const eclipseRightEdge = useTransform(
+    eclipseReveal,
+    [0, 1.02],
+    ["0vw", "51vw"],
+  );
+  const contentOpacity = useTransform(scrollYProgress, [0.068, 0.09], [0, 1]);
+  const contentY = useTransform(scrollYProgress, [0.068, 0.09], [14, 0]);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [completedCount, setCompletedCount] = useState(0);
@@ -435,12 +463,49 @@ export default function Process(props: any) {
       aria-label={eyebrow}
     >
       {/* Desktop: a pinned viewport turns physical scroll into visible progress. */}
-      <div className="sticky top-0 hidden h-screen min-h-[680px] overflow-hidden bg-[#f7f4ef] lg:block">
+      <div className="sticky top-0 hidden h-[100svh] overflow-hidden bg-[#f7f4ef] lg:block">
         <motion.div
           aria-hidden
-          className="absolute inset-0 origin-top bg-black"
-          style={{ scaleY: prefersReducedMotion ? 1 : backdropReveal }}
+          className="absolute -inset-x-[1%] inset-y-0 origin-center bg-black will-change-transform"
+          style={{ scaleX: prefersReducedMotion ? 1.02 : eclipseReveal }}
         />
+
+        {/* Lion Eclipse — the pupil's gold edges travel apart as black activates. */}
+        {!prefersReducedMotion && (
+          <motion.div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-20"
+            style={{ opacity: eclipseEdge }}
+          >
+            <motion.span
+              className="absolute inset-y-0 left-1/2 w-px origin-center bg-[#f0c917]"
+              style={{
+                x: eclipseLeftEdge,
+                boxShadow: "0 0 18px rgba(240,201,23,.75)",
+              }}
+            />
+            <motion.span
+              className="absolute inset-y-0 left-1/2 w-px origin-center bg-[#f0c917]"
+              style={{
+                x: eclipseRightEdge,
+                boxShadow: "0 0 18px rgba(240,201,23,.75)",
+              }}
+            />
+          </motion.div>
+        )}
+
+        {!prefersReducedMotion && (
+          <motion.div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 z-30 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#e5192a]"
+            style={{
+              opacity: eclipseGlow,
+              scale: eclipseGlow,
+              boxShadow:
+                "0 0 0 5px rgba(240,201,23,.16), 0 0 38px 12px rgba(229,25,42,.55)",
+            }}
+          />
+        )}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-[0.045]"
