@@ -3,6 +3,7 @@ import { Space_Grotesk } from "next/font/google";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
 import ProofAndClose from "@/components/sections/services/_shared/ProofAndClose";
+import AiLionStage from "@/components/sections/services/ai/AiLionStage";
 import InteractiveNeuralVortex from "@/components/ui/interactive-neural-vortex-background";
 import AiHeroCopy from "@/components/sections/services/ai/AiHeroCopy";
 import AiChaosBeat from "@/components/sections/services/ai/AiChaosBeat";
@@ -48,6 +49,7 @@ export default function AiServicePage() {
         Sibling of <main>, not a child: inside main's stacking context an
         opaque ancestor background can bury the canvas.
       */}
+      <AiLionStage />
       <InteractiveNeuralVortex />
 
       <main

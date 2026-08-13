@@ -122,6 +122,9 @@ export default function InteractiveNeuralVortex() {
     if (!vertexBuffer) return;
 
     gl.useProgram(program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0, 0, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
@@ -144,6 +147,7 @@ export default function InteractiveNeuralVortex() {
     };
 
     const draw = (timestamp: number) => {
+      gl.clear(gl.COLOR_BUFFER_BIT);
       pointer.current.x += (pointer.current.targetX - pointer.current.x) * 0.2;
       pointer.current.y += (pointer.current.targetY - pointer.current.y) * 0.2;
 
@@ -197,7 +201,7 @@ export default function InteractiveNeuralVortex() {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-0 h-full w-full opacity-95 will-change-transform"
+      className="pointer-events-none fixed inset-0 z-[1] h-full w-full bg-transparent opacity-95 will-change-transform"
     />
   );
 }
