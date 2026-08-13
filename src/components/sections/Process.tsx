@@ -70,6 +70,8 @@ const INK = "#0a0a0a";
 const EASE = [0.16, 1, 0.3, 1] as const;
 const JOURNEY_START = 0.08;
 const JOURNEY_END = 0.9;
+const STACK_STEP = 24;
+const STACK_EXIT_Y = -156;
 
 type StepRailItemProps = {
   step: ProcessStep;
@@ -193,21 +195,14 @@ function RewardCard({
   index,
   gainLabel,
   deliverLabel,
-  reduced,
 }: {
   step: ProcessStep;
   index: number;
   gainLabel: string;
   deliverLabel: string;
-  reduced: boolean;
 }) {
   return (
     <motion.article
-      key={step.num}
-      initial={reduced ? false : { opacity: 0, y: 34, scale: 0.96 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={reduced ? undefined : { opacity: 0, y: -28, scale: 0.97 }}
-      transition={{ duration: reduced ? 0 : 0.5, ease: EASE }}
       className="relative z-10 min-h-[390px] overflow-hidden rounded-[27px] bg-[#0d0f12] p-7 sm:p-9 xl:min-h-[430px] xl:p-11"
       style={{
         boxShadow:
@@ -288,6 +283,60 @@ function RewardCard({
         </div>
       </div>
     </motion.article>
+  );
+}
+
+function StackedCardDeck({
+  steps,
+  activeIndex,
+  gainLabel,
+  deliverLabel,
+  reduced,
+}: {
+  steps: ProcessStep[];
+  activeIndex: number;
+  gainLabel: string;
+  deliverLabel: string;
+  reduced: boolean;
+}) {
+  return (
+    <div className="relative h-full w-full">
+      {steps.map((step, index) => {
+        const distance = index - activeIndex;
+        const behind = Math.max(0, distance);
+        const completed = distance < 0;
+
+        return (
+          <motion.div
+            key={step.num}
+            className="absolute inset-0 origin-top"
+            initial={false}
+            animate={{
+              y: completed ? STACK_EXIT_Y : behind * STACK_STEP,
+              scale: completed ? 0.93 : 1 - Math.min(behind, 4) * 0.035,
+              opacity: completed ? 0 : 1 - Math.min(behind, 4) * 0.1,
+              rotate: completed ? -1.5 : behind * 0.35,
+            }}
+            transition={
+              reduced
+                ? { duration: 0 }
+                : { type: "spring", stiffness: 170, damping: 25, mass: 0.8 }
+            }
+            style={{
+              zIndex: completed ? 1 : steps.length - distance,
+              pointerEvents: index === activeIndex ? "auto" : "none",
+            }}
+          >
+            <RewardCard
+              step={step}
+              index={index}
+              gainLabel={gainLabel}
+              deliverLabel={deliverLabel}
+            />
+          </motion.div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -453,8 +502,6 @@ export default function Process(props: any) {
   });
 
   const allComplete = completedCount === steps.length;
-  const currentStep = steps[activeIndex] ?? steps[0];
-
   return (
     <section
       ref={sectionRef}
@@ -575,7 +622,7 @@ export default function Process(props: any) {
             </div>
           </div>
 
-          <div className="relative mx-auto w-full max-w-[650px]">
+          <div className="relative mx-auto h-[430px] w-full max-w-[650px] xl:h-[470px]">
             <div
               aria-hidden
               className="absolute inset-x-5 -bottom-8 top-8 rounded-[28px] border border-white/[0.07] bg-[#08090b]"
@@ -587,7 +634,7 @@ export default function Process(props: any) {
               style={{ transform: "scale(0.97)" }}
             />
             <div
-              className="relative rounded-[29px] p-px"
+              className="relative h-full rounded-[29px] p-px"
               style={{
                 background:
                   "linear-gradient(135deg, rgba(240,201,23,.7), rgba(229,25,42,.65) 52%, rgba(255,255,255,.12))",
@@ -601,10 +648,9 @@ export default function Process(props: any) {
                     reduced={prefersReducedMotion}
                   />
                 ) : (
-                  <RewardCard
-                    key={currentStep.num}
-                    step={currentStep}
-                    index={activeIndex}
+                  <StackedCardDeck
+                    steps={steps}
+                    activeIndex={activeIndex}
                     gainLabel={gainLabel}
                     deliverLabel={deliverLabel}
                     reduced={prefersReducedMotion}
