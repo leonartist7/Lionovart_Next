@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { GlobePulse } from "@/components/ui/cobe-globe-pulse";
 import { Marquee } from "@/components/ui/marquee";
 import { useLanguage } from "@/contexts/LanguageContext";
 import TestimonialsCarousel from "@/components/sections/TestimonialsCarousel";
@@ -382,6 +383,10 @@ export default function Testimonials(
                 </>
               )}
             </motion.h2>
+
+            <div className="mt-9 hidden w-full max-w-[330px] lg:block">
+              <GlobePulse />
+            </div>
           </div>
 
           <div className="testimonial-marquee-stage relative flex h-[560px] w-full flex-row items-center justify-start overflow-hidden min-[480px]:justify-center min-[480px]:px-[clamp(12px,3vw,32px)] sm:h-[600px] md:h-[660px] lg:h-[720px] lg:px-0">
