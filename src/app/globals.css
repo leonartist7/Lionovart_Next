@@ -215,6 +215,14 @@
   --strategist-glow: rgba(229, 25, 42, 0.06);
   --strategist-overlay: rgba(0, 0, 0, 0.6);
 }
+
+/* Give the Imagine panel more presence on wide screens while preserving the
+   current mobile proportion. */
+@media (min-width: 1024px) {
+  :root {
+    --imagine-card-d: clamp(468px, 117vmin, 1170px);
+  }
+}
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -479,12 +487,12 @@ html[data-corner-style="square"] *::after {
 .cursor-ring {
   /* Solid brand-red dot â€” no blend mode so the red renders true. */
   z-index: 9999;
-  width: 12px;
-  height: 12px;
+  width: 18px;
+  height: 18px;
   border-radius: 9999px;
-  background: #e5192a;
+  background: #8b8b8b;
   /* Center: 12px Ã· 2 = 6px */
-  margin: -6px 0 0 -6px;
+  margin: -9px 0 0 -9px;
 }
 
 .cursor-label {

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import {
   motion,
   useScroll,
+  useTransform,
   useMotionValueEvent,
   AnimatePresence,
 } from "framer-motion";
@@ -85,6 +86,7 @@ const SERVICE_ITEM_VARIANTS = {
 
 export default function Navbar() {
   const [isPastHero, setIsPastHero] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [squareCorners, setSquareCorners] = useState(false);
   const [heroThreshold, setHeroThreshold] = useState(600);
@@ -92,6 +94,7 @@ export default function Navbar() {
   const [expertiseOpen, setExpertiseOpen] = useState(false);
   const [mobileExpertiseOpen, setMobileExpertiseOpen] = useState(false);
   const { scrollY } = useScroll();
+  const navChromeOpacity = useTransform(scrollY, [2, 96], [0, 1]);
   const { t, locale } = useLanguage();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lenis = useLenis() as any;
@@ -226,6 +229,7 @@ export default function Navbar() {
     lastScrollRef.current = latest;
 
     setIsPastHero(latest > heroThreshold);
+    setIsScrolled(latest > 2);
 
     // Close mobile menu on any scroll â‰¥ 5px â€” unless a recent language change
     // is reflowing the page (which would otherwise close it spuriously).
@@ -255,7 +259,7 @@ export default function Navbar() {
 
   return (
     <motion.div
-      className="fixed top-[3px] left-0 right-0 z-50 flex justify-center px-3"
+      className="fixed top-0 left-0 right-0 z-50 flex justify-center px-3"
       animate={{ y: isVisible ? 0 : "-120%" }}
       transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
     >
@@ -279,18 +283,15 @@ export default function Navbar() {
           <motion.div
             aria-hidden
             className="absolute inset-0 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)]"
-            animate={{
-              opacity: isPastHero ? 1 : 0,
-              backgroundColor: "rgba(0,0,0,0.20)",
-            }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
             // backdrop-filter forced to `none` in hero mode (computes nothing
             // until revealed) + isolate as its own GPU layer so Lenis scroll
             // re-uses the cached blur instead of re-rasterizing every frame.
             style={{
+              opacity: navChromeOpacity,
+              backgroundColor: "rgba(0,0,0,0.20)",
               pointerEvents: "none",
-              backdropFilter: isPastHero ? undefined : "none",
-              WebkitBackdropFilter: isPastHero ? undefined : "none",
+              backdropFilter: isScrolled ? undefined : "none",
+              WebkitBackdropFilter: isScrolled ? undefined : "none",
               transform: "translateZ(0)",
               contain: "paint",
             }}
@@ -314,7 +315,7 @@ export default function Navbar() {
                 src="/images/LOGO.svg"
                 alt="LIONOVART"
                 data-nav-logo
-                className="h-[1.25rem] w-auto sm:h-[1.375rem] lg:h-[1.5rem]"
+                className="h-[1.375rem] w-auto sm:h-[1.5rem] lg:h-[1.625rem]"
               />
             </Link>
 
