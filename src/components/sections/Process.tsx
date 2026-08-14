@@ -613,17 +613,37 @@ export default function Process(props: any) {
         </motion.div>
       </div>
 
-      {/* Mobile: every step remains visible and readable without a long pinned scroll. */}
-      <div className="relative overflow-hidden px-5 py-24 lg:hidden">
+      {/* Mobile: the same impasto bridge gets its own viewport-height canvas,
+          while the readable step list continues into a solid black field below. */}
+      <div className="relative overflow-hidden bg-black px-5 py-24 lg:hidden">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[100svh] bg-[#f7f4ef] bg-center bg-cover bg-no-repeat"
+          style={{
+            backgroundImage: "url('/images/process-impasto-transition.webp')",
+          }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-[19svh] bg-gradient-to-b from-[#f7f4ef] via-[#f7f4ef]/80 to-transparent"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-[58svh] bg-gradient-to-b from-black/70 via-black/25 to-transparent"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-[72svh] z-[1] h-[28svh] bg-gradient-to-b from-transparent to-black"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-[2] opacity-[0.07]"
           style={{
             background:
               "radial-gradient(circle at 90% 15%, rgba(229,25,42,.7), transparent 32%)",
           }}
         />
-        <div className="relative mx-auto max-w-xl">
+        <div className="relative z-10 mx-auto max-w-xl">
           <div className="flex items-center gap-3">
             <span className="h-[2px] w-7" style={{ backgroundColor: RED }} />
             <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/55">
