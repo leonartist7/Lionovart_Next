@@ -66,6 +66,10 @@
 }
 @custom-variant dark (&:is(.dark *));
 
+/* Narrative surfaces are art-directed chapters, independent of OS theme. */
+[data-art-directed="light"] { color-scheme: light; }
+[data-art-directed="dark"] { color-scheme: dark; }
+
 /* =============================================
    LIONOVART â€” Brand Design Tokens (Tailwind v4)
    ============================================= */

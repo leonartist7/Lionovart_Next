@@ -477,6 +477,7 @@ export default function Process(props: any) {
     <section
       ref={sectionRef}
       id="process"
+      data-art-directed="dark"
       className="relative isolate bg-black lg:h-[420vh]"
       aria-label={eyebrow}
     >

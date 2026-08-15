@@ -1,6 +1,7 @@
 import HeroTop from "@/components/sections/HeroTop";
 import SceneVideoBackdrop from "@/components/sections/SceneVideoBackdrop";
 import StrongTogetherTransition from "@/components/sections/StrongTogetherTransition";
+import PrideGallery from "@/components/sections/PrideGallery";
 
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import WhatWeDo from "@/components/sections/WhatWeDo";
@@ -40,6 +41,7 @@ export function PageBuilder() {
       <div>
         <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
         <StrongTogetherTransition />
+        <PrideGallery />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
         <NovaSection id="services"><Services /></NovaSection>
         <NovaSection id="offer"><SignatureOffer /></NovaSection>
@@ -56,4 +58,3 @@ export function PageBuilder() {
     </TrailAttractionProvider>
   );
 }
-

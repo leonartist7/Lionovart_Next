@@ -307,12 +307,7 @@ export default function ProblemsSolvedSection() {
               </div>
             </div>
           </div>
-
-
-            </div>
-          </div>
         </div>
-
       </div>
     </section>
   );

@@ -23,6 +23,7 @@ export default function StrongTogetherTransition() {
   const handsRef = useRef<HTMLDivElement>(null);
   const lionRef = useRef<HTMLDivElement>(null);
   const humanRef = useRef<HTMLDivElement>(null);
+  const seamRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (
@@ -33,7 +34,8 @@ export default function StrongTogetherTransition() {
       !togetherRef.current ||
       !handsRef.current ||
       !lionRef.current ||
-      !humanRef.current
+      !humanRef.current ||
+      !seamRef.current
     ) {
       return;
     }
@@ -47,6 +49,7 @@ export default function StrongTogetherTransition() {
         gsap.set(togetherRef.current, { opacity: 1, y: 0 });
         gsap.set(handsRef.current, { opacity: 1 });
         gsap.set([lionRef.current, humanRef.current], { xPercent: 0 });
+        gsap.set(seamRef.current, { opacity: 1, scaleY: 1 });
         return;
       }
 
@@ -57,6 +60,7 @@ export default function StrongTogetherTransition() {
       gsap.set(handsRef.current, { opacity: 0 });
       gsap.set(lionRef.current, { xPercent: -100 });
       gsap.set(humanRef.current, { xPercent: 100 });
+      gsap.set(seamRef.current, { opacity: 0, scaleY: 0.2 });
 
       const timeline = gsap.timeline({
         scrollTrigger: {
@@ -74,6 +78,7 @@ export default function StrongTogetherTransition() {
         .set(handsRef.current, { opacity: 1 }, 0.12)
         .to(lionRef.current, { xPercent: 0, duration: 0.45, ease: "power3.out" }, 0.12)
         .to(humanRef.current, { xPercent: 0, duration: 0.45, ease: "power3.out" }, 0.12)
+        .to(seamRef.current, { opacity: 1, scaleY: 1, duration: 0.18, ease: "power2.out" }, 0.52)
         .to(togetherRef.current, { opacity: 1, duration: 0.24, ease: "power4.out" }, 0.58);
     }, sectionRef);
 
@@ -84,6 +89,7 @@ export default function StrongTogetherTransition() {
     <section
       ref={sectionRef}
       aria-labelledby="strong-together-title"
+      data-art-directed="light"
       className="relative h-[220vh] overflow-visible bg-[#0d0d0d]"
     >
       {/* Keep the artwork inside the transition viewport so it can never bleed through the next marquee. */}
@@ -124,12 +130,24 @@ export default function StrongTogetherTransition() {
         <div
           ref={leftDoorRef}
           aria-hidden
-          className="absolute inset-y-0 left-0 z-[3] w-1/2 bg-[#f2ede3]"
-        />
+          className="absolute inset-y-0 left-0 z-[3] w-1/2 overflow-hidden border-r border-[#9d792b]/20 bg-[#f2ede3] shadow-[inset_-28px_0_65px_rgba(37,30,19,0.08)]"
+        >
+          <div className="absolute inset-[3.5vw] border border-black/[0.055] shadow-[inset_0_0_55px_rgba(41,33,21,0.045)]" />
+          <div className="absolute inset-y-0 right-0 w-px bg-white/80" />
+        </div>
         <div
           ref={rightDoorRef}
           aria-hidden
-          className="absolute inset-y-0 right-0 z-[3] w-1/2 bg-[#f2ede3]"
+          className="absolute inset-y-0 right-0 z-[3] w-1/2 overflow-hidden border-l border-[#9d792b]/20 bg-[#f2ede3] shadow-[inset_28px_0_65px_rgba(37,30,19,0.08)]"
+        >
+          <div className="absolute inset-[3.5vw] border border-black/[0.055] shadow-[inset_0_0_55px_rgba(41,33,21,0.045)]" />
+          <div className="absolute inset-y-0 left-0 w-px bg-white/80" />
+        </div>
+
+        <div
+          ref={seamRef}
+          aria-hidden
+          className="pointer-events-none absolute inset-y-[8%] left-1/2 z-[6] w-px origin-center bg-gradient-to-b from-transparent via-[#a77c20]/80 to-transparent opacity-0 shadow-[0_0_18px_rgba(167,124,32,0.35)]"
         />
 
         <div className="pointer-events-none absolute inset-x-0 top-[15%] z-[5] px-6 text-center md:top-[14%] md:px-12">
@@ -153,4 +171,3 @@ export default function StrongTogetherTransition() {
     </section>
   );
 }
-
