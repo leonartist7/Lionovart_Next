@@ -345,10 +345,13 @@ export default function HeroTop(props: any) {
   const trustText = props.trustText || t.hero.trustText;
   const badges = props.badges || t.hero.badges;
 
-  const CYCLING_WORDS: Word[] = cyclingWordsRaw.map((content: string) => ({
+  // Hero focuses on concrete outcomes; the closing CTA keeps the more emotional
+  // ROAR / MAGNETIC / DOMINATE cadence so the two moments feel related, not duplicated.
+  const heroOutcomeWords = [cyclingWordsRaw[1], cyclingWordsRaw[2], cyclingWordsRaw[4]].filter(Boolean) as string[];
+  const CYCLING_WORDS: Word[] = (heroOutcomeWords.length ? heroOutcomeWords : cyclingWordsRaw).map((content: string) => ({
     content,
-    color: "text-brand-red",
     type: "text" as const,
+    holdMs: 3200,
   }));
 
   const handleConnectNow = () => {
@@ -364,7 +367,7 @@ export default function HeroTop(props: any) {
   };
 
   return (
-    <section className="relative flex min-h-[90vh] flex-col items-center justify-start overflow-hidden px-6 pb-16 pt-[clamp(7.5rem,14vh,10rem)] text-center sm:pt-[clamp(8rem,14vh,10.5rem)] lg:pt-[clamp(8.5rem,15vh,11.5rem)]">
+    <section className="relative flex min-h-[90vh] flex-col items-center justify-start overflow-hidden px-4 pb-14 pt-[clamp(7.25rem,13vh,9.5rem)] text-center sm:px-6 sm:pb-16 sm:pt-[clamp(7.75rem,14vh,10rem)] lg:pt-[clamp(8.25rem,15vh,11rem)]">
 
       {/* Controlled dark stage + soft red glow up top; clears toward the
           bottom so the video behind PEEKS at the fold and pulls scroll. */}
@@ -382,38 +385,35 @@ export default function HeroTop(props: any) {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-40 flex w-full max-w-[920px] flex-col items-center gap-8 md:gap-10"
+        className="relative z-40 flex w-full max-w-[62rem] flex-col items-center gap-6 sm:gap-7 md:gap-9"
       >
-        {/* Headline — ALL WHITE, always 3 lines, rem-bounded clamp (never crops) */}
-        <motion.h1
-          variants={itemVariants}
-          className="font-clash font-black uppercase text-white text-center w-full"
-          style={{
-            fontSize: "clamp(2.8rem, 11vw, 7rem)",
-            lineHeight: 0.92,
-            letterSpacing: "-0.03em",
-          }}
-        >
-          <span className="block">Making</span>
-          <span className="block">Brands</span>
-          <span className="block">Roar</span>
-        </motion.h1>
+        {/* Same kinetic language as the close, but outcome-led and mobile-first. */}
+        <motion.div variants={itemVariants} className="w-full">
+          <HeroCycling
+            staticText={staticText}
+            words={CYCLING_WORDS}
+            fontSize="clamp(2.05rem, 7.6vw, 5.25rem)"
+            cyclingFontSize="clamp(2.35rem, 9vw, 6.25rem)"
+            cyclingColor="#e5192a"
+            letterSpacing="-0.035em"
+          />
+        </motion.div>
 
         {/* Sub — one clear line */}
         <motion.p
           variants={itemVariants}
-          className="font-body text-[16px] md:text-[19px] leading-[1.6] text-white/60 max-w-[46ch]"
+          className="max-w-[46rem] font-body text-[1rem] leading-[1.6] text-white/60 md:text-[1.1875rem]"
         >
           {subtitle}
         </motion.p>
 
         {/* Email capture — glass pill, metallic outline, red Start */}
-        <motion.div variants={itemVariants} className="w-full mt-2">
+        <motion.div variants={itemVariants} className="mt-1 w-full sm:mt-2">
           <HeroEmailCapture />
         </motion.div>
 
         {/* Trust badges — restored, as before */}
-        <motion.div variants={itemVariants} className="mt-2 w-full">
+        <motion.div variants={itemVariants} className="mt-1 w-full sm:mt-2">
           <TrustedBadgesSection variant="dark" />
         </motion.div>
       </motion.div>
