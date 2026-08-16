@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
+import { notifyLeadCaptured } from "@/lib/notify";
+import { sendHeroLeadConfirmationEmail } from "@/lib/email";
 
 interface LeadBody {
   name?: string;
@@ -56,6 +58,18 @@ export async function POST(req: NextRequest) {
       // must set it.
       updated_at: FieldValue.serverTimestamp(),
     });
+
+    void notifyLeadCaptured(
+      {
+        name,
+        email: contact_type === "email" ? contact : undefined,
+        phone: contact_type !== "email" ? contact : undefined,
+      },
+      conversation_id ?? null,
+    );
+    if (contact_type === "email") {
+      void sendHeroLeadConfirmationEmail({ toEmail: contact });
+    }
 
     return NextResponse.json({ saved: true, id: docRef.id }, { status: 200 });
   } catch (err) {
