@@ -94,6 +94,7 @@ export default function Navbar() {
   const [expertiseOpen, setExpertiseOpen] = useState(false);
   const [mobileExpertiseOpen, setMobileExpertiseOpen] = useState(false);
   const { scrollY } = useScroll();
+  const navTop = useTransform(scrollY, [0, 40], [40, 0]);
   const navChromeOpacity = useTransform(scrollY, [2, 96], [0, 1]);
   const { t, locale } = useLanguage();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -193,11 +194,6 @@ export default function Navbar() {
     suppressCloseUntil.current = Date.now() + 800;
   }, [locale]);
 
-  // Close the Expertise band the moment we leave hero mode (links â†’ burger).
-  useEffect(() => {
-    if (isPastHero) setExpertiseOpen(false);
-  }, [isPastHero]);
-
   useEffect(() => {
     const calc = () => {
       setHeroThreshold(window.innerHeight * 0.62);
@@ -228,7 +224,9 @@ export default function Navbar() {
     const delta = latest - prev;
     lastScrollRef.current = latest;
 
-    setIsPastHero(latest > heroThreshold);
+    const pastHero = latest > heroThreshold;
+    setIsPastHero(pastHero);
+    if (pastHero) setExpertiseOpen(false);
     setIsScrolled(latest > 2);
 
     // Close mobile menu on any scroll â‰¥ 5px â€” unless a recent language change
@@ -259,7 +257,8 @@ export default function Navbar() {
 
   return (
     <motion.div
-      className="fixed top-0 left-0 right-0 z-50 flex justify-center px-3"
+      className="fixed left-0 right-0 z-50 flex justify-center px-3"
+      style={{ top: navTop }}
       animate={{ y: isVisible ? 0 : "-120%" }}
       transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
     >
