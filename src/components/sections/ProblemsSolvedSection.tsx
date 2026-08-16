@@ -26,10 +26,10 @@ const EASE_OUT = [0.20, 1, 0.3, 1] as const;
 function ClickToRevealHint() {
   return (
     <div
-      className="pointer-events-none relative z-30 ml-auto mb-2 flex w-[clamp(7rem,24vw,10.5rem)] flex-col items-center gap-2 lg:absolute lg:-right-[clamp(5rem,7vw,7rem)] lg:top-[34%] lg:mb-0"
+      className="pointer-events-none absolute right-3 top-20 z-30 flex w-[clamp(7rem,24vw,10.5rem)] flex-col items-center gap-2 sm:right-5 md:right-8"
       aria-hidden="true"
     >
-      <span className="text-center font-clash text-[10px] font-bold uppercase leading-[1.05] tracking-[0.16em] text-[#111]">
+      <span className="text-center font-clash text-[10px] font-bold uppercase leading-[1.05] tracking-[0.16em] text-white">
         <span className="block">Click</span>
         <span className="block">to reveal</span>
       </span>
@@ -45,7 +45,7 @@ function ClickToRevealHint() {
       >
         <motion.path
           d="M93.0681 3C72.3063 18.0061 57.7731 25.925 32.2716 21.1435C26.0822 19.983 15.9133 18.8754 10.945 14.459C8.12295 11.9505 3.74946 11.7165 9.24741 9.57834C13.7751 7.81753 20.3406 4.90981 25.2689 4.90981C27.0487 4.90981 9.62202 9.55411 4.26061 10.7455C-2.59384 12.2686 20.5637 33.6269 24.314 37.3771"
-          stroke="#000000"
+          stroke="#ffffff"
           strokeWidth="3"
           strokeLinecap="round"
           initial={{ pathLength: 0 }}
