@@ -22,8 +22,16 @@ const FOOTER_CLIP =
 export default function ClosingCTA({ crest = false }: { crest?: boolean }) {
   const { t } = useLanguage();
   const openNova = useNovaStore((s) => s.openNova);
-  const words: Word[] = (t.hero.cyclingWords || []).map((c: string) => ({
-    content: c,
+
+  // Keep the page close emotional and decisive while the hero owns the more
+  // concrete outcome language. Index positions stay aligned across locales.
+  const closingWordStrings = [
+    t.hero.cyclingWords?.[0],
+    t.hero.cyclingWords?.[3],
+    t.hero.cyclingWords?.[5],
+  ].filter(Boolean) as string[];
+  const words: Word[] = closingWordStrings.map((content) => ({
+    content,
     type: "text" as const,
   }));
 
