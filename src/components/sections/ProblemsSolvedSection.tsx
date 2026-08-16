@@ -25,7 +25,9 @@ const EASE_OUT = [0.20, 1, 0.3, 1] as const;
 
 function ClickToRevealHint() {
   return (
-    <div
+    <motion.div
+      animate={{ opacity: [0.68, 1, 0.68] }}
+      transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
       className="pointer-events-none absolute right-3 top-20 z-30 flex w-[clamp(7rem,24vw,10.5rem)] flex-col items-center gap-2 sm:right-5 md:right-8"
       aria-hidden="true"
     >
