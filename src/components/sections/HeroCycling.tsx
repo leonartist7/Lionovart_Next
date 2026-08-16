@@ -26,6 +26,10 @@ export interface HeroCyclingProps {
   fontSize?: string;
   /** CSS font-size for the cycling line. Defaults to fontSize if not set. */
   cyclingFontSize?: string;
+  /** Color of text cycling words. Images are unaffected. */
+  cyclingColor?: string;
+  /** Letter spacing for both static and cycling text. */
+  letterSpacing?: string;
   /** Force animation even when OS has prefers-reduced-motion enabled. Default: false */
   forceAnimate?: boolean;
 }
@@ -87,6 +91,8 @@ export default function HeroCycling({
   words = DEFAULT_WORDS,
   fontSize = "clamp(2.5rem, 8vw, 6.5rem)",
   cyclingFontSize,
+  cyclingColor = "#ffffff",
+  letterSpacing = "0.05em",
   forceAnimate = false,
 }: HeroCyclingProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -117,7 +123,7 @@ export default function HeroCycling({
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [currentIndex, hasMounted, isPaused, prefersReduced, words]);
+  }, [currentIndex, forceAnimate, hasMounted, isPaused, prefersReduced, words]);
 
   // ── Pause when tab is hidden ─────────────────────────────────────────────
   useEffect(() => {
@@ -143,7 +149,7 @@ export default function HeroCycling({
   const sharedTextStyle: React.CSSProperties = {
     fontSize: clampSize,
     lineHeight: 1,
-    letterSpacing: "0.05em",
+    letterSpacing,
     wordSpacing: "0.2em",
     fontFamily: "var(--font-heading)",
     fontWeight: 700,
@@ -157,6 +163,7 @@ export default function HeroCycling({
 
   const cyclingTextStyle: React.CSSProperties = {
     ...sharedTextStyle,
+    color: cyclingColor,
     fontSize: cyclingClampSize,
   };
 
@@ -185,9 +192,7 @@ export default function HeroCycling({
       );
     }
 
-    return (
-      <span style={cyclingTextStyle}>{word.content}</span>
-    );
+    return <span style={cyclingTextStyle}>{word.content}</span>;
   };
 
   // Reduced motion / pre-mount: static first word, no animation
@@ -223,11 +228,9 @@ export default function HeroCycling({
           position: "relative",
           overflow: "hidden",
           height: cyclingClampSize,
-          // Subtle visual focus ring for keyboard users
           outline: "none",
         }}
         onKeyDown={(e) => {
-          // Allow spacebar to manually pause/resume (accessibility bonus)
           if (e.key === " ") {
             e.preventDefault();
             setIsPaused((p) => !p);
@@ -235,7 +238,6 @@ export default function HeroCycling({
         }}
       >
         {showStatic ? (
-          // Static fallback: first word, no motion
           <div
             style={{
               position: "absolute",
