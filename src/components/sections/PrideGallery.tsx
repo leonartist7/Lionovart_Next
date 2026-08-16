@@ -16,7 +16,7 @@ const PRINCIPLES = [
     title: "Vision",
     statement: "See what others miss.",
     copy: "We find the signal inside the noise, then turn it into a direction people can believe in.",
-    image: "/images/pride/vision-emblem.png",
+    image: "/images/pride/vision-emblem.webp",
     alt: "Lion eye and compass emblem representing vision",
   },
   {
@@ -24,7 +24,7 @@ const PRINCIPLES = [
     title: "Craft",
     statement: "Make every detail carry weight.",
     copy: "Human instinct and lion-hearted ambition meet in work built with care, clarity and consequence.",
-    image: "/images/pride/craft-emblem.png",
+    image: "/images/pride/craft-emblem.webp",
     alt: "Lion paw and human hand emblem representing craft and partnership",
   },
   {
@@ -32,7 +32,7 @@ const PRINCIPLES = [
     title: "Legacy",
     statement: "Build beyond the launch.",
     copy: "We create identities and systems designed to compound in meaning, recognition and value.",
-    image: "/images/pride/legacy-emblem.png",
+    image: "/images/pride/legacy-emblem.webp",
     alt: "Lion, tree rings and laurel emblem representing legacy",
   },
 ];
