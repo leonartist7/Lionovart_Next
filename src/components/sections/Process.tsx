@@ -635,9 +635,11 @@ export default function Process(props: any) {
       <div className="relative overflow-hidden bg-black px-5 py-24 lg:hidden">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[100svh] bg-[#f7f4ef] bg-center bg-cover bg-no-repeat"
+          className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[100svh] bg-[#f7f4ef] bg-center bg-no-repeat"
           style={{
-            backgroundImage: "url('/images/process-impasto-transition.webp')",
+            backgroundImage:
+              "url('/images/monochrome_diagonal_impasto_swirl.webp')",
+            backgroundSize: "100% 100%",
           }}
         />
         <div
