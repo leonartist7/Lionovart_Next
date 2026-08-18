@@ -1,9 +1,8 @@
 "use client";
 
-import { startTransition, useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
-import { useLenis } from "lenis/react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 // Cloudinary (same account as rest of site) â€” f_auto/q_auto/w_900 for CWV-friendly delivery.
@@ -19,7 +18,6 @@ const SERVICES_STATIC = [
 
 export default function Services(props: any) {
   const { t } = useLanguage();
-  const lenis = useLenis();
 
   const eyebrow     = props.eyebrow      || t.services.eyebrow;
   const heading     = props.heading      || t.services.heading;
@@ -43,7 +41,6 @@ export default function Services(props: any) {
       }));
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [showServiceImages, setShowServiceImages] = useState(true);
   const activeIndexRef = useRef(0);
   const active = SERVICES[activeIndex] ?? SERVICES[0];
 
@@ -57,15 +54,14 @@ export default function Services(props: any) {
     const idx = Math.min(SERVICES.length - 1, Math.max(0, Math.floor(p * SERVICES.length)));
     if (idx !== activeIndexRef.current) {
       activeIndexRef.current = idx;
-      startTransition(() => setActiveIndex(idx));
+      setActiveIndex(idx);
     }
   });
 
   /* â”€â”€ Mobile: IntersectionObserver on each card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-  const mobileRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  // A short guard prevents the accordion expand/collapse layout shift from
-  // triggering a cascade of observer callbacks without making activation feel
-  // delayed while the user moves to the next service.
+  const mobileRefs = useRef<(HTMLDivElement | null)[]>([]);
+  // A short guard prevents accordion reflow from causing observer feedback
+  // without making the next service feel delayed.
   const lastObserverSetAt = useRef<number>(0);
   useEffect(() => {
     const observers = mobileRefs.current.map((el, i) => {
@@ -78,11 +74,11 @@ export default function Services(props: any) {
             Date.now() - lastObserverSetAt.current > 140
           ) {
             activeIndexRef.current = i;
-            startTransition(() => setActiveIndex(i));
+            setActiveIndex(i);
             lastObserverSetAt.current = Date.now();
           }
         },
-        { rootMargin: "-42% 0px -42% 0px", threshold: 0 }
+        { rootMargin: "-34% 0px -34% 0px", threshold: 0 }
       );
       obs.observe(el);
       return obs;
@@ -105,21 +101,13 @@ export default function Services(props: any) {
           {eyebrow}
         </motion.p>
         <motion.h2
-          className="max-w-3xl"
+          className="text-[2.5rem] sm:text-[3.5rem] md:text-[5rem] lg:text-[6rem] font-bold uppercase leading-[0.92] tracking-[-0.02em] text-[#111111] max-w-3xl"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <button
-            type="button"
-            onClick={() => setShowServiceImages((visible) => !visible)}
-            aria-pressed={showServiceImages}
-            aria-label={showServiceImages ? "Hide service images" : "Show service images"}
-            className="cursor-pointer text-[2.5rem] sm:text-[3.5rem] md:text-[5rem] lg:text-[6rem] font-bold uppercase leading-[0.92] tracking-[-0.02em] text-[#111111] outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-4"
-          >
-            {heading} <span className="text-brand-red">{headingAccent}</span>
-          </button>
+          {heading} <span className="text-brand-red">{headingAccent}</span>
         </motion.h2>
       </div>
 
@@ -131,7 +119,7 @@ export default function Services(props: any) {
       <div
         ref={desktopScrollRef}
         className="hidden lg:block relative"
-        style={{ height: `${SERVICES.length * 110}vh` } as React.CSSProperties}
+        style={{ height: `${SERVICES.length * 105}vh` } as React.CSSProperties}
       >
         {/* Sticky wrapper */}
         <div className="sticky top-0 h-screen flex items-start lg:pt-[10vh] overflow-hidden">
@@ -151,12 +139,7 @@ export default function Services(props: any) {
                           const top = el.getBoundingClientRect().top + window.scrollY;
                           const perService = (el.offsetHeight / SERVICES.length);
                           const segment = i + 0.5;
-                          const target = top + segment * perService;
-                          if (lenis) {
-                            lenis.scrollTo(target, { lerp: 0.1 });
-                          } else {
-                            window.scrollTo({ top: target, behavior: "smooth" });
-                          }
+                          window.scrollTo({ top: top + segment * perService, behavior: "smooth" });
                         }
                       }}
                       className="group flex items-baseline gap-4 text-left w-full py-[clamp(8px,1.2vh,18px)] transition-all duration-500"
@@ -189,7 +172,7 @@ export default function Services(props: any) {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.56, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                   className="absolute inset-0 flex flex-col gap-5 justify-center will-change-[opacity,transform]"
                 >
                   {/* Description + tags */}
@@ -219,17 +202,15 @@ export default function Services(props: any) {
                     </Link>
                   )}
 
-                  {/* Image card — toggled secretly from the section title. */}
-                  {showServiceImages ? (
-                    <div className="self-center h-[min(48vh,360px)] aspect-[9/16] rounded-[18px] xl:rounded-[22px] overflow-hidden shadow-[0_12px_40px_-8px_rgba(0,0,0,0.14)]">
-                      <img
-                        src={active.imgUrl}
-                        alt={active.imgAlt}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    </div>
-                  ) : null}
+                  {/* Image card */}
+                  <div className="w-full aspect-[16/9] rounded-[18px] xl:rounded-[22px] overflow-hidden shadow-[0_12px_40px_-8px_rgba(0,0,0,0.14)]">
+                    <img
+                      src={active.imgUrl}
+                      alt={active.imgAlt}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -243,21 +224,26 @@ export default function Services(props: any) {
           Vertical list â€” IntersectionObserver activates each item.
           Active item expands: description â†’ tags â†’ image.
       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
-      <div className="lg:hidden mx-auto w-full max-w-[640px] px-4 md:px-8 pb-[80px]">
+      <div className="lg:hidden mx-auto w-full max-w-[640px] px-4 md:px-8 pb-[100px]">
         {SERVICES.map((s: any, i: number) => {
           const isActive = i === activeIndex;
           return (
-            <div key={s.id}>
+            <motion.div
+              layout="position"
+              transition={{ layout: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } }}
+              key={s.id}
+              ref={(el) => { mobileRefs.current[i] = el; }}
+              className=""
+            >
               {/* Title row */}
               <button
                 type="button"
-                ref={(el) => { mobileRefs.current[i] = el; }}
                 onClick={() => {
                   activeIndexRef.current = i;
                   lastObserverSetAt.current = Date.now();
                   setActiveIndex(i);
                 }}
-                className="flex items-baseline gap-3 w-full text-left py-9 md:py-11 transition-colors duration-500"
+                className="flex items-baseline gap-3 w-full text-left py-[clamp(2.75rem,7vw,4.5rem)] transition-all duration-500 ease-out"
               >
                 <span
                   className={`font-mono text-[11px] tracking-widest shrink-0 transition-colors duration-400 ${
@@ -267,10 +253,10 @@ export default function Services(props: any) {
                   {s.number}
                 </span>
                 <span
-                  className={`font-bold uppercase leading-none font-clash text-[1.75rem] sm:text-[2.2rem] transition-colors duration-500 ${
+                  className={`font-bold uppercase leading-none font-clash transition-all duration-400 ${
                     isActive
-                      ? "text-[#111]"
-                      : "text-[#d8d8d8]"
+                      ? "text-[#111] text-[1.75rem] sm:text-[2.2rem]"
+                      : "text-[#d8d8d8] text-[1.6rem] sm:text-[2rem]"
                   }`}
                 >
                   {s.title}
@@ -278,14 +264,14 @@ export default function Services(props: any) {
               </button>
 
               {/* Expandable content */}
-              <AnimatePresence initial={false}>
+              <AnimatePresence mode="sync" initial={false}>
                 {isActive && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                    className="overflow-hidden"
+                    animate={{ opacity: 1, height: "auto", y: 0 }}
+                    exit={{ opacity: 0, height: 0, y: -8 }}
+                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                    className="overflow-hidden will-change-[height,opacity,transform]"
                   >
                     <div className="pb-8 flex flex-col gap-4">
                       {/* Description */}
@@ -312,22 +298,20 @@ export default function Services(props: any) {
                           View {s.title} <span aria-hidden>&rarr;</span>
                         </Link>
                       )}
-                      {/* Image — below tags; toggled secretly from the section title. */}
-                      {showServiceImages ? (
-                        <div className="self-center h-[min(62vh,440px)] aspect-[9/16] rounded-[14px] overflow-hidden shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12)]">
-                          <img
-                            src={s.imgUrl}
-                            alt={s.imgAlt}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                          />
-                        </div>
-                      ) : null}
+                      {/* Image â€” below tags */}
+                      <div className="w-full aspect-[16/9] rounded-[14px] overflow-hidden shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12)]">
+                        <img
+                          src={s.imgUrl}
+                          alt={s.imgAlt}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
+            </motion.div>
           );
         })}
         {/* Bottom border */}
