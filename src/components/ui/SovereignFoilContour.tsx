@@ -46,7 +46,7 @@ export const SovereignFoilContour = memo(function SovereignFoilContour({
             u_colors: [[1, 0.95, 0.65, 1]],
             u_colorsCount: 1,
             u_roundness: 0.18,
-            u_thickness: 0.034,
+            u_thickness: 0.04,
             u_marginLeft: 0.008,
             u_marginRight: 0.008,
             u_marginTop: 0.008,
@@ -133,7 +133,7 @@ export const SovereignFoilContour = memo(function SovereignFoilContour({
         }`}
       />
 
-      <div className="absolute inset-[3px] z-[2] rounded-[17px] bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.95),inset_0_0_0_1px_rgba(112,74,0,0.12)] md:rounded-[21px]" />
+      <div className="absolute inset-[4px] z-[2] rounded-[16px] bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.95),inset_0_0_0_1px_rgba(112,74,0,0.12)] md:rounded-[20px]" />
     </div>
   );
 });
