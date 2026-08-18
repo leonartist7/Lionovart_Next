@@ -18,8 +18,8 @@ import TubesCursor from "@/components/ui/TubesCursor";
 import { TrailAttractionProvider } from "@/contexts/TrailAttractionContext";
 
 /**
- * Wraps a section for NOVA's in-view tracker and \`scroll_to_section\` tool.
- * Ids must stay in sync with \`NOVA_KNOWLEDGE.page_sections\` and prompts.
+ * Wraps a section for NOVA's in-view tracker and `scroll_to_section` tool.
+ * Ids must stay in sync with `NOVA_KNOWLEDGE.page_sections` and prompts.
  */
 function NovaSection({ id, children }: { id: string; children: React.ReactNode }) {
   return (
