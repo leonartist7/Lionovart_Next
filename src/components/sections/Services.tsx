@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { startTransition, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
+import { useLenis } from "lenis/react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 // Cloudinary (same account as rest of site) â€” f_auto/q_auto/w_900 for CWV-friendly delivery.
@@ -18,6 +19,7 @@ const SERVICES_STATIC = [
 
 export default function Services(props: any) {
   const { t } = useLanguage();
+  const lenis = useLenis();
 
   const eyebrow     = props.eyebrow      || t.services.eyebrow;
   const heading     = props.heading      || t.services.heading;
@@ -55,12 +57,12 @@ export default function Services(props: any) {
     const idx = Math.min(SERVICES.length - 1, Math.max(0, Math.floor(p * SERVICES.length)));
     if (idx !== activeIndexRef.current) {
       activeIndexRef.current = idx;
-      setActiveIndex(idx);
+      startTransition(() => setActiveIndex(idx));
     }
   });
 
   /* â”€â”€ Mobile: IntersectionObserver on each card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-  const mobileRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const mobileRefs = useRef<(HTMLButtonElement | null)[]>([]);
   // A short guard prevents the accordion expand/collapse layout shift from
   // triggering a cascade of observer callbacks without making activation feel
   // delayed while the user moves to the next service.
@@ -76,11 +78,11 @@ export default function Services(props: any) {
             Date.now() - lastObserverSetAt.current > 140
           ) {
             activeIndexRef.current = i;
-            setActiveIndex(i);
+            startTransition(() => setActiveIndex(i));
             lastObserverSetAt.current = Date.now();
           }
         },
-        { rootMargin: "-30% 0px -30% 0px", threshold: 0 }
+        { rootMargin: "-42% 0px -42% 0px", threshold: 0 }
       );
       obs.observe(el);
       return obs;
@@ -129,7 +131,7 @@ export default function Services(props: any) {
       <div
         ref={desktopScrollRef}
         className="hidden lg:block relative"
-        style={{ height: `${SERVICES.length * 105}vh` } as React.CSSProperties}
+        style={{ height: `${SERVICES.length * 110}vh` } as React.CSSProperties}
       >
         {/* Sticky wrapper */}
         <div className="sticky top-0 h-screen flex items-start lg:pt-[10vh] overflow-hidden">
@@ -149,7 +151,12 @@ export default function Services(props: any) {
                           const top = el.getBoundingClientRect().top + window.scrollY;
                           const perService = (el.offsetHeight / SERVICES.length);
                           const segment = i + 0.5;
-                          window.scrollTo({ top: top + segment * perService, behavior: "smooth" });
+                          const target = top + segment * perService;
+                          if (lenis) {
+                            lenis.scrollTo(target, { lerp: 0.1 });
+                          } else {
+                            window.scrollTo({ top: target, behavior: "smooth" });
+                          }
                         }
                       }}
                       className="group flex items-baseline gap-4 text-left w-full py-[clamp(8px,1.2vh,18px)] transition-all duration-500"
@@ -182,7 +189,7 @@ export default function Services(props: any) {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.56, ease: [0.22, 1, 0.36, 1] }}
                   className="absolute inset-0 flex flex-col gap-5 justify-center will-change-[opacity,transform]"
                 >
                   {/* Description + tags */}
@@ -240,20 +247,17 @@ export default function Services(props: any) {
         {SERVICES.map((s: any, i: number) => {
           const isActive = i === activeIndex;
           return (
-            <div
-              key={s.id}
-              ref={(el) => { mobileRefs.current[i] = el; }}
-              className=""
-            >
+            <div key={s.id}>
               {/* Title row */}
               <button
                 type="button"
+                ref={(el) => { mobileRefs.current[i] = el; }}
                 onClick={() => {
                   activeIndexRef.current = i;
                   lastObserverSetAt.current = Date.now();
                   setActiveIndex(i);
                 }}
-                className="flex items-baseline gap-3 w-full text-left py-9 md:py-11 transition-all duration-500"
+                className="flex items-baseline gap-3 w-full text-left py-9 md:py-11 transition-colors duration-500"
               >
                 <span
                   className={`font-mono text-[11px] tracking-widest shrink-0 transition-colors duration-400 ${
@@ -263,10 +267,10 @@ export default function Services(props: any) {
                   {s.number}
                 </span>
                 <span
-                  className={`font-bold uppercase leading-none font-clash transition-all duration-400 ${
+                  className={`font-bold uppercase leading-none font-clash text-[1.75rem] sm:text-[2.2rem] transition-colors duration-500 ${
                     isActive
-                      ? "text-[#111] text-[1.75rem] sm:text-[2.2rem]"
-                      : "text-[#d8d8d8] text-[1.6rem] sm:text-[2rem]"
+                      ? "text-[#111]"
+                      : "text-[#d8d8d8]"
                   }`}
                 >
                   {s.title}
@@ -280,7 +284,7 @@ export default function Services(props: any) {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+                    transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                     className="overflow-hidden"
                   >
                     <div className="pb-8 flex flex-col gap-4">
