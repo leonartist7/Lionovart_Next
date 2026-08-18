@@ -446,8 +446,6 @@ export default function Process(props: any) {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [completedCount, setCompletedCount] = useState(0);
-  const [vectorPreview, setVectorPreview] = useState(false);
-  const toggleVectorPreview = () => setVectorPreview((current) => !current);
 
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (prefersReducedMotion) {
@@ -485,9 +483,6 @@ export default function Process(props: any) {
     >
       {/* Desktop: a pinned viewport turns physical scroll into visible progress. */}
       <div className="sticky top-0 hidden h-[100svh] overflow-hidden bg-[#f7f4ef] lg:block">
-        {/* The supplied impasto wave is the quiet bridge from the light chapter
-            above into the black Process chapter below. It stays behind every
-            piece of UI so cards, copy, and future art can sit on top of it. */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 z-0 bg-[#f7f4ef] bg-center bg-cover bg-no-repeat"
@@ -495,22 +490,11 @@ export default function Process(props: any) {
             backgroundImage: "url('/images/process-impasto-transition.webp')",
           }}
         />
-        <div
-          aria-hidden
-          className={`pointer-events-none absolute inset-0 z-0 bg-[#f7f4ef] bg-center bg-cover bg-no-repeat transition-opacity duration-500 ease-out ${vectorPreview ? "opacity-100" : "opacity-0"}`}
-          style={{
-            backgroundImage:
-              "url('/images/process-impasto-transition-vector.svg')",
-          }}
-        />
 
-        {/* Dedicated color fades make the white top and black bottom disappear
-            into their neighboring sections instead of ending at a hard edge. */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-[19%] bg-gradient-to-b from-[#f7f4ef] via-[#f7f4ef]/80 to-transparent"
         />
-
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-[23%] bg-gradient-to-t from-black via-black/80 to-transparent"
@@ -537,15 +521,9 @@ export default function Process(props: any) {
           <div className="min-w-0">
             <div className="mb-7 flex items-center gap-4">
               <span className="h-[2px] w-8" style={{ backgroundColor: RED }} />
-              <button
-                type="button"
-                aria-label="Toggle vector process transition preview"
-                aria-pressed={vectorPreview}
-                onClick={toggleVectorPreview}
-                className="cursor-default border-0 bg-transparent p-0 text-left text-[10px] font-bold uppercase tracking-[0.3em] text-white/54 outline-none focus-visible:ring-1 focus-visible:ring-white/40 xl:text-[11px]"
-              >
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/54 xl:text-[11px]">
                 {eyebrow}
-              </button>
+              </p>
             </div>
 
             <SplitTextReveal
@@ -630,12 +608,12 @@ export default function Process(props: any) {
         </motion.div>
       </div>
 
-      {/* Mobile: the same impasto bridge gets its own viewport-height canvas,
-          while the readable step list continues into a solid black field below. */}
-      <div className="relative overflow-hidden bg-black px-5 py-24 lg:hidden">
+      {/* Mobile/tablet: the portrait transition overlaps the preceding light
+          chapter, then resolves completely into black before Process copy begins. */}
+      <div className="relative -mt-[6svh] overflow-hidden bg-black px-5 pb-24 pt-[82svh] lg:hidden">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[100svh] bg-[#f7f4ef] bg-center bg-no-repeat"
+          className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[112svh] bg-[#f7f4ef] bg-center bg-no-repeat"
           style={{
             backgroundImage:
               "url('/images/monochrome_diagonal_impasto_swirl.webp')",
@@ -644,44 +622,26 @@ export default function Process(props: any) {
         />
         <div
           aria-hidden
-          className={`pointer-events-none absolute inset-x-0 top-0 z-0 h-[100svh] bg-[#f7f4ef] bg-center bg-cover bg-no-repeat transition-opacity duration-500 ease-out ${vectorPreview ? "opacity-100" : "opacity-0"}`}
-          style={{
-            backgroundImage:
-              "url('/images/process-impasto-transition-vector.svg')",
-          }}
+          className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-[30svh] bg-gradient-to-b from-[#f7f4ef] via-[#f7f4ef]/95 to-transparent"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-[19svh] bg-gradient-to-b from-[#f7f4ef] via-[#f7f4ef]/80 to-transparent"
+          className="pointer-events-none absolute inset-x-0 top-[80svh] z-[1] h-[32svh] bg-gradient-to-b from-transparent via-black/45 to-black"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-[58svh] bg-gradient-to-b from-black/70 via-black/25 to-transparent"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-[72svh] z-[1] h-[28svh] bg-gradient-to-b from-transparent to-black"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 z-[2] opacity-[0.07]"
+          className="pointer-events-none absolute inset-x-0 top-[50svh] z-[2] h-[62svh] opacity-[0.04]"
           style={{
             background:
-              "radial-gradient(circle at 90% 15%, rgba(229,25,42,.7), transparent 32%)",
+              "radial-gradient(circle at 90% 72%, rgba(229,25,42,.7), transparent 32%)",
           }}
         />
         <div className="relative z-10 mx-auto max-w-xl">
           <div className="flex items-center gap-3">
             <span className="h-[2px] w-7" style={{ backgroundColor: RED }} />
-            <button
-              type="button"
-              aria-label="Toggle vector process transition preview"
-              aria-pressed={vectorPreview}
-              onClick={toggleVectorPreview}
-              className="cursor-default border-0 bg-transparent p-0 text-left text-[10px] font-bold uppercase tracking-[0.28em] text-white/55 outline-none focus-visible:ring-1 focus-visible:ring-white/40"
-            >
+            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/55">
               {eyebrow}
-            </button>
+            </p>
           </div>
           <h2 className="mt-5 text-[clamp(2.45rem,12vw,4.2rem)] font-bold uppercase leading-[0.88] tracking-[-0.045em] text-white">
             {heading} <span style={{ color: RED }}>{headingAccent}</span>
