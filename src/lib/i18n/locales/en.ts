@@ -616,6 +616,13 @@ export const en = {
       },
     ],
   },
+
+  showcase: {
+    eyebrow: "Selected Showcase",
+    heading: "Built to be remembered.",
+    description:
+      "A moving selection across identity, digital experiences, content, print, intelligent systems and growth.",
+  },
 };
 
 export type Translations = typeof en;

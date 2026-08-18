@@ -483,4 +483,11 @@ export const fr: Translations = {
       },
     ],
   },
+
+  showcase: {
+    eyebrow: "Sélection de Projets",
+    heading: "Créé pour rester en mémoire.",
+    description:
+      "Une sélection en mouvement entre identité, expériences numériques, contenu, impression, systèmes intelligents et croissance.",
+  },
 };

@@ -481,4 +481,11 @@ export const es: Translations = {
       },
     ],
   },
+
+  showcase: {
+    eyebrow: "Proyectos Seleccionados",
+    heading: "Creado para ser recordado.",
+    description:
+      "Una selección en movimiento de identidad, experiencias digitales, contenido, impresión, sistemas inteligentes y crecimiento.",
+  },
 };
