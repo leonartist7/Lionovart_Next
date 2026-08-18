@@ -5,10 +5,6 @@ export default function StickyFooterMarquee({ goldHorizon = false }: { goldHoriz
       aria-hidden="true"
       className="pointer-events-none relative z-0 w-full overflow-hidden pb-[clamp(0.5rem,1vw,0.75rem)] pt-[clamp(2.25rem,5vw,4.5rem)]"
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-6 bg-gradient-to-b from-black/15 to-transparent"
-      />
       {goldHorizon && (
         <div
           aria-hidden="true"
