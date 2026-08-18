@@ -77,7 +77,7 @@ export function SectionTitleCard({
   return (
     <div
       ref={rootRef}
-      className={`relative w-full overflow-hidden \${surface}`}
+      className={`relative w-full overflow-hidden ${surface}`}
       style={{ height }}
       aria-hidden="true"
     >
@@ -93,7 +93,7 @@ export function SectionTitleCard({
           willChange: "transform",
           color: "transparent",
           WebkitTextFillColor: "transparent",
-          WebkitTextStroke: `1.5px \${strokeColor}`,
+          WebkitTextStroke: `1.5px ${strokeColor}`,
         }}
       >
         {body}
