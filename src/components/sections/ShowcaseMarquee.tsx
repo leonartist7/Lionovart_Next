@@ -67,8 +67,8 @@ export default function ShowcaseMarquee() {
     <section
       id="showcase"
       aria-labelledby="showcase-title"
-      data-art-directed="dark"
-      className="relative overflow-hidden bg-[#080808] py-16 text-white sm:py-20 lg:py-28"
+      data-art-directed="light"
+      className="relative overflow-hidden bg-white py-16 text-[#111111] sm:py-20 lg:py-28"
     >
       <div
         aria-hidden
@@ -87,7 +87,7 @@ export default function ShowcaseMarquee() {
             {t.showcase.heading}
           </h2>
         </div>
-        <p className="max-w-[38ch] font-body text-[14px] leading-[1.65] text-white/55 sm:text-[16px] lg:pb-1">
+        <p className="max-w-[38ch] font-body text-[14px] leading-[1.65] text-black/55 sm:text-[16px] lg:pb-1">
           {t.showcase.description}
         </p>
       </header>
@@ -105,8 +105,8 @@ export default function ShowcaseMarquee() {
       </div>
 
       <div className="relative z-10 mx-auto mt-8 flex max-w-[1280px] items-center gap-4 px-5 sm:px-8 lg:px-12">
-        <span className="h-px flex-1 bg-white/10" />
-        <span className="font-mono text-[9px] font-bold uppercase tracking-[0.28em] text-white/35">
+        <span className="h-px flex-1 bg-black/10" />
+        <span className="font-mono text-[9px] font-bold uppercase tracking-[0.28em] text-black/40">
           LIONOVART / SELECTED WORK
         </span>
       </div>
