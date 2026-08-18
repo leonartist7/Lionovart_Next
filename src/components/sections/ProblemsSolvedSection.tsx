@@ -25,37 +25,31 @@ const EASE_OUT = [0.20, 1, 0.3, 1] as const;
 
 function ClickToRevealHint() {
   return (
-    <motion.div
-      animate={{ opacity: [0.68, 1, 0.68] }}
-      transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-      className="pointer-events-none absolute right-3 top-20 z-30 flex w-[clamp(7rem,24vw,10.5rem)] flex-col items-center gap-2 sm:right-5 md:right-8"
+    <div
+      className="pointer-events-none absolute inset-x-0 top-8 z-30 h-24 sm:top-10 md:top-12"
       aria-hidden="true"
     >
-      <span className="text-center font-clash text-[10px] font-bold uppercase leading-[1.05] tracking-[0.16em] text-white">
+      <span className="absolute left-1/2 top-0 -translate-x-1/2 text-center font-clash text-[10px] font-bold uppercase leading-[1.05] tracking-[0.16em] text-white sm:text-[11px]">
         <span className="block">Click</span>
         <span className="block">to reveal</span>
       </span>
-      <motion.svg
+
+      <svg
         width="100%"
         height="70"
         viewBox="0 0 96 40"
-        className="h-auto w-full overflow-visible"
+        className="absolute left-[58%] top-4 h-auto w-[clamp(7rem,20vw,12rem)] -rotate-12 overflow-visible"
         fill="none"
-        initial={{ opacity: 0.45 }}
-        animate={{ opacity: [0.45, 1, 0.45] }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
       >
-        <motion.path
+        <path
           d="M93.0681 3C72.3063 18.0061 57.7731 25.925 32.2716 21.1435C26.0822 19.983 15.9133 18.8754 10.945 14.459C8.12295 11.9505 3.74946 11.7165 9.24741 9.57834C13.7751 7.81753 20.3406 4.90981 25.2689 4.90981C27.0487 4.90981 9.62202 9.55411 4.26061 10.7455C-2.59384 12.2686 20.5637 33.6269 24.314 37.3771"
+          transform="translate(96 0) scale(-1 1)"
           stroke="#ffffff"
-          strokeWidth="3"
+          strokeWidth="2.75"
           strokeLinecap="round"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
         />
-      </motion.svg>
-    </motion.div>
+      </svg>
+    </div>
   );
 }
 
