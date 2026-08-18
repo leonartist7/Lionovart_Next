@@ -1,14 +1,12 @@
 import HeroTop from "@/components/sections/HeroTop";
 import SceneVideoBackdrop from "@/components/sections/SceneVideoBackdrop";
 import StrongTogetherTransition from "@/components/sections/StrongTogetherTransition";
-import PrideGallery from "@/components/sections/PrideGallery";
 
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import WhatWeDo from "@/components/sections/WhatWeDo";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
 import SignatureOffer from "@/components/sections/SignatureOffer";
 import Services from "@/components/sections/Services";
-import ShowcaseMarquee from "@/components/sections/ShowcaseMarquee";
 import Comparison from "@/components/sections/Comparison";
 import Process from "@/components/sections/Process";
 import Testimonials from "@/components/sections/Testimonials";
@@ -42,10 +40,8 @@ export function PageBuilder() {
       <div>
         <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
         <StrongTogetherTransition />
-        <PrideGallery />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
         <NovaSection id="services"><Services /></NovaSection>
-        <ShowcaseMarquee />
         <NovaSection id="offer"><SignatureOffer /></NovaSection>
         <SectionTitleCard word="WHY US" theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>

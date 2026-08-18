@@ -16,10 +16,11 @@ import {
 const TAG_CLASS = "border-white/25 text-white/75";
 
 interface Card {
+  code: string;
   title: string;
   body: string;
   tags: string[];
-  image: string;
+  image?: string;
 }
 
 interface Props {
@@ -209,14 +210,16 @@ function Pane({
             transform: "rotateY(180deg)",
           }}
         >
-          <motion.img
-            src={card.image}
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 h-full w-full object-cover"
-            variants={backImageVariants}
-            custom={custom}
-          />
+          {card.image ? (
+            <motion.img
+              src={card.image}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full object-cover"
+              variants={backImageVariants}
+              custom={custom}
+            />
+          ) : null}
           <motion.div
             className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"
             variants={backScrimVariants}
@@ -241,6 +244,9 @@ function Pane({
             variants={contentVariants}
             custom={custom}
           >
+            <p className="mb-3 font-mono text-[9px] font-bold uppercase tracking-[0.25em] text-[#f0c917]">
+              {card.code} / LIONOVART
+            </p>
             <h3 className="font-clash text-[1.4rem] font-bold uppercase leading-[1.0] text-white md:text-[1.9rem]">
               {card.title}
             </h3>
@@ -546,10 +552,10 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
 
         <div className="relative z-40 mx-auto max-w-[52ch] px-6 text-center">
           <h2 className="font-clash text-[clamp(1.8rem,4vw,3.75rem)] font-semibold uppercase leading-[0.92] tracking-[-0.035em] text-[#f2ede3]">
-            Different disciplines. One unmistakable direction.
+            Strategy leads. Systems move. Creativity makes it matter.
           </h2>
           <p className="mx-auto mt-5 max-w-[52ch] font-body text-[13px] leading-[1.6] text-white/60 md:text-[15px]">
-            Identity, content, and systems aligned around the ambition behind your brand.
+            Three disciplines, orchestrated around one ambition: making your brand impossible to ignore.
           </p>
         </div>
       </div>

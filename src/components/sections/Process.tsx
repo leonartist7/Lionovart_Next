@@ -70,8 +70,6 @@ const INK = "#0a0a0a";
 const EASE = [0.16, 1, 0.3, 1] as const;
 const JOURNEY_START = 0.08;
 const JOURNEY_END = 0.9;
-const STACK_STEP = 24;
-const STACK_EXIT_Y = -156;
 
 type StepRailItemProps = {
   step: ProcessStep;
@@ -286,7 +284,7 @@ function RewardCard({
   );
 }
 
-function StackedCardDeck({
+function ActiveRewardCard({
   steps,
   activeIndex,
   gainLabel,
@@ -299,44 +297,26 @@ function StackedCardDeck({
   deliverLabel: string;
   reduced: boolean;
 }) {
-  return (
-    <div className="relative h-full w-full">
-      {steps.map((step, index) => {
-        const distance = index - activeIndex;
-        const behind = Math.max(0, distance);
-        const completed = distance < 0;
+  const step = steps[activeIndex];
 
-        return (
-          <motion.div
-            key={step.num}
-            className="absolute inset-0 origin-top"
-            initial={false}
-            animate={{
-              y: completed ? STACK_EXIT_Y : behind * STACK_STEP,
-              scale: completed ? 0.93 : 1 - Math.min(behind, 4) * 0.035,
-              opacity: completed ? 0 : 1 - Math.min(behind, 4) * 0.1,
-              rotate: completed ? -1.5 : behind * 0.35,
-            }}
-            transition={
-              reduced
-                ? { duration: 0 }
-                : { type: "spring", stiffness: 170, damping: 25, mass: 0.8 }
-            }
-            style={{
-              zIndex: completed ? 1 : steps.length - distance,
-              pointerEvents: index === activeIndex ? "auto" : "none",
-            }}
-          >
-            <RewardCard
-              step={step}
-              index={index}
-              gainLabel={gainLabel}
-              deliverLabel={deliverLabel}
-            />
-          </motion.div>
-        );
-      })}
-    </div>
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div
+        key={step.num}
+        initial={reduced ? false : { opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={reduced ? undefined : { opacity: 0, y: -18 }}
+        transition={{ duration: reduced ? 0 : 0.38, ease: EASE }}
+        className="h-full w-full"
+      >
+        <RewardCard
+          step={step}
+          index={activeIndex}
+          gainLabel={gainLabel}
+          deliverLabel={deliverLabel}
+        />
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
@@ -441,8 +421,6 @@ export default function Process(props: any) {
     target: sectionRef,
     offset: ["start start", "end end"],
   });
-  const contentOpacity = useTransform(scrollYProgress, [0.068, 0.09], [0, 1]);
-  const contentY = useTransform(scrollYProgress, [0.068, 0.09], [14, 0]);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [completedCount, setCompletedCount] = useState(0);
@@ -513,10 +491,6 @@ export default function Process(props: any) {
 
         <motion.div
           className="relative z-10 mx-auto grid h-full w-full max-w-[1480px] grid-cols-[minmax(0,0.94fr)_minmax(400px,1.06fr)] items-center gap-12 px-8 py-16 xl:gap-20 xl:px-14"
-          style={{
-            opacity: prefersReducedMotion ? 1 : contentOpacity,
-            y: prefersReducedMotion ? 0 : contentY,
-          }}
         >
           <div className="min-w-0">
             <div className="mb-7 flex items-center gap-4">
@@ -570,16 +544,6 @@ export default function Process(props: any) {
 
           <div className="relative mx-auto h-[430px] w-full max-w-[650px] xl:h-[470px]">
             <div
-              aria-hidden
-              className="absolute inset-x-5 -bottom-8 top-8 rounded-[28px] border border-white/[0.07] bg-[#08090b]"
-              style={{ transform: "scale(0.94)" }}
-            />
-            <div
-              aria-hidden
-              className="absolute inset-x-2 -bottom-4 top-4 rounded-[28px] border border-white/[0.09] bg-[#0a0b0d]"
-              style={{ transform: "scale(0.97)" }}
-            />
-            <div
               className="relative h-full rounded-[29px] p-px"
               style={{
                 background:
@@ -594,7 +558,7 @@ export default function Process(props: any) {
                     reduced={prefersReducedMotion}
                   />
                 ) : (
-                  <StackedCardDeck
+                  <ActiveRewardCard
                     steps={steps}
                     activeIndex={activeIndex}
                     gainLabel={gainLabel}
