@@ -36,9 +36,9 @@ export const metadata: Metadata = {
  * /services/ai — Tier 2, on the shared 7-act spine.
  *
  * Structure: one particle world runs continuously behind the entire page. The
- * lion stretches into a vertical energy current for the middle acts and the
- * same particles reform above the CTA. There is no second canvas or visual
- * handoff between independent renderers.
+ * lion opens into an immersive field, reconnects as an ecosystem, becomes an
+ * energy flow and platform hub, then reforms above the CTA. The swarm, trails,
+ * dust, and plexus are all coordinated inside the same renderer.
  */
 export default function AiServicePage() {
   return (

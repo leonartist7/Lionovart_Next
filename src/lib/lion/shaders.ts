@@ -76,7 +76,7 @@ vec3 curl(vec3 p){
 `;
 export const PARTICLE_VERT = /* glsl */ `
 uniform float uTime;
-uniform float uMorph;        // 0 = lion, 1 = vertical energy current
+uniform float uMorph;        // 0 = lion, 1 = connected platform hub
 uniform float uIntro;        // 0..1 intro assembly progress
 uniform float uDriftAmp;     // ember drift amplitude (grows with morph)
 uniform float uTurb;         // turbulence amplitude (grows with morph)
@@ -107,11 +107,12 @@ void main(){
   // breathing along the surface normal
   p += aNormal * (0.018 * sin(uTime * 0.7 + aRand.x * 6.2831));
 
-  // Curl noise is the most expensive vertex work. It belongs to the mane, so
-  // stop evaluating it once the particles have become the energy current.
-  if (m < 0.98) {
+  // Curl noise is the most expensive vertex work. It belongs to the organic
+  // lion/expansion phases, so stop evaluating it once the system locks into
+  // its geometric states.
+  if (m < 0.62) {
     vec3 turb = curl(p * 1.35 + vec3(0.0, uTime * 0.12, uTime * 0.05));
-    p += turb * uTurb * (1.0 - m);
+    p += turb * uTurb * (1.0 - smoothstep(0.36, 0.62, m));
   }
 
   // scroll onset: the whole lion begins a slow, stately turn in the SAME
@@ -128,27 +129,73 @@ void main(){
   p += driftDir * ph * uDriftAmp * (0.35 + aRand.z * 0.65) * (1.0 - m);
   float emberFade = 0.45 + 0.55 * (smoothstep(0.0, 0.12, ph) * smoothstep(1.0, 0.82, ph));
 
-  // ---------- vertical energy state -----------------------------------------
-  // The same lion particles stretch into a narrow current. There is no second
-  // shader layer and no central sphere: every mark remains traceable from the
-  // lion into the flow and back again.
+  // ---------- story forms ----------------------------------------------------
+  // One population becomes every chapter. The wide spacing and explicit
+  // transitions avoid the opaque sphere / white-hole artifact of the previous
+  // singularity treatment.
+  vec3 burstDir = normalize(aRand.xyz - 0.5 + 1e-4);
+  float burstRadius = 1.15 + aRand.w * 2.65;
+  vec3 burst = burstDir * burstRadius;
+  burst.z += (aRand.y - 0.5) * 2.4;
+  burst += vec3(
+    sin(uTime * 0.35 + aRand.x * 12.0),
+    cos(uTime * 0.28 + aRand.y * 11.0),
+    sin(uTime * 0.31 + aRand.z * 10.0)
+  ) * 0.13;
+
+  // Three open, intersecting orbital bands: a connected ecosystem with no
+  // filled center. Each particle stays individually readable.
+  float phase = aRand.w * 6.2831853;
+  float ecoAngle = aRand.x * 6.2831853 + uTime * (0.12 + aRand.y * 0.08);
+  float ecoRadius = 0.92 + aRand.z * 0.58;
+  vec3 ecosystem = vec3(
+    cos(ecoAngle) * ecoRadius,
+    sin(ecoAngle) * ecoRadius * 0.68,
+    (aRand.y - 0.5) * 0.38
+  );
+  float band = floor(aRand.y * 3.0);
+  if (band < 1.0) {
+    ecosystem = vec3(ecosystem.x, ecosystem.y * 0.55 - ecosystem.z * 0.84, ecosystem.y * 0.84 + ecosystem.z * 0.55);
+  } else if (band < 2.0) {
+    ecosystem = vec3(ecosystem.x * 0.72 - ecosystem.z * 0.69, ecosystem.y, ecosystem.x * 0.69 + ecosystem.z * 0.72);
+  } else {
+    ecosystem = vec3(ecosystem.x * 0.82 + ecosystem.y * 0.57, -ecosystem.x * 0.57 + ecosystem.y * 0.82, ecosystem.z);
+  }
+
+  // A double-helix current: energy visibly travelling through the connected
+  // system, rather than a low-resolution full-screen shader.
   float flowY = mod(
     aRand.x * 4.4 - uTime * (0.18 + aRand.y * 0.08) + 2.2,
     4.4
   ) - 2.2;
-  float phase = aRand.w * 6.2831853;
-  float lane = (aRand.z - 0.5) * 0.38;
-  float wideWave = sin(flowY * 2.35 - uTime * 0.72 + phase)
-    * (0.07 + aRand.y * 0.11);
-  float fineWave = cos(flowY * 5.1 + uTime * 1.05 + phase) * 0.045;
+  float helixAngle = flowY * 2.55 - uTime * 0.82 + phase;
+  float helixRadius = 0.18 + aRand.z * 0.24;
   vec3 energy = vec3(
-    lane + wideWave + fineWave,
+    cos(helixAngle) * helixRadius,
     flowY,
-    (aRand.w - 0.5) * 0.26 + sin(flowY * 3.4 + phase) * 0.08
+    sin(helixAngle) * helixRadius
   );
 
-  float energyT = smoothstep(0.10, 0.92, m);
-  vec3 finalPos = mix(p, energy, energyT);
+  // Five stacked data rings condense the flow into an efficient platform hub.
+  float layer = floor(aRand.y * 5.0);
+  float hubY = (layer - 2.0) * 0.34;
+  float hubAngle = aRand.x * 6.2831853 + uTime * (0.22 + layer * 0.035);
+  float hubRadius = 0.42 + aRand.z * 0.72;
+  vec3 hub = vec3(
+    cos(hubAngle) * hubRadius,
+    hubY + sin(hubAngle * 2.0 + phase) * 0.045,
+    sin(hubAngle) * hubRadius * 0.48
+  );
+
+  float burstT = smoothstep(0.08, 0.28, m);
+  float ecosystemT = smoothstep(0.30, 0.50, m);
+  float flowT = smoothstep(0.56, 0.76, m);
+  float hubT = smoothstep(0.80, 0.97, m);
+
+  vec3 finalPos = mix(p, burst, burstT);
+  finalPos = mix(finalPos, ecosystem, ecosystemT);
+  finalPos = mix(finalPos, energy, flowT);
+  finalPos = mix(finalPos, hub, hubT);
 
   // ---------- Act 7: reform ---------------------------------------------------
   // The peak-end beat. Give the sparse lion enough screen area for its muzzle,
@@ -205,18 +252,22 @@ void main(){
   float fold = smoothstep(0.90, 0.45, aNormal.z) * step(0.0, aNormal.z);
   col *= 1.0 - fold * 0.62 * faceMask * (1.0 - m);
 
-  // The energy current shifts toward violet/cyan without changing renderers.
-  // A restrained pulse gives it life while keeping individual particles crisp.
-  vec3 energyColor = mix(
+  // Color follows the same chapters: gold erupts into electric violet/cyan,
+  // then resolves into a warm connected platform before the CTA lion returns.
+  vec3 ecosystemColor = mix(
     vec3(0.16, 0.48, 1.25),
     vec3(0.72, 0.20, 1.18),
     aRand.z
   );
+  ecosystemColor = mix(ecosystemColor, vec3(1.28, 0.76, 0.24), step(0.78, aRand.w) * 0.72);
   float energyPulse = 0.78 + 0.22 * sin(
     flowY * 4.0 - uTime * 1.25 + aRand.y * 6.2831853
   );
-  energyColor *= energyPulse;
-  col = mix(col, energyColor, energyT);
+  vec3 energyColor = mix(vec3(0.08, 0.72, 1.35), vec3(0.78, 0.16, 1.25), aRand.z) * energyPulse;
+  vec3 hubColor = mix(vec3(0.30, 0.58, 1.18), vec3(1.35, 0.82, 0.28), aRand.y);
+  col = mix(col, ecosystemColor, ecosystemT);
+  col = mix(col, energyColor, flowT);
+  col = mix(col, hubColor, hubT);
 
   // reforming: the gold comes back with the shape
   col = mix(col, gold * 1.08, uBloom);
@@ -225,7 +276,8 @@ void main(){
   float twinkle = 0.75 + 0.25 * sin(uTime * (1.2 + aRand.z * 2.0) + aRand.x * 40.0);
 
   vColor = col * twinkle;
-  vAlpha = mix(emberFade, 0.68, energyT) * introT;
+  float systemT = smoothstep(0.08, 0.32, m);
+  vAlpha = mix(emberFade, 0.76, systemT) * introT;
   vAlpha = mix(vAlpha, 0.92, uBloom);
 
   // ---------- projection -----------------------------------------------------
@@ -234,12 +286,13 @@ void main(){
 
   float sizeJitter = 0.4 + aRand.w * 0.8;
   gl_PointSize = uSize * sizeJitter * uPixelRatio * (1.0 / -mv.z);
-  gl_PointSize *= (1.0 - energyT * 0.22);
+  gl_PointSize *= (1.0 - systemT * 0.24);
   gl_PointSize *= mix(1.0, 1.08, uBloom);
 
   // depth of field: off-focus particles become soft bokeh discs
   float coc = clamp(abs(-mv.z - uFocusDist) * uDofAmount, 0.0, 2.0);
   gl_PointSize *= 1.0 + coc * 1.5;
+  gl_PointSize = min(gl_PointSize, 48.0 * uPixelRatio);
   vAlpha /= 1.0 + coc * 1.2;
 }
 `;
@@ -267,6 +320,211 @@ void main(){
   if (a < 0.025) discard;
   vec3 col = vColor;
   gl_FragColor = vec4(col * a * uGain, a);
+}
+`;
+
+// Ambient gold dust. It opens into the immersive burst, then aligns with the
+// energy chapters. This remains a lightweight draw call in the same renderer.
+export const DUST_VERT = /* glsl */ `
+uniform float uTime;
+uniform float uPixelRatio;
+uniform float uFocusDist;
+uniform float uDofAmount;
+uniform float uMorph;
+attribute vec4 aRand;
+varying float vAlpha;
+
+void main(){
+  float m = smoothstep(0.0, 1.0, uMorph);
+  float ph = fract(uTime * (0.018 + aRand.y * 0.022) + aRand.x);
+
+  vec3 ambient = position + normalize(vec3(0.48, 1.0, 0.16)) * ph * 6.0;
+  ambient.x = mod(ambient.x + 4.0, 8.0) - 4.0;
+  ambient.y = mod(ambient.y + 3.0, 6.0) - 3.0;
+
+  vec3 burstDir = normalize(aRand.xyz - 0.5 + 1e-4);
+  vec3 burst = burstDir * (1.6 + aRand.w * 3.4);
+  burst.z += (aRand.y - 0.5) * 3.5;
+
+  float flowY = mod(aRand.x * 5.2 - uTime * (0.16 + aRand.y * 0.10) + 2.6, 5.2) - 2.6;
+  float flowA = flowY * 2.1 + aRand.w * 6.2831853 - uTime * 0.55;
+  vec3 flow = vec3(cos(flowA) * (0.7 + aRand.z * 1.25), flowY, sin(flowA) * 0.28 - 1.8);
+
+  float burstT = smoothstep(0.08, 0.27, m);
+  float flowT = smoothstep(0.54, 0.78, m);
+  vec3 p = mix(ambient, burst, burstT);
+  p = mix(p, flow, flowT);
+
+  float life = smoothstep(0.0, 0.18, ph) * smoothstep(1.0, 0.78, ph);
+  float burstGlow = 1.0 + 0.8 * smoothstep(0.12, 0.25, m) * (1.0 - smoothstep(0.34, 0.48, m));
+  vAlpha = life * (0.16 + aRand.z * 0.34) * burstGlow;
+
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  gl_Position = projectionMatrix * mv;
+  gl_PointSize = (0.8 + aRand.w * 1.8) * uPixelRatio * (1.5 / -mv.z);
+  float coc = clamp(abs(-mv.z - uFocusDist) * uDofAmount, 0.0, 2.0);
+  gl_PointSize *= 1.0 + coc * 1.4;
+  gl_PointSize = min(gl_PointSize, 7.0 * uPixelRatio);
+  vAlpha /= 1.0 + coc * 0.8;
+}
+`;
+
+export const DUST_FRAG = /* glsl */ `
+precision highp float;
+uniform vec3 uColor;
+varying float vAlpha;
+void main(){
+  float d = length(gl_PointCoord - 0.5);
+  float a = smoothstep(0.5, 0.10, d) * vAlpha;
+  if (a < 0.006) discard;
+  gl_FragColor = vec4(uColor * a, a);
+}
+`;
+
+// Orbital swarm, trails, and plexus share this exact position function so the
+// lines never detach from the nodes while the whole system changes form.
+export const SWARM_POS_GLSL = /* glsl */ `
+vec3 swarmPos(vec4 r, float lag, float t, float m){
+  float heroAngle = r.x * 6.2831853 + t * (0.30 + r.y * 0.55) - lag * (0.30 + r.y * 0.55);
+  vec3 hero = vec3(
+    cos(heroAngle) * (0.98 + r.z * 0.45),
+    -0.80 + sin(heroAngle * 1.7 + r.z * 6.2831853) * 0.12,
+    sin(heroAngle) * (0.56 + r.w * 0.30)
+  );
+  float tilt = 0.38;
+  hero = vec3(hero.x, hero.y * cos(tilt) - hero.z * sin(tilt), hero.y * sin(tilt) + hero.z * cos(tilt));
+
+  vec3 burstDir = normalize(r.xyz - 0.5 + 1e-4);
+  vec3 burst = burstDir * (1.35 + r.w * 2.8);
+  burst += vec3(sin(t * 0.30 + r.x * 9.0), cos(t * 0.26 + r.y * 8.0), 0.0) * 0.12;
+
+  float ecoAngle = r.x * 6.2831853 + t * (0.20 + r.y * 0.16) - lag * 0.45;
+  float ecoRadius = 1.10 + r.z * 0.52;
+  vec3 ecosystem = vec3(cos(ecoAngle) * ecoRadius, sin(ecoAngle) * ecoRadius * 0.68, (r.w - 0.5) * 0.72);
+  float ecoTilt = (r.y - 0.5) * 1.4;
+  ecosystem = vec3(ecosystem.x, ecosystem.y * cos(ecoTilt) - ecosystem.z * sin(ecoTilt), ecosystem.y * sin(ecoTilt) + ecosystem.z * cos(ecoTilt));
+
+  float flowY = mod(r.x * 4.6 - t * (0.22 + r.y * 0.11) + 2.3, 4.6) - 2.3;
+  float flowAngle = flowY * 2.45 + r.w * 6.2831853 - t * 0.78 - lag * 0.9;
+  vec3 flow = vec3(cos(flowAngle) * (0.30 + r.z * 0.30), flowY, sin(flowAngle) * (0.25 + r.z * 0.22));
+
+  float layer = floor(r.y * 5.0);
+  float hubAngle = r.x * 6.2831853 + t * (0.28 + layer * 0.035) - lag * 0.55;
+  float hubRadius = 0.54 + r.z * 0.78;
+  vec3 hub = vec3(cos(hubAngle) * hubRadius, (layer - 2.0) * 0.34, sin(hubAngle) * hubRadius * 0.5);
+
+  vec3 p = mix(hero, burst, smoothstep(0.08, 0.28, m));
+  p = mix(p, ecosystem, smoothstep(0.30, 0.50, m));
+  p = mix(p, flow, smoothstep(0.56, 0.76, m));
+  p = mix(p, hub, smoothstep(0.80, 0.97, m));
+  return p;
+}
+
+vec3 ctaSwarmPos(vec4 r, float lag, float t, vec3 cta){
+  float a = r.x * 6.2831853 + t * (0.28 + r.y * 0.24) - lag * 0.55;
+  float radius = 0.72 + r.z * 0.62;
+  return cta + vec3(cos(a) * radius, sin(a) * radius * 0.56, sin(a * 1.3) * 0.22);
+}
+`;
+
+export const SWARM_VERT = /* glsl */ `
+uniform float uTime;
+uniform float uPixelRatio;
+uniform float uMorph;
+uniform float uFocusDist;
+uniform float uDofAmount;
+uniform float uBloom;
+uniform vec3 uCta;
+attribute vec4 aRand;
+attribute float aTrail;
+attribute float aLag;
+varying float vAlpha;
+varying float vMix;
+varying float vGlint;
+
+${SWARM_POS_GLSL}
+
+void main(){
+  float m = smoothstep(0.0, 1.0, uMorph);
+  vec3 p = swarmPos(aRand, aLag, uTime, m);
+  p = mix(p, ctaSwarmPos(aRand, aLag, uTime, uCta), uBloom);
+
+  float pulse = 0.78 + 0.22 * sin(uTime * (0.8 + aRand.y) + aRand.x * 6.2831853);
+  vAlpha = pulse * (0.52 + aRand.w * 0.38) * (1.0 - aTrail * 0.80);
+  vMix = aRand.z;
+  vGlint = step(aTrail, 0.001) * step(0.78, fract(aRand.x * 7.31));
+  vGlint *= 0.55 + 0.45 * sin(uTime * 2.2 + aRand.x * 40.0);
+
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  gl_Position = projectionMatrix * mv;
+  float size = (7.0 + aRand.w * 9.0) * (1.0 - aTrail * 0.58);
+  gl_PointSize = size * uPixelRatio * (2.5 / -mv.z);
+  float coc = clamp(abs(-mv.z - uFocusDist) * uDofAmount, 0.0, 2.0);
+  gl_PointSize *= 1.0 + coc;
+  gl_PointSize = min(gl_PointSize, 34.0 * uPixelRatio);
+  vAlpha /= 1.0 + coc * 0.8;
+}
+`;
+
+export const SWARM_FRAG = /* glsl */ `
+precision highp float;
+varying float vAlpha;
+varying float vMix;
+varying float vGlint;
+void main(){
+  vec2 uv = gl_PointCoord - 0.5;
+  float d = length(uv) * 2.0;
+  float core = exp(-d * d * 75.0) * 1.35;
+  float inner = exp(-d * d * 16.0) * 0.70;
+  float halo = exp(-d * 3.2) * 0.22;
+  float star = (exp(-abs(uv.x) * 34.0) + exp(-abs(uv.y) * 34.0)) * exp(-d * 5.5) * vGlint * 0.55;
+  float a = clamp((core + inner + halo + star) * vAlpha, 0.0, 1.0);
+  if (a < 0.006) discard;
+  vec3 col = mix(vec3(1.0, 0.52, 0.14), vec3(0.30, 0.72, 1.35), vMix * 0.72);
+  col = mix(col, vec3(1.45, 1.18, 0.76), clamp(core * 0.32, 0.0, 1.0));
+  gl_FragColor = vec4(col * a, a);
+}
+`;
+
+export const PLEXUS_VERT = /* glsl */ `
+uniform float uTime;
+uniform float uMorph;
+uniform float uFade;
+uniform float uBloom;
+uniform vec3 uCta;
+attribute vec4 aRand;
+attribute float aLag;
+attribute vec4 aRandB;
+attribute float aLagB;
+varying float vAlpha;
+
+${SWARM_POS_GLSL}
+
+void main(){
+  float m = smoothstep(0.0, 1.0, uMorph);
+  vec3 a = swarmPos(aRand, aLag, uTime, m);
+  vec3 b = swarmPos(aRandB, aLagB, uTime, m);
+  a = mix(a, ctaSwarmPos(aRand, aLag, uTime, uCta), uBloom);
+  b = mix(b, ctaSwarmPos(aRandB, aLagB, uTime, uCta), uBloom);
+
+  float heroW = 1.0 - smoothstep(0.10, 0.24, m);
+  float ecosystemW = smoothstep(0.30, 0.46, m) * (1.0 - smoothstep(0.58, 0.74, m));
+  float flowW = smoothstep(0.58, 0.72, m) * (1.0 - smoothstep(0.80, 0.92, m));
+  float hubW = smoothstep(0.82, 0.96, m);
+  float chapterW = max(max(heroW, ecosystemW), max(flowW * 0.34, hubW * 0.72));
+  chapterW = mix(chapterW, 0.9, uBloom);
+  float d = length(a - b);
+  vAlpha = (1.0 - smoothstep(0.10, 0.48, d)) * chapterW * 0.48 * uFade;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(a, 1.0);
+}
+`;
+
+export const PLEXUS_FRAG = /* glsl */ `
+precision highp float;
+varying float vAlpha;
+void main(){
+  if (vAlpha < 0.004) discard;
+  gl_FragColor = vec4(vec3(0.95, 0.62, 0.26) * vAlpha, vAlpha);
 }
 `;
 

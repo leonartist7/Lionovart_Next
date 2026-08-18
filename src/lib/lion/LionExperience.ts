@@ -8,8 +8,11 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import gsap from "gsap";
 import {
   PARTICLE_VERT, PARTICLE_FRAG,
+  DUST_VERT, DUST_FRAG,
   QUAD_VERT, GRADE_FRAG,
   FLARE_FRAG,
+  SWARM_VERT, SWARM_FRAG,
+  PLEXUS_VERT, PLEXUS_FRAG,
 } from "./shaders";
 
 export interface LionExperienceOptions {
@@ -43,6 +46,10 @@ export class LionExperience {
   private camera!: THREE.PerspectiveCamera;
   private composer!: EffectComposer;
   private bloom!: UnrealBloomPass;
+  private dust: THREE.Points | null = null;
+  private swarmMat: THREE.ShaderMaterial | null = null;
+  private plexusMat: THREE.ShaderMaterial | null = null;
+  private swarmGroup: THREE.Group | null = null;
   private flare: THREE.Mesh | null = null;
   private gainAspect = 1;
   private halfH = 1.85;
@@ -63,6 +70,8 @@ export class LionExperience {
   /** Scroll-driven morph target, eased internally (0 = lion, 1 = energy current) */
   public morphTarget = 0;
   private morph = 0;
+  private layoutTarget = 0;
+  private layout = 0;
   private baseGain = 1;
 
   // Act weights, written by the section that owns each beat (lib/lion/stage-ref),
@@ -93,8 +102,14 @@ export class LionExperience {
   // ------------------------------------------------------- act inputs ------
   // Each setter is driven by a ScrollTrigger on the section that owns the beat.
 
-  /** Act 1: 0 = lion, 1 = vertical energy current. */
+  /** Page story: lion → expansion → ecosystem → energy flow → platform hub. */
   setMorph(v: number): void { this.morphTarget = clamp01(v); }
+
+  /** Move the active sculpture horizontally in normalized viewport space. */
+  setLayout(v: number): void {
+    const responsive = this.compactDevice ? v * 0.35 : v;
+    this.layoutTarget = THREE.MathUtils.clamp(responsive, -0.72, 0.72);
+  }
 
   /** Act 7: 0 = energy current, 1 = reformed lion above the CTA. */
   setBloom(v: number): void { this.bloomW = clamp01(v); }
@@ -111,7 +126,10 @@ export class LionExperience {
   setCtaScreenPos(nx: number, ny: number): void {
     if (!this.material) return;
     const w = this.toWorld(nx, ny);
-    (this.material.uniforms.uCrest.value as THREE.Vector3).set(w.x, w.y + this.halfH * 0.72, 0);
+    const crest = new THREE.Vector3(w.x, w.y + this.halfH * 0.72, 0);
+    (this.material.uniforms.uCrest.value as THREE.Vector3).copy(crest);
+    if (this.swarmMat) (this.swarmMat.uniforms.uCta.value as THREE.Vector3).copy(crest);
+    if (this.plexusMat) (this.plexusMat.uniforms.uCta.value as THREE.Vector3).copy(crest);
   }
 
   /** Normalized screen coords (x right, y down) to a point on the z=0 plane. */
@@ -185,6 +203,7 @@ export class LionExperience {
     this.camera = new THREE.PerspectiveCamera(42, 1, 0.1, 60);
     this.camera.position.set(0, 0.05, 4.8);
 
+    this.buildDust();
     this.buildFlare();
     await this.buildLionParticles();
     if (this.disposed) return; // unmounted while the GLB was in flight
@@ -304,6 +323,149 @@ export class LionExperience {
     // muzzle and brow stop resolving and it reads as a glowing sphere.
     this.points.scale.setScalar(0.92);
     this.scene.add(this.points);
+    this.buildSwarm();
+  }
+
+  // -------------------------------------------------------- ambient dust --
+  private buildDust(): void {
+    const count = this.compactDevice ? 520 : 1_600;
+    const positions = new Float32Array(count * 3);
+    const rand = new Float32Array(count * 4);
+
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 8;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 6;
+      positions[i * 3 + 2] = -1.5 - Math.random() * 3.5;
+      for (let j = 0; j < 4; j++) rand[i * 4 + j] = Math.random();
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute("aRand", new THREE.BufferAttribute(rand, 4));
+    const mat = new THREE.ShaderMaterial({
+      vertexShader: DUST_VERT,
+      fragmentShader: DUST_FRAG,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      uniforms: {
+        uTime: { value: 0 },
+        uPixelRatio: { value: Math.min(window.devicePixelRatio, this.compactDevice ? 1 : DPR_CAP) },
+        uColor: { value: new THREE.Color(0.95, 0.62, 0.22) },
+        uFocusDist: { value: 3.9 },
+        uDofAmount: { value: 0.30 },
+        uMorph: { value: 0 },
+      },
+    });
+
+    this.dust = new THREE.Points(geo, mat);
+    this.dust.frustumCulled = false;
+    this.scene.add(this.dust);
+  }
+
+  // ----------------------------------------------- swarm, trails, plexus --
+  private buildSwarm(): void {
+    const heads = this.compactDevice ? 56 : 120;
+    const trailLength = this.compactDevice ? 3 : 5;
+    const count = heads * (trailLength + 1);
+    const positions = new Float32Array(count * 3);
+    const rand = new Float32Array(count * 4);
+    const trail = new Float32Array(count);
+    const lag = new Float32Array(count);
+    const headRand = new Float32Array(heads * 4);
+
+    let cursor = 0;
+    for (let i = 0; i < heads; i++) {
+      const seed = [Math.random(), Math.random(), Math.random(), Math.random()];
+      headRand.set(seed, i * 4);
+      for (let j = 0; j <= trailLength; j++) {
+        const amount = j / trailLength;
+        rand.set(seed, cursor * 4);
+        trail[cursor] = amount;
+        lag[cursor] = j === 0 ? 0 : amount * 1.25;
+        cursor++;
+      }
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute("aRand", new THREE.BufferAttribute(rand, 4));
+    geo.setAttribute("aTrail", new THREE.BufferAttribute(trail, 1));
+    geo.setAttribute("aLag", new THREE.BufferAttribute(lag, 1));
+
+    this.swarmMat = new THREE.ShaderMaterial({
+      vertexShader: SWARM_VERT,
+      fragmentShader: SWARM_FRAG,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      uniforms: {
+        uTime: { value: 0 },
+        uPixelRatio: { value: Math.min(window.devicePixelRatio, this.compactDevice ? 1 : DPR_CAP) },
+        uMorph: { value: 0 },
+        uFocusDist: { value: 3.9 },
+        uDofAmount: { value: 0.28 },
+        uBloom: { value: 0 },
+        uCta: { value: new THREE.Vector3() },
+      },
+    });
+
+    this.swarmGroup = new THREE.Group();
+    const swarm = new THREE.Points(geo, this.swarmMat);
+    swarm.frustumCulled = false;
+    this.swarmGroup.add(swarm);
+    this.scene.add(this.swarmGroup);
+    this.buildPlexus(headRand, heads);
+  }
+
+  private buildPlexus(headRand: Float32Array, heads: number): void {
+    const order = Array.from({ length: heads }, (_, index) => index)
+      .sort((a, b) => headRand[a * 4] - headRand[b * 4]);
+    const pairs: Array<[number, number]> = [];
+    for (let i = 0; i + 1 < heads; i += 2) pairs.push([order[i], order[i + 1]]);
+    for (let i = 0; i + 2 < heads; i += 4) pairs.push([order[i], order[i + 2]]);
+
+    const vertices = pairs.length * 2;
+    const position = new Float32Array(vertices * 3);
+    const aRand = new Float32Array(vertices * 4);
+    const aLag = new Float32Array(vertices);
+    const aRandB = new Float32Array(vertices * 4);
+    const aLagB = new Float32Array(vertices);
+
+    pairs.forEach(([a, b], index) => {
+      const seedA = headRand.subarray(a * 4, a * 4 + 4);
+      const seedB = headRand.subarray(b * 4, b * 4 + 4);
+      aRand.set(seedA, index * 8);
+      aRandB.set(seedB, index * 8);
+      aRand.set(seedB, index * 8 + 4);
+      aRandB.set(seedA, index * 8 + 4);
+    });
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(position, 3));
+    geo.setAttribute("aRand", new THREE.BufferAttribute(aRand, 4));
+    geo.setAttribute("aLag", new THREE.BufferAttribute(aLag, 1));
+    geo.setAttribute("aRandB", new THREE.BufferAttribute(aRandB, 4));
+    geo.setAttribute("aLagB", new THREE.BufferAttribute(aLagB, 1));
+
+    this.plexusMat = new THREE.ShaderMaterial({
+      vertexShader: PLEXUS_VERT,
+      fragmentShader: PLEXUS_FRAG,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      uniforms: {
+        uTime: { value: 0 },
+        uMorph: { value: 0 },
+        uFade: { value: 1 },
+        uBloom: { value: 0 },
+        uCta: { value: new THREE.Vector3() },
+      },
+    });
+
+    const plexus = new THREE.LineSegments(geo, this.plexusMat);
+    plexus.frustumCulled = false;
+    this.swarmGroup?.add(plexus);
   }
 
 
@@ -424,20 +586,42 @@ export class LionExperience {
     this.elapsed += dt;
     const t = this.elapsed;
     this.morph += (this.morphTarget - this.morph) * (1 - Math.exp(-9 * dt));
+    this.layout += (this.layoutTarget - this.layout) * (1 - Math.exp(-7 * dt));
     const m = this.morph;
 
     if (this.material) {
       const u = this.material.uniforms;
       u.uTime.value = t;
       u.uMorph.value = m;
-      u.uDriftAmp.value = 0.12 + m * 0.08;
-      u.uTurb.value = 0.015 + m * 0.025;
+      u.uDriftAmp.value = 0.12 + m * 0.18;
+      u.uTurb.value = 0.015 + Math.min(m, 0.45) * 0.12;
       u.uMouse.value.copy(this.pointerWorld);
       u.uMouseStrength.value = this.pointerStrength.value;
       u.uBloom.value = this.bloomW;
       // The energy current and reformed lion use the same sparse population,
       // so only a light compensation is needed across states.
       u.uGain.value = this.baseGain * this.gainAspect * (1 - m * 0.15) * (1 - this.bloomW * 0.08);
+    }
+
+    if (this.dust) {
+      const du = (this.dust.material as THREE.ShaderMaterial).uniforms;
+      du.uTime.value = t;
+      du.uMorph.value = m;
+    }
+
+    if (this.swarmMat) {
+      const su = this.swarmMat.uniforms;
+      su.uTime.value = t;
+      su.uMorph.value = m;
+      su.uBloom.value = this.bloomW;
+    }
+
+    if (this.plexusMat) {
+      const pu = this.plexusMat.uniforms;
+      pu.uTime.value = t;
+      pu.uMorph.value = m;
+      pu.uBloom.value = this.bloomW;
+      pu.uFade.value = 1;
     }
 
 
@@ -449,14 +633,18 @@ export class LionExperience {
     }
 
 
-    // camera: pointer parallax + scroll push-in
+    // Camera enters the expanded field, then eases back to frame the connected
+    // forms. This is spatial movement, not a lens-warp post effect, so there is
+    // no transparent sphere or white-hole artifact.
     this.camOffset.x += (this.pointer.x * 0.22 - this.camOffset.x) * 0.045;
     this.camOffset.y += (this.pointer.y * 0.14 - this.camOffset.y) * 0.045;
     const idleSway = Math.sin(t * 0.24) * 0.03;
+    const immersive = THREE.MathUtils.smoothstep(m, 0.12, 0.28)
+      * (1 - THREE.MathUtils.smoothstep(m, 0.34, 0.50));
     this.camera.position.set(
       this.camOffset.x,
-      0.05 + this.camOffset.y + idleSway + m * 0.35,
-      4.8 - m * 1.1,
+      0.05 + this.camOffset.y + idleSway,
+      4.8 - immersive * 1.45,
     );
     this.camera.lookAt(0, 0, 0);
 
@@ -469,8 +657,9 @@ export class LionExperience {
       // Centred and lifted, so the whole head is in frame and the copy has
       // clean space beneath it. The prototype pushed the lion off to the left,
       // which cropped the mane and put the face behind the headline.
-      this.points.position.x = 0;
-      this.points.position.y = (this.halfH * 0.22) * (1 - m);
+      const halfW = this.halfH * this.camera.aspect;
+      this.points.position.x = this.layout * halfW;
+      this.points.position.y = (this.halfH * 0.22) * (1 - THREE.MathUtils.smoothstep(m, 0.04, 0.18));
       // Always drawn: the same population becomes the ambient current for the
       // middle sections rather than handing off to another canvas.
       this.points.visible = true;
@@ -481,15 +670,28 @@ export class LionExperience {
       }
     }
 
+    // The swarm and plexus are part of the same sculpture. They follow every
+    // side-to-side layout move, then detach into viewport coordinates for CTA.
+    if (this.swarmGroup && this.points) {
+      const follow = 1 - this.bloomW;
+      this.swarmGroup.position.copy(this.points.position).multiplyScalar(follow);
+      this.swarmGroup.rotation.y = this.points.rotation.y * follow;
+      this.swarmGroup.scale.setScalar(THREE.MathUtils.lerp(0.92, 1, 1 - follow));
+    }
+
 
     // A restrained bloom keeps individual points visible instead of merging
     // the lion or energy current into a white mass.
-    const bloomBase = this.compactDevice ? 0.18 : 0.24;
-    this.bloom.strength = bloomBase + m * 0.06 + this.bloomW * 0.04;
+    const bloomBase = this.compactDevice ? 0.17 : 0.23;
+    const ecosystemGlow = THREE.MathUtils.smoothstep(m, 0.30, 0.48)
+      * (1 - THREE.MathUtils.smoothstep(m, 0.70, 0.86));
+    this.bloom.strength = bloomBase + ecosystemGlow * 0.09 + this.bloomW * 0.04;
 
     // Keep the same focus plane across states. The old moving focus and lens
     // warp created a transparent sphere/white-hole artifact in the middle.
     if (this.material) this.material.uniforms.uFocusDist.value = 3.9;
+    if (this.dust) (this.dust.material as THREE.ShaderMaterial).uniforms.uFocusDist.value = 3.9;
+    if (this.swarmMat) this.swarmMat.uniforms.uFocusDist.value = 3.9;
 
     this.composer.render();
   };
@@ -514,6 +716,8 @@ export class LionExperience {
     this.halfH = Math.tan((this.camera.fov * Math.PI) / 360) * this.camera.position.z;
 
     if (this.material) this.material.uniforms.uPixelRatio.value = dpr;
+    if (this.dust) (this.dust.material as THREE.ShaderMaterial).uniforms.uPixelRatio.value = dpr;
+    if (this.swarmMat) this.swarmMat.uniforms.uPixelRatio.value = dpr;
   }
 
   /** Cinematic intro: particles fly in from the void and assemble the lion. */

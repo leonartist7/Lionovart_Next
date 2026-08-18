@@ -60,6 +60,7 @@ export default function AiCloseBeat({ children }: { children: React.ReactNode })
         // frustum, which reads as the lion sinking off the bottom of the
         // screen instead of reforming on the button.
         aimAtCta();
+        exp.setLayout(0);
         // converge over the first half, then hold the reformed crest
         exp.setBloom(Math.min(self.progress / 0.6, 1));
       },

@@ -13,15 +13,47 @@
  *  - no repeated icon/heading/text card grids (SERVICE_PAGES_SPEC section 7)
  */
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { motion, useInView, useScroll, useSpring, useTransform, useReducedMotion } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useNovaStore } from "@/lib/stores/nova-store";
+import { getLionStage } from "@/lib/lion/stage-ref";
+import { BRIDGE_MORPH_END } from "./AiChaosBeat";
 import { LiquidGlass } from "./LiquidGlass";
 import { NODES } from "./graph";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const SHELL = "mx-auto w-full max-w-[1180px] px-6 md:px-10";
 const ACT = "relative py-[110px] md:py-[150px]";
 const EXPO = [0.16, 1, 0.3, 1] as const;
+
+function useParticleChapter(
+  ref: React.RefObject<HTMLElement | null>,
+  from: number,
+  to: number,
+  layout: number,
+) {
+  useEffect(() => {
+    const section = ref.current;
+    if (!section || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const trigger = ScrollTrigger.create({
+      trigger: section,
+      start: "top 78%",
+      end: "bottom 28%",
+      scrub: true,
+      onUpdate: ({ progress }) => {
+        const stage = getLionStage();
+        stage?.setMorph(gsap.utils.interpolate(from, to, progress));
+        stage?.setLayout(layout);
+      },
+    });
+
+    return () => trigger.kill();
+  }, [from, layout, ref, to]);
+}
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
@@ -51,36 +83,40 @@ const STAKES = [
 ];
 
 export function AiStakes() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-18%" });
+  const sectionRef = useRef<HTMLElement>(null);
+  const copyRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(copyRef, { once: true, margin: "-18%" });
   const reduce = useReducedMotion();
+  useParticleChapter(sectionRef, BRIDGE_MORPH_END, 0.68, 0.42);
 
   return (
-    <section className={ACT}>
+    <section ref={sectionRef} className={ACT}>
       <div className={SHELL}>
-        <Eyebrow>The cost of being closed</Eyebrow>
-        <Heading>Your best lead arrived while you were asleep.</Heading>
+        <div className="max-w-[660px] md:w-[58%]">
+          <Eyebrow>The cost of being closed</Eyebrow>
+          <Heading>Your best lead arrived while you were asleep.</Heading>
 
-        <LiquidGlass className="mt-14 p-8 md:p-14">
-          <div ref={ref} className="divide-y divide-white/10">
-            {STAKES.map((line, i) => (
-              <motion.p
-                key={line}
-                initial={reduce ? false : { opacity: 0, y: 18 }}
-                animate={reduce ? undefined : inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.8, ease: EXPO, delay: 0.12 + i * 0.14 }}
-                className="py-7 text-white/85 first:pt-0 last:pb-0"
-                style={{
-                  fontFamily: "var(--font-ai-display)",
-                  fontSize: "clamp(1.25rem, 2.5vw, 2rem)",
-                  lineHeight: 1.25,
-                }}
-              >
-                {line}
-              </motion.p>
-            ))}
-          </div>
-        </LiquidGlass>
+          <LiquidGlass className="mt-14 p-8 md:p-12">
+            <div ref={copyRef} className="divide-y divide-white/10">
+              {STAKES.map((line, i) => (
+                <motion.p
+                  key={line}
+                  initial={reduce ? false : { opacity: 0, y: 18 }}
+                  animate={reduce ? undefined : inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.8, ease: EXPO, delay: 0.12 + i * 0.14 }}
+                  className="py-7 text-white/85 first:pt-0 last:pb-0"
+                  style={{
+                    fontFamily: "var(--font-ai-display)",
+                    fontSize: "clamp(1.25rem, 2.5vw, 2rem)",
+                    lineHeight: 1.25,
+                  }}
+                >
+                  {line}
+                </motion.p>
+              ))}
+            </div>
+          </LiquidGlass>
+        </div>
       </div>
     </section>
   );
@@ -96,6 +132,7 @@ export function AiStakes() {
 export function AiFlow() {
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
+  useParticleChapter(ref, 0.68, 0.82, -0.42);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 65%", "end 75%"] });
   const fill = useSpring(scrollYProgress, { stiffness: 90, damping: 26, mass: 0.4 });
   const railHeight = useTransform(fill, (v) => `${(reduce ? 1 : v) * 100}%`);
@@ -103,11 +140,12 @@ export function AiFlow() {
   return (
     <section ref={ref} className={ACT}>
       <div className={SHELL}>
-        <Eyebrow>What it actually does</Eyebrow>
-        <Heading>One lead. Seven steps. Nobody awake.</Heading>
+        <div className="md:ml-auto md:w-[62%]">
+          <Eyebrow>Intelligence in motion</Eyebrow>
+          <Heading>One signal. Every system responds.</Heading>
 
-        <LiquidGlass fluted className="mt-14 p-7 md:p-12">
-          <ol className="relative m-0 list-none p-0 pl-14 md:pl-20">
+          <LiquidGlass fluted className="mt-14 p-7 md:p-10">
+            <ol className="relative m-0 list-none p-0 pl-14 md:pl-20">
             {/* the rail: an unfilled track with a fill that tracks scroll */}
             <div
               aria-hidden
@@ -126,8 +164,9 @@ export function AiFlow() {
             {NODES.map((n, i) => (
               <FlowStep key={n.id} index={i} total={NODES.length} node={n} progress={fill} reduce={!!reduce} />
             ))}
-          </ol>
-        </LiquidGlass>
+            </ol>
+          </LiquidGlass>
+        </div>
       </div>
     </section>
   );
@@ -199,28 +238,33 @@ const STEPS = [
 ];
 
 export function AiProcess() {
-  return (
-    <section className={ACT}>
-      <div className={SHELL}>
-        <Eyebrow>How we put it in</Eyebrow>
-        <Heading>Live in two weeks, not two quarters.</Heading>
+  const ref = useRef<HTMLElement>(null);
+  useParticleChapter(ref, 0.82, 1, 0.42);
 
-        <LiquidGlass className="mt-14 p-8 md:p-12">
-          <div className="grid gap-px overflow-hidden bg-white/10 md:grid-cols-4">
-            {STEPS.map((s) => (
-              <div key={s.n} className="bg-[#0a0a0a]/45 p-6 md:p-7">
-                <span className="text-[11px] tabular-nums tracking-[0.24em] text-white/35">{s.n}</span>
-                <h3
-                  className="mt-4 text-[22px] text-white md:text-[26px]"
-                  style={{ fontFamily: "var(--font-ai-display)" }}
-                >
-                  {s.t}
-                </h3>
-                <p className="mt-3 text-[13.5px] leading-relaxed text-white/55">{s.d}</p>
-              </div>
-            ))}
-          </div>
-        </LiquidGlass>
+  return (
+    <section ref={ref} className={ACT}>
+      <div className={SHELL}>
+        <div className="max-w-[760px] md:w-[68%]">
+          <Eyebrow>One smarter platform</Eyebrow>
+          <Heading>Everything comes together. Then it gets faster.</Heading>
+
+          <LiquidGlass className="mt-14 p-8 md:p-10">
+            <div className="grid gap-px overflow-hidden bg-white/10 sm:grid-cols-2">
+              {STEPS.map((s) => (
+                <div key={s.n} className="bg-[#0a0a0a]/45 p-6 md:p-7">
+                  <span className="text-[11px] tabular-nums tracking-[0.24em] text-white/35">{s.n}</span>
+                  <h3
+                    className="mt-4 text-[22px] text-white md:text-[26px]"
+                    style={{ fontFamily: "var(--font-ai-display)" }}
+                  >
+                    {s.t}
+                  </h3>
+                  <p className="mt-3 text-[13.5px] leading-relaxed text-white/55">{s.d}</p>
+                </div>
+              ))}
+            </div>
+          </LiquidGlass>
+        </div>
       </div>
     </section>
   );
@@ -267,10 +311,12 @@ const OFFERS = [
 ];
 
 export function AiOffers() {
+  const ref = useRef<HTMLElement>(null);
   const openNova = useNovaStore((s) => s.openNova);
+  useParticleChapter(ref, 1, 1, 0);
 
   return (
-    <section className={ACT}>
+    <section ref={ref} className={ACT}>
       <div className={SHELL}>
         <Eyebrow>Two ways in</Eyebrow>
         <Heading>Install it once, or let it keep learning.</Heading>

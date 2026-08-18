@@ -7,13 +7,8 @@
  * the lion. SERVICE_PAGES_SPEC section 2 makes the Act 1 medium per-page, and
  * here the medium is the lion itself.
  *
- * The section owns only the start of the transformation — the lion stays
- * assembled, just beginning a slow pre-rotation (PARTICLE_VERT's `preRot`
- * term). It hands off to `AiChaosBeat`, which stretches those same particles
- * into the central energy current. Both sections drive the SAME `uMorph`
- * scalar (see AiChaosBeat.tsx's `HERO_END`),
- * just different slices of its 0-1 range, so all of the camera/bloom/DOF
- * choreography that keys off `m` stays synchronized without new render loops.
+ * The section owns the assembled lion and the first hint of its release. It
+ * hands the same particle population to AiChaosBeat for the immersive bridge.
  */
 
 import { useEffect, useRef } from "react";
@@ -39,7 +34,7 @@ export default function AiHeroCopy() {
         y: -70,
         filter: "blur(10px)",
         ease: "power2.in",
-        scrollTrigger: { trigger: wrap, start: "top top", end: "40% top", scrub: true },
+        scrollTrigger: { trigger: wrap, start: "18% top", end: "72% top", scrub: true },
       });
 
       ScrollTrigger.create({
@@ -47,7 +42,11 @@ export default function AiHeroCopy() {
         start: "top top",
         end: "bottom top",
         scrub: true,
-        onUpdate: (self) => getLionStage()?.setMorph(self.progress * HERO_MORPH_END),
+        onUpdate: (self) => {
+          const stage = getLionStage();
+          stage?.setMorph(self.progress * HERO_MORPH_END);
+          stage?.setLayout(0);
+        },
       });
     }, wrap);
 
@@ -55,7 +54,7 @@ export default function AiHeroCopy() {
   }, []);
 
   return (
-    <div ref={wrapRef} data-lion-zone className="relative h-[280vh]">
+    <div ref={wrapRef} data-lion-zone className="relative h-[210vh]">
       {/*
         The lion occupies the upper half of the canvas, so the copy sits in the
         lower third rather than centred. Nothing overlaps the face, and the

@@ -1,17 +1,11 @@
 "use client";
 
 /**
- * The lion-to-energy story beat: one particle sculpture stretches into the
- * vertical current that backs the rest of the page.
+ * The missing bridge between the hero and the service story.
  *
- * Its own section, not a sub-phase buried inside the hero's scroll — the
- * A dedicated pinned scroll length makes the transformation legible without
- * creating a noisy explosion or handing off to a second renderer.
- *
- * Drives the SAME `uMorph` scalar the hero starts (see stage-ref.ts's own
- * doc comment: each act owns a ScrollTrigger over its own section and pushes
- * its own progress into the engine). Particle position, camera framing, focus,
- * and bloom all key off it, so the entire scene stays synchronized.
+ * The same particles that draw the lion open into an immersive field, then
+ * reconnect as an ecosystem on the opposite side of the copy. No second
+ * canvas, opaque sphere, or shader handoff is involved.
  */
 
 import { useEffect, useRef } from "react";
@@ -21,61 +15,113 @@ import { getLionStage } from "@/lib/lion/stage-ref";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/**
- * Where the hero hands off. Below this, the lion is still assembled (a small
- * pre-rotation only); above it, this section owns the stretch into energy.
- * AiHeroCopy imports this so the two sections cannot drift out of sync.
- */
-export const HERO_MORPH_END = 0.12;
+export const HERO_MORPH_END = 0.06;
+export const BRIDGE_MORPH_END = 0.58;
+
+const CHAPTERS = [
+  {
+    eyebrow: "The gap between tools",
+    title: "More software created more noise.",
+    body: "Calls in one place. Leads in another. Follow-ups living in somebody's head. The problem was never a lack of tools—it was the space between them.",
+    side: "left",
+  },
+  {
+    eyebrow: "The turning point",
+    title: "Step inside the signal.",
+    body: "Every loose particle is a conversation, decision, or opportunity. Intelligence starts by seeing the whole field at once.",
+    side: "right",
+  },
+  {
+    eyebrow: "The connected ecosystem",
+    title: "Every system starts speaking to the next.",
+    body: "Voice, inbox, calendar, CRM, and operations become one living network—sharing context instead of creating more work.",
+    side: "left",
+  },
+] as const;
 
 export default function AiChaosBeat() {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const centerRef = useRef<HTMLDivElement>(null);
+  const panelsRef = useRef<Array<HTMLDivElement | null>>([]);
 
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: wrap,
-        start: "top top",
-        end: "bottom top",
-        scrub: true,
-        onUpdate: (self) =>
-          getLionStage()?.setMorph(HERO_MORPH_END + self.progress * (1 - HERO_MORPH_END)),
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      panelsRef.current.forEach((panel, index) => {
+        if (panel) gsap.set(panel, { opacity: index === CHAPTERS.length - 1 ? 1 : 0, y: 0 });
       });
+      return;
+    }
 
-      // Lands once the vertical current has formed.
-      gsap.fromTo(
-        centerRef.current,
-        { opacity: 0, y: 16, filter: "blur(8px)" },
-        {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-          ease: "power2.out",
-          scrollTrigger: { trigger: wrap, start: "78% top", end: "92% top", scrub: true },
-        },
-      );
-    }, wrap);
+    const trigger = ScrollTrigger.create({
+      trigger: wrap,
+      start: "top top",
+      end: "bottom top",
+      scrub: true,
+      onUpdate: ({ progress }) => {
+        const stage = getLionStage();
+        stage?.setMorph(HERO_MORPH_END + progress * (BRIDGE_MORPH_END - HERO_MORPH_END));
 
-    return () => ctx.revert();
+        // Center for the burst, then let the reconnected ecosystem settle to
+        // the right of the final chapter's copy.
+        const ecosystemLayout = gsap.utils.clamp(0, 1, (progress - 0.58) / 0.25);
+        stage?.setLayout(ecosystemLayout * 0.42);
+
+        const centers = [0.14, 0.50, 0.84];
+        panelsRef.current.forEach((panel, index) => {
+          if (!panel) return;
+          const distance = Math.abs(progress - centers[index]);
+          const opacity = gsap.utils.clamp(0, 1, 1 - distance / 0.19);
+          gsap.set(panel, {
+            opacity,
+            y: (centers[index] - progress) * 70,
+            filter: `blur(${(1 - opacity) * 8}px)`,
+            pointerEvents: opacity > 0.8 ? "auto" : "none",
+          });
+        });
+      },
+    });
+
+    return () => trigger.kill();
   }, []);
 
   return (
-    <div ref={wrapRef} data-lion-zone className="relative h-[200vh]">
-      <div className="sticky top-0 flex h-screen items-center justify-center px-6">
-        <div ref={centerRef} className="pointer-events-none text-center opacity-0">
-          <p
-            className="font-medium text-white"
-            style={{ fontSize: "clamp(1.5rem, 3.6vw, 2.75rem)", fontFamily: "var(--font-ai-display)" }}
-          >
-            All of it. <span className="text-[var(--ai-cyan)]">One system.</span>
-          </p>
+    <section ref={wrapRef} data-lion-zone className="relative h-[360vh]">
+      <div className="sticky top-0 h-screen overflow-hidden px-6 md:px-10">
+        <div className="relative mx-auto h-full w-full max-w-[1180px]">
+          {CHAPTERS.map((chapter, index) => (
+            <div
+              key={chapter.eyebrow}
+              ref={(node) => { panelsRef.current[index] = node; }}
+              className={`absolute inset-0 flex items-end pb-[8vh] md:items-center md:pb-0 ${
+                chapter.side === "right" ? "justify-end text-right" : "justify-start text-left"
+              }`}
+              style={{ opacity: index === 0 ? 1 : 0 }}
+            >
+              <div className="max-w-[34rem] rounded-[2rem] border border-white/10 bg-black/20 p-7 backdrop-blur-[10px] md:p-10">
+                <p className="text-[10px] uppercase tracking-[0.38em] text-[var(--ai-cyan)]/75 md:text-[11px]">
+                  {chapter.eyebrow}
+                </p>
+                <h2
+                  className="mt-5 text-white"
+                  style={{
+                    fontFamily: "var(--font-ai-display)",
+                    fontSize: "clamp(2rem, 4.3vw, 4rem)",
+                    lineHeight: 1.02,
+                  }}
+                >
+                  {chapter.title}
+                </h2>
+                <p className="mt-6 max-w-[48ch] text-[14px] leading-relaxed text-white/55 md:text-[16px]">
+                  {chapter.body}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
