@@ -41,6 +41,7 @@ export default function Services(props: any) {
       }));
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [showServiceImages, setShowServiceImages] = useState(true);
   const activeIndexRef = useRef(0);
   const active = SERVICES[activeIndex] ?? SERVICES[0];
 
@@ -102,13 +103,21 @@ export default function Services(props: any) {
           {eyebrow}
         </motion.p>
         <motion.h2
-          className="text-[2.5rem] sm:text-[3.5rem] md:text-[5rem] lg:text-[6rem] font-bold uppercase leading-[0.92] tracking-[-0.02em] text-[#111111] max-w-3xl"
+          className="max-w-3xl"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          {heading} <span className="text-brand-red">{headingAccent}</span>
+          <button
+            type="button"
+            onClick={() => setShowServiceImages((visible) => !visible)}
+            aria-pressed={showServiceImages}
+            aria-label={showServiceImages ? "Hide service images" : "Show service images"}
+            className="cursor-pointer text-[2.5rem] sm:text-[3.5rem] md:text-[5rem] lg:text-[6rem] font-bold uppercase leading-[0.92] tracking-[-0.02em] text-[#111111] outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-4"
+          >
+            {heading} <span className="text-brand-red">{headingAccent}</span>
+          </button>
         </motion.h2>
       </div>
 
@@ -203,15 +212,17 @@ export default function Services(props: any) {
                     </Link>
                   )}
 
-                  {/* Image card */}
-                  <div className="self-center h-[min(48vh,360px)] aspect-[9/16] rounded-[18px] xl:rounded-[22px] overflow-hidden shadow-[0_12px_40px_-8px_rgba(0,0,0,0.14)]">
-                    <img
-                      src={active.imgUrl}
-                      alt={active.imgAlt}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
+                  {/* Image card — toggled secretly from the section title. */}
+                  {showServiceImages ? (
+                    <div className="self-center h-[min(48vh,360px)] aspect-[9/16] rounded-[18px] xl:rounded-[22px] overflow-hidden shadow-[0_12px_40px_-8px_rgba(0,0,0,0.14)]">
+                      <img
+                        src={active.imgUrl}
+                        alt={active.imgAlt}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                  ) : null}
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -297,15 +308,17 @@ export default function Services(props: any) {
                           View {s.title} <span aria-hidden>&rarr;</span>
                         </Link>
                       )}
-                      {/* Image â€” below tags */}
-                      <div className="self-center h-[min(62vh,440px)] aspect-[9/16] rounded-[14px] overflow-hidden shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12)]">
-                        <img
-                          src={s.imgUrl}
-                          alt={s.imgAlt}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
+                      {/* Image — below tags; toggled secretly from the section title. */}
+                      {showServiceImages ? (
+                        <div className="self-center h-[min(62vh,440px)] aspect-[9/16] rounded-[14px] overflow-hidden shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12)]">
+                          <img
+                            src={s.imgUrl}
+                            alt={s.imgAlt}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                      ) : null}
                     </div>
                   </motion.div>
                 )}

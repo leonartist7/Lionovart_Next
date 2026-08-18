@@ -5,6 +5,7 @@ import StrongTogetherTransition from "@/components/sections/StrongTogetherTransi
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import WhatWeDo from "@/components/sections/WhatWeDo";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
+import ShowcaseMarquee from "@/components/sections/ShowcaseMarquee";
 import SignatureOffer from "@/components/sections/SignatureOffer";
 import Services from "@/components/sections/Services";
 import Comparison from "@/components/sections/Comparison";
@@ -42,6 +43,7 @@ export function PageBuilder() {
         <StrongTogetherTransition />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
         <NovaSection id="services"><Services /></NovaSection>
+        <ShowcaseMarquee />
         <NovaSection id="offer"><SignatureOffer /></NovaSection>
         <SectionTitleCard word="WHY US" theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>
