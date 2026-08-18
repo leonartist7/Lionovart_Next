@@ -13,13 +13,10 @@ import {
 } from "framer-motion";
 
 // Locked tag style (flip to red here if preferred).
-const TAG_CLASS = "border-white/25 text-white/75";
-
 interface Card {
   code: string;
   title: string;
   body: string;
-  tags: string[];
   image?: string;
 }
 
@@ -240,29 +237,19 @@ function Pane({
             custom={custom}
           />
           <motion.div
-            className="absolute inset-x-0 bottom-0 p-5 text-left md:p-6"
+            className="absolute inset-x-0 bottom-0 p-4 text-left md:p-6"
             variants={contentVariants}
             custom={custom}
           >
-            <p className="mb-3 font-mono text-[9px] font-bold uppercase tracking-[0.25em] text-[#f0c917]">
+            <p className="mb-1.5 font-mono text-[8px] font-bold uppercase tracking-[0.22em] text-[#f0c917] md:mb-3 md:text-[9px] md:tracking-[0.25em]">
               {card.code} / LIONOVART
             </p>
-            <h3 className="font-clash text-[1.4rem] font-bold uppercase leading-[1.0] text-white md:text-[1.9rem]">
+            <h3 className="font-clash text-[1.1rem] font-bold uppercase leading-[0.95] text-white md:text-[1.9rem]">
               {card.title}
             </h3>
-            <p className="mt-2 max-w-[34ch] font-body text-[12.5px] leading-[1.5] text-white/70 md:text-[14px]">
+            <p className="mt-1.5 max-w-[25ch] font-body text-[11px] leading-[1.35] text-white/70 md:mt-2 md:max-w-[34ch] md:text-[14px] md:leading-[1.5]">
               {card.body}
             </p>
-            <div className="mt-4 flex flex-wrap gap-1.5">
-              {card.tags.map((t) => (
-                <span
-                  key={t}
-                  className={`rounded-full border px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] md:text-[10px] ${TAG_CLASS}`}
-                >
-                  {t}
-                </span>
-              ))}
-            </div>
           </motion.div>
         </div>
       </motion.div>
@@ -550,14 +537,6 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
           </motion.div>
         </div>
 
-        <div className="relative z-40 mx-auto max-w-[52ch] px-6 text-center">
-          <h2 className="font-clash text-[clamp(1.8rem,4vw,3.75rem)] font-semibold uppercase leading-[0.92] tracking-[-0.035em] text-[#f2ede3]">
-            Strategy leads. Systems move. Creativity makes it matter.
-          </h2>
-          <p className="mx-auto mt-5 max-w-[52ch] font-body text-[13px] leading-[1.6] text-white/60 md:text-[15px]">
-            Three disciplines, orchestrated around one ambition: making your brand impossible to ignore.
-          </p>
-        </div>
       </div>
     </section>
   );
