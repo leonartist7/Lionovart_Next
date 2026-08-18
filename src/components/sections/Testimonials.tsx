@@ -384,14 +384,14 @@ export default function Testimonials(
               )}
             </motion.h2>
 
-            <div className="pointer-events-none absolute -right-[42%] top-[145px] z-0 w-[clamp(290px,82vw,360px)] sm:-right-[18%] sm:top-[125px] sm:w-[440px] md:-right-[8%] lg:pointer-events-auto lg:relative lg:right-auto lg:top-auto lg:mt-8 lg:w-[clamp(480px,38vw,620px)]">
+            <div className="pointer-events-none absolute -right-[42%] top-[145px] z-0 w-[clamp(290px,82vw,360px)] sm:-right-[18%] sm:top-[125px] sm:w-[clamp(22rem,57vw,27.5rem)] md:-right-[8%] md:w-[clamp(25rem,52vw,31rem)] lg:pointer-events-auto lg:relative lg:right-auto lg:top-auto lg:mt-8 lg:w-[clamp(25rem,34vw,39rem)]">
               <GlobePulse className="opacity-90 lg:opacity-100" />
               <div className="pointer-events-none absolute inset-y-0 left-0 w-2/5 bg-gradient-to-r from-bg-brand-black via-bg-brand-black/60 to-transparent lg:hidden" />
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-bg-brand-black to-transparent lg:h-1/5" />
             </div>
           </div>
 
-          <div className="testimonial-marquee-stage relative flex h-[560px] w-full flex-row items-center justify-start overflow-hidden min-[480px]:justify-center min-[480px]:px-[clamp(12px,3vw,32px)] sm:h-[600px] md:h-[660px] lg:h-[720px] lg:px-0">
+          <div className="testimonial-marquee-stage relative -mt-[72px] flex h-[560px] w-full flex-row items-center justify-start overflow-hidden min-[480px]:justify-center min-[480px]:px-[clamp(12px,3vw,32px)] sm:-mt-20 sm:h-[600px] md:-mt-16 md:h-[660px] lg:-mt-16 lg:h-[720px] lg:px-0 xl:-mt-20">
             <div className="testimonials-marquee-plane flex h-full flex-row items-start gap-3 sm:gap-4 xl:gap-5">
               <Marquee vertical repeat={2} className="h-full [--duration:64s] [--gap:1rem]">
                 {col1.map((card) => (
