@@ -11,6 +11,7 @@ import {
 } from "@/lib/founder-offer";
 
 const MARKET_STORAGE_KEY = "lionovart-founder-market:v1";
+const SPLASH_COMPLETE_EVENT = "lionovart:splash-complete";
 
 interface CachedMarket {
   market: FounderMarket;
@@ -50,7 +51,27 @@ function cacheMarket(market: FounderMarket, days = 7) {
 export default function FounderOfferBanner() {
   const { locale } = useLanguage();
   const [market, setMarket] = useState<FounderMarket>("global");
+  const [isRevealed, setIsRevealed] = useState(false);
   const copy = founderOfferCopy(locale, market);
+
+  useEffect(() => {
+    let revealFrame = 0;
+    const reveal = () => {
+      window.cancelAnimationFrame(revealFrame);
+      revealFrame = window.requestAnimationFrame(() => setIsRevealed(true));
+    };
+
+    window.addEventListener(SPLASH_COMPLETE_EVENT, reveal);
+
+    if (document.documentElement.dataset.splashComplete === "true") {
+      reveal();
+    }
+
+    return () => {
+      window.removeEventListener(SPLASH_COMPLETE_EVENT, reveal);
+      window.cancelAnimationFrame(revealFrame);
+    };
+  }, []);
 
   useEffect(() => {
     let marketFrame = 0;
@@ -119,8 +140,13 @@ export default function FounderOfferBanner() {
 
   return (
     <aside
-      className="relative z-[60] flex h-10 w-full shrink-0 items-center overflow-hidden bg-brand-red text-white"
+      className={`relative z-[60] flex h-10 w-full shrink-0 items-center overflow-hidden bg-brand-red text-white transition-[opacity,transform] duration-500 ease-out motion-reduce:transform-none motion-reduce:transition-none ${
+        isRevealed
+          ? "translate-y-0 opacity-100 delay-100"
+          : "pointer-events-none -translate-y-2 opacity-0"
+      }`}
       aria-label={copy.aria}
+      aria-hidden={!isRevealed}
       data-founder-market={market}
     >
       <div
@@ -130,6 +156,7 @@ export default function FounderOfferBanner() {
       <button
         type="button"
         onClick={focusOffer}
+        tabIndex={isRevealed ? 0 : -1}
         className="group relative flex h-full w-full items-center justify-center px-3 font-clash text-[9px] font-semibold uppercase tracking-[0.08em] min-[390px]:text-[10px] min-[390px]:tracking-[0.11em] lg:text-[10px] lg:tracking-[0.13em] xl:text-[11px] xl:tracking-[0.16em]"
       >
         <span className="block max-w-full truncate lg:hidden">
