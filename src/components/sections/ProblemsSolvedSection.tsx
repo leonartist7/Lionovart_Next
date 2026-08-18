@@ -55,7 +55,7 @@ function ClickToRevealHint() {
           transition={{ duration: 1.5, ease: "easeOut" }}
         />
       </motion.svg>
-    </div>
+    </motion.div>
   );
 }
 
