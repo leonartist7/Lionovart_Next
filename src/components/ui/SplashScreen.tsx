@@ -21,6 +21,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "
 import { useLenis } from "lenis/react";
 
 const SESSION_KEY = "lionovart_splash_seen";
+const SPLASH_COMPLETE_EVENT = "lionovart:splash-complete";
 const TOTAL_DURATION_MS = 1800;
 const EXIT_DURATION_MS = 650;
 
@@ -35,6 +36,11 @@ export default function SplashScreen() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lenis = useLenis() as any;
+
+  const signalSplashComplete = () => {
+    document.documentElement.dataset.splashComplete = "true";
+    window.dispatchEvent(new Event(SPLASH_COMPLETE_EVENT));
+  };
 
   // Hard-dismiss helper — always restores scroll even if something broke
   const dismiss = () => {
@@ -51,13 +57,18 @@ export default function SplashScreen() {
     // Check if user has already seen splash this session
     const seen = sessionStorage.getItem(SESSION_KEY);
     if (seen) {
-      setVisible(false);
-      return;
+      const readyFrame = window.requestAnimationFrame(() => {
+        setVisible(false);
+        signalSplashComplete();
+      });
+      return () => window.cancelAnimationFrame(readyFrame);
     }
 
     const rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    setReducedMotion(rm);
-    setVisible(true);
+    const visibleFrame = window.requestAnimationFrame(() => {
+      setReducedMotion(rm);
+      setVisible(true);
+    });
 
     // Lock scroll + pause Lenis
     const prevOverflow = document.body.style.overflow;
@@ -90,6 +101,7 @@ export default function SplashScreen() {
 
     return () => {
       controls.stop();
+      window.cancelAnimationFrame(visibleFrame);
       window.clearTimeout(exitTimer);
       window.clearTimeout(safetyTimer);
       document.body.style.overflow = prevOverflow;
@@ -110,7 +122,7 @@ export default function SplashScreen() {
   if (visible === null) return null;
 
   return (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={signalSplashComplete}>
       {visible && (
         <motion.div
           key="splash"
