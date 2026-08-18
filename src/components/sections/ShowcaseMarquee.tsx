@@ -29,7 +29,7 @@ function ShowcaseGroup({
         return (
           <figure
             key={src}
-            className="group relative w-[78vw] max-w-[360px] shrink-0 overflow-hidden rounded-[18px] border border-white/10 bg-[#151515] shadow-[0_28px_70px_-28px_rgba(0,0,0,0.9)] sm:w-[48vw] sm:max-w-[420px] lg:w-[34vw] lg:max-w-[520px]"
+            className="group relative w-[78vw] max-w-[360px] shrink-0 overflow-hidden rounded-[18px] sm:w-[48vw] sm:max-w-[420px] lg:w-[34vw] lg:max-w-[520px]"
           >
             <div className="relative aspect-[4/3] overflow-hidden">
               <Image
@@ -68,7 +68,7 @@ export default function ShowcaseMarquee() {
       id="showcase"
       aria-labelledby="showcase-title"
       data-art-directed="light"
-      className="relative overflow-hidden bg-white py-16 text-[#111111] sm:py-20 lg:py-28"
+      className="relative overflow-hidden bg-bg-surface-light py-16 text-[#111111] sm:py-20 lg:py-28"
     >
       <div
         aria-hidden

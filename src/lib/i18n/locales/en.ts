@@ -530,9 +530,9 @@ export const en = {
   },
 
   services: {
-    eyebrow: "What's Included",
+    eyebrow: "Everything your business needs, nothing that it doesn't.",
     heading: "Our",
-    headingAccent: "Services",
+    headingAccent: "Expertise",
     items: [
       {
         title: "Brand Identity & Strategy",
