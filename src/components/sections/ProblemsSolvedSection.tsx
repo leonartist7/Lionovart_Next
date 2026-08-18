@@ -26,17 +26,17 @@ const EASE_OUT = [0.20, 1, 0.3, 1] as const;
 function ClickToRevealHint() {
   return (
     <div
-      className="pointer-events-none absolute inset-x-0 bottom-5 z-30 h-20 sm:bottom-6 sm:h-20 md:bottom-8"
+      className="pointer-events-none absolute inset-x-0 bottom-5 z-30 h-20 sm:bottom-6 sm:h-20 md:bottom-8 md:h-24"
       aria-hidden="true"
     >
-      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-center font-clash text-[10px] font-bold uppercase leading-[1.05] tracking-[0.16em] text-white sm:text-[11px]">
+      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 whitespace-nowrap text-center font-clash text-[12px] font-bold uppercase leading-[1.05] tracking-[0.14em] text-white sm:text-[13px] sm:tracking-[0.16em] md:text-[14px] lg:text-[15px]">
         <span className="block">Click</span>
         <span className="block">to reveal</span>
       </span>
 
       <svg
         viewBox="0 0 96 40"
-        className="absolute bottom-0 left-[62%] h-auto w-[clamp(5.75rem,24vw,10rem)] -rotate-12 overflow-visible sm:w-[clamp(7rem,20vw,12rem)]"
+        className="absolute bottom-0 left-[calc(50%+2.75rem)] h-auto w-[clamp(5.25rem,26vw,12rem)] -rotate-12 overflow-visible sm:left-[calc(50%+3.25rem)] sm:w-[clamp(6.5rem,22vw,12rem)] md:left-[calc(50%+3.75rem)]"
         fill="none"
         aria-hidden="true"
       >
@@ -44,7 +44,7 @@ function ClickToRevealHint() {
           d="M93.0681 3C72.3063 18.0061 57.7731 25.925 32.2716 21.1435C26.0822 19.983 15.9133 18.8754 10.945 14.459C8.12295 11.9505 3.74946 11.7165 9.24741 9.57834C13.7751 7.81753 20.3406 4.90981 25.2689 4.90981C27.0487 4.90981 9.62202 9.55411 4.26061 10.7455C-2.59384 12.2686 20.5637 33.6269 24.314 37.3771"
           transform="translate(96 0) scale(-1 1)"
           stroke="#ffffff"
-          strokeWidth="2.75"
+          strokeWidth="3"
           strokeLinecap="round"
         />
       </svg>
@@ -52,6 +52,7 @@ function ClickToRevealHint() {
   );
 }
 
+// Single Card
 // Single Card
 function ProblemCard({
   item,
