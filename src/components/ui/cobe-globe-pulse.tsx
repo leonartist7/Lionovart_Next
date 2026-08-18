@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import createGlobe from "cobe";
+import type { Globe } from "cobe";
 
 interface PulseMarker {
   id: string;
@@ -28,6 +28,7 @@ export function GlobePulse({
   speed = 0.003,
 }: GlobePulseProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const pointerInteracting = useRef<{ x: number; y: number } | null>(null);
   const dragOffset = useRef({ phi: 0, theta: 0 });
   const phiOffsetRef = useRef(0);
@@ -53,6 +54,8 @@ export function GlobePulse({
   }, []);
 
   useEffect(() => {
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+
     const handlePointerMove = (event: PointerEvent) => {
       if (pointerInteracting.current !== null) {
         dragOffset.current = {
@@ -72,93 +75,172 @@ export function GlobePulse({
   }, [handlePointerUp]);
 
   useEffect(() => {
+    const container = containerRef.current;
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!container || !canvas) return;
 
-    let globe: ReturnType<typeof createGlobe> | null = null;
+    let globe: Globe | null = null;
     let animationId = 0;
     let phi = 0;
-    let timeoutId = 0;
+    let lastFrame = 0;
+    let isVisible = false;
+    let isLoading = false;
+    let isDisposed = false;
 
-    const init = () => {
-      const width = canvas.offsetWidth;
-      if (width === 0 || globe) return;
+    const isMobile = window.matchMedia("(max-width: 767px)").matches;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const saveData = Boolean(
+      (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData
+    );
+    const shouldAnimate = !reduceMotion && !saveData;
 
-      globe = createGlobe(canvas, {
-        devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
-        width,
-        height: width,
-        phi: 0,
-        theta: 0.2,
-        dark: 1,
-        diffuse: 1.5,
-        mapSamples: 16000,
-        mapBrightness: 10,
-        baseColor: [0.5, 0.5, 0.5],
-        markerColor: [0.9, 0.1, 0.12],
-        glowColor: [0.05, 0.05, 0.05],
-        markerElevation: 0,
-        markers: markers.map((marker) => ({
-          location: marker.location,
-          size: 0.025,
-          id: marker.id,
-        })),
-        arcs: [],
-        arcColor: [0.9, 0.1, 0.12],
-        arcWidth: 0.5,
-        arcHeight: 0.25,
-        opacity: 0.7,
-      });
+    const stopAnimation = () => {
+      if (animationId) cancelAnimationFrame(animationId);
+      animationId = 0;
+    };
 
-      const animate = () => {
+    const animate = (time: number) => {
+      animationId = 0;
+      if (!globe || !isVisible || document.hidden) return;
+
+      const frameInterval = isMobile ? 1000 / 30 : 0;
+      if (!frameInterval || time - lastFrame >= frameInterval) {
         if (!isPausedRef.current) phi += speed;
-        globe?.update({
+        globe.update({
           phi: phi + phiOffsetRef.current + dragOffset.current.phi,
           theta: 0.2 + thetaOffsetRef.current + dragOffset.current.theta,
         });
-        animationId = requestAnimationFrame(animate);
-      };
+        lastFrame = time;
+      }
 
-      animate();
-      timeoutId = window.setTimeout(() => {
-        canvas.style.opacity = "1";
-      });
+      animationId = requestAnimationFrame(animate);
     };
 
-    if (canvas.offsetWidth > 0) {
-      init();
-    } else {
-      const resizeObserver = new ResizeObserver((entries) => {
-        if (entries[0]?.contentRect.width > 0) {
-          resizeObserver.disconnect();
-          init();
-        }
-      });
-      resizeObserver.observe(canvas);
+    const startAnimation = () => {
+      if (!globe || animationId || !isVisible || document.hidden || !shouldAnimate) return;
+      animationId = requestAnimationFrame(animate);
+    };
 
-      return () => {
-        resizeObserver.disconnect();
-        if (animationId) cancelAnimationFrame(animationId);
-        if (timeoutId) window.clearTimeout(timeoutId);
-        globe?.destroy();
-      };
-    }
+    const init = async () => {
+      const width = canvas.offsetWidth;
+      if (width === 0 || globe || isLoading || isDisposed) return;
+      isLoading = true;
+
+      try {
+        const { default: createGlobe } = await import("cobe");
+        if (isDisposed) return;
+
+        globe = createGlobe(canvas, {
+          devicePixelRatio: Math.min(
+            window.devicePixelRatio || 1,
+            saveData ? 1 : isMobile ? 1.25 : 1.75
+          ),
+          width,
+          height: width,
+          phi: 0,
+          theta: 0.2,
+          dark: 1,
+          diffuse: 1.5,
+          mapSamples: saveData ? 3000 : isMobile ? 6000 : 14000,
+          mapBrightness: 10,
+          baseColor: [0.5, 0.5, 0.5],
+          markerColor: [0.9, 0.1, 0.12],
+          glowColor: [0.05, 0.05, 0.05],
+          markerElevation: 0,
+          markers: markers.map((marker) => ({
+            location: marker.location,
+            size: isMobile ? 0.02 : 0.025,
+            id: marker.id,
+          })),
+          arcs: [],
+          arcColor: [0.9, 0.1, 0.12],
+          arcWidth: 0.5,
+          arcHeight: 0.25,
+          opacity: 0.7,
+        });
+
+        canvas.style.opacity = "1";
+        globe.update({ phi, theta: 0.2 });
+        startAnimation();
+      } catch {
+        // Keep the lightweight CSS fallback visible if WebGL cannot initialize.
+        canvas.style.opacity = "0";
+      } finally {
+        isLoading = false;
+      }
+    };
+
+    const preloadObserver = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          void init();
+          preloadObserver.disconnect();
+        }
+      },
+      { rootMargin: "300px 0px" }
+    );
+
+    const visibilityObserver = new IntersectionObserver(
+      (entries) => {
+        isVisible = Boolean(entries[0]?.isIntersecting);
+        container.dataset.globeActive = String(isVisible);
+        if (isVisible) {
+          void init();
+          startAnimation();
+        } else {
+          stopAnimation();
+        }
+      },
+      { threshold: 0.02 }
+    );
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (!globe) return;
+      const width = canvas.offsetWidth;
+      if (width > 0) globe.update({ width, height: width });
+    });
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) stopAnimation();
+      else startAnimation();
+    };
+
+    preloadObserver.observe(container);
+    visibilityObserver.observe(container);
+    resizeObserver.observe(container);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      if (animationId) cancelAnimationFrame(animationId);
-      if (timeoutId) window.clearTimeout(timeoutId);
+      isDisposed = true;
+      preloadObserver.disconnect();
+      visibilityObserver.disconnect();
+      resizeObserver.disconnect();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      stopAnimation();
       globe?.destroy();
     };
   }, [markers, speed]);
 
   return (
-    <div className={`relative aspect-square select-none ${className}`}>
+    <div
+      ref={containerRef}
+      data-globe-active="false"
+      className={`relative aspect-square select-none ${className}`}
+    >
       <style>{`
         @keyframes globe-pulse-expand {
           0% { transform: scale(0.3); opacity: 0.8; }
           100% { transform: scale(1.5); opacity: 0; }
         }
+
+        .globe-pulse-ring { animation-play-state: paused !important; }
+        [data-globe-active="true"] .globe-pulse-ring { animation-play-state: running !important; }
+
+        @media (prefers-reduced-motion: reduce) {
+          .globe-pulse-ring { animation: none !important; }
+        }
       `}</style>
+      <div className="pointer-events-none absolute inset-[9%] rounded-full border border-white/10 bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.08),transparent_42%)]" />
       <canvas
         ref={canvasRef}
         onPointerDown={handlePointerDown}
@@ -194,6 +276,7 @@ export function GlobePulse({
           }}
         >
           <span
+            className="globe-pulse-ring"
             style={{
               position: "absolute",
               inset: 0,
@@ -204,6 +287,7 @@ export function GlobePulse({
             }}
           />
           <span
+            className="globe-pulse-ring"
             style={{
               position: "absolute",
               inset: 0,

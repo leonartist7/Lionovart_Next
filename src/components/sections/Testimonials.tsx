@@ -357,7 +357,7 @@ export default function Testimonials(
         <TestimonialsCarousel />
 
         <div className="mt-14 grid items-start gap-9 sm:mt-16 md:gap-12 lg:mt-20 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-8 xl:gap-12">
-          <div className="relative flex flex-col items-start text-left lg:max-w-[500px] lg:pt-12">
+          <div className="relative z-10 flex min-h-[430px] flex-col items-start text-left sm:min-h-[470px] lg:min-h-0 lg:max-w-[500px] lg:pt-12">
             <motion.p
               className="mb-4 text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red md:text-[13px]"
               initial={{ opacity: 0, y: 10 }}
@@ -369,7 +369,7 @@ export default function Testimonials(
             </motion.p>
 
             <motion.h2
-              className="max-w-[10ch] text-[2.65rem] font-bold uppercase leading-[0.9] tracking-[-0.025em] text-white sm:text-[3.5rem] md:text-[4.5rem] lg:text-[clamp(3.4rem,4.8vw,5rem)]"
+              className="relative z-10 max-w-[10ch] text-[2.65rem] font-bold uppercase leading-[0.9] tracking-[-0.025em] text-white sm:text-[3.5rem] md:text-[4.5rem] lg:text-[clamp(3.4rem,4.8vw,5rem)]"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -384,8 +384,10 @@ export default function Testimonials(
               )}
             </motion.h2>
 
-            <div className="mt-9 hidden w-full max-w-[330px] lg:block">
-              <GlobePulse />
+            <div className="pointer-events-none absolute -right-[42%] top-[145px] z-0 w-[clamp(290px,82vw,360px)] sm:-right-[18%] sm:top-[125px] sm:w-[440px] md:-right-[8%] lg:pointer-events-auto lg:relative lg:right-auto lg:top-auto lg:mt-8 lg:w-[clamp(480px,38vw,620px)]">
+              <GlobePulse className="opacity-90 lg:opacity-100" />
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-2/5 bg-gradient-to-r from-bg-brand-black via-bg-brand-black/60 to-transparent lg:hidden" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-bg-brand-black to-transparent lg:h-1/5" />
             </div>
           </div>
 
