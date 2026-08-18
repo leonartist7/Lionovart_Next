@@ -37,7 +37,7 @@ export default function AiLionStage() {
       const { LionExperience: Engine } = await import("@/lib/lion/LionExperience");
       if (cancelled) return;
 
-      const instance = new Engine(canvas, reduce ? { maxParticles: 12_000 } : {});
+      const instance = new Engine(canvas, reduce ? { maxParticles: 1_600 } : {});
       exp = instance;
       await instance.init();
       if (cancelled) return;
@@ -69,7 +69,6 @@ export default function AiLionStage() {
   return (
     <canvas
       ref={canvasRef}
-      data-ai-lion-stage
       aria-hidden="true"
       // will-change forces its own persistent GPU compositing layer. Without
       // it, the ~5 stacked backdrop-filter glass panels down the page (heaviest

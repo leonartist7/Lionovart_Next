@@ -4,8 +4,8 @@
  * ACT 7 driver — the peak-end beat.
  *
  * SERVICE_PAGES_SPEC section 0.3: the page's biggest motion moment belongs at
- * the decision, not the hero. So the swarm converges into a ring on the CTA and
- * the lion reforms above it, small and whole. The last thing on screen is the
+ * the decision, not the hero. The same energy current that runs through the
+ * middle reforms into the lion above the CTA. The last thing on screen is the
  * mark that opened the page.
  *
  * Renders nothing. It wraps ProofAndClose and drives the engine from that
@@ -85,7 +85,7 @@ export default function AiCloseBeat({ children }: { children: React.ReactNode })
   }, []);
 
   return (
-    <div ref={wrapRef} data-ai-scene="close" data-lion-zone>
+    <div ref={wrapRef} data-lion-zone>
       {children}
     </div>
   );

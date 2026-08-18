@@ -56,7 +56,7 @@ export function AiStakes() {
   const reduce = useReducedMotion();
 
   return (
-    <section data-ai-scene="stakes" className={ACT}>
+    <section className={ACT}>
       <div className={SHELL}>
         <Eyebrow>The cost of being closed</Eyebrow>
         <Heading>Your best lead arrived while you were asleep.</Heading>
@@ -101,7 +101,7 @@ export function AiFlow() {
   const railHeight = useTransform(fill, (v) => `${(reduce ? 1 : v) * 100}%`);
 
   return (
-    <section ref={ref} data-ai-scene="flow" className={ACT}>
+    <section ref={ref} className={ACT}>
       <div className={SHELL}>
         <Eyebrow>What it actually does</Eyebrow>
         <Heading>One lead. Seven steps. Nobody awake.</Heading>
@@ -200,7 +200,7 @@ const STEPS = [
 
 export function AiProcess() {
   return (
-    <section data-ai-scene="neural" className={ACT}>
+    <section className={ACT}>
       <div className={SHELL}>
         <Eyebrow>How we put it in</Eyebrow>
         <Heading>Live in two weeks, not two quarters.</Heading>

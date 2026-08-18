@@ -7,14 +7,13 @@
  * the lion. SERVICE_PAGES_SPEC section 2 makes the Act 1 medium per-page, and
  * here the medium is the lion itself.
  *
- * The section owns only the very start of the transformation — the lion stays
+ * The section owns only the start of the transformation — the lion stays
  * assembled, just beginning a slow pre-rotation (PARTICLE_VERT's `preRot`
- * term). It hands off to `AiChaosBeat`, which owns the scatter and the
- * converge-to-disk, so that beat gets its own dedicated section and scroll
- * length instead of being a subtle sub-phase buried inside this one. Both
- * sections drive the SAME `uMorph` scalar (see AiChaosBeat.tsx's `HERO_END`),
+ * term). It hands off to `AiChaosBeat`, which stretches those same particles
+ * into the central energy current. Both sections drive the SAME `uMorph`
+ * scalar (see AiChaosBeat.tsx's `HERO_END`),
  * just different slices of its 0-1 range, so all of the camera/bloom/DOF
- * choreography that already keys off `m` stays correct without new uniforms.
+ * choreography that keys off `m` stays synchronized without new render loops.
  */
 
 import { useEffect, useRef } from "react";

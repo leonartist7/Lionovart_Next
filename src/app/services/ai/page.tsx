@@ -4,7 +4,6 @@ import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
 import ProofAndClose from "@/components/sections/services/_shared/ProofAndClose";
 import AiLionStage from "@/components/sections/services/ai/AiLionStage";
-import InteractiveNeuralVortex from "@/components/ui/interactive-neural-vortex-background";
 import AiHeroCopy from "@/components/sections/services/ai/AiHeroCopy";
 import AiChaosBeat from "@/components/sections/services/ai/AiChaosBeat";
 import AiCloseBeat from "@/components/sections/services/ai/AiCloseBeat";
@@ -36,11 +35,10 @@ export const metadata: Metadata = {
 /**
  * /services/ai — Tier 2, on the shared 7-act spine.
  *
- * Structure: the particle world runs continuously behind the ENTIRE page, not
- * just the hero. Acts 2 through 6 sit on liquid glass with no opaque backing,
- * so the panels are refracting real motion the whole way down. The lion
- * collapses into an orbiting disk at the end of the hero and stays that shape
- * as the ambient backdrop until it reforms over the CTA in Act 7.
+ * Structure: one particle world runs continuously behind the entire page. The
+ * lion stretches into a vertical energy current for the middle acts and the
+ * same particles reform above the CTA. There is no second canvas or visual
+ * handoff between independent renderers.
  */
 export default function AiServicePage() {
   return (
@@ -50,7 +48,6 @@ export default function AiServicePage() {
         opaque ancestor background can bury the canvas.
       */}
       <AiLionStage />
-      <InteractiveNeuralVortex />
 
       <main
         // The shared kit (ProofAndClose, imported below) hardcodes `bg-bg-dark`
