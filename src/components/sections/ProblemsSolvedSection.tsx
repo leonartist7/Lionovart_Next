@@ -36,7 +36,7 @@ function ClickToRevealHint() {
 
       <svg
         viewBox="0 0 96 40"
-        className="absolute bottom-0 left-[calc(50%+2.75rem)] h-auto w-[clamp(5.25rem,26vw,12rem)] -rotate-12 overflow-visible sm:left-[calc(50%+3.25rem)] sm:w-[clamp(6.5rem,22vw,12rem)] md:left-[calc(50%+3.75rem)]"
+        className="absolute bottom-0 left-[calc(50%_+_2.75rem)] h-auto w-[clamp(5.25rem,26vw,12rem)] -rotate-12 overflow-visible sm:left-[calc(50%_+_3.25rem)] sm:w-[clamp(6.5rem,22vw,12rem)] md:left-[calc(50%_+_3.75rem)]"
         fill="none"
         aria-hidden="true"
       >
