@@ -41,6 +41,7 @@ export default function Services(props: any) {
       }));
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const activeIndexRef = useRef(0);
   const active = SERVICES[activeIndex] ?? SERVICES[0];
 
   /* â”€â”€ Desktop: useScroll on the tall scroll zone â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -51,20 +52,29 @@ export default function Services(props: any) {
   });
   useMotionValueEvent(scrollYProgress, "change", (p) => {
     const idx = Math.min(SERVICES.length - 1, Math.max(0, Math.floor(p * SERVICES.length)));
-    setActiveIndex(idx);
+    if (idx !== activeIndexRef.current) {
+      activeIndexRef.current = idx;
+      setActiveIndex(idx);
+    }
   });
 
   /* â”€â”€ Mobile: IntersectionObserver on each card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   const mobileRefs = useRef<(HTMLDivElement | null)[]>([]);
-  // Cooldown prevents the accordion expand/collapse layout shift from triggering
-  // a cascade of observer callbacks (the "up and down" feedback loop).
+  // A short guard prevents the accordion expand/collapse layout shift from
+  // triggering a cascade of observer callbacks without making activation feel
+  // delayed while the user moves to the next service.
   const lastObserverSetAt = useRef<number>(0);
   useEffect(() => {
     const observers = mobileRefs.current.map((el, i) => {
       if (!el) return null;
       const obs = new IntersectionObserver(
         ([entry]) => {
-          if (entry.isIntersecting && Date.now() - lastObserverSetAt.current > 500) {
+          if (
+            entry.isIntersecting &&
+            i !== activeIndexRef.current &&
+            Date.now() - lastObserverSetAt.current > 140
+          ) {
+            activeIndexRef.current = i;
             setActiveIndex(i);
             lastObserverSetAt.current = Date.now();
           }
@@ -110,7 +120,7 @@ export default function Services(props: any) {
       <div
         ref={desktopScrollRef}
         className="hidden lg:block relative"
-        style={{ height: `${SERVICES.length * 85}vh` } as React.CSSProperties}
+        style={{ height: `${SERVICES.length * 105}vh` } as React.CSSProperties}
       >
         {/* Sticky wrapper */}
         <div className="sticky top-0 h-screen flex items-start lg:pt-[10vh] overflow-hidden">
@@ -125,7 +135,6 @@ export default function Services(props: any) {
                     <button
                       type="button"
                       onClick={() => {
-                        setActiveIndex(i);
                         const el = desktopScrollRef.current;
                         if (el) {
                           const top = el.getBoundingClientRect().top + window.scrollY;
@@ -158,14 +167,14 @@ export default function Services(props: any) {
 
             {/* â”€â”€ Right: active service detail â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
             <div className="relative h-full">
-              <AnimatePresence>
+              <AnimatePresence mode="sync" initial={false}>
                 <motion.div
                   key={activeIndex}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute inset-0 flex flex-col gap-5 justify-center"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute inset-0 flex flex-col gap-5 justify-center will-change-[opacity,transform]"
                 >
                   {/* Description + tags */}
                   <div className="flex flex-col gap-4">
@@ -195,7 +204,7 @@ export default function Services(props: any) {
                   )}
 
                   {/* Image card */}
-                  <div className="w-full rounded-[18px] xl:rounded-[22px] overflow-hidden flex-1 min-h-0 max-h-[200px] xl:max-h-[240px] shadow-[0_12px_40px_-8px_rgba(0,0,0,0.14)]">
+                  <div className="self-center h-[min(48vh,360px)] aspect-[9/16] rounded-[18px] xl:rounded-[22px] overflow-hidden shadow-[0_12px_40px_-8px_rgba(0,0,0,0.14)]">
                     <img
                       src={active.imgUrl}
                       alt={active.imgAlt}
@@ -228,7 +237,11 @@ export default function Services(props: any) {
               {/* Title row */}
               <button
                 type="button"
-                onClick={() => setActiveIndex(i)}
+                onClick={() => {
+                  activeIndexRef.current = i;
+                  lastObserverSetAt.current = Date.now();
+                  setActiveIndex(i);
+                }}
                 className="flex items-baseline gap-3 w-full text-left py-9 md:py-11 transition-all duration-500"
               >
                 <span
@@ -256,7 +269,7 @@ export default function Services(props: any) {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                    transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
                     className="overflow-hidden"
                   >
                     <div className="pb-8 flex flex-col gap-4">
@@ -285,7 +298,7 @@ export default function Services(props: any) {
                         </Link>
                       )}
                       {/* Image â€” below tags */}
-                      <div className="w-full aspect-[16/9] max-h-[150px] sm:max-h-[180px] md:max-h-[210px] rounded-[14px] overflow-hidden shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12)]">
+                      <div className="self-center h-[min(62vh,440px)] aspect-[9/16] rounded-[14px] overflow-hidden shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12)]">
                         <img
                           src={s.imgUrl}
                           alt={s.imgAlt}
