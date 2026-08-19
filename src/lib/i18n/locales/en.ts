@@ -531,60 +531,50 @@ export const en = {
   },
 
   services: {
-    eyebrow: "Everything your business needs, nothing that it doesn't.",
+    eyebrow: "The Art of Innovation, applied to every part of your brand.",
     heading: "Our",
-    headingAccent: "Expertise",
+    headingAccent: "Craft",
     items: [
       {
         title: "Brand Identity & Strategy",
         description:
-          "Your brand is the first thing people judge — and the last they forget. We build identity systems that command instant authority across every touchpoint, turning recognition into revenue.",
+          "Identity systems built on strategy, not guesswork: distinct, consistent, and built to be remembered.",
         deliverables: [
-          "Logo System",
+          "Brand Strategy",
+          "Logo & Identity Systems",
           "Brand Guidelines",
-          "Typography & Color",
-          "Brand Voice",
-          "Sonic Identity",
+          "Naming",
         ],
       },
       {
         title: "Web & App Development",
         description:
-          "A slow or generic website costs you clients every day. We build fast, conversion-focused sites and apps that turn visitors into booked calls — with measurable results from day one.",
+          "Cinematic, high-performance websites and apps, engineered to turn visitors into clients.",
         deliverables: [
           "UI/UX Design",
           "Web Development",
           "Web & Mobile Apps",
-          "CMS Integration",
           "E-Commerce",
-          "SEO Setup",
         ],
       },
       {
         title: "Content Studio",
         description:
-          "Brands that move people get chosen. We make brand films, reels, and full social content, then run it end to end, so your business stays impossible to ignore every month.",
+          "Brand films and content systems that keep your story moving, month after month.",
         deliverables: [
           "Brand Films",
-          "Social Reels",
+          "Social Content",
           "Motion Design",
           "Content Strategy",
-          "Monthly Calendar",
-          "Sound Design",
         ],
       },
       {
         title: "Print & Physical Branding",
         description:
-          "The businesses people remember have a presence beyond the screen. We design and produce print materials, packaging, and physical brand experiences that make your company impossible to overlook in the real world.",
+          "Brand presence beyond the screen: print, packaging, and physical experiences built to be remembered.",
         deliverables: [
-          "Business Cards & Stationery",
           "Packaging Design",
-          "Digital Printing",
-          "Commercial Printing",
-          "Custom Balloons",
-          "Apparel Design",
-          "Corporate Gifts",
+          "Stationery & Print",
           "Signage & Display",
           "Event Branding",
         ],
@@ -592,25 +582,21 @@ export const en = {
       {
         title: "Smart Systems & AI",
         description:
-          "Every unanswered call and manual task is money left on the table. We build AI voice agents, lead automation, and smart workflows that keep your business running and converting 24/7 — without adding headcount.",
+          "Intelligent automation that keeps your business responsive and converting, day and night.",
         deliverables: [
           "AI Voice Agents",
-          "Virtual Receptionists",
           "Lead Automation",
           "AI Chatbots",
           "Workflow Integration",
-          "CRM & Email Automation",
         ],
       },
       {
         title: "Growth Marketing",
         description:
-          "If your business isn't showing up when buyers are searching, your competitors are taking those clients. We combine SEO, local search, paid ads, and strategic consulting to make sure the right people find you — consistently.",
+          "SEO, paid media, and strategy that put your brand in front of the right people, consistently.",
         deliverables: [
-          "SEO & AEO Optimization",
-          "Google Business Management",
-          "Local Search Domination",
-          "Paid Ads & Google Ads",
+          "SEO & Local Search",
+          "Paid Ads",
           "Business Consulting",
           "Analytics & Reporting",
         ],

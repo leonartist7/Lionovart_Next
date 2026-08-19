@@ -398,60 +398,50 @@ export const fr: Translations = {
   },
 
   services: {
-    eyebrow: "Ce Que Nous Faisons",
-    heading: "Nos",
-    headingAccent: "Services",
+    eyebrow: "L'Art de l'Innovation, appliqué à chaque partie de votre marque.",
+    heading: "Notre",
+    headingAccent: "Savoir-faire",
     items: [
       {
         title: "Image de Marque & Identité",
         description:
-          "Votre marque est la première chose que les gens jugent — et la dernière qu'ils oublient. Nous créons des systèmes d'identité qui communiquent l'autorité, instaurent une confiance immédiate et tiennent ensemble sur chaque point de contact — numérique et physique. Nous ne concevons pas seulement comment votre marque ressemble — nous façonnons comment elle sonne. Logos audio, ton de voix de marque, systèmes d'identité sonore.",
+          "Des systèmes d'identité fondés sur la stratégie, pas l'improvisation: distincts, cohérents, faits pour durer.",
         deliverables: [
-          "Système de Logo",
+          "Stratégie de Marque",
+          "Système de Logo & Identité",
           "Charte Graphique",
-          "Typographie & Couleurs",
-          "Voix de Marque",
-          "Identité Sonore",
+          "Naming",
         ],
       },
       {
         title: "Développement Web & App",
         description:
-          "Des sites web et applications orientés performance, conçus pour convertir. Rapides, beaux et conçus pour transformer les visiteurs en appels réservés — avec des résultats mesurables dès le premier jour. Des sites marketing aux applications web personnalisées et expériences mobiles, nous construisons ce dont votre entreprise a vraiment besoin.",
+          "Des sites web et applications cinématographiques et performants, conçus pour convertir vos visiteurs en clients.",
         deliverables: [
           "Design UI/UX",
           "Développement Web",
           "Apps Web & Mobile",
-          "Intégration CMS",
           "E-Commerce",
-          "Configuration SEO",
         ],
       },
       {
         title: "Studio de Contenu",
         description:
-          "Les marques qui émeuvent sont celles que l'on choisit. Nous créons films de marque, reels et tout votre contenu social, puis nous le gérons de bout en bout pour que votre entreprise reste impossible à ignorer chaque mois.",
+          "Films de marque et systèmes de contenu qui font vivre votre histoire, mois après mois.",
         deliverables: [
           "Films de Marque",
-          "Reels Sociaux",
+          "Contenu Social",
           "Motion Design",
           "Stratégie de Contenu",
-          "Calendrier Mensuel",
-          "Design Sonore",
         ],
       },
       {
         title: "Impression & Marque Physique",
         description:
-          "Votre marque ne peut pas vivre que sur des écrans. Nous concevons et produisons les supports physiques qui rendent votre entreprise mémorable dans le monde réel — des cartes de visite que l'on garde aux installations gonflables qui attirent l'attention lors d'événements. Avec accès direct à l'une des principales installations de production de ballons au Canada, nous livrons des expériences de marque physiques que la plupart des agences ne peuvent pas offrir.",
+          "Une présence de marque au-delà de l'écran: impression, emballage et expériences physiques faites pour marquer les esprits.",
         deliverables: [
-          "Cartes de Visite & Papeterie",
           "Design d'Emballage",
-          "Impression numérique",
-          "Impression commerciale",
-          "Ballons personnalisés",
-          "Design de vêtements",
-          "Cadeaux d'entreprise",
+          "Papeterie & Impression",
           "Signalétique & Affichage",
           "Branding Événementiel",
         ],
@@ -459,26 +449,22 @@ export const fr: Translations = {
       {
         title: "Systèmes Intelligents & IA",
         description:
-          "Des systèmes intelligents qui travaillent pendant que vous dormez. Des réceptionnistes vocaux IA qui répondent aux appels 24h/24 à la capture automatisée de prospects, agents clients personnalisés et intégrations de flux de travail — nous construisons les automatisations qui transforment les tâches manuelles en croissance 24/7. Piloté par l'humain. Aligné sur la marque. Toujours actif.",
+          "Une automatisation intelligente qui garde votre entreprise active et performante, jour et nuit.",
         deliverables: [
           "Agents Vocaux IA",
-          "Réceptionnistes Virtuels",
           "Automatisation des Prospects",
           "Chatbots IA",
           "Intégration de Flux de Travail",
-          "CRM & Automatisation Email",
         ],
       },
       {
         title: "Marketing de Croissance",
         description:
-          "De la visibilité là où ça compte. Nous combinons l'optimisation de recherche, le SEO local, la gestion de Google Business et le conseil stratégique pour que votre entreprise soit trouvée par les bonnes personnes — de façon constante, pas accidentelle. Du classement dans les recherches à la domination de votre marché local, nous construisons les systèmes qui amènent des prospects qualifiés à votre porte.",
+          "SEO, publicité payante et stratégie qui placent votre marque devant les bonnes personnes, de façon constante.",
         deliverables: [
-          "Optimisation SEO & AEO",
-          "Gestion Google Business",
-          "Domination de la Recherche Locale",
-          "Publicités Payantes & Google Ads",
-          "Consultation en Entreprise",
+          "SEO & Recherche Locale",
+          "Publicités Payantes",
+          "Conseil en Entreprise",
           "Analyses & Reporting",
         ],
       },

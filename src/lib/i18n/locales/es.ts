@@ -396,60 +396,50 @@ export const es: Translations = {
   },
 
   services: {
-    eyebrow: "Lo Que Hacemos",
-    heading: "Nuestros",
-    headingAccent: "Servicios",
+    eyebrow: "El Arte de la Innovación, aplicado a cada parte de tu marca.",
+    heading: "Nuestro",
+    headingAccent: "Oficio",
     items: [
       {
         title: "Identidad de Marca y Estrategia",
         description:
-          "Tu marca es lo primero que la gente juzga — y lo último que olvidan. Construimos sistemas de identidad que generan autoridad instantánea en cada punto de contacto, convirtiendo el reconocimiento en ingresos.",
+          "Sistemas de identidad basados en estrategia, no en intuición: distintivos, coherentes y hechos para perdurar.",
         deliverables: [
-          "Sistema de Logo",
+          "Estrategia de Marca",
+          "Sistema de Logo e Identidad",
           "Manual de Marca",
-          "Tipografía y Color",
-          "Voz de Marca",
-          "Identidad Sonora",
+          "Naming",
         ],
       },
       {
         title: "Desarrollo Web y de Apps",
         description:
-          "Un sitio web lento o genérico te cuesta clientes cada día. Construimos sitios y aplicaciones rápidos, orientados a la conversión, que convierten visitas en llamadas agendadas — con resultados medibles desde el día uno.",
+          "Sitios web y aplicaciones cinematográficas y de alto rendimiento, diseñados para convertir visitas en clientes.",
         deliverables: [
           "Diseño UI/UX",
           "Desarrollo Web",
           "Apps Web y Móvil",
-          "Integración de CMS",
           "E-Commerce",
-          "Configuración SEO",
         ],
       },
       {
         title: "Estudio de Contenido",
         description:
-          "Las marcas que emocionan son las elegidas. Creamos films de marca, reels y todo tu contenido social, y lo gestionamos de principio a fin para que tu negocio sea imposible de ignorar cada mes.",
+          "Films de marca y sistemas de contenido que mantienen tu historia en movimiento, mes tras mes.",
         deliverables: [
           "Films de Marca",
-          "Reels Sociales",
+          "Contenido Social",
           "Motion Design",
           "Estrategia de Contenido",
-          "Calendario Mensual",
-          "Diseño Sonoro",
         ],
       },
       {
         title: "Branding Físico e Impresión",
         description:
-          "Los negocios que la gente recuerda tienen presencia más allá de la pantalla. Diseñamos y producimos materiales impresos, packaging y experiencias de marca física que hacen que tu empresa sea imposible de pasar por alto en el mundo real.",
+          "Presencia de marca más allá de la pantalla: impresión, packaging y experiencias físicas hechas para ser recordadas.",
         deliverables: [
-          "Tarjetas y Papelería",
           "Diseño de Packaging",
-          "Impresión Digital",
-          "Impresión Comercial",
-          "Globos Personalizados",
-          "Diseño de Ropa",
-          "Regalos Corporativos",
+          "Papelería e Impresión",
           "Señalética y Displays",
           "Branding para Eventos",
         ],
@@ -457,25 +447,21 @@ export const es: Translations = {
       {
         title: "Sistemas Inteligentes e IA",
         description:
-          "Cada llamada no atendida y tarea manual es dinero que se escapa. Construimos agentes de voz con IA, automatización de leads y flujos de trabajo inteligentes que mantienen tu negocio funcionando y convirtiendo las 24/7 — sin aumentar el personal.",
+          "Automatización inteligente que mantiene tu negocio activo y convirtiendo, de día y de noche.",
         deliverables: [
           "Agentes de Voz con IA",
-          "Recepcionistas Virtuales",
           "Automatización de Leads",
           "Chatbots con IA",
           "Integración de Flujos de Trabajo",
-          "Automatización de CRM y Email",
         ],
       },
       {
         title: "Marketing de Crecimiento",
         description:
-          "Si tu negocio no aparece cuando los compradores buscan, tus competidores se llevan esos clientes. Combinamos SEO, búsqueda local, publicidad pagada y consultoría estratégica para asegurarnos de que las personas correctas te encuentren — de forma consistente.",
+          "SEO, publicidad paga y estrategia que ponen tu marca frente a las personas correctas, de forma constante.",
         deliverables: [
-          "Optimización SEO y AEO",
-          "Gestión de Google Business",
-          "Dominio de Búsqueda Local",
-          "Publicidad Paga y Google Ads",
+          "SEO y Búsqueda Local",
+          "Publicidad Paga",
           "Consultoría de Negocios",
           "Analítica y Reportes",
         ],

@@ -439,10 +439,9 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
     py.set(0);
   }, [px, py]);
 
-  // The Code section must have a legible first frame. Its cards no longer
-  // depend on a decoded video frame or a scroll threshold to become visible.
-  const initial = "split";
-  const animate = "split";
+  // Reduced motion: render the settled state, skip the entrance entirely.
+  const initial = reduce ? "split" : "joined";
+  const animate = reduce || hasTriggered ? "split" : "joined";
 
   return (
     <section ref={sectionRef} className="relative bg-black" style={{ height: `${SECTION_HEIGHT_VH}vh` }}>
@@ -473,7 +472,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
           {/* Glass plane â€” tilts as one sheet so the three panes stay a single
               object. Individual feedback lives on the panes' hover lift. */}
           <motion.div
-            className="relative flex h-[clamp(350px,66vh,660px)] w-full flex-col overflow-hidden rounded-[18px] bg-[#171717] lg:h-[clamp(270px,50vh,500px)] lg:flex-row"
+            className="relative flex h-[clamp(350px,66vh,660px)] w-full flex-col lg:h-[clamp(270px,50vh,500px)] lg:flex-row"
             style={{
               rotateX,
               rotateY,
