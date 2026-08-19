@@ -9,7 +9,6 @@ import {
   useScroll,
   useSpring,
   useTransform,
-  type MotionValue,
 } from "framer-motion";
 
 // Locked tag style (flip to red here if preferred).
@@ -53,7 +52,7 @@ const ARM_DELAY_MS = 1600;
 
 // How far into the section's scroll runway the split/flip fires.
 const SECTION_HEIGHT_VH = 190;
-const SCROLL_TRIGGER_THRESHOLD = 0.4;
+const SCROLL_TRIGGER_THRESHOLD = 0.18;
 
 // Per-pane flip: centre leads, outer two follow (mirrors the split stagger).
 const FLIP_DURATION = 0.95;
@@ -128,14 +127,6 @@ const backImageVariants = {
   }),
 };
 
-const backScrimVariants = {
-  joined: { opacity: 0 },
-  split: ({ dir }: PaneCustom) => ({
-    opacity: 1,
-    transition: { duration: 0.5, delay: flipEndDelay(dir) - 0.15, ease: "easeOut" as const },
-  }),
-};
-
 const contentVariants = {
   joined: { opacity: 0, y: 18 },
   split: ({ dir, i }: PaneCustom) => ({
@@ -151,13 +142,11 @@ function Pane({
   card,
   custom,
   armed,
-  sheen,
   canvasRef,
 }: {
   card: Card;
   custom: PaneCustom;
   armed: boolean;
-  sheen: MotionValue<number>;
   canvasRef: (el: HTMLCanvasElement | null) => void;
 }) {
   return (
@@ -184,15 +173,6 @@ function Pane({
         >
           <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />
           <motion.div
-            className="pointer-events-none absolute inset-x-0 top-0 h-[45%]"
-            style={{
-              opacity: sheen,
-              background: "linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 100%)",
-              maskImage: "linear-gradient(180deg, #000 0%, transparent 100%)",
-              WebkitMaskImage: "linear-gradient(180deg, #000 0%, transparent 100%)",
-            }}
-          />
-          <motion.div
             className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/20"
             variants={frontRingVariants}
           />
@@ -200,11 +180,15 @@ function Pane({
 
         {/* Back face â€” revealed once the pane has turned to face forward. */}
         <div
-          className="absolute inset-0 overflow-hidden rounded-[inherit] bg-[#111111]"
+          className="absolute inset-0 overflow-hidden rounded-[inherit] bg-[#080808]/56"
           style={{
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
+            // No backdrop filter here. Three independently transformed blur
+            // layers are expensive during scroll and can contend with the
+            // fixed navbar compositor layer.
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.28), inset 1px 0 0 rgba(255,255,255,0.07)",
           }}
         >
           {card.image ? (
@@ -218,15 +202,10 @@ function Pane({
             />
           ) : null}
           <motion.div
-            className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"
-            variants={backScrimVariants}
-            custom={custom}
-          />
-          <motion.div
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(150deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.055) 44%, rgba(255,255,255,0.02) 100%)",
+                "radial-gradient(120% 85% at 6% 0%, rgba(255,255,255,0.23) 0%, transparent 48%), linear-gradient(150deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.045) 52%, rgba(255,255,255,0.025) 100%)",
             }}
             variants={backGlassVariants}
             custom={custom}
@@ -237,7 +216,7 @@ function Pane({
             custom={custom}
           />
           <motion.div
-            className="absolute inset-x-0 bottom-0 p-4 text-left md:p-6"
+            className="absolute inset-x-0 bottom-0 p-4 text-left [text-shadow:0_1px_10px_rgba(0,0,0,0.75)] md:p-6"
             variants={contentVariants}
             custom={custom}
           >
@@ -300,25 +279,20 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
   /* â”€â”€â”€ Scroll-gated trigger: plays joined, then fires the split+flip once
      and never reverses, even if the user scrolls back up. â”€â”€â”€ */
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
-  const hasTriggeredRef = useRef(false);
   const [hasTriggered, setHasTriggered] = useState(false);
 
   useMotionValueEvent(scrollYProgress, "change", (p) => {
-    if (hasTriggeredRef.current || reduce) return;
-    if (p > SCROLL_TRIGGER_THRESHOLD) {
-      hasTriggeredRef.current = true;
-      setHasTriggered(true);
-    }
+    if (reduce) return;
+    setHasTriggered(p > SCROLL_TRIGGER_THRESHOLD);
   });
 
   /* â”€â”€â”€ Video mirror: one decode, drawn into 3 cropped canvases via rAF.
      Stops for good once every pane has finished flipping â€” the front
      faces are then permanently hidden by backface-visibility. â”€â”€â”€ */
-  const loopStoppedRef = useRef(false);
   const rafRef = useRef<number | null>(null);
 
   const startLoop = useCallback(() => {
-    if (rafRef.current != null || reduce || loopStoppedRef.current) return;
+    if (rafRef.current != null || reduce) return;
     const tick = () => {
       const v = videoRef.current;
       if (v) {
@@ -400,10 +374,8 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
         const v = videoRef.current;
         if (!v) return;
         if (entry.isIntersecting) {
-          if (!loopStoppedRef.current) {
-            void v.play().catch(() => {});
-            startLoop();
-          }
+          void v.play().catch(() => {});
+          startLoop();
         } else {
           v.pause();
           stopLoop();
@@ -417,18 +389,6 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
       stopLoop();
     };
   }, [startLoop, stopLoop]);
-
-  // Once the outermost pane's flip has landed, the front-face crops will
-  // never be seen again â€” stop mirroring and release the decoder for good.
-  useEffect(() => {
-    if (!hasTriggered || reduce) return;
-    const t = setTimeout(() => {
-      loopStoppedRef.current = true;
-      stopLoop();
-      videoRef.current?.pause();
-    }, (flipEndDelay(1) + 0.1) * 1000);
-    return () => clearTimeout(t);
-  }, [hasTriggered, reduce, stopLoop]);
 
   // Hold the cursor rig back until the entrance has settled, so the two
   // aren't animating the same transform at once.
@@ -479,12 +439,13 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
     py.set(0);
   }, [px, py]);
 
-  // Reduced motion: render the settled state, skip the entrance entirely.
-  const initial = reduce ? "split" : "joined";
-  const animate = reduce || hasTriggered ? "split" : "joined";
+  // The Code section must have a legible first frame. Its cards no longer
+  // depend on a decoded video frame or a scroll threshold to become visible.
+  const initial = "split";
+  const animate = "split";
 
   return (
-    <section ref={sectionRef} className="relative bg-[#0a0a0a]" style={{ height: `${SECTION_HEIGHT_VH}vh` }}>
+    <section ref={sectionRef} className="relative bg-black" style={{ height: `${SECTION_HEIGHT_VH}vh` }}>
       <div className="sticky top-0 z-40 flex min-h-screen flex-col items-center justify-center gap-[clamp(2.5rem,6vh,5rem)] overflow-hidden px-3 py-24 md:px-4">
         <div
           ref={stageRef}
@@ -512,7 +473,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
           {/* Glass plane â€” tilts as one sheet so the three panes stay a single
               object. Individual feedback lives on the panes' hover lift. */}
           <motion.div
-            className="relative flex h-[clamp(350px,66vh,660px)] w-full flex-col lg:h-[clamp(270px,50vh,500px)] lg:flex-row"
+            className="relative flex h-[clamp(350px,66vh,660px)] w-full flex-col overflow-hidden rounded-[18px] bg-[#171717] lg:h-[clamp(270px,50vh,500px)] lg:flex-row"
             style={{
               rotateX,
               rotateY,
@@ -528,12 +489,26 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
                 card={card}
                 custom={{ i, dir: i - 1, isDesktop }}
                 armed={armed}
-                sheen={sheen}
                 canvasRef={(el) => {
                   canvasRefs.current[i] = el;
                 }}
               />
             ))}
+            {/* One reflection belongs to the complete object. Keeping it out of
+                individual panes prevents hard vertical seams from appearing
+                when the cursor tilts the three-card assembly. */}
+            <motion.div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 rounded-[18px]"
+              style={{
+                opacity: sheen,
+                transform: "translateZ(2px)",
+                background:
+                  "radial-gradient(75% 65% at 50% -18%, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0.075) 38%, transparent 72%)",
+                maskImage: "linear-gradient(180deg, #000 0%, transparent 58%)",
+                WebkitMaskImage: "linear-gradient(180deg, #000 0%, transparent 58%)",
+              }}
+            />
           </motion.div>
         </div>
 

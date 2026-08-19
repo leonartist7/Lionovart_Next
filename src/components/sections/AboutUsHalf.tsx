@@ -33,7 +33,7 @@ const mobileHeadlineContainer = {
   visible: { transition: { staggerChildren: 0.05 } },
 };
 const mobileHeadlineWord = {
-  hidden:  { y: "110%", opacity: 0 },
+  hidden: { y: "110%", opacity: 0 },
   visible: { y: 0, opacity: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
@@ -120,7 +120,6 @@ export default function AboutUsHalf(props: any) {
 
   const words = headlineTop.split(" ");
 
-  /* â”€â”€ GSAP â€” desktop pinned scroll sequence â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
@@ -134,56 +133,50 @@ export default function AboutUsHalf(props: any) {
             end: "top top",
             scrub: 1.2,
           },
-        })
-          .fromTo(
-            wordEls,
-            { yPercent: 110 },
-            { yPercent: 0, duration: 1, stagger: 0.08, ease: "power3.out" },
-            0.05,
-          );
+        }).fromTo(
+          wordEls,
+          { yPercent: 110 },
+          { yPercent: 0, duration: 1, stagger: 0.08, ease: "power3.out" },
+          0.05,
+        );
 
-        gsap.timeline({
-          scrollTrigger: {
-            trigger: desktopRef.current,
-            start: "top top",
-            end: "+=80%",
-            pin: true,
-            scrub: 1.5,
-            pinSpacing: true,
+        gsap.fromTo(
+          ".about-body",
+          { opacity: 0, y: 20 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.5,
+            stagger: 0.12,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: desktopRef.current,
+              start: "top 45%",
+              toggleActions: "play none none reverse",
+            },
           },
-        })
-          .fromTo(
-            ".about-body",
-            { opacity: 0, y: 20 },
-            { opacity: 1, y: 0, duration: 0.5, stagger: 0.12, ease: "power2.out" },
-            0,
-          )
-          .fromTo(
-            ".about-image",
-            { opacity: 0, scale: 0.92, y: 30 },
-            { opacity: 1, scale: 1, y: 0, duration: 0.7, ease: "power2.out" },
-            0.3,
-          );
+        );
       });
 
       return () => mm.revert();
     },
-    { scope: sectionRef }
+    { scope: sectionRef },
   );
 
+  /* â”€â”€ GSAP â€” desktop pinned scroll sequence â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   return (
     <section ref={sectionRef} className="relative bg-bg-surface-light">
 
       {/* â”€â”€ DESKTOP: Pinned two-column magazine layout â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div
         ref={desktopRef}
-        className="hidden lg:block relative h-screen overflow-hidden"
+        className="relative hidden overflow-hidden lg:block"
       >
         {/*
           items-center â†’ grid auto-height centered in 100vh, zero dead bands.
           items-start on grid â†’ both cols top-align; portrait extends below text naturally.
         */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center pt-[clamp(4rem,7vh,6rem)] pb-[clamp(1.5rem,3vh,3rem)] gap-[clamp(1.5rem,3vh,2.5rem)] z-[1]">
+        <div className="relative z-[1] flex flex-col items-center justify-center gap-[clamp(1.5rem,3vh,2.5rem)] pb-[clamp(3rem,6vh,5rem)] pt-[clamp(4rem,7vh,6rem)]">
 
           {/* ROW 1 â€” Line 0 spans full width above the grid */}
           <div className="w-full max-w-[1400px] px-[max(3rem,6vw)]">
@@ -235,7 +228,7 @@ export default function AboutUsHalf(props: any) {
             <div className="flex justify-center items-start">
               <PortraitFrame
                 frameClassName="w-full aspect-[3/4] max-h-[clamp(60vh,78vh,90vh)]"
-                revealClass="about-image opacity-0"
+                revealClass=""
                 founderRole={founderRole}
               />
             </div>
@@ -262,10 +255,7 @@ export default function AboutUsHalf(props: any) {
                 key={i}
                 className="inline-block overflow-hidden align-bottom mr-[0.2em] last:mr-0"
               >
-                <motion.span
-                  variants={mobileHeadlineWord}
-                  className={`inline-block${RED_WORDS.has(word) ? " text-[#e5192a]" : ""}`}
-                >
+                <motion.span variants={mobileHeadlineWord} className={`inline-block${RED_WORDS.has(word) ? " text-[#e5192a]" : ""}`}>
                   {word}
                 </motion.span>
               </span>
@@ -296,18 +286,14 @@ export default function AboutUsHalf(props: any) {
           </motion.div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.94, y: 24 }}
-          whileInView={{ opacity: 1, scale: 1, y: 0 }}
-          viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-          transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+        <div
           className="mt-10 mx-auto w-full max-w-[min(360px,85vw)]"
         >
           <PortraitFrame
             frameClassName="w-full aspect-[3/4]"
             founderRole={founderRole}
           />
-        </motion.div>
+        </div>
       </div>
     </section>
   );

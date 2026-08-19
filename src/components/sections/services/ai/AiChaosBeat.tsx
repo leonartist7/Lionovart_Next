@@ -12,6 +12,7 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { getLionStage } from "@/lib/lion/stage-ref";
+import { LiquidGlass } from "./LiquidGlass";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -100,7 +101,7 @@ export default function AiChaosBeat() {
               }`}
               style={{ opacity: index === 0 ? 1 : 0 }}
             >
-              <div className="max-w-[34rem] rounded-[2rem] border border-white/10 bg-black/20 p-7 backdrop-blur-[10px] md:p-10">
+              <LiquidGlass still className="max-w-[34rem] p-7 md:p-10">
                 <p className="text-[10px] uppercase tracking-[0.38em] text-[var(--ai-cyan)]/75 md:text-[11px]">
                   {chapter.eyebrow}
                 </p>
@@ -117,7 +118,7 @@ export default function AiChaosBeat() {
                 <p className="mt-6 max-w-[48ch] text-[14px] leading-relaxed text-white/55 md:text-[16px]">
                   {chapter.body}
                 </p>
-              </div>
+              </LiquidGlass>
             </div>
           ))}
         </div>

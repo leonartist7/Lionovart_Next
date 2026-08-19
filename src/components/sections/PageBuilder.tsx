@@ -1,6 +1,7 @@
 import HeroTop from "@/components/sections/HeroTop";
 import SceneVideoBackdrop from "@/components/sections/SceneVideoBackdrop";
 import StrongTogetherTransition from "@/components/sections/StrongTogetherTransition";
+import BridgeStatement from "@/components/sections/BridgeStatement";
 
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import WhatWeDo from "@/components/sections/WhatWeDo";
@@ -40,6 +41,7 @@ export function PageBuilder() {
 
       <div>
         <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
+        <BridgeStatement />
         <StrongTogetherTransition />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
         <NovaSection id="services"><Services /></NovaSection>

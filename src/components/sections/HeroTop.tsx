@@ -129,19 +129,20 @@ function TrustBadge({
   contentWidth: number;
 }) {
   return (
-    <div className="flex items-center justify-center gap-1">
+    <div className="flex items-center justify-center gap-0">
       {/* ── Left Laurel ── fixed height to maintain arch, scaled down 50% */}
       <img
-        src="/images/laurel-L.webp"
+        src="https://res.cloudinary.com/dgio9uutc/image/upload/v1787020265/Laurel-L_vxtg55.webp"
         alt=""
         aria-hidden="true"
-        className="h-[60px] sm:h-[70px] md:h-[80px] w-auto object-contain pointer-events-none select-none"
+        className="relative z-0 h-[60px] w-auto object-contain pointer-events-none select-none sm:h-[70px] md:h-[80px]"
+        style={{ marginRight: "clamp(-5rem, -8vw, -2rem)" }}
       />
 
       {/* ── Content Container ── exact width requested */}
       <div
         className="flex flex-col items-center justify-center text-center flex-shrink-0"
-        style={{ width: contentWidth }}
+        style={{ width: contentWidth, position: "relative", zIndex: 1 }}
       >
         {children}
         {title && (
@@ -156,10 +157,11 @@ function TrustBadge({
 
       {/* ── Right Laurel ── */}
       <img
-        src="/images/laurel-R.webp"
+        src="https://res.cloudinary.com/dgio9uutc/image/upload/v1787020265/Laurel-R_kj7isz.webp"
         alt=""
         aria-hidden="true"
-        className="h-[60px] sm:h-[70px] md:h-[80px] w-auto object-contain pointer-events-none select-none"
+        className="relative z-0 h-[60px] w-auto object-contain pointer-events-none select-none sm:h-[70px] md:h-[80px]"
+        style={{ marginLeft: "clamp(-5rem, -8vw, -2rem)" }}
       />
     </div>
   );
@@ -217,10 +219,12 @@ function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; exp
             {/* Stars — each animates in with scale + opacity, staggered */}
             <div className="flex items-center justify-between w-[95%]">
               {[0, 1, 2, 3, 4].map((i) => (
-                <motion.svg
+                <motion.img
                   key={i}
-                  viewBox="0 0 24 24"
-                  fill="#e5192a"
+                  src="https://res.cloudinary.com/dgio9uutc/image/upload/v1787020126/Golden_Beveled_Star_Icon_wwcwek.webp"
+                  alt=""
+                  aria-hidden="true"
+                  className="object-contain"
                   style={{ width: midWidth * 0.16, height: midWidth * 0.16 }}
                   initial={{ scale: 0, opacity: 0 }}
                   animate={inView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
@@ -229,9 +233,7 @@ function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; exp
                     delay: 0.3 + i * 0.08,
                     ease: [0.34, 1.56, 0.64, 1], // spring-like overshoot
                   }}
-                >
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </motion.svg>
+                />
               ))}
             </div>
             {/* Avatars */}

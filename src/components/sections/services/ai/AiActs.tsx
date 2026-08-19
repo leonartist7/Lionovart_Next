@@ -14,7 +14,7 @@
  */
 
 import { useEffect, useRef } from "react";
-import { motion, useInView, useScroll, useSpring, useTransform, useReducedMotion } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useNovaStore } from "@/lib/stores/nova-store";
@@ -97,14 +97,14 @@ export function AiStakes() {
           <Heading>Your best lead arrived while you were asleep.</Heading>
 
           <LiquidGlass className="mt-14 p-8 md:p-12">
-            <div ref={copyRef} className="divide-y divide-white/10">
+            <div ref={copyRef} className="flex flex-col gap-8">
               {STAKES.map((line, i) => (
                 <motion.p
                   key={line}
                   initial={reduce ? false : { opacity: 0, y: 18 }}
                   animate={reduce ? undefined : inView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.8, ease: EXPO, delay: 0.12 + i * 0.14 }}
-                  className="py-7 text-white/85 first:pt-0 last:pb-0"
+                  className="text-white/85"
                   style={{
                     fontFamily: "var(--font-ai-display)",
                     fontSize: "clamp(1.25rem, 2.5vw, 2rem)",
@@ -123,7 +123,7 @@ export function AiStakes() {
 }
 
 /* ------------------------------------------------------------------ ACT 3 --
-   PROOF. The automation itself, drawn as a real chain on fluted glass.
+   PROOF. The automation itself, arranged as an uninterrupted glass field.
 
    This replaces the particle version: seven labels floating in a particle field
    were unreadable. A rail that fills with scroll and steps that light in order
@@ -133,10 +133,6 @@ export function AiFlow() {
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
   useParticleChapter(ref, 0.68, 0.82, -0.42);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 65%", "end 75%"] });
-  const fill = useSpring(scrollYProgress, { stiffness: 90, damping: 26, mass: 0.4 });
-  const railHeight = useTransform(fill, (v) => `${(reduce ? 1 : v) * 100}%`);
-
   return (
     <section ref={ref} className={ACT}>
       <div className={SHELL}>
@@ -144,25 +140,11 @@ export function AiFlow() {
           <Eyebrow>Intelligence in motion</Eyebrow>
           <Heading>One signal. Every system responds.</Heading>
 
-          <LiquidGlass fluted className="mt-14 p-7 md:p-10">
-            <ol className="relative m-0 list-none p-0 pl-14 md:pl-20">
-            {/* the rail: an unfilled track with a fill that tracks scroll */}
-            <div
-              aria-hidden
-              className="absolute bottom-6 left-[19px] top-6 w-px bg-white/12 md:left-[27px]"
-            />
-            <motion.div
-              aria-hidden
-              className="absolute left-[19px] top-6 w-px origin-top md:left-[27px]"
-              style={{
-                height: railHeight,
-                background: "linear-gradient(180deg, var(--ai-cyan) 0%, var(--ai-blue) 55%, var(--ai-deep) 100%)",
-                boxShadow: "0 0 14px rgba(229,25,42,0.65)",
-              }}
-            />
+          <LiquidGlass className="mt-14 p-7 md:p-10">
+            <ol className="m-0 flex list-none flex-col gap-7 p-0 md:gap-8">
 
             {NODES.map((n, i) => (
-              <FlowStep key={n.id} index={i} total={NODES.length} node={n} progress={fill} reduce={!!reduce} />
+              <FlowStep key={n.id} index={i} node={n} reduce={!!reduce} />
             ))}
             </ol>
           </LiquidGlass>
@@ -174,38 +156,20 @@ export function AiFlow() {
 
 function FlowStep({
   index,
-  total,
   node,
-  progress,
   reduce,
 }: {
   index: number;
-  total: number;
   node: (typeof NODES)[number];
-  progress: ReturnType<typeof useSpring>;
   reduce: boolean;
 }) {
-  // each step lights as the rail passes it, so the chain draws itself in order
-  const at = index / total;
-  const lit = useTransform(progress, [at, at + 0.5 / total], [0, 1]);
-  const opacity = useTransform(lit, (v) => (reduce ? 1 : 0.28 + v * 0.72));
-  const x = useTransform(lit, (v) => (reduce ? 0 : (1 - v) * 14));
-
   return (
-    <motion.li style={{ opacity, x }} className="relative py-5 md:py-6">
-      {/* the node marker, sitting on the rail */}
-      <motion.span
-        aria-hidden
-        className="absolute left-[-36px] top-[26px] flex h-[15px] w-[15px] items-center justify-center rounded-full md:left-[-48px] md:top-[30px]"
-        style={{
-          background: node.accent ? "var(--ai-blue)" : "#0a0a0a",
-          border: `1px solid ${node.accent ? "var(--ai-blue)" : "rgba(255,255,255,0.35)"}`,
-          boxShadow: node.accent
-            ? "0 0 18px rgba(229,25,42,0.85)"
-            : "0 0 10px rgba(229,25,42,0.40)",
-          opacity: lit,
-        }}
-      />
+    <motion.li
+      initial={reduce ? false : { opacity: 0, y: 14 }}
+      whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.35 }}
+      transition={{ duration: 0.55, delay: index * 0.05, ease: EXPO }}
+    >
       <div className="flex flex-col gap-1.5 md:flex-row md:items-baseline md:gap-6">
         <span className="w-9 shrink-0 text-[11px] tabular-nums tracking-[0.2em] text-white/35">
           {String(index + 1).padStart(2, "0")}
@@ -249,9 +213,24 @@ export function AiProcess() {
           <Heading>Everything comes together. Then it gets faster.</Heading>
 
           <LiquidGlass className="mt-14 p-8 md:p-10">
-            <div className="grid gap-px overflow-hidden bg-white/10 sm:grid-cols-2">
+            <div className="grid gap-5 sm:grid-cols-2">
               {STEPS.map((s) => (
-                <div key={s.n} className="bg-[#0a0a0a]/45 p-6 md:p-7">
+                <div
+                  key={s.n}
+                  className="relative min-h-44 overflow-hidden rounded-[18px] bg-white/[0.035] p-6 md:p-7"
+                >
+                  {/* A faint internal meniscus keeps the process cells part of
+                     the same liquid surface rather than turning into opaque
+                     cards inside a glass card. */}
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 opacity-80"
+                    style={{
+                      background:
+                        "radial-gradient(100% 85% at 0% 0%, rgba(255,255,255,0.085) 0%, transparent 54%), linear-gradient(135deg, rgba(255,255,255,0.025), transparent 58%)",
+                    }}
+                  />
+                  <div className="relative">
                   <span className="text-[11px] tabular-nums tracking-[0.24em] text-white/35">{s.n}</span>
                   <h3
                     className="mt-4 text-[22px] text-white md:text-[26px]"
@@ -260,6 +239,7 @@ export function AiProcess() {
                     {s.t}
                   </h3>
                   <p className="mt-3 text-[13.5px] leading-relaxed text-white/55">{s.d}</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -325,8 +305,7 @@ export function AiOffers() {
           {OFFERS.map((o) => (
             <LiquidGlass
               key={o.title}
-              fluted={o.featured}
-              className={`flex flex-col p-8 md:p-10 ${o.featured ? "ring-1 ring-white/12" : ""}`}
+              className="flex flex-col p-8 md:p-10"
             >
               <div className="flex items-center justify-between">
                 <span className="text-[11px] uppercase tracking-[0.24em] text-white/40">{o.kind}</span>
@@ -345,16 +324,16 @@ export function AiOffers() {
               </h3>
               <p className="mt-3 max-w-[38ch] text-[14.5px] leading-relaxed text-white/55">{o.blurb}</p>
 
-              <ul className="mt-8 flex-1 list-none divide-y divide-white/8 p-0">
+              <ul className="mt-8 flex flex-1 list-none flex-col gap-3 p-0">
                 {o.items.map((it) => (
-                  <li key={it} className="py-3 text-[14px] text-white/75">
+                  <li key={it} className="text-[14px] text-white/75">
                     {it}
                   </li>
                 ))}
               </ul>
 
               {/* price last: the stack is read before the number is known */}
-              <div className="mt-8 flex items-end justify-between border-t border-white/10 pt-7">
+              <div className="mt-8 flex items-end justify-between pt-4">
                 <div>
                   <span className="block text-[11px] uppercase tracking-[0.22em] text-white/35">From</span>
                   <span

@@ -80,12 +80,12 @@ function TrustBadge({
     <div className="flex items-center justify-center gap-2.5 md:gap-4">
       <img
         aria-hidden="true"
-        src="/images/hero_img/Laurel-L.avif"
+        src="https://res.cloudinary.com/dgio9uutc/image/upload/v1787020265/Laurel-L_vxtg55.webp"
         alt=""
         className={LAUREL_CLASS}
       />
       <div
-        className="flex flex-col items-center justify-center text-center flex-shrink-0"
+        className="relative z-10 flex flex-col items-center justify-center text-center flex-shrink-0"
         style={{ width: contentWidth }}
       >
         {children}
@@ -100,7 +100,7 @@ function TrustBadge({
       </div>
       <img
         aria-hidden="true"
-        src="/images/hero_img/Laurel-R.avif"
+        src="https://res.cloudinary.com/dgio9uutc/image/upload/v1787020265/Laurel-R_kj7isz.webp"
         alt=""
         className={LAUREL_CLASS}
       />
@@ -191,7 +191,7 @@ function TrustBadgesInner({
               {[0, 1, 2, 3, 4].map((i) => (
                 <motion.img
                   key={i}
-                  src="/images/hero_img/Gold Start_stats.avif"
+                  src="https://res.cloudinary.com/dgio9uutc/image/upload/v1787020126/Golden_Beveled_Star_Icon_wwcwek.webp"
                   alt=""
                   aria-hidden="true"
                   className="h-auto object-contain"

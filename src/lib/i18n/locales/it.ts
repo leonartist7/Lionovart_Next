@@ -5,9 +5,10 @@ import type { Translations } from "./en";
 export const it: Translations = {
   ...en,
   bridge: {
-    line1: "Forti da soli,",
-    line2: "Più forti",
-    accent: "insieme",
+    line1: "Tre discipline. Una visione condivisa.",
+    line2: "Più di una partnership.",
+    accent: "Un'eredità in movimento.",
+    body: "Pensato per il business dietro al brand e per un mondo in movimento.",
   },
   footer: {
     ...en.footer,

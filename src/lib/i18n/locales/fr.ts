@@ -147,9 +147,10 @@ export const fr: Translations = {
   },
 
   bridge: {
-    line1: "Forts seuls,",
-    line2: "Plus forts",
-    accent: "ensemble",
+    line1: "Trois disciplines. Une vision partagée.",
+    line2: "Plus qu'un partenariat.",
+    accent: "Un héritage en mouvement.",
+    body: "Pensé pour l'entreprise derrière la marque et pour un monde en mouvement.",
   },
 
   footer: {

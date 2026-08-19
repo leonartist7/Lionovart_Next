@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic } from "lucide-react";
 import { useNovaStore } from "@/lib/stores/nova-store";
+import { NovaGradientButton } from "@/components/ai-strategist/NovaGradientButton";
 
 export function StickyCTA() {
   const pathname = usePathname();
@@ -24,26 +24,15 @@ export function StickyCTA() {
   return (
     <AnimatePresence>
       {visible && (
-        <motion.button
-          type="button"
+        <motion.div
           initial={{ opacity: 0, y: 12, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 12, scale: 0.95 }}
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
-          onClick={() => openNova("sticky", true)}
-          className={[
-            "fixed bottom-6 right-6 z-[9990] flex items-center gap-2",
-            "px-4 py-3 rounded-full",
-            "bg-brand-red text-white shadow-lg shadow-brand-red/30",
-            "hover:bg-brand-red/90 transition-colors",
-            "md:bottom-8 md:right-8",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red/40",
-          ].join(" ")}
-          aria-label="Talk to Nova"
+          className="fixed bottom-6 right-6 z-[9990] md:bottom-8 md:right-8"
         >
-          <Mic size={16} />
-          <span className="text-sm font-medium">Talk to Nova</span>
-        </motion.button>
+          <NovaGradientButton onClick={() => openNova("sticky", true)} />
+        </motion.div>
       )}
     </AnimatePresence>
   );

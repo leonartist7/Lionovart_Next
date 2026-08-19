@@ -260,13 +260,14 @@ export default function Navbar() {
               opacity 0 in hero mode, so it computes nothing until revealed. */}
           <motion.div
             aria-hidden
-            className="absolute inset-0 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)]"
+            className="absolute inset-0 rounded-xl border border-white/[0.16] backdrop-blur-md shadow-[0_12px_36px_rgba(0,0,0,0.24),inset_0_1px_0_rgba(255,255,255,0.24),inset_0_-1px_0_rgba(0,0,0,0.5)]"
             // backdrop-filter forced to `none` in hero mode (computes nothing
             // until revealed) + isolate as its own GPU layer so Lenis scroll
             // re-uses the cached blur instead of re-rasterizing every frame.
             style={{
               opacity: navChromeOpacity,
-              backgroundColor: "rgba(0,0,0,0.20)",
+              background:
+                "radial-gradient(110% 130% at 10% 0%, rgba(255,255,255,0.11) 0%, transparent 48%), linear-gradient(155deg, rgba(255,255,255,0.07), rgba(255,255,255,0.018) 45%, rgba(0,0,0,0.1)), rgba(0,0,0,0.24)",
               pointerEvents: "none",
               backdropFilter: isScrolled ? undefined : "none",
               WebkitBackdropFilter: isScrolled ? undefined : "none",

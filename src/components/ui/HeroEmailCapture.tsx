@@ -62,13 +62,14 @@ export default function HeroEmailCapture() {
   return (
     <div className="w-full max-w-[540px] mx-auto">
       {status === "done" ? (
-        <div className="rounded-full border border-white/15 bg-white/5 backdrop-blur-md px-6 py-4 text-center text-[14px] font-semibold text-white">
+        <div className="rounded-full border border-white/20 bg-white/[0.08] px-6 py-4 text-center text-[14px] font-semibold text-white shadow-[0_12px_36px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.28),inset_0_-1px_0_rgba(0,0,0,0.42)] backdrop-blur-xl">
           Thanks — your custom demo &amp; audit is on its way. ✦
         </div>
       ) : (
         <form onSubmit={onFormSubmit} noValidate>
           {/* Glass pill */}
-          <div className="flex items-center gap-2 rounded-full border border-white/15 bg-white/5 backdrop-blur-md pl-5 pr-1.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+          <div className="relative isolate flex items-center gap-2 overflow-hidden rounded-full border border-white/20 bg-[#0a0a0a]/38 py-1.5 pl-5 pr-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.3),inset_0_-1px_0_rgba(0,0,0,0.5)] backdrop-blur-xl">
+            <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_130%_at_8%_0%,rgba(255,255,255,0.16),transparent_56%)]" />
             <input
               id="hero-blueprint-email"
               type="email"
@@ -80,17 +81,18 @@ export default function HeroEmailCapture() {
               }}
               placeholder={placeholder}
               aria-label="Email"
-              className="min-w-0 flex-1 bg-transparent text-[14px] md:text-[15px] text-white placeholder:text-white/45 outline-none"
+              className="relative z-10 min-w-0 flex-1 bg-transparent text-[14px] text-white outline-none placeholder:text-white/45 md:text-[15px]"
             />
+            <div className="relative z-10">
             <TrailAttractionTarget>
               <LiquidMetalButton
                 label={status === "loading" ? "…" : "Start"}
                 onClick={() => void doSubmit()}
-                variant="red"
-                width={120}
+                width={148}
                 noShadow
               />
             </TrailAttractionTarget>
+            </div>
           </div>
         </form>
       )}

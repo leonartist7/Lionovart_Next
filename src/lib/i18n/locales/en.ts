@@ -151,9 +151,10 @@ export const en = {
   },
 
   bridge: {
-    line1: "Strong alone,",
-    line2: "Stronger",
-    accent: "together",
+    line1: "Three disciplines. One shared vision.",
+    line2: "More than a partnership.",
+    accent: "A legacy in motion.",
+    body: "Built for the business behind the brand, and the world moving around it.",
   },
 
   footer: {

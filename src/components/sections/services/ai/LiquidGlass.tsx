@@ -18,7 +18,7 @@
  * GlassAmbience provides that: a static, zero-cost field the glass refracts.
  */
 
-import { useRef, type ReactNode } from "react";
+import { useId, useRef, type ReactNode } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 
 /**
@@ -47,14 +47,13 @@ export function GlassAmbience() {
 export interface LiquidGlassProps {
   children: ReactNode;
   className?: string;
-  /** Ribbed, refractive glass. Use sparingly: it is the loudest variant. */
-  fluted?: boolean;
   /** Skip the entry sweep for panels that are already in view on load. */
   still?: boolean;
 }
 
-export function LiquidGlass({ children, className = "", fluted = false, still = false }: LiquidGlassProps) {
+export function LiquidGlass({ children, className = "", still = false }: LiquidGlassProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const distortionId = useId().replace(/:/g, "");
   const inView = useInView(ref, { once: true, margin: "-12%" });
   const reduce = useReducedMotion();
   const animate = !still && !reduce;
@@ -69,9 +68,11 @@ export function LiquidGlass({ children, className = "", fluted = false, still = 
       className={`relative isolate overflow-hidden rounded-[28px] ${className}`}
       style={{
         background:
-          "linear-gradient(158deg, rgba(255,255,255,0.075) 0%, rgba(255,255,255,0.022) 38%, rgba(255,255,255,0.008) 100%), rgba(10,10,10,0.42)",
-        backdropFilter: "blur(26px) saturate(150%)",
-        WebkitBackdropFilter: "blur(26px) saturate(150%)",
+          "linear-gradient(158deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.024) 42%, rgba(255,255,255,0.008) 100%), rgba(10,10,10,0.30)",
+        // Roughly 10% of the original 26px treatment: enough refraction to
+        // read as glass, while keeping the particle field sharply visible.
+        backdropFilter: "blur(3px) saturate(120%)",
+        WebkitBackdropFilter: "blur(3px) saturate(120%)",
         boxShadow: [
           "0 40px 90px -32px rgba(0,0,0,0.85)",       // the panel floats
           "inset 0 1px 0 rgba(255,255,255,0.22)",     // lit top edge = thickness
@@ -82,25 +83,37 @@ export function LiquidGlass({ children, className = "", fluted = false, still = 
         ].join(", "),
       }}
     >
-      {/* ribbed refraction: the fluted-glass look, done with gradients */}
-      {fluted && (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.5] mix-blend-overlay"
-          style={{
-            background:
-              "repeating-linear-gradient(96deg, rgba(255,255,255,0.10) 0px, rgba(255,255,255,0.015) 3px, rgba(0,0,0,0.06) 7px, rgba(255,255,255,0.10) 11px)",
-          }}
-        />
-      )}
+      {/* A displaced highlight layer, not a second blur pass. The turbulence
+          only distorts this prismatic reflection, giving the panel the slight
+          chromatic wobble of liquid glass without fogging its contents. */}
+      <svg aria-hidden className="absolute h-0 w-0">
+        <defs>
+          <filter id={distortionId} x="-12%" y="-12%" width="124%" height="124%">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.014 0.032"
+              numOctaves="2"
+              seed="8"
+              result="liquid-noise"
+            />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="liquid-noise"
+              scale="13"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+        </defs>
+      </svg>
 
-      {/* caustic rim bleed, tinted with the page's red accent */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-[28px]"
+        className="pointer-events-none absolute -inset-4 opacity-80 mix-blend-screen"
         style={{
+          filter: `url(#${distortionId})`,
           background:
-            "radial-gradient(120% 80% at 12% 0%, rgba(229,25,42,0.15) 0%, transparent 46%), radial-gradient(100% 70% at 92% 100%, rgba(229,25,42,0.10) 0%, transparent 52%)",
+            "radial-gradient(54% 46% at 14% 8%, rgba(178,230,255,0.16) 0%, transparent 70%), radial-gradient(52% 42% at 88% 90%, rgba(209,190,255,0.11) 0%, transparent 70%), linear-gradient(122deg, transparent 28%, rgba(255,255,255,0.10) 48%, transparent 68%)",
         }}
       />
 

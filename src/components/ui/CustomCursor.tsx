@@ -164,10 +164,10 @@ export default function CustomCursor() {
         style={{ x, y }}
         animate={{
           opacity: ringHidden ? 0 : 1,
-          width: mode === "hover" ? 26 : 18,
-          height: mode === "hover" ? 26 : 18,
-          marginTop: mode === "hover" ? -13 : -9,
-          marginLeft: mode === "hover" ? -13 : -9,
+          width: mode === "hover" ? 16 : 10,
+          height: mode === "hover" ? 16 : 10,
+          marginTop: mode === "hover" ? -8 : -5,
+          marginLeft: mode === "hover" ? -8 : -5,
         }}
         transition={{ duration: 0.18, ease: "easeOut" }}
       />

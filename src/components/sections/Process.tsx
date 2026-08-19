@@ -456,14 +456,14 @@ export default function Process(props: any) {
       ref={sectionRef}
       id="process"
       data-art-directed="dark"
-      className="relative isolate bg-black lg:h-[420vh]"
+      className="relative isolate bg-black lg:h-[350vh]"
       aria-label={eyebrow}
     >
       {/* Desktop: a pinned viewport turns physical scroll into visible progress. */}
-      <div className="sticky top-0 hidden h-[100svh] overflow-hidden bg-[#f7f4ef] lg:block">
+      <div className="sticky top-0 hidden h-[100svh] overflow-visible bg-[#f7f4ef] lg:block">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 z-0 bg-[#f7f4ef] bg-center bg-cover bg-no-repeat"
+          className="pointer-events-none absolute inset-x-0 -top-[15svh] bottom-0 z-0 bg-[#f7f4ef] bg-center bg-cover bg-no-repeat"
           style={{
             backgroundImage: "url('/images/process-impasto-transition.webp')",
           }}
@@ -574,10 +574,10 @@ export default function Process(props: any) {
 
       {/* Mobile/tablet: the portrait transition overlaps the preceding light
           chapter, then resolves completely into black before Process copy begins. */}
-      <div className="relative -mt-[6svh] overflow-hidden bg-black px-5 pb-24 pt-[82svh] lg:hidden">
+      <div className="relative overflow-visible bg-black px-5 pb-24 pt-[55svh] lg:hidden">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[112svh] bg-[#f7f4ef] bg-center bg-no-repeat"
+          className="pointer-events-none absolute inset-x-0 -top-[15svh] z-0 h-[91svh] bg-[#f7f4ef] bg-center bg-no-repeat"
           style={{
             backgroundImage:
               "url('/images/monochrome_diagonal_impasto_swirl.webp')",
@@ -590,11 +590,11 @@ export default function Process(props: any) {
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-[80svh] z-[1] h-[32svh] bg-gradient-to-b from-transparent via-black/45 to-black"
+          className="pointer-events-none absolute inset-x-0 top-[44svh] z-[1] h-[32svh] bg-gradient-to-b from-transparent via-black/45 to-black"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-[50svh] z-[2] h-[62svh] opacity-[0.04]"
+          className="pointer-events-none absolute inset-x-0 top-[34svh] z-[2] h-[42svh] opacity-[0.04]"
           style={{
             background:
               "radial-gradient(circle at 90% 72%, rgba(229,25,42,.7), transparent 32%)",

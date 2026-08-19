@@ -1,0 +1,212 @@
+/* Adapted from Uiverse.io by dexter-st. */
+.wrapper {
+  --rad: 999px;
+  --gold-shadow: #8f4d00;
+  --color-btn-bg: #f00;
+  --color-btn-text: #000;
+  --color-btn-text-shadow: #fff;
+  --color-btn-inset-shadow: #68101c;
+  --color-layer-a: #e6a20a;
+  --color-layer-b: #df3515;
+  --color-layer-violet: #6d28d9;
+  --color-layer-blue: #2257c7;
+  --color-overlay-text: #100106;
+  --color-overlay-glow: #fff;
+  --color-overlay-shadow: #0001;
+  --color-overlay-highlight: #fff5;
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 3px;
+  background:
+    conic-gradient(from 112deg at 50% 50%, #8a4800 0deg, #e29a08 42deg, #fff2a8 84deg, #f4c633 132deg, #9a5100 188deg, #ffd95a 235deg, #fff7ca 277deg, #bc6b00 324deg, #8a4800 360deg);
+  border-radius: var(--rad);
+  box-shadow:
+    0 15px 25px rgb(32 12 0 / 0.32),
+    0 5px 0 var(--gold-shadow),
+    0 0 0 1px rgb(255 242 173 / 0.75),
+    inset 0 0 0 1px rgb(91 42 0 / 0.7);
+  filter: saturate(1.1) contrast(1.08);
+}
+
+.wrapper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  border: 1px solid rgb(255 246 193 / 0.95);
+  border-radius: inherit;
+  box-shadow:
+    inset 0 1px 1px rgb(255 255 235 / 0.95),
+    inset 0 -2px 2px rgb(107 52 0 / 0.48),
+    0 0 0 1px rgb(191 104 0 / 0.62);
+}
+
+.button,
+.textOverlay {
+  padding: 12px 22px;
+  border-radius: var(--rad);
+  font: 700 12px/1 var(--font-clash, sans-serif);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.button {
+  position: relative;
+  z-index: 1;
+  border: 0;
+  color: var(--color-btn-text);
+  background:
+    radial-gradient(ellipse at 28% 0%, rgb(255 220 128 / 0.28), transparent 42%),
+    linear-gradient(110deg, #62000d 0%, #b60d20 23%, var(--color-btn-bg) 48%, #ff561d 70%, #8d0718 100%);
+  background-size: 200% 200%;
+  box-shadow:
+    inset 0 1px 0 rgb(255 231 160 / 0.28),
+    inset 0 -5px 10px 6px var(--color-btn-inset-shadow);
+  text-shadow: 0 1px 3px var(--color-btn-text-shadow);
+  cursor: pointer;
+  mix-blend-mode: normal;
+  transition:
+    color 0.3s ease,
+    text-shadow 0.3s ease;
+}
+
+.button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: var(--rad);
+  background-size: 200% 200%;
+  opacity: 0.32;
+  mix-blend-mode: normal;
+}
+
+.button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+.layer {
+  position: absolute;
+  left: -120px;
+  z-index: 2;
+  width: 380%;
+  aspect-ratio: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 65% 118%,
+    var(--color-layer-a),
+    var(--color-layer-b),
+    var(--color-layer-a),
+    var(--color-layer-b),
+    var(--color-layer-a),
+    var(--color-layer-b),
+    var(--color-layer-a),
+    var(--color-layer-b),
+    var(--color-layer-a),
+    var(--color-layer-b),
+    var(--color-layer-a)
+  );
+  mix-blend-mode: normal;
+  transform: translateZ(0) rotate(0deg);
+  transform-origin: center;
+  backface-visibility: hidden;
+  will-change: transform;
+  animation: rotate linear infinite;
+}
+
+.layer[data-layer="1"],
+.layer[data-layer="4"] {
+  opacity: 0.12;
+  mix-blend-mode: overlay;
+}
+
+.layer[data-layer="2"] {
+  --color-layer-a: var(--color-layer-violet);
+  --color-layer-b: #a33a20;
+  opacity: 0.06;
+  mix-blend-mode: screen;
+}
+
+.layer[data-layer="3"] {
+  opacity: 0.16;
+  mix-blend-mode: soft-light;
+}
+
+.layer[data-layer="5"] {
+  --color-layer-a: var(--color-layer-blue);
+  --color-layer-b: var(--color-layer-violet);
+  opacity: 0.045;
+  mix-blend-mode: screen;
+}
+
+.layer[data-layer="6"] {
+  opacity: 0.08;
+  mix-blend-mode: screen;
+}
+
+.textOverlay {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+  color: var(--color-overlay-text);
+  text-shadow: 0 0 4px var(--color-overlay-glow);
+  box-shadow:
+    inset 0 -4px 4px var(--color-overlay-shadow),
+    inset 0 4px 4px var(--color-overlay-highlight);
+  mix-blend-mode: multiply;
+  transition: transform 0.3s ease;
+}
+
+.wrapper:hover .textOverlay {
+  transform: scale(1.1);
+}
+
+.wrapper:hover .button,
+.wrapper:active .button {
+  color: transparent;
+  text-shadow: 0 0 0 transparent;
+}
+
+.wrapper:active .textOverlay {
+  transform: scale(0.95);
+}
+
+.light {
+  position: absolute;
+  z-index: 3;
+  width: 80%;
+  height: 1.9rem;
+  border-radius: var(--rad);
+  pointer-events: none;
+  background-color: rgb(255 218 145 / 0.24);
+  filter: blur(5px);
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes rotate {
+  to {
+    transform: translateZ(0) rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer,
+  .light {
+    animation: none;
+  }
+}

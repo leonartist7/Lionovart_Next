@@ -5,9 +5,10 @@ import type { Translations } from "./en";
 export const ko: Translations = {
   ...en,
   bridge: {
-    line1: "혼자서도 강하게,",
-    line2: "더 강하게",
-    accent: "함께",
+    line1: "세 가지 전문성. 하나의 비전.",
+    line2: "파트너십 그 이상.",
+    accent: "움직이는 유산.",
+    body: "브랜드 뒤의 비즈니스와 빠르게 변하는 세상을 위해 설계합니다.",
   },
   footer: {
     ...en.footer,

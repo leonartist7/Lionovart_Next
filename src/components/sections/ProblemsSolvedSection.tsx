@@ -248,7 +248,8 @@ export default function ProblemsSolvedSection() {
         >
           {/* Red card */}
           <div className="relative z-10 w-full bg-[#e5192a] rounded-[32px] px-5 sm:px-7 pt-12 md:pt-16 pb-12 shadow-[0_30px_60px_-15px_rgba(229,25,42,0.45)]">
-            {/* The marquee overlaps the card's top edge so it can mask the transition artwork. */}
+            {/* The marquee overlaps the card's top edge to make the handoff from
+                Stronger Together continuous, without a light-space break. */}
             <div className="relative z-20 -mt-[clamp(4rem,12vw,6rem)] mb-9 md:-mt-[clamp(4rem,8vw,6rem)] md:mb-12">
               <MarqueeSlanted />
             </div>

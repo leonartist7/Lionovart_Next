@@ -18,6 +18,8 @@ interface LiquidMetalButtonProps {
   textColor?: string;
   /** Remove the drop shadow (e.g. when placed on a dark nav bar). */
   noShadow?: boolean;
+  /** Keep the shader moving even when IntersectionObserver reports it off-screen. */
+  alwaysAnimate?: boolean;
 }
 
 export function LiquidMetalButton({
@@ -28,6 +30,7 @@ export function LiquidMetalButton({
   variant = "red",
   textColor,
   noShadow = false,
+  alwaysAnimate = false,
 }: LiquidMetalButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
@@ -97,16 +100,17 @@ export function LiquidMetalButton({
     };
   }, []);
 
-  // Separate effect to pause animation when off-screen to save battery without recompiling
+  // Most shader buttons pause off-screen. Persistent controls, such as Nova,
+  // can opt out so their surface remains alive whenever the tab is active.
   useEffect(() => {
     if (shaderMount.current?.setSpeed) {
-      if (isInView) {
+      if (alwaysAnimate || isInView) {
         shaderMount.current.setSpeed(isHovered ? 1 : 0.6);
       } else {
         shaderMount.current.setSpeed(0); // Pause when off-screen
       }
     }
-  }, [isInView, isHovered]);
+  }, [alwaysAnimate, isInView, isHovered]);
 
   const handleMouseEnter = () => {
     if (typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches) {

@@ -33,20 +33,15 @@ export default function BridgeStatement() {
   return (
     <section
       aria-labelledby="bridge-statement-heading"
-      className="relative isolate flex min-h-[52svh] items-center overflow-hidden bg-[#0a0a0a] px-5 py-20 text-white sm:min-h-[60svh] sm:px-8 md:min-h-[70svh] md:px-12"
+      className="relative isolate flex min-h-[30svh] items-center overflow-hidden bg-[#0a0a0a] px-5 py-14 text-white sm:px-8 sm:py-16 md:min-h-[34svh] md:px-[6vw]"
     >
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-[6vw] top-1/2 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"
-      />
-
       <h2 id="bridge-statement-heading" className="sr-only">
         {t.bridge.line1} {t.bridge.line2} {t.bridge.accent}
       </h2>
 
       <motion.div
         aria-hidden="true"
-        className="relative z-10 mx-auto w-full max-w-[1500px]"
+        className="relative z-10 mx-auto flex w-full max-w-[1500px] flex-col gap-3 md:gap-4"
         variants={sequence}
         initial="hidden"
         whileInView="visible"
@@ -55,21 +50,28 @@ export default function BridgeStatement() {
         <div className="overflow-hidden pb-[0.08em]">
           <motion.p
             variants={reveal}
-            className="font-clash text-[clamp(2.4rem,8.5vw,8.5rem)] font-semibold uppercase leading-[0.86] tracking-[-0.045em] text-white"
+            className="font-clash text-[clamp(1.9rem,4.8vw,5rem)] font-semibold uppercase leading-[0.9] tracking-[-0.045em] text-white"
           >
             {t.bridge.line1}
           </motion.p>
         </div>
 
-        <div className="mt-[0.16em] overflow-hidden pb-[0.08em] text-right">
+        <div className="overflow-hidden pb-[0.08em] text-right">
           <motion.p
             variants={reveal}
-            className="font-clash text-[clamp(2.4rem,8.5vw,8.5rem)] font-semibold uppercase leading-[0.86] tracking-[-0.045em]"
+            className="font-clash text-[clamp(1.9rem,4.8vw,5rem)] font-semibold uppercase leading-[0.9] tracking-[-0.045em]"
           >
             <span className="text-white">{t.bridge.line2} </span>
             <span className="text-brand-red">{t.bridge.accent}</span>
           </motion.p>
         </div>
+
+        <motion.p
+          variants={reveal}
+          className="max-w-[42ch] self-end pt-2 text-right font-body text-[13px] leading-[1.5] text-white/55 sm:text-[14px]"
+        >
+          {t.bridge.body}
+        </motion.p>
       </motion.div>
     </section>
   );
