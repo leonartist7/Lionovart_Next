@@ -26,6 +26,7 @@ export default function StrongTogetherTransition() {
   const lionRef = useRef<HTMLDivElement>(null);
   const bloomRef = useRef<HTMLDivElement>(null);
   const shaderLayerRef = useRef<HTMLDivElement>(null);
+  const captionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -38,8 +39,9 @@ export default function StrongTogetherTransition() {
     const lion = lionRef.current;
     const bloom = bloomRef.current;
     const shaderLayer = shaderLayerRef.current;
+    const caption = captionRef.current;
 
-    if (!section || !alone || !strong || !aloneO || !together || !hands || !human || !lion || !bloom || !shaderLayer) {
+    if (!section || !alone || !strong || !aloneO || !together || !hands || !human || !lion || !bloom || !shaderLayer || !caption) {
       return;
     }
 
@@ -79,6 +81,7 @@ export default function StrongTogetherTransition() {
         gsap.set([human, lion], { xPercent: 0 });
         gsap.set(bloom, { scale: bloomScale() });
         gsap.set(shaderLayer, { opacity: 1 });
+        gsap.set(caption, { opacity: 1 });
         return;
       }
 
@@ -89,6 +92,7 @@ export default function StrongTogetherTransition() {
       gsap.set(lion, { xPercent: -100 });
       gsap.set(bloom, { scale: 0 });
       gsap.set(shaderLayer, { opacity: 0 });
+      gsap.set(caption, { opacity: 0 });
 
       const timeline = gsap.timeline({
         scrollTrigger: {
@@ -111,7 +115,11 @@ export default function StrongTogetherTransition() {
         .to(human, { xPercent: 0, duration: 0.45, ease: "power3.out" }, 0.24)
         .to(lion, { xPercent: 0, duration: 0.45, ease: "power3.out" }, 0.24)
         .to(shaderLayer, { opacity: 1, duration: 0.22, ease: "power2.out" }, 0.5)
-        .to(together, { opacity: 1, y: 0, duration: 0.2, ease: "power3.out" }, 0.62);
+        .to(together, { opacity: 1, y: 0, duration: 0.2, ease: "power3.out" }, 0.62)
+        // The caption is inked for the cream end-state, so it can only appear
+        // once the bloom has actually landed — and it reads better as a
+        // footnote to the resolution than as a label on the setup.
+        .to(caption, { opacity: 1, duration: 0.18, ease: "power2.out" }, 0.7);
     }, section);
 
     return () => ctx.revert();
@@ -176,17 +184,17 @@ export default function StrongTogetherTransition() {
           <h2
             id="strong-together-title"
             ref={togetherRef}
-            className="absolute inset-x-0 top-0 mx-auto max-w-[11ch] px-4 font-clash text-[clamp(4.4rem,11vw,10rem)] font-semibold leading-[0.78] tracking-[-0.065em] text-[#171412]"
+            className="absolute inset-x-0 top-0 mx-auto max-w-[11ch] px-4 font-clash text-[clamp(4.4rem,11vw,10rem)] font-semibold uppercase leading-[0.78] tracking-[-0.065em] text-[#171412]"
           >
             Stronger together.
           </h2>
         </div>
 
-        <div className="absolute bottom-7 left-6 z-[6] md:bottom-10 md:left-[6vw]">
-          <p className="font-mono text-[9px] font-bold uppercase tracking-[0.25em] text-white/45">
+        <div ref={captionRef} className="absolute bottom-7 left-6 z-[6] opacity-0 md:bottom-10 md:left-[6vw]">
+          <p className="font-mono text-[9px] font-bold uppercase tracking-[0.25em] text-[#171412]/55">
             LION + HUMAN INSTINCT
           </p>
-          <p className="mt-2 max-w-[27ch] font-body text-[13px] leading-[1.5] text-white/55">
+          <p className="mt-2 max-w-[27ch] font-body text-[13px] leading-[1.5] text-[#171412]/75">
             Different strengths. One direction.
           </p>
         </div>

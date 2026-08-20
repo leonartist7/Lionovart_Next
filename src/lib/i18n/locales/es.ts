@@ -146,10 +146,17 @@ export const es: Translations = {
   },
 
   bridge: {
-    line1: "Tres disciplinas. Una visión compartida.",
-    line2: "Más que una alianza.",
-    accent: "Un legado en movimiento.",
-    body: "Pensado para el negocio detrás de la marca y para un mundo en movimiento.",
+    line1: "Nadie ve las horas detrás de la marca.",
+    line2: "Nosotros sí.",
+    accent: "Las hemos vivido.",
+    body: "Por eso no empezamos con un discurso. Empezamos con lo que ya has construido.",
+  },
+
+  vow: {
+    line1: "Más que una agencia.",
+    line2: "La alianza que",
+    accent: "construye tu legado.",
+    body: "No trabajamos para clientes. Trabajamos por lo que estás construyendo.",
   },
 
   footer: {
@@ -237,7 +244,7 @@ export const es: Translations = {
   },
 
   problems: {
-    eyebrow: "Tu Próximo Capítulo Comienza Aquí",
+    eyebrow: "Elige la que se parezca a ti.",
     heading: "IMAGINA",
     items: [
       {
@@ -396,7 +403,7 @@ export const es: Translations = {
   },
 
   services: {
-    eyebrow: "El Arte de la Innovación, aplicado a cada parte de tu marca.",
+    eyebrow: "Todo en casa. Un solo estándar.",
     heading: "Nuestro",
     headingAccent: "Oficio",
     items: [
