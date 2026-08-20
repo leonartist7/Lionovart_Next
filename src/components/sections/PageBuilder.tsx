@@ -43,6 +43,7 @@ export function PageBuilder() {
         <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
         <BridgeStatement />
         <StrongTogetherTransition />
+        <BridgeStatement variant="vow" />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
         <NovaSection id="services"><Services /></NovaSection>
         <ShowcaseMarquee />

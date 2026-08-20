@@ -5,10 +5,17 @@ import type { Translations } from "./en";
 export const it: Translations = {
   ...en,
   bridge: {
-    line1: "Tre discipline. Una visione condivisa.",
-    line2: "Più di una partnership.",
-    accent: "Un'eredità in movimento.",
-    body: "Pensato per il business dietro al brand e per un mondo in movimento.",
+    line1: "Nessuno vede le ore dietro al brand.",
+    line2: "Noi sì.",
+    accent: "Le abbiamo vissute.",
+    body: "Per questo non partiamo da una proposta, ma da ciò che hai già costruito.",
+  },
+
+  vow: {
+    line1: "Più di un'agenzia.",
+    line2: "La partnership che",
+    accent: "costruisce la tua eredità.",
+    body: "Non prendiamo clienti. Prendiamo parte a ciò che stai costruendo.",
   },
   footer: {
     ...en.footer,

@@ -5,10 +5,17 @@ import type { Translations } from "./en";
 export const ko: Translations = {
   ...en,
   bridge: {
-    line1: "세 가지 전문성. 하나의 비전.",
-    line2: "파트너십 그 이상.",
-    accent: "움직이는 유산.",
-    body: "브랜드 뒤의 비즈니스와 빠르게 변하는 세상을 위해 설계합니다.",
+    line1: "브랜드 뒤의 시간은 아무도 보지 않습니다.",
+    line2: "우리는 봅니다.",
+    accent: "우리도 지나온 시간이니까요.",
+    body: "그래서 제안서가 아니라, 이미 만들어 온 것에서 시작합니다.",
+  },
+
+  vow: {
+    line1: "에이전시 그 이상.",
+    line2: "당신의 유산을",
+    accent: "함께 만드는 파트너십.",
+    body: "우리는 클라이언트를 받지 않습니다. 당신이 만들어가는 것을 함께 만듭니다.",
   },
   footer: {
     ...en.footer,

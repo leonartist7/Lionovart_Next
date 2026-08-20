@@ -150,11 +150,20 @@ export const en = {
     ],
   },
 
+  /** Beat 3 — Recognition. Runs before the Strong-alone turn. */
   bridge: {
-    line1: "Three disciplines. One shared vision.",
-    line2: "More than a partnership.",
-    accent: "A legacy in motion.",
-    body: "Built for the business behind the brand, and the world moving around it.",
+    line1: "Nobody sees the hours behind the brand.",
+    line2: "We do.",
+    accent: "We've worked them.",
+    body: "So we don't start with a pitch. We start with what you've already built.",
+  },
+
+  /** Beat 5 — The Vow. Runs after the turn, on the cream the bloom created. */
+  vow: {
+    line1: "More than an agency.",
+    line2: "The partnership",
+    accent: "building your legacy.",
+    body: "We don't take on clients. We take on what you're building.",
   },
 
   footer: {
@@ -242,7 +251,7 @@ export const en = {
   },
 
   problems: {
-    eyebrow: "Your Next Chapter Starts Here",
+    eyebrow: "Pick the one that sounds like you.",
     heading: "IMAGINE",
     items: [
       {
@@ -531,7 +540,7 @@ export const en = {
   },
 
   services: {
-    eyebrow: "The Art of Innovation, applied to every part of your brand.",
+    eyebrow: "All in-house. One standard.",
     heading: "Our",
     headingAccent: "Craft",
     items: [
