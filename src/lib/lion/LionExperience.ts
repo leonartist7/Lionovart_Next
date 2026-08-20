@@ -198,7 +198,9 @@ export class LionExperience {
     });
     this.renderer.setClearColor(0x000000, 1); // brand black, matches --color-bg-dark
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 0.92;
+    // Give the particles a little more presence before bloom, while keeping
+    // ACES tone mapping in charge of the highlight rolloff.
+    this.renderer.toneMappingExposure = 1.0;
 
     this.camera = new THREE.PerspectiveCamera(42, 1, 0.1, 60);
     this.camera.position.set(0, 0.05, 4.8);
@@ -303,7 +305,7 @@ export class LionExperience {
         uMouse: { value: new THREE.Vector3(999, 999, 0) },
         // Sparse enough to read as particles, large enough to preserve the
         // silhouette on a phone without turning into overlapping blobs.
-        uSize: { value: 38.0 },
+        uSize: { value: 42.0 },
         uGain: { value: 1 },
         uFocusDist: { value: 3.9 },
         uDofAmount: { value: 0.38 },
@@ -313,9 +315,9 @@ export class LionExperience {
       },
     });
 
-    // Keep brightness stable across the three small quality tiers without
-    // amplifying mobile points into white discs.
-    this.baseGain = THREE.MathUtils.clamp(2800 / count, 0.75, 1.5);
+    // Keep the population sparse, but compensate its luminance so the lion
+    // remains readable on both the black hero and the brighter middle beats.
+    this.baseGain = THREE.MathUtils.clamp(3200 / count, 0.95, 1.65);
     this.material.uniforms.uGain.value = this.baseGain;
     this.points = new THREE.Points(geo, this.material);
     this.points.frustumCulled = false;
@@ -351,7 +353,7 @@ export class LionExperience {
       uniforms: {
         uTime: { value: 0 },
         uPixelRatio: { value: Math.min(window.devicePixelRatio, this.compactDevice ? 1 : DPR_CAP) },
-        uColor: { value: new THREE.Color(0.95, 0.62, 0.22) },
+        uColor: { value: new THREE.Color(1.15, 0.78, 0.32) },
         uFocusDist: { value: 3.9 },
         uDofAmount: { value: 0.30 },
         uMorph: { value: 0 },
@@ -600,7 +602,7 @@ export class LionExperience {
       u.uBloom.value = this.bloomW;
       // The energy current and reformed lion use the same sparse population,
       // so only a light compensation is needed across states.
-      u.uGain.value = this.baseGain * this.gainAspect * (1 - m * 0.15) * (1 - this.bloomW * 0.08);
+      u.uGain.value = this.baseGain * this.gainAspect * (1 - m * 0.08) * (1 - this.bloomW * 0.05);
     }
 
     if (this.dust) {
@@ -682,7 +684,7 @@ export class LionExperience {
 
     // A restrained bloom keeps individual points visible instead of merging
     // the lion or energy current into a white mass.
-    const bloomBase = this.compactDevice ? 0.17 : 0.23;
+    const bloomBase = this.compactDevice ? 0.21 : 0.28;
     const ecosystemGlow = THREE.MathUtils.smoothstep(m, 0.30, 0.48)
       * (1 - THREE.MathUtils.smoothstep(m, 0.70, 0.86));
     this.bloom.strength = bloomBase + ecosystemGlow * 0.09 + this.bloomW * 0.04;

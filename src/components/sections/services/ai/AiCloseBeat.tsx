@@ -67,7 +67,7 @@ export default function AiCloseBeat({ children }: { children: React.ReactNode })
     });
 
     // This trigger's start/end depend on the cumulative rendered height of
-    // everything above it (the hero + all four Act sections). page.tsx loads
+    // everything above it (the hero + the complete service story). page.tsx loads
     // Space Grotesk with display:'swap' — if the font swaps in after GSAP has
     // already cached this trigger's pixel range, every heading upstream can
     // reflow, and the range goes stale until something else refreshes it.

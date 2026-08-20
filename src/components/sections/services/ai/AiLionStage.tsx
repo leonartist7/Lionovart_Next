@@ -43,6 +43,9 @@ export default function AiLionStage() {
       if (cancelled) return;
 
       setLionStage(instance);
+      // The opening frame is an asymmetric editorial split. setLayout handles
+      // the gentler mobile offset internally for coarse-pointer devices.
+      instance.setLayout(0.42);
 
       if (reduce) {
         // A single composed frame instead of an animation. It must be redrawn

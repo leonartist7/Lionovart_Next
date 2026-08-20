@@ -15,6 +15,7 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { getLionStage } from "@/lib/lion/stage-ref";
+import { useNovaStore } from "@/lib/stores/nova-store";
 import { HERO_MORPH_END } from "./AiChaosBeat";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -22,6 +23,7 @@ gsap.registerPlugin(ScrollTrigger);
 export default function AiHeroCopy() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
+  const openNova = useNovaStore((state) => state.openNova);
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -31,10 +33,10 @@ export default function AiHeroCopy() {
     const ctx = gsap.context(() => {
       gsap.to(copyRef.current, {
         opacity: 0,
-        y: -70,
-        filter: "blur(10px)",
+        y: -52,
+        filter: "blur(8px)",
         ease: "power2.in",
-        scrollTrigger: { trigger: wrap, start: "18% top", end: "72% top", scrub: true },
+        scrollTrigger: { trigger: wrap, start: "32% top", end: "76% top", scrub: true },
       });
 
       ScrollTrigger.create({
@@ -45,7 +47,7 @@ export default function AiHeroCopy() {
         onUpdate: (self) => {
           const stage = getLionStage();
           stage?.setMorph(self.progress * HERO_MORPH_END);
-          stage?.setLayout(0);
+          stage?.setLayout(0.42);
         },
       });
     }, wrap);
@@ -54,28 +56,40 @@ export default function AiHeroCopy() {
   }, []);
 
   return (
-    <div ref={wrapRef} data-lion-zone className="relative h-[210vh]">
-      {/*
-        The lion occupies the upper half of the canvas, so the copy sits in the
-        lower third rather than centred. Nothing overlaps the face, and the
-        headline is sized to be read under the mark, not to compete with it.
-      */}
-      <div className="sticky top-0 flex h-screen flex-col justify-end px-6 pb-[9vh]">
-        <div ref={copyRef} className="mx-auto w-full max-w-[54rem] text-center">
-          <p className="mb-5 text-[10px] uppercase tracking-[0.45em] text-[var(--ai-blue)]/80 md:text-[12px]">
-            Smart Systems &amp; AI
-          </p>
-          <h1
-            className="font-medium leading-[0.95] tracking-[-0.03em] text-white"
-            style={{ fontSize: "clamp(2.4rem, 6vw, 5.6rem)", fontFamily: "var(--font-ai-display)" }}
-          >
-            Your business,{" "}
-            <span className="text-[var(--ai-cyan)]">always on.</span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-[46ch] text-[14px] leading-relaxed text-white/50 md:text-[15px]">
-            A voice agent that answers in three seconds, qualifies the lead, and
-            puts the call on your calendar. At 2am, on a Sunday, while you sleep.
-          </p>
+    <div ref={wrapRef} data-lion-zone className="relative h-[190vh]">
+      {/* The first frame establishes the page's editorial rhythm: copy on the
+          left, the living lion on the right, with the mobile composition
+          returning both toward centre. */}
+      <div className="sticky top-0 h-screen px-6 md:px-10 lg:px-14">
+        <div className="mx-auto flex h-full w-full max-w-[1280px] items-end pb-[8vh] md:items-center md:pb-0">
+          <div ref={copyRef} className="w-full max-w-[42rem] md:w-[52%]">
+            <p className="mb-6 text-[10px] uppercase tracking-[0.42em] text-[var(--ai-blue)] md:text-[12px]">
+              AI Systems &amp; Consulting
+            </p>
+            <h1
+              className="font-normal leading-[0.88] tracking-[-0.05em] text-white"
+              style={{ fontSize: "clamp(3.25rem, 7.2vw, 7.2rem)", fontFamily: "var(--font-ai-display)" }}
+            >
+              Your business,{" "}
+              <span className="text-[var(--ai-cyan)]">always on.</span>
+            </h1>
+            <p className="mt-8 max-w-[43ch] text-[16px] font-light leading-[1.55] text-white/62 md:text-[18px]">
+              One connected AI operating system that answers customers, converts
+              opportunities, coordinates repetitive work, and shows you where to grow.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-x-7 gap-y-3 text-[9px] uppercase tracking-[0.2em] text-white/38 md:text-[10px]">
+              <span>24/7 response</span>
+              <span>5+ hours returned weekly</span>
+              <span>Always optimized</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => openNova("hero", true)}
+              className="mt-9 rounded-full bg-[var(--ai-blue)] px-6 py-3.5 text-[10px] font-medium uppercase tracking-[0.17em] text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:text-[11px]"
+            >
+              Find your highest-ROI system
+            </button>
+          </div>
         </div>
       </div>
     </div>

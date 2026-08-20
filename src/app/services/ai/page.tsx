@@ -7,8 +7,13 @@ import AiLionStage from "@/components/sections/services/ai/AiLionStage";
 import AiHeroCopy from "@/components/sections/services/ai/AiHeroCopy";
 import AiChaosBeat from "@/components/sections/services/ai/AiChaosBeat";
 import AiCloseBeat from "@/components/sections/services/ai/AiCloseBeat";
-import { GlassAmbience } from "@/components/sections/services/ai/LiquidGlass";
-import { AiStakes, AiFlow, AiProcess, AiOffers } from "@/components/sections/services/ai/AiActs";
+import {
+  AiStakes,
+  AiSystems,
+  AiFlow,
+  AiProcess,
+  AiOffers,
+} from "@/components/sections/services/ai/AiActs";
 
 /**
  * This page runs its own display face, not the site-wide Clash Display.
@@ -21,15 +26,15 @@ import { AiStakes, AiFlow, AiProcess, AiOffers } from "@/components/sections/ser
  */
 const display = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-ai-display",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Smart Systems & AI",
+  title: "AI Systems & Consulting",
   description:
-    "Voice agents, automation, and workflows that answer, qualify, and book while you sleep. Your business, always on.",
+    "Custom AI operating systems that answer customers, convert leads, automate operations, and reveal where your business can grow.",
 };
 
 /**
@@ -75,26 +80,23 @@ export default function AiServicePage() {
         <AiHeroCopy />
         <AiChaosBeat />
 
-        {/*
-          The glass band, transparent so the particle world behind it stays
-          visible and the panels refract real motion instead of a static field.
-        */}
+        {/* Open editorial chapters: typography and the shared particle world
+            provide hierarchy, rather than a stack of separate glass cards. */}
         <div className="relative">
-          <GlassAmbience />
-          <div className="relative">
-            <AiStakes />
-            <AiFlow />
-            <AiProcess />
-            <AiOffers />
-          </div>
+          <AiStakes />
+          <AiSystems />
+          <AiFlow />
+          <AiProcess />
+          <AiOffers />
         </div>
 
         {/* Acts 6 and 7. The wrapper reforms the lion onto the CTA. */}
         <AiCloseBeat>
           <ProofAndClose
-            quote="[ A client says, in one line, that the agent booked calls they would have missed. ]"
-            closingLine="Let's make yours"
-            closingAccent="answer."
+            quote="Built to return at least five verified team hours every week—and keep improving from there."
+            attribution="The Lionovart 5-Hour-Back Guarantee"
+            closingLine="Build a business that"
+            closingAccent="runs smarter."
           />
         </AiCloseBeat>
 

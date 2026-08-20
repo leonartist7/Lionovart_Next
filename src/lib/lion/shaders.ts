@@ -277,8 +277,8 @@ void main(){
 
   vColor = col * twinkle;
   float systemT = smoothstep(0.08, 0.32, m);
-  vAlpha = mix(emberFade, 0.76, systemT) * introT;
-  vAlpha = mix(vAlpha, 0.92, uBloom);
+  vAlpha = mix(emberFade, 0.84, systemT) * introT;
+  vAlpha = mix(vAlpha, 0.98, uBloom);
 
   // ---------- projection -----------------------------------------------------
   vec4 mv = viewMatrix * world;
@@ -292,7 +292,7 @@ void main(){
   // depth of field: off-focus particles become soft bokeh discs
   float coc = clamp(abs(-mv.z - uFocusDist) * uDofAmount, 0.0, 2.0);
   gl_PointSize *= 1.0 + coc * 1.5;
-  gl_PointSize = min(gl_PointSize, 48.0 * uPixelRatio);
+  gl_PointSize = min(gl_PointSize, 54.0 * uPixelRatio);
   vAlpha /= 1.0 + coc * 1.2;
 }
 `;
@@ -316,8 +316,8 @@ void main(){
   // blending: THREE.AdditiveBlending's default factors are (SRC_ALPHA, ONE),
   // so col*a is what actually lands in the framebuffer, and a wide flat a=1
   // region is what let overlapping opaque discs sum straight to white.
-  float a = clamp(exp(-d * d * 7.5) * vAlpha, 0.0, 1.0);
-  if (a < 0.025) discard;
+  float a = clamp(exp(-d * d * 6.8) * vAlpha, 0.0, 1.0);
+  if (a < 0.018) discard;
   vec3 col = vColor;
   gl_FragColor = vec4(col * a * uGain, a);
 }
@@ -357,14 +357,14 @@ void main(){
 
   float life = smoothstep(0.0, 0.18, ph) * smoothstep(1.0, 0.78, ph);
   float burstGlow = 1.0 + 0.8 * smoothstep(0.12, 0.25, m) * (1.0 - smoothstep(0.34, 0.48, m));
-  vAlpha = life * (0.16 + aRand.z * 0.34) * burstGlow;
+  vAlpha = life * (0.22 + aRand.z * 0.42) * burstGlow;
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
   gl_PointSize = (0.8 + aRand.w * 1.8) * uPixelRatio * (1.5 / -mv.z);
   float coc = clamp(abs(-mv.z - uFocusDist) * uDofAmount, 0.0, 2.0);
   gl_PointSize *= 1.0 + coc * 1.4;
-  gl_PointSize = min(gl_PointSize, 7.0 * uPixelRatio);
+  gl_PointSize = min(gl_PointSize, 8.5 * uPixelRatio);
   vAlpha /= 1.0 + coc * 0.8;
 }
 `;
@@ -450,18 +450,18 @@ void main(){
   p = mix(p, ctaSwarmPos(aRand, aLag, uTime, uCta), uBloom);
 
   float pulse = 0.78 + 0.22 * sin(uTime * (0.8 + aRand.y) + aRand.x * 6.2831853);
-  vAlpha = pulse * (0.52 + aRand.w * 0.38) * (1.0 - aTrail * 0.80);
+  vAlpha = pulse * (0.62 + aRand.w * 0.42) * (1.0 - aTrail * 0.76);
   vMix = aRand.z;
   vGlint = step(aTrail, 0.001) * step(0.78, fract(aRand.x * 7.31));
   vGlint *= 0.55 + 0.45 * sin(uTime * 2.2 + aRand.x * 40.0);
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
-  float size = (7.0 + aRand.w * 9.0) * (1.0 - aTrail * 0.58);
+  float size = (8.0 + aRand.w * 10.5) * (1.0 - aTrail * 0.54);
   gl_PointSize = size * uPixelRatio * (2.5 / -mv.z);
   float coc = clamp(abs(-mv.z - uFocusDist) * uDofAmount, 0.0, 2.0);
   gl_PointSize *= 1.0 + coc;
-  gl_PointSize = min(gl_PointSize, 34.0 * uPixelRatio);
+  gl_PointSize = min(gl_PointSize, 38.0 * uPixelRatio);
   vAlpha /= 1.0 + coc * 0.8;
 }
 `;
@@ -514,7 +514,7 @@ void main(){
   float chapterW = max(max(heroW, ecosystemW), max(flowW * 0.34, hubW * 0.72));
   chapterW = mix(chapterW, 0.9, uBloom);
   float d = length(a - b);
-  vAlpha = (1.0 - smoothstep(0.10, 0.48, d)) * chapterW * 0.48 * uFade;
+  vAlpha = (1.0 - smoothstep(0.10, 0.48, d)) * chapterW * 0.62 * uFade;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(a, 1.0);
 }
 `;
