@@ -9,8 +9,6 @@ import {
   AnimatePresence,
 } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { hrefForTitle } from "@/lib/service-routes";
 import { useLenis } from "lenis/react";
 import { getWhatsAppUrl } from "@/lib/contact";
 import { MenuBurgerLottie } from "@/components/ui/menu-burger-lottie";
@@ -98,7 +96,6 @@ export default function Navbar() {
   const { t, locale } = useLanguage();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lenis = useLenis() as any;
-  const router = useRouter();
 
   const services: string[] = (t.services?.items ?? []).map((s: { title: string }) => s.title);
 
@@ -114,18 +111,10 @@ export default function Navbar() {
     setExpertiseOpen(false);
   };
 
-  // Expertise item click: go to the service page if it exists, else scroll to
-  // the homepage Services section (services without a page yet).
-  const goToService = (title: string) => {
-    const href = hrefForTitle(title);
-    if (!href) {
-      scrollToTarget("services");
-      return;
-    }
-    setIsMobileOpen(false);
-    setMobileExpertiseOpen(false);
-    setExpertiseOpen(false);
-    router.push(href);
+  // Expertise item click: stay on the landing page and scroll to the
+  // homepage Services section (no more navigating out to service pages).
+  const goToService = (_title: string) => {
+    scrollToTarget("services");
   };
 
   const openNavCta = () => {
