@@ -18,11 +18,49 @@ import {
 export interface LionExperienceOptions {
   modelUrl?: string;
   maxParticles?: number;
+  animate?: boolean;
   onReady?: () => void;
 }
 
-/** Bloom is fill-rate bound and scales with DPR squared. */
-const DPR_CAP = 1.35;
+type QualityTier = "low" | "medium" | "high";
+
+/**
+ * The same art direction at three costs. Mobile receives fewer, larger points;
+ * desktop earns extra depth, trails and resolution. Perceived definition comes
+ * from point treatment and silhouette sampling, not brute-force population.
+ */
+const QUALITY = {
+  low: {
+    particles: 1_400,
+    dpr: 1.15,
+    dust: 360,
+    swarmHeads: 36,
+    trailLength: 2,
+    pointSize: 52,
+    exposure: 1.08,
+    bloom: 0.18,
+  },
+  medium: {
+    particles: 2_200,
+    dpr: 1.4,
+    dust: 850,
+    swarmHeads: 72,
+    trailLength: 4,
+    pointSize: 47,
+    exposure: 1.07,
+    bloom: 0.23,
+  },
+  high: {
+    particles: 3_000,
+    dpr: 1.6,
+    dust: 1_600,
+    swarmHeads: 120,
+    trailLength: 5,
+    pointSize: 44,
+    exposure: 1.06,
+    bloom: 0.28,
+  },
+} as const;
 
 const clamp01 = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v);
 
@@ -54,15 +92,17 @@ export class LionExperience {
   private gainAspect = 1;
   private halfH = 1.85;
   private compactDevice = false;
+  private qualityTier: QualityTier = "high";
+  private resizeRaf = 0;
 
   private points: THREE.Points | null = null;
   private material!: THREE.ShaderMaterial;
   /** Seconds since start. Accumulated from the ticker delta; THREE.Clock is
    *  deprecated in r185 and THREE.Timer would just be a second thing to update. */
   private elapsed = 0;
+  private renderAccumulatorMs = 0;
   private running = false;
   private disposed = false;
-  private disposeHooks: Array<() => void> = [];
 
   /** Base yaw of the head. Dev-tunable via ?yaw= while framing the shot. */
   public yawProbe = 0.34;
@@ -80,12 +120,15 @@ export class LionExperience {
 
   private pointer = new THREE.Vector2(0, 0);
   private pointerWorld = new THREE.Vector3(999, 999, 0);
+  private pointerProjection = new THREE.Vector3();
+  private screenWorld = new THREE.Vector3();
   private pointerStrength = { value: 0 };
   private camOffset = new THREE.Vector2(0, 0);
 
   private opts: {
     modelUrl: string;
     maxParticles: number;
+    animate: boolean;
     onReady: () => void;
   };
 
@@ -95,6 +138,7 @@ export class LionExperience {
       modelUrl: options.modelUrl ?? "/models/lion.glb",
       // 0 means "decide in init()" — detectParticleBudget touches document/navigator
       maxParticles: options.maxParticles ?? 0,
+      animate: options.animate ?? true,
       onReady: options.onReady ?? (() => {}),
     };
   }
@@ -114,11 +158,6 @@ export class LionExperience {
   /** Act 7: 0 = energy current, 1 = reformed lion above the CTA. */
   setBloom(v: number): void { this.bloomW = clamp01(v); }
 
-  /** Register a teardown callback (listeners the wrapper owns). */
-  onDispose(fn: () => void): void {
-    this.disposeHooks.push(fn);
-  }
-
   /**
    * Point the Act 7 convergence at a real element. Called on scroll-enter with
    * the CTA's rect, not per frame.
@@ -126,34 +165,44 @@ export class LionExperience {
   setCtaScreenPos(nx: number, ny: number): void {
     if (!this.material) return;
     const w = this.toWorld(nx, ny);
-    const crest = new THREE.Vector3(w.x, w.y + this.halfH * 0.72, 0);
-    (this.material.uniforms.uCrest.value as THREE.Vector3).copy(crest);
-    if (this.swarmMat) (this.swarmMat.uniforms.uCta.value as THREE.Vector3).copy(crest);
-    if (this.plexusMat) (this.plexusMat.uniforms.uCta.value as THREE.Vector3).copy(crest);
+    w.y += this.halfH * 0.72;
+    (this.material.uniforms.uCrest.value as THREE.Vector3).copy(w);
+    if (this.swarmMat) (this.swarmMat.uniforms.uCta.value as THREE.Vector3).copy(w);
+    if (this.plexusMat) (this.plexusMat.uniforms.uCta.value as THREE.Vector3).copy(w);
   }
 
   /** Normalized screen coords (x right, y down) to a point on the z=0 plane. */
   private toWorld(nx: number, ny: number): THREE.Vector3 {
     const halfW = this.halfH * this.camera.aspect;
-    return new THREE.Vector3(nx * halfW, -ny * this.halfH, 0);
+    return this.screenWorld.set(nx * halfW, -ny * this.halfH, 0);
+  }
+
+  private detectQualityTier(): QualityTier {
+    // Capability signals are combined; no user-agent sniffing decides quality.
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
+    const cores = navigator.hardwareConcurrency || 8;
+    const width = window.innerWidth;
+
+    if (width < 700 || mem <= 4 || cores <= 4) return "low";
+    if (width < 1_180 || coarse || mem < 8 || cores < 8) return "medium";
+    return "high";
+  }
+
+  /** Inspect the renderer we already own; never create a diagnostic context. */
+  private isSoftwareRenderer(): boolean {
+    try {
+      const gl = this.renderer.getContext();
+      const ext = gl.getExtension("WEBGL_debug_renderer_info");
+      const name = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : "";
+      return /swiftshader|llvmpipe|software/i.test(name);
+    } catch {
+      return false;
+    }
   }
 
   private detectParticleBudget(): number {
-    // One deliberately sparse population draws every state. This keeps the
-    // lion readable without stacking a separate dust field and neural canvas.
-    try {
-      const c = document.createElement("canvas");
-      const gl = c.getContext("webgl");
-      const ext = gl?.getExtension("WEBGL_debug_renderer_info");
-      const r = ext ? String(gl?.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : "";
-      if (/swiftshader|llvmpipe|software/i.test(r)) return 900;
-    } catch { /* ignore */ }
-    const coarse = window.matchMedia("(pointer: coarse)").matches;
-    const mobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-    const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
-    if (coarse || mobile || mem <= 4) return 1_600;
-    if (mem <= 8) return 2_200;
-    return 2_800;
+    return QUALITY[this.qualityTier].particles;
   }
 
   /** Dev-only URL overrides, read once at init: ?count=90000 and ?morph=1. */
@@ -186,9 +235,10 @@ export class LionExperience {
 
   async init(): Promise<void> {
     this.applyDevOverrides();
-    this.compactDevice = window.matchMedia("(pointer: coarse)").matches
-      || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-    if (!this.opts.maxParticles) this.opts.maxParticles = this.detectParticleBudget();
+    this.qualityTier = this.detectQualityTier();
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    this.compactDevice = window.innerWidth < 768
+      || (coarse && Math.min(window.screen.width, window.screen.height) < 700);
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
@@ -196,11 +246,14 @@ export class LionExperience {
       alpha: false,
       powerPreference: "high-performance",
     });
+    if (this.isSoftwareRenderer()) this.qualityTier = "low";
+    if (!this.opts.maxParticles) this.opts.maxParticles = this.detectParticleBudget();
+    const quality = QUALITY[this.qualityTier];
     this.renderer.setClearColor(0x000000, 1); // brand black, matches --color-bg-dark
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     // Give the particles a little more presence before bloom, while keeping
     // ACES tone mapping in charge of the highlight rolloff.
-    this.renderer.toneMappingExposure = 1.0;
+    this.renderer.toneMappingExposure = quality.exposure;
 
     this.camera = new THREE.PerspectiveCamera(42, 1, 0.1, 60);
     this.camera.position.set(0, 0.05, 4.8);
@@ -212,7 +265,7 @@ export class LionExperience {
     this.buildPost();
     this.bindEvents();
     this.resize();
-    this.start();
+    if (this.opts.animate) this.start();
     this.opts.onReady();
   }
 
@@ -241,6 +294,7 @@ export class LionExperience {
 
     const p = new THREE.Vector3();
     const n = new THREE.Vector3();
+    const s = new THREE.Vector3();
     const spherical = new THREE.Spherical();
 
     for (let i = 0; i < count; i++) {
@@ -275,7 +329,7 @@ export class LionExperience {
 
       // spawn shell: far field the particles fly in from during the intro
       spherical.set(5.5 + Math.random() * 4.5, Math.acos(2 * Math.random() - 1), Math.random() * Math.PI * 2);
-      const s = new THREE.Vector3().setFromSpherical(spherical);
+      s.setFromSpherical(spherical);
       spawn[i * 3] = s.x;
       spawn[i * 3 + 1] = s.y;
       spawn[i * 3 + 2] = s.z;
@@ -287,7 +341,8 @@ export class LionExperience {
     geo.setAttribute("aRand", new THREE.BufferAttribute(rand, 4));
     geo.setAttribute("aSpawn", new THREE.BufferAttribute(spawn, 3));
 
-    const dpr = Math.min(window.devicePixelRatio, DPR_CAP);
+    const quality = QUALITY[this.qualityTier];
+    const dpr = Math.min(window.devicePixelRatio, quality.dpr);
     this.material = new THREE.ShaderMaterial({
       vertexShader: PARTICLE_VERT,
       fragmentShader: PARTICLE_FRAG,
@@ -305,7 +360,7 @@ export class LionExperience {
         uMouse: { value: new THREE.Vector3(999, 999, 0) },
         // Sparse enough to read as particles, large enough to preserve the
         // silhouette on a phone without turning into overlapping blobs.
-        uSize: { value: 42.0 },
+        uSize: { value: quality.pointSize },
         uGain: { value: 1 },
         uFocusDist: { value: 3.9 },
         uDofAmount: { value: 0.38 },
@@ -317,20 +372,21 @@ export class LionExperience {
 
     // Keep the population sparse, but compensate its luminance so the lion
     // remains readable on both the black hero and the brighter middle beats.
-    this.baseGain = THREE.MathUtils.clamp(3200 / count, 0.95, 1.65);
+    this.baseGain = THREE.MathUtils.clamp(3_400 / count, 0.98, 1.72);
     this.material.uniforms.uGain.value = this.baseGain;
     this.points = new THREE.Points(geo, this.material);
     this.points.frustumCulled = false;
     // The head is the hero asset, so it gets the room. Too small and the
     // muzzle and brow stop resolving and it reads as a glowing sphere.
-    this.points.scale.setScalar(0.92);
+    this.points.scale.setScalar(this.compactDevice ? 0.96 : 0.92);
     this.scene.add(this.points);
     this.buildSwarm();
   }
 
   // -------------------------------------------------------- ambient dust --
   private buildDust(): void {
-    const count = this.compactDevice ? 520 : 1_600;
+    const quality = QUALITY[this.qualityTier];
+    const count = quality.dust;
     const positions = new Float32Array(count * 3);
     const rand = new Float32Array(count * 4);
 
@@ -352,11 +408,12 @@ export class LionExperience {
       blending: THREE.AdditiveBlending,
       uniforms: {
         uTime: { value: 0 },
-        uPixelRatio: { value: Math.min(window.devicePixelRatio, this.compactDevice ? 1 : DPR_CAP) },
+        uPixelRatio: { value: Math.min(window.devicePixelRatio, quality.dpr) },
         uColor: { value: new THREE.Color(1.15, 0.78, 0.32) },
         uFocusDist: { value: 3.9 },
         uDofAmount: { value: 0.30 },
         uMorph: { value: 0 },
+        uBloom: { value: 0 },
       },
     });
 
@@ -367,8 +424,9 @@ export class LionExperience {
 
   // ----------------------------------------------- swarm, trails, plexus --
   private buildSwarm(): void {
-    const heads = this.compactDevice ? 56 : 120;
-    const trailLength = this.compactDevice ? 3 : 5;
+    const quality = QUALITY[this.qualityTier];
+    const heads = quality.swarmHeads;
+    const trailLength = quality.trailLength;
     const count = heads * (trailLength + 1);
     const positions = new Float32Array(count * 3);
     const rand = new Float32Array(count * 4);
@@ -403,7 +461,7 @@ export class LionExperience {
       blending: THREE.AdditiveBlending,
       uniforms: {
         uTime: { value: 0 },
-        uPixelRatio: { value: Math.min(window.devicePixelRatio, this.compactDevice ? 1 : DPR_CAP) },
+        uPixelRatio: { value: Math.min(window.devicePixelRatio, quality.dpr) },
         uMorph: { value: 0 },
         uFocusDist: { value: 3.9 },
         uDofAmount: { value: 0.28 },
@@ -505,7 +563,12 @@ export class LionExperience {
     this.composer.addPass(new RenderPass(this.scene, this.camera));
     // Bloom only the brightest gold accents; the particles themselves remain
     // individually legible, especially in the final lion.
-    this.bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.24, 0.22, 0.82);
+    this.bloom = new UnrealBloomPass(
+      new THREE.Vector2(1, 1),
+      QUALITY[this.qualityTier].bloom,
+      0.22,
+      0.82,
+    );
     this.composer.addPass(this.bloom);
 
     const gradePass = new ShaderPass(new THREE.ShaderMaterial({
@@ -527,7 +590,7 @@ export class LionExperience {
     // The unproject below only feeds the repulsion field, which is zero until
     // the pointer has actually entered the canvas — skip it until then.
     if (this.pointerStrength.value === 0) return;
-    const v = new THREE.Vector3(nx, ny, 0.5).unproject(this.camera);
+    const v = this.pointerProjection.set(nx, ny, 0.5).unproject(this.camera);
     const dir = v.sub(this.camera.position).normalize();
     const dist = -this.camera.position.z / dir.z;
     this.pointerWorld.copy(this.camera.position).add(dir.multiplyScalar(dist));
@@ -542,11 +605,26 @@ export class LionExperience {
     gsap.to(this.pointerStrength, { value: 0, duration: 0.8, ease: "power2.out" });
   };
 
-  private onResize = (): void => this.resize();
+  private onResize = (): void => {
+    if (this.resizeRaf) return;
+    this.resizeRaf = window.requestAnimationFrame(() => {
+      this.resizeRaf = 0;
+      this.resize();
+    });
+  };
 
   private onVisibility = (): void => {
     if (document.hidden) this.stop();
-    else this.start();
+    else if (this.opts.animate) this.start();
+  };
+
+  private onContextLost = (event: Event): void => {
+    event.preventDefault();
+    this.stop();
+  };
+
+  private onContextRestored = (): void => {
+    if (!this.disposed && !document.hidden && this.opts.animate) this.start();
   };
 
   private bindEvents(): void {
@@ -555,6 +633,8 @@ export class LionExperience {
     document.documentElement.addEventListener("pointerleave", this.onPointerLeave);
     window.addEventListener("resize", this.onResize);
     document.addEventListener("visibilitychange", this.onVisibility);
+    this.canvas.addEventListener("webglcontextlost", this.onContextLost);
+    this.canvas.addEventListener("webglcontextrestored", this.onContextRestored);
   }
 
   // ------------------------------------------------------------------ loop --
@@ -609,6 +689,7 @@ export class LionExperience {
       const du = (this.dust.material as THREE.ShaderMaterial).uniforms;
       du.uTime.value = t;
       du.uMorph.value = m;
+      du.uBloom.value = this.bloomW;
     }
 
     if (this.swarmMat) {
@@ -684,7 +765,7 @@ export class LionExperience {
 
     // A restrained bloom keeps individual points visible instead of merging
     // the lion or energy current into a white mass.
-    const bloomBase = this.compactDevice ? 0.21 : 0.28;
+    const bloomBase = QUALITY[this.qualityTier].bloom;
     const ecosystemGlow = THREE.MathUtils.smoothstep(m, 0.30, 0.48)
       * (1 - THREE.MathUtils.smoothstep(m, 0.70, 0.86));
     this.bloom.strength = bloomBase + ecosystemGlow * 0.09 + this.bloomW * 0.04;
@@ -695,6 +776,15 @@ export class LionExperience {
     if (this.dust) (this.dust.material as THREE.ShaderMaterial).uniforms.uFocusDist.value = 3.9;
     if (this.swarmMat) this.swarmMat.uniforms.uFocusDist.value = 3.9;
 
+    // Low-tier devices trade imperceptible temporal density for stable touch
+    // scrolling and lower heat. Simulation still advances every ticker update;
+    // only the expensive post-processed draw is capped near 30fps.
+    if (this.opts.animate && this.qualityTier === "low") {
+      this.renderAccumulatorMs += deltaMs;
+      if (this.renderAccumulatorMs < 30) return;
+      this.renderAccumulatorMs %= 30;
+    }
+
     this.composer.render();
   };
 
@@ -703,10 +793,11 @@ export class LionExperience {
     const h = this.canvas.clientHeight || window.innerHeight;
     // One clean canvas. Mobile renders at native CSS-pixel density; the sparse
     // points stay crisp without paying the quadratic cost of a high DPR.
-    const dpr = Math.min(window.devicePixelRatio, this.compactDevice ? 1 : DPR_CAP);
+    const dpr = Math.min(window.devicePixelRatio, QUALITY[this.qualityTier].dpr);
     this.renderer.setPixelRatio(dpr);
     this.renderer.setSize(w, h, false);
-    this.composer?.setSize(w * dpr, h * dpr);
+    this.composer?.setPixelRatio(dpr);
+    this.composer?.setSize(w, h);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     // Portrait viewports pack the same energy into fewer pixels, but the
@@ -720,6 +811,7 @@ export class LionExperience {
     if (this.material) this.material.uniforms.uPixelRatio.value = dpr;
     if (this.dust) (this.dust.material as THREE.ShaderMaterial).uniforms.uPixelRatio.value = dpr;
     if (this.swarmMat) this.swarmMat.uniforms.uPixelRatio.value = dpr;
+    if (!this.opts.animate && this.material) this.renderOnce();
   }
 
   /** Cinematic intro: particles fly in from the void and assemble the lion. */
@@ -740,13 +832,14 @@ export class LionExperience {
   dispose(): void {
     this.disposed = true;
     this.stop();
-    this.disposeHooks.forEach((fn) => fn());
-    this.disposeHooks = [];
     window.removeEventListener("pointermove", this.onPointerMove);
     document.documentElement.removeEventListener("pointerenter", this.onPointerEnter);
     document.documentElement.removeEventListener("pointerleave", this.onPointerLeave);
     window.removeEventListener("resize", this.onResize);
     document.removeEventListener("visibilitychange", this.onVisibility);
+    this.canvas.removeEventListener("webglcontextlost", this.onContextLost);
+    this.canvas.removeEventListener("webglcontextrestored", this.onContextRestored);
+    if (this.resizeRaf) window.cancelAnimationFrame(this.resizeRaf);
     this.scene.traverse((o) => {
       const anyO = o as THREE.Mesh;
       if (anyO.geometry) anyO.geometry.dispose();

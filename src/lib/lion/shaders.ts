@@ -255,16 +255,16 @@ void main(){
   // Color follows the same chapters: gold erupts into electric violet/cyan,
   // then resolves into a warm connected platform before the CTA lion returns.
   vec3 ecosystemColor = mix(
-    vec3(0.16, 0.48, 1.25),
-    vec3(0.72, 0.20, 1.18),
+    vec3(0.10, 0.72, 1.48),
+    vec3(0.88, 0.18, 1.42),
     aRand.z
   );
   ecosystemColor = mix(ecosystemColor, vec3(1.28, 0.76, 0.24), step(0.78, aRand.w) * 0.72);
   float energyPulse = 0.78 + 0.22 * sin(
     flowY * 4.0 - uTime * 1.25 + aRand.y * 6.2831853
   );
-  vec3 energyColor = mix(vec3(0.08, 0.72, 1.35), vec3(0.78, 0.16, 1.25), aRand.z) * energyPulse;
-  vec3 hubColor = mix(vec3(0.30, 0.58, 1.18), vec3(1.35, 0.82, 0.28), aRand.y);
+  vec3 energyColor = mix(vec3(0.06, 0.92, 1.62), vec3(0.96, 0.16, 1.48), aRand.z) * energyPulse;
+  vec3 hubColor = mix(vec3(0.24, 0.78, 1.48), vec3(1.42, 0.82, 0.26), aRand.y);
   col = mix(col, ecosystemColor, ecosystemT);
   col = mix(col, energyColor, flowT);
   col = mix(col, hubColor, hubT);
@@ -277,7 +277,7 @@ void main(){
 
   vColor = col * twinkle;
   float systemT = smoothstep(0.08, 0.32, m);
-  vAlpha = mix(emberFade, 0.84, systemT) * introT;
+  vAlpha = mix(emberFade, 0.92, systemT) * introT;
   vAlpha = mix(vAlpha, 0.98, uBloom);
 
   // ---------- projection -----------------------------------------------------
@@ -286,7 +286,7 @@ void main(){
 
   float sizeJitter = 0.4 + aRand.w * 0.8;
   gl_PointSize = uSize * sizeJitter * uPixelRatio * (1.0 / -mv.z);
-  gl_PointSize *= (1.0 - systemT * 0.24);
+  gl_PointSize *= (1.0 - systemT * 0.10);
   gl_PointSize *= mix(1.0, 1.08, uBloom);
 
   // depth of field: off-focus particles become soft bokeh discs
@@ -333,6 +333,8 @@ uniform float uDofAmount;
 uniform float uMorph;
 attribute vec4 aRand;
 varying float vAlpha;
+varying float vMix;
+varying float vStory;
 
 void main(){
   float m = smoothstep(0.0, 1.0, uMorph);
@@ -358,6 +360,8 @@ void main(){
   float life = smoothstep(0.0, 0.18, ph) * smoothstep(1.0, 0.78, ph);
   float burstGlow = 1.0 + 0.8 * smoothstep(0.12, 0.25, m) * (1.0 - smoothstep(0.34, 0.48, m));
   vAlpha = life * (0.22 + aRand.z * 0.42) * burstGlow;
+  vMix = aRand.z;
+  vStory = smoothstep(0.10, 0.50, m);
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
@@ -372,12 +376,18 @@ void main(){
 export const DUST_FRAG = /* glsl */ `
 precision highp float;
 uniform vec3 uColor;
+uniform float uBloom;
 varying float vAlpha;
+varying float vMix;
+varying float vStory;
 void main(){
   float d = length(gl_PointCoord - 0.5);
   float a = smoothstep(0.5, 0.10, d) * vAlpha;
   if (a < 0.006) discard;
-  gl_FragColor = vec4(uColor * a, a);
+  vec3 tech = mix(vec3(0.08, 0.88, 1.55), vec3(0.92, 0.20, 1.45), vMix);
+  vec3 col = mix(uColor, tech, vStory);
+  col = mix(col, uColor * 1.08, uBloom);
+  gl_FragColor = vec4(col * a, a);
 }
 `;
 
@@ -468,6 +478,8 @@ void main(){
 
 export const SWARM_FRAG = /* glsl */ `
 precision highp float;
+uniform float uMorph;
+uniform float uBloom;
 varying float vAlpha;
 varying float vMix;
 varying float vGlint;
@@ -480,7 +492,10 @@ void main(){
   float star = (exp(-abs(uv.x) * 34.0) + exp(-abs(uv.y) * 34.0)) * exp(-d * 5.5) * vGlint * 0.55;
   float a = clamp((core + inner + halo + star) * vAlpha, 0.0, 1.0);
   if (a < 0.006) discard;
-  vec3 col = mix(vec3(1.0, 0.52, 0.14), vec3(0.30, 0.72, 1.35), vMix * 0.72);
+  vec3 gold = mix(vec3(1.05, 0.50, 0.12), vec3(1.48, 1.16, 0.70), vMix);
+  vec3 tech = mix(vec3(0.08, 0.86, 1.55), vec3(0.94, 0.18, 1.44), vMix);
+  vec3 col = mix(gold, tech, smoothstep(0.12, 0.50, uMorph));
+  col = mix(col, gold, uBloom);
   col = mix(col, vec3(1.45, 1.18, 0.76), clamp(core * 0.32, 0.0, 1.0));
   gl_FragColor = vec4(col * a, a);
 }
@@ -521,10 +536,16 @@ void main(){
 
 export const PLEXUS_FRAG = /* glsl */ `
 precision highp float;
+uniform float uMorph;
+uniform float uBloom;
 varying float vAlpha;
 void main(){
   if (vAlpha < 0.004) discard;
-  gl_FragColor = vec4(vec3(0.95, 0.62, 0.26) * vAlpha, vAlpha);
+  vec3 gold = vec3(1.02, 0.62, 0.22);
+  vec3 connected = vec3(0.24, 0.80, 1.48);
+  vec3 col = mix(gold, connected, smoothstep(0.18, 0.48, uMorph));
+  col = mix(col, gold, uBloom);
+  gl_FragColor = vec4(col * vAlpha, vAlpha);
 }
 `;
 

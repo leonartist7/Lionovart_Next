@@ -28,7 +28,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const SHELL = "mx-auto w-full max-w-[1280px] px-6 md:px-10 lg:px-14";
 const ACT =
-  "relative flex min-h-[105svh] items-center py-[112px] md:py-[170px] lg:py-[210px]";
+  "relative flex min-h-[130svh] items-center py-[128px] motion-reduce:min-h-svh md:min-h-[145svh] md:py-[190px] lg:py-[220px]";
 const EXPO = [0.16, 1, 0.3, 1] as const;
 
 function useParticleChapter(
@@ -43,8 +43,8 @@ function useParticleChapter(
 
     const trigger = ScrollTrigger.create({
       trigger: section,
-      start: "top 78%",
-      end: "bottom 28%",
+      start: "top 82%",
+      end: "bottom 20%",
       scrub: true,
       onUpdate: ({ progress }) => {
         const stage = getLionStage();
@@ -59,7 +59,7 @@ function useParticleChapter(
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[10px] uppercase tracking-[0.36em] text-[var(--ai-cyan)] md:text-[11px]">
+    <p className="text-[13px] font-medium uppercase tracking-[0.18em] text-[var(--ai-cyan)] md:text-[14px]">
       {children}
     </p>
   );
@@ -71,8 +71,8 @@ function Heading({ children, wide = false }: { children: React.ReactNode; wide?:
       className={`mt-6 font-normal tracking-[-0.045em] text-white ${wide ? "max-w-[16ch]" : "max-w-[13ch]"}`}
       style={{
         fontFamily: "var(--font-ai-display)",
-        fontSize: "clamp(2.65rem, 5.6vw, 5.7rem)",
-        lineHeight: 0.95,
+        fontSize: "clamp(2.8rem, 5.5vw, 5.7rem)",
+        lineHeight: 0.97,
       }}
     >
       {children}
@@ -81,9 +81,9 @@ function Heading({ children, wide = false }: { children: React.ReactNode; wide?:
 }
 
 const STAKES = [
-  "The call is missed before sales ever sees it.",
-  "The lead is captured, then forgotten between tools.",
-  "Your team retypes work the business already knows.",
+  "The customer who waits becomes the customer who chooses someone else.",
+  "The lead you already paid for disappears between inboxes and spreadsheets.",
+  "Your best people spend their day copying, chasing and checking.",
 ];
 
 export function AiStakes() {
@@ -96,9 +96,9 @@ export function AiStakes() {
   return (
     <section ref={sectionRef} className={ACT}>
       <div className={SHELL}>
-        <div className="max-w-[45rem] md:w-[55%]">
+        <div className="max-w-[48rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:w-[58%]">
           <Eyebrow>The real cost of disconnected work</Eyebrow>
-          <Heading wide>Your business is busy. Its systems are not working together.</Heading>
+          <Heading wide>Manual work is quietly taxing every opportunity.</Heading>
 
           <div ref={copyRef} className="mt-14 space-y-8 md:mt-20 md:space-y-12">
             {STAKES.map((line, index) => (
@@ -107,16 +107,16 @@ export function AiStakes() {
                 initial={reduce ? false : { opacity: 0, y: 22 }}
                 animate={reduce ? undefined : inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.9, ease: EXPO, delay: 0.12 + index * 0.14 }}
-                className="grid grid-cols-[2.5rem_1fr] gap-4 md:grid-cols-[3rem_1fr] md:gap-6"
+                className="grid grid-cols-[2.75rem_1fr] gap-4 md:grid-cols-[3.25rem_1fr] md:gap-6"
               >
-                <span className="pt-1 text-[10px] tabular-nums tracking-[0.24em] text-[var(--ai-cyan)]">
+                <span className="pt-1 text-[13px] font-medium tabular-nums tracking-[0.16em] text-[var(--ai-cyan)] md:text-[14px]">
                   {String(index + 1).padStart(2, "0")}
                 </span>
                 <p
                   className="max-w-[31ch] font-light leading-[1.25] text-white/82"
                   style={{
                     fontFamily: "var(--font-ai-display)",
-                    fontSize: "clamp(1.2rem, 2.25vw, 1.95rem)",
+                    fontSize: "clamp(1.3rem, 2.25vw, 2rem)",
                   }}
                 >
                   {line}
@@ -134,9 +134,9 @@ const SYSTEMS = [
   {
     number: "01",
     eyebrow: "AI Front Desk & Customer Experience",
-    title: "Never miss another opportunity.",
-    lead: "Answers. Qualifies. Books. 24/7.",
-    body: "Voice and chat agents welcome every customer in your language and your tone—then take the next useful action without making your team babysit another tool.",
+    title: "Every opportunity gets answered.",
+    lead: "Helpful, on-brand responses. At any hour.",
+    body: "Voice and chat agents welcome every customer in your language and your tone, answer what they need, qualify the opportunity and take the next useful action—without adding another tool for your team to babysit.",
     capabilities: [
       "Phone, chat and missed-call recovery",
       "Appointments, reservations and estimates",
@@ -152,9 +152,9 @@ const SYSTEMS = [
   {
     number: "02",
     eyebrow: "Lead Conversion & Sales Systems",
-    title: "Turn interest into revenue.",
-    lead: "Every lead gets a next step.",
-    body: "The moment somebody shows interest, your system responds, qualifies, follows up and moves the opportunity forward—consistently, even when your team is occupied.",
+    title: "Turn attention into booked revenue.",
+    lead: "Every lead receives a useful next step.",
+    body: "The moment somebody shows interest, your system responds, qualifies, follows up and moves the opportunity forward—consistently, while your team stays focused on the conversations that need a human.",
     capabilities: [
       "Instant multichannel follow-up",
       "Qualification and appointment setting",
@@ -170,9 +170,9 @@ const SYSTEMS = [
   {
     number: "03",
     eyebrow: "Operations & Finance Automation",
-    title: "Give the back office its time back.",
-    lead: "Less repetition. Fewer errors. Faster movement.",
-    body: "Repetitive work moves quietly in the background while your people stay focused on customers, judgment and the work only they can do.",
+    title: "Give your team the hours back.",
+    lead: "Less repetition. Fewer errors. More room to lead.",
+    body: "Scheduling, documents, invoices and recurring coordination move quietly in the background while your people stay focused on customers, judgment and the work only they can do.",
     capabilities: [
       "Intake, scheduling and dispatch",
       "Invoices, documents and payment reminders",
@@ -188,9 +188,9 @@ const SYSTEMS = [
   {
     number: "04",
     eyebrow: "Growth & Business Intelligence",
-    title: "See what works. Know what comes next.",
-    lead: "Your business finally speaks in one voice.",
-    body: "Customer, sales, marketing and operational signals become useful decisions—revealing where revenue leaks, where demand grows and what deserves attention now.",
+    title: "See the next move before it costs you.",
+    lead: "The business finally speaks in one clear voice.",
+    body: "Customer, sales, marketing and operational signals become timely decisions—revealing where revenue leaks, where demand is growing and what deserves your attention now.",
     capabilities: [
       "Live performance and attribution dashboards",
       "Retention, reviews and customer reactivation",
@@ -221,10 +221,10 @@ function SystemChapter({ system }: { system: System }) {
           whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.24 }}
           transition={{ duration: 0.95, ease: EXPO }}
-          className={`max-w-[47rem] md:w-[56%] ${right ? "md:ml-auto" : ""}`}
+          className={`max-w-[49rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:w-[58%] ${right ? "md:ml-auto" : ""}`}
         >
           <div className="flex items-center gap-4">
-            <span className="text-[10px] tabular-nums tracking-[0.26em] text-white/36">
+            <span className="text-[13px] font-medium tabular-nums tracking-[0.16em] text-white/62 md:text-[14px]">
               {system.number} / 04
             </span>
             <span aria-hidden className="h-px w-10 bg-[var(--ai-cyan)]/70" />
@@ -236,12 +236,12 @@ function SystemChapter({ system }: { system: System }) {
             className="mt-7 max-w-[34ch] font-normal leading-[1.25] text-white/88"
             style={{
               fontFamily: "var(--font-ai-display)",
-              fontSize: "clamp(1.12rem, 2vw, 1.55rem)",
+              fontSize: "clamp(1.25rem, 2vw, 1.65rem)",
             }}
           >
             {system.lead}
           </p>
-          <p className="mt-5 max-w-[49ch] text-[15px] font-light leading-[1.65] text-white/56 md:text-[17px]">
+          <p className="mt-5 max-w-[52ch] text-[18px] font-light leading-[1.68] text-white/80 md:text-[20px]">
             {system.body}
           </p>
 
@@ -249,7 +249,7 @@ function SystemChapter({ system }: { system: System }) {
             {system.capabilities.map((capability) => (
               <li
                 key={capability}
-                className="border-b border-white/10 py-4 pr-5 text-[13px] font-light leading-[1.45] text-white/72 sm:odd:mr-6"
+                className="border-b border-white/12 py-4 pr-5 text-[16px] font-light leading-[1.5] text-white/78 sm:odd:mr-6 md:text-[17px]"
               >
                 <span aria-hidden className="mr-2 text-[var(--ai-cyan)]">·</span>
                 {capability}
@@ -257,7 +257,7 @@ function SystemChapter({ system }: { system: System }) {
             ))}
           </ul>
 
-          <p className="mt-7 text-[10px] uppercase tracking-[0.2em] text-white/34">
+          <p className="mt-7 text-[14px] leading-[1.5] text-white/62 md:text-[15px]">
             Strong fit · {system.fit}
           </p>
         </motion.article>
@@ -270,10 +270,10 @@ export function AiSystems() {
   return (
     <div aria-label="Four connected AI systems">
       <div className={`${SHELL} relative pb-3 pt-24 md:pt-36`}>
-        <p className="text-[10px] uppercase tracking-[0.38em] text-white/42">The system architecture</p>
+        <p className="text-[13px] font-medium uppercase tracking-[0.18em] text-white/68 md:text-[14px]">The system architecture</p>
         <p
           className="mt-4 max-w-[24ch] font-light leading-[1.2] text-white/72"
-          style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(1.2rem, 2.2vw, 1.65rem)" }}
+          style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(1.3rem, 2.2vw, 1.8rem)" }}
         >
           Start with the leak costing you most. Connect the rest as you grow.
         </p>
@@ -296,12 +296,12 @@ export function AiFlow() {
   return (
     <section ref={ref} className={ACT}>
       <div className={SHELL}>
-        <div className="md:ml-auto md:w-[58%]">
+        <div className="[text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:ml-auto md:w-[60%]">
           <Eyebrow>The Lionovart AI Operating System</Eyebrow>
-          <Heading>Four systems. One intelligence.</Heading>
-          <p className="mt-7 max-w-[46ch] text-[15px] font-light leading-[1.65] text-white/56 md:text-[17px]">
-            Not four disconnected products. One custom operating system connecting the conversations,
-            decisions and repetitive work that keep your business moving.
+          <Heading>Four systems. One clear advantage.</Heading>
+          <p className="mt-7 max-w-[50ch] text-[18px] font-light leading-[1.68] text-white/80 md:text-[20px]">
+            Not four disconnected products. One custom operating system that shares context across
+            conversations, decisions and recurring work—so every improvement makes the next one stronger.
           </p>
 
           <div className="relative mt-14 md:mt-18">
@@ -356,10 +356,10 @@ function FlowStep({
   const x = useTransform(lit, (value) => (reduce ? 0 : (1 - value) * 14));
 
   return (
-    <motion.li style={{ opacity, x }} className="relative py-4 md:py-5">
+    <motion.li style={{ opacity, x }} className="relative py-5 md:py-6">
       <motion.span
         aria-hidden
-        className="absolute left-[-35px] top-[23px] h-[11px] w-[11px] rounded-full md:left-[-47px] md:top-[27px]"
+        className="absolute left-[-35px] top-[27px] h-[12px] w-[12px] rounded-full md:left-[-47px] md:top-[31px]"
         style={{
           background: node.accent ? "var(--ai-cyan)" : "rgba(255,255,255,0.28)",
           boxShadow: node.accent
@@ -369,18 +369,18 @@ function FlowStep({
         }}
       />
       <div className="flex flex-col gap-2 md:flex-row md:items-baseline md:gap-6">
-        <span className="w-9 shrink-0 text-[10px] tabular-nums tracking-[0.22em] text-white/30">
+        <span className="w-9 shrink-0 text-[13px] tabular-nums tracking-[0.16em] text-white/58 md:text-[14px]">
           {String(index + 1).padStart(2, "0")}
         </span>
         <span
-          className={`text-[19px] font-normal leading-tight md:text-[25px] ${
+          className={`text-[21px] font-normal leading-tight md:text-[27px] ${
             node.accent ? "text-[var(--ai-cyan)]" : "text-white"
           }`}
           style={{ fontFamily: "var(--font-ai-display)" }}
         >
           {node.label}
         </span>
-        <span className="max-w-[35ch] text-[13px] font-light leading-[1.5] text-white/48 md:ml-auto md:text-right md:text-[14px]">
+        <span className="max-w-[38ch] text-[16px] font-light leading-[1.55] text-white/72 md:ml-auto md:text-right md:text-[17px]">
           {node.detail}
         </span>
       </div>
@@ -417,12 +417,12 @@ export function AiProcess() {
   return (
     <section ref={ref} className={ACT}>
       <div className={SHELL}>
-        <div className="max-w-[49rem] md:w-[60%]">
+        <div className="max-w-[51rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:w-[62%]">
           <Eyebrow>One partner from strategy to scale</Eyebrow>
-          <Heading>We take care of the whole system.</Heading>
-          <p className="mt-7 max-w-[44ch] text-[15px] font-light leading-[1.65] text-white/56 md:text-[17px]">
-            No tool maze. No unfinished handoff. Lionovart stays responsible for the thinking,
-            implementation and continuous improvement.
+          <Heading>You get the result. We run the complexity.</Heading>
+          <p className="mt-7 max-w-[49ch] text-[18px] font-light leading-[1.68] text-white/80 md:text-[20px]">
+            No tool maze. No unfinished handoff. Lionovart stays responsible for strategy,
+            implementation, integration and continuous improvement—from the first blueprint onward.
           </p>
 
           <div className="mt-14 border-t border-white/12 md:mt-18">
@@ -435,7 +435,7 @@ export function AiProcess() {
                 transition={{ duration: 0.8, ease: EXPO, delay: index * 0.08 }}
                 className="grid gap-5 border-b border-white/10 py-8 sm:grid-cols-[3rem_minmax(0,0.7fr)_minmax(0,1.3fr)] sm:gap-7 md:py-10"
               >
-                <span className="text-[10px] tabular-nums tracking-[0.24em] text-[var(--ai-cyan)]">
+                <span className="text-[13px] font-medium tabular-nums tracking-[0.16em] text-[var(--ai-cyan)] md:text-[14px]">
                   {step.n}
                 </span>
                 <div>
@@ -445,11 +445,11 @@ export function AiProcess() {
                   >
                     {step.t}
                   </h3>
-                  <p className="mt-3 text-[10px] uppercase tracking-[0.17em] text-white/34">
+                  <p className="mt-3 text-[13px] font-medium leading-[1.45] text-white/68 md:text-[14px]">
                     {step.signal}
                   </p>
                 </div>
-                <p className="max-w-[37ch] text-[14px] font-light leading-[1.65] text-white/54 md:text-[15px]">
+                <p className="max-w-[40ch] text-[17px] font-light leading-[1.65] text-white/76 md:text-[18px]">
                   {step.d}
                 </p>
               </motion.article>
@@ -464,17 +464,17 @@ export function AiProcess() {
 const OFFERS = [
   {
     kind: "Focused build",
-    title: "Fix the leak costing you most.",
-    blurb: "Begin with one high-impact system, prove the value, and create the foundation for everything that follows.",
+    title: "Solve the problem costing you most.",
+    blurb: "Begin with one high-impact system, measure the value it returns, and create the foundation for everything that follows.",
     items: ["Opportunity blueprint", "Custom system build", "Integrations and testing", "Team handoff and launch"],
-    cta: "Find my first system",
+    cta: "Find Your Highest-ROI System",
   },
   {
     kind: "Connected partnership",
-    title: "Build the operating system.",
-    blurb: "Connect multiple functions into one intelligent platform, then keep it trained, measured and improving.",
+    title: "Build the business behind the vision.",
+    blurb: "Connect multiple functions into one intelligent platform, then keep it trained, measured and improving as your company grows.",
     items: ["Multi-system architecture", "Custom dashboards", "Continuous optimization", "Priority strategy and support"],
-    cta: "Design my AI OS",
+    cta: "Find Your Highest-ROI System",
   },
 ] as const;
 
@@ -483,6 +483,7 @@ const INDUSTRIES = [
   "Clinics & wellness",
   "Real estate & property",
   "Hospitality & multi-location",
+  "Product & ecommerce brands",
 ];
 
 export function AiOffers() {
@@ -494,7 +495,7 @@ export function AiOffers() {
   return (
     <section ref={ref} className="relative py-[120px] md:py-[180px] lg:py-[220px]">
       <div className={SHELL}>
-        <div className="md:ml-auto md:w-[62%]">
+        <div className="[text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:ml-auto md:w-[64%]">
           <Eyebrow>A clear way in</Eyebrow>
           <Heading wide>Start focused. Grow into something powerful.</Heading>
 
@@ -509,16 +510,16 @@ export function AiOffers() {
                 className="grid gap-8 border-t border-white/14 pt-8 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] sm:gap-10 md:pt-10"
               >
                 <div>
-                  <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--ai-cyan)]">
+                  <span className="text-[13px] font-medium uppercase tracking-[0.17em] text-[var(--ai-cyan)] md:text-[14px]">
                     {offer.kind}
                   </span>
                   <h3
-                    className="mt-5 max-w-[14ch] text-[28px] font-normal leading-[1.04] tracking-[-0.035em] text-white md:text-[38px]"
+                    className="mt-5 max-w-[15ch] text-[32px] font-normal leading-[1.04] tracking-[-0.035em] text-white md:text-[42px]"
                     style={{ fontFamily: "var(--font-ai-display)" }}
                   >
                     {offer.title}
                   </h3>
-                  <p className="mt-4 max-w-[35ch] text-[14px] font-light leading-[1.6] text-white/52">
+                  <p className="mt-5 max-w-[39ch] text-[18px] font-light leading-[1.65] text-white/78 md:text-[19px]">
                     {offer.blurb}
                   </p>
                 </div>
@@ -526,7 +527,7 @@ export function AiOffers() {
                 <div>
                   <ul className="m-0 grid list-none gap-x-6 gap-y-3 p-0 sm:grid-cols-2">
                     {offer.items.map((item) => (
-                      <li key={item} className="text-[13px] font-light leading-[1.45] text-white/72">
+                      <li key={item} className="text-[16px] font-light leading-[1.5] text-white/78 md:text-[17px]">
                         <span aria-hidden className="mr-2 text-[var(--ai-cyan)]">·</span>
                         {item}
                       </li>
@@ -535,7 +536,7 @@ export function AiOffers() {
                   <button
                     type="button"
                     onClick={() => openNova("hero", true)}
-                    className="mt-8 rounded-full bg-[var(--ai-blue)] px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.16em] text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+                    className="mt-9 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[16px] font-semibold tracking-[-0.01em] text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
                   >
                     {offer.cta}
                   </button>
@@ -565,23 +566,24 @@ export function AiOffers() {
                 >
                   The 5-Hour-Back Guarantee
                 </h3>
-                <p className="mt-3 max-w-[48ch] text-[14px] font-light leading-[1.65] text-white/54 md:text-[15px]">
+                <p className="mt-4 max-w-[52ch] text-[17px] font-light leading-[1.68] text-white/78 md:text-[18px]">
                   Reclaim at least five verified team hours every week within 60 days—or we continue
-                  optimizing without a management fee until the agreed target is reached.
+                  optimizing without a management fee until the agreed target is reached. From there,
+                  we keep working toward 10+ hours returned and measurable business value.
                 </p>
               </div>
             </div>
           </motion.div>
 
           <div className="mt-16 md:mt-20">
-            <p className="text-[10px] uppercase tracking-[0.28em] text-white/36">
+            <p className="text-[13px] font-medium uppercase tracking-[0.16em] text-white/68 md:text-[14px]">
               Built for businesses where every response matters
             </p>
             <div className="mt-6 grid border-t border-white/10 sm:grid-cols-2">
               {INDUSTRIES.map((industry) => (
                 <p
                   key={industry}
-                  className="border-b border-white/10 py-4 pr-5 text-[13px] font-light text-white/62 sm:odd:mr-6"
+                  className="border-b border-white/10 py-4 pr-5 text-[16px] font-light text-white/74 sm:odd:mr-6 md:text-[17px]"
                 >
                   {industry}
                 </p>

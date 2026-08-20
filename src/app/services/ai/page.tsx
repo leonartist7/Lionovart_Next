@@ -34,7 +34,7 @@ const display = Space_Grotesk({
 export const metadata: Metadata = {
   title: "AI Systems & Consulting",
   description:
-    "Custom AI operating systems that answer customers, convert leads, automate operations, and reveal where your business can grow.",
+    "Custom AI operating systems that answer customers, convert opportunities, coordinate operations, and give growing teams their time back.",
 };
 
 /**
@@ -63,15 +63,12 @@ export default function AiServicePage() {
         className={`${display.variable} relative z-10 min-h-screen bg-transparent [&_section]:bg-transparent`}
         style={
           {
-            // page-scoped red scale, read by the act components. Reuses the
-            // site's brand-red tokens (globals.css) rather than a new hex —
-            // deliberately breaks SERVICE_PAGES_SPEC section 6.1's "red is
-            // rationed to the next action" rule for this page, per explicit
-            // request: gold particles + red chrome, not the site-wide gold/red
-            // ration. Don't "fix" this back without checking with the user.
-            "--ai-blue": "var(--color-brand-red)",
-            "--ai-cyan": "var(--color-brand-red)",
-            "--ai-deep": "var(--color-brand-red-secondary)",
+            // The page moves from electric intelligence back into the brand's
+            // gold lion. These accents stay scoped to this route; the primary
+            // CTA still carries the site-wide brand red.
+            "--ai-blue": "#6366f1",
+            "--ai-cyan": "#54e5ff",
+            "--ai-deep": "#8b5cf6",
           } as React.CSSProperties
         }
       >
@@ -93,10 +90,10 @@ export default function AiServicePage() {
         {/* Acts 6 and 7. The wrapper reforms the lion onto the CTA. */}
         <AiCloseBeat>
           <ProofAndClose
-            quote="Built to return at least five verified team hours every week—and keep improving from there."
+            quote="Your first system is measured against a real baseline: hours returned, workload removed, and opportunities recovered."
             attribution="The Lionovart 5-Hour-Back Guarantee"
-            closingLine="Build a business that"
-            closingAccent="runs smarter."
+            closingLine="Take back your time."
+            closingAccent="Keep the growth."
           />
         </AiCloseBeat>
 

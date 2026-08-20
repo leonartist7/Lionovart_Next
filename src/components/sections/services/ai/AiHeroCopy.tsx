@@ -36,7 +36,7 @@ export default function AiHeroCopy() {
         y: -52,
         filter: "blur(8px)",
         ease: "power2.in",
-        scrollTrigger: { trigger: wrap, start: "32% top", end: "76% top", scrub: true },
+        scrollTrigger: { trigger: wrap, start: "44% top", end: "88% top", scrub: true },
       });
 
       ScrollTrigger.create({
@@ -46,8 +46,11 @@ export default function AiHeroCopy() {
         scrub: true,
         onUpdate: (self) => {
           const stage = getLionStage();
-          stage?.setMorph(self.progress * HERO_MORPH_END);
-          stage?.setLayout(0.42);
+          // Hold the complete lion while the promise is being read, then let
+          // it begin opening only as the copy prepares to leave.
+          const release = gsap.utils.clamp(0, 1, (self.progress - 0.34) / 0.66);
+          stage?.setMorph(release * HERO_MORPH_END);
+          stage?.setLayout(0.46);
         },
       });
     }, wrap);
@@ -56,39 +59,46 @@ export default function AiHeroCopy() {
   }, []);
 
   return (
-    <div ref={wrapRef} data-lion-zone className="relative h-[190vh]">
+    <div ref={wrapRef} data-lion-zone className="relative h-[220svh] motion-reduce:h-svh">
       {/* The first frame establishes the page's editorial rhythm: copy on the
           left, the living lion on the right, with the mobile composition
           returning both toward centre. */}
-      <div className="sticky top-0 h-screen px-6 md:px-10 lg:px-14">
-        <div className="mx-auto flex h-full w-full max-w-[1280px] items-end pb-[8vh] md:items-center md:pb-0">
-          <div ref={copyRef} className="w-full max-w-[42rem] md:w-[52%]">
-            <p className="mb-6 text-[10px] uppercase tracking-[0.42em] text-[var(--ai-blue)] md:text-[12px]">
+      <div className="sticky top-0 h-svh px-6 md:px-10 lg:px-14">
+        <div className="mx-auto flex h-full w-full max-w-[1280px] items-end pb-[8svh] md:items-center md:pb-0">
+          <div
+            ref={copyRef}
+            className="w-full max-w-[45rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:w-[55%]"
+          >
+            <p className="mb-6 text-[13px] font-medium uppercase tracking-[0.24em] text-[var(--ai-cyan)] md:text-[14px]">
               AI Systems &amp; Consulting
             </p>
             <h1
-              className="font-normal leading-[0.88] tracking-[-0.05em] text-white"
-              style={{ fontSize: "clamp(3.25rem, 7.2vw, 7.2rem)", fontFamily: "var(--font-ai-display)" }}
+              className="max-w-[14ch] font-normal leading-[0.91] tracking-[-0.05em] text-white"
+              style={{ fontSize: "clamp(3.15rem, 6.8vw, 7rem)", fontFamily: "var(--font-ai-display)" }}
             >
-              Your business,{" "}
-              <span className="text-[var(--ai-cyan)]">always on.</span>
+              Your business keeps moving.{" "}
+              <span className="text-[var(--ai-cyan)]">Even when you stop.</span>
             </h1>
-            <p className="mt-8 max-w-[43ch] text-[16px] font-light leading-[1.55] text-white/62 md:text-[18px]">
-              One connected AI operating system that answers customers, converts
-              opportunities, coordinates repetitive work, and shows you where to grow.
+            <p className="mt-8 max-w-[52ch] text-[18px] font-light leading-[1.62] text-white/82 md:text-[21px]">
+              We design and manage one connected AI operating system that answers,
+              follows up, coordinates and reports 24/7—so your team gets hours back
+              and growth no longer depends on constant manual effort.
             </p>
-            <div className="mt-9 flex flex-wrap gap-x-7 gap-y-3 text-[9px] uppercase tracking-[0.2em] text-white/38 md:text-[10px]">
+            <div className="mt-8 flex flex-wrap gap-x-7 gap-y-3 text-[14px] font-medium tracking-[-0.01em] text-white/72 md:text-[15px]">
               <span>24/7 response</span>
-              <span>5+ hours returned weekly</span>
-              <span>Always optimized</span>
+              <span>10+ hours weekly target</span>
+              <span>Continuously optimized</span>
             </div>
             <button
               type="button"
               onClick={() => openNova("hero", true)}
-              className="mt-9 rounded-full bg-[var(--ai-blue)] px-6 py-3.5 text-[10px] font-medium uppercase tracking-[0.17em] text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:text-[11px]"
+              className="mt-9 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[16px] font-semibold tracking-[-0.01em] text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
-              Find your highest-ROI system
+              Find Your Highest-ROI System
             </button>
+            <p className="mt-4 max-w-[38ch] text-[16px] leading-[1.55] text-white/68">
+              Start with a focused audit. Leave with a clear automation roadmap.
+            </p>
           </div>
         </div>
       </div>

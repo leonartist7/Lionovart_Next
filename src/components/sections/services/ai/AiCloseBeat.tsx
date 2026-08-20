@@ -9,8 +9,8 @@
  * mark that opened the page.
  *
  * Renders nothing. It wraps ProofAndClose and drives the engine from that
- * section's own scroll position, which is also how it finds the CTA: the
- * button's rect is read on enter, not per frame.
+ * section's own scroll position. The CTA node is resolved once; its changing
+ * viewport position is measured while the convergence is active.
  */
 
 import { useEffect, useRef } from "react";
@@ -29,13 +29,13 @@ export default function AiCloseBeat({ children }: { children: React.ReactNode })
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let cancelled = false;
+    const btn = wrap.querySelector<HTMLElement>("[data-cta-target]");
 
     const aimAtCta = () => {
       const exp = getLionStage();
       // Not "canvas, button, a": LiquidMetalButton renders its own decorative
       // shader canvas BEFORE the real <button> in DOM order, so a loose
       // selector list matches that canvas instead of the actual CTA.
-      const btn = wrap.querySelector<HTMLElement>("[data-cta-target]");
       if (!exp || !btn) return;
       const r = btn.getBoundingClientRect();
       exp.setCtaScreenPos(
@@ -86,7 +86,11 @@ export default function AiCloseBeat({ children }: { children: React.ReactNode })
   }, []);
 
   return (
-    <div ref={wrapRef} data-lion-zone>
+    <div
+      ref={wrapRef}
+      data-lion-zone
+      className="[&_figcaption]:!text-[15px] [&_figcaption]:!text-white/65 [&_section_p]:!text-[16px] [&_section_p]:!leading-[1.6] [&_section_p]:!text-white/68 md:[&_section_p]:!text-[17px]"
+    >
       {children}
     </div>
   );

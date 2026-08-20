@@ -24,13 +24,13 @@ export interface FlowNode {
 
 /** Serpentine on desktop so the eye tracks one connected operating system. */
 export const NODES: FlowNode[] = [
-  { id: "signals",    label: "Every signal arrives", detail: "Calls, forms, messages, orders, and activity.", x: -0.78, y: -0.66, mx: -0.34, my: -0.90 },
-  { id: "context",    label: "Context is shared", detail: "The system understands who, what, and what happened before.", x: 0.00, y: -0.66, mx: 0.34, my: -0.60 },
-  { id: "front-desk", label: "Front desk responds", detail: "Helpful answers and bookings, at any hour.", x: 0.78, y: -0.66, mx: -0.34, my: -0.30 },
-  { id: "revenue",    label: "Sales follows through", detail: "Qualified opportunities keep moving.", x: 0.78, y: 0.00, mx: 0.34, my: 0.00 },
-  { id: "operations", label: "Operations coordinate", detail: "Work, documents, and money move without retyping.", x: 0.00, y: 0.00, mx: -0.34, my: 0.30 },
+  { id: "signals",    label: "Every signal arrives", detail: "Calls, forms, messages, orders and activity enter one system.", x: -0.78, y: -0.66, mx: -0.34, my: -0.90 },
+  { id: "context",    label: "Context is shared", detail: "The system remembers who, what and what happened before.", x: 0.00, y: -0.66, mx: 0.34, my: -0.60 },
+  { id: "front-desk", label: "Customers get answers", detail: "Helpful responses and bookings happen at any hour.", x: 0.78, y: -0.66, mx: -0.34, my: -0.30 },
+  { id: "revenue",    label: "Sales follows through", detail: "Qualified opportunities keep moving toward a decision.", x: 0.78, y: 0.00, mx: 0.34, my: 0.00 },
+  { id: "operations", label: "Operations coordinate", detail: "Work, documents and money move without being retyped.", x: 0.00, y: 0.00, mx: -0.34, my: 0.30 },
   { id: "intelligence", label: "Intelligence learns", detail: "Performance becomes the next useful decision.", x: -0.78, y: 0.00, mx: 0.34, my: 0.60 },
-  { id: "growth",     label: "The business compounds", detail: "More time, faster response, and a system that keeps improving.", x: 0.00, y: 0.70, mx: 0.00, my: 0.90, accent: true },
+  { id: "growth",     label: "The advantage compounds", detail: "More time, faster response and a system that keeps improving.", x: 0.00, y: 0.70, mx: 0.00, my: 0.90, accent: true },
 ];
 
 /** Consecutive chain: index i connects to i+1. Derived, never hand-listed. */
