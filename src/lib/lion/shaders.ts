@@ -316,8 +316,8 @@ void main(){
   // blending: THREE.AdditiveBlending's default factors are (SRC_ALPHA, ONE),
   // so col*a is what actually lands in the framebuffer, and a wide flat a=1
   // region is what let overlapping opaque discs sum straight to white.
-  float a = clamp(exp(-d * d * 6.8) * vAlpha, 0.0, 1.0);
-  if (a < 0.018) discard;
+  float a = clamp(exp(-d * d * 8.2) * vAlpha, 0.0, 1.0);
+  if (a < 0.012) discard;
   vec3 col = vColor;
   gl_FragColor = vec4(col * a * uGain, a);
 }
@@ -395,14 +395,24 @@ void main(){
 // lines never detach from the nodes while the whole system changes form.
 export const SWARM_POS_GLSL = /* glsl */ `
 vec3 swarmPos(vec4 r, float lag, float t, float m){
-  float heroAngle = r.x * 6.2831853 + t * (0.30 + r.y * 0.55) - lag * (0.30 + r.y * 0.55);
+  float heroLane = floor(r.w * 3.0);
+  float heroDirection = heroLane == 1.0 ? -1.0 : 1.0;
+  float heroSpeed = (0.30 + r.y * 0.48) * heroDirection;
+  float heroAngle = r.x * 6.2831853 + t * heroSpeed - lag * heroSpeed;
+  float heroRadius = 1.02 + r.z * 0.46 + heroLane * 0.06;
+  float heroHeight = heroLane < 0.5
+    ? -0.76 + sin(heroAngle * 1.7 + r.z * 6.2831853) * 0.10
+    : sin(heroAngle) * (0.60 + heroLane * 0.10);
   vec3 hero = vec3(
-    cos(heroAngle) * (0.98 + r.z * 0.45),
-    -0.80 + sin(heroAngle * 1.7 + r.z * 6.2831853) * 0.12,
-    sin(heroAngle) * (0.56 + r.w * 0.30)
+    cos(heroAngle) * heroRadius,
+    heroHeight,
+    sin(heroAngle) * (0.58 + r.y * 0.24)
   );
-  float tilt = 0.38;
-  hero = vec3(hero.x, hero.y * cos(tilt) - hero.z * sin(tilt), hero.y * sin(tilt) + hero.z * cos(tilt));
+  float heroTilt = heroLane < 0.5 ? 0.34 : (heroLane - 1.5) * 0.54;
+  float htc = cos(heroTilt), hts = sin(heroTilt);
+  hero = heroLane < 0.5
+    ? vec3(hero.x, hero.y * htc - hero.z * hts, hero.y * hts + hero.z * htc)
+    : vec3(hero.x * htc - hero.y * hts, hero.x * hts + hero.y * htc, hero.z);
 
   vec3 burstDir = normalize(r.xyz - 0.5 + 1e-4);
   vec3 burst = burstDir * (1.35 + r.w * 2.8);
@@ -431,9 +441,17 @@ vec3 swarmPos(vec4 r, float lag, float t, float m){
 }
 
 vec3 ctaSwarmPos(vec4 r, float lag, float t, vec3 cta){
-  float a = r.x * 6.2831853 + t * (0.28 + r.y * 0.24) - lag * 0.55;
-  float radius = 0.72 + r.z * 0.62;
-  return cta + vec3(cos(a) * radius, sin(a) * radius * 0.56, sin(a * 1.3) * 0.22);
+  float lane = floor(r.w * 3.0);
+  float direction = lane == 1.0 ? -1.0 : 1.0;
+  float speed = (0.27 + r.y * 0.25) * direction;
+  float a = r.x * 6.2831853 + t * speed - lag * speed;
+  float radius = 0.70 + r.z * 0.64 + lane * 0.05;
+  float yScale = lane < 0.5 ? 0.48 : 0.72 + lane * 0.08;
+  vec3 orbit = vec3(cos(a) * radius, sin(a) * radius * yScale, sin(a * 1.3) * 0.24);
+  float tilt = (lane - 1.0) * 0.46;
+  float tc = cos(tilt), ts = sin(tilt);
+  orbit.xy = vec2(orbit.x * tc - orbit.y * ts, orbit.x * ts + orbit.y * tc);
+  return cta + orbit;
 }
 `;
 

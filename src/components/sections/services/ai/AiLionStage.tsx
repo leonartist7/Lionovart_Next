@@ -39,7 +39,7 @@ export default function AiLionStage() {
 
       const instance = new Engine(
         canvas,
-        reduce ? { maxParticles: 1_200, animate: false } : {},
+        reduce ? { maxParticles: 950, animate: false } : {},
       );
       exp = instance;
       try {

@@ -7,6 +7,7 @@ import AiLionStage from "@/components/sections/services/ai/AiLionStage";
 import AiHeroCopy from "@/components/sections/services/ai/AiHeroCopy";
 import AiChaosBeat from "@/components/sections/services/ai/AiChaosBeat";
 import AiCloseBeat from "@/components/sections/services/ai/AiCloseBeat";
+import AiScrollSnap from "@/components/sections/services/ai/AiScrollSnap";
 import {
   AiStakes,
   AiSystems,
@@ -73,6 +74,7 @@ export default function AiServicePage() {
         }
       >
         <Navbar />
+        <AiScrollSnap />
 
         <AiHeroCopy />
         <AiChaosBeat />

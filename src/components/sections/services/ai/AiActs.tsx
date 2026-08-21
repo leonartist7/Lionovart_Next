@@ -4,11 +4,12 @@
  * The commercial story for /services/ai.
  *
  * The page sells outcomes rather than a catalogue of tools. Four service
- * chapters move through the same particle population, then resolve into one
- * connected Lionovart AI Operating System and an ongoing partnership.
+ * systems share one compact tabbed chapter and the same particle population,
+ * then resolve into one connected operating system and ongoing partnership.
  */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Tabs } from "@base-ui/react/tabs";
 import {
   motion,
   useInView,
@@ -94,7 +95,7 @@ export function AiStakes() {
   useParticleChapter(sectionRef, BRIDGE_MORPH_END, 0.62, 0.42);
 
   return (
-    <section ref={sectionRef} className={ACT}>
+    <section ref={sectionRef} data-ai-snap className={ACT}>
       <div className={SHELL}>
         <div className="max-w-[48rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:w-[58%]">
           <Eyebrow>The real cost of disconnected work</Eyebrow>
@@ -144,7 +145,6 @@ const SYSTEMS = [
       "Intelligent handoff when a human matters",
     ],
     fit: "Clinics · salons · contractors · hospitality · real estate",
-    from: 0.62,
     to: 0.70,
     layout: 0.46,
     side: "left",
@@ -162,7 +162,6 @@ const SYSTEMS = [
       "Quotes, proposals and pipeline updates",
     ],
     fit: "Real estate · home services · clinics · agencies · events",
-    from: 0.70,
     to: 0.80,
     layout: -0.46,
     side: "right",
@@ -180,7 +179,6 @@ const SYSTEMS = [
       "Internal assistants trained on your procedures",
     ],
     fit: "Contractors · product businesses · restaurants · clinics · events",
-    from: 0.80,
     to: 0.90,
     layout: 0.46,
     side: "left",
@@ -198,90 +196,153 @@ const SYSTEMS = [
       "Forecasting and an executive AI copilot",
     ],
     fit: "Growing teams · multi-location brands · complex service businesses",
-    from: 0.90,
     to: 1,
     layout: -0.46,
     side: "right",
   },
 ] as const;
 
-type System = (typeof SYSTEMS)[number];
-
-function SystemChapter({ system }: { system: System }) {
-  const ref = useRef<HTMLElement>(null);
+export function AiSystems() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [activeValue, setActiveValue] = useState<string>(SYSTEMS[0].number);
+  const activeSystem = SYSTEMS.find((system) => system.number === activeValue) ?? SYSTEMS[0];
   const reduce = useReducedMotion();
-  useParticleChapter(ref, system.from, system.to, system.layout);
-  const right = system.side === "right";
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const applySystem = () => {
+      const stage = getLionStage();
+      stage?.setMorph(activeSystem.to);
+      stage?.setLayout(activeSystem.layout);
+    };
+
+    applySystem();
+    const trigger = ScrollTrigger.create({
+      trigger: section,
+      start: "top 72%",
+      end: "bottom 28%",
+      onEnter: applySystem,
+      onEnterBack: applySystem,
+      onUpdate: ({ isActive }) => {
+        if (isActive) applySystem();
+      },
+    });
+
+    return () => trigger.kill();
+  }, [activeSystem]);
 
   return (
-    <section ref={ref} data-lion-zone className={ACT}>
+    <section
+      ref={sectionRef}
+      data-ai-snap
+      data-lion-zone
+      aria-labelledby="ai-systems-heading"
+      className="relative flex min-h-[115svh] items-center py-[104px] md:min-h-[120svh] md:py-[132px]"
+    >
       <div className={SHELL}>
-        <motion.article
-          initial={reduce ? false : { opacity: 0, y: 28 }}
-          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.24 }}
-          transition={{ duration: 0.95, ease: EXPO }}
-          className={`max-w-[49rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:w-[58%] ${right ? "md:ml-auto" : ""}`}
+        <Tabs.Root
+          value={activeValue}
+          onValueChange={(value) => setActiveValue(String(value))}
+          className="w-full"
         >
-          <div className="flex items-center gap-4">
-            <span className="text-[13px] font-medium tabular-nums tracking-[0.16em] text-white/62 md:text-[14px]">
-              {system.number} / 04
-            </span>
-            <span aria-hidden className="h-px w-10 bg-[var(--ai-cyan)]/70" />
-            <Eyebrow>{system.eyebrow}</Eyebrow>
+          <div className="max-w-[58rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)]">
+            <p className="text-[13px] font-medium uppercase tracking-[0.18em] text-white/68 md:text-[14px]">
+              The system architecture
+            </p>
+            <h2
+              id="ai-systems-heading"
+              className="mt-4 max-w-[24ch] font-light leading-[1.14] text-white/78"
+              style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(1.45rem, 2.2vw, 2rem)" }}
+            >
+              Start with the leak costing you most. Connect the rest as you grow.
+            </h2>
           </div>
 
-          <Heading wide>{system.title}</Heading>
-          <p
-            className="mt-7 max-w-[34ch] font-normal leading-[1.25] text-white/88"
-            style={{
-              fontFamily: "var(--font-ai-display)",
-              fontSize: "clamp(1.25rem, 2vw, 1.65rem)",
-            }}
+          <Tabs.List
+            aria-label="Choose an AI system"
+            className="relative mt-9 flex w-full snap-x snap-mandatory gap-1 overflow-x-auto border-b border-white/14 pb-px [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mt-12 md:grid md:grid-cols-4 md:overflow-visible"
           >
-            {system.lead}
-          </p>
-          <p className="mt-5 max-w-[52ch] text-[18px] font-light leading-[1.68] text-white/80 md:text-[20px]">
-            {system.body}
-          </p>
-
-          <ul className="mt-10 m-0 grid list-none border-t border-white/12 p-0 sm:grid-cols-2 md:mt-12">
-            {system.capabilities.map((capability) => (
-              <li
-                key={capability}
-                className="border-b border-white/12 py-4 pr-5 text-[16px] font-light leading-[1.5] text-white/78 sm:odd:mr-6 md:text-[17px]"
+            {SYSTEMS.map((system) => (
+              <Tabs.Tab
+                key={system.number}
+                value={system.number}
+                className="group min-h-16 min-w-[15.5rem] snap-start px-4 py-4 text-left text-white/58 outline-none transition-colors duration-300 hover:text-white data-active:text-white focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white md:min-w-0 md:px-5"
               >
-                <span aria-hidden className="mr-2 text-[var(--ai-cyan)]">·</span>
-                {capability}
-              </li>
+                <span className="block text-[12px] font-medium tabular-nums tracking-[0.18em] text-[var(--ai-cyan)]/72 transition-colors group-data-active:text-[var(--ai-cyan)] md:text-[13px]">
+                  {system.number}
+                </span>
+                <span className="mt-1.5 block text-[15px] font-medium leading-[1.3] md:text-[16px]">
+                  {system.eyebrow.replace("AI ", "")}
+                </span>
+              </Tabs.Tab>
             ))}
-          </ul>
+            <Tabs.Indicator className="absolute bottom-[-1px] left-0 h-[2px] w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] bg-[var(--ai-cyan)] shadow-[0_0_16px_rgba(84,229,255,0.72)] transition-[translate,width] duration-500 ease-out" />
+          </Tabs.List>
 
-          <p className="mt-7 text-[14px] leading-[1.5] text-white/62 md:text-[15px]">
-            Strong fit · {system.fit}
-          </p>
-        </motion.article>
+          <div className="relative mt-10 min-h-[36rem] md:mt-14 md:min-h-[34rem]">
+            {SYSTEMS.map((system) => {
+              const right = system.side === "right";
+              return (
+                <Tabs.Panel
+                  key={system.number}
+                  value={system.number}
+                  className="outline-none focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-white [[hidden]]:hidden"
+                >
+                  <motion.article
+                    initial={reduce ? false : { opacity: 0, x: right ? 24 : -24, y: 8 }}
+                    animate={{ opacity: 1, x: 0, y: 0 }}
+                    transition={{ duration: 0.62, ease: EXPO }}
+                    className={`max-w-[50rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:w-[62%] ${right ? "md:ml-auto" : ""}`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="text-[13px] font-medium tabular-nums tracking-[0.16em] text-white/62 md:text-[14px]">
+                        {system.number} / 04
+                      </span>
+                      <span aria-hidden className="h-px w-10 bg-[var(--ai-cyan)]/70" />
+                      <Eyebrow>{system.eyebrow}</Eyebrow>
+                    </div>
+
+                    <h3
+                      className="mt-6 max-w-[16ch] font-normal leading-[0.98] tracking-[-0.045em] text-white"
+                      style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(2.65rem, 4.8vw, 4.9rem)" }}
+                    >
+                      {system.title}
+                    </h3>
+                    <p
+                      className="mt-6 max-w-[34ch] font-normal leading-[1.25] text-white/88"
+                      style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(1.2rem, 1.8vw, 1.55rem)" }}
+                    >
+                      {system.lead}
+                    </p>
+                    <p className="mt-4 max-w-[52ch] text-[18px] font-light leading-[1.65] text-white/80 md:text-[20px]">
+                      {system.body}
+                    </p>
+
+                    <ul className="mt-8 m-0 grid list-none border-t border-white/12 p-0 sm:grid-cols-2 md:mt-10">
+                      {system.capabilities.map((capability) => (
+                        <li
+                          key={capability}
+                          className="border-b border-white/12 py-3.5 pr-5 text-[16px] font-light leading-[1.5] text-white/78 sm:odd:mr-6 md:text-[17px]"
+                        >
+                          <span aria-hidden className="mr-2 text-[var(--ai-cyan)]">·</span>
+                          {capability}
+                        </li>
+                      ))}
+                    </ul>
+
+                    <p className="mt-6 text-[14px] leading-[1.5] text-white/62 md:text-[15px]">
+                      Strong fit · {system.fit}
+                    </p>
+                  </motion.article>
+                </Tabs.Panel>
+              );
+            })}
+          </div>
+        </Tabs.Root>
       </div>
     </section>
-  );
-}
-
-export function AiSystems() {
-  return (
-    <div aria-label="Four connected AI systems">
-      <div className={`${SHELL} relative pb-3 pt-24 md:pt-36`}>
-        <p className="text-[13px] font-medium uppercase tracking-[0.18em] text-white/68 md:text-[14px]">The system architecture</p>
-        <p
-          className="mt-4 max-w-[24ch] font-light leading-[1.2] text-white/72"
-          style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(1.3rem, 2.2vw, 1.8rem)" }}
-        >
-          Start with the leak costing you most. Connect the rest as you grow.
-        </p>
-      </div>
-      {SYSTEMS.map((system) => (
-        <SystemChapter key={system.number} system={system} />
-      ))}
-    </div>
   );
 }
 
@@ -294,7 +355,7 @@ export function AiFlow() {
   const railHeight = useTransform(fill, (value) => `${(reduce ? 1 : value) * 100}%`);
 
   return (
-    <section ref={ref} className={ACT}>
+    <section ref={ref} data-ai-snap className={ACT}>
       <div className={SHELL}>
         <div className="[text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:ml-auto md:w-[60%]">
           <Eyebrow>The Lionovart AI Operating System</Eyebrow>
@@ -415,7 +476,7 @@ export function AiProcess() {
   useParticleChapter(ref, 1, 1, 0.44);
 
   return (
-    <section ref={ref} className={ACT}>
+    <section ref={ref} data-ai-snap className={ACT}>
       <div className={SHELL}>
         <div className="max-w-[51rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:w-[62%]">
           <Eyebrow>One partner from strategy to scale</Eyebrow>
@@ -493,7 +554,7 @@ export function AiOffers() {
   useParticleChapter(ref, 1, 1, -0.44);
 
   return (
-    <section ref={ref} className="relative py-[120px] md:py-[180px] lg:py-[220px]">
+    <section ref={ref} data-ai-snap className="relative py-[120px] md:py-[180px] lg:py-[220px]">
       <div className={SHELL}>
         <div className="[text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:ml-auto md:w-[64%]">
           <Eyebrow>A clear way in</Eyebrow>

@@ -100,6 +100,15 @@ export default function AiChaosBeat() {
 
   return (
     <section ref={wrapRef} data-lion-zone className="relative h-[390svh] motion-reduce:h-auto md:h-[420svh]">
+      {CHAPTERS.map((chapter, index) => (
+        <span
+          key={`${chapter.eyebrow}-snap`}
+          aria-hidden="true"
+          data-ai-snap
+          className="pointer-events-none absolute left-0 h-px w-px"
+          style={{ top: `${[16, 50, 84][index]}%` }}
+        />
+      ))}
       <div className="sticky top-0 h-svh overflow-hidden px-6 motion-reduce:static motion-reduce:h-auto md:px-10 lg:px-14">
         <div className="relative mx-auto h-full w-full max-w-[1280px]">
           {CHAPTERS.map((chapter, index) => (
