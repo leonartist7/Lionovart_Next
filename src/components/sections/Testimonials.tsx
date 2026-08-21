@@ -387,7 +387,7 @@ export default function Testimonials(
             </div>
 
             <div className="testimonial-marquee-stage relative mt-8 flex h-[560px] w-full flex-row items-center justify-start overflow-hidden min-[480px]:justify-center min-[480px]:px-[clamp(12px,3vw,32px)] sm:mt-10 sm:h-[600px] md:h-[660px] lg:mt-12 lg:h-[720px] lg:px-0">
-              <div className="testimonials-marquee-plane flex h-full flex-row items-start gap-3 sm:gap-4 xl:gap-5">
+              <div className="testimonials-marquee-plane flex h-full flex-row-reverse items-start gap-3 sm:gap-4 xl:gap-5">
                 <Marquee vertical repeat={2} className="h-full translate-y-[5%] [--duration:64s] [--gap:1rem] lg:-translate-y-[5%]">
                   {col1.map((card) => (
                     <MarqueeCard key={card.id} card={card} />
