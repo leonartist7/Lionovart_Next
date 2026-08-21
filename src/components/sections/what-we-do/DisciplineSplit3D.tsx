@@ -195,6 +195,18 @@ function Pane({
           className="absolute inset-0 overflow-hidden rounded-[inherit]"
           style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
         >
+          {/* Sits behind the canvas so the pane never reads as a blank hole
+              on a slow connection â€” the canvas is transparent until its
+              first drawn frame, and that frame can lag scroll on a slow or
+              blocked connection. */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(150deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 50%, rgba(0,0,0,0.4) 100%)",
+            }}
+          />
           <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />
           <motion.div
             className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/20"
@@ -607,7 +619,10 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
         >
           {/* Hidden source: the section's only decoder. Kept at real layout
               size via opacity (not display/visibility) so nothing throttles
-              its decode â€” the canvases are what's actually seen. */}
+              its decode â€” the canvases are what's actually seen.
+              preload="auto" so it's already buffering the moment this
+              mounts, rather than waiting for the IntersectionObserver's
+              play() call to request anything beyond metadata. */}
           <video
             ref={videoRef}
             className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-0"
@@ -616,7 +631,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
             loop
             muted
             playsInline
-            preload="metadata"
+            preload="auto"
             aria-hidden="true"
           />
 

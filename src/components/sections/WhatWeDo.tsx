@@ -2,8 +2,13 @@
 
 import DisciplineSplit3D from "@/components/sections/what-we-do/DisciplineSplit3D";
 
+// Same asset + transform as SceneVideoBackdrop's first clip, byte-for-byte —
+// the browser reuses that already-downloaded/cached video instead of
+// re-fetching this footage from scratch when the user scrolls here, which
+// otherwise left the canvases blank (indistinguishable from the section's
+// own black background) until the second download finished.
 const SPLIT_VIDEO =
-  "https://res.cloudinary.com/dgio9uutc/video/upload/w_1440,c_limit,f_auto,q_auto/v1779845634/Footage_07_o3rfbu.mp4";
+  "https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto/v1779845634/Footage_07_o3rfbu.mp4";
 
 const CARDS = [
   {
