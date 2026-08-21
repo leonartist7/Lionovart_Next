@@ -1,0 +1,697 @@
+<title>Brand Score Go-Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:ital,opsz,wght@1,8..60,400&display=swap">
+
+<style>
+  :root {
+    --ground: #FBFAF9;
+    --card: #FFFFFF;
+    --card-done: #F6F5F3;
+    --ink: #1A1618;
+    --ink-2: #57504F;
+    --ink-3: #8B8281;
+    --rule: #E6E1DF;
+    --rule-strong: #D3CCC9;
+    --accent: #E5192A;
+    --accent-soft: #FDECEE;
+    --done: #2F7D5B;
+    --later: #B07A20;
+    --code-bg: #F2EFEE;
+
+    --step: clamp(1.5rem, 4vw, 2.25rem);
+    --measure: 68ch;
+  }
+
+  :root:not([data-theme="light"]) {
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #141213;
+      --card: #1D1A1B;
+      --card-done: #191617;
+      --ink: #EFEBEC;
+      --ink-2: #ABA3A4;
+      --ink-3: #776F70;
+      --rule: #2C2829;
+      --rule-strong: #3D3839;
+      --accent: #FF4658;
+      --accent-soft: #2A1619;
+      --done: #4FB183;
+      --later: #D9A343;
+      --code-bg: #24201F;
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #141213;
+    --card: #1D1A1B;
+    --card-done: #191617;
+    --ink: #EFEBEC;
+    --ink-2: #ABA3A4;
+    --ink-3: #776F70;
+    --rule: #2C2829;
+    --rule-strong: #3D3839;
+    --accent: #FF4658;
+    --accent-soft: #2A1619;
+    --done: #4FB183;
+    --later: #D9A343;
+    --code-bg: #24201F;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: Archivo, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 2rem) 6rem;
+  }
+
+  /* ── Sticky progress ─────────────────────────────────────────── */
+  .bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: color-mix(in srgb, var(--ground) 92%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: var(--step);
+  }
+  .bar-inner {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0.85rem clamp(1rem, 4vw, 2rem);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .bar-count {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .track {
+    flex: 1;
+    height: 4px;
+    background: var(--rule);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .fill {
+    height: 100%;
+    width: 0%;
+    background: var(--done);
+    border-radius: 999px;
+    transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reset {
+    font: inherit;
+    font-size: 0.75rem;
+    color: var(--ink-3);
+    background: none;
+    border: 0;
+    padding: 0.25rem;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .reset:hover { color: var(--ink); }
+
+  /* ── Header ──────────────────────────────────────────────────── */
+  header { padding-top: 1rem; }
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0.5rem;
+  }
+  h1 {
+    font-size: clamp(1.9rem, 5.5vw, 2.75rem);
+    line-height: 1.1;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.75rem;
+    text-wrap: balance;
+  }
+  .lede {
+    font-size: 1.0625rem;
+    color: var(--ink-2);
+    max-width: var(--measure);
+    margin: 0;
+  }
+
+  /* ── Tier headings ───────────────────────────────────────────── */
+  .tier {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin: calc(var(--step) * 1.4) 0 0.9rem;
+  }
+  .tier h2 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 0;
+    white-space: nowrap;
+  }
+  .tier .line { flex: 1; height: 1px; background: var(--rule-strong); }
+  .tier .note { font-size: 0.75rem; color: var(--ink-3); white-space: nowrap; }
+
+  /* ── Task cards ──────────────────────────────────────────────── */
+  .task {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0 0.9rem;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--rule-strong);
+    border-radius: 4px;
+    padding: 1.15rem 1.25rem;
+    margin-bottom: 0.75rem;
+    transition: background 0.2s, border-color 0.2s, opacity 0.2s;
+  }
+  .task[data-done="true"] {
+    background: var(--card-done);
+    border-left-color: var(--done);
+    opacity: 0.62;
+  }
+  .task[data-done="true"] .title { text-decoration: line-through; text-decoration-color: var(--ink-3); }
+  .task[data-done="true"] .body { display: none; }
+  .task[data-start="true"]:not([data-done="true"]) { border-left-color: var(--accent); }
+
+  .box {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    margin: 2px 0 0;
+    border: 1.5px solid var(--rule-strong);
+    border-radius: 3px;
+    background: transparent;
+    cursor: pointer;
+    display: grid;
+    place-content: center;
+    flex-shrink: 0;
+  }
+  .box:checked { background: var(--done); border-color: var(--done); }
+  .box:checked::after {
+    content: "";
+    width: 11px;
+    height: 6px;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(-45deg) translateY(-1px);
+  }
+  .box:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .head { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+  .title {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .chip {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    background: var(--code-bg);
+    color: var(--ink-3);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .chip.start { background: var(--accent-soft); color: var(--accent); }
+
+  .body { grid-column: 2; padding-top: 0.6rem; }
+  .body > :first-child { margin-top: 0; }
+  .body > :last-child { margin-bottom: 0; }
+  .body p { margin: 0 0 0.7rem; color: var(--ink-2); max-width: var(--measure); }
+  .body ol, .body ul { margin: 0 0 0.7rem; padding-left: 1.25rem; color: var(--ink-2); max-width: var(--measure); }
+  .body li { margin-bottom: 0.35rem; }
+  .body li::marker { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  code {
+    font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.8125em;
+    background: var(--code-bg);
+    padding: 0.12em 0.36em;
+    border-radius: 3px;
+    word-break: break-word;
+  }
+
+  /* consequence — the only serif on the page, so "what breaks" reads
+     visually distinct from "what to do" */
+  .skip {
+    font-family: "Source Serif 4", Georgia, serif;
+    font-style: italic;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--ink-3);
+    border-top: 1px dashed var(--rule);
+    padding-top: 0.7rem;
+    margin: 0.9rem 0 0;
+    max-width: var(--measure);
+  }
+  .skip b { font-style: normal; font-weight: 600; color: var(--ink-2); }
+
+  .warn {
+    background: var(--accent-soft);
+    border-radius: 3px;
+    padding: 0.7rem 0.85rem;
+    font-size: 0.9375rem;
+    color: var(--ink-2);
+    margin: 0 0 0.7rem;
+    max-width: var(--measure);
+  }
+  .warn b { color: var(--ink); }
+
+  /* ── Env block ───────────────────────────────────────────────── */
+  .env {
+    margin-top: calc(var(--step) * 1.4);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .env-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 1rem;
+    background: var(--card);
+    border-bottom: 1px solid var(--rule);
+  }
+  .env-head span { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+  .copy {
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .copy:hover { border-color: var(--accent); color: var(--accent); }
+  .copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  pre {
+    margin: 0;
+    padding: 1rem;
+    overflow-x: auto;
+    background: var(--code-bg);
+    font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.75;
+    color: var(--ink);
+  }
+  pre .c { color: var(--ink-3); }
+
+  footer {
+    margin-top: calc(var(--step) * 1.4);
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.875rem;
+    color: var(--ink-3);
+    max-width: var(--measure);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="bar">
+  <div class="bar-inner">
+    <span class="bar-count" id="count">0 of 9 done</span>
+    <span class="track"><span class="fill" id="fill"></span></span>
+    <button class="reset" id="reset" type="button">Clear</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Lionovart · Brand Score funnel</p>
+    <h1>What&rsquo;s left for you to do</h1>
+    <p class="lede">
+      Nine things. The first three are in order and take about twenty minutes total &mdash; after those, the
+      funnel is live and working. Everything below that makes it better and can happen whenever.
+      Ticks are saved in this browser.
+    </p>
+  </header>
+
+  <div class="tier">
+    <h2>Do in order</h2>
+    <span class="line"></span>
+    <span class="note">~20 min · gets you live</span>
+  </div>
+
+  <label class="task" data-id="t1" data-start="true">
+    <input type="checkbox" class="box">
+    <div>
+      <div class="head">
+        <p class="title">Review and merge PR #48</p>
+        <span class="chip start">Start here</span>
+        <span class="chip">10 min</span>
+      </div>
+      <div class="body">
+        <p>
+          It&rsquo;s sitting as a <b>draft</b> on
+          <code>claude/hero-cta-email-flow-b22etw</code>. Open it, hit
+          <b>Ready for review</b>, then merge.
+        </p>
+        <p>
+          Marking it ready also wakes CodeRabbit &mdash; it&rsquo;s been skipping the review the whole
+          time because the PR is a draft. Worth letting it pass before you merge.
+        </p>
+        <p class="skip"><b>Skip it and:</b> none of the rest of this list does anything. The code isn&rsquo;t live yet.</p>
+      </div>
+    </div>
+  </label>
+
+  <label class="task" data-id="t2">
+    <input type="checkbox" class="box">
+    <div>
+      <div class="head">
+        <p class="title">Deploy, then run one scan on a real website</p>
+        <span class="chip">5 min</span>
+        <span class="chip">important</span>
+      </div>
+      <div class="body">
+        <div class="warn">
+          <b>This is the one I could not test.</b> The sandbox I built in blocks outbound
+          web requests, so the live page fetch, the robots.txt / sitemap / llms.txt checks, and the
+          &ldquo;does an AI recommend you&rdquo; probe have never run against a real site.
+        </div>
+        <p>Put a real business URL into the hero &mdash; a client&rsquo;s site is ideal &mdash; and check three things:</p>
+        <ol>
+          <li>The scan finishes and shows a score (should take 15&ndash;30 seconds).</li>
+          <li><b>Search Foundations</b> shows real findings about their actual page, not &ldquo;no title tag&rdquo; on a site that clearly has one.</li>
+          <li>Nothing in the report says something you know to be false.</li>
+        </ol>
+        <p>If the findings look wrong, send me the URL and what it said &mdash; that&rsquo;s a scraper problem, and it&rsquo;s fixable.</p>
+        <p class="skip"><b>Skip it and:</b> you find out it&rsquo;s broken from a prospect instead of from yourself.</p>
+      </div>
+    </div>
+  </label>
+
+  <label class="task" data-id="t3">
+    <input type="checkbox" class="box">
+    <div>
+      <div class="head">
+        <p class="title">Confirm the keys you already have are still set in production</p>
+        <span class="chip">3 min</span>
+      </div>
+      <div class="body">
+        <p>
+          These already power Nova, so they&rsquo;re almost certainly fine. Quick eyeball on your
+          Cloud Run env vars:
+        </p>
+        <ul>
+          <li><code>GEMINI_API_KEY</code> &mdash; scoring, the AI probe, the dossier</li>
+          <li><code>FIREBASE_PROJECT_ID</code>, <code>FIREBASE_ADMIN_CLIENT_EMAIL</code>, <code>FIREBASE_ADMIN_PRIVATE_KEY</code> &mdash; where leads and scans are stored</li>
+          <li><code>RESEND_API_KEY</code> &mdash; sends the report email</li>
+          <li><code>BOOKING_URL</code> &mdash; your Google Calendar link, now the main CTA on the report</li>
+        </ul>
+        <p>
+          Your <code>/api/health</code> endpoint lists most of these &mdash; fastest way to check.
+        </p>
+        <p class="skip"><b>Skip it and:</b> the funnel still runs, but quietly drops the report email or the lead record, and you won&rsquo;t notice for a while.</p>
+      </div>
+    </div>
+  </label>
+
+  <div class="tier">
+    <h2>Then, in any order</h2>
+    <span class="line"></span>
+    <span class="note">makes it much better</span>
+  </div>
+
+  <label class="task" data-id="t4">
+    <input type="checkbox" class="box">
+    <div>
+      <div class="head">
+        <p class="title">Google Places API key</p>
+        <span class="chip">10 min</span>
+        <span class="chip">biggest win</span>
+      </div>
+      <div class="body">
+        <p>
+          This unlocks <b>two of the six dimensions</b> plus the competitor table &mdash; the part of the
+          report that names real businesses beside them with their real review counts. Without it,
+          those two dimensions vanish from the report entirely.
+        </p>
+        <ol>
+          <li>Google Cloud Console &rarr; your project &rarr; <b>Enable APIs</b>.</li>
+          <li>Enable <b>Places API (New)</b>. Not the old &ldquo;Places API&rdquo; &mdash; the code calls the v1 endpoint and the legacy one won&rsquo;t answer it.</li>
+          <li>Billing has to be on for the project, or it returns errors.</li>
+          <li>Create an API key. Restrict it to <b>Places API (New)</b> only. Leave application restrictions off &mdash; the call is server-side, so a referrer restriction would block it.</li>
+          <li>Set a <b>daily quota cap</b> on the key while you&rsquo;re in there.</li>
+          <li>Paste as <code>GOOGLE_PLACES_API_KEY</code>.</li>
+        </ol>
+        <div class="warn">
+          <b>This is the only thing here that bills per call.</b> Each scan makes two Places
+          requests (the business, then its competitors), cached for 24 hours per business. That quota
+          cap in step 5 is what stops a bot from running up a bill. Check Google&rsquo;s current
+          Places pricing before you open the taps.
+        </div>
+        <p class="skip"><b>Skip it and:</b> the report drops to four dimensions and loses the competitor table &mdash; which is the single most persuasive thing in it.</p>
+      </div>
+    </div>
+  </label>
+
+  <label class="task" data-id="t5">
+    <input type="checkbox" class="box">
+    <div>
+      <div class="head">
+        <p class="title">CallMeBot, for the WhatsApp alerts</p>
+        <span class="chip">3 min</span>
+        <span class="chip">free</span>
+      </div>
+      <div class="body">
+        <p>This is the &ldquo;ping my phone when a lead lands&rdquo; piece. Free, no business account.</p>
+        <ol>
+          <li>Save <code>+34 621 331 709</code> to your phone contacts. <b>Check this number is current on callmebot.com first</b> &mdash; they rotate it.</li>
+          <li>From <b>your own WhatsApp</b>, message it: <code>I allow callmebot to send me messages</code></li>
+          <li>It replies with an API key.</li>
+          <li>Set <code>CALLMEBOT_PHONE</code> to your own number &mdash; country code first, no <code>+</code>, no spaces.</li>
+          <li>Set <code>CALLMEBOT_APIKEY</code> to the key it sent you.</li>
+        </ol>
+        <p>Once it&rsquo;s on, you get a WhatsApp for each of: a scan claimed, a lead qualified with its score and what to do next, and a meeting booked.</p>
+        <p class="skip"><b>Skip it and:</b> everything still gets captured &mdash; you just have to go and look in the Console instead of being told.</p>
+      </div>
+    </div>
+  </label>
+
+  <label class="task" data-id="t6">
+    <input type="checkbox" class="box">
+    <div>
+      <div class="head">
+        <p class="title">Check the AI visibility probe actually returned something</p>
+        <span class="chip">2 min</span>
+      </div>
+      <div class="body">
+        <p>
+          On the scan you ran in step 2, look for the <b>&ldquo;We asked an AI about you&rdquo;</b> panel.
+          If it&rsquo;s missing, the probe didn&rsquo;t run.
+        </p>
+        <p>
+          It needs two things: <code>GOOGLE_PLACES_API_KEY</code> set (it needs their business
+          category to form the question), and your Gemini key able to use Google Search grounding.
+          So do this <i>after</i> the Places key.
+        </p>
+        <p class="skip"><b>Skip it and:</b> you quietly lose the single most striking line in the report &mdash; the one people screenshot.</p>
+      </div>
+    </div>
+  </label>
+
+  <div class="tier">
+    <h2>Whenever</h2>
+    <span class="line"></span>
+    <span class="note">nice to have</span>
+  </div>
+
+  <label class="task" data-id="t7">
+    <input type="checkbox" class="box">
+    <div>
+      <div class="head">
+        <p class="title">Slack webhook</p>
+        <span class="chip">5 min</span>
+      </div>
+      <div class="body">
+        <p>
+          Same alerts as WhatsApp, in a channel, with the full untruncated text. Create an incoming
+          webhook in Slack, paste as <code>SLACK_WEBHOOK_URL</code>.
+        </p>
+        <p class="skip"><b>Skip it and:</b> nothing &mdash; WhatsApp covers it. This is only worth it if you want a searchable archive.</p>
+      </div>
+    </div>
+  </label>
+
+  <label class="task" data-id="t8">
+    <input type="checkbox" class="box">
+    <div>
+      <div class="head">
+        <p class="title">Put an llms.txt on lionovart.com</p>
+        <span class="chip">15 min</span>
+      </div>
+      <div class="body">
+        <p>
+          The report scores everyone on whether they have one, and almost nobody does. It would be a
+          bad look to be scoring prospects on something your own site fails.
+        </p>
+        <p>
+          It&rsquo;s a plain text file at <code>/llms.txt</code> saying what LIONOVART is and what an
+          assistant should say about you. Fifteen minutes, and it makes the finding demonstrable
+          rather than theoretical.
+        </p>
+        <p class="skip"><b>Skip it and:</b> nothing breaks &mdash; but a sharp prospect will check.</p>
+      </div>
+    </div>
+  </label>
+
+  <label class="task" data-id="t9">
+    <input type="checkbox" class="box">
+    <div>
+      <div class="head">
+        <p class="title">Decide what happens to the old email pill</p>
+        <span class="chip">2 min</span>
+      </div>
+      <div class="body">
+        <p>
+          <code>HeroEmailCapture.tsx</code> is still in the codebase but nothing renders it. I left it
+          there on purpose so you can A/B against the new scan &mdash; swapping back is a one-line
+          import change in <code>HeroTop.tsx</code>.
+        </p>
+        <p>Once you&rsquo;re confident the scan converts better, tell me and I&rsquo;ll delete it.</p>
+        <p class="skip"><b>Skip it and:</b> one unused file sits in the repo. Genuinely harmless.</p>
+      </div>
+    </div>
+  </label>
+
+  <div class="env">
+    <div class="env-head">
+      <span>Everything to set, in one block</span>
+      <button class="copy" id="copy" type="button">Copy</button>
+    </div>
+<pre id="envtext"><span class="c"># ── New for the Brand Score ──────────────────────────</span>
+GOOGLE_PLACES_API_KEY=
+CALLMEBOT_PHONE=
+CALLMEBOT_APIKEY=
+
+<span class="c"># ── Should already be set — just confirm ─────────────</span>
+GEMINI_API_KEY=
+FIREBASE_PROJECT_ID=
+FIREBASE_ADMIN_CLIENT_EMAIL=
+FIREBASE_ADMIN_PRIVATE_KEY=
+RESEND_API_KEY=
+BOOKING_URL=
+WHATSAPP_NUMBER=
+
+<span class="c"># ── Optional ─────────────────────────────────────────</span>
+SLACK_WEBHOOK_URL=</pre>
+  </div>
+
+  <footer>
+    Nothing here needs a new service or a subscription. The only thing that bills per call is the
+    Places key in step 4 &mdash; everything else is either free or already running.
+  </footer>
+</div>
+
+<script>
+  (function () {
+    var KEY = "lionovart-golive-v1";
+    var tasks = Array.prototype.slice.call(document.querySelectorAll(".task"));
+    var countEl = document.getElementById("count");
+    var fillEl = document.getElementById("fill");
+
+    function load() {
+      try {
+        return JSON.parse(localStorage.getItem(KEY) || "{}") || {};
+      } catch (e) {
+        return {};
+      }
+    }
+    function save(state) {
+      try {
+        localStorage.setItem(KEY, JSON.stringify(state));
+      } catch (e) {
+        /* private window, blocked storage — the page still works, ticks just don't persist */
+      }
+    }
+
+    function render() {
+      var done = 0;
+      tasks.forEach(function (t) {
+        if (t.getAttribute("data-done") === "true") done++;
+      });
+      countEl.textContent = done + " of " + tasks.length + " done";
+      fillEl.style.width = (done / tasks.length) * 100 + "%";
+    }
+
+    var state = load();
+
+    tasks.forEach(function (t) {
+      var id = t.getAttribute("data-id");
+      var box = t.querySelector(".box");
+      if (state[id]) {
+        box.checked = true;
+        t.setAttribute("data-done", "true");
+      }
+      box.addEventListener("change", function () {
+        t.setAttribute("data-done", box.checked ? "true" : "false");
+        state[id] = box.checked;
+        save(state);
+        render();
+      });
+    });
+
+    document.getElementById("reset").addEventListener("click", function () {
+      state = {};
+      save(state);
+      tasks.forEach(function (t) {
+        t.querySelector(".box").checked = false;
+        t.setAttribute("data-done", "false");
+      });
+      render();
+    });
+
+    document.getElementById("copy").addEventListener("click", function () {
+      var btn = this;
+      var text = document.getElementById("envtext").innerText;
+      var done = function () {
+        btn.textContent = "Copied";
+        setTimeout(function () { btn.textContent = "Copy"; }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { btn.textContent = "Press Ctrl+C"; });
+      } else {
+        btn.textContent = "Select and copy";
+      }
+    });
+
+    render();
+  })();
+</script>
