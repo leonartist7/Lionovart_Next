@@ -325,34 +325,51 @@
 .animate-marquee-right { animation: marquee-right 55s linear infinite; }
 
 /* =============================================
-   Selected showcase — CSS-only, seamless marquee
+   Selected showcase — outward 3D carousel
+   Positive translateZ is intentional: the image crossing the center comes
+   toward the viewer and grows while the side images recede.
    ============================================= */
-@keyframes showcase-marquee-left {
-  from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(-50%, 0, 0); }
+@keyframes showcase-carousel-outward {
+  to { transform: rotateY(-1turn); }
 }
 
 .showcase-marquee__viewport {
-  --showcase-gap: clamp(12px, 2vw, 28px);
+  --showcase-card-width: clamp(15rem, 28vw, 28rem);
+  --showcase-radius: clamp(28rem, 52vw, 54rem);
+  display: grid;
+  height: clamp(27rem, 47vw, 42rem);
   overflow: hidden;
+  perspective: clamp(88rem, 160vw, 156rem);
+  perspective-origin: 50% 50%;
   contain: layout paint;
-  mask-image: linear-gradient(90deg, transparent, black 4%, black 96%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, black 4%, black 96%, transparent);
+  mask-image: linear-gradient(90deg, transparent, black 5%, black 95%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 5%, black 95%, transparent);
 }
 
 .showcase-marquee__track {
-  display: flex;
-  width: max-content;
-  animation: showcase-marquee-left 48s linear infinite;
-  backface-visibility: hidden;
+  display: grid;
+  place-self: center;
+  width: var(--showcase-card-width);
+  transform-style: preserve-3d;
+  animation: showcase-carousel-outward 48s linear infinite;
   will-change: transform;
 }
 
-.showcase-marquee__group {
-  display: flex;
-  flex: 0 0 auto;
-  gap: var(--showcase-gap);
-  padding-right: var(--showcase-gap);
+.showcase-marquee__card {
+  grid-area: 1 / 1;
+  width: var(--showcase-card-width);
+  aspect-ratio: 16 / 9;
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.46);
+  background: #151515;
+  box-shadow:
+    0 2.5rem 4.5rem -2rem rgba(0, 0, 0, 0.46),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+  transform:
+    rotateY(calc(var(--showcase-index) * 30deg))
+    translateZ(var(--showcase-radius));
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 @media (hover: hover) {
@@ -365,6 +382,17 @@
 @media (min-width: 1024px) {
   .showcase-marquee__track {
     animation-duration: 62s;
+  }
+}
+
+@media (max-width: 639px) {
+  .showcase-marquee__viewport {
+    --showcase-card-width: clamp(14rem, 64vw, 16rem);
+    --showcase-radius: clamp(26rem, 116vw, 30rem);
+    height: 28rem;
+    perspective: 82rem;
+    mask-image: linear-gradient(90deg, transparent, black 3%, black 97%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 3%, black 97%, transparent);
   }
 }
 
@@ -478,7 +506,10 @@
     transform: none !important;
   }
   .showcase-marquee__viewport {
+    display: block;
+    height: auto;
     overflow-x: auto;
+    perspective: none;
     mask-image: none;
     -webkit-mask-image: none;
     scroll-snap-type: x mandatory;
@@ -488,14 +519,20 @@
     display: none;
   }
   .showcase-marquee__track {
-    animation: none !important;
+    display: flex;
+    width: max-content;
+    gap: 1rem;
     transform: none !important;
     padding-inline: 1.25rem;
+    animation: none !important;
   }
-  .showcase-marquee__group[aria-hidden="true"] {
+  .showcase-marquee__card[aria-hidden="true"] {
     display: none;
   }
-  .showcase-marquee__group > figure {
+  .showcase-marquee__card {
+    flex: 0 0 auto;
+    width: min(78vw, 22.5rem);
+    transform: none;
     scroll-snap-align: start;
   }
 }
