@@ -71,7 +71,7 @@ function PortraitFrame({
   return (
     <div className={`relative ${frameClassName}`}>
       <div
-        className={`relative z-[1] h-full w-full overflow-hidden rounded-3xl shadow-[0_24px_60px_rgba(0,0,0,0.18)] ${revealClass}`}
+        className={`relative z-[1] h-full w-full overflow-hidden rounded-3xl ${revealClass}`}
       >
         <Image
           src={PORTRAIT_SRC}
@@ -102,7 +102,7 @@ function PortraitFrame({
         src={PAINT_SRC}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-24 -right-20 z-30 w-[65%] select-none"
+        className="pointer-events-none absolute -bottom-20 -right-16 z-30 w-[56%] select-none"
       />
     </div>
   );
@@ -224,8 +224,8 @@ export default function AboutUsHalf(props: any) {
               </div>
             </div>
 
-            {/* RIGHT COLUMN â€” portrait, top-anchored */}
-            <div className="flex justify-center items-start">
+            {/* RIGHT COLUMN â€” portrait, top-anchored, pulled up relative to the text column */}
+            <div className="flex justify-center items-start lg:-mt-10 xl:-mt-14">
               <PortraitFrame
                 frameClassName="w-full aspect-[3/4] max-h-[clamp(60vh,78vh,90vh)]"
                 revealClass=""

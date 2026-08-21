@@ -105,7 +105,10 @@
       "Bash(wc -l /tmp_baseline_tsc.txt)",
       "Bash(tail -50 /tmp_baseline_tsc.txt)",
       "mcp__Claude_Code_Remote__send_later",
-      "mcp__Claude_Code_Remote__list_triggers"
+      "mcp__Claude_Code_Remote__list_triggers",
+      "Bash(npx eslint *)",
+      "Bash(curl -s http://localhost:3000/ -o /tmp/page.html -w \"HTTP %{http_code}  %{size_download} bytes\\\\n\")",
+      "Bash(python -c ' *)"
     ]
   }
 }

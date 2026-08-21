@@ -73,7 +73,7 @@ export const es: Translations = {
   about: {
     line1: "La innovación ya no es una opción\n— es una necesidad.",
     line2: "Como equipo multidisciplinario de artistas y empresarios, ofrecemos lo necesario para liderar en la era digital.",
-    founderRole: "Director Creativo y de Negocios",
+    founderRole: "Fundador y Director Creativo",
     founderStatus: "Disponible",
     stat1Label: "Años",
     stat1Desc: "Expertise en innovación digital, marketing y medios impresos.",
@@ -85,62 +85,61 @@ export const es: Translations = {
     eyebrow: "Nuestro Proceso",
     heading: "De Desconocida A",
     headingAccent: "Inconfundible",
-    scrollHint: "desplaza para avanzar →",
     triggerLabel: "Haz clic para ver el proceso",
     triggerSub: "60 segundos. Mira exactamente lo que recibes.",
     expectLabel: "Qué esperar",
-    deliverLabel: "Qué recibes",
-    gainLabel: "Qué ganas",
-    cta: "Empezar etapa 01",
-    ctaSub: "Auditoría de marca gratuita de 20 minutos.",
+    deliverLabel: "Lo que entregamos",
+    gainLabel: "Lo que ganas",
+    cta: "Empezar por la claridad",
+    ctaSub: "Auditoría de marca gratuita de 20 minutos. Sin discurso de venta.",
     steps: [
       {
-        title: "Identidad",
+        title: "Claridad",
         description:
-          "Una lectura profunda de quién eres — mercado, voz, ambición. Hacemos las preguntas que la mayoría de las agencias omiten.",
-        tag: "Base",
+          "Revisamos qué vendes de verdad, quién compra y qué frena al resto. Sin dar nada por supuesto.",
+        tag: "Descubrimiento",
         timeline: "Semana 1–2",
         expect:
-          "Una lectura profunda de quién eres — mercado, voz, ambición. Hacemos las preguntas que la mayoría de las agencias omiten.",
+          "Revisamos qué vendes de verdad, quién compra y qué frena al resto. Sin dar nada por supuesto.",
         deliver:
-          "Sistema de logo, tipografía, color, manual de marca, impresión y packaging de alto nivel.",
+          "Posicionamiento, mapa de audiencia, auditoría de marca, la versión honesta de dónde estás.",
+        gain: "Puedes decir lo que haces en una frase, y cala.",
+      },
+      {
+        title: "Visión",
+        description:
+          "Fijamos la dirección — cómo se ve, suena y se comporta la marca cuando deja de pedir perdón por existir.",
+        tag: "Dirección",
+        timeline: "Semana 3–4",
+        expect:
+          "Fijamos la dirección — cómo se ve, suena y se comporta la marca cuando deja de pedir perdón por existir.",
+        deliver:
+          "Sistema de identidad, tipografía, color, voz, el manual de marca completo.",
         gain: "Una marca que reconocen antes de leer el nombre.",
       },
       {
-        title: "Presencia",
+        title: "Ejecución",
         description:
-          "Tomamos los canales que parecen heredados y los hacemos inconfundiblemente tuyos.",
-        tag: "Diseño",
-        timeline: "Semana 3–4",
+          "Lo construimos. Web, canales, embudos — los sistemas que siguen funcionando cuando nadie los mira.",
+        tag: "Construcción",
+        timeline: "Semana 5–8",
         expect:
-          "Tomamos los canales que parecen heredados y los hacemos inconfundiblemente tuyos.",
+          "Lo construimos. Web, canales, embudos — los sistemas que siguen funcionando cuando nadie los mira.",
         deliver:
-          "Arquitectura de perfiles, pilares de contenido, plantillas, creatividad que detiene el scroll.",
-        gain: "Redes que transmiten autoridad, no actividad.",
+          "Sitio web, arquitectura de contenido, automatización, integración de CRM, reportes.",
+        gain: "El trabajo sale a producción y empieza a rendir, no solo a verse bien.",
       },
       {
-        title: "Sistemas",
+        title: "Optimización",
         description:
-          "Mapeamos dónde se fuga el crecimiento y cerramos las brechas con sistemas que funcionan sin ti.",
-        tag: "Ejecución",
-        timeline: "Semana 5–6",
-        expect:
-          "Mapeamos dónde se fuga el crecimiento y cerramos las brechas con sistemas que funcionan sin ti.",
-        deliver:
-          "Embudos, automatización, integración de CRM, reportes que se entienden.",
-        gain: "Crecimiento que sigue aunque no estés mirando.",
-      },
-      {
-        title: "Confianza",
-        description:
-          "La entrega completa. Nada retenido, nada bajo llave con nosotros.",
+          "Leemos los números, cortamos lo que no funciona y empujamos lo que sí. Cada mes se afina más.",
         tag: "Crecimiento",
-        timeline: "Entrega",
+        timeline: "Continuo",
         expect:
-          "La entrega completa. Nada retenido, nada bajo llave con nosotros.",
+          "Leemos los números, cortamos lo que no funciona y empujamos lo que sí. Cada mes se afina más.",
         deliver:
-          "Guías de marca, la biblioteca completa de activos, formación del equipo.",
-        gain: "Compartes tu marca donde sea, sin dudarlo.",
+          "Reportes mensuales, ciclos de iteración, la biblioteca completa de activos, formación del equipo.",
+        gain: "Crecimiento que se acumula en vez de reiniciarse.",
       },
     ],
   },
@@ -194,44 +193,41 @@ export const es: Translations = {
   },
 
   faq: {
+    assistant: {
+      eyebrow: "En línea ahora",
+      heading: "Pregúntale a NOVA, nuestro asistente 24/7",
+      body: "NOVA conoce nuestros servicios, nuestros plazos y cómo trabajamos de verdad. Si tu pregunta necesita a Leon, te pone en contacto directamente.",
+      examplesLabel: "Las más frecuentes",
+      examples: [
+        "¿Cuánto costaría para una empresa de mi tamaño?",
+        "¿Trabajan con empresas de mi sector?",
+        "¿Y si todavía no estoy listo para empezar?",
+      ],
+      cta: "Escribir a NOVA",
+    },
     eyebrow: "¿Tienes Preguntas?",
     heading: "Preguntas",
     headingAccent: "Frecuentes",
     items: [
       {
-        question: "¿Cuánto tarda un proyecto?",
+        question: "¿Cuánto tardo en ver algo real?",
         answer:
-          "La mayoría de los sprints de marca y sitio web duran entre 4 y 6 semanas, según el alcance y la rapidez del feedback.",
+          "Ves la dirección en las dos primeras semanas, no seis meses después. El posicionamiento y la identidad llegan entre la semana 1 y la 4, la web sale en línea sobre las semanas 5 a 8, y a partir de ahí todo se va afinando. Nada desaparece en una caja negra mientras esperas.",
       },
       {
-        question: "¿Ofrecen soporte después del lanzamiento?",
+        question: "¿Quién hace realmente el trabajo?",
         answer:
-          "Sí, ofrecemos paquetes de retención para soporte continuo en diseño, desarrollo y marketing para que tu marca siga creciendo después del lanzamiento.",
+          "Nosotros. Todo se hace internamente — sin subcontratar y sin pasarte a un junior después de la presentación. Por eso también limitamos cuántas marcas aceptamos a la vez. Siempre sabrás quién está trabajando en tu marca.",
       },
       {
-        question: "¿En qué plataformas trabajan?",
+        question: "¿Qué pasa cuando todo está publicado?",
         answer:
-          "Construimos sitios y aplicaciones a medida, y trabajamos con Webflow o Shopify cuando encajan con el proyecto.",
+          "Normalmente ahí es donde empieza el trabajo de verdad. Leemos lo que funciona, cortamos lo que no y reforzamos lo que sí — cada mes. La mayoría de las marcas con las que trabajamos siguen con nosotros mucho después del lanzamiento, porque una marca que deja de moverse empieza a desaparecer.",
       },
       {
-        question: "¿Cómo funciona el pago?",
+        question: "¿Cómo empezamos?",
         answer:
-          "Normalmente pedimos un anticipo del 50% para reservar el proyecto. El resto se paga con la entrega.",
-      },
-      {
-        question: "¿Ayudan con copy y contenido?",
-        answer:
-          "Sí. Nuestros redactores y estrategas de contenido pueden definir el mensaje junto con la nueva identidad.",
-      },
-      {
-        question: "¿Trabajan con clientes en otros idiomas?",
-        answer:
-          "Sí. Trabajamos en 9 idiomas y gestionamos los materiales multilingües internamente.",
-      },
-      {
-        question: "¿Cómo empiezo?",
-        answer:
-          "Escríbenos por WhatsApp o usa el formulario. Agendaremos una llamada de 20 a 30 minutos y definiremos el siguiente paso.",
+          "Con una auditoría de marca gratuita de 20 minutos — sin pitch y sin presión. Te decimos con honestidad dónde estás y cuál es el movimiento más rentable, aunque ese movimiento no seamos nosotros.",
       },
     ],
   },

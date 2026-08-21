@@ -55,7 +55,7 @@ const SECTION_HEIGHT_VH = 190;
 const SCROLL_TRIGGER_THRESHOLD = 0.18;
 
 // Per-pane flip: centre leads, outer two follow (mirrors the split stagger).
-const FLIP_DURATION = 0.95;
+const FLIP_DURATION = 0.7;
 const FLIP_DELAY_BASE = 0.22;
 const FLIP_STAGGER_STEP = 0.08;
 
@@ -115,7 +115,7 @@ const backGlassVariants = {
   joined: { opacity: 0 },
   split: ({ dir }: PaneCustom) => ({
     opacity: 1,
-    transition: { duration: 0.5, delay: flipEndDelay(dir) - 0.25, ease: "easeOut" as const },
+    transition: { duration: 0.35, delay: flipEndDelay(dir) - 0.15, ease: "easeOut" as const },
   }),
 };
 
@@ -123,7 +123,7 @@ const backImageVariants = {
   joined: { opacity: 0 },
   split: ({ dir }: PaneCustom) => ({
     opacity: 0.28,
-    transition: { duration: 0.55, delay: flipEndDelay(dir) - 0.2, ease: "easeOut" as const },
+    transition: { duration: 0.4, delay: flipEndDelay(dir) - 0.12, ease: "easeOut" as const },
   }),
 };
 
@@ -132,25 +132,49 @@ const contentVariants = {
   split: ({ dir, i }: PaneCustom) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, delay: flipEndDelay(dir) + i * 0.08, ease: EASE_OUT },
+    transition: { duration: 0.4, delay: flipEndDelay(dir) + i * 0.05, ease: EASE_OUT },
+  }),
+};
+
+// The pillar word, set oversize and ghosted. It gives the card's upper half
+// a job and makes the LION / NOVA / ART decomposition of the brand name
+// legible, rather than repeating it as a small tracked label.
+const codeMarkVariants = {
+  joined: { opacity: 0, y: 10 },
+  split: ({ dir }: PaneCustom) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.55, delay: flipEndDelay(dir) - 0.1, ease: EASE_OUT },
   }),
 };
 
 /* â”€â”€â”€ Pane â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+// One point per pillar on a single warm gradient, rather than the same
+// accent repeated three times: LION sits at sovereign gold, ART warms into
+// the brand's own Lacquer Red, NOVA is the amber waypoint between them.
+const SPOT_STOPS: [core: string, mid: string, edge: string][] = [
+  ["255,214,64", "255,150,32", "255,116,24"],
+  ["255,186,56", "255,128,32", "255,92,24"],
+  ["255,150,72", "237,72,40", "229,25,42"],
+];
 
 function Pane({
   card,
   custom,
   armed,
   canvasRef,
+  paneRef: registerPane,
 }: {
   card: Card;
   custom: PaneCustom;
   armed: boolean;
   canvasRef: (el: HTMLCanvasElement | null) => void;
+  paneRef: (el: HTMLDivElement | null) => void;
 }) {
   return (
     <motion.div
+      ref={registerPane}
       className="relative flex-1"
       variants={paneVariants}
       custom={custom}
@@ -178,9 +202,11 @@ function Pane({
           />
         </div>
 
-        {/* Back face â€” revealed once the pane has turned to face forward. */}
+        {/* Back face â€” revealed once the pane has turned to face forward.
+            Deliberately translucent: the blurred footage washing behind the
+            stage is what the glass refracts, so the fill stays light. */}
         <div
-          className="absolute inset-0 overflow-hidden rounded-[inherit] bg-[#080808]/56"
+          className="absolute inset-0 overflow-hidden rounded-[inherit] bg-[#08080a]/45"
           style={{
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
@@ -215,18 +241,84 @@ function Pane({
             variants={backGlassVariants}
             custom={custom}
           />
+          {/* The pillar word, oversize and bled off the top-left corner. */}
+          {/* Left edge shares the text block's margin, so the card reads as
+              one composition: pillar word top, promise bottom, same spine. */}
+          <motion.span
+            aria-hidden="true"
+            className="pointer-events-none absolute left-4 top-3 select-none font-clash text-[2.9rem] font-bold uppercase leading-[0.78] tracking-[-0.05em] text-white/[0.08] md:left-6 md:top-5 md:text-[clamp(3.25rem,5.6vw,4.75rem)]"
+            variants={codeMarkVariants}
+            custom={custom}
+          >
+            {card.code}
+          </motion.span>
+
+          {/* Spotlight, armed only once the flip has fully landed. The edge
+              light carries the effect; the surface wash underneath is now
+              just enough to seat it, not compete with it. Colour comes from
+              SPOT_STOPS, one point per pillar on a single gold-to-Lacquer-Red
+              gradient, so the three cards read as variations of one system
+              instead of the same accent stamped three times.
+              Opacity is driven by --spot-active, a var the stage's own
+              pointermove handler writes after a flat 2D box test against
+              this pane's rect. Native :hover isn't used: these panes are
+              rotateY-tilted, so CSS hit-tests the rendered 3D trapezoid, not
+              the visual rectangle â€” the tilted-away edge of the outer two
+              cards would never register a hover close to their outer side. */}
+          {armed ? (
+            <>
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 rounded-[inherit] transition-opacity duration-500 ease-out"
+                style={{
+                  opacity: "var(--spot-active, 0)",
+                  background: `radial-gradient(circle 220px at var(--spot-x, 50%) var(--spot-y, 35%), rgba(${SPOT_STOPS[custom.i][0]},0.14) 0%, rgba(${SPOT_STOPS[custom.i][1]},0.06) 42%, rgba(${SPOT_STOPS[custom.i][2]},0.02) 62%, transparent 74%)`,
+                }}
+              />
+              {/* Travelling edge light, in two passes: a blurred bloom that
+                  spills off the border, then the crisp line on top. Colour
+                  stays reserved for the card the cursor is on, so it reads as
+                  selection rather than decoration. */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 rounded-[inherit] p-[3.5px] blur-[5px] transition-opacity duration-500 ease-out"
+                style={{
+                  opacity: "calc(var(--spot-active, 0) * 0.95)",
+                  background: `radial-gradient(circle 300px at var(--spot-x, 50%) var(--spot-y, 35%), rgba(${SPOT_STOPS[custom.i][0]},1) 0%, rgba(${SPOT_STOPS[custom.i][2]},0.3) 52%, transparent 72%)`,
+                  WebkitMask:
+                    "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+                  WebkitMaskComposite: "xor",
+                  mask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+                  maskComposite: "exclude",
+                }}
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 rounded-[inherit] p-[1.75px] transition-opacity duration-500 ease-out"
+                style={{
+                  opacity: "var(--spot-active, 0)",
+                  background: `radial-gradient(circle 300px at var(--spot-x, 50%) var(--spot-y, 35%), rgba(255,245,214,1) 0%, rgba(${SPOT_STOPS[custom.i][0]},1) 16%, rgba(${SPOT_STOPS[custom.i][1]},0.6) 45%, rgba(${SPOT_STOPS[custom.i][2]},0.14) 65%, transparent 80%)`,
+                  WebkitMask:
+                    "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+                  WebkitMaskComposite: "xor",
+                  mask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+                  maskComposite: "exclude",
+                }}
+              />
+            </>
+          ) : null}
+
           <motion.div
             className="absolute inset-x-0 bottom-0 p-4 text-left [text-shadow:0_1px_10px_rgba(0,0,0,0.75)] md:p-6"
             variants={contentVariants}
             custom={custom}
           >
-            <p className="mb-1.5 font-mono text-[8px] font-bold uppercase tracking-[0.22em] text-[#f0c917] md:mb-3 md:text-[9px] md:tracking-[0.25em]">
-              {card.code} / LIONOVART
-            </p>
             <h3 className="font-clash text-[1.1rem] font-bold uppercase leading-[0.95] text-white md:text-[1.9rem]">
               {card.title}
             </h3>
-            <p className="mt-1.5 max-w-[25ch] font-body text-[11px] leading-[1.35] text-white/70 md:mt-2 md:max-w-[34ch] md:text-[14px] md:leading-[1.5]">
+            {/* Reserved height keeps the three headings on one baseline even
+                when a locale wraps the body to a different line count. */}
+            <p className="mt-1.5 max-w-[25ch] font-body text-[11px] leading-[1.35] text-white/70 md:mt-2 md:min-h-[63px] md:max-w-[34ch] md:text-[14px] md:leading-[1.5]">
               {card.body}
             </p>
           </motion.div>
@@ -261,6 +353,9 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
   const rectRef = useRef<DOMRect | null>(null);
   const canvasRefs = useRef<(HTMLCanvasElement | null)[]>([]);
   const cropRectsRef = useRef<(CropRect | null)[]>([]);
+  const washRef = useRef<HTMLCanvasElement | null>(null);
+  const paneNodesRef = useRef<(HTMLDivElement | null)[]>([]);
+  const paneRectsRef = useRef<(DOMRect | null)[]>([]);
 
   const reduce = useReducedMotion();
   const [isDesktop, setIsDesktop] = useState(true);
@@ -303,6 +398,15 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
           if (!ctx) return;
           ctx.drawImage(v, rect.sx, rect.sy, rect.sw, rect.sh, 0, 0, canvas.width, canvas.height);
         });
+
+        // Ambient wash: the whole frame at a deliberately tiny backing store,
+        // scaled up and blurred by CSS. At this size the draw is free, and
+        // the blur is what the glass panes refract.
+        const wash = washRef.current;
+        const wctx = wash?.getContext("2d");
+        if (wash && wctx) {
+          wctx.drawImage(v, 0, 0, wash.width, wash.height);
+        }
       }
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -415,6 +519,10 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
   // kind of main-thread work Lenis-smoothed pages can least afford.
   const measure = useCallback(() => {
     rectRef.current = stageRef.current?.getBoundingClientRect() ?? null;
+    // Flat 2D rects, deliberately â€” the panes are rotateY-tilted, and testing
+    // against the true 3D geometry is exactly what leaves the outer edge of
+    // the outer two cards dead to hover. The visual rectangle is the target.
+    paneRectsRef.current = paneNodesRef.current.map((el) => el?.getBoundingClientRect() ?? null);
   }, []);
 
   useEffect(() => {
@@ -430,6 +538,25 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
       if (!r) return;
       px.set(((e.clientX - r.left) / r.width) * 2 - 1);
       py.set(((e.clientY - r.top) / r.height) * 2 - 1);
+
+      // Per-pane spotlight: a flat box test against each pane's cached rect,
+      // independent of the pane's own 3D tilt. Touch has no hover concept,
+      // and tracking it would fight Lenis for the scroll gesture.
+      if (e.pointerType !== "touch") {
+        paneRectsRef.current.forEach((pr, i) => {
+          const el = paneNodesRef.current[i];
+          if (!el || !pr) return;
+          const inside =
+            e.clientX >= pr.left && e.clientX <= pr.right && e.clientY >= pr.top && e.clientY <= pr.bottom;
+          el.style.setProperty("--spot-active", inside ? "1" : "0");
+          if (inside) {
+            // No mirroring: the back face's own rotateY(180deg) cancels
+            // against the parent's flip, so its local axes match the screen.
+            el.style.setProperty("--spot-x", `${e.clientX - pr.left}px`);
+            el.style.setProperty("--spot-y", `${e.clientY - pr.top}px`);
+          }
+        });
+      }
     },
     [armed, px, py],
   );
@@ -437,6 +564,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
   const handleLeave = useCallback(() => {
     px.set(0);
     py.set(0);
+    paneNodesRef.current.forEach((el) => el?.style.setProperty("--spot-active", "0"));
   }, [px, py]);
 
   // Reduced motion: render the settled state, skip the entrance entirely.
@@ -446,6 +574,29 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
   return (
     <section ref={sectionRef} className="relative bg-black" style={{ height: `${SECTION_HEIGHT_VH}vh` }}>
       <div className="sticky top-0 z-40 flex min-h-screen flex-col items-center justify-center gap-[clamp(2.5rem,6vh,5rem)] overflow-hidden px-3 py-24 md:px-4">
+        {/* Ambient wash â€” the same footage, blurred past legibility, pooling
+            behind the stage. It's what makes the translucent panes read as
+            glass, and it's masked to a soft pool so it never squares off
+            into a panel. Oversized so the blur's own edge stays offscreen. */}
+        <canvas
+          ref={washRef}
+          width={72}
+          height={40}
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-[130%] w-[130%] -translate-x-1/2 -translate-y-1/2"
+          style={{
+            // Held down hard: the footage runs cool magenta, and this is a
+            // black-red-gold system. It should read as light in the room,
+            // not as a second palette.
+            filter: "blur(64px) saturate(0.72) contrast(1.05)",
+            opacity: 0.3,
+            maskImage:
+              "radial-gradient(52% 46% at 50% 50%, #000 0%, rgba(0,0,0,0.55) 58%, transparent 84%)",
+            WebkitMaskImage:
+              "radial-gradient(52% 46% at 50% 50%, #000 0%, rgba(0,0,0,0.55) 58%, transparent 84%)",
+          }}
+        />
+
         <div
           ref={stageRef}
           className="relative z-40 w-[min(80vw,450px)] lg:w-[min(80vw,945px)]"
@@ -490,6 +641,9 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
                 armed={armed}
                 canvasRef={(el) => {
                   canvasRefs.current[i] = el;
+                }}
+                paneRef={(el) => {
+                  paneNodesRef.current[i] = el;
                 }}
               />
             ))}

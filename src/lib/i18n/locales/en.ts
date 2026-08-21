@@ -79,7 +79,7 @@ export const en = {
   about: {
     line1: "Innovation is no longer a choice\n-it's a necessity.",
     line2: "As a multidisciplinary team of artists and business owners, we developed a custom system strategy and provide what is needed to lead in today's digital era.",
-    founderRole: "Creative & Business Director",
+    founderRole: "Founder & Creative Director",
     founderStatus: "Available",
     stat1Label: "Years",
     stat1Desc: "Expertise across digital innovation, marketing, print media.",
@@ -91,61 +91,61 @@ export const en = {
     eyebrow: "Our Process",
     heading: "From Unknown To",
     headingAccent: "Unmistakable",
-    scrollHint: "scroll to advance →",
     triggerLabel: "Click to see the process",
     triggerSub: "60 seconds. See exactly what you get.",
     expectLabel: "Expect",
-    deliverLabel: "You get",
-    gainLabel: "You gain",
-    cta: "Start stage 01",
-    ctaSub: "Free 20-minute brand audit.",
+    deliverLabel: "What we deliver",
+    gainLabel: "What you gain",
+    cta: "Start with clarity",
+    ctaSub: "Free 20-minute brand audit. No pitch.",
     steps: [
       {
-        title: "Identity",
+        title: "Clarity",
         description:
-          "A deep read of who you are — market, voice, ambition. We ask the questions most agencies skip.",
-        tag: "Foundation",
+          "We go through what you actually sell, who is buying, and what is stopping the rest. No assumptions carried in.",
+        tag: "Discovery",
         timeline: "Week 1–2",
         expect:
-          "A deep read of who you are — market, voice, ambition. We ask the questions most agencies skip.",
+          "We go through what you actually sell, who is buying, and what is stopping the rest. No assumptions carried in.",
         deliver:
-          "Logo system, typography, colour, brand book, elevated print & packaging.",
+          "Positioning, audience map, brand audit, the honest version of where you stand.",
+        gain: "You can say what you do in one sentence, and it lands.",
+      },
+      {
+        title: "Vision",
+        description:
+          "We set the direction — how the brand looks, sounds and behaves once it stops apologising for itself.",
+        tag: "Direction",
+        timeline: "Week 3–4",
+        expect:
+          "We set the direction — how the brand looks, sounds and behaves once it stops apologising for itself.",
+        deliver:
+          "Identity system, typography, colour, voice, the full brand book.",
         gain: "A brand people recognise before they read the name.",
       },
       {
-        title: "Presence",
+        title: "Execution",
         description:
-          "We take the channels that look inherited and make them unmistakably yours.",
-        tag: "Design",
-        timeline: "Week 3–4",
+          "We build it. Site, channels, funnels — the systems that keep running when nobody is watching them.",
+        tag: "Build",
+        timeline: "Week 5–8",
         expect:
-          "We take the channels that look inherited and make them unmistakably yours.",
+          "We build it. Site, channels, funnels — the systems that keep running when nobody is watching them.",
         deliver:
-          "Profile architecture, content pillars, templates, scroll-stopping creative.",
-        gain: "Social that reads as authority, not activity.",
+          "Website, content architecture, automation, CRM wiring, reporting.",
+        gain: "The work goes live and starts earning, not just looking good.",
       },
       {
-        title: "Systems",
+        title: "Optimisation",
         description:
-          "We map where growth leaks and close the gaps with systems that run without you.",
-        tag: "Execution",
-        timeline: "Week 5–6",
+          "We read the numbers, cut what does not work, and push harder on what does. Every month it gets sharper.",
+        tag: "Compound",
+        timeline: "Ongoing",
         expect:
-          "We map where growth leaks and close the gaps with systems that run without you.",
+          "We read the numbers, cut what does not work, and push harder on what does. Every month it gets sharper.",
         deliver:
-          "Funnels, automation, CRM wiring, reporting that stays readable.",
-        gain: "Growth that runs whether or not you're watching.",
-      },
-      {
-        title: "Confidence",
-        description:
-          "The full handover. Nothing gatekept, nothing locked behind us.",
-        tag: "Growth",
-        timeline: "Handover",
-        expect:
-          "The full handover. Nothing gatekept, nothing locked behind us.",
-        deliver: "Brand guidelines, the full asset library, team training.",
-        gain: "You share your brand anywhere, without hesitating.",
+          "Monthly reporting, iteration cycles, the full asset library, team training.",
+        gain: "Growth that compounds instead of resetting.",
       },
     ],
   },
@@ -199,44 +199,41 @@ export const en = {
   },
 
   faq: {
+    assistant: {
+      eyebrow: "Online now",
+      heading: "Ask NOVA, our 24/7 assistant",
+      body: "NOVA knows our services, our timelines and how we actually work. If your question needs Leon, it puts you straight through.",
+      examplesLabel: "Most asked",
+      examples: [
+        "What would this cost for a business my size?",
+        "Do you work with businesses in my industry?",
+        "What if I'm not ready to start yet?",
+      ],
+      cta: "Message NOVA",
+    },
     eyebrow: "Got Questions?",
     heading: "Frequently Asked",
     headingAccent: "Questions",
     items: [
       {
-        question: "How long does a project take?",
+        question: "How long before I see something real?",
         answer:
-          "Most brand and website sprints take 4-6 weeks, depending on scope and feedback speed.",
+          "You'll see direction in the first two weeks, not six months in. Positioning and identity land in weeks 1-4, the build goes live around weeks 5-8, and it keeps getting sharper from there. Nothing disappears into a black box while you wait.",
       },
       {
-        question: "Do you offer post-launch support?",
+        question: "Who actually does the work?",
         answer:
-          "Yes, we offer retainer packages for ongoing design, development, and marketing support so your brand keeps growing after launch.",
+          "We do. Everything is built in-house — no subcontracting, no handing you to a junior after the pitch. It's also why we cap how many partners we take on at once. You'll always know who's on your brand.",
       },
       {
-        question: "What platforms do you build on?",
+        question: "What happens once everything is live?",
         answer:
-          "We build custom websites and apps, and work with Webflow or Shopify when they fit the brief.",
+          "That's usually where the real work starts. We read what's performing, cut what isn't, and push harder on what is — every month. Most of our partners stay long after launch, because a brand that stops moving starts fading.",
       },
       {
-        question: "How does payment work?",
+        question: "How do we start?",
         answer:
-          "We usually take a 50% deposit to reserve your project, with the balance due on delivery.",
-      },
-      {
-        question: "Can you help with copy and content?",
-        answer:
-          "Yes. Our writers and content strategists can shape the messaging alongside the new identity.",
-      },
-      {
-        question: "Do you work with clients in other languages?",
-        answer:
-          "Yes. We work across 9 languages and handle multilingual assets in-house.",
-      },
-      {
-        question: "How do I get started?",
-        answer:
-          "Send us a WhatsApp message or use the form. We'll book a 20-30 minute discovery call, then scope the right next step.",
+          "With a free 20-minute brand audit — no pitch, no pressure. We'll tell you honestly where you stand and what the highest-leverage move is, even if that move isn't us.",
       },
     ],
   },

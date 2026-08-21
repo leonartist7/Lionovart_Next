@@ -74,7 +74,7 @@ export const fr: Translations = {
     line1: "L'innovation n'est plus un choix\n— c'est une nécessité.",
     line2:
       "LIONOVART est une équipe multidisciplinaire d'artistes et d'entrepreneurs qui construisent des marques avec confiance, innovation et émotion comme piliers. Nous faisons le pont entre le numérique et le physique, la stratégie et le ressenti, le savoir-faire et le commerce — pour que votre marque travaille aussi dur que vous. Un niveau créatif mondial, rendu accessible à toute entreprise sérieuse qui veut se démarquer.",
-    founderRole: "Directeur artistique & commercial",
+    founderRole: "Fondateur & Directeur Créatif",
     founderStatus: "Disponible",
     stat1Label: "Années d'Expérience",
     stat1Desc: "Expertise en innovation numérique, production audiovisuelle et médias imprimés.",
@@ -86,62 +86,61 @@ export const fr: Translations = {
     eyebrow: "Notre Processus",
     heading: "D'Inconnue À",
     headingAccent: "Incontournable",
-    scrollHint: "défiler pour avancer →",
     triggerLabel: "Cliquez pour voir le processus",
     triggerSub: "60 secondes. Voyez exactement ce que vous obtenez.",
     expectLabel: "À prévoir",
-    deliverLabel: "Vous obtenez",
-    gainLabel: "Vous gagnez",
-    cta: "Démarrer l'étape 01",
-    ctaSub: "Audit de marque gratuit de 20 minutes.",
+    deliverLabel: "Ce que nous livrons",
+    gainLabel: "Ce que vous gagnez",
+    cta: "Commencer par la clarté",
+    ctaSub: "Audit de marque gratuit de 20 minutes. Sans argumentaire.",
     steps: [
       {
-        title: "Identité",
+        title: "Clarté",
         description:
-          "Une lecture en profondeur de qui vous êtes — marché, voix, ambition. Nous posons les questions que la plupart des agences évitent.",
-        tag: "Fondation",
+          "Nous examinons ce que vous vendez vraiment, qui achète, et ce qui retient les autres. Aucune supposition au départ.",
+        tag: "Découverte",
         timeline: "Semaine 1–2",
         expect:
-          "Une lecture en profondeur de qui vous êtes — marché, voix, ambition. Nous posons les questions que la plupart des agences évitent.",
+          "Nous examinons ce que vous vendez vraiment, qui achète, et ce qui retient les autres. Aucune supposition au départ.",
         deliver:
-          "Système de logo, typographie, couleur, charte de marque, impression et packaging haut de gamme.",
+          "Positionnement, cartographie de l'audience, audit de marque, l'état des lieux sans détour.",
+        gain: "Vous résumez ce que vous faites en une phrase, et ça porte.",
+      },
+      {
+        title: "Vision",
+        description:
+          "Nous fixons la direction — l'allure, le ton et le comportement de la marque une fois qu'elle cesse de s'excuser d'exister.",
+        tag: "Direction",
+        timeline: "Semaine 3–4",
+        expect:
+          "Nous fixons la direction — l'allure, le ton et le comportement de la marque une fois qu'elle cesse de s'excuser d'exister.",
+        deliver:
+          "Système d'identité, typographie, couleur, voix, la charte de marque complète.",
         gain: "Une marque reconnue avant même d'être lue.",
       },
       {
-        title: "Présence",
+        title: "Exécution",
         description:
-          "Nous reprenons les canaux qui semblent hérités et les rendons indéniablement vôtres.",
-        tag: "Design",
-        timeline: "Semaine 3–4",
+          "Nous construisons. Site, canaux, tunnels — les systèmes qui continuent de tourner quand personne ne les surveille.",
+        tag: "Construction",
+        timeline: "Semaine 5–8",
         expect:
-          "Nous reprenons les canaux qui semblent hérités et les rendons indéniablement vôtres.",
+          "Nous construisons. Site, canaux, tunnels — les systèmes qui continuent de tourner quand personne ne les surveille.",
         deliver:
-          "Architecture des profils, piliers de contenu, gabarits, créations qui arrêtent le scroll.",
-        gain: "Des réseaux qui inspirent l'autorité, pas l'activité.",
+          "Site web, architecture de contenu, automatisation, intégration CRM, rapports.",
+        gain: "Le travail passe en ligne et commence à rapporter, pas seulement à bien paraître.",
       },
       {
-        title: "Systèmes",
+        title: "Optimisation",
         description:
-          "Nous cartographions les fuites de croissance et comblons les écarts avec des systèmes qui tournent sans vous.",
-        tag: "Exécution",
-        timeline: "Semaine 5–6",
-        expect:
-          "Nous cartographions les fuites de croissance et comblons les écarts avec des systèmes qui tournent sans vous.",
-        deliver:
-          "Tunnels, automatisation, intégration CRM, rapports qui restent lisibles.",
-        gain: "Une croissance qui tourne, que vous regardiez ou non.",
-      },
-      {
-        title: "Confiance",
-        description:
-          "La passation complète. Rien de retenu, rien verrouillé chez nous.",
+          "Nous lisons les chiffres, coupons ce qui ne fonctionne pas et poussons ce qui marche. Chaque mois, ça s'affûte.",
         tag: "Croissance",
-        timeline: "Passation",
+        timeline: "En continu",
         expect:
-          "La passation complète. Rien de retenu, rien verrouillé chez nous.",
+          "Nous lisons les chiffres, coupons ce qui ne fonctionne pas et poussons ce qui marche. Chaque mois, ça s'affûte.",
         deliver:
-          "Charte de marque, bibliothèque complète d'actifs, formation de l'équipe.",
-        gain: "Vous partagez votre marque partout, sans hésiter.",
+          "Rapports mensuels, cycles d'itération, bibliothèque complète d'actifs, formation de l'équipe.",
+        gain: "Une croissance qui se cumule au lieu de repartir de zéro.",
       },
     ],
   },
@@ -195,44 +194,41 @@ export const fr: Translations = {
   },
 
   faq: {
+    assistant: {
+      eyebrow: "En ligne maintenant",
+      heading: "Demandez à NOVA, notre assistant 24/7",
+      body: "NOVA connaît nos services, nos délais et notre façon de travailler. Si votre question demande Leon, il vous met directement en relation.",
+      examplesLabel: "Les plus posées",
+      examples: [
+        "Ça coûterait combien pour une entreprise de ma taille ?",
+        "Vous travaillez avec des entreprises de mon secteur ?",
+        "Et si je ne suis pas encore prêt à démarrer ?",
+      ],
+      cta: "Écrire à NOVA",
+    },
     eyebrow: "Des Questions ?",
     heading: "Questions Fréquemment",
     headingAccent: "Posées",
     items: [
       {
-        question: "Combien de temps dure un projet ?",
+        question: "Au bout de combien de temps je vois quelque chose de concret ?",
         answer:
-          "La plupart des sprints de marque et de site web durent 4 à 6 semaines, selon le périmètre et la rapidité des retours.",
+          "Vous voyez la direction dès les deux premières semaines, pas six mois plus tard. Le positionnement et l'identité arrivent entre la semaine 1 et 4, le site part en ligne autour des semaines 5 à 8, et tout continue de s'affiner ensuite. Rien ne disparaît dans une boîte noire pendant que vous attendez.",
       },
       {
-        question: "Proposez-vous un suivi après le lancement ?",
+        question: "Qui fait réellement le travail ?",
         answer:
-          "Oui, nous proposons des forfaits de retainer pour un support continu en design, développement et marketing afin que votre marque continue de se développer après le lancement.",
+          "Nous. Tout est produit en interne — aucune sous-traitance, personne ne vous refile à un junior après la présentation. C'est aussi pour ça que nous limitons le nombre de partenaires que nous prenons en même temps. Vous saurez toujours qui travaille sur votre marque.",
       },
       {
-        question: "Sur quelles plateformes travaillez-vous ?",
+        question: "Et une fois que tout est en ligne ?",
         answer:
-          "Nous créons des sites et applications sur mesure, et travaillons avec Webflow ou Shopify quand ils conviennent au projet.",
+          "C'est en général là que le vrai travail commence. On regarde ce qui performe, on coupe ce qui ne marche pas, et on pousse plus fort sur ce qui fonctionne — chaque mois. La plupart de nos partenaires restent bien après le lancement, parce qu'une marque qui s'arrête commence à s'effacer.",
       },
       {
-        question: "Comment fonctionne le paiement ?",
+        question: "Comment on démarre ?",
         answer:
-          "Nous demandons généralement un acompte de 50 % pour réserver le projet. Le solde est dû à la livraison.",
-      },
-      {
-        question: "Pouvez-vous aider pour le contenu ?",
-        answer:
-          "Oui. Nos rédacteurs et stratèges de contenu peuvent définir le message avec la nouvelle identité.",
-      },
-      {
-        question: "Travaillez-vous avec des clients dans d'autres langues ?",
-        answer:
-          "Oui. Nous travaillons dans 9 langues et gérons les supports multilingues en interne.",
-      },
-      {
-        question: "Comment démarrer ?",
-        answer:
-          "Écrivez-nous sur WhatsApp ou utilisez le formulaire. Nous organiserons un appel de 20 à 30 minutes, puis définirons la suite.",
+          "Par un audit de marque gratuit de 20 minutes — sans pitch, sans pression. On vous dit honnêtement où vous en êtes et quel est le mouvement le plus rentable à faire, même si ce mouvement n'est pas nous.",
       },
     ],
   },

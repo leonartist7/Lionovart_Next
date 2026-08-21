@@ -8,12 +8,12 @@ const SPLIT_VIDEO =
 const CARDS = [
   {
     code: "LION",
-    title: "Lead with strength",
-    body: "Positioning and growth strategy with a point of view.",
+    title: "Lead with confidence",
+    body: "Brand worlds, positioning and growth strategy with a point of view.",
   },
   {
     code: "NOVA",
-    title: "Move with intelligence",
+    title: "Move with innovation",
     body: "AI OS, voice agents and automation that give time back.",
   },
   {

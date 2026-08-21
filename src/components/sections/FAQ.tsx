@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/accordion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
+import AssistantCard from "@/components/sections/faq/AssistantCard";
 
 type FAQItem = {
   _key?: string;
@@ -57,7 +58,7 @@ export default function FAQ(props: FAQProps) {
           initial={prefersReducedMotion ? false : { opacity: 0, y: 40 }}
           animate={prefersReducedMotion || isInView ? { opacity: 1, y: 0 } : {}}
           transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6, delay: 0.2, ease: "easeOut" }}
-          className="relative z-40 order-2 w-full lg:col-start-1 lg:row-start-1"
+          className="relative z-40 order-2 w-full lg:col-start-1 lg:row-start-1 lg:row-span-2 lg:self-center"
         >
           <Accordion className="flex flex-col gap-4">
             {FAQS.map((faq: { id: string; question: string; answer: string }) => (
@@ -75,6 +76,16 @@ export default function FAQ(props: FAQProps) {
               </AccordionItem>
             ))}
           </Accordion>
+        </motion.div>
+
+        {/* Nova promo — fills the column under the FAQ wordmark */}
+        <motion.div
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 40 }}
+          animate={prefersReducedMotion || isInView ? { opacity: 1, y: 0 } : {}}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6, delay: 0.35, ease: "easeOut" }}
+          className="relative z-40 order-3 w-full lg:col-start-2 lg:row-start-2 lg:mt-4"
+        >
+          <AssistantCard />
         </motion.div>
       </div>
     </section>
