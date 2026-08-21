@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import TrailAttractionTarget from "@/components/ui/TrailAttractionTarget";
+import { useNovaStore } from "@/lib/stores/nova-store";
 
 /**
  * HeroEmailCapture — glass (transparent) pill with a simple light border, an
@@ -14,6 +15,7 @@ export default function HeroEmailCapture() {
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">(
     "idle"
   );
+  const openNova = useNovaStore((s) => s.openNova);
 
   // Responsive placeholder (swapped post-mount → no hydration mismatch).
   const [isMobile, setIsMobile] = useState(false);
@@ -64,6 +66,13 @@ export default function HeroEmailCapture() {
       {status === "done" ? (
         <div className="rounded-full border border-white/20 bg-white/[0.08] px-6 py-4 text-center text-[14px] font-semibold text-white shadow-[0_12px_36px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.28),inset_0_-1px_0_rgba(0,0,0,0.42)] backdrop-blur-xl">
           Thanks — your custom demo &amp; audit is on its way. ✦
+          <button
+            type="button"
+            onClick={() => openNova("hero", true)}
+            className="ml-2 font-semibold text-brand-red underline underline-offset-2 hover:text-white transition-colors"
+          >
+            Talk to Nova now →
+          </button>
         </div>
       ) : (
         <form onSubmit={onFormSubmit} noValidate>

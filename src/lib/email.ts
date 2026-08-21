@@ -61,6 +61,43 @@ export async function sendSessionSummaryEmail({
   }
 }
 
+/** Short confirmation sent to hero-form leads (email-only, no conversation yet). */
+export async function sendHeroLeadConfirmationEmail({ toEmail }: { toEmail: string }): Promise<boolean> {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn("[email] RESEND_API_KEY unset — skipping hero lead confirmation email");
+    return false;
+  }
+
+  const htmlBody = `
+    <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1a1a1a;">
+      <p style="font-size:15px;line-height:1.6;">Hi,</p>
+      <p style="font-size:15px;line-height:1.6;">
+        Thanks for reaching out to LIONOVART — your complimentary Brand &amp; Growth
+        Blueprint is being prepared. Leon will review your details personally and
+        follow up shortly.
+      </p>
+      <p style="font-size:15px;line-height:1.6;">
+        Want to move faster? <a href="https://lionovart.com" style="color:#e5192a;">Talk to Nova now</a>
+        for an instant walkthrough.
+      </p>
+      <p style="font-size:14px;color:#666;margin-top:32px;">— Nova, LIONOVART Strategic AI</p>
+    </div>
+  `;
+
+  try {
+    await getResend().emails.send({
+      from: FROM,
+      to: toEmail,
+      subject: "Your LIONOVART Brand & Growth Blueprint is on its way",
+      html: htmlBody,
+    });
+    return true;
+  } catch (err) {
+    console.error("[email] hero lead confirmation send failed:", err);
+    return false;
+  }
+}
+
 /** The rich, Leon-facing lead briefing — replaces the thin 4-line summary in his inbox. */
 export async function sendDossierEmail({
   leadName,
