@@ -2,6 +2,7 @@ import HeroTop from "@/components/sections/HeroTop";
 import SceneVideoBackdrop from "@/components/sections/SceneVideoBackdrop";
 import StrongTogetherTransition from "@/components/sections/StrongTogetherTransition";
 import BridgeStatement from "@/components/sections/BridgeStatement";
+import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
 
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import WhatWeDo from "@/components/sections/WhatWeDo";
@@ -43,6 +44,12 @@ export function PageBuilder() {
         <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
         <BridgeStatement />
         <StrongTogetherTransition />
+        {/* Sits right at the base of the paw/hand images — the red band
+            masks the crop line instead of the light-space handoff needing
+            to carry it, so the vow copy below reads directly above the
+            IMAGINE card with nothing overlapping it. */}
+        <MarqueeSlanted />
+        <BridgeStatement variant="vow" />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
         <NovaSection id="services"><Services /></NovaSection>
         <ShowcaseMarquee />

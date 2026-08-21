@@ -37,23 +37,30 @@ export default function AiLionStage() {
       const { LionExperience: Engine } = await import("@/lib/lion/LionExperience");
       if (cancelled) return;
 
-      const instance = new Engine(canvas, reduce ? { maxParticles: 1_600 } : {});
+      const instance = new Engine(
+        canvas,
+        reduce ? { maxParticles: 1_200, animate: false } : {},
+      );
       exp = instance;
-      await instance.init();
+      try {
+        await instance.init();
+      } catch (error) {
+        if (!cancelled) console.error("Unable to initialize the AI particle world", error);
+        instance.dispose();
+        return;
+      }
       if (cancelled) return;
 
       setLionStage(instance);
+      // The opening frame is an asymmetric editorial split. setLayout handles
+      // the gentler mobile offset internally for coarse-pointer devices.
+      instance.setLayout(0.42);
 
       if (reduce) {
-        // A single composed frame instead of an animation. It must be redrawn
-        // whenever the drawing buffer is resized, or the canvas goes black and
-        // stays black for the rest of the session. renderOnce() draws without
-        // ever joining the ticker, so there's nothing to start/stop here.
+        // A single composed frame instead of an animation. The engine redraws
+        // this state after resize without ever joining the ticker.
         instance.skipIntro();
-        const paint = () => instance.renderOnce();
-        paint();
-        window.addEventListener("resize", paint);
-        instance.onDispose(() => window.removeEventListener("resize", paint));
+        instance.renderOnce();
         return;
       }
       instance.playIntro();

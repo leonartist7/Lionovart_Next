@@ -28,7 +28,7 @@ export default function WhatWeDo() {
     <section id="what-we-build" className="bg-black text-white">
       <div className="mx-auto max-w-[1500px] px-6 pb-6 pt-24 md:px-[6vw] md:pb-10 md:pt-32">
         <p className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-[#e5192a]">
-          THE LIONOVART CODE
+          Three disciplines. One name.
         </p>
         <h2 className="mt-5 max-w-[12ch] font-clash text-[clamp(3.3rem,7vw,8rem)] font-semibold uppercase leading-[0.79] tracking-[-0.065em]">
           Make your next move count.

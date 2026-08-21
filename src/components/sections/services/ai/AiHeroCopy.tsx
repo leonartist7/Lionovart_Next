@@ -15,6 +15,7 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { getLionStage } from "@/lib/lion/stage-ref";
+import { useNovaStore } from "@/lib/stores/nova-store";
 import { HERO_MORPH_END } from "./AiChaosBeat";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -22,6 +23,7 @@ gsap.registerPlugin(ScrollTrigger);
 export default function AiHeroCopy() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
+  const openNova = useNovaStore((state) => state.openNova);
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -31,10 +33,10 @@ export default function AiHeroCopy() {
     const ctx = gsap.context(() => {
       gsap.to(copyRef.current, {
         opacity: 0,
-        y: -70,
-        filter: "blur(10px)",
+        y: -52,
+        filter: "blur(8px)",
         ease: "power2.in",
-        scrollTrigger: { trigger: wrap, start: "18% top", end: "72% top", scrub: true },
+        scrollTrigger: { trigger: wrap, start: "44% top", end: "88% top", scrub: true },
       });
 
       ScrollTrigger.create({
@@ -44,8 +46,11 @@ export default function AiHeroCopy() {
         scrub: true,
         onUpdate: (self) => {
           const stage = getLionStage();
-          stage?.setMorph(self.progress * HERO_MORPH_END);
-          stage?.setLayout(0);
+          // Hold the complete lion while the promise is being read, then let
+          // it begin opening only as the copy prepares to leave.
+          const release = gsap.utils.clamp(0, 1, (self.progress - 0.34) / 0.66);
+          stage?.setMorph(release * HERO_MORPH_END);
+          stage?.setLayout(0.46);
         },
       });
     }, wrap);
@@ -54,28 +59,47 @@ export default function AiHeroCopy() {
   }, []);
 
   return (
-    <div ref={wrapRef} data-lion-zone className="relative h-[210vh]">
-      {/*
-        The lion occupies the upper half of the canvas, so the copy sits in the
-        lower third rather than centred. Nothing overlaps the face, and the
-        headline is sized to be read under the mark, not to compete with it.
-      */}
-      <div className="sticky top-0 flex h-screen flex-col justify-end px-6 pb-[9vh]">
-        <div ref={copyRef} className="mx-auto w-full max-w-[54rem] text-center">
-          <p className="mb-5 text-[10px] uppercase tracking-[0.45em] text-[var(--ai-blue)]/80 md:text-[12px]">
-            Smart Systems &amp; AI
-          </p>
-          <h1
-            className="font-medium leading-[0.95] tracking-[-0.03em] text-white"
-            style={{ fontSize: "clamp(2.4rem, 6vw, 5.6rem)", fontFamily: "var(--font-ai-display)" }}
+    <div ref={wrapRef} data-lion-zone className="relative h-[220svh] motion-reduce:h-svh">
+      {/* The first frame establishes the page's editorial rhythm: copy on the
+          left, the living lion on the right, with the mobile composition
+          returning both toward centre. */}
+      <div className="sticky top-0 h-svh px-6 md:px-10 lg:px-14">
+        <div className="mx-auto flex h-full w-full max-w-[1280px] items-end pb-[8svh] md:items-center md:pb-0">
+          <div
+            ref={copyRef}
+            className="w-full max-w-[45rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:w-[55%]"
           >
-            Your business,{" "}
-            <span className="text-[var(--ai-cyan)]">always on.</span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-[46ch] text-[14px] leading-relaxed text-white/50 md:text-[15px]">
-            A voice agent that answers in three seconds, qualifies the lead, and
-            puts the call on your calendar. At 2am, on a Sunday, while you sleep.
-          </p>
+            <p className="mb-6 text-[13px] font-medium uppercase tracking-[0.24em] text-[var(--ai-cyan)] md:text-[14px]">
+              AI Systems &amp; Consulting
+            </p>
+            <h1
+              className="max-w-[14ch] font-normal leading-[0.91] tracking-[-0.05em] text-white"
+              style={{ fontSize: "clamp(3.15rem, 6.8vw, 7rem)", fontFamily: "var(--font-ai-display)" }}
+            >
+              Your business keeps moving.{" "}
+              <span className="text-[var(--ai-cyan)]">Even when you stop.</span>
+            </h1>
+            <p className="mt-8 max-w-[52ch] text-[18px] font-light leading-[1.62] text-white/82 md:text-[21px]">
+              We design and manage one connected AI operating system that answers,
+              follows up, coordinates and reports 24/7—so your team gets hours back
+              and growth no longer depends on constant manual effort.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-x-7 gap-y-3 text-[14px] font-medium tracking-[-0.01em] text-white/72 md:text-[15px]">
+              <span>24/7 response</span>
+              <span>10+ hours weekly target</span>
+              <span>Continuously optimized</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => openNova("hero", true)}
+              className="mt-9 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[16px] font-semibold tracking-[-0.01em] text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            >
+              Find Your Highest-ROI System
+            </button>
+            <p className="mt-4 max-w-[38ch] text-[16px] leading-[1.55] text-white/68">
+              Start with a focused audit. Leave with a clear automation roadmap.
+            </p>
+          </div>
         </div>
       </div>
     </div>

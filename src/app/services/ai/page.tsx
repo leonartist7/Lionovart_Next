@@ -7,8 +7,13 @@ import AiLionStage from "@/components/sections/services/ai/AiLionStage";
 import AiHeroCopy from "@/components/sections/services/ai/AiHeroCopy";
 import AiChaosBeat from "@/components/sections/services/ai/AiChaosBeat";
 import AiCloseBeat from "@/components/sections/services/ai/AiCloseBeat";
-import { GlassAmbience } from "@/components/sections/services/ai/LiquidGlass";
-import { AiStakes, AiFlow, AiProcess, AiOffers } from "@/components/sections/services/ai/AiActs";
+import {
+  AiStakes,
+  AiSystems,
+  AiFlow,
+  AiProcess,
+  AiOffers,
+} from "@/components/sections/services/ai/AiActs";
 
 /**
  * This page runs its own display face, not the site-wide Clash Display.
@@ -21,15 +26,15 @@ import { AiStakes, AiFlow, AiProcess, AiOffers } from "@/components/sections/ser
  */
 const display = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-ai-display",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Smart Systems & AI",
+  title: "AI Systems & Consulting",
   description:
-    "Voice agents, automation, and workflows that answer, qualify, and book while you sleep. Your business, always on.",
+    "Custom AI operating systems that answer customers, convert opportunities, coordinate operations, and give growing teams their time back.",
 };
 
 /**
@@ -58,15 +63,12 @@ export default function AiServicePage() {
         className={`${display.variable} relative z-10 min-h-screen bg-transparent [&_section]:bg-transparent`}
         style={
           {
-            // page-scoped red scale, read by the act components. Reuses the
-            // site's brand-red tokens (globals.css) rather than a new hex —
-            // deliberately breaks SERVICE_PAGES_SPEC section 6.1's "red is
-            // rationed to the next action" rule for this page, per explicit
-            // request: gold particles + red chrome, not the site-wide gold/red
-            // ration. Don't "fix" this back without checking with the user.
-            "--ai-blue": "var(--color-brand-red)",
-            "--ai-cyan": "var(--color-brand-red)",
-            "--ai-deep": "var(--color-brand-red-secondary)",
+            // The page moves from electric intelligence back into the brand's
+            // gold lion. These accents stay scoped to this route; the primary
+            // CTA still carries the site-wide brand red.
+            "--ai-blue": "#6366f1",
+            "--ai-cyan": "#54e5ff",
+            "--ai-deep": "#8b5cf6",
           } as React.CSSProperties
         }
       >
@@ -75,26 +77,23 @@ export default function AiServicePage() {
         <AiHeroCopy />
         <AiChaosBeat />
 
-        {/*
-          The glass band, transparent so the particle world behind it stays
-          visible and the panels refract real motion instead of a static field.
-        */}
+        {/* Open editorial chapters: typography and the shared particle world
+            provide hierarchy, rather than a stack of separate glass cards. */}
         <div className="relative">
-          <GlassAmbience />
-          <div className="relative">
-            <AiStakes />
-            <AiFlow />
-            <AiProcess />
-            <AiOffers />
-          </div>
+          <AiStakes />
+          <AiSystems />
+          <AiFlow />
+          <AiProcess />
+          <AiOffers />
         </div>
 
         {/* Acts 6 and 7. The wrapper reforms the lion onto the CTA. */}
         <AiCloseBeat>
           <ProofAndClose
-            quote="[ A client says, in one line, that the agent booked calls they would have missed. ]"
-            closingLine="Let's make yours"
-            closingAccent="answer."
+            quote="Your first system is measured against a real baseline: hours returned, workload removed, and opportunities recovered."
+            attribution="The Lionovart 5-Hour-Back Guarantee"
+            closingLine="Take back your time."
+            closingAccent="Keep the growth."
           />
         </AiCloseBeat>
 

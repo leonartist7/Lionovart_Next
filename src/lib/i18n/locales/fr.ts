@@ -146,10 +146,17 @@ export const fr: Translations = {
   },
 
   bridge: {
-    line1: "Trois disciplines. Une vision partagée.",
-    line2: "Plus qu'un partenariat.",
-    accent: "Un héritage en mouvement.",
-    body: "Pensé pour l'entreprise derrière la marque et pour un monde en mouvement.",
+    line1: "Personne ne voit les heures derrière la marque.",
+    line2: "Nous, si.",
+    accent: "Nous les avons faites.",
+    body: "C'est pourquoi nous ne commençons pas par un discours, mais par ce que vous avez déjà bâti.",
+  },
+
+  vow: {
+    line1: "Plus qu'une agence.",
+    line2: "Le partenariat qui",
+    accent: "bâtit votre héritage.",
+    body: "Nous ne prenons pas de clients. Nous prenons part à ce que vous bâtissez.",
   },
 
   footer: {
@@ -234,7 +241,7 @@ export const fr: Translations = {
   },
 
   problems: {
-    eyebrow: "Votre Prochain Chapitre Commence Ici",
+    eyebrow: "Choisissez celle qui vous ressemble.",
     heading: "IMAGINEZ",
     items: [
       {
@@ -394,7 +401,7 @@ export const fr: Translations = {
   },
 
   services: {
-    eyebrow: "L'Art de l'Innovation, appliqué à chaque partie de votre marque.",
+    eyebrow: "Tout en interne. Un seul standard.",
     heading: "Notre",
     headingAccent: "Savoir-faire",
     items: [
