@@ -25,6 +25,10 @@ export interface ScrapeResult {
   services_detected: string[];
   summary: string;
   error?: string;
+  /** Raw HTML (capped at MAX_BYTES). Populated for the audit layer, which
+   * needs the markup itself — meta tags, schema.org blocks, alt attributes.
+   * Stripped before the scrape result is handed to the model. */
+  html?: string;
 }
 
 const TIMEOUT_MS = 4500;
@@ -184,6 +188,30 @@ function detectServices(headings: string[]): string[] {
   return [...seen].slice(0, 6);
 }
 
+/**
+ * Fetches a small text file (robots.txt, sitemap.xml, llms.txt) from an
+ * already-normalized origin, through the same redirect/SSRF checks as the main
+ * scrape. Returns null on any failure — callers treat "absent" and
+ * "unreachable" identically.
+ */
+export async function fetchTextSafely(
+  rawUrl: string,
+  { timeoutMs = 3000, maxBytes = 60_000 }: { timeoutMs?: number; maxBytes?: number } = {},
+): Promise<string | null> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await safeFetch(normalizeUrl(rawUrl), controller.signal);
+    if (!res.ok) return null;
+    const text = await res.text();
+    return text.slice(0, maxBytes);
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function scrapeWebsite(rawUrl: string): Promise<ScrapeResult> {
   const url = normalizeUrl(rawUrl);
   const controller = new AbortController();
@@ -260,6 +288,7 @@ export async function scrapeWebsite(rawUrl: string): Promise<ScrapeResult> {
       headings,
       services_detected,
       summary,
+      html,
     };
   } catch (err) {
     // Blocked-URL reasons stay out of the model-facing summary — same

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
 import { computeBrandScore, toTeaser } from "@/lib/brand-score";
+import { env } from "@/lib/env";
 import { scanRateLimitOk } from "@/lib/rate-limit";
 
 /**
@@ -67,5 +68,5 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ scan_id: scanId, ...toTeaser(score) }, { status: 200 });
+  return NextResponse.json({ scan_id: scanId, booking_url: env.BOOKING_URL, ...toTeaser(score) }, { status: 200 });
 }

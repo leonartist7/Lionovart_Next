@@ -10,9 +10,9 @@ export default function PortalNovaButton({ scanId }: { scanId: string }) {
     <button
       type="button"
       onClick={() => openNova("hero", true, scanId)}
-      className="w-full rounded-full bg-brand-red px-6 py-3.5 text-[14px] font-semibold text-white transition-opacity hover:opacity-90"
+      className="w-full rounded-full border border-white/15 px-6 py-3.5 text-[14px] text-white/75 transition-colors hover:bg-white/5 hover:text-white"
     >
-      Talk it through with Nova →
+      Or talk it through with Nova now
     </button>
   );
 }

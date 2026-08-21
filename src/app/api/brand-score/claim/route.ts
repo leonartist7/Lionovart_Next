@@ -5,7 +5,7 @@ import { env } from "@/lib/env";
 import { rateLimitOk } from "@/lib/rate-limit";
 import { notifyOwner } from "@/lib/notify";
 import { sendBrandReportEmail } from "@/lib/email";
-import { PILLARS, PILLAR_LABELS, toBriefing, type BrandScoreResult } from "@/lib/brand-score";
+import { DIMENSION_META, toBriefing, type BrandScoreResult } from "@/lib/brand-score";
 
 /**
  * Step 2: the email is exchanged for the full report, not for nothing.
@@ -89,16 +89,24 @@ export async function POST(req: NextRequest) {
 
   void sendBrandReportEmail({
     toEmail: email,
-    toName: name,
     businessName: scan.business_name,
     siteUrl: scan.url,
     overall: scan.overall,
-    pillars: PILLARS.map((p) => ({ label: PILLAR_LABELS[p], score: scan.pillars[p].score, verdict: scan.pillars[p].verdict })),
     headline: scan.headline,
+    dimensions: (scan.dimensions ?? []).map((d) => ({
+      label: DIMENSION_META[d.id]?.label ?? d.id,
+      score: d.score,
+      headline: d.headline,
+      findings: d.findings ?? [],
+    })),
     biggestLeak: scan.biggest_leak,
+    aeo: scan.aeo,
+    competitors: scan.competitors,
+    ownRating: scan.gbp?.rating ?? null,
+    ownReviewCount: scan.gbp?.review_count ?? null,
     positioning: scan.positioning_statement,
     quickWins: scan.quick_wins ?? [],
-    fullFindings: scan.full_findings ?? [],
+    callAgenda: scan.call_agenda ?? [],
     portalUrl,
     bookingUrl: env.BOOKING_URL,
   });
@@ -122,5 +130,19 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({ contact: email }),
   }).catch((err) => console.error("[brand-score/claim] dossier trigger failed:", err));
 
-  return NextResponse.json({ claimed: true, lead_id: leadId, portal_url: portalUrl }, { status: 200 });
+  // The unlocked half comes straight back, so the page they're already looking
+  // at fills in rather than making them go and find the email first.
+  return NextResponse.json(
+    {
+      claimed: true,
+      lead_id: leadId,
+      portal_url: portalUrl,
+      full: {
+        dimensions: scan.dimensions ?? [],
+        quick_wins: scan.quick_wins ?? [],
+        positioning_statement: scan.positioning_statement ?? null,
+      },
+    },
+    { status: 200 },
+  );
 }

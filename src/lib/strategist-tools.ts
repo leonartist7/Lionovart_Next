@@ -283,8 +283,10 @@ const handlers: Record<string, ToolHandler> = {
     const scrapeStart = Date.now();
     void trackNovaServerEvent("nova.scrape_fired", analyticsId, { url_hash: urlHash, conversation_id: ctx.conversationId });
     try {
-      const result = await scrapeWebsite(url);
+      const { html: _html, ...result } = await scrapeWebsite(url);
       const durationMs = Date.now() - scrapeStart;
+      // Raw markup is for the audit layer only — it would swamp the model's
+      // context and the cache entry for no benefit to the conversation.
       scrapeCache.set(urlHash, result as unknown as Record<string, unknown>);
       void trackNovaServerEvent("nova.scrape_succeeded", analyticsId, {
         url_hash: urlHash,

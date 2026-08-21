@@ -10,19 +10,24 @@ import { getWhatsAppUrl } from "@/lib/contact";
 /**
  * HeroBrandScan — the hero funnel.
  *
- * Asks for a URL, not an email. A stranger will hand over their website
- * readily (it's public, it isn't "theirs"), and the URL is what makes the rest
- * of the funnel autonomous: it produces the diagnosis, the qualification, the
- * briefing Leon gets on WhatsApp, and the observation Nova opens on. The email
- * is asked for second, once there's already something on the table worth
- * trading for.
+ * Asks for a URL, not an email. A stranger hands over their website readily
+ * (it's public, it isn't "theirs"), and the URL is what makes the rest of the
+ * funnel autonomous. The email is asked for second, once six dimensions of real
+ * measurement are already on the table.
+ *
+ * The call is sold by NAMING what it would decide, never by blurring data.
+ * Hidden text reads as a paywall; a specific question about their own business
+ * reads as expertise.
  */
 
 type Stage = "idle" | "scanning" | "result" | "claiming" | "claimed";
 
-interface Pillar {
+interface Dimension {
+  id: string;
   score: number;
-  verdict: string;
+  headline: string;
+  findings: string[];
+  lockedCount: number;
 }
 
 interface ScanResult {
@@ -30,31 +35,36 @@ interface ScanResult {
   business_name: string;
   url: string;
   overall: number;
-  pillars: Record<string, Pillar>;
+  dimensions: Dimension[];
   headline: string;
   biggest_leak: { title: string; detail: string; cost: string };
   quick_wins: string[];
   withheld_count: number;
+  call_agenda: Array<{ title: string; teaser: string }>;
+  aeo?: { query?: string; mentioned?: boolean; namedInstead: string[]; verdict: string };
+  positioning_statement?: string;
+  booking_url?: string;
 }
 
-const PILLAR_ORDER = ["clarity", "distinction", "credibility", "conversion", "consistency"] as const;
-const PILLAR_LABELS: Record<string, string> = {
-  clarity: "Clarity",
-  distinction: "Distinction",
-  credibility: "Credibility",
-  conversion: "Conversion",
-  consistency: "Consistency",
+const DIMENSION_LABELS: Record<string, string> = {
+  brand: "Brand & Message",
+  seo: "Search Foundations",
+  aeo: "AI Visibility",
+  presence: "Google Presence",
+  competition: "Competitive Position",
+  social: "Social Reach",
 };
 
-// Narrates the work actually happening server-side. The scan genuinely takes
-// this long, so the wait is spent showing effort rather than hiding it.
+// Narrates work that genuinely happens — six real measurements, not a fake
+// progress bar. The wait is spent showing effort rather than hiding it.
 const SCAN_PHASES = [
   "Opening your homepage…",
   "Reading how you introduce yourself…",
-  "Checking what a stranger would understand…",
-  "Looking you up on Google…",
-  "Comparing you to how competitors sound…",
-  "Scoring the five pillars…",
+  "Checking what search engines can see…",
+  "Looking up your Google Business Profile…",
+  "Pulling the businesses you compete with…",
+  "Asking an AI if it recommends you…",
+  "Scoring six dimensions…",
   "Finding where you're leaking…",
 ];
 
@@ -111,11 +121,9 @@ export default function HeroBrandScan() {
     };
   }, []);
 
-  // Advance the narration while the request is in flight. Holds on the last
-  // line rather than looping — looping would read as a stall.
   useEffect(() => {
     if (stage !== "scanning") return;
-    const t = setInterval(() => setPhase((p) => Math.min(p + 1, SCAN_PHASES.length - 1)), 2600);
+    const t = setInterval(() => setPhase((p) => Math.min(p + 1, SCAN_PHASES.length - 1)), 3200);
     return () => clearInterval(t);
   }, [stage]);
 
@@ -137,7 +145,6 @@ export default function HeroBrandScan() {
       });
       const data = await res.json();
       if (!liveRef.current) return;
-
       if (!res.ok) {
         setError(data.message ?? "That scan didn't go through. Try again in a moment.");
         setStage("idle");
@@ -168,11 +175,12 @@ export default function HeroBrandScan() {
       const data = await res.json();
       if (!liveRef.current) return;
       setPortalUrl(data.portal_url ?? null);
+      if (data.full) setResult((prev) => (prev ? { ...prev, ...data.full } : prev));
       setStage("claimed");
     } catch {
       if (!liveRef.current) return;
       // The scan already exists server-side; a failed claim shouldn't strand
-      // them on a spinner, so move on and let the retry live in the report link.
+      // them on a spinner. The emailed report is still the fallback.
       setStage("claimed");
     }
   }, [email, result]);
@@ -219,25 +227,16 @@ export default function HeroBrandScan() {
 
         <AnimatePresence mode="wait">
           {scanning ? (
-            <motion.div
-              key="scanning"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="mt-4"
-            >
+            <motion.div key="scanning" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-4">
               <div className="h-px w-full overflow-hidden bg-white/10">
                 <motion.div
                   className="h-px bg-brand-red"
                   initial={{ width: "0%" }}
                   animate={{ width: "92%" }}
-                  transition={{ duration: reduceMotion ? 0 : 20, ease: "easeOut" }}
+                  transition={{ duration: reduceMotion ? 0 : 28, ease: "easeOut" }}
                 />
               </div>
-              <p
-                aria-live="polite"
-                className="mt-3 text-center text-[12px] tracking-wide text-white/50 md:text-[13px]"
-              >
+              <p aria-live="polite" className="mt-3 text-center text-[12px] tracking-wide text-white/50 md:text-[13px]">
                 {SCAN_PHASES[phase]}
               </p>
             </motion.div>
@@ -247,11 +246,9 @@ export default function HeroBrandScan() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className={`mt-3 text-center text-[12px] tracking-wide md:text-[13px] ${
-                error ? "text-brand-red" : "text-white/45"
-              }`}
+              className={`mt-3 text-center text-[12px] tracking-wide md:text-[13px] ${error ? "text-brand-red" : "text-white/45"}`}
             >
-              {error ?? "Free · 30 seconds · No signup to see your score"}
+              {error ?? "Free · 6 dimensions · No signup to see your score"}
             </motion.p>
           )}
         </AnimatePresence>
@@ -278,28 +275,42 @@ export default function HeroBrandScan() {
         </div>
       </div>
 
-      {/* Pillars */}
+      {/* Six dimensions */}
       <div className="mt-5 space-y-2.5">
-        {PILLAR_ORDER.filter((p) => r.pillars?.[p]).map((p, i) => (
-          <div key={p} className="flex items-center gap-3">
-            <span className="w-[86px] shrink-0 text-[11px] tracking-wide text-white/45 uppercase">
-              {PILLAR_LABELS[p]}
+        {(r.dimensions ?? []).map((d, i) => (
+          <div key={d.id} className="flex items-center gap-3">
+            <span className="w-[112px] shrink-0 truncate text-[11px] tracking-wide text-white/45 uppercase">
+              {DIMENSION_LABELS[d.id] ?? d.id}
             </span>
             <div className="h-[3px] flex-1 overflow-hidden rounded-full bg-white/10">
               <motion.div
                 className="h-full rounded-full"
-                style={{ background: bandColor(r.pillars[p].score) }}
+                style={{ background: bandColor(d.score) }}
                 initial={{ width: 0 }}
-                animate={{ width: `${r.pillars[p].score}%` }}
-                transition={{ duration: reduceMotion ? 0 : 0.9, delay: reduceMotion ? 0 : 0.3 + i * 0.09, ease: [0.16, 1, 0.3, 1] }}
+                animate={{ width: `${d.score}%` }}
+                transition={{ duration: reduceMotion ? 0 : 0.9, delay: reduceMotion ? 0 : 0.3 + i * 0.08, ease: [0.16, 1, 0.3, 1] }}
               />
             </div>
-            <span className="w-[26px] shrink-0 text-right text-[12px] tabular-nums text-white/60">
-              {r.pillars[p].score}
-            </span>
+            <span className="w-[26px] shrink-0 text-right text-[12px] tabular-nums text-white/60">{d.score}</span>
           </div>
         ))}
       </div>
+
+      {/* The AI-visibility result — the finding people screenshot. */}
+      {r.aeo?.verdict && (
+        <div className="mt-5 rounded-xl border border-white/12 bg-black/25 p-4">
+          <p className="text-[10px] font-semibold tracking-[0.14em] text-white/35 uppercase">We asked an AI about you</p>
+          {r.aeo.query && <p className="mt-2 text-[13px] text-white/50 italic">“{r.aeo.query}”</p>}
+          <p className={`mt-2 text-[14px] leading-[1.6] ${r.aeo.mentioned ? "text-emerald-400" : "text-white"}`}>
+            {r.aeo.mentioned ? "You were named in the answer." : "You weren't in the answer."}
+          </p>
+          {!r.aeo.mentioned && r.aeo.namedInstead.length > 0 && (
+            <p className="mt-1.5 text-[13px] leading-[1.6] text-white/55">
+              It recommended {r.aeo.namedInstead.slice(0, 3).join(", ")} instead.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* The hook — always visible, always specific */}
       <div className="mt-5 border-l-2 border-brand-red pl-4">
@@ -310,24 +321,28 @@ export default function HeroBrandScan() {
 
       {!unlocked ? (
         <>
-          {/* The gate. Blurred content is real content — it unblurs in place. */}
-          <div className="relative mt-5">
-            <div className="pointer-events-none space-y-2 blur-[5px] select-none" aria-hidden="true">
-              {(r.quick_wins?.length ? r.quick_wins : ["", "", ""]).map((w, i) => (
-                <p key={i} className="text-[13px] leading-[1.6] text-white/50">
-                  {w || "————— ——— —————— ———— ——————— ———"}
-                </p>
-              ))}
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="rounded-full border border-white/15 bg-black/50 px-3 py-1 text-[11px] tracking-wide text-white/70">
-                + {r.withheld_count || 5} more findings in your full report
-              </span>
+          {/* The gate names what's behind it per dimension — a count of real
+              measurements, not a blur over invented text. */}
+          <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.02] p-4">
+            <p className="text-[10px] font-semibold tracking-[0.14em] text-white/35 uppercase">
+              {r.withheld_count} more findings, measured not guessed
+            </p>
+            <div className="mt-3 space-y-1.5">
+              {(r.dimensions ?? [])
+                .filter((d) => d.lockedCount > 0)
+                .map((d) => (
+                  <div key={d.id} className="flex items-baseline justify-between gap-3 text-[13px]">
+                    <span className="truncate text-white/60">{DIMENSION_LABELS[d.id] ?? d.id}</span>
+                    <span className="shrink-0 text-white/30">
+                      {d.lockedCount} finding{d.lockedCount === 1 ? "" : "s"}
+                    </span>
+                  </div>
+                ))}
             </div>
           </div>
 
           <form
-            className="mt-5"
+            className="mt-4"
             onSubmit={(e) => {
               e.preventDefault();
               if (stage === "result") void claim();
@@ -349,7 +364,7 @@ export default function HeroBrandScan() {
               />
               <TrailAttractionTarget>
                 <LiquidMetalButton
-                  label={stage === "claiming" ? "Sending…" : "Send it"}
+                  label={stage === "claiming" ? "Sending…" : "Unlock"}
                   onClick={() => stage === "result" && void claim()}
                   variant="red"
                   width={124}
@@ -365,12 +380,7 @@ export default function HeroBrandScan() {
       ) : (
         <>
           {r.quick_wins?.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: reduceMotion ? 0 : 0.5 }}
-              className="mt-5"
-            >
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: reduceMotion ? 0 : 0.5 }} className="mt-5">
               <p className="text-[10px] font-semibold tracking-[0.14em] text-white/35 uppercase">Fix these this week</p>
               <ol className="mt-2 space-y-1.5">
                 {r.quick_wins.map((w, i) => (
@@ -384,11 +394,10 @@ export default function HeroBrandScan() {
           )}
 
           <p className="mt-5 text-[13px] leading-[1.6] text-white/55">
-            Your full report is on its way to <span className="text-white/80">{email}</span>. Want to go
-            deeper right now?
+            Your full report — all {r.withheld_count} findings — is on its way to{" "}
+            <span className="text-white/80">{email}</span>.
           </p>
 
-          {/* Three doors, in order of how warm the lead is. */}
           <div className="mt-4 grid gap-2">
             <button
               type="button"
@@ -417,15 +426,44 @@ export default function HeroBrandScan() {
                 )}
                 target="_blank"
                 rel="noreferrer"
-                className={`rounded-xl border border-white/12 px-4 py-3 text-center text-[13px] text-white/70 transition-colors hover:bg-white/5 hover:text-white ${
-                  portalUrl ? "" : "col-span-2"
-                }`}
+                className={`rounded-xl border border-white/12 px-4 py-3 text-center text-[13px] text-white/70 transition-colors hover:bg-white/5 hover:text-white ${portalUrl ? "" : "col-span-2"}`}
               >
                 Message Leon
               </a>
             </div>
           </div>
         </>
+      )}
+
+      {/* The call, sold by naming what it decides. Visible at every tier —
+          this is the pull, and hiding it would defeat the point. */}
+      {r.call_agenda?.length > 0 && (
+        <div className="mt-6 border-t border-white/10 pt-5">
+          <p className="text-[10px] font-semibold tracking-[0.14em] text-white/35 uppercase">
+            What a 20-minute call would settle
+          </p>
+          <p className="mt-1.5 text-[12px] leading-[1.6] text-white/40">
+            These aren&apos;t in the report. They&apos;re judgement calls about your business.
+          </p>
+          <ul className="mt-3 space-y-2.5">
+            {r.call_agenda.slice(0, 4).map((item, i) => (
+              <li key={i}>
+                <p className="text-[13px] font-semibold text-white/90">{item.title}</p>
+                <p className="mt-0.5 text-[12px] leading-[1.55] text-white/45">{item.teaser}</p>
+              </li>
+            ))}
+          </ul>
+          {r.booking_url && (
+            <a
+              href={r.booking_url}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 block rounded-full bg-brand-red px-5 py-3 text-center text-[14px] font-semibold text-white transition-opacity hover:opacity-90"
+            >
+              Book the 20 minutes →
+            </a>
+          )}
+        </div>
       )}
     </motion.div>
   );
