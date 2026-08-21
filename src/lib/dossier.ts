@@ -40,6 +40,9 @@ interface LeadDoc {
   current_marketing?: string;
   painpoints?: string;
   vision?: string;
+  /** Flattened Brand Score read, when the lead arrived through a scan. Lets a
+   * lead be qualified with no call at all — the scan is the evidence. */
+  brand_briefing?: string;
 }
 
 interface ConversationDoc {
@@ -107,10 +110,19 @@ export async function generateDossier(leadId: string, conversationId: string | n
   const ai = new GoogleGenAI({ apiKey });
   const model = process.env.GEMINI_DOSSIER_MODEL || "gemini-3.1-pro";
 
-  const prompt = `You are producing a confidential lead-diagnosis briefing for Leon, founder of LIONOVART, from a call his AI concierge Nova just had. Write for one founder briefing another — direct, no fluff, no corporate hedging.
+  // A lead who only ran a Brand Score has no transcript. The dossier still has
+  // to produce a real qualification off the scan alone — otherwise every
+  // non-voice lead lands in the Console unscored.
+  const evidenceSource = transcriptText
+    ? "from a call his AI concierge Nova just had"
+    : "from the Brand Score scan they ran on their own site — there was no call, so judge only from the scan and the lead record, and be explicit in research_gaps about what a conversation would still need to establish";
+
+  const prompt = `You are producing a confidential lead-diagnosis briefing for Leon, founder of LIONOVART, ${evidenceSource}. Write for one founder briefing another — direct, no fluff, no corporate hedging.
 
 LEAD RECORD:
 ${JSON.stringify(lead, null, 2)}
+
+${lead.brand_briefing ? `BRAND SCORE SCAN OF THEIR SITE:\n${lead.brand_briefing}` : ""}
 
 OBJECTIONS NOVA FLAGGED DURING THE CALL (raw types, judge resolution yourself from the transcript): ${JSON.stringify(conversation?.objection_flags ?? [])}
 

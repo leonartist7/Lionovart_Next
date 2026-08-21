@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import ConversationView from "./ConversationView";
@@ -11,6 +11,8 @@ interface StrategistPanelProps {
   isOpen: boolean;
   onClose: () => void;
   autoStart?: boolean;
+  /** Set when the visitor reached Nova from a Brand Score scan. */
+  scanId?: string | null;
 }
 
 const widgetVariants = {
@@ -29,7 +31,7 @@ const widgetVariants = {
   },
 };
 
-export default function StrategistPanel({ isOpen, onClose, autoStart = false }: StrategistPanelProps) {
+export default function StrategistPanel({ isOpen, onClose, autoStart = false, scanId = null }: StrategistPanelProps) {
   const [mounted, setMounted] = useState(false);
   const session = useStrategistSession({ onClose });
 
@@ -53,6 +55,19 @@ export default function StrategistPanel({ isOpen, onClose, autoStart = false }: 
       return () => clearTimeout(t);
     }
   }, [isOpen, autoStart, session.isSessionActive, session.startSession]);
+
+  // Pre-warm: hand Nova the scan id the moment the session is live, so she
+  // fetches the findings and opens on a real observation about their site
+  // rather than asking what they do. Only the id crosses the wire — the
+  // briefing itself is read server-side by fetch_brand_scan.
+  const prewarmedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!session.isSessionActive || !scanId || prewarmedRef.current === scanId) return;
+    prewarmedRef.current = scanId;
+    session.pushContextMessage(
+      `[SYSTEM] This visitor just ran a Brand Score on their own website before opening you. Call fetch_brand_scan with scan_id "${scanId}" right now, before you greet them, and open on the most useful thing it surfaces. They have not said any of it out loud — do not imply they did, and do not mention the scan lookup itself.`,
+    );
+  }, [session.isSessionActive, session.pushContextMessage, scanId, session]);
 
   // Ending the call closes the widget too — there's no separate hidden-but-live state.
   const handleEnd = useCallback(() => {

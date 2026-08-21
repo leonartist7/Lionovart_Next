@@ -153,6 +153,18 @@ const STRATEGIST_TOOLS = [
         },
       },
       {
+        name: "fetch_brand_scan",
+        description:
+          "Retrieves the Brand Score this visitor already ran on their own site before opening you. Call it IMMEDIATELY, before your first words, whenever a system note gives you a scan_id — it tells you their business, their website and where their brand is weakest, so you can open on a real observation instead of asking what they do. Never mention the scan_id or that you 'looked something up'.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            scan_id: { type: Type.STRING, description: "The scan id from the system note" },
+          },
+          required: ["scan_id"],
+        },
+      },
+      {
         name: "save_lead_data",
         description: "Save the lead's full discovery profile to the CRM. Call once at handoff (Stage 7) before generating links.",
         // Persisted silently in the background — never stalls speech waiting for the write to finish.

@@ -4,7 +4,8 @@ import { NOVA_KNOWLEDGE } from "@/lib/nova-knowledge";
 import { scrapeWebsite } from "@/lib/scrape-website";
 import { env } from "@/lib/env";
 import { trackNovaServerEvent, hashUrl } from "@/lib/nova-events-server";
-import { notifyLeadCaptured } from "@/lib/notify";
+import { notifyLeadCaptured, notifyOwner } from "@/lib/notify";
+import { toBriefing, type BrandScoreResult } from "@/lib/brand-score";
 import { scrapeCache, enrichmentCache } from "@/lib/cache";
 import { loadSkill } from "@/lib/nova-skills";
 import { FieldValue } from "firebase-admin/firestore";
@@ -105,6 +106,29 @@ const handlers: Record<string, ToolHandler> = {
     } catch (err) {
       console.error("fetch_user_memory error:", err);
       return { body: { memory: "Error fetching memory." } };
+    }
+  },
+
+  // The pre-warm. A visitor who ran a Brand Score before opening Nova has
+  // already told us their site, their sector and their weakest pillar — so the
+  // call opens on the finding rather than on "what do you do?".
+  async fetch_brand_scan(args) {
+    if (!adminDb) return { body: { found: false } };
+    const scanId = (args.scan_id || "").toString().trim();
+    if (!scanId) return { body: { found: false } };
+    try {
+      const snap = await adminDb.collection("brand_scans").doc(scanId).get();
+      if (!snap.exists) return { body: { found: false } };
+      const scan = snap.data() as BrandScoreResult;
+      return {
+        body: {
+          found: true,
+          briefing: `[BRAND_SCAN] ${toBriefing(scan)}\n\nOpen by naming the single most useful thing you saw — specifically, as an observation about their site, not as a score readout. Never recite the pillar numbers unless they ask. They have not told you any of this out loud, so do not imply they did.`,
+        },
+      };
+    } catch (err) {
+      console.error("fetch_brand_scan error:", err);
+      return { body: { found: false } };
     }
   },
 
@@ -322,6 +346,12 @@ const handlers: Record<string, ToolHandler> = {
       void updateLeadByContact(email || phone || "", {
         booking: { uid: result.uid, start: result.start, confirmed: true },
         conversation_id: ctx.conversationId ?? null,
+      });
+      void notifyOwner({
+        kind: "meeting_booked",
+        leadName,
+        email,
+        whenLabel: formatSlotLabel(result.start!, timezone),
       });
     }
     return {

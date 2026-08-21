@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
-import { FieldValue } from "firebase-admin/firestore";
 import { notifyLeadCaptured } from "@/lib/notify";
 import { sendHeroLeadConfirmationEmail } from "@/lib/email";
 
@@ -36,6 +35,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const now = new Date().toISOString();
     const ip =
       req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
       req.headers.get("x-real-ip") ??
@@ -52,11 +52,14 @@ export async function POST(req: NextRequest) {
       user_agent: user_agent ?? "unknown",
       conversation_id: conversation_id ?? null,
       ip,
-      created_at: FieldValue.serverTimestamp(),
-      // Console leads list orders by updated_at — Firestore excludes docs
-      // missing the field entirely from that query, so every write path
-      // must set it.
-      updated_at: FieldValue.serverTimestamp(),
+      // ISO strings, not serverTimestamp: Firestore orders by value TYPE
+      // before value, so a Timestamp here would sort into a separate block
+      // from every other write path (Nova's save_lead_data, brand-score
+      // claim), splitting the Console's list in two. Console leads list also
+      // orders by updated_at, and Firestore drops docs missing the field
+      // entirely from that query — so every write path must set it.
+      created_at: now,
+      updated_at: now,
     });
 
     void notifyLeadCaptured(

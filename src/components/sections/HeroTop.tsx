@@ -9,7 +9,7 @@ import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNovaStore } from "@/lib/stores/nova-store";
 import TrustedBadgesSection from "@/components/sections/TrustedBadgesSection";
-import HeroEmailCapture from "@/components/ui/HeroEmailCapture";
+import HeroBrandScan from "@/components/ui/HeroBrandScan";
 
 /* ─── Variants ─────────────────────────────────────────────────── */
 const containerVariants = {
@@ -409,7 +409,7 @@ export default function HeroTop(props: any) {
 
         {/* Email capture — glass pill, metallic outline, red Start */}
         <motion.div variants={itemVariants} className="w-full mt-2">
-          <HeroEmailCapture />
+          <HeroBrandScan />
         </motion.div>
 
         {/* Trust badges — restored, as before */}

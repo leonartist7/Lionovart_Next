@@ -25,6 +25,10 @@ interface LeadDetail {
   vision?: string;
   current_marketing?: string;
   conversation_id?: string;
+  website?: string;
+  brand_score?: number;
+  brand_scan_id?: string;
+  brand_briefing?: string;
 }
 
 function Field({ label, value }: { label: string; value?: string }) {
@@ -109,6 +113,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           <Field label="Pain points" value={lead.painpoints} />
           <Field label="Vision" value={lead.vision} />
           <Field label="Current marketing" value={lead.current_marketing} />
+          <Field label="Brand scan read" value={lead.brand_briefing} />
 
           <div>
             <dt className="mb-1 text-[11px] tracking-wide text-white/35 uppercase">Lead dossier</dt>
@@ -140,6 +145,44 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               </p>
             )}
           </div>
+
+          {lead.brand_score !== undefined && (
+            <div className="rounded-xl border border-white/8 bg-white/[0.02] p-4">
+              <p className="mb-2 text-[11px] tracking-wide text-white/35 uppercase">Brand score</p>
+              <p
+                className={`font-[var(--font-clash)] text-3xl ${
+                  lead.brand_score < 50
+                    ? "text-brand-red"
+                    : lead.brand_score < 75
+                      ? "text-amber-400"
+                      : "text-emerald-400"
+                }`}
+              >
+                {lead.brand_score}
+                <span className="text-sm text-white/25">/100</span>
+              </p>
+              {lead.website && (
+                <a
+                  href={lead.website}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 block truncate text-xs text-white/40 hover:text-white"
+                  title={lead.website}
+                >
+                  {lead.website.replace(/^https?:\/\/(www\.)?/, "")}
+                </a>
+              )}
+              {lead.brand_scan_id && (
+                <Link
+                  href={`/portal/${lead.brand_scan_id}`}
+                  target="_blank"
+                  className="mt-3 block rounded-md border border-white/10 px-3 py-2 text-center text-xs text-white/70 hover:bg-white/5"
+                >
+                  Open their report
+                </Link>
+              )}
+            </div>
+          )}
 
           {conversations.length > 0 && (
             <div className="rounded-xl border border-white/8 bg-white/[0.02] p-4">

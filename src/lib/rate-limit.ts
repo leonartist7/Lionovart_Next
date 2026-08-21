@@ -26,3 +26,14 @@ export function rateLimitOk(ip: string): boolean {
   buckets.set(ip, b);
   return true;
 }
+
+// Brand scans run a live page fetch plus a Gemini Pro call — orders of
+// magnitude more expensive than a tool call, so they get their own, far
+// tighter bucket rather than sharing the 30/min one above.
+const scanCounts = new LRUCache<string, number>({ max: 5000, ttl: 1000 * 60 * 60 });
+
+export function scanRateLimitOk(ip: string, max = 5): boolean {
+  const next = (scanCounts.get(ip) ?? 0) + 1;
+  scanCounts.set(ip, next);
+  return next <= max;
+}

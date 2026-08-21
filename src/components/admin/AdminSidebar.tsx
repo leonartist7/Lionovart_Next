@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Users, MessageSquare, SlidersHorizontal, BarChart3, ShieldAlert } from "lucide-react";
+import { Users, MessageSquare, SlidersHorizontal, BarChart3, ShieldAlert, Gauge } from "lucide-react";
 
 const NAV = [
   { href: "/admin/leads", label: "Leads", icon: Users },
+  { href: "/admin/scans", label: "Brand scans", icon: Gauge },
   { href: "/admin/conversations", label: "Conversations", icon: MessageSquare },
   { href: "/admin/objections", label: "Objections", icon: ShieldAlert },
   { href: "/admin/studio", label: "Studio", icon: SlidersHorizontal },

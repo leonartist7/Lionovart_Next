@@ -11,6 +11,7 @@ export function NovaPortalMount() {
   const pathname = usePathname();
   const isOpen = useNovaStore((s) => s.isOpen);
   const autoStart = useNovaStore((s) => s.autoStart);
+  const scanId = useNovaStore((s) => s.scanId);
   const closeNova = useNovaStore((s) => s.closeNova);
   const [everOpened, setEverOpened] = useState(false);
 
@@ -27,6 +28,6 @@ export function NovaPortalMount() {
   if (!everOpened) return null;
 
   return (
-    <StrategistPanel isOpen={isOpen} onClose={closeNova} autoStart={autoStart} />
+    <StrategistPanel isOpen={isOpen} onClose={closeNova} autoStart={autoStart} scanId={scanId} />
   );
 }

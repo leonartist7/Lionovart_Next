@@ -2,3 +2,8 @@ node_modules
 .next
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# Local env — never commit. (.env.production is tracked deliberately; it holds
+# only build flags and the public WhatsApp number, no secrets.)
+.env.local
+.env*.local

@@ -150,3 +150,129 @@ export async function sendDossierEmail({
     console.error("[email] dossier send failed:", err);
   }
 }
+
+/**
+ * The Brand Score report — the deliverable that earns the email. This is the
+ * first thing a prospect judges LIONOVART by, so it carries the full read:
+ * every pillar, the biggest leak, the positioning they should own, and the
+ * findings held back from the on-page teaser.
+ */
+export async function sendBrandReportEmail({
+  toEmail,
+  toName,
+  businessName,
+  siteUrl,
+  overall,
+  pillars,
+  headline,
+  biggestLeak,
+  positioning,
+  quickWins,
+  fullFindings,
+  portalUrl,
+  bookingUrl,
+}: {
+  toEmail: string;
+  toName?: string;
+  businessName: string;
+  siteUrl: string;
+  overall: number;
+  pillars: Array<{ label: string; score: number; verdict: string }>;
+  headline: string;
+  biggestLeak: { title: string; detail: string; cost: string };
+  positioning?: string;
+  quickWins: string[];
+  fullFindings: string[];
+  portalUrl: string;
+  bookingUrl: string;
+}): Promise<boolean> {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn("[email] RESEND_API_KEY unset — skipping brand report email");
+    return false;
+  }
+
+  // Red below 50, amber to 74, green above — the same bands the on-page dial uses.
+  const bandColor = (n: number) => (n < 50 ? "#e5192a" : n < 75 ? "#d98324" : "#1f9d55");
+
+  const pillarRows = pillars
+    .map(
+      (p) => `
+      <tr>
+        <td style="padding:10px 0;border-bottom:1px solid #eee;">
+          <div style="font-size:13px;font-weight:600;color:#1a1a1a;">${p.label}
+            <span style="float:right;color:${bandColor(p.score)};">${p.score}</span>
+          </div>
+          <div style="height:5px;background:#eee;border-radius:3px;margin:6px 0 7px;">
+            <div style="height:5px;width:${p.score}%;background:${bandColor(p.score)};border-radius:3px;"></div>
+          </div>
+          <div style="font-size:13px;line-height:1.6;color:#555;">${p.verdict}</div>
+        </td>
+      </tr>`,
+    )
+    .join("");
+
+  const listItems = (items: string[]) =>
+    items.map((i) => `<li style="margin-bottom:8px;line-height:1.6;">${i}</li>`).join("");
+
+  const htmlBody = `
+    <div style="font-family:-apple-system,Segoe UI,sans-serif;max-width:600px;margin:0 auto;color:#1a1a1a;">
+      <p style="font-size:11px;color:#e5192a;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin:0 0 6px;">LIONOVART Brand Score</p>
+      <h1 style="font-size:22px;margin:0 0 4px;">${businessName}</h1>
+      <p style="font-size:13px;color:#888;margin:0 0 24px;">${siteUrl}</p>
+
+      <div style="text-align:center;padding:24px;background:#fafafa;border-radius:12px;margin-bottom:24px;">
+        <div style="font-size:52px;font-weight:700;line-height:1;color:${bandColor(overall)};">${overall}<span style="font-size:20px;color:#aaa;">/100</span></div>
+        <p style="font-size:14px;line-height:1.6;color:#444;margin:14px 0 0;">${headline}</p>
+      </div>
+
+      <h2 style="font-size:14px;text-transform:uppercase;letter-spacing:0.08em;color:#888;margin:0 0 4px;">The five pillars</h2>
+      <table style="width:100%;border-collapse:collapse;">${pillarRows}</table>
+
+      <div style="border-left:3px solid #e5192a;padding:14px 18px;margin:28px 0;background:#fff6f6;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#e5192a;margin:0 0 6px;">Your biggest leak</p>
+        <p style="font-size:16px;font-weight:600;margin:0 0 8px;">${biggestLeak.title}</p>
+        <p style="font-size:14px;line-height:1.7;color:#333;margin:0 0 10px;">${biggestLeak.detail}</p>
+        <p style="font-size:13px;line-height:1.6;color:#777;margin:0;font-style:italic;">${biggestLeak.cost}</p>
+      </div>
+
+      ${
+        positioning
+          ? `<h2 style="font-size:14px;text-transform:uppercase;letter-spacing:0.08em;color:#888;margin:0 0 8px;">The positioning you should own</h2>
+             <p style="font-size:16px;line-height:1.6;color:#1a1a1a;margin:0 0 28px;">"${positioning}"</p>`
+          : ""
+      }
+
+      <h2 style="font-size:14px;text-transform:uppercase;letter-spacing:0.08em;color:#888;margin:0 0 8px;">Fix these this week</h2>
+      <ol style="font-size:14px;color:#333;padding-left:18px;margin:0 0 28px;">${listItems(quickWins)}</ol>
+
+      ${
+        fullFindings.length
+          ? `<h2 style="font-size:14px;text-transform:uppercase;letter-spacing:0.08em;color:#888;margin:0 0 8px;">The deeper read</h2>
+             <ul style="font-size:14px;color:#333;padding-left:18px;margin:0 0 28px;">${listItems(fullFindings)}</ul>`
+          : ""
+      }
+
+      <div style="text-align:center;padding:24px 0;border-top:1px solid #eee;">
+        <a href="${portalUrl}" style="display:inline-block;background:#e5192a;color:#fff;text-decoration:none;padding:13px 26px;border-radius:999px;font-size:14px;font-weight:600;">View your live report →</a>
+        <p style="font-size:13px;color:#777;margin:18px 0 0;line-height:1.6;">
+          Want to talk it through? <a href="${bookingUrl}" style="color:#e5192a;">Book 20 minutes with Leon</a> — he'll have read this before you speak.
+        </p>
+      </div>
+
+      <p style="font-size:13px;color:#888;margin-top:24px;">— Nova, LIONOVART Strategic AI</p>
+    </div>
+  `;
+
+  try {
+    await getResend().emails.send({
+      from: FROM,
+      to: toEmail,
+      subject: `${businessName} scored ${overall}/100 — here's what's leaking`,
+      html: htmlBody,
+    });
+    return true;
+  } catch (err) {
+    console.error("[email] brand report send failed:", err);
+    return false;
+  }
+}

@@ -17,14 +17,20 @@ interface LeadDoc {
   niche?: string;
   source?: string;
   status?: LeadStatus;
-  updated_at?: string;
+  score?: number;
+  brand_score?: number;
+  website?: string;
+  updated_at?: string | { _seconds: number };
 }
 
 const STATUSES: LeadStatus[] = ["new", "contacted", "booked", "won", "lost"];
 
-function relativeTime(iso?: string): string {
-  if (!iso) return "—";
-  const ms = Date.now() - Date.parse(iso);
+// Accepts both shapes: leads are written with ISO strings, but docs created
+// before that was unified still carry Firestore Timestamps.
+function relativeTime(value?: string | { _seconds: number }): string {
+  if (!value) return "—";
+  const parsed = typeof value === "string" ? Date.parse(value) : value._seconds * 1000;
+  const ms = Date.now() - parsed;
   if (Number.isNaN(ms)) return "—";
   const mins = Math.round(ms / 60000);
   if (mins < 1) return "just now";
@@ -102,6 +108,7 @@ export default async function LeadsPage({
                 <th className="px-4 py-3 font-medium">Name</th>
                 <th className="px-4 py-3 font-medium">Contact</th>
                 <th className="px-4 py-3 font-medium">Business</th>
+                <th className="px-4 py-3 font-medium">Score</th>
                 <th className="px-4 py-3 font-medium">Source</th>
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Updated</th>
@@ -117,6 +124,7 @@ export default async function LeadsPage({
                   </td>
                   <td className="px-4 py-3 text-white/60">{lead.phone || lead.email || lead.contact || "—"}</td>
                   <td className="px-4 py-3 text-white/60">{lead.business_type || lead.niche || "—"}</td>
+                  <td className="px-4 py-3"><ScoreCell qualified={lead.score} brand={lead.brand_score} /></td>
                   <td className="px-4 py-3 text-white/40">{lead.source || "—"}</td>
                   <td className="px-4 py-3">
                     <LeadStatusSelect leadId={lead.id} status={lead.status ?? "new"} />
@@ -135,6 +143,20 @@ export default async function LeadsPage({
 function PageHeader() {
   return (
     <h1 className="mb-6 font-[var(--font-clash)] text-xl tracking-[0.15em] text-white uppercase">Leads</h1>
+  );
+}
+
+/** Qualification score (from the dossier) leads; the Brand Score sits behind
+ * it as the top-of-funnel signal when nobody has been qualified yet. */
+function ScoreCell({ qualified, brand }: { qualified?: number; brand?: number }) {
+  const value = qualified ?? brand;
+  if (value === undefined) return <span className="text-white/20">—</span>;
+  const color = value < 50 ? "text-brand-red" : value < 75 ? "text-amber-400" : "text-emerald-400";
+  return (
+    <span className="flex items-baseline gap-1.5">
+      <span className={`tabular-nums ${color}`}>{value}</span>
+      {qualified === undefined && <span className="text-[10px] text-white/25">brand</span>}
+    </span>
   );
 }
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
 import { generateDossier, dossierToMarkdown, saveDossier } from "@/lib/dossier";
 import { sendDossierEmail } from "@/lib/email";
+import { notifyOwner } from "@/lib/notify";
 import { rateLimitOk } from "@/lib/rate-limit";
 
 interface DossierRequest {
@@ -53,6 +54,8 @@ export async function POST(req: NextRequest) {
     const markdown = dossierToMarkdown(dossier, lead, leadId);
     const dossierId = await saveDossier(leadId, dossier, markdown);
 
+    const leadUrl = new URL(`/admin/leads/${leadId}`, req.nextUrl.origin).toString();
+
     void sendDossierEmail({
       leadName: lead.name || "Unnamed lead",
       qualificationScore: dossier.qualification_score,
@@ -60,8 +63,26 @@ export async function POST(req: NextRequest) {
       painsRanked: dossier.pains_ranked,
       recommendedNextAction: dossier.recommended_next_action,
       draftFollowUp: dossier.draft_follow_up_message,
-      leadUrl: new URL(`/admin/leads/${leadId}`, req.nextUrl.origin).toString(),
+      leadUrl,
     });
+
+    // The qualification lands on Leon's phone too — the score and what to do
+    // next are the parts he acts on, and he shouldn't need his inbox for them.
+    void notifyOwner({
+      kind: "dossier_ready",
+      leadName: lead.name || "Unnamed lead",
+      score: dossier.qualification_score,
+      rubric: dossier.qualification_rubric,
+      topPains: dossier.pains_ranked,
+      nextAction: dossier.recommended_next_action,
+      leadUrl,
+    });
+
+    // Mirror the score onto the lead so the Console can sort and filter by it
+    // without reading every dossier subcollection.
+    void leadDoc.ref
+      .update({ score: dossier.qualification_score, updated_at: new Date().toISOString() })
+      .catch((err) => console.error("[dossier route] score mirror failed:", err));
 
     return NextResponse.json({ generated: true, dossier_id: dossierId }, { status: 200 });
   } catch (err) {
