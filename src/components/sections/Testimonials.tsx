@@ -411,9 +411,9 @@ export default function Testimonials(
             </div>
           </div>
 
-          <div className="pointer-events-none absolute -right-[42%] top-[145px] z-0 w-[clamp(290px,82vw,360px)] sm:-right-[18%] sm:top-[125px] sm:w-[clamp(22rem,57vw,27.5rem)] md:-right-[8%] md:w-[clamp(25rem,52vw,31rem)] lg:pointer-events-auto lg:relative lg:right-auto lg:top-auto lg:z-10 lg:justify-self-end lg:pt-[clamp(9rem,12vw,12rem)] lg:w-[clamp(25rem,34vw,39rem)]">
+          <div className="pointer-events-none absolute -right-[12%] top-[145px] z-0 w-[clamp(290px,82vw,360px)] sm:-right-[8%] sm:top-[125px] sm:w-[clamp(22rem,57vw,27.5rem)] md:-right-[4%] md:w-[clamp(25rem,52vw,31rem)] lg:pointer-events-auto lg:relative lg:right-auto lg:top-auto lg:z-10 lg:justify-self-end lg:pt-[clamp(9rem,12vw,12rem)] lg:w-[clamp(25rem,34vw,39rem)]">
             <GlobePulse className="opacity-90 lg:opacity-100" />
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-2/5 bg-gradient-to-r from-bg-brand-black via-bg-brand-black/60 to-transparent lg:hidden" />
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-bg-brand-black via-bg-brand-black/60 to-transparent lg:hidden" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-bg-brand-black to-transparent lg:h-1/5" />
           </div>
         </div>
