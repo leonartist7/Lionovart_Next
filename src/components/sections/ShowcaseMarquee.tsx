@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const C = "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_1000,c_fill,g_auto";
@@ -14,29 +15,29 @@ const SHOWCASE_IMAGES = [
   `${C}/v1775277350/image_19_rnwg8w.avif`,
 ];
 
-function ShowcaseGroup({
-  titles,
-  duplicate = false,
-}: {
-  titles: string[];
-  duplicate?: boolean;
-}) {
+const CAROUSEL_IMAGES = [...SHOWCASE_IMAGES, ...SHOWCASE_IMAGES];
+
+function ShowcaseRing({ titles }: { titles: string[] }) {
   return (
-    <div className="showcase-marquee__group" aria-hidden={duplicate || undefined}>
-      {SHOWCASE_IMAGES.map((src, index) => {
-        const title = titles[index] ?? "LIONOVART showcase";
+    <div className="showcase-marquee__track">
+      {CAROUSEL_IMAGES.map((src, index) => {
+        const serviceIndex = index % SHOWCASE_IMAGES.length;
+        const duplicate = index >= SHOWCASE_IMAGES.length;
+        const title = titles[serviceIndex] ?? "LIONOVART showcase";
 
         return (
           <figure
-            key={src}
-            className="group relative w-[78vw] max-w-[360px] shrink-0 overflow-hidden rounded-[18px] sm:w-[48vw] sm:max-w-[420px] lg:w-[34vw] lg:max-w-[520px]"
+            key={`${src}-${index}`}
+            aria-hidden={duplicate || undefined}
+            style={{ "--showcase-index": index } as CSSProperties}
+            className="showcase-marquee__card group relative overflow-hidden rounded-[18px] sm:rounded-[22px]"
           >
-            <div className="relative aspect-[4/3] overflow-hidden">
+            <div className="relative h-full w-full overflow-hidden">
               <Image
                 src={src}
                 alt={duplicate ? "" : `${title} — selected LIONOVART work`}
                 fill
-                sizes="(max-width: 639px) 78vw, (max-width: 1023px) 48vw, 34vw"
+                sizes="(max-width: 639px) 64vw, (max-width: 1023px) 46vw, 32vw"
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
               />
               <div
@@ -48,7 +49,7 @@ function ShowcaseGroup({
                   {title}
                 </span>
                 <span className="shrink-0 font-mono text-[10px] font-bold tracking-[0.22em] text-brand-red sm:text-[11px]">
-                  {String(index + 1).padStart(2, "0")}
+                  {String(serviceIndex + 1).padStart(2, "0")}
                 </span>
               </figcaption>
             </div>
@@ -98,10 +99,7 @@ export default function ShowcaseMarquee() {
         tabIndex={0}
         aria-label={t.showcase.eyebrow}
       >
-        <div className="showcase-marquee__track">
-          <ShowcaseGroup titles={titles} />
-          <ShowcaseGroup titles={titles} duplicate />
-        </div>
+        <ShowcaseRing titles={titles} />
       </div>
 
       <div className="relative z-10 mx-auto mt-8 flex max-w-[1280px] items-center gap-4 px-5 sm:px-8 lg:px-12">

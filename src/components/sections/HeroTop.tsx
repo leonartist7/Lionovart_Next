@@ -369,7 +369,7 @@ export default function HeroTop(props: any) {
   };
 
   return (
-    <section className="relative flex min-h-[90vh] flex-col items-center justify-center overflow-hidden px-4 pb-14 pt-[clamp(7.25rem,13vh,9.5rem)] text-center sm:px-6 sm:pb-16 sm:pt-[clamp(7.75rem,14vh,10rem)] lg:pt-[clamp(8.25rem,15vh,11rem)]">
+    <section className="relative flex flex-col items-center justify-center overflow-hidden px-4 pb-14 pt-[clamp(7.25rem,13vh,9.5rem)] text-center sm:px-6 sm:pb-16 sm:pt-[clamp(7.75rem,14vh,10rem)] lg:pt-[clamp(8.25rem,15vh,11rem)]">
 
       {/* Controlled dark stage + soft red glow up top; clears toward the
           bottom so the video behind PEEKS at the fold and pulls scroll. */}

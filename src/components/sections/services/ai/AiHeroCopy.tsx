@@ -59,7 +59,7 @@ export default function AiHeroCopy() {
   }, []);
 
   return (
-    <div ref={wrapRef} data-lion-zone className="relative h-[220svh] motion-reduce:h-svh">
+    <div ref={wrapRef} data-ai-snap data-lion-zone className="relative h-[220svh] motion-reduce:h-svh">
       {/* The first frame establishes the page's editorial rhythm: copy on the
           left, the living lion on the right, with the mobile composition
           returning both toward centre. */}

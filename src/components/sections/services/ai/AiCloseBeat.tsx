@@ -88,6 +88,7 @@ export default function AiCloseBeat({ children }: { children: React.ReactNode })
   return (
     <div
       ref={wrapRef}
+      data-ai-snap
       data-lion-zone
       className="[&_figcaption]:!text-[15px] [&_figcaption]:!text-white/65 [&_section_p]:!text-[16px] [&_section_p]:!leading-[1.6] [&_section_p]:!text-white/68 md:[&_section_p]:!text-[17px]"
     >
