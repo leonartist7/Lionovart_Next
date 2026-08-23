@@ -334,16 +334,17 @@
 }
 
 .showcase-marquee__viewport {
-  --showcase-card-width: clamp(15rem, 28vw, 28rem);
-  --showcase-radius: clamp(28rem, 52vw, 54rem);
+  /* Keep the camera close enough that the centre card is unmistakably nearer. */
+  --showcase-card-width: clamp(13rem, 22vw, 24rem);
+  --showcase-radius: clamp(17rem, 38vw, 36rem);
   display: grid;
-  height: clamp(27rem, 47vw, 42rem);
+  height: clamp(29rem, 43vw, 40rem);
   overflow: hidden;
-  perspective: clamp(88rem, 160vw, 156rem);
+  perspective: clamp(30rem, 62vw, 60rem);
   perspective-origin: 50% 50%;
   contain: layout paint;
-  mask-image: linear-gradient(90deg, transparent, black 5%, black 95%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, black 5%, black 95%, transparent);
+  mask-image: linear-gradient(90deg, transparent, black 7%, black 93%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 7%, black 93%, transparent);
 }
 
 .showcase-marquee__track {
@@ -351,7 +352,7 @@
   place-self: center;
   width: var(--showcase-card-width);
   transform-style: preserve-3d;
-  animation: showcase-carousel-outward 48s linear infinite;
+  animation: showcase-carousel-outward 38s linear infinite;
   will-change: transform;
 }
 
@@ -360,10 +361,11 @@
   width: var(--showcase-card-width);
   aspect-ratio: 16 / 9;
   margin: 0;
-  border: 1px solid rgba(255, 255, 255, 0.46);
+  border: 2px solid rgba(255, 255, 255, 0.62);
   background: #151515;
   box-shadow:
-    0 2.5rem 4.5rem -2rem rgba(0, 0, 0, 0.46),
+    0 3rem 5.5rem -2rem rgba(0, 0, 0, 0.58),
+    0 1rem 2rem -1.2rem rgba(229, 25, 42, 0.28),
     0 0 0 1px rgba(0, 0, 0, 0.06);
   transform:
     rotateY(calc(var(--showcase-index) * 30deg))
@@ -381,16 +383,16 @@
 
 @media (min-width: 1024px) {
   .showcase-marquee__track {
-    animation-duration: 62s;
+    animation-duration: 46s;
   }
 }
 
 @media (max-width: 639px) {
   .showcase-marquee__viewport {
-    --showcase-card-width: clamp(14rem, 64vw, 16rem);
-    --showcase-radius: clamp(26rem, 116vw, 30rem);
-    height: 28rem;
-    perspective: 82rem;
+    --showcase-card-width: clamp(10rem, 45vw, 12rem);
+    --showcase-radius: clamp(17rem, 74vw, 20rem);
+    height: 26rem;
+    perspective: 30rem;
     mask-image: linear-gradient(90deg, transparent, black 3%, black 97%, transparent);
     -webkit-mask-image: linear-gradient(90deg, transparent, black 3%, black 97%, transparent);
   }
@@ -525,34 +527,17 @@
     transform: none !important;
   }
   .showcase-marquee__viewport {
-    display: block;
-    height: auto;
-    overflow-x: auto;
-    perspective: none;
-    mask-image: none;
-    -webkit-mask-image: none;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-  }
-  .showcase-marquee__viewport::-webkit-scrollbar {
-    display: none;
+    /* Preserve the outward composition while removing only the movement. */
+    display: grid;
   }
   .showcase-marquee__track {
-    display: flex;
-    width: max-content;
-    gap: 1rem;
-    transform: none !important;
-    padding-inline: 1.25rem;
+    display: grid;
+    width: var(--showcase-card-width);
+    transform: rotateY(0deg) !important;
     animation: none !important;
   }
-  .showcase-marquee__card[aria-hidden="true"] {
-    display: none;
-  }
   .showcase-marquee__card {
-    flex: 0 0 auto;
-    width: min(78vw, 22.5rem);
-    transform: none;
-    scroll-snap-align: start;
+    width: var(--showcase-card-width);
   }
 }
 
