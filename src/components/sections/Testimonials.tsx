@@ -346,22 +346,30 @@ function TestimonialMarqueeColumn({
   reverse?: boolean;
 }) {
   return (
-    <Marquee
-      vertical
-      reverse={reverse}
-      repeat={2}
+    <div
       data-testimonial-column={side}
       className={cn(
-        "testimonial-marquee-column h-full [--gap:1rem]",
+        "testimonial-marquee-lane h-full",
         side === "right"
-          ? "testimonial-marquee-column--right [--duration:64s]"
-          : "testimonial-marquee-column--left [--duration:72s]"
+          ? "testimonial-marquee-lane--right"
+          : "testimonial-marquee-lane--left"
       )}
     >
-      {cards.map((card) => (
-        <MarqueeCard key={card.id} card={card} />
-      ))}
-    </Marquee>
+      <Marquee
+        vertical
+        reverse={reverse}
+        repeat={2}
+        data-testimonial-track={side}
+        className={cn(
+          "testimonial-marquee-column h-full [--gap:1rem]",
+          side === "right" ? "[--duration:64s]" : "[--duration:72s]"
+        )}
+      >
+        {cards.map((card) => (
+          <MarqueeCard key={card.id} card={card} />
+        ))}
+      </Marquee>
+    </div>
   );
 }
 
@@ -416,7 +424,7 @@ export default function Testimonials(
               </motion.h2>
             </div>
 
-            <div className="testimonial-marquee-stage relative mt-8 flex h-[560px] w-full flex-row items-center justify-start overflow-hidden min-[480px]:justify-center min-[480px]:px-[clamp(12px,3vw,32px)] sm:mt-10 sm:h-[600px] md:h-[660px] lg:mt-12 lg:h-[720px] lg:px-0">
+            <div className="testimonial-marquee-stage relative z-10 mt-12 flex h-[560px] w-full flex-row items-center justify-start overflow-hidden min-[480px]:justify-center min-[480px]:px-[clamp(12px,3vw,32px)] sm:mt-12 sm:h-[600px] md:h-[660px] lg:mt-12 lg:h-[720px] lg:px-0">
               <div className="testimonials-marquee-plane flex h-full flex-row-reverse items-start gap-3 sm:gap-4 xl:gap-5">
                 <TestimonialMarqueeColumn cards={col1} side="right" />
                 <TestimonialMarqueeColumn cards={col2} side="left" reverse />
@@ -432,7 +440,7 @@ export default function Testimonials(
             </div>
           </div>
 
-          <div className="pointer-events-none absolute -right-[12%] top-[clamp(4rem,13vw,5.5rem)] z-0 w-[clamp(290px,82vw,360px)] sm:-right-[8%] sm:top-[clamp(4rem,10vw,5rem)] sm:w-[clamp(22rem,57vw,27.5rem)] md:-right-[4%] md:w-[clamp(25rem,52vw,31rem)] lg:pointer-events-auto lg:relative lg:right-auto lg:top-auto lg:z-10 lg:justify-self-end lg:pt-[clamp(9rem,12vw,12rem)] lg:w-[clamp(25rem,34vw,39rem)]">
+          <div className="testimonials-globe-transition">
             <GlobePulse className="opacity-90 lg:opacity-100" />
             <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-bg-brand-black via-bg-brand-black/60 to-transparent lg:hidden" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-bg-brand-black to-transparent lg:h-1/5" />
