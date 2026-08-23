@@ -9,25 +9,33 @@ interface Props {
   /**
    * Surrounding surface the card blends into. "light" → warm near-white
    * (`bg-bg-surface-light`) with a faded dark outline; "dark" → page dark bg
-   * with a faded light outline. Default "dark".
+   * with a faded light outline. Default `"dark"`.
    */
   theme?: "light" | "dark";
   /** Override the blend background. Defaults to the theme's surface token. */
   bgClassName?: string;
-  /** Height of the compact background strip. */
+  /** Height of the card section in CSS units. Default `38vh`. */
   height?: string;
+  /** Responsive font size for the chapter word. */
+  fontSize?: string;
 }
 
 /**
- * SectionTitleCard — a compact chapter strip whose outline title traverses
- * the viewport horizontally as the user scrolls past. It blends into the
- * surrounding surface instead of reading as a standalone section.
+ * SectionTitleCard — a single decisive word that traverses the viewport
+ * horizontally as the user scrolls past, like a chapter card in a film.
+ *
+ * The word is rendered at viewport-filling scale in Clash Display as a soft
+ * faded outline (no fill), with a Lacquer Red period as closing punctuation.
+ * Its horizontal translation is locked 1:1 to scroll position via
+ * onScroll({ sync: 1 }). The card blends into the surrounding section surface
+ * (theme) so the moment registers as a ghosted chapter break, not a hard block.
  */
 export function SectionTitleCard({
   word,
   theme = "dark",
   bgClassName,
-  height = "clamp(6.5rem, 16vh, 11rem)",
+  height = "38vh",
+  fontSize = "clamp(7rem, 22vw, 22rem)",
 }: Props) {
   const isLight = theme === "light";
   const surface = bgClassName ?? (isLight ? "bg-bg-surface-light" : "bg-bg-dark");
@@ -83,17 +91,16 @@ export function SectionTitleCard({
     >
       <h2
         ref={wordRef}
-        className="absolute left-0 top-1/2 -translate-y-1/2 whitespace-nowrap px-0 font-clash font-bold uppercase"
+        className="absolute top-1/2 left-0 -translate-y-1/2 whitespace-nowrap font-clash font-bold uppercase"
         style={{
-          fontSize: "clamp(4rem, 11vw, 9rem)",
-          lineHeight: 1,
+          fontSize,
+          lineHeight: 0.82,
           letterSpacing: "-0.045em",
           margin: 0,
-          paddingBlock: "0.08em",
           willChange: "transform",
           color: "transparent",
           WebkitTextFillColor: "transparent",
-          WebkitTextStroke: `1.5px ${strokeColor}`,
+          WebkitTextStroke: `2px ${strokeColor}`,
         }}
       >
         {body}

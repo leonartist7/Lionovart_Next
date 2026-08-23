@@ -2,3 +2,15 @@ node_modules
 .next
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# Local environment files may contain secrets.
+.env.local
+
+# Generated diagnostics and verification artifacts.
+.tmp-*.log
+graphify-out/
+docs/v2-screenshots/
+/nul
+
+# Agent worktrees are separate Git checkouts, never project content.
+.claude/worktrees/
