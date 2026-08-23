@@ -416,9 +416,9 @@
 .testimonials-marquee-plane {
   --review-perspective: 460px;
   --review-depth: -40px;
-  --review-rotate-x: 12deg;
-  --review-rotate-y: 3deg;
-  --review-rotate-z: -2deg;
+  --review-rotate-x: 15deg;
+  --review-rotate-y: 3.6deg;
+  --review-rotate-z: -2.4deg;
   transform:
     perspective(var(--review-perspective))
     translateX(-12px)
@@ -456,7 +456,7 @@
 @media (min-width: 480px) and (max-width: 1023px) {
   .testimonials-marquee-plane {
     --review-depth: -48px;
-    --review-rotate-y: 4deg;
+    --review-rotate-y: 4.8deg;
     transform:
       perspective(var(--review-perspective))
       translateX(0)
@@ -470,8 +470,8 @@
   .testimonials-marquee-plane {
     --review-perspective: 360px;
     --review-depth: -70px;
-    --review-rotate-y: 6deg;
-    --review-rotate-z: -3deg;
+    --review-rotate-y: 7.2deg;
+    --review-rotate-z: -3.6deg;
     transform:
       perspective(var(--review-perspective))
       translateX(clamp(-36px, -2.5vw, -20px))
