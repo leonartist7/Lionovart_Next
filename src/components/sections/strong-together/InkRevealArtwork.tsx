@@ -7,14 +7,8 @@ const ART_ASPECT = 1536 / 1024;
 
 type Bloom = { cx: number; cy: number; rStart: number; rFinal: number };
 
-/**
- * Ink blooms in viewBox space. The union of all final circles covers the full
- * viewBox, so the wash always fills the viewport at any aspect ratio (the SVG
- * uses xMidYMid slice, which can only crop the square, never reveal more).
- * Bloom 0 is the primary wash, originating at the paw/hand contact point.
- */
 const BLOOMS: Bloom[] = [
-  { cx: 500, cy: 500, rStart: 3, rFinal: 540 },
+  { cx: 500, cy: 300, rStart: 2.5, rFinal: 1250 },
   { cx: 60, cy: 60, rStart: 1.5, rFinal: 235 },
   { cx: 940, cy: 60, rStart: 1.5, rFinal: 235 },
   { cx: 60, cy: 940, rStart: 1.5, rFinal: 235 },
@@ -28,6 +22,7 @@ const BLOOMS: Bloom[] = [
 export type InkRevealArtworkHandle = {
   blooms: SVGCircleElement[];
   art: SVGImageElement | null;
+  setOriginFromClientPoint: (clientX: number, clientY: number) => void;
 };
 
 type InkRevealArtworkProps = {
@@ -48,6 +43,20 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
     const maskId = `ink-mask-${uid}`;
     const filterId = `ink-filter-${uid}`;
 
+    const clientPointToViewBox = (clientX: number, clientY: number) => {
+      const svg = svgRef.current;
+      if (!svg) return null;
+      const rect = svg.getBoundingClientRect();
+      if (!rect.width || !rect.height) return null;
+      const scale = Math.max(rect.width, rect.height) / VIEWBOX;
+      const offsetX = (rect.width - VIEWBOX * scale) / 2;
+      const offsetY = (rect.height - VIEWBOX * scale) / 2;
+      return {
+        x: (clientX - rect.left - offsetX) / scale,
+        y: (clientY - rect.top - offsetY) / scale,
+      };
+    };
+
     useIsomorphicLayoutEffect(() => {
       const svg = svgRef.current;
       const art = artRef.current;
@@ -59,10 +68,11 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
         const scale = Math.max(rect.width, rect.height) / VIEWBOX;
         const viewW = rect.width / scale;
         const viewH = rect.height / scale;
+        const visibleY = (VIEWBOX - viewH) / 2;
         const artW = Math.min(viewW, viewH * ART_ASPECT);
         const artH = artW / ART_ASPECT;
         art.setAttribute("x", String((VIEWBOX - artW) / 2));
-        art.setAttribute("y", String((VIEWBOX - artH) / 2));
+        art.setAttribute("y", String(visibleY + viewH - artH));
         art.setAttribute("width", String(artW));
         art.setAttribute("height", String(artH));
       };
@@ -81,6 +91,20 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
         },
         get art() {
           return artRef.current;
+        },
+        setOriginFromClientPoint(clientX: number, clientY: number) {
+          const origin = clientPointToViewBox(clientX, clientY);
+          const primary = bloomRefs.current[0];
+          if (!origin || !primary) return;
+          primary.setAttribute("cx", String(origin.x));
+          primary.setAttribute("cy", String(origin.y));
+          const radius = Math.max(
+            Math.hypot(origin.x, origin.y),
+            Math.hypot(VIEWBOX - origin.x, origin.y),
+            Math.hypot(origin.x, VIEWBOX - origin.y),
+            Math.hypot(VIEWBOX - origin.x, VIEWBOX - origin.y)
+          ) + 36;
+          primary.dataset.rFinal = String(radius);
         },
       }),
       []
@@ -131,6 +155,7 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
                   cy={bloom.cy}
                   r={reducedMotion ? bloom.rFinal : bloom.rStart}
                   fill="#fff"
+                  data-r-start={bloom.rStart}
                   data-r-final={bloom.rFinal}
                 />
               ))}
@@ -143,7 +168,7 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
             ref={artRef}
             href="/images/ONE-background.avif"
             preserveAspectRatio="xMidYMid meet"
-            opacity={reducedMotion ? 1 : 0.75}
+            opacity={reducedMotion ? 1 : 0.72}
           />
         </g>
       </svg>
