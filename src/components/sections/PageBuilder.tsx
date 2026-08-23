@@ -40,7 +40,12 @@ export function PageBuilder() {
 
       <NovaSection id="hero"><HeroTop /></NovaSection>
 
-      <div>
+      {/* relative z-[2] is required, not cosmetic: SceneVideoBackdrop is
+          position:fixed z-[0], and a positioned z-index:0 element paints
+          ABOVE non-positioned block descendants. Without a stacking context
+          here the backdrop covers every section below the hero (the hero
+          only survives because its content is `relative z-40`). */}
+      <div className="relative z-[2]">
         <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
         <BridgeStatement />
         <StrongTogetherTransition />
