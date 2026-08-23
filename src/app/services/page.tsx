@@ -6,9 +6,10 @@ import ClosingCTA from "@/components/sections/ClosingCTA";
 import { SERVICE_ROUTES } from "@/lib/service-routes";
 
 export const metadata: Metadata = {
-  title: "Services",
+  title: "Creative & Digital Services in Calgary",
   description:
-    "Brand identity, web and apps, content and film, print, AI systems, and growth marketing. One studio, every medium.",
+    "Brand identity, web and apps, content and film, print, AI systems, and growth marketing. One studio, every medium — serving Calgary and beyond.",
+  alternates: { canonical: "/services" },
 };
 
 /** /services — overview hub linking every service page. */
