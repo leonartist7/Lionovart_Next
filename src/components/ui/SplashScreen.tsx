@@ -17,7 +17,7 @@ const REVEAL_DURATION_MS = 1300;
 const EXIT_DURATION_MS = 280;
 
 export default function SplashScreen() {
-  const [visible, setVisible] = useState<boolean | null>(null);
+  // Render the overlay in the server HTML so page content can never flash first.\n  const [visible, setVisible] = useState(true);
   const [exiting, setExiting] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const completedRef = useRef(false);
@@ -93,7 +93,7 @@ export default function SplashScreen() {
     };
   }, [finish, lenis, signalSplashComplete]);
 
-  if (visible !== true) return null;
+  if (!visible) return null;
 
   return (
     <div
