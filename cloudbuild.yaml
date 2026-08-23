@@ -1,5 +1,5 @@
 steps:
-  # Redeploy marker 2026-08-21: rebuild the outward showcase carousel preview.
+  # Redeploy marker 2026-08-23: publish the verified mobile testimonial perspective.
   # Step 1: Build the Docker image
   # - NEXT_PUBLIC_* vars are hardcoded here (they're not sensitive)
   # - Secrets from Secret Manager are accessed via secretEnv (double-$$ syntax)
