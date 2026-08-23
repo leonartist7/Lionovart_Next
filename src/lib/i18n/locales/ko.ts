@@ -1,37 +1,11 @@
-// Korean translations — stub (copy of English, to be translated)
-import { en } from "./en";
 import type { Translations } from "./en";
 
 export const ko: Translations = {
-  ...en,
-  bridge: {
-    line1: "브랜드 뒤의 시간은 아무도 보지 않습니다.",
-    line2: "우리는 봅니다.",
-    accent: "우리도 지나온 시간이니까요.",
-    body: "그래서 제안서가 아니라, 이미 만들어 온 것에서 시작합니다.",
-  },
-
-  vow: {
-    line1: "에이전시 그 이상.",
-    line2: "당신의 유산을",
-    accent: "함께 만드는 파트너십.",
-    body: "우리는 클라이언트를 받지 않습니다. 당신이 만들어가는 것을 함께 만듭니다.",
-  },
-  footer: {
-    ...en.footer,
-    explore: "둘러보기",
-    services: "서비스",
-    about: "회사 소개",
-    whyUs: "왜 Lionovart인가",
-    howWeWork: "진행 방식",
-    results: "성과",
-    whatsapp: "WhatsApp",
-  },
   whatWeDo: {
     eyebrow: "우리가 하는 일",
-    statement: "브랜드를 무시할 수 없게 만듭니다.",
+    statement: "브랜드를 절대 무시할 수 없게 만듭니다.",
     trust: [
-      "라이언 프라이드의 20+ 브랜드",
+      "라이언 프라이드의 20개+ 브랜드",
       "3개 대륙에서 신뢰받는",
       "9개 언어, 하나의 기준",
     ],
@@ -39,12 +13,12 @@ export const ko: Translations = {
       {
         label: "리드",
         kicker: "브랜드 & 마케팅",
-        body: "고객이 가장 먼저 떠올리고 기억하는 브랜드로 만드는 아이덴티티와 마케팅.",
+        body: "당신을 당연한 선택으로, 그리고 사람들이 기억하는 브랜드로 만드는 아이덴티티와 마케팅.",
       },
       {
         label: "혁신",
         kicker: "AI & 자동화",
-        body: "맞춤형 시스템과 24/7 음성 에이전트로 시간을 되찾고 수익을 배가합니다.",
+        body: "맞춤형 시스템과 24/7 음성 에이전트로 시간을 되찾고 비즈니스의 수익을 배가합니다.",
       },
       {
         label: "창작",
@@ -53,32 +27,474 @@ export const ko: Translations = {
       },
     ],
   },
+
   nav: {
-    we: "우리",
+    we: "소개",
     services: "서비스",
     results: "성과",
     cta: "시작하기",
   },
-  testimonials: {
-    ...en.testimonials,
-    eyebrow: "고객 후기",
-    heading: "더 많은 성공 사례.",
-  },
+
   hero: {
-    ...en.hero,
-    staticText: ["우리는 만듭니다", "당신의 브랜드를"],
-    cyclingWords: ["포효하라", "두드러져라", "기억에 남아라", "매력적으로", "더 많이 팔아라", "지배하라"],
+    staticText: ["당신의 브랜드를", "이렇게 만듭니다"],
+    cyclingWords: ["포효하게", "돋보이게", "기억에 남게", "매력적으로", "더 팔리게", "시장을 지배하게"],
     subtitle:
-      "우리는 브랜드를 디자인하고, 웹사이트를 구축하며, 당신의 비즈니스가 무시할 수 없도록 만드는 콘텐츠를 제작합니다.",
+      "우리는 브랜드를 구축하고, 웹사이트를 개발하며, 당신의 비즈니스를 절대 무시할 수 없게 만드는 콘텐츠를 제작합니다.",
     ctaStart: "시작하기",
-    ctaStartOpening: "WhatsApp 열기…",
+    ctaStartOpening: "WhatsApp을 여는 중…",
+    ctaStrategist: "상담 에이전트와 대화하기",
     ctaWork: "작업물 보기",
-    stats: { clients: "클라이언트", industries: "업종", yearsExp: "년 경력" },
-    trustText: "50개 이상의 스타트업 및 글로벌 브랜드, 20개 이상의 업종에서 신뢰받고 있습니다.",
-    badges: {
-      brands: ["브랜드", "성장"],
-      experience: ["고객", "경험"],
-      countries: "국가",
+    stats: {
+      clients: "고객사",
+      industries: "업종",
+      yearsExp: "년 경력",
     },
+    trustText: "50개 이상의 스타트업과 글로벌 브랜드가 20개 이상의 업종에서 신뢰합니다.",
+    badges: {
+      brands: ["성장한", "브랜드"],
+      experience: ["고객", "경험"],
+      countries: "개국",
+    },
+  },
+
+  marquee: {
+    items: [
+      "레스토랑 & 카페",
+      "뷰티 & 웰니스",
+      "부티크 호텔",
+      "피트니스 & 스포츠",
+      "패션 & 리테일",
+      "부동산",
+      "전문 서비스",
+      "관광 & 여행",
+    ],
+  },
+
+  about: {
+    line1: "혁신은 더 이상 선택이 아닙니다\n— 필수입니다.",
+    line2: "예술가와 사업가로 이루어진 다분야 팀으로서, 우리는 오늘날의 디지털 시대를 선도하는 데 필요한 모든 것을 제공합니다.",
+    founderRole: "크리에이티브 & 비즈니스 디렉터",
+    founderStatus: "상담 가능",
+    stat1Label: "년",
+    stat1Desc: "디지털 혁신, 마케팅, 인쇄 매체 전반의 전문성.",
+    stat2Label: "개국 — 글로벌 도달",
+    stat2Desc: "4개 대륙의 고객을 지원하는 다국어 팀.",
+  },
+
+  process: {
+    eyebrow: "우리의 프로세스",
+    heading: "우리가",
+    headingAccent: "일하는 방식",
+    triggerLabel: "[TODO: translate]",
+    triggerSub: "[TODO: translate]",
+    expectLabel: "[TODO: translate]",
+    deliverLabel: "[TODO: translate]",
+    gainLabel: "[TODO: translate]",
+    cta: "[TODO: translate]",
+    ctaSub: "[TODO: translate]",
+    steps: [
+      {
+        title: "발견 & 전략",
+        description:
+          "우리는 당신의 비즈니스, 고객, 그리고 기준을 파악합니다. 대부분의 에이전시가 건너뛰는 질문을 던집니다. 최고의 크리에이티브는 명확함에서 시작되기 때문입니다.",
+        tag: "기초",
+        timeline: "[TODO: translate]",
+        expect: "[TODO: translate]",
+        deliver: "[TODO: translate]",
+        gain: "[TODO: translate]",
+      },
+      {
+        title: "크리에이티브 컨셉",
+        description:
+          "두세 가지 크리에이티브 방향을 개발하고, 시각 언어가 확실히 당신다워질 때까지 함께 다듬습니다. 예기치 못한 일도, 낭비되는 수정도 없습니다.",
+        tag: "디자인",
+        timeline: "[TODO: translate]",
+        expect: "[TODO: translate]",
+        deliver: "[TODO: translate]",
+        gain: "[TODO: translate]",
+      },
+      {
+        title: "개발 & 완성",
+        description:
+          "컨셉을 현실로 구현합니다 — 웹사이트, 영상, 소셜, 인쇄물까지. 모든 것은 동일한 기준으로 제작되며 매 단계 당신과 함께 검토합니다.",
+        tag: "실행",
+        timeline: "[TODO: translate]",
+        expect: "[TODO: translate]",
+        deliver: "[TODO: translate]",
+        gain: "[TODO: translate]",
+      },
+      {
+        title: "론칭 & 성장",
+        description:
+          "당신의 브랜드가 세상에 나옵니다. 우리는 단지 열쇠만 넘기지 않습니다. 시스템을 구축하고, 성과를 추적하며, 다음 단계를 위해 항상 함께합니다.",
+        tag: "성장",
+        timeline: "[TODO: translate]",
+        expect: "[TODO: translate]",
+        deliver: "[TODO: translate]",
+        gain: "[TODO: translate]",
+      },
+    ],
+  },
+
+  bridge: {
+    line1: "[TODO: translate]",
+    line2: "[TODO: translate]",
+    accent: "[TODO: translate]",
+    body: "[TODO: translate]",
+  },
+  vow: {
+    line1: "[TODO: translate]",
+    line2: "[TODO: translate]",
+    accent: "[TODO: translate]",
+    body: "[TODO: translate]",
+  },
+  footer: {
+    heading: "이제",
+    headingAccent: "지배할 차례입니다",
+    subtitle:
+      "더 이상 묻히지 마세요. 당신의 업계에서 독보적인 리더의 자리를 차지하세요.",
+    cta: "스프린트 예약하기",
+    tagline:
+      "야심 찬 창업자를 위한 프리미엄 브랜드 아이덴티티와 웹사이트.",
+    privacy: "개인정보 처리방침",
+    terms: "이용약관",
+    copyright: "판권 소유.",
+    explore: "[TODO: translate]",
+    services: "[TODO: translate]",
+    about: "[TODO: translate]",
+    whyUs: "[TODO: translate]",
+    howWeWork: "[TODO: translate]",
+    results: "[TODO: translate]",
+    whatsapp: "[TODO: translate]",
+  },
+
+  comparison: {
+    heading: "왜",
+    headingAccent: "우리인가",
+    headingSuffix: "?",
+    columns: [
+      "속도",
+      "유연성",
+      "품질",
+      "확장성",
+      "효율성",
+      "인상",
+      "지원",
+    ],
+    competitors: [
+      { title: "인하우스 팀", description: "채용에는 시간이 걸리고, 교체는 느리며, 급여는 쌓입니다 — 특히 필요가 변동될 때 더욱 그렇습니다." },
+      { title: "크리에이티브 에이전시", description: "전략적 파트너이지만, 높은 고정 비용과 경직된 범위, 느린 일정 탓에 일상적인 협업에는 잘 맞지 않습니다." },
+      { title: "프리랜서", description: "복불복입니다. 프로젝트마다 인재를 찾고 관리하다 보면 브랜드를 키우는 대신 일관성을 쫓게 됩니다." },
+      { title: "AI 도구만 사용", description: "쓰기엔 빠르지만, 결과물은 브랜드와 동떨어지고 일관성이 없어 마무리에 많은 수작업이 필요합니다." },
+    ],
+  },
+
+  faq: {
+    assistant: {
+      eyebrow: "[TODO: translate]",
+      heading: "[TODO: translate]",
+      body: "[TODO: translate]",
+      examplesLabel: "[TODO: translate]",
+      examples: ["[TODO: translate]", "[TODO: translate]", "[TODO: translate]"],
+      cta: "[TODO: translate]",
+    },
+    eyebrow: "궁금한 점이 있으신가요?",
+    heading: "자주 묻는",
+    headingAccent: "질문",
+    items: [
+      {
+        question: "일반적인 프로젝트는 얼마나 걸리나요?",
+        answer:
+          "표준 브랜드 아이덴티티 및 웹사이트 스프린트는 요구사항의 복잡성과 피드백 속도에 따라 4~6주가 소요됩니다.",
+      },
+      {
+        question: "론칭 후 지원도 제공하나요?",
+        answer:
+          "네, 디자인·개발·마케팅에 대한 지속적인 지원을 위한 리테이너 패키지를 제공하여 론칭 이후에도 브랜드가 계속 성장하도록 돕습니다.",
+      },
+      {
+        question: "어떤 플랫폼으로 웹사이트를 제작하나요?",
+        answer:
+          "성능과 디자인을 완벽히 제어할 수 있도록 완전 맞춤형 웹사이트와 애플리케이션을 제작합니다. 필요와 목표에 따라 Webflow와 Shopify로도 작업합니다.",
+      },
+      {
+        question: "결제 구조는 어떻게 되나요?",
+        answer:
+          "일반적으로 일정 예약을 위해 50% 계약금을 받고, 나머지는 납품 및 인수인계 시 결제합니다.",
+      },
+      {
+        question: "카피라이팅과 콘텐츠도 도와주나요?",
+        answer:
+          "물론입니다. 사내 카피라이터와 콘텐츠 전략가 팀이 있어 메시지가 새로운 비주얼 아이덴티티와 완벽하게 어울리도록 합니다.",
+      },
+      {
+        question: "다른 언어를 사용하는 고객과도 작업하나요?",
+        answer:
+          "네. 우리 팀은 9개 언어로 작업하며 4개 대륙에서 프로젝트를 수행했습니다. 스페인어, 포르투갈어, 아랍어 등 어떤 언어의 자료가 필요하든 사내에서 직접 처리합니다. 외부 번역가는 없습니다.",
+      },
+      {
+        question: "그냥 프리랜서를 쓰면 안 되나요?",
+        answer:
+          "프리랜서는 개별 작업에는 훌륭합니다. 하지만 브랜드, 웹, 영상, 콘텐츠, 자동화는 각기 다른 전문가가 필요하며, 이들을 조율하는 데 시간과 일관성, 그리고 예상보다 많은 비용이 듭니다. 우리는 모든 분야를 한 지붕 아래 모읍니다.",
+      },
+      {
+        question: "어떻게 시작하나요?",
+        answer:
+          "WhatsApp으로 메시지를 보내거나 이 페이지의 양식을 작성해 주세요. 보통 20~30분의 짧은 상담 통화를 잡아 목표, 일정, 예산을 파악합니다. 이후 범위를 정리해 드리면 적합한지 직접 결정하시면 됩니다. 부담은 없습니다.",
+      },
+    ],
+  },
+
+  problems: {
+    eyebrow: "당신의 다음 챕터가 여기서 시작됩니다",
+    heading: "상상해 보세요",
+    items: [
+      {
+        problem: {
+          heading: "당신의 브랜드가 공간을 압도합니다",
+          body: "당신은 기술과 팀, 공간에 투자해 왔지만 이미지는 여전히 첫날 그대로입니다. 고객은 실제로는 더 낫지 않아도 더 나아 보이는 경쟁사를 선택합니다.",
+        },
+        solution: {
+          heading: "첫눈에 신뢰를 얻는 브랜드",
+          body: "말 한마디 하기 전에 고객이 당신을 신뢰하게 만드는 아이덴티티 시스템을 구축합니다 — 로고, 웹, 인쇄물까지 모두 하나로.",
+          stats: [
+            { value: "3x", label: "리브랜딩 후 인지 가치" },
+            { value: "94%", label: "첫인상은 디자인이 좌우" },
+            { value: "50+", label: "전 세계에서 성장한 브랜드" },
+          ],
+        },
+      },
+      {
+        problem: {
+          heading: "당신의 비즈니스가 중요한 곳에 나타납니다",
+          body: "당신은 하는 일에 뛰어나고 기존 고객은 당신을 사랑합니다. 하지만 당신이 제공하는 바로 그것을 찾는 다음 사람은? 경쟁사를 발견합니다.",
+        },
+        solution: {
+          heading: "먼저 보이세요. 먼저 선택받으세요.",
+          body: "검색 엔진부터 소셜 피드까지, 적합한 사람들이 당신을 찾도록 만듭니다 — 꾸준하게, 그리고 올바른 곳에서.",
+          stats: [
+            { value: "+70%", label: "직접 예약 증가 — 실제 고객 성과" },
+            { value: "5x", label: "평균적으로 더 많은 잠재 고객" },
+            { value: "82%", label: "이제 인터넷 트래픽의 대부분은 영상" },
+          ],
+        },
+      },
+      {
+        problem: {
+          heading: "당신 뒤에는 완전한 팀이 있습니다",
+          body: "웹사이트, 소셜, 이메일, 콘텐츠 — 실제로 사업을 운영하는 것에 더해서 말입니다. 밤 10시인데 아직도 릴을 편집하고 있습니다. 전업 마케터가 되려고 이 일을 시작한 건 아니었습니다.",
+        },
+        solution: {
+          heading: "완전한 크리에이티브 & 디지털 팀 — 전화 한 통이면 됩니다",
+          body: "브랜드, 웹, 영상, 소셜, 인쇄, AI — 모두 처리합니다. 당신은 사업에 집중하세요. 브랜드가 어떻게 보이고 들리며 성장하는지는 우리가 맡습니다.",
+          stats: [
+            { value: "24/7", label: "당신을 위해 잠재 고객을 확보하는 AI 시스템" },
+            { value: "15h+", label: "주당 평균 절약 시간" },
+            { value: "100%", label: "의 파트너가 ROI를 배가" },
+          ],
+        },
+      },
+    ],
+  },
+
+  portfolio: {
+    eyebrow: "선별된 작업",
+    heading: "임팩트를 위한",
+    headingAccent: "디자인",
+    toolsLabel: "우리의 도구",
+    projects: [
+      {
+        id: 1,
+        title: "Alture Brand Identity",
+        description: "전면 리브랜딩 — 로고 시스템, 타이포그래피, 컬러 팔레트",
+      },
+      {
+        id: 2,
+        title: "Top Platform Expertise",
+        description: "항상 최고의 도구만을",
+      },
+      {
+        id: 4,
+        title: "Arpeggio Music App",
+        description: "UI/UX 디자인 & 인터랙티브 프로토타입",
+      },
+      {
+        id: 3,
+        title: "Fluora Campaign",
+        description: "소셜 미디어 캠페인 & 영상 제작",
+      },
+    ],
+  },
+
+  lumaShowcase: {
+    web: {
+      hookLines: ["성과를 내는 웹사이트.", "단지 인상적인 것을 넘어."],
+      statLabel: "의 사용자가 웹 디자인으로 비즈니스를 판단합니다 — 스탠퍼드",
+    },
+    av: {
+      hookLines: ["우리는 영상을 만들지 않습니다.", "감정을 연출합니다."],
+      statLabel: "2027년까지 인터넷 트래픽 중 영상의 비율 — 시스코",
+    },
+    lionovart: {
+      hookLines: ["하나의 비전.", "모든 매체."],
+      statLabel: "9개 언어로 완수한 프로젝트",
+    },
+    branding: {
+      hookLines: [
+        "당신의 브랜드는 사람들이 가장 먼저",
+        "판단하는 것 — 그리고 가장 마지막까지",
+        "잊지 못하는 것입니다.",
+      ],
+      statLabel: "리브랜딩 후 인지 가치 상승 — Lucidpress",
+    },
+    print: {
+      hookLines: [
+        "당신의 손에 들린 것이",
+        "당신이 누구인지 모든 것을 말합니다.",
+        "시선을 사로잡고 — 간직되는 인쇄물.",
+      ],
+      statLabel: "모든 결과물에 걸친 브랜드 일관성",
+    },
+  },
+
+  testimonials: {
+    eyebrow: "고객 후기",
+    heading: "그들의 말로",
+    subheading:
+      "우리 말만 믿지 마세요. 우리와 함께 브랜드와 비즈니스를 바꾼 창업자와 디렉터들의 이야기를 들어보세요.",
+    hooks: [
+      "전환되는 웹사이트 + 더 많은 예약",
+      "브랜드 아이덴티티 + 신뢰",
+      "AI & 자동화 + 되찾은 시간",
+      "영상 / 소셜 + 실질적 성장",
+      "완전한 크리에이티브 팀 + 마음의 평화",
+    ],
+    industries: [
+      "호텔 / 접객업",
+      "뷰티 살롱 / 클리닉",
+      "부동산 / 서비스",
+      "레스토랑",
+      "시공사 / 건설",
+    ],
+    reviews: [
+      {
+        quote: "트래픽은 있었지만 직접 예약은 거의 없었습니다 — 모두 마진을 갉아먹는 예약 플랫폼을 거쳤죠. 새 사이트를 론칭한 지 두 달 만에 직접 예약이 거의 70% 늘었습니다. 이제야 템플릿이 아니라 우리가 실제로 운영하는 공간처럼 보입니다.",
+        author: "Camille Moreau",
+        role: "오너, Maison Verre · 프랑스 안시",
+      },
+      {
+        quote: "명함을 건넬 자신이 없었고 2년 동안 인스타그램에 무엇을 올려야 할지 몰랐습니다. Leon 덕분에 브랜드 아이덴티티 전체를 다시 만들었고, 자신감을 되찾아 이제는 무슨 일을 하는지 물으면 당당히 답합니다. 돈 이상의 가치가 있었어요. 감사합니다!",
+        author: "Sofia Alvarez",
+        role: "파운더, Luminous Skin Studio · 영국",
+      },
+      {
+        quote: "그들이 구축한 음성 에이전트가 영업시간 외 전화를 받고, 잠재 고객을 선별하며, 방문 일정을 제 캘린더에 바로 잡아줍니다. 지난 일요일 아이들과 저녁을 먹는데 전화가 왔지만 — 이미 처리되어 있었죠. 이 시스템 하나가 우리가 함께하는 나머지 모든 것의 값을 합니다.",
+        author: "Marco De Luca",
+        role: "디렉터, Atelier Realty · 밀라노",
+      },
+      {
+        quote: "릴 세 편 만에 지난 한 달 전체보다 주말 하루에 더 많은 예약을 받았습니다. 영상이 그저 예뻐서가 아니라 — 드디어 우리다웠기 때문입니다. 딱딱하지 않고 따뜻했죠. 손님들이 릴 속 문구를 인용하며 들어왔습니다.",
+        author: "Isabelle Chen",
+        role: "공동 오너, Mesa 14 · 토론토",
+      },
+      {
+        quote: "저는 마케터가 아니라 시공업자입니다. LIONOVART 이전에는 현장에서 12시간을 보낸 뒤 밤 11시에 인스타그램 게시물을 편집했죠. 이제는 아무것도 손대지 않습니다. 웹사이트, 광고, 소셜 — 전부 처리됩니다. 전화는 그 어느 때보다 많이 울리고, 드디어 잠을 잡니다.",
+        author: "James Hollister",
+        role: "파운더, Hollister Build Co. · 캘거리",
+      },
+    ],
+  },
+
+  services: {
+    eyebrow: "포함 사항",
+    heading: "우리의",
+    headingAccent: "서비스",
+    items: [
+      {
+        title: "브랜드 아이덴티티 & 전략",
+        description:
+          "당신의 브랜드는 사람들이 가장 먼저 판단하고 가장 마지막까지 잊지 못하는 것입니다. 우리는 모든 접점에서 즉각적인 권위를 발휘하는 아이덴티티 시스템을 구축하여 인지도를 매출로 바꿉니다.",
+        deliverables: [
+          "로고 시스템",
+          "브랜드 가이드라인",
+          "타이포그래피 & 컬러",
+          "브랜드 보이스",
+          "소닉 아이덴티티",
+        ],
+      },
+      {
+        title: "웹 & 앱 개발",
+        description:
+          "느리거나 평범한 웹사이트는 매일 고객을 잃게 합니다. 우리는 방문자를 예약된 상담으로 바꾸는 빠르고 전환 중심의 사이트와 앱을 구축합니다 — 첫날부터 측정 가능한 성과와 함께.",
+        deliverables: [
+          "UI/UX 디자인",
+          "웹 개발",
+          "웹 & 모바일 앱",
+          "CMS 연동",
+          "이커머스",
+          "SEO 설정",
+        ],
+      },
+      {
+        title: "콘텐츠 스튜디오",
+        description:
+          "사람의 마음을 움직이는 브랜드가 선택받습니다. 우리는 브랜드 필름, 릴, 그리고 전체 소셜 콘텐츠를 제작하고 처음부터 끝까지 운영하여, 당신의 비즈니스가 매달 무시할 수 없게 만듭니다.",
+        deliverables: [
+          "브랜드 필름",
+          "소셜 릴",
+          "모션 디자인",
+          "콘텐츠 전략",
+          "월간 캘린더",
+          "사운드 디자인",
+        ],
+      },
+      {
+        title: "인쇄 & 물리적 브랜딩",
+        description:
+          "사람들이 기억하는 비즈니스는 화면 너머의 존재감을 지닙니다. 우리는 현실 세계에서 당신의 회사를 지나칠 수 없게 만드는 인쇄물, 패키지, 물리적 브랜드 경험을 디자인하고 제작합니다.",
+        deliverables: [
+          "명함 & 문구류",
+          "패키지 디자인",
+          "디지털 인쇄",
+          "상업 인쇄",
+          "맞춤 풍선",
+          "의류 디자인",
+          "기업 선물",
+          "사이니지 & 디스플레이",
+          "이벤트 브랜딩",
+        ],
+      },
+      {
+        title: "스마트 시스템 & AI",
+        description:
+          "응답하지 못한 전화와 수작업 하나하나가 놓친 돈입니다. 우리는 인력을 늘리지 않고도 비즈니스를 24/7 가동하고 전환시키는 AI 음성 에이전트, 리드 자동화, 스마트 워크플로를 구축합니다.",
+        deliverables: [
+          "AI 음성 에이전트",
+          "가상 리셉셔니스트",
+          "리드 자동화",
+          "AI 챗봇",
+          "워크플로 연동",
+          "CRM & 이메일 자동화",
+        ],
+      },
+      {
+        title: "그로스 마케팅",
+        description:
+          "구매자가 검색할 때 당신의 비즈니스가 보이지 않으면, 경쟁사가 그 고객을 데려갑니다. 우리는 SEO, 로컬 검색, 유료 광고, 전략 컨설팅을 결합해 적합한 사람들이 당신을 꾸준히 찾도록 만듭니다.",
+        deliverables: [
+          "SEO & AEO 최적화",
+          "구글 비즈니스 관리",
+          "로컬 검색 장악",
+          "유료 광고 & 구글 광고",
+          "비즈니스 컨설팅",
+          "분석 & 리포팅",
+        ],
+      },
+    ],
+  },
+  showcase: {
+    eyebrow: "[TODO: translate]",
+    heading: "[TODO: translate]",
+    description: "[TODO: translate]",
   },
 };

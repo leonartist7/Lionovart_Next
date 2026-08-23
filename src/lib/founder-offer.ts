@@ -87,6 +87,14 @@ const MARKET_LABELS: Record<Locale, Record<FounderMarket, string>> = {
     france: "FOUNDER IN FRANCIA",
     global: "FOUNDER AMBIZIOSI",
   },
+  ja: {
+    calgary: "[TODO: translate] calgary",
+    alberta: "[TODO: translate] alberta",
+    canada: "[TODO: translate] canada",
+    grenoble: "[TODO: translate] grenoble",
+    france: "[TODO: translate] france",
+    global: "[TODO: translate] global",
+  },
   ko: {
     calgary: "캘거리 창업가",
     alberta: "앨버타 창업가",
@@ -130,6 +138,14 @@ const MOBILE_MARKET_LABELS: Record<Locale, Record<FounderMarket, string>> = {
     france: "FRANCIA",
     global: "FOUNDER",
   },
+  ja: {
+    calgary: "[TODO: translate] calgary",
+    alberta: "[TODO: translate] alberta",
+    canada: "[TODO: translate] canada",
+    grenoble: "[TODO: translate] grenoble",
+    france: "[TODO: translate] france",
+    global: "[TODO: translate] global",
+  },
   ko: {
     calgary: "캘거리",
     alberta: "앨버타",
@@ -167,6 +183,12 @@ const OFFER_COPY: Record<
     mobile: "5 PIANI GRATUITI",
     cta: "RICHIEDI IL TUO",
     aria: "Richiedi il tuo piano gratuito di brand e crescita",
+  },
+  ja: {
+    desktop: "[TODO: translate] desktop",
+    mobile: "[TODO: translate] mobile",
+    cta: "[TODO: translate] cta",
+    aria: "[TODO: translate] aria",
   },
   ko: {
     desktop: "이번 달 무료 브랜드·성장 청사진 5개",
