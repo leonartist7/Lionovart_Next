@@ -430,7 +430,7 @@
 }
 
 .testimonial-card-frame {
-  --review-rotate-x: 12deg;
+  --review-rotate-x: 15deg;
   transform: rotateX(var(--review-rotate-x));
   transform-origin: center center;
   transform-style: preserve-3d;
