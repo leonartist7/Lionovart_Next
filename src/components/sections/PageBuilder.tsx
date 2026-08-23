@@ -51,8 +51,8 @@ export function PageBuilder() {
         <MarqueeSlanted />
         <BridgeStatement variant="vow" />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
-        <NovaSection id="services"><Services /></NovaSection>
         <ShowcaseMarquee />
+        <NovaSection id="services"><Services /></NovaSection>
         <NovaSection id="offer"><SignatureOffer /></NovaSection>
         <SectionTitleCard word="WHY US?" theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>
