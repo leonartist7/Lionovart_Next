@@ -656,35 +656,80 @@
 }
 
 /* =============================================
-   Splash Screen â€” shimmer sweep on wordmark
+   Splash Screen — lightweight brand reveal
    ============================================= */
-@keyframes splash-shimmer {
-  0%   { background-position: -150% center; }
-  100% { background-position:  250% center; }
+@keyframes splash-logo-in {
+  from { opacity: 0; transform: translate3d(0, 6px, 0) scale(0.985); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
 }
 
-.splash-wordmark {
-  background: linear-gradient(
-    100deg,
-    rgba(255, 255, 255, 0.85) 0%,
-    rgba(255, 255, 255, 0.85) 35%,
-    #f0c917 50%,
-    rgba(255, 255, 255, 0.85) 65%,
-    rgba(255, 255, 255, 0.85) 100%
-  );
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  animation: splash-shimmer 2.2s linear infinite;
+@keyframes splash-tagline-in {
+  from { opacity: 0; transform: translate3d(0, 5px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  cursor: pointer;
+  background: #000;
+  opacity: 1;
+  transition: opacity 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  contain: strict;
+}
+
+.splash-screen--exit {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash-lockup {
+  display: flex;
+  width: min(76vw, 480px);
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1rem, 2.4vw, 1.35rem);
+  text-align: center;
+}
+
+.splash-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  animation: splash-logo-in 560ms cubic-bezier(0.22, 1, 0.36, 1) 80ms forwards;
+  will-change: opacity, transform;
+}
+
+.splash-tagline {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-family: var(--font-dm-sans, sans-serif);
+  font-size: clamp(0.7rem, 1.5vw, 0.82rem);
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: splash-tagline-in 440ms cubic-bezier(0.22, 1, 0.36, 1) 480ms forwards;
+  will-change: opacity, transform;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .splash-wordmark {
+  .splash-screen {
+    transition: none;
+  }
+
+  .splash-logo,
+  .splash-tagline {
+    opacity: 1;
     animation: none;
-    color: #ffffff;
-    -webkit-text-fill-color: #ffffff;
+    transform: none;
+    will-change: auto;
   }
 }
 
