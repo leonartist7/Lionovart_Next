@@ -333,14 +333,19 @@
   to { transform: rotateY(-1turn); }
 }
 
+.showcase-marquee__section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 52rem;
+}
+
 .showcase-marquee__viewport {
-  /* Keep the camera close enough that the centre card is unmistakably nearer. */
-  --showcase-card-width: clamp(13rem, 22vw, 24rem);
-  --showcase-radius: clamp(17rem, 38vw, 36rem);
+  /* Six unique cards reduce decoded-image memory and 3D overdraw by half. */
+  --showcase-card-width: clamp(15rem, 32vw, 32rem);
+  --showcase-radius: clamp(18rem, 32vw, 36rem);
   display: grid;
-  height: clamp(29rem, 43vw, 40rem);
+  height: clamp(24rem, 35vw, 34rem);
   overflow: hidden;
-  perspective: clamp(30rem, 62vw, 60rem);
+  perspective: clamp(60rem, 100vw, 120rem);
   perspective-origin: 50% 50%;
   contain: layout paint;
   mask-image: linear-gradient(90deg, transparent, black 7%, black 93%, transparent);
@@ -352,7 +357,13 @@
   place-self: center;
   width: var(--showcase-card-width);
   transform-style: preserve-3d;
-  animation: showcase-carousel-outward 38s linear infinite;
+  animation: showcase-carousel-outward 30s linear infinite;
+  animation-play-state: paused;
+  will-change: auto;
+}
+
+.showcase-marquee__viewport[data-active="true"] .showcase-marquee__track {
+  animation-play-state: running;
   will-change: transform;
 }
 
@@ -368,7 +379,7 @@
     0 1rem 2rem -1.2rem rgba(229, 25, 42, 0.28),
     0 0 0 1px rgba(0, 0, 0, 0.06);
   transform:
-    rotateY(calc(var(--showcase-index) * 30deg))
+    rotateY(calc(var(--showcase-index) * 60deg))
     translateZ(var(--showcase-radius));
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
@@ -383,16 +394,16 @@
 
 @media (min-width: 1024px) {
   .showcase-marquee__track {
-    animation-duration: 46s;
+    animation-duration: 36s;
   }
 }
 
 @media (max-width: 639px) {
   .showcase-marquee__viewport {
-    --showcase-card-width: clamp(10rem, 45vw, 12rem);
-    --showcase-radius: clamp(17rem, 74vw, 20rem);
-    height: 26rem;
-    perspective: 30rem;
+    --showcase-card-width: clamp(14rem, 64vw, 17rem);
+    --showcase-radius: clamp(15rem, 68vw, 18rem);
+    height: 24rem;
+    perspective: 56rem;
     mask-image: linear-gradient(90deg, transparent, black 3%, black 97%, transparent);
     -webkit-mask-image: linear-gradient(90deg, transparent, black 3%, black 97%, transparent);
   }

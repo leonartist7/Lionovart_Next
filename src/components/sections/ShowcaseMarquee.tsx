@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import type { CSSProperties } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const C = "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_1000,c_fill,g_auto";
+const C = "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_1400,c_fill,g_auto";
 
 const SHOWCASE_IMAGES = [
   `${C}/v1775277351/1_1_bv3shm.avif`,
@@ -15,29 +15,26 @@ const SHOWCASE_IMAGES = [
   `${C}/v1775277350/image_19_rnwg8w.avif`,
 ];
 
-const CAROUSEL_IMAGES = [...SHOWCASE_IMAGES, ...SHOWCASE_IMAGES];
-
 function ShowcaseRing({ titles }: { titles: string[] }) {
   return (
     <div className="showcase-marquee__track">
-      {CAROUSEL_IMAGES.map((src, index) => {
-        const serviceIndex = index % SHOWCASE_IMAGES.length;
-        const duplicate = index >= SHOWCASE_IMAGES.length;
-        const title = titles[serviceIndex] ?? "LIONOVART showcase";
+      {SHOWCASE_IMAGES.map((src, index) => {
+        const title = titles[index] ?? "LIONOVART showcase";
 
         return (
           <figure
-            key={`${src}-${index}`}
-            aria-hidden={duplicate || undefined}
+            key={src}
             style={{ "--showcase-index": index } as CSSProperties}
             className="showcase-marquee__card group relative overflow-hidden rounded-[18px] sm:rounded-[22px]"
           >
             <div className="relative h-full w-full overflow-hidden">
               <Image
                 src={src}
-                alt={duplicate ? "" : `${title} — selected LIONOVART work`}
+                alt={`${title} — selected LIONOVART work`}
                 fill
-                sizes="(max-width: 639px) 64vw, (max-width: 1023px) 46vw, 32vw"
+                loading="lazy"
+                decoding="async"
+                sizes="(max-width: 639px) 92vw, (max-width: 1023px) 70vw, 48vw"
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
               />
               <div
@@ -49,7 +46,7 @@ function ShowcaseRing({ titles }: { titles: string[] }) {
                   {title}
                 </span>
                 <span className="shrink-0 font-mono text-[10px] font-bold tracking-[0.22em] text-brand-red sm:text-[11px]">
-                  {String(serviceIndex + 1).padStart(2, "0")}
+                  {String(index + 1).padStart(2, "0")}
                 </span>
               </figcaption>
             </div>
@@ -63,13 +60,48 @@ function ShowcaseRing({ titles }: { titles: string[] }) {
 export default function ShowcaseMarquee() {
   const { t } = useLanguage();
   const titles = t.services.items.map((item) => item.title);
+  const viewportRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+
+    let isNearViewport = false;
+    const syncAnimation = () => {
+      viewport.dataset.active = String(
+        isNearViewport && document.visibilityState === "visible",
+      );
+    };
+
+    if (!("IntersectionObserver" in window)) {
+      isNearViewport = true;
+      syncAnimation();
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isNearViewport = entry.isIntersecting;
+        syncAnimation();
+      },
+      { rootMargin: "320px 0px", threshold: 0 },
+    );
+
+    observer.observe(viewport);
+    document.addEventListener("visibilitychange", syncAnimation);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", syncAnimation);
+    };
+  }, []);
 
   return (
     <section
       id="showcase"
       aria-labelledby="showcase-title"
       data-art-directed="light"
-      className="relative overflow-hidden bg-bg-surface-light py-16 text-[#111111] sm:py-20 lg:py-28"
+      className="showcase-marquee__section relative overflow-hidden bg-bg-surface-light py-16 text-[#111111] sm:py-20 lg:py-28"
     >
       <div
         aria-hidden
@@ -94,6 +126,8 @@ export default function ShowcaseMarquee() {
       </header>
 
       <div
+        ref={viewportRef}
+        data-active="false"
         className="showcase-marquee__viewport relative z-10"
         role="region"
         tabIndex={0}
