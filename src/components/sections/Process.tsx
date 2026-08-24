@@ -511,7 +511,7 @@ export default function Process(props: any) {
         {/* Paper half — continuous with the section above, so the seam at the
             top of this section reads as one surface. */}
         <div
-          className="px-5 pb-12 pt-14 sm:px-6"
+          className="px-5 pb-6 pt-14 sm:px-6"
           style={{ backgroundColor: PAPER }}
         >
           <div className="mx-auto max-w-xl">
@@ -548,23 +548,36 @@ export default function Process(props: any) {
             is near-paper and its bottom row is near-slab, so the two short
             gradients below are only there to erase the last few values of
             difference at each seam. */}
+        {/* Two assets, because the band changes shape with the viewport and a
+            single one cannot serve both. Below sm the portrait stroke is
+            cropped to its tear. From sm up the landscape stroke takes over at
+            its exact native ratio, so nothing is cropped and the band's height
+            stays proportional instead of ballooning with the width. */}
         <div
-          className="relative aspect-[4/3] w-full overflow-hidden"
+          className="relative aspect-[4/3] w-full overflow-hidden sm:aspect-[1916/821]"
           style={{ backgroundColor: PAPER }}
         >
-          {/* Cropped to the tear itself. The offset keeps the torn edge just
-              above centre so there is white to fall from and black to land on,
-              without carrying the image's long featureless black tail. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/monochrome_diagonal_impasto_swirl.webp"
-            alt=""
-            aria-hidden="true"
-            width={941}
-            height={1672}
-            className="absolute inset-0 h-full w-full object-cover"
-            style={{ objectPosition: "center 41%" }}
-          />
+          <picture>
+            <source
+              media="(min-width: 640px)"
+              srcSet="/images/process-impasto-transition.webp"
+              width={1916}
+              height={821}
+            />
+            {/* The offset keeps the portrait tear just above centre, so there
+                is white to fall from and black to land on without carrying
+                that image's long featureless black tail. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/monochrome_diagonal_impasto_swirl.webp"
+              alt=""
+              aria-hidden="true"
+              width={941}
+              height={1672}
+              className="absolute inset-0 h-full w-full object-cover"
+              style={{ objectPosition: "center 41%" }}
+            />
+          </picture>
           <div
             aria-hidden
             className="pointer-events-none absolute inset-x-0 top-0 h-16"
@@ -583,7 +596,7 @@ export default function Process(props: any) {
 
         {/* Slab half — hands straight off to the dark chapter card below. */}
         <div
-          className="px-5 pb-16 pt-12 sm:px-6"
+          className="px-5 pb-16 pt-8 sm:px-6"
           style={{ backgroundColor: SLAB }}
         >
           <div className="mx-auto max-w-xl">
