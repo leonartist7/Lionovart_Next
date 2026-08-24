@@ -72,6 +72,8 @@ const STEPS_STATIC = [
    gold anywhere in this section. */
 const PAPER = "#f7f4ef";
 const INK = "#111111";
+const INK_SOFT = "#5a5550";
+const INK_RULE = "rgba(17,17,17,0.16)";
 const TEXT = "#ffffff";
 const TEXT_DIM = "rgba(255,255,255,0.38)";
 const TEXT_LABEL = "rgba(255,255,255,0.45)";
@@ -224,6 +226,60 @@ function Slab({
         </div>
       </div>
     </article>
+  );
+}
+
+/** One mobile step. Three elements only: the number, the name, and the one
+ *  line that says what the client walks away with. The `tone` prop is what
+ *  makes the descent read — steps sitting on the paper half are set in ink,
+ *  steps below the paint stroke are set in white, because the surface under
+ *  them physically changed. */
+function DescentStep({
+  step,
+  index,
+  tone,
+  reduced,
+}: {
+  step: ProcessStep;
+  index: number;
+  tone: "paper" | "slab";
+  reduced: boolean;
+}) {
+  const onSlab = tone === "slab";
+  const heading = onSlab ? TEXT : INK;
+  const body = onSlab ? "rgba(255,255,255,0.7)" : INK_SOFT;
+  const rule = onSlab ? HAIRLINE : INK_RULE;
+
+  return (
+    <motion.li
+      className="border-t pt-5"
+      style={{ borderColor: rule }}
+      initial={reduced ? false : { opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "0px 0px -15% 0px" }}
+      transition={{ duration: reduced ? 0 : 0.55, ease: EASE }}
+    >
+      <div className="flex items-baseline gap-4">
+        <span
+          className="font-clash text-[1.6rem] font-bold leading-none tabular-nums"
+          style={{ color: heading }}
+        >
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <h3
+          className="font-clash text-[1.5rem] font-bold uppercase leading-none tracking-[-0.02em]"
+          style={{ color: heading }}
+        >
+          {step.title}
+        </h3>
+      </div>
+      <p
+        className="mt-3 max-w-[34ch] font-body text-[14px] leading-[1.55]"
+        style={{ color: body }}
+      >
+        {step.gain ?? step.description}
+      </p>
+    </motion.li>
   );
 }
 
@@ -445,155 +501,121 @@ export default function Process(props: any) {
         </AnimatePresence>
       </div>
 
-      {/* ── Mobile / tablet: the same ledger, read straight down ── */}
-      <div
-        className="relative overflow-hidden px-5 pb-0 pt-14 sm:px-6 lg:hidden"
-        style={{ backgroundColor: SLAB }}
-      >
+      {/* ── Mobile / tablet: the descent ──
+          The section falls from the paper it shares with the section above,
+          through a real painted edge, into the black the next chapter needs.
+          The stroke sits in the flow between step 02 and step 03, so the
+          crossover always lands in the same place no matter how long the copy
+          runs or which locale is active. */}
+      <div className="relative lg:hidden">
+        {/* Paper half — continuous with the section above, so the seam at the
+            top of this section reads as one surface. */}
         <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[34svh] bg-center bg-cover bg-no-repeat opacity-55"
-          style={{
-            backgroundImage:
-              "url('/images/monochrome_diagonal_impasto_swirl.webp')",
-            maskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
-            WebkitMaskImage:
-              "linear-gradient(to bottom, black 30%, transparent 100%)",
-          }}
-        />
-
-        <div className="relative z-10 mx-auto max-w-xl">
-          <div className="flex items-center gap-3">
-            <span className="h-[2px] w-7" style={{ backgroundColor: RED }} />
-            <p
-              className="font-body text-[10px] font-bold uppercase tracking-[0.28em]"
-              style={{ color: TEXT_LABEL }}
-            >
-              {eyebrow}
-            </p>
-          </div>
-          <h2 className="mt-5 text-[clamp(2.6rem,11vw,3.6rem)] font-bold uppercase leading-[0.88] tracking-[-0.045em]">
-            <span style={{ color: TEXT }}>{heading} </span>
-            <span style={{ color: RED }}>{headingAccent}</span>
-          </h2>
-
-          <ol className="mt-12 space-y-10">
-            {steps.map((step, index) => (
-              <motion.li
-                key={step.num}
-                initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "0px 0px -20% 0px" }}
-                transition={{
-                  duration: prefersReducedMotion ? 0 : 0.6,
-                  ease: EASE,
-                }}
+          className="px-5 pb-12 pt-14 sm:px-6"
+          style={{ backgroundColor: PAPER }}
+        >
+          <div className="mx-auto max-w-xl">
+            <div className="flex items-center gap-3">
+              <span className="h-[2px] w-7" style={{ backgroundColor: RED }} />
+              <p
+                className="font-body text-[10px] font-bold uppercase tracking-[0.28em]"
+                style={{ color: INK_SOFT }}
               >
-                <div
-                  className="grid grid-cols-[2.75rem_1fr] gap-x-3 border-t pb-3 pt-4"
-                  style={{ borderColor: HAIRLINE }}
-                >
-                  <span
-                    className="row-span-2 font-clash text-[1.75rem] font-bold leading-none tabular-nums"
-                    style={{ color: TEXT }}
-                  >
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <h3
-                    className="font-clash text-[1.5rem] font-bold uppercase leading-none tracking-[-0.02em]"
-                    style={{ color: TEXT }}
-                  >
-                    {step.title}
-                  </h3>
-                  <div className="mt-2 flex items-baseline justify-between gap-4">
-                    <span
-                      className="font-body text-[10px] font-bold uppercase tracking-[0.22em]"
-                      style={{ color: TEXT_LABEL }}
-                    >
-                      {step.tag}
-                    </span>
-                    <span
-                      className="font-body text-[10px] font-bold uppercase tracking-[0.14em] tabular-nums"
-                      style={{ color: TEXT_LABEL }}
-                    >
-                      {step.timeline}
-                    </span>
-                  </div>
-                </div>
-                <span
-                  aria-hidden
-                  className="block h-[2px] w-full"
-                  style={{ backgroundColor: HAIRLINE }}
-                >
-                  <motion.span
-                    className="block h-full w-full origin-left"
-                    style={{ backgroundColor: RED }}
-                    initial={prefersReducedMotion ? false : { scaleX: 0 }}
-                    whileInView={{ scaleX: 1 }}
-                    viewport={{ once: true, margin: "0px 0px -20% 0px" }}
-                    transition={{
-                      duration: prefersReducedMotion ? 0 : 0.7,
-                      ease: EASE,
-                    }}
-                  />
-                </span>
+                {eyebrow}
+              </p>
+            </div>
+            <h2 className="mt-5 text-[clamp(2.6rem,11vw,3.6rem)] font-bold uppercase leading-[0.88] tracking-[-0.045em]">
+              <span style={{ color: INK }}>{heading} </span>
+              <span style={{ color: RED }}>{headingAccent}</span>
+            </h2>
 
-                <div
-                  className="mt-4 rounded-[6px] p-6"
-                  style={{ backgroundColor: SLAB }}
-                >
-                  <p className="font-body text-[13px] leading-[1.65] text-white/68">
-                    {step.description}
-                  </p>
-                  {step.deliver && (
-                    <div className="mt-5 border-t border-white/12 pt-4">
-                      <p className="font-body text-[9px] font-bold uppercase tracking-[0.24em] text-white/35">
-                        {deliverLabel}
-                      </p>
-                      <p className="mt-2 font-body text-[13px] leading-relaxed text-white/78">
-                        {step.deliver}
-                      </p>
-                    </div>
-                  )}
-                  {step.gain && (
-                    <div className="mt-4 border-t border-white/12 pt-4">
-                      <p className="font-body text-[9px] font-bold uppercase tracking-[0.24em] text-white/35">
-                        {gainLabel}
-                      </p>
-                      <p className="mt-2 font-body text-[13px] leading-relaxed text-white/78">
-                        {step.gain}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </motion.li>
-            ))}
-          </ol>
-
-          <div className="mt-14 text-center">
-            <a
-              href="#closing-cta"
-              className="inline-flex min-h-[44px] items-center gap-3 rounded-full px-7 py-4 font-clash text-[11px] font-bold uppercase tracking-[0.15em]"
-              style={{ backgroundColor: PAPER, color: INK }}
-            >
-              {ctaLabel}
-              <ArrowUpRight className="h-4 w-4" strokeWidth={2.5} aria-hidden />
-            </a>
-            <p className="mt-4 font-body text-[12px] text-white/55">
-              {ctaSub}
-            </p>
+            <ol className="mt-11 space-y-9">
+              {steps.slice(0, 2).map((step, index) => (
+                <DescentStep
+                  key={step.num}
+                  step={step}
+                  index={index}
+                  tone="paper"
+                  reduced={prefersReducedMotion}
+                />
+              ))}
+            </ol>
           </div>
         </div>
 
-        {/* Hands off to the dark chapter strip below. */}
+        {/* The stroke — the one painted moment. Cropped to the tear so it
+            reads as an edge rather than a wallpaper. The image's own top row
+            is near-paper and its bottom row is near-slab, so the two short
+            gradients below are only there to erase the last few values of
+            difference at each seam. */}
         <div
-          aria-hidden
-          className="relative z-10 mt-14 h-[26svh] w-full"
-          style={{
-            background: `linear-gradient(to bottom, transparent, ${SLAB})`,
-          }}
-        />
+          className="relative aspect-[4/3] w-full overflow-hidden"
+          style={{ backgroundColor: PAPER }}
+        >
+          {/* Cropped to the tear itself. The offset keeps the torn edge just
+              above centre so there is white to fall from and black to land on,
+              without carrying the image's long featureless black tail. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/monochrome_diagonal_impasto_swirl.webp"
+            alt=""
+            aria-hidden="true"
+            width={941}
+            height={1672}
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{ objectPosition: "center 41%" }}
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 top-0 h-16"
+            style={{
+              background: `linear-gradient(to bottom, ${PAPER}, transparent)`,
+            }}
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-16"
+            style={{
+              background: `linear-gradient(to top, ${SLAB}, transparent)`,
+            }}
+          />
+        </div>
+
+        {/* Slab half — hands straight off to the dark chapter card below. */}
+        <div
+          className="px-5 pb-16 pt-12 sm:px-6"
+          style={{ backgroundColor: SLAB }}
+        >
+          <div className="mx-auto max-w-xl">
+            <ol className="space-y-9">
+              {steps.slice(2).map((step, index) => (
+                <DescentStep
+                  key={step.num}
+                  step={step}
+                  index={index + 2}
+                  tone="slab"
+                  reduced={prefersReducedMotion}
+                />
+              ))}
+            </ol>
+
+            <div className="mt-12 text-center">
+              <a
+                href="#closing-cta"
+                className="inline-flex min-h-[44px] items-center gap-3 rounded-full px-7 py-4 font-clash text-[11px] font-bold uppercase tracking-[0.15em]"
+                style={{ backgroundColor: PAPER, color: INK }}
+              >
+                {ctaLabel}
+                <ArrowUpRight className="h-4 w-4" strokeWidth={2.5} aria-hidden />
+              </a>
+              <p className="mt-4 font-body text-[12px] text-white/55">
+                {ctaSub}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
+
     </section>
   );
 }
