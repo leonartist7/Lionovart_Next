@@ -86,17 +86,24 @@ uniform float uSize;
 uniform float uPixelRatio;
 uniform float uFocusDist;    // camera-space focus distance (for DOF)
 uniform float uDofAmount;    // depth-of-field strength
+uniform float uOrganicDetail;// 0 mobile, 1 full curl-noise detail
 uniform float uBloom;        // Act 7: the lion reforms as a crest over the CTA
 uniform vec3  uCrest;        // world-space center of that crest
 
 attribute vec3 aNormal;
 attribute vec4 aRand;        // x,y,z,w in [0,1]
 attribute vec3 aSpawn;       // intro spawn position (far field)
+attribute vec3 aBurst;       // precomputed story targets
+attribute vec3 aEcosystem;
+attribute vec3 aEnergy;
+attribute vec3 aHub;
 
 varying vec3  vColor;
 varying float vAlpha;
 
+#ifdef USE_ORGANIC_DETAIL
 ${NOISE_GLSL}
+#endif
 
 void main(){
   float m = smoothstep(0.0, 1.0, uMorph);
@@ -110,10 +117,12 @@ void main(){
   // Curl noise is the most expensive vertex work. It belongs to the organic
   // lion/expansion phases, so stop evaluating it once the system locks into
   // its geometric states.
+  #ifdef USE_ORGANIC_DETAIL
   if (m < 0.62) {
     vec3 turb = curl(p * 1.35 + vec3(0.0, uTime * 0.12, uTime * 0.05));
-    p += turb * uTurb * (1.0 - smoothstep(0.36, 0.62, m));
+    p += turb * uTurb * uOrganicDetail * (1.0 - smoothstep(0.36, 0.62, m));
   }
+  #endif
 
   // scroll onset: the whole lion begins a slow, stately turn in the SAME
   // direction as the energy current, so the transformation reads as one
@@ -133,10 +142,7 @@ void main(){
   // One population becomes every chapter. The wide spacing and explicit
   // transitions avoid the opaque sphere / white-hole artifact of the previous
   // singularity treatment.
-  vec3 burstDir = normalize(aRand.xyz - 0.5 + 1e-4);
-  float burstRadius = 1.15 + aRand.w * 2.65;
-  vec3 burst = burstDir * burstRadius;
-  burst.z += (aRand.y - 0.5) * 2.4;
+  vec3 burst = aBurst;
   burst += vec3(
     sin(uTime * 0.35 + aRand.x * 12.0),
     cos(uTime * 0.28 + aRand.y * 11.0),
@@ -145,47 +151,32 @@ void main(){
 
   // Three open, intersecting orbital bands: a connected ecosystem with no
   // filled center. Each particle stays individually readable.
-  float phase = aRand.w * 6.2831853;
-  float ecoAngle = aRand.x * 6.2831853 + uTime * (0.12 + aRand.y * 0.08);
-  float ecoRadius = 0.92 + aRand.z * 0.58;
-  vec3 ecosystem = vec3(
-    cos(ecoAngle) * ecoRadius,
-    sin(ecoAngle) * ecoRadius * 0.68,
-    (aRand.y - 0.5) * 0.38
+  vec3 ecosystem = aEcosystem;
+  float ecoTurn = uTime * (0.10 + aRand.y * 0.06);
+  float ecoC = cos(ecoTurn), ecoS = sin(ecoTurn);
+  ecosystem.xz = vec2(
+    ecosystem.x * ecoC - ecosystem.z * ecoS,
+    ecosystem.x * ecoS + ecosystem.z * ecoC
   );
-  float band = floor(aRand.y * 3.0);
-  if (band < 1.0) {
-    ecosystem = vec3(ecosystem.x, ecosystem.y * 0.55 - ecosystem.z * 0.84, ecosystem.y * 0.84 + ecosystem.z * 0.55);
-  } else if (band < 2.0) {
-    ecosystem = vec3(ecosystem.x * 0.72 - ecosystem.z * 0.69, ecosystem.y, ecosystem.x * 0.69 + ecosystem.z * 0.72);
-  } else {
-    ecosystem = vec3(ecosystem.x * 0.82 + ecosystem.y * 0.57, -ecosystem.x * 0.57 + ecosystem.y * 0.82, ecosystem.z);
-  }
 
   // A double-helix current: energy visibly travelling through the connected
   // system, rather than a low-resolution full-screen shader.
-  float flowY = mod(
-    aRand.x * 4.4 - uTime * (0.18 + aRand.y * 0.08) + 2.2,
-    4.4
-  ) - 2.2;
-  float helixAngle = flowY * 2.55 - uTime * 0.82 + phase;
-  float helixRadius = 0.18 + aRand.z * 0.24;
-  vec3 energy = vec3(
-    cos(helixAngle) * helixRadius,
-    flowY,
-    sin(helixAngle) * helixRadius
+  vec3 energy = aEnergy;
+  float flowY = mod(energy.y - uTime * (0.18 + aRand.y * 0.08) + 2.2, 4.4) - 2.2;
+  float energyTurn = -uTime * 0.82;
+  float energyC = cos(energyTurn), energyS = sin(energyTurn);
+  energy.xz = vec2(
+    energy.x * energyC - energy.z * energyS,
+    energy.x * energyS + energy.z * energyC
   );
+  energy.y = flowY;
 
   // Five stacked data rings condense the flow into an efficient platform hub.
+  vec3 hub = aHub;
   float layer = floor(aRand.y * 5.0);
-  float hubY = (layer - 2.0) * 0.34;
-  float hubAngle = aRand.x * 6.2831853 + uTime * (0.22 + layer * 0.035);
-  float hubRadius = 0.42 + aRand.z * 0.72;
-  vec3 hub = vec3(
-    cos(hubAngle) * hubRadius,
-    hubY + sin(hubAngle * 2.0 + phase) * 0.045,
-    sin(hubAngle) * hubRadius * 0.48
-  );
+  float hubTurn = uTime * (0.22 + layer * 0.035);
+  float hubC = cos(hubTurn), hubS = sin(hubTurn);
+  hub.xz = vec2(hub.x * hubC - hub.z * hubS, hub.x * hubS + hub.z * hubC);
 
   float burstT = smoothstep(0.08, 0.28, m);
   float ecosystemT = smoothstep(0.30, 0.50, m);
@@ -306,18 +297,12 @@ varying float vAlpha;
 void main(){
   vec2 uv = gl_PointCoord - 0.5;
   float d = length(uv) * 2.0; // 0 at center, ~1 at sprite edge
-  // Single continuous soft-Gaussian falloff, not a flat plateau plus a
-  // separate hot spike — that two-term shape (a hard-edged disc with an
-  // independent bright dot at its center) is exactly what reads as "little
-  // dots with a big circle around them" at low particle density: each sprite
-  // is individually legible as two shapes instead of blending into its
-  // neighbors. One curve means no boundary anywhere in the sprite contributes
-  // full alpha, which is also why this reduces whiteout under additive
-  // blending: THREE.AdditiveBlending's default factors are (SRC_ALPHA, ONE),
-  // so col*a is what actually lands in the framebuffer, and a wide flat a=1
-  // region is what let overlapping opaque discs sum straight to white.
-  float a = clamp(exp(-d * d * 8.2) * vAlpha, 0.0, 1.0);
-  if (a < 0.012) discard;
+  // A real, compact point with a narrow antialiased edge. The old Gaussian
+  // made sparse mobile particles look translucent and out of focus.
+  float point = 1.0 - smoothstep(0.34, 0.72, d);
+  float edgeGlow = exp(-d * d * 11.0) * 0.16;
+  float a = clamp((point + edgeGlow) * vAlpha, 0.0, 1.0);
+  if (a < 0.02) discard;
   vec3 col = vColor;
   gl_FragColor = vec4(col * a * uGain, a);
 }

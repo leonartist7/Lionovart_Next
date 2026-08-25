@@ -39,7 +39,7 @@ export default function AiLionStage() {
 
       const instance = new Engine(
         canvas,
-        reduce ? { maxParticles: 950, animate: false } : {},
+        reduce ? { maxParticles: 77, animate: false } : {},
       );
       exp = instance;
       try {
@@ -77,13 +77,9 @@ export default function AiLionStage() {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      // will-change forces its own persistent GPU compositing layer. Without
-      // it, the ~5 stacked backdrop-filter glass panels down the page (heaviest
-      // at Offers, the last and most blur-dense section) can make Chrome drop
-      // or defer repainting this fixed layer under compositing pressure while
-      // scrolling down into them — self-corrects once everything's cached
-      // scrolling back up, which matches the reported scroll-direction bug.
-      className="pointer-events-none fixed inset-0 z-0 h-full w-full will-change-transform"
+      // WebGL canvases already receive their own compositor surface. An extra
+      // will-change layer duplicates memory pressure on mobile GPUs.
+      className="pointer-events-none fixed inset-0 z-0 h-full w-full"
     />
   );
 }

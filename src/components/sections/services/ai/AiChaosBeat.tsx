@@ -88,7 +88,6 @@ export default function AiChaosBeat() {
           gsap.set(panel, {
             opacity,
             y: (centers[index] - progress) * 70,
-            filter: `blur(${(1 - opacity) * 8}px)`,
             pointerEvents: opacity > 0.8 ? "auto" : "none",
           });
         });

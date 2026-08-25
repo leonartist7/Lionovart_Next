@@ -22,7 +22,7 @@ export interface LionExperienceOptions {
   onReady?: () => void;
 }
 
-type QualityTier = "low" | "medium" | "high";
+type QualityTier = "low" | "medium" | "high" | "ultra";
 
 /**
  * The same art direction at three costs. Mobile receives fewer, larger points;
@@ -31,34 +31,56 @@ type QualityTier = "low" | "medium" | "high";
  */
 const QUALITY = {
   low: {
-    particles: 1_100,
-    dpr: 1.25,
-    dust: 360,
-    swarmHeads: 52,
-    trailLength: 3,
-    pointSize: 54,
-    exposure: 1.08,
-    bloom: 0.18,
+    particles: 77,
+    dpr: 1.35,
+    minDpr: 1,
+    dust: 0,
+    swarmHeads: 10,
+    trailLength: 1,
+    pointSize: 52,
+    exposure: 1.12,
+    bloom: 0,
+    dof: 0,
+    organicDetail: 0,
   },
   medium: {
-    particles: 1_700,
+    particles: 177,
     dpr: 1.5,
-    dust: 850,
-    swarmHeads: 96,
-    trailLength: 5,
-    pointSize: 50,
-    exposure: 1.07,
-    bloom: 0.23,
+    minDpr: 1.1,
+    dust: 80,
+    swarmHeads: 24,
+    trailLength: 2,
+    pointSize: 48,
+    exposure: 1.1,
+    bloom: 0.12,
+    dof: 0.06,
+    organicDetail: 0.3,
   },
   high: {
-    particles: 2_350,
-    dpr: 1.75,
-    dust: 1_600,
-    swarmHeads: 150,
-    trailLength: 6,
-    pointSize: 47,
+    particles: 777,
+    dpr: 1.65,
+    minDpr: 1.2,
+    dust: 500,
+    swarmHeads: 70,
+    trailLength: 4,
+    pointSize: 44,
     exposure: 1.06,
-    bloom: 0.28,
+    bloom: 0.22,
+    dof: 0.16,
+    organicDetail: 0.72,
+  },
+  ultra: {
+    particles: 1_377,
+    dpr: 1.85,
+    minDpr: 1.25,
+    dust: 1_000,
+    swarmHeads: 110,
+    trailLength: 5,
+    pointSize: 42,
+    exposure: 1.06,
+    bloom: 0.27,
+    dof: 0.22,
+    organicDetail: 1,
   },
 } as const;
 
@@ -82,8 +104,8 @@ export class LionExperience {
   private renderer!: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
   private camera!: THREE.PerspectiveCamera;
-  private composer!: EffectComposer;
-  private bloom!: UnrealBloomPass;
+  private composer: EffectComposer | null = null;
+  private bloom: UnrealBloomPass | null = null;
   private dust: THREE.Points | null = null;
   private swarmMat: THREE.ShaderMaterial | null = null;
   private plexusMat: THREE.ShaderMaterial | null = null;
@@ -94,13 +116,18 @@ export class LionExperience {
   private compactDevice = false;
   private qualityTier: QualityTier = "high";
   private resizeRaf = 0;
+  private renderDpr = 1;
+  private adaptiveElapsed = 0;
+  private adaptiveFrames = 0;
+  private activeUntil = 0;
+  private idleRenderElapsed = 0;
+  private pointerEventsBound = false;
 
   private points: THREE.Points | null = null;
   private material!: THREE.ShaderMaterial;
   /** Seconds since start. Accumulated from the ticker delta; THREE.Clock is
    *  deprecated in r185 and THREE.Timer would just be a second thing to update. */
   private elapsed = 0;
-  private renderAccumulatorMs = 0;
   private running = false;
   private disposed = false;
 
@@ -147,16 +174,23 @@ export class LionExperience {
   // Each setter is driven by a ScrollTrigger on the section that owns the beat.
 
   /** Page story: lion → expansion → ecosystem → energy flow → platform hub. */
-  setMorph(v: number): void { this.morphTarget = clamp01(v); }
+  setMorph(v: number): void {
+    this.morphTarget = clamp01(v);
+    if (typeof performance !== "undefined") this.activeUntil = performance.now() + 700;
+  }
 
   /** Move the active sculpture horizontally in normalized viewport space. */
   setLayout(v: number): void {
     const responsive = this.compactDevice ? v * 0.35 : v;
     this.layoutTarget = THREE.MathUtils.clamp(responsive, -0.72, 0.72);
+    if (typeof performance !== "undefined") this.activeUntil = performance.now() + 700;
   }
 
   /** Act 7: 0 = energy current, 1 = reformed lion above the CTA. */
-  setBloom(v: number): void { this.bloomW = clamp01(v); }
+  setBloom(v: number): void {
+    this.bloomW = clamp01(v);
+    if (typeof performance !== "undefined") this.activeUntil = performance.now() + 700;
+  }
 
   /**
    * Point the Act 7 convergence at a real element. Called on scroll-enter with
@@ -184,8 +218,9 @@ export class LionExperience {
     const cores = navigator.hardwareConcurrency || 8;
     const width = window.innerWidth;
 
-    if (width < 700 || mem <= 4 || cores <= 4) return "low";
+    if (width < 768 || mem <= 4 || cores <= 4) return "low";
     if (width < 1_180 || coarse || mem < 8 || cores < 8) return "medium";
+    if (width >= 1_800 && mem >= 8 && cores >= 8) return "ultra";
     return "high";
   }
 
@@ -210,7 +245,7 @@ export class LionExperience {
     const q = new URLSearchParams(window.location.search);
     const forced = q.get("count");
     if (forced) {
-      this.opts.maxParticles = Math.max(800, parseInt(forced, 10) || this.opts.maxParticles);
+      this.opts.maxParticles = Math.max(32, parseInt(forced, 10) || this.opts.maxParticles);
     }
     if (q.get("morph") === "1") {
       this.morphTarget = 1;
@@ -258,18 +293,112 @@ export class LionExperience {
     this.camera = new THREE.PerspectiveCamera(42, 1, 0.1, 60);
     this.camera.position.set(0, 0.05, 4.8);
 
-    this.buildDust();
-    this.buildFlare();
+    if (quality.dust > 0) this.buildDust();
+    if (this.qualityTier !== "low") this.buildFlare();
     await this.buildLionParticles();
     if (this.disposed) return; // unmounted while the GLB was in flight
-    this.buildPost();
+    // Mobile renders directly. Avoiding bloom + grading removes two full-screen
+    // passes and keeps each sparse constellation point sharply resolved.
+    if (this.qualityTier !== "low") this.buildPost();
     this.bindEvents();
     this.resize();
     if (this.opts.animate) this.start();
+    this.activeUntil = performance.now() + 4_000;
     this.opts.onReady();
   }
 
   // ------------------------------------------------------------------ lion --
+  /**
+   * Select a small, evenly distributed constellation from the visible lion
+   * surface. Farthest-point sampling in projected space protects the mane,
+   * ears and muzzle; random sampling cannot describe a face with only 77 dots.
+   */
+  private sampleMobileLandmarks(
+    sampler: MeshSurfaceSampler,
+    count: number,
+  ): { positions: Float32Array; normals: Float32Array } {
+    const candidateCount = Math.max(2_400, count * 24);
+    const candidatePositions = new Float32Array(candidateCount * 3);
+    const candidateNormals = new Float32Array(candidateCount * 3);
+    const p = new THREE.Vector3();
+    const n = new THREE.Vector3();
+    const min = new THREE.Vector3(Infinity, Infinity, Infinity);
+    const max = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
+
+    for (let i = 0; i < candidateCount; i++) {
+      sampler.sample(p, n);
+      candidatePositions.set([p.x, p.y, p.z], i * 3);
+      candidateNormals.set([n.x, n.y, n.z], i * 3);
+      min.min(p);
+      max.max(p);
+    }
+
+    const extentX = Math.max(max.x - min.x, 1e-4);
+    const extentY = Math.max(max.y - min.y, 1e-4);
+    const extentZ = Math.max(max.z - min.z, 1e-4);
+    const selected = new Uint8Array(candidateCount);
+    const nearest = new Float32Array(candidateCount);
+    nearest.fill(Infinity);
+    const indices: number[] = [];
+
+    const add = (index: number): void => {
+      if (selected[index] || indices.length >= count) return;
+      selected[index] = 1;
+      indices.push(index);
+      const offset = index * 3;
+      const sx = candidatePositions[offset] / extentX;
+      const sy = candidatePositions[offset + 1] / extentY;
+      const sz = candidatePositions[offset + 2] / extentZ;
+      for (let i = 0; i < candidateCount; i++) {
+        if (selected[i]) continue;
+        const o = i * 3;
+        const dx = candidatePositions[o] / extentX - sx;
+        const dy = candidatePositions[o + 1] / extentY - sy;
+        const dz = (candidatePositions[o + 2] / extentZ - sz) * 0.22;
+        nearest[i] = Math.min(nearest[i], dx * dx + dy * dy + dz * dz);
+      }
+    };
+
+    // Guarantee the major silhouette anchors before distributing the rest.
+    const extrema = [
+      { axis: 0, direction: -1 }, { axis: 0, direction: 1 },
+      { axis: 1, direction: -1 }, { axis: 1, direction: 1 },
+      { axis: 2, direction: 1 },
+    ];
+    extrema.forEach(({ axis, direction }) => {
+      let best = 0;
+      let value = -Infinity;
+      for (let i = 0; i < candidateCount; i++) {
+        const candidate = candidatePositions[i * 3 + axis] * direction;
+        if (candidate > value) { value = candidate; best = i; }
+      }
+      add(best);
+    });
+
+    while (indices.length < count) {
+      let best = 0;
+      let bestScore = -1;
+      for (let i = 0; i < candidateCount; i++) {
+        if (selected[i]) continue;
+        const z = (candidatePositions[i * 3 + 2] - min.z) / extentZ;
+        // Slight front-surface preference supplies extra eyes/muzzle detail.
+        const score = nearest[i] * (0.86 + z * 0.34);
+        if (score > bestScore) { bestScore = score; best = i; }
+      }
+      add(best);
+    }
+
+    const positions = new Float32Array(count * 3);
+    const normals = new Float32Array(count * 3);
+    indices.forEach((sourceIndex, targetIndex) => {
+      const source = sourceIndex * 3;
+      const target = targetIndex * 3;
+      positions.set(candidatePositions.subarray(source, source + 3), target);
+      normals.set(candidateNormals.subarray(source, source + 3), target);
+    });
+    return { positions, normals };
+  }
+
   private async buildLionParticles(): Promise<void> {
     const gltf = await new GLTFLoader().loadAsync(this.opts.modelUrl);
     if (this.disposed) return;
@@ -287,17 +416,23 @@ export class LionExperience {
     const count = this.opts.maxParticles;
     const sampler = new MeshSurfaceSampler(src).build();
 
-    const positions = new Float32Array(count * 3);
-    const normals = new Float32Array(count * 3);
+    let positions = new Float32Array(count * 3);
+    let normals = new Float32Array(count * 3);
     const rand = new Float32Array(count * 4);
     const spawn = new Float32Array(count * 3);
+    const burst = new Float32Array(count * 3);
+    const ecosystem = new Float32Array(count * 3);
+    const energy = new Float32Array(count * 3);
+    const hub = new Float32Array(count * 3);
 
     const p = new THREE.Vector3();
     const n = new THREE.Vector3();
     const s = new THREE.Vector3();
     const spherical = new THREE.Spherical();
 
-    for (let i = 0; i < count; i++) {
+    if (this.qualityTier === "low" && count <= 177) {
+      ({ positions, normals } = this.sampleMobileLandmarks(sampler, count));
+    } else for (let i = 0; i < count; i++) {
       // Importance sampling to equalize screen-space density: surface patches
       // edge-on to the camera compress into few pixels (overbright silhouette,
       // hollow face). Accept probability ~ |n.z| rebalances that.
@@ -321,11 +456,15 @@ export class LionExperience {
       normals[i * 3] = n.x;
       normals[i * 3 + 1] = n.y;
       normals[i * 3 + 2] = n.z;
+    }
 
-      rand[i * 4] = Math.random();
-      rand[i * 4 + 1] = Math.random();
-      rand[i * 4 + 2] = Math.random();
-      rand[i * 4 + 3] = Math.random();
+    for (let i = 0; i < count; i++) {
+      const rx = Math.random();
+      const ry = Math.random();
+      const rz = Math.random();
+      const rw = Math.random();
+
+      rand.set([rx, ry, rz, rw], i * 4);
 
       // spawn shell: far field the particles fly in from during the intro
       spherical.set(5.5 + Math.random() * 4.5, Math.acos(2 * Math.random() - 1), Math.random() * Math.PI * 2);
@@ -333,6 +472,49 @@ export class LionExperience {
       spawn[i * 3] = s.x;
       spawn[i * 3 + 1] = s.y;
       spawn[i * 3 + 2] = s.z;
+
+      // Static morph targets are uploaded once. The shader only interpolates
+      // and adds small chapter motion instead of rebuilding every form per frame.
+      const dx = rx - 0.5;
+      const dy = ry - 0.5;
+      const dz = rz - 0.5;
+      const invLength = 1 / Math.max(Math.hypot(dx, dy, dz), 1e-4);
+      const burstRadius = 1.15 + rw * 2.65;
+      burst.set([
+        dx * invLength * burstRadius,
+        dy * invLength * burstRadius,
+        dz * invLength * burstRadius + (ry - 0.5) * 2.4,
+      ], i * 3);
+
+      const ecoAngle = rx * Math.PI * 2;
+      const ecoRadius = 0.92 + rz * 0.58;
+      let ex = Math.cos(ecoAngle) * ecoRadius;
+      let ey = Math.sin(ecoAngle) * ecoRadius * 0.68;
+      let ez = (ry - 0.5) * 0.38;
+      const band = Math.floor(ry * 3);
+      if (band === 0) [ey, ez] = [ey * 0.55 - ez * 0.84, ey * 0.84 + ez * 0.55];
+      else if (band === 1) [ex, ez] = [ex * 0.72 - ez * 0.69, ex * 0.69 + ez * 0.72];
+      else [ex, ey] = [ex * 0.82 + ey * 0.57, -ex * 0.57 + ey * 0.82];
+      ecosystem.set([ex, ey, ez], i * 3);
+
+      const flowY = rx * 4.4 - 2.2;
+      const phase = rw * Math.PI * 2;
+      const helixAngle = flowY * 2.55 + phase;
+      const helixRadius = 0.18 + rz * 0.24;
+      energy.set([
+        Math.cos(helixAngle) * helixRadius,
+        flowY,
+        Math.sin(helixAngle) * helixRadius,
+      ], i * 3);
+
+      const layer = Math.floor(ry * 5);
+      const hubAngle = rx * Math.PI * 2;
+      const hubRadius = 0.42 + rz * 0.72;
+      hub.set([
+        Math.cos(hubAngle) * hubRadius,
+        (layer - 2) * 0.34 + Math.sin(hubAngle * 2 + phase) * 0.045,
+        Math.sin(hubAngle) * hubRadius * 0.48,
+      ], i * 3);
     }
 
     const geo = new THREE.BufferGeometry();
@@ -340,12 +522,17 @@ export class LionExperience {
     geo.setAttribute("aNormal", new THREE.BufferAttribute(normals, 3));
     geo.setAttribute("aRand", new THREE.BufferAttribute(rand, 4));
     geo.setAttribute("aSpawn", new THREE.BufferAttribute(spawn, 3));
+    geo.setAttribute("aBurst", new THREE.BufferAttribute(burst, 3));
+    geo.setAttribute("aEcosystem", new THREE.BufferAttribute(ecosystem, 3));
+    geo.setAttribute("aEnergy", new THREE.BufferAttribute(energy, 3));
+    geo.setAttribute("aHub", new THREE.BufferAttribute(hub, 3));
 
     const quality = QUALITY[this.qualityTier];
     const dpr = Math.min(window.devicePixelRatio, quality.dpr);
     this.material = new THREE.ShaderMaterial({
       vertexShader: PARTICLE_VERT,
       fragmentShader: PARTICLE_FRAG,
+      defines: quality.organicDetail > 0 ? { USE_ORGANIC_DETAIL: 1 } : {},
       transparent: true,
       depthWrite: false,
       depthTest: true,
@@ -363,7 +550,8 @@ export class LionExperience {
         uSize: { value: quality.pointSize },
         uGain: { value: 1 },
         uFocusDist: { value: 3.9 },
-        uDofAmount: { value: 0.38 },
+        uDofAmount: { value: quality.dof },
+        uOrganicDetail: { value: quality.organicDetail },
         uPixelRatio: { value: dpr },
         uBloom: { value: 0 },
         uCrest: { value: new THREE.Vector3(0, 0, 0) },
@@ -411,7 +599,7 @@ export class LionExperience {
         uPixelRatio: { value: Math.min(window.devicePixelRatio, quality.dpr) },
         uColor: { value: new THREE.Color(1.15, 0.78, 0.32) },
         uFocusDist: { value: 3.9 },
-        uDofAmount: { value: 0.30 },
+        uDofAmount: { value: quality.dof },
         uMorph: { value: 0 },
         uBloom: { value: 0 },
       },
@@ -464,7 +652,7 @@ export class LionExperience {
         uPixelRatio: { value: Math.min(window.devicePixelRatio, quality.dpr) },
         uMorph: { value: 0 },
         uFocusDist: { value: 3.9 },
-        uDofAmount: { value: 0.28 },
+        uDofAmount: { value: quality.dof },
         uBloom: { value: 0 },
         uCta: { value: new THREE.Vector3() },
       },
@@ -628,9 +816,14 @@ export class LionExperience {
   };
 
   private bindEvents(): void {
-    window.addEventListener("pointermove", this.onPointerMove, { passive: true });
-    document.documentElement.addEventListener("pointerenter", this.onPointerEnter);
-    document.documentElement.addEventListener("pointerleave", this.onPointerLeave);
+    // Touch devices gain nothing from cursor repulsion/parallax, so do not run
+    // global pointer handling or matrix unprojection on their scroll gesture.
+    if (!this.compactDevice) {
+      window.addEventListener("pointermove", this.onPointerMove, { passive: true });
+      document.documentElement.addEventListener("pointerenter", this.onPointerEnter);
+      document.documentElement.addEventListener("pointerleave", this.onPointerLeave);
+      this.pointerEventsBound = true;
+    }
     window.addEventListener("resize", this.onResize);
     document.addEventListener("visibilitychange", this.onVisibility);
     this.canvas.addEventListener("webglcontextlost", this.onContextLost);
@@ -660,7 +853,7 @@ export class LionExperience {
   }
 
   private tick = (_time: number, deltaMs: number): void => {
-    if (this.disposed || !this.composer) return;
+    if (this.disposed || !this.renderer) return;
 
     // Frame-rate independent ease toward the scroll target. The prototype used
     // a fixed 0.075 per frame, which ran ~2.4x faster on a 144Hz display.
@@ -768,7 +961,9 @@ export class LionExperience {
     const bloomBase = QUALITY[this.qualityTier].bloom;
     const ecosystemGlow = THREE.MathUtils.smoothstep(m, 0.30, 0.48)
       * (1 - THREE.MathUtils.smoothstep(m, 0.70, 0.86));
-    this.bloom.strength = bloomBase + ecosystemGlow * 0.09 + this.bloomW * 0.04;
+    if (this.bloom) {
+      this.bloom.strength = bloomBase + ecosystemGlow * 0.09 + this.bloomW * 0.04;
+    }
 
     // Keep the same focus plane across states. The old moving focus and lens
     // warp created a transparent sphere/white-hole artifact in the middle.
@@ -776,28 +971,64 @@ export class LionExperience {
     if (this.dust) (this.dust.material as THREE.ShaderMaterial).uniforms.uFocusDist.value = 3.9;
     if (this.swarmMat) this.swarmMat.uniforms.uFocusDist.value = 3.9;
 
-    // Low-tier devices trade imperceptible temporal density for stable touch
-    // scrolling and lower heat. Simulation still advances every ticker update;
-    // only the expensive post-processed draw is capped near 30fps.
-    if (this.opts.animate && this.qualityTier === "low") {
-      this.renderAccumulatorMs += deltaMs;
-      if (this.renderAccumulatorMs < 30) return;
-      this.renderAccumulatorMs %= 30;
+    // Adapt fill-rate, not animation cadence. The old 30fps limiter made every
+    // scroll morph judder; this keeps display-rate motion and only trims mobile
+    // resolution when sustained frame time proves the GPU is under pressure.
+    const activeMotion = performance.now() < this.activeUntil
+      || Math.abs(this.morphTarget - this.morph) > 0.001
+      || Math.abs(this.layoutTarget - this.layout) > 0.001;
+    if (activeMotion) {
+      this.idleRenderElapsed = 0;
+      this.updateAdaptiveResolution(deltaMs);
+    } else if (this.qualityTier === "low") {
+      // Ambient motion may relax while the user reads, but touching/scrolling
+      // immediately restores display-rate rendering before the next morph.
+      this.idleRenderElapsed += deltaMs;
+      if (this.idleRenderElapsed < 32) return;
+      this.idleRenderElapsed %= 32;
     }
-
-    this.composer.render();
+    if (this.composer) this.composer.render();
+    else this.renderer.render(this.scene, this.camera);
   };
+
+  private updateAdaptiveResolution(deltaMs: number): void {
+    if (this.qualityTier !== "low" || deltaMs <= 0 || deltaMs > 100) return;
+    this.adaptiveElapsed += deltaMs;
+    this.adaptiveFrames++;
+    if (this.adaptiveElapsed < 2_000 || this.adaptiveFrames < 45) return;
+
+    const averageFrameMs = this.adaptiveElapsed / this.adaptiveFrames;
+    const quality = QUALITY.low;
+    let nextDpr = this.renderDpr;
+    if (averageFrameMs > 20.5) nextDpr = Math.max(quality.minDpr, nextDpr - 0.1);
+    else if (averageFrameMs < 17.2) nextDpr = Math.min(Math.min(window.devicePixelRatio, quality.dpr), nextDpr + 0.05);
+
+    this.adaptiveElapsed = 0;
+    this.adaptiveFrames = 0;
+    if (Math.abs(nextDpr - this.renderDpr) < 0.01) return;
+    this.renderDpr = nextDpr;
+    this.applyRenderSize();
+  }
+
+  private applyRenderSize(): void {
+    const w = this.canvas.clientWidth || window.innerWidth;
+    const h = this.canvas.clientHeight || window.innerHeight;
+    this.renderer.setPixelRatio(this.renderDpr);
+    this.renderer.setSize(w, h, false);
+    this.composer?.setPixelRatio(this.renderDpr);
+    this.composer?.setSize(w, h);
+    if (this.material) this.material.uniforms.uPixelRatio.value = this.renderDpr;
+    if (this.dust) (this.dust.material as THREE.ShaderMaterial).uniforms.uPixelRatio.value = this.renderDpr;
+    if (this.swarmMat) this.swarmMat.uniforms.uPixelRatio.value = this.renderDpr;
+  }
 
   private resize(): void {
     const w = this.canvas.clientWidth || window.innerWidth;
     const h = this.canvas.clientHeight || window.innerHeight;
     // One clean canvas. Mobile renders at native CSS-pixel density; the sparse
     // points stay crisp without paying the quadratic cost of a high DPR.
-    const dpr = Math.min(window.devicePixelRatio, QUALITY[this.qualityTier].dpr);
-    this.renderer.setPixelRatio(dpr);
-    this.renderer.setSize(w, h, false);
-    this.composer?.setPixelRatio(dpr);
-    this.composer?.setSize(w, h);
+    this.renderDpr = Math.min(window.devicePixelRatio, QUALITY[this.qualityTier].dpr);
+    this.applyRenderSize();
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     // Portrait viewports pack the same energy into fewer pixels, but the
@@ -808,9 +1039,6 @@ export class LionExperience {
     // viewport (the ribbon, the graph, the CTA target) is measured in these units.
     this.halfH = Math.tan((this.camera.fov * Math.PI) / 360) * this.camera.position.z;
 
-    if (this.material) this.material.uniforms.uPixelRatio.value = dpr;
-    if (this.dust) (this.dust.material as THREE.ShaderMaterial).uniforms.uPixelRatio.value = dpr;
-    if (this.swarmMat) this.swarmMat.uniforms.uPixelRatio.value = dpr;
     if (!this.opts.animate && this.material) this.renderOnce();
   }
 
@@ -832,9 +1060,11 @@ export class LionExperience {
   dispose(): void {
     this.disposed = true;
     this.stop();
-    window.removeEventListener("pointermove", this.onPointerMove);
-    document.documentElement.removeEventListener("pointerenter", this.onPointerEnter);
-    document.documentElement.removeEventListener("pointerleave", this.onPointerLeave);
+    if (this.pointerEventsBound) {
+      window.removeEventListener("pointermove", this.onPointerMove);
+      document.documentElement.removeEventListener("pointerenter", this.onPointerEnter);
+      document.documentElement.removeEventListener("pointerleave", this.onPointerLeave);
+    }
     window.removeEventListener("resize", this.onResize);
     document.removeEventListener("visibilitychange", this.onVisibility);
     this.canvas.removeEventListener("webglcontextlost", this.onContextLost);

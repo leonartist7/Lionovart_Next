@@ -34,7 +34,6 @@ export default function AiHeroCopy() {
       gsap.to(copyRef.current, {
         opacity: 0,
         y: -52,
-        filter: "blur(8px)",
         ease: "power2.in",
         scrollTrigger: { trigger: wrap, start: "44% top", end: "88% top", scrub: true },
       });
