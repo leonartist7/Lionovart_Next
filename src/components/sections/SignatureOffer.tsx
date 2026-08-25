@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { getWhatsAppUrl } from "@/lib/contact";
 import { useNovaStore } from "@/lib/stores/nova-store";
+import { ShineBorder } from "@/components/ui/shine-border";
 
 const INCLUDED = [
   { title: "Brand Identity & Strategy", note: "Logo, system, voice — authority on sight." },
@@ -46,12 +47,17 @@ export default function SignatureOffer() {
 
         {/* Offer card */}
         <motion.div
-          className="rounded-[24px] md:rounded-[32px] bg-[#0c0c0c] text-white overflow-hidden shadow-[0_30px_70px_-20px_rgba(0,0,0,0.5)]"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "0px 0px -10% 0px" }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         >
+          <ShineBorder
+            color={["#e5192a", "#f0c917", "#e5192a"]}
+            borderWidth={1.5}
+            duration={14}
+            className="w-full min-w-0 p-0 block rounded-[24px] md:rounded-[32px] bg-[#0c0c0c] text-white overflow-hidden shadow-[0_30px_70px_-20px_rgba(0,0,0,0.5)]"
+          >
           <div className="grid md:grid-cols-[1.2fr_1fr]">
             {/* What's included */}
             <div className="p-8 md:p-12 border-b md:border-b-0 md:border-r border-white/10">
@@ -116,6 +122,7 @@ export default function SignatureOffer() {
               </p>
             </div>
           </div>
+          </ShineBorder>
         </motion.div>
 
         {/* Authority strip */}
