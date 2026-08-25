@@ -115,7 +115,7 @@ export default function StrongTogetherTransition() {
       id="stronger-together"
       aria-labelledby="strong-together-title"
       data-art-directed="light"
-      className="relative h-[145svh] overflow-hidden bg-[#0a0a0a]"
+      className="relative h-[145svh] overflow-clip bg-[#0a0a0a]"
     >
       <div className="sticky top-0 h-[100svh] min-h-[560px] overflow-hidden bg-[#0d0d0d]">
         <div className="pointer-events-none absolute inset-0 z-[4]" aria-hidden="true">
