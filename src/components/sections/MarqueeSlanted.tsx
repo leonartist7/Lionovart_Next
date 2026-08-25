@@ -60,7 +60,7 @@ export default function MarqueeSlanted() {
   const { t } = useLanguage();
 
   return (
-    <section className="imagine-marquee relative z-20 -mt-[5svh] overflow-visible">
+    <section className="imagine-marquee relative z-20 -mt-[7svh] overflow-visible">
       <div className="imagine-marquee__band overflow-hidden bg-brand-red py-4 md:py-5">
         <MarqueeTrack items={t.marquee.items} />
       </div>
