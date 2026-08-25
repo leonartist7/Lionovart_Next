@@ -190,6 +190,7 @@ export const en = {
     heading: "Why",
     headingAccent: "Us",
     headingSuffix: "?",
+    featuresLabel: "What You Need",
     columns: [
       "Speed",
       "Flexibility",
@@ -537,9 +538,9 @@ export const en = {
   },
 
   services: {
-    eyebrow: "Everything your business needs, nothing that it doesn't.",
+    eyebrow: "The Art of Innovation, applied to every part of your brand.",
     heading: "Our",
-    headingAccent: "Expertise",
+    headingAccent: "Craft",
     items: [
       {
         title: "Brand Identity & Strategy",

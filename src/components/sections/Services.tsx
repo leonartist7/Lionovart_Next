@@ -3,7 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useMotionValueEvent,
+  useReducedMotion,
+} from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const ServicesHorizontal = dynamic(() => import("./ServicesHorizontal"), {
@@ -22,6 +28,109 @@ const SERVICES_STATIC = [
   { id: "smart-systems",  number: "05", href: "/services/ai",             imgId: "v1775277352/Frame_1_zhyago.avif", imgAlt: "Smart Systems & AI" },
   { id: "growth",         number: "06", href: "/services/growth",         imgId: "v1775277350/image_19_rnwg8w.avif", imgAlt: "Growth Marketing" },
 ].map((s) => ({ ...s, imgUrl: `${C}/${s.imgId}` }));
+
+/* Four crops of the SAME real photo (one per service today) rather than
+   padding with other services' imagery, which would misrepresent what a
+   service actually shows. Swap for real per-tile photography per service
+   when it exists; only MOSAIC_TRANSFORMS needs to change. */
+const MOSAIC_TRANSFORMS = [
+  "f_auto,q_auto,w_700,ar_1:1,c_fill,g_auto",
+  "f_auto,q_auto,w_700,ar_1:1,c_fill,g_north",
+  "f_auto,q_auto,w_700,ar_1:1,c_fill,g_south",
+  "f_auto,q_auto,w_700,ar_1:1,c_fill,g_east",
+];
+function mosaicFor(imgId: string) {
+  return MOSAIC_TRANSFORMS.map((t) => `${CLOUD_BASE}/${t}/${imgId}`);
+}
+
+const MOSAIC_EASE = [0.16, 1, 0.3, 1] as const;
+const MOSAIC_COLS = 2;
+const MOSAIC_ROWS = 2;
+
+/* The active service's hero photo fractures into a 2x2 mosaic once,
+   on mount (i.e. once per activeIndex, since the caller remounts this
+   via a keyed AnimatePresence child) and stays open. Closed state is
+   the same photo sliced across the grid so it reads as one image;
+   open state crossfades each tile to its own crop of that photo. */
+function ServiceMosaic({
+  images,
+  alt,
+  reduce,
+}: {
+  images: string[];
+  alt: string;
+  reduce: boolean | null;
+}) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (reduce) {
+      setOpen(true);
+      return;
+    }
+    const id = setTimeout(() => setOpen(true), 90);
+    return () => clearTimeout(id);
+  }, [reduce]);
+
+  const hero = images[0];
+
+  return (
+    <div
+      className="grid h-full w-full"
+      style={{
+        gridTemplateColumns: `repeat(${MOSAIC_COLS}, 1fr)`,
+        gridTemplateRows: `repeat(${MOSAIC_ROWS}, 1fr)`,
+      }}
+    >
+      {images.map((src, k) => {
+        const col = k % MOSAIC_COLS;
+        const row = Math.floor(k / MOSAIC_COLS);
+        return (
+          <motion.div
+            key={k}
+            initial={false}
+            animate={{
+              scale: open ? 0.94 : 1,
+              borderRadius: open ? 14 : 0,
+            }}
+            transition={
+              reduce ? { duration: 0 } : { duration: 0.7, ease: MOSAIC_EASE, delay: k * 0.06 }
+            }
+            className="relative overflow-hidden"
+          >
+            <motion.div
+              aria-hidden
+              initial={false}
+              animate={{ opacity: open ? 0 : 1 }}
+              transition={
+                reduce ? { duration: 0 } : { duration: 0.5, ease: MOSAIC_EASE, delay: k * 0.06 }
+              }
+              className="absolute inset-0"
+              style={{
+                backgroundImage: `url(${hero})`,
+                backgroundSize: `${MOSAIC_COLS * 100}% ${MOSAIC_ROWS * 100}%`,
+                backgroundPosition: `${(col / (MOSAIC_COLS - 1)) * 100}% ${
+                  (row / (MOSAIC_ROWS - 1)) * 100
+                }%`,
+              }}
+            />
+            <motion.img
+              src={src}
+              alt={k === 0 ? alt : ""}
+              initial={false}
+              animate={{ opacity: open ? 1 : 0 }}
+              transition={
+                reduce ? { duration: 0 } : { duration: 0.5, ease: MOSAIC_EASE, delay: k * 0.06 }
+              }
+              className="absolute inset-0 h-full w-full object-cover"
+              loading="lazy"
+            />
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function Services(props: any) {
   const { t } = useLanguage();
@@ -47,6 +156,7 @@ export default function Services(props: any) {
         deliverables: (t.services.items[i]?.deliverables as readonly string[] | undefined) ?? [],
       }));
 
+  const reduce = useReducedMotion();
   const [activeIndex, setActiveIndex] = useState(0);
   const [layoutMode, setLayoutMode] = useState<"vertical" | "horizontal">("vertical");
   const activeIndexRef = useRef(0);
@@ -234,6 +344,15 @@ export default function Services(props: any) {
                       View {active.title} <span aria-hidden>&rarr;</span>
                     </Link>
                   )}
+
+                  {/* Image card â€” fractures into a 2x2 mosaic on entry */}
+                  <div className="w-full aspect-[16/9] rounded-[18px] xl:rounded-[22px] overflow-hidden shadow-[0_12px_40px_-8px_rgba(0,0,0,0.14)]">
+                    <ServiceMosaic
+                      images={mosaicFor(active.imgId)}
+                      alt={active.imgAlt}
+                      reduce={reduce}
+                    />
+                  </div>
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -321,6 +440,14 @@ export default function Services(props: any) {
                           View {s.title} <span aria-hidden>&rarr;</span>
                         </Link>
                       )}
+                      {/* Image â€” below tags, fractures into a 2x2 mosaic on entry */}
+                      <div className="w-full aspect-[16/9] rounded-[14px] overflow-hidden shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12)]">
+                        <ServiceMosaic
+                          images={mosaicFor(s.imgId)}
+                          alt={s.imgAlt}
+                          reduce={reduce}
+                        />
+                      </div>
                     </div>
                   </motion.div>
                 )}

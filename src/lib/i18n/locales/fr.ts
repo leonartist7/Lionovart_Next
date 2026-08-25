@@ -183,6 +183,7 @@ export const fr: Translations = {
     heading: "Pourquoi",
     headingAccent: "nous",
     headingSuffix: " ?",
+    featuresLabel: "Ce qu'il vous faut",
     columns: [
       "Rapidité",
       "Flexibilité",
@@ -401,7 +402,7 @@ export const fr: Translations = {
   },
 
   services: {
-    eyebrow: "Tout en interne. Un seul standard.",
+    eyebrow: "L'Art de l'Innovation, appliqué à chaque partie de votre marque.",
     heading: "Notre",
     headingAccent: "Savoir-faire",
     items: [

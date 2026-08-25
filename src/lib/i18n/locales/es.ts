@@ -182,6 +182,7 @@ export const es: Translations = {
     heading: "¿Por qué",
     headingAccent: "nosotros",
     headingSuffix: "?",
+    featuresLabel: "Lo que necesitas",
     columns: [
       "Velocidad",
       "Flexibilidad",
@@ -399,7 +400,7 @@ export const es: Translations = {
   },
 
   services: {
-    eyebrow: "Todo en casa. Un solo estándar.",
+    eyebrow: "El Arte de la Innovación, aplicado a cada parte de tu marca.",
     heading: "Nuestro",
     headingAccent: "Oficio",
     items: [
