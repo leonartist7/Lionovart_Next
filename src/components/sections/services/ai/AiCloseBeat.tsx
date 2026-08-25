@@ -5,7 +5,7 @@
  *
  * SERVICE_PAGES_SPEC section 0.3: the page's biggest motion moment belongs at
  * the decision, not the hero. The same energy current that runs through the
- * middle reforms into the lion above the CTA. The last thing on screen is the
+ * middle reforms into the crown above the CTA. The last thing on screen is the
  * mark that opened the page.
  *
  * Renders nothing. It wraps ProofAndClose and drives the engine from that
@@ -33,9 +33,7 @@ export default function AiCloseBeat({ children }: { children: React.ReactNode })
 
     const aimAtCta = () => {
       const exp = getLionStage();
-      // Not "canvas, button, a": LiquidMetalButton renders its own decorative
-      // shader canvas BEFORE the real <button> in DOM order, so a loose
-      // selector list matches that canvas instead of the actual CTA.
+      // The explicit marker keeps the convergence tied to the primary action.
       if (!exp || !btn) return;
       const r = btn.getBoundingClientRect();
       exp.setCtaScreenPos(
@@ -57,7 +55,7 @@ export default function AiCloseBeat({ children }: { children: React.ReactNode })
         // bottom edge, when the CTA button (further down inside this same
         // section) is still far below the fold. A one-shot rect at that
         // moment aims the convergence at a point way under the visible
-        // frustum, which reads as the lion sinking off the bottom of the
+        // frustum, which reads as the crown sinking off the bottom of the
         // screen instead of reforming on the button.
         aimAtCta();
         exp.setLayout(0);
@@ -90,7 +88,6 @@ export default function AiCloseBeat({ children }: { children: React.ReactNode })
       ref={wrapRef}
       data-ai-snap
       data-lion-zone
-      className="[&_figcaption]:!text-[15px] [&_figcaption]:!text-white/65 [&_section_p]:!text-[16px] [&_section_p]:!leading-[1.6] [&_section_p]:!text-white/68 md:[&_section_p]:!text-[17px]"
     >
       {children}
     </div>

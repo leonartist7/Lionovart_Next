@@ -3,7 +3,7 @@
 /**
  * The missing bridge between the hero and the service story.
  *
- * The same particles that draw the lion open into an immersive field, then
+ * The same particles that draw the crown open into an immersive field, then
  * reconnect as an ecosystem on the opposite side of the copy. No second
  * canvas, opaque sphere, or shader handoff is involved.
  */

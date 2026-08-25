@@ -2,14 +2,15 @@ import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
-import ProofAndClose from "@/components/sections/services/_shared/ProofAndClose";
 import AiLionStage from "@/components/sections/services/ai/AiLionStage";
 import AiHeroCopy from "@/components/sections/services/ai/AiHeroCopy";
 import AiChaosBeat from "@/components/sections/services/ai/AiChaosBeat";
 import AiCloseBeat from "@/components/sections/services/ai/AiCloseBeat";
 import AiScrollSnap from "@/components/sections/services/ai/AiScrollSnap";
+import AiPageNav from "@/components/sections/services/ai/AiPageNav";
+import AiRoi from "@/components/sections/services/ai/AiRoi";
+import AiDecision from "@/components/sections/services/ai/AiDecision";
 import {
-  AiStakes,
   AiSystems,
   AiFlow,
   AiProcess,
@@ -42,7 +43,7 @@ export const metadata: Metadata = {
  * /services/ai — Tier 2, on the shared 7-act spine.
  *
  * Structure: one particle world runs continuously behind the entire page. The
- * lion opens into an immersive field, reconnects as an ecosystem, becomes an
+ * crown opens into an immersive field, reconnects as an ecosystem, becomes an
  * energy flow and platform hub, then reforms above the CTA. The swarm, trails,
  * dust, and plexus are all coordinated inside the same renderer.
  */
@@ -65,7 +66,7 @@ export default function AiServicePage() {
         style={
           {
             // The page moves from electric intelligence back into the brand's
-            // gold lion. These accents stay scoped to this route; the primary
+            // gold crown. These accents stay scoped to this route; the primary
             // CTA still carries the site-wide brand red.
             "--ai-blue": "#6366f1",
             "--ai-cyan": "#54e5ff",
@@ -75,28 +76,22 @@ export default function AiServicePage() {
       >
         <Navbar />
         <AiScrollSnap />
+        <AiPageNav />
 
         <AiHeroCopy />
         <AiChaosBeat />
 
-        {/* Open editorial chapters: typography and the shared particle world
-            provide hierarchy, rather than a stack of separate glass cards. */}
         <div className="relative">
-          <AiStakes />
           <AiSystems />
           <AiFlow />
           <AiProcess />
+          <AiRoi />
           <AiOffers />
         </div>
 
-        {/* Acts 6 and 7. The wrapper reforms the lion onto the CTA. */}
+        {/* The same particles reform into the crown above the decision. */}
         <AiCloseBeat>
-          <ProofAndClose
-            quote="Your first system is measured against a real baseline: hours returned, workload removed, and opportunities recovered."
-            attribution="The Lionovart 5-Hour-Back Guarantee"
-            closingLine="Take back your time."
-            closingAccent="Keep the growth."
-          />
+          <AiDecision />
         </AiCloseBeat>
 
         <Footer />

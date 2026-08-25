@@ -882,3 +882,27 @@
     opacity: 0.8;
   }
 }
+
+/* AI route: liquid-glass depth without a mobile blur tax. */
+.ai-liquid-glass {
+  background:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.028) 38%, rgba(255, 255, 255, 0.012) 70%),
+    rgba(5, 7, 14, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.115);
+  box-shadow:
+    0 30px 80px -44px rgba(0, 0, 0, 0.95),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.58);
+}
+
+@media (min-width: 768px) {
+  @supports (backdrop-filter: blur(1px)) {
+    .ai-liquid-glass {
+      background:
+        linear-gradient(150deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.022) 44%, rgba(255, 255, 255, 0.008)),
+        rgba(5, 7, 14, 0.42);
+      backdrop-filter: blur(8px) saturate(118%);
+      -webkit-backdrop-filter: blur(8px) saturate(118%);
+    }
+  }
+}

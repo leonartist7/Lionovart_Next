@@ -12,7 +12,6 @@ import { useEffect, useRef, useState } from "react";
 import { Tabs } from "@base-ui/react/tabs";
 import {
   motion,
-  useInView,
   useReducedMotion,
   useScroll,
   useSpring,
@@ -22,8 +21,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useNovaStore } from "@/lib/stores/nova-store";
 import { getLionStage } from "@/lib/lion/stage-ref";
-import { BRIDGE_MORPH_END } from "./AiChaosBeat";
 import { NODES } from "./graph";
+import { LiquidGlass } from "./LiquidGlass";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -81,60 +80,10 @@ function Heading({ children, wide = false }: { children: React.ReactNode; wide?:
   );
 }
 
-const STAKES = [
-  "The customer who waits becomes the customer who chooses someone else.",
-  "The lead you already paid for disappears between inboxes and spreadsheets.",
-  "Your best people spend their day copying, chasing and checking.",
-];
-
-export function AiStakes() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const copyRef = useRef<HTMLDivElement>(null);
-  const inView = useInView(copyRef, { once: true, margin: "-18%" });
-  const reduce = useReducedMotion();
-  useParticleChapter(sectionRef, BRIDGE_MORPH_END, 0.62, 0.42);
-
-  return (
-    <section ref={sectionRef} data-ai-snap className={ACT}>
-      <div className={SHELL}>
-        <div className="max-w-[48rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:w-[58%]">
-          <Eyebrow>The real cost of disconnected work</Eyebrow>
-          <Heading wide>Manual work is quietly taxing every opportunity.</Heading>
-
-          <div ref={copyRef} className="mt-14 space-y-8 md:mt-20 md:space-y-12">
-            {STAKES.map((line, index) => (
-              <motion.div
-                key={line}
-                initial={reduce ? false : { opacity: 0, y: 22 }}
-                animate={reduce ? undefined : inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.9, ease: EXPO, delay: 0.12 + index * 0.14 }}
-                className="grid grid-cols-[2.75rem_1fr] gap-4 md:grid-cols-[3.25rem_1fr] md:gap-6"
-              >
-                <span className="pt-1 text-[13px] font-medium tabular-nums tracking-[0.16em] text-[var(--ai-cyan)] md:text-[14px]">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <p
-                  className="max-w-[31ch] font-light leading-[1.25] text-white/82"
-                  style={{
-                    fontFamily: "var(--font-ai-display)",
-                    fontSize: "clamp(1.3rem, 2.25vw, 2rem)",
-                  }}
-                >
-                  {line}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 const SYSTEMS = [
   {
     number: "01",
-    eyebrow: "AI Front Desk & Customer Experience",
+    eyebrow: "Capture & Convert",
     title: "Every opportunity gets answered.",
     lead: "Helpful, on-brand responses. At any hour.",
     body: "Voice and chat agents welcome every customer in your language and your tone, answer what they need, qualify the opportunity and take the next useful action—without adding another tool for your team to babysit.",
@@ -151,15 +100,15 @@ const SYSTEMS = [
   },
   {
     number: "02",
-    eyebrow: "Lead Conversion & Sales Systems",
-    title: "Turn attention into booked revenue.",
-    lead: "Every lead receives a useful next step.",
-    body: "The moment somebody shows interest, your system responds, qualifies, follows up and moves the opportunity forward—consistently, while your team stays focused on the conversations that need a human.",
+    eyebrow: "Serve & Retain",
+    title: "Make every customer feel remembered.",
+    lead: "Fast help, thoughtful follow-through, consistent care.",
+    body: "Questions, requests, reminders and reviews are handled with shared context, so customers get a useful answer quickly and your team steps in exactly when a human matters most.",
     capabilities: [
-      "Instant multichannel follow-up",
-      "Qualification and appointment setting",
-      "Long-term nurture and lead reactivation",
-      "Quotes, proposals and pipeline updates",
+      "Customer support across phone and chat",
+      "Reminders, rescheduling and updates",
+      "Reviews, retention and reactivation",
+      "Intelligent escalation with full context",
     ],
     fit: "Real estate · home services · clinics · agencies · events",
     to: 0.80,
@@ -168,7 +117,7 @@ const SYSTEMS = [
   },
   {
     number: "03",
-    eyebrow: "Operations & Finance Automation",
+    eyebrow: "Run & Fulfill",
     title: "Give your team the hours back.",
     lead: "Less repetition. Fewer errors. More room to lead.",
     body: "Scheduling, documents, invoices and recurring coordination move quietly in the background while your people stay focused on customers, judgment and the work only they can do.",
@@ -185,7 +134,7 @@ const SYSTEMS = [
   },
   {
     number: "04",
-    eyebrow: "Growth & Business Intelligence",
+    eyebrow: "See & Scale",
     title: "See the next move before it costs you.",
     lead: "The business finally speaks in one clear voice.",
     body: "Customer, sales, marketing and operational signals become timely decisions—revealing where revenue leaks, where demand is growing and what deserves your attention now.",
@@ -235,6 +184,7 @@ export function AiSystems() {
 
   return (
     <section
+      id="systems"
       ref={sectionRef}
       data-ai-snap
       data-lion-zone
@@ -249,7 +199,7 @@ export function AiSystems() {
         >
           <div className="max-w-[58rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)]">
             <p className="text-[13px] font-medium uppercase tracking-[0.18em] text-white/68 md:text-[14px]">
-              The system architecture
+              Four high-return systems
             </p>
             <h2
               id="ai-systems-heading"
@@ -260,9 +210,10 @@ export function AiSystems() {
             </h2>
           </div>
 
+          <LiquidGlass className="mt-10 p-4 md:mt-14 md:p-7 lg:p-9">
           <Tabs.List
             aria-label="Choose an AI system"
-            className="relative mt-9 flex w-full snap-x snap-mandatory gap-1 overflow-x-auto border-b border-white/14 pb-px [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mt-12 md:grid md:grid-cols-4 md:overflow-visible"
+            className="relative flex w-full snap-x snap-mandatory gap-1 overflow-x-auto border-b border-white/14 pb-px [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-4 md:overflow-visible"
           >
             {SYSTEMS.map((system) => (
               <Tabs.Tab
@@ -270,18 +221,18 @@ export function AiSystems() {
                 value={system.number}
                 className="group min-h-16 min-w-[15.5rem] snap-start px-4 py-4 text-left text-white/58 outline-none transition-colors duration-300 hover:text-white data-active:text-white focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white md:min-w-0 md:px-5"
               >
-                <span className="block text-[12px] font-medium tabular-nums tracking-[0.18em] text-[var(--ai-cyan)]/72 transition-colors group-data-active:text-[var(--ai-cyan)] md:text-[13px]">
+                <span className="block text-[13px] font-medium tabular-nums tracking-[0.18em] text-[var(--ai-cyan)]/72 transition-colors group-data-active:text-[var(--ai-cyan)]">
                   {system.number}
                 </span>
-                <span className="mt-1.5 block text-[15px] font-medium leading-[1.3] md:text-[16px]">
-                  {system.eyebrow.replace("AI ", "")}
+                <span className="mt-1.5 block text-[16px] font-medium leading-[1.3]">
+                  {system.eyebrow}
                 </span>
               </Tabs.Tab>
             ))}
             <Tabs.Indicator className="absolute bottom-[-1px] left-0 h-[2px] w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] bg-[var(--ai-cyan)] shadow-[0_0_16px_rgba(84,229,255,0.72)] transition-[translate,width] duration-500 ease-out" />
           </Tabs.List>
 
-          <div className="relative mt-10 min-h-[36rem] md:mt-14 md:min-h-[34rem]">
+          <div className="relative mt-9 min-h-[38rem] md:mt-12 md:min-h-[34rem]">
             {SYSTEMS.map((system) => {
               const right = system.side === "right";
               return (
@@ -324,7 +275,7 @@ export function AiSystems() {
                       {system.capabilities.map((capability) => (
                         <li
                           key={capability}
-                          className="border-b border-white/12 py-3.5 pr-5 text-[16px] font-light leading-[1.5] text-white/78 sm:odd:mr-6 md:text-[17px]"
+                          className="border-b border-white/12 py-3.5 pr-5 text-[17px] font-light leading-[1.5] text-white/78 sm:odd:mr-6"
                         >
                           <span aria-hidden className="mr-2 text-[var(--ai-cyan)]">·</span>
                           {capability}
@@ -340,6 +291,7 @@ export function AiSystems() {
               );
             })}
           </div>
+          </LiquidGlass>
         </Tabs.Root>
       </div>
     </section>
@@ -349,13 +301,15 @@ export function AiSystems() {
 export function AiFlow() {
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
-  useParticleChapter(ref, 1, 1, -0.44);
+  // The connected orbit narrows into the vertical energy spine beside this
+  // sequence; the following chapter condenses that current into the hub.
+  useParticleChapter(ref, 0.68, 0.76, -0.44);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 65%", "end 75%"] });
   const fill = useSpring(scrollYProgress, { stiffness: 90, damping: 26, mass: 0.4 });
   const railHeight = useTransform(fill, (value) => `${(reduce ? 1 : value) * 100}%`);
 
   return (
-    <section ref={ref} data-ai-snap className={ACT}>
+    <section id="process" ref={ref} data-ai-snap className={ACT}>
       <div className={SHELL}>
         <div className="[text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:ml-auto md:w-[60%]">
           <Eyebrow>The Lionovart AI Operating System</Eyebrow>
@@ -441,7 +395,7 @@ function FlowStep({
         >
           {node.label}
         </span>
-        <span className="max-w-[38ch] text-[16px] font-light leading-[1.55] text-white/72 md:ml-auto md:text-right md:text-[17px]">
+        <span className="max-w-[38ch] text-[17px] font-light leading-[1.55] text-white/72 md:ml-auto md:text-right">
           {node.detail}
         </span>
       </div>
@@ -473,7 +427,7 @@ const STEPS = [
 export function AiProcess() {
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
-  useParticleChapter(ref, 1, 1, 0.44);
+  useParticleChapter(ref, 0.76, 1, 0.44);
 
   return (
     <section ref={ref} data-ai-snap className={ACT}>
@@ -486,7 +440,7 @@ export function AiProcess() {
             implementation, integration and continuous improvement—from the first blueprint onward.
           </p>
 
-          <div className="mt-14 border-t border-white/12 md:mt-18">
+          <LiquidGlass className="mt-14 px-5 md:mt-18 md:px-8">
             {STEPS.map((step, index) => (
               <motion.article
                 key={step.n}
@@ -515,7 +469,7 @@ export function AiProcess() {
                 </p>
               </motion.article>
             ))}
-          </div>
+          </LiquidGlass>
         </div>
       </div>
     </section>
@@ -554,7 +508,7 @@ export function AiOffers() {
   useParticleChapter(ref, 1, 1, -0.44);
 
   return (
-    <section ref={ref} data-ai-snap className="relative py-[120px] md:py-[180px] lg:py-[220px]">
+    <section id="partnership" ref={ref} data-ai-snap className="relative py-[120px] md:py-[180px] lg:py-[220px]">
       <div className={SHELL}>
         <div className="[text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:ml-auto md:w-[64%]">
           <Eyebrow>A clear way in</Eyebrow>
@@ -588,7 +542,7 @@ export function AiOffers() {
                 <div>
                   <ul className="m-0 grid list-none gap-x-6 gap-y-3 p-0 sm:grid-cols-2">
                     {offer.items.map((item) => (
-                      <li key={item} className="text-[16px] font-light leading-[1.5] text-white/78 md:text-[17px]">
+                      <li key={item} className="text-[17px] font-light leading-[1.5] text-white/78">
                         <span aria-hidden className="mr-2 text-[var(--ai-cyan)]">·</span>
                         {item}
                       </li>
@@ -597,7 +551,7 @@ export function AiOffers() {
                   <button
                     type="button"
                     onClick={() => openNova("hero", true)}
-                    className="mt-9 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[16px] font-semibold tracking-[-0.01em] text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+                    className="mt-9 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[17px] font-semibold tracking-[-0.01em] text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
                   >
                     {offer.cta}
                   </button>
@@ -644,7 +598,7 @@ export function AiOffers() {
               {INDUSTRIES.map((industry) => (
                 <p
                   key={industry}
-                  className="border-b border-white/10 py-4 pr-5 text-[16px] font-light text-white/74 sm:odd:mr-6 md:text-[17px]"
+                  className="border-b border-white/10 py-4 pr-5 text-[17px] font-light text-white/74 sm:odd:mr-6"
                 >
                   {industry}
                 </p>

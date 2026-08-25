@@ -1,6 +1,4 @@
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { MeshSurfaceSampler } from "three/examples/jsm/math/MeshSurfaceSampler.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
@@ -16,7 +14,6 @@ import {
 } from "./shaders";
 
 export interface LionExperienceOptions {
-  modelUrl?: string;
   maxParticles?: number;
   animate?: boolean;
   onReady?: () => void;
@@ -32,27 +29,27 @@ type QualityTier = "low" | "medium" | "high" | "ultra";
 const QUALITY = {
   low: {
     particles: 77,
-    dpr: 1.35,
+    dpr: 1.25,
     minDpr: 1,
     dust: 0,
-    swarmHeads: 10,
+    swarmHeads: 0,
     trailLength: 1,
-    pointSize: 52,
-    exposure: 1.12,
+    pointSize: 56,
+    exposure: 1.18,
     bloom: 0,
     dof: 0,
     organicDetail: 0,
   },
   medium: {
     particles: 177,
-    dpr: 1.5,
+    dpr: 1.45,
     minDpr: 1.1,
-    dust: 80,
-    swarmHeads: 24,
+    dust: 48,
+    swarmHeads: 18,
     trailLength: 2,
     pointSize: 48,
     exposure: 1.1,
-    bloom: 0.12,
+    bloom: 0,
     dof: 0.06,
     organicDetail: 0.3,
   },
@@ -87,7 +84,7 @@ const QUALITY = {
 const clamp01 = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v);
 
 /**
- * Framework-agnostic particle engine: a golden lion that becomes a vertical
+ * Framework-agnostic particle engine: a golden crown that becomes a vertical
  * energy current and reforms at the CTA. Drive `morphTarget` (0..1) from scroll;
  * call `playIntro()`
  * after load. Wrapped by AiLionStage on /services/ai.
@@ -131,10 +128,10 @@ export class LionExperience {
   private running = false;
   private disposed = false;
 
-  /** Base yaw of the head. Dev-tunable via ?yaw= while framing the shot. */
-  public yawProbe = 0.34;
+  /** Base yaw of the crown. Dev-tunable via ?yaw= while framing the shot. */
+  public yawProbe = -0.08;
 
-  /** Scroll-driven morph target, eased internally (0 = lion, 1 = energy current) */
+  /** Scroll-driven morph target, eased internally (0 = crown, 1 = operating-system hub) */
   public morphTarget = 0;
   private morph = 0;
   private layoutTarget = 0;
@@ -153,7 +150,6 @@ export class LionExperience {
   private camOffset = new THREE.Vector2(0, 0);
 
   private opts: {
-    modelUrl: string;
     maxParticles: number;
     animate: boolean;
     onReady: () => void;
@@ -162,7 +158,6 @@ export class LionExperience {
   constructor(canvas: HTMLCanvasElement, options: LionExperienceOptions = {}) {
     this.canvas = canvas;
     this.opts = {
-      modelUrl: options.modelUrl ?? "/models/lion.glb",
       // 0 means "decide in init()" — detectParticleBudget touches document/navigator
       maxParticles: options.maxParticles ?? 0,
       animate: options.animate ?? true,
@@ -173,7 +168,7 @@ export class LionExperience {
   // ------------------------------------------------------- act inputs ------
   // Each setter is driven by a ScrollTrigger on the section that owns the beat.
 
-  /** Page story: lion → expansion → ecosystem → energy flow → platform hub. */
+  /** Page story: crown → expansion → ecosystem → energy flow → platform hub. */
   setMorph(v: number): void {
     this.morphTarget = clamp01(v);
     if (typeof performance !== "undefined") this.activeUntil = performance.now() + 700;
@@ -186,7 +181,7 @@ export class LionExperience {
     if (typeof performance !== "undefined") this.activeUntil = performance.now() + 700;
   }
 
-  /** Act 7: 0 = energy current, 1 = reformed lion above the CTA. */
+  /** Act 7: 0 = energy current, 1 = reformed crown above the CTA. */
   setBloom(v: number): void {
     this.bloomW = clamp01(v);
     if (typeof performance !== "undefined") this.activeUntil = performance.now() + 700;
@@ -271,6 +266,9 @@ export class LionExperience {
   async init(): Promise<void> {
     this.applyDevOverrides();
     this.qualityTier = this.detectQualityTier();
+    if (this.opts.maxParticles > 0 && this.opts.maxParticles <= QUALITY.low.particles) {
+      this.qualityTier = "low";
+    }
     const coarse = window.matchMedia("(pointer: coarse)").matches;
     this.compactDevice = window.innerWidth < 768
       || (coarse && Math.min(window.screen.width, window.screen.height) < 700);
@@ -278,13 +276,13 @@ export class LionExperience {
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       antialias: false,
-      alpha: false,
+      alpha: true,
       powerPreference: "high-performance",
     });
     if (this.isSoftwareRenderer()) this.qualityTier = "low";
     if (!this.opts.maxParticles) this.opts.maxParticles = this.detectParticleBudget();
     const quality = QUALITY[this.qualityTier];
-    this.renderer.setClearColor(0x000000, 1); // brand black, matches --color-bg-dark
+    this.renderer.setClearColor(0x000000, 0);
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     // Give the particles a little more presence before bloom, while keeping
     // ACES tone mapping in charge of the highlight rolloff.
@@ -294,12 +292,12 @@ export class LionExperience {
     this.camera.position.set(0, 0.05, 4.8);
 
     if (quality.dust > 0) this.buildDust();
-    if (this.qualityTier !== "low") this.buildFlare();
-    await this.buildLionParticles();
-    if (this.disposed) return; // unmounted while the GLB was in flight
+    if (this.qualityTier === "high" || this.qualityTier === "ultra") this.buildFlare();
+    this.buildCrownParticles();
+    if (this.disposed) return;
     // Mobile renders directly. Avoiding bloom + grading removes two full-screen
     // passes and keeps each sparse constellation point sharply resolved.
-    if (this.qualityTier !== "low") this.buildPost();
+    if (this.qualityTier === "high" || this.qualityTier === "ultra") this.buildPost();
     this.bindEvents();
     this.resize();
     if (this.opts.animate) this.start();
@@ -307,117 +305,22 @@ export class LionExperience {
     this.opts.onReady();
   }
 
-  // ------------------------------------------------------------------ lion --
-  /**
-   * Select a small, evenly distributed constellation from the visible lion
-   * surface. Farthest-point sampling in projected space protects the mane,
-   * ears and muzzle; random sampling cannot describe a face with only 77 dots.
-   */
-  private sampleMobileLandmarks(
-    sampler: MeshSurfaceSampler,
-    count: number,
-  ): { positions: Float32Array; normals: Float32Array } {
-    const candidateCount = Math.max(2_400, count * 24);
-    const candidatePositions = new Float32Array(candidateCount * 3);
-    const candidateNormals = new Float32Array(candidateCount * 3);
-    const p = new THREE.Vector3();
-    const n = new THREE.Vector3();
-    const min = new THREE.Vector3(Infinity, Infinity, Infinity);
-    const max = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
-
-    for (let i = 0; i < candidateCount; i++) {
-      sampler.sample(p, n);
-      candidatePositions.set([p.x, p.y, p.z], i * 3);
-      candidateNormals.set([n.x, n.y, n.z], i * 3);
-      min.min(p);
-      max.max(p);
-    }
-
-    const extentX = Math.max(max.x - min.x, 1e-4);
-    const extentY = Math.max(max.y - min.y, 1e-4);
-    const extentZ = Math.max(max.z - min.z, 1e-4);
-    const selected = new Uint8Array(candidateCount);
-    const nearest = new Float32Array(candidateCount);
-    nearest.fill(Infinity);
-    const indices: number[] = [];
-
-    const add = (index: number): void => {
-      if (selected[index] || indices.length >= count) return;
-      selected[index] = 1;
-      indices.push(index);
-      const offset = index * 3;
-      const sx = candidatePositions[offset] / extentX;
-      const sy = candidatePositions[offset + 1] / extentY;
-      const sz = candidatePositions[offset + 2] / extentZ;
-      for (let i = 0; i < candidateCount; i++) {
-        if (selected[i]) continue;
-        const o = i * 3;
-        const dx = candidatePositions[o] / extentX - sx;
-        const dy = candidatePositions[o + 1] / extentY - sy;
-        const dz = (candidatePositions[o + 2] / extentZ - sz) * 0.22;
-        nearest[i] = Math.min(nearest[i], dx * dx + dy * dy + dz * dz);
-      }
-    };
-
-    // Guarantee the major silhouette anchors before distributing the rest.
-    const extrema = [
-      { axis: 0, direction: -1 }, { axis: 0, direction: 1 },
-      { axis: 1, direction: -1 }, { axis: 1, direction: 1 },
-      { axis: 2, direction: 1 },
-    ];
-    extrema.forEach(({ axis, direction }) => {
-      let best = 0;
-      let value = -Infinity;
-      for (let i = 0; i < candidateCount; i++) {
-        const candidate = candidatePositions[i * 3 + axis] * direction;
-        if (candidate > value) { value = candidate; best = i; }
-      }
-      add(best);
-    });
-
-    while (indices.length < count) {
-      let best = 0;
-      let bestScore = -1;
-      for (let i = 0; i < candidateCount; i++) {
-        if (selected[i]) continue;
-        const z = (candidatePositions[i * 3 + 2] - min.z) / extentZ;
-        // Slight front-surface preference supplies extra eyes/muzzle detail.
-        const score = nearest[i] * (0.86 + z * 0.34);
-        if (score > bestScore) { bestScore = score; best = i; }
-      }
-      add(best);
-    }
-
-    const positions = new Float32Array(count * 3);
-    const normals = new Float32Array(count * 3);
-    indices.forEach((sourceIndex, targetIndex) => {
-      const source = sourceIndex * 3;
-      const target = targetIndex * 3;
-      positions.set(candidatePositions.subarray(source, source + 3), target);
-      normals.set(candidateNormals.subarray(source, source + 3), target);
-    });
-    return { positions, normals };
+  // --------------------------------------------------------------- crown --
+  /** A tiny deterministic PRNG keeps the crown stable across hydration. */
+  private random(seed: number): number {
+    const value = Math.sin(seed * 12.9898 + 78.233) * 43_758.5453;
+    return value - Math.floor(value);
   }
 
-  private async buildLionParticles(): Promise<void> {
-    const gltf = await new GLTFLoader().loadAsync(this.opts.modelUrl);
-    if (this.disposed) return;
-
-    let mesh: THREE.Mesh | null = null;
-    gltf.scene.updateMatrixWorld(true);
-    gltf.scene.traverse((o) => {
-      if (!mesh && (o as THREE.Mesh).isMesh) mesh = o as THREE.Mesh;
-    });
-    if (!mesh) throw new Error("No mesh found in lion model");
-
-    const src = mesh as THREE.Mesh;
-    src.geometry.applyMatrix4(src.matrixWorld);
-
+  /**
+   * Generate a screen-legible crown directly. The mobile tier spends every one
+   * of its 77 points on the silhouette and band; denser tiers add restrained
+   * depth and circuitry without changing the outline.
+   */
+  private buildCrownParticles(): void {
     const count = this.opts.maxParticles;
-    const sampler = new MeshSurfaceSampler(src).build();
-
-    let positions = new Float32Array(count * 3);
-    let normals = new Float32Array(count * 3);
+    const positions = new Float32Array(count * 3);
+    const normals = new Float32Array(count * 3);
     const rand = new Float32Array(count * 4);
     const spawn = new Float32Array(count * 3);
     const burst = new Float32Array(count * 3);
@@ -425,51 +328,64 @@ export class LionExperience {
     const energy = new Float32Array(count * 3);
     const hub = new Float32Array(count * 3);
 
-    const p = new THREE.Vector3();
-    const n = new THREE.Vector3();
     const s = new THREE.Vector3();
     const spherical = new THREE.Spherical();
 
-    if (this.qualityTier === "low" && count <= 177) {
-      const mobileLandmarks = this.sampleMobileLandmarks(sampler, count);
-      positions.set(mobileLandmarks.positions);
-      normals.set(mobileLandmarks.normals);
-    } else for (let i = 0; i < count; i++) {
-      // Importance sampling to equalize screen-space density: surface patches
-      // edge-on to the camera compress into few pixels (overbright silhouette,
-      // hollow face). Accept probability ~ |n.z| rebalances that.
-      //
-      // Bounded at 8 attempts: the acceptance rate bottoms out near 0.12, so an
-      // unbounded loop has a long tail for no visual gain.
-      for (let attempt = 0; attempt < 8; attempt++) {
-        sampler.sample(p, n);
-        let w = Math.min(0.22 + 0.78 * Math.abs(n.z), 1.0);
-        // Shadow thinning: patches turned away from the key light keep fewer
-        // particles, so the shadow side of the nose, the eye sockets and the
-        // mane underside are genuinely sparse instead of merely dimmed.
-        // These coefficients ARE keyDir in PARTICLE_VERT — change both or neither.
-        const kd = n.x * -0.4355 + n.y * 0.5323 + n.z * 0.7259;
-        if (kd < 0.3) w *= 0.55 + 1.5 * Math.max(kd, 0);
-        if (Math.random() < w) break;
+    type Segment = readonly [number, number, number, number];
+    const silhouette: Segment[] = [
+      [-1.25, -0.58, -1.13, 0.38],
+      [-1.13, 0.38, -0.58, 0.02],
+      [-0.58, 0.02, -0.34, 0.78],
+      [-0.34, 0.78, 0, 0.16],
+      [0, 0.16, 0.34, 1.08],
+      [0.34, 1.08, 0.58, 0.02],
+      [0.58, 0.02, 1.13, 0.38],
+      [1.13, 0.38, 1.25, -0.58],
+      [1.25, -0.58, -1.25, -0.58],
+    ];
+    const structure: Segment[] = [
+      [-1.22, -0.34, 1.22, -0.34],
+      [-0.78, -0.34, -0.70, -0.54],
+      [0, -0.34, 0, -0.56],
+      [0.78, -0.34, 0.70, -0.54],
+      [-0.34, 0.78, 0, 0.16],
+      [0.34, 1.08, 0.58, 0.02],
+    ];
+    const segments = [...silhouette, ...structure];
+    const lengths = segments.map(([x1, y1, x2, y2]) => Math.hypot(x2 - x1, y2 - y1));
+    const totalLength = lengths.reduce((sum, length) => sum + length, 0);
+    const layerCount = this.qualityTier === "low" ? 1 : this.qualityTier === "medium" ? 2 : 4;
+
+    for (let i = 0; i < count; i++) {
+      const distance = ((i + 0.5) / count) * totalLength;
+      let cursor = 0;
+      let segmentIndex = 0;
+      while (segmentIndex < segments.length - 1 && cursor + lengths[segmentIndex] < distance) {
+        cursor += lengths[segmentIndex++];
       }
-      positions[i * 3] = p.x;
-      positions[i * 3 + 1] = p.y;
-      positions[i * 3 + 2] = p.z;
-      normals[i * 3] = n.x;
-      normals[i * 3 + 1] = n.y;
-      normals[i * 3 + 2] = n.z;
+      const [x1, y1, x2, y2] = segments[segmentIndex];
+      const local = Math.min(1, (distance - cursor) / lengths[segmentIndex]);
+      const layer = i % layerCount;
+      const depth = layerCount === 1 ? 0 : (layer / (layerCount - 1) - 0.5) * 0.18;
+      const jitter = this.qualityTier === "low" ? 0 : (this.random(i + 31) - 0.5) * 0.022;
+      positions.set([
+        THREE.MathUtils.lerp(x1, x2, local) + jitter,
+        THREE.MathUtils.lerp(y1, y2, local) + jitter,
+        depth,
+      ], i * 3);
+      normals.set([0, 0.1 + depth * 0.3, 1], i * 3);
     }
 
     for (let i = 0; i < count; i++) {
-      const rx = Math.random();
-      const ry = Math.random();
-      const rz = Math.random();
-      const rw = Math.random();
+      const rx = this.random(i * 4 + 1);
+      const ry = this.random(i * 4 + 2);
+      const rz = this.random(i * 4 + 3);
+      const rw = this.random(i * 4 + 4);
 
       rand.set([rx, ry, rz, rw], i * 4);
 
       // spawn shell: far field the particles fly in from during the intro
-      spherical.set(5.5 + Math.random() * 4.5, Math.acos(2 * Math.random() - 1), Math.random() * Math.PI * 2);
+      spherical.set(4.5 + rw * 3.5, Math.acos(2 * ry - 1), rx * Math.PI * 2);
       s.setFromSpherical(spherical);
       spawn[i * 3] = s.x;
       spawn[i * 3 + 1] = s.y;
@@ -560,17 +476,15 @@ export class LionExperience {
       },
     });
 
-    // Keep the population sparse, but compensate its luminance so the lion
+    // Keep the population sparse, but compensate its luminance so the crown
     // remains readable on both the black hero and the brighter middle beats.
     this.baseGain = THREE.MathUtils.clamp(3_400 / count, 0.98, 1.72);
     this.material.uniforms.uGain.value = this.baseGain;
     this.points = new THREE.Points(geo, this.material);
     this.points.frustumCulled = false;
-    // The head is the hero asset, so it gets the room. Too small and the
-    // muzzle and brow stop resolving and it reads as a glowing sphere.
-    this.points.scale.setScalar(this.compactDevice ? 0.96 : 0.92);
+    this.points.scale.setScalar(this.compactDevice ? 0.88 : 0.98);
     this.scene.add(this.points);
-    this.buildSwarm();
+    if (quality.swarmHeads > 0) this.buildSwarm();
   }
 
   // -------------------------------------------------------- ambient dust --
@@ -870,12 +784,12 @@ export class LionExperience {
       const u = this.material.uniforms;
       u.uTime.value = t;
       u.uMorph.value = m;
-      u.uDriftAmp.value = 0.12 + m * 0.18;
+      u.uDriftAmp.value = 0.018 + m * 0.16;
       u.uTurb.value = 0.015 + Math.min(m, 0.45) * 0.12;
       u.uMouse.value.copy(this.pointerWorld);
       u.uMouseStrength.value = this.pointerStrength.value;
       u.uBloom.value = this.bloomW;
-      // The energy current and reformed lion use the same sparse population,
+      // The energy current and reformed crown use the same sparse population,
       // so only a light compensation is needed across states.
       u.uGain.value = this.baseGain * this.gainAspect * (1 - m * 0.08) * (1 - this.bloomW * 0.05);
     }
@@ -903,7 +817,7 @@ export class LionExperience {
     }
 
 
-    // the flare belongs to the lion state and dissolves as the collapse begins
+    // The flare belongs to the crown state and dissolves as release begins.
     if (this.flare) {
       const fu = (this.flare.material as THREE.ShaderMaterial).uniforms;
       fu.uTime.value = t;
@@ -926,15 +840,11 @@ export class LionExperience {
     );
     this.camera.lookAt(0, 0, 0);
 
-    // The lion breathes; the energy current moves entirely in-shader.
+    // The crown breathes; the energy current moves entirely in-shader.
     if (this.points) {
-      // A slight three-quarter turn, not dead-on: a frontal particle head
-      // reads as a symmetrical sphere, while an angled one shows the muzzle
-      // against the mane and resolves as a face.
+      // A restrained three-quarter turn gives the flat constellation depth.
       this.points.rotation.y = (this.yawProbe + Math.sin(t * 0.1) * 0.07) * (1 - m);
-      // Centred and lifted, so the whole head is in frame and the copy has
-      // clean space beneath it. The prototype pushed the lion off to the left,
-      // which cropped the mane and put the face behind the headline.
+      // Centred and lifted so the crown has space beside the hero promise.
       const halfW = this.halfH * this.camera.aspect;
       this.points.position.x = this.layout * halfW;
       this.points.position.y = (this.halfH * 0.22) * (1 - THREE.MathUtils.smoothstep(m, 0.04, 0.18));
@@ -959,7 +869,7 @@ export class LionExperience {
 
 
     // A restrained bloom keeps individual points visible instead of merging
-    // the lion or energy current into a white mass.
+    // the crown or energy current into a white mass.
     const bloomBase = QUALITY[this.qualityTier].bloom;
     const ecosystemGlow = THREE.MathUtils.smoothstep(m, 0.30, 0.48)
       * (1 - THREE.MathUtils.smoothstep(m, 0.70, 0.86));
@@ -1044,7 +954,7 @@ export class LionExperience {
     if (!this.opts.animate && this.material) this.renderOnce();
   }
 
-  /** Cinematic intro: particles fly in from the void and assemble the lion. */
+  /** Cinematic intro: particles fly in from the void and assemble the crown. */
   playIntro(duration = 2.6): gsap.core.Tween | null {
     if (!this.material) return null;
     return gsap.to(this.material.uniforms.uIntro, {
@@ -1054,7 +964,7 @@ export class LionExperience {
     });
   }
 
-  /** Skip the fly-in and show the assembled lion immediately. */
+  /** Skip the fly-in and show the assembled crown immediately. */
   skipIntro(): void {
     if (this.material) this.material.uniforms.uIntro.value = 1;
   }

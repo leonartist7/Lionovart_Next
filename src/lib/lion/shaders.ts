@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// GLSL for the /services/ai particle lion.
+// GLSL for the /services/ai crown-to-system particle story.
 //
 // The particle system is GOLD: deep bronze through amber to a white-hot gold
 // highlight. This is scoped to the engine only — the page's DOM chrome (font,
@@ -76,7 +76,7 @@ vec3 curl(vec3 p){
 `;
 export const PARTICLE_VERT = /* glsl */ `
 uniform float uTime;
-uniform float uMorph;        // 0 = lion, 1 = connected platform hub
+uniform float uMorph;        // 0 = crown, 1 = connected platform hub
 uniform float uIntro;        // 0..1 intro assembly progress
 uniform float uDriftAmp;     // ember drift amplitude (grows with morph)
 uniform float uTurb;         // turbulence amplitude (grows with morph)
@@ -87,7 +87,7 @@ uniform float uPixelRatio;
 uniform float uFocusDist;    // camera-space focus distance (for DOF)
 uniform float uDofAmount;    // depth-of-field strength
 uniform float uOrganicDetail;// 0 mobile, 1 full curl-noise detail
-uniform float uBloom;        // Act 7: the lion reforms as a crest over the CTA
+uniform float uBloom;        // Act 7: the crown reforms as a crest over the CTA
 uniform vec3  uCrest;        // world-space center of that crest
 
 attribute vec3 aNormal;
@@ -108,14 +108,14 @@ ${NOISE_GLSL}
 void main(){
   float m = smoothstep(0.0, 1.0, uMorph);
 
-  // ---------- lion state ----------------------------------------------------
+  // ---------- crown state ---------------------------------------------------
   vec3 p = position;
 
   // breathing along the surface normal
   p += aNormal * (0.018 * sin(uTime * 0.7 + aRand.x * 6.2831));
 
   // Curl noise is the most expensive vertex work. It belongs to the organic
-  // lion/expansion phases, so stop evaluating it once the system locks into
+  // crown/expansion phases, so stop evaluating it once the system locks into
   // its geometric states.
   #ifdef USE_ORGANIC_DETAIL
   if (m < 0.62) {
@@ -124,7 +124,7 @@ void main(){
   }
   #endif
 
-  // scroll onset: the whole lion begins a slow, stately turn in the SAME
+  // scroll onset: the crown begins a slow, stately turn in the SAME
   // direction as the energy current, so the transformation reads as one
   // continuous movement instead of a sudden mode switch
   float preRot = m * 0.55;
@@ -136,7 +136,6 @@ void main(){
   float ph = fract(uTime * (0.028 + aRand.y * 0.03) + aRand.x);
   vec3 driftDir = normalize(vec3(0.42, 1.0, 0.18));
   p += driftDir * ph * uDriftAmp * (0.35 + aRand.z * 0.65) * (1.0 - m);
-  float emberFade = 0.45 + 0.55 * (smoothstep(0.0, 0.12, ph) * smoothstep(1.0, 0.82, ph));
 
   // ---------- story forms ----------------------------------------------------
   // One population becomes every chapter. The wide spacing and explicit
@@ -189,9 +188,8 @@ void main(){
   finalPos = mix(finalPos, hub, hubT);
 
   // ---------- Act 7: reform ---------------------------------------------------
-  // The peak-end beat. Give the sparse lion enough screen area for its muzzle,
-  // eyes, and mane to resolve instead of compressing it into a bright blob.
-  vec3 crest = position * 0.72 + uCrest;
+  // Keep the sparse crown large enough for its peaks and base band to resolve.
+  vec3 crest = position * 0.82 + uCrest;
   finalPos = mix(finalPos, crest, uBloom);
 
   // ---------- intro reveal ---------------------------------------------------
@@ -199,9 +197,7 @@ void main(){
   finalPos = mix(aSpawn, finalPos, introT);
 
   // ---------- mouse repulsion ------------------------------------------------
-  // Radius is deliberately small: at 0.85 (the old value) against a ~1.6-unit
-  // head this pushed nearly half the object away and read as a visible hole
-  // punched by the cursor rather than a subtle touch.
+  // A deliberately small radius prevents a visible hole in the constellation.
   vec3 away = finalPos - uMouse;
   float md = length(away);
   finalPos += normalize(away + 1e-4) * smoothstep(0.20, 0.0, md) * uMouseStrength * (1.0 - m * 0.75);
@@ -214,10 +210,8 @@ void main(){
   vec3 lightDir = normalize(vec3(sin(uTime * 0.21) * 0.7, 0.55, 0.75));
   float diff = clamp(dot(aNormal, lightDir) * 0.5 + 0.5, 0.0, 1.0);
 
-  // fixed cinematic key from the upper left (matches the flare/god-ray
-  // source): one-sided lambert carves real form shadow — the far side of
-  // the nose, the eye sockets and the mane underside fall into darkness.
-  // A small wrap term keeps the terminator soft instead of a hard line.
+  // Fixed cinematic key from the upper left. A soft wrap preserves the thin
+  // crown lines without flattening every point to the same brightness.
   vec3 keyDir = vec3(-0.4355, 0.5323, 0.7259);
   float lit = clamp((dot(aNormal, keyDir) + 0.12) / 1.12, 0.0, 1.0);
   float shade = 0.34 + 0.66 * pow(lit, 1.6);
@@ -226,7 +220,7 @@ void main(){
   vec3 gold = mix(vec3(0.35, 0.16, 0.04), vec3(1.35, 0.85, 0.30), aRand.y);
   gold = mix(gold, vec3(1.6, 1.35, 0.95), pow(diff, 2.2) * 0.6);
   gold *= 0.55 + 0.65 * diff;
-  // directional form shadow, lion state only
+  // directional form shadow, crown state only
   gold *= mix(1.0, shade, 1.0 - m);
 
   // warm rim light on silhouette edges, brightest where the form turns away
@@ -234,17 +228,8 @@ void main(){
   vec3 rim = vec3(1.2, 0.75, 0.30) * fres * (0.38 + 0.52 * m);
   vec3 col = gold + rim;
 
-  // lift the face region so the muzzle/brow read against the mane
-  float faceMask = smoothstep(0.35, 1.0, position.z);
-  col *= 1.0 + faceMask * 0.25 * (1.0 - m);
-
-  // relief folds (eyes, nose, whiskers) darken -> facial features emerge.
-  // Restricted to the front relief so the silhouette rim survives.
-  float fold = smoothstep(0.90, 0.45, aNormal.z) * step(0.0, aNormal.z);
-  col *= 1.0 - fold * 0.62 * faceMask * (1.0 - m);
-
   // Color follows the same chapters: gold erupts into electric violet/cyan,
-  // then resolves into a warm connected platform before the CTA lion returns.
+  // then resolves into a warm connected platform before the CTA crown returns.
   vec3 ecosystemColor = mix(
     vec3(0.10, 0.72, 1.48),
     vec3(0.88, 0.18, 1.42),
@@ -264,11 +249,11 @@ void main(){
   col = mix(col, gold * 1.08, uBloom);
 
   // subtle per-particle twinkle
-  float twinkle = 0.75 + 0.25 * sin(uTime * (1.2 + aRand.z * 2.0) + aRand.x * 40.0);
+  float twinkle = 0.90 + 0.10 * sin(uTime * (1.0 + aRand.z * 1.4) + aRand.x * 40.0);
 
   vColor = col * twinkle;
   float systemT = smoothstep(0.08, 0.32, m);
-  vAlpha = mix(emberFade, 0.92, systemT) * introT;
+  vAlpha = mix(0.97, 0.92, systemT) * introT;
   vAlpha = mix(vAlpha, 0.98, uBloom);
 
   // ---------- projection -----------------------------------------------------
@@ -304,7 +289,7 @@ void main(){
   float a = clamp((point + edgeGlow) * vAlpha, 0.0, 1.0);
   if (a < 0.02) discard;
   vec3 col = vColor;
-  gl_FragColor = vec4(col * a * uGain, a);
+  gl_FragColor = vec4(col * uGain, a);
 }
 `;
 

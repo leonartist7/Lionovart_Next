@@ -1,18 +1,18 @@
 "use client";
 
 /**
- * The lion canvas for /services/ai.
+ * The single crown-to-system particle canvas for /services/ai.
  *
  * Always on: a continuous 3D world running behind every section, not a
  * hero/CTA bookend. It never hides and the render loop never stops (except
- * when the OS tab itself is backgrounded — see LionExperience's own
+ * when the OS tab itself is backgrounded — see the engine's own
  * visibilitychange handler), so the glass panels down the page are always
  * refracting real motion, not a static field.
  *
  * Renders as a SIBLING of <main>, not a child: as a child it sits inside main's
  * stacking context, where an opaque background on any ancestor can bury it.
  *
- * `three` is code-split and only fetched after mount, so the page's copy and
+ * `three` is code-split and only fetched after mount, so the page copy and
  * accessible fallbacks still prerender.
  */
 
@@ -52,7 +52,7 @@ export default function AiLionStage() {
       if (cancelled) return;
 
       setLionStage(instance);
-      // The opening frame is an asymmetric editorial split. setLayout handles
+      // The opening crown is an asymmetric editorial split. setLayout handles
       // the gentler mobile offset internally for coarse-pointer devices.
       instance.setLayout(0.42);
 
