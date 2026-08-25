@@ -59,14 +59,14 @@ export const es: Translations = {
 
   marquee: {
     items: [
-      "Restaurantes & Cafés",
-      "Belleza & Bienestar",
-      "Hoteles Boutique",
-      "Fitness & Deporte",
-      "Moda & Retail",
-      "Inmobiliaria",
-      "Servicios Profesionales",
-      "Turismo & Viajes",
+      "Más Leads Calificados",
+      "Más Reservas Directas",
+      "Más Tiempo Para Ti",
+      "Soporte IA 24/7",
+      "Marcas Que Se Recuerdan",
+      "Sistemas Más Inteligentes",
+      "Menos Trabajo Manual",
+      "Diseñado Para Crecer",
     ],
   },
 

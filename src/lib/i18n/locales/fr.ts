@@ -59,14 +59,14 @@ export const fr: Translations = {
 
   marquee: {
     items: [
-      "Restaurants & Cafés",
-      "Beauté & Bien-être",
-      "Hôtels Boutique",
-      "Fitness & Sport",
-      "Mode & Retail",
-      "Immobilier",
-      "Services Professionnels",
-      "Tourisme & Voyages",
+      "Plus de Leads Qualifiés",
+      "Plus de Réservations Directes",
+      "Plus de Temps Pour Vous",
+      "Support IA 24/7",
+      "Des Marques Mémorables",
+      "Des Systèmes Plus Intelligents",
+      "Moins de Travail Manuel",
+      "Conçu Pour Grandir",
     ],
   },
 

@@ -65,14 +65,14 @@ export const en = {
 
   marquee: {
     items: [
-      "Restaurants & Cafés",
-      "Beauty & Wellness",
-      "Boutique Hotels",
-      "Fitness & Sport",
-      "Retail & Fashion",
-      "Real Estate",
-      "Professional Services",
-      "Tourism & Travel",
+      "More Qualified Leads",
+      "More Direct Bookings",
+      "More Time Back",
+      "24/7 AI Support",
+      "Brands People Remember",
+      "Smarter Systems",
+      "Less Manual Work",
+      "Built to Grow",
     ],
   },
 
