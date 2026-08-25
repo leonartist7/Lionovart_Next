@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { DM_Sans } from "next/font/google";
+import { preload } from "react-dom";
 import "./globals.css";
 // Required Lenis stylesheet — missing this causes native scroll to fight Lenis every frame.
 import "lenis/dist/lenis.css";
@@ -95,8 +96,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${clashDisplay.variable} ${dmSans.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col">
+    <html lang="en" className={`${clashDisplay.variable} ${dmSans.variable} h-full antialiased`} style={{ backgroundColor: "#e5192a" }} suppressHydrationWarning>
+      <body className="min-h-full flex flex-col" style={{ backgroundColor: "#e5192a" }}>
         {/* Site-wide entity graph — Organization, ProfessionalService, WebSite.
             Powers Google rich results + AEO citations (ChatGPT/Gemini/Perplexity). */}
         <JsonLd data={[organizationSchema(), localBusinessSchema(), websiteSchema()]} />
