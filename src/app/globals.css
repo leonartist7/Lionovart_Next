@@ -681,9 +681,9 @@
   place-items: center;
   overflow: hidden;
   cursor: pointer;
-  background: #000;
+  background: #e5192a;
   opacity: 1;
-  transition: opacity 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 160ms cubic-bezier(0.22, 1, 0.36, 1);
   contain: strict;
 }
 
@@ -706,7 +706,7 @@
   width: 100%;
   height: auto;
   opacity: 0;
-  animation: splash-logo-in 560ms cubic-bezier(0.22, 1, 0.36, 1) 80ms forwards;
+  animation: splash-logo-in 180ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
   will-change: opacity, transform;
 }
 
@@ -720,7 +720,7 @@
   line-height: 1.4;
   text-transform: uppercase;
   opacity: 0;
-  animation: splash-tagline-in 440ms cubic-bezier(0.22, 1, 0.36, 1) 480ms forwards;
+  animation: splash-tagline-in 180ms cubic-bezier(0.22, 1, 0.36, 1) 140ms forwards;
   will-change: opacity, transform;
 }
 
