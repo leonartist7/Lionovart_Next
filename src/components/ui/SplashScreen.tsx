@@ -13,8 +13,8 @@ import { useLenis } from "lenis/react";
 
 const SESSION_KEY = "lionovart_splash_seen";
 const SPLASH_COMPLETE_EVENT = "lionovart:splash-complete";
-const REVEAL_DURATION_MS = 820;
-const EXIT_DURATION_MS = 160;
+const REVEAL_DURATION_MS = 840;
+const EXIT_DURATION_MS = 150;
 
 export default function SplashScreen() {
   // Render the overlay in the server HTML so page content can never flash first.
@@ -108,7 +108,7 @@ export default function SplashScreen() {
         overflow: "hidden",
         background: "#e5192a",
         opacity: exiting ? 0 : 1,
-        transition: "opacity 160ms cubic-bezier(0.22, 1, 0.36, 1)",
+        transition: "opacity 150ms cubic-bezier(0.22, 1, 0.36, 1)",
       }}
       onClick={dismiss}
       onTransitionEnd={(event) => {
@@ -126,7 +126,7 @@ export default function SplashScreen() {
         @keyframes lionovart-splash-logo-reveal {
           from {
             opacity: 0;
-            transform: translate3d(0, 10px, 0) scale(0.96);
+            transform: translate3d(0, 14px, 0) scale(0.965);
           }
           to {
             opacity: 1;
@@ -167,18 +167,20 @@ export default function SplashScreen() {
           draggable="false"
           style={{
             opacity: 0,
+            transform: "translate3d(0, 14px, 0) scale(0.965)",
             willChange: "opacity, transform",
             animation:
-              "lionovart-splash-logo-reveal 420ms cubic-bezier(0.22, 1, 0.36, 1) 60ms forwards",
+              "lionovart-splash-logo-reveal 600ms cubic-bezier(0.22, 1, 0.36, 1) 110ms forwards",
           }}
         />
         <p
           className="splash-tagline"
           style={{
             opacity: 0,
+            transform: "translate3d(0, 7px, 0)",
             willChange: "opacity, transform",
             animation:
-              "lionovart-splash-tagline-reveal 280ms cubic-bezier(0.22, 1, 0.36, 1) 300ms forwards",
+              "lionovart-splash-tagline-reveal 220ms cubic-bezier(0.22, 1, 0.36, 1) 600ms forwards",
           }}
         >
           The art of innovation
