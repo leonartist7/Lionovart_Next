@@ -537,9 +537,9 @@ export const en = {
   },
 
   services: {
-    eyebrow: "All in-house. One standard.",
+    eyebrow: "Everything your business needs, nothing that it doesn't.",
     heading: "Our",
-    headingAccent: "Craft",
+    headingAccent: "Expertise",
     items: [
       {
         title: "Brand Identity & Strategy",
