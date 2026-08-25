@@ -415,7 +415,7 @@
 .testimonials-marquee-plane {
   --review-perspective: 500px;
   --review-depth: -34px;
-  --review-rotate-x: 22deg;
+  --review-rotate-x: 26.4deg;
   --review-rotate-y: 7deg;
   --review-rotate-z: -4.5deg;
   transform:
@@ -439,12 +439,13 @@
 .testimonial-marquee-lane {
   --testimonial-lane-shift: 0px;
   height: 100%;
+  overflow: hidden;
   transform: translate3d(0, var(--testimonial-lane-shift), 0);
   transform-origin: top center;
 }
 
 .testimonial-marquee-lane--right {
-  --testimonial-lane-shift: clamp(3.5rem, 15vw, 4.5rem);
+  --testimonial-lane-shift: 20%;
 }
 
 .testimonial-marquee-lane--left {
@@ -458,10 +459,10 @@
 
 .testimonials-globe-transition {
   position: absolute;
-  top: clamp(1.5rem, 6vw, 2.75rem);
-  right: clamp(-2.25rem, -7vw, -1.25rem);
+  top: clamp(-3rem, -9vw, -2rem);
+  right: clamp(-1rem, -3vw, -0.5rem);
   z-index: 0;
-  width: clamp(18rem, 78vw, 22rem);
+  width: clamp(19rem, 82vw, 23rem);
   pointer-events: none;
 }
 
@@ -480,7 +481,7 @@
 @media (min-width: 480px) and (max-width: 1023px) {
   .testimonials-marquee-plane {
     --review-depth: -48px;
-    --review-rotate-x: 20deg;
+    --review-rotate-x: 24deg;
     --review-rotate-y: 6deg;
     --review-rotate-z: -4deg;
     transform:
@@ -493,9 +494,9 @@
   }
 
   .testimonials-globe-transition {
-    top: clamp(1.25rem, 4vw, 2.25rem);
-    right: clamp(-1.5rem, -3vw, -0.5rem);
-    width: clamp(22rem, 57vw, 31rem);
+    top: clamp(-3rem, -5vw, -1.75rem);
+    right: clamp(-1rem, -2vw, -0.25rem);
+    width: clamp(23rem, 60vw, 32rem);
   }
 }
 
@@ -503,7 +504,7 @@
   .testimonials-marquee-plane {
     --review-perspective: 360px;
     --review-depth: -70px;
-    --review-rotate-x: 18deg;
+    --review-rotate-x: 21.6deg;
     --review-rotate-y: 7.2deg;
     --review-rotate-z: -3.6deg;
     transform:
@@ -521,6 +522,10 @@
 
   .testimonial-marquee-lane--left {
     --testimonial-lane-shift: clamp(2rem, 4vw, 3rem);
+  }
+
+  .testimonial-marquee-lane {
+    overflow: visible;
   }
 
   .testimonials-globe-transition {
