@@ -13,7 +13,7 @@ import { useLenis } from "lenis/react";
 
 const SESSION_KEY = "lionovart_splash_seen";
 const SPLASH_COMPLETE_EVENT = "lionovart:splash-complete";
-const REVEAL_DURATION_MS = 520;
+const REVEAL_DURATION_MS = 820;
 const EXIT_DURATION_MS = 160;
 
 export default function SplashScreen() {
@@ -122,6 +122,29 @@ export default function SplashScreen() {
       }}
       aria-hidden="true"
     >
+      <style>{`
+        @keyframes lionovart-splash-logo-reveal {
+          from {
+            opacity: 0;
+            transform: translate3d(0, 10px, 0) scale(0.96);
+          }
+          to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
+          }
+        }
+
+        @keyframes lionovart-splash-tagline-reveal {
+          from {
+            opacity: 0;
+            transform: translate3d(0, 7px, 0);
+          }
+          to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+          }
+        }
+      `}</style>
       <div
         className="splash-lockup"
         style={{
@@ -142,8 +165,24 @@ export default function SplashScreen() {
           fetchPriority="high"
           decoding="sync"
           draggable="false"
+          style={{
+            opacity: 0,
+            willChange: "opacity, transform",
+            animation:
+              "lionovart-splash-logo-reveal 420ms cubic-bezier(0.22, 1, 0.36, 1) 60ms forwards",
+          }}
         />
-        <p className="splash-tagline">The art of innovation</p>
+        <p
+          className="splash-tagline"
+          style={{
+            opacity: 0,
+            willChange: "opacity, transform",
+            animation:
+              "lionovart-splash-tagline-reveal 280ms cubic-bezier(0.22, 1, 0.36, 1) 300ms forwards",
+          }}
+        >
+          The art of innovation
+        </p>
       </div>
     </div>
   );
