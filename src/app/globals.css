@@ -325,13 +325,9 @@
 .animate-marquee-right { animation: marquee-right 55s linear infinite; }
 
 /* =============================================
-   Selected showcase — outward 3D carousel
-   Positive translateZ is intentional: the image crossing the center comes
-   toward the viewer and grows while the side images recede.
+   Selected showcase — curved, outward media ribbon
+   Card transforms are updated in one viewport-gated animation loop.
    ============================================= */
-@keyframes showcase-carousel-outward {
-  to { transform: rotateY(-1turn); }
-}
 
 .showcase-marquee__section {
   content-visibility: auto;
@@ -339,36 +335,38 @@
 }
 
 .showcase-marquee__viewport {
-  /* Six unique cards reduce decoded-image memory and 3D overdraw by half. */
-  --showcase-card-width: clamp(15rem, 32vw, 32rem);
-  --showcase-radius: clamp(18rem, 32vw, 36rem);
-  display: grid;
-  height: clamp(24rem, 35vw, 34rem);
+  --showcase-card-width: clamp(16rem, 31vw, 30rem);
+  position: relative;
+  height: clamp(25rem, 36vw, 34rem);
   overflow: hidden;
-  perspective: clamp(60rem, 100vw, 120rem);
+  perspective: clamp(60rem, 92vw, 100rem);
   perspective-origin: 50% 50%;
   contain: layout paint;
-  mask-image: linear-gradient(90deg, transparent, black 7%, black 93%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, black 7%, black 93%, transparent);
+  touch-action: pan-y;
+  user-select: none;
+  cursor: grab;
+  mask-image: linear-gradient(90deg, transparent, black 6%, black 94%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 6%, black 94%, transparent);
+}
+
+.showcase-marquee__viewport[data-dragging="true"] {
+  cursor: grabbing;
 }
 
 .showcase-marquee__track {
-  display: grid;
-  place-self: center;
-  width: var(--showcase-card-width);
+  position: absolute;
+  inset: 0;
   transform-style: preserve-3d;
-  animation: showcase-carousel-outward 30s linear infinite;
-  animation-play-state: paused;
-  will-change: auto;
 }
 
-.showcase-marquee__viewport[data-active="true"] .showcase-marquee__track {
-  animation-play-state: running;
-  will-change: transform;
+.showcase-marquee__viewport[data-active="true"] .showcase-marquee__card {
+  will-change: transform, opacity, filter;
 }
 
 .showcase-marquee__card {
-  grid-area: 1 / 1;
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: var(--showcase-card-width);
   aspect-ratio: 16 / 9;
   margin: 0;
@@ -378,32 +376,20 @@
     0 3rem 5.5rem -2rem rgba(0, 0, 0, 0.58),
     0 1rem 2rem -1.2rem rgba(229, 25, 42, 0.28),
     0 0 0 1px rgba(0, 0, 0, 0.06);
-  transform:
-    rotateY(calc(var(--showcase-index) * 60deg))
-    translateZ(var(--showcase-radius));
+  opacity: 0;
+  transform: translate3d(-50%, -50%, 0);
+  transform-origin: center center;
+  transform-style: preserve-3d;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-}
-
-@media (hover: hover) {
-  .showcase-marquee__viewport:hover .showcase-marquee__track,
-  .showcase-marquee__viewport:focus-within .showcase-marquee__track {
-    animation-play-state: paused;
-  }
-}
-
-@media (min-width: 1024px) {
-  .showcase-marquee__track {
-    animation-duration: 36s;
-  }
+  contain: layout paint;
 }
 
 @media (max-width: 639px) {
   .showcase-marquee__viewport {
-    --showcase-card-width: clamp(14rem, 64vw, 17rem);
-    --showcase-radius: clamp(15rem, 68vw, 18rem);
-    height: 24rem;
-    perspective: 56rem;
+    --showcase-card-width: clamp(15rem, 72vw, 18rem);
+    height: 23rem;
+    perspective: 54rem;
     mask-image: linear-gradient(90deg, transparent, black 3%, black 97%, transparent);
     -webkit-mask-image: linear-gradient(90deg, transparent, black 3%, black 97%, transparent);
   }
@@ -572,19 +558,6 @@
   .imagine-marquee__track {
     animation: none !important;
     transform: none !important;
-  }
-  .showcase-marquee__viewport {
-    /* Preserve the outward composition while removing only the movement. */
-    display: grid;
-  }
-  .showcase-marquee__track {
-    display: grid;
-    width: var(--showcase-card-width);
-    transform: rotateY(0deg) !important;
-    animation: none !important;
-  }
-  .showcase-marquee__card {
-    width: var(--showcase-card-width);
   }
 }
 

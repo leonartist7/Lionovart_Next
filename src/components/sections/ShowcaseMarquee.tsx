@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, type CSSProperties } from "react";
+import { useEffect, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const C = "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_1400,c_fill,g_auto";
@@ -15,84 +15,198 @@ const SHOWCASE_IMAGES = [
   `${C}/v1775277350/image_19_rnwg8w.avif`,
 ];
 
-function ShowcaseRing({ titles }: { titles: string[] }) {
-  return (
-    <div className="showcase-marquee__track">
-      {SHOWCASE_IMAGES.map((src, index) => {
-        const title = titles[index] ?? "LIONOVART showcase";
-
-        return (
-          <figure
-            key={src}
-            style={{ "--showcase-index": index } as CSSProperties}
-            className="showcase-marquee__card group relative overflow-hidden rounded-[18px] sm:rounded-[22px]"
-          >
-            <div className="relative h-full w-full overflow-hidden">
-              <Image
-                src={src}
-                alt={`${title} — selected LIONOVART work`}
-                fill
-                loading="lazy"
-                decoding="async"
-                sizes="(max-width: 639px) 92vw, (max-width: 1023px) 70vw, 48vw"
-                className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
-              />
-              <div
-                aria-hidden
-                className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02)_32%,rgba(0,0,0,0.88)_100%)]"
-              />
-              <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-5 p-4 sm:p-5">
-                <span className="max-w-[24ch] font-clash text-[17px] font-semibold leading-[1.05] tracking-[-0.02em] text-white sm:text-[20px] lg:text-[22px]">
-                  {title}
-                </span>
-                <span className="shrink-0 font-mono text-[10px] font-bold tracking-[0.22em] text-brand-red sm:text-[11px]">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-              </figcaption>
-            </div>
-          </figure>
-        );
-      })}
-    </div>
-  );
-}
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
 
 export default function ShowcaseMarquee() {
   const { t } = useLanguage();
   const titles = t.services.items.map((item) => item.title);
   const viewportRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const viewport = viewportRef.current;
-    if (!viewport) return;
+    const track = trackRef.current;
+    if (!viewport || !track) return;
 
+    const cards = Array.from(
+      track.querySelectorAll<HTMLElement>("[data-showcase-card]"),
+    );
+    if (!cards.length) return;
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let frame = 0;
+    let lastFrameTime = 0;
+    let offset = 0;
+    let inertiaVelocity = 0;
+    let viewportWidth = viewport.clientWidth;
+    let cardWidth = cards[0]?.offsetWidth ?? 320;
     let isNearViewport = false;
-    const syncAnimation = () => {
-      viewport.dataset.active = String(
-        isNearViewport && document.visibilityState === "visible",
-      );
+    let isActive = false;
+    let isDragging = false;
+    let activePointer: number | null = null;
+    let lastPointerX = 0;
+    let lastPointerTime = 0;
+
+    const wrap = (value: number, length: number) =>
+      ((((value + length / 2) % length) + length) % length) - length / 2;
+
+    const draw = () => {
+      const spacing = cardWidth * 0.82;
+      const cycle = spacing * cards.length;
+      const curveSpan = Math.max(viewportWidth * 0.62, cardWidth * 1.28);
+      const curveHeight =
+        viewportWidth < 640 ? 72 : viewportWidth < 1024 ? 96 : 130;
+      const depth =
+        viewportWidth < 640 ? 140 : viewportWidth < 1024 ? 190 : 250;
+
+      cards.forEach((card, index) => {
+        const x = wrap(index * spacing - offset, cycle);
+        const normalized = clamp(x / curveSpan, -1.35, 1.35);
+        const edgeDistance = Math.abs(normalized);
+        const easedFocus = Math.exp(-4.6 * edgeDistance * edgeDistance);
+        const curveProgress = Math.pow(Math.min(edgeDistance, 1.25), 1.65);
+        const y = curveProgress * curveHeight - curveHeight * 0.38;
+        const z = easedFocus * depth - Math.min(edgeDistance, 1) * 34;
+        const scale = 0.74 + easedFocus * 0.38;
+        const rotateZ = clamp(normalized * 9, -12, 12);
+        const opacity = clamp(
+          1 - Math.max(0, edgeDistance - 0.68) * 1.55,
+          0.12,
+          1,
+        );
+        const brightness = 0.7 + easedFocus * 0.3;
+
+        card.style.transform =
+          `translate3d(-50%, -50%, 0) translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, ${z.toFixed(2)}px) ` +
+          `rotateZ(${rotateZ.toFixed(2)}deg) scale(${scale.toFixed(4)})`;
+        card.style.opacity = opacity.toFixed(3);
+        card.style.filter = `brightness(${brightness.toFixed(3)})`;
+      });
     };
 
-    if (!("IntersectionObserver" in window)) {
-      isNearViewport = true;
-      syncAnimation();
-      return;
-    }
+    const stop = () => {
+      if (frame) cancelAnimationFrame(frame);
+      frame = 0;
+      lastFrameTime = 0;
+    };
+
+    const tick = (time: number) => {
+      if (!isActive || reducedMotion.matches) {
+        stop();
+        return;
+      }
+
+      const delta = lastFrameTime
+        ? Math.min((time - lastFrameTime) / 1000, 0.05)
+        : 0;
+      lastFrameTime = time;
+
+      if (!isDragging) {
+        const autoSpeed =
+          viewportWidth < 640 ? 24 : viewportWidth < 1024 ? 30 : 38;
+        offset += (autoSpeed + inertiaVelocity) * delta;
+        inertiaVelocity *= Math.exp(-4.5 * delta);
+        if (Math.abs(inertiaVelocity) < 0.5) inertiaVelocity = 0;
+      }
+
+      draw();
+      frame = requestAnimationFrame(tick);
+    };
+
+    const start = () => {
+      if (!frame && isActive && !reducedMotion.matches) {
+        frame = requestAnimationFrame(tick);
+      }
+    };
+
+    const syncActivity = () => {
+      isActive = isNearViewport && document.visibilityState === "visible";
+      viewport.dataset.active = String(isActive);
+      if (isActive) start();
+      else stop();
+      draw();
+    };
+
+    const measure = () => {
+      viewportWidth = viewport.clientWidth;
+      cardWidth = cards[0]?.offsetWidth ?? cardWidth;
+      draw();
+    };
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (!event.isPrimary) return;
+      isDragging = true;
+      activePointer = event.pointerId;
+      lastPointerX = event.clientX;
+      lastPointerTime = event.timeStamp;
+      inertiaVelocity = 0;
+      viewport.dataset.dragging = "true";
+      viewport.setPointerCapture(event.pointerId);
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (!isDragging || event.pointerId !== activePointer) return;
+      const deltaX = event.clientX - lastPointerX;
+      const deltaTime = Math.max((event.timeStamp - lastPointerTime) / 1000, 0.008);
+      offset -= deltaX;
+      inertiaVelocity = clamp(-deltaX / deltaTime, -650, 650);
+      lastPointerX = event.clientX;
+      lastPointerTime = event.timeStamp;
+      draw();
+    };
+
+    const endDrag = (event: PointerEvent) => {
+      if (event.pointerId !== activePointer) return;
+      isDragging = false;
+      activePointer = null;
+      viewport.dataset.dragging = "false";
+      if (viewport.hasPointerCapture(event.pointerId)) {
+        viewport.releasePointerCapture(event.pointerId);
+      }
+      start();
+    };
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      const direction = event.key === "ArrowRight" ? 1 : -1;
+      offset += direction * cardWidth * 0.7;
+      inertiaVelocity = 0;
+      draw();
+    };
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         isNearViewport = entry.isIntersecting;
-        syncAnimation();
+        syncActivity();
       },
       { rootMargin: "320px 0px", threshold: 0 },
     );
+    const resizeObserver = new ResizeObserver(measure);
 
     observer.observe(viewport);
-    document.addEventListener("visibilitychange", syncAnimation);
+    resizeObserver.observe(viewport);
+    document.addEventListener("visibilitychange", syncActivity);
+    reducedMotion.addEventListener("change", syncActivity);
+    viewport.addEventListener("pointerdown", onPointerDown);
+    viewport.addEventListener("pointermove", onPointerMove);
+    viewport.addEventListener("pointerup", endDrag);
+    viewport.addEventListener("pointercancel", endDrag);
+    viewport.addEventListener("keydown", onKeyDown);
+    measure();
 
     return () => {
+      stop();
       observer.disconnect();
-      document.removeEventListener("visibilitychange", syncAnimation);
+      resizeObserver.disconnect();
+      document.removeEventListener("visibilitychange", syncActivity);
+      reducedMotion.removeEventListener("change", syncActivity);
+      viewport.removeEventListener("pointerdown", onPointerDown);
+      viewport.removeEventListener("pointermove", onPointerMove);
+      viewport.removeEventListener("pointerup", endDrag);
+      viewport.removeEventListener("pointercancel", endDrag);
+      viewport.removeEventListener("keydown", onKeyDown);
     };
   }, []);
 
@@ -128,12 +242,51 @@ export default function ShowcaseMarquee() {
       <div
         ref={viewportRef}
         data-active="false"
+        data-dragging="false"
         className="showcase-marquee__viewport relative z-10"
         role="region"
         tabIndex={0}
         aria-label={t.showcase.eyebrow}
+        aria-roledescription="curved media carousel"
       >
-        <ShowcaseRing titles={titles} />
+        <div ref={trackRef} className="showcase-marquee__track">
+          {SHOWCASE_IMAGES.map((src, index) => {
+            const title = titles[index] ?? "LIONOVART showcase";
+
+            return (
+              <figure
+                key={src}
+                data-showcase-card
+                className="showcase-marquee__card group overflow-hidden rounded-[18px] sm:rounded-[22px]"
+              >
+                <div className="relative h-full w-full overflow-hidden">
+                  <Image
+                    src={src}
+                    alt={`${title} — selected LIONOVART work`}
+                    fill
+                    loading="lazy"
+                    decoding="async"
+                    draggable={false}
+                    sizes="(max-width: 639px) 82vw, (max-width: 1023px) 58vw, 42vw"
+                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
+                  />
+                  <div
+                    aria-hidden
+                    className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02)_32%,rgba(0,0,0,0.88)_100%)]"
+                  />
+                  <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-5 p-4 sm:p-5">
+                    <span className="max-w-[24ch] font-clash text-[17px] font-semibold leading-[1.05] tracking-[-0.02em] text-white sm:text-[20px] lg:text-[22px]">
+                      {title}
+                    </span>
+                    <span className="shrink-0 font-mono text-[10px] font-bold tracking-[0.22em] text-brand-red sm:text-[11px]">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                  </figcaption>
+                </div>
+              </figure>
+            );
+          })}
+        </div>
       </div>
 
       <div className="relative z-10 mx-auto mt-8 flex max-w-[1280px] items-center gap-4 px-5 sm:px-8 lg:px-12">
