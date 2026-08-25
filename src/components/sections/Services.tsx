@@ -2,8 +2,14 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+
+const ServicesHorizontal = dynamic(() => import("./ServicesHorizontal"), {
+  ssr: false,
+  loading: () => <div aria-hidden className="min-h-[clamp(44rem,72vw,50rem)]" />,
+});
 
 // Cloudinary (same account as rest of site) â€” f_auto/q_auto/w_900 for CWV-friendly delivery.
 const CLOUD_BASE = "https://res.cloudinary.com/dgio9uutc/image/upload";
@@ -42,6 +48,7 @@ export default function Services(props: any) {
       }));
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [layoutMode, setLayoutMode] = useState<"vertical" | "horizontal">("vertical");
   const activeIndexRef = useRef(0);
   const active = SERVICES[activeIndex] ?? SERVICES[0];
 
@@ -52,6 +59,7 @@ export default function Services(props: any) {
     offset: ["start start", "end end"],
   });
   useMotionValueEvent(scrollYProgress, "change", (p) => {
+    if (layoutMode !== "vertical") return;
     const idx = Math.min(SERVICES.length - 1, Math.max(0, Math.floor(p * SERVICES.length)));
     if (idx !== activeIndexRef.current) {
       activeIndexRef.current = idx;
@@ -65,6 +73,11 @@ export default function Services(props: any) {
   // without making the next service feel delayed.
   const lastObserverSetAt = useRef<number>(0);
   useEffect(() => {
+    if (layoutMode !== "vertical") {
+      mobileRefs.current = [];
+      return;
+    }
+
     const observers = mobileRefs.current.map((el, i) => {
       if (!el) return null;
       const obs = new IntersectionObserver(
@@ -85,7 +98,7 @@ export default function Services(props: any) {
       return obs;
     });
     return () => observers.forEach((o) => o?.disconnect());
-  }, [SERVICES.length]);
+  }, [SERVICES.length, layoutMode]);
 
   return (
     <section id="services" className="relative bg-bg-surface-light flex flex-col">
@@ -108,9 +121,28 @@ export default function Services(props: any) {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          {heading} <span className="text-brand-red">{headingAccent}</span>
+          <button
+            type="button"
+            onClick={() => setLayoutMode((mode) => (mode === "vertical" ? "horizontal" : "vertical"))}
+            onPointerEnter={() => void import("./ServicesHorizontal")}
+            onFocus={() => void import("./ServicesHorizontal")}
+            aria-pressed={layoutMode === "horizontal"}
+            aria-label={
+              layoutMode === "horizontal"
+                ? "Restore the vertical services layout"
+                : "Try the horizontal services layout"
+            }
+            className="cursor-default rounded-sm text-inherit outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-4"
+          >
+            {heading} <span className="text-brand-red">{headingAccent}</span>
+          </button>
         </motion.h2>
       </div>
+
+      {layoutMode === "horizontal" ? (
+        <ServicesHorizontal items={SERVICES} />
+      ) : (
+        <>
 
       {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           DESKTOP LAYOUT (lg+)
@@ -244,10 +276,10 @@ export default function Services(props: any) {
                   {s.number}
                 </span>
                 <span
-                  className={`font-bold uppercase leading-none font-clash transition-all duration-400 ${
+                  className={`font-bold uppercase leading-none font-clash text-[1.7rem] sm:text-[2.1rem] transition-colors duration-400 ${
                     isActive
-                      ? "text-[#111] text-[1.75rem] sm:text-[2.2rem]"
-                      : "text-[#d8d8d8] text-[1.6rem] sm:text-[2rem]"
+                      ? "text-[#111]"
+                      : "text-[#d8d8d8]"
                   }`}
                 >
                   {s.title}
@@ -299,6 +331,9 @@ export default function Services(props: any) {
         {/* Bottom border */}
         <div className="border-t border-[#e0e0e0]" />
       </div>
+
+        </>
+      )}
 
     </section>
   );
