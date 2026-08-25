@@ -1,5 +1,5 @@
 steps:
-  # Redeploy marker 2026-08-23: publish the verified mobile testimonial perspective.
+  # Redeploy marker 2026-08-25: publish testimonial 20-percent stagger and globe transition.
   # Step 1: Build the Docker image
   # - NEXT_PUBLIC_* vars are hardcoded here (they're not sensitive)
   # - Secrets from Secret Manager are accessed via secretEnv (double-$$ syntax)
