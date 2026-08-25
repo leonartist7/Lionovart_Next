@@ -13,8 +13,8 @@ import { useLenis } from "lenis/react";
 
 const SESSION_KEY = "lionovart_splash_seen";
 const SPLASH_COMPLETE_EVENT = "lionovart:splash-complete";
-const REVEAL_DURATION_MS = 1300;
-const EXIT_DURATION_MS = 280;
+const REVEAL_DURATION_MS = 520;
+const EXIT_DURATION_MS = 160;
 
 export default function SplashScreen() {
   // Render the overlay in the server HTML so page content can never flash first.
@@ -99,6 +99,17 @@ export default function SplashScreen() {
   return (
     <div
       className={`splash-screen${exiting ? " splash-screen--exit" : ""}`}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 10000,
+        display: "grid",
+        placeItems: "center",
+        overflow: "hidden",
+        background: "#e5192a",
+        opacity: exiting ? 0 : 1,
+        transition: "opacity 160ms cubic-bezier(0.22, 1, 0.36, 1)",
+      }}
       onClick={dismiss}
       onTransitionEnd={(event) => {
         if (
@@ -111,7 +122,17 @@ export default function SplashScreen() {
       }}
       aria-hidden="true"
     >
-      <div className="splash-lockup">
+      <div
+        className="splash-lockup"
+        style={{
+          display: "flex",
+          width: "min(76vw, 480px)",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "clamp(1rem, 2.4vw, 1.35rem)",
+          textAlign: "center",
+        }}
+      >
         <img
           className="splash-logo"
           src="/images/LOGO.svg"
