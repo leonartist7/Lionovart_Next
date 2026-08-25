@@ -3,7 +3,8 @@
 import { forwardRef, useEffect, useId, useImperativeHandle, useLayoutEffect, useRef } from "react";
 
 const VIEWBOX = 1000;
-const ART_ASPECT = 1536 / 1024;
+const PAW_ASPECT = 1536 / 1024;
+const HAND_ASPECT = 1024 / 1536;
 
 type Bloom = { cx: number; cy: number; rStart: number; rFinal: number };
 
@@ -21,7 +22,7 @@ const BLOOMS: Bloom[] = [
 
 export type InkRevealArtworkHandle = {
   blooms: SVGCircleElement[];
-  art: SVGImageElement | null;
+  art: SVGGElement | null;
   setOriginFromClientPoint: (clientX: number, clientY: number) => void;
 };
 
@@ -36,7 +37,9 @@ const useIsomorphicLayoutEffect =
 const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProps>(
   function InkRevealArtwork({ reducedMotion, className }, ref) {
     const svgRef = useRef<SVGSVGElement>(null);
-    const artRef = useRef<SVGImageElement>(null);
+    const artRef = useRef<SVGGElement>(null);
+    const pawRef = useRef<SVGImageElement>(null);
+    const handRef = useRef<SVGImageElement>(null);
     const bloomRefs = useRef<(SVGCircleElement | null)[]>([]);
     const rawId = useId();
     const uid = rawId.replace(/:/g, "");
@@ -60,7 +63,9 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
     useIsomorphicLayoutEffect(() => {
       const svg = svgRef.current;
       const art = artRef.current;
-      if (!svg || !art) return;
+      const paw = pawRef.current;
+      const hand = handRef.current;
+      if (!svg || !art || !paw || !hand) return;
 
       const applyGeometry = () => {
         const rect = svg.getBoundingClientRect();
@@ -68,13 +73,28 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
         const scale = Math.max(rect.width, rect.height) / VIEWBOX;
         const viewW = rect.width / scale;
         const viewH = rect.height / scale;
+        const visibleX = (VIEWBOX - viewW) / 2;
         const visibleY = (VIEWBOX - viewH) / 2;
-        const artW = Math.min(viewW, viewH * ART_ASPECT);
-        const artH = artW / ART_ASPECT;
-        art.setAttribute("x", String((VIEWBOX - artW) / 2));
-        art.setAttribute("y", String(visibleY + viewH - artH));
-        art.setAttribute("width", String(artW));
-        art.setAttribute("height", String(artH));
+        const isTall = viewH / viewW > 1.3;
+        const targetX = visibleX + viewW / 2;
+        const targetY = visibleY + viewH * (isTall ? 0.54 : 0.5);
+
+        // Both transparent limbs converge at the same point. Their canvases
+        // deliberately continue below the visible viewport, so the red
+        // marquee covers the crop instead of exposing an empty seam.
+        const pawH = viewH * (isTall ? 0.64 : 0.78);
+        const pawW = pawH * PAW_ASPECT;
+        paw.setAttribute("x", String(targetX - pawW * 0.78));
+        paw.setAttribute("y", String(targetY - pawH * 0.2));
+        paw.setAttribute("width", String(pawW));
+        paw.setAttribute("height", String(pawH));
+
+        const handH = viewH * (isTall ? 0.72 : 0.9);
+        const handW = handH * HAND_ASPECT;
+        hand.setAttribute("x", String(targetX - handW * 0.07));
+        hand.setAttribute("y", String(targetY - handH * 0.1));
+        hand.setAttribute("width", String(handW));
+        hand.setAttribute("height", String(handH));
       };
 
       applyGeometry();
@@ -164,12 +184,18 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
         </defs>
         <g mask={`url(#${maskId})`}>
           <rect width={VIEWBOX} height={VIEWBOX} fill="#f2ede3" />
-          <image
-            ref={artRef}
-            href="/images/ONE-background.avif"
-            preserveAspectRatio="xMidYMid meet"
-            opacity={reducedMotion ? 1 : 0.72}
-          />
+          <g ref={artRef} opacity={reducedMotion ? 1 : 0.72}>
+            <image
+              ref={pawRef}
+              href="/images/lion-paw-transparent.webp"
+              preserveAspectRatio="xMidYMid meet"
+            />
+            <image
+              ref={handRef}
+              href="/images/human-hand-transparent.webp"
+              preserveAspectRatio="xMidYMid meet"
+            />
+          </g>
         </g>
       </svg>
     );

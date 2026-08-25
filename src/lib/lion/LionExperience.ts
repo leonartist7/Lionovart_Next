@@ -431,7 +431,9 @@ export class LionExperience {
     const spherical = new THREE.Spherical();
 
     if (this.qualityTier === "low" && count <= 177) {
-      ({ positions, normals } = this.sampleMobileLandmarks(sampler, count));
+      const mobileLandmarks = this.sampleMobileLandmarks(sampler, count);
+      positions.set(mobileLandmarks.positions);
+      normals.set(mobileLandmarks.normals);
     } else for (let i = 0; i < count; i++) {
       // Importance sampling to equalize screen-space density: surface patches
       // edge-on to the camera compress into few pixels (overbright silhouette,
