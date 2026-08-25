@@ -95,6 +95,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Starts the exact SVG request in the document head, before the body streams.
+  preload("/images/LOGO.svg", { as: "image", fetchPriority: "high" });
+
   return (
     <html lang="en" className={`${clashDisplay.variable} ${dmSans.variable} h-full antialiased`} style={{ backgroundColor: "#e5192a" }} suppressHydrationWarning>
       <body className="min-h-full flex flex-col" style={{ backgroundColor: "#e5192a" }}>
