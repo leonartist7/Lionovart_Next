@@ -28,7 +28,7 @@ function ClickToRevealHint() {
       className="pointer-events-none absolute inset-x-0 bottom-5 z-30 h-20 sm:bottom-6 sm:h-20 md:bottom-8 md:h-24"
       aria-hidden="true"
     >
-      <div className="absolute bottom-0 left-1/2 flex -translate-x-1/2 items-center gap-3 sm:gap-4">
+      <div className="absolute bottom-0 right-3 flex items-center gap-3 sm:right-5 sm:gap-4 md:right-8 lg:right-10">
         <span className="whitespace-nowrap text-center font-clash text-[12px] font-bold uppercase leading-[1.05] tracking-[0.14em] text-white sm:text-[13px] sm:tracking-[0.16em] md:text-[14px] lg:text-[15px]">
           <span className="block">Click</span>
           <span className="block">to reveal</span>
