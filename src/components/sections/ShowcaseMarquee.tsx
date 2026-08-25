@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ImageStreamHero } from "@/components/ui/image-stream-hero";
 
 const C = "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_1400,c_fill,g_auto";
 
@@ -21,10 +22,13 @@ const clamp = (value: number, min: number, max: number) =>
 export default function ShowcaseMarquee() {
   const { t } = useLanguage();
   const titles = t.services.items.map((item) => item.title);
+  const [view, setView] = useState<"curve" | "perspective">("curve");
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (view !== "curve") return;
+
     const viewport = viewportRef.current;
     const track = trackRef.current;
     if (!viewport || !track) return;
@@ -211,7 +215,7 @@ export default function ShowcaseMarquee() {
       viewport.removeEventListener("pointercancel", endDrag);
       viewport.removeEventListener("keydown", onKeyDown);
     };
-  }, []);
+  }, [view]);
 
   return (
     <section
@@ -238,55 +242,89 @@ export default function ShowcaseMarquee() {
       </header>
 
       <div
-        ref={viewportRef}
-        data-active="false"
-        data-dragging="false"
-        className="showcase-marquee__viewport relative z-10"
-        role="region"
-        tabIndex={0}
-        aria-label={t.showcase.eyebrow}
-        aria-roledescription="curved media carousel"
+        role="group"
+        aria-label="Showcase motion style"
+        className="relative z-20 mx-auto mb-6 flex w-fit rounded-full bg-black/[0.055] p-1 shadow-inner shadow-black/5 sm:mb-8"
       >
-        <div ref={trackRef} className="showcase-marquee__track">
-          {SHOWCASE_IMAGES.map((src, index) => {
-            const title = titles[index] ?? "LIONOVART showcase";
-
-            return (
-              <figure
-                key={src}
-                data-showcase-card
-                className="showcase-marquee__card group overflow-hidden rounded-[18px] sm:rounded-[22px]"
-              >
-                <div className="relative h-full w-full overflow-hidden">
-                  <Image
-                    src={src}
-                    alt={`${title} — selected LIONOVART work`}
-                    fill
-                    loading="lazy"
-                    decoding="async"
-                    draggable={false}
-                    sizes="(max-width: 639px) 52vw, (max-width: 1023px) 38vw, 28vw"
-                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
-                  />
-                  <div
-                    aria-hidden
-                    className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02)_32%,rgba(0,0,0,0.88)_100%)]"
-                  />
-                  <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-5 p-4 sm:p-5">
-                    <span className="max-w-[24ch] font-clash text-[17px] font-semibold leading-[1.05] tracking-[-0.02em] text-white sm:text-[20px] lg:text-[22px]">
-                      {title}
-                    </span>
-                    <span className="shrink-0 font-mono text-[10px] font-bold tracking-[0.22em] text-brand-red sm:text-[11px]">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                  </figcaption>
-                </div>
-              </figure>
-            );
-          })}
-        </div>
+        {(["curve", "perspective"] as const).map((option) => (
+          <button
+            key={option}
+            type="button"
+            aria-pressed={view === option}
+            onClick={() => setView(option)}
+            className={`min-h-10 rounded-full px-4 font-mono text-[10px] font-bold uppercase tracking-[0.18em] transition-colors duration-300 sm:px-5 sm:text-[11px] ${
+              view === option
+                ? "bg-[#111111] text-white shadow-[0_8px_22px_-12px_rgba(0,0,0,0.8)]"
+                : "text-black/48 hover:text-black focus-visible:text-black"
+            }`}
+          >
+            {option === "curve" ? "Curve" : "Perspective"}
+          </button>
+        ))}
       </div>
 
+      {view === "curve" ? (
+        <div
+          ref={viewportRef}
+          data-active="false"
+          data-dragging="false"
+          className="showcase-marquee__viewport relative z-10"
+          role="region"
+          tabIndex={0}
+          aria-label={t.showcase.eyebrow}
+          aria-roledescription="curved media carousel"
+        >
+          <div ref={trackRef} className="showcase-marquee__track">
+            {SHOWCASE_IMAGES.map((src, index) => {
+              const title = titles[index] ?? "LIONOVART showcase";
+
+              return (
+                <figure
+                  key={src}
+                  data-showcase-card
+                  className="showcase-marquee__card group overflow-hidden rounded-[18px] sm:rounded-[22px]"
+                >
+                  <div className="relative h-full w-full overflow-hidden">
+                    <Image
+                      src={src}
+                      alt={`${title} — selected LIONOVART work`}
+                      fill
+                      loading="lazy"
+                      decoding="async"
+                      draggable={false}
+                      sizes="(max-width: 639px) 52vw, (max-width: 1023px) 38vw, 28vw"
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
+                    />
+                    <div
+                      aria-hidden
+                      className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02)_32%,rgba(0,0,0,0.88)_100%)]"
+                    />
+                    <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-5 p-4 sm:p-5">
+                      <span className="max-w-[24ch] font-clash text-[17px] font-semibold leading-[1.05] tracking-[-0.02em] text-white sm:text-[20px] lg:text-[22px]">
+                        {title}
+                      </span>
+                      <span className="shrink-0 font-mono text-[10px] font-bold tracking-[0.22em] text-brand-red sm:text-[11px]">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                    </figcaption>
+                  </div>
+                </figure>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <ImageStreamHero
+          images={SHOWCASE_IMAGES.map((src, index) => ({
+            src,
+            alt: titles[index] ?? "LIONOVART showcase",
+          }))}
+          cards={8}
+          speed={22}
+          axis={50}
+          className="relative z-10 h-[18rem] w-full sm:h-[24rem] lg:h-[30rem]"
+        />
+      )}
     </section>
   );
 }
