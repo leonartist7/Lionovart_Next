@@ -10,6 +10,7 @@ import {
 } from "framer-motion";
 import Link from "next/link";
 import { useLenis } from "lenis/react";
+import { Menu, X } from "lucide-react";
 import { getWhatsAppUrl } from "@/lib/contact";
 import { MenuBurgerLottie } from "@/components/ui/menu-burger-lottie";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
@@ -82,7 +83,37 @@ const SERVICE_ITEM_VARIANTS = {
   show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" as const } },
 };
 
-export default function Navbar() {
+type NavbarProps = {
+  lightweightMenu?: boolean;
+};
+
+function LightweightMenuToggle({
+  isOpen,
+  onToggle,
+  className = "",
+}: {
+  isOpen: boolean;
+  onToggle: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={isOpen}
+      aria-label="Toggle menu"
+      className={`relative z-[60] flex min-h-11 min-w-11 touch-manipulation items-center justify-center rounded-lg transition-transform duration-150 active:scale-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80 ${className}`}
+    >
+      {isOpen ? (
+        <X className="h-6 w-6 text-white" aria-hidden />
+      ) : (
+        <Menu className="h-6 w-6 text-white" aria-hidden />
+      )}
+    </button>
+  );
+}
+
+export default function Navbar({ lightweightMenu = false }: NavbarProps) {
   const [isPastHero, setIsPastHero] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -352,17 +383,32 @@ export default function Navbar() {
               </AnimatePresence>
 
               {/* Mobile burger â€” always visible on small screens */}
-              <MenuBurgerLottie
-                isOpen={isMobileOpen}
-                onToggle={() => setIsMobileOpen((v) => !v)}
-                className="lg:hidden"
-              />
-
-              <span className="hidden lg:flex">
+              {lightweightMenu ? (
+                <LightweightMenuToggle
+                  isOpen={isMobileOpen}
+                  onToggle={() => setIsMobileOpen((v) => !v)}
+                  className="lg:hidden"
+                />
+              ) : (
                 <MenuBurgerLottie
                   isOpen={isMobileOpen}
                   onToggle={() => setIsMobileOpen((v) => !v)}
+                  className="lg:hidden"
                 />
+              )}
+
+              <span className="hidden lg:flex">
+                {lightweightMenu ? (
+                  <LightweightMenuToggle
+                    isOpen={isMobileOpen}
+                    onToggle={() => setIsMobileOpen((v) => !v)}
+                  />
+                ) : (
+                  <MenuBurgerLottie
+                    isOpen={isMobileOpen}
+                    onToggle={() => setIsMobileOpen((v) => !v)}
+                  />
+                )}
               </span>
             </div>
           </div>

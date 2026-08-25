@@ -27,8 +27,17 @@ export default function AiRoi() {
       id="results"
       ref={ref}
       data-ai-snap
-      className="relative flex min-h-[125svh] items-center py-32 md:min-h-[135svh] md:py-48"
+      data-art-directed="light"
+      className="relative isolate flex min-h-[125svh] items-center overflow-hidden bg-[#f4f1ea] py-32 text-[#111111] md:min-h-[135svh] md:py-48"
     >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-80"
+        style={{
+          background:
+            "radial-gradient(55% 45% at 84% 14%, rgba(229,25,42,0.075), transparent 72%), radial-gradient(42% 36% at 10% 88%, rgba(84,229,255,0.09), transparent 74%)",
+        }}
+      />
       <div className="mx-auto w-full max-w-[1280px] px-6 md:px-10 lg:px-14">
         <div className="grid items-end gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-16">
           <motion.div
@@ -36,28 +45,28 @@ export default function AiRoi() {
             whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.35 }}
             transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-            className="[text-shadow:0_3px_24px_rgba(0,0,0,0.92)]"
+            className="relative"
           >
-            <p className="text-[13px] font-medium uppercase tracking-[0.18em] text-[var(--ai-cyan)] md:text-[14px]">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-brand-red md:text-[14px]">
               The capacity already inside your business
             </p>
             <h2
-              className="mt-6 max-w-[12ch] font-normal leading-[0.97] tracking-[-0.045em] text-white"
+              className="mt-6 max-w-[12ch] font-normal leading-[0.97] tracking-[-0.045em] text-[#111111]"
               style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(2.8rem, 5.4vw, 5.5rem)" }}
             >
               What would you do with the hours back?
             </h2>
-            <p className="mt-7 max-w-[43ch] text-[18px] font-light leading-[1.68] text-white/80 md:text-[20px]">
+            <p className="mt-7 max-w-[43ch] text-[18px] font-normal leading-[1.68] text-black/68 md:text-[20px]">
               Use a conservative value for repetitive work. This is a planning lens—not a revenue promise—and it excludes faster response, recovered leads and customer retention.
             </p>
           </motion.div>
 
-          <LiquidGlass className="p-6 sm:p-8 md:p-10">
+          <LiquidGlass tone="light" className="p-6 sm:p-8 md:p-10">
             <div className="grid gap-9 sm:grid-cols-2">
               <label className="block">
-                <span className="flex items-baseline justify-between gap-4 text-[17px] text-white/78">
+                <span className="flex items-baseline justify-between gap-4 text-[17px] text-black/68">
                   Hours lost each week
-                  <strong className="text-[22px] font-medium tabular-nums text-white">{hours}h</strong>
+                  <strong className="text-[22px] font-semibold tabular-nums text-black">{hours}h</strong>
                 </span>
                 <input
                   aria-label="Hours lost each week"
@@ -67,13 +76,13 @@ export default function AiRoi() {
                   step="1"
                   value={hours}
                   onChange={(event) => setHours(Number(event.target.value))}
-                  className="mt-5 h-2 w-full cursor-pointer accent-[var(--ai-cyan)]"
+                  className="mt-5 h-2 w-full cursor-pointer accent-brand-red"
                 />
               </label>
               <label className="block">
-                <span className="flex items-baseline justify-between gap-4 text-[17px] text-white/78">
+                <span className="flex items-baseline justify-between gap-4 text-[17px] text-black/68">
                   Blended hourly value
-                  <strong className="text-[22px] font-medium tabular-nums text-white">{currency.format(hourValue)}</strong>
+                  <strong className="text-[22px] font-semibold tabular-nums text-black">{currency.format(hourValue)}</strong>
                 </span>
                 <input
                   aria-label="Blended hourly value"
@@ -83,21 +92,21 @@ export default function AiRoi() {
                   step="5"
                   value={hourValue}
                   onChange={(event) => setHourValue(Number(event.target.value))}
-                  className="mt-5 h-2 w-full cursor-pointer accent-[var(--ai-cyan)]"
+                  className="mt-5 h-2 w-full cursor-pointer accent-brand-red"
                 />
               </label>
             </div>
 
-            <div className="mt-10 grid gap-6 border-t border-white/12 pt-8 sm:grid-cols-2">
+            <div className="mt-10 grid gap-6 border-t border-black/12 pt-8 sm:grid-cols-2">
               <div>
-                <p className="text-[13px] uppercase tracking-[0.16em] text-white/56">Annual time returned</p>
-                <p className="mt-2 text-[clamp(2.3rem,5vw,4.2rem)] font-light leading-none tracking-[-0.055em] text-white">
+                <p className="text-[13px] uppercase tracking-[0.16em] text-black/52">Annual time returned</p>
+                <p className="mt-2 text-[clamp(2.3rem,5vw,4.2rem)] font-light leading-none tracking-[-0.055em] text-black">
                   {result.yearlyHours.toLocaleString()}h
                 </p>
               </div>
               <div>
-                <p className="text-[13px] uppercase tracking-[0.16em] text-white/56">Potential capacity value</p>
-                <p className="mt-2 text-[clamp(2.3rem,5vw,4.2rem)] font-light leading-none tracking-[-0.055em] text-[var(--ai-cyan)]">
+                <p className="text-[13px] uppercase tracking-[0.16em] text-black/52">Potential capacity value</p>
+                <p className="mt-2 text-[clamp(2.3rem,5vw,4.2rem)] font-light leading-none tracking-[-0.055em] text-brand-red">
                   {currency.format(result.capacity)}
                 </p>
               </div>

@@ -74,12 +74,13 @@ export default function AiLionStage() {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      aria-hidden="true"
-      // WebGL canvases already receive their own compositor surface. An extra
-      // will-change layer duplicates memory pressure on mobile GPUs.
-      className="pointer-events-none fixed inset-0 z-0 h-full w-full"
-    />
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 bg-black">
+      <canvas
+        ref={canvasRef}
+        // WebGL canvases already receive their own compositor surface. An extra
+        // will-change layer duplicates memory pressure on mobile GPUs.
+        className="absolute inset-0 h-full w-full"
+      />
+    </div>
   );
 }

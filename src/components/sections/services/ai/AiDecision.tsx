@@ -24,7 +24,6 @@ export default function AiDecision() {
           </p>
           <div className="mt-9 flex flex-col items-center gap-4">
             <button
-              data-cta-target
               type="button"
               onClick={() => openNova("hero", true)}
               className="min-h-14 rounded-full bg-brand-red px-8 py-4 text-[17px] font-semibold text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"

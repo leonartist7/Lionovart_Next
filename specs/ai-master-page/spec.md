@@ -21,7 +21,7 @@
 4. Four high-value systems — Capture & Convert; Serve & Retain; Run & Fulfill; See & Scale.
 5. Operating-system flow — every function improves the next.
 6. Delivery mechanism — Blueprint, Build, Optimize.
-7. ROI lens — calculate recoverable capacity without presenting projections as guarantees.
+7. ROI lens — a warm-white reading beat calculates recoverable capacity without presenting projections as guarantees.
 8. Ongoing partnership — launch focused, keep the system maintained and improving.
 9. Decision — reformed crown and a clear consultation CTA.
 
@@ -40,6 +40,7 @@
 - The render loop pauses when the tab is hidden and lowers cadence while visually idle.
 - `prefers-reduced-motion` renders a composed static state.
 - Copy never uses blur-based transitions.
+- The closing chapter has exclusive ownership of the particle layout and eases toward a fixed viewport target; it performs no per-frame DOM measurements.
 
 ## Interaction contract
 
@@ -56,6 +57,8 @@
 - Crown silhouette is legible at 390px viewport width and 77 particles.
 - Main body copy is at least 18px on desktop and 17px on mobile; labels are at least 13px.
 - The four-system selector, delivery roadmap, ROI panel, and final CTA use the shared glass surface.
+- The AI route always supplies its own black stage underlay; the root layout's brand-red background must never bleed through it.
+- The ROI chapter is the sole opaque warm-white relief section and returns cleanly to black before the closing crown.
 - Mobile navigation and CTA do not obscure focused controls or final-page content.
 - TypeScript, lint, and production build pass, or any repository-wide pre-existing blocker is documented with exact output.
 - Browser verification checks load, console errors, navigation, tabs, ROI controls, CTA, 390px layout, and reduced motion.

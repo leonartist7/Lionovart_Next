@@ -22,6 +22,7 @@ export interface LiquidGlassProps {
   children: ReactNode;
   className?: string;
   still?: boolean;
+  tone?: "dark" | "light";
 }
 
 /**
@@ -32,6 +33,7 @@ export function LiquidGlass({
   children,
   className,
   still = false,
+  tone = "dark",
 }: LiquidGlassProps) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-10%" });
@@ -43,15 +45,25 @@ export function LiquidGlass({
       initial={animate ? { opacity: 0, y: 18 } : false}
       animate={animate ? (inView ? { opacity: 1, y: 0 } : {}) : undefined}
       transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
-      className={cn("ai-liquid-glass relative isolate overflow-hidden rounded-[28px]", className)}
+      className={cn(
+        "ai-liquid-glass relative isolate overflow-hidden rounded-[28px]",
+        tone === "light" && "ai-liquid-glass--light",
+        className,
+      )}
     >
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-x-[7%] top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent"
+        className={cn(
+          "pointer-events-none absolute inset-x-[7%] top-0 h-px bg-gradient-to-r from-transparent to-transparent",
+          tone === "light" ? "via-white" : "via-white/50",
+        )}
       />
       <span
         aria-hidden
-        className="pointer-events-none absolute -right-20 -top-20 size-48 rounded-full bg-[var(--ai-cyan)]/10"
+        className={cn(
+          "pointer-events-none absolute -right-20 -top-20 size-48 rounded-full",
+          tone === "light" ? "bg-brand-red/[0.055]" : "bg-[var(--ai-cyan)]/10",
+        )}
       />
       {animate && (
         <motion.span

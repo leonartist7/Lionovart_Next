@@ -895,6 +895,17 @@
     inset 0 -1px 0 rgba(0, 0, 0, 0.58);
 }
 
+.ai-liquid-glass.ai-liquid-glass--light {
+  background:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.62) 46%, rgba(255, 255, 255, 0.38)),
+    rgba(255, 255, 255, 0.68);
+  border-color: rgba(17, 17, 17, 0.12);
+  box-shadow:
+    0 32px 90px -52px rgba(17, 17, 17, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96),
+    inset 0 -1px 0 rgba(17, 17, 17, 0.08);
+}
+
 @media (min-width: 768px) {
   @supports (backdrop-filter: blur(1px)) {
     .ai-liquid-glass {
@@ -903,6 +914,14 @@
         rgba(5, 7, 14, 0.42);
       backdrop-filter: blur(8px) saturate(118%);
       -webkit-backdrop-filter: blur(8px) saturate(118%);
+    }
+
+    .ai-liquid-glass.ai-liquid-glass--light {
+      background:
+        linear-gradient(150deg, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.52) 48%, rgba(255, 255, 255, 0.28)),
+        rgba(255, 255, 255, 0.54);
+      backdrop-filter: blur(8px) saturate(108%);
+      -webkit-backdrop-filter: blur(8px) saturate(108%);
     }
   }
 }

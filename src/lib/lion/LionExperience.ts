@@ -140,6 +140,7 @@ export class LionExperience {
 
   // Act weights, written by the section that owns each beat (lib/lion/stage-ref),
   // so no beat depends on a hand-tuned page offset.
+  private bloomTarget = 0;
   private bloomW = 0;
 
   private pointer = new THREE.Vector2(0, 0);
@@ -183,18 +184,17 @@ export class LionExperience {
 
   /** Act 7: 0 = energy current, 1 = reformed crown above the CTA. */
   setBloom(v: number): void {
-    this.bloomW = clamp01(v);
+    this.bloomTarget = clamp01(v);
     if (typeof performance !== "undefined") this.activeUntil = performance.now() + 700;
   }
 
   /**
-   * Point the Act 7 convergence at a real element. Called on scroll-enter with
-   * the CTA's rect, not per frame.
+   * Place the Act 7 crown at a stable normalized viewport coordinate.
+   * `nx`/`ny` use WebGL screen space: -1 is left/top and 1 is right/bottom.
    */
-  setCtaScreenPos(nx: number, ny: number): void {
+  setCrestScreenPos(nx: number, ny: number): void {
     if (!this.material) return;
     const w = this.toWorld(nx, ny);
-    w.y += this.halfH * 0.72;
     (this.material.uniforms.uCrest.value as THREE.Vector3).copy(w);
     if (this.swarmMat) (this.swarmMat.uniforms.uCta.value as THREE.Vector3).copy(w);
     if (this.plexusMat) (this.plexusMat.uniforms.uCta.value as THREE.Vector3).copy(w);
@@ -778,6 +778,7 @@ export class LionExperience {
     const t = this.elapsed;
     this.morph += (this.morphTarget - this.morph) * (1 - Math.exp(-9 * dt));
     this.layout += (this.layoutTarget - this.layout) * (1 - Math.exp(-7 * dt));
+    this.bloomW += (this.bloomTarget - this.bloomW) * (1 - Math.exp(-6 * dt));
     const m = this.morph;
 
     if (this.material) {
@@ -888,7 +889,8 @@ export class LionExperience {
     // resolution when sustained frame time proves the GPU is under pressure.
     const activeMotion = performance.now() < this.activeUntil
       || Math.abs(this.morphTarget - this.morph) > 0.001
-      || Math.abs(this.layoutTarget - this.layout) > 0.001;
+      || Math.abs(this.layoutTarget - this.layout) > 0.001
+      || Math.abs(this.bloomTarget - this.bloomW) > 0.001;
     if (activeMotion) {
       this.idleRenderElapsed = 0;
       this.updateAdaptiveResolution(deltaMs);
