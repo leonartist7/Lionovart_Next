@@ -12,6 +12,8 @@ interface LeadBody {
   user_agent?: string;
   source?: string;
   conversation_id?: string;
+  website_url?: string;
+  socials?: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -27,7 +29,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { name, contact, contact_type, project_summary, language_detected, urgency, user_agent, source, conversation_id } = body;
+  const { name, contact, contact_type, project_summary, language_detected, urgency, user_agent, source, conversation_id, website_url, socials } = body;
 
   if (!name || !contact) {
     return NextResponse.json({ error: "name and contact are required" }, { status: 400 });
@@ -49,6 +51,8 @@ export async function POST(req: NextRequest) {
       source: source ?? "ai_strategist",
       user_agent: user_agent ?? "unknown",
       conversation_id: conversation_id ?? null,
+      website_url: website_url ?? "",
+      socials: socials ?? "",
       ip,
       created_at: FieldValue.serverTimestamp(),
       // Console leads list orders by updated_at — Firestore excludes docs

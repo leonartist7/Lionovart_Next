@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import TrailAttractionTarget from "@/components/ui/TrailAttractionTarget";
+import { FUNNEL_EVENT, trackFunnelEvent } from "@/lib/funnel-events";
 
 /**
  * HeroEmailCapture — glass (transparent) pill with a simple light border, an
@@ -45,8 +46,10 @@ export default function HeroEmailCapture() {
         }),
       });
       setStatus("done");
+      trackFunnelEvent(FUNNEL_EVENT.HERO_CAPTURE_SUBMITTED, { ok: true });
     } catch {
       setStatus("done");
+      trackFunnelEvent(FUNNEL_EVENT.HERO_CAPTURE_SUBMITTED, { ok: false });
     }
   };
 

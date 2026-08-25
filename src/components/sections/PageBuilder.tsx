@@ -13,10 +13,12 @@ import Services from "@/components/sections/Services";
 import Comparison from "@/components/sections/Comparison";
 import Process from "@/components/sections/Process";
 import Testimonials from "@/components/sections/Testimonials";
+import AuditStrip from "@/components/sections/AuditStrip";
 import FAQ from "@/components/sections/FAQ";
 import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
 import ClosingCTA from "@/components/sections/ClosingCTA";
 import TubesCursor from "@/components/ui/TubesCursor";
+import ExitIntentModal from "@/components/ui/ExitIntentModal";
 import { TrailAttractionProvider } from "@/contexts/TrailAttractionContext";
 
 /**
@@ -37,6 +39,7 @@ export function PageBuilder() {
     <TrailAttractionProvider>
       <SceneVideoBackdrop />
       <TubesCursor layer="landing" />
+      <ExitIntentModal />
 
       <NovaSection id="hero"><HeroTop /></NovaSection>
 
@@ -65,6 +68,7 @@ export function PageBuilder() {
         <NovaSection id="process"><Process /></NovaSection>
         <SectionTitleCard word="RESULTS." theme="dark" />
         <NovaSection id="testimonials"><Testimonials /></NovaSection>
+        <AuditStrip />
         <SectionTitleCard
           word="ANSWERS."
           theme="dark"
