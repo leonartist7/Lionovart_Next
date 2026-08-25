@@ -108,7 +108,8 @@
       "mcp__Claude_Code_Remote__list_triggers",
       "Bash(npx eslint *)",
       "Bash(curl -s http://localhost:3000/ -o /tmp/page.html -w \"HTTP %{http_code}  %{size_download} bytes\\\\n\")",
-      "Bash(python -c ' *)"
+      "Bash(python -c ' *)",
+      "mcp__Claude_Code_Remote__unsubscribe_pr_activity"
     ]
   }
 }
