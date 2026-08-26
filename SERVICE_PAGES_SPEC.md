@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED by `MASTERPLAN.md`.** Reference for already-built pages only. The `/services/video` route it specs no longer exists.
+> Read this file for history only, never for direction.
+
 # LIONOVART — Service Pages: Architecture, Wireframes & Conversion Strategy
 
 > Status: DESIGN SPEC (no code yet). This is the approval document.

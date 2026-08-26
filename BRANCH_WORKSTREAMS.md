@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED by `MASTERPLAN.md`.** Historical: the branch it tracks is not current.
+> Read this file for history only, never for direction.
+
 # Branch Workstreams — `claude/affectionate-keller-8ba6T`
 
 > Read me first. This branch accidentally carries TWO separate workstreams from two

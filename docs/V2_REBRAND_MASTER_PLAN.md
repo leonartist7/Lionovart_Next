@@ -1,3 +1,7 @@
+> ⚠️ **PARKED CONCEPT — do not ship, do not build on.** `/v2` stays `noindex`.
+> **Exception: Part B.1 (Global rules) is craft LAW** and is cited by `MASTERPLAN.md` §0.1 and §1.2.
+> The positioning in this file is dead; the motion, type, and reveal rules survive.
+
 # LIONOVART /v2 — MASTER PLAN v3
 ## The Ultimate Premium Rebrand: prompt + full implementation spec
 

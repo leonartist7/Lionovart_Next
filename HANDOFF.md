@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED by `MASTERPLAN.md`.** STALE AND MISLEADING: describes a homepage section order that no longer exists. The current assembly is `src/components/sections/PageBuilder.tsx`.
+> Read this file for history only, never for direction.
+
 # LIONOVART — Next.js Project Handoff Document
 > Last updated: Apr 5 2026
 > Project path: `C:\Users\Leonartist\Documents\WEB DEV\LIONOVART_NEXTJS-TAILWIND`
