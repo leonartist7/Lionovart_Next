@@ -111,7 +111,8 @@
       "Bash(python -c ' *)",
       "Bash(git pull *)",
       "Bash(git diff *)",
-      "Bash(git show *)"
+      "Bash(git show *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
