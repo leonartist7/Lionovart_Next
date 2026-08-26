@@ -595,9 +595,9 @@ export const en = {
   },
 
   services: {
-    eyebrow: "The Art of Innovation, applied to every part of your brand.",
+    eyebrow: "Everything your business needs, nothing that it doesn't.",
     heading: "Our",
-    headingAccent: "Craft",
+    headingAccent: "Expertise",
     items: [
       {
         title: "Brand Identity & Strategy",

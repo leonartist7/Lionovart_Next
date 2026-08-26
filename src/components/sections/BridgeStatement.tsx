@@ -50,7 +50,7 @@ export default function BridgeStatement({
     <section
       aria-labelledby={headingId}
       className={`relative isolate flex min-h-[30svh] items-center overflow-hidden px-5 py-14 sm:px-8 sm:py-16 md:min-h-[34svh] md:px-[6vw] ${
-        isVow ? "bg-[#f7f4ef] text-[#171412]" : "bg-[#0a0a0a] text-white"
+        isVow ? "bg-[#f7f4ef] text-[#171412]" : "bg-bg-dark text-white"
       }`}
     >
       <h2 id={headingId} className="sr-only">

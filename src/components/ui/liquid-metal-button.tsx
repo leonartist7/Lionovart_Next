@@ -14,6 +14,8 @@ interface LiquidMetalButtonProps {
   width?: number;
   /** "red" = dark-red interior + white text (default). "white" = white interior + red text. */
   variant?: "red" | "white";
+  /** Tint the exposed liquid-metal edge. */
+  metalTone?: "silver" | "gold";
   /** Override the text/icon color. Falls back to variant default when omitted. */
   textColor?: string;
   /** Remove the drop shadow (e.g. when placed on a dark nav bar). */
@@ -28,6 +30,7 @@ export function LiquidMetalButton({
   viewMode = "text",
   width = 160,
   variant = "red",
+  metalTone = "silver",
   textColor,
   noShadow = false,
   alwaysAnimate = false,
@@ -42,6 +45,9 @@ export function LiquidMetalButton({
   const shaderMount = useRef<any>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const rippleId = useRef(0);
+  const metalFilter = metalTone === "gold"
+    ? "sepia(1) saturate(2.5) hue-rotate(2deg) brightness(1.03) contrast(1.12)"
+    : undefined;
 
   const dimensions = useMemo(() => {
     if (viewMode === "icon") {
@@ -299,6 +305,7 @@ export function LiquidMetalButton({
                   width: `${dimensions.shaderWidth}px`,
                   maxWidth: `${dimensions.shaderWidth}px`,
                   height: `${dimensions.shaderHeight}px`,
+                  filter: metalFilter,
                   transition: "width 0.4s ease, height 0.4s ease",
                 }}
               />

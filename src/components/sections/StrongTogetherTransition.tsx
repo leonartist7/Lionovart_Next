@@ -115,7 +115,7 @@ export default function StrongTogetherTransition() {
       id="stronger-together"
       aria-labelledby="strong-together-title"
       data-art-directed="light"
-      className="relative h-[145svh] overflow-clip bg-[#0a0a0a]"
+      className="relative h-[145svh] overflow-clip bg-bg-dark"
     >
       <div className="sticky top-0 h-[100svh] min-h-[560px] overflow-hidden bg-[#0d0d0d]">
         <div className="pointer-events-none absolute inset-0 z-[4]" aria-hidden="true">
@@ -142,7 +142,8 @@ export default function StrongTogetherTransition() {
             ref={togetherRef}
             className="absolute inset-x-0 top-0 mx-auto max-w-[11ch] px-4 font-clash text-[clamp(4rem,11vw,10rem)] font-semibold uppercase leading-[0.78] tracking-[-0.065em] text-[#171412]"
           >
-            Stronger together.
+            <span className="block">STRONGER</span>
+            <span className="block">TOGETHER</span>
           </h2>
         </div>
       </div>

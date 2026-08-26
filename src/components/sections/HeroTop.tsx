@@ -378,7 +378,7 @@ export default function HeroTop(props: any) {
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(100% 70% at 50% 28%, rgba(229,25,42,0.10) 0%, transparent 52%), linear-gradient(180deg, rgba(7,7,9,0.50) 0%, rgba(7,7,9,0.42) 45%, rgba(7,7,9,0.80) 82%, rgba(10,10,10,0.98) 100%)",
+              "radial-gradient(100% 70% at 50% 28%, rgba(229,25,42,0.10) 0%, transparent 52%), linear-gradient(180deg, rgba(7,7,9,0.50) 0%, rgba(7,7,9,0.42) 45%, rgba(7,7,9,0.80) 82%, rgba(10,10,10,1) 100%)",
           }}
         />
       </div>

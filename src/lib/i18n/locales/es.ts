@@ -457,9 +457,9 @@ export const es: Translations = {
   },
 
   services: {
-    eyebrow: "El Arte de la Innovación, aplicado a cada parte de tu marca.",
-    heading: "Nuestro",
-    headingAccent: "Oficio",
+    eyebrow: "Todo lo que tu negocio necesita, nada de lo que no.",
+    heading: "Nuestra",
+    headingAccent: "Experiencia",
     items: [
       {
         title: "Identidad de Marca y Estrategia",

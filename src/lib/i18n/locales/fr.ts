@@ -459,9 +459,9 @@ export const fr: Translations = {
   },
 
   services: {
-    eyebrow: "L'Art de l'Innovation, appliqué à chaque partie de votre marque.",
+    eyebrow: "Tout ce dont votre entreprise a besoin, rien de plus.",
     heading: "Notre",
-    headingAccent: "Savoir-faire",
+    headingAccent: "Expertise",
     items: [
       {
         title: "Image de Marque & Identité",

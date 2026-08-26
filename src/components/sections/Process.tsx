@@ -547,37 +547,24 @@ export default function Process(props: any) {
             reads as an edge rather than a wallpaper. The image's own top row
             is near-paper and its bottom row is near-slab, so the two short
             gradients below are only there to erase the last few values of
-            difference at each seam. */}
-        {/* Two assets, because the band changes shape with the viewport and a
-            single one cannot serve both. Below sm the portrait stroke is
-            cropped to its tear. From sm up the landscape stroke takes over at
-            its exact native ratio, so nothing is cropped and the band's height
-            stays proportional instead of ballooning with the width. */}
+            difference at each seam. One portrait asset serves mobile and
+            tablet alike — it isn't cropped/swapped per breakpoint, so the
+            band's height stays proportional to its own 9:16 ratio at every
+            width below lg. */}
         <div
-          className="relative aspect-[4/3] w-full overflow-hidden sm:aspect-[1916/821]"
+          className="relative aspect-[9/16] w-full overflow-hidden"
           style={{ backgroundColor: PAPER }}
         >
-          <picture>
-            <source
-              media="(min-width: 640px)"
-              srcSet="/images/process-impasto-transition.webp"
-              width={1916}
-              height={821}
-            />
-            {/* The offset keeps the portrait tear just above centre, so there
-                is white to fall from and black to land on without carrying
-                that image's long featureless black tail. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/monochrome_diagonal_impasto_swirl.webp"
-              alt=""
-              aria-hidden="true"
-              width={941}
-              height={1672}
-              className="absolute inset-0 h-full w-full object-cover"
-              style={{ objectPosition: "center 41%" }}
-            />
-          </picture>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://res.cloudinary.com/dgio9uutc/image/upload/v1787716854/process-mobile-diagonal-impasto_sbqqzw.webp"
+            alt=""
+            aria-hidden="true"
+            width={864}
+            height={1536}
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{ objectPosition: "center 41%" }}
+          />
           <div
             aria-hidden
             className="pointer-events-none absolute inset-x-0 top-0 h-16"

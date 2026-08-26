@@ -83,8 +83,8 @@
   --font-body: var(--font-dm-sans);
 
   /* --- Brand Colors --- */
-  --color-bg-dark: #000000;
-  --color-bg-brand-black: #000000;
+  --color-bg-dark: #0a0a0a;
+  --color-bg-brand-black: #0a0a0a;
   --color-bg-off-white: #f7f4ef;
   --color-brand-red: #e5192a;
   --color-brand-red-secondary: #db0000;

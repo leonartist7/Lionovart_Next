@@ -25,7 +25,7 @@ const CARDS = [
 
 export default function WhatWeDo() {
   return (
-    <section id="what-we-build" className="bg-black text-white">
+    <section id="what-we-build" className="bg-bg-dark text-white">
       <div className="mx-auto max-w-[1500px] px-6 pb-6 pt-24 md:px-[6vw] md:pb-10 md:pt-32">
         <p className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-[#e5192a]">
           Three disciplines. One name.
