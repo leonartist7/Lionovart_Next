@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -18,7 +18,7 @@ export default function StrongTogetherTransition() {
   const aloneORef = useRef<HTMLSpanElement>(null);
   const togetherRef = useRef<HTMLHeadingElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const section = sectionRef.current;
     const alone = aloneRef.current;
     const aloneO = aloneORef.current;
@@ -37,11 +37,33 @@ export default function StrongTogetherTransition() {
       );
     };
 
+    let cancelled = false;
+    let frame: number | null = null;
+
+    const scheduleBloomPlacement = () => {
+      if (frame !== null) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        frame = null;
+        if (!cancelled) placeBloomOnO();
+      });
+    };
+
+    // Measure after the heading has committed, then measure again on the next
+    // frame so late font/layout changes cannot leave the bloom offset from the
+    // actual center of the rendered “o”.
     placeBloomOnO();
-    document.fonts?.ready.then(() => {
+    scheduleBloomPlacement();
+
+    const fontReady = document.fonts?.ready;
+    fontReady?.then(() => {
+      if (cancelled) return;
       placeBloomOnO();
       ScrollTrigger.refresh();
     });
+
+    const resizeObserver = new ResizeObserver(scheduleBloomPlacement);
+    resizeObserver.observe(aloneO);
+    resizeObserver.observe(section);
 
     const ctx = gsap.context(() => {
       const blooms = handle.blooms;
@@ -73,6 +95,7 @@ export default function StrongTogetherTransition() {
           end: "bottom bottom",
           scrub: 0.8,
           invalidateOnRefresh: true,
+          onRefreshInit: placeBloomOnO,
           onRefresh: placeBloomOnO,
         },
       });
@@ -102,9 +125,12 @@ export default function StrongTogetherTransition() {
         .to(together, { opacity: 1, y: 0, duration: 0.24, ease: "power4.out" }, 0.58);
     }, section);
 
-    window.addEventListener("resize", placeBloomOnO, { passive: true });
+    window.addEventListener("resize", scheduleBloomPlacement, { passive: true });
     return () => {
-      window.removeEventListener("resize", placeBloomOnO);
+      cancelled = true;
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", scheduleBloomPlacement);
+      if (frame !== null) cancelAnimationFrame(frame);
       ctx.revert();
     };
   }, [reduceMotion]);
