@@ -42,7 +42,7 @@ export default function ClosingCTA({ crest = false }: { crest?: boolean }) {
     >
       <VideoBackdrop src={FOOTER_CLIP} className="absolute inset-0 z-0" overlayClassName="bg-black/70" />
 
-      <div className="relative z-40 mx-auto flex max-w-[1000px] flex-col items-center gap-8 md:gap-10">
+      <div className="relative z-40 mx-auto flex max-w-[1280px] flex-col items-center gap-8 md:gap-10">
         <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red md:text-[13px]">
           One partnership — fully done for you
         </p>
@@ -51,8 +51,8 @@ export default function ClosingCTA({ crest = false }: { crest?: boolean }) {
           <HeroCycling
             staticText={t.hero.staticText}
             words={words}
-            fontSize="clamp(1.9rem, 6.5vw, 4.5rem)"
-            cyclingFontSize="clamp(2.3rem, 9vw, 6rem)"
+            fontSize="clamp(2.6rem, 9.5vw, 7rem)"
+            cyclingFontSize="clamp(3.2rem, 12.5vw, 9.5rem)"
             forceAnimate
           />
         </div>

@@ -30,7 +30,7 @@ export default function WhatWeDo() {
         <p className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-[#e5192a]">
           Three disciplines. One name.
         </p>
-        <h2 className="mt-5 max-w-[12ch] font-clash text-[clamp(3.3rem,7vw,8rem)] font-semibold uppercase leading-[0.79] tracking-[-0.065em]">
+        <h2 className="mt-5 max-w-[12ch] font-clash text-[clamp(3.3rem,7vw,8rem)] font-semibold uppercase leading-[0.79] tracking-[-0.065em]" style={{ wordSpacing: "0.22em" }}>
           Make your next move count.
         </h2>
         <p className="mt-7 max-w-[48ch] font-body text-[15px] leading-[1.7] text-white/55 md:text-[16px]">

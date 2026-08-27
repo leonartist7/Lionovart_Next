@@ -89,8 +89,8 @@ export const en = {
 
   process: {
     eyebrow: "Our Process",
-    heading: "From Unknown To",
-    headingAccent: "Unmistakable",
+    heading: "Our Proven",
+    headingAccent: "System",
     triggerLabel: "Click to see the process",
     triggerSub: "60 seconds. See exactly what you get.",
     expectLabel: "Expect",

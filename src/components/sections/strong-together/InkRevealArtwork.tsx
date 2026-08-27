@@ -3,7 +3,7 @@
 import { forwardRef, useEffect, useId, useImperativeHandle, useLayoutEffect, useRef } from "react";
 
 const VIEWBOX = 1000;
-const IMAGE_ASPECT = 1536 / 1024;
+const IMAGE_ASPECT = 1672 / 941;
 const STRONGER_TOGETHER_IMAGE =
   "https://res.cloudinary.com/dgio9uutc/image/upload/v1787734490/lion_paw_and_human_high_five_optimized_htzire.webp";
 
@@ -11,14 +11,6 @@ type Bloom = { cx: number; cy: number; rStart: number; rFinal: number };
 
 const BLOOMS: Bloom[] = [
   { cx: 500, cy: 300, rStart: 2.5, rFinal: 1250 },
-  { cx: 60, cy: 60, rStart: 1.5, rFinal: 235 },
-  { cx: 940, cy: 60, rStart: 1.5, rFinal: 235 },
-  { cx: 60, cy: 940, rStart: 1.5, rFinal: 235 },
-  { cx: 940, cy: 940, rStart: 1.5, rFinal: 235 },
-  { cx: 500, cy: 0, rStart: 1.2, rFinal: 130 },
-  { cx: 0, cy: 500, rStart: 1.2, rFinal: 130 },
-  { cx: 500, cy: 1000, rStart: 1.2, rFinal: 130 },
-  { cx: 1000, cy: 500, rStart: 1.2, rFinal: 130 },
 ];
 
 export type InkRevealArtworkHandle = {
@@ -71,13 +63,30 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
         const viewW = rect.width / scale;
         const viewH = rect.height / scale;
         const visibleY = (VIEWBOX - viewH) / 2;
-        const artW = Math.min(viewW, viewH * IMAGE_ASPECT);
-        const artH = artW / IMAGE_ASPECT;
+        let artW = Math.min(viewW, viewH * IMAGE_ASPECT);
+        let artH = artW / IMAGE_ASPECT;
 
-        // The artwork's lower edge is pinned to the end of the scene.
-        // MarqueeSlanted overlaps it by 5svh for a clean red handoff.
+        // Keep the artwork from swelling to full-bleed on big viewports.
+        // Cap its height to a share of the visible area so the centered
+        // headline stays comfortably above the hands/paw image.
+        const maxArtH = viewH * 0.32;
+        if (artH > maxArtH) {
+          artH = maxArtH;
+          artW = artH * IMAGE_ASPECT;
+        }
+
+        // Only 1% of the image's height is allowed to tuck under the top of
+        // the red marquee band. The marquee's top edge is the reference line
+        // — the image's bottom edge sits 1% of its own height below it.
+        const marqueeEl = document.getElementById("stronger-marquee-wrap");
+        const marqueeView = marqueeEl
+          ? (marqueeEl.clientHeight * VIEWBOX) / Math.max(rect.width, rect.height)
+          : 0;
+        const sceneBottom = visibleY + viewH;
+
+        const artBottom = sceneBottom - marqueeView + artH * 0.01;
         art.setAttribute("x", String((VIEWBOX - artW) / 2));
-        art.setAttribute("y", String(visibleY + viewH - artH));
+        art.setAttribute("y", String(artBottom - artH));
         art.setAttribute("width", String(artW));
         art.setAttribute("height", String(artH));
       };
@@ -85,6 +94,8 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
       applyGeometry();
       const observer = new ResizeObserver(applyGeometry);
       observer.observe(svg);
+      const marqueeEl = document.getElementById("stronger-marquee-wrap");
+      if (marqueeEl) observer.observe(marqueeEl);
       return () => observer.disconnect();
     }, []);    useImperativeHandle(
       ref,
@@ -170,7 +181,7 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
           <image
             ref={artRef}
             href={STRONGER_TOGETHER_IMAGE}
-            preserveAspectRatio="xMidYMid meet"
+            preserveAspectRatio="xMidYMid slice"
             opacity={reducedMotion ? 1 : 0.72}
           />
         </g>

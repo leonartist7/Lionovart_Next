@@ -79,8 +79,9 @@ export function SectionTitleCard({
     };
   }, [word]);
 
-  const body = word.endsWith(".") ? word.slice(0, -1) : word;
-  const hasPeriod = word.endsWith(".");
+  const accent = word.endsWith(".") || word.endsWith("?") ? word.slice(-1) : null;
+  const body = accent ? word.slice(0, -1) : word;
+  const hasSpace = body.includes(" ");
 
   return (
     <div
@@ -96,6 +97,7 @@ export function SectionTitleCard({
           fontSize,
           lineHeight: 0.82,
           letterSpacing: "-0.045em",
+          wordSpacing: hasSpace ? "0.875rem" : undefined,
           margin: 0,
           willChange: "transform",
           color: "transparent",
@@ -104,8 +106,8 @@ export function SectionTitleCard({
         }}
       >
         {body}
-        {hasPeriod && (
-          <span style={{ color: "#e5192a", WebkitTextFillColor: "#e5192a", WebkitTextStroke: "0" }}>.</span>
+        {accent && (
+          <span style={{ color: "#e5192a", WebkitTextFillColor: "#e5192a", WebkitTextStroke: "0" }}>{accent}</span>
         )}
       </h2>
     </div>

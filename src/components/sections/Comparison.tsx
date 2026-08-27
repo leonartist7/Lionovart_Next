@@ -58,7 +58,7 @@ export default function Comparison(props: any) {
               {/* Header Row: alternatives across the top */}
               <div className="col-span-6 grid grid-cols-subgrid">
                 <div className="bg-[#000000] text-white px-4 py-5 lg:px-6 lg:py-7 flex items-center">
-                  <span className="text-[14px] sm:text-[16px] md:text-[18px] lg:text-[22px] font-black uppercase tracking-tighter">
+                  <span className="text-[14px] sm:text-[16px] md:text-[18px] lg:text-[22px] font-black uppercase tracking-tighter" style={{ wordSpacing: "0.1em" }}>
                     {t.comparison.featuresLabel}
                   </span>
                 </div>
@@ -78,7 +78,7 @@ export default function Comparison(props: any) {
                     key={c.title}
                     className="bg-[#000000] text-white px-3 py-5 lg:px-4 lg:py-7 flex items-center justify-center text-center border-l border-white/10"
                   >
-                    <span className="text-[13px] sm:text-[15px] md:text-[16px] lg:text-[20px] font-black uppercase tracking-tighter leading-[1.2]">
+                    <span className="text-[13px] sm:text-[15px] md:text-[16px] lg:text-[20px] font-black uppercase tracking-tighter leading-[1.2]" style={{ wordSpacing: "0.1em" }}>
                       {c.title}
                     </span>
                   </div>

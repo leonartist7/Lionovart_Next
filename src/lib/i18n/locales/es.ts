@@ -83,8 +83,8 @@ export const es: Translations = {
 
   process: {
     eyebrow: "Nuestro Proceso",
-    heading: "De Desconocida A",
-    headingAccent: "Inconfundible",
+    heading: "Nuestro Sistema",
+    headingAccent: "Probado",
     triggerLabel: "Haz clic para ver el proceso",
     triggerSub: "60 segundos. Mira exactamente lo que recibes.",
     expectLabel: "Qué esperar",

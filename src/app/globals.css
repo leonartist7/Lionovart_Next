@@ -422,9 +422,9 @@
 }
 
 .testimonials-marquee-plane {
-  --review-perspective: 500px;
+  --review-perspective: 900px;
   --review-depth: -34px;
-  --review-rotate-x: 26.4deg;
+  --review-rotate-x: 17deg;
   --review-rotate-y: 7deg;
   --review-rotate-z: -4.5deg;
   transform:
@@ -436,13 +436,17 @@
     rotateZ(var(--review-rotate-z));
   transform-origin: 48% 8%;
   transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
 .testimonial-card-frame {
-  --review-card-rotate-x: 3deg;
+  --review-card-rotate-x: 1.5deg;
   transform: rotateX(var(--review-card-rotate-x));
   transform-origin: center center;
   transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
 .testimonial-marquee-lane {
@@ -451,6 +455,8 @@
   overflow: hidden;
   transform: translate3d(0, var(--testimonial-lane-shift), 0);
   transform-origin: top center;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%);
 }
 
 .testimonial-marquee-lane--right {
@@ -490,7 +496,7 @@
 @media (min-width: 480px) and (max-width: 1023px) {
   .testimonials-marquee-plane {
     --review-depth: -48px;
-    --review-rotate-x: 24deg;
+    --review-rotate-x: 15deg;
     --review-rotate-y: 6deg;
     --review-rotate-z: -4deg;
     transform:
@@ -511,11 +517,11 @@
 
 @media (min-width: 1024px) {
   .testimonials-marquee-plane {
-    --review-perspective: 360px;
+    --review-perspective: 640px;
     --review-depth: -70px;
-    --review-rotate-x: 21.6deg;
-    --review-rotate-y: 7.2deg;
-    --review-rotate-z: -3.6deg;
+    --review-rotate-x: 13deg;
+    --review-rotate-y: 6deg;
+    --review-rotate-z: -3deg;
     transform:
       perspective(var(--review-perspective))
       translateX(clamp(-36px, -2.5vw, -20px))

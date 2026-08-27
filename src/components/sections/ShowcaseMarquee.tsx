@@ -232,6 +232,7 @@ export default function ShowcaseMarquee() {
           <h2
             id="showcase-title"
             className="max-w-[12ch] font-clash text-[clamp(2.65rem,11vw,5.8rem)] font-semibold uppercase leading-[0.86] tracking-[-0.045em]"
+            style={{ wordSpacing: "0.22em" }}
           >
             {t.showcase.heading}
           </h2>

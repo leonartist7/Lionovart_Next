@@ -260,7 +260,7 @@ function Pane({
             className="absolute inset-x-0 bottom-0 p-4 text-left [text-shadow:0_1px_10px_rgba(0,0,0,0.75)] md:p-6"
             style={{ opacity: contentP, y: contentY }}
           >
-            <h3 className="font-clash text-[1.1rem] font-bold uppercase leading-[0.95] text-white md:text-[1.9rem]">
+            <h3 className="font-clash text-[1.1rem] font-bold uppercase leading-[0.95] text-white md:text-[1.9rem]" style={{ wordSpacing: "0.2em" }}>
               {card.title}
             </h3>
             {/* Reserved height keeps the three headings on one baseline even

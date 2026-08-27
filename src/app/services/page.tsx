@@ -23,7 +23,7 @@ export default function ServicesIndexPage() {
           <p className="mb-5 text-[11px] uppercase tracking-[0.3em] text-white/50">What we do</p>
           <h1
             className="font-clash font-semibold uppercase leading-[0.92] tracking-tight text-white"
-            style={{ fontSize: "clamp(2.8rem, 9vw, 7rem)" }}
+            style={{ fontSize: "clamp(2.8rem, 9vw, 7rem)", wordSpacing: "0.12em" }}
           >
             One studio. <span className="text-brand-red">Every medium.</span>
           </h1>

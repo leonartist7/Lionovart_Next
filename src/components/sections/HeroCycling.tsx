@@ -58,20 +58,21 @@ const DEFAULT_WORDS: Word[] = [
 
 // ─── Animation variants ────────────────────────────────────────────────────────
 
-const EASING = [0.65, 0, 0.35, 1] as const;
-const DURATION = 0.6;
+const EASING = [0.4, 0, 0.2, 1] as const;
+const FADE_IN = 0.4;
+const FADE_OUT = 0.4;
 
 const wordVariants = {
-  initial: { y: "100%", opacity: 0 },
+  initial: { opacity: 0, y: 6 },
   animate: {
-    y: 0,
     opacity: 1,
-    transition: { duration: DURATION, ease: EASING },
+    y: 0,
+    transition: { duration: FADE_IN, ease: EASING },
   },
   exit: {
-    y: "-100%",
     opacity: 0,
-    transition: { duration: DURATION, ease: EASING },
+    y: -6,
+    transition: { duration: FADE_OUT, ease: EASING },
   },
 };
 
@@ -110,6 +111,16 @@ export default function HeroCycling({
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
   }, []);
+
+  // ── Warm image words so a swap never fades in a half-loaded frame ────────
+  useEffect(() => {
+    words.forEach((w) => {
+      if (w.type === "image") {
+        const img = new window.Image();
+        img.src = w.content;
+      }
+    });
+  }, [words]);
 
   // ── Cycling timer ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -250,7 +261,7 @@ export default function HeroCycling({
             {renderWord(words[0], true)}
           </div>
         ) : (
-          <AnimatePresence mode="sync" initial={false}>
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={currentIndex}
               variants={wordVariants}
@@ -262,10 +273,20 @@ export default function HeroCycling({
                 inset: 0,
                 display: "flex",
                 alignItems: "center",
+                justifyContent: "center",
                 willChange: "transform",
               }}
             >
-              {renderWord(words[currentIndex], currentIndex === 0)}
+              <div
+                style={{
+                  position: "relative",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                {renderWord(words[currentIndex], currentIndex === 0)}
+              </div>
             </motion.div>
           </AnimatePresence>
         )}

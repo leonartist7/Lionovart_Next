@@ -71,6 +71,7 @@ export default function BridgeStatement({
             className={`font-clash text-[clamp(1.9rem,4.8vw,5rem)] font-semibold uppercase leading-[0.9] tracking-[-0.045em] text-balance ${
               isVow ? "text-[#171412]" : "text-white"
             }`}
+            style={{ wordSpacing: "0.18em" }}
           >
             {copy.line1}
           </motion.p>
@@ -80,6 +81,7 @@ export default function BridgeStatement({
           <motion.p
             variants={reveal}
             className="font-clash text-[clamp(1.9rem,4.8vw,5rem)] font-semibold uppercase leading-[0.9] tracking-[-0.045em]"
+            style={{ wordSpacing: "0.18em" }}
           >
             <span className={isVow ? "text-[#171412]" : "text-white"}>{copy.line2} </span>
             <span className="text-brand-red">{copy.accent}</span>

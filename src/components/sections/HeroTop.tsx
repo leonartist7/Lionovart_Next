@@ -340,7 +340,6 @@ export default function HeroTop(props: any) {
   const [submitted, setSubmitted] = useState(false);
   const openNova = useNovaStore((s) => s.openNova);
   const staticText = props.staticText || t.hero.staticText;
-  const cyclingWordsRaw = props.cyclingWords || t.hero.cyclingWords;
   const subtitle = props.subtitle || t.hero.subtitle;
   const ctaStart = props.ctaStart || t.hero.ctaStart;
   const ctaStartOpening = props.ctaStartOpening || t.hero.ctaStartOpening;
@@ -349,12 +348,28 @@ export default function HeroTop(props: any) {
 
   // Hero focuses on concrete outcomes; the closing CTA keeps the more emotional
   // ROAR / MAGNETIC / DOMINATE cadence so the two moments feel related, not duplicated.
-  const heroOutcomeWords = [cyclingWordsRaw[1], cyclingWordsRaw[2], cyclingWordsRaw[4]].filter(Boolean) as string[];
-  const CYCLING_WORDS: Word[] = (heroOutcomeWords.length ? heroOutcomeWords : cyclingWordsRaw).map((content: string) => ({
-    content,
-    type: "text" as const,
-    holdMs: 3200,
-  }));
+  // The three outcome beats render as Cloudinary word-art AVIFs instead of live
+  // text — HeroCycling treats image words with the same fade/settle animation.
+  const CYCLING_WORDS: Word[] = [
+    {
+      type: "image",
+      content: "https://res.cloudinary.com/dgio9uutc/image/upload/v1787855087/memorable_1_1_owpwbv.avif",
+      alt: "Attract",
+      holdMs: 3200,
+    },
+    {
+      type: "image",
+      content: "https://res.cloudinary.com/dgio9uutc/image/upload/v1787855087/memorable_1_obqa1l.avif",
+      alt: "Memorable",
+      holdMs: 3200,
+    },
+    {
+      type: "image",
+      content: "https://res.cloudinary.com/dgio9uutc/image/upload/v1787855087/premium_1_qtyr8s.avif",
+      alt: "Premium",
+      holdMs: 3200,
+    },
+  ];
 
   const handleConnectNow = () => {
     if (submitted) {
@@ -394,8 +409,8 @@ export default function HeroTop(props: any) {
           <HeroCycling
             staticText={staticText}
             words={CYCLING_WORDS}
-            fontSize="clamp(2.05rem, 7.6vw, 5.25rem)"
-            cyclingFontSize="clamp(2.35rem, 9vw, 6.25rem)"
+            fontSize="clamp(2.45rem, 9.2vw, 6.9rem)"
+            cyclingFontSize="clamp(2.95rem, 11.8vw, 8.8rem)"
             cyclingColor="#e5192a"
             letterSpacing="-0.035em"
           />

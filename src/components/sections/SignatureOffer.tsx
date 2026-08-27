@@ -36,7 +36,7 @@ export default function SignatureOffer() {
           viewport={{ once: true, margin: "0px 0px -15% 0px" }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
-          <h2 className="font-clash text-[2.2rem] sm:text-[3rem] md:text-[4rem] font-bold uppercase leading-[0.95] tracking-[-0.02em] max-w-[20ch] mx-auto">
+          <h2 className="font-clash text-[2.2rem] sm:text-[3rem] md:text-[4rem] font-bold uppercase leading-[0.95] tracking-[-0.02em] max-w-[20ch] mx-auto" style={{ wordSpacing: "0.2em" }}>
             Your entire brand &amp; growth team
             <br />
             <span className="text-brand-red">One Partnership</span>
