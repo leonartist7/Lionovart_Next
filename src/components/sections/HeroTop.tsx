@@ -336,7 +336,7 @@ function DynamicTrustBadges({ badges }: { badges: { brands: readonly string[]; e
 /* Main Component */
 /* -------------------------------------------------------------------------- */
 export default function HeroTop(props: any) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
   const openNova = useNovaStore((s) => s.openNova);
   const staticText = props.staticText || t.hero.staticText;
@@ -348,9 +348,13 @@ export default function HeroTop(props: any) {
 
   // Hero focuses on concrete outcomes; the closing CTA keeps the more emotional
   // ROAR / MAGNETIC / DOMINATE cadence so the two moments feel related, not duplicated.
-  // The three outcome beats render as Cloudinary word-art AVIFs instead of live
-  // text — HeroCycling treats image words with the same fade/settle animation.
-  const CYCLING_WORDS: Word[] = [
+  // English renders the three outcome beats as Cloudinary word-art AVIFs (the art
+  // itself is English lettering); every other locale keeps live translated text.
+  // HeroCycling treats image words with the same fade/settle animation.
+  const cyclingWordsRaw: string[] = props.cyclingWords || t.hero.cyclingWords;
+  const heroOutcomeWords = [cyclingWordsRaw[1], cyclingWordsRaw[2], cyclingWordsRaw[4]].filter(Boolean) as string[];
+
+  const EN_WORD_ART: Word[] = [
     {
       type: "image",
       content: "https://res.cloudinary.com/dgio9uutc/image/upload/v1787855087/memorable_1_1_owpwbv.avif",
@@ -370,6 +374,15 @@ export default function HeroTop(props: any) {
       holdMs: 3200,
     },
   ];
+
+  const CYCLING_WORDS: Word[] =
+    locale === "en"
+      ? EN_WORD_ART
+      : heroOutcomeWords.map((content) => ({
+          content,
+          type: "text" as const,
+          holdMs: 3200,
+        }));
 
   const handleConnectNow = () => {
     if (submitted) {
