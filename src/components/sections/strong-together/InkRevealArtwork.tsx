@@ -69,7 +69,7 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
         // Keep the artwork from swelling to full-bleed on big viewports.
         // Cap its height to a share of the visible area so the centered
         // headline stays comfortably above the hands/paw image.
-        const maxArtH = viewH * 0.32;
+        const maxArtH = viewH * 0.36;
         if (artH > maxArtH) {
           artH = maxArtH;
           artW = artH * IMAGE_ASPECT;

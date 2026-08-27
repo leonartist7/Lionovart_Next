@@ -10,6 +10,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useNovaStore } from "@/lib/stores/nova-store";
 import TrustedBadgesSection from "@/components/sections/TrustedBadgesSection";
 import HeroEmailCapture from "@/components/ui/HeroEmailCapture";
+import { EN_WORD_ART } from "@/lib/word-art";
 
 /* ─── Variants ─────────────────────────────────────────────────── */
 const containerVariants = {
@@ -348,32 +349,12 @@ export default function HeroTop(props: any) {
 
   // Hero focuses on concrete outcomes; the closing CTA keeps the more emotional
   // ROAR / MAGNETIC / DOMINATE cadence so the two moments feel related, not duplicated.
-  // English renders the three outcome beats as Cloudinary word-art AVIFs (the art
-  // itself is English lettering); every other locale keeps live translated text.
-  // HeroCycling treats image words with the same fade/settle animation.
+  // English renders the word-art AVIFs shared with the closing CTA (EN_WORD_ART —
+  // the art itself is English lettering); every other locale keeps live
+  // translated text. HeroCycling treats image words with the same fade/settle
+  // animation.
   const cyclingWordsRaw: string[] = props.cyclingWords || t.hero.cyclingWords;
   const heroOutcomeWords = [cyclingWordsRaw[1], cyclingWordsRaw[2], cyclingWordsRaw[4]].filter(Boolean) as string[];
-
-  const EN_WORD_ART: Word[] = [
-    {
-      type: "image",
-      content: "https://res.cloudinary.com/dgio9uutc/image/upload/v1787855087/memorable_1_1_owpwbv.avif",
-      alt: "Attract",
-      holdMs: 3200,
-    },
-    {
-      type: "image",
-      content: "https://res.cloudinary.com/dgio9uutc/image/upload/v1787855087/memorable_1_obqa1l.avif",
-      alt: "Memorable",
-      holdMs: 3200,
-    },
-    {
-      type: "image",
-      content: "https://res.cloudinary.com/dgio9uutc/image/upload/v1787855087/premium_1_qtyr8s.avif",
-      alt: "Premium",
-      holdMs: 3200,
-    },
-  ];
 
   const CYCLING_WORDS: Word[] =
     locale === "en"

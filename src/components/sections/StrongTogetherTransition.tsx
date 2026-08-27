@@ -122,8 +122,8 @@ export default function StrongTogetherTransition() {
           0.16
         )
         .to(art, { opacity: 1, duration: 0.3, ease: "none" }, 0.18)
-        .to(alone, { opacity: 0, y: -10, duration: 0.14, ease: "none" }, 0.48)
-        .to(together, { opacity: 1, duration: 0.24, ease: "power4.out" }, 0.58);
+        .to(alone, { opacity: 0, y: -10, duration: 0.14, ease: "none" }, 0.38)
+        .to(together, { opacity: 1, duration: 0.24, ease: "power4.out" }, 0.42);
     }, section);
 
     window.addEventListener("resize", scheduleBloomPlacement, { passive: true });
@@ -153,7 +153,7 @@ export default function StrongTogetherTransition() {
           />
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 top-[42%] z-[5] -translate-y-1/2 px-5 text-center md:px-12">
+        <div className="pointer-events-none absolute inset-x-0 top-[38%] z-[5] -translate-y-1/2 px-5 text-center md:px-12">
           <h2
             ref={aloneRef}
             aria-hidden="true"
