@@ -405,6 +405,7 @@ export default function HeroTop(props: any) {
             words={CYCLING_WORDS}
             fontSize="clamp(2.45rem, 9.2vw, 6.9rem)"
             cyclingFontSize="clamp(2.95rem, 11.8vw, 8.8rem)"
+            imageFontSize="clamp(2.7rem, 10.1vw, 7.6rem)"
             cyclingColor="#e5192a"
             letterSpacing="-0.035em"
           />

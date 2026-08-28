@@ -46,6 +46,20 @@ export default function BridgeStatement({
     },
   };
 
+  // The vow sits directly under the pinned red marquee of the stronger-together
+  // scene. It must read as already present there — no slide-up reveal — the
+  // same treatment the marquee itself got. Only the recognition variant
+  // (above the scene) animates.
+  const containerAnim = isVow
+    ? {}
+    : {
+        variants: sequence,
+        initial: "hidden" as const,
+        whileInView: "visible" as const,
+        viewport: { once: true, amount: 0.45 },
+      };
+  const itemAnim = isVow ? {} : { variants: reveal };
+
   return (
     <section
       aria-labelledby={headingId}
@@ -60,14 +74,11 @@ export default function BridgeStatement({
       <motion.div
         aria-hidden="true"
         className="relative z-10 mx-auto flex w-full max-w-[1500px] flex-col gap-3 md:gap-4"
-        variants={sequence}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.45 }}
+        {...containerAnim}
       >
         <div className="overflow-hidden pb-[0.08em]">
           <motion.p
-            variants={reveal}
+            {...itemAnim}
             className={`font-clash text-[clamp(1.9rem,4.8vw,5rem)] font-semibold uppercase leading-[0.9] tracking-[-0.045em] text-balance ${
               isVow ? "text-[#171412]" : "text-white"
             }`}
@@ -79,7 +90,7 @@ export default function BridgeStatement({
 
         <div className="overflow-hidden pb-[0.08em] text-right">
           <motion.p
-            variants={reveal}
+            {...itemAnim}
             className="font-clash text-[clamp(1.9rem,4.8vw,5rem)] font-semibold uppercase leading-[0.9] tracking-[-0.045em]"
             style={{ wordSpacing: "0.18em" }}
           >
@@ -89,7 +100,7 @@ export default function BridgeStatement({
         </div>
 
         <motion.p
-          variants={reveal}
+          {...itemAnim}
           className={`max-w-[42ch] self-end pt-2 text-right font-body text-[13px] leading-[1.5] sm:text-[14px] ${
             isVow ? "text-[#171412]/70" : "text-white/55"
           }`}

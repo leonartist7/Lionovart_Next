@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 function CrownSeparator() {
   return (
-    <span className="mx-4 inline-flex shrink-0 items-center text-brand-gold md:mx-5" aria-hidden="true">
+    <span className="mx-1.5 inline-flex shrink-0 items-center text-brand-gold md:mx-2.5" aria-hidden="true">
       <svg
         viewBox="0 0 32 24"
         className="h-[17px] w-[23px] md:h-[19px] md:w-[26px]"
@@ -37,18 +37,18 @@ function MarqueeTrack({ items }: { items: readonly string[] }) {
   return (
     <div className="imagine-marquee__track">
       <div className="imagine-marquee__group">
-        <span className="imagine-marquee__text flex shrink-0 items-center px-2 text-[22px] font-semibold uppercase tracking-wider text-white md:text-[24px]">
+        <span className="imagine-marquee__text flex shrink-0 items-center px-2 text-[clamp(1rem,0.75rem+0.9vw,1.3125rem)] font-semibold uppercase tracking-wider text-white">
           {text}
         </span>
-        <span className="imagine-marquee__text flex shrink-0 items-center px-2 text-[22px] font-semibold uppercase tracking-wider text-white md:text-[24px]" aria-hidden="true">
+        <span className="imagine-marquee__text flex shrink-0 items-center px-2 text-[clamp(1rem,0.75rem+0.9vw,1.3125rem)] font-semibold uppercase tracking-wider text-white" aria-hidden="true">
           {text}
         </span>
       </div>
       <div className="imagine-marquee__group" aria-hidden="true">
-        <span className="imagine-marquee__text flex shrink-0 items-center px-2 text-[22px] font-semibold uppercase tracking-wider text-white md:text-[24px]">
+        <span className="imagine-marquee__text flex shrink-0 items-center px-2 text-[clamp(1rem,0.75rem+0.9vw,1.3125rem)] font-semibold uppercase tracking-wider text-white">
           {text}
         </span>
-        <span className="imagine-marquee__text flex shrink-0 items-center px-2 text-[22px] font-semibold uppercase tracking-wider text-white md:text-[24px]">
+        <span className="imagine-marquee__text flex shrink-0 items-center px-2 text-[clamp(1rem,0.75rem+0.9vw,1.3125rem)] font-semibold uppercase tracking-wider text-white">
           {text}
         </span>
       </div>

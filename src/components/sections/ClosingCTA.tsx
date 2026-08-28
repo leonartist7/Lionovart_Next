@@ -59,6 +59,7 @@ export default function ClosingCTA({ crest = false }: { crest?: boolean }) {
             words={words}
             fontSize="clamp(2.6rem, 9.5vw, 7rem)"
             cyclingFontSize="clamp(3.2rem, 12.5vw, 9.5rem)"
+            imageFontSize="clamp(2.86rem, 10.45vw, 7.7rem)"
             forceAnimate
           />
         </div>

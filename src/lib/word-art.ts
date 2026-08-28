@@ -9,19 +9,19 @@ import type { Word } from "@/components/sections/HeroCycling";
 export const EN_WORD_ART: Word[] = [
   {
     type: "image",
-    content: "https://res.cloudinary.com/dgio9uutc/image/upload/v1787855087/memorable_1_1_owpwbv.avif",
+    content: "https://res.cloudinary.com/dgio9uutc/image/upload/e_trim/v1787855087/memorable_1_1_owpwbv.avif",
     alt: "Attract",
     holdMs: 3200,
   },
   {
     type: "image",
-    content: "https://res.cloudinary.com/dgio9uutc/image/upload/v1787855087/memorable_1_obqa1l.avif",
+    content: "https://res.cloudinary.com/dgio9uutc/image/upload/e_trim/v1787855087/memorable_1_obqa1l.avif",
     alt: "Memorable",
     holdMs: 3200,
   },
   {
     type: "image",
-    content: "https://res.cloudinary.com/dgio9uutc/image/upload/v1787855087/premium_1_qtyr8s.avif",
+    content: "https://res.cloudinary.com/dgio9uutc/image/upload/e_trim/v1787855087/premium_1_qtyr8s.avif",
     alt: "Premium",
     holdMs: 3200,
   },

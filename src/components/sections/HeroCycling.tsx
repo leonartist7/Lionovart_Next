@@ -26,6 +26,8 @@ export interface HeroCyclingProps {
   fontSize?: string;
   /** CSS font-size for the cycling line. Defaults to fontSize if not set. */
   cyclingFontSize?: string;
+  /** CSS height for image (word-art) words. Defaults to cyclingFontSize if not set. */
+  imageFontSize?: string;
   /** Color of text cycling words. Images are unaffected. */
   cyclingColor?: string;
   /** Letter spacing for both static and cycling text. */
@@ -92,6 +94,7 @@ export default function HeroCycling({
   words = DEFAULT_WORDS,
   fontSize = "clamp(2.5rem, 8vw, 6.5rem)",
   cyclingFontSize,
+  imageFontSize,
   cyclingColor = "#ffffff",
   letterSpacing = "0.05em",
   forceAnimate = false,
@@ -156,6 +159,7 @@ export default function HeroCycling({
   // Images fill this height; text matches this font-size.
   const clampSize = fontSize;
   const cyclingClampSize = cyclingFontSize ?? fontSize;
+  const imageClampSize = imageFontSize ?? cyclingClampSize;
 
   const sharedTextStyle: React.CSSProperties = {
     fontSize: clampSize,
@@ -181,12 +185,17 @@ export default function HeroCycling({
   // ── Word renderer ────────────────────────────────────────────────────────
   const renderWord = (word: Word, priority: boolean) => {
     if (word.type === "image") {
+      // Edge-feather mask: 1% alpha falloff on the four edges — just enough
+      // to soften the canvas contour. Negligible GPU cost; the mask is
+      // composited once per frame with the rest of the layer.
+      const FEATHER_X = "linear-gradient(90deg, transparent 0%, #000 1%, #000 99%, transparent 100%)";
+      const FEATHER_Y = "linear-gradient(180deg, transparent 0%, #000 1%, #000 99%, transparent 100%)";
       return (
         <div
           style={{
             position: "relative",
-            height: "100%",
-            minWidth: cyclingClampSize,
+            height: imageClampSize,
+            minWidth: imageClampSize,
             maxWidth: "100%",
             width: "100%",
           }}
@@ -195,7 +204,14 @@ export default function HeroCycling({
             src={word.content}
             alt={word.alt ?? ""}
             fill
-            style={{ objectFit: "contain", objectPosition: "center center" }}
+            style={{
+              objectFit: "contain",
+              objectPosition: "center center",
+              WebkitMaskImage: `${FEATHER_X}, ${FEATHER_Y}`,
+              WebkitMaskComposite: "source-in",
+              maskImage: `${FEATHER_X}, ${FEATHER_Y}`,
+              maskComposite: "intersect",
+            }}
             priority={priority}
             sizes="(max-width: 640px) 90vw, (max-width: 1024px) 75vw, 65vw"
           />
@@ -277,12 +293,17 @@ export default function HeroCycling({
                 willChange: "transform",
               }}
             >
+              {/* Definite height is required: image words size themselves with
+                  height:100%, which collapses to 0 against an auto parent. */}
               <div
                 style={{
                   position: "relative",
+                  height: "100%",
+                  width: "100%",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 {renderWord(words[currentIndex], currentIndex === 0)}

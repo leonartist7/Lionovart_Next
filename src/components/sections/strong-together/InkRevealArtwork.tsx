@@ -10,7 +10,7 @@ const STRONGER_TOGETHER_IMAGE =
 type Bloom = { cx: number; cy: number; rStart: number; rFinal: number };
 
 const BLOOMS: Bloom[] = [
-  { cx: 500, cy: 300, rStart: 2.5, rFinal: 1250 },
+  { cx: 500, cy: 300, rStart: 0, rFinal: 1250 },
 ];
 
 export type InkRevealArtworkHandle = {

@@ -157,7 +157,7 @@ export default function StrongTogetherTransition() {
           <h2
             ref={aloneRef}
             aria-hidden="true"
-            className="mx-auto max-w-[11ch] font-clash text-[clamp(4rem,11vw,10rem)] font-semibold leading-[0.78] tracking-[-0.065em] text-[#f2ede3]"
+            className="mx-auto max-w-[11ch] font-clash text-[clamp(3.5rem,2rem_+_7vw,10rem)] font-semibold leading-[0.78] tracking-[-0.065em] text-[#f2ede3]"
           >
             <span className="block">Strong</span>
             <span className="block">
@@ -167,7 +167,7 @@ export default function StrongTogetherTransition() {
           <h2
             id="strong-together-title"
             ref={togetherRef}
-            className="absolute inset-x-0 top-0 mx-auto max-w-[11ch] px-4 font-clash text-[clamp(4rem,11vw,10rem)] font-semibold uppercase leading-[0.78] tracking-[-0.065em] text-[#171412]"
+            className="absolute inset-x-0 top-0 mx-auto max-w-[11ch] px-4 font-clash text-[clamp(3.5rem,2rem_+_7vw,10rem)] font-semibold uppercase leading-[0.78] tracking-[-0.065em] text-[#171412]"
           >
             <span className="block">STRONGER</span>
             <span className="block">TOGETHER</span>

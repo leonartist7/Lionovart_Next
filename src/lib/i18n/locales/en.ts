@@ -65,14 +65,12 @@ export const en = {
 
   marquee: {
     items: [
-      "More Qualified Leads",
-      "More Direct Bookings",
-      "More Time Back",
-      "24/7 AI Support",
-      "Brands People Remember",
-      "Smarter Systems",
-      "Less Manual Work",
-      "Built to Grow",
+      "Reclaim your time back",
+      "Improve your image",
+      "Get remembered",
+      "More leads",
+      "Boost sells",
+      "Clear growth",
     ],
   },
 
