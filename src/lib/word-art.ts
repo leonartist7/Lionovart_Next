@@ -25,4 +25,10 @@ export const EN_WORD_ART: Word[] = [
     alt: "Premium",
     holdMs: 3200,
   },
+  {
+    type: "image",
+    content: "https://res.cloudinary.com/dgio9uutc/image/upload/e_trim/v1787946166/Elegant_Golden_Script_Logo_ua0d3o.avif",
+    alt: "Elegant",
+    holdMs: 3200,
+  },
 ];
