@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
   AnimatePresence,
   motion,
@@ -123,7 +123,7 @@ export default function Services(props: any) {
       <div
         ref={desktopScrollRef}
         className="relative hidden lg:block"
-        style={{ height: `${SERVICES.length * 72}vh` } as React.CSSProperties}
+        style={{ height: `${SERVICES.length * 72}vh` } as CSSProperties}
       >
         <div className="sticky top-0 flex h-screen items-start overflow-hidden pt-[10vh]">
           <div className="mx-auto grid h-[78vh] w-full max-w-[1280px] grid-cols-[0.95fr_1.05fr] items-center gap-12 px-8 xl:gap-20 xl:px-12">
