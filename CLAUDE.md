@@ -1,5 +1,13 @@
 @AGENTS.md
 
+# PR monitoring — off by default
+
+Never auto-subscribe to PR activity (`subscribe_pr_activity`), never create check-in
+Routines/triggers (`create_trigger`, `send_later`), and never schedule follow-up wakeups
+for a PR, unless the user explicitly asks for it in that conversation. Opening or pushing
+to a PR is not, by itself, a request to watch it. If asked to watch a PR, confirm the
+Routine's cadence with the user before creating it, and stop it as soon as they say so.
+
 # Coding rules (Karpathy)
 
 Behavioral guidelines to reduce common LLM coding mistakes. These apply to every edit in this repo.
