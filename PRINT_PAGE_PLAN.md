@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED by `MASTERPLAN.md`.** Parked per MASTERPLAN §2.3.
+> Read this file for history only, never for direction.
+
 # PLAN — `/services/print` "Print & Physical Branding" page
 
 > Self-contained build brief for a fresh chat. Execute in this repo

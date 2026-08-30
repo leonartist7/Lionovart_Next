@@ -1,5 +1,14 @@
 @AGENTS.md
 
+# ⚠️ READ `MASTERPLAN.md` FIRST
+
+`MASTERPLAN.md` in the repo root is the single source of truth for strategy, the offer,
+priorities, brand constraints, and the week-by-week build order. **It supersedes every
+other plan document in this repository.** Read §0 (How to use this document) before
+starting any task. Several older docs are tagged SUPERSEDED — they are history, not
+direction. The section table at the bottom of this file is stale; `MASTERPLAN.md` §6 is
+the current build order.
+
 # Coding rules (Karpathy)
 
 Behavioral guidelines to reduce common LLM coding mistakes. These apply to every edit in this repo.

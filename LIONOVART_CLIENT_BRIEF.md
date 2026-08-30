@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED by `MASTERPLAN.md`.** Inputs absorbed into MASTERPLAN §1.6 and §3.
+> Read this file for history only, never for direction.
+
 # LIONOVART — Client Acquisition Brief
 > Feed this entire file to Opus 4.7. The prompt is at the bottom. Paste both together.
 

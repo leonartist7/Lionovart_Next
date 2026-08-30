@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED by `MASTERPLAN.md`.** Its diagnosis survives in MASTERPLAN §2; its build phases are replaced by §6.
+> Read this file for history only, never for direction.
+
 # LIONOVART — Conversion Funnel Plan
 
 > **Primary goal:** Book a call — captured *through NOVA* (the AI strategist).

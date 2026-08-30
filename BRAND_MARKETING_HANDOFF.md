@@ -1,3 +1,6 @@
+> ⚠️ **Governed by `MASTERPLAN.md`.** Use this file for VOICE and the WORD BANK only.
+> Its proof, stats, and testimonial claims are overridden by MASTERPLAN §4 (The Proof Doctrine).
+
 # LIONOVART — Brand, Voice & Marketing Handoff
 
 > **Purpose of this file:** A single, self-contained brief to paste into another chat (or hand to a creative collaborator) so they can generate creative content, film concepts, campaign ideas, and lead-gen material — fully on-brand. Everything here is pulled directly from the live website, the AI strategist's knowledge base, and the internal brand/strategy docs.
