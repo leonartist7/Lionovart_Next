@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import InkRevealArtwork, {
   type InkRevealArtworkHandle,
 } from "@/components/sections/strong-together/InkRevealArtwork";
+import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,7 +19,7 @@ export default function StrongTogetherTransition() {
   const aloneORef = useRef<HTMLSpanElement>(null);
   const togetherRef = useRef<HTMLHeadingElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const section = sectionRef.current;
     const alone = aloneRef.current;
     const aloneO = aloneORef.current;
@@ -37,11 +38,33 @@ export default function StrongTogetherTransition() {
       );
     };
 
+    let cancelled = false;
+    let frame: number | null = null;
+
+    const scheduleBloomPlacement = () => {
+      if (frame !== null) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        frame = null;
+        if (!cancelled) placeBloomOnO();
+      });
+    };
+
+    // Measure after the heading has committed, then measure again on the next
+    // frame so late font/layout changes cannot leave the bloom offset from the
+    // actual center of the rendered “o”.
     placeBloomOnO();
-    document.fonts?.ready.then(() => {
+    scheduleBloomPlacement();
+
+    const fontReady = document.fonts?.ready;
+    fontReady?.then(() => {
+      if (cancelled) return;
       placeBloomOnO();
       ScrollTrigger.refresh();
     });
+
+    const resizeObserver = new ResizeObserver(scheduleBloomPlacement);
+    resizeObserver.observe(aloneO);
+    resizeObserver.observe(section);
 
     const ctx = gsap.context(() => {
       const blooms = handle.blooms;
@@ -64,7 +87,7 @@ export default function StrongTogetherTransition() {
       });
       gsap.set(art, { opacity: 0.72 });
       gsap.set(alone, { opacity: 1, y: 0 });
-      gsap.set(together, { opacity: 0, y: 14 });
+      gsap.set(together, { opacity: 0, y: 0 });
 
       const timeline = gsap.timeline({
         scrollTrigger: {
@@ -73,6 +96,7 @@ export default function StrongTogetherTransition() {
           end: "bottom bottom",
           scrub: 0.8,
           invalidateOnRefresh: true,
+          onRefreshInit: placeBloomOnO,
           onRefresh: placeBloomOnO,
         },
       });
@@ -98,13 +122,16 @@ export default function StrongTogetherTransition() {
           0.16
         )
         .to(art, { opacity: 1, duration: 0.3, ease: "none" }, 0.18)
-        .to(alone, { opacity: 0, y: -10, duration: 0.14, ease: "none" }, 0.48)
-        .to(together, { opacity: 1, y: 0, duration: 0.24, ease: "power4.out" }, 0.58);
+        .to(alone, { opacity: 0, y: -10, duration: 0.14, ease: "none" }, 0.38)
+        .to(together, { opacity: 1, duration: 0.24, ease: "power4.out" }, 0.42);
     }, section);
 
-    window.addEventListener("resize", placeBloomOnO, { passive: true });
+    window.addEventListener("resize", scheduleBloomPlacement, { passive: true });
     return () => {
-      window.removeEventListener("resize", placeBloomOnO);
+      cancelled = true;
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", scheduleBloomPlacement);
+      if (frame !== null) cancelAnimationFrame(frame);
       ctx.revert();
     };
   }, [reduceMotion]);
@@ -115,7 +142,7 @@ export default function StrongTogetherTransition() {
       id="stronger-together"
       aria-labelledby="strong-together-title"
       data-art-directed="light"
-      className="relative h-[145svh] overflow-clip bg-[#0a0a0a]"
+      className="relative h-[125svh] overflow-clip bg-bg-dark"
     >
       <div className="sticky top-0 h-[100svh] min-h-[560px] overflow-hidden bg-[#0d0d0d]">
         <div className="pointer-events-none absolute inset-0 z-[4]" aria-hidden="true">
@@ -126,11 +153,11 @@ export default function StrongTogetherTransition() {
           />
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 top-[11%] z-[5] px-5 text-center sm:top-[12%] md:top-[11%] md:px-12">
+        <div className="pointer-events-none absolute inset-x-0 top-[38%] z-[5] -translate-y-1/2 px-5 text-center md:px-12">
           <h2
             ref={aloneRef}
             aria-hidden="true"
-            className="mx-auto max-w-[11ch] font-clash text-[clamp(4rem,11vw,10rem)] font-semibold leading-[0.78] tracking-[-0.065em] text-[#f2ede3]"
+            className="mx-auto max-w-[11ch] font-clash text-[clamp(3.5rem,2rem_+_7vw,10rem)] font-semibold leading-[0.78] tracking-[-0.065em] text-[#f2ede3]"
           >
             <span className="block">Strong</span>
             <span className="block">
@@ -140,10 +167,15 @@ export default function StrongTogetherTransition() {
           <h2
             id="strong-together-title"
             ref={togetherRef}
-            className="absolute inset-x-0 top-0 mx-auto max-w-[11ch] px-4 font-clash text-[clamp(4rem,11vw,10rem)] font-semibold uppercase leading-[0.78] tracking-[-0.065em] text-[#171412]"
+            className="absolute inset-x-0 top-0 mx-auto max-w-[11ch] px-4 font-clash text-[clamp(3.5rem,2rem_+_7vw,10rem)] font-semibold uppercase leading-[0.78] tracking-[-0.065em] text-[#171412]"
           >
-            Stronger together.
+            <span className="block">STRONGER</span>
+            <span className="block">TOGETHER</span>
           </h2>
+        </div>
+
+        <div id="stronger-marquee-wrap" className="absolute inset-x-0 bottom-0 z-[6]">
+          <MarqueeSlanted />
         </div>
       </div>
     </section>

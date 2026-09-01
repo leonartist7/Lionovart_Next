@@ -12,3 +12,7 @@
 - [x] Rebuild the final decision moment around the reformed crown.
 - [x] Verify accessibility structure, responsive budgets, and renderer count statically.
 - [x] Run type/build checks, commit, and update `master` without force.
+- [x] Prevent the root red background from bleeding through the transparent WebGL route.
+- [x] Restore one intentional warm-white ROI relief chapter.
+- [x] Remove overlapping scroll ownership and per-tick DOM reads from the closing crown transition.
+- [x] Replace the shared navbar's decorative Lottie canvases with a lightweight SVG toggle on the AI route.

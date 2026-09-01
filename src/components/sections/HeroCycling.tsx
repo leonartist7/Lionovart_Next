@@ -26,6 +26,8 @@ export interface HeroCyclingProps {
   fontSize?: string;
   /** CSS font-size for the cycling line. Defaults to fontSize if not set. */
   cyclingFontSize?: string;
+  /** CSS height for image (word-art) words. Defaults to cyclingFontSize if not set. */
+  imageFontSize?: string;
   /** Color of text cycling words. Images are unaffected. */
   cyclingColor?: string;
   /** Letter spacing for both static and cycling text. */
@@ -58,20 +60,21 @@ const DEFAULT_WORDS: Word[] = [
 
 // ─── Animation variants ────────────────────────────────────────────────────────
 
-const EASING = [0.65, 0, 0.35, 1] as const;
-const DURATION = 0.6;
+const EASING = [0.4, 0, 0.2, 1] as const;
+const FADE_IN = 0.4;
+const FADE_OUT = 0.4;
 
 const wordVariants = {
-  initial: { y: "100%", opacity: 0 },
+  initial: { opacity: 0, y: 6 },
   animate: {
-    y: 0,
     opacity: 1,
-    transition: { duration: DURATION, ease: EASING },
+    y: 0,
+    transition: { duration: FADE_IN, ease: EASING },
   },
   exit: {
-    y: "-100%",
     opacity: 0,
-    transition: { duration: DURATION, ease: EASING },
+    y: -6,
+    transition: { duration: FADE_OUT, ease: EASING },
   },
 };
 
@@ -91,6 +94,7 @@ export default function HeroCycling({
   words = DEFAULT_WORDS,
   fontSize = "clamp(2.5rem, 8vw, 6.5rem)",
   cyclingFontSize,
+  imageFontSize,
   cyclingColor = "#ffffff",
   letterSpacing = "0.05em",
   forceAnimate = false,
@@ -110,6 +114,16 @@ export default function HeroCycling({
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
   }, []);
+
+  // ── Warm image words so a swap never fades in a half-loaded frame ────────
+  useEffect(() => {
+    words.forEach((w) => {
+      if (w.type === "image") {
+        const img = new window.Image();
+        img.src = w.content;
+      }
+    });
+  }, [words]);
 
   // ── Cycling timer ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -145,6 +159,7 @@ export default function HeroCycling({
   // Images fill this height; text matches this font-size.
   const clampSize = fontSize;
   const cyclingClampSize = cyclingFontSize ?? fontSize;
+  const imageClampSize = imageFontSize ?? cyclingClampSize;
 
   const sharedTextStyle: React.CSSProperties = {
     fontSize: clampSize,
@@ -170,12 +185,17 @@ export default function HeroCycling({
   // ── Word renderer ────────────────────────────────────────────────────────
   const renderWord = (word: Word, priority: boolean) => {
     if (word.type === "image") {
+      // Edge-feather mask: 1% alpha falloff on the four edges — just enough
+      // to soften the canvas contour. Negligible GPU cost; the mask is
+      // composited once per frame with the rest of the layer.
+      const FEATHER_X = "linear-gradient(90deg, transparent 0%, #000 1%, #000 99%, transparent 100%)";
+      const FEATHER_Y = "linear-gradient(180deg, transparent 0%, #000 1%, #000 99%, transparent 100%)";
       return (
         <div
           style={{
             position: "relative",
-            height: "100%",
-            minWidth: cyclingClampSize,
+            height: imageClampSize,
+            minWidth: imageClampSize,
             maxWidth: "100%",
             width: "100%",
           }}
@@ -184,7 +204,14 @@ export default function HeroCycling({
             src={word.content}
             alt={word.alt ?? ""}
             fill
-            style={{ objectFit: "contain", objectPosition: "center center" }}
+            style={{
+              objectFit: "contain",
+              objectPosition: "center center",
+              WebkitMaskImage: `${FEATHER_X}, ${FEATHER_Y}`,
+              WebkitMaskComposite: "source-in",
+              maskImage: `${FEATHER_X}, ${FEATHER_Y}`,
+              maskComposite: "intersect",
+            }}
             priority={priority}
             sizes="(max-width: 640px) 90vw, (max-width: 1024px) 75vw, 65vw"
           />
@@ -250,7 +277,7 @@ export default function HeroCycling({
             {renderWord(words[0], true)}
           </div>
         ) : (
-          <AnimatePresence mode="sync" initial={false}>
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={currentIndex}
               variants={wordVariants}
@@ -262,10 +289,25 @@ export default function HeroCycling({
                 inset: 0,
                 display: "flex",
                 alignItems: "center",
+                justifyContent: "center",
                 willChange: "transform",
               }}
             >
-              {renderWord(words[currentIndex], currentIndex === 0)}
+              {/* Definite height is required: image words size themselves with
+                  height:100%, which collapses to 0 against an auto parent. */}
+              <div
+                style={{
+                  position: "relative",
+                  height: "100%",
+                  width: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {renderWord(words[currentIndex], currentIndex === 0)}
+              </div>
             </motion.div>
           </AnimatePresence>
         )}

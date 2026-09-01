@@ -39,9 +39,9 @@ export default function FAQ(props: FAQProps) {
 
   return (
     <section ref={ref} id="faq" className="bg-bg-brand-black pb-14 pt-8 sm:pb-16 sm:pt-10 lg:pb-24 lg:pt-14">
-      <div className="mx-auto grid max-w-[1240px] gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)] lg:items-start lg:gap-x-20 lg:px-8">
+      <div className="mx-auto grid max-w-[1240px] gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-20 lg:px-8">
         {/* Header */}
-        <div className="relative z-40 order-1 lg:col-start-2 lg:row-start-1 lg:justify-self-end lg:text-right">
+        <div className="relative z-40 order-1 lg:col-start-1 lg:row-start-1">
           <SplitTextReveal
             as="h2"
             className="text-[clamp(5rem,13vw,10rem)] font-bold uppercase leading-[0.8] tracking-[-0.045em] text-text-main"
@@ -58,7 +58,7 @@ export default function FAQ(props: FAQProps) {
           initial={prefersReducedMotion ? false : { opacity: 0, y: 40 }}
           animate={prefersReducedMotion || isInView ? { opacity: 1, y: 0 } : {}}
           transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6, delay: 0.2, ease: "easeOut" }}
-          className="relative z-40 order-2 w-full lg:col-start-1 lg:row-start-1 lg:row-span-2 lg:self-center"
+          className="relative z-40 order-2 w-full lg:col-start-1 lg:row-start-2 lg:self-start"
         >
           <Accordion className="flex flex-col gap-4">
             {FAQS.map((faq: { id: string; question: string; answer: string }) => (
@@ -78,12 +78,12 @@ export default function FAQ(props: FAQProps) {
           </Accordion>
         </motion.div>
 
-        {/* Nova promo — fills the column under the FAQ wordmark */}
+        {/* Nova promo — full right column, top-aligned with the wordmark */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 40 }}
           animate={prefersReducedMotion || isInView ? { opacity: 1, y: 0 } : {}}
           transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6, delay: 0.35, ease: "easeOut" }}
-          className="relative z-40 order-3 w-full lg:col-start-2 lg:row-start-2 lg:mt-4"
+          className="relative z-40 order-3 w-full lg:col-start-2 lg:row-start-1 lg:row-span-2"
         >
           <AssistantCard />
         </motion.div>

@@ -158,7 +158,7 @@ function Pane({
             Deliberately translucent: the blurred footage washing behind the
             stage is what the glass refracts, so the fill stays light. */}
         <div
-          className="absolute inset-0 overflow-hidden rounded-[inherit] bg-[#08080a]/45"
+          className="absolute inset-0 overflow-hidden rounded-[inherit] bg-bg-dark/45"
           style={{
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
@@ -260,7 +260,7 @@ function Pane({
             className="absolute inset-x-0 bottom-0 p-4 text-left [text-shadow:0_1px_10px_rgba(0,0,0,0.75)] md:p-6"
             style={{ opacity: contentP, y: contentY }}
           >
-            <h3 className="font-clash text-[1.1rem] font-bold uppercase leading-[0.95] text-white md:text-[1.9rem]">
+            <h3 className="font-clash text-[1.1rem] font-bold uppercase leading-[0.95] text-white md:text-[1.9rem]" style={{ wordSpacing: "0.2em" }}>
               {card.title}
             </h3>
             {/* Reserved height keeps the three headings on one baseline even
@@ -514,7 +514,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
   }, [px, py]);
 
   return (
-    <section ref={sectionRef} className="relative bg-black" style={{ height: `${SECTION_HEIGHT_VH}vh` }}>
+    <section ref={sectionRef} className="relative bg-bg-dark" style={{ height: `${SECTION_HEIGHT_VH}vh` }}>
       <div className="sticky top-0 z-40 flex min-h-screen flex-col items-center justify-center gap-[clamp(2.5rem,6vh,5rem)] overflow-hidden px-3 py-24 md:px-4">
         {/* Ambient wash â€” the same footage, blurred past legibility, pooling
             behind the stage. It's what makes the translucent panes read as

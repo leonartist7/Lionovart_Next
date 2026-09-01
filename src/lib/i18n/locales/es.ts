@@ -83,8 +83,8 @@ export const es: Translations = {
 
   process: {
     eyebrow: "Nuestro Proceso",
-    heading: "De Desconocida A",
-    headingAccent: "Inconfundible",
+    heading: "Nuestro Sistema",
+    headingAccent: "Probado",
     triggerLabel: "Haz clic para ver el proceso",
     triggerSub: "60 segundos. Mira exactamente lo que recibes.",
     expectLabel: "Qué esperar",
@@ -182,6 +182,7 @@ export const es: Translations = {
     heading: "¿Por qué",
     headingAccent: "nosotros",
     headingSuffix: "?",
+    featuresLabel: "Lo que necesitas",
     columns: [
       "Velocidad",
       "Flexibilidad",
@@ -191,11 +192,68 @@ export const es: Translations = {
       "Print",
       "Soporte",
     ],
+    lionovart: [
+      "Entrega en 48 horas",
+      "Ajusta cuando quieras",
+      "Fiel a tu marca siempre",
+      "Suma volumen al instante",
+      "Una tarifa mensual fija",
+      "Archivos listos para imprenta",
+      "Línea directa con tu equipo",
+    ],
     competitors: [
-      { title: "Equipo Interno", description: "Contratar lleva tiempo, reemplazar es lento y los salarios se acumulan — sobre todo cuando tus necesidades cambian." },
-      { title: "Agencias Creativas", description: "Socios estratégicos, pero los altos costos fijos, alcances rígidos y plazos lentos los hacen poco prácticos para el día a día." },
-      { title: "Freelancers", description: "Suerte o azar. Buscar y gestionar talento en cada proyecto te hace perseguir consistencia en vez de construir tu marca." },
-      { title: "Solo IA", description: "Rápido de usar — pero el resultado es genérico, inconsistente y aún requiere mucho trabajo manual para terminarlo." },
+      {
+        title: "Equipo Interno",
+        description: "Contratar lleva tiempo, reemplazar es lento y los salarios se acumulan — sobre todo cuando tus necesidades cambian.",
+        cells: [
+          "Limitado por la plantilla",
+          "Flexible una vez contratado",
+          "Consistente si hay equipo",
+          "Tope según el tamaño",
+          "Sueldos y gastos fijos",
+          "Rara vez cubierto",
+          "Siempre en la oficina",
+        ],
+      },
+      {
+        title: "Agencias Creativas",
+        description: "Socios estratégicos, pero los altos costos fijos, alcances rígidos y plazos lentos los hacen poco prácticos para el día a día.",
+        cells: [
+          "De una a dos semanas",
+          "Alcances rígidos",
+          "Alto nivel de oficio",
+          "El contrato pone el tope",
+          "Retainers costosos",
+          "Print incluido",
+          "Ejecutivo de cuenta",
+        ],
+      },
+      {
+        title: "Freelancers",
+        description: "Suerte o azar. Buscar y gestionar talento en cada proyecto te hace perseguir consistencia en vez de construir tu marca.",
+        cells: [
+          "Cuando tengan hueco",
+          "Flexible por proyecto",
+          "Depende de a quién contrates",
+          "Una persona, un ritmo",
+          "Precio por proyecto",
+          "Casi siempre solo digital",
+          "Directo, mientras estén",
+        ],
+      },
+      {
+        title: "Solo IA",
+        description: "Rápido de usar — pero el resultado es genérico, inconsistente y aún requiere mucho trabajo manual para terminarlo.",
+        cells: [
+          "Resultado instantáneo",
+          "Atado al prompt",
+          "Genérico y fuera de marca",
+          "Volumen ilimitado",
+          "Muy barato de usar",
+          "No apto para imprenta",
+          "Nadie a quien preguntar",
+        ],
+      },
     ],
   },
 
@@ -399,9 +457,9 @@ export const es: Translations = {
   },
 
   services: {
-    eyebrow: "Todo en casa. Un solo estándar.",
-    heading: "Nuestro",
-    headingAccent: "Oficio",
+    eyebrow: "Todo lo que tu negocio necesita, nada de lo que no.",
+    heading: "Nuestra",
+    headingAccent: "Experiencia",
     items: [
       {
         title: "Identidad de Marca y Estrategia",

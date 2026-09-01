@@ -46,11 +46,25 @@ export default function BridgeStatement({
     },
   };
 
+  // The vow sits directly under the pinned red marquee of the stronger-together
+  // scene. It must read as already present there — no slide-up reveal — the
+  // same treatment the marquee itself got. Only the recognition variant
+  // (above the scene) animates.
+  const containerAnim = isVow
+    ? {}
+    : {
+        variants: sequence,
+        initial: "hidden" as const,
+        whileInView: "visible" as const,
+        viewport: { once: true, amount: 0.45 },
+      };
+  const itemAnim = isVow ? {} : { variants: reveal };
+
   return (
     <section
       aria-labelledby={headingId}
       className={`relative isolate flex min-h-[30svh] items-center overflow-hidden px-5 py-14 sm:px-8 sm:py-16 md:min-h-[34svh] md:px-[6vw] ${
-        isVow ? "bg-[#f7f4ef] text-[#171412]" : "bg-[#0a0a0a] text-white"
+        isVow ? "bg-[#f7f4ef] text-[#171412]" : "bg-bg-dark text-white"
       }`}
     >
       <h2 id={headingId} className="sr-only">
@@ -60,17 +74,15 @@ export default function BridgeStatement({
       <motion.div
         aria-hidden="true"
         className="relative z-10 mx-auto flex w-full max-w-[1500px] flex-col gap-3 md:gap-4"
-        variants={sequence}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.45 }}
+        {...containerAnim}
       >
         <div className="overflow-hidden pb-[0.08em]">
           <motion.p
-            variants={reveal}
+            {...itemAnim}
             className={`font-clash text-[clamp(1.9rem,4.8vw,5rem)] font-semibold uppercase leading-[0.9] tracking-[-0.045em] text-balance ${
               isVow ? "text-[#171412]" : "text-white"
             }`}
+            style={{ wordSpacing: "0.18em" }}
           >
             {copy.line1}
           </motion.p>
@@ -78,8 +90,9 @@ export default function BridgeStatement({
 
         <div className="overflow-hidden pb-[0.08em] text-right">
           <motion.p
-            variants={reveal}
+            {...itemAnim}
             className="font-clash text-[clamp(1.9rem,4.8vw,5rem)] font-semibold uppercase leading-[0.9] tracking-[-0.045em]"
+            style={{ wordSpacing: "0.18em" }}
           >
             <span className={isVow ? "text-[#171412]" : "text-white"}>{copy.line2} </span>
             <span className="text-brand-red">{copy.accent}</span>
@@ -87,7 +100,7 @@ export default function BridgeStatement({
         </div>
 
         <motion.p
-          variants={reveal}
+          {...itemAnim}
           className={`max-w-[42ch] self-end pt-2 text-right font-body text-[13px] leading-[1.5] sm:text-[14px] ${
             isVow ? "text-[#171412]/70" : "text-white/55"
           }`}

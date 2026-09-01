@@ -85,7 +85,7 @@ export default function SceneVideoBackdrop() {
 
   return (
     <motion.div
-      className="fixed inset-0 z-[0] pointer-events-none overflow-hidden bg-black"
+      className="fixed inset-0 z-[0] pointer-events-none overflow-hidden bg-bg-dark"
       style={{ opacity: sceneOpacity }}
       aria-hidden="true"
     >

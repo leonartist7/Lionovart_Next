@@ -11,6 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useNovaStore } from "@/lib/stores/nova-store";
 import TrustedBadgesSection from "@/components/sections/TrustedBadgesSection";
 import HeroEmailCapture from "@/components/ui/HeroEmailCapture";
+import { EN_WORD_ART } from "@/lib/word-art";
 
 /* ─── Variants ─────────────────────────────────────────────────── */
 const containerVariants = {
@@ -337,11 +338,10 @@ function DynamicTrustBadges({ badges }: { badges: { brands: readonly string[]; e
 /* Main Component */
 /* -------------------------------------------------------------------------- */
 export default function HeroTop(props: any) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
   const openNova = useNovaStore((s) => s.openNova);
   const staticText = props.staticText || t.hero.staticText;
-  const cyclingWordsRaw = props.cyclingWords || t.hero.cyclingWords;
   const subtitle = props.subtitle || t.hero.subtitle;
   const ctaStart = props.ctaStart || t.hero.ctaStart;
   const ctaStartOpening = props.ctaStartOpening || t.hero.ctaStartOpening;
@@ -350,12 +350,21 @@ export default function HeroTop(props: any) {
 
   // Hero focuses on concrete outcomes; the closing CTA keeps the more emotional
   // ROAR / MAGNETIC / DOMINATE cadence so the two moments feel related, not duplicated.
+  // English renders the word-art AVIFs shared with the closing CTA (EN_WORD_ART —
+  // the art itself is English lettering); every other locale keeps live
+  // translated text. HeroCycling treats image words with the same fade/settle
+  // animation.
+  const cyclingWordsRaw: string[] = props.cyclingWords || t.hero.cyclingWords;
   const heroOutcomeWords = [cyclingWordsRaw[1], cyclingWordsRaw[2], cyclingWordsRaw[4]].filter(Boolean) as string[];
-  const CYCLING_WORDS: Word[] = (heroOutcomeWords.length ? heroOutcomeWords : cyclingWordsRaw).map((content: string) => ({
-    content,
-    type: "text" as const,
-    holdMs: 3200,
-  }));
+
+  const CYCLING_WORDS: Word[] =
+    locale === "en"
+      ? EN_WORD_ART
+      : heroOutcomeWords.map((content) => ({
+          content,
+          type: "text" as const,
+          holdMs: 3200,
+        }));
 
   const handleConnectNow = () => {
     if (submitted) {
@@ -379,7 +388,7 @@ export default function HeroTop(props: any) {
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(100% 70% at 50% 28%, rgba(229,25,42,0.10) 0%, transparent 52%), linear-gradient(180deg, rgba(7,7,9,0.50) 0%, rgba(7,7,9,0.42) 45%, rgba(7,7,9,0.80) 82%, rgba(10,10,10,0.98) 100%)",
+              "radial-gradient(100% 70% at 50% 28%, rgba(229,25,42,0.10) 0%, transparent 52%), linear-gradient(180deg, rgba(7,7,9,0.50) 0%, rgba(7,7,9,0.42) 45%, rgba(7,7,9,0.80) 82%, rgba(10,10,10,1) 100%)",
           }}
         />
       </div>
@@ -395,8 +404,9 @@ export default function HeroTop(props: any) {
           <HeroCycling
             staticText={staticText}
             words={CYCLING_WORDS}
-            fontSize="clamp(2.05rem, 7.6vw, 5.25rem)"
-            cyclingFontSize="clamp(2.35rem, 9vw, 6.25rem)"
+            fontSize="clamp(2.45rem, 9.2vw, 6.9rem)"
+            cyclingFontSize="clamp(2.95rem, 11.8vw, 8.8rem)"
+            imageFontSize="clamp(2.7rem, 10.1vw, 7.6rem)"
             cyclingColor="#e5192a"
             letterSpacing="-0.035em"
           />

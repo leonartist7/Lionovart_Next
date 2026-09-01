@@ -57,12 +57,10 @@ export default function AiServicePage() {
       <AiLionStage />
 
       <main
-        // The shared kit (ProofAndClose, imported below) hardcodes `bg-bg-dark`
-        // on its <section> wrappers. Forcing every descendant <section>
-        // transparent is what lets the particle canvas show through the whole
-        // page, scoped to this route. Breaks silently if a future shared
-        // component needs an opaque <section>.
-        className={`${display.variable} relative z-10 min-h-screen bg-transparent [&_section]:bg-transparent`}
+        // The fixed stage owns the black base. Most chapters stay transparent
+        // so the particles remain continuous, while intentional opaque relief
+        // sections (the ROI chapter) can still establish a light reading beat.
+        className={`${display.variable} relative z-10 min-h-screen bg-transparent`}
         style={
           {
             // The page moves from electric intelligence back into the brand's
@@ -74,7 +72,7 @@ export default function AiServicePage() {
           } as React.CSSProperties
         }
       >
-        <Navbar />
+        <Navbar lightweightMenu />
         <AiScrollSnap />
         <AiPageNav />
 

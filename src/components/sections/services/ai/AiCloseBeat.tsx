@@ -8,9 +8,8 @@
  * middle reforms into the crown above the CTA. The last thing on screen is the
  * mark that opened the page.
  *
- * Renders nothing. It wraps ProofAndClose and drives the engine from that
- * section's own scroll position. The CTA node is resolved once; its changing
- * viewport position is measured while the convergence is active.
+ * Renders nothing. It owns the closing range after the offer chapter releases
+ * the particle stage, then eases the same population into one stable crown.
  */
 
 import { useEffect, useRef } from "react";
@@ -29,37 +28,39 @@ export default function AiCloseBeat({ children }: { children: React.ReactNode })
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let cancelled = false;
-    const btn = wrap.querySelector<HTMLElement>("[data-cta-target]");
 
-    const aimAtCta = () => {
+    const positionCrest = () => {
       const exp = getLionStage();
-      // The explicit marker keeps the convergence tied to the primary action.
-      if (!exp || !btn) return;
-      const r = btn.getBoundingClientRect();
-      exp.setCtaScreenPos(
-        ((r.left + r.width / 2) / window.innerWidth) * 2 - 1,
-        ((r.top + r.height / 2) / window.innerHeight) * 2 - 1,
-      );
+      if (!exp) return;
+      // A stable screen-space target prevents the crown from chasing a CTA
+      // that is itself moving during scroll. It sits above the decision panel
+      // on phones and desktops without a layout read in the hot path.
+      exp.setCrestScreenPos(0, window.innerWidth < 768 ? -0.34 : -0.42);
+    };
+
+    const prepareClose = () => {
+      const exp = getLionStage();
+      if (!exp) return;
+      exp.setMorph(1);
+      exp.setLayout(0);
+      positionCrest();
     };
 
     const st = ScrollTrigger.create({
       trigger: wrap,
-      start: "top bottom",
+      // AiOffers releases at `bottom 92%`, so there is exactly one owner of
+      // layout state at any scroll position.
+      start: "top 92%",
       end: "bottom bottom",
       scrub: true,
+      onEnter: prepareClose,
+      onEnterBack: prepareClose,
+      onRefresh: positionCrest,
+      onLeaveBack: () => getLionStage()?.setBloom(0),
       onUpdate: (self) => {
         const exp = getLionStage();
         if (!exp) return;
-        // Re-measure every tick, not just on enter/enterBack: "top bottom"
-        // fires the instant this section's top crosses the viewport's
-        // bottom edge, when the CTA button (further down inside this same
-        // section) is still far below the fold. A one-shot rect at that
-        // moment aims the convergence at a point way under the visible
-        // frustum, which reads as the crown sinking off the bottom of the
-        // screen instead of reforming on the button.
-        aimAtCta();
-        exp.setLayout(0);
-        // converge over the first half, then hold the reformed crest
+        // The engine eases this target independently of scroll event cadence.
         exp.setBloom(Math.min(self.progress / 0.6, 1));
       },
     });

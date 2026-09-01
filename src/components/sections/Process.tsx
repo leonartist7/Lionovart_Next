@@ -73,7 +73,6 @@ const STEPS_STATIC = [
 const PAPER = "#f7f4ef";
 const INK = "#111111";
 const INK_SOFT = "#5a5550";
-const INK_RULE = "rgba(17,17,17,0.16)";
 const TEXT = "#ffffff";
 const TEXT_DIM = "rgba(255,255,255,0.38)";
 const TEXT_LABEL = "rgba(255,255,255,0.45)";
@@ -230,30 +229,20 @@ function Slab({
 }
 
 /** One mobile step. Three elements only: the number, the name, and the one
- *  line that says what the client walks away with. The `tone` prop is what
- *  makes the descent read — steps sitting on the paper half are set in ink,
- *  steps below the paint stroke are set in white, because the surface under
- *  them physically changed. */
+ *  line that says what the client walks away with. All four sit on the same
+ *  paper surface, so all four are set in ink. No rule between steps — kept
+ *  tight so the full list stays on the image's light zone. */
 function DescentStep({
   step,
   index,
-  tone,
   reduced,
 }: {
   step: ProcessStep;
   index: number;
-  tone: "paper" | "slab";
   reduced: boolean;
 }) {
-  const onSlab = tone === "slab";
-  const heading = onSlab ? TEXT : INK;
-  const body = onSlab ? "rgba(255,255,255,0.7)" : INK_SOFT;
-  const rule = onSlab ? HAIRLINE : INK_RULE;
-
   return (
     <motion.li
-      className="border-t pt-5"
-      style={{ borderColor: rule }}
       initial={reduced ? false : { opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "0px 0px -15% 0px" }}
@@ -262,20 +251,20 @@ function DescentStep({
       <div className="flex items-baseline gap-4">
         <span
           className="font-clash text-[1.6rem] font-bold leading-none tabular-nums"
-          style={{ color: heading }}
+          style={{ color: INK }}
         >
           {String(index + 1).padStart(2, "0")}
         </span>
         <h3
           className="font-clash text-[1.5rem] font-bold uppercase leading-none tracking-[-0.02em]"
-          style={{ color: heading }}
+          style={{ color: INK }}
         >
           {step.title}
         </h3>
       </div>
       <p
         className="mt-3 max-w-[34ch] font-body text-[14px] leading-[1.55]"
-        style={{ color: body }}
+        style={{ color: INK_SOFT }}
       >
         {step.gain ?? step.description}
       </p>
@@ -367,7 +356,8 @@ export default function Process(props: any) {
           aria-hidden
           className="pointer-events-none absolute inset-x-0 -top-[42vh] bottom-0 z-0 bg-center bg-cover bg-no-repeat"
           style={{
-            backgroundImage: "url('/images/process-impasto-transition.webp')",
+            backgroundImage:
+              "url('https://res.cloudinary.com/dgio9uutc/image/upload/v1787734490/a_high_resolution_abstract_minimal_painting_text_vfaj0x.webp')",
             maskImage: "linear-gradient(105deg, transparent 0%, black 62%)",
             WebkitMaskImage:
               "linear-gradient(105deg, transparent 0%, black 62%)",
@@ -502,16 +492,16 @@ export default function Process(props: any) {
       </div>
 
       {/* ── Mobile / tablet: the descent ──
-          The section falls from the paper it shares with the section above,
-          through a real painted edge, into the black the next chapter needs.
-          The stroke sits in the flow between step 02 and step 03, so the
-          crossover always lands in the same place no matter how long the copy
-          runs or which locale is active. */}
+          The title sits on solid paper first — a real white ground, not the
+          image — then the surface hands off to the painted image, which
+          carries the steps in ink since it was made light enough for that.
+          Its own top edge fades into the paper above it, so the two read as
+          one continuous surface, not a hard seam. */}
       <div className="relative lg:hidden">
-        {/* Paper half — continuous with the section above, so the seam at the
-            top of this section reads as one surface. */}
+        {/* Solid paper header — guarantees the title never sits on the image
+            itself, only ever on true white. ~10% of the section. */}
         <div
-          className="px-5 pb-6 pt-14 sm:px-6"
+          className="px-5 pb-4 pt-[10vh] sm:px-6"
           style={{ backgroundColor: PAPER }}
         >
           <div className="mx-auto max-w-xl">
@@ -524,70 +514,56 @@ export default function Process(props: any) {
                 {eyebrow}
               </p>
             </div>
-            <h2 className="mt-5 text-[clamp(2.6rem,11vw,3.6rem)] font-bold uppercase leading-[0.88] tracking-[-0.045em]">
+            <h2 className="mt-4 text-[clamp(2.6rem,11vw,3.6rem)] font-bold uppercase leading-[0.88] tracking-[-0.045em]">
               <span style={{ color: INK }}>{heading} </span>
               <span style={{ color: RED }}>{headingAccent}</span>
             </h2>
-
-            <ol className="mt-11 space-y-9">
-              {steps.slice(0, 2).map((step, index) => (
-                <DescentStep
-                  key={step.num}
-                  step={step}
-                  index={index}
-                  tone="paper"
-                  reduced={prefersReducedMotion}
-                />
-              ))}
-            </ol>
           </div>
         </div>
 
-        {/* The stroke — the one painted moment. Cropped to the tear so it
-            reads as an edge rather than a wallpaper. The image's own top row
-            is near-paper and its bottom row is near-slab, so the two short
-            gradients below are only there to erase the last few values of
-            difference at each seam. */}
-        {/* Two assets, because the band changes shape with the viewport and a
-            single one cannot serve both. Below sm the portrait stroke is
-            cropped to its tear. From sm up the landscape stroke takes over at
-            its exact native ratio, so nothing is cropped and the band's height
-            stays proportional instead of ballooning with the width. */}
-        <div
-          className="relative aspect-[4/3] w-full overflow-hidden sm:aspect-[1916/821]"
-          style={{ backgroundColor: PAPER }}
-        >
-          <picture>
-            <source
-              media="(min-width: 640px)"
-              srcSet="/images/process-impasto-transition.webp"
-              width={1916}
-              height={821}
-            />
-            {/* The offset keeps the portrait tear just above centre, so there
-                is white to fall from and black to land on without carrying
-                that image's long featureless black tail. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/monochrome_diagonal_impasto_swirl.webp"
-              alt=""
-              aria-hidden="true"
-              width={941}
-              height={1672}
-              className="absolute inset-0 h-full w-full object-cover"
-              style={{ objectPosition: "center 41%" }}
-            />
-          </picture>
+        <div className="relative overflow-hidden" style={{ backgroundColor: PAPER }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://res.cloudinary.com/dgio9uutc/image/upload/v1787716854/process-mobile-diagonal-impasto_sbqqzw.webp"
+            alt=""
+            aria-hidden="true"
+            width={864}
+            height={1536}
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{ objectPosition: "center top" }}
+          />
+
+          {/* The merge: dissolves the image's own beginning into the paper
+              header above it, rather than starting with a hard edge. */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 top-0 h-16"
+            className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-20"
             style={{
               background: `linear-gradient(to bottom, ${PAPER}, transparent)`,
             }}
           />
+
+          <div className="relative z-10 px-5 pb-6 pt-6 sm:px-6">
+            <div className="mx-auto max-w-xl">
+              <ol className="space-y-5">
+                {steps.map((step, index) => (
+                  <DescentStep
+                    key={step.num}
+                    step={step}
+                    index={index}
+                    reduced={prefersReducedMotion}
+                  />
+                ))}
+              </ol>
+            </div>
+          </div>
+
+          {/* Fades the image's very last edge into the slab below — kept
+              thin so the image stays visible almost all the way down,
+              merging only right at the seam. */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-16"
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-[2vh]"
             style={{
               background: `linear-gradient(to top, ${SLAB}, transparent)`,
             }}
@@ -600,19 +576,7 @@ export default function Process(props: any) {
           style={{ backgroundColor: SLAB }}
         >
           <div className="mx-auto max-w-xl">
-            <ol className="space-y-9">
-              {steps.slice(2).map((step, index) => (
-                <DescentStep
-                  key={step.num}
-                  step={step}
-                  index={index + 2}
-                  tone="slab"
-                  reduced={prefersReducedMotion}
-                />
-              ))}
-            </ol>
-
-            <div className="mt-12 text-center">
+            <div className="text-center">
               <a
                 href="#closing-cta"
                 className="inline-flex min-h-[44px] items-center gap-3 rounded-full px-7 py-4 font-clash text-[11px] font-bold uppercase tracking-[0.15em]"

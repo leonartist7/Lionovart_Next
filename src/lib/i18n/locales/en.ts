@@ -65,14 +65,12 @@ export const en = {
 
   marquee: {
     items: [
-      "More Qualified Leads",
-      "More Direct Bookings",
-      "More Time Back",
-      "24/7 AI Support",
-      "Brands People Remember",
-      "Smarter Systems",
-      "Less Manual Work",
-      "Built to Grow",
+      "Reclaim your time back",
+      "Improve your image",
+      "Get remembered",
+      "More leads",
+      "Boost sells",
+      "Clear growth",
     ],
   },
 
@@ -89,8 +87,8 @@ export const en = {
 
   process: {
     eyebrow: "Our Process",
-    heading: "From Unknown To",
-    headingAccent: "Unmistakable",
+    heading: "Our Proven",
+    headingAccent: "System",
     triggerLabel: "Click to see the process",
     triggerSub: "60 seconds. See exactly what you get.",
     expectLabel: "Expect",
@@ -190,6 +188,7 @@ export const en = {
     heading: "Why",
     headingAccent: "Us",
     headingSuffix: "?",
+    featuresLabel: "What You Need",
     columns: [
       "Speed",
       "Flexibility",
@@ -199,11 +198,68 @@ export const en = {
       "Print",
       "Support",
     ],
+    lionovart: [
+      "48-hour turnaround",
+      "Scale up or down anytime",
+      "On-brand every time",
+      "Add volume instantly",
+      "One flat monthly rate",
+      "Press-ready files",
+      "Direct line to your team",
+    ],
     competitors: [
-      { title: "In-house Team", description: "Hiring takes time, replacements are slow, and salaries pile up — especially when your needs fluctuate." },
-      { title: "Creative Agencies", description: "Strategic partners, but high-cost retainers, rigid scopes, and slow timelines make them a poor everyday fit." },
-      { title: "Freelancers", description: "Hit or miss. Sourcing and managing talent for every project keeps you chasing consistency, not building your brand." },
-      { title: "AI Tools Only", description: "Quick to use — but the output is off-brand, inconsistent, and still needs heavy manual effort to finish." },
+      {
+        title: "In-house Team",
+        description: "Hiring takes time, replacements are slow, and salaries pile up — especially when your needs fluctuate.",
+        cells: [
+          "Capped by headcount",
+          "Flexible once hired",
+          "Consistent when staffed",
+          "Limited by team size",
+          "Salaries and overhead",
+          "Rarely in-house",
+          "Always in the building",
+        ],
+      },
+      {
+        title: "Creative Agencies",
+        description: "Strategic partners, but high-cost retainers, rigid scopes, and slow timelines make them a poor everyday fit.",
+        cells: [
+          "One to two weeks",
+          "Rigid, fixed scopes",
+          "High craft",
+          "Retainer caps output",
+          "Expensive retainers",
+          "Print handled",
+          "Account manager",
+        ],
+      },
+      {
+        title: "Freelancers",
+        description: "Hit or miss. Sourcing and managing talent for every project keeps you chasing consistency, not building your brand.",
+        cells: [
+          "When they're available",
+          "Flexible per project",
+          "Varies by who you hire",
+          "One person, one pace",
+          "Per-project pricing",
+          "Usually digital only",
+          "Direct, while booked",
+        ],
+      },
+      {
+        title: "AI Tools Only",
+        description: "Quick to use — but the output is off-brand, inconsistent, and still needs heavy manual effort to finish.",
+        cells: [
+          "Instant output",
+          "Locked to the prompt",
+          "Off-brand and generic",
+          "Unlimited volume",
+          "Cheap to run",
+          "Not press-ready",
+          "No one to ask",
+        ],
+      },
     ],
   },
 

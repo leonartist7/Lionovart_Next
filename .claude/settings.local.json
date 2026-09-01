@@ -108,7 +108,26 @@
       "mcp__Claude_Code_Remote__list_triggers",
       "Bash(npx eslint *)",
       "Bash(curl -s http://localhost:3000/ -o /tmp/page.html -w \"HTTP %{http_code}  %{size_download} bytes\\\\n\")",
-      "Bash(python -c ' *)"
+      "Bash(python -c ' *)",
+      "Bash(git pull *)",
+      "Bash(git diff *)",
+      "Bash(git show *)",
+      "Bash(git commit -m ' *)",
+      "Bash(curl -sL https://res.cloudinary.com/dgio9uutc/image/upload/v1787716854/process-mobile-diagonal-impasto_sbqqzw.webp -o C:/Users/leona/AppData/Local/Temp/claude/c--workspace-lionovart-next-work/865b7368-314c-45a5-9539-581bf7e854b5/scratchpad/new-mobile.webp -w 'HTTP %{http_code}, size %{size_download} bytes\\\\n')",
+      "Bash(node -e *)",
+      "Bash(curl -s -o /dev/null -w \"page HTTP %{http_code}\\\\n\" --max-time 15 http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" --max-time 15 http://localhost:3000/)",
+      "Bash(chromium-cli --session testimonials)",
+      "Bash(rm -rf .next)",
+      "Bash(npx next *)",
+      "Bash(npm ls *)",
+      "Bash(npx --yes chromium-cli --help)",
+      "Bash(npx --yes playwright --version)",
+      "Bash(npx --yes playwright install chromium --with-deps)",
+      "Bash(node \"C:\\\\Users\\\\leona\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--workspace-lionovart-next-work\\\\db5ef67e-3176-4999-bc2e-cc74f5710cb5\\\\scratchpad\\\\screenshot-offer.js\")",
+      "Bash(npm install *)",
+      "Bash(pwd; find *)",
+      "Read(//c//**)"
     ]
   }
 }

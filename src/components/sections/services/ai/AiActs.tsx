@@ -36,6 +36,7 @@ function useParticleChapter(
   from: number,
   to: number,
   layout: number,
+  end = "bottom 20%",
 ) {
   useEffect(() => {
     const section = ref.current;
@@ -44,7 +45,7 @@ function useParticleChapter(
     const trigger = ScrollTrigger.create({
       trigger: section,
       start: "top 82%",
-      end: "bottom 20%",
+      end,
       scrub: true,
       onUpdate: ({ progress }) => {
         const stage = getLionStage();
@@ -54,7 +55,7 @@ function useParticleChapter(
     });
 
     return () => trigger.kill();
-  }, [from, layout, ref, to]);
+  }, [end, from, layout, ref, to]);
 }
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
@@ -505,7 +506,10 @@ export function AiOffers() {
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
   const openNova = useNovaStore((state) => state.openNova);
-  useParticleChapter(ref, 1, 1, -0.44);
+  // Release ownership as the next section enters. The former `bottom 20%`
+  // endpoint overlapped the closing trigger for almost a full viewport, so
+  // both chapters fought over the particle layout during momentum scrolling.
+  useParticleChapter(ref, 1, 1, -0.44, "bottom 92%");
 
   return (
     <section id="partnership" ref={ref} data-ai-snap className="relative py-[120px] md:py-[180px] lg:py-[220px]">

@@ -15,7 +15,7 @@ export default function StickyFooterMarquee({ goldHorizon = false }: { goldHoriz
         </div>
       )}
       <div className="relative z-10 flex w-full justify-center whitespace-nowrap">
-        <span className="select-none px-4 font-clash text-[clamp(3rem,9vw,7.5rem)] font-bold uppercase leading-[0.82] tracking-[-0.045em] text-white sm:px-6">
+        <span className="select-none px-4 font-clash text-[clamp(2.4rem,7.2vw,6rem)] font-bold uppercase leading-[0.82] tracking-[-0.045em] text-white sm:px-6">
           LIONOVART®
         </span>
       </div>

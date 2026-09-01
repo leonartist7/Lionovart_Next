@@ -83,8 +83,8 @@
   --font-body: var(--font-dm-sans);
 
   /* --- Brand Colors --- */
-  --color-bg-dark: #000000;
-  --color-bg-brand-black: #000000;
+  --color-bg-dark: #0a0a0a;
+  --color-bg-brand-black: #0a0a0a;
   --color-bg-off-white: #f7f4ef;
   --color-brand-red: #e5192a;
   --color-brand-red-secondary: #db0000;
@@ -170,6 +170,15 @@
   @keyframes typing-dot {
     0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
     30% { opacity: 1; transform: translateY(-4px); }
+  }
+
+  /* --- Shine border sweep (ShineBorder component) --- */
+  --animate-shine: shine var(--duration) infinite linear;
+
+  @keyframes shine {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
   }
 }
 /* =============================================
@@ -413,9 +422,9 @@
 }
 
 .testimonials-marquee-plane {
-  --review-perspective: 500px;
+  --review-perspective: 900px;
   --review-depth: -34px;
-  --review-rotate-x: 22deg;
+  --review-rotate-x: 17deg;
   --review-rotate-y: 7deg;
   --review-rotate-z: -4.5deg;
   transform:
@@ -427,24 +436,31 @@
     rotateZ(var(--review-rotate-z));
   transform-origin: 48% 8%;
   transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
 .testimonial-card-frame {
-  --review-card-rotate-x: 3deg;
+  --review-card-rotate-x: 1.5deg;
   transform: rotateX(var(--review-card-rotate-x));
   transform-origin: center center;
   transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
 .testimonial-marquee-lane {
   --testimonial-lane-shift: 0px;
   height: 100%;
+  overflow: hidden;
   transform: translate3d(0, var(--testimonial-lane-shift), 0);
   transform-origin: top center;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%);
 }
 
 .testimonial-marquee-lane--right {
-  --testimonial-lane-shift: clamp(3.5rem, 15vw, 4.5rem);
+  --testimonial-lane-shift: 20%;
 }
 
 .testimonial-marquee-lane--left {
@@ -458,10 +474,10 @@
 
 .testimonials-globe-transition {
   position: absolute;
-  top: clamp(1.5rem, 6vw, 2.75rem);
-  right: clamp(-2.25rem, -7vw, -1.25rem);
+  top: clamp(-3rem, -9vw, -2rem);
+  right: clamp(-1rem, -3vw, -0.5rem);
   z-index: 0;
-  width: clamp(18rem, 78vw, 22rem);
+  width: clamp(19rem, 82vw, 23rem);
   pointer-events: none;
 }
 
@@ -480,7 +496,7 @@
 @media (min-width: 480px) and (max-width: 1023px) {
   .testimonials-marquee-plane {
     --review-depth: -48px;
-    --review-rotate-x: 20deg;
+    --review-rotate-x: 15deg;
     --review-rotate-y: 6deg;
     --review-rotate-z: -4deg;
     transform:
@@ -493,19 +509,19 @@
   }
 
   .testimonials-globe-transition {
-    top: clamp(1.25rem, 4vw, 2.25rem);
-    right: clamp(-1.5rem, -3vw, -0.5rem);
-    width: clamp(22rem, 57vw, 31rem);
+    top: clamp(-3rem, -5vw, -1.75rem);
+    right: clamp(-1rem, -2vw, -0.25rem);
+    width: clamp(23rem, 60vw, 32rem);
   }
 }
 
 @media (min-width: 1024px) {
   .testimonials-marquee-plane {
-    --review-perspective: 360px;
+    --review-perspective: 640px;
     --review-depth: -70px;
-    --review-rotate-x: 18deg;
-    --review-rotate-y: 7.2deg;
-    --review-rotate-z: -3.6deg;
+    --review-rotate-x: 13deg;
+    --review-rotate-y: 6deg;
+    --review-rotate-z: -3deg;
     transform:
       perspective(var(--review-perspective))
       translateX(clamp(-36px, -2.5vw, -20px))
@@ -521,6 +537,10 @@
 
   .testimonial-marquee-lane--left {
     --testimonial-lane-shift: clamp(2rem, 4vw, 3rem);
+  }
+
+  .testimonial-marquee-lane {
+    overflow: visible;
   }
 
   .testimonials-globe-transition {
@@ -895,6 +915,17 @@
     inset 0 -1px 0 rgba(0, 0, 0, 0.58);
 }
 
+.ai-liquid-glass.ai-liquid-glass--light {
+  background:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.62) 46%, rgba(255, 255, 255, 0.38)),
+    rgba(255, 255, 255, 0.68);
+  border-color: rgba(17, 17, 17, 0.12);
+  box-shadow:
+    0 32px 90px -52px rgba(17, 17, 17, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96),
+    inset 0 -1px 0 rgba(17, 17, 17, 0.08);
+}
+
 @media (min-width: 768px) {
   @supports (backdrop-filter: blur(1px)) {
     .ai-liquid-glass {
@@ -903,6 +934,14 @@
         rgba(5, 7, 14, 0.42);
       backdrop-filter: blur(8px) saturate(118%);
       -webkit-backdrop-filter: blur(8px) saturate(118%);
+    }
+
+    .ai-liquid-glass.ai-liquid-glass--light {
+      background:
+        linear-gradient(150deg, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.52) 48%, rgba(255, 255, 255, 0.28)),
+        rgba(255, 255, 255, 0.54);
+      backdrop-filter: blur(8px) saturate(108%);
+      -webkit-backdrop-filter: blur(8px) saturate(108%);
     }
   }
 }
