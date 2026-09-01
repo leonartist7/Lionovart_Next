@@ -9,6 +9,7 @@ import {
   marketFromTimezone,
   type FounderMarket,
 } from "@/lib/founder-offer";
+import { FUNNEL_EVENT, trackFunnelEvent } from "@/lib/funnel-events";
 
 const MARKET_STORAGE_KEY = "lionovart-founder-market:v1";
 const SPLASH_COMPLETE_EVENT = "lionovart:splash-complete";
@@ -133,6 +134,7 @@ export default function FounderOfferBanner() {
   }, [market]);
 
   const focusOffer = () => {
+    trackFunnelEvent(FUNNEL_EVENT.FOUNDER_BANNER_CLICKED, { market });
     const input = document.getElementById("hero-blueprint-email") as HTMLInputElement | null;
     input?.scrollIntoView({ behavior: "smooth", block: "center" });
     window.setTimeout(() => input?.focus({ preventScroll: true }), 500);

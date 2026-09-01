@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import { motion, useInView } from "framer-motion";
 import { animate, utils } from "animejs";
 import { getWhatsAppUrl } from "@/lib/contact";
@@ -422,6 +423,15 @@ export default function HeroTop(props: any) {
         {/* Email capture — glass pill, metallic outline, red Start */}
         <motion.div variants={itemVariants} className="mt-1 w-full sm:mt-2">
           <HeroEmailCapture />
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <Link
+            href="/audit"
+            className="text-[13px] text-white/50 underline underline-offset-4 transition-colors hover:text-white/80"
+          >
+            or get a free audit instead &rarr;
+          </Link>
         </motion.div>
 
         {/* Trust badges — restored, as before */}
