@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
 import AuditCapture from "@/components/sections/AuditCapture";
@@ -23,7 +24,9 @@ export default function AuditPage() {
       />
       <main className="min-h-screen bg-[#f2ede3] relative z-10">
         <Navbar />
-        <AuditCapture />
+        <Suspense fallback={null}>
+          <AuditCapture />
+        </Suspense>
         <Footer />
       </main>
     </>

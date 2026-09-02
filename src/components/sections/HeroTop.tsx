@@ -10,7 +10,7 @@ import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNovaStore } from "@/lib/stores/nova-store";
 import TrustedBadgesSection from "@/components/sections/TrustedBadgesSection";
-import HeroEmailCapture from "@/components/ui/HeroEmailCapture";
+import HeroSiteScore from "@/components/ui/HeroSiteScore";
 import { EN_WORD_ART } from "@/lib/word-art";
 
 /* ─── Variants ─────────────────────────────────────────────────── */
@@ -420,9 +420,9 @@ export default function HeroTop(props: any) {
           {subtitle}
         </motion.p>
 
-        {/* Email capture — glass pill, metallic outline, red Start */}
+        {/* Site score — glass pill URL input, metallic outline, red button */}
         <motion.div variants={itemVariants} className="mt-1 w-full sm:mt-2">
-          <HeroEmailCapture />
+          <HeroSiteScore />
         </motion.div>
 
         <motion.div variants={itemVariants}>
@@ -430,7 +430,7 @@ export default function HeroTop(props: any) {
             href="/audit"
             className="text-[13px] text-white/50 underline underline-offset-4 transition-colors hover:text-white/80"
           >
-            or get a free audit instead &rarr;
+            or skip to a full audit &rarr;
           </Link>
         </motion.div>
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import { CONTACT_EMAIL } from "@/lib/contact";
 import { FUNNEL_EVENT, trackFunnelEvent } from "@/lib/funnel-events";
@@ -24,10 +24,17 @@ type Status = "idle" | "submitting" | "error";
 
 export default function AuditCapture() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const reduceMotion = useReducedMotion();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
+
+  // Prefill from a handoff, e.g. the hero's "get your score" widget CTA.
+  useEffect(() => {
+    const prefilled = searchParams.get("website");
+    if (prefilled) setWebsite(prefilled);
+  }, [searchParams]);
   const [socials, setSocials] = useState("");
   const [knownFor, setKnownFor] = useState("");
   const [nameError, setNameError] = useState<string | null>(null);
