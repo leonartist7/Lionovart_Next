@@ -117,6 +117,16 @@ export default function Services(props: any) {
         >
           {heading} <span className="text-brand-red">{headingAccent}</span>
         </motion.h2>
+
+        <div className="mt-8 flex items-center justify-center md:mt-10" aria-label="Lionovart">
+          <img
+            src="/images/lionovart-icon.svg"
+            alt="Lionovart emblem"
+            className="h-[5.5rem] w-[5.5rem] rounded-full object-cover sm:h-24 sm:w-24 md:h-28 md:w-28 lg:h-32 lg:w-32"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
       </div>
 
       {/* Desktop: focused service list with a lightweight sticky detail panel. */}
