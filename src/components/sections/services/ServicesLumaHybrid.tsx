@@ -153,10 +153,7 @@ function StageVisual({ item, side }: { item: StageItem; side: "left" | "right" }
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="relative h-[clamp(8rem,15vw,14rem)] w-[clamp(8rem,15vw,14rem)] text-black/70">
             <ServiceGlyph id={item.id} />
-            <div
-              aria-hidden
-              className="absolute inset-[18%] -z-10 rounded-full bg-brand-red/[0.07] blur-2xl"
-            />
+            <div aria-hidden className="absolute inset-[18%] -z-10 rounded-full bg-brand-red/[0.07] blur-2xl" />
           </div>
         </div>
 
@@ -177,9 +174,9 @@ function ContentStage({ item, serviceCount }: { item: StageItem; serviceCount: n
     : item.deliverables.slice(0, 4).join(" · ");
 
   return (
-    <div className="grid h-full w-full grid-cols-1 items-center gap-7 md:grid-cols-[0.82fr_1.5fr_0.82fr] md:gap-8 lg:gap-12">
+    <div className="grid h-full w-full grid-cols-[0.82fr_1.5fr_0.82fr] items-center gap-8 lg:gap-12">
       <motion.div
-        className="relative hidden h-[34vh] max-h-[330px] min-h-[250px] border-y border-black/10 py-6 md:block"
+        className="relative h-[34vh] max-h-[330px] min-h-[250px] border-y border-black/10 py-6"
         initial={{ opacity: 0, x: -28 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.75, ease: EASE }}
@@ -219,7 +216,7 @@ function ContentStage({ item, serviceCount }: { item: StageItem; serviceCount: n
       </div>
 
       <motion.div
-        className="relative hidden h-[34vh] max-h-[330px] min-h-[250px] border-y border-black/10 py-6 md:block"
+        className="relative h-[34vh] max-h-[330px] min-h-[250px] border-y border-black/10 py-6"
         initial={{ opacity: 0, x: 28 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.75, ease: EASE }}
@@ -230,12 +227,7 @@ function ContentStage({ item, serviceCount }: { item: StageItem; serviceCount: n
   );
 }
 
-function StaticMobile({
-  eyebrow,
-  heading,
-  headingAccent,
-  items,
-}: ServicesLumaHybridProps) {
+function StaticMobile({ eyebrow, heading, headingAccent, items }: ServicesLumaHybridProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const overview: StageItem = {
     id: "all",
@@ -251,7 +243,7 @@ function StaticMobile({
   const active = stageItems[activeIndex] ?? overview;
 
   return (
-    <div className="min-h-[100svh] bg-bg-surface-light px-5 pb-20 pt-16 text-[#111111] sm:px-8 sm:pt-20 lg:hidden">
+    <div className="min-h-[100svh] bg-bg-surface-light px-5 pb-20 pt-16 text-[#111111] sm:px-8 sm:pt-20">
       <p className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-brand-red">
         {eyebrow}
       </p>
@@ -307,12 +299,7 @@ function StaticMobile({
   );
 }
 
-export default function ServicesLumaHybrid({
-  eyebrow,
-  heading,
-  headingAccent,
-  items,
-}: ServicesLumaHybridProps) {
+export default function ServicesLumaHybrid({ eyebrow, heading, headingAccent, items }: ServicesLumaHybridProps) {
   const reduceMotion = useReducedMotion() ?? false;
   const sectionRef = useRef<HTMLElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
@@ -385,26 +372,21 @@ export default function ServicesLumaHybrid({
 
       mm.add(
         {
-          isTablet: "(min-width: 768px) and (max-width: 1023px)",
           isDesktop: "(min-width: 1024px) and (max-width: 1439px)",
           isLarge: "(min-width: 1440px)",
         },
         (context) => {
           const conditions = context.conditions as Record<string, boolean>;
-          const emblemEntry = conditions.isTablet ? 260 : conditions.isDesktop ? 310 : 350;
-          const emblemRest = conditions.isTablet ? 210 : conditions.isDesktop ? 240 : 270;
-          const selectorSize = conditions.isTablet ? 50 : 56;
+          const emblemEntry = conditions.isLarge ? 350 : 310;
+          const emblemRest = conditions.isLarge ? 270 : 240;
+          const selectorSize = 56;
 
           const getDelta = () => {
             const emblemRect = emblemRef.current!.getBoundingClientRect();
             const anchorRect = anchorRef.current!.getBoundingClientRect();
             return {
-              x:
-                anchorRect.left + anchorRect.width / 2 -
-                (emblemRect.left + emblemRect.width / 2),
-              y:
-                anchorRect.top + anchorRect.height / 2 -
-                (emblemRect.top + emblemRect.height / 2),
+              x: anchorRect.left + anchorRect.width / 2 - (emblemRect.left + emblemRect.width / 2),
+              y: anchorRect.top + anchorRect.height / 2 - (emblemRect.top + emblemRect.height / 2),
             };
           };
 
@@ -431,27 +413,12 @@ export default function ServicesLumaHybrid({
             height: emblemEntry,
             opacity: 1,
           });
-          timeline.set(selector, {
-            opacity: 0,
-            "--selector-scale": 0,
-          });
-          timeline.set(content, {
-            opacity: 0,
-            scale: 0.58,
-            filter: "blur(22px)",
-          });
+          timeline.set(selector, { opacity: 0, "--selector-scale": 0 });
+          timeline.set(content, { opacity: 0, scale: 0.58, filter: "blur(22px)" });
           timeline.set(chrome, { opacity: 0 });
 
-          timeline.to(
-            introRef.current!,
-            { y: "48vh", scale: 0.16, opacity: 0, duration: 0.14, ease: "power3.in" },
-            0.02,
-          );
-          timeline.to(
-            emblemRef.current!,
-            { y: 0, width: emblemRest, height: emblemRest, duration: 0.22, ease: "power3.out" },
-            0.04,
-          );
+          timeline.to(introRef.current!, { y: "48vh", scale: 0.16, opacity: 0, duration: 0.14, ease: "power3.in" }, 0.02);
+          timeline.to(emblemRef.current!, { y: 0, width: emblemRest, height: emblemRest, duration: 0.22, ease: "power3.out" }, 0.04);
           timeline.to(
             emblemRef.current!,
             {
@@ -465,12 +432,7 @@ export default function ServicesLumaHybrid({
             0.23,
           );
 
-          timeline.fromTo(
-            glowRef.current!,
-            { opacity: 0 },
-            { opacity: 1, duration: 0.13, ease: "power1.out" },
-            0.27,
-          );
+          timeline.fromTo(glowRef.current!, { opacity: 0 }, { opacity: 1, duration: 0.13, ease: "power1.out" }, 0.27);
           timeline.fromTo(
             content,
             { opacity: 0, scale: 0.58, filter: "blur(22px)" },
@@ -479,11 +441,7 @@ export default function ServicesLumaHybrid({
           );
           timeline.to(emblemRef.current!, { opacity: 0, duration: 0.035 }, 0.355);
           timeline.to(selector, { opacity: 1, duration: 0.035 }, 0.355);
-          timeline.to(
-            selector,
-            { "--selector-scale": 1, duration: 0.09, ease: "back.out(1.55)" },
-            0.36,
-          );
+          timeline.to(selector, { "--selector-scale": 1, duration: 0.09, ease: "back.out(1.55)" }, 0.36);
           timeline.to(chrome, { opacity: 1, duration: 0.08 }, 0.42);
           timeline.set({}, {}, 1.2);
         },
@@ -501,11 +459,15 @@ export default function ServicesLumaHybrid({
       ref={sectionRef}
       id="services"
       data-art-directed="light"
-      className="relative h-[320vh] bg-bg-surface-light text-[#111111] md:h-[350vh] lg:h-[360vh]"
+      className="relative bg-bg-surface-light text-[#111111] lg:h-[360vh]"
     >
+      <div className="lg:hidden">
+        <StaticMobile eyebrow={eyebrow} heading={heading} headingAccent={headingAccent} items={items} />
+      </div>
+
       <div
         ref={stickyRef}
-        className="sticky top-0 h-[100svh] overflow-hidden bg-bg-surface-light"
+        className="relative hidden h-[100svh] overflow-hidden bg-bg-surface-light lg:sticky lg:top-0 lg:block"
       >
         <div
           aria-hidden
@@ -528,17 +490,17 @@ export default function ServicesLumaHybrid({
 
         <div
           ref={stageChromeRef}
-          className="pointer-events-none absolute inset-x-0 top-0 z-40 mx-auto flex max-w-[1500px] items-start justify-between px-6 pt-[5.5vh] opacity-0 md:px-10 lg:px-14"
+          className="pointer-events-none absolute inset-x-0 top-0 z-40 mx-auto flex max-w-[1500px] items-start justify-between px-10 pt-[5.5vh] opacity-0 lg:px-14"
         >
           <div>
-            <p className="font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-brand-red sm:text-[10px]">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-brand-red">
               {eyebrow}
             </p>
             <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.2em] text-black/32">
               LIONOVART / SERVICE SYSTEM
             </p>
           </div>
-          <p className="hidden max-w-[25ch] text-right font-mono text-[9px] uppercase leading-[1.55] tracking-[0.16em] text-black/30 md:block">
+          <p className="max-w-[25ch] text-right font-mono text-[9px] uppercase leading-[1.55] tracking-[0.16em] text-black/30">
             Scroll to reveal / select to explore
           </p>
         </div>
@@ -547,15 +509,15 @@ export default function ServicesLumaHybrid({
           ref={introRef}
           className="pointer-events-none absolute inset-x-0 top-[13vh] z-10 mx-auto flex max-w-[1500px] flex-col items-center px-6 text-center"
         >
-          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-brand-red sm:text-[11px]">
+          <p className="font-mono text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red">
             {eyebrow}
           </p>
-          <h2 className="mt-5 font-clash text-[clamp(4.4rem,11vw,11rem)] font-semibold uppercase leading-[0.78] tracking-[-0.07em] text-[#111111]">
+          <h2 className="mt-5 font-clash text-[clamp(5.5rem,11vw,11rem)] font-semibold uppercase leading-[0.78] tracking-[-0.07em] text-[#111111]">
             {heading}
             <br />
             <span className="text-brand-red">{headingAccent}</span>
           </h2>
-          <div className="mt-7 flex items-center gap-4 font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-black/34 sm:text-[10px]">
+          <div className="mt-7 flex items-center gap-4 font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-black/34">
             <span>One vision</span>
             <span className="h-px w-10 bg-black/15" />
             <span>Six disciplines</span>
@@ -564,7 +526,7 @@ export default function ServicesLumaHybrid({
 
         <div
           ref={contentRef}
-          className="pointer-events-none absolute inset-x-0 top-[17vh] z-20 mx-auto h-[52vh] max-h-[560px] max-w-[1420px] px-7 opacity-0 md:top-[20vh] md:px-10 lg:px-14"
+          className="pointer-events-none absolute inset-x-0 top-[20vh] z-20 mx-auto h-[52vh] max-h-[560px] max-w-[1420px] px-10 opacity-0 lg:px-14"
           style={{ willChange: "transform, opacity, filter" }}
         >
           <ContentStage item={active} serviceCount={items.length} />
@@ -576,12 +538,7 @@ export default function ServicesLumaHybrid({
           className="pointer-events-none absolute left-1/2 top-[48%] z-30 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full shadow-[0_28px_90px_-34px_rgba(229,25,42,.44)]"
           style={{ willChange: "transform, width, height, opacity" }}
         >
-          <img
-            src="/images/lionovart-icon.svg"
-            alt=""
-            className="h-full w-full object-cover"
-            decoding="async"
-          />
+          <img src="/images/lionovart-icon.svg" alt="" className="h-full w-full object-cover" decoding="async" />
         </div>
 
         <div
@@ -594,7 +551,7 @@ export default function ServicesLumaHybrid({
           ref={selectorRef}
           className="absolute bottom-[7.5vh] left-1/2 z-50 -translate-x-1/2 opacity-0"
         >
-          <div className="flex items-center justify-center gap-1.5 sm:gap-2.5 lg:gap-3">
+          <div className="flex items-center justify-center gap-2.5 lg:gap-3">
             {stageItems.map((item, index) => {
               const selected = index === activeIndex;
               return (
@@ -613,7 +570,7 @@ export default function ServicesLumaHybrid({
                     borderColor: selected ? "#e5192a" : "rgba(17,17,17,0.12)",
                   }}
                   transition={{ duration: 0.48, ease: EASE }}
-                  className="relative flex h-12 shrink-0 items-center justify-center overflow-hidden rounded-full border backdrop-blur-sm disabled:cursor-default sm:h-13"
+                  className="relative flex h-12 shrink-0 items-center justify-center overflow-hidden rounded-full border backdrop-blur-sm disabled:cursor-default sm:h-[3.25rem]"
                   style={{
                     transform: "scale(var(--selector-scale, 0))",
                     transformOrigin: "center",
@@ -648,15 +605,6 @@ export default function ServicesLumaHybrid({
               );
             })}
           </div>
-        </div>
-
-        <div className="lg:hidden">
-          <StaticMobile
-            eyebrow={eyebrow}
-            heading={heading}
-            headingAccent={headingAccent}
-            items={items}
-          />
         </div>
       </div>
     </section>
