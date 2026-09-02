@@ -10,7 +10,7 @@ import ShowcaseMarquee from "@/components/sections/ShowcaseMarquee";
 import SignatureOffer from "@/components/sections/SignatureOffer";
 import Services from "@/components/sections/Services";
 import Comparison from "@/components/sections/Comparison";
-import Process from "@/components/sections/Process";
+import ProcessExperience from "@/components/sections/ProcessExperience";
 import Testimonials from "@/components/sections/Testimonials";
 import AuditStrip from "@/components/sections/AuditStrip";
 import FAQ from "@/components/sections/FAQ";
@@ -59,7 +59,7 @@ export function PageBuilder() {
         <SectionTitleCard word="WHY US?" theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>
         <NovaSection id="about"><AboutUsHalf /></NovaSection>
-        <NovaSection id="process"><Process /></NovaSection>
+        <NovaSection id="process"><ProcessExperience /></NovaSection>
         <SectionTitleCard word="RESULTS." theme="dark" />
         <NovaSection id="testimonials"><Testimonials /></NovaSection>
         <AuditStrip />
