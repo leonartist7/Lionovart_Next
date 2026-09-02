@@ -269,6 +269,19 @@ export default function ServicesLumaHybrid({
 
   if (!items.length) return null;
 
+  const staticDesktopRail = (
+    <div className="hidden lg:block py-24">
+      <Header eyebrow={eyebrow} heading={heading} headingAccent={headingAccent} />
+      <div className="mt-12 flex snap-x snap-mandatory gap-8 overflow-x-auto px-[8vw] pb-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {items.map((service) => (
+          <div key={service.id} className="w-[min(52vw,42rem)] shrink-0 snap-center">
+            <MobileCard service={service} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <section id="services" data-art-directed="dark" className="relative bg-[#0b0b0b] text-white">
       <div className="lg:hidden">
@@ -302,65 +315,63 @@ export default function ServicesLumaHybrid({
         </div>
       </div>
 
-      <div
-        ref={sectionRef}
-        className="relative hidden lg:block"
-        style={{ height: `${Math.max(280, items.length * 48)}vh` }}
-      >
-        <div className="sticky top-0 h-screen overflow-hidden bg-[#0b0b0b]">
-          <div aria-hidden className="absolute inset-0 bg-[radial-gradient(circle_at_50%_58%,rgba(229,25,42,0.14),transparent_35%)]" />
-          <div aria-hidden className="absolute left-1/2 top-[54%] h-[70vh] w-px -translate-x-1/2 -translate-y-1/2 bg-white/[0.05]" />
+      {reduceMotion ? (
+        staticDesktopRail
+      ) : (
+        <div
+          ref={sectionRef}
+          className="relative hidden lg:block"
+          style={{ height: `${Math.max(280, items.length * 48)}vh` }}
+        >
+          <div className="sticky top-0 h-screen overflow-hidden bg-[#0b0b0b]">
+            <div aria-hidden className="absolute inset-0 bg-[radial-gradient(circle_at_50%_58%,rgba(229,25,42,0.14),transparent_35%)]" />
+            <div aria-hidden className="absolute left-1/2 top-[54%] h-[70vh] w-px -translate-x-1/2 -translate-y-1/2 bg-white/[0.05]" />
 
-          <div className="absolute left-0 right-0 top-[clamp(2.5rem,7vh,5.5rem)] z-20">
-            <Header eyebrow={eyebrow} heading={heading} headingAccent={headingAccent} />
-          </div>
+            <div className="absolute left-0 right-0 top-[clamp(2.5rem,7vh,5.5rem)] z-20">
+              <Header eyebrow={eyebrow} heading={heading} headingAccent={headingAccent} />
+            </div>
 
-          <div className="absolute inset-0 [perspective:1400px]">
-            {items.map((service, index) => (
-              <AnimatedServiceCard
-                key={service.id}
-                service={service}
-                index={index}
-                count={items.length}
-                progress={scrollYProgress}
-              />
-            ))}
-          </div>
+            <div className="absolute inset-0 [perspective:1400px]">
+              {items.map((service, index) => (
+                <AnimatedServiceCard
+                  key={service.id}
+                  service={service}
+                  index={index}
+                  count={items.length}
+                  progress={scrollYProgress}
+                />
+              ))}
+            </div>
 
-          <div className="absolute bottom-7 left-0 right-0 z-30 mx-auto flex max-w-[1440px] items-end justify-between px-12">
-            <div>
-              <p className="font-mono text-[9px] font-bold uppercase tracking-[0.24em] text-white/30">
-                One system / six disciplines
-              </p>
-              <div className="mt-3 flex w-[min(34vw,30rem)] gap-1.5">
-                {items.map((service, index) => (
-                  <span
-                    key={service.id}
-                    className={`h-[2px] flex-1 transition-colors duration-300 ${
-                      index <= activeIndex ? "bg-brand-red" : "bg-white/12"
-                    }`}
-                  />
-                ))}
+            <div className="absolute bottom-7 left-0 right-0 z-30 mx-auto flex max-w-[1440px] items-end justify-between px-12">
+              <div>
+                <p className="font-mono text-[9px] font-bold uppercase tracking-[0.24em] text-white/30">
+                  One system / six disciplines
+                </p>
+                <div className="mt-3 flex w-[min(34vw,30rem)] gap-1.5">
+                  {items.map((service, index) => (
+                    <span
+                      key={service.id}
+                      className={`h-[2px] flex-1 transition-colors duration-300 ${
+                        index <= activeIndex ? "bg-brand-red" : "bg-white/12"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-baseline gap-3 font-mono font-bold">
+                <span className="text-[1.6rem] text-brand-red">
+                  {String(activeIndex + 1).padStart(2, "0")}
+                </span>
+                <span className="text-[10px] tracking-[0.2em] text-white/28">
+                  / {String(items.length).padStart(2, "0")}
+                </span>
               </div>
             </div>
-
-            <div className="flex items-baseline gap-3 font-mono font-bold">
-              <span className="text-[1.6rem] text-brand-red">
-                {String(activeIndex + 1).padStart(2, "0")}
-              </span>
-              <span className="text-[10px] tracking-[0.2em] text-white/28">
-                / {String(items.length).padStart(2, "0")}
-              </span>
-            </div>
           </div>
-
-          {reduceMotion ? (
-            <div className="absolute inset-x-12 bottom-20 z-40 rounded-xl border border-white/10 bg-black/80 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.16em] text-white/60">
-              Reduced motion is enabled. Use the service navigation from a touch device or disable reduced motion to preview the full scroll choreography.
-            </div>
-          ) : null}
         </div>
-      </div>
+      )}
     </section>
   );
 }
