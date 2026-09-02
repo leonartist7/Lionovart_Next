@@ -150,11 +150,6 @@ export default function LogoProcessJourney(props: any) {
     offset: ["start start", "end end"],
   });
 
-  /*
-   * Keep the mark visibly anchored in the viewport at every scroll position.
-   * The old pass zoomed the SVG up to ~5x and translated it by large vw/vh
-   * distances, which could leave the sticky viewport visually empty.
-   */
   const cameraScale = useTransform(scrollYProgress, [0, 0.22, 0.48, 0.74, 0.9, 1], [1.38, 1.52, 1.42, 1.5, 1.08, 1]);
   const cameraX = useTransform(scrollYProgress, [0, 0.22, 0.48, 0.74, 0.9, 1], ["10vw", "5vw", "-4vw", "3vw", "0vw", "0vw"]);
   const cameraY = useTransform(scrollYProgress, [0, 0.22, 0.48, 0.74, 0.9, 1], ["8vh", "-2vh", "3vh", "-3vh", "0vh", "0vh"]);
@@ -190,7 +185,7 @@ export default function LogoProcessJourney(props: any) {
       id="process"
       data-art-directed="dark"
       data-process-direction="logo"
-      className="relative isolate overflow-hidden bg-[#0b0b0b] text-white lg:h-[300vh]"
+      className={`relative isolate bg-[#0b0b0b] text-white ${reduced ? "lg:min-h-[100svh]" : "lg:h-[300vh]"}`}
       aria-label={eyebrow}
     >
       <MobileJourney
@@ -203,7 +198,14 @@ export default function LogoProcessJourney(props: any) {
         reduced={reduced}
       />
 
-      <div className="sticky top-0 hidden h-[100svh] overflow-hidden lg:block">
+      <div
+        className={
+          reduced
+            ? "relative hidden min-h-[100svh] overflow-hidden lg:block"
+            : "sticky top-0 hidden h-[100svh] overflow-hidden lg:block"
+        }
+        style={{ contain: "paint" }}
+      >
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
