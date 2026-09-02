@@ -12,7 +12,7 @@ export function GlassAmbience() {
       className="pointer-events-none absolute inset-0 overflow-hidden opacity-80"
       style={{
         background:
-          "radial-gradient(42% 34% at 12% 18%, color-mix(in srgb, var(--ai-blue) 18%, transparent), transparent 74%), radial-gradient(38% 30% at 88% 68%, color-mix(in srgb, var(--ai-cyan) 12%, transparent), transparent 76%)",
+          "radial-gradient(42% 34% at 12% 18%, color-mix(in srgb, var(--ai-ember) 18%, transparent), transparent 74%), radial-gradient(38% 30% at 88% 68%, color-mix(in srgb, var(--ai-cyan) 12%, transparent), transparent 76%)",
       }}
     />
   );
@@ -62,7 +62,7 @@ export function LiquidGlass({
         aria-hidden
         className={cn(
           "pointer-events-none absolute -right-20 -top-20 size-48 rounded-full",
-          tone === "light" ? "bg-brand-red/[0.055]" : "bg-[var(--ai-cyan)]/10",
+          tone === "light" ? "bg-brand-red/[0.055]" : "bg-[var(--ai-gold)]/10",
         )}
       />
       {animate && (

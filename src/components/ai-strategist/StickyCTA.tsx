@@ -21,7 +21,10 @@ export function StickyCTA() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  if (isOpen || pathname?.startsWith("/admin")) return null;
+  // /services/ai runs its own CTA ladder (hero button, then page nav).
+  // Adding the global sticky pair on top puts three floating CTA systems on
+  // screen at once inside that page's first chapter.
+  if (isOpen || pathname?.startsWith("/admin") || pathname === "/services/ai") return null;
 
   return (
     <AnimatePresence>

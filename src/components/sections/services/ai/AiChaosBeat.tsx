@@ -1,11 +1,16 @@
 "use client";
 
 /**
- * The missing bridge between the hero and the service story.
+ * ACT 2 — the tension.
  *
  * The same particles that draw the crown open into an immersive field, then
  * reconnect as an ecosystem on the opposite side of the copy. No second
  * canvas, opaque sphere, or shader handoff is involved.
+ *
+ * The three beats name the three things that actually go wrong after a demo:
+ * generic output, output that doesn't know the business, and a vendor who
+ * can't explain what they built. Scanned in sequence, the three titles carry
+ * the argument without the body copy.
  */
 
 import { useEffect, useRef } from "react";
@@ -16,25 +21,25 @@ import { getLionStage } from "@/lib/lion/stage-ref";
 gsap.registerPlugin(ScrollTrigger);
 
 export const HERO_MORPH_END = 0.06;
-export const BRIDGE_MORPH_END = 0.58;
+export const BRIDGE_MORPH_END = 0.44;
 
 const CHAPTERS = [
   {
-    eyebrow: "The hidden cost",
-    title: "Your team is doing work your systems should handle.",
-    body: "Calls wait. Leads cool down. Information gets copied between tools. The cost is not only time—it is the opportunity that disappears while everyone stays busy.",
+    eyebrow: "The sameness",
+    title: "It writes like everyone else.",
+    body: "Every vendor's demo works—it is built to. What the demo doesn't show is the same model everyone else is using, in its factory voice, producing the paragraph your competitor published last Tuesday. Customers can't name what's wrong with it. They just trust it a little less, and they never tell you why.",
     side: "left",
   },
   {
-    eyebrow: "The turning point",
-    title: "When the noise clears, the opportunity appears.",
-    body: "Every conversation, task and customer signal becomes visible in one place. Intelligence starts by understanding the full picture—and knowing what should happen next.",
+    eyebrow: "The improvising",
+    title: "It doesn't know your business.",
+    body: "Nobody taught it your service names, your deposit policy, the thing you never say to a customer or the thing you always say. So it fills the gap on its own. Confidently. In front of the people you spent money to reach.",
     side: "right",
   },
   {
-    eyebrow: "The connected ecosystem",
-    title: "Now the whole business moves together.",
-    body: "Voice, inbox, calendar, customers, operations and payments share context as one living system—responding faster while asking less from your team.",
+    eyebrow: "The handoff",
+    title: "Nobody can explain what they built.",
+    body: "You ask how it works and you get a screenshot of boxes joined by lines. Then a supplier changes a form, it breaks, and the person who set it up is on someone else's retainer. You didn't buy an AI problem. You bought a maintenance problem with a subscription attached.",
     side: "left",
   },
 ] as const;
@@ -120,15 +125,14 @@ export default function AiChaosBeat() {
               style={{ opacity: index === 0 ? 1 : 0 }}
             >
               <div className="w-full max-w-[44rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:w-[55%]">
-                <p className="text-[13px] font-medium uppercase tracking-[0.18em] text-[var(--ai-cyan)] md:text-[14px]">
+                <p className="text-[13px] font-medium uppercase tracking-[0.18em] text-[var(--ai-gold)] md:text-[14px]">
                   {String(index + 1).padStart(2, "0")} / {String(CHAPTERS.length).padStart(2, "0")} · {chapter.eyebrow}
                 </p>
                 <h2
-                  className="mt-6 font-normal tracking-[-0.045em] text-white"
+                  className="mt-6 max-w-[16ch] font-semibold tracking-[-0.02em] text-white"
                   style={{
-                    fontFamily: "var(--font-ai-display)",
-                    fontSize: "clamp(2.8rem, 5.5vw, 5.8rem)",
-                    lineHeight: 0.96,
+                    fontSize: "clamp(2.5rem, 5vw, 5rem)",
+                    lineHeight: 1,
                   }}
                 >
                   {chapter.title}

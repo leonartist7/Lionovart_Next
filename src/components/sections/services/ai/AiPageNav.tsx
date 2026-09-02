@@ -5,14 +5,14 @@ import { useNovaStore } from "@/lib/stores/nova-store";
 import { LiquidGlass } from "./LiquidGlass";
 
 const LINKS = [
-  { id: "outcome", label: "Start" },
+  { id: "proof", label: "Proof" },
   { id: "systems", label: "Systems" },
-  { id: "process", label: "Build" },
-  { id: "results", label: "ROI" },
+  { id: "results", label: "Numbers" },
+  { id: "process", label: "Process" },
 ] as const;
 
 export default function AiPageNav() {
-  const [active, setActive] = useState("outcome");
+  const [active, setActive] = useState<string>(LINKS[0].id);
   const [visible, setVisible] = useState(false);
   const openNova = useNovaStore((state) => state.openNova);
 
@@ -28,12 +28,33 @@ export default function AiPageNav() {
       { rootMargin: "-32% 0px -55%", threshold: [0, 0.15, 0.4] },
     );
     sections.forEach((section) => observer.observe(section));
-    const onScroll = () => setVisible(window.scrollY > window.innerHeight * 0.55);
+
+    // The nav must not share the screen with the hero's own CTA — three
+    // floating call-to-action systems stacking inside the first chapter is
+    // what made this page feel cluttered. Hold until the hero has fully left.
+    // The threshold is cached rather than measured per scroll event, so the
+    // listener never reads layout in the hot path.
+    let releaseAt = 0;
+    const measure = () => {
+      const hero = document.getElementById("outcome");
+      releaseAt = hero
+        ? hero.offsetTop + hero.offsetHeight - window.innerHeight * 0.25
+        : window.innerHeight * 1.8;
+    };
+    const onScroll = () => setVisible(window.scrollY > releaseAt);
+    measure();
     onScroll();
+
+    const onResize = () => {
+      measure();
+      onScroll();
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
     return () => {
       observer.disconnect();
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
     };
   }, []);
 
@@ -58,7 +79,7 @@ export default function AiPageNav() {
           >
             {link.label}
             {active === link.id && (
-              <span aria-hidden className="absolute inset-x-3 -bottom-px h-px bg-[var(--ai-cyan)] shadow-[0_0_9px_var(--ai-cyan)]" />
+              <span aria-hidden className="absolute inset-x-3 -bottom-px h-px bg-[var(--ai-gold)] shadow-[0_0_9px_var(--ai-gold)]" />
             )}
           </a>
         ))}

@@ -7,8 +7,11 @@
  * the particle crown. SERVICE_PAGES_SPEC section 2 makes the Act 1 medium
  * per-page, and here the medium is the crown itself.
  *
- * The section owns the assembled crown and the first hint of its release. It
- * hands the same particle population to AiChaosBeat for the immersive bridge.
+ * One claim, one proof, one action. The proof and the action are the same
+ * button: the visitor can test the agent we built before reading anything else.
+ * This is the ONLY call to action allowed inside the hero's scroll range —
+ * AiPageNav holds until the hero releases, and StickyCTA is suppressed on this
+ * route entirely, so the three CTA systems can never stack here.
  */
 
 import { useEffect, useRef } from "react";
@@ -68,35 +71,30 @@ export default function AiHeroCopy() {
             ref={copyRef}
             className="w-full max-w-[45rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:w-[55%]"
           >
-            <p className="mb-6 text-[13px] font-medium uppercase tracking-[0.24em] text-[var(--ai-cyan)] md:text-[14px]">
-              AI Systems &amp; Consulting
+            <p className="mb-6 text-[13px] font-medium uppercase tracking-[0.24em] text-[var(--ai-gold)] md:text-[14px]">
+              AI Systems · Built in-house in Calgary
             </p>
             <h1
-              className="max-w-[14ch] font-normal leading-[0.91] tracking-[-0.05em] text-white"
-              style={{ fontSize: "clamp(3.15rem, 6.8vw, 7rem)", fontFamily: "var(--font-ai-display)" }}
+              className="max-w-[19ch] font-semibold leading-[0.98] tracking-[-0.02em] text-white"
+              style={{ fontSize: "clamp(2.6rem, 5.4vw, 5.4rem)" }}
             >
-              Your business keeps growing.{" "}
-              <span className="text-[var(--ai-cyan)]">Even when you step away.</span>
+              Talk to the AI we built.{" "}
+              <span className="text-[var(--ai-gold)]">Then decide if we should build yours.</span>
             </h1>
             <p className="mt-8 max-w-[52ch] text-[18px] font-light leading-[1.62] text-white/82 md:text-[21px]">
-              One connected AI operating system answers, follows up, coordinates and
-              reports 24/7—while we build, maintain and improve it for you. Your team
-              gets the hours back. Every opportunity gets a next step.
+              Nova answers in five languages, knows our whole offer, and books the call.
+              It&rsquo;s ours—no reseller platform underneath, no white-label wrapper. What
+              you&rsquo;re about to test is the same craft we&rsquo;d put into your front desk.
             </p>
-            <div className="mt-8 flex flex-wrap gap-x-7 gap-y-3 text-[14px] font-medium tracking-[-0.01em] text-white/72 md:text-[15px]">
-              <span>24/7 response</span>
-              <span>10+ hours weekly target</span>
-              <span>Continuously optimized</span>
-            </div>
             <button
               type="button"
               onClick={() => openNova("hero", true)}
               className="mt-9 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[17px] font-semibold tracking-[-0.01em] text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
-              Find Your Highest-ROI System
+              Talk to Nova
             </button>
             <p className="mt-4 max-w-[38ch] text-[17px] leading-[1.55] text-white/68">
-              Start with a focused audit. Leave with a clear automation roadmap.
+              Runs right here. No form, no email, nothing to install.
             </p>
           </div>
         </div>
