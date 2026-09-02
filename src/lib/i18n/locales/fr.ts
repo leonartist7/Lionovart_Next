@@ -146,17 +146,17 @@ export const fr: Translations = {
   },
 
   bridge: {
-    line1: "Personne ne voit les heures derrière la marque.",
-    line2: "Nous, si.",
-    accent: "Nous les avons faites.",
-    body: "C'est pourquoi nous ne commençons pas par un discours, mais par ce que vous avez déjà bâti.",
-  },
-
-  vow: {
     line1: "Plus qu'une agence.",
     line2: "Le partenariat qui",
     accent: "bâtit votre héritage.",
     body: "Nous ne prenons pas de clients. Nous prenons part à ce que vous bâtissez.",
+  },
+
+  vow: {
+    line1: "Personne ne voit les heures derrière la marque.",
+    line2: "Nous, si.",
+    accent: "Nous les avons faites.",
+    body: "C'est pourquoi nous ne commençons pas par un discours, mais par ce que vous avez déjà bâti.",
   },
 
   footer: {
