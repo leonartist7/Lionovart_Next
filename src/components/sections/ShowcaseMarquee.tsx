@@ -93,7 +93,16 @@ export default function ShowcaseMarquee() {
           speed={38}
           axis={50}
           className="relative z-10 h-[18rem] w-full overflow-visible sm:h-[24rem] lg:h-[30rem]"
-        />
+        >
+          <div className="pointer-events-none absolute left-1/2 top-1/2 z-30 -translate-x-1/2 -translate-y-1/2">
+            <img
+              src="/images/lionovart-icon.svg"
+              alt="Lionovart emblem"
+              className="h-20 w-20 rounded-full object-cover sm:h-24 sm:w-24 lg:h-28 lg:w-28"
+              decoding="async"
+            />
+          </div>
+        </ImageStreamHero>
       )}
     </section>
   );
