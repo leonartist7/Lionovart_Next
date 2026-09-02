@@ -192,10 +192,19 @@ export default function AboutUsHalf(props: any) {
             </p>
           </div>
 
-          {/* ROW 2 â€” 2-col grid */}
-          <div className="w-full max-w-[1400px] px-[max(3rem,6vw)] grid grid-cols-[1fr_34%] gap-[clamp(2rem,4vw,5rem)] items-start">
+          {/* ROW 2 — image left, copy right */}
+          <div className="w-full max-w-[1400px] px-[max(3rem,6vw)] grid grid-cols-[34%_1fr] gap-[clamp(2rem,4vw,5rem)] items-start">
 
-            {/* LEFT COLUMN â€” line 2, divider, body, stats */}
+            {/* LEFT COLUMN — portrait */}
+            <div className="flex justify-center items-start lg:-mt-10 xl:-mt-14">
+              <PortraitFrame
+                frameClassName="w-full aspect-[3/4] max-h-[clamp(60vh,78vh,90vh)]"
+                revealClass=""
+                founderRole={founderRole}
+              />
+            </div>
+
+            {/* RIGHT COLUMN — line 2, divider, body, stats */}
             <div className="flex flex-col items-start w-full">
               <h2 className="font-display text-black leading-[1.05] tracking-tight text-[clamp(2rem,3.5vw,5rem)]">
                 {(headlineTop.split('\n')[1] ?? '').split(' ').filter(Boolean).map((word, wi) => (
@@ -224,14 +233,6 @@ export default function AboutUsHalf(props: any) {
               </div>
             </div>
 
-            {/* RIGHT COLUMN â€” portrait, top-anchored, pulled up relative to the text column */}
-            <div className="flex justify-center items-start lg:-mt-10 xl:-mt-14">
-              <PortraitFrame
-                frameClassName="w-full aspect-[3/4] max-h-[clamp(60vh,78vh,90vh)]"
-                revealClass=""
-                founderRole={founderRole}
-              />
-            </div>
           </div>
 
         </div>
