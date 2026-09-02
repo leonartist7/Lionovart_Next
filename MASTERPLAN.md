@@ -2,7 +2,7 @@
 
 > **This document supersedes every other plan in this repository.**
 > Where this file disagrees with any other document, this file wins.
-> Last updated: 2026-08-26 · Owner: Leon (Creative & Business Director)
+> Last updated: 2026-08-31 · Owner: Leon (Creative & Business Director)
 
 ---
 
@@ -280,12 +280,26 @@ A number that moves is more persuasive than a number that sits. And it is true, 
 
 ### 4.4 The integrity pass (Week 1, blocking)
 
-`src/lib/i18n/locales/en.ts` currently ships named testimonials with named businesses and hard numbers. Some are real; some are placeholders. Resolution:
+**Leon's call (2026-08-31): all testimonials are real clients.** They stay, under their own names. The work is therefore not removal but substantiation.
 
-1. **Real ones stay** — keep name, add `Client Work · {country}` chip, get written permission on file (`TODO(leon)`).
-2. **Placeholders come out of `testimonials.reviews`** and are re-authored as `/work` Creative Studies with honest chips. The perception Leon wants (international range) is fully preserved.
-3. **Unsourced stats** — every number in `en.ts` and `BRAND_MARKETING_HANDOFF.md` §8 either gets a visible source or comes down. `94% of first impressions are design-based` → cite. `+20 Brands in the Lion's Pride` → make true or cut.
-4. **`FounderOfferBanner`** switches to the derived Founding Five copy (§4.3).
+**Where the data actually lives** — verified in the codebase, because it is not where the earlier docs assumed:
+
+| Source | Count | Renders? |
+|---|---|---|
+| `src/components/sections/Testimonials.tsx` → `PAGES` | 18 | ✅ **this is the live grid** |
+| `src/components/sections/TestimonialsCarousel.tsx` → `PARTNERS` | 4 | ✅ live carousel |
+| `src/lib/i18n/locales/en.ts` → `testimonials.reviews` | 23 | ❌ **read by nothing** |
+
+Editing `en.ts` alone changes nothing on the site. The component arrays are the source of truth for quote copy; `en.ts` supplies only the section eyebrow and heading.
+
+Resolution:
+
+1. **Quotes edited for clarity — done** (2026-08-31). All 18 grid quotes rewritten to read like a business owner speaking rather than marketing copy: concrete detail over adjectives, no "nailed it" / "worth every penny" / "game changer", no agency-name padding. Carousel quotes already read human and were left alone.
+2. **Every edited quote is a draft until its client confirms it.** Tracked in `TESTIMONIAL_APPROVALS.md`, which carries the outreach message and a per-client status row. An edited quote attributed to a named business is legitimate once approved and is not before. **Executing models never mark a row approved** — only Leon does, after the client replies.
+3. **The estimated figures.** Eight cards carry `statKind: "estimated"` — a LIONOVART calculation, not a client-reported number, shown under an "Est. impact" label next to a named business. The approval message asks the client to confirm it. Confirmed → flip to `"reported"`. Not confirmed → drop `stat`/`statLabel` and keep the quote. Never remove the "Est. impact" label to tidy the design, and never invent or raise a figure.
+4. **Unsourced stats elsewhere** — every number in the site copy and `BRAND_MARKETING_HANDOFF.md` §8 either gets a visible source or comes down. `94% of first impressions are design-based` → cite. `+20 Brands in the Lion's Pride` → make true or cut.
+5. **`FounderOfferBanner`** switches to the derived Founding Five copy (§4.3).
+6. **`/work` labels** (§4.2) still apply to portfolio pieces — that is where `Creative Study` and `Concept Direction` live. Testimonials are all `Client Work`.
 
 ---
 
@@ -739,6 +753,8 @@ These are history. Read them for context, never for direction. Each has been giv
 | `docs/V2_REBRAND_MASTER_PLAN.md` | **Part B.1 is law** (§0.1). Everything else is a parked concept. |
 | `CLAUDE.md` build table | Stale — component list predates the current `PageBuilder` |
 
+**Not superseded — active companion files:** `TESTIMONIAL_APPROVALS.md` (§4.4 permission record), `src/lib/offers.ts` (§3 the Ladder, single source of truth for every published number).
+
 ---
 
 ## §9 — FIELD NOTES
@@ -748,3 +764,5 @@ These are history. Read them for context, never for direction. Each has been giv
 - `2026-08-26` — `src/lib/i18n/locales/ja.ts` and parts of `founder-offer.ts` contain `[TODO: translate]` placeholder strings that would render literally if Japanese is ever enabled.
 - `2026-08-26` — `NOVA_HARDENING_PLAN.md` §1.3 lists SSRF in `scrape_website` as unfixed, but `src/lib/scrape-website.ts` already implements `isPrivateIPv4` / `isBlockedAddress` / `isHostnameBlocked`. The open question is redirect-hop coverage (Week 3).
 - `2026-08-26` — `src/lib/calcom.ts` (4.4KB) is dormant by decision (§1.4). Not dead code; do not remove.
+- `2026-08-31` — `src/lib/i18n/locales/en.ts` carries a 23-entry `testimonials.reviews` array (~175 lines) that **no component reads**. The live quotes are in `Testimonials.tsx`. The two have already diverged. Leon to decide whether to delete the dead array or wire the component to it; do not delete it unprompted.
+- `2026-08-31` — Eight testimonial cards render a `statKind: "estimated"` figure beside a named client business. Labelled "Est. impact", which is honest, but unconfirmed. Resolution path is in `TESTIMONIAL_APPROVALS.md`.
