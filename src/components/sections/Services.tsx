@@ -1,8 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import ServicesHorizontal from "./ServicesHorizontal";
+import ServicesLumaHybrid from "./services/ServicesLumaHybrid";
 
 const SERVICES_STATIC = [
   { id: "branding", number: "01" },
@@ -38,34 +37,11 @@ export default function Services(props: any) {
       }));
 
   return (
-    <section
-      id="services"
-      data-art-directed="light"
-      className="relative bg-bg-surface-light text-[#111111]"
-    >
-      <header className="mx-auto flex w-full max-w-[1280px] flex-col items-center px-4 pb-3 pt-[60px] text-center md:px-8 md:pb-5 md:pt-[80px]">
-        <motion.p
-          className="mb-4 text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red md:text-[13px]"
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4 }}
-        >
-          {eyebrow}
-        </motion.p>
-
-        <motion.h2
-          className="max-w-3xl font-clash text-[2.5rem] font-bold uppercase leading-[0.92] tracking-[-0.02em] text-[#111111] sm:text-[3.5rem] md:text-[5rem] lg:text-[6rem]"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          {heading} <span className="text-brand-red">{headingAccent}</span>
-        </motion.h2>
-      </header>
-
-      <ServicesHorizontal items={services} />
-    </section>
+    <ServicesLumaHybrid
+      eyebrow={eyebrow}
+      heading={heading}
+      headingAccent={headingAccent}
+      items={services}
+    />
   );
 }
