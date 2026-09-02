@@ -148,20 +148,20 @@ export const en = {
     ],
   },
 
-  /** Beat 3 — Recognition. Runs before the Strong-alone turn. */
+  /** Beat 3 — The Vow. Runs before the Strong-alone turn. */
   bridge: {
-    line1: "Nobody sees the hours behind the brand.",
-    line2: "We do.",
-    accent: "We've worked them.",
-    body: "So we don't start with a pitch. We start with what you've already built.",
-  },
-
-  /** Beat 5 — The Vow. Runs after the turn, on the cream the bloom created. */
-  vow: {
     line1: "More than an agency.",
     line2: "The partnership",
     accent: "building your legacy.",
     body: "We don't take on clients. We take on what you're building.",
+  },
+
+  /** Beat 5 — Recognition. Runs after the turn, on the cream the bloom created. */
+  vow: {
+    line1: "Nobody sees the hours behind the brand.",
+    line2: "We do.",
+    accent: "We've worked them.",
+    body: "So we don't start with a pitch. We start with what you've already built.",
   },
 
   footer: {
