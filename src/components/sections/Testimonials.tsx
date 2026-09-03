@@ -202,7 +202,7 @@ export default function Testimonials() {
   }
 
   return (
-    <section id="testimonials" className="overflow-hidden bg-[#0a0a0a]">
+    <section id="testimonials" className="overflow-x-clip bg-[#0a0a0a]">
       <div className="mx-auto max-w-[1440px] px-4 pb-16 pt-20 sm:px-6 md:px-8 lg:pb-20 lg:pt-24">
         <div className="mb-10 flex items-center gap-3">
           <span className="h-px w-9 bg-brand-red" />
