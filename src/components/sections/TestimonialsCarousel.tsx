@@ -1,6 +1,7 @@
 "use client";
 
 import BrandsElevatedScroll from "@/components/sections/BrandsElevatedScroll";
+import "./BrandsElevatedScroll.module.css";
 
 export default function TestimonialsCarousel() {
   return (
