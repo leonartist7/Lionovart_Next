@@ -54,7 +54,7 @@ export default function HeroCycling({
   forceAnimate = false,
 }: HeroCyclingProps) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timerRef = useRef<number | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hasMounted, setHasMounted] = useState(false);
   const [prefersReduced, setPrefersReduced] = useState(false);
@@ -109,7 +109,7 @@ export default function HeroCycling({
       setCurrentIndex((index) => (index + 1) % words.length);
     }, holdMs);
     return () => {
-      if (timerRef.current) window.clearTimeout(timerRef.current);
+      if (timerRef.current !== null) window.clearTimeout(timerRef.current);
       timerRef.current = null;
     };
   }, [currentIndex, shouldAnimate, words]);
