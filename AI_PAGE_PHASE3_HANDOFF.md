@@ -9,9 +9,21 @@
 > on `claude/ai-services-rebuild-lcjqs8`. Phase 3 — **particles, layout,
 > pricing** — is specified here and not yet built.
 >
-> **Also read:** `AI_SYSTEMS_PAGE_SPEC.md` (the original approval doc — still
-> authoritative on intent, superseded here where they disagree),
-> `LIONOVART_SCROLL_LAG_HANDOFF.md` (perf methodology), `DESIGN_SYSTEM.md` (tokens).
+> **Which spec is current — read this before anything else.** There are two, and
+> the newer one is easy to miss:
+>
+> - **`specs/ai-master-page/{spec.md, tasks.md, verification.md}` — CURRENT.**
+>   The spec the shipped crown-system code implements (commit `c7a796b`, spec
+>   last touched 2026-08-25). All 16 tasks checked off, verification passed. It
+>   owns the **performance contract** (§6.4), the interaction contract, and the
+>   acceptance criteria. **This is the binding document.**
+> - `AI_SYSTEMS_PAGE_SPEC.md` — **older** (2026-08-21), superseded on structure.
+>   Still the *only* source for the typeface rule (§1.2) and the red-restraint
+>   rule (§1.1), which the current spec is silent on. Cited in §5.3 and §9.1 for
+>   exactly that reason and no other.
+>
+> **Also read:** `LIONOVART_SCROLL_LAG_HANDOFF.md` (perf methodology),
+> `DESIGN_SYSTEM.md` (tokens).
 
 ---
 
@@ -178,7 +190,10 @@ source of truth**, deliberately not duplicated here to avoid divergence.
 | 9 · Close | `AiDecision` | **A person builds it.** The machine only runs it. |
 
 The four pillars were renamed from abstractions to **rooms** — The Front Desk,
-The Follow-Through, The Back Office, The Control Room. Two reasons: a buyer can
+The Follow-Through, The Back Office, The Control Room. **This is a deliberate
+divergence from `specs/ai-master-page/spec.md`**, which names them Capture &
+Convert / Serve & Retain / Run & Fulfill / See & Scale. Raise it with Leon
+rather than silently reverting either way. Two reasons: a buyer can
 picture a room and cannot picture "Capture & Convert", and rooms hand the
 particle system four legible shapes (§6.3). That renaming is what makes problem
 #4 solvable at all.
@@ -327,6 +342,11 @@ geometry to the noun the copy already gives you:
 
 **Rules for all four:**
 
+0. **Survive 77 particles.** This is the hardest constraint and it comes from
+   `specs/ai-master-page/spec.md` — the mobile budget is **77 points**, and
+   principle 2 ("Crown, not lion") requires the form to stay recognizable at
+   that budget. Design each room at 77 points **first**, then let the desktop
+   budget add density. A form that only reads at 777 points is a failed form.
 1. **Silhouette first.** Each must be identifiable in a 200×200 greyscale
    thumbnail. If two are confusable, redo the one that lost.
 2. **No filled centres.** `shaders.ts:141` warns about the "opaque sphere /
@@ -356,7 +376,22 @@ monotonically 0 → 1.
 
 ### 6.4 What must not regress
 
-Per `AI_SYSTEMS_PAGE_SPEC.md §5` and `LIONOVART_SCROLL_LAG_HANDOFF.md`:
+**The performance contract is in `specs/ai-master-page/spec.md` and is binding:**
+
+| Tier | Particle budget | DPR cap | Post | Ambient detail |
+|---|---:|---:|---|---|
+| Mobile / low capability | **77** | 1.25 | none | no dust, trails, plexus or pointer math |
+| Tablet | 177 | 1.45 | none | short trails, restrained dust |
+| Desktop | 777 | 1.65 | subtle bloom | trails, dust, plexus |
+| High-end wide desktop | 1,377 | 1.8 | subtle bloom | full restrained detail |
+
+Also from that spec: crown points are mathematically generated (no GLB fetch or
+surface sampling); mobile sprites use a crisp opaque core, never a faded disc;
+mobile glass uses gradients and edge lighting, **not** `backdrop-filter`; the
+render loop pauses when the tab is hidden and lowers cadence while idle; scroll
+assistance is proximity-only and never captures touch.
+
+Plus, from `LIONOVART_SCROLL_LAG_HANDOFF.md`:
 
 - Generators run **once, on the CPU, at build time.** No per-particle work in the
   RAF loop. Check memory cost before adding a fifth attribute.
@@ -509,6 +544,11 @@ Argued and settled. Changing one reopens the argument, not just a value.
 | **No pricing tier grid** | §8.1. |
 | **CTA ladder** | §5.4. Do not add a fourth CTA system. |
 | **The strategic fork** | Settled: pull back to brand. Reasoning below. |
+
+The current spec (`specs/ai-master-page/spec.md`) is **silent on typeface and
+palette** — it governs structure, motion and performance only. So the Phase 2
+type and colour decisions do not contradict it, and `AI_SYSTEMS_PAGE_SPEC.md`
+remains the only written rule on either.
 
 ### 9.1 The fork, and why it went this way
 
