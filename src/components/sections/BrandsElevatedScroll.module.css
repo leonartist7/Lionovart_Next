@@ -1,3 +1,7 @@
-:global(#testimonials) {
+.host {
+  width: 100%;
+}
+
+:global(#testimonials):has(.host) {
   overflow: clip !important;
 }
