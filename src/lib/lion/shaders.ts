@@ -228,18 +228,20 @@ void main(){
   vec3 rim = vec3(1.2, 0.75, 0.30) * fres * (0.38 + 0.52 * m);
   vec3 col = gold + rim;
 
-  // Color follows the same chapters: gold erupts into electric violet/cyan,
-  // then resolves into a warm connected platform before the CTA crown returns.
+  // Colour carries the page's argument: warm is the human hand, one cold
+  // accent is the machine. The field stays inside a single cold hue family
+  // (cyan to deep signal blue) and warms toward brand gold as the story
+  // resolves. No magenta/violet — that is the generic-AI tell.
   vec3 ecosystemColor = mix(
     vec3(0.10, 0.72, 1.48),
-    vec3(0.88, 0.18, 1.42),
+    vec3(0.16, 0.40, 1.30),
     aRand.z
   );
-  ecosystemColor = mix(ecosystemColor, vec3(1.28, 0.76, 0.24), step(0.78, aRand.w) * 0.72);
+  ecosystemColor = mix(ecosystemColor, vec3(1.28, 0.76, 0.24), step(0.68, aRand.w) * 0.90);
   float energyPulse = 0.78 + 0.22 * sin(
     flowY * 4.0 - uTime * 1.25 + aRand.y * 6.2831853
   );
-  vec3 energyColor = mix(vec3(0.06, 0.92, 1.62), vec3(0.96, 0.16, 1.48), aRand.z) * energyPulse;
+  vec3 energyColor = mix(vec3(0.06, 0.92, 1.62), vec3(1.30, 0.86, 0.26), aRand.z) * energyPulse;
   vec3 hubColor = mix(vec3(0.24, 0.78, 1.48), vec3(1.42, 0.82, 0.26), aRand.y);
   col = mix(col, ecosystemColor, ecosystemT);
   col = mix(col, energyColor, flowT);
@@ -354,7 +356,7 @@ void main(){
   float d = length(gl_PointCoord - 0.5);
   float a = smoothstep(0.5, 0.10, d) * vAlpha;
   if (a < 0.006) discard;
-  vec3 tech = mix(vec3(0.08, 0.88, 1.55), vec3(0.92, 0.20, 1.45), vMix);
+  vec3 tech = mix(vec3(0.08, 0.88, 1.55), vec3(0.14, 0.36, 1.20), vMix);
   vec3 col = mix(uColor, tech, vStory);
   col = mix(col, uColor * 1.08, uBloom);
   gl_FragColor = vec4(col * a, a);
@@ -481,7 +483,7 @@ void main(){
   float a = clamp((core + inner + halo + star) * vAlpha, 0.0, 1.0);
   if (a < 0.006) discard;
   vec3 gold = mix(vec3(1.05, 0.50, 0.12), vec3(1.48, 1.16, 0.70), vMix);
-  vec3 tech = mix(vec3(0.08, 0.86, 1.55), vec3(0.94, 0.18, 1.44), vMix);
+  vec3 tech = mix(vec3(0.08, 0.86, 1.55), vec3(0.14, 0.38, 1.22), vMix);
   vec3 col = mix(gold, tech, smoothstep(0.12, 0.50, uMorph));
   col = mix(col, gold, uBloom);
   col = mix(col, vec3(1.45, 1.18, 0.76), clamp(core * 0.32, 0.0, 1.0));

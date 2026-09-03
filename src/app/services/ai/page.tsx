@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
 import AiLionStage from "@/components/sections/services/ai/AiLionStage";
@@ -11,32 +10,18 @@ import AiPageNav from "@/components/sections/services/ai/AiPageNav";
 import AiRoi from "@/components/sections/services/ai/AiRoi";
 import AiDecision from "@/components/sections/services/ai/AiDecision";
 import {
+  AiReframe,
+  AiSystemProof,
   AiSystems,
-  AiFlow,
   AiProcess,
+  AiObjections,
   AiOffers,
 } from "@/components/sections/services/ai/AiActs";
 
-/**
- * This page runs its own display face, not the site-wide Clash Display.
- * SERVICE_PAGES_SPEC section 6.3 asks for one typeface across the site; that is
- * deliberately overridden here so the AI page reads as machine-built. Scoped to
- * this route by CSS variable, so nothing else on the site is affected.
- *
- * To swap it: change the import and the `display` name. Orbitron and Chakra
- * Petch are the more overtly sci-fi options; Space Grotesk stays premium.
- */
-const display = Space_Grotesk({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-ai-display",
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: "AI Systems & Consulting",
+  title: "AI Systems, Built In-House",
   description:
-    "Custom AI operating systems that answer customers, convert opportunities, coordinate operations, and give growing teams their time back.",
+    "Talk to the AI we built, then decide if we should build yours. Custom AI front desk, follow-up, back office and reporting systems — designed, built and maintained in-house in Calgary, in five languages.",
 };
 
 /**
@@ -46,6 +31,11 @@ export const metadata: Metadata = {
  * crown opens into an immersive field, reconnects as an ecosystem, becomes an
  * energy flow and platform hub, then reforms above the CTA. The swarm, trails,
  * dust, and plexus are all coordinated inside the same renderer.
+ *
+ * Typeface: Clash Display, same as the rest of the site. An earlier build
+ * forked this route to Space Grotesk; AI_SYSTEMS_PAGE_SPEC section 1.2 asks
+ * for the opposite ("do not introduce a mono or techy typeface") because the
+ * type staying identical is what proves this is the same studio.
  */
 export default function AiServicePage() {
   return (
@@ -60,15 +50,18 @@ export default function AiServicePage() {
         // The fixed stage owns the black base. Most chapters stay transparent
         // so the particles remain continuous, while intentional opaque relief
         // sections (the ROI chapter) can still establish a light reading beat.
-        className={`${display.variable} relative z-10 min-h-screen bg-transparent`}
+        className="relative z-10 min-h-screen bg-transparent"
         style={
           {
-            // The page moves from electric intelligence back into the brand's
-            // gold crown. These accents stay scoped to this route; the primary
-            // CTA still carries the site-wide brand red.
-            "--ai-blue": "#6366f1",
-            "--ai-cyan": "#54e5ff",
-            "--ai-deep": "#8b5cf6",
+            // The page's argument is "craft amplified, not automated", so the
+            // colour carries it: warm is the human hand, one cold accent is the
+            // machine. Gold is the dominant accent — eyebrows, numerals, list
+            // marks. Cyan appears ONLY on elements that depict the system
+            // itself (the OS rail, the tab indicator, node dots). Brand red
+            // stays reserved for action.
+            "--ai-gold": "#f0c917",
+            "--ai-cyan": "#63cfe6",
+            "--ai-ember": "#8a6a1f",
           } as React.CSSProperties
         }
       >
@@ -80,10 +73,12 @@ export default function AiServicePage() {
         <AiChaosBeat />
 
         <div className="relative">
+          <AiReframe />
+          <AiSystemProof />
           <AiSystems />
-          <AiFlow />
-          <AiProcess />
           <AiRoi />
+          <AiProcess />
+          <AiObjections />
           <AiOffers />
         </div>
 

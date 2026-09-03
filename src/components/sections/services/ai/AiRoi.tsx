@@ -11,6 +11,12 @@ const currency = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
+/**
+ * The light relief chapter. It is arithmetic on the visitor's own inputs and
+ * is framed as a planning lens on purpose — it must never read as a projected
+ * return, and it deliberately excludes the softer upside so the number stays
+ * defensible.
+ */
 export default function AiRoi() {
   const ref = useRef<HTMLElement>(null);
   const [hours, setHours] = useState(10);
@@ -28,14 +34,14 @@ export default function AiRoi() {
       ref={ref}
       data-ai-snap
       data-art-directed="light"
-      className="relative isolate flex min-h-[125svh] items-center overflow-hidden bg-[#f4f1ea] py-32 text-[#111111] md:min-h-[135svh] md:py-48"
+      className="relative isolate flex min-h-[125svh] scroll-mt-28 items-center overflow-hidden bg-[#f4f1ea] py-32 text-[#111111] md:min-h-[135svh] md:py-48"
     >
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-80"
         style={{
           background:
-            "radial-gradient(55% 45% at 84% 14%, rgba(229,25,42,0.075), transparent 72%), radial-gradient(42% 36% at 10% 88%, rgba(84,229,255,0.09), transparent 74%)",
+            "radial-gradient(55% 45% at 84% 14%, rgba(229,25,42,0.075), transparent 72%), radial-gradient(42% 36% at 10% 88%, rgba(240,201,23,0.12), transparent 74%)",
         }}
       />
       <div className="mx-auto w-full max-w-[1280px] px-6 md:px-10 lg:px-14">
@@ -47,17 +53,20 @@ export default function AiRoi() {
             transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
             className="relative"
           >
-            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-brand-red md:text-[14px]">
-              The capacity already inside your business
+            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-black/55 md:text-[14px]">
+              A planning lens — not a forecast
             </p>
             <h2
-              className="mt-6 max-w-[12ch] font-normal leading-[0.97] tracking-[-0.045em] text-[#111111]"
-              style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(2.8rem, 5.4vw, 5.5rem)" }}
+              className="mt-6 max-w-[14ch] font-semibold leading-[1.02] tracking-[-0.02em] text-[#111111]"
+              style={{ fontSize: "clamp(2.4rem, 4.6vw, 4.6rem)" }}
             >
-              What would you do with the hours back?
+              What is the repetitive hour actually costing you?
             </h2>
             <p className="mt-7 max-w-[43ch] text-[18px] font-normal leading-[1.68] text-black/68 md:text-[20px]">
-              Use a conservative value for repetitive work. This is a planning lens—not a revenue promise—and it excludes faster response, recovered leads and customer retention.
+              Use numbers you would defend to your accountant. This is arithmetic, not a
+              promise—and it is deliberately conservative. It doesn&rsquo;t count the calls
+              you&rsquo;re missing, the leads going cold on day three, or the customers who
+              quietly don&rsquo;t come back.
             </p>
           </motion.div>
 
@@ -99,25 +108,28 @@ export default function AiRoi() {
 
             <div className="mt-10 grid gap-6 border-t border-black/12 pt-8 sm:grid-cols-2">
               <div>
-                <p className="text-[13px] uppercase tracking-[0.16em] text-black/52">Annual time returned</p>
-                <p className="mt-2 text-[clamp(2.3rem,5vw,4.2rem)] font-light leading-none tracking-[-0.055em] text-black">
+                <p className="text-[13px] uppercase tracking-[0.16em] text-black/52">Hours a year</p>
+                <p className="mt-2 text-[clamp(2.3rem,5vw,4.2rem)] font-light leading-none tracking-[-0.03em] text-black">
                   {result.yearlyHours.toLocaleString()}h
                 </p>
               </div>
               <div>
-                <p className="text-[13px] uppercase tracking-[0.16em] text-black/52">Potential capacity value</p>
-                <p className="mt-2 text-[clamp(2.3rem,5vw,4.2rem)] font-light leading-none tracking-[-0.055em] text-brand-red">
+                <p className="text-[13px] uppercase tracking-[0.16em] text-black/52">What those hours are worth</p>
+                <p className="mt-2 text-[clamp(2.3rem,5vw,4.2rem)] font-light leading-none tracking-[-0.03em] text-brand-red">
                   {currency.format(result.capacity)}
                 </p>
               </div>
             </div>
 
+            <p className="mt-9 max-w-[46ch] text-[17px] leading-[1.6] text-black/68">
+              The audit is what turns this into a real number.
+            </p>
             <button
               type="button"
               onClick={() => openNova("roi", true)}
-              className="mt-9 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[17px] font-semibold text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+              className="mt-5 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[17px] font-semibold text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
-              Find the first hours to recover
+              Find out which hours are recoverable
             </button>
           </LiquidGlass>
         </div>
