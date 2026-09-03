@@ -1,8 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import {
   AnimatePresence,
   motion,
+  useInView,
   useMotionValueEvent,
   useReducedMotion,
   useScroll,
@@ -10,6 +12,7 @@ import {
 } from "framer-motion";
 import {
   useCallback,
+  useEffect,
   useRef,
   useState,
   type KeyboardEvent,
@@ -32,8 +35,10 @@ const SHOWCASE_IMAGES = [
   `${C}/v1775277350/image_19_rnwg8w.avif`,
 ];
 
-const SERVICE_VIDEO =
+const SERVICE_VIDEO_DESKTOP =
   "https://res.cloudinary.com/dgio9uutc/video/upload/w_1600,c_limit,f_auto,q_auto:eco/v1779845599/Footage_02_chsoa3.mp4";
+const SERVICE_VIDEO_MOBILE =
+  "https://res.cloudinary.com/dgio9uutc/video/upload/w_900,c_limit,f_auto,q_auto:eco/v1779845599/Footage_02_chsoa3.mp4";
 
 const SERVICE_META = [
   { id: "branding", number: "01", short: "Brand" },
@@ -45,6 +50,12 @@ const SERVICE_META = [
 ] as const;
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+const SERVICE_START = 0.3;
+const SERVICE_END = 0.92;
+const STREAM_UNMOUNT = 0.315;
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, value));
 
 function ServiceSignal({ id }: { id: string }) {
   const common = {
@@ -201,10 +212,13 @@ export default function ExpertiseExperience() {
   const { t } = useLanguage();
   const reduceMotion = useReducedMotion() ?? false;
   const openNova = useNovaStore((state) => state.openNova);
-  const openingRef = useRef<HTMLDivElement>(null);
-  const serviceRef = useRef<HTMLDivElement>(null);
+  const chapterRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const wheelLockRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [showStream, setShowStream] = useState(true);
+  const [serviceStageActive, setServiceStageActive] = useState(false);
+  const chapterInView = useInView(chapterRef, { margin: "180px 0px" });
 
   const services = SERVICE_META.map((meta, index) => ({
     ...meta,
@@ -212,72 +226,83 @@ export default function ExpertiseExperience() {
     description: t.services.items[index]?.description ?? "",
     deliverables:
       (t.services.items[index]?.deliverables as readonly string[] | undefined) ?? [],
+    image: SHOWCASE_IMAGES[index % SHOWCASE_IMAGES.length],
   }));
 
-  const stateCount = services.length + 1;
   const partnershipIndex = services.length;
   const partnership = activeIndex === partnershipIndex;
   const activeService = services[Math.min(activeIndex, services.length - 1)] ?? services[0];
 
-  const { scrollYProgress: openingProgress } = useScroll({
-    target: openingRef,
-    offset: ["start start", "end end"],
-  });
-  const { scrollYProgress: serviceProgress } = useScroll({
-    target: serviceRef,
+  const { scrollYProgress } = useScroll({
+    target: chapterRef,
     offset: ["start start", "end end"],
   });
 
-  const titleOpacity = useTransform(openingProgress, [0, 0.24, 0.48], [1, 1, 0]);
-  const titleY = useTransform(openingProgress, [0, 0.48], [0, -80]);
-  const streamOpacity = useTransform(openingProgress, [0, 0.38, 0.7], [1, 1, 0]);
-  const streamScale = useTransform(openingProgress, [0, 0.5, 0.72], [1, 1.03, 1.12]);
-  const logoScale = useTransform(
-    openingProgress,
-    [0, 0.34, 0.62, 1],
-    [1, 1.08, 3.15, 0.62],
-  );
-  const logoY = useTransform(openingProgress, [0, 0.62, 1], [0, 0, "31svh"]);
-  const logoShadow = useTransform(
-    openingProgress,
-    [0, 0.62, 1],
-    [
-      "0 18px 45px rgba(0,0,0,0.14)",
-      "0 38px 90px rgba(229,25,42,0.18)",
-      "0 16px 38px rgba(0,0,0,0.16)",
-    ],
-  );
-  const bridgeOpacity = useTransform(openingProgress, [0.62, 0.9, 1], [0, 0.6, 1]);
+  const titleOpacity = useTransform(scrollYProgress, [0, 0.1, 0.22], [1, 1, 0]);
+  const titleY = useTransform(scrollYProgress, [0, 0.22], [0, -58]);
+  const streamOpacity = useTransform(scrollYProgress, [0, 0.12, 0.255, 0.3], [1, 1, 0.16, 0]);
+  const streamScale = useTransform(scrollYProgress, [0, 0.3], [1, 1.075]);
+  const logoScale = useTransform(scrollYProgress, [0, 0.12, 0.245, SERVICE_START], [1, 1.05, 3.05, 0.7]);
+  const logoY = useTransform(scrollYProgress, [0, 0.245, SERVICE_START], [0, 0, "34svh"]);
+  const logoOpacity = useTransform(scrollYProgress, [0, 0.98, 1], [1, 1, 0]);
+  const serviceStageOpacity = useTransform(scrollYProgress, [0.265, SERVICE_START, 0.965, 1], [0, 1, 1, 0]);
+  const selectorOpacity = useTransform(scrollYProgress, [0.285, 0.325], [0, 1]);
 
-  useMotionValueEvent(serviceProgress, "change", (value) => {
-    const next = Math.min(
-      partnershipIndex,
-      Math.max(0, Math.round(value * partnershipIndex)),
+  useMotionValueEvent(scrollYProgress, "change", (value) => {
+    const shouldShowStream = value < STREAM_UNMOUNT;
+    setShowStream((current) => (current === shouldShowStream ? current : shouldShowStream));
+
+    const shouldRunServiceMedia = value > 0.27 && value < 0.975;
+    setServiceStageActive((current) =>
+      current === shouldRunServiceMedia ? current : shouldRunServiceMedia,
     );
+
+    if (value < SERVICE_START) {
+      setActiveIndex((current) => (current === 0 ? current : 0));
+      return;
+    }
+
+    const normalized = clamp(
+      (value - SERVICE_START) / (SERVICE_END - SERVICE_START),
+      0,
+      1,
+    );
+    const next = Math.round(normalized * partnershipIndex);
     setActiveIndex((current) => (current === next ? current : next));
   });
 
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (chapterInView && serviceStageActive && !partnership) {
+      video.play().catch(() => {});
+    } else {
+      video.pause();
+    }
+  }, [chapterInView, serviceStageActive, partnership]);
+
   const goToState = useCallback(
     (index: number, behavior: ScrollBehavior = "smooth") => {
-      const element = serviceRef.current;
+      const element = chapterRef.current;
       if (!element) return;
-      const next = Math.min(partnershipIndex, Math.max(0, index));
-      const rect = element.getBoundingClientRect();
-      const top = rect.top + window.scrollY;
+      const next = clamp(index, 0, partnershipIndex);
+      const sectionTop = element.getBoundingClientRect().top + window.scrollY;
       const travel = Math.max(1, element.offsetHeight - window.innerHeight);
       const ratio = partnershipIndex === 0 ? 0 : next / partnershipIndex;
-      window.scrollTo({ top: top + travel * ratio, behavior });
+      const targetProgress = SERVICE_START + ratio * (SERVICE_END - SERVICE_START);
+      window.scrollTo({ top: sectionTop + travel * targetProgress, behavior });
     },
     [partnershipIndex],
   );
 
   const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
     const horizontalIntent = Math.abs(event.deltaX) > Math.abs(event.deltaY) * 1.08;
-    if (!horizontalIntent || Math.abs(event.deltaX) < 12) return;
+    if (!horizontalIntent || Math.abs(event.deltaX) < 10) return;
 
     event.preventDefault();
     const now = performance.now();
-    if (now - wheelLockRef.current < 340) return;
+    if (now - wheelLockRef.current < 280) return;
     wheelLockRef.current = now;
     goToState(activeIndex + (event.deltaX > 0 ? 1 : -1));
   };
@@ -306,86 +331,77 @@ export default function ExpertiseExperience() {
 
   return (
     <section
+      ref={chapterRef}
       id="services"
       data-art-directed="light"
-      className="relative isolate overflow-visible bg-bg-surface-light text-[#111111]"
+      className="relative isolate h-[320svh] overflow-visible bg-bg-surface-light text-[#111111] lg:h-[330vh]"
     >
-      <div ref={openingRef} className="relative h-[165svh] sm:h-[175vh]">
-        <div className="sticky top-0 h-svh overflow-visible bg-bg-surface-light">
-          <motion.header
-            style={{ opacity: titleOpacity, y: titleY }}
-            className="pointer-events-none absolute inset-x-0 top-[7svh] z-30 mx-auto max-w-[1280px] px-5 text-center sm:top-[8vh] sm:px-8 lg:top-[7vh] lg:px-12"
-          >
-            <p className="font-mono text-[9px] font-bold uppercase tracking-[0.28em] text-brand-red sm:text-[11px]">
-              {t.services.eyebrow}
-            </p>
-            <h2 className="mx-auto mt-3 max-w-[10ch] font-clash text-[clamp(3rem,10vw,7.4rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em]">
-              {t.services.heading}{" "}
-              <span className="text-brand-red">{t.services.headingAccent}</span>
-            </h2>
-          </motion.header>
+      <div
+        className="sticky top-0 h-svh overflow-visible bg-bg-surface-light outline-none"
+        tabIndex={0}
+        role="region"
+        aria-label="Explore Lionovart expertise"
+        onWheel={handleWheel}
+        onKeyDown={handleKeys}
+        style={{ overscrollBehaviorX: "contain" }}
+      >
+        <motion.div
+          aria-hidden="true"
+          style={{ opacity: serviceStageOpacity }}
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_78%,rgba(229,25,42,0.065),transparent_34%)]"
+        />
 
+        <motion.header
+          style={{ opacity: titleOpacity, y: titleY }}
+          className="pointer-events-none absolute inset-x-0 top-[6.5svh] z-30 mx-auto max-w-[1280px] px-5 text-center sm:top-[7vh] sm:px-8 lg:px-12"
+        >
+          <p className="font-mono text-[9px] font-bold uppercase tracking-[0.28em] text-brand-red sm:text-[11px]">
+            {t.services.eyebrow}
+          </p>
+          <h2 className="mx-auto mt-3 max-w-[10ch] font-clash text-[clamp(3rem,10vw,7.4rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em]">
+            {t.services.heading}{" "}
+            <span className="text-brand-red">{t.services.headingAccent}</span>
+          </h2>
+        </motion.header>
+
+        {showStream && (
           <motion.div
             style={{ opacity: streamOpacity, scale: streamScale }}
-            className="absolute inset-x-0 top-[29svh] z-10 sm:top-[28vh] lg:top-[27vh]"
+            className="absolute inset-x-0 top-[27svh] z-10 transform-gpu sm:top-[27vh] lg:top-[25vh]"
           >
             <ImageStreamHero
               images={SHOWCASE_IMAGES.map((src, index) => ({
                 src,
                 alt: t.services.items[index]?.title ?? "Lionovart selected work",
               }))}
-              cards={6}
-              speed={42}
+              cards={5}
+              speed={48}
               axis={50}
-              path={{ cardWidth: 17, cardHeight: 23, exitHeight: 42 }}
-              className="h-[19rem] w-full overflow-visible sm:h-[26rem] lg:h-[32rem]"
+              path={{ cardWidth: 16, cardHeight: 22, exitHeight: 39, stops: 18 }}
+              className="h-[19rem] w-full overflow-visible sm:h-[26rem] lg:h-[31rem]"
             />
           </motion.div>
+        )}
 
-          <motion.div
-            aria-hidden="true"
-            style={{ opacity: bridgeOpacity }}
-            className="pointer-events-none absolute inset-x-0 bottom-[14svh] z-20 mx-auto h-px max-w-[min(38rem,72vw)] bg-gradient-to-r from-transparent via-brand-red/25 to-transparent"
-          />
-
-          <motion.div
-            style={{ scale: logoScale, y: logoY, boxShadow: logoShadow }}
-            className="pointer-events-none absolute left-1/2 top-1/2 z-40 h-20 w-20 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full sm:h-24 sm:w-24 lg:h-28 lg:w-28"
-          >
-            <img
-              src="/images/lionovart-icon.svg"
-              alt="Lionovart emblem"
-              className="h-full w-full object-cover"
-              decoding="async"
-            />
-          </motion.div>
-        </div>
-      </div>
-
-      <div
-        ref={serviceRef}
-        className="relative overflow-visible"
-        style={{ height: `${Math.max(252, stateCount * 36)}vh` }}
-      >
-        <div
-          className="sticky top-0 h-svh overflow-visible bg-bg-surface-light outline-none"
-          tabIndex={0}
-          role="region"
-          aria-label="Explore Lionovart services"
-          onWheel={handleWheel}
-          onKeyDown={handleKeys}
+        <motion.div
+          aria-hidden="true"
+          style={{ scale: logoScale, y: logoY, opacity: logoOpacity }}
+          className="pointer-events-none absolute left-1/2 top-1/2 z-40 h-20 w-20 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full bg-brand-red shadow-[0_22px_58px_-28px_rgba(229,25,42,0.52)] transform-gpu sm:h-24 sm:w-24 lg:h-28 lg:w-28"
         >
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_72%,rgba(229,25,42,0.08),transparent_32%)]"
+          <img
+            src="/images/lionovart-icon.svg"
+            alt=""
+            className="h-full w-full object-cover"
+            decoding="async"
           />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-[8vw] top-[10svh] h-px bg-gradient-to-r from-transparent via-black/8 to-transparent"
-          />
+        </motion.div>
 
-          <div className="absolute inset-x-0 top-[5svh] z-20 mx-auto flex max-w-[1500px] items-center justify-between px-5 sm:px-8 lg:px-12">
-            <span className="font-mono text-[9px] font-bold uppercase tracking-[0.23em] text-black/35 sm:text-[10px]">
+        <motion.div
+          style={{ opacity: serviceStageOpacity }}
+          className="absolute inset-0 z-20"
+        >
+          <div className="absolute inset-x-0 top-[4.5svh] mx-auto flex max-w-[1500px] items-center justify-between px-5 sm:px-8 lg:px-12">
+            <span className="font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-black/35 sm:text-[10px]">
               {partnership ? "The full system" : "One system / six disciplines"}
             </span>
             <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-brand-red sm:text-[10px]">
@@ -399,220 +415,189 @@ export default function ExpertiseExperience() {
             {partnership ? "One Partnership" : activeService.title}
           </span>
 
-          <AnimatePresence mode="wait" initial={false}>
-            {partnership ? (
-              <motion.div
-                key="partnership"
-                id="offer"
-                initial={{ opacity: 0, scale: 0.965, filter: "blur(10px)" }}
-                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
-                transition={{ duration: 0.48, ease: EASE }}
-                className="absolute inset-x-0 top-1/2 z-20 mx-auto w-full max-w-[1040px] -translate-y-[52%] px-5 text-center sm:px-8"
-              >
-                <motion.div
-                  initial={{ scale: 0.6, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.42, ease: EASE }}
-                  className="mx-auto flex h-20 w-fit min-w-20 items-center justify-center rounded-full bg-brand-red px-7 shadow-[0_24px_70px_-24px_rgba(229,25,42,0.55)] sm:h-24 sm:min-w-24 sm:px-9"
+          <motion.div
+            animate={{ opacity: partnership ? 0 : 1, y: partnership ? -10 : 0 }}
+            transition={{ duration: 0.28, ease: EASE }}
+            aria-hidden={partnership}
+            className="absolute inset-x-0 top-[10svh] mx-auto h-[72svh] max-w-[1500px] px-5 sm:px-8 lg:top-[11vh] lg:h-[70vh] lg:px-12"
+          >
+            <motion.div
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.035}
+              dragMomentum={false}
+              dragDirectionLock
+              onDragEnd={(_, info) => {
+                if (Math.abs(info.offset.x) < 44) return;
+                goToState(activeIndex + (info.offset.x < 0 ? 1 : -1));
+              }}
+              style={{ touchAction: "pan-y" }}
+              className="grid h-full grid-cols-1 items-center gap-4 lg:grid-cols-[minmax(0,0.82fr)_minmax(26rem,1.24fr)_minmax(0,0.82fr)] lg:gap-[clamp(1.5rem,3vw,4rem)]"
+            >
+              <div className="relative order-1 h-[29svh] min-h-[12rem] overflow-hidden rounded-[1.2rem] border border-black/8 bg-[#111111] shadow-[0_28px_72px_-42px_rgba(0,0,0,0.42)] sm:h-[32svh] lg:h-auto lg:min-h-0 lg:aspect-[4/3] lg:rounded-[1.55rem]">
+                <video
+                  ref={videoRef}
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  className="h-full w-full object-cover"
                 >
-                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-white sm:text-[12px]">
-                    One Partnership
-                  </span>
-                </motion.div>
-
-                <p className="mt-8 font-mono text-[9px] font-bold uppercase tracking-[0.28em] text-brand-red sm:text-[10px]">
-                  Everything, handled
-                </p>
-                <h3 className="mx-auto mt-4 max-w-[15ch] font-clash text-[clamp(2.5rem,7vw,6.5rem)] font-semibold uppercase leading-[0.86] tracking-[-0.055em]">
-                  Your entire brand &amp; growth team.
-                </h3>
-                <p className="mx-auto mt-5 max-w-[42ch] font-body text-[15px] font-medium leading-[1.7] text-black/58 sm:text-[18px]">
-                  More visibility. More clients. <span className="text-brand-red">Less you have to manage.</span>
-                </p>
-
-                <div className="mx-auto mt-7 flex max-w-[34rem] flex-col justify-center gap-3 sm:flex-row">
-                  <button
-                    type="button"
-                    onClick={() => openNova("offer", true)}
-                    className="rounded-full bg-brand-red px-7 py-4 text-[11px] font-bold uppercase tracking-[0.13em] text-white transition duration-300 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-4"
-                  >
-                    Get your free brand audit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      window.open(
-                        getWhatsAppUrl(
-                          "Hi Leon — I'd like to talk about the brand & growth partnership.",
-                        ),
-                        "_blank",
-                        "noopener,noreferrer",
-                      )
-                    }
-                    className="rounded-full border border-black/16 bg-white/35 px-7 py-4 text-[11px] font-bold uppercase tracking-[0.13em] text-[#111111] transition duration-300 hover:border-brand-red/45 hover:text-brand-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-4"
-                  >
-                    Talk to us
-                  </button>
+                  <source media="(max-width: 767px)" src={SERVICE_VIDEO_MOBILE} type="video/mp4" />
+                  <source src={SERVICE_VIDEO_DESKTOP} type="video/mp4" />
+                </video>
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/34 via-transparent to-black/8" />
+                <div className="absolute left-4 top-4 font-mono text-[8px] font-bold uppercase tracking-[0.22em] text-white/72 sm:left-5 sm:top-5 sm:text-[9px]">
+                  Motion / {activeService.number}
                 </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key={`service-${activeService.id}`}
-                initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -12, filter: "blur(6px)" }}
-                transition={{ duration: 0.42, ease: EASE }}
-                className="absolute inset-x-0 top-[11svh] z-10 mx-auto h-[72svh] max-w-[1500px] px-5 sm:px-8 lg:top-[12vh] lg:h-[70vh] lg:px-12"
-              >
-                <motion.div
-                  drag="x"
-                  dragConstraints={{ left: 0, right: 0 }}
-                  dragElastic={0.06}
-                  dragDirectionLock
-                  onDragEnd={(_, info) => {
-                    if (Math.abs(info.offset.x) < 48) return;
-                    goToState(activeIndex + (info.offset.x < 0 ? 1 : -1));
-                  }}
-                  style={{ touchAction: "pan-y" }}
-                  className="grid h-full grid-cols-1 items-center gap-4 lg:grid-cols-[minmax(0,0.82fr)_minmax(26rem,1.24fr)_minmax(0,0.82fr)] lg:gap-[clamp(1.5rem,3vw,4rem)]"
-                >
-                  <motion.div
-                    initial={{ opacity: 0, x: -18, scale: 0.98 }}
-                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                    transition={{ duration: 0.46, ease: EASE }}
-                    className="relative order-1 h-[29svh] min-h-[12rem] overflow-hidden rounded-[1.35rem] border border-black/8 bg-[#111111] shadow-[0_34px_80px_-40px_rgba(0,0,0,0.48)] sm:h-[32svh] lg:h-auto lg:min-h-0 lg:aspect-[4/3] lg:rounded-[1.75rem]"
-                  >
-                    <video
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      preload="metadata"
-                      className="h-full w-full object-cover"
-                    >
-                      <source src={SERVICE_VIDEO} type="video/mp4" />
-                    </video>
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10" />
-                    <div className="absolute left-4 top-4 font-mono text-[8px] font-bold uppercase tracking-[0.22em] text-white/72 sm:left-5 sm:top-5 sm:text-[9px]">
-                      Motion / {activeService.number}
-                    </div>
-                  </motion.div>
+              </div>
 
-                  <div className="order-2 flex min-w-0 flex-col justify-center py-1 text-center lg:text-left">
-                    <div className="mx-auto mb-4 h-14 w-14 text-black/52 sm:h-16 sm:w-16 lg:mx-0 lg:mb-6 lg:h-20 lg:w-20">
+              <div className="order-2 flex min-w-0 flex-col justify-center py-1 text-center lg:text-left">
+                <AnimatePresence initial={false}>
+                  <motion.div
+                    key={activeService.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.3, ease: EASE }}
+                  >
+                    <div className="mx-auto mb-4 h-14 w-14 text-black/52 sm:h-16 sm:w-16 lg:mx-0 lg:mb-5 lg:h-20 lg:w-20">
                       <ServiceSignal id={activeService.id} />
                     </div>
                     <span className="font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-brand-red sm:text-[10px]">
                       Lionovart / {activeService.number}
                     </span>
-                    <h3 className="mx-auto mt-3 max-w-[13ch] font-clash text-[clamp(2rem,8.5vw,4.8rem)] font-semibold uppercase leading-[0.86] tracking-[-0.05em] lg:mx-0 lg:text-[clamp(2.7rem,4.5vw,5.4rem)]">
+                    <h3 className="mx-auto mt-3 max-w-[13ch] font-clash text-[clamp(2rem,8.2vw,4.7rem)] font-semibold uppercase leading-[0.86] tracking-[-0.05em] lg:mx-0 lg:text-[clamp(2.7rem,4.4vw,5.2rem)]">
                       {activeService.title}
                     </h3>
-                    <p className="mx-auto mt-4 max-w-[42ch] font-body text-[14px] font-medium leading-[1.62] text-black/58 sm:text-[16px] lg:mx-0 lg:mt-5 lg:text-[17px]">
+                    <p className="mx-auto mt-4 max-w-[42ch] font-body text-[14px] font-medium leading-[1.62] text-black/58 sm:text-[15px] lg:mx-0 lg:text-[16px]">
                       {activeService.description}
                     </p>
-                    <div className="mx-auto mt-4 flex max-w-[44rem] flex-wrap justify-center gap-x-4 gap-y-2 lg:mx-0 lg:mt-5 lg:justify-start">
+                    <div className="mx-auto mt-5 flex max-w-[38rem] flex-wrap justify-center gap-2 lg:mx-0 lg:justify-start">
                       {activeService.deliverables.map((item) => (
                         <span
                           key={item}
-                          className="inline-flex items-center gap-1.5 font-mono text-[8px] font-bold uppercase tracking-[0.1em] text-black/48 sm:text-[9px]"
+                          className="rounded-full border border-black/12 bg-white/22 px-2.5 py-1.5 font-mono text-[8px] font-bold uppercase tracking-[0.1em] text-black/48 sm:text-[9px]"
                         >
-                          <span className="h-1 w-1 rounded-full bg-brand-red" />
                           {item}
                         </span>
                       ))}
                     </div>
-                  </div>
-
-                  <motion.div
-                    initial={{ opacity: 0, x: 18, scale: 0.98 }}
-                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                    transition={{ duration: 0.46, ease: EASE }}
-                    className="relative order-3 hidden aspect-[4/3] overflow-hidden rounded-[1.75rem] border border-black/8 bg-white shadow-[0_34px_80px_-40px_rgba(0,0,0,0.42)] lg:block"
-                  >
-                    <AnimatePresence mode="wait" initial={false}>
-                      <motion.img
-                        key={SHOWCASE_IMAGES[activeIndex % SHOWCASE_IMAGES.length]}
-                        src={SHOWCASE_IMAGES[activeIndex % SHOWCASE_IMAGES.length]}
-                        alt={`${activeService.title} selected work`}
-                        initial={{ opacity: 0, scale: 1.035 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.985 }}
-                        transition={{ duration: 0.42, ease: EASE }}
-                        loading="lazy"
-                        decoding="async"
-                        className="h-full w-full object-cover"
-                      />
-                    </AnimatePresence>
-                    <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-black/5" />
-                    <div className="absolute left-5 top-5 font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-black/45">
-                      Selected work
-                    </div>
                   </motion.div>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                </AnimatePresence>
+              </div>
 
-          <div className="absolute inset-x-0 bottom-[3.5svh] z-40 mx-auto flex max-w-[980px] items-center justify-center px-4 sm:bottom-[4.5vh] sm:px-8">
-            <AnimatePresence mode="wait" initial={false}>
-              {partnership ? (
-                <motion.button
-                  key="partnership-selector"
-                  type="button"
-                  onClick={() => goToState(partnershipIndex)}
-                  initial={{ opacity: 0, scale: 0.72 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.82 }}
-                  transition={{ duration: 0.35, ease: EASE }}
-                  className="h-12 rounded-full bg-brand-red px-6 font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-white shadow-[0_16px_45px_-18px_rgba(229,25,42,0.6)] sm:h-14 sm:px-8 sm:text-[10px]"
-                >
-                  One Partnership
-                </motion.button>
-              ) : (
-                <motion.div
-                  key="service-selectors"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.84 }}
-                  transition={{ duration: 0.32, ease: EASE }}
-                  className="flex max-w-full items-center justify-center gap-1.5 rounded-full border border-black/8 bg-white/65 p-1.5 shadow-[0_20px_55px_-30px_rgba(0,0,0,0.32)] backdrop-blur-xl sm:gap-2"
-                >
-                  {services.map((service, index) => {
-                    const selected = index === activeIndex;
-                    return (
-                      <motion.button
-                        key={service.id}
-                        type="button"
-                        onClick={() => goToState(index)}
-                        aria-current={selected ? "true" : undefined}
-                        aria-label={`Show ${service.title}`}
-                        animate={{
-                          width: selected ? "auto" : 38,
-                          backgroundColor: selected ? "#e5192a" : "rgba(17,17,17,0.055)",
-                          color: selected ? "#ffffff" : "rgba(17,17,17,0.58)",
-                        }}
-                        transition={{ duration: 0.28, ease: EASE }}
-                        className="flex h-[38px] shrink-0 items-center justify-center overflow-hidden rounded-full px-0 font-mono text-[8px] font-bold uppercase tracking-[0.12em] outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2 sm:h-11 sm:min-w-11 sm:text-[9px]"
-                      >
-                        <span className={selected ? "px-3 sm:px-4" : "px-0"}>
-                          {selected ? service.short : service.number}
-                        </span>
-                      </motion.button>
-                    );
-                  })}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+              <div className="relative order-3 hidden overflow-visible lg:block lg:aspect-[4/3]">
+                <div className="absolute inset-0 overflow-hidden rounded-[1.55rem] border border-black/8 bg-white/45 shadow-[0_28px_72px_-42px_rgba(0,0,0,0.36)]">
+                  <AnimatePresence initial={false}>
+                    <motion.div
+                      key={activeService.image}
+                      initial={{ opacity: 0, scale: 1.025 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.99 }}
+                      transition={{ duration: 0.32, ease: EASE }}
+                      className="absolute inset-0"
+                    >
+                      <Image
+                        src={activeService.image}
+                        alt={`${activeService.title} selected work`}
+                        fill
+                        sizes="(min-width: 1024px) 28vw, 1px"
+                        className="object-cover"
+                      />
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
 
-          {!partnership && (
-            <div className="pointer-events-none absolute bottom-[10.5svh] left-1/2 z-30 -translate-x-1/2 font-mono text-[8px] font-bold uppercase tracking-[0.18em] text-black/28 sm:bottom-[12vh] sm:text-[9px]">
-              Scroll · swipe · trackpad
+          <motion.div
+            animate={{ opacity: partnership ? 1 : 0, y: partnership ? 0 : 12, pointerEvents: partnership ? "auto" : "none" }}
+            transition={{ duration: 0.32, ease: EASE }}
+            id="offer"
+            aria-hidden={!partnership}
+            className="absolute inset-x-0 top-1/2 mx-auto w-full max-w-[1040px] -translate-y-[50%] px-5 text-center sm:px-8"
+          >
+            <div className="mx-auto flex h-16 w-fit min-w-16 items-center justify-center rounded-full bg-brand-red px-6 shadow-[0_20px_56px_-30px_rgba(229,25,42,0.56)] sm:h-20 sm:min-w-20 sm:px-8">
+              <span className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-white sm:text-[11px]">
+                One Partnership
+              </span>
             </div>
-          )}
-        </div>
+            <p className="mt-7 font-mono text-[9px] font-bold uppercase tracking-[0.28em] text-brand-red sm:text-[10px]">
+              Everything, handled
+            </p>
+            <h3 className="mx-auto mt-4 max-w-[15ch] font-clash text-[clamp(2.45rem,7vw,6.25rem)] font-semibold uppercase leading-[0.86] tracking-[-0.055em]">
+              Your entire brand &amp; growth team.
+            </h3>
+            <p className="mx-auto mt-5 max-w-[42ch] font-body text-[15px] font-medium leading-[1.7] text-black/58 sm:text-[18px]">
+              More visibility. More clients. <span className="text-brand-red">Less you have to manage.</span>
+            </p>
+            <div className="mx-auto mt-7 flex max-w-[34rem] flex-col justify-center gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => openNova("offer", true)}
+                className="rounded-full bg-brand-red px-7 py-4 text-[11px] font-bold uppercase tracking-[0.13em] text-white transition duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-4"
+              >
+                Get your free brand audit
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  window.open(
+                    getWhatsAppUrl(
+                      "Hi Leon — I'd like to talk about the brand & growth partnership.",
+                    ),
+                    "_blank",
+                    "noopener,noreferrer",
+                  )
+                }
+                className="rounded-full border border-black/16 bg-white/35 px-7 py-4 text-[11px] font-bold uppercase tracking-[0.13em] text-[#111111] transition duration-200 hover:border-brand-red/45 hover:text-brand-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-4"
+              >
+                Talk to us
+              </button>
+            </div>
+          </motion.div>
+
+          <motion.div
+            style={{ opacity: selectorOpacity }}
+            className="absolute inset-x-0 bottom-[3svh] z-50 mx-auto flex max-w-[min(92vw,860px)] items-center justify-center gap-1.5 px-3 sm:bottom-[4vh] sm:gap-2"
+          >
+            {services.map((service, index) => {
+              const selected = !partnership && activeIndex === index;
+              return (
+                <button
+                  key={service.id}
+                  type="button"
+                  onClick={() => goToState(index)}
+                  aria-label={`Show ${service.title}`}
+                  aria-pressed={selected}
+                  className={`min-w-0 rounded-full border px-2.5 py-2 font-mono text-[8px] font-bold uppercase tracking-[0.1em] transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red sm:px-3.5 sm:text-[9px] ${
+                    selected
+                      ? "border-brand-red bg-brand-red text-white"
+                      : "border-black/12 bg-white/36 text-black/44 hover:border-brand-red/30 hover:text-brand-red"
+                  }`}
+                >
+                  <span className="hidden sm:inline">{service.short}</span>
+                  <span className="sm:hidden">{service.number}</span>
+                </button>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() => goToState(partnershipIndex)}
+              aria-label="Show One Partnership"
+              aria-pressed={partnership}
+              className={`rounded-full border px-2.5 py-2 font-mono text-[8px] font-bold uppercase tracking-[0.1em] transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red sm:px-3.5 sm:text-[9px] ${
+                partnership
+                  ? "border-brand-red bg-brand-red text-white"
+                  : "border-black/12 bg-white/36 text-black/44 hover:border-brand-red/30 hover:text-brand-red"
+              }`}
+            >
+              All
+            </button>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );
