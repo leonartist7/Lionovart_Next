@@ -49,10 +49,8 @@ function createKeyframes(
     const depth = path.perspective * (1 - 1 / scale);
     const rail =
       path.railExit -
-      (path.railExit - path.railBirth) *
-        Math.pow(1 - progress, path.fan);
-    const turn =
-      path.turnBirth + (path.turnExit - path.turnBirth) * progress;
+      (path.railExit - path.railBirth) * Math.pow(1 - progress, path.fan);
+    const turn = path.turnBirth + (path.turnExit - path.turnBirth) * progress;
 
     steps.push(
       `${(progress * 100).toFixed(2)}%{transform:translate3d(${(
@@ -94,11 +92,10 @@ export function ImageStreamHero({
   const rightRail = `image-stream-right-${id}`;
   const leftRail = `image-stream-left-${id}`;
   const cardClass = `image-stream-card-${id}`;
-  const geometry = React.useMemo(
-    () => ({ ...DEFAULT_PATH, ...path }),
-    [path],
-  );
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const [active, setActive] = React.useState(false);
 
+  const geometry = React.useMemo(() => ({ ...DEFAULT_PATH, ...path }), [path]);
   const animationCss = React.useMemo(
     () =>
       `${createKeyframes(1, rightRail, geometry)}` +
@@ -107,10 +104,34 @@ export function ImageStreamHero({
     [rightRail, leftRail, cardClass, geometry],
   );
 
+  React.useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+
+    let intersecting = false;
+    const sync = () => setActive(intersecting && document.visibilityState === "visible");
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        intersecting = entry.isIntersecting;
+        sync();
+      },
+      { rootMargin: "160px 0px", threshold: 0.01 },
+    );
+
+    observer.observe(root);
+    document.addEventListener("visibilitychange", sync);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", sync);
+    };
+  }, []);
+
   if (!images.length) return null;
 
   return (
     <div
+      ref={rootRef}
+      data-animation-active={active ? "true" : "false"}
       className={cn("relative overflow-hidden", className)}
       style={{ containerType: "inline-size", ...style }}
       {...props}
@@ -147,6 +168,7 @@ export function ImageStreamHero({
                     borderRadius: `${geometry.cardRadius}cqw`,
                     animation: `${animationName} ${speed}s linear infinite`,
                     animationDelay: `${-(index * speed) / cards}s`,
+                    animationPlayState: active ? "running" : "paused",
                   }}
                 >
                   <Image
