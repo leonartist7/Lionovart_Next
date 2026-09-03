@@ -44,9 +44,8 @@ export function PageBuilder() {
         <BridgeStatement variant="vow" />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
 
-        {/* Selected Work intentionally omitted: Expertise already carries the
-            same visual proof language. Keep the legacy #work target here so
-            existing navigation lands at the relevant chapter instead of dying. */}
+        {/* Expertise is now both the work proof and service chapter. Keep the
+            legacy #work target so navigation lands on this signature stage. */}
         <div id="work">
           <NovaSection id="services"><ExpertiseExperience /></NovaSection>
         </div>
@@ -55,8 +54,11 @@ export function PageBuilder() {
         <NovaSection id="comparison"><Comparison /></NovaSection>
         <NovaSection id="about"><AboutUsHalf /></NovaSection>
         <NovaSection id="process"><ProcessExperience /></NovaSection>
-        <SectionTitleCard word="RESULTS." theme="dark" />
+
+        {/* Testimonials owns its own BRANDS ELEVATED title and color transition;
+            a separate RESULTS title card would dilute the signature moment. */}
         <NovaSection id="testimonials"><Testimonials /></NovaSection>
+
         <AuditStrip />
         <SectionTitleCard
           word="ANSWERS."
