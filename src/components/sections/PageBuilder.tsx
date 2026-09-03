@@ -3,7 +3,8 @@ import SceneVideoBackdrop from "@/components/sections/SceneVideoBackdrop";
 import StrongTogetherTransition from "@/components/sections/StrongTogetherTransition";
 import BridgeStatement from "@/components/sections/BridgeStatement";
 
-import AboutUsHalf from "@/components/sections/AboutUsHalf";
+import AboutExperience from "@/components/sections/AboutExperience";
+import AboutPaintTransition from "@/components/sections/AboutPaintTransition";
 import WhatWeDo from "@/components/sections/WhatWeDo";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
 import ExpertiseExperience from "@/components/sections/ExpertiseExperience";
@@ -54,11 +55,21 @@ export function PageBuilder() {
         <NovaSection id="services"><ExpertiseExperience /></NovaSection>
         <SectionTitleCard word="WHY US?" theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>
-        <NovaSection id="about"><AboutUsHalf /></NovaSection>
-        <NovaSection id="process"><ProcessExperience /></NovaSection>
+
+        {/* About stays on paper. The dedicated impasto handoff preserves the
+            original authored white -> paint -> black transition even though
+            Process now lives later in the narrative. */}
+        <NovaSection id="about"><AboutExperience /></NovaSection>
+        <AboutPaintTransition />
+
         <SectionTitleCard word="RESULTS." theme="dark" />
         <NovaSection id="testimonials"><Testimonials /></NovaSection>
+
+        {/* Process now follows proof: first show the outcomes, then reveal the
+            system that creates them. */}
+        <NovaSection id="process"><ProcessExperience /></NovaSection>
         <AuditStrip />
+
         <SectionTitleCard
           word="ANSWERS."
           theme="dark"
