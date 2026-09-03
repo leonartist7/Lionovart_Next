@@ -7,7 +7,9 @@ import LogoProcessJourney from "@/components/sections/LogoProcessJourney";
 type Direction = "classic" | "logo";
 
 export default function ProcessExperience(props: any) {
-  const [direction, setDirection] = useState<Direction>("classic");
+  // The progressive gold journey is now the approved/default direction.
+  // The previous process remains available through the hidden title toggle.
+  const [direction, setDirection] = useState<Direction>("logo");
   const logoDirection = direction === "logo";
 
   const toggleDirection = () => {
@@ -27,14 +29,14 @@ export default function ProcessExperience(props: any) {
             ? "left-4 right-4 top-[8vh] h-[24vh] sm:left-6 sm:right-6 lg:left-[6vw] lg:right-auto lg:top-[11vh] lg:h-[31vh] lg:w-[53vw]"
             : "left-4 right-4 top-[7vh] h-[24vh] sm:left-6 sm:right-6 lg:left-[4vw] lg:right-auto lg:top-[24vh] lg:h-[30vh] lg:w-[46vw]"
         }`}
-        aria-label={logoDirection ? "Show original process direction" : "Show experimental logo process direction"}
+        aria-label={logoDirection ? "Show original process direction" : "Show progressive logo process direction"}
         title="Switch process direction"
       >
         Switch process direction
       </button>
 
       <span className="sr-only" aria-live="polite">
-        {logoDirection ? "Experimental logo process direction active." : "Original process direction active."}
+        {logoDirection ? "Progressive logo process direction active." : "Original process direction active."}
       </span>
 
       {logoDirection ? <LogoProcessJourney {...props} /> : <Process {...props} />}
