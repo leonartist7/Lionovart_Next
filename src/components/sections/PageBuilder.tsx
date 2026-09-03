@@ -6,7 +6,6 @@ import BridgeStatement from "@/components/sections/BridgeStatement";
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import WhatWeDo from "@/components/sections/WhatWeDo";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
-import ShowcaseMarquee from "@/components/sections/ShowcaseMarquee";
 import ExpertiseExperience from "@/components/sections/ExpertiseExperience";
 import Comparison from "@/components/sections/Comparison";
 import ProcessExperience from "@/components/sections/ProcessExperience";
@@ -45,12 +44,13 @@ export function PageBuilder() {
         <BridgeStatement variant="vow" />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
 
-        {/* Selected Work is its own proof chapter. The stream is the default;
-            the title retains the hidden spatial-direction toggle for the
-            2.5D brand-world experiment without forcing WebGL on every visit. */}
-        <NovaSection id="work"><ShowcaseMarquee /></NovaSection>
+        {/* Selected Work intentionally omitted: Expertise already carries the
+            same visual proof language. Keep the legacy #work target here so
+            existing navigation lands at the relevant chapter instead of dying. */}
+        <div id="work">
+          <NovaSection id="services"><ExpertiseExperience /></NovaSection>
+        </div>
 
-        <NovaSection id="services"><ExpertiseExperience /></NovaSection>
         <SectionTitleCard word="WHY US?" theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>
         <NovaSection id="about"><AboutUsHalf /></NovaSection>

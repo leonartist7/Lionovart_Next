@@ -17,37 +17,35 @@
   overflow: visible;
 }
 
-/* Quiet liquid glass: one translucent body + one edge highlight. The material
-   responds to the page without looking like a card or paying for giant blur. */
+/* Lighter smoked glass: keep the navbar readable without the previous dark,
+   heavy band. The material stays restrained and inexpensive to render. */
 .glass {
   position: absolute;
   inset: 0;
   pointer-events: none;
   border: 0;
-  background: rgba(14, 14, 16, 0.38);
-  -webkit-backdrop-filter: blur(6px) saturate(108%);
-  backdrop-filter: blur(6px) saturate(108%);
+  background: rgba(244, 244, 248, 0.17);
+  -webkit-backdrop-filter: blur(6px) saturate(112%);
+  backdrop-filter: blur(6px) saturate(112%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.13),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.025);
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.045);
   transform: translateZ(0);
   contain: paint;
 }
 
 .panelGlass {
   border: 0;
-  background: rgba(247, 244, 239, 0.94);
+  background: rgba(250, 248, 244, 0.95);
   -webkit-backdrop-filter: blur(8px) saturate(108%);
   backdrop-filter: blur(8px) saturate(108%);
   box-shadow:
-    0 18px 48px rgba(0, 0, 0, 0.10),
-    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    0 18px 48px rgba(0, 0, 0, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82);
   transform: translateZ(0);
   contain: paint;
 }
 
-/* Menus are intentionally independent from the compact shell so they can
-   extend beyond the navbar without clipping. */
 .menuPanel {
   left: 50%;
   right: auto;
@@ -65,13 +63,13 @@
 
 @media (min-width: 768px) {
   .glass {
-    background: rgba(14, 14, 16, 0.34);
-    -webkit-backdrop-filter: blur(8px) saturate(112%);
-    backdrop-filter: blur(8px) saturate(112%);
+    background: rgba(244, 244, 248, 0.15);
+    -webkit-backdrop-filter: blur(8px) saturate(116%);
+    backdrop-filter: blur(8px) saturate(116%);
   }
 
   .panelGlass {
-    background: rgba(247, 244, 239, 0.91);
+    background: rgba(250, 248, 244, 0.93);
     -webkit-backdrop-filter: blur(10px) saturate(112%);
     backdrop-filter: blur(10px) saturate(112%);
   }
@@ -87,16 +85,16 @@
   }
 
   .glass {
-    background: rgba(14, 14, 16, 0.31);
-    -webkit-backdrop-filter: blur(9px) saturate(116%);
-    backdrop-filter: blur(9px) saturate(116%);
+    background: rgba(244, 244, 248, 0.13);
+    -webkit-backdrop-filter: blur(9px) saturate(118%);
+    backdrop-filter: blur(9px) saturate(118%);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.14),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.05);
   }
 
   .panelGlass {
-    background: rgba(247, 244, 239, 0.89);
+    background: rgba(250, 248, 244, 0.91);
     -webkit-backdrop-filter: blur(12px) saturate(116%);
     backdrop-filter: blur(12px) saturate(116%);
   }
@@ -112,13 +110,13 @@
   }
 
   .glass {
-    background: rgba(14, 14, 16, 0.48);
+    background: rgba(244, 244, 248, 0.2);
     -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
   }
 
   .panelGlass {
-    background: rgba(247, 244, 239, 0.96);
+    background: rgba(250, 248, 244, 0.97);
     -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
   }
@@ -126,13 +124,13 @@
 
 @media (prefers-reduced-transparency: reduce) {
   .glass {
-    background: rgba(14, 14, 16, 0.92);
+    background: rgba(36, 36, 40, 0.9);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 
   .panelGlass {
-    background: #f7f4ef;
+    background: #faf8f4;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
