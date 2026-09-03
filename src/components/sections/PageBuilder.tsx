@@ -6,6 +6,7 @@ import BridgeStatement from "@/components/sections/BridgeStatement";
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import WhatWeDo from "@/components/sections/WhatWeDo";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
+import ShowcaseMarquee from "@/components/sections/ShowcaseMarquee";
 import ExpertiseExperience from "@/components/sections/ExpertiseExperience";
 import Comparison from "@/components/sections/Comparison";
 import ProcessExperience from "@/components/sections/ProcessExperience";
@@ -23,14 +24,10 @@ import { TrailAttractionProvider } from "@/contexts/TrailAttractionContext";
  * Ids must stay in sync with `NOVA_KNOWLEDGE.page_sections` and prompts.
  */
 function NovaSection({ id, children }: { id: string; children: React.ReactNode }) {
-  return (
-    <div data-nova-section={id}>
-      {children}
-    </div>
-  );
+  return <div data-nova-section={id}>{children}</div>;
 }
 
-/** Static landing layout — CMS block map removed (unused; restore from git if needed). */
+/** Static landing layout — one continuous directed narrative. */
 export function PageBuilder() {
   return (
     <TrailAttractionProvider>
@@ -40,17 +37,19 @@ export function PageBuilder() {
 
       <NovaSection id="hero"><HeroTop /></NovaSection>
 
-      {/* relative z-[2] is required, not cosmetic: SceneVideoBackdrop is
-          position:fixed z-[0], and a positioned z-index:0 element paints
-          ABOVE non-positioned block descendants. Without a stacking context
-          here the backdrop covers every section below the hero (the hero
-          only survives because its content is `relative z-40`). */}
+      {/* z-[2] keeps narrative chapters above the fixed opening film. */}
       <div className="relative z-[2]">
         <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
         <BridgeStatement />
         <StrongTogetherTransition />
         <BridgeStatement variant="vow" />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
+
+        {/* Selected Work is its own proof chapter. The stream is the default;
+            the title retains the hidden spatial-direction toggle for the
+            2.5D brand-world experiment without forcing WebGL on every visit. */}
+        <NovaSection id="work"><ShowcaseMarquee /></NovaSection>
+
         <NovaSection id="services"><ExpertiseExperience /></NovaSection>
         <SectionTitleCard word="WHY US?" theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>
