@@ -2,14 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { rateLimitOk } from "@/lib/rate-limit";
 
-interface ScoreBody {
+interface PeekBody {
   website_url?: string;
 }
 
-interface ScoreResult {
-  score: number;
-  verdict: string;
-  critique: string;
+interface PeekResult {
+  message: string;
 }
 
 // Blunt SSRF guard: this endpoint fetches whatever URL a visitor types in,
@@ -37,7 +35,7 @@ function normalizeUrl(raw: string): URL | null {
 }
 
 // Best-effort peek at the page — title/description/visible-text snippet.
-// Never throws: a fetch failure just means the model works from the domain alone.
+// Never throws: a fetch failure just means Nova works from the domain alone.
 async function fetchSiteSignal(url: URL): Promise<string | null> {
   try {
     const res = await fetch(url.toString(), {
@@ -64,32 +62,39 @@ async function fetchSiteSignal(url: URL): Promise<string | null> {
   }
 }
 
-function fallbackResult(): ScoreResult {
+// Same line NOVA already uses in the live voice conversation when
+// scrape_website comes back empty (nova-brain/prompts/en.js) — one voice,
+// whether the visitor is talking to her or typing into the hero.
+function fallbackResult(): PeekResult {
   return {
-    score: 58,
-    verdict: "First impression: undecided.",
-    critique:
-      "We couldn't generate a live read for this one just now. That's usually a sign it's worth a real look — get the full breakdown from a human instead of a bot's best guess.",
+    message: "Couldn't quite read your site from here. Let's get you the full picture instead.",
   };
 }
 
-async function generateScore(url: URL, signal: string | null): Promise<ScoreResult> {
+// Mirrors NOVA's own established reaction to a scraped site (see
+// nova-brain/prompts/en.js, Stage 3): "I had a peek — I love that you lead
+// with [specific]. I noticed [X] — is that the full picture?" One voice for
+// the hero widget and the live conversation, not a separate "audit tool"
+// persona.
+async function generateMessage(url: URL, signal: string | null): Promise<PeekResult> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return fallbackResult();
 
   const model = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
+  const voice = `You are Nova, the front-desk strategist for LIONOVART, a premium creative agency. Charming, warm, witty, present - never a robot in a suit. Contractions always ("I'm", "you're", "that's"). Short sentences, one idea each. You reflect and notice, you never score, grade, or rate anything numerically, and you never give a prescriptive verdict - noticing something specific and opening a door is the whole move. Never say "as an AI". Never use filler words like "elevate", "seamless", "unlock", "revolutionize". Never use an em dash.`;
+
   const prompt = signal
-    ? `You are a blunt, expert brand-and-web strategist giving a stranger a fast, honest first-impression score of their website. Real page content follows — use it.
+    ? `${voice}
+
+A visitor just typed their website into your hero widget so you can have a peek before they book a call. Real page content follows.
 
 URL: ${url.toString()}
 ${signal}
 
-Score their brand/web first impression 0-100 (design, clarity, trust signals, positioning — not technical SEO/performance, you can't measure that here). Respond with ONLY a JSON object: {"score": <integer 0-100>, "verdict": "<max 8-word punchy headline>", "critique": "<2-3 sentences, specific to what you saw, direct but constructive, no fluff>"}.`
-    : `You are a blunt, expert brand-and-web strategist giving a stranger a fast first-impression read based only on their domain name (the page itself couldn't be fetched, so be honest this is a quick gut-take, not a full audit).
+Write ONE to TWO sentences reacting to it, exactly like you would mid-conversation: one specific compliment tied to something you actually saw, plus one sharp, honest observation. End on an implicit invitation, the way you'd say "is that the full picture?" - never a hard sales line. Respond with ONLY a JSON object: {"message": "<your 1-2 sentences>"}.`
+    : `${voice}
 
-URL: ${url.toString()}
-
-Give a plausible 0-100 first-impression score and a short, honest, specific-feeling take grounded in the domain/brand name and what it suggests. Respond with ONLY a JSON object: {"score": <integer 0-100>, "verdict": "<max 8-word punchy headline>", "critique": "<2-3 sentences, direct but constructive, no fluff>"}.`;
+A visitor typed their website into your hero widget, but you could not load the page itself (only the domain name is available). Be honest about that the way you already are when a scrape comes back empty, but keep it warm and brief, and gesture at what you'd want to know instead. Respond with ONLY a JSON object: {"message": "<your 1-2 sentences>"}.`;
 
   try {
     const ai = new GoogleGenAI({ apiKey });
@@ -99,21 +104,13 @@ Give a plausible 0-100 first-impression score and a short, honest, specific-feel
       config: { responseMimeType: "application/json" },
     });
     const text = result.text ?? "";
-    const parsed = JSON.parse(text) as Partial<ScoreResult>;
-    if (
-      typeof parsed.score !== "number" ||
-      typeof parsed.verdict !== "string" ||
-      typeof parsed.critique !== "string"
-    ) {
+    const parsed = JSON.parse(text) as Partial<PeekResult>;
+    if (typeof parsed.message !== "string" || !parsed.message.trim()) {
       return fallbackResult();
     }
-    return {
-      score: Math.max(0, Math.min(100, Math.round(parsed.score))),
-      verdict: parsed.verdict.trim(),
-      critique: parsed.critique.trim(),
-    };
+    return { message: parsed.message.trim() };
   } catch (err) {
-    console.error("[score route] Gemini failed:", err);
+    console.error("[peek route] Gemini failed:", err);
     return fallbackResult();
   }
 }
@@ -127,7 +124,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 
-  let body: ScoreBody;
+  let body: PeekBody;
   try {
     body = await req.json();
   } catch {
@@ -140,7 +137,7 @@ export async function POST(req: NextRequest) {
   }
 
   const signal = await fetchSiteSignal(url);
-  const result = await generateScore(url, signal);
+  const result = await generateMessage(url, signal);
 
   return NextResponse.json({ ...result, website_url: url.toString() }, { status: 200 });
 }

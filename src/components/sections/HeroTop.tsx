@@ -10,7 +10,7 @@ import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNovaStore } from "@/lib/stores/nova-store";
 import TrustedBadgesSection from "@/components/sections/TrustedBadgesSection";
-import HeroSiteScore from "@/components/ui/HeroSiteScore";
+import HeroSitePeek from "@/components/ui/HeroSitePeek";
 import { EN_WORD_ART } from "@/lib/word-art";
 
 /* ─── Variants ─────────────────────────────────────────────────── */
@@ -420,9 +420,9 @@ export default function HeroTop(props: any) {
           {subtitle}
         </motion.p>
 
-        {/* Site score — glass pill URL input, metallic outline, red button */}
+        {/* Nova peek — glass pill URL input, metallic outline, red button */}
         <motion.div variants={itemVariants} className="mt-1 w-full sm:mt-2">
-          <HeroSiteScore />
+          <HeroSitePeek />
         </motion.div>
 
         <motion.div variants={itemVariants}>
