@@ -91,7 +91,7 @@ export default function AiHeroCopy() {
             <button
               type="button"
               onClick={() => openNova("hero", true)}
-              className="mt-9 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[17px] font-semibold tracking-[-0.01em] text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+              className="mt-9 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[17px] font-semibold tracking-[-0.01em] text-white transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_28px_rgba(229,25,42,0.45)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
               Find Your Highest-ROI System
             </button>
