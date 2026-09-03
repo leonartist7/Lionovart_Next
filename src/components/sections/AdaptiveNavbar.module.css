@@ -3,7 +3,7 @@
   width: calc(100vw - 1.5rem);
   max-width: calc(100vw - 1.5rem);
   overflow: visible;
-  transition: max-width 760ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: max-width 420ms cubic-bezier(0.16, 1, 0.3, 1);
   contain: layout style;
 }
 
@@ -17,39 +17,37 @@
   overflow: visible;
 }
 
+/* Quiet liquid glass: one translucent body + one edge highlight. The material
+   responds to the page without looking like a card or paying for giant blur. */
 .glass {
   position: absolute;
   inset: 0;
   pointer-events: none;
   border: 0;
-  background:
-    radial-gradient(110% 145% at 12% -12%, rgba(255, 255, 255, 0.14) 0%, transparent 50%),
-    linear-gradient(155deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.018) 48%, rgba(0, 0, 0, 0.045)),
-    rgba(16, 16, 18, 0.44);
-  -webkit-backdrop-filter: blur(8px) saturate(108%);
-  backdrop-filter: blur(8px) saturate(108%);
+  background: rgba(14, 14, 16, 0.38);
+  -webkit-backdrop-filter: blur(6px) saturate(108%);
+  backdrop-filter: blur(6px) saturate(108%);
   box-shadow:
-    0 14px 38px rgba(0, 0, 0, 0.095),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    inset 0 1px 0 rgba(255, 255, 255, 0.13),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.025);
   transform: translateZ(0);
   contain: paint;
 }
 
 .panelGlass {
   border: 0;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(247, 244, 239, 0.94);
   -webkit-backdrop-filter: blur(8px) saturate(108%);
   backdrop-filter: blur(8px) saturate(108%);
   box-shadow:
-    0 18px 42px rgba(0, 0, 0, 0.11),
-    inset 0 1px 0 rgba(255, 255, 255, 0.64);
+    0 18px 48px rgba(0, 0, 0, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
   transform: translateZ(0);
   contain: paint;
 }
 
-/* The menu remains centered on the navbar, but its width is intentionally
-   independent from the compact navbar width. This lets the dropdown expand
-   beyond the 430-460px compact shell without clipping. */
+/* Menus are intentionally independent from the compact shell so they can
+   extend beyond the navbar without clipping. */
 .menuPanel {
   left: 50%;
   right: auto;
@@ -61,24 +59,21 @@
 
 @media (min-width: 640px) {
   .shell {
-    max-width: 430px;
+    max-width: 420px;
   }
 }
 
 @media (min-width: 768px) {
   .glass {
-    background:
-      radial-gradient(110% 145% at 12% -12%, rgba(255, 255, 255, 0.135) 0%, transparent 50%),
-      linear-gradient(155deg, rgba(255, 255, 255, 0.068), rgba(255, 255, 255, 0.017) 48%, rgba(0, 0, 0, 0.04)),
-      rgba(16, 16, 18, 0.38);
-    -webkit-backdrop-filter: blur(10px) saturate(116%);
-    backdrop-filter: blur(10px) saturate(116%);
+    background: rgba(14, 14, 16, 0.34);
+    -webkit-backdrop-filter: blur(8px) saturate(112%);
+    backdrop-filter: blur(8px) saturate(112%);
   }
 
   .panelGlass {
-    background: rgba(255, 255, 255, 0.86);
-    -webkit-backdrop-filter: blur(12px) saturate(116%);
-    backdrop-filter: blur(12px) saturate(116%);
+    background: rgba(247, 244, 239, 0.91);
+    -webkit-backdrop-filter: blur(10px) saturate(112%);
+    backdrop-filter: blur(10px) saturate(112%);
   }
 }
 
@@ -88,25 +83,22 @@
   }
 
   .compact {
-    max-width: 460px;
+    max-width: 452px;
   }
 
   .glass {
-    background:
-      radial-gradient(110% 145% at 12% -12%, rgba(255, 255, 255, 0.13) 0%, transparent 50%),
-      linear-gradient(155deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.016) 48%, rgba(0, 0, 0, 0.035)),
-      rgba(16, 16, 18, 0.34);
-    -webkit-backdrop-filter: blur(12px) saturate(122%);
-    backdrop-filter: blur(12px) saturate(122%);
+    background: rgba(14, 14, 16, 0.31);
+    -webkit-backdrop-filter: blur(9px) saturate(116%);
+    backdrop-filter: blur(9px) saturate(116%);
     box-shadow:
-      0 16px 46px rgba(0, 0, 0, 0.105),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.03);
   }
 
   .panelGlass {
-    background: rgba(255, 255, 255, 0.82);
-    -webkit-backdrop-filter: blur(16px) saturate(126%);
-    backdrop-filter: blur(16px) saturate(126%);
+    background: rgba(247, 244, 239, 0.89);
+    -webkit-backdrop-filter: blur(12px) saturate(116%);
+    backdrop-filter: blur(12px) saturate(116%);
   }
 
   .menuPanel {
@@ -120,17 +112,28 @@
   }
 
   .glass {
-    background: rgba(16, 16, 18, 0.52);
-    -webkit-backdrop-filter: blur(6px) saturate(100%);
-    backdrop-filter: blur(6px) saturate(100%);
-    box-shadow:
-      0 10px 28px rgba(0, 0, 0, 0.09),
-      inset 0 1px 0 rgba(255, 255, 255, 0.11);
+    background: rgba(14, 14, 16, 0.48);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
   }
 
   .panelGlass {
-    background: rgba(255, 255, 255, 0.92);
-    -webkit-backdrop-filter: blur(6px) saturate(100%);
-    backdrop-filter: blur(6px) saturate(100%);
+    background: rgba(247, 244, 239, 0.96);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: rgba(14, 14, 16, 0.92);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .panelGlass {
+    background: #f7f4ef;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
