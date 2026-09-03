@@ -1,7 +1,10 @@
 .host {
-  width: 100%;
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
 }
 
 :global(#testimonials):has(.host) {
-  overflow: clip !important;
+  overflow-x: clip !important;
+  overflow-y: visible !important;
 }
