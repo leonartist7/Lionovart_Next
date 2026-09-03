@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 
@@ -54,13 +54,32 @@ const PANELS: Panel[] = [
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 function Media({ panel, reduced }: { panel: Panel; reduced: boolean }) {
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const [nearViewport, setNearViewport] = useState(false);
+
+  useEffect(() => {
+    const node = mediaRef.current;
+    if (!node || !panel.videoSrc || reduced) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setNearViewport(entry.isIntersecting),
+      { rootMargin: "20% 0px", threshold: 0.03 },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [panel.videoSrc, reduced]);
+
+  const playVideo = Boolean(panel.videoSrc && !reduced && nearViewport);
+
   return (
     <div
+      ref={mediaRef}
       className={`relative overflow-hidden rounded-[22px] border border-black/[0.08] bg-[#171412] ${
         panel.fullBleed ? "aspect-[16/9] w-full lg:aspect-[21/9]" : "aspect-[4/3] w-full"
       }`}
     >
-      {panel.videoSrc && !reduced ? (
+      {playVideo ? (
         <video
           src={panel.videoSrc}
           poster={panel.imageSrc}
@@ -186,6 +205,8 @@ export default function AboutExperience(props: any) {
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
+      // Switching experiments changes document height substantially. Let Lenis,
+      // ScrollTrigger and responsive layout listeners recalculate immediately.
       window.dispatchEvent(new Event("resize"));
     });
     return () => window.cancelAnimationFrame(frame);
@@ -193,13 +214,14 @@ export default function AboutExperience(props: any) {
 
   return (
     <div className="relative" data-about-experiment={direction}>
+      {/* Hidden A/B control: title-sized, not a blanket overlay. */}
       <button
         type="button"
         onClick={() => setDirection((current) => (current === "classic" ? "panels" : "classic"))}
         className={`absolute z-[95] cursor-pointer rounded-[12px] bg-transparent text-transparent outline-none focus-visible:ring-1 focus-visible:ring-[#8a6d2f]/70 ${
           panelsDirection
-            ? "left-4 right-4 top-[5rem] h-[17rem] sm:left-6 sm:right-6 lg:left-[5vw] lg:right-auto lg:top-[6rem] lg:h-[19rem] lg:w-[65vw]"
-            : "left-4 right-4 top-[1rem] h-[15rem] sm:left-6 sm:right-6 lg:left-[41vw] lg:right-auto lg:top-[3rem] lg:h-[21rem] lg:w-[53vw]"
+            ? "left-4 top-[5rem] h-[11rem] w-[min(90vw,38rem)] sm:left-6 lg:left-[5vw] lg:top-[6rem] lg:h-[13rem] lg:w-[52vw]"
+            : "left-4 right-4 top-[1rem] h-[10rem] sm:left-6 sm:right-6 lg:left-[41vw] lg:right-auto lg:top-[3rem] lg:h-[13rem] lg:w-[53vw]"
         }`}
         aria-label={panelsDirection ? "Show original About Us direction" : "Show v2 panel direction"}
         title="Switch About Us direction"
