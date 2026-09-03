@@ -1,0 +1,56 @@
+name: Sync Codex Skills
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/sync-codex-skills.yml"
+      - "scripts/install-codex-skills.mjs"
+      - "package.json"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-codex-skills-master
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install all Codex skills
+        run: node scripts/install-codex-skills.mjs
+
+      - name: Verify installed skills
+        shell: bash
+        run: |
+          test -d .agents/skills
+          count=$(find .agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l | tr -d ' ')
+          echo "Installed Codex skills: $count"
+          test "$count" -gt 3
+
+      - name: Commit synchronized skills
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .agents/skills skills-lock.json 2>/dev/null || git add .agents/skills
+          if git diff --cached --quiet; then
+            echo "Codex skills are already current."
+            exit 0
+          fi
+          git commit -m "chore(codex): sync design and frontend skills"
+          git push origin master

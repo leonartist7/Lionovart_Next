@@ -178,25 +178,33 @@ export default function AboutUsHalf(props: any) {
         */}
         <div className="relative z-[1] flex flex-col items-center justify-center gap-[clamp(1.5rem,3vh,2.5rem)] pb-[clamp(3rem,6vh,5rem)] pt-[clamp(4rem,7vh,6rem)]">
 
-          {/* ROW 1 â€” Line 0 spans full width above the grid */}
-          <div className="w-full max-w-[1400px] px-[max(3rem,6vw)]">
-            <p className="font-display text-black leading-[1.05] tracking-tight text-[clamp(2rem,3.5vw,5rem)] whitespace-nowrap">
-              <span className="inline-block overflow-hidden align-bottom mr-[0.22em]">
-                <span className="about-word-inner inline-block">&ldquo;</span>
-              </span>
-              {headlineTop.split('\n')[0].split(' ').filter(Boolean).map((word, wi) => (
-                <span key={wi} className="inline-block overflow-hidden align-bottom mr-[0.22em]">
-                  <span className="about-word-inner inline-block">{word}</span>
-                </span>
-              ))}
-            </p>
-          </div>
+          {/* DESKTOP TWO-COLUMN LAYOUT — portrait left, complete copy block right */}
+          <div className="w-full max-w-[1400px] px-[max(3rem,6vw)] grid grid-cols-[34%_1fr] gap-[clamp(2rem,4vw,5rem)] items-start">
 
-          {/* ROW 2 â€” 2-col grid */}
-          <div className="w-full max-w-[1400px] px-[max(3rem,6vw)] grid grid-cols-[1fr_34%] gap-[clamp(2rem,4vw,5rem)] items-start">
+            {/* LEFT COLUMN — portrait */}
+            <div className="flex justify-center items-start lg:-mt-10 xl:-mt-14">
+              <PortraitFrame
+                frameClassName="w-full aspect-[3/4] max-h-[clamp(60vh,78vh,90vh)]"
+                revealClass=""
+                founderRole={founderRole}
+              />
+            </div>
 
-            {/* LEFT COLUMN â€” line 2, divider, body, stats */}
+            {/* RIGHT COLUMN — complete headline, body, and stats */}
             <div className="flex flex-col items-start w-full">
+              {/* First headline line */}
+              <p className="font-display text-black leading-[1.05] tracking-tight text-[clamp(2rem,3.5vw,5rem)] max-w-full">
+                <span className="inline-block overflow-hidden align-bottom mr-[0.22em]">
+                  <span className="about-word-inner inline-block">&ldquo;</span>
+                </span>
+                {headlineTop.split('\n')[0].split(' ').filter(Boolean).map((word, wi) => (
+                  <span key={wi} className="inline-block overflow-hidden align-bottom mr-[0.22em]">
+                    <span className="about-word-inner inline-block">{word}</span>
+                  </span>
+                ))}
+              </p>
+
+              {/* Second headline line, divider, body, and stats */}
               <h2 className="font-display text-black leading-[1.05] tracking-tight text-[clamp(2rem,3.5vw,5rem)]">
                 {(headlineTop.split('\n')[1] ?? '').split(' ').filter(Boolean).map((word, wi) => (
                   <span key={wi} className="inline-block overflow-hidden align-bottom mr-[0.22em]">
@@ -224,14 +232,6 @@ export default function AboutUsHalf(props: any) {
               </div>
             </div>
 
-            {/* RIGHT COLUMN â€” portrait, top-anchored, pulled up relative to the text column */}
-            <div className="flex justify-center items-start lg:-mt-10 xl:-mt-14">
-              <PortraitFrame
-                frameClassName="w-full aspect-[3/4] max-h-[clamp(60vh,78vh,90vh)]"
-                revealClass=""
-                founderRole={founderRole}
-              />
-            </div>
           </div>
 
         </div>

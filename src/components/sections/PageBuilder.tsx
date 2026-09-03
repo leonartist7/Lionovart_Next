@@ -6,11 +6,9 @@ import BridgeStatement from "@/components/sections/BridgeStatement";
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import WhatWeDo from "@/components/sections/WhatWeDo";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
-import ShowcaseMarquee from "@/components/sections/ShowcaseMarquee";
-import SignatureOffer from "@/components/sections/SignatureOffer";
-import Services from "@/components/sections/Services";
+import ExpertiseExperience from "@/components/sections/ExpertiseExperience";
 import Comparison from "@/components/sections/Comparison";
-import Process from "@/components/sections/Process";
+import ProcessExperience from "@/components/sections/ProcessExperience";
 import Testimonials from "@/components/sections/Testimonials";
 import AuditStrip from "@/components/sections/AuditStrip";
 import FAQ from "@/components/sections/FAQ";
@@ -53,13 +51,11 @@ export function PageBuilder() {
         <StrongTogetherTransition />
         <BridgeStatement variant="vow" />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
-        <ShowcaseMarquee />
-        <NovaSection id="services"><Services /></NovaSection>
-        <NovaSection id="offer"><SignatureOffer /></NovaSection>
+        <NovaSection id="services"><ExpertiseExperience /></NovaSection>
         <SectionTitleCard word="WHY US?" theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>
         <NovaSection id="about"><AboutUsHalf /></NovaSection>
-        <NovaSection id="process"><Process /></NovaSection>
+        <NovaSection id="process"><ProcessExperience /></NovaSection>
         <SectionTitleCard word="RESULTS." theme="dark" />
         <NovaSection id="testimonials"><Testimonials /></NovaSection>
         <AuditStrip />

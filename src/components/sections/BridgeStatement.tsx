@@ -5,9 +5,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * The couplet that frames the Strong-alone turn.
- * `recognition` runs before it on black; `vow` runs after it on the cream the
- * bloom created, which is also what keeps the handoff into the IMAGINE section
- * free of a light-space break.
+ * `recognition` (default variant) runs before it on black; `vow` runs after
+ * it on the cream the bloom created, which is also what keeps the handoff
+ * into the IMAGINE section free of a light-space break.
  */
 type BridgeVariant = "recognition" | "vow";
 

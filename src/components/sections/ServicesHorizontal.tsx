@@ -1,8 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -13,9 +11,6 @@ export type HorizontalServiceItem = {
   title: string;
   description: string;
   deliverables: readonly string[];
-  href?: string;
-  imgUrl: string;
-  imgAlt: string;
 };
 
 function ServiceSignal({ id, active }: { id: string; active: boolean }) {
@@ -214,16 +209,11 @@ export default function ServicesHorizontal({ items }: { items: HorizontalService
               transition={{ duration: 0.55, ease: EASE }}
               className="services-horizontal__card group"
             >
-              <div className="relative aspect-video overflow-hidden bg-[#171717]">
-                <Image
-                  src={service.imgUrl}
-                  alt={service.imgAlt}
-                  fill
-                  sizes="(max-width: 639px) calc(100vw - 32px), (max-width: 1023px) 72vw, 46vw"
-                  className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-aria-[current=true]:scale-[1.025]"
-                />
-                <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-black/10" />
-                <div aria-hidden className="absolute inset-0 ring-1 ring-inset ring-white/10" />
+              <div className="relative flex min-h-[15rem] items-center justify-center overflow-hidden border-b border-white/8 bg-[#151515] sm:min-h-[17rem] lg:min-h-[19rem]">
+                <div aria-hidden className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(229,25,42,0.16),transparent_48%)]" />
+                <div className="relative h-32 w-32 text-white/72 sm:h-36 sm:w-36 lg:h-40 lg:w-40">
+                  <ServiceSignal id={service.id} active={active} />
+                </div>
 
                 <div className="absolute left-4 top-4 flex items-center gap-2 sm:left-5 sm:top-5">
                   <span className="h-1.5 w-1.5 rounded-full bg-brand-red" />
@@ -231,13 +221,9 @@ export default function ServicesHorizontal({ items }: { items: HorizontalService
                     Lionovart / {service.number}
                   </span>
                 </div>
-
-                <div className="absolute bottom-3 right-3 h-20 w-20 text-white/70 sm:bottom-4 sm:right-4 sm:h-24 sm:w-24">
-                  <ServiceSignal id={service.id} active={active} />
-                </div>
               </div>
 
-              <div className="flex min-h-[19rem] flex-col p-5 sm:min-h-[20rem] sm:p-7 lg:p-8">
+              <div className="flex min-h-[18rem] flex-col p-5 sm:min-h-[19rem] sm:p-7 lg:p-8">
                 <div className="mb-5 flex items-start gap-3 sm:gap-4">
                   <span className="mt-1 shrink-0 font-mono text-[10px] font-bold tracking-[0.2em] text-brand-red">
                     {service.number}
@@ -261,15 +247,6 @@ export default function ServicesHorizontal({ items }: { items: HorizontalService
                     </span>
                   ))}
                 </div>
-
-                {service.href ? (
-                  <Link
-                    href={service.href}
-                    className="mt-auto inline-flex w-fit items-center gap-2 pt-6 text-[11px] font-bold uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:text-brand-red focus-visible:text-brand-red"
-                  >
-                    Explore service <span aria-hidden>&rarr;</span>
-                  </Link>
-                ) : null}
               </div>
             </motion.article>
           );

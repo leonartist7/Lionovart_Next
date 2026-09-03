@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-label="Lionovart icon">
+  <rect width="512" height="512" fill="#F51B2C"/>
+
+  <path fill="#FFFFFF"
+        d="M84 92
+           H192
+           V357
+           H270
+           L321 432
+           H84
+           Z"/>
+
+  <path fill="#000000"
+        d="M192 92
+           L330 299
+           V151
+           H428
+           V432
+           H320
+           L192 241
+           Z"/>
+
+  <path fill="#FFFFFF"
+        d="M328 79
+           L360 98
+           L378 79
+           L397 98
+           L428 79
+           V138
+           H328
+           Z"/>
+</svg>
