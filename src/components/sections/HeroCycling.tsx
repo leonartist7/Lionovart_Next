@@ -20,6 +20,7 @@ export interface HeroCyclingProps {
   cyclingColor?: string;
   letterSpacing?: string;
   forceAnimate?: boolean;
+  align?: "center" | "start";
 }
 
 const DEFAULT_HOLD_MS = 2500;
@@ -41,7 +42,8 @@ const wordVariants = {
 
 /**
  * Shared kinetic headline. Timers and image warming are viewport-gated, so the
- * closing CTA does zero cycling work at the top of a long page.
+ * closing CTA does zero cycling work at the top of a long page. `align` lets
+ * editorial layouts use the same kinetic system without forking its behavior.
  */
 export default function HeroCycling({
   staticText = "YOUR BRAND DESERVES",
@@ -52,6 +54,7 @@ export default function HeroCycling({
   cyclingColor = "#ffffff",
   letterSpacing = "0.05em",
   forceAnimate = false,
+  align = "center",
 }: HeroCyclingProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<number | null>(null);
@@ -116,6 +119,12 @@ export default function HeroCycling({
 
   const cyclingClampSize = cyclingFontSize ?? fontSize;
   const imageClampSize = imageFontSize ?? cyclingClampSize;
+  const isStart = align === "start";
+  const textAlign = isStart ? "left" : "center";
+  const justifyContent = isStart ? "flex-start" : "center";
+  const alignItems = isStart ? "flex-start" : "center";
+  const objectPosition = isStart ? "left center" : "center center";
+
   const sharedTextStyle: React.CSSProperties = {
     fontSize,
     lineHeight: 1,
@@ -127,7 +136,7 @@ export default function HeroCycling({
     color: "#ffffff",
     margin: 0,
     whiteSpace: "nowrap",
-    textAlign: "center",
+    textAlign,
     width: "100%",
   };
   const cyclingTextStyle: React.CSSProperties = {
@@ -156,7 +165,7 @@ export default function HeroCycling({
             fill
             style={{
               objectFit: "contain",
-              objectPosition: "center center",
+              objectPosition,
               WebkitMaskImage: `${featherX}, ${featherY}`,
               WebkitMaskComposite: "source-in",
               maskImage: `${featherX}, ${featherY}`,
@@ -213,7 +222,7 @@ export default function HeroCycling({
               inset: 0,
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
+              justifyContent,
             }}
           >
             {renderWord(words[currentIndex] ?? words[0], currentIndex === 0)}
@@ -231,7 +240,7 @@ export default function HeroCycling({
                 inset: 0,
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
+                justifyContent,
                 willChange: "transform, opacity",
               }}
             >
@@ -242,7 +251,7 @@ export default function HeroCycling({
                   width: "100%",
                   display: "flex",
                   flexDirection: "column",
-                  alignItems: "center",
+                  alignItems,
                   justifyContent: "center",
                 }}
               >
