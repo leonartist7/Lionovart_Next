@@ -1,363 +1,52 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { motion, useInView } from "framer-motion";
-import { animate, utils } from "animejs";
-import { getWhatsAppUrl } from "@/lib/contact";
-import HeroCycling, { Word } from "@/components/sections/HeroCycling";
-import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { useNovaStore } from "@/lib/stores/nova-store";
-import TrustedBadgesSection from "@/components/sections/TrustedBadgesSection";
+import { motion } from "framer-motion";
+import HeroCycling, { type Word } from "@/components/sections/HeroCycling";
 import HeroSiteScore from "@/components/ui/HeroSiteScore";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { EN_WORD_ART } from "@/lib/word-art";
 
-/* ─── Variants ─────────────────────────────────────────────────── */
+const EASE_OUT = [0.16, 1, 0.3, 1] as const;
+
 const containerVariants = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.12,
-      delayChildren: 0.2,
+      staggerChildren: 0.09,
+      delayChildren: 0.08,
     },
   },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 18 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: "easeOut" as const },
+    transition: { duration: 0.62, ease: EASE_OUT },
   },
 };
 
-/* ─── Animated Stats Overlay ────────────────────────────────────── */
-function AnimatedStats({ labels }: { labels: { clients: string; industries: string; yearsExp: string } }) {
-  const ref = useRef<HTMLDivElement>(null);
-  // margin "0px" — triggers as soon as any pixel of the element enters the viewport.
-  // Previously "-40px" was causing it to miss on some viewport heights.
-  const inView = useInView(ref, { once: true, margin: "0px" });
+type HeroTopProps = {
+  staticText?: string;
+  subtitle?: string;
+  cyclingWords?: string[];
+};
 
-  const clients = useCountUp(50, 1600, inView);
-  const industries = useCountUp(20, 1400, inView);
-  const years = useCountUp(20, 1200, inView);
-
-  return (
-    <div ref={ref} className="flex items-center justify-center gap-6 md:gap-10">
-      {[
-        { value: clients, suffix: "+", label: labels.clients },
-        { value: industries, suffix: "+", label: labels.industries },
-        { value: years, suffix: "+", label: labels.yearsExp },
-      ].map((stat, i) => (
-        <motion.div
-          key={stat.label}
-          className="flex flex-col items-center"
-          initial={{ opacity: 0, y: 12 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-          transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
-        >
-          <span className="text-[22px] sm:text-[26px] font-black text-white leading-none tabular-nums">
-            {stat.value}{stat.suffix}
-          </span>
-          <span className="text-[10px] sm:text-[11px] uppercase tracking-widest text-white/50 mt-1">
-            {stat.label}
-          </span>
-        </motion.div>
-      ))}
-    </div>
-  );
-}
-
-/* ─── Count-Up Hook ─────────────────────────────────────────────── */
-function useCountUp(target: number, duration: number = 1800, active: boolean = true) {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!active) return;
-    const obj = { n: 0 };
-    const tween = animate(obj, {
-      n: target,
-      duration,
-      ease: "out(3)",
-      modifier: utils.round(0),
-      onUpdate: () => setCount(obj.n),
-    });
-    return () => {
-      tween.revert();
-    };
-  }, [active, target, duration]);
-  return count;
-}
-
-/* ─── Cycling words are built inside the component from translations ─── */
-
-
-/* ─── Trust Badge Components ────────────────────────────────────── */
-
-const AVATARS = [
-  "/images/Testimonials/UK/Jess-Beautysalon-W.avif",
-  "/images/Testimonials/Northlinemotors/Marc-Cardealer-M.jpg",
-  "/images/Testimonials/Canada/Maya-Flowerstore-W.avif",
-  "/images/Testimonials/Spain/Pablo-hotel-M.avif",
-  "/images/Testimonials/UK/Dan-Clinic-M.avif",
-];
-
-const FLAGS = [
-  { src: "https://flagcdn.com/w40/kr.png", rot: -10, y: -2 },
-  { src: "https://flagcdn.com/w40/jp.png", rot: -6,  y:  0 },
-  { src: "https://flagcdn.com/w40/it.png", rot: -3,  y:  1 },
-  { src: "https://flagcdn.com/w40/ch.png", rot:  0,  y:  2 },
-  { src: "https://flagcdn.com/w40/fr.png", rot:  3,  y:  2 },
-  { src: "https://flagcdn.com/w40/us.png", rot:  6,  y:  1 },
-  { src: "https://flagcdn.com/w40/gb.png", rot:  10, y:  0 },
-];
-
-/*
- * STRUCTURAL APPROACH — Flex Row Form-Fitting Badge
- * ───────────────────────────────────────────────────
- * Instead of an artificial safe zone, we use a flex row:
- * [Left Laurel] [Content] [Right Laurel]
- * This guarantees the laurels ALWAYS hug the content perfectly
- * with an exact 4px gap, mimicking the reference image.
+/**
+ * Signature arrival: one clear promise, one useful conversion action, one
+ * restrained credibility line. Expensive legacy counters/laurels were removed
+ * from this critical path so the first viewport stays fast and honest.
  */
-function TrustBadge({
-  children,
-  title,
-  contentWidth,
-}: {
-  children: React.ReactNode;
-  title?: React.ReactNode;
-  contentWidth: number;
-}) {
-  return (
-    <div className="flex items-center justify-center gap-0">
-      {/* ── Left Laurel ── fixed height to maintain arch, scaled down 50% */}
-      <img
-        src="https://res.cloudinary.com/dgio9uutc/image/upload/v1787020265/Laurel-L_vxtg55.webp"
-        alt=""
-        aria-hidden="true"
-        className="relative z-0 h-[60px] w-auto object-contain pointer-events-none select-none sm:h-[70px] md:h-[80px]"
-        style={{ marginRight: "clamp(-5rem, -8vw, -2rem)" }}
-      />
-
-      {/* ── Content Container ── exact width requested */}
-      <div
-        className="flex flex-col items-center justify-center text-center flex-shrink-0"
-        style={{ width: contentWidth, position: "relative", zIndex: 1 }}
-      >
-        {children}
-        {title && (
-          <span
-            className="text-[#e5192a] font-bold leading-[1.1] mt-1 sm:mt-1.5"
-            style={{ fontSize: contentWidth * 0.18 }}
-          >
-            {title}
-          </span>
-        )}
-      </div>
-
-      {/* ── Right Laurel ── */}
-      <img
-        src="https://res.cloudinary.com/dgio9uutc/image/upload/v1787020265/Laurel-R_kj7isz.webp"
-        alt=""
-        aria-hidden="true"
-        className="relative z-0 h-[60px] w-auto object-contain pointer-events-none select-none sm:h-[70px] md:h-[80px]"
-        style={{ marginLeft: "clamp(-5rem, -8vw, -2rem)" }}
-      />
-    </div>
-  );
-}
-
-/*
- * Inner badges component — only rendered after mount (client-only).
- * This eliminates the SSR skeleton race condition: the ref attaches
- * immediately, so useInView fires correctly the first time.
- */
-function TrustBadgesInner({ badges }: { badges: { brands: readonly string[]; experience: readonly string[]; countries: string } }) {
-  const ref = useRef<HTMLDivElement>(null);
-  // margin "0px" — fires as soon as the element enters the viewport.
-  // "once: true" so the count-up runs exactly once and never resets.
-  const inView = useInView(ref, { once: true, margin: "0px" });
-
-  const brandsCount    = useCountUp(50, 1600, inView);
-  const countriesCount = useCountUp(7, 1400, inView);
-
-  const sideWidth = typeof window !== "undefined" && window.innerWidth < 768 ? 45 : 65;
-  const midWidth  = typeof window !== "undefined" && window.innerWidth < 768 ? 70 : 100;
-
-  return (
-    <div
-      ref={ref}
-      className="flex flex-wrap justify-center items-center gap-y-2 gap-x-0 sm:gap-2 md:gap-4 w-full max-w-[1100px] mx-auto mt-4 md:mt-5"
-    >
-      {/* ── Badge 1: Brands — mobile row 2, desktop row 1 ── */}
-      <motion.div
-        className="order-2 sm:order-1"
-        initial={{ opacity: 0, y: 16 }}
-        animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-        transition={{ duration: 0.55, delay: 0.0, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <TrustBadge title={<>{badges.brands[0]}<br />{badges.brands[1]}</>} contentWidth={sideWidth}>
-          <div
-            className="flex items-center text-[#e5192a] font-black leading-none tracking-tighter"
-            style={{ fontSize: sideWidth * 0.7 }}
-          >
-            <span style={{ fontSize: sideWidth * 0.45, marginRight: 2 }}>+</span>
-            {brandsCount}
-          </div>
-        </TrustBadge>
-      </motion.div>
-
-      {/* ── Badge 2: Customer Experience — mobile row 1 (full width), desktop center ── */}
-      <motion.div
-        className="order-1 sm:order-2 basis-full sm:basis-auto flex justify-center"
-        initial={{ opacity: 0, y: 16 }}
-        animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-        transition={{ duration: 0.55, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <TrustBadge title={<>{badges.experience[0]}<br />{badges.experience[1]}</>} contentWidth={midWidth}>
-          <div className="flex flex-col items-center gap-2 sm:gap-3 w-full">
-            {/* Stars — each animates in with scale + opacity, staggered */}
-            <div className="flex items-center justify-between w-[95%]">
-              {[0, 1, 2, 3, 4].map((i) => (
-                <motion.img
-                  key={i}
-                  src="https://res.cloudinary.com/dgio9uutc/image/upload/v1787020126/Golden_Beveled_Star_Icon_wwcwek.webp"
-                  alt=""
-                  aria-hidden="true"
-                  className="object-contain"
-                  style={{ width: midWidth * 0.16, height: midWidth * 0.16 }}
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={inView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
-                  transition={{
-                    duration: 0.4,
-                    delay: 0.3 + i * 0.08,
-                    ease: [0.34, 1.56, 0.64, 1], // spring-like overshoot
-                  }}
-                />
-              ))}
-            </div>
-            {/* Avatars */}
-            <div className="flex items-center justify-center w-full">
-              {AVATARS.map((src, i) => (
-                <motion.div
-                  key={i}
-                  style={{
-                    width: midWidth * 0.22,
-                    height: midWidth * 0.22,
-                    borderRadius: "50%",
-                    border: "1px solid #e5192a",
-                    overflow: "hidden",
-                    marginLeft: i === 0 ? 0 : -(midWidth * 0.05),
-                    position: "relative",
-                    zIndex: AVATARS.length - i,
-                    flexShrink: 0,
-                  }}
-                  initial={{ opacity: 0, scale: 0.6 }}
-                  animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.6 }}
-                  transition={{ duration: 0.35, delay: 0.5 + i * 0.07, ease: "easeOut" }}
-                >
-                  <img src={src} alt="client" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </TrustBadge>
-      </motion.div>
-
-      {/* ── Badge 3: Countries — mobile row 2, desktop row 1 ── */}
-      <motion.div
-        className="order-3"
-        initial={{ opacity: 0, y: 16 }}
-        animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-        transition={{ duration: 0.55, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <TrustBadge contentWidth={sideWidth}>
-          <div className="flex flex-col items-center w-full">
-            <div
-              className="flex items-center text-[#e5192a] font-black leading-none tracking-tighter"
-              style={{ fontSize: sideWidth * 0.7 }}
-            >
-              <span style={{ fontSize: sideWidth * 0.45, marginRight: 2 }}>+</span>
-              {countriesCount}
-            </div>
-            <span
-              className="text-[#e5192a] font-bold leading-[1.2]"
-              style={{ fontSize: sideWidth * 0.2 }}
-            >
-              {badges.countries}
-            </span>
-            {/* Flags — fan in staggered */}
-            <div className="flex items-center justify-center mt-2 sm:mt-3 gap-1">
-              {FLAGS.map((flag, i) => (
-                <motion.img
-                  key={i}
-                  src={flag.src}
-                  alt="flag"
-                  style={{
-                    width: sideWidth * 0.16,
-                    height: sideWidth * 0.11,
-                    objectFit: "cover",
-                    borderRadius: "1px",
-                    transform: `rotate(${flag.rot}deg) translateY(${flag.y}px)`,
-                  }}
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
-                  transition={{ duration: 0.3, delay: 0.6 + i * 0.06, ease: "easeOut" }}
-                />
-              ))}
-            </div>
-          </div>
-        </TrustBadge>
-      </motion.div>
-    </div>
-  );
-}
-
-/*
- * DynamicTrustBadges — SSR-safe wrapper.
- * Renders an invisible same-size placeholder on the server to prevent
- * layout shift. After hydration, swaps to the real animated component
- * so the ref attaches cleanly and useInView fires correctly.
- */
-function DynamicTrustBadges({ badges }: { badges: { brands: readonly string[]; experience: readonly string[]; countries: string } }) {
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => { setIsMounted(true); }, []);
-
-  if (!isMounted) {
-    return (
-      <div className="w-full max-w-[1100px] mx-auto mt-4 md:mt-5 opacity-0 invisible h-[120px]" />
-    );
-  }
-
-  return <TrustBadgesInner badges={badges} />;
-}
-
-/* -------------------------------------------------------------------------- */
-/* Main Component */
-/* -------------------------------------------------------------------------- */
-export default function HeroTop(props: any) {
+export default function HeroTop(props: HeroTopProps) {
   const { t, locale } = useLanguage();
-  const [submitted, setSubmitted] = useState(false);
-  const openNova = useNovaStore((s) => s.openNova);
-  const staticText = props.staticText || t.hero.staticText;
-  const subtitle = props.subtitle || t.hero.subtitle;
-  const ctaStart = props.ctaStart || t.hero.ctaStart;
-  const ctaStartOpening = props.ctaStartOpening || t.hero.ctaStartOpening;
-  const trustText = props.trustText || t.hero.trustText;
-  const badges = props.badges || t.hero.badges;
-
-  // Hero focuses on concrete outcomes; the closing CTA keeps the more emotional
-  // ROAR / MAGNETIC / DOMINATE cadence so the two moments feel related, not duplicated.
-  // English renders the word-art AVIFs shared with the closing CTA (EN_WORD_ART —
-  // the art itself is English lettering); every other locale keeps live
-  // translated text. HeroCycling treats image words with the same fade/settle
-  // animation.
-  const cyclingWordsRaw: string[] = props.cyclingWords || t.hero.cyclingWords;
+  const staticText = props.staticText ?? t.hero.staticText;
+  const subtitle = props.subtitle ?? t.hero.subtitle;
+  const cyclingWordsRaw = props.cyclingWords ?? t.hero.cyclingWords;
   const heroOutcomeWords = [cyclingWordsRaw[1], cyclingWordsRaw[2], cyclingWordsRaw[4]].filter(Boolean) as string[];
 
-  const CYCLING_WORDS: Word[] =
+  const cyclingWords: Word[] =
     locale === "en"
       ? EN_WORD_ART
       : heroOutcomeWords.map((content) => ({
@@ -366,44 +55,26 @@ export default function HeroTop(props: any) {
           holdMs: 3200,
         }));
 
-  const handleConnectNow = () => {
-    if (submitted) {
-      window.open(getWhatsAppUrl("Hello Leon, I submitted my email. Can we talk about a project?"), "_blank");
-    } else {
-      window.open(getWhatsAppUrl("Hello Leon, I'm interested in discussing a new project."), "_blank");
-    }
-  };
-
-  const handleOpenStrategist = (autoStart = false) => {
-    openNova("hero", autoStart);
-  };
-
   return (
-    <section className="relative flex flex-col items-center justify-center overflow-hidden px-4 pb-14 pt-[clamp(7.25rem,13vh,9.5rem)] text-center sm:px-6 sm:pb-16 sm:pt-[clamp(7.75rem,14vh,10rem)] lg:pt-[clamp(8.25rem,15vh,11rem)]">
-
-      {/* Controlled dark stage + soft red glow up top; clears toward the
-          bottom so the video behind PEEKS at the fold and pulls scroll. */}
-      <div aria-hidden className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(100% 70% at 50% 28%, rgba(229,25,42,0.10) 0%, transparent 52%), linear-gradient(180deg, rgba(7,7,9,0.50) 0%, rgba(7,7,9,0.42) 45%, rgba(7,7,9,0.80) 82%, rgba(10,10,10,1) 100%)",
-          }}
-        />
+    <section
+      className="relative flex min-h-[min(900px,100svh)] flex-col items-center justify-center overflow-hidden px-4 pb-16 pt-[clamp(7.25rem,13vh,9.5rem)] text-center sm:px-6 sm:pb-20 sm:pt-[clamp(7.75rem,14vh,10rem)] lg:pt-[clamp(8.25rem,15vh,11rem)]"
+      aria-labelledby="hero-title"
+    >
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,7,9,0.42)_0%,rgba(7,7,9,0.34)_44%,rgba(7,7,9,0.78)_82%,#0a0a0a_100%)]" />
+        <div className="absolute left-1/2 top-[20%] h-[26rem] w-[min(72vw,54rem)] -translate-x-1/2 rounded-full bg-brand-red/[0.07] blur-[90px] md:bg-brand-red/[0.06]" />
       </div>
 
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-40 flex w-full max-w-[62rem] flex-col items-center gap-6 sm:gap-7 md:gap-9"
+        className="relative z-40 flex w-full max-w-[64rem] flex-col items-center gap-6 sm:gap-7 md:gap-8"
       >
-        {/* Same kinetic language as the close, but outcome-led and mobile-first. */}
-        <motion.div variants={itemVariants} className="w-full">
+        <motion.div variants={itemVariants} className="w-full" id="hero-title">
           <HeroCycling
             staticText={staticText}
-            words={CYCLING_WORDS}
+            words={cyclingWords}
             fontSize="clamp(2.45rem, 9.2vw, 6.9rem)"
             cyclingFontSize="clamp(2.95rem, 11.8vw, 8.8rem)"
             imageFontSize="clamp(2.7rem, 10.1vw, 7.6rem)"
@@ -412,15 +83,13 @@ export default function HeroTop(props: any) {
           />
         </motion.div>
 
-        {/* Sub — one clear line */}
         <motion.p
           variants={itemVariants}
-          className="max-w-[46rem] font-body text-[1rem] leading-[1.6] text-white/60 md:text-[1.1875rem]"
+          className="max-w-[44rem] font-body text-[0.98rem] leading-[1.65] text-white/64 sm:text-[1.05rem] md:text-[1.15rem]"
         >
           {subtitle}
         </motion.p>
 
-        {/* Site score — glass pill URL input, metallic outline, red button */}
         <motion.div variants={itemVariants} className="mt-1 w-full sm:mt-2">
           <HeroSiteScore />
         </motion.div>
@@ -428,18 +97,24 @@ export default function HeroTop(props: any) {
         <motion.div variants={itemVariants}>
           <Link
             href="/audit"
-            className="text-[13px] text-white/50 underline underline-offset-4 transition-colors hover:text-white/80"
+            className="inline-flex min-h-11 items-center text-[12px] font-medium tracking-[0.02em] text-white/48 underline decoration-white/30 underline-offset-4 transition-colors duration-200 hover:text-white/82 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-4 focus-visible:ring-offset-[#0a0a0a]"
           >
-            or skip to a full audit &rarr;
+            or skip to a full audit <span aria-hidden className="ml-1">→</span>
           </Link>
         </motion.div>
 
-        {/* Trust badges — restored, as before */}
-        <motion.div variants={itemVariants} className="mt-1 w-full sm:mt-2">
-          <TrustedBadgesSection variant="dark" />
+        <motion.div
+          variants={itemVariants}
+          className="mt-1 flex max-w-full flex-wrap items-center justify-center gap-x-3 gap-y-1.5 font-mono text-[9px] font-bold uppercase tracking-[0.16em] text-white/58 sm:gap-x-4 sm:text-[10px] md:text-[11px]"
+          aria-label="5 star client experience. Proven results. Creative excellence."
+        >
+          <span className="text-brand-gold">5★ client experience</span>
+          <span aria-hidden className="h-1 w-1 rounded-full bg-brand-red" />
+          <span>Proven results</span>
+          <span aria-hidden className="h-1 w-1 rounded-full bg-brand-red" />
+          <span>Creative excellence</span>
         </motion.div>
       </motion.div>
-
     </section>
   );
 }
