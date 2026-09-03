@@ -1,28 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useTransform,
+} from "framer-motion";
 import { useLenis } from "lenis/react";
 
 /**
- * SceneVideoBackdrop â€” a single fixed, full-viewport video that sits behind the
- * Hero â†’ WhatWeDo â†’ HeroLion "scene". Auto-crossfades through 3 clips (14s each)
- * and fades out / pauses once the white About section scrolls over it, so it
- * stops decoding for the rest of the page.
- *
- * Playback starts a fixed 3s after mount (not gated on scroll), then fades +
- * pauses as the hero scrolls away.
- *
- * z-[0]: paints above `main`'s bg-bg-dark box but below the sections (z-[2]),
- * which are transparent through this region, so the video shows through them.
+ * One fixed opening film for the arrival chapter. It is progressive enhancement:
+ * mobile, reduced-motion and data-saver visitors keep the authored dark/red
+ * stage without paying for video decode.
  */
-// f_auto,q_auto â†’ Cloudinary serves a modern codec (AV1/VP9/H.265) at
-// perceptually-optimized quality per browser: same look behind the dark
-// tint, meaningfully smaller download + cheaper decode per frame.
-// The masters are 3840x2160 (~16MB / 15s each). f_auto,q_auto alone picks a
-// modern codec + quality but KEEPS the 4K frame, so every visitor was
-// downloading and decoding 4K for a tinted background layer. w_1920,c_limit
-// caps it at 1080p (a quarter of the pixels); c_limit only ever downscales.
 const CLIPS = [
   "https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto/v1779845634/Footage_07_o3rfbu.mp4",
   "https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto/v1779845599/Footage_02_chsoa3.mp4",
@@ -30,68 +22,100 @@ const CLIPS = [
 ];
 
 const CLIP_DURATION_MS = 14000;
+const START_DELAY_MS = 1200;
+
+type NavigatorWithConnection = Navigator & {
+  connection?: { saveData?: boolean };
+};
 
 export default function SceneVideoBackdrop() {
+  const reduceMotion = Boolean(useReducedMotion());
   const [index, setIndex] = useState(0);
-  // Playback starts 3s after page load, regardless of scroll position.
   const [started, setStarted] = useState(false);
+  const [mediaAllowed, setMediaAllowed] = useState(false);
+  const [pageVisible, setPageVisible] = useState(true);
   const activeVideoRef = useRef<HTMLVideoElement>(null);
 
-  // Scene opacity is driven by scroll: full until About approaches, then 0.
   const sceneOpacity = useMotionValue(1);
-  // Derived dark tint that deepens slightly as you scroll into the scene for
-  // text contrast over busier footage (kept subtle).
   const tintOpacity = useTransform(sceneOpacity, [0, 1], [0, 1]);
 
-  // Auto-advance the clip every 14s â€” only once playback has started.
   useEffect(() => {
-    if (!started) return;
-    const id = setInterval(() => {
-      setIndex((i) => (i + 1) % CLIPS.length);
-    }, CLIP_DURATION_MS);
-    return () => clearInterval(id);
-  }, [started]);
+    const mobileQuery = window.matchMedia("(max-width: 767px)");
+    const syncCapability = () => {
+      const saveData = Boolean((navigator as NavigatorWithConnection).connection?.saveData);
+      setMediaAllowed(!reduceMotion && !mobileQuery.matches && !saveData);
+    };
+
+    syncCapability();
+    mobileQuery.addEventListener("change", syncCapability);
+    return () => mobileQuery.removeEventListener("change", syncCapability);
+  }, [reduceMotion]);
 
   useEffect(() => {
-    const t = setTimeout(() => setStarted(true), 3000);
-    return () => clearTimeout(t);
+    const syncVisibility = () => setPageVisible(document.visibilityState === "visible");
+    syncVisibility();
+    document.addEventListener("visibilitychange", syncVisibility);
+    return () => document.removeEventListener("visibilitychange", syncVisibility);
   }, []);
+
+  useEffect(() => {
+    if (!mediaAllowed) {
+      setStarted(false);
+      activeVideoRef.current?.pause();
+      return;
+    }
+
+    const timer = window.setTimeout(() => setStarted(true), START_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [mediaAllowed]);
+
+  useEffect(() => {
+    if (!started || !pageVisible) return;
+    const id = window.setInterval(() => {
+      setIndex((current) => (current + 1) % CLIPS.length);
+    }, CLIP_DURATION_MS);
+    return () => window.clearInterval(id);
+  }, [started, pageVisible]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   useLenis((lenis: any) => {
-    const vh = window.innerHeight;
+    const viewportHeight = window.innerHeight;
     const scroll = lenis?.scroll ?? 0;
+    const opacity = Math.min(
+      1,
+      Math.max(0, 1 - (scroll - viewportHeight * 0.7) / (viewportHeight * 0.7)),
+    );
+    sceneOpacity.set(opacity);
 
-    // Fade + pause as the hero exits â€” video lives behind the hero only,
-    // then the light body takes over. Full until 0.7vh, gone by 1.4vh.
-    const o = Math.min(1, Math.max(0, 1 - (scroll - vh * 0.7) / (vh * 0.7)));
-    sceneOpacity.set(o);
+    const video = activeVideoRef.current;
+    if (!video || !started || !mediaAllowed) return;
 
-    const v = activeVideoRef.current;
-    if (!v || !started) return;
-    if (o <= 0.01) {
-      if (!v.paused) v.pause();
-    } else if (v.paused) {
-      void v.play().catch(() => {});
+    if (opacity <= 0.01 || !pageVisible) {
+      if (!video.paused) video.pause();
+    } else if (video.paused) {
+      void video.play().catch(() => {});
     }
   });
 
-  // Kick off playback on the active video the moment it's allowed.
   useEffect(() => {
-    if (!started) return;
-    const v = activeVideoRef.current;
-    if (v) void v.play().catch(() => {});
-  }, [started, index]);
+    const video = activeVideoRef.current;
+    if (!video || !started || !mediaAllowed) return;
+    if (!pageVisible || sceneOpacity.get() <= 0.01) {
+      video.pause();
+      return;
+    }
+    void video.play().catch(() => {});
+  }, [index, mediaAllowed, pageVisible, sceneOpacity, started]);
 
   return (
     <motion.div
-      className="fixed inset-0 z-[0] pointer-events-none overflow-hidden bg-bg-dark"
+      className="pointer-events-none fixed inset-0 z-[0] overflow-hidden bg-bg-dark"
       style={{ opacity: sceneOpacity }}
       aria-hidden="true"
+      data-scene-video={started && mediaAllowed ? "active" : "static"}
     >
-      {/* No video element until armed â€” avoids multi-MB download on first paint. */}
-      {started && (
-        <AnimatePresence>
+      {started && mediaAllowed && (
+        <AnimatePresence mode="wait" initial={false}>
           <motion.video
             key={index}
             ref={activeVideoRef}
@@ -100,21 +124,16 @@ export default function SceneVideoBackdrop() {
             loop
             muted
             playsInline
-            preload="auto"
+            preload="metadata"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1, ease: "easeInOut" }}
+            transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
           />
         </AnimatePresence>
       )}
 
-      {/* Light, even tint â€” the hero's own overlay governs the dark stage +
-          the fold peek, so keep this subtle to preserve video detail. */}
-      <motion.div
-        className="absolute inset-0 bg-black/25"
-        style={{ opacity: tintOpacity }}
-      />
+      <motion.div className="absolute inset-0 bg-black/25" style={{ opacity: tintOpacity }} />
     </motion.div>
   );
 }
