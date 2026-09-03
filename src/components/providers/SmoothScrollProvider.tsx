@@ -54,11 +54,15 @@ export default function SmoothScrollProvider({ children }: { children: ReactNode
     getReducedMotionSnapshot,
     getReducedMotionServerSnapshot,
   );
+
   const options = useMemo(() => ({
     autoRaf: false,
-    // Keep the classic route's original motion curve exactly.
-    lerp: reducedMotion ? 1 : 0.1,
-    smoothWheel: true,
+    // Reduced-motion uses effectively-native wheel behavior while retaining the
+    // single Lenis context expected by section navigation and ScrollTrigger.
+    lerp: reducedMotion ? 1 : 0.085,
+    smoothWheel: !reducedMotion,
+    wheelMultiplier: reducedMotion ? 1 : 0.92,
+    anchors: true,
     prevent: (node: HTMLElement) => Boolean(node.closest?.('[data-lenis-prevent]')),
   }), [reducedMotion]);
 
