@@ -325,8 +325,11 @@ export class LionExperience {
     const spawn = new Float32Array(count * 3);
     const burst = new Float32Array(count * 3);
     const ecosystem = new Float32Array(count * 3);
-    const energy = new Float32Array(count * 3);
-    const hub = new Float32Array(count * 3);
+    // The four sold systems, each a distinct, mobile-legible room:
+    const frontDesk = new Float32Array(count * 3);
+    const followThrough = new Float32Array(count * 3);
+    const backOffice = new Float32Array(count * 3);
+    const controlRoom = new Float32Array(count * 3);
 
     const s = new THREE.Vector3();
     const spherical = new THREE.Spherical();
@@ -415,23 +418,43 @@ export class LionExperience {
       else [ex, ey] = [ex * 0.82 + ey * 0.57, -ex * 0.57 + ey * 0.82];
       ecosystem.set([ex, ey, ez], i * 3);
 
-      const flowY = rx * 4.4 - 2.2;
-      const phase = rw * Math.PI * 2;
-      const helixAngle = flowY * 2.55 + phase;
-      const helixRadius = 0.18 + rz * 0.24;
-      energy.set([
-        Math.cos(helixAngle) * helixRadius,
-        flowY,
-        Math.sin(helixAngle) * helixRadius,
+      // Front Desk (Capture & Convert): a wide, low arc bowing toward the
+      // viewer — a reception counter that greets every arrival at once.
+      const fdAngle = (rx - 0.5) * 2.35;
+      const fdRadius = 1.0 + rz * 0.30;
+      frontDesk.set([
+        Math.sin(fdAngle) * fdRadius,
+        -0.16 + Math.cos(fdAngle) * fdRadius * 0.38,
+        -Math.cos(fdAngle) * 0.30 + (ry - 0.5) * 0.26,
       ], i * 3);
 
-      const layer = Math.floor(ry * 5);
-      const hubAngle = rx * Math.PI * 2;
-      const hubRadius = 0.42 + rz * 0.72;
-      hub.set([
-        Math.cos(hubAngle) * hubRadius,
-        (layer - 2) * 0.34 + Math.sin(hubAngle * 2 + phase) * 0.045,
-        Math.sin(hubAngle) * hubRadius * 0.48,
+      // Follow-Through (Serve & Retain): a closed racetrack loop the system
+      // keeps circling back around, never a dead end.
+      const ftAngle = rx * Math.PI * 2;
+      followThrough.set([
+        Math.cos(ftAngle) * (1.08 + rz * 0.10),
+        Math.sin(ftAngle) * (0.50 + rz * 0.08),
+        (rw - 0.5) * 0.26,
+      ], i * 3);
+
+      // Back Office (Run & Fulfill): four orderly lanes, work moving in
+      // straight rows instead of scattered tasks.
+      const boRow = Math.floor(ry * 4);
+      backOffice.set([
+        THREE.MathUtils.lerp(-1.12, 1.12, rx),
+        (boRow - 1.5) * 0.58,
+        (rz - 0.5) * 0.22,
+      ], i * 3);
+
+      // Control Room (See & Scale): three concentric rings, a dashboard read
+      // at a glance instead of a wall of disconnected numbers.
+      const crRing = Math.floor(ry * 3);
+      const crAngle = rx * Math.PI * 2;
+      const crRadius = 0.32 + crRing * 0.46;
+      controlRoom.set([
+        Math.cos(crAngle) * crRadius,
+        Math.sin(crAngle) * crRadius * 0.86,
+        (rz - 0.5) * 0.18,
       ], i * 3);
     }
 
@@ -442,8 +465,10 @@ export class LionExperience {
     geo.setAttribute("aSpawn", new THREE.BufferAttribute(spawn, 3));
     geo.setAttribute("aBurst", new THREE.BufferAttribute(burst, 3));
     geo.setAttribute("aEcosystem", new THREE.BufferAttribute(ecosystem, 3));
-    geo.setAttribute("aEnergy", new THREE.BufferAttribute(energy, 3));
-    geo.setAttribute("aHub", new THREE.BufferAttribute(hub, 3));
+    geo.setAttribute("aFrontDesk", new THREE.BufferAttribute(frontDesk, 3));
+    geo.setAttribute("aFollowThrough", new THREE.BufferAttribute(followThrough, 3));
+    geo.setAttribute("aBackOffice", new THREE.BufferAttribute(backOffice, 3));
+    geo.setAttribute("aControlRoom", new THREE.BufferAttribute(controlRoom, 3));
 
     const quality = QUALITY[this.qualityTier];
     const dpr = Math.min(window.devicePixelRatio, quality.dpr);
