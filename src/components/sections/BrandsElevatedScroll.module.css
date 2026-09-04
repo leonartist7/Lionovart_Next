@@ -8,3 +8,47 @@
   overflow-x: clip !important;
   overflow-y: visible !important;
 }
+
+/* Keep the floating proof cards in the same spatial language as the
+   testimonial marquee: same perspective and rotation values by breakpoint. */
+.cardPlane {
+  --elevated-perspective: 900px;
+  --elevated-depth: -34px;
+  --elevated-rotate-x: 17deg;
+  --elevated-rotate-y: 7deg;
+  --elevated-rotate-z: -4.5deg;
+  transform:
+    perspective(var(--elevated-perspective))
+    translateZ(var(--elevated-depth))
+    rotateX(var(--elevated-rotate-x))
+    rotateY(var(--elevated-rotate-y))
+    rotateZ(var(--elevated-rotate-z));
+  transform-origin: 50% 50%;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+@media (min-width: 480px) and (max-width: 1023px) {
+  .cardPlane {
+    --elevated-depth: -48px;
+    --elevated-rotate-x: 15deg;
+    --elevated-rotate-y: 6deg;
+    --elevated-rotate-z: -4deg;
+  }
+}
+
+@media (min-width: 1024px) {
+  .cardPlane {
+    --elevated-perspective: 640px;
+    --elevated-depth: -70px;
+    --elevated-rotate-x: 13deg;
+    --elevated-rotate-y: 6deg;
+    --elevated-rotate-z: -3deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cardPlane {
+    transform: none;
+  }
+}
