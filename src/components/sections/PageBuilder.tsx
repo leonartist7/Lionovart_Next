@@ -6,7 +6,6 @@ import BridgeStatement from "@/components/sections/BridgeStatement";
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import WhatWeDo from "@/components/sections/WhatWeDo";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
-import ExpertiseExperience from "@/components/sections/ExpertiseExperience";
 import Comparison from "@/components/sections/Comparison";
 import ProcessExperience from "@/components/sections/ProcessExperience";
 import Testimonials from "@/components/sections/Testimonials";
@@ -38,17 +37,13 @@ export function PageBuilder() {
 
       {/* z-[2] keeps narrative chapters above the fixed opening film. */}
       <div className="relative z-[2]">
-        <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
+        {/* Services navigation now lands on the concise discipline overview.
+            ExpertiseExperience remains available in the component library. */}
+        <NovaSection id="services"><WhatWeDo /></NovaSection>
         <BridgeStatement />
         <StrongTogetherTransition />
         <BridgeStatement variant="vow" />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
-
-        {/* Expertise is now both the work proof and service chapter. Keep the
-            legacy #work target so navigation lands on this signature stage. */}
-        <div id="work">
-          <NovaSection id="services"><ExpertiseExperience /></NovaSection>
-        </div>
 
         <SectionTitleCard word="WHY US?" theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>

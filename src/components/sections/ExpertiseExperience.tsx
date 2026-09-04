@@ -36,8 +36,51 @@ type Service = {
   deliverables: readonly string[];
 };
 
+const PARTNERSHIP_CIRCLE =
+  "aspect-square w-[max(136vw,88svh)] shrink-0 rounded-full bg-brand-red sm:w-[max(112vw,90svh)] lg:w-[min(80vw,92svh)]";
+
+function PartnershipCopy({ onStart, onTalk }: { onStart: () => void; onTalk: () => void }) {
+  return (
+    <div className="relative z-10 w-full max-w-[1180px] px-5 text-center text-white sm:px-8">
+      <p className="font-mono text-[9px] font-bold uppercase tracking-[0.32em] text-white/65 sm:text-[10px]">
+        Everything, handled
+      </p>
+      <h3 className="mx-auto mt-4 max-w-[11ch] text-balance font-clash text-[clamp(3.25rem,7vw,5.25rem)] font-semibold uppercase leading-[0.77] tracking-[-0.07em]">
+        One partnership.
+      </h3>
+      <p className="mx-auto mt-7 max-w-[46ch] text-pretty font-body text-[15px] leading-[1.65] text-white/74 sm:text-[18px]">
+        Brand, digital, content, systems and growth working as one — less for you to coordinate, more momentum for the brand.
+      </p>
+      <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <button
+          type="button"
+          onClick={onStart}
+          className="rounded-full bg-white px-7 py-4 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-red transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        >
+          Start your brand
+        </button>
+        <button
+          type="button"
+          onClick={onTalk}
+          className="rounded-full border border-white/30 px-7 py-4 text-[11px] font-bold uppercase tracking-[0.14em] text-white transition-colors duration-200 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        >
+          Talk to us
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ReducedMotionExperience({ services }: { services: Service[] }) {
   const openNova = useNovaStore((state) => state.openNova);
+  const openWhatsApp = () => {
+    window.open(
+      getWhatsAppUrl("Hi Leon — I'd like to talk about the brand & growth partnership."),
+      "_blank",
+      "noopener,noreferrer",
+    );
+  };
+
   return (
     <section id="services" className="bg-[#f2efe8] text-[#111111]">
       <div className="mx-auto max-w-[1440px] px-5 py-20 sm:px-8 lg:py-28">
@@ -60,10 +103,11 @@ function ReducedMotionExperience({ services }: { services: Service[] }) {
           </article>
         ))}
       </div>
-      <div className="bg-brand-red px-5 py-24 text-center text-white sm:px-8">
-        <p className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-white/70">Everything, handled</p>
-        <h3 className="mx-auto mt-4 max-w-[12ch] font-clash text-[clamp(3rem,8vw,6rem)] font-semibold uppercase leading-[0.84] tracking-[-0.055em]">One partnership.</h3>
-        <button type="button" onClick={() => openNova("offer", true)} className="mt-8 rounded-full bg-white px-7 py-4 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-red">Start your brand</button>
+      <div id="offer" className="relative isolate flex min-h-svh items-center justify-center overflow-hidden bg-[#f2efe8]">
+        <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className={PARTNERSHIP_CIRCLE} />
+        </div>
+        <PartnershipCopy onStart={() => openNova("offer", true)} onTalk={openWhatsApp} />
       </div>
     </section>
   );
@@ -131,6 +175,14 @@ export default function ExpertiseExperience() {
     window.scrollTo({ top: top + travel * ratio, behavior: "smooth" });
   }, [partnershipIndex]);
 
+  const openWhatsApp = () => {
+    window.open(
+      getWhatsAppUrl("Hi Leon — I'd like to talk about the brand & growth partnership."),
+      "_blank",
+      "noopener,noreferrer",
+    );
+  };
+
   const handleKeys = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "ArrowRight" || event.key === "ArrowDown") {
       event.preventDefault();
@@ -158,21 +210,18 @@ export default function ExpertiseExperience() {
           <div aria-hidden className="pointer-events-none absolute -left-[4vw] top-[18vh] font-clash text-[clamp(8rem,22vw,24rem)] font-black uppercase leading-none tracking-[-0.08em] text-black/[0.025]">L</div>
 
           <motion.div
-            aria-hidden
-            animate={{ opacity: partnership ? 1 : 0 }}
-            transition={{ duration: 0.55, ease: EASE }}
-            className="pointer-events-none absolute inset-0 z-10 bg-brand-red"
-          />
-
-          <div className={`absolute inset-x-0 top-0 z-50 flex items-center justify-between px-5 pt-[4.5svh] sm:px-8 lg:px-12 xl:px-[4vw] ${partnership ? "text-white" : "text-[#111111]"}`}>
+            animate={{ opacity: partnership ? 0 : 1 }}
+            transition={{ duration: 0.24, ease: EASE }}
+            className="absolute inset-x-0 top-0 z-50 flex items-center justify-between px-5 pt-[4.5svh] text-[#111111] sm:px-8 lg:px-12 xl:px-[4vw]"
+          >
             <div className="flex items-center gap-3">
-              <span className={`h-px w-8 ${partnership ? "bg-white/45" : "bg-brand-red"}`} />
+              <span className="h-px w-8 bg-brand-red" />
               <span className="font-mono text-[8px] font-bold uppercase tracking-[0.27em] sm:text-[9px]">Our expertise</span>
             </div>
-            <span className={`font-mono text-[8px] font-bold uppercase tracking-[0.2em] sm:text-[9px] ${partnership ? "text-white/65" : "text-black/42"}`}>
+            <span className="font-mono text-[8px] font-bold uppercase tracking-[0.2em] text-black/42 sm:text-[9px]">
               {partnership ? "THE FULL SYSTEM" : `${activeService.number} / ${String(services.length).padStart(2, "0")}`}
             </span>
-          </div>
+          </motion.div>
 
           {!partnership && <ServiceRail services={services} activeIndex={activeIndex} onSelect={goToState} />}
 
@@ -183,27 +232,22 @@ export default function ExpertiseExperience() {
               <motion.div
                 key="partnership"
                 id="offer"
-                initial={{ opacity: 0, scale: 0.97, filter: "blur(12px)" }}
-                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.58, ease: EASE }}
-                className="absolute inset-0 z-30 flex items-center justify-center px-5 text-center text-white sm:px-8"
+                className="absolute inset-0 z-30 flex items-center justify-center overflow-hidden"
               >
-                <div className="w-full max-w-[1180px]">
-                  <p className="font-mono text-[9px] font-bold uppercase tracking-[0.32em] text-white/60 sm:text-[10px]">Everything, handled</p>
-                  <h3 className="mx-auto mt-4 max-w-[11ch] font-clash text-[clamp(4rem,11vw,10rem)] font-semibold uppercase leading-[0.75] tracking-[-0.07em]">One partnership.</h3>
-                  <p className="mx-auto mt-7 max-w-[46ch] font-body text-[15px] leading-[1.7] text-white/72 sm:text-[18px]">Brand, digital, content, systems and growth working as one — less for you to coordinate, more momentum for the brand.</p>
-                  <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                    <button type="button" onClick={() => openNova("offer", true)} className="rounded-full bg-white px-7 py-4 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-red transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">Start your brand</button>
-                    <button
-                      type="button"
-                      onClick={() => window.open(getWhatsAppUrl("Hi Leon — I'd like to talk about the brand & growth partnership."), "_blank", "noopener,noreferrer")}
-                      className="rounded-full border border-white/25 px-7 py-4 text-[11px] font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                    >
-                      Talk to us
-                    </button>
-                  </div>
+                <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <motion.div
+                    initial={{ opacity: 0, transform: "scale(0.86)" }}
+                    animate={{ opacity: 1, transform: "scale(1)" }}
+                    exit={{ opacity: 0, transform: "scale(0.94)" }}
+                    transition={{ duration: 0.64, ease: EASE }}
+                    className={PARTNERSHIP_CIRCLE}
+                  />
                 </div>
+                <PartnershipCopy onStart={() => openNova("offer", true)} onTalk={openWhatsApp} />
               </motion.div>
             ) : (
               <motion.div
