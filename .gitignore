@@ -14,3 +14,8 @@ docs/v2-screenshots/
 
 # Agent worktrees are separate Git checkouts, never project content.
 .claude/worktrees/
+
+# Firebase emulator debug logs
+firebase-debug.log
+firestore-debug.log
+ui-debug.log

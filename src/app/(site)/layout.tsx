@@ -1,10 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
-import { DM_Sans } from "next/font/google";
 import { preload } from "react-dom";
-import "./globals.css";
+import "../globals.css";
 // Required Lenis stylesheet — missing this causes native scroll to fight Lenis every frame.
 import "lenis/dist/lenis.css";
+import { clashDisplay, dmSans } from "@/lib/fonts";
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { PostHogInit } from "@/components/PostHogInit";
@@ -21,24 +20,6 @@ import {
   localBusinessSchema,
   websiteSchema,
 } from "@/lib/seo/schema";
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  variable: "--font-dm-sans",
-  display: "swap",
-});
-
-// Only weights used in UI (medium/semibold/bold/black→700). Skip 200/300 to cut font bytes.
-const clashDisplay = localFont({
-  src: [
-    { path: "../fonts/ClashDisplay-400.woff2", weight: "400", style: "normal" },
-    { path: "../fonts/ClashDisplay-500.woff2", weight: "500", style: "normal" },
-    { path: "../fonts/ClashDisplay-600.woff2", weight: "600", style: "normal" },
-    { path: "../fonts/ClashDisplay-700.woff2", weight: "700", style: "normal" },
-  ],
-  variable: "--font-clash-display",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
