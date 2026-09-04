@@ -1,5 +1,8 @@
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import gsap from "gsap";
 
 export interface LionCenterpieceOptions {
@@ -13,15 +16,18 @@ export interface LionCenterpieceOptions {
  * system, so it can be evaluated without risk to that work.
  *
  * Same operating conventions as LionExperience.ts (gsap.ticker-driven loop,
- * DPR cap, visibilitychange pause, full dispose) so it fits the codebase's
- * established performance discipline rather than inventing new rules.
+ * DPR cap, visibilitychange pause, full dispose, bloom post-pass) so it fits
+ * the codebase's established performance and craft discipline rather than
+ * inventing new rules.
  */
 export class LionCenterpiece {
   private canvas: HTMLCanvasElement;
   private renderer!: THREE.WebGLRenderer;
+  private composer: EffectComposer | null = null;
   private scene = new THREE.Scene();
   private camera!: THREE.PerspectiveCamera;
   private lion: THREE.Group | null = null;
+  private groundShadow: THREE.Mesh | null = null;
   private embers: THREE.Points | null = null;
   private emberData: Array<{ speed: number; sway: number; phase: number }> = [];
 
@@ -62,16 +68,22 @@ export class LionCenterpiece {
     });
     this.renderer.setClearColor(0x000000, 0);
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.15;
+    this.renderer.toneMappingExposure = 1.2;
 
-    this.camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-    this.camera.position.set(0, 0.3, 6.2);
+    // Depth without a modeled environment: a touch of exponential fog keeps
+    // the lion from reading as a mesh pasted onto a flat starfield.
+    this.scene.fog = new THREE.FogExp2(0x000000, 0.045);
+
+    this.camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+    this.camera.position.set(0, 0.3, 5.0);
 
     this.buildLights();
+    this.buildGroundShadow();
     this.buildEmbers();
     await this.loadLion();
     if (this.disposed) return;
 
+    this.buildPost();
     this.resize();
     window.addEventListener("resize", this.onResize);
     document.addEventListener("visibilitychange", this.onVisibility);
@@ -85,42 +97,86 @@ export class LionCenterpiece {
   }
 
   private buildLights(): void {
-    this.scene.add(new THREE.AmbientLight(0xffffff, 0.14));
+    this.scene.add(new THREE.AmbientLight(0xffffff, 0.16));
 
     // Warm gold key: the human hand.
-    const key = new THREE.DirectionalLight(0xffcf8a, 3.2);
+    const key = new THREE.DirectionalLight(0xffcf8a, 3.6);
     key.position.set(3.5, 4.5, 3.5);
     this.scene.add(key);
 
     // Cool cyan rim: the machine, matching the page's --ai-cyan accent.
-    const rim = new THREE.DirectionalLight(0x6fe3ff, 2.4);
+    const rim = new THREE.DirectionalLight(0x6fe3ff, 3.0);
     rim.position.set(-4, 1.5, -3.5);
     this.scene.add(rim);
 
+    // A second, closer cyan point light sharpens the edge definition on the
+    // faceted planes that the two directional lights alone leave flat.
+    const edge = new THREE.PointLight(0x8fefff, 2.2, 8, 2);
+    edge.position.set(-1.8, 0.6, 2.4);
+    this.scene.add(edge);
+
     // Faint warm fill so the underside never goes fully flat black.
-    const fill = new THREE.DirectionalLight(0xffe6c2, 0.35);
+    const fill = new THREE.DirectionalLight(0xffe6c2, 0.4);
     fill.position.set(-1.5, -2, 2);
     this.scene.add(fill);
   }
 
+  /** A soft radial gradient beneath the model so it reads as standing on
+   *  something rather than floating in a void. */
+  private buildGroundShadow(): void {
+    const size = 128;
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext("2d")!;
+    const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    gradient.addColorStop(0, "rgba(0,0,0,0.55)");
+    gradient.addColorStop(0.6, "rgba(0,0,0,0.28)");
+    gradient.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const geo = new THREE.CircleGeometry(1.6, 48);
+    const mat = new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false });
+    this.groundShadow = new THREE.Mesh(geo, mat);
+    this.groundShadow.rotation.x = -Math.PI / 2;
+    this.groundShadow.position.y = -1.05;
+    this.scene.add(this.groundShadow);
+  }
+
+  private createEmberTexture(): THREE.CanvasTexture {
+    const size = 32;
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext("2d")!;
+    const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    gradient.addColorStop(0, "rgba(255,255,255,1)");
+    gradient.addColorStop(0.3, "rgba(255,255,255,0.85)");
+    gradient.addColorStop(0.65, "rgba(255,255,255,0.22)");
+    gradient.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+    return new THREE.CanvasTexture(canvas);
+  }
+
   private buildEmbers(): void {
-    const count = 220;
+    const count = 140;
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
-    const gold = new THREE.Color(1.15, 0.78, 0.32);
-    const cyan = new THREE.Color(0.32, 0.86, 1.1);
+    const gold = new THREE.Color(1.25, 0.82, 0.34);
+    const cyan = new THREE.Color(0.36, 0.9, 1.15);
 
     for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 5.5;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 4 - 0.5;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 4.5;
-      const c = Math.random() < 0.82 ? gold : cyan;
+      positions[i * 3] = (Math.random() - 0.5) * 4.2;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 3.2 - 0.4;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 3.6;
+      const c = Math.random() < 0.8 ? gold : cyan;
       colors[i * 3] = c.r;
       colors[i * 3 + 1] = c.g;
       colors[i * 3 + 2] = c.b;
       this.emberData.push({
-        speed: 0.06 + Math.random() * 0.12,
-        sway: 0.15 + Math.random() * 0.3,
+        speed: 0.05 + Math.random() * 0.09,
+        sway: 0.12 + Math.random() * 0.22,
         phase: Math.random() * Math.PI * 2,
       });
     }
@@ -130,12 +186,14 @@ export class LionCenterpiece {
     geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 
     const mat = new THREE.PointsMaterial({
-      size: 0.03,
+      size: 0.09,
+      map: this.createEmberTexture(),
       vertexColors: true,
       transparent: true,
-      opacity: 0.75,
+      opacity: 0.8,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
+      sizeAttenuation: true,
     });
 
     this.embers = new THREE.Points(geo, mat);
@@ -155,9 +213,11 @@ export class LionCenterpiece {
       // Faceted low-poly reads as a deliberate cut-gem finish rather than a
       // smoothing attempt on geometry that was never built for it.
       mesh.material = new THREE.MeshStandardMaterial({
-        color: 0x2a1a08,
-        metalness: 0.88,
-        roughness: 0.36,
+        color: 0x2e1c0a,
+        emissive: 0x3a1f06,
+        emissiveIntensity: 0.18,
+        metalness: 0.9,
+        roughness: 0.32,
         flatShading: true,
       });
     });
@@ -173,8 +233,19 @@ export class LionCenterpiece {
     fbx.position.sub(center);
 
     const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    this.lion.scale.setScalar(2.4 / maxDim);
-    this.lion.position.y = 0.25;
+    const targetSize = 2.7;
+    this.lion.scale.setScalar(targetSize / maxDim);
+    this.lion.position.y = 0.05;
+
+    if (this.groundShadow) {
+      this.groundShadow.position.y = this.lion.position.y - (size.y / maxDim) * targetSize * 0.5 - 0.08;
+    }
+  }
+
+  private buildPost(): void {
+    this.composer = new EffectComposer(this.renderer);
+    this.composer.addPass(new RenderPass(this.scene, this.camera));
+    this.composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), 0.55, 0.35, 0.72));
   }
 
   private onResize = (): void => this.resize();
@@ -185,6 +256,8 @@ export class LionCenterpiece {
     this.renderDpr = Math.min(window.devicePixelRatio, 1.65);
     this.renderer.setPixelRatio(this.renderDpr);
     this.renderer.setSize(w, h, false);
+    this.composer?.setPixelRatio(this.renderDpr);
+    this.composer?.setSize(w, h);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     if (this.reduce) this.renderOnce();
@@ -192,8 +265,24 @@ export class LionCenterpiece {
 
   private onVisibility = (): void => {
     if (document.hidden) this.stop();
-    else if (this.opts.animate) this.start();
+    else if (this.opts.animate && !this.pausedByCaller) this.start();
   };
+
+  /** Caller-driven pause, distinct from the tab-visibility pause: the overlay
+   *  calls this once it has faded fully out, so this scene stops costing GPU
+   *  while invisible instead of rendering behind opacity:0 for the rest of
+   *  the page. */
+  pause(): void {
+    this.pausedByCaller = true;
+    this.stop();
+  }
+
+  resume(): void {
+    this.pausedByCaller = false;
+    if (this.opts.animate && !document.hidden) this.start();
+  }
+
+  private pausedByCaller = false;
 
   private start(): void {
     if (this.running || this.disposed) return;
@@ -224,13 +313,13 @@ export class LionCenterpiece {
     // moment, not a product-viewer turntable.
     const arc = THREE.MathUtils.degToRad(130);
     const angle = -arc * 0.5 + this.scroll * arc + this.pointer.x * 0.12;
-    const radius = 6.4 - Math.sin(this.scroll * Math.PI) * 0.5;
+    const radius = 5.0 - Math.sin(this.scroll * Math.PI) * 0.4;
     this.camera.position.set(
       Math.sin(angle) * radius,
       0.35 + this.pointer.y * 0.15,
       Math.cos(angle) * radius,
     );
-    this.camera.lookAt(0, -0.05, 0);
+    this.camera.lookAt(0, 0, 0);
 
     if (this.lion) {
       this.lion.rotation.y = Math.sin(elapsed * 0.08) * 0.05;
@@ -243,12 +332,13 @@ export class LionCenterpiece {
         const idx = i * 3;
         positions[idx + 1] += d.speed * dt;
         positions[idx] += Math.sin(elapsed * d.speed * 3 + d.phase) * d.sway * dt;
-        if (positions[idx + 1] > 2.2) positions[idx + 1] = -2.2;
+        if (positions[idx + 1] > 1.8) positions[idx + 1] = -1.8;
       }
       this.embers.geometry.attributes.position.needsUpdate = true;
     }
 
-    this.renderer.render(this.scene, this.camera);
+    if (this.composer) this.composer.render();
+    else this.renderer.render(this.scene, this.camera);
   };
 
   dispose(): void {
@@ -263,6 +353,7 @@ export class LionCenterpiece {
       if (Array.isArray(mat)) mat.forEach((m) => m.dispose());
       else mat?.dispose();
     });
+    this.composer?.dispose();
     this.renderer?.dispose();
   }
 }
