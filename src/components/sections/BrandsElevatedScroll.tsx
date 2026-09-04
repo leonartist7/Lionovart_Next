@@ -8,6 +8,7 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
+import styles from "./BrandsElevatedScroll.module.css";
 
 const IMG = "/images/Testimonials/";
 
@@ -17,8 +18,8 @@ type ElevatedCardData = {
   id: string;
   name: string;
   role: string;
-  kind: "Client" | "Brand";
   image: string;
+  logo: string;
   quote: string;
   stat?: string;
   statLabel?: string;
@@ -44,8 +45,8 @@ const CARDS: ElevatedCardData[] = [
     id: "rocco",
     name: "CocoRocco",
     role: "Website · Menu Content",
-    kind: "Client",
     image: IMG + "CocoRocco  - Resto/Rocco-Profile.avif",
+    logo: IMG + "CocoRocco  - Resto/cocorocco-logo.svg",
     quote:
       "Leon rebuilt our site and photographed the menu so it finally matches what is on the plate. Guests now arrive already knowing what they want.",
     statLabel: "Guests arrive more informed",
@@ -54,28 +55,29 @@ const CARDS: ElevatedCardData[] = [
     id: "forty-seven",
     name: "Forty Seven",
     role: "Website · Brand Content",
-    kind: "Brand",
     image: IMG + "Forty Seven - Hotel/Fortyseven-back.png",
+    logo: IMG + "Forty Seven - Hotel/logo.webp",
     quote:
       "The new website and content gave guests a reason to book with us directly. Direct reservations are up, and the place finally feels as good online as it does in person.",
     statLabel: "Direct reservations increased",
   },
   {
-    id: "mateo",
-    name: "Mateo",
-    role: "Founder, e-commerce · Canada",
-    kind: "Client",
-    image: IMG + "Canada/Mateo-Ecommerce-M.avif",
-    quote: "Redesigned top to bottom. Same traffic, way more checkouts.",
-    stat: "2×",
-    statLabel: "conversion",
+    id: "miller-carter",
+    name: "Miller & Carter",
+    role: "Steakhouse · UK",
+    image: IMG + "Miller&Carter - Resto/MC-back.avif",
+    logo: IMG + "Miller&Carter - Resto/mc-logo.avif",
+    quote:
+      "They rebuilt the brand and the booking flow end to end. Weekends haven't looked back.",
+    stat: "2.4×",
+    statLabel: "weekend covers",
   },
   {
     id: "odace",
     name: "Odace",
     role: "Luxury Jewellery · France",
-    kind: "Brand",
     image: IMG + "France/ODACE/ODACE_-background.webp",
+    logo: IMG + "France/ODACE/logo-odace.avif",
     quote:
       "They shaped the whole identity — the kind of branding that makes a jewellery house feel timeless.",
     stat: "~28%",
@@ -83,26 +85,27 @@ const CARDS: ElevatedCardData[] = [
     statKind: "estimated",
   },
   {
-    id: "pablo",
-    name: "Pablo",
-    role: "Owner, boutique hotel · Spain",
-    kind: "Client",
-    image: IMG + "Spain/Pablo-hotel-M.avif",
+    id: "northline",
+    name: "Northline Motors",
+    role: "Automotive · Canada",
+    image: IMG + "Northlinemotors/Marc-Cardealer-M.jpg",
+    logo: IMG + "Northlinemotors/Northlinemotors-logo.webp",
     quote:
-      "Direct bookings are up since they rebuilt our site. We finally stopped handing our margin to the booking platforms.",
-    stat: "+60%",
-    statLabel: "direct bookings",
+      "Sold more cars off the new site in one quarter than I did all of last year online. The leads show up ready to buy.",
+    stat: "4×",
+    statLabel: "online sales pace",
   },
   {
-    id: "miller-carter",
-    name: "Miller & Carter",
-    role: "Steakhouse · UK",
-    kind: "Brand",
-    image: IMG + "Miller&Carter - Resto/MC-back.avif",
+    id: "lumura",
+    name: "Lumura",
+    role: "Real Estate · Tuscany, Italy",
+    image: IMG + "Italy/Lumura/Team2025.avif",
+    logo: IMG + "Italy/Lumura/lumura-logo.webp",
     quote:
-      "They rebuilt the brand and the booking flow end to end. Weekends haven't looked back.",
-    stat: "2.4×",
-    statLabel: "weekend covers",
+      "They built our brand and site to match the homes we sell — refined, calm, and unmistakably us.",
+    stat: "~35%",
+    statLabel: "more qualified enquiries",
+    statKind: "estimated",
   },
 ];
 
@@ -112,12 +115,12 @@ const DESKTOP_LAYOUTS: CardLayout[] = [
     top: "12%",
     width: "clamp(300px, 27vw, 455px)",
     aspectRatio: "3 / 2",
-    yFrom: "58vh",
-    yTo: "-148vh",
+    yFrom: "42vh",
+    yTo: "-110vh",
     xFrom: "-2vw",
     xTo: "2vw",
-    rotateFrom: -1.4,
-    rotateTo: 0.4,
+    rotateFrom: -0.45,
+    rotateTo: 0.3,
     zIndex: 30,
   },
   {
@@ -125,12 +128,12 @@ const DESKTOP_LAYOUTS: CardLayout[] = [
     top: "5%",
     width: "clamp(310px, 26vw, 445px)",
     aspectRatio: "3 / 2",
-    yFrom: "66vh",
-    yTo: "-138vh",
+    yFrom: "50vh",
+    yTo: "-104vh",
     xFrom: "2.2vw",
     xTo: "-1.2vw",
-    rotateFrom: 1.1,
-    rotateTo: -0.5,
+    rotateFrom: 0.4,
+    rotateTo: -0.3,
     zIndex: 30,
   },
   {
@@ -138,12 +141,12 @@ const DESKTOP_LAYOUTS: CardLayout[] = [
     top: "47%",
     width: "clamp(290px, 24vw, 410px)",
     aspectRatio: "4 / 3",
-    yFrom: "82vh",
-    yTo: "-123vh",
+    yFrom: "66vh",
+    yTo: "-95vh",
     xFrom: "1.2vw",
     xTo: "-1.8vw",
-    rotateFrom: 0.8,
-    rotateTo: -0.6,
+    rotateFrom: 0.3,
+    rotateTo: -0.25,
     zIndex: 10,
   },
   {
@@ -151,12 +154,12 @@ const DESKTOP_LAYOUTS: CardLayout[] = [
     top: "39%",
     width: "clamp(300px, 25vw, 425px)",
     aspectRatio: "3 / 2",
-    yFrom: "88vh",
-    yTo: "-117vh",
+    yFrom: "72vh",
+    yTo: "-88vh",
     xFrom: "-1vw",
     xTo: "1.7vw",
-    rotateFrom: -0.7,
-    rotateTo: 0.5,
+    rotateFrom: -0.3,
+    rotateTo: 0.25,
     zIndex: 10,
   },
   {
@@ -164,12 +167,12 @@ const DESKTOP_LAYOUTS: CardLayout[] = [
     top: "79%",
     width: "clamp(300px, 26vw, 440px)",
     aspectRatio: "3 / 2",
-    yFrom: "108vh",
-    yTo: "-96vh",
+    yFrom: "88vh",
+    yTo: "-78vh",
     xFrom: "-1.4vw",
     xTo: "1vw",
-    rotateFrom: -0.9,
-    rotateTo: 0.35,
+    rotateFrom: -0.35,
+    rotateTo: 0.2,
     zIndex: 30,
   },
   {
@@ -177,70 +180,74 @@ const DESKTOP_LAYOUTS: CardLayout[] = [
     top: "72%",
     width: "clamp(320px, 28vw, 470px)",
     aspectRatio: "3 / 2",
-    yFrom: "116vh",
-    yTo: "-90vh",
+    yFrom: "92vh",
+    yTo: "-70vh",
     xFrom: "1.5vw",
     xTo: "-1vw",
-    rotateFrom: 0.7,
-    rotateTo: -0.35,
+    rotateFrom: 0.3,
+    rotateTo: -0.2,
     zIndex: 30,
   },
 ];
 
+/* Mobile starts composed, not empty: two cards above the title and two below.
+   The rows then travel upward through the shorter sticky chapter. */
 const MOBILE_LAYOUTS: CardLayout[] = [
   {
-    left: "4%",
-    top: "9%",
-    width: "45%",
+    left: "5%",
+    top: "8%",
+    width: "41%",
     aspectRatio: "4 / 5",
-    yFrom: "52vh",
-    yTo: "-154vh",
-    xFrom: "-2vw",
-    xTo: "2vw",
-    rotateFrom: -1.2,
-    rotateTo: 0.3,
+    yFrom: "0vh",
+    yTo: "-86vh",
+    xFrom: "-1vw",
+    xTo: "1vw",
+    rotateFrom: -0.2,
+    rotateTo: 0.2,
     zIndex: 30,
+  },
+  {
+    left: "56%",
+    top: "5%",
+    width: "39%",
+    aspectRatio: "4 / 5",
+    yFrom: "0vh",
+    yTo: "-78vh",
+    xFrom: "1vw",
+    xTo: "-1vw",
+    rotateFrom: 0.2,
+    rotateTo: -0.2,
+    zIndex: 10,
+  },
+  {
+    left: "6%",
+    top: "69%",
+    width: "40%",
+    aspectRatio: "4 / 5",
+    yFrom: "0vh",
+    yTo: "-92vh",
+    xFrom: "0.8vw",
+    xTo: "-1vw",
+    rotateFrom: 0.15,
+    rotateTo: -0.2,
+    zIndex: 10,
   },
   {
     left: "55%",
-    top: "3%",
-    width: "40%",
+    top: "66%",
+    width: "41%",
     aspectRatio: "4 / 5",
-    yFrom: "66vh",
-    yTo: "-140vh",
-    xFrom: "2vw",
-    xTo: "-2vw",
-    rotateFrom: 1.2,
-    rotateTo: -0.4,
-    zIndex: 10,
-  },
-  {
-    left: "8%",
-    top: "59%",
-    width: "40%",
-    aspectRatio: "4 / 5",
-    yFrom: "92vh",
-    yTo: "-114vh",
-    xFrom: "1vw",
-    xTo: "-1vw",
-    rotateFrom: 0.8,
-    rotateTo: -0.45,
-    zIndex: 10,
-  },
-  {
-    left: "54%",
-    top: "51%",
-    width: "42%",
-    aspectRatio: "4 / 5",
-    yFrom: "104vh",
-    yTo: "-102vh",
-    xFrom: "-1vw",
-    xTo: "1.5vw",
-    rotateFrom: -0.8,
-    rotateTo: 0.4,
+    yFrom: "0vh",
+    yTo: "-84vh",
+    xFrom: "-0.8vw",
+    xTo: "1vw",
+    rotateFrom: -0.15,
+    rotateTo: 0.2,
     zIndex: 30,
   },
 ];
+
+const MOBILE_CARDS = CARDS.slice(0, 4);
 
 function ElevatedCard({
   card,
@@ -268,7 +275,7 @@ function ElevatedCard({
     [0, 1],
     reducedMotion ? [0, 0] : [layout.rotateFrom ?? 0, layout.rotateTo ?? 0]
   );
-  const scale = useTransform(progress, [0, 0.5, 1], reducedMotion ? [1, 1, 1] : [0.985, 1.015, 0.99]);
+  const scale = useTransform(progress, [0, 0.5, 1], reducedMotion ? [1, 1, 1] : [0.99, 1.01, 0.995]);
 
   return (
     <motion.button
@@ -305,13 +312,15 @@ function ElevatedCard({
 
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-black/10" />
 
-      <div className="absolute left-3 top-3 z-10 flex items-center gap-2 md:left-4 md:top-4">
-        <span className="rounded-full border border-white/20 bg-black/55 px-2.5 py-1 font-clash text-[9px] font-bold uppercase tracking-[0.16em] text-white backdrop-blur-md md:px-3 md:py-1.5 md:text-[10px]">
-          {card.name}
-        </span>
-        <span className="hidden rounded-full border border-white/15 bg-white/10 px-2.5 py-1 font-clash text-[8px] font-bold uppercase tracking-[0.15em] text-white/75 backdrop-blur-md sm:inline-block md:text-[9px]">
-          {card.kind}
-        </span>
+      <div className="absolute left-3 top-3 z-20 flex max-w-[62%] items-center rounded-[9px] border border-white/45 bg-white/90 px-2.5 py-2 shadow-[0_8px_22px_-12px_rgba(0,0,0,0.55)] backdrop-blur-sm md:left-4 md:top-4 md:max-w-[58%] md:rounded-[11px] md:px-3 md:py-2.5">
+        <img
+          src={encodeAsset(card.logo)}
+          alt={`${card.name} logo`}
+          draggable={false}
+          loading="lazy"
+          decoding="async"
+          className="h-4 w-auto max-w-[86px] object-contain sm:h-5 sm:max-w-[100px] md:h-6 md:max-w-[128px]"
+        />
       </div>
 
       <div
@@ -362,21 +371,52 @@ function ElevatedCard({
   );
 }
 
-function StickyTitle({ progress }: { progress: MotionValue<number> }) {
-  const lightOpacity = useTransform(progress, [0.18, 0.5], [0, 1]);
-  const darkOpacity = useTransform(progress, [0.12, 0.47], [1, 0]);
-  const x = useTransform(progress, [0, 1], ["1.5vw", "-1.5vw"]);
+function StickyTitle({
+  progress,
+  reducedMotion,
+}: {
+  progress: MotionValue<number>;
+  reducedMotion: boolean;
+}) {
+  const lightOpacity = useTransform(progress, [0.18, 0.46], [0, 1]);
+  const darkOpacity = useTransform(progress, [0.12, 0.42], [1, 0]);
+  const desktopX = useTransform(
+    progress,
+    [0, 1],
+    reducedMotion ? ["0vw", "0vw"] : ["1.5vw", "-1.5vw"]
+  );
+  const mobileX = useTransform(
+    progress,
+    [0, 0.7, 1],
+    reducedMotion ? ["0vw", "0vw", "0vw"] : ["0vw", "0vw", "-115vw"]
+  );
 
-  const titleClass =
-    "absolute left-1/2 top-1/2 w-max -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-clash text-[clamp(5rem,10.9vw,13rem)] font-semibold uppercase leading-none tracking-[-0.065em] max-md:text-[clamp(4rem,21.8vw,7rem)]";
+  const desktopTitleClass =
+    "absolute left-1/2 top-1/2 hidden w-max -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-clash text-[clamp(5rem,10.9vw,13rem)] font-semibold uppercase leading-none tracking-[-0.065em] md:block";
+  const mobileTitleClass =
+    "absolute left-1/2 top-1/2 w-[70vw] max-w-[24rem] -translate-x-1/2 -translate-y-1/2 text-center font-clash text-[clamp(2.65rem,13.5vw,4.8rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em] md:hidden";
+
+  const mobileWords = (
+    <>
+      <span className="block">Brands</span>
+      <span className="block">Elevated</span>
+    </>
+  );
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden" aria-hidden="true">
-      <motion.div className={`${titleClass} text-[#111111]`} style={{ opacity: darkOpacity, x }}>
+      <motion.div className={`${desktopTitleClass} text-[#171412]`} style={{ opacity: darkOpacity, x: desktopX }}>
         Brands Elevated
       </motion.div>
-      <motion.div className={`${titleClass} text-white`} style={{ opacity: lightOpacity, x }}>
+      <motion.div className={`${desktopTitleClass} text-white`} style={{ opacity: lightOpacity, x: desktopX }}>
         Brands Elevated
+      </motion.div>
+
+      <motion.div className={`${mobileTitleClass} text-[#171412]`} style={{ opacity: darkOpacity, x: mobileX }}>
+        {mobileWords}
+      </motion.div>
+      <motion.div className={`${mobileTitleClass} text-white`} style={{ opacity: lightOpacity, x: mobileX }}>
+        {mobileWords}
       </motion.div>
     </div>
   );
@@ -392,8 +432,8 @@ export default function BrandsElevatedScroll() {
     offset: ["start start", "end end"],
   });
 
-  const blackOpacity = useTransform(scrollYProgress, [0.03, 0.72, 1], [0, 0.94, 1]);
-  const introOpacity = useTransform(scrollYProgress, [0, 0.08, 0.22], [1, 1, 0]);
+  const blackOpacity = useTransform(scrollYProgress, [0.04, 0.58, 0.88, 1], [0, 0.96, 1, 1]);
+  const introOpacity = useTransform(scrollYProgress, [0, 0.08, 0.2], [1, 1, 0]);
 
   useEffect(() => {
     if (!activeId) return;
@@ -415,18 +455,20 @@ export default function BrandsElevatedScroll() {
   return (
     <div
       ref={sectionRef}
-      className={`relative w-full bg-[#f0ede6] ${reducedMotion ? "min-h-[150svh]" : "h-[350svh] md:h-[390svh]"}`}
+      className={`relative w-full bg-[#f7f4ef] ${
+        reducedMotion ? "min-h-[135svh]" : "h-[220svh] md:h-[285svh] lg:h-[300svh]"
+      }`}
       aria-label="Brands elevated — selected client results"
     >
       <div className="sticky top-0 h-[100svh] overflow-hidden">
         <motion.div
-          className="pointer-events-none absolute inset-0 bg-[#050505]"
+          className="pointer-events-none absolute inset-0 bg-[#0a0a0a]"
           style={{ opacity: blackOpacity }}
           aria-hidden="true"
         />
 
         <motion.div
-          className="pointer-events-none absolute left-4 top-[max(1rem,4vh)] z-40 max-w-[18rem] sm:left-6 md:left-10 md:top-10"
+          className="pointer-events-none absolute left-4 top-[max(1rem,4vh)] z-40 hidden max-w-[18rem] sm:left-6 md:block md:left-10 md:top-10"
           style={{ opacity: introOpacity }}
           aria-hidden="true"
         >
@@ -438,9 +480,9 @@ export default function BrandsElevatedScroll() {
           </p>
         </motion.div>
 
-        <StickyTitle progress={scrollYProgress} />
+        <StickyTitle progress={scrollYProgress} reducedMotion={reducedMotion} />
 
-        <div className="absolute inset-0 hidden md:block">
+        <div className={`absolute inset-0 hidden md:block ${styles.cardPlane}`}>
           {CARDS.map((card, index) => (
             <ElevatedCard
               key={card.id}
@@ -454,8 +496,8 @@ export default function BrandsElevatedScroll() {
           ))}
         </div>
 
-        <div className="absolute inset-0 md:hidden">
-          {CARDS.slice(0, 4).map((card, index) => (
+        <div className={`absolute inset-0 md:hidden ${styles.cardPlane}`}>
+          {MOBILE_CARDS.map((card, index) => (
             <ElevatedCard
               key={card.id}
               card={card}
@@ -468,7 +510,7 @@ export default function BrandsElevatedScroll() {
           ))}
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-4 z-40 flex justify-center md:bottom-6">
+        <div className="pointer-events-none absolute inset-x-0 bottom-4 z-40 hidden justify-center md:bottom-6 md:flex">
           <div className="rounded-full border border-white/10 bg-black/25 px-3 py-1.5 font-clash text-[8px] font-bold uppercase tracking-[0.2em] text-white/55 backdrop-blur-md md:text-[9px]">
             Scroll to explore
           </div>
