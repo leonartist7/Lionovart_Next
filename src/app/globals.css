@@ -972,6 +972,18 @@
 
 /* Portal surfaces — dark is the default and mirrors the brand shell. */
 [data-portal-theme] {
+  /* The marketing site's 1.25rem radius is a poster radius: on a 52px control
+     it rounds to a pill. Dense app UI needs a tighter corner, and because the
+     radius scale is `@theme inline` the whole ramp recomputes from this one
+     value inside the portal scope only. */
+  --radius: 0.625rem;
+
+  /* The site's border (rgba(38,38,38,.3)) is invisible on near-black. App
+     surfaces need an edge that actually reads. */
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.14);
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+
   --portal-glass: rgba(13, 13, 13, 0.72);
   --portal-glass-line: rgba(255, 255, 255, 0.09);
   --portal-shadow: 0 24px 48px -26px rgba(0, 0, 0, 0.7);
