@@ -4,7 +4,6 @@ import StrongTogetherTransition from "@/components/sections/StrongTogetherTransi
 import BridgeStatement from "@/components/sections/BridgeStatement";
 
 import AboutExperience from "@/components/sections/AboutExperience";
-import AboutPaintTransition from "@/components/sections/AboutPaintTransition";
 import WhatWeDo from "@/components/sections/WhatWeDo";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
 import ExpertiseExperience from "@/components/sections/ExpertiseExperience";
@@ -56,17 +55,9 @@ export function PageBuilder() {
         <SectionTitleCard word="WHY US?" theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>
 
-        {/* About stays on paper. The dedicated impasto handoff preserves the
-            original authored white -> paint -> black transition even though
-            Process now lives later in the narrative. */}
+        {/* Narrative order: About -> Brands Elevated/results -> Process. */}
         <NovaSection id="about"><AboutExperience /></NovaSection>
-        <AboutPaintTransition />
-
-        <SectionTitleCard word="RESULTS." theme="dark" />
         <NovaSection id="testimonials"><Testimonials /></NovaSection>
-
-        {/* Process now follows proof: first show the outcomes, then reveal the
-            system that creates them. */}
         <NovaSection id="process"><ProcessExperience /></NovaSection>
         <AuditStrip />
 
