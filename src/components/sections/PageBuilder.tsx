@@ -3,7 +3,7 @@ import SceneVideoBackdrop from "@/components/sections/SceneVideoBackdrop";
 import StrongTogetherTransition from "@/components/sections/StrongTogetherTransition";
 import BridgeStatement from "@/components/sections/BridgeStatement";
 
-import AboutUsHalf from "@/components/sections/AboutUsHalf";
+import AboutExperience from "@/components/sections/AboutExperience";
 import WhatWeDo from "@/components/sections/WhatWeDo";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
 import ExpertiseExperience from "@/components/sections/ExpertiseExperience";
@@ -54,11 +54,13 @@ export function PageBuilder() {
         <NovaSection id="services"><ExpertiseExperience /></NovaSection>
         <SectionTitleCard word="WHY US?" theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>
-        <NovaSection id="about"><AboutUsHalf /></NovaSection>
-        <NovaSection id="process"><ProcessExperience /></NovaSection>
-        <SectionTitleCard word="RESULTS." theme="dark" />
+
+        {/* Narrative order: About -> Brands Elevated/results -> Process. */}
+        <NovaSection id="about"><AboutExperience /></NovaSection>
         <NovaSection id="testimonials"><Testimonials /></NovaSection>
+        <NovaSection id="process"><ProcessExperience /></NovaSection>
         <AuditStrip />
+
         <SectionTitleCard
           word="ANSWERS."
           theme="dark"

@@ -945,3 +945,141 @@
     }
   }
 }
+
+/* =============================================
+   PORTAL — app-shell theme scope
+   ---------------------------------------------
+   Every rule below is gated on [data-portal-theme], which ONLY the (app) root
+   layout sets. The marketing site never carries the attribute, so it stays
+   dark-only and is provably unaffected by anything in this block.
+   ============================================= */
+
+/* Light palette, declared once and referenced by both the explicit and the
+   system-preference selectors below. */
+:root {
+  --pl-background: #faf8f5;
+  --pl-foreground: #111111;
+  --pl-card: #ffffff;
+  --pl-muted: #f1ede7;
+  --pl-muted-foreground: #6b6660;
+  --pl-border: rgba(17, 17, 17, 0.1);
+  --pl-input: rgba(17, 17, 17, 0.14);
+  --pl-sidebar: #f2eee8;
+  --pl-glass: rgba(255, 255, 255, 0.72);
+  --pl-glass-line: rgba(17, 17, 17, 0.08);
+  --pl-shadow: 0 20px 44px -26px rgba(17, 17, 17, 0.32);
+}
+
+/* Portal surfaces — dark is the default and mirrors the brand shell. */
+[data-portal-theme] {
+  /* The marketing site's 1.25rem radius is a poster radius: on a 52px control
+     it rounds to a pill. Dense app UI needs a tighter corner, and because the
+     radius scale is `@theme inline` the whole ramp recomputes from this one
+     value inside the portal scope only. */
+  --radius: 0.625rem;
+
+  /* The site's border (rgba(38,38,38,.3)) is invisible on near-black. App
+     surfaces need an edge that actually reads. */
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.14);
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+
+  --portal-glass: rgba(13, 13, 13, 0.72);
+  --portal-glass-line: rgba(255, 255, 255, 0.09);
+  --portal-shadow: 0 24px 48px -26px rgba(0, 0, 0, 0.7);
+  color-scheme: dark;
+}
+
+/* The portal is an app, not a scroll story — no smooth-scroll hijack. */
+[data-portal-theme] {
+  scroll-behavior: auto;
+}
+
+/* --- Light mode, chosen explicitly --------------------------------- */
+[data-portal-theme="light"] {
+  --background: var(--pl-background);
+  --foreground: var(--pl-foreground);
+  --card: var(--pl-card);
+  --card-foreground: var(--pl-foreground);
+  --popover: var(--pl-card);
+  --popover-foreground: var(--pl-foreground);
+  --secondary: var(--pl-muted);
+  --secondary-foreground: var(--pl-foreground);
+  --muted: var(--pl-muted);
+  --muted-foreground: var(--pl-muted-foreground);
+  --accent: var(--pl-muted);
+  --accent-foreground: var(--pl-foreground);
+  --border: var(--pl-border);
+  --input: var(--pl-input);
+  --sidebar: var(--pl-sidebar);
+  --sidebar-foreground: var(--pl-foreground);
+  --sidebar-accent: var(--pl-muted);
+  --sidebar-accent-foreground: var(--pl-foreground);
+  --sidebar-border: var(--pl-border);
+  --portal-glass: var(--pl-glass);
+  --portal-glass-line: var(--pl-glass-line);
+  --portal-shadow: var(--pl-shadow);
+  color-scheme: light;
+}
+
+/* --- Light mode, following the OS ---------------------------------- */
+@media (prefers-color-scheme: light) {
+  [data-portal-theme="system"] {
+    --background: var(--pl-background);
+    --foreground: var(--pl-foreground);
+    --card: var(--pl-card);
+    --card-foreground: var(--pl-foreground);
+    --popover: var(--pl-card);
+    --popover-foreground: var(--pl-foreground);
+    --secondary: var(--pl-muted);
+    --secondary-foreground: var(--pl-foreground);
+    --muted: var(--pl-muted);
+    --muted-foreground: var(--pl-muted-foreground);
+    --accent: var(--pl-muted);
+    --accent-foreground: var(--pl-foreground);
+    --border: var(--pl-border);
+    --input: var(--pl-input);
+    --sidebar: var(--pl-sidebar);
+    --sidebar-foreground: var(--pl-foreground);
+    --sidebar-accent: var(--pl-muted);
+    --sidebar-accent-foreground: var(--pl-foreground);
+    --sidebar-border: var(--pl-border);
+    --portal-glass: var(--pl-glass);
+    --portal-glass-line: var(--pl-glass-line);
+    --portal-shadow: var(--pl-shadow);
+    color-scheme: light;
+  }
+}
+
+/* Portal body owns its own background — the site's forced dark body class is
+   not applied inside the (app) group. */
+[data-portal-theme] body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Translucent app chrome. Degrades to a solid surface when the viewer has
+   asked for less transparency or more contrast. */
+@utility portal-glass {
+  background: var(--portal-glass);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-color: var(--portal-glass-line);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .portal-glass {
+    background: var(--background);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .portal-glass {
+    background: var(--background);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-color: var(--foreground);
+  }
+}

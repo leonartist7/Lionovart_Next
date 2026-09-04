@@ -7,6 +7,8 @@ function getResend() {
   return resend;
 }
 const FROM = "Nova by LIONOVART <nova@nova.lionovart.com>";
+/** Client-portal mail is from the studio, not from Nova — same verified domain. */
+const PORTAL_FROM = "LIONOVART <nova@nova.lionovart.com>";
 const LEON_EMAIL = "leonartist.cs@gmail.com";
 
 /** Returns true only if Resend was actually configured and called — callers
@@ -111,5 +113,68 @@ export async function sendDossierEmail({
     });
   } catch (err) {
     console.error("[email] dossier send failed:", err);
+  }
+}
+
+/**
+ * The client-portal invitation. Returns true only when Resend was actually
+ * configured and the send succeeded — the caller surfaces the raw join link to
+ * the studio when it didn't, so an unconfigured mailer never strands a client.
+ */
+export async function sendPortalInviteEmail({
+  toEmail,
+  workspaceName,
+  joinUrl,
+  expiresAt,
+}: {
+  toEmail: string;
+  workspaceName: string;
+  joinUrl: string;
+  expiresAt: string;
+}): Promise<boolean> {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn("[email] RESEND_API_KEY unset — skipping portal invite");
+    return false;
+  }
+
+  const expires = new Date(expiresAt).toLocaleDateString("en-CA", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const htmlBody = `
+    <div style="font-family:sans-serif;max-width:520px;margin:0 auto;color:#111111;">
+      <p style="font-size:12px;color:#e5192a;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;margin-bottom:20px;">LIONOVART</p>
+      <h1 style="font-size:22px;line-height:1.3;margin:0 0 16px;">Your workspace is ready</h1>
+      <p style="font-size:15px;line-height:1.65;color:#333;margin:0 0 24px;">
+        You've been given access to <strong>${workspaceName}</strong> — where you'll
+        follow progress, review work, leave feedback directly on designs, and talk to us.
+      </p>
+      <p style="margin:0 0 28px;">
+        <a href="${joinUrl}" style="display:inline-block;background:#e5192a;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:9999px;font-size:14px;font-weight:600;">
+          Open your workspace
+        </a>
+      </p>
+      <p style="font-size:13px;line-height:1.6;color:#777;margin:0 0 8px;">
+        This link is for you alone and expires on ${expires}.
+      </p>
+      <p style="font-size:12px;line-height:1.6;color:#aaa;margin:0;word-break:break-all;">
+        If the button doesn't work, paste this into your browser:<br>${joinUrl}
+      </p>
+    </div>
+  `;
+
+  try {
+    await getResend().emails.send({
+      from: PORTAL_FROM,
+      to: toEmail,
+      subject: `Your ${workspaceName} workspace is ready`,
+      html: htmlBody,
+    });
+    return true;
+  } catch (err) {
+    console.error("[email] portal invite send failed:", err);
+    return false;
   }
 }
