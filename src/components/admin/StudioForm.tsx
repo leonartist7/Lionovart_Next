@@ -22,7 +22,7 @@ import {
   type Locale,
 } from "@/lib/agent-config-schema";
 import { NOVA_SKILLS } from "@/lib/nova-skills";
-import type { ConfigVersion } from "@/app/admin/(console)/studio/page";
+import type { ConfigVersion } from "@/app/(app)/admin/(console)/studio/page";
 
 const THINKING_HINTS: Record<string, string> = {
   MINIMAL: "Fastest response — least reasoning overhead.",
