@@ -9,6 +9,7 @@ import { PORTAL_NAV, isNavActive, navHref } from "@/lib/portal/nav";
 import type { ThemeChoice } from "@/lib/portal/theme";
 import { ThemeToggle } from "@/components/portal/ThemeToggle";
 import { WorkspaceSwitcher, type WorkspaceOption } from "@/components/portal/WorkspaceSwitcher";
+import { ToastProvider, Toaster } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 
 export interface PortalShellProps {
@@ -48,6 +49,7 @@ export function PortalShell({
   }
 
   return (
+    <ToastProvider>
     <div className="flex min-h-dvh flex-col md:flex-row">
       {/* ── Desktop rail ─────────────────────────────────────────── */}
       <aside className="border-border bg-sidebar hidden w-[248px] shrink-0 flex-col border-r md:sticky md:top-0 md:flex md:h-dvh">
@@ -136,7 +138,10 @@ export function PortalShell({
           />
         ))}
       </nav>
+
+      <Toaster />
     </div>
+    </ToastProvider>
   );
 }
 

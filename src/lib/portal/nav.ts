@@ -46,7 +46,7 @@ export const PORTAL_NAV: PortalNavItem[] = [
     label: "Projects",
     shortLabel: "Work",
     icon: FolderOpen,
-    ready: false,
+    ready: true,
     primary: true,
   },
   {
