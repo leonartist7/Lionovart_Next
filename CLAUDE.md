@@ -1,5 +1,15 @@
 @AGENTS.md
 
+# Client portal work — read the handoff first
+
+Before touching `src/app/(app)/portal`, `src/app/api/portal`, `src/components/portal`
+or `src/lib/portal`, read `PORTAL_HANDOFF.md`. It carries the architecture, the patterns
+to copy, the rules that must not break (agency gating is server-side; a client's browser
+must never *receive* agency controls), how to run the Firebase emulators, and which model
+should take which task.
+
+Verify with `node scripts/portal-verify/verify.mjs` before pushing portal changes.
+
 # PR monitoring — off by default
 
 Never auto-subscribe to PR activity (`subscribe_pr_activity`), never create check-in
