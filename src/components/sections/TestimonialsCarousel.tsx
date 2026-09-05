@@ -1,12 +1,12 @@
 "use client";
 
-import BrandsElevatedScroll from "@/components/sections/BrandsElevatedScroll";
+import BrandsElevatedScrollV2 from "@/components/sections/BrandsElevatedScrollV2";
 import styles from "./BrandsElevatedScroll.module.css";
 
 export default function TestimonialsCarousel() {
   return (
     <div className={`${styles.host} -mt-[80px] md:-mt-[100px]`}>
-      <BrandsElevatedScroll />
+      <BrandsElevatedScrollV2 />
     </div>
   );
 }
