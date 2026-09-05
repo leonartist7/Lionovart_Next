@@ -190,64 +190,90 @@ const DESKTOP_LAYOUTS: CardLayout[] = [
   },
 ];
 
-/* Mobile starts composed, not empty: two cards above the title and two below.
-   The rows then travel upward through the shorter sticky chapter. */
+/* Mobile opens as a complete six-card composition. Each pair is deliberately
+   offset on the Y axis so the section reads spatially rather than as a grid. */
 const MOBILE_LAYOUTS: CardLayout[] = [
   {
-    left: "5%",
-    top: "8%",
-    width: "41%",
+    left: "1%",
+    top: "4%",
+    width: "47%",
     aspectRatio: "4 / 5",
     yFrom: "0vh",
-    yTo: "-86vh",
-    xFrom: "-1vw",
-    xTo: "1vw",
-    rotateFrom: -0.2,
-    rotateTo: 0.2,
+    yTo: "-98vh",
+    xFrom: "-1.2vw",
+    xTo: "1.2vw",
+    rotateFrom: -0.22,
+    rotateTo: 0.16,
     zIndex: 30,
   },
   {
-    left: "56%",
-    top: "5%",
-    width: "39%",
+    left: "52%",
+    top: "12%",
+    width: "46%",
     aspectRatio: "4 / 5",
     yFrom: "0vh",
-    yTo: "-78vh",
-    xFrom: "1vw",
+    yTo: "-88vh",
+    xFrom: "1.2vw",
     xTo: "-1vw",
     rotateFrom: 0.2,
-    rotateTo: -0.2,
+    rotateTo: -0.16,
     zIndex: 10,
   },
   {
-    left: "6%",
-    top: "69%",
-    width: "40%",
+    left: "4%",
+    top: "27%",
+    width: "46%",
     aspectRatio: "4 / 5",
     yFrom: "0vh",
-    yTo: "-92vh",
+    yTo: "-108vh",
     xFrom: "0.8vw",
-    xTo: "-1vw",
-    rotateFrom: 0.15,
-    rotateTo: -0.2,
+    xTo: "-1.1vw",
+    rotateFrom: 0.16,
+    rotateTo: -0.18,
     zIndex: 10,
   },
   {
-    left: "55%",
-    top: "66%",
-    width: "41%",
+    left: "53%",
+    top: "35%",
+    width: "45%",
     aspectRatio: "4 / 5",
     yFrom: "0vh",
-    yTo: "-84vh",
+    yTo: "-97vh",
     xFrom: "-0.8vw",
     xTo: "1vw",
-    rotateFrom: -0.15,
-    rotateTo: 0.2,
+    rotateFrom: -0.18,
+    rotateTo: 0.16,
     zIndex: 30,
+  },
+  {
+    left: "0%",
+    top: "66%",
+    width: "48%",
+    aspectRatio: "4 / 5",
+    yFrom: "0vh",
+    yTo: "-116vh",
+    xFrom: "-1vw",
+    xTo: "1.2vw",
+    rotateFrom: -0.2,
+    rotateTo: 0.18,
+    zIndex: 30,
+  },
+  {
+    left: "51%",
+    top: "75%",
+    width: "47%",
+    aspectRatio: "4 / 5",
+    yFrom: "0vh",
+    yTo: "-104vh",
+    xFrom: "1vw",
+    xTo: "-1.1vw",
+    rotateFrom: 0.22,
+    rotateTo: -0.18,
+    zIndex: 10,
   },
 ];
 
-const MOBILE_CARDS = CARDS.slice(0, 4);
+const MOBILE_CARDS = CARDS;
 
 function ElevatedCard({
   card,
@@ -312,14 +338,14 @@ function ElevatedCard({
 
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-black/10" />
 
-      <div className="absolute left-3 top-3 z-20 flex max-w-[62%] items-center rounded-[9px] border border-white/45 bg-white/90 px-2.5 py-2 shadow-[0_8px_22px_-12px_rgba(0,0,0,0.55)] backdrop-blur-sm md:left-4 md:top-4 md:max-w-[58%] md:rounded-[11px] md:px-3 md:py-2.5">
+      <div className="absolute left-3 top-3 z-20 max-w-[66%] md:left-4 md:top-4 md:max-w-[60%]">
         <img
           src={encodeAsset(card.logo)}
           alt={`${card.name} logo`}
           draggable={false}
           loading="lazy"
           decoding="async"
-          className="h-4 w-auto max-w-[86px] object-contain sm:h-5 sm:max-w-[100px] md:h-6 md:max-w-[128px]"
+          className="h-5 w-auto max-w-[108px] object-contain drop-shadow-[0_2px_5px_rgba(0,0,0,0.5)] sm:h-6 sm:max-w-[122px] md:h-7 md:max-w-[145px]"
         />
       </div>
 
@@ -385,11 +411,6 @@ function StickyTitle({
     [0, 1],
     reducedMotion ? ["0vw", "0vw"] : ["1.5vw", "-1.5vw"]
   );
-  const mobileX = useTransform(
-    progress,
-    [0, 0.7, 1],
-    reducedMotion ? ["0vw", "0vw", "0vw"] : ["0vw", "0vw", "-115vw"]
-  );
 
   const desktopTitleClass =
     "absolute left-1/2 top-1/2 hidden w-max -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-clash text-[clamp(5rem,10.9vw,13rem)] font-semibold uppercase leading-none tracking-[-0.065em] md:block";
@@ -412,10 +433,10 @@ function StickyTitle({
         Brands Elevated
       </motion.div>
 
-      <motion.div className={`${mobileTitleClass} text-[#171412]`} style={{ opacity: darkOpacity, x: mobileX }}>
+      <motion.div className={`${mobileTitleClass} text-[#171412]`} style={{ opacity: darkOpacity }}>
         {mobileWords}
       </motion.div>
-      <motion.div className={`${mobileTitleClass} text-white`} style={{ opacity: lightOpacity, x: mobileX }}>
+      <motion.div className={`${mobileTitleClass} text-white`} style={{ opacity: lightOpacity }}>
         {mobileWords}
       </motion.div>
     </div>
