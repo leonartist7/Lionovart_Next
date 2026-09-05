@@ -5,7 +5,7 @@ import BridgeStatement from "@/components/sections/BridgeStatement";
 
 import AboutUsHalf from "@/components/sections/AboutUsHalf";
 import WhatWeDo from "@/components/sections/WhatWeDo";
-import PartnershipCircle from "@/components/sections/PartnershipCircle";
+import HomepageServicesChapter from "@/components/sections/HomepageServicesChapter";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
 import Comparison from "@/components/sections/Comparison";
 import ProcessExperience from "@/components/sections/ProcessExperience";
@@ -38,18 +38,15 @@ export function PageBuilder() {
 
       {/* z-[2] keeps narrative chapters above the fixed opening film. */}
       <div className="relative z-[2]">
-        {/* Services navigation now lands on the concise discipline overview.
-            ExpertiseExperience remains available in the component library. */}
-        <NovaSection id="services"><WhatWeDo /></NovaSection>
-
-        {/* Standalone signature payoff extracted from ExpertiseExperience so the
-            experimental service stage can stay out of the homepage. */}
-        <PartnershipCircle />
-
+        <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
         <BridgeStatement />
         <StrongTogetherTransition />
         <BridgeStatement variant="vow" />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
+
+        {/* The homepage keeps its original service journey. The final scroll
+            state is art-directed as the oversized ONE PARTNERSHIP circle. */}
+        <NovaSection id="services"><HomepageServicesChapter /></NovaSection>
 
         <SectionTitleCard word="WHY US?" theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>
