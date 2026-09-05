@@ -17,46 +17,15 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useNovaStore } from "@/lib/stores/nova-store";
-import { getLionStage } from "@/lib/lion/stage-ref";
+import { getConductor } from "@/lib/lion/conductor";
 import { NODES } from "./graph";
 import { LiquidGlass } from "./LiquidGlass";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const SHELL = "mx-auto w-full max-w-[1280px] px-6 md:px-10 lg:px-14";
 const ACT =
   "relative flex min-h-[130svh] items-center py-[128px] motion-reduce:min-h-svh md:min-h-[145svh] md:py-[190px] lg:py-[220px]";
 const EXPO = [0.16, 1, 0.3, 1] as const;
-
-function useParticleChapter(
-  ref: React.RefObject<HTMLElement | null>,
-  from: number,
-  to: number,
-  layout: number,
-  end = "bottom 20%",
-) {
-  useEffect(() => {
-    const section = ref.current;
-    if (!section || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    const trigger = ScrollTrigger.create({
-      trigger: section,
-      start: "top 82%",
-      end,
-      scrub: true,
-      onUpdate: ({ progress }) => {
-        const stage = getLionStage();
-        stage?.setMorph(gsap.utils.interpolate(from, to, progress));
-        stage?.setLayout(layout);
-      },
-    });
-
-    return () => trigger.kill();
-  }, [end, from, layout, ref, to]);
-}
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
@@ -159,28 +128,11 @@ export function AiSystems() {
   const reduce = useReducedMotion();
 
   useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    const applySystem = () => {
-      const stage = getLionStage();
-      stage?.setMorph(activeSystem.to);
-      stage?.setLayout(activeSystem.layout);
-    };
-
-    applySystem();
-    const trigger = ScrollTrigger.create({
-      trigger: section,
-      start: "top 72%",
-      end: "bottom 28%",
-      onEnter: applySystem,
-      onEnterBack: applySystem,
-      onUpdate: ({ isActive }) => {
-        if (isActive) applySystem();
-      },
-    });
-
-    return () => trigger.kill();
+    // The tab is the only non-scroll input to the story. The conductor owns
+    // when it is applied (only while the `systems` chapter holds the playhead),
+    // so selecting a tab can no longer overwrite a neighbouring chapter's state.
+    const index = SYSTEMS.findIndex((system) => system.number === activeSystem.number);
+    getConductor().setActiveSystem(index < 0 ? 0 : index);
   }, [activeSystem]);
 
   return (
@@ -304,13 +256,12 @@ export function AiFlow() {
   const reduce = useReducedMotion();
   // The connected orbit narrows into the vertical energy spine beside this
   // sequence; the following chapter condenses that current into the hub.
-  useParticleChapter(ref, 0.68, 0.76, -0.44);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 65%", "end 75%"] });
   const fill = useSpring(scrollYProgress, { stiffness: 90, damping: 26, mass: 0.4 });
   const railHeight = useTransform(fill, (value) => `${(reduce ? 1 : value) * 100}%`);
 
   return (
-    <section id="process" ref={ref} data-ai-snap className={ACT}>
+    <section id="process" ref={ref} data-ai-chapter="flow" data-ai-snap className={ACT}>
       <div className={SHELL}>
         <div className="[text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:ml-auto md:w-[60%]">
           <Eyebrow>The Lionovart AI Operating System</Eyebrow>
@@ -428,10 +379,9 @@ const STEPS = [
 export function AiProcess() {
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
-  useParticleChapter(ref, 0.76, 1, 0.44);
 
   return (
-    <section ref={ref} data-ai-snap className={ACT}>
+    <section ref={ref} data-ai-chapter="process" data-ai-snap className={ACT}>
       <div className={SHELL}>
         {/* Full-width three-column ledger instead of the page's usual offset
             reading column: the process is one flat sequence, not a beat that
@@ -512,10 +462,9 @@ export function AiOffers() {
   // Release ownership as the next section enters. The former `bottom 20%`
   // endpoint overlapped the closing trigger for almost a full viewport, so
   // both chapters fought over the particle layout during momentum scrolling.
-  useParticleChapter(ref, 1, 1, -0.44, "bottom 92%");
 
   return (
-    <section id="partnership" ref={ref} data-ai-snap className="relative py-[120px] md:py-[180px] lg:py-[220px]">
+    <section id="partnership" ref={ref} data-ai-chapter="offers" data-ai-snap className="relative py-[120px] md:py-[180px] lg:py-[220px]">
       <div className={SHELL}>
         {/* Full-width two-up grid instead of the page's usual offset reading
             column: two competing paths belong side by side, not stacked. */}

@@ -7,16 +7,15 @@
  * the particle crown. SERVICE_PAGES_SPEC section 2 makes the Act 1 medium
  * per-page, and here the medium is the crown itself.
  *
- * The section owns the assembled crown and the first hint of its release. It
- * hands the same particle population to AiChaosBeat for the immersive bridge.
+ * The section owns the assembled crown and the first hint of its release, but
+ * it no longer drives the engine directly: that beat is the `hero` entry in
+ * src/lib/lion/chapters.ts, applied by the page's single conductor.
  */
 
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { getLionStage } from "@/lib/lion/stage-ref";
 import { useNovaStore } from "@/lib/stores/nova-store";
-import { HERO_MORPH_END } from "./AiChaosBeat";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -36,21 +35,6 @@ export default function AiHeroCopy() {
         y: -52,
         ease: "power2.in",
         scrollTrigger: { trigger: wrap, start: "44% top", end: "88% top", scrub: true },
-      });
-
-      ScrollTrigger.create({
-        trigger: wrap,
-        start: "top top",
-        end: "bottom top",
-        scrub: true,
-        onUpdate: (self) => {
-          const stage = getLionStage();
-          // Hold the complete crown while the promise is being read, then let
-          // it begin opening only as the copy prepares to leave.
-          const release = gsap.utils.clamp(0, 1, (self.progress - 0.34) / 0.66);
-          stage?.setMorph(release * HERO_MORPH_END);
-          stage?.setLayout(0.46);
-        },
       });
     }, wrap);
 

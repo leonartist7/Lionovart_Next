@@ -19,6 +19,7 @@
 import { useEffect, useRef } from "react";
 import type { LionExperience } from "@/lib/lion/LionExperience";
 import { setLionStage } from "@/lib/lion/stage-ref";
+import { getConductor, disposeConductor } from "@/lib/lion/conductor";
 
 export default function AiLionStage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -52,22 +53,28 @@ export default function AiLionStage() {
       if (cancelled) return;
 
       setLionStage(instance);
-      // The opening crown is an asymmetric editorial split. setLayout handles
-      // the gentler mobile offset internally for coarse-pointer devices.
-      instance.setLayout(0.42);
 
       if (reduce) {
-        // A single composed frame instead of an animation. The engine redraws
-        // this state after resize without ever joining the ticker.
+        // A single composed frame instead of an animation, so the conductor
+        // never starts and this is the only place layout is set. setLayout
+        // handles the gentler mobile offset internally for coarse pointers.
+        instance.setLayout(0.42);
         instance.skipIntro();
         instance.renderOnce();
         return;
       }
+      // One owner of story position for the whole page. It measures chapter
+      // ranges on refresh and writes the engine's full state once per frame.
+      const conductor = getConductor();
+      conductor.attachEngine(instance);
+      conductor.start();
+
       instance.playIntro();
     })();
 
     return () => {
       cancelled = true;
+      disposeConductor();
       setLionStage(null);
       exp?.dispose();
     };
