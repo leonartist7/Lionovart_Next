@@ -50,83 +50,14 @@ const SERVICE_META = [
 ] as const;
 
 const EASE = [0.16, 1, 0.3, 1] as const;
-const OPENING_END = 0.285;
-const STREAM_UNMOUNT = 0.292;
-const SERVICE_START = 0.305;
+const OPENING_COPY_END = 0.205;
+const OPENING_END = 0.292;
+const STREAM_UNMOUNT = 0.294;
+const SERVICE_START = 0.31;
 const SERVICE_END = 0.92;
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
-
-function ServiceSignal({ id }: { id: string }) {
-  const common = {
-    viewBox: "0 0 120 120",
-    fill: "none",
-    xmlns: "http://www.w3.org/2000/svg",
-    className: "h-full w-full",
-  };
-
-  if (id === "branding") {
-    return (
-      <svg {...common}>
-        <circle cx="60" cy="60" r="38" stroke="currentColor" />
-        <circle cx="60" cy="60" r="22" stroke="currentColor" />
-        <path d="M60 8V112M8 60H112" stroke="currentColor" />
-        <circle cx="60" cy="60" r="4" fill="currentColor" />
-      </svg>
-    );
-  }
-
-  if (id === "web") {
-    return (
-      <svg {...common}>
-        <rect x="15" y="22" width="90" height="76" rx="4" stroke="currentColor" />
-        <path d="M15 39H105M36 39V98M80 39V98" stroke="currentColor" />
-        <circle cx="58" cy="68" r="10" stroke="currentColor" />
-      </svg>
-    );
-  }
-
-  if (id === "content-studio") {
-    return (
-      <svg {...common}>
-        <rect x="14" y="25" width="92" height="70" rx="5" stroke="currentColor" />
-        <path d="M50 46L78 60L50 74V46Z" fill="currentColor" />
-        <path d="M22 17V25M38 17V25M54 17V25M70 17V25M86 17V25M102 17V25" stroke="currentColor" />
-      </svg>
-    );
-  }
-
-  if (id === "print") {
-    return (
-      <svg {...common}>
-        <rect x="32" y="20" width="62" height="78" rx="3" stroke="currentColor" />
-        <rect x="22" y="30" width="62" height="78" rx="3" stroke="currentColor" />
-        <path d="M34 47H70M34 57H64M34 79H72" stroke="currentColor" strokeWidth="2" />
-      </svg>
-    );
-  }
-
-  if (id === "smart-systems") {
-    return (
-      <svg {...common}>
-        <path d="M29 33L60 20L91 35L98 68L74 97H42L20 69L29 33Z" stroke="currentColor" />
-        <path d="M29 33L57 52L91 35M20 69L57 52L74 97M98 68L57 52L60 20" stroke="currentColor" />
-        <circle cx="57" cy="52" r="6" fill="currentColor" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg {...common}>
-      <path d="M17 95H103M22 91L45 68L60 77L95 34" stroke="currentColor" strokeWidth="2" />
-      <path d="M79 34H95V50" stroke="currentColor" strokeWidth="2" />
-      <circle cx="45" cy="68" r="5" fill="currentColor" />
-      <circle cx="60" cy="77" r="5" fill="currentColor" />
-      <circle cx="95" cy="34" r="5" fill="currentColor" />
-    </svg>
-  );
-}
 
 function ReducedMotionExperience({
   services,
@@ -171,17 +102,14 @@ function ReducedMotionExperience({
 
       <div className="mx-auto grid max-w-[1280px] gap-px border-y border-black/10 bg-black/10 sm:grid-cols-2 lg:grid-cols-3">
         {services.map((service) => (
-          <article key={service.id} className="bg-bg-surface-light p-7 sm:p-9">
-            <span className="font-mono text-[10px] font-bold tracking-[0.22em] text-brand-red">
+          <article key={service.id} className="bg-bg-surface-light p-7 text-center sm:p-9">
+            <span className="font-mono text-[10px] font-bold tracking-[0.22em] text-black/35">
               {service.number}
             </span>
-            <div className="mt-7 h-20 w-20 text-black/60">
-              <ServiceSignal id={service.id} />
-            </div>
-            <h3 className="mt-7 max-w-[12ch] font-clash text-[2rem] font-semibold uppercase leading-[0.92] tracking-[-0.035em]">
+            <h3 className="mx-auto mt-5 max-w-[13ch] font-clash text-[2.25rem] font-semibold uppercase leading-[0.9] tracking-[-0.04em]">
               {service.title}
             </h3>
-            <p className="mt-4 font-body text-[15px] leading-[1.65] text-black/58">
+            <p className="mx-auto mt-4 max-w-[36ch] font-body text-[15px] leading-[1.65] text-black/58">
               {service.description}
             </p>
           </article>
@@ -218,7 +146,9 @@ export default function ExpertiseExperience() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const wheelLockRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [showOpeningCopy, setShowOpeningCopy] = useState(true);
   const [showStream, setShowStream] = useState(true);
+  const [showOpeningLogo, setShowOpeningLogo] = useState(true);
   const [serviceStageActive, setServiceStageActive] = useState(false);
   const chapterInView = useInView(chapterRef, { margin: "180px 0px" });
 
@@ -240,50 +170,70 @@ export default function ExpertiseExperience() {
     offset: ["start start", "end end"],
   });
 
-  const titleOpacity = useTransform(scrollYProgress, [0, 0.095, 0.205], [1, 1, 0]);
-  const titleY = useTransform(scrollYProgress, [0, 0.205], [0, -52]);
+  const titleOpacity = useTransform(scrollYProgress, [0, 0.075, 0.185], [1, 1, 0]);
+  const titleY = useTransform(scrollYProgress, [0, 0.19], [0, -58]);
 
   const streamOpacity = useTransform(
     scrollYProgress,
-    [0, 0.105, 0.22, 0.272],
-    [1, 1, 0.34, 0],
+    [0, 0.105, 0.22, 0.276],
+    [1, 1, 0.32, 0],
   );
-  const streamScale = useTransform(scrollYProgress, [0, 0.272], [1, 1.055]);
+  const streamScale = useTransform(scrollYProgress, [0, 0.276], [1, 1.055]);
 
-  // Opening emblem: center -> dramatic zoom -> selector anchor -> gone.
-  // It does not remain mounted visually during the services chapter.
+  // The opening emblem physically lands on the selector's center line.
+  // At that exact point the glass rail expands from beneath it.
   const logoScale = useTransform(
     scrollYProgress,
-    [0, 0.115, 0.225, 0.268, OPENING_END],
-    [1, 1.04, 2.85, 1.05, 0.58],
+    [0, 0.115, 0.225, 0.27, OPENING_END],
+    [1, 1.04, 2.9, 0.92, 0.52],
   );
   const logoY = useTransform(
     scrollYProgress,
-    [0, 0.225, 0.268, OPENING_END],
-    [0, 0, "23svh", "31svh"],
+    [0, 0.225, 0.27, OPENING_END],
+    [0, 0, "27svh", "42svh"],
   );
   const logoOpacity = useTransform(
     scrollYProgress,
-    [0, 0.268, OPENING_END, SERVICE_START],
-    [1, 1, 0.18, 0],
+    [0, 0.274, OPENING_END, SERVICE_START + 0.008],
+    [1, 1, 0.42, 0],
   );
 
   const serviceStageOpacity = useTransform(
     scrollYProgress,
-    [0.268, SERVICE_START, 0.965, 1],
+    [0.278, SERVICE_START, 0.965, 1],
     [0, 1, 1, 0],
   );
   const selectorOpacity = useTransform(
     scrollYProgress,
-    [0.272, SERVICE_START + 0.018],
+    [0.282, SERVICE_START + 0.012],
     [0, 1],
+  );
+  const selectorScaleX = useTransform(
+    scrollYProgress,
+    [0.282, SERVICE_START + 0.016],
+    [0.12, 1],
+  );
+  const selectorScaleY = useTransform(
+    scrollYProgress,
+    [0.282, 0.297, SERVICE_START + 0.016],
+    [0.82, 1.04, 1],
   );
 
   useMotionValueEvent(scrollYProgress, "change", (value) => {
+    const shouldShowOpeningCopy = value < OPENING_COPY_END;
+    setShowOpeningCopy((current) =>
+      current === shouldShowOpeningCopy ? current : shouldShowOpeningCopy,
+    );
+
     const shouldShowStream = value < STREAM_UNMOUNT;
     setShowStream((current) => (current === shouldShowStream ? current : shouldShowStream));
 
-    const shouldRunServiceMedia = value > 0.285 && value < 0.975;
+    const shouldShowOpeningLogo = value < SERVICE_START + 0.014;
+    setShowOpeningLogo((current) =>
+      current === shouldShowOpeningLogo ? current : shouldShowOpeningLogo,
+    );
+
+    const shouldRunServiceMedia = value > 0.29 && value < 0.975;
     setServiceStageActive((current) =>
       current === shouldRunServiceMedia ? current : shouldRunServiceMedia,
     );
@@ -379,21 +329,23 @@ export default function ExpertiseExperience() {
         <motion.div
           aria-hidden="true"
           style={{ opacity: serviceStageOpacity }}
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_78%,rgba(229,25,42,0.055),transparent_34%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_78%,rgba(229,25,42,0.045),transparent_34%)]"
         />
 
-        <motion.header
-          style={{ opacity: titleOpacity, y: titleY }}
-          className="pointer-events-none absolute inset-x-0 top-[6.5svh] z-30 mx-auto max-w-[1280px] px-5 text-center sm:top-[7vh] sm:px-8 lg:px-12"
-        >
-          <p className="font-mono text-[9px] font-bold uppercase tracking-[0.28em] text-brand-red sm:text-[11px]">
-            {t.services.eyebrow}
-          </p>
-          <h2 className="mx-auto mt-3 max-w-[10ch] font-clash text-[clamp(3rem,10vw,7.4rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em]">
-            {t.services.heading}{" "}
-            <span className="text-brand-red">{t.services.headingAccent}</span>
-          </h2>
-        </motion.header>
+        {showOpeningCopy && (
+          <motion.header
+            style={{ opacity: titleOpacity, y: titleY }}
+            className="pointer-events-none absolute inset-x-0 top-[6.5svh] z-30 mx-auto max-w-[1280px] px-5 text-center sm:top-[7vh] sm:px-8 lg:px-12"
+          >
+            <p className="font-mono text-[9px] font-bold uppercase tracking-[0.28em] text-brand-red sm:text-[11px]">
+              {t.services.eyebrow}
+            </p>
+            <h2 className="mx-auto mt-3 max-w-[10ch] font-clash text-[clamp(3rem,10vw,7.4rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em]">
+              {t.services.heading}{" "}
+              <span className="text-brand-red">{t.services.headingAccent}</span>
+            </h2>
+          </motion.header>
+        )}
 
         {showStream && (
           <motion.div
@@ -425,31 +377,22 @@ export default function ExpertiseExperience() {
           </motion.div>
         )}
 
-        <motion.div
-          aria-hidden="true"
-          style={{ scale: logoScale, y: logoY, opacity: logoOpacity }}
-          className="pointer-events-none absolute left-1/2 top-1/2 z-40 h-20 w-20 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full bg-brand-red shadow-[0_20px_52px_-28px_rgba(229,25,42,0.46)] transform-gpu sm:h-24 sm:w-24 lg:h-28 lg:w-28"
-        >
-          <img
-            src="/images/lionovart-icon.svg"
-            alt=""
-            className="h-full w-full object-cover"
-            decoding="async"
-          />
-        </motion.div>
+        {showOpeningLogo && (
+          <motion.div
+            aria-hidden="true"
+            style={{ scale: logoScale, y: logoY, opacity: logoOpacity }}
+            className="pointer-events-none absolute left-1/2 top-1/2 z-50 h-20 w-20 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full bg-brand-red shadow-[0_20px_52px_-28px_rgba(229,25,42,0.4)] transform-gpu sm:h-24 sm:w-24 lg:h-28 lg:w-28"
+          >
+            <img
+              src="/images/lionovart-icon.svg"
+              alt=""
+              className="h-full w-full object-cover"
+              decoding="async"
+            />
+          </motion.div>
+        )}
 
         <motion.div style={{ opacity: serviceStageOpacity }} className="absolute inset-0 z-20">
-          <div className="absolute inset-x-0 top-[4.5svh] mx-auto flex max-w-[1500px] items-center justify-between px-5 sm:px-8 lg:px-12">
-            <span className="font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-black/35 sm:text-[10px]">
-              {partnership ? "The full system" : "One system / six disciplines"}
-            </span>
-            <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-brand-red sm:text-[10px]">
-              {partnership
-                ? "ONE PARTNERSHIP"
-                : `${String(activeIndex + 1).padStart(2, "0")} / ${String(services.length).padStart(2, "0")}`}
-            </span>
-          </div>
-
           <span className="sr-only" aria-live="polite">
             {partnership ? "One Partnership" : activeService.title}
           </span>
@@ -458,7 +401,7 @@ export default function ExpertiseExperience() {
             animate={{ opacity: partnership ? 0 : 1, y: partnership ? -8 : 0 }}
             transition={{ duration: 0.26, ease: EASE }}
             aria-hidden={partnership}
-            className="absolute inset-x-0 top-[10svh] mx-auto h-[72svh] max-w-[1500px] px-5 sm:px-8 lg:top-[11vh] lg:h-[70vh] lg:px-12"
+            className="absolute inset-x-0 top-[8svh] mx-auto h-[74svh] max-w-[1500px] px-5 sm:px-8 lg:top-[10vh] lg:h-[71vh] lg:px-12"
           >
             <motion.div
               drag="x"
@@ -471,7 +414,7 @@ export default function ExpertiseExperience() {
                 goToState(activeIndex + (info.offset.x < 0 ? 1 : -1));
               }}
               style={{ touchAction: "pan-y" }}
-              className="grid h-full grid-cols-1 items-center gap-4 lg:grid-cols-[minmax(0,0.82fr)_minmax(26rem,1.24fr)_minmax(0,0.82fr)] lg:gap-[clamp(1.5rem,3vw,4rem)]"
+              className="grid h-full grid-cols-1 items-center gap-4 lg:grid-cols-[minmax(0,0.82fr)_minmax(28rem,1.28fr)_minmax(0,0.82fr)] lg:gap-[clamp(1.5rem,3vw,4rem)]"
             >
               <div className="relative order-1 h-[29svh] min-h-[12rem] overflow-hidden rounded-[1.2rem] border border-black/8 bg-[#111111] shadow-[0_28px_72px_-42px_rgba(0,0,0,0.42)] sm:h-[32svh] lg:h-auto lg:min-h-0 lg:aspect-[4/3] lg:rounded-[1.55rem]">
                 <video
@@ -485,13 +428,10 @@ export default function ExpertiseExperience() {
                   <source media="(max-width: 767px)" src={SERVICE_VIDEO_MOBILE} type="video/mp4" />
                   <source src={SERVICE_VIDEO_DESKTOP} type="video/mp4" />
                 </video>
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/34 via-transparent to-black/8" />
-                <div className="absolute left-4 top-4 font-mono text-[8px] font-bold uppercase tracking-[0.22em] text-white/72 sm:left-5 sm:top-5 sm:text-[9px]">
-                  Motion / {activeService.number}
-                </div>
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/6" />
               </div>
 
-              <div className="order-2 flex min-w-0 flex-col justify-center py-1 text-center lg:text-left">
+              <div className="order-2 flex min-w-0 flex-col justify-center py-1 text-center">
                 <AnimatePresence initial={false} mode="popLayout">
                   <motion.div
                     key={activeService.id}
@@ -500,23 +440,17 @@ export default function ExpertiseExperience() {
                     exit={{ opacity: 0, y: -6 }}
                     transition={{ duration: 0.26, ease: EASE }}
                   >
-                    <div className="mx-auto mb-4 h-14 w-14 text-black/52 sm:h-16 sm:w-16 lg:mx-0 lg:mb-5 lg:h-20 lg:w-20">
-                      <ServiceSignal id={activeService.id} />
-                    </div>
-                    <span className="font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-brand-red sm:text-[10px]">
-                      Lionovart / {activeService.number}
-                    </span>
-                    <h3 className="mx-auto mt-3 max-w-[13ch] font-clash text-[clamp(2rem,8.2vw,4.7rem)] font-semibold uppercase leading-[0.86] tracking-[-0.05em] lg:mx-0 lg:text-[clamp(2.7rem,4.4vw,5.2rem)]">
+                    <h3 className="mx-auto max-w-[13ch] font-clash text-[clamp(2.7rem,9vw,5.4rem)] font-semibold uppercase leading-[0.84] tracking-[-0.055em] lg:max-w-[11ch] lg:text-[clamp(3.2rem,5vw,6.2rem)]">
                       {activeService.title}
                     </h3>
-                    <p className="mx-auto mt-4 max-w-[42ch] font-body text-[14px] font-medium leading-[1.62] text-black/58 sm:text-[15px] lg:mx-0 lg:text-[16px]">
+                    <p className="mx-auto mt-5 max-w-[38ch] font-body text-[15px] font-medium leading-[1.62] text-black/62 sm:text-[17px] lg:text-[18px]">
                       {activeService.description}
                     </p>
-                    <div className="mx-auto mt-5 flex max-w-[38rem] flex-wrap justify-center gap-2 lg:mx-0 lg:justify-start">
+                    <div className="mx-auto mt-6 flex max-w-[40rem] flex-wrap justify-center gap-2">
                       {activeService.deliverables.map((item) => (
                         <span
                           key={item}
-                          className="rounded-full border border-black/12 bg-white/22 px-2.5 py-1.5 font-mono text-[8px] font-bold uppercase tracking-[0.1em] text-black/48 sm:text-[9px]"
+                          className="rounded-full border border-black/10 bg-white/24 px-3 py-1.5 font-mono text-[8px] font-bold uppercase tracking-[0.1em] text-black/48 sm:text-[9px]"
                         >
                           {item}
                         </span>
@@ -563,8 +497,8 @@ export default function ExpertiseExperience() {
               partnership ? "pointer-events-auto" : "pointer-events-none"
             }`}
           >
-            <div className="mx-auto flex h-20 w-fit min-w-20 items-center justify-center rounded-full bg-brand-red px-7 shadow-[0_22px_64px_-28px_rgba(229,25,42,0.5)] sm:h-24 sm:min-w-24 sm:px-9">
-              <span className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-white sm:text-[12px]">
+            <div className="mx-auto flex h-20 w-fit min-w-20 items-center justify-center rounded-full border border-white/65 bg-white/34 px-7 shadow-[0_20px_56px_-28px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl sm:h-24 sm:min-w-24 sm:px-9">
+              <span className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-black/75 sm:text-[12px]">
                 One Partnership
               </span>
             </div>
@@ -604,42 +538,53 @@ export default function ExpertiseExperience() {
           </motion.div>
 
           <motion.nav
-            style={{ opacity: selectorOpacity }}
+            style={{
+              opacity: selectorOpacity,
+              scaleX: selectorScaleX,
+              scaleY: selectorScaleY,
+              transformOrigin: "center center",
+            }}
             aria-label="Services"
-            className="absolute inset-x-0 bottom-[4.5svh] z-40 mx-auto flex max-w-[min(96vw,840px)] items-center justify-center gap-1.5 px-3 sm:bottom-[5vh] sm:gap-2"
+            className="absolute inset-x-0 bottom-[4.5svh] z-40 mx-auto max-w-[min(94vw,860px)] px-2 sm:bottom-[5vh]"
           >
-            {services.map((service, index) => {
-              const selected = !partnership && index === activeIndex;
-              return (
-                <button
-                  key={service.id}
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() => goToState(index)}
-                  className={`flex h-10 min-w-10 items-center justify-center rounded-full border px-3 font-mono text-[8px] font-bold uppercase tracking-[0.12em] transition-[background-color,color,border-color,width] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2 sm:h-11 sm:min-w-11 sm:px-4 sm:text-[9px] ${
-                    selected
-                      ? "border-brand-red bg-brand-red text-white"
-                      : "border-black/12 bg-white/58 text-black/45 hover:border-black/25 hover:text-black/70"
-                  }`}
-                >
-                  <span className="hidden sm:inline">{service.short}</span>
-                  <span className="sm:hidden">{service.number}</span>
-                </button>
-              );
-            })}
-            <button
-              type="button"
-              aria-pressed={partnership}
-              onClick={() => goToState(partnershipIndex)}
-              className={`flex h-10 items-center justify-center rounded-full border px-3.5 font-mono text-[8px] font-bold uppercase tracking-[0.12em] transition-[background-color,color,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2 sm:h-11 sm:px-4 sm:text-[9px] ${
-                partnership
-                  ? "border-brand-red bg-brand-red text-white"
-                  : "border-black/12 bg-white/58 text-black/45 hover:border-black/25 hover:text-black/70"
-              }`}
-            >
-              <span className="hidden sm:inline">All</span>
-              <span className="sm:hidden">+</span>
-            </button>
+            <div className="relative flex items-center justify-center gap-1 overflow-hidden rounded-full border border-white/65 bg-[radial-gradient(circle_at_18%_-20%,rgba(255,255,255,0.82),transparent_36%),linear-gradient(145deg,rgba(255,255,255,0.5),rgba(255,255,255,0.17))] p-1.5 shadow-[0_18px_50px_-28px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.86)] backdrop-blur-[14px] backdrop-saturate-150 sm:gap-1.5 sm:p-1.5 sm:backdrop-blur-[18px]">
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-6 top-px h-px bg-gradient-to-r from-transparent via-white/90 to-transparent"
+              />
+              {services.map((service, index) => {
+                const selected = !partnership && index === activeIndex;
+                return (
+                  <button
+                    key={service.id}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => goToState(index)}
+                    className={`relative flex h-9 min-w-9 items-center justify-center rounded-full border border-transparent px-2.5 font-mono text-[8px] font-bold uppercase tracking-[0.1em] transition-[background-color,color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/45 focus-visible:ring-offset-1 sm:h-10 sm:min-w-10 sm:px-3.5 sm:text-[9px] ${
+                      selected
+                        ? "scale-[1.02] bg-white/78 text-black shadow-[0_8px_22px_-14px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.96)] ring-1 ring-white/80"
+                        : "bg-white/0 text-black/44 hover:bg-white/30 hover:text-black/70"
+                    }`}
+                  >
+                    <span className="hidden sm:inline">{service.short}</span>
+                    <span className="sm:hidden">{service.number}</span>
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                aria-pressed={partnership}
+                onClick={() => goToState(partnershipIndex)}
+                className={`relative flex h-9 min-w-9 items-center justify-center rounded-full border border-transparent px-2.5 font-mono text-[8px] font-bold uppercase tracking-[0.1em] transition-[background-color,color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/45 focus-visible:ring-offset-1 sm:h-10 sm:px-3.5 sm:text-[9px] ${
+                  partnership
+                    ? "scale-[1.02] bg-white/78 text-black shadow-[0_8px_22px_-14px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.96)] ring-1 ring-white/80"
+                    : "bg-white/0 text-black/44 hover:bg-white/30 hover:text-black/70"
+                }`}
+              >
+                <span className="hidden sm:inline">All</span>
+                <span className="sm:hidden">+</span>
+              </button>
+            </div>
           </motion.nav>
         </motion.div>
       </div>
