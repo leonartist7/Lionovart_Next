@@ -4,7 +4,6 @@ import Image from "next/image";
 import {
   AnimatePresence,
   motion,
-  useInView,
   useMotionValueEvent,
   useReducedMotion,
   useScroll,
@@ -12,7 +11,6 @@ import {
 } from "framer-motion";
 import {
   useCallback,
-  useEffect,
   useRef,
   useState,
   type KeyboardEvent,
@@ -35,10 +33,30 @@ const SHOWCASE_IMAGES = [
   `${C}/v1775277350/image_19_rnwg8w.avif`,
 ];
 
-const SERVICE_VIDEO_DESKTOP =
-  "https://res.cloudinary.com/dgio9uutc/video/upload/w_1600,c_limit,f_auto,q_auto:eco/v1779845599/Footage_02_chsoa3.mp4";
-const SERVICE_VIDEO_MOBILE =
-  "https://res.cloudinary.com/dgio9uutc/video/upload/w_900,c_limit,f_auto,q_auto:eco/v1779845599/Footage_02_chsoa3.mp4";
+const SERVICE_MEDIA = {
+  branding: [
+    "https://res.cloudinary.com/dgio9uutc/image/upload/v1788597999/file_000000001c9c81fb8bd4a06f71a06689_bvbs1u.png",
+    "https://res.cloudinary.com/dgio9uutc/image/upload/v1788597999/file_00000000ab1481fb8dd9ba5c71e1aaca_rrkxkm.png",
+  ],
+  web: [
+    "https://res.cloudinary.com/dgio9uutc/image/upload/v1788597999/file_00000000e45c81fba7af87e8b7a51816_up2a1x.png",
+  ],
+  "content-studio": [
+    "https://res.cloudinary.com/dgio9uutc/image/upload/v1788598000/file_00000000f8dc81fbbe335744557355d8_ubjo6l.png",
+    "https://res.cloudinary.com/dgio9uutc/image/upload/v1788597999/file_00000000bf3881fb942a5a0baa94d39e_s6i9nr.png",
+  ],
+  print: [
+    "https://res.cloudinary.com/dgio9uutc/image/upload/v1788597999/file_00000000e62081fbbcea8b364c3f054a_kbfw2s.png",
+  ],
+  "smart-systems": [
+    "https://res.cloudinary.com/dgio9uutc/image/upload/v1788598000/file_00000000225c81fb91564ecf983dbedc_bwkdxw.png",
+    "https://res.cloudinary.com/dgio9uutc/image/upload/v1788597999/file_000000002cdc81fbad91bd28dfba9b26_izxq37.png",
+    "https://res.cloudinary.com/dgio9uutc/image/upload/v1788597999/file_00000000dc1481fb842d017383dbdf50_r7nbvn.png",
+  ],
+  growth: [
+    "https://res.cloudinary.com/dgio9uutc/image/upload/v1788597998/file_00000000a83881fb9a5978fa38c01c44_joinmm.png",
+  ],
+} as const;
 
 const SERVICE_META = [
   { id: "branding", number: "01", short: "Brand" },
@@ -59,6 +77,72 @@ const SERVICE_END = 0.92;
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
+function ServiceMediaCarousel({
+  images,
+  alt,
+}: {
+  images: readonly string[];
+  alt: string;
+}) {
+  const [mediaIndex, setMediaIndex] = useState(0);
+  const canSwipe = images.length > 1;
+  const currentImage = images[mediaIndex] ?? images[0];
+
+  if (!currentImage) return null;
+
+  const move = (direction: 1 | -1) => {
+    if (!canSwipe) return;
+    setMediaIndex((current) =>
+      (current + direction + images.length) % images.length,
+    );
+  };
+
+  return (
+    <motion.div
+      drag={canSwipe ? "x" : false}
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.055}
+      dragMomentum={false}
+      dragDirectionLock
+      dragPropagation={false}
+      onPointerDown={(event) => event.stopPropagation()}
+      onDragEnd={(_, info) => {
+        if (!canSwipe || Math.abs(info.offset.x) < 42) return;
+        move(info.offset.x < 0 ? 1 : -1);
+      }}
+      style={{
+        touchAction: "pan-y",
+        cursor: canSwipe ? "grab" : "default",
+      }}
+      className="relative h-full w-full select-none"
+      role={canSwipe ? "group" : undefined}
+      aria-label={canSwipe ? `${alt} media gallery` : undefined}
+    >
+      <AnimatePresence initial={false} mode="popLayout">
+        <motion.div
+          key={currentImage}
+          initial={{ opacity: 0, x: 14, scale: 1.012 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          exit={{ opacity: 0, x: -14, scale: 0.994 }}
+          transition={{ duration: 0.24, ease: EASE }}
+          className="absolute inset-0"
+        >
+          <Image
+            src={currentImage}
+            alt={alt}
+            fill
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+            sizes="(max-width: 1023px) 94vw, 30vw"
+            className="pointer-events-none object-cover"
+          />
+        </motion.div>
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
 function ReducedMotionExperience({
   services,
   eyebrow,
@@ -73,6 +157,7 @@ function ReducedMotionExperience({
     description: string;
     deliverables: readonly string[];
     image: string;
+    media: readonly string[];
   }>;
   eyebrow: string;
   heading: string;
@@ -143,14 +228,11 @@ export default function ExpertiseExperience() {
   const reduceMotion = useReducedMotion() ?? false;
   const openNova = useNovaStore((state) => state.openNova);
   const chapterRef = useRef<HTMLElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const wheelLockRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
   const [showOpeningCopy, setShowOpeningCopy] = useState(true);
   const [showStream, setShowStream] = useState(true);
   const [showOpeningLogo, setShowOpeningLogo] = useState(true);
-  const [serviceStageActive, setServiceStageActive] = useState(false);
-  const chapterInView = useInView(chapterRef, { margin: "180px 0px" });
 
   const services = SERVICE_META.map((meta, index) => ({
     ...meta,
@@ -159,6 +241,7 @@ export default function ExpertiseExperience() {
     deliverables:
       (t.services.items[index]?.deliverables as readonly string[] | undefined) ?? [],
     image: SHOWCASE_IMAGES[index % SHOWCASE_IMAGES.length],
+    media: SERVICE_MEDIA[meta.id],
   }));
 
   const partnershipIndex = services.length;
@@ -180,8 +263,6 @@ export default function ExpertiseExperience() {
   );
   const streamScale = useTransform(scrollYProgress, [0, 0.276], [1, 1.055]);
 
-  // The opening emblem physically lands on the selector's center line.
-  // At that exact point the glass rail expands from beneath it.
   const logoScale = useTransform(
     scrollYProgress,
     [0, 0.115, 0.225, 0.27, OPENING_END],
@@ -233,11 +314,6 @@ export default function ExpertiseExperience() {
       current === shouldShowOpeningLogo ? current : shouldShowOpeningLogo,
     );
 
-    const shouldRunServiceMedia = value > 0.29 && value < 0.975;
-    setServiceStageActive((current) =>
-      current === shouldRunServiceMedia ? current : shouldRunServiceMedia,
-    );
-
     if (value < SERVICE_START) {
       setActiveIndex((current) => (current === 0 ? current : 0));
       return;
@@ -251,17 +327,6 @@ export default function ExpertiseExperience() {
     const next = Math.round(normalized * partnershipIndex);
     setActiveIndex((current) => (current === next ? current : next));
   });
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (chapterInView && serviceStageActive && !partnership) {
-      video.play().catch(() => {});
-    } else {
-      video.pause();
-    }
-  }, [chapterInView, serviceStageActive, partnership]);
 
   const goToState = useCallback(
     (index: number, behavior: ScrollBehavior = "smooth") => {
@@ -416,19 +481,12 @@ export default function ExpertiseExperience() {
               style={{ touchAction: "pan-y" }}
               className="grid h-full grid-cols-1 items-center gap-4 lg:grid-cols-[minmax(0,0.82fr)_minmax(28rem,1.28fr)_minmax(0,0.82fr)] lg:gap-[clamp(1.5rem,3vw,4rem)]"
             >
-              <div className="relative order-1 h-[29svh] min-h-[12rem] overflow-hidden rounded-[1.2rem] border border-black/8 bg-[#111111] shadow-[0_28px_72px_-42px_rgba(0,0,0,0.42)] sm:h-[32svh] lg:h-auto lg:min-h-0 lg:aspect-[4/3] lg:rounded-[1.55rem]">
-                <video
-                  ref={videoRef}
-                  muted
-                  loop
-                  playsInline
-                  preload="metadata"
-                  className="h-full w-full object-cover"
-                >
-                  <source media="(max-width: 767px)" src={SERVICE_VIDEO_MOBILE} type="video/mp4" />
-                  <source src={SERVICE_VIDEO_DESKTOP} type="video/mp4" />
-                </video>
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/6" />
+              <div className="relative order-1 h-[29svh] min-h-[12rem] overflow-hidden rounded-[1.2rem] border border-black/8 bg-black/5 shadow-[0_28px_72px_-42px_rgba(0,0,0,0.38)] sm:h-[32svh] lg:h-auto lg:min-h-0 lg:aspect-[4/3] lg:rounded-[1.55rem]">
+                <ServiceMediaCarousel
+                  key={activeService.id}
+                  images={activeService.media}
+                  alt={`${activeService.title} service visual`}
+                />
               </div>
 
               <div className="order-2 flex min-w-0 flex-col justify-center py-1 text-center">
