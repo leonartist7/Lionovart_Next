@@ -178,4 +178,30 @@ if (run("gating")) {
   check("agency controls present for agency", present.length > 0, `found:[${present}]`);
 }
 
+/* ── demo: the unauthenticated design preview ────────────────────── */
+if (run("demo")) {
+  console.log("\n── demo (design preview) ──");
+
+  // No cookie at all: the preview must work before auth exists.
+  const anonClient = await fetch(`${BASE}/portal/demo`);
+  const anonHtml = await anonClient.text();
+  check("demo opens with no session", anonClient.status === 200, `${anonClient.status}`);
+  check("demo says it is sample data", anonHtml.includes("Design preview"));
+
+  // The client/studio split is mirrored, so the preview can't teach the wrong
+  // thing about what a client sees.
+  const studio = await (await fetch(`${BASE}/portal/demo?view=studio`)).text();
+  check(
+    "internal project hidden in demo client view",
+    !anonHtml.includes("Scope &amp; margin review") && !anonHtml.includes("Scope & margin review"),
+  );
+  check(
+    "internal project shown in demo studio view",
+    studio.includes("Scope &amp; margin review") || studio.includes("Scope & margin review"),
+  );
+
+  const internalDirect = await fetch(`${BASE}/portal/demo/projects/internal-margin`);
+  check("demo internal project 404s in client view", internalDirect.status === 404, `${internalDirect.status}`);
+}
+
 process.exit(summary() > 0 ? 1 : 0);

@@ -37,11 +37,14 @@ export function MilestoneRail({
   editable = false,
   workspaceSlug,
   projectId,
+  demo = false,
 }: {
   milestones: Milestone[];
   editable?: boolean;
   workspaceSlug?: string;
   projectId?: string;
+  /** Design preview: show the controls, but never call the API. */
+  demo?: boolean;
 }) {
   const router = useRouter();
   const toast = useToast();
@@ -50,7 +53,18 @@ export function MilestoneRail({
 
   const base = `/api/portal/${workspaceSlug}/projects/${projectId}/milestones`;
 
+  /** True when the action was swallowed because this is the design preview. */
+  function blockedByDemo() {
+    if (!demo) return false;
+    toast.add({
+      title: "Preview only",
+      description: "This is sample data — changes aren't saved.",
+    });
+    return true;
+  }
+
   async function cycleStatus(m: Milestone) {
+    if (blockedByDemo()) return;
     setBusy(m.id);
     const res = await fetch(`${base}/${m.id}`, {
       method: "PATCH",
@@ -63,6 +77,7 @@ export function MilestoneRail({
   }
 
   async function remove(m: Milestone) {
+    if (blockedByDemo()) return;
     setBusy(m.id);
     const res = await fetch(`${base}/${m.id}`, { method: "DELETE" });
     setBusy(null);
@@ -74,6 +89,7 @@ export function MilestoneRail({
   async function add(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) return;
+    if (blockedByDemo()) return;
     setBusy("add");
     const res = await fetch(base, {
       method: "POST",

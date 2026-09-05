@@ -19,6 +19,8 @@ export interface PortalShellProps {
   userName: string;
   userEmail: string;
   theme: ThemeChoice;
+  /** Design preview at /portal/demo — no real session, so no sign-out. */
+  demo?: boolean;
   children: React.ReactNode;
 }
 
@@ -36,6 +38,7 @@ export function PortalShell({
   userName,
   userEmail,
   theme,
+  demo = false,
   children,
 }: PortalShellProps) {
   const pathname = usePathname();
@@ -91,14 +94,16 @@ export function PortalShell({
             <p className="text-foreground truncate text-xs font-medium">{userName}</p>
             <p className="text-muted-foreground truncate text-[11px]">{userEmail}</p>
           </div>
-          <button
-            type="button"
-            onClick={signOut}
-            className="text-muted-foreground hover:text-foreground hover:bg-muted flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors"
-          >
-            <LogOut size={13} aria-hidden="true" />
-            Sign out
-          </button>
+          {!demo && (
+            <button
+              type="button"
+              onClick={signOut}
+              className="text-muted-foreground hover:text-foreground hover:bg-muted flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors"
+            >
+              <LogOut size={13} aria-hidden="true" />
+              Sign out
+            </button>
+          )}
         </div>
       </aside>
 
@@ -111,7 +116,7 @@ export function PortalShell({
         />
         {/* Only five sections fit in the tab bar, so everything else — and the
             theme control, which lives in Settings — is reachable from here. */}
-        <MoreMenu workspaceSlug={workspaceSlug} onSignOut={signOut} />
+        <MoreMenu workspaceSlug={workspaceSlug} onSignOut={signOut} demo={demo} />
       </header>
 
       {/* ── Content ──────────────────────────────────────────────── */}
@@ -149,9 +154,11 @@ export function PortalShell({
 function MoreMenu({
   workspaceSlug,
   onSignOut,
+  demo = false,
 }: {
   workspaceSlug: string;
   onSignOut: () => void;
+  demo?: boolean;
 }) {
   const secondary = PORTAL_NAV.filter((item) => !item.primary);
 
@@ -203,14 +210,14 @@ function MoreMenu({
                 </span>
               ),
             )}
-            <div className="bg-border my-1 h-px" />
-            <Menu.Item
+            {!demo && <div className="bg-border my-1 h-px" />}
+            {!demo && <Menu.Item
               onClick={onSignOut}
               className="data-highlighted:bg-muted text-muted-foreground flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm outline-none"
             >
               <LogOut size={16} aria-hidden="true" />
               Sign out
-            </Menu.Item>
+            </Menu.Item>}
           </Menu.Popup>
         </Menu.Positioner>
       </Menu.Portal>

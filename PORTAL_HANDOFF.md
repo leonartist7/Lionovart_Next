@@ -21,6 +21,23 @@ The portal is a **client-facing workspace**: clients are invited by the studio (
 
 ---
 
+## 1b. Design preview — no backend needed
+
+`/portal/demo` renders the real components against fixtures in
+`src/lib/portal/demo-data.ts`. It has **no auth guard because it has nothing to
+guard**: it never touches Firestore, never mints a session, and cannot mutate
+anything. It works on any deployment with zero environment configuration.
+
+- `/portal/demo` — client view
+- `/portal/demo?view=studio` — studio view, with the agency controls
+
+The two views mirror the real visibility split (an `internal` project is absent
+from the client view and 404s by direct URL), so the preview can't teach the
+wrong thing about what a client sees. `verify.mjs demo` asserts this.
+
+To take it down before launch, delete `src/app/(app)/portal/demo/` — nothing
+else imports it.
+
 ## 2. Get running in 3 commands
 
 ```bash
@@ -177,7 +194,7 @@ What actually costs context, in order:
 Verification ladder, cheapest first:
 ```bash
 npx tsc --noEmit                       # types
-node scripts/portal-verify/verify.mjs  # behaviour + security
+node scripts/portal-verify/verify.mjs  # behaviour + security (20 assertions)
 npm run build                          # before pushing
 node scripts/portal-verify/shots.mjs   # only when judging visuals
 ```
