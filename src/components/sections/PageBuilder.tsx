@@ -6,7 +6,7 @@ import BridgeStatement from "@/components/sections/BridgeStatement";
 import AboutExperience from "@/components/sections/AboutExperience";
 import WhatWeDo from "@/components/sections/WhatWeDo";
 import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
-import ExpertiseExperience from "@/components/sections/ExpertiseExperience";
+import HomepageServicesChapter from "@/components/sections/HomepageServicesChapter";
 import Comparison from "@/components/sections/Comparison";
 import ProcessExperience from "@/components/sections/ProcessExperience";
 import Testimonials from "@/components/sections/Testimonials";
@@ -51,7 +51,7 @@ export function PageBuilder() {
         <StrongTogetherTransition />
         <BridgeStatement variant="vow" />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
-        <NovaSection id="services"><ExpertiseExperience /></NovaSection>
+        <NovaSection id="services"><HomepageServicesChapter /></NovaSection>
         <SectionTitleCard word="WHY US?" theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>
 
