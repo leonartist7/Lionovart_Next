@@ -52,7 +52,6 @@ export function PageBuilder() {
         <BridgeStatement variant="vow" />
         <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
         <NovaSection id="services"><HomepageServicesChapter /></NovaSection>
-        <SectionTitleCard word="WHY US?" theme="light" />
         <NovaSection id="comparison"><Comparison /></NovaSection>
 
         {/* Narrative order: About -> Brands Elevated/results -> Process. */}
