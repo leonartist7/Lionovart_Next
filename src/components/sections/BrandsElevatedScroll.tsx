@@ -131,13 +131,20 @@ const CARDS: ElevatedCardData[] = [
   },
 ];
 
+/* Desktop now uses the same eight-card, four-row story as mobile. Rows are
+   intentionally wide apart on X and alternate their small Y lead for depth. */
 const DESKTOP_LAYOUTS: CardLayout[] = [
-  { left: "5%", top: "12%", width: "clamp(300px, 27vw, 455px)", aspectRatio: "3 / 2", yFrom: "42vh", yTo: "-110vh", xFrom: "-2vw", xTo: "2vw", rotateFrom: -0.45, rotateTo: 0.3, zIndex: 30 },
-  { left: "63%", top: "5%", width: "clamp(310px, 26vw, 445px)", aspectRatio: "3 / 2", yFrom: "50vh", yTo: "-104vh", xFrom: "2.2vw", xTo: "-1.2vw", rotateFrom: 0.4, rotateTo: -0.3, zIndex: 30 },
-  { left: "26%", top: "47%", width: "clamp(290px, 24vw, 410px)", aspectRatio: "4 / 3", yFrom: "66vh", yTo: "-95vh", xFrom: "1.2vw", xTo: "-1.8vw", rotateFrom: 0.3, rotateTo: -0.25, zIndex: 10 },
-  { left: "69%", top: "39%", width: "clamp(300px, 25vw, 425px)", aspectRatio: "3 / 2", yFrom: "72vh", yTo: "-88vh", xFrom: "-1vw", xTo: "1.7vw", rotateFrom: -0.3, rotateTo: 0.25, zIndex: 10 },
-  { left: "9%", top: "79%", width: "clamp(300px, 26vw, 440px)", aspectRatio: "3 / 2", yFrom: "88vh", yTo: "-78vh", xFrom: "-1.4vw", xTo: "1vw", rotateFrom: -0.35, rotateTo: 0.2, zIndex: 30 },
-  { left: "53%", top: "72%", width: "clamp(320px, 28vw, 470px)", aspectRatio: "3 / 2", yFrom: "92vh", yTo: "-70vh", xFrom: "1.5vw", xTo: "-1vw", rotateFrom: 0.3, rotateTo: -0.2, zIndex: 30 },
+  { left: "3%", top: "12%", width: "clamp(320px, 26vw, 470px)", aspectRatio: "3 / 2", yFrom: "0vh", yTo: "-155vh", xFrom: "-1.6vw", xTo: "1.5vw", rotateFrom: -0.35, rotateTo: 0.24, zIndex: 30 },
+  { left: "68%", top: "4%", width: "clamp(320px, 25vw, 455px)", aspectRatio: "3 / 2", yFrom: "0vh", yTo: "-148vh", xFrom: "1.6vw", xTo: "-1.4vw", rotateFrom: 0.35, rotateTo: -0.24, zIndex: 20 },
+
+  { left: "7%", top: "61%", width: "clamp(310px, 24vw, 440px)", aspectRatio: "3 / 2", yFrom: "0vh", yTo: "-145vh", xFrom: "1vw", xTo: "-1.3vw", rotateFrom: 0.26, rotateTo: -0.22, zIndex: 20 },
+  { left: "69%", top: "70%", width: "clamp(325px, 26vw, 470px)", aspectRatio: "3 / 2", yFrom: "0vh", yTo: "-138vh", xFrom: "-1vw", xTo: "1.3vw", rotateFrom: -0.28, rotateTo: 0.22, zIndex: 30 },
+
+  { left: "4%", top: "119%", width: "clamp(320px, 25vw, 455px)", aspectRatio: "3 / 2", yFrom: "0vh", yTo: "-132vh", xFrom: "-1.2vw", xTo: "1.3vw", rotateFrom: -0.3, rotateTo: 0.22, zIndex: 30 },
+  { left: "68%", top: "110%", width: "clamp(315px, 25vw, 460px)", aspectRatio: "3 / 2", yFrom: "0vh", yTo: "-126vh", xFrom: "1.2vw", xTo: "-1.2vw", rotateFrom: 0.3, rotateTo: -0.22, zIndex: 20 },
+
+  { left: "7%", top: "157%", width: "clamp(310px, 24vw, 445px)", aspectRatio: "3 / 2", yFrom: "0vh", yTo: "-118vh", xFrom: "1vw", xTo: "-1.2vw", rotateFrom: 0.26, rotateTo: -0.2, zIndex: 20 },
+  { left: "68%", top: "168%", width: "clamp(325px, 26vw, 475px)", aspectRatio: "3 / 2", yFrom: "0vh", yTo: "-112vh", xFrom: "-1vw", xTo: "1.2vw", rotateFrom: -0.28, rotateTo: 0.2, zIndex: 30 },
 ];
 
 /* Mobile: four roomy rows with a larger X gap. The Y-offset alternates in the
@@ -157,7 +164,7 @@ const MOBILE_LAYOUTS: CardLayout[] = [
   { left: "59%", top: "168%", width: "45%", aspectRatio: "4 / 5", yFrom: "0vh", yTo: "-110vh", xFrom: "-0.8vw", xTo: "1vw", rotateFrom: -0.17, rotateTo: 0.15, zIndex: 30 },
 ];
 
-const DESKTOP_CARDS = CARDS.slice(0, DESKTOP_LAYOUTS.length);
+const DESKTOP_CARDS = CARDS;
 const MOBILE_CARDS = CARDS;
 
 function ElevatedCard({
@@ -266,40 +273,31 @@ function StickyTitle({
   progress: MotionValue<number>;
   reducedMotion: boolean;
 }) {
-  /* Typography changes with the same midpoint transition as the surface. */
   const darkOpacity = useTransform(progress, [0.40, 0.58], [1, 0]);
   const lightOpacity = useTransform(progress, [0.42, 0.60], [0, 1]);
-  const desktopX = useTransform(
+  const x = useTransform(
     progress,
     [0, 1],
-    reducedMotion ? ["0vw", "0vw"] : ["1.5vw", "-1.5vw"]
+    reducedMotion ? ["0vw", "0vw"] : ["0.8vw", "-0.8vw"]
   );
 
-  const desktopTitleClass =
-    "absolute left-1/2 top-1/2 hidden w-max -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-clash text-[clamp(5rem,10.9vw,13rem)] font-semibold uppercase leading-none tracking-[-0.065em] md:block";
-  const mobileTitleClass =
-    "absolute left-1/2 top-1/2 w-[72vw] max-w-[24rem] -translate-x-1/2 -translate-y-1/2 text-center font-clash text-[clamp(2.65rem,13.5vw,4.8rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em] md:hidden";
+  const titleClass =
+    "absolute left-1/2 top-1/2 w-[76vw] max-w-[30rem] -translate-x-1/2 -translate-y-1/2 font-clash text-[clamp(2.8rem,14.8vw,5rem)] font-semibold uppercase leading-[0.78] tracking-[-0.06em] md:w-[68vw] md:max-w-none md:text-[clamp(5rem,8.8vw,10.5rem)] lg:w-[62vw]";
 
-  const mobileWords = (
+  const words = (
     <>
-      <span className="block">Brands</span>
-      <span className="block">Elevated</span>
+      <span className="block text-left">Brands</span>
+      <span className="mt-[0.08em] block text-right">Elevated</span>
     </>
   );
 
   return (
     <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden" aria-hidden="true">
-      <motion.div className={`${desktopTitleClass} text-[#171412]`} style={{ opacity: darkOpacity, x: desktopX }}>
-        Brands Elevated
+      <motion.div className={`${titleClass} text-[#171412]`} style={{ opacity: darkOpacity, x }}>
+        {words}
       </motion.div>
-      <motion.div className={`${desktopTitleClass} text-white`} style={{ opacity: lightOpacity, x: desktopX }}>
-        Brands Elevated
-      </motion.div>
-      <motion.div className={`${mobileTitleClass} text-[#171412]`} style={{ opacity: darkOpacity }}>
-        {mobileWords}
-      </motion.div>
-      <motion.div className={`${mobileTitleClass} text-white`} style={{ opacity: lightOpacity }}>
-        {mobileWords}
+      <motion.div className={`${titleClass} text-white`} style={{ opacity: lightOpacity, x }}>
+        {words}
       </motion.div>
     </div>
   );
@@ -315,8 +313,8 @@ export default function BrandsElevatedScroll() {
     offset: ["start start", "end end"],
   });
 
-  /* First half matches About exactly. Transition starts as the second mobile
-     row passes, then reaches the exact testimonial black around 60%. */
+  /* Shared on every breakpoint: first half is the exact About off-white;
+     transition begins as row two passes and reaches testimonial black by 60%. */
   const blackOpacity = useTransform(scrollYProgress, [0, 0.42, 0.60, 1], [0, 0, 1, 1]);
   const introOpacity = useTransform(scrollYProgress, [0, 0.08, 0.22], [1, 1, 0]);
 
