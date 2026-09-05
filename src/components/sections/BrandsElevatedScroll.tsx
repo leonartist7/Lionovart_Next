@@ -11,7 +11,14 @@ import {
 import styles from "./BrandsElevatedScroll.module.css";
 
 const IMG = "/images/Testimonials/";
-const encodeAsset = (path: string) => encodeURI(path);
+
+/* Encode each path segment so spaces and ampersands in testimonial folders
+   resolve reliably on every browser/device. */
+const encodeAsset = (path: string) =>
+  path
+    .split("/")
+    .map((segment) => (segment ? encodeURIComponent(segment) : ""))
+    .join("/");
 
 type ElevatedCardData = {
   id: string;
@@ -133,18 +140,21 @@ const DESKTOP_LAYOUTS: CardLayout[] = [
   { left: "53%", top: "72%", width: "clamp(320px, 28vw, 470px)", aspectRatio: "3 / 2", yFrom: "92vh", yTo: "-70vh", xFrom: "1.5vw", xTo: "-1vw", rotateFrom: 0.3, rotateTo: -0.2, zIndex: 30 },
 ];
 
-/* Mobile begins with the original two rows around the centered title.
-   The extra rows live below the viewport and enter later, so the opening
-   composition stays clean while the scroll runway remains visually occupied. */
+/* Mobile: four roomy rows with a larger X gap. The Y-offset alternates in the
+   inverted pattern requested: R high, L high, R high, L high. Extra rows stay
+   below the opening viewport and enter later in the scroll. */
 const MOBILE_LAYOUTS: CardLayout[] = [
-  { left: "0%", top: "5%", width: "48%", aspectRatio: "4 / 5", yFrom: "0vh", yTo: "-150vh", xFrom: "-1vw", xTo: "1.1vw", rotateFrom: -0.18, rotateTo: 0.14, zIndex: 30 },
-  { left: "52%", top: "14%", width: "46%", aspectRatio: "4 / 5", yFrom: "0vh", yTo: "-142vh", xFrom: "1vw", xTo: "-1vw", rotateFrom: 0.18, rotateTo: -0.14, zIndex: 20 },
-  { left: "3%", top: "64%", width: "47%", aspectRatio: "4 / 5", yFrom: "0vh", yTo: "-142vh", xFrom: "0.8vw", xTo: "-1vw", rotateFrom: 0.14, rotateTo: -0.16, zIndex: 20 },
-  { left: "52%", top: "74%", width: "46%", aspectRatio: "4 / 5", yFrom: "0vh", yTo: "-136vh", xFrom: "-0.8vw", xTo: "1vw", rotateFrom: -0.16, rotateTo: 0.14, zIndex: 30 },
-  { left: "-1%", top: "111%", width: "49%", aspectRatio: "4 / 5", yFrom: "0vh", yTo: "-125vh", xFrom: "-1vw", xTo: "1.1vw", rotateFrom: -0.17, rotateTo: 0.16, zIndex: 30 },
-  { left: "52%", top: "121%", width: "47%", aspectRatio: "4 / 5", yFrom: "0vh", yTo: "-118vh", xFrom: "1vw", xTo: "-1vw", rotateFrom: 0.18, rotateTo: -0.16, zIndex: 20 },
-  { left: "4%", top: "154%", width: "46%", aspectRatio: "4 / 5", yFrom: "0vh", yTo: "-108vh", xFrom: "0.8vw", xTo: "-1vw", rotateFrom: 0.14, rotateTo: -0.15, zIndex: 20 },
-  { left: "53%", top: "164%", width: "48%", aspectRatio: "4 / 5", yFrom: "0vh", yTo: "-104vh", xFrom: "-0.8vw", xTo: "1vw", rotateFrom: -0.17, rotateTo: 0.15, zIndex: 30 },
+  { left: "-3%", top: "10%", width: "46%", aspectRatio: "4 / 5", yFrom: "0vh", yTo: "-150vh", xFrom: "-1.2vw", xTo: "1.1vw", rotateFrom: -0.18, rotateTo: 0.14, zIndex: 30 },
+  { left: "58%", top: "3%", width: "45%", aspectRatio: "4 / 5", yFrom: "0vh", yTo: "-142vh", xFrom: "1.2vw", xTo: "-1vw", rotateFrom: 0.18, rotateTo: -0.14, zIndex: 20 },
+
+  { left: "-2%", top: "61%", width: "47%", aspectRatio: "4 / 5", yFrom: "0vh", yTo: "-142vh", xFrom: "0.8vw", xTo: "-1vw", rotateFrom: 0.14, rotateTo: -0.16, zIndex: 20 },
+  { left: "59%", top: "69%", width: "44%", aspectRatio: "4 / 5", yFrom: "0vh", yTo: "-136vh", xFrom: "-0.8vw", xTo: "1vw", rotateFrom: -0.16, rotateTo: 0.14, zIndex: 30 },
+
+  { left: "-3%", top: "118%", width: "46%", aspectRatio: "4 / 5", yFrom: "0vh", yTo: "-127vh", xFrom: "-1vw", xTo: "1.1vw", rotateFrom: -0.17, rotateTo: 0.16, zIndex: 30 },
+  { left: "58%", top: "109%", width: "46%", aspectRatio: "4 / 5", yFrom: "0vh", yTo: "-120vh", xFrom: "1vw", xTo: "-1vw", rotateFrom: 0.18, rotateTo: -0.16, zIndex: 20 },
+
+  { left: "-2%", top: "158%", width: "46%", aspectRatio: "4 / 5", yFrom: "0vh", yTo: "-116vh", xFrom: "0.8vw", xTo: "-1vw", rotateFrom: 0.14, rotateTo: -0.15, zIndex: 20 },
+  { left: "59%", top: "168%", width: "45%", aspectRatio: "4 / 5", yFrom: "0vh", yTo: "-110vh", xFrom: "-0.8vw", xTo: "1vw", rotateFrom: -0.17, rotateTo: 0.15, zIndex: 30 },
 ];
 
 const DESKTOP_CARDS = CARDS.slice(0, DESKTOP_LAYOUTS.length);
@@ -178,7 +188,18 @@ function ElevatedCard({
       aria-label={`${card.name}. ${active ? "Hide" : "Show"} client result`}
       onClick={onToggle}
       className="group absolute overflow-hidden rounded-[18px] text-left shadow-[0_26px_70px_-34px_rgba(0,0,0,0.55)] outline-none ring-1 ring-black/[0.08] transition-[box-shadow] duration-300 focus-visible:ring-2 focus-visible:ring-brand-red md:rounded-[22px]"
-      style={{ left: layout.left, top: layout.top, width: layout.width, aspectRatio: layout.aspectRatio, y, x, rotate, scale, zIndex: layout.zIndex, willChange: reducedMotion ? undefined : "transform" }}
+      style={{
+        left: layout.left,
+        top: layout.top,
+        width: layout.width,
+        aspectRatio: layout.aspectRatio,
+        y,
+        x,
+        rotate,
+        scale,
+        zIndex: layout.zIndex,
+        willChange: reducedMotion ? undefined : "transform",
+      }}
     >
       <img
         src={encodeAsset(card.image)}
@@ -187,24 +208,30 @@ function ElevatedCard({
         draggable={false}
         loading="lazy"
         decoding="async"
-        className={`absolute inset-0 h-full w-full object-cover transition-[transform,filter,opacity] duration-500 ease-out motion-safe:group-hover:scale-[1.025] ${active ? "scale-[1.015] brightness-[0.38] saturate-[0.78]" : "brightness-[0.92]"}`}
+        className={`absolute inset-0 h-full w-full object-cover transition-[transform,filter,opacity] duration-500 ease-out motion-safe:group-hover:scale-[1.025] ${
+          active ? "scale-[1.015] brightness-[0.38] saturate-[0.78]" : "brightness-[0.92]"
+        }`}
       />
 
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-black/10" />
 
-      {/* No logo card/pill: the asset sits directly on the photography. */}
-      <div className="absolute left-3 top-3 z-20 max-w-[68%] md:left-4 md:top-4 md:max-w-[60%]">
+      {/* Logo only — transparent asset directly over photography, centered. */}
+      <div className="absolute left-1/2 top-3 z-20 max-w-[72%] -translate-x-1/2 md:top-4 md:max-w-[64%]">
         <img
           src={encodeAsset(card.logo)}
           alt={`${card.name} logo`}
           draggable={false}
           loading="lazy"
           decoding="async"
-          className="h-5 w-auto max-w-[112px] object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] sm:h-6 sm:max-w-[126px] md:h-7 md:max-w-[145px]"
+          className="h-5 w-auto max-w-[116px] object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.62)] sm:h-6 sm:max-w-[132px] md:h-7 md:max-w-[150px]"
         />
       </div>
 
-      <div className={`absolute inset-0 z-10 flex flex-col justify-end p-4 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:p-5 lg:p-6 ${active ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-3 opacity-0"}`}>
+      <div
+        className={`absolute inset-0 z-10 flex flex-col justify-end p-4 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:p-5 lg:p-6 ${
+          active ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-3 opacity-0"
+        }`}
+      >
         <div className="max-w-[34rem]">
           {card.statKind === "estimated" && (
             <p className="mb-1 font-clash text-[8px] font-bold uppercase tracking-[0.2em] text-white/55 md:text-[9px]">Est. impact</p>
@@ -232,22 +259,48 @@ function ElevatedCard({
   );
 }
 
-function StickyTitle({ progress, reducedMotion }: { progress: MotionValue<number>; reducedMotion: boolean }) {
-  const lightOpacity = useTransform(progress, [0.18, 0.46], [0, 1]);
-  const darkOpacity = useTransform(progress, [0.12, 0.42], [1, 0]);
-  const desktopX = useTransform(progress, [0, 1], reducedMotion ? ["0vw", "0vw"] : ["1.5vw", "-1.5vw"]);
+function StickyTitle({
+  progress,
+  reducedMotion,
+}: {
+  progress: MotionValue<number>;
+  reducedMotion: boolean;
+}) {
+  /* Typography changes with the same midpoint transition as the surface. */
+  const darkOpacity = useTransform(progress, [0.40, 0.58], [1, 0]);
+  const lightOpacity = useTransform(progress, [0.42, 0.60], [0, 1]);
+  const desktopX = useTransform(
+    progress,
+    [0, 1],
+    reducedMotion ? ["0vw", "0vw"] : ["1.5vw", "-1.5vw"]
+  );
 
-  const desktopTitleClass = "absolute left-1/2 top-1/2 hidden w-max -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-clash text-[clamp(5rem,10.9vw,13rem)] font-semibold uppercase leading-none tracking-[-0.065em] md:block";
-  const mobileTitleClass = "absolute left-1/2 top-1/2 w-[72vw] max-w-[24rem] -translate-x-1/2 -translate-y-1/2 text-center font-clash text-[clamp(2.65rem,13.5vw,4.8rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em] text-white md:hidden";
+  const desktopTitleClass =
+    "absolute left-1/2 top-1/2 hidden w-max -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-clash text-[clamp(5rem,10.9vw,13rem)] font-semibold uppercase leading-none tracking-[-0.065em] md:block";
+  const mobileTitleClass =
+    "absolute left-1/2 top-1/2 w-[72vw] max-w-[24rem] -translate-x-1/2 -translate-y-1/2 text-center font-clash text-[clamp(2.65rem,13.5vw,4.8rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em] md:hidden";
+
+  const mobileWords = (
+    <>
+      <span className="block">Brands</span>
+      <span className="block">Elevated</span>
+    </>
+  );
 
   return (
     <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden" aria-hidden="true">
-      <motion.div className={`${desktopTitleClass} text-[#171412]`} style={{ opacity: darkOpacity, x: desktopX }}>Brands Elevated</motion.div>
-      <motion.div className={`${desktopTitleClass} text-white`} style={{ opacity: lightOpacity, x: desktopX }}>Brands Elevated</motion.div>
-      <div className={mobileTitleClass}>
-        <span className="block">Brands</span>
-        <span className="block">Elevated</span>
-      </div>
+      <motion.div className={`${desktopTitleClass} text-[#171412]`} style={{ opacity: darkOpacity, x: desktopX }}>
+        Brands Elevated
+      </motion.div>
+      <motion.div className={`${desktopTitleClass} text-white`} style={{ opacity: lightOpacity, x: desktopX }}>
+        Brands Elevated
+      </motion.div>
+      <motion.div className={`${mobileTitleClass} text-[#171412]`} style={{ opacity: darkOpacity }}>
+        {mobileWords}
+      </motion.div>
+      <motion.div className={`${mobileTitleClass} text-white`} style={{ opacity: lightOpacity }}>
+        {mobileWords}
+      </motion.div>
     </div>
   );
 }
@@ -257,17 +310,25 @@ export default function BrandsElevatedScroll() {
   const reducedMotion = Boolean(useReducedMotion());
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
-  const blackOpacity = useTransform(scrollYProgress, [0.04, 0.58, 0.88, 1], [0, 0.96, 1, 1]);
-  const introOpacity = useTransform(scrollYProgress, [0, 0.08, 0.2], [1, 1, 0]);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end end"],
+  });
+
+  /* First half matches About exactly. Transition starts as the second mobile
+     row passes, then reaches the exact testimonial black around 60%. */
+  const blackOpacity = useTransform(scrollYProgress, [0, 0.42, 0.60, 1], [0, 0, 1, 1]);
+  const introOpacity = useTransform(scrollYProgress, [0, 0.08, 0.22], [1, 1, 0]);
 
   useEffect(() => {
     if (!activeId) return;
+
     const closeOnScroll = () => setActiveId(null);
     const closeOnOutsidePointer = (event: PointerEvent) => {
       const target = event.target as HTMLElement | null;
       if (!target?.closest(`[data-elevated-card="${activeId}"]`)) setActiveId(null);
     };
+
     window.addEventListener("scroll", closeOnScroll, { passive: true });
     window.addEventListener("pointerdown", closeOnOutsidePointer);
     return () => {
@@ -279,15 +340,25 @@ export default function BrandsElevatedScroll() {
   return (
     <div
       ref={sectionRef}
-      className={`relative w-full bg-[#0a0a0a] md:bg-[#f7f4ef] ${reducedMotion ? "min-h-[135svh]" : "h-[215svh] md:h-[285svh] lg:h-[300svh]"}`}
+      className={`relative w-full ${reducedMotion ? "min-h-[140svh]" : "h-[230svh] md:h-[285svh] lg:h-[300svh]"}`}
+      style={{
+        background:
+          "linear-gradient(to bottom, #f7f4ef 0%, #f7f4ef 42%, #0a0a0a 62%, #0a0a0a 100%)",
+      }}
       aria-label="Brands elevated — selected client results"
     >
-      {/* 100dvh follows mobile browser chrome. The black parent beneath it
-          prevents the light strip that 100svh exposed when the viewport grew. */}
-      <div className="sticky top-0 h-[100dvh] min-h-[100svh] overflow-hidden bg-[#0a0a0a] md:bg-[#f7f4ef]">
-        <motion.div className="pointer-events-none absolute inset-0 hidden bg-[#0a0a0a] md:block" style={{ opacity: blackOpacity }} aria-hidden="true" />
+      <div className="sticky top-0 h-[100dvh] min-h-[100svh] overflow-hidden bg-[#f7f4ef]">
+        <motion.div
+          className="pointer-events-none absolute inset-0 bg-[#0a0a0a]"
+          style={{ opacity: blackOpacity }}
+          aria-hidden="true"
+        />
 
-        <motion.div className="pointer-events-none absolute left-4 top-[max(1rem,4vh)] z-40 hidden max-w-[18rem] sm:left-6 md:block md:left-10 md:top-10" style={{ opacity: introOpacity }} aria-hidden="true">
+        <motion.div
+          className="pointer-events-none absolute left-4 top-[max(1rem,4vh)] z-40 hidden max-w-[18rem] sm:left-6 md:block md:left-10 md:top-10"
+          style={{ opacity: introOpacity }}
+          aria-hidden="true"
+        >
           <p className="font-clash text-[9px] font-bold uppercase tracking-[0.25em] text-black/55 md:text-[10px]">Selected proof</p>
           <p className="mt-2 font-body text-xs leading-relaxed text-black/55 md:text-sm">People, brands, and outcomes — elevated together.</p>
         </motion.div>
