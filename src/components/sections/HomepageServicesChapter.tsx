@@ -138,8 +138,8 @@ function ServiceMediaCarousel({
             loading="lazy"
             decoding="async"
             draggable={false}
-            sizes="(max-width: 1023px) 94vw, 30vw"
-            className="pointer-events-none object-cover"
+            sizes="(max-width: 1023px) 92vw, 30vw"
+            className="pointer-events-none object-contain"
           />
         </motion.div>
       </AnimatePresence>
@@ -154,6 +154,7 @@ export default function HomepageServicesChapter() {
   const chapterRef = useRef<HTMLElement>(null);
   const wheelLockRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [showIntro, setShowIntro] = useState(true);
 
   const services = SERVICE_META.map((meta, index) => ({
     ...meta,
@@ -248,6 +249,9 @@ export default function HomepageServicesChapter() {
   );
 
   useMotionValueEvent(scrollYProgress, "change", (value) => {
+    const shouldShowIntro = value < INTRO_END + 0.006;
+    setShowIntro((current) => (current === shouldShowIntro ? current : shouldShowIntro));
+
     if (value < SERVICE_START) {
       setActiveIndex((current) => (current === 0 ? current : 0));
       return;
@@ -395,18 +399,20 @@ export default function HomepageServicesChapter() {
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_76%,rgba(229,25,42,0.04),transparent_36%)]"
         />
 
-        <motion.header
-          style={{ opacity: introOpacity, y: introY }}
-          className="pointer-events-none absolute inset-x-0 top-1/2 z-30 mx-auto -translate-y-1/2 px-5 text-center sm:px-8"
-        >
-          <p className="font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-brand-red sm:text-[11px]">
-            {t.services.eyebrow}
-          </p>
-          <h2 className="mx-auto mt-4 max-w-[10ch] font-clash text-[clamp(3.2rem,10vw,7.4rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em]">
-            {t.services.heading}{" "}
-            <span className="text-brand-red">{t.services.headingAccent}</span>
-          </h2>
-        </motion.header>
+        {showIntro && (
+          <motion.header
+            style={{ opacity: introOpacity, y: introY }}
+            className="pointer-events-none absolute inset-x-0 top-1/2 z-30 mx-auto -translate-y-1/2 px-5 text-center sm:px-8"
+          >
+            <p className="font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-brand-red sm:text-[11px]">
+              {t.services.eyebrow}
+            </p>
+            <h2 className="mx-auto mt-4 max-w-[10ch] font-clash text-[clamp(3.2rem,10vw,7.4rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em]">
+              {t.services.heading}{" "}
+              <span className="text-brand-red">{t.services.headingAccent}</span>
+            </h2>
+          </motion.header>
+        )}
 
         <motion.div
           style={{ opacity: serviceOpacity, y: serviceY }}
@@ -426,9 +432,9 @@ export default function HomepageServicesChapter() {
                 goToService(activeIndex + (info.offset.x < 0 ? 1 : -1));
               }}
               style={{ touchAction: "pan-y" }}
-              className="grid h-full grid-cols-1 grid-rows-[minmax(13rem,32svh)_auto] content-center items-center gap-4 sm:grid-rows-[minmax(14rem,34svh)_auto] sm:gap-5 lg:grid-cols-[minmax(0,0.82fr)_minmax(28rem,1.28fr)_minmax(0,0.82fr)] lg:grid-rows-1 lg:gap-[clamp(1.5rem,3vw,4rem)]"
+              className="grid h-full grid-cols-1 grid-rows-[auto_auto] content-center items-center gap-4 sm:gap-5 lg:grid-cols-[minmax(0,0.82fr)_minmax(28rem,1.28fr)_minmax(0,0.82fr)] lg:grid-rows-1 lg:gap-[clamp(1.5rem,3vw,4rem)]"
             >
-              <div className="relative order-1 h-full min-h-0 overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:h-auto lg:aspect-[4/3] lg:rounded-[1.55rem]">
+              <div className="relative order-1 mx-auto aspect-video w-full max-w-[min(92vw,760px)] overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:max-w-none lg:rounded-[1.55rem]">
                 <ServiceMediaCarousel
                   key={activeService.id}
                   images={activeService.media}
@@ -465,7 +471,7 @@ export default function HomepageServicesChapter() {
                 </AnimatePresence>
               </div>
 
-              <div className="relative order-3 hidden aspect-[4/3] overflow-hidden rounded-[1.55rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_28px_72px_-42px_rgba(0,0,0,0.3)] lg:block">
+              <div className="relative order-3 hidden aspect-video w-full overflow-hidden rounded-[1.55rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:block">
                 <AnimatePresence initial={false} mode="popLayout">
                   <motion.div
                     key={activeService.image}
@@ -481,7 +487,7 @@ export default function HomepageServicesChapter() {
                       fill
                       loading="lazy"
                       sizes="30vw"
-                      className="object-cover"
+                      className="object-contain"
                     />
                   </motion.div>
                 </AnimatePresence>
