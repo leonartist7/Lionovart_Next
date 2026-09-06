@@ -138,7 +138,7 @@ function ServiceMediaCarousel({
             loading="lazy"
             decoding="async"
             draggable={false}
-            sizes="(max-width: 1023px) 92vw, 30vw"
+            sizes="(max-width: 1023px) 92vw, 64svh"
             className="pointer-events-none object-contain"
           />
         </motion.div>
@@ -162,7 +162,6 @@ export default function HomepageServicesChapter() {
     description: t.services.items[index]?.description ?? "",
     deliverables:
       (t.services.items[index]?.deliverables as readonly string[] | undefined) ?? [],
-    image: SHOWCASE_IMAGES[index % SHOWCASE_IMAGES.length],
     media: SERVICE_MEDIA[meta.id],
   }));
 
@@ -432,9 +431,9 @@ export default function HomepageServicesChapter() {
                 goToService(activeIndex + (info.offset.x < 0 ? 1 : -1));
               }}
               style={{ touchAction: "pan-y" }}
-              className="grid h-full grid-cols-1 grid-rows-[auto_auto] content-center items-center gap-4 sm:gap-5 lg:grid-cols-[minmax(0,0.82fr)_minmax(28rem,1.28fr)_minmax(0,0.82fr)] lg:grid-rows-1 lg:gap-[clamp(1.5rem,3vw,4rem)]"
+              className="flex h-full flex-col items-center justify-center gap-7 sm:gap-9 lg:gap-[clamp(2.75rem,5.5svh,5rem)]"
             >
-              <div className="relative order-1 mx-auto aspect-video w-full max-w-[min(92vw,760px)] overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:max-w-none lg:rounded-[1.55rem]">
+              <div className="relative order-1 aspect-video w-[min(92vw,61svh)] overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:w-[min(70vw,64svh)] lg:rounded-[1.55rem]">
                 <ServiceMediaCarousel
                   key={activeService.id}
                   images={activeService.media}
@@ -454,10 +453,10 @@ export default function HomepageServicesChapter() {
                     <h3 className="mx-auto max-w-[13ch] font-clash text-[clamp(2.15rem,8.6vw,3.75rem)] font-semibold uppercase leading-[0.86] tracking-[-0.052em] sm:text-[clamp(2.45rem,7.5vw,4.5rem)] lg:max-w-[11ch] lg:text-[clamp(3.2rem,5vw,6.2rem)]">
                       {activeService.title}
                     </h3>
-                    <p className="mx-auto mt-3 max-w-[36ch] font-body text-[13px] font-medium leading-[1.52] text-black/60 sm:mt-4 sm:text-[15px] lg:mt-5 lg:max-w-[38ch] lg:text-[18px] lg:leading-[1.62]">
+                    <p className="mx-auto mt-4 max-w-[36ch] font-body text-[13px] font-medium leading-[1.52] text-black/60 sm:mt-5 sm:text-[15px] lg:mt-6 lg:max-w-[38ch] lg:text-[18px] lg:leading-[1.62]">
                       {activeService.description}
                     </p>
-                    <div className="mx-auto mt-4 flex max-h-[4.6rem] max-w-[38rem] flex-wrap justify-center gap-1.5 overflow-hidden sm:mt-5 sm:max-h-none sm:gap-2 lg:mt-6 lg:max-w-[40rem]">
+                    <div className="mx-auto mt-5 flex max-h-[4.6rem] max-w-[38rem] flex-wrap justify-center gap-1.5 overflow-hidden sm:mt-6 sm:max-h-none sm:gap-2 lg:mt-7 lg:max-w-[40rem]">
                       {activeService.deliverables.map((item) => (
                         <span
                           key={item}
@@ -471,31 +470,6 @@ export default function HomepageServicesChapter() {
                 </AnimatePresence>
               </div>
 
-              <div className="relative order-3 hidden aspect-video w-full overflow-hidden rounded-[1.55rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:block">
-                <AnimatePresence initial={false} mode="popLayout">
-                  <motion.div
-                    key={activeService.image}
-                    initial={{ opacity: 0, scale: 1.018 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.99 }}
-                    transition={{ duration: 0.28, ease: EASE }}
-                    className="absolute inset-0"
-                  >
-                    <Image
-                      src={activeService.image}
-                      alt={`${activeService.title} selected work`}
-                      fill
-                      loading="lazy"
-                      sizes="30vw"
-                      className="object-contain"
-                    />
-                  </motion.div>
-                </AnimatePresence>
-                <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/30" />
-                <div className="absolute bottom-5 left-5 font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-white drop-shadow-md">
-                  Selected work / {activeService.short}
-                </div>
-              </div>
             </motion.div>
           </div>
         </motion.div>
