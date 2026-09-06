@@ -69,7 +69,7 @@ const SERVICE_META = [
 ] as const;
 
 const EASE = [0.16, 1, 0.3, 1] as const;
-const OPENING_COPY_END = 0.205;
+const OPENING_COPY_END = 0.03;
 const OPENING_END = 0.292;
 const STREAM_UNMOUNT = 0.294;
 const SERVICE_START = 0.31;
@@ -254,8 +254,10 @@ export default function ExpertiseExperience() {
     offset: ["start start", "end end"],
   });
 
-  const titleOpacity = useTransform(scrollYProgress, [0, 0.075, 0.185], [1, 1, 0]);
-  const titleY = useTransform(scrollYProgress, [0, 0.19], [0, -58]);
+  // Clear the opening title on the first deliberate scroll so it does not
+  // read like a persistent label over the image-stream reveal.
+  const titleOpacity = useTransform(scrollYProgress, [0, 0.004, 0.024], [1, 1, 0]);
+  const titleY = useTransform(scrollYProgress, [0, OPENING_COPY_END], [0, -96]);
 
   const streamOpacity = useTransform(
     scrollYProgress,
