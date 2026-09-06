@@ -96,6 +96,14 @@ const clamp01 = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v);
  * Everything that touches `window` / `document` runs in init() or later, never
  * in the constructor, so the module is safe to import anywhere.
  */
+/**
+ * The optical reference the page's layout is authored against. `halfH` is
+ * derived from these, never from the live camera: chapter camera moves must not
+ * shift where the copy-safe column sits or where the closing crest lands.
+ */
+const BASE_DIST = 4.8;
+const BASE_FOV = 42;
+
 export class LionExperience {
   private canvas: HTMLCanvasElement;
   private renderer!: THREE.WebGLRenderer;
@@ -149,6 +157,9 @@ export class LionExperience {
   private screenWorld = new THREE.Vector3();
   private pointerStrength = { value: 0 };
   private camOffset = new THREE.Vector2(0, 0);
+  /** Eased camera pose; the target is authored per chapter in chapters.ts. */
+  private camPose = { dist: BASE_DIST, height: 0.05, lookY: 0, fov: BASE_FOV };
+  private camPoseTarget = { dist: BASE_DIST, height: 0.05, lookY: 0, fov: BASE_FOV };
 
   private opts: {
     maxParticles: number;
@@ -201,6 +212,19 @@ export class LionExperience {
   }
 
   /** Normalized screen coords (x right, y down) to a point on the z=0 plane. */
+  /**
+   * Authored camera position for the current chapter. Pointer parallax and idle
+   * sway are added on top of this in the render loop, so a chapter composes the
+   * shot and the interaction layer stays additive.
+   */
+  setCameraPose(pose: Partial<{ dist: number; height: number; lookY: number; fov: number }>): void {
+    if (pose.dist !== undefined) this.camPoseTarget.dist = pose.dist;
+    if (pose.height !== undefined) this.camPoseTarget.height = pose.height;
+    if (pose.lookY !== undefined) this.camPoseTarget.lookY = pose.lookY;
+    if (pose.fov !== undefined) this.camPoseTarget.fov = pose.fov;
+    this.activeUntil = performance.now() + 700;
+  }
+
   private toWorld(nx: number, ny: number): THREE.Vector3 {
     const halfW = this.halfH * this.camera.aspect;
     return this.screenWorld.set(nx * halfW, -ny * this.halfH, 0);
@@ -857,14 +881,26 @@ export class LionExperience {
     this.camOffset.x += (this.pointer.x * 0.22 - this.camOffset.x) * 0.045;
     this.camOffset.y += (this.pointer.y * 0.14 - this.camOffset.y) * 0.045;
     const idleSway = Math.sin(t * 0.24) * 0.03;
-    const immersive = THREE.MathUtils.smoothstep(m, 0.12, 0.28)
-      * (1 - THREE.MathUtils.smoothstep(m, 0.34, 0.50));
+
+    // Ease toward the chapter's authored pose. Frame-rate independent, and
+    // softer than the morph ease so a camera move reads as a move rather than
+    // as a cut when the user flicks the scrollbar.
+    const camK = 1 - Math.exp(-5 * dt);
+    this.camPose.dist += (this.camPoseTarget.dist - this.camPose.dist) * camK;
+    this.camPose.height += (this.camPoseTarget.height - this.camPose.height) * camK;
+    this.camPose.lookY += (this.camPoseTarget.lookY - this.camPose.lookY) * camK;
+    this.camPose.fov += (this.camPoseTarget.fov - this.camPose.fov) * camK;
+
+    if (Math.abs(this.camera.fov - this.camPose.fov) > 0.01) {
+      this.camera.fov = this.camPose.fov;
+      this.camera.updateProjectionMatrix();
+    }
     this.camera.position.set(
       this.camOffset.x,
-      0.05 + this.camOffset.y + idleSway,
-      4.8 - immersive * 1.45,
+      this.camPose.height + this.camOffset.y + idleSway,
+      this.camPose.dist,
     );
-    this.camera.lookAt(0, 0, 0);
+    this.camera.lookAt(0, this.camPose.lookY, 0);
 
     // The crown breathes; the energy current moves entirely in-shader.
     if (this.points) {
@@ -872,8 +908,15 @@ export class LionExperience {
       this.points.rotation.y = (this.yawProbe + Math.sin(t * 0.1) * 0.07) * (1 - m);
       // Centred and lifted so the crown has space beside the hero promise.
       const halfW = this.halfH * this.camera.aspect;
-      this.points.position.x = this.layout * halfW;
-      this.points.position.y = (this.halfH * 0.22) * (1 - THREE.MathUtils.smoothstep(m, 0.04, 0.18));
+      // Screen-stable composition. A perspective camera projects world x as
+      // x/dist, so a world-space offset drifts toward centre whenever the
+      // camera pulls back. Scaling the offset by the distance ratio keeps the
+      // form pinned where it was composed, which is what makes the copy-safe
+      // column actually safe while chapters dolly.
+      const distRatio = this.camPose.dist / BASE_DIST;
+      this.points.position.x = this.layout * halfW * distRatio;
+      this.points.position.y =
+        (this.halfH * 0.22) * (1 - THREE.MathUtils.smoothstep(m, 0.04, 0.18)) * distRatio;
       // Always drawn: the same population becomes the ambient current for the
       // middle sections rather than handing off to another canvas.
       this.points.visible = true;
@@ -976,7 +1019,7 @@ export class LionExperience {
 
     // Half the visible height at the z=0 plane. Everything laid out against the
     // viewport (the ribbon, the graph, the CTA target) is measured in these units.
-    this.halfH = Math.tan((this.camera.fov * Math.PI) / 360) * this.camera.position.z;
+    this.halfH = Math.tan((BASE_FOV * Math.PI) / 360) * BASE_DIST;
 
     if (!this.opts.animate && this.material) this.renderOnce();
   }

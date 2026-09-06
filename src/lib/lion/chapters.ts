@@ -21,6 +21,21 @@ export interface StoryState {
   bloom: number;
 }
 
+/**
+ * Where the camera sits for a chapter. `dist`/`height` place it, `lookY` aims
+ * it, `fov` sets the lens. Pointer parallax and idle sway are added on top by
+ * the engine, so these values compose the shot and nothing else.
+ *
+ * Layout units are measured against a fixed optical base (see BASE_DIST in
+ * LionExperience), so moving the camera never shifts the copy-safe column.
+ */
+export interface CameraPose {
+  dist: number;
+  height: number;
+  lookY: number;
+  fov: number;
+}
+
 /** Values the ledger needs that do not come from scroll position. */
 export interface ChapterContext {
   /** Index of the selected system in the tabbed chapter. */
@@ -37,6 +52,12 @@ export interface ChapterDef {
   end: string;
   /** Story state for local progress `t` in 0..1. */
   resolve(t: number, ctx: ChapterContext): Partial<StoryState>;
+  /**
+   * The shot for this chapter. Every chapter must express a distinct spatial
+   * relationship: approach, withdraw, push, rise, settle. Six dolly-ins at the
+   * same centre are not six scenes.
+   */
+  camera?(t: number, ctx: ChapterContext): Partial<CameraPose>;
 }
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -98,6 +119,17 @@ export const CHAPTERS: ChapterDef[] = [
       layout: 0.46,
       bloom: 0,
     }),
+    // ARRIVAL: start low and close, looking up at the assembled form, then rise
+    // to level as the promise is read. The viewer meets it before they read it.
+    camera: (t) => ({
+      // Kept gentle on purpose: a closer, narrower opening shot magnified the
+      // crown enough to crop it against the right edge and crowd the promise.
+      dist: lerp(4.6, 4.8, t),
+      height: lerp(-0.14, 0.05, t),
+      lookY: lerp(0.1, 0, t),
+      // Ends on the bridge's 42 so the seam between chapters is continuous.
+      fov: lerp(41, 42, t),
+    }),
   },
   {
     id: "bridge",
@@ -109,6 +141,12 @@ export const CHAPTERS: ChapterDef[] = [
       layout: bridgeLayout(t),
       bloom: 0,
     }),
+    // The immersive push. This used to be derived from morph inside the render
+    // loop; it is authored here so the shot is readable and tunable as data.
+    camera: (t) => {
+      const push = Math.sin(clamp01(t) * Math.PI);
+      return { dist: 4.8 - push * 1.45, height: 0.05, lookY: 0, fov: 42 };
+    },
   },
   {
     id: "systems",
@@ -120,6 +158,17 @@ export const CHAPTERS: ChapterDef[] = [
       const state = SYSTEM_STATES[ctx.activeSystem] ?? SYSTEM_STATES[0];
       return { morph: state.morph, layout: state.layout, bloom: 0 };
     },
+    // The tab is click-driven, so morph is flat across this whole section. The
+    // camera carries the scroll instead: a slow, continuous push that keeps the
+    // world alive while the reader works through the four systems.
+    camera: (t) => ({
+      dist: lerp(4.8, 4.24, t),
+      height: lerp(0.05, 0.1, t),
+      // Ends on the flow chapter's -0.1 so the tilt begins before the seam
+      // rather than snapping across it.
+      lookY: lerp(0, -0.1, t),
+      fov: 42,
+    }),
   },
   {
     id: "flow",
@@ -127,6 +176,8 @@ export const CHAPTERS: ChapterDef[] = [
     start: "top 82%",
     end: "bottom 20%",
     resolve: (t) => ({ morph: lerp(0.68, 0.76, t), layout: -0.44, bloom: 0 }),
+    // Rise and look down: the flow reads as something laid out beneath you.
+    camera: (t) => ({ dist: lerp(4.24, 4.62, t), height: lerp(0.1, 0.3, t), lookY: -0.1, fov: 42 }),
   },
   {
     id: "process",
@@ -134,6 +185,8 @@ export const CHAPTERS: ChapterDef[] = [
     start: "top 82%",
     end: "bottom 20%",
     resolve: (t) => ({ morph: lerp(0.76, 1, t), layout: 0.44, bloom: 0 }),
+    // Settle back to level as the delivery ledger is read.
+    camera: (t) => ({ dist: lerp(4.62, 4.34, t), height: lerp(0.3, 0.08, t), lookY: lerp(-0.1, 0, t), fov: 42 }),
   },
   {
     id: "offers",
@@ -142,6 +195,10 @@ export const CHAPTERS: ChapterDef[] = [
     // Ends before the closing chapter starts so ownership never overlaps.
     end: "bottom 92%",
     resolve: () => ({ morph: 1, layout: -0.44, bloom: 0 }),
+    // The longest dead stretch on the page: morph is pinned at 1 for roughly
+    // 4.6 viewports. A slow withdrawal gives the offers, guarantee and industry
+    // list a moving world to sit in without competing with the copy.
+    camera: (t) => ({ dist: lerp(4.34, 6.4, t), height: lerp(0.08, 0.02, t), lookY: 0, fov: 42 }),
   },
   {
     id: "close",
@@ -149,5 +206,8 @@ export const CHAPTERS: ChapterDef[] = [
     start: "top 92%",
     end: "bottom bottom",
     resolve: (t) => ({ morph: 1, layout: 0, bloom: Math.min(t / 0.6, 1) }),
+    // Approach for the decision. A slightly longer lens compresses the crest
+    // against the panel so the last frame is the strongest one.
+    camera: (t) => ({ dist: lerp(6.4, 4.55, t), height: 0.02, lookY: 0, fov: lerp(42, 39, t) }),
   },
 ];
