@@ -157,7 +157,6 @@ export default function BrandsElevatedScrollV2() {
   /* Symmetric midpoint transition: the second row passes during the switch,
      with equal visual weight on the off-white and black halves. */
   const black = useTransform(scrollYProgress, [0, 0.45, 0.55, 1], [0, 0, 1, 1]);
-  const intro = useTransform(scrollYProgress, [0, 0.08, 0.2], [1, 1, 0]);
 
   useEffect(() => {
     if (!activeId) return;
@@ -183,10 +182,6 @@ export default function BrandsElevatedScrollV2() {
     >
       <div className="sticky top-0 h-[100dvh] min-h-[100svh] overflow-hidden bg-[#f7f4ef]">
         <motion.div className="pointer-events-none absolute inset-0 bg-[#0a0a0a]" style={{ opacity: black }} aria-hidden />
-        <motion.div className="pointer-events-none absolute left-4 top-[max(1rem,4vh)] z-40 hidden max-w-[18rem] sm:left-6 md:block md:left-10 md:top-10" style={{ opacity: intro }} aria-hidden>
-          <p className="font-clash text-[9px] font-bold uppercase tracking-[0.25em] text-black/55 md:text-[10px]">Selected proof</p>
-          <p className="mt-2 font-body text-xs leading-relaxed text-black/55 md:text-sm">People, brands, and outcomes — elevated together.</p>
-        </motion.div>
         <Title progress={scrollYProgress} reduced={reduced} />
         <div className={`absolute inset-0 z-10 hidden md:block ${styles.cardPlane}`}>
           {CARDS.map((card, i) => <ProofCard key={card.id} card={card} layout={DESKTOP[i]} progress={scrollYProgress} active={activeId === card.id} toggle={() => setActiveId((v) => v === card.id ? null : card.id)} reduced={reduced} />)}

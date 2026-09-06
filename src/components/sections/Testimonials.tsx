@@ -432,6 +432,7 @@ export default function Testimonials(
 
               <div className="pointer-events-none absolute inset-y-0 left-0 w-1/12 bg-gradient-to-r from-bg-brand-black to-transparent lg:w-1/6" />
               <div className="pointer-events-none absolute inset-y-0 right-0 w-1/12 bg-gradient-to-l from-bg-brand-black to-transparent" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[28%] bg-gradient-to-t from-bg-brand-black via-bg-brand-black/75 to-transparent" />
             </div>
           </div>
 
