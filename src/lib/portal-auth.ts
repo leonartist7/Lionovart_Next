@@ -130,6 +130,68 @@ export async function requireMembership(
   return access;
 }
 
+/**
+ * Same as `getWorkspaceAccess`, but keyed by the slug that appears in portal
+ * URLs. One indexed query — slugs are unique (see the workspaces route).
+ */
+export async function getWorkspaceAccessBySlug(
+  session: PortalSession,
+  slug: string,
+): Promise<WorkspaceAccess | null> {
+  if (!adminDb) return null;
+
+  const snap = await adminDb
+    .collection("workspaces")
+    .where("slug", "==", slug)
+    .limit(1)
+    .get();
+  if (snap.empty) return null;
+
+  const doc = snap.docs[0];
+  const workspace = { id: doc.id, ...doc.data() } as Workspace;
+
+  const membership: Membership | undefined = session.isAgency
+    ? {
+        role: "agency",
+        email: session.email,
+        name: session.name,
+        addedAt: workspace.createdAt,
+      }
+    : workspace.members?.[session.uid];
+
+  if (!membership) return null;
+  return { session, workspace, membership };
+}
+
+/**
+ * Guard for workspace-scoped routes addressed by slug:
+ *   const access = await requireWorkspace(req, slug, "agency");
+ *   if (access instanceof NextResponse) return access;
+ *
+ * 404 covers both "no such workspace" and "not a member" so the portal never
+ * confirms another client's workspace exists.
+ */
+export async function requireWorkspace(
+  req: NextRequest,
+  slug: string,
+  minimumRole: PortalRole = "viewer",
+): Promise<WorkspaceAccess | NextResponse> {
+  const session = await requirePortal(req);
+  if (session instanceof NextResponse) return session;
+
+  const access = await getWorkspaceAccessBySlug(session, slug);
+  if (!access) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  if (!roleAtLeast(access.membership.role, minimumRole)) {
+    return NextResponse.json(
+      { error: "You don't have permission to do that." },
+      { status: 403 },
+    );
+  }
+  return access;
+}
+
 /** Every workspace the signed-in user can open, newest first. */
 export async function listWorkspacesForSession(
   session: PortalSession,

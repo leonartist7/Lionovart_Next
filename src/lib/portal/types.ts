@@ -70,9 +70,11 @@ export interface Project {
   status: "planning" | "active" | "review" | "delivered" | "on_hold";
   startAt?: string;
   dueAt?: string;
-  /** 0–100, derived from milestones. */
+  /** 0–100, derived from milestones — never stored as an editable number. */
   progress: number;
   coverUrl?: string;
+  /** `internal` projects are filtered out server-side for every non-agency member. */
+  visibility: "client" | "internal";
   createdAt: string;
 }
 

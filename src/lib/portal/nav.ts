@@ -1,3 +1,4 @@
+import type { ProjectKind } from "@/lib/portal/types";
 import {
   CalendarDays,
   FolderOpen,
@@ -46,7 +47,7 @@ export const PORTAL_NAV: PortalNavItem[] = [
     label: "Projects",
     shortLabel: "Work",
     icon: FolderOpen,
-    ready: false,
+    ready: true,
     primary: true,
   },
   {
@@ -104,6 +105,45 @@ export const PORTAL_NAV: PortalNavItem[] = [
     primary: false,
   },
 ];
+
+/**
+ * Sections that only make sense for certain engagements.
+ *
+ * A brand-identity client has no use for a Content tab, and a permanently
+ * empty section is worse than an absent one — it reads as something broken
+ * rather than something irrelevant. Agency staff always see everything,
+ * because they are the ones who set the engagement up.
+ *
+ * Only genuinely conditional sections belong here. Everything else is
+ * relevant to every client and stays unconditional.
+ */
+const KIND_GATED: Partial<Record<string, ProjectKind[]>> = {
+  content: ["content", "marketing"],
+};
+
+/**
+ * Ids of the sections one engagement actually needs.
+ *
+ * Returns **ids, not items** — nav items carry an `icon`, which is a React
+ * component, and functions cannot cross the server→client boundary. The server
+ * decides which sections apply; the client resolves them back to items with
+ * `navItemsFor`.
+ */
+export function visibleNavIds(
+  projectKinds: readonly ProjectKind[],
+  isAgency: boolean,
+): string[] {
+  return PORTAL_NAV.filter((item) => {
+    if (isAgency) return true;
+    const required = KIND_GATED[item.id];
+    return !required || required.some((k) => projectKinds.includes(k));
+  }).map((item) => item.id);
+}
+
+/** Client-side counterpart to `visibleNavIds`, preserving PORTAL_NAV's order. */
+export function navItemsFor(ids: readonly string[]): PortalNavItem[] {
+  return PORTAL_NAV.filter((item) => ids.includes(item.id));
+}
 
 export function navHref(workspaceSlug: string, segment: string): string {
   return segment ? `/portal/${workspaceSlug}/${segment}` : `/portal/${workspaceSlug}`;

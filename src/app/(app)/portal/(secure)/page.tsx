@@ -26,17 +26,55 @@ export default async function PortalIndexPage() {
   if (workspaces.length === 1) redirect(`/portal/${workspaces[0].slug}`);
 
   if (workspaces.length === 0) {
+    // Agency staff and clients hit this for opposite reasons, and telling a
+    // studio member to "check your invitation" sends them nowhere — they are
+    // the person who creates the workspace.
     return (
       <main className="flex min-h-dvh items-center justify-center px-5 py-16">
         <div className="w-full max-w-md">
-          <h1 className="font-heading text-foreground text-2xl leading-tight font-bold tracking-[-0.02em]">
-            No workspace yet
-          </h1>
-          <p className="text-muted-foreground mt-3 text-[15px] leading-relaxed">
-            You&apos;re signed in as {session.email}, but there&apos;s no workspace
-            attached to this account. If you were expecting one, check that you
-            used the address the invitation was sent to.
-          </p>
+          <div className="mb-8 flex items-center gap-2.5">
+            <span className="bg-primary size-2 rounded-full" />
+            <span className="font-heading text-foreground text-xs font-semibold tracking-[0.28em] uppercase">
+              Lionovart
+            </span>
+          </div>
+
+          {session.isAgency ? (
+            <>
+              <h1 className="font-heading text-foreground text-2xl leading-tight font-bold tracking-[-0.02em]">
+                No client workspaces yet
+              </h1>
+              <p className="text-muted-foreground mt-3 text-[15px] leading-relaxed">
+                You&apos;re signed in as {session.email} with studio access. Create the
+                first workspace in the console, then invite the client to it.
+              </p>
+              <Link
+                href="/admin/portal"
+                className="bg-primary text-primary-foreground focus-visible:ring-primary/50 mt-7 inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-transform duration-150 ease-out active:scale-[0.985] focus-visible:ring-3 focus-visible:outline-none"
+              >
+                Open the console
+                <ArrowRight size={15} aria-hidden="true" />
+              </Link>
+              <p className="text-muted-foreground mt-6 text-sm">
+                Want to see the design first?{" "}
+                <Link href="/portal/demo" className="text-foreground underline underline-offset-4">
+                  Open the preview
+                </Link>
+                .
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="font-heading text-foreground text-2xl leading-tight font-bold tracking-[-0.02em]">
+                No workspace yet
+              </h1>
+              <p className="text-muted-foreground mt-3 text-[15px] leading-relaxed">
+                You&apos;re signed in as {session.email}, but there&apos;s no workspace
+                attached to this account. If you were expecting one, check that you
+                used the address the invitation was sent to.
+              </p>
+            </>
+          )}
         </div>
       </main>
     );

@@ -5,10 +5,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import { Menu } from "@base-ui/react/menu";
 import { LogOut, MoreHorizontal } from "lucide-react";
-import { PORTAL_NAV, isNavActive, navHref } from "@/lib/portal/nav";
+import { isNavActive, navHref, navItemsFor, type PortalNavItem } from "@/lib/portal/nav";
 import type { ThemeChoice } from "@/lib/portal/theme";
 import { ThemeToggle } from "@/components/portal/ThemeToggle";
 import { WorkspaceSwitcher, type WorkspaceOption } from "@/components/portal/WorkspaceSwitcher";
+import { ToastProvider, Toaster } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 
 export interface PortalShellProps {
@@ -18,6 +19,10 @@ export interface PortalShellProps {
   userName: string;
   userEmail: string;
   theme: ThemeChoice;
+  /** Section ids this engagement needs, decided on the server by `visibleNavIds`. */
+  navIds: string[];
+  /** Design preview at /portal/demo — no real session, so no sign-out. */
+  demo?: boolean;
   children: React.ReactNode;
 }
 
@@ -35,12 +40,16 @@ export function PortalShell({
   userName,
   userEmail,
   theme,
+  navIds,
+  demo = false,
   children,
 }: PortalShellProps) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const primary = PORTAL_NAV.filter((item) => item.primary);
+  // Icons are React components, so only ids cross the boundary — resolved here.
+  const nav = navItemsFor(navIds);
+  const primary = nav.filter((item) => item.primary);
 
   async function signOut() {
     await fetch("/api/portal/session", { method: "DELETE" });
@@ -48,6 +57,7 @@ export function PortalShell({
   }
 
   return (
+    <ToastProvider>
     <div className="flex min-h-dvh flex-col md:flex-row">
       {/* ── Desktop rail ─────────────────────────────────────────── */}
       <aside className="border-border bg-sidebar hidden w-[248px] shrink-0 flex-col border-r md:sticky md:top-0 md:flex md:h-dvh">
@@ -71,7 +81,7 @@ export function PortalShell({
         </div>
 
         <nav aria-label="Workspace" className="flex flex-1 flex-col gap-0.5 px-3">
-          {PORTAL_NAV.map((item) => (
+          {nav.map((item) => (
             <RailItem
               key={item.id}
               item={item}
@@ -89,14 +99,16 @@ export function PortalShell({
             <p className="text-foreground truncate text-xs font-medium">{userName}</p>
             <p className="text-muted-foreground truncate text-[11px]">{userEmail}</p>
           </div>
-          <button
-            type="button"
-            onClick={signOut}
-            className="text-muted-foreground hover:text-foreground hover:bg-muted flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors"
-          >
-            <LogOut size={13} aria-hidden="true" />
-            Sign out
-          </button>
+          {!demo && (
+            <button
+              type="button"
+              onClick={signOut}
+              className="text-muted-foreground hover:text-foreground hover:bg-muted flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors"
+            >
+              <LogOut size={13} aria-hidden="true" />
+              Sign out
+            </button>
+          )}
         </div>
       </aside>
 
@@ -109,7 +121,7 @@ export function PortalShell({
         />
         {/* Only five sections fit in the tab bar, so everything else — and the
             theme control, which lives in Settings — is reachable from here. */}
-        <MoreMenu workspaceSlug={workspaceSlug} onSignOut={signOut} />
+        <MoreMenu nav={nav} workspaceSlug={workspaceSlug} onSignOut={signOut} demo={demo} />
       </header>
 
       {/* ── Content ──────────────────────────────────────────────── */}
@@ -124,8 +136,11 @@ export function PortalShell({
       {/* ── Mobile tab bar ───────────────────────────────────────── */}
       <nav
         aria-label="Workspace"
-        className="portal-glass border-border fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t md:hidden"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        className="portal-glass border-border fixed inset-x-0 bottom-0 z-30 grid border-t md:hidden"
+        style={{
+          paddingBottom: "env(safe-area-inset-bottom)",
+          gridTemplateColumns: `repeat(${primary.length}, minmax(0, 1fr))`,
+        }}
       >
         {primary.map((item) => (
           <TabItem
@@ -136,19 +151,26 @@ export function PortalShell({
           />
         ))}
       </nav>
+
+      <Toaster />
     </div>
+    </ToastProvider>
   );
 }
 
 /** Secondary navigation for mobile, where the tab bar only holds five items. */
 function MoreMenu({
+  nav,
   workspaceSlug,
   onSignOut,
+  demo = false,
 }: {
+  nav: PortalNavItem[];
   workspaceSlug: string;
   onSignOut: () => void;
+  demo?: boolean;
 }) {
-  const secondary = PORTAL_NAV.filter((item) => !item.primary);
+  const secondary = nav.filter((item) => !item.primary);
 
   return (
     <Menu.Root>
@@ -198,14 +220,14 @@ function MoreMenu({
                 </span>
               ),
             )}
-            <div className="bg-border my-1 h-px" />
-            <Menu.Item
+            {!demo && <div className="bg-border my-1 h-px" />}
+            {!demo && <Menu.Item
               onClick={onSignOut}
               className="data-highlighted:bg-muted text-muted-foreground flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm outline-none"
             >
               <LogOut size={16} aria-hidden="true" />
               Sign out
-            </Menu.Item>
+            </Menu.Item>}
           </Menu.Popup>
         </Menu.Positioner>
       </Menu.Portal>
@@ -218,7 +240,7 @@ function RailItem({
   workspaceSlug,
   pathname,
 }: {
-  item: (typeof PORTAL_NAV)[number];
+  item: PortalNavItem;
   workspaceSlug: string;
   pathname: string;
 }) {
@@ -273,7 +295,7 @@ function TabItem({
   workspaceSlug,
   pathname,
 }: {
-  item: (typeof PORTAL_NAV)[number];
+  item: PortalNavItem;
   workspaceSlug: string;
   pathname: string;
 }) {
