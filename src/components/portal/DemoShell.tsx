@@ -3,6 +3,8 @@ import { PortalShell } from "@/components/portal/PortalShell";
 import { DemoBanner } from "@/components/portal/DemoBanner";
 import { DEMO_AGENCY, DEMO_CLIENT, DEMO_WORKSPACE, type DemoView } from "@/lib/portal/demo-data";
 import { PORTAL_THEME_COOKIE, resolveThemeChoice } from "@/lib/portal/theme";
+import { visibleNavIds } from "@/lib/portal/nav";
+import { demoProjects } from "@/lib/portal/demo-data";
 
 /**
  * Wraps a demo page in the real app frame.
@@ -23,6 +25,10 @@ export async function DemoShell({
   const cookieStore = await cookies();
   const theme = resolveThemeChoice(cookieStore.get(PORTAL_THEME_COOKIE)?.value);
   const who = view === "studio" ? DEMO_AGENCY : DEMO_CLIENT;
+  const navIds = visibleNavIds(
+    [...new Set(demoProjects(view).map((p) => p.kind))],
+    view === "studio",
+  );
 
   return (
     <PortalShell
@@ -32,6 +38,7 @@ export async function DemoShell({
       userName={who.name}
       userEmail={who.email}
       theme={theme}
+      navIds={navIds}
       demo
     >
       <DemoBanner view={view} path={path} />

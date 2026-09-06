@@ -1,8 +1,25 @@
 # 🦁 Client Portal — Handoff & Working Agreement
 
-**Read this before touching anything under `src/app/(app)/portal`, `src/app/api/portal`, `src/components/portal`, or `src/lib/portal`.**
+**Start here.** This is the entry point for any session working on the client portal. It exists so a new chat is productive in minutes instead of re-deriving the architecture. Everything here is established fact about this codebase, not suggestion.
 
-It exists so a new session can be productive in minutes instead of re-deriving the architecture. Everything here is established fact about this codebase, not suggestion.
+## 📚 The three documents
+
+| Read | For |
+|---|---|
+| **`PORTAL_HANDOFF.md`** ← you are here | State, setup, the rules that must not break, patterns to copy, model split |
+| **`PORTAL_DESIGN.md`** | How it must look and feel. **Read before writing any UI.** Concrete decisions, not adjectives |
+| **`PORTAL_PAGES.md`** | Per-page specs for every screen still marked "Soon" |
+
+## 🚀 Starting a new chat
+
+Paste this:
+
+> Read `PORTAL_HANDOFF.md`, then `PORTAL_DESIGN.md`, then the relevant section of `PORTAL_PAGES.md`.
+> Build **[page name]**. Follow the patterns in §4, the design system, and the page spec.
+> Run `node scripts/portal-verify/verify.mjs` before pushing — it must stay green, and your new
+> surface needs its own assertions. Escalate anything in the "Escalate to Opus" list in §5.
+
+Then confirm the environment is up (§2) before writing code. If `verify.mjs` is red *before* you change anything, fix that first — you are not the cause and you shouldn't build on it.
 
 ---
 
@@ -12,6 +29,7 @@ It exists so a new session can be productive in minutes instead of re-deriving t
 |---|---|
 | **1 — Foundation** | ✅ merged (PR #63) — route groups, portal theming, auth, invites, app shell |
 | **2 — Projects** | ✅ built (PR #65) — projects, milestones, derived progress, agency authoring |
+| **2b — Adaptive nav** | ✅ sections a client has no use for are absent, not empty (`visibleNavIds`) |
 | **3 — Board / Calendar / Assets** | ⬜ next |
 | **4 — Collaboration** | ⬜ threads, pin-on-image annotation, approvals, realtime |
 | **5 — Content / WhatsApp** | ⬜ composer, approvals, adapters |
@@ -72,7 +90,7 @@ NEXT_PUBLIC_FIREBASE_APP_ID=1:000000000000:web:0000000000000000000000
 
 ---
 
-## 3. The five rules that must not break
+## 3. The six rules that must not break
 
 These are the ones where being wrong is **silent** — the app looks fine and is wrong.
 
@@ -85,7 +103,9 @@ These are the ones where being wrong is **silent** — the app looks fine and is
 
 4. **Never touch the marketing site.** `src/app/(site)/` and `src/components/sections/` are a separately-tuned, motion-heavy surface. The portal lives in `src/app/(app)/`. If a change seems to require editing `(site)`, stop and ask.
 
-5. **Every `layoutId` needs a `useId()` suffix.** Two instances of a component sharing a Framer `layoutId` make the indicator fly across the screen. This already bit us once — see `ThemeToggle.tsx`.
+5. **Nav items never cross the server→client boundary.** They carry `icon`, a React component, and functions cannot be serialised into a client component. The server sends **ids** (`visibleNavIds`); the client resolves them (`navItemsFor`). Same trap applies to anything else holding a function or a class instance.
+
+6. **Every `layoutId` needs a `useId()` suffix.** Two instances of a component sharing a Framer `layoutId` make the indicator fly across the screen. This already bit us once — see `ThemeToggle.tsx`.
 
 ---
 
@@ -113,7 +133,7 @@ if (access instanceof NextResponse) return access;
 **UI primitives available:** button, accordion, dialog, select, field, input, textarea, progress, badge, toast.
 **Not yet built** (add only when a screen actually needs one): drawer, popover, tooltip, tabs, checkbox, switch, scroll-area, avatar, skeleton. Base UI ships all of them — see `node_modules/@base-ui/react/<name>/index.d.ts` for part names.
 
-**Design constraints:** mobile-first (clients are on phones); `PRODUCT.md` forbids the generic-SaaS look — no floating cards, pastel gradients or hero-metric dashboards. Black/red/gold, Clash Display headings, DM Sans body. Red is the accent and stays **scarce** — it marks work in flight, not every chip.
+**Design:** see **`PORTAL_DESIGN.md`** — the thesis, type and spacing scales, composition skeleton, motion values, the signature interactions, the forbidden list, and the per-screen checklist. Read it before writing UI; "make it premium" is not a spec and produces the opposite.
 
 ---
 

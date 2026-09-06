@@ -178,6 +178,37 @@ if (run("gating")) {
   check("agency controls present for agency", present.length > 0, `found:[${present}]`);
 }
 
+/* ── nav: sections a client has no use for are absent ────────────── */
+if (run("nav")) {
+  console.log("\n── adaptive nav ──");
+  const fx = await setupWorkspace("Verify Nav");
+  const api = `${BASE}/api/portal/${fx.slug}/projects`;
+
+  // A brand-only engagement: Content is irrelevant to this client.
+  await fetch(api, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ name: "Identity", kind: "brand" }),
+  });
+
+  const brandOnly = await pageSource(`/portal/${fx.slug}`, fx.clientCookie);
+  check("Content tab absent for a brand-only client", !brandOnly.html.includes(">Content</span>"));
+  check("core tabs still present", brandOnly.html.includes(">Projects</span>"));
+
+  // Agency always sees everything — they set the engagement up.
+  const asAgency = await pageSource(`/portal/${fx.slug}`, fx.agencyCookie);
+  check("Content tab present for agency", asAgency.html.includes(">Content</span>"));
+
+  // Add a content project and it becomes relevant to the client too.
+  await fetch(api, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ name: "Social", kind: "content" }),
+  });
+  const withContent = await pageSource(`/portal/${fx.slug}`, fx.clientCookie);
+  check("Content tab appears once a content project exists", withContent.html.includes(">Content</span>"));
+}
+
 /* ── demo: the unauthenticated design preview ────────────────────── */
 if (run("demo")) {
   console.log("\n── demo (design preview) ──");
