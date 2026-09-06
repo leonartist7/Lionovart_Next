@@ -38,13 +38,17 @@ export default function FAQ(props: FAQProps) {
   }));
 
   return (
-    <section ref={ref} id="faq" className="bg-bg-brand-black pb-14 pt-8 sm:pb-16 sm:pt-10 lg:pb-24 lg:pt-14">
-      <div className="mx-auto grid max-w-[1240px] gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-20 lg:px-8">
+    <section
+      ref={ref}
+      id="faq"
+      className="bg-bg-brand-black py-12 sm:py-14 lg:py-16"
+    >
+      <div className="mx-auto grid max-w-[1180px] gap-8 px-5 sm:px-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.7fr)] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-16 lg:px-8">
         {/* Header */}
         <div className="relative z-40 order-1 lg:col-start-1 lg:row-start-1">
           <SplitTextReveal
             as="h2"
-            className="text-[clamp(5rem,13vw,10rem)] font-bold uppercase leading-[0.8] tracking-[-0.045em] text-text-main"
+            className="text-[clamp(4.5rem,11vw,8.5rem)] font-bold uppercase leading-[0.8] tracking-[-0.045em] text-text-main"
             step={18}
             delay={120}
             from="center"
@@ -53,24 +57,24 @@ export default function FAQ(props: FAQProps) {
           </SplitTextReveal>
         </div>
 
-        {/* Accordion */}
+        {/* Accordion — intentionally flat/editorial: no raised cards or neumorphic shadows. */}
         <motion.div
-          initial={prefersReducedMotion ? false : { opacity: 0, y: 40 }}
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 28 }}
           animate={prefersReducedMotion || isInView ? { opacity: 1, y: 0 } : {}}
-          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6, delay: 0.2, ease: "easeOut" }}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.5, delay: 0.15, ease: "easeOut" }}
           className="relative z-40 order-2 w-full lg:col-start-1 lg:row-start-2 lg:self-start"
         >
-          <Accordion className="flex flex-col gap-4">
+          <Accordion className="border-t border-white/[0.10]">
             {FAQS.map((faq: { id: string; question: string; answer: string }) => (
               <AccordionItem
                 key={faq.id}
                 value={faq.id}
-                className="overflow-hidden rounded-[20px] bg-bg-brand-black px-6 py-2 shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_16px_rgba(255,255,255,0.03)] ring-1 ring-white/[0.02] data-[state=open]:ring-brand-red/30 transition-all duration-300"
+                className="border-b border-white/[0.10] bg-transparent px-0 transition-colors duration-200 data-[state=open]:border-brand-red/35"
               >
-                <AccordionTrigger className="text-left text-[17px] font-semibold leading-[1.2] text-text-main normal-case tracking-tight hover:no-underline py-4 pr-2 sm:text-[18px] lg:py-5 lg:text-[19px]">
+                <AccordionTrigger className="min-h-14 py-3.5 pr-2 text-left text-[16px] font-semibold leading-[1.25] tracking-tight text-text-main normal-case hover:no-underline sm:min-h-[58px] sm:text-[17px] lg:text-[18px]">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="max-w-[60ch] pb-5 pr-12 text-[15px] leading-[1.55] text-text-muted sm:text-base lg:pb-6">
+                <AccordionContent className="max-w-[62ch] pb-4 pr-10 text-[14px] leading-[1.55] text-text-muted sm:text-[15px] lg:pb-4">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
@@ -78,11 +82,11 @@ export default function FAQ(props: FAQProps) {
           </Accordion>
         </motion.div>
 
-        {/* Nova promo — full right column, top-aligned with the wordmark */}
+        {/* Nova promo — restrained surface, aligned with the FAQ rather than floating above it. */}
         <motion.div
-          initial={prefersReducedMotion ? false : { opacity: 0, y: 40 }}
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 28 }}
           animate={prefersReducedMotion || isInView ? { opacity: 1, y: 0 } : {}}
-          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6, delay: 0.35, ease: "easeOut" }}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.5, delay: 0.25, ease: "easeOut" }}
           className="relative z-40 order-3 w-full lg:col-start-2 lg:row-start-1 lg:row-span-2"
         >
           <AssistantCard />
