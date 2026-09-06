@@ -56,7 +56,7 @@ const SYSTEMS = [
     eyebrow: "Capture & Convert",
     title: "Every opportunity gets answered.",
     lead: "Helpful, on-brand responses. At any hour.",
-    body: "Voice and chat agents welcome every customer in your language and your tone, answer what they need, qualify the opportunity and take the next useful action—without adding another tool for your team to babysit.",
+    body: "Voice and chat agents welcome every customer in your language and your tone, answer what they need, qualify the opportunity and take the next useful action, without adding another tool for your team to babysit.",
     capabilities: [
       "Phone, chat and missed-call recovery",
       "Appointments, reservations and estimates",
@@ -107,7 +107,7 @@ const SYSTEMS = [
     eyebrow: "See & Scale",
     title: "See the next move before it costs you.",
     lead: "The business finally speaks in one clear voice.",
-    body: "Customer, sales, marketing and operational signals become timely decisions—revealing where revenue leaks, where demand is growing and what deserves your attention now.",
+    body: "Customer, sales, marketing and operational signals become timely decisions. You see where revenue leaks, where demand is growing and what deserves your attention now.",
     capabilities: [
       "Live performance and attribution dashboards",
       "Retention, reviews and customer reactivation",
@@ -268,7 +268,7 @@ export function AiFlow() {
           <Heading>Four systems. One clear advantage.</Heading>
           <p className="mt-7 max-w-[50ch] text-[18px] font-light leading-[1.68] text-white/80 md:text-[20px]">
             Not four disconnected products. One custom operating system that shares context across
-            conversations, decisions and recurring work—so every improvement makes the next one stronger.
+            conversations, decisions and recurring work, so every improvement makes the next one stronger.
           </p>
 
           <div className="relative mt-14 md:mt-18">
@@ -391,7 +391,7 @@ export function AiProcess() {
           <Heading>You get the result. We run the complexity.</Heading>
           <p className="mt-7 max-w-[49ch] text-[18px] font-light leading-[1.68] text-white/80 md:text-[20px]">
             No tool maze. No unfinished handoff. Lionovart stays responsible for strategy,
-            implementation, integration and continuous improvement—from the first blueprint onward.
+            implementation, integration and continuous improvement, from the first blueprint onward.
           </p>
         </div>
 
@@ -436,14 +436,14 @@ const OFFERS = [
     title: "Solve the problem costing you most.",
     blurb: "Begin with one high-impact system, measure the value it returns, and create the foundation for everything that follows.",
     items: ["Opportunity blueprint", "Custom system build", "Integrations and testing", "Team handoff and launch"],
-    cta: "Find Your Highest-ROI System",
+    cta: "Book the systems audit",
   },
   {
     kind: "Connected partnership",
     title: "Build the business behind the vision.",
     blurb: "Connect multiple functions into one intelligent platform, then keep it trained, measured and improving as your company grows.",
     items: ["Multi-system architecture", "Custom dashboards", "Continuous optimization", "Priority strategy and support"],
-    cta: "Find Your Highest-ROI System",
+    cta: "Talk through the full system",
   },
 ] as const;
 
@@ -527,19 +527,20 @@ export function AiOffers() {
               className="font-light leading-none tracking-[-0.07em] text-[var(--ai-cyan)]"
               style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(4.5rem, 10vw, 8rem)" }}
             >
-              5h
+              No.
             </span>
             <div>
               <h3
                 className="text-[24px] font-normal tracking-[-0.025em] text-white md:text-[31px]"
                 style={{ fontFamily: "var(--font-ai-display)" }}
               >
-                The 5-Hour-Back Guarantee
+                Sometimes the answer is no.
               </h3>
               <p className="mt-4 max-w-[52ch] text-[17px] font-light leading-[1.68] text-white/78 md:text-[18px]">
-                Reclaim at least five verified team hours every week within 60 days—or we continue
-                optimizing without a management fee until the agreed target is reached. From there,
-                we keep working toward 10+ hours returned and measurable business value.
+                The audit measures where your team&apos;s hours actually go. That number becomes the
+                baseline we are held to, and it comes from your business rather than our brochure.
+                If the case is not there, we will tell you and we will not build it. A system you
+                do not need is the most expensive thing we could sell you.
               </p>
             </div>
           </div>

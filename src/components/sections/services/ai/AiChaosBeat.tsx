@@ -20,19 +20,19 @@ const CHAPTERS = [
   {
     eyebrow: "The hidden cost",
     title: "Your team is doing work your systems should handle.",
-    body: "Calls wait. Leads cool down. Information gets copied between tools. The cost is not only time—it is the opportunity that disappears while everyone stays busy.",
+    body: "Calls wait. Leads cool down. Information gets copied between tools. The cost is not only time. It is the opportunity that disappears while everyone stays busy.",
     side: "left",
   },
   {
     eyebrow: "The turning point",
     title: "When the noise clears, the opportunity appears.",
-    body: "Every conversation, task and customer signal becomes visible in one place. Intelligence starts by understanding the full picture—and knowing what should happen next.",
+    body: "Every conversation, task and customer signal becomes visible in one place. Intelligence starts by understanding the full picture, and knowing what should happen next.",
     side: "right",
   },
   {
     eyebrow: "The connected ecosystem",
     title: "Now the whole business moves together.",
-    body: "Voice, inbox, calendar, customers, operations and payments share context as one living system—responding faster while asking less from your team.",
+    body: "Voice, inbox, calendar, customers, operations and payments share context as one living system that responds faster while asking less from your team.",
     side: "left",
   },
 ] as const;

@@ -83,7 +83,7 @@ export default function AiRoi() {
               What would you do with the hours back?
             </h2>
             <p className="mt-7 max-w-[43ch] text-[18px] font-normal leading-[1.68] text-black/68 md:text-[20px]">
-              Use a conservative value for repetitive work. This is a planning lens—not a revenue promise—and it excludes faster response, recovered leads and customer retention.
+              Use a conservative value for repetitive work. This is a planning lens, not a revenue promise. It leaves out faster response, recovered leads and customer retention.
             </p>
           </motion.div>
 

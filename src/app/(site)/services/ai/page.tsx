@@ -36,7 +36,7 @@ const display = Space_Grotesk({
 export const metadata: Metadata = {
   title: "AI Systems & Consulting",
   description:
-    "Custom AI operating systems that answer customers, convert opportunities, coordinate operations, and give growing teams their time back.",
+    "Regent is a complete operating system for your business. It answers the phone, follows up, schedules, invoices and reports, and you run it by talking to it. Starts with a systems audit.",
 };
 
 /**

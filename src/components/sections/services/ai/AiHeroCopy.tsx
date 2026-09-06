@@ -59,28 +59,30 @@ export default function AiHeroCopy() {
               className="max-w-[14ch] font-normal leading-[0.91] tracking-[-0.05em] text-white"
               style={{ fontSize: "clamp(3.15rem, 6.8vw, 7rem)", fontFamily: "var(--font-ai-display)" }}
             >
-              Your business keeps growing.{" "}
-              <span className="text-[var(--ai-cyan)]">Even when you step away.</span>
+              You built it.{" "}
+              <span className="text-[var(--ai-cyan)]">Regent runs it.</span>
             </h1>
-            <p className="mt-8 max-w-[52ch] text-[18px] font-light leading-[1.62] text-white/82 md:text-[21px]">
-              One connected AI operating system answers, follows up, coordinates and
-              reports 24/7—while we build, maintain and improve it for you. Your team
-              gets the hours back. Every opportunity gets a next step.
+            <p className="mt-8 max-w-[38ch] text-[18px] font-light leading-[1.62] text-white/82 md:max-w-[42ch] md:text-[21px]">
+              A complete operating system for your business. It answers the phone,
+              follows up, schedules the work, sends the invoices and reports back.
+              You talk to it the way you would talk to your best operator.
+              It never goes home.
             </p>
             <div className="mt-8 flex flex-wrap gap-x-7 gap-y-3 text-[14px] font-medium tracking-[-0.01em] text-white/72 md:text-[15px]">
-              <span>24/7 response</span>
-              <span>10+ hours weekly target</span>
-              <span>Continuously optimized</span>
+              <span>Answers at every hour</span>
+              <span>Built around your operation</span>
+              <span>One system, not more tools</span>
             </div>
             <button
               type="button"
               onClick={() => openNova("hero", true)}
               className="mt-9 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[17px] font-semibold tracking-[-0.01em] text-white transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_28px_rgba(229,25,42,0.45)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
-              Find Your Highest-ROI System
+              Book the systems audit
             </button>
             <p className="mt-4 max-w-[38ch] text-[17px] leading-[1.55] text-white/68">
-              Start with a focused audit. Leave with a clear automation roadmap.
+              We map where your hours actually go, then tell you which part of
+              Regent to build first.
             </p>
           </div>
         </div>
