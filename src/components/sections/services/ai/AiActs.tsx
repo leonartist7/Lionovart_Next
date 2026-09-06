@@ -95,7 +95,7 @@ const SYSTEMS = [
       "Intelligent handoff when a human matters",
     ],
     fit: "Clinics · salons · contractors · hospitality · real estate",
-    to: 0.70,
+    to: 0.64,
     layout: 0.46,
     side: "left",
   },
@@ -112,7 +112,7 @@ const SYSTEMS = [
       "Intelligent escalation with full context",
     ],
     fit: "Real estate · home services · clinics · agencies · events",
-    to: 0.80,
+    to: 0.76,
     layout: -0.46,
     side: "right",
   },
@@ -129,7 +129,7 @@ const SYSTEMS = [
       "Internal assistants trained on your procedures",
     ],
     fit: "Contractors · product businesses · restaurants · clinics · events",
-    to: 0.90,
+    to: 0.88,
     layout: 0.46,
     side: "left",
   },
@@ -433,15 +433,20 @@ export function AiProcess() {
   return (
     <section ref={ref} data-ai-snap className={ACT}>
       <div className={SHELL}>
-        <div className="max-w-[51rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:w-[62%]">
+        {/* Full-width three-column ledger instead of the page's usual offset
+            reading column: the process is one flat sequence, not a beat that
+            needs the particle field beside it. */}
+        <div className="max-w-[42rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)]">
           <Eyebrow>One partner from strategy to scale</Eyebrow>
           <Heading>You get the result. We run the complexity.</Heading>
           <p className="mt-7 max-w-[49ch] text-[18px] font-light leading-[1.68] text-white/80 md:text-[20px]">
             No tool maze. No unfinished handoff. Lionovart stays responsible for strategy,
             implementation, integration and continuous improvement—from the first blueprint onward.
           </p>
+        </div>
 
-          <LiquidGlass className="mt-14 px-5 md:mt-18 md:px-8">
+        <LiquidGlass className="mt-14 px-5 md:mt-18 md:px-0">
+          <div className="grid md:grid-cols-3">
             {STEPS.map((step, index) => (
               <motion.article
                 key={step.n}
@@ -449,29 +454,27 @@ export function AiProcess() {
                 whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.35 }}
                 transition={{ duration: 0.8, ease: EXPO, delay: index * 0.08 }}
-                className="grid gap-5 border-b border-white/10 py-8 sm:grid-cols-[3rem_minmax(0,0.7fr)_minmax(0,1.3fr)] sm:gap-7 md:py-10"
+                className="border-b border-white/10 py-8 md:border-b-0 md:border-l md:border-white/10 md:px-8 md:py-10 md:first:border-l-0"
               >
                 <span className="text-[13px] font-medium tabular-nums tracking-[0.16em] text-[var(--ai-cyan)] md:text-[14px]">
                   {step.n}
                 </span>
-                <div>
-                  <h3
-                    className="text-[26px] font-normal tracking-[-0.025em] text-white md:text-[32px]"
-                    style={{ fontFamily: "var(--font-ai-display)" }}
-                  >
-                    {step.t}
-                  </h3>
-                  <p className="mt-3 text-[13px] font-medium leading-[1.45] text-white/68 md:text-[14px]">
-                    {step.signal}
-                  </p>
-                </div>
-                <p className="max-w-[40ch] text-[17px] font-light leading-[1.65] text-white/76 md:text-[18px]">
+                <h3
+                  className="mt-4 text-[26px] font-normal tracking-[-0.025em] text-white md:text-[30px]"
+                  style={{ fontFamily: "var(--font-ai-display)" }}
+                >
+                  {step.t}
+                </h3>
+                <p className="mt-3 text-[13px] font-medium leading-[1.45] text-white/68 md:text-[14px]">
+                  {step.signal}
+                </p>
+                <p className="mt-4 max-w-[38ch] text-[17px] font-light leading-[1.65] text-white/76 md:text-[18px]">
                   {step.d}
                 </p>
               </motion.article>
             ))}
-          </LiquidGlass>
-        </div>
+          </div>
+        </LiquidGlass>
       </div>
     </section>
   );
@@ -514,100 +517,98 @@ export function AiOffers() {
   return (
     <section id="partnership" ref={ref} data-ai-snap className="relative py-[120px] md:py-[180px] lg:py-[220px]">
       <div className={SHELL}>
-        <div className="[text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:ml-auto md:w-[64%]">
+        {/* Full-width two-up grid instead of the page's usual offset reading
+            column: two competing paths belong side by side, not stacked. */}
+        <div className="max-w-[40rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)]">
           <Eyebrow>A clear way in</Eyebrow>
           <Heading wide>Start focused. Grow into something powerful.</Heading>
+        </div>
 
-          <div className="mt-14 space-y-14 md:mt-20 md:space-y-18">
-            {OFFERS.map((offer, index) => (
-              <motion.article
-                key={offer.kind}
-                initial={reduce ? false : { opacity: 0, y: 24 }}
-                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.9, ease: EXPO, delay: index * 0.1 }}
-                className="grid gap-8 border-t border-white/14 pt-8 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] sm:gap-10 md:pt-10"
-              >
-                <div>
-                  <span className="text-[13px] font-medium uppercase tracking-[0.17em] text-[var(--ai-cyan)] md:text-[14px]">
-                    {offer.kind}
-                  </span>
-                  <h3
-                    className="mt-5 max-w-[15ch] text-[32px] font-normal leading-[1.04] tracking-[-0.035em] text-white md:text-[42px]"
-                    style={{ fontFamily: "var(--font-ai-display)" }}
-                  >
-                    {offer.title}
-                  </h3>
-                  <p className="mt-5 max-w-[39ch] text-[18px] font-light leading-[1.65] text-white/78 md:text-[19px]">
-                    {offer.blurb}
-                  </p>
-                </div>
-
-                <div>
-                  <ul className="m-0 grid list-none gap-x-6 gap-y-3 p-0 sm:grid-cols-2">
-                    {offer.items.map((item) => (
-                      <li key={item} className="text-[17px] font-light leading-[1.5] text-white/78">
-                        <span aria-hidden className="mr-2 text-[var(--ai-cyan)]">·</span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <button
-                    type="button"
-                    onClick={() => openNova("hero", true)}
-                    className="mt-9 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[17px] font-semibold tracking-[-0.01em] text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
-                  >
-                    {offer.cta}
-                  </button>
-                </div>
-              </motion.article>
-            ))}
-          </div>
-
-          <motion.div
-            initial={reduce ? false : { opacity: 0, y: 24 }}
-            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.35 }}
-            transition={{ duration: 0.9, ease: EXPO }}
-            className="mt-24 border-y border-white/14 py-10 md:mt-32 md:py-14"
-          >
-            <div className="grid gap-7 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-10">
-              <span
-                className="font-light leading-none tracking-[-0.07em] text-[var(--ai-cyan)]"
-                style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(4.5rem, 10vw, 8rem)" }}
-              >
-                5h
+        <div className="mt-14 grid gap-x-14 gap-y-14 border-t border-white/14 pt-10 md:mt-20 lg:grid-cols-2 lg:pt-14">
+          {OFFERS.map((offer, index) => (
+            <motion.article
+              key={offer.kind}
+              initial={reduce ? false : { opacity: 0, y: 24 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.9, ease: EXPO, delay: index * 0.1 }}
+              className="[text-shadow:0_3px_24px_rgba(0,0,0,0.92)] lg:border-l lg:border-white/14 lg:pl-14 lg:first:border-l-0 lg:first:pl-0"
+            >
+              <span className="text-[13px] font-medium uppercase tracking-[0.17em] text-[var(--ai-cyan)] md:text-[14px]">
+                {offer.kind}
               </span>
-              <div>
-                <h3
-                  className="text-[24px] font-normal tracking-[-0.025em] text-white md:text-[31px]"
-                  style={{ fontFamily: "var(--font-ai-display)" }}
-                >
-                  The 5-Hour-Back Guarantee
-                </h3>
-                <p className="mt-4 max-w-[52ch] text-[17px] font-light leading-[1.68] text-white/78 md:text-[18px]">
-                  Reclaim at least five verified team hours every week within 60 days—or we continue
-                  optimizing without a management fee until the agreed target is reached. From there,
-                  we keep working toward 10+ hours returned and measurable business value.
-                </p>
-              </div>
-            </div>
-          </motion.div>
+              <h3
+                className="mt-5 max-w-[15ch] text-[32px] font-normal leading-[1.04] tracking-[-0.035em] text-white md:text-[38px]"
+                style={{ fontFamily: "var(--font-ai-display)" }}
+              >
+                {offer.title}
+              </h3>
+              <p className="mt-5 max-w-[42ch] text-[18px] font-light leading-[1.65] text-white/78 md:text-[19px]">
+                {offer.blurb}
+              </p>
 
-          <div className="mt-16 md:mt-20">
-            <p className="text-[13px] font-medium uppercase tracking-[0.16em] text-white/68 md:text-[14px]">
-              Built for businesses where every response matters
-            </p>
-            <div className="mt-6 grid border-t border-white/10 sm:grid-cols-2">
-              {INDUSTRIES.map((industry) => (
-                <p
-                  key={industry}
-                  className="border-b border-white/10 py-4 pr-5 text-[17px] font-light text-white/74 sm:odd:mr-6"
-                >
-                  {industry}
-                </p>
-              ))}
+              <ul className="mt-7 m-0 grid list-none gap-x-6 gap-y-3 p-0 sm:grid-cols-2">
+                {offer.items.map((item) => (
+                  <li key={item} className="text-[17px] font-light leading-[1.5] text-white/78">
+                    <span aria-hidden className="mr-2 text-[var(--ai-cyan)]">·</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                onClick={() => openNova("hero", true)}
+                className="mt-9 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[17px] font-semibold tracking-[-0.01em] text-white transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_28px_rgba(229,25,42,0.45)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+              >
+                {offer.cta}
+              </button>
+            </motion.article>
+          ))}
+        </div>
+
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 24 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.35 }}
+          transition={{ duration: 0.9, ease: EXPO }}
+          className="mt-24 max-w-[68rem] border-y border-white/14 py-10 md:mt-32 md:py-14"
+        >
+          <div className="grid gap-7 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-10">
+            <span
+              className="font-light leading-none tracking-[-0.07em] text-[var(--ai-cyan)]"
+              style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(4.5rem, 10vw, 8rem)" }}
+            >
+              5h
+            </span>
+            <div>
+              <h3
+                className="text-[24px] font-normal tracking-[-0.025em] text-white md:text-[31px]"
+                style={{ fontFamily: "var(--font-ai-display)" }}
+              >
+                The 5-Hour-Back Guarantee
+              </h3>
+              <p className="mt-4 max-w-[52ch] text-[17px] font-light leading-[1.68] text-white/78 md:text-[18px]">
+                Reclaim at least five verified team hours every week within 60 days—or we continue
+                optimizing without a management fee until the agreed target is reached. From there,
+                we keep working toward 10+ hours returned and measurable business value.
+              </p>
             </div>
+          </div>
+        </motion.div>
+
+        <div className="mt-16 max-w-[68rem] md:mt-20">
+          <p className="text-[13px] font-medium uppercase tracking-[0.16em] text-white/68 md:text-[14px]">
+            Built for businesses where every response matters
+          </p>
+          <div className="mt-6 grid border-t border-white/10 sm:grid-cols-2">
+            {INDUSTRIES.map((industry) => (
+              <p
+                key={industry}
+                className="border-b border-white/10 py-4 pr-5 text-[17px] font-light text-white/74 sm:odd:mr-6"
+              >
+                {industry}
+              </p>
+            ))}
           </div>
         </div>
       </div>
