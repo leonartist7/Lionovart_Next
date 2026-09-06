@@ -11,6 +11,32 @@ const currency = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
+/**
+ * A custom-filled track (via background-position, not a second element) plus
+ * a bigger, tactile thumb. The bare `accent-brand-red` default read as the
+ * one un-designed control on an otherwise fully art-directed section.
+ */
+const SLIDER_CLASS =
+  "mt-5 h-2 w-full cursor-pointer appearance-none rounded-full bg-black/12 outline-none transition-shadow duration-200 " +
+  "focus-visible:shadow-[0_0_0_4px_rgba(229,25,42,0.22)] " +
+  "[&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-[3px] [&::-webkit-slider-thumb]:border-brand-red [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-[0_2px_10px_rgba(0,0,0,0.22)] [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:duration-200 " +
+  "[&:hover::-webkit-slider-thumb]:scale-110 [&:active::-webkit-slider-thumb]:scale-95 " +
+  "[&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-[3px] [&::-moz-range-thumb]:border-brand-red [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow-[0_2px_10px_rgba(0,0,0,0.22)] [&::-moz-range-thumb]:transition-transform [&::-moz-range-thumb]:duration-200 " +
+  "[&:hover::-moz-range-thumb]:scale-110 [&:active::-moz-range-thumb]:scale-95 " +
+  "[&::-moz-range-track]:bg-transparent";
+
+function trackFill(value: number, min: number, max: number): React.CSSProperties {
+  const fraction = (value - min) / (max - min);
+  // The 24px thumb (h-6/w-6) has width, so its rendered center sits inset
+  // from the track edges — a raw percentage boundary drifts from the thumb
+  // near both ends. calc() corrects for the thumb's own width.
+  const thumb = 24;
+  const boundary = `calc(${thumb / 2}px + (100% - ${thumb}px) * ${fraction})`;
+  return {
+    background: `linear-gradient(to right, var(--color-brand-red) ${boundary}, rgba(0,0,0,0.12) ${boundary})`,
+  };
+}
+
 export default function AiRoi() {
   const ref = useRef<HTMLElement>(null);
   const [hours, setHours] = useState(10);
@@ -76,7 +102,8 @@ export default function AiRoi() {
                   step="1"
                   value={hours}
                   onChange={(event) => setHours(Number(event.target.value))}
-                  className="mt-5 h-2 w-full cursor-pointer accent-brand-red"
+                  style={trackFill(hours, 5, 40)}
+                  className={SLIDER_CLASS}
                 />
               </label>
               <label className="block">
@@ -92,7 +119,8 @@ export default function AiRoi() {
                   step="5"
                   value={hourValue}
                   onChange={(event) => setHourValue(Number(event.target.value))}
-                  className="mt-5 h-2 w-full cursor-pointer accent-brand-red"
+                  style={trackFill(hourValue, 25, 200)}
+                  className={SLIDER_CLASS}
                 />
               </label>
             </div>
@@ -115,7 +143,7 @@ export default function AiRoi() {
             <button
               type="button"
               onClick={() => openNova("roi", true)}
-              className="mt-9 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[17px] font-semibold text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+              className="mt-9 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[17px] font-semibold text-white transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_28px_rgba(229,25,42,0.45)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
               Find the first hours to recover
             </button>
