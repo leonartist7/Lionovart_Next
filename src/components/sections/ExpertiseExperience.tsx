@@ -51,6 +51,7 @@ const SERVICE_META = [
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const OPENING_END = 0.285;
+const TITLE_UNMOUNT = 0.03;
 const STREAM_UNMOUNT = 0.292;
 const SERVICE_START = 0.305;
 const SERVICE_END = 0.92;
@@ -218,6 +219,7 @@ export default function ExpertiseExperience() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const wheelLockRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [showOpeningTitle, setShowOpeningTitle] = useState(true);
   const [showStream, setShowStream] = useState(true);
   const [serviceStageActive, setServiceStageActive] = useState(false);
   const chapterInView = useInView(chapterRef, { margin: "180px 0px" });
@@ -240,8 +242,10 @@ export default function ExpertiseExperience() {
     offset: ["start start", "end end"],
   });
 
-  const titleOpacity = useTransform(scrollYProgress, [0, 0.095, 0.205], [1, 1, 0]);
-  const titleY = useTransform(scrollYProgress, [0, 0.205], [0, -52]);
+  // Let the opening title clear on the first deliberate scroll instead of
+  // reading like another pinned label throughout the image-stream reveal.
+  const titleOpacity = useTransform(scrollYProgress, [0, 0.004, 0.024], [1, 1, 0]);
+  const titleY = useTransform(scrollYProgress, [0, TITLE_UNMOUNT], [0, -96]);
 
   const streamOpacity = useTransform(
     scrollYProgress,
@@ -280,6 +284,11 @@ export default function ExpertiseExperience() {
   );
 
   useMotionValueEvent(scrollYProgress, "change", (value) => {
+    const shouldShowOpeningTitle = value < TITLE_UNMOUNT;
+    setShowOpeningTitle((current) =>
+      current === shouldShowOpeningTitle ? current : shouldShowOpeningTitle,
+    );
+
     const shouldShowStream = value < STREAM_UNMOUNT;
     setShowStream((current) => (current === shouldShowStream ? current : shouldShowStream));
 
@@ -382,18 +391,20 @@ export default function ExpertiseExperience() {
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_78%,rgba(229,25,42,0.055),transparent_34%)]"
         />
 
-        <motion.header
-          style={{ opacity: titleOpacity, y: titleY }}
-          className="pointer-events-none absolute inset-x-0 top-[6.5svh] z-30 mx-auto max-w-[1280px] px-5 text-center sm:top-[7vh] sm:px-8 lg:px-12"
-        >
-          <p className="font-mono text-[9px] font-bold uppercase tracking-[0.28em] text-brand-red sm:text-[11px]">
-            {t.services.eyebrow}
-          </p>
-          <h2 className="mx-auto mt-3 max-w-[10ch] font-clash text-[clamp(3rem,10vw,7.4rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em]">
-            {t.services.heading}{" "}
-            <span className="text-brand-red">{t.services.headingAccent}</span>
-          </h2>
-        </motion.header>
+        {showOpeningTitle && (
+          <motion.header
+            style={{ opacity: titleOpacity, y: titleY }}
+            className="pointer-events-none absolute inset-x-0 top-[6.5svh] z-30 mx-auto max-w-[1280px] px-5 text-center sm:top-[7vh] sm:px-8 lg:px-12"
+          >
+            <p className="font-mono text-[9px] font-bold uppercase tracking-[0.28em] text-brand-red sm:text-[11px]">
+              {t.services.eyebrow}
+            </p>
+            <h2 className="mx-auto mt-3 max-w-[10ch] font-clash text-[clamp(3rem,10vw,7.4rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em]">
+              {t.services.heading}{" "}
+              <span className="text-brand-red">{t.services.headingAccent}</span>
+            </h2>
+          </motion.header>
+        )}
 
         {showStream && (
           <motion.div
