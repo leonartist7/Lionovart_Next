@@ -591,14 +591,42 @@ export const GRADE_FRAG = /* glsl */ `
 precision highp float;
 uniform sampler2D tDiffuse;
 uniform float uVignette;
+uniform float uTime;
+uniform float uAberration;
+uniform float uGrain;
+uniform float uContrast;
 varying vec2 vUv;
 
+float hash(vec2 p){
+  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+}
+
 void main(){
-  vec3 col = texture2D(tDiffuse, vUv).rgb;
   vec2 c = vUv - 0.5;
   float r2 = dot(c, c);
+
+  // Lateral chromatic aberration. The offset scales with r2 so the centre of
+  // frame stays clean and only the outer field separates, which is how a real
+  // lens behaves. A uniform split just looks like a broken render.
+  vec2 off = c * r2 * uAberration;
+  vec3 col;
+  col.r = texture2D(tDiffuse, vUv + off).r;
+  col.g = texture2D(tDiffuse, vUv).g;
+  col.b = texture2D(tDiffuse, vUv - off).b;
+
+  // Smoothstep contrast. Fixed at both ends, so it adds midtone separation
+  // without lifting the black the additive field is composed against.
+  col = mix(col, col * col * (3.0 - 2.0 * col), uContrast);
+
   col *= 1.0 - uVignette * smoothstep(0.18, 0.68, r2);
-  gl_FragColor = vec4(col, 1.0);
+
+  // Animated grain, weighted by luminance so it textures the lit field rather
+  // than dancing in the empty black around it.
+  float lum = dot(col, vec3(0.299, 0.587, 0.114));
+  float g = hash(vUv * 900.0 + fract(uTime * 0.37) * 137.0) - 0.5;
+  col += g * uGrain * (0.25 + lum * 1.1);
+
+  gl_FragColor = vec4(max(col, 0.0), 1.0);
 }
 `;
 

@@ -110,6 +110,7 @@ export class LionExperience {
   private scene = new THREE.Scene();
   private camera!: THREE.PerspectiveCamera;
   private composer: EffectComposer | null = null;
+  private gradePass: ShaderPass | null = null;
   private bloom: UnrealBloomPass | null = null;
   private dust: THREE.Points | null = null;
   private swarmMat: THREE.ShaderMaterial | null = null;
@@ -120,6 +121,7 @@ export class LionExperience {
   private halfH = 1.85;
   private compactDevice = false;
   private qualityTier: QualityTier = "high";
+  private forcedTier: QualityTier | null = null;
   private resizeRaf = 0;
   private renderDpr = 1;
   private adaptiveElapsed = 0;
@@ -259,9 +261,13 @@ export class LionExperience {
     return QUALITY[this.qualityTier].particles;
   }
 
-  /** Dev-only URL overrides, read once at init: ?count=90000 and ?morph=1. */
+  /** Dev-only URL overrides, read once at init: ?count=, ?tier=, ?morph=1, ?yaw=. */
   private applyDevOverrides(): void {
     const q = new URLSearchParams(window.location.search);
+    const tier = q.get("tier");
+    if (tier === "low" || tier === "medium" || tier === "high" || tier === "ultra") {
+      this.forcedTier = tier;
+    }
     const forced = q.get("count");
     if (forced) {
       this.opts.maxParticles = Math.max(32, parseInt(forced, 10) || this.opts.maxParticles);
@@ -289,7 +295,7 @@ export class LionExperience {
 
   async init(): Promise<void> {
     this.applyDevOverrides();
-    this.qualityTier = this.detectQualityTier();
+    this.qualityTier = this.forcedTier ?? this.detectQualityTier();
     if (this.opts.maxParticles > 0 && this.opts.maxParticles <= QUALITY.low.particles) {
       this.qualityTier = "low";
     }
@@ -303,7 +309,7 @@ export class LionExperience {
       alpha: true,
       powerPreference: "high-performance",
     });
-    if (this.isSoftwareRenderer()) this.qualityTier = "low";
+    if (this.isSoftwareRenderer() && !this.forcedTier) this.qualityTier = "low";
     if (!this.opts.maxParticles) this.opts.maxParticles = this.detectParticleBudget();
     const quality = QUALITY[this.qualityTier];
     this.renderer.setClearColor(0x000000, 0);
@@ -773,8 +779,18 @@ export class LionExperience {
       uniforms: {
         tDiffuse: { value: null },
         uVignette: { value: 0.42 },
+        uTime: { value: 0 },
+        // Held deliberately low. Aberration and grain are here to stop the
+        // frame reading as clean CG, not to be noticed on their own.
+        // The offset is in UV units and scales by r2, so at the frame edge this
+        // is roughly (0.5 * 0.25 * value) of the width: about two pixels at
+        // 1440. An earlier 0.42 put it near seventy, which just looked broken.
+        uAberration: { value: this.qualityTier === "ultra" ? 0.013 : 0.009 },
+        uGrain: { value: 0.038 },
+        uContrast: { value: 0.2 },
       },
     }));
+    this.gradePass = gradePass;
     this.composer.addPass(gradePass);
   }
 
@@ -909,6 +925,8 @@ export class LionExperience {
       pu.uFade.value = 1;
     }
 
+
+    if (this.gradePass) this.gradePass.uniforms.uTime.value = t;
 
     // The flare belongs to the crown state and dissolves as release begins.
     if (this.flare) {
