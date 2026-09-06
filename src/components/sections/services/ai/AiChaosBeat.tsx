@@ -10,31 +10,29 @@
 
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { getLionStage } from "@/lib/lion/stage-ref";
+import { getConductor } from "@/lib/lion/conductor";
+import { bridgePanelOffset, bridgePanelOpacity } from "@/lib/lion/chapters";
 
-gsap.registerPlugin(ScrollTrigger);
-
-export const HERO_MORPH_END = 0.06;
-export const BRIDGE_MORPH_END = 0.58;
+// Morph boundaries now live in the ledger (src/lib/lion/chapters.ts).
+export { HERO_MORPH_END, BRIDGE_MORPH_END } from "@/lib/lion/chapters";
 
 const CHAPTERS = [
   {
     eyebrow: "The hidden cost",
     title: "Your team is doing work your systems should handle.",
-    body: "Calls wait. Leads cool down. Information gets copied between tools. The cost is not only time—it is the opportunity that disappears while everyone stays busy.",
+    body: "Calls wait. Leads cool down. Information gets copied between tools. The cost is not only time. It is the opportunity that disappears while everyone stays busy.",
     side: "left",
   },
   {
     eyebrow: "The turning point",
     title: "When the noise clears, the opportunity appears.",
-    body: "Every conversation, task and customer signal becomes visible in one place. Intelligence starts by understanding the full picture—and knowing what should happen next.",
+    body: "Every conversation, task and customer signal becomes visible in one place. Intelligence starts by understanding the full picture, and knowing what should happen next.",
     side: "right",
   },
   {
     eyebrow: "The connected ecosystem",
     title: "Now the whole business moves together.",
-    body: "Voice, inbox, calendar, customers, operations and payments share context as one living system—responding faster while asking less from your team.",
+    body: "Voice, inbox, calendar, customers, operations and payments share context as one living system that responds faster while asking less from your team.",
     side: "left",
   },
 ] as const;
@@ -55,50 +53,27 @@ export default function AiChaosBeat() {
       return;
     }
 
-    const trigger = ScrollTrigger.create({
-      trigger: wrap,
-      start: "top top",
-      end: "bottom top",
-      scrub: true,
-      onUpdate: ({ progress }) => {
-        const stage = getLionStage();
-        stage?.setMorph(HERO_MORPH_END + progress * (BRIDGE_MORPH_END - HERO_MORPH_END));
-
-        const centers = [0.16, 0.50, 0.84];
-        const layouts = [0.42, -0.42, 0.42];
-        const leg = progress <= centers[1] ? 0 : 1;
-        const layoutProgress = gsap.utils.clamp(
-          0,
-          1,
-          (progress - centers[leg]) / (centers[leg + 1] - centers[leg]),
-        );
-        stage?.setLayout(gsap.utils.interpolate(layouts[leg], layouts[leg + 1], layoutProgress));
-
-        panelsRef.current.forEach((panel, index) => {
-          if (!panel) return;
-          const distance = progress - centers[index];
-          // A real reading hold: reach full opacity, stay there, then leave.
-          // The former triangular curve was only completely clear for a
-          // single scroll instant.
-          const opacity = distance < 0
-            ? gsap.utils.clamp(0, 1, 1 + distance / 0.13)
-            : distance <= 0.09
-              ? 1
-              : gsap.utils.clamp(0, 1, 1 - (distance - 0.09) / 0.13);
-          gsap.set(panel, {
-            opacity,
-            y: (centers[index] - progress) * 70,
-            pointerEvents: opacity > 0.8 ? "auto" : "none",
-          });
+    // The panels read the same story position the particle world does, so copy
+    // and camera can never drift apart. The bridge's own particle beat is the
+    // `bridge` entry in the ledger.
+    const unsubscribe = getConductor().subscribe(({ id, t }) => {
+      if (id !== "bridge") return;
+      panelsRef.current.forEach((panel, index) => {
+        if (!panel) return;
+        const opacity = bridgePanelOpacity(index, t);
+        gsap.set(panel, {
+          opacity,
+          y: bridgePanelOffset(index, t),
+          pointerEvents: opacity > 0.8 ? "auto" : "none",
         });
-      },
+      });
     });
 
-    return () => trigger.kill();
+    return () => unsubscribe();
   }, []);
 
   return (
-    <section ref={wrapRef} data-lion-zone className="relative h-[390svh] motion-reduce:h-auto md:h-[420svh]">
+    <section ref={wrapRef} data-ai-chapter="bridge" data-lion-zone className="relative h-[240svh] motion-reduce:h-auto md:h-[260svh]">
       {CHAPTERS.map((chapter, index) => (
         <span
           key={`${chapter.eyebrow}-snap`}
