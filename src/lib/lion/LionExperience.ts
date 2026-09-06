@@ -28,55 +28,55 @@ type QualityTier = "low" | "medium" | "high" | "ultra";
  */
 const QUALITY = {
   low: {
-    particles: 77,
+    particles: 900,
     dpr: 1.25,
     minDpr: 1,
     dust: 0,
     swarmHeads: 0,
     trailLength: 1,
-    pointSize: 56,
+    pointSize: 20,
     exposure: 1.18,
     bloom: 0,
     dof: 0,
     organicDetail: 0,
   },
   medium: {
-    particles: 177,
+    particles: 3_200,
     dpr: 1.45,
     minDpr: 1.1,
     dust: 48,
     swarmHeads: 18,
     trailLength: 2,
-    pointSize: 48,
+    pointSize: 17,
     exposure: 1.1,
     bloom: 0,
-    dof: 0.06,
+    dof: 0.14,
     organicDetail: 0.3,
   },
   high: {
-    particles: 777,
+    particles: 14_000,
     dpr: 1.65,
     minDpr: 1.2,
     dust: 500,
     swarmHeads: 70,
     trailLength: 4,
-    pointSize: 44,
+    pointSize: 13,
     exposure: 1.06,
     bloom: 0.22,
-    dof: 0.16,
+    dof: 0.34,
     organicDetail: 0.72,
   },
   ultra: {
-    particles: 1_377,
+    particles: 26_000,
     dpr: 1.85,
     minDpr: 1.25,
     dust: 1_000,
     swarmHeads: 110,
     trailLength: 5,
-    pointSize: 42,
+    pointSize: 12,
     exposure: 1.06,
     bloom: 0.27,
-    dof: 0.22,
+    dof: 0.42,
     organicDetail: 1,
   },
 } as const;
@@ -381,7 +381,13 @@ export class LionExperience {
     const segments = [...silhouette, ...structure];
     const lengths = segments.map(([x1, y1, x2, y2]) => Math.hypot(x2 - x1, y2 - y1));
     const totalLength = lengths.reduce((sum, length) => sum + length, 0);
-    const layerCount = this.qualityTier === "low" ? 1 : this.qualityTier === "medium" ? 2 : 4;
+    // The crown is extruded, not stacked. It used to be the same flat polyline
+    // repeated across four layers 0.18 units apart on a form 2.5 units wide, so
+    // it read as vector clipart: no parallax between near and far edges, and
+    // nothing for depth of field to sort through. Now particles are placed on a
+    // real band with front and back faces and side walls, which is what lets the
+    // opening camera move see it as an object.
+    const DEPTH = 0.62;
 
     for (let i = 0; i < count; i++) {
       const distance = ((i + 0.5) / count) * totalLength;
@@ -392,15 +398,52 @@ export class LionExperience {
       }
       const [x1, y1, x2, y2] = segments[segmentIndex];
       const local = Math.min(1, (distance - cursor) / lengths[segmentIndex]);
-      const layer = i % layerCount;
-      const depth = layerCount === 1 ? 0 : (layer / (layerCount - 1) - 0.5) * 0.18;
-      const jitter = this.qualityTier === "low" ? 0 : (this.random(i + 31) - 0.5) * 0.022;
-      positions.set([
-        THREE.MathUtils.lerp(x1, x2, local) + jitter,
-        THREE.MathUtils.lerp(y1, y2, local) + jitter,
-        depth,
-      ], i * 3);
-      normals.set([0, 0.1 + depth * 0.3, 1], i * 3);
+
+      const px = THREE.MathUtils.lerp(x1, x2, local);
+      const py = THREE.MathUtils.lerp(y1, y2, local);
+
+      // Outward normal of this segment in the plane, used to give the side
+      // walls thickness and to light the band's edges differently from its faces.
+      const sx = x2 - x1;
+      const sy = y2 - y1;
+      const sLen = Math.max(Math.hypot(sx, sy), 1e-4);
+      const nx = sy / sLen;
+      const ny = -sx / sLen;
+
+      const r = this.random(i * 7 + 13);
+      const r2 = this.random(i * 7 + 29);
+      const jitter = this.qualityTier === "low" ? 0 : (this.random(i + 31) - 0.5) * 0.016;
+
+      let ox: number;
+      let oy: number;
+      let oz: number;
+      let nz: number;
+      if (r < 0.42) {
+        // Front face, on the authored silhouette plane
+        oz = 0;
+        ox = px + jitter;
+        oy = py + jitter;
+        nz = 1;
+      } else if (r < 0.84) {
+        // Back face, dimmer through the depth term in the shader
+        oz = -DEPTH;
+        ox = px + jitter;
+        oy = py + jitter;
+        nz = -1;
+      } else {
+        // Side wall: swept back through the full depth along the segment normal
+        oz = -r2 * DEPTH;
+        const bulge = (1 - Math.abs(oz + DEPTH / 2) / (DEPTH / 2)) * 0.045;
+        ox = px + nx * bulge + jitter;
+        oy = py + ny * bulge + jitter;
+        nz = 0;
+      }
+
+      positions.set([ox, oy, oz], i * 3);
+      // Face particles point at the viewer, wall particles point outward, so the
+      // existing Fresnel and key terms separate the band's edges from its faces.
+      const outward = nz === 0 ? 1 : 0.22;
+      normals.set([nx * outward, ny * outward + 0.08, nz === 0 ? 0.16 : nz], i * 3);
     }
 
     for (let i = 0; i < count; i++) {
@@ -527,7 +570,7 @@ export class LionExperience {
 
     // Keep the population sparse, but compensate its luminance so the crown
     // remains readable on both the black hero and the brighter middle beats.
-    this.baseGain = THREE.MathUtils.clamp(3_400 / count, 0.98, 1.72);
+    this.baseGain = THREE.MathUtils.clamp(3_400 / count, 0.72, 1.72);
     this.material.uniforms.uGain.value = this.baseGain;
     this.points = new THREE.Points(geo, this.material);
     this.points.frustumCulled = false;
@@ -915,8 +958,18 @@ export class LionExperience {
       // column actually safe while chapters dolly.
       const distRatio = this.camPose.dist / BASE_DIST;
       this.points.position.x = this.layout * halfW * distRatio;
-      this.points.position.y =
-        (this.halfH * 0.22) * (1 - THREE.MathUtils.smoothstep(m, 0.04, 0.18)) * distRatio;
+      let lift = (this.halfH * 0.22) * (1 - THREE.MathUtils.smoothstep(m, 0.04, 0.18));
+      if (this.compactDevice) {
+        // Portrait has no room for a side-by-side composition, so the layout
+        // offset is damped toward centre and the form would otherwise sit on
+        // top of the copy. Lift it into the upper third and scale it down so
+        // the reading column stays clear. Released once the crown opens, since
+        // the later forms are ambient rather than a subject beside the text.
+        const crownHold = 1 - THREE.MathUtils.smoothstep(m, 0.06, 0.34);
+        lift += this.halfH * 0.46 * crownHold;
+        this.points.scale.setScalar(1 - 0.4 * crownHold);
+      }
+      this.points.position.y = lift * distRatio;
       // Always drawn: the same population becomes the ambient current for the
       // middle sections rather than handing off to another canvas.
       this.points.visible = true;

@@ -290,13 +290,13 @@ void main(){
 
   float sizeJitter = 0.4 + aRand.w * 0.8;
   gl_PointSize = uSize * sizeJitter * uPixelRatio * (1.0 / -mv.z);
-  gl_PointSize *= (1.0 - systemT * 0.10);
+  gl_PointSize *= (1.0 - systemT * 0.38);
   gl_PointSize *= mix(1.0, 1.08, uBloom);
 
   // depth of field: off-focus particles become soft bokeh discs
   float coc = clamp(abs(-mv.z - uFocusDist) * uDofAmount, 0.0, 2.0);
   gl_PointSize *= 1.0 + coc * 1.5;
-  gl_PointSize = min(gl_PointSize, 54.0 * uPixelRatio);
+  gl_PointSize = min(gl_PointSize, 26.0 * uPixelRatio);
   vAlpha /= 1.0 + coc * 1.2;
 }
 `;
