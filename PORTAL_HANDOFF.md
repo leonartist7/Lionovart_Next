@@ -17,6 +17,8 @@ It exists so a new session can be productive in minutes instead of re-deriving t
 | **5 — Content / WhatsApp** | ⬜ composer, approvals, adapters |
 | **6 — Polish** | ⬜ motion, a11y, anti-slop review |
 
+**Page-by-page specs for every screen still marked "Soon" are in `PORTAL_PAGES.md`** — purpose, client vs studio view, data, the hard parts, and which model should build each.
+
 The portal is a **client-facing workspace**: clients are invited by the studio (no public signup), see progress, approve work, and will annotate designs and message the studio. LIONOVART staff author everything **inside the portal** via agency-only controls — there is deliberately no second admin CRUD UI.
 
 ---

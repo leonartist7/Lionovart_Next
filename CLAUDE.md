@@ -8,6 +8,8 @@ to copy, the rules that must not break (agency gating is server-side; a client's
 must never *receive* agency controls), how to run the Firebase emulators, and which model
 should take which task.
 
+`PORTAL_PAGES.md` specs every screen still marked "Soon".
+
 Verify with `node scripts/portal-verify/verify.mjs` before pushing portal changes.
 
 # PR monitoring — off by default
