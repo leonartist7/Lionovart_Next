@@ -4,9 +4,12 @@ import { PortalShell } from "@/components/portal/PortalShell";
 import {
   PORTAL_SESSION_COOKIE,
   getPortalSession,
+  getWorkspaceAccessBySlug,
   listWorkspacesForSession,
 } from "@/lib/portal-auth";
 import { PORTAL_THEME_COOKIE, resolveThemeChoice } from "@/lib/portal/theme";
+import { listProjects } from "@/lib/portal/projects";
+import { visibleNavIds } from "@/lib/portal/nav";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +37,12 @@ export default async function WorkspaceLayout({
 
   const theme = resolveThemeChoice(cookieStore.get(PORTAL_THEME_COOKIE)?.value);
 
+  // Sections a client has no use for are absent rather than permanently empty.
+  // Filtered on the server, so an irrelevant tab never reaches their browser.
+  const access = await getWorkspaceAccessBySlug(session, slug);
+  const projects = access ? await listProjects(access.workspace.id, access.membership.role) : [];
+  const navIds = visibleNavIds([...new Set(projects.map((p) => p.kind))], session.isAgency);
+
   return (
     <PortalShell
       workspaceSlug={current.slug}
@@ -42,6 +51,7 @@ export default async function WorkspaceLayout({
       userName={session.name}
       userEmail={session.email}
       theme={theme}
+      navIds={navIds}
     >
       {children}
     </PortalShell>
