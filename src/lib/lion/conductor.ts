@@ -205,6 +205,7 @@ export class Conductor {
       if (state.morph !== undefined) engine.setMorph(state.morph);
       if (state.layout !== undefined) engine.setLayout(state.layout);
       engine.setBloom(state.bloom ?? 0);
+      engine.setLionPresence(state.lion ?? 0);
       const pose = active.def.camera?.(t, this.ctx);
       if (pose) engine.setCameraPose(pose);
     }

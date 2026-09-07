@@ -19,6 +19,13 @@ export interface StoryState {
   layout: number;
   /** Weight of the closing crest reform. */
   bloom: number;
+  /**
+   * How present the lion mesh is, 0..1. The lion and the crown are the same
+   * protagonist: the lion is the system's face where you meet it and where it
+   * answers, the particle field is its interior in between. Tiers without the
+   * mesh ignore this entirely and the crown carries every chapter.
+   */
+  lion: number;
 }
 
 /**
@@ -118,6 +125,8 @@ export const CHAPTERS: ChapterDef[] = [
       morph: clamp01((t - 0.34) / 0.66) * HERO_MORPH_END,
       layout: 0.46,
       bloom: 0,
+      // Meets the viewer, then hands off as the crown begins to open.
+      lion: 1 - clamp01((t - 0.55) / 0.4),
     }),
     // ARRIVAL: start low and close, looking up at the assembled form, then rise
     // to level as the promise is read. The viewer meets it before they read it.
@@ -140,6 +149,7 @@ export const CHAPTERS: ChapterDef[] = [
       morph: lerp(HERO_MORPH_END, BRIDGE_MORPH_END, t),
       layout: bridgeLayout(t),
       bloom: 0,
+      lion: 0,
     }),
     // The immersive push. This used to be derived from morph inside the render
     // loop; it is authored here so the shot is readable and tunable as data.
@@ -156,7 +166,7 @@ export const CHAPTERS: ChapterDef[] = [
     // Driven by the selected tab, not by scroll position within the section.
     resolve: (_t, ctx) => {
       const state = SYSTEM_STATES[ctx.activeSystem] ?? SYSTEM_STATES[0];
-      return { morph: state.morph, layout: state.layout, bloom: 0 };
+      return { morph: state.morph, layout: state.layout, bloom: 0, lion: 0 };
     },
     // The tab is click-driven, so morph is flat across this whole section. The
     // camera carries the scroll instead: a slow, continuous push that keeps the
@@ -175,7 +185,7 @@ export const CHAPTERS: ChapterDef[] = [
     selector: '[data-ai-chapter="flow"]',
     start: "top 82%",
     end: "bottom 20%",
-    resolve: (t) => ({ morph: lerp(0.68, 0.76, t), layout: -0.44, bloom: 0 }),
+    resolve: (t) => ({ morph: lerp(0.68, 0.76, t), layout: -0.44, bloom: 0, lion: 0 }),
     // Rise and look down: the flow reads as something laid out beneath you.
     camera: (t) => ({ dist: lerp(4.24, 4.62, t), height: lerp(0.1, 0.3, t), lookY: -0.1, fov: 42 }),
   },
@@ -184,7 +194,7 @@ export const CHAPTERS: ChapterDef[] = [
     selector: '[data-ai-chapter="process"]',
     start: "top 82%",
     end: "bottom 20%",
-    resolve: (t) => ({ morph: lerp(0.76, 1, t), layout: 0.44, bloom: 0 }),
+    resolve: (t) => ({ morph: lerp(0.76, 1, t), layout: 0.44, bloom: 0, lion: 0 }),
     // Settle back to level as the delivery ledger is read.
     camera: (t) => ({ dist: lerp(4.62, 4.34, t), height: lerp(0.3, 0.08, t), lookY: lerp(-0.1, 0, t), fov: 42 }),
   },
@@ -194,7 +204,7 @@ export const CHAPTERS: ChapterDef[] = [
     start: "top 82%",
     // Ends before the closing chapter starts so ownership never overlaps.
     end: "bottom 92%",
-    resolve: () => ({ morph: 1, layout: -0.44, bloom: 0 }),
+    resolve: () => ({ morph: 1, layout: -0.44, bloom: 0, lion: 0 }),
     // The longest dead stretch on the page: morph is pinned at 1 for roughly
     // 4.6 viewports. A slow withdrawal gives the offers, guarantee and industry
     // list a moving world to sit in without competing with the copy.
@@ -205,7 +215,14 @@ export const CHAPTERS: ChapterDef[] = [
     selector: '[data-ai-chapter="close"]',
     start: "top 92%",
     end: "bottom bottom",
-    resolve: (t) => ({ morph: 1, layout: 0, bloom: Math.min(t / 0.6, 1) }),
+    resolve: (t) => ({
+      morph: 1,
+      layout: 0,
+      bloom: Math.min(t / 0.6, 1),
+      // Returns as the crest reforms: you meet it, you go through what it runs,
+      // and it is the last thing you see before the decision.
+      lion: clamp01((t - 0.18) / 0.34),
+    }),
     // Approach for the decision. A slightly longer lens compresses the crest
     // against the panel so the last frame is the strongest one.
     camera: (t) => ({ dist: lerp(6.4, 4.55, t), height: 0.02, lookY: 0, fov: lerp(42, 39, t) }),
