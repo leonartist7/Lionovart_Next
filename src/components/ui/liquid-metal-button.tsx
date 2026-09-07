@@ -48,6 +48,7 @@ export function LiquidMetalButton({
   const metalFilter = metalTone === "gold"
     ? "sepia(1) saturate(2.5) hue-rotate(2deg) brightness(1.03) contrast(1.12)"
     : undefined;
+  const contourColor = metalTone === "gold" ? "#f0c917" : "#dce7e8";
 
   const dimensions = useMemo(() => {
     if (viewMode === "icon") {
@@ -311,6 +312,23 @@ export function LiquidMetalButton({
               />
             </div>
           </div>
+
+          {/* The shader supplies the moving material. This fixed contour keeps
+              the pill perimeter complete between highlight passes. */}
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              inset: "1px",
+              zIndex: 25,
+              borderRadius: "100px",
+              border: `1px solid ${contourColor}`,
+              boxShadow: metalTone === "gold"
+                ? "inset 0 1px 0 rgba(255, 249, 209, 0.95), inset 0 -1px 0 rgba(111, 61, 0, 0.75), 0 0 0 1px rgba(101, 55, 0, 0.65)"
+                : "inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 0 rgba(72, 91, 95, 0.8), 0 0 0 1px rgba(43, 57, 60, 0.7)",
+              pointerEvents: "none",
+            }}
+          />
 
           <button
             ref={buttonRef}
