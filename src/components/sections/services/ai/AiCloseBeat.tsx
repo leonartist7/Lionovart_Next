@@ -16,6 +16,7 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { getLionStage } from "@/lib/lion/stage-ref";
+import { getConductor } from "@/lib/lion/conductor";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -38,39 +39,18 @@ export default function AiCloseBeat({ children }: { children: React.ReactNode })
       exp.setCrestScreenPos(0, window.innerWidth < 768 ? -0.34 : -0.42);
     };
 
-    const prepareClose = () => {
-      const exp = getLionStage();
-      if (!exp) return;
-      exp.setMorph(1);
-      exp.setLayout(0);
-      positionCrest();
-    };
+    // The closing beat's morph/layout/bloom curve is the `close` entry in the
+    // ledger. This section only owns the crest's screen-space anchor, which is
+    // a viewport measurement rather than a story value.
+    const conductor = getConductor();
+    conductor.setCrestHandler(positionCrest);
+    positionCrest();
 
-    const st = ScrollTrigger.create({
-      trigger: wrap,
-      // AiOffers releases at `bottom 92%`, so there is exactly one owner of
-      // layout state at any scroll position.
-      start: "top 92%",
-      end: "bottom bottom",
-      scrub: true,
-      onEnter: prepareClose,
-      onEnterBack: prepareClose,
-      onRefresh: positionCrest,
-      onLeaveBack: () => getLionStage()?.setBloom(0),
-      onUpdate: (self) => {
-        const exp = getLionStage();
-        if (!exp) return;
-        // The engine eases this target independently of scroll event cadence.
-        exp.setBloom(Math.min(self.progress / 0.6, 1));
-      },
-    });
-
-    // This trigger's start/end depend on the cumulative rendered height of
-    // everything above it (the hero + the complete service story). page.tsx loads
-    // Space Grotesk with display:'swap' — if the font swaps in after GSAP has
-    // already cached this trigger's pixel range, every heading upstream can
-    // reflow, and the range goes stale until something else refreshes it.
-    // Refresh after the font settles, scoped to the one trigger at risk here.
+    // Chapter ranges are measured from the cumulative rendered height of
+    // everything above them. page.tsx loads its display face with
+    // display:'swap', so a late font swap reflows every heading upstream and
+    // leaves those measurements stale. Refresh once the font settles; the
+    // conductor re-measures on the same refresh.
     const refresh = () => {
       if (!cancelled) ScrollTrigger.refresh();
     };
@@ -80,13 +60,14 @@ export default function AiCloseBeat({ children }: { children: React.ReactNode })
     return () => {
       cancelled = true;
       window.removeEventListener("load", refresh);
-      st.kill();
+      conductor.setCrestHandler(null);
     };
   }, []);
 
   return (
     <div
       ref={wrapRef}
+      data-ai-chapter="close"
       data-ai-snap
       data-lion-zone
     >

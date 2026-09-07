@@ -28,55 +28,55 @@ type QualityTier = "low" | "medium" | "high" | "ultra";
  */
 const QUALITY = {
   low: {
-    particles: 77,
+    particles: 900,
     dpr: 1.25,
     minDpr: 1,
     dust: 0,
     swarmHeads: 0,
     trailLength: 1,
-    pointSize: 56,
+    pointSize: 20,
     exposure: 1.18,
     bloom: 0,
     dof: 0,
     organicDetail: 0,
   },
   medium: {
-    particles: 177,
+    particles: 3_200,
     dpr: 1.45,
     minDpr: 1.1,
     dust: 48,
     swarmHeads: 18,
     trailLength: 2,
-    pointSize: 48,
+    pointSize: 17,
     exposure: 1.1,
     bloom: 0,
-    dof: 0.06,
+    dof: 0.14,
     organicDetail: 0.3,
   },
   high: {
-    particles: 777,
+    particles: 14_000,
     dpr: 1.65,
     minDpr: 1.2,
     dust: 500,
     swarmHeads: 70,
     trailLength: 4,
-    pointSize: 44,
+    pointSize: 13,
     exposure: 1.06,
     bloom: 0.22,
-    dof: 0.16,
+    dof: 0.34,
     organicDetail: 0.72,
   },
   ultra: {
-    particles: 1_377,
+    particles: 26_000,
     dpr: 1.85,
     minDpr: 1.25,
     dust: 1_000,
     swarmHeads: 110,
     trailLength: 5,
-    pointSize: 42,
+    pointSize: 12,
     exposure: 1.06,
     bloom: 0.27,
-    dof: 0.22,
+    dof: 0.42,
     organicDetail: 1,
   },
 } as const;
@@ -96,14 +96,30 @@ const clamp01 = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v);
  * Everything that touches `window` / `document` runs in init() or later, never
  * in the constructor, so the module is safe to import anywhere.
  */
+/**
+ * The optical reference the page's layout is authored against. `halfH` is
+ * derived from these, never from the live camera: chapter camera moves must not
+ * shift where the copy-safe column sits or where the closing crest lands.
+ */
+const BASE_DIST = 4.8;
+const BASE_FOV = 42;
+
 export class LionExperience {
   private canvas: HTMLCanvasElement;
   private renderer!: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
   private camera!: THREE.PerspectiveCamera;
   private composer: EffectComposer | null = null;
+  private gradePass: ShaderPass | null = null;
   private bloom: UnrealBloomPass | null = null;
   private dust: THREE.Points | null = null;
+  private lion: THREE.Group | null = null;
+  private lionLights: THREE.Object3D[] = [];
+  private lionEnv: THREE.Texture | null = null;
+  private lionBaseScale = 1;
+  /** 0 = absent, 1 = fully present. Authored per chapter in chapters.ts. */
+  private lionPresence = 0;
+  private lionPresenceTarget = 0;
   private swarmMat: THREE.ShaderMaterial | null = null;
   private plexusMat: THREE.ShaderMaterial | null = null;
   private swarmGroup: THREE.Group | null = null;
@@ -112,6 +128,7 @@ export class LionExperience {
   private halfH = 1.85;
   private compactDevice = false;
   private qualityTier: QualityTier = "high";
+  private forcedTier: QualityTier | null = null;
   private resizeRaf = 0;
   private renderDpr = 1;
   private adaptiveElapsed = 0;
@@ -130,6 +147,8 @@ export class LionExperience {
 
   /** Base yaw of the crown. Dev-tunable via ?yaw= while framing the shot. */
   public yawProbe = -0.08;
+  /** Dev-only: ?lionyaw= forces the lion's presented angle for composing. */
+  public lionYawProbe: number | null = null;
 
   /** Scroll-driven morph target, eased internally (0 = crown, 1 = operating-system hub) */
   public morphTarget = 0;
@@ -149,6 +168,9 @@ export class LionExperience {
   private screenWorld = new THREE.Vector3();
   private pointerStrength = { value: 0 };
   private camOffset = new THREE.Vector2(0, 0);
+  /** Eased camera pose; the target is authored per chapter in chapters.ts. */
+  private camPose = { dist: BASE_DIST, height: 0.05, lookY: 0, fov: BASE_FOV };
+  private camPoseTarget = { dist: BASE_DIST, height: 0.05, lookY: 0, fov: BASE_FOV };
 
   private opts: {
     maxParticles: number;
@@ -201,6 +223,30 @@ export class LionExperience {
   }
 
   /** Normalized screen coords (x right, y down) to a point on the z=0 plane. */
+  /**
+   * How present the lion is in this chapter. The crown and the lion are the same
+   * protagonist at two quality tiers and two points in the story: the lion is the
+   * system's face at arrival and at the close, the particle field is its interior
+   * in between. On tiers without the mesh this is simply never non-zero.
+   */
+  setLionPresence(v: number): void {
+    this.lionPresenceTarget = clamp01(v);
+    this.activeUntil = performance.now() + 700;
+  }
+
+  /**
+   * Authored camera position for the current chapter. Pointer parallax and idle
+   * sway are added on top of this in the render loop, so a chapter composes the
+   * shot and the interaction layer stays additive.
+   */
+  setCameraPose(pose: Partial<{ dist: number; height: number; lookY: number; fov: number }>): void {
+    if (pose.dist !== undefined) this.camPoseTarget.dist = pose.dist;
+    if (pose.height !== undefined) this.camPoseTarget.height = pose.height;
+    if (pose.lookY !== undefined) this.camPoseTarget.lookY = pose.lookY;
+    if (pose.fov !== undefined) this.camPoseTarget.fov = pose.fov;
+    this.activeUntil = performance.now() + 700;
+  }
+
   private toWorld(nx: number, ny: number): THREE.Vector3 {
     const halfW = this.halfH * this.camera.aspect;
     return this.screenWorld.set(nx * halfW, -ny * this.halfH, 0);
@@ -235,13 +281,19 @@ export class LionExperience {
     return QUALITY[this.qualityTier].particles;
   }
 
-  /** Dev-only URL overrides, read once at init: ?count=90000 and ?morph=1. */
+  /** Dev-only URL overrides, read once at init: ?count=, ?tier=, ?morph=1, ?yaw=. */
   private applyDevOverrides(): void {
     const q = new URLSearchParams(window.location.search);
+    const tier = q.get("tier");
+    if (tier === "low" || tier === "medium" || tier === "high" || tier === "ultra") {
+      this.forcedTier = tier;
+    }
     const forced = q.get("count");
     if (forced) {
       this.opts.maxParticles = Math.max(32, parseInt(forced, 10) || this.opts.maxParticles);
     }
+    const lionYaw = q.get("lionyaw");
+    if (lionYaw !== null) this.lionYawProbe = parseFloat(lionYaw) || 0;
     if (q.get("morph") === "1") {
       this.morphTarget = 1;
       this.morph = 1;
@@ -265,7 +317,7 @@ export class LionExperience {
 
   async init(): Promise<void> {
     this.applyDevOverrides();
-    this.qualityTier = this.detectQualityTier();
+    this.qualityTier = this.forcedTier ?? this.detectQualityTier();
     if (this.opts.maxParticles > 0 && this.opts.maxParticles <= QUALITY.low.particles) {
       this.qualityTier = "low";
     }
@@ -279,7 +331,7 @@ export class LionExperience {
       alpha: true,
       powerPreference: "high-performance",
     });
-    if (this.isSoftwareRenderer()) this.qualityTier = "low";
+    if (this.isSoftwareRenderer() && !this.forcedTier) this.qualityTier = "low";
     if (!this.opts.maxParticles) this.opts.maxParticles = this.detectParticleBudget();
     const quality = QUALITY[this.qualityTier];
     this.renderer.setClearColor(0x000000, 0);
@@ -292,7 +344,14 @@ export class LionExperience {
     this.camera.position.set(0, 0.05, 4.8);
 
     if (quality.dust > 0) this.buildDust();
-    if (this.qualityTier === "high" || this.qualityTier === "ultra") this.buildFlare();
+    if (this.qualityTier === "high" || this.qualityTier === "ultra") {
+      this.buildFlare();
+      // Deliberately not awaited. The crown is the first frame either way, and
+      // the lion crossfades in whenever it lands.
+      void this.loadLion().catch((error) => {
+        if (!this.disposed) console.warn("Lion mesh unavailable; crown carries the chapter", error);
+      });
+    }
     this.buildCrownParticles();
     if (this.disposed) return;
     // Mobile renders directly. Avoiding bloom + grading removes two full-screen
@@ -325,8 +384,11 @@ export class LionExperience {
     const spawn = new Float32Array(count * 3);
     const burst = new Float32Array(count * 3);
     const ecosystem = new Float32Array(count * 3);
-    const energy = new Float32Array(count * 3);
-    const hub = new Float32Array(count * 3);
+    // The four sold systems, each a distinct, mobile-legible room:
+    const frontDesk = new Float32Array(count * 3);
+    const followThrough = new Float32Array(count * 3);
+    const backOffice = new Float32Array(count * 3);
+    const controlRoom = new Float32Array(count * 3);
 
     const s = new THREE.Vector3();
     const spherical = new THREE.Spherical();
@@ -354,7 +416,13 @@ export class LionExperience {
     const segments = [...silhouette, ...structure];
     const lengths = segments.map(([x1, y1, x2, y2]) => Math.hypot(x2 - x1, y2 - y1));
     const totalLength = lengths.reduce((sum, length) => sum + length, 0);
-    const layerCount = this.qualityTier === "low" ? 1 : this.qualityTier === "medium" ? 2 : 4;
+    // The crown is extruded, not stacked. It used to be the same flat polyline
+    // repeated across four layers 0.18 units apart on a form 2.5 units wide, so
+    // it read as vector clipart: no parallax between near and far edges, and
+    // nothing for depth of field to sort through. Now particles are placed on a
+    // real band with front and back faces and side walls, which is what lets the
+    // opening camera move see it as an object.
+    const DEPTH = 0.62;
 
     for (let i = 0; i < count; i++) {
       const distance = ((i + 0.5) / count) * totalLength;
@@ -365,15 +433,52 @@ export class LionExperience {
       }
       const [x1, y1, x2, y2] = segments[segmentIndex];
       const local = Math.min(1, (distance - cursor) / lengths[segmentIndex]);
-      const layer = i % layerCount;
-      const depth = layerCount === 1 ? 0 : (layer / (layerCount - 1) - 0.5) * 0.18;
-      const jitter = this.qualityTier === "low" ? 0 : (this.random(i + 31) - 0.5) * 0.022;
-      positions.set([
-        THREE.MathUtils.lerp(x1, x2, local) + jitter,
-        THREE.MathUtils.lerp(y1, y2, local) + jitter,
-        depth,
-      ], i * 3);
-      normals.set([0, 0.1 + depth * 0.3, 1], i * 3);
+
+      const px = THREE.MathUtils.lerp(x1, x2, local);
+      const py = THREE.MathUtils.lerp(y1, y2, local);
+
+      // Outward normal of this segment in the plane, used to give the side
+      // walls thickness and to light the band's edges differently from its faces.
+      const sx = x2 - x1;
+      const sy = y2 - y1;
+      const sLen = Math.max(Math.hypot(sx, sy), 1e-4);
+      const nx = sy / sLen;
+      const ny = -sx / sLen;
+
+      const r = this.random(i * 7 + 13);
+      const r2 = this.random(i * 7 + 29);
+      const jitter = this.qualityTier === "low" ? 0 : (this.random(i + 31) - 0.5) * 0.016;
+
+      let ox: number;
+      let oy: number;
+      let oz: number;
+      let nz: number;
+      if (r < 0.42) {
+        // Front face, on the authored silhouette plane
+        oz = 0;
+        ox = px + jitter;
+        oy = py + jitter;
+        nz = 1;
+      } else if (r < 0.84) {
+        // Back face, dimmer through the depth term in the shader
+        oz = -DEPTH;
+        ox = px + jitter;
+        oy = py + jitter;
+        nz = -1;
+      } else {
+        // Side wall: swept back through the full depth along the segment normal
+        oz = -r2 * DEPTH;
+        const bulge = (1 - Math.abs(oz + DEPTH / 2) / (DEPTH / 2)) * 0.045;
+        ox = px + nx * bulge + jitter;
+        oy = py + ny * bulge + jitter;
+        nz = 0;
+      }
+
+      positions.set([ox, oy, oz], i * 3);
+      // Face particles point at the viewer, wall particles point outward, so the
+      // existing Fresnel and key terms separate the band's edges from its faces.
+      const outward = nz === 0 ? 1 : 0.22;
+      normals.set([nx * outward, ny * outward + 0.08, nz === 0 ? 0.16 : nz], i * 3);
     }
 
     for (let i = 0; i < count; i++) {
@@ -415,23 +520,43 @@ export class LionExperience {
       else [ex, ey] = [ex * 0.82 + ey * 0.57, -ex * 0.57 + ey * 0.82];
       ecosystem.set([ex, ey, ez], i * 3);
 
-      const flowY = rx * 4.4 - 2.2;
-      const phase = rw * Math.PI * 2;
-      const helixAngle = flowY * 2.55 + phase;
-      const helixRadius = 0.18 + rz * 0.24;
-      energy.set([
-        Math.cos(helixAngle) * helixRadius,
-        flowY,
-        Math.sin(helixAngle) * helixRadius,
+      // Front Desk (Capture & Convert): a wide, low arc bowing toward the
+      // viewer — a reception counter that greets every arrival at once.
+      const fdAngle = (rx - 0.5) * 2.35;
+      const fdRadius = 1.0 + rz * 0.30;
+      frontDesk.set([
+        Math.sin(fdAngle) * fdRadius,
+        -0.16 + Math.cos(fdAngle) * fdRadius * 0.38,
+        -Math.cos(fdAngle) * 0.30 + (ry - 0.5) * 0.26,
       ], i * 3);
 
-      const layer = Math.floor(ry * 5);
-      const hubAngle = rx * Math.PI * 2;
-      const hubRadius = 0.42 + rz * 0.72;
-      hub.set([
-        Math.cos(hubAngle) * hubRadius,
-        (layer - 2) * 0.34 + Math.sin(hubAngle * 2 + phase) * 0.045,
-        Math.sin(hubAngle) * hubRadius * 0.48,
+      // Follow-Through (Serve & Retain): a closed racetrack loop the system
+      // keeps circling back around, never a dead end.
+      const ftAngle = rx * Math.PI * 2;
+      followThrough.set([
+        Math.cos(ftAngle) * (1.08 + rz * 0.10),
+        Math.sin(ftAngle) * (0.50 + rz * 0.08),
+        (rw - 0.5) * 0.26,
+      ], i * 3);
+
+      // Back Office (Run & Fulfill): four orderly lanes, work moving in
+      // straight rows instead of scattered tasks.
+      const boRow = Math.floor(ry * 4);
+      backOffice.set([
+        THREE.MathUtils.lerp(-1.12, 1.12, rx),
+        (boRow - 1.5) * 0.58,
+        (rz - 0.5) * 0.22,
+      ], i * 3);
+
+      // Control Room (See & Scale): three concentric rings, a dashboard read
+      // at a glance instead of a wall of disconnected numbers.
+      const crRing = Math.floor(ry * 3);
+      const crAngle = rx * Math.PI * 2;
+      const crRadius = 0.32 + crRing * 0.46;
+      controlRoom.set([
+        Math.cos(crAngle) * crRadius,
+        Math.sin(crAngle) * crRadius * 0.86,
+        (rz - 0.5) * 0.18,
       ], i * 3);
     }
 
@@ -442,8 +567,10 @@ export class LionExperience {
     geo.setAttribute("aSpawn", new THREE.BufferAttribute(spawn, 3));
     geo.setAttribute("aBurst", new THREE.BufferAttribute(burst, 3));
     geo.setAttribute("aEcosystem", new THREE.BufferAttribute(ecosystem, 3));
-    geo.setAttribute("aEnergy", new THREE.BufferAttribute(energy, 3));
-    geo.setAttribute("aHub", new THREE.BufferAttribute(hub, 3));
+    geo.setAttribute("aFrontDesk", new THREE.BufferAttribute(frontDesk, 3));
+    geo.setAttribute("aFollowThrough", new THREE.BufferAttribute(followThrough, 3));
+    geo.setAttribute("aBackOffice", new THREE.BufferAttribute(backOffice, 3));
+    geo.setAttribute("aControlRoom", new THREE.BufferAttribute(controlRoom, 3));
 
     const quality = QUALITY[this.qualityTier];
     const dpr = Math.min(window.devicePixelRatio, quality.dpr);
@@ -478,7 +605,7 @@ export class LionExperience {
 
     // Keep the population sparse, but compensate its luminance so the crown
     // remains readable on both the black hero and the brighter middle beats.
-    this.baseGain = THREE.MathUtils.clamp(3_400 / count, 0.98, 1.72);
+    this.baseGain = THREE.MathUtils.clamp(3_400 / count, 0.72, 1.72);
     this.material.uniforms.uGain.value = this.baseGain;
     this.points = new THREE.Points(geo, this.material);
     this.points.frustumCulled = false;
@@ -488,6 +615,115 @@ export class LionExperience {
   }
 
   // -------------------------------------------------------- ambient dust --
+  /**
+   * The lion shares the particle scene rather than owning a second canvas. One
+   * WebGL context is a hard requirement here, and sharing buys real occlusion:
+   * the mesh writes depth, the additive points test against it, so particles
+   * behind the lion are hidden and particles in front glow over it. Two stacked
+   * canvases could never do that.
+   *
+   * Lighting reuses the language already established in LionCenterpiece: a warm
+   * gold key for the human hand, a cool cyan rim for the machine.
+   */
+  /**
+   * A metal with nothing to reflect is black except where a light hits it
+   * directly, which on a faceted low-poly surface produced harsh party-coloured
+   * triangles: facets catching the cyan rim went green, facets catching both
+   * lights went magenta. Giving the scene an environment turns those speculars
+   * into a continuous gold falloff, which is what makes metal read as metal.
+   *
+   * Built procedurally from a two-stop gradient, so it costs one small texture
+   * and no network request.
+   */
+  private buildLionEnvironment(): void {
+    const c = document.createElement("canvas");
+    c.width = 4;
+    c.height = 64;
+    const ctx = c.getContext("2d");
+    if (!ctx) return;
+    const grad = ctx.createLinearGradient(0, 0, 0, 64);
+    grad.addColorStop(0, "#c89a52");    // warm light from above, the human hand
+    grad.addColorStop(0.42, "#4a3a24");  // horizon
+    grad.addColorStop(1, "#0d1420");    // cool floor, the machine
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 4, 64);
+
+    const tex = new THREE.CanvasTexture(c);
+    tex.mapping = THREE.EquirectangularReflectionMapping;
+    tex.colorSpace = THREE.SRGBColorSpace;
+
+    const pmrem = new THREE.PMREMGenerator(this.renderer);
+    this.lionEnv = pmrem.fromEquirectangular(tex).texture;
+    this.scene.environment = this.lionEnv;
+    pmrem.dispose();
+    tex.dispose();
+  }
+
+  private buildLionLights(): void {
+    const ambient = new THREE.AmbientLight(0xffffff, 0.22);
+    const key = new THREE.DirectionalLight(0xffcf8a, 2.9);
+    key.position.set(3.5, 4.5, 3.5);
+    const rim = new THREE.DirectionalLight(0x6fe3ff, 1.45);
+    rim.position.set(-4, 1.5, -3.5);
+    const fill = new THREE.DirectionalLight(0xffe6c2, 0.4);
+    fill.position.set(0, -2, 2);
+
+    this.lionLights = [ambient, key, rim, fill];
+    for (const light of this.lionLights) this.scene.add(light);
+  }
+
+  private async loadLion(): Promise<void> {
+    // Kept out of the main chunk: only high and ultra ever fetch the loader or
+    // the model, so the tiers that fall back to the crown pay nothing for it.
+    const { FBXLoader } = await import("three/examples/jsm/loaders/FBXLoader.js");
+    const fbx = await new FBXLoader().loadAsync("/models/lion-lowpoly.fbx");
+    if (this.disposed) return;
+
+    fbx.traverse((child) => {
+      const mesh = child as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      mesh.geometry.computeVertexNormals();
+      // Faceted, so the low-poly geometry reads as a deliberate cut-gem finish
+      // rather than a failed attempt at smoothing.
+      mesh.material = new THREE.MeshStandardMaterial({
+        color: 0x9c6a2e,
+        emissive: 0x7a4410,
+        emissiveIntensity: 0.26,
+        // Flat shading gives every facet one normal, so a tight specular lands
+        // as a single blown-out triangle rather than a highlight that falls off.
+        // Broad roughness is what keeps a faceted surface readable under a
+        // coloured rim: at 0.34 the cyan clipped its green and blue channels and
+        // left a solid green patch on the shoulder.
+        metalness: 0.55,
+        roughness: 0.52,
+        flatShading: true,
+        transparent: true,
+        opacity: 0,
+      });
+    });
+
+    // Measure and recentre in the model's own unscaled local space before
+    // scaling the parent, or the offset is divided by the wrong units.
+    const box = new THREE.Box3().setFromObject(fbx);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    fbx.position.sub(center);
+
+    const group = new THREE.Group();
+    group.add(fbx);
+    // Sized to sit inside the frame at the opening camera distance rather than
+    // to match the crown's raw width: the crown is a wide flat band, the lion is
+    // a tall solid, so matching max-dimension cropped it top and bottom.
+    this.lionBaseScale = 1.85 / (Math.max(size.x, size.y, size.z) || 1);
+    group.scale.setScalar(this.lionBaseScale);
+    group.visible = false;
+    this.lion = group;
+    this.scene.add(group);
+
+    this.buildLionEnvironment();
+    this.buildLionLights();
+  }
+
   private buildDust(): void {
     const quality = QUALITY[this.qualityTier];
     const count = quality.dust;
@@ -681,8 +917,18 @@ export class LionExperience {
       uniforms: {
         tDiffuse: { value: null },
         uVignette: { value: 0.42 },
+        uTime: { value: 0 },
+        // Held deliberately low. Aberration and grain are here to stop the
+        // frame reading as clean CG, not to be noticed on their own.
+        // The offset is in UV units and scales by r2, so at the frame edge this
+        // is roughly (0.5 * 0.25 * value) of the width: about two pixels at
+        // 1440. An earlier 0.42 put it near seventy, which just looked broken.
+        uAberration: { value: this.qualityTier === "ultra" ? 0.013 : 0.009 },
+        uGrain: { value: 0.038 },
+        uContrast: { value: 0.2 },
       },
     }));
+    this.gradePass = gradePass;
     this.composer.addPass(gradePass);
   }
 
@@ -792,7 +1038,10 @@ export class LionExperience {
       u.uBloom.value = this.bloomW;
       // The energy current and reformed crown use the same sparse population,
       // so only a light compensation is needed across states.
-      u.uGain.value = this.baseGain * this.gainAspect * (1 - m * 0.08) * (1 - this.bloomW * 0.05);
+      u.uGain.value = this.baseGain * this.gainAspect * (1 - m * 0.08) * (1 - this.bloomW * 0.05)
+        // Yield to the lion. Not to zero: a faint field around it reads as the
+        // system still running behind its face.
+        * (1 - this.lionPresence * 0.88);
     }
 
     if (this.dust) {
@@ -818,6 +1067,38 @@ export class LionExperience {
     }
 
 
+    if (this.lion) {
+      const k = 1 - Math.exp(-4.5 * dt);
+      this.lionPresence += (this.lionPresenceTarget - this.lionPresence) * k;
+      const present = this.lionPresence > 0.002;
+      this.lion.visible = present;
+      if (present) {
+        this.lion.traverse((o) => {
+          const mat = (o as THREE.Mesh).material as THREE.MeshStandardMaterial | undefined;
+          if (mat && "opacity" in mat) mat.opacity = this.lionPresence;
+        });
+        // Same composed placement as the particle field, so the layout offsets
+        // authored in the ledger hold for whichever protagonist is on screen.
+        const halfW = this.halfH * this.camera.aspect;
+        const distRatio = this.camPose.dist / BASE_DIST;
+        this.lion.position.x = this.layout * halfW * distRatio;
+        // The closing chapter reserves half a viewport of padding above its
+        // panel for the reformed protagonist, which is why the crest anchors
+        // itself off-centre there. The lion has to honour the same reservation
+        // or it renders behind the glass instead of above it. bloomW is exactly
+        // the closing signal, so it drives the lift.
+        this.lion.position.y = (-0.15 + this.bloomW * 1.15) * distRatio;
+        this.lion.scale.setScalar(this.lionBaseScale * (1 - this.bloomW * 0.22));
+        // A restrained turn toward the viewer as it becomes present, plus the
+        // same idle breath the crown has. Never a turntable.
+        this.lion.rotation.y = this.lionYawProbe ?? (
+          1.18 - this.lionPresence * 0.5 + Math.sin(t * 0.09) * 0.05
+        );
+      }
+    }
+
+    if (this.gradePass) this.gradePass.uniforms.uTime.value = t;
+
     // The flare belongs to the crown state and dissolves as release begins.
     if (this.flare) {
       const fu = (this.flare.material as THREE.ShaderMaterial).uniforms;
@@ -832,14 +1113,26 @@ export class LionExperience {
     this.camOffset.x += (this.pointer.x * 0.22 - this.camOffset.x) * 0.045;
     this.camOffset.y += (this.pointer.y * 0.14 - this.camOffset.y) * 0.045;
     const idleSway = Math.sin(t * 0.24) * 0.03;
-    const immersive = THREE.MathUtils.smoothstep(m, 0.12, 0.28)
-      * (1 - THREE.MathUtils.smoothstep(m, 0.34, 0.50));
+
+    // Ease toward the chapter's authored pose. Frame-rate independent, and
+    // softer than the morph ease so a camera move reads as a move rather than
+    // as a cut when the user flicks the scrollbar.
+    const camK = 1 - Math.exp(-5 * dt);
+    this.camPose.dist += (this.camPoseTarget.dist - this.camPose.dist) * camK;
+    this.camPose.height += (this.camPoseTarget.height - this.camPose.height) * camK;
+    this.camPose.lookY += (this.camPoseTarget.lookY - this.camPose.lookY) * camK;
+    this.camPose.fov += (this.camPoseTarget.fov - this.camPose.fov) * camK;
+
+    if (Math.abs(this.camera.fov - this.camPose.fov) > 0.01) {
+      this.camera.fov = this.camPose.fov;
+      this.camera.updateProjectionMatrix();
+    }
     this.camera.position.set(
       this.camOffset.x,
-      0.05 + this.camOffset.y + idleSway,
-      4.8 - immersive * 1.45,
+      this.camPose.height + this.camOffset.y + idleSway,
+      this.camPose.dist,
     );
-    this.camera.lookAt(0, 0, 0);
+    this.camera.lookAt(0, this.camPose.lookY, 0);
 
     // The crown breathes; the energy current moves entirely in-shader.
     if (this.points) {
@@ -847,8 +1140,25 @@ export class LionExperience {
       this.points.rotation.y = (this.yawProbe + Math.sin(t * 0.1) * 0.07) * (1 - m);
       // Centred and lifted so the crown has space beside the hero promise.
       const halfW = this.halfH * this.camera.aspect;
-      this.points.position.x = this.layout * halfW;
-      this.points.position.y = (this.halfH * 0.22) * (1 - THREE.MathUtils.smoothstep(m, 0.04, 0.18));
+      // Screen-stable composition. A perspective camera projects world x as
+      // x/dist, so a world-space offset drifts toward centre whenever the
+      // camera pulls back. Scaling the offset by the distance ratio keeps the
+      // form pinned where it was composed, which is what makes the copy-safe
+      // column actually safe while chapters dolly.
+      const distRatio = this.camPose.dist / BASE_DIST;
+      this.points.position.x = this.layout * halfW * distRatio;
+      let lift = (this.halfH * 0.22) * (1 - THREE.MathUtils.smoothstep(m, 0.04, 0.18));
+      if (this.compactDevice) {
+        // Portrait has no room for a side-by-side composition, so the layout
+        // offset is damped toward centre and the form would otherwise sit on
+        // top of the copy. Lift it into the upper third and scale it down so
+        // the reading column stays clear. Released once the crown opens, since
+        // the later forms are ambient rather than a subject beside the text.
+        const crownHold = 1 - THREE.MathUtils.smoothstep(m, 0.06, 0.34);
+        lift += this.halfH * 0.46 * crownHold;
+        this.points.scale.setScalar(1 - 0.4 * crownHold);
+      }
+      this.points.position.y = lift * distRatio;
       // Always drawn: the same population becomes the ambient current for the
       // middle sections rather than handing off to another canvas.
       this.points.visible = true;
@@ -951,7 +1261,7 @@ export class LionExperience {
 
     // Half the visible height at the z=0 plane. Everything laid out against the
     // viewport (the ribbon, the graph, the CTA target) is measured in these units.
-    this.halfH = Math.tan((this.camera.fov * Math.PI) / 360) * this.camera.position.z;
+    this.halfH = Math.tan((BASE_FOV * Math.PI) / 360) * BASE_DIST;
 
     if (!this.opts.animate && this.material) this.renderOnce();
   }
@@ -991,6 +1301,7 @@ export class LionExperience {
       if (Array.isArray(mat)) mat.forEach((mm) => mm.dispose());
       else mat?.dispose();
     });
+    this.lionEnv?.dispose();
     this.composer?.dispose();
     this.renderer?.dispose();
   }
