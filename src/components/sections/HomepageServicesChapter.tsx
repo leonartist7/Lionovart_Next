@@ -67,10 +67,11 @@ const SERVICE_META = [
   { id: "smart-systems", number: "05", short: "Systems" },
   { id: "growth", number: "06", short: "Growth" },
 ] as const;
+const SERVICE_COUNT = SERVICE_META.length;
 
 const EASE = [0.16, 1, 0.3, 1] as const;
-const INTRO_END = 0.055;
-const SERVICE_START = 0.07;
+const INTRO_END = 0.068;
+const SERVICE_START = 0.058;
 const SERVICE_END = 0.64;
 const PARTNERSHIP_START = 0.645;
 const PARTNERSHIP_PEAK = 0.735;
@@ -79,7 +80,6 @@ const COPY_END = 0.825;
 const MORPH_START = 0.835;
 const LOGO_START = 0.885;
 const STREAM_START = 0.9;
-const WHY_US_START = 0.94;
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
@@ -155,6 +155,7 @@ export default function HomepageServicesChapter() {
   const wheelLockRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
   const [showIntro, setShowIntro] = useState(true);
+  const [showServiceCopy, setShowServiceCopy] = useState(true);
 
   const services = SERVICE_META.map((meta, index) => ({
     ...meta,
@@ -173,25 +174,45 @@ export default function HomepageServicesChapter() {
 
   const introOpacity = useTransform(
     scrollYProgress,
-    [0, 0.022, 0.048, INTRO_END],
-    [1, 1, 0.18, 0],
+    [0, 0.012, 0.036, INTRO_END],
+    [1, 1, 0.3, 0],
   );
-  const introY = useTransform(scrollYProgress, [0, INTRO_END], [0, -34]);
-
-  const serviceOpacity = useTransform(
+  const introY = useTransform(
     scrollYProgress,
-    [INTRO_END, SERVICE_START, SERVICE_END, PARTNERSHIP_START + 0.028],
-    [0, 1, 1, 0],
+    [0, INTRO_END],
+    [0, -34],
+  );
+
+  const serviceStageOpacity = useTransform(
+    scrollYProgress,
+    [
+      0,
+      0.034,
+      SERVICE_START + 0.032,
+      PARTNERSHIP_START + 0.042,
+      PARTNERSHIP_START + 0.064,
+    ],
+    [0.72, 0.9, 1, 1, 0],
   );
   const serviceY = useTransform(
     scrollYProgress,
-    [SERVICE_END - 0.012, PARTNERSHIP_START + 0.035],
-    [0, -18],
+    [0, SERVICE_START + 0.032, SERVICE_END - 0.012, PARTNERSHIP_START + 0.052],
+    [128, 0, 0, -18],
+  );
+  const serviceCopyOpacity = useTransform(
+    scrollYProgress,
+    [SERVICE_END - 0.05, PARTNERSHIP_START - 0.018, PARTNERSHIP_START - 0.004],
+    [1, 0.32, 0],
+  );
+  const serviceMediaOpacity = useTransform(
+    scrollYProgress,
+    [PARTNERSHIP_START - 0.014, PARTNERSHIP_START + 0.012, PARTNERSHIP_START + 0.035],
+    [1, 1, 0],
   );
 
   const circleOpacity = useTransform(
     scrollYProgress,
-    [PARTNERSHIP_START - 0.012, PARTNERSHIP_START + 0.022, 1],
+    [PARTNERSHIP_START + 0.004, PARTNERSHIP_START + 0.032, 1],
     [0, 1, 1],
   );
   const circleScale = useTransform(
@@ -206,12 +227,12 @@ export default function HomepageServicesChapter() {
   );
   const partnershipCopyOpacity = useTransform(
     scrollYProgress,
-    [PARTNERSHIP_START + 0.018, PARTNERSHIP_START + 0.06, COPY_FADE_START, COPY_END],
+    [PARTNERSHIP_START + 0.046, PARTNERSHIP_START + 0.078, COPY_FADE_START, COPY_END],
     [0, 1, 1, 0],
   );
   const partnershipCopyScale = useTransform(
     scrollYProgress,
-    [PARTNERSHIP_START + 0.018, PARTNERSHIP_PEAK, COPY_END],
+    [PARTNERSHIP_START + 0.046, PARTNERSHIP_PEAK, COPY_END],
     [0.97, 1, 0.985],
   );
 
@@ -230,26 +251,20 @@ export default function HomepageServicesChapter() {
     [STREAM_START, 1],
     [0.975, 1.015],
   );
-  const whyUsOpacity = useTransform(
-    scrollYProgress,
-    [WHY_US_START, WHY_US_START + 0.03, 1],
-    [0, 1, 1],
-  );
-  const whyUsY = useTransform(
-    scrollYProgress,
-    [WHY_US_START, 0.985],
-    [34, 0],
-  );
-
   const selectorOpacity = useTransform(
     scrollYProgress,
-    [SERVICE_START - 0.012, SERVICE_START + 0.022, SERVICE_END - 0.016, PARTNERSHIP_START + 0.02],
+    [SERVICE_START + 0.002, SERVICE_START + 0.034, SERVICE_END - 0.016, PARTNERSHIP_START + 0.02],
     [0, 1, 1, 0],
   );
 
   useMotionValueEvent(scrollYProgress, "change", (value) => {
-    const shouldShowIntro = value < INTRO_END + 0.006;
+    const shouldShowIntro = value < INTRO_END + 0.008;
     setShowIntro((current) => (current === shouldShowIntro ? current : shouldShowIntro));
+
+    const shouldShowServiceCopy = value < PARTNERSHIP_START - 0.004;
+    setShowServiceCopy((current) =>
+      current === shouldShowServiceCopy ? current : shouldShowServiceCopy,
+    );
 
     if (value < SERVICE_START) {
       setActiveIndex((current) => (current === 0 ? current : 0));
@@ -262,8 +277,8 @@ export default function HomepageServicesChapter() {
       0.999,
     );
     const next = Math.min(
-      services.length - 1,
-      Math.floor(normalized * services.length),
+      SERVICE_COUNT - 1,
+      Math.floor(normalized * SERVICE_COUNT),
     );
     setActiveIndex((current) => (current === next ? current : next));
   });
@@ -272,14 +287,14 @@ export default function HomepageServicesChapter() {
     (index: number, behavior: ScrollBehavior = "smooth") => {
       const element = chapterRef.current;
       if (!element) return;
-      const next = clamp(index, 0, services.length - 1);
+      const next = clamp(index, 0, SERVICE_COUNT - 1);
       const sectionTop = element.getBoundingClientRect().top + window.scrollY;
       const travel = Math.max(1, element.offsetHeight - window.innerHeight);
-      const ratio = (next + 0.5) / services.length;
+      const ratio = (next + 0.5) / SERVICE_COUNT;
       const targetProgress = SERVICE_START + ratio * (SERVICE_END - SERVICE_START);
       window.scrollTo({ top: sectionTop + travel * targetProgress, behavior });
     },
-    [services.length],
+    [],
   );
 
   const goToPartnership = useCallback(
@@ -309,7 +324,7 @@ export default function HomepageServicesChapter() {
   const handleKeys = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "ArrowRight") {
       event.preventDefault();
-      if (activeIndex === services.length - 1) goToPartnership();
+      if (activeIndex === SERVICE_COUNT - 1) goToPartnership();
       else goToService(activeIndex + 1);
     }
     if (event.key === "ArrowLeft") {
@@ -368,11 +383,6 @@ export default function HomepageServicesChapter() {
           </div>
         </div>
 
-        <div className="bg-bg-surface-light px-4 pb-8 text-center">
-          <h2 className="font-clash text-[clamp(4.2rem,18vw,12rem)] font-bold uppercase leading-[0.8] tracking-[-0.055em] text-black/15">
-            WHY US<span className="text-brand-red">?</span>
-          </h2>
-        </div>
       </section>
     );
   }
@@ -401,7 +411,7 @@ export default function HomepageServicesChapter() {
         {showIntro && (
           <motion.header
             style={{ opacity: introOpacity, y: introY }}
-            className="pointer-events-none absolute inset-x-0 top-1/2 z-30 mx-auto -translate-y-1/2 px-5 text-center sm:px-8"
+            className="pointer-events-none absolute inset-x-0 top-[18svh] z-30 mx-auto px-5 text-center sm:top-[19svh] sm:px-8 lg:top-[18vh]"
           >
             <p className="font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-brand-red sm:text-[11px]">
               {t.services.eyebrow}
@@ -414,8 +424,8 @@ export default function HomepageServicesChapter() {
         )}
 
         <motion.div
-          style={{ opacity: serviceOpacity, y: serviceY }}
-          className="absolute inset-0 z-20"
+          style={{ opacity: serviceStageOpacity, y: serviceY }}
+          className="absolute inset-0 z-40"
         >
           <span className="sr-only" aria-live="polite">{activeService.title}</span>
 
@@ -433,42 +443,50 @@ export default function HomepageServicesChapter() {
               style={{ touchAction: "pan-y" }}
               className="flex h-full flex-col items-center justify-center gap-7 sm:gap-9 lg:gap-[clamp(2.75rem,5.5svh,5rem)]"
             >
-              <div className="relative order-1 aspect-video w-[min(92vw,61svh)] overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:w-[min(70vw,64svh)] lg:rounded-[1.55rem]">
+              <motion.div
+                style={{ opacity: serviceMediaOpacity }}
+                className="relative order-1 aspect-video w-[min(92vw,61svh)] overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:w-[min(70vw,64svh)] lg:rounded-[1.55rem]"
+              >
                 <ServiceMediaCarousel
                   key={activeService.id}
                   images={activeService.media}
                   alt={`${activeService.title} service visual`}
                 />
-              </div>
+              </motion.div>
 
-              <div className="order-2 flex min-w-0 flex-col justify-center text-center">
-                <AnimatePresence initial={false} mode="popLayout">
-                  <motion.div
-                    key={activeService.id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    transition={{ duration: 0.26, ease: EASE }}
-                  >
-                    <h3 className="mx-auto max-w-[13ch] font-clash text-[clamp(2.15rem,8.6vw,3.75rem)] font-semibold uppercase leading-[0.86] tracking-[-0.052em] sm:text-[clamp(2.45rem,7.5vw,4.5rem)] lg:max-w-[11ch] lg:text-[clamp(3.2rem,5vw,6.2rem)]">
-                      {activeService.title}
-                    </h3>
-                    <p className="mx-auto mt-4 max-w-[36ch] font-body text-[13px] font-medium leading-[1.52] text-black/60 sm:mt-5 sm:text-[15px] lg:mt-6 lg:max-w-[38ch] lg:text-[18px] lg:leading-[1.62]">
-                      {activeService.description}
-                    </p>
-                    <div className="mx-auto mt-5 flex max-h-[4.6rem] max-w-[38rem] flex-wrap justify-center gap-1.5 overflow-hidden sm:mt-6 sm:max-h-none sm:gap-2 lg:mt-7 lg:max-w-[40rem]">
-                      {activeService.deliverables.map((item) => (
-                        <span
-                          key={item}
-                          className="rounded-full border border-black/[0.09] bg-white/32 px-2.5 py-1.5 font-mono text-[7.5px] font-bold uppercase tracking-[0.09em] text-black/46 sm:px-3 sm:text-[8.5px] lg:text-[9px]"
-                        >
-                          {item}
-                        </span>
-                      ))}
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
+              {showServiceCopy && (
+                <motion.div
+                  style={{ opacity: serviceCopyOpacity }}
+                  className="order-2 flex min-w-0 flex-col justify-center text-center"
+                >
+                  <AnimatePresence initial={false} mode="popLayout">
+                    <motion.div
+                      key={activeService.id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.26, ease: EASE }}
+                    >
+                      <h3 className="mx-auto max-w-[13ch] font-clash text-[clamp(2.15rem,8.6vw,3.75rem)] font-semibold uppercase leading-[0.86] tracking-[-0.052em] sm:text-[clamp(2.45rem,7.5vw,4.5rem)] lg:max-w-[11ch] lg:text-[clamp(3.2rem,5vw,6.2rem)]">
+                        {activeService.title}
+                      </h3>
+                      <p className="mx-auto mt-4 max-w-[36ch] font-body text-[13px] font-medium leading-[1.52] text-black/60 sm:mt-5 sm:text-[15px] lg:mt-6 lg:max-w-[38ch] lg:text-[18px] lg:leading-[1.62]">
+                        {activeService.description}
+                      </p>
+                      <div className="mx-auto mt-5 flex max-h-[4.6rem] max-w-[38rem] flex-wrap justify-center gap-1.5 overflow-hidden sm:mt-6 sm:max-h-none sm:gap-2 lg:mt-7 lg:max-w-[40rem]">
+                        {activeService.deliverables.map((item) => (
+                          <span
+                            key={item}
+                            className="rounded-full border border-black/[0.09] bg-white/32 px-2.5 py-1.5 font-mono text-[7.5px] font-bold uppercase tracking-[0.09em] text-black/46 sm:px-3 sm:text-[8.5px] lg:text-[9px]"
+                          >
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+                </motion.div>
+              )}
 
             </motion.div>
           </div>
@@ -546,16 +564,6 @@ export default function HomepageServicesChapter() {
             }}
             className="h-[20rem] w-full overflow-visible sm:h-[27rem] lg:h-[32rem]"
           />
-        </motion.div>
-
-        <motion.div
-          style={{ opacity: whyUsOpacity, y: whyUsY }}
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-[2.4svh] z-20 overflow-hidden px-2 text-center sm:bottom-[1.5vh]"
-        >
-          <h2 className="whitespace-nowrap font-clash text-[clamp(4.6rem,19vw,17rem)] font-bold uppercase leading-[0.78] tracking-[-0.06em] text-black/[0.14]">
-            WHY US<span className="text-brand-red">?</span>
-          </h2>
         </motion.div>
 
         <motion.div

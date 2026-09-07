@@ -185,9 +185,9 @@ export const en = {
   },
 
   comparison: {
-    heading: "Why",
-    headingAccent: "Us",
-    headingSuffix: "?",
+    heading: "Why we're",
+    headingAccent: "chosen",
+    headingSuffix: ".",
     featuresLabel: "What You Need",
     columns: [
       "Speed",
@@ -309,46 +309,46 @@ export const en = {
     items: [
       {
         problem: {
-          heading: "Your Brand Commands The Room",
-          body: "You've invested in your craft, your team, your space — but your image still looks like day one. Clients pick the competitor who looks like the better choice, even when they're not.",
+          heading: "You Should Not Have To Defend Your Price",
+          body: "Your work has value. Your brand, website and content need to show it before the sales call, so clients understand the difference without making you defend the price.",
         },
         solution: {
-          heading: "A Brand That Commands Respect on Sight",
-          body: "We build identity systems that make clients trust you before you've said a word — logo, web, print, everything aligned.",
+          heading: "Make The Value Clear Before The Call",
+          body: "Your brand, website and content should show why you cost what you cost before someone asks for a discount.",
           stats: [
-            { value: "3x", label: "Perceived Value After Rebrand" },
-            { value: "94%", label: "First Impressions Are Design-Based" },
-            { value: "50+", label: "Brands Elevated Worldwide" },
+            { value: "3x", label: "Perceived Value After A Rebrand" },
+            { value: "94%", label: "Of First Impressions Are Design-Based" },
+            { value: "50+", label: "Brands Worldwide" },
           ],
         },
       },
       {
         problem: {
-          heading: "Your Business Shows Up Where It Counts",
-          body: "You're great at what you do — your existing clients love you. But the next person searching for exactly what you offer? They're finding your competitor instead.",
+          heading: "Your Business Should Not Live In Your Head",
+          body: "Leads, follow-ups, content, quotes and client questions should not live in your head. You need a clear view of what happens next without carrying every loose end yourself.",
         },
         solution: {
-          heading: "Show Up First. Get Chosen First.",
-          body: "From search engines to social feeds, we make sure the right people find you — consistently and in the right places.",
+          heading: "Get The Repeatable Work Out Of Your Hands",
+          body: "A custom Smart OS keeps leads, follow-ups, content and tasks moving without you having to remember every next step.",
           stats: [
-            { value: "+70%", label: "In Direct Bookings — Real Client Result" },
+            { value: "24/7", label: "Lead Capture And Follow-Up" },
+            { value: "15h+", label: "Saved Weekly On Repeat Work" },
+            { value: "1 Place", label: "For Leads, Tasks And Content" },
+          ],
+        },
+      },
+      {
+        problem: {
+          heading: "If They Can't Find You, They Can't Choose You",
+          body: "When someone searches, gets a referral, or checks you online, they should quickly see the proof and know what to do next.",
+        },
+        solution: {
+          heading: "Show Up Where Decisions Happen",
+          body: "Your website, search presence and content should make it easy for the right clients to find you, trust you and take the next step.",
+          stats: [
+            { value: "+70%", label: "Direct Bookings For A Client" },
             { value: "5x", label: "More Qualified Leads on Average" },
             { value: "82%", label: "Of Internet Traffic Is Now Video" },
-          ],
-        },
-      },
-      {
-        problem: {
-          heading: "You Have a Full Team Behind You",
-          body: "The website, the socials, the emails, the content — on top of actually running your business. It's 10pm and you're still editing a reel. You didn't start this to become a full-time marketer.",
-        },
-        solution: {
-          heading: "Your Full Creative & Digital Team — One Call Away",
-          body: "Brand, web, video, social, print, AI — all handled. You focus on your business. We handle how it looks, sounds, and grows.",
-          stats: [
-            { value: "24/7", label: "AI Systems Capturing Leads for You" },
-            { value: "15h+", label: "Saved Weekly on Average" },
-            { value: "100%", label: "Of Partners Multiplied Their ROI" },
           ],
         },
       },

@@ -43,8 +43,24 @@ export default function Comparison(props: any) {
     props.competitors || t.comparison.competitors;
 
   return (
-    <section className="bg-bg-surface-light py-[100px] md:py-[140px] px-4 md:px-8">
+    <section className="bg-bg-surface-light px-4 pb-[100px] pt-[140px] md:px-8 md:pb-[140px] md:pt-[190px]">
       <div className="max-w-[1200px] lg:max-w-[1400px] mx-auto">
+        <motion.header
+          className="mb-10 text-center md:mb-14"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-brand-red sm:text-[11px]">
+            The Lionovart difference
+          </p>
+          <h2 className="mt-4 font-clash text-[clamp(3rem,8vw,7rem)] font-semibold uppercase leading-[0.84] tracking-[-0.06em] text-[#111111]">
+            {t.comparison.heading}{" "}
+            <span className="text-brand-red">{t.comparison.headingAccent}</span>
+            {t.comparison.headingSuffix}
+          </h2>
+        </motion.header>
         <motion.div
           className="rounded-[24px] overflow-hidden bg-bg-surface-light shadow-[8px_8px_24px_rgba(0,0,0,0.12),-8px_-8px_24px_rgba(255,255,255,0.9)] border border-black/5"
           initial={{ opacity: 0, y: 40 }}

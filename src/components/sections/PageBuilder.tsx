@@ -5,7 +5,7 @@ import BridgeStatement from "@/components/sections/BridgeStatement";
 
 import AboutExperience from "@/components/sections/AboutExperience";
 import WhatWeDo from "@/components/sections/WhatWeDo";
-import ProblemsSolvedSection from "@/components/sections/ProblemsSolvedSection";
+import PawRevealStack from "@/components/sections/PawRevealStack";
 import HomepageServicesChapter from "@/components/sections/HomepageServicesChapter";
 import Comparison from "@/components/sections/Comparison";
 import ProcessExperience from "@/components/sections/ProcessExperience";
@@ -50,12 +50,13 @@ export function PageBuilder() {
         <BridgeStatement />
         <StrongTogetherTransition />
         <BridgeStatement variant="vow" />
-        <NovaSection id="problems"><ProblemsSolvedSection /></NovaSection>
+        <NovaSection id="problems"><PawRevealStack /></NovaSection>
         <NovaSection id="services"><HomepageServicesChapter /></NovaSection>
+        {/* Introduce the people behind the work before showing the comparison. */}
+        <NovaSection id="about"><AboutExperience /></NovaSection>
         <NovaSection id="comparison"><Comparison /></NovaSection>
 
-        {/* Narrative order: About -> Brands Elevated/results -> Process. */}
-        <NovaSection id="about"><AboutExperience /></NovaSection>
+        {/* Narrative order: About -> Why Us -> Brands Elevated/results -> Process. */}
         <NovaSection id="testimonials"><Testimonials /></NovaSection>
         <NovaSection id="process"><ProcessExperience /></NovaSection>
         <AuditStrip />

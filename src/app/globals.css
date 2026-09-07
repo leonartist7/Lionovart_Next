@@ -185,10 +185,8 @@
    Root variables â€” LIONOVART dark theme default
    ============================================= */
 :root {
-  /* Process lion circle (the "i" dot) and the IMAGINE card width.
-     Decoupled: circle ~20% smaller than the card. */
+  /* Process lion circle (the "i" dot). */
   --lion-circle-d: clamp(272px, 64vmin, 600px);
-  --imagine-card-d: clamp(360px, 90vmin, 900px);
   --background: #0d0d0d;
   --foreground: #ffffff;
   --card: #161616;
@@ -229,13 +227,6 @@
   --strategist-overlay: rgba(0, 0, 0, 0.6);
 }
 
-/* Give the Imagine panel more presence on wide screens while preserving the
-   current mobile proportion. */
-@media (min-width: 1024px) {
-  :root {
-    --imagine-card-d: clamp(468px, 117vmin, 1170px);
-  }
-}
 @layer base {
   * {
     @apply border-border outline-ring/50;
