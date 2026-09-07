@@ -26,16 +26,15 @@ export default function FAQ(props: FAQProps) {
   const openNova = useNovaStore((s) => s.openNova);
 
   const faqItems = props.items || (locale === "en" ? FAQ_ITEMS_EN : t.faq.items);
+  const introEyebrow = locale === "en" ? "A few things worth knowing" : t.faq.eyebrow;
   const handoff =
     locale === "en"
       ? {
-          eyebrow: "Still figuring it out?",
           heading: "You don’t need the perfect question.",
           body: "Tell us what’s on your mind. We’ll help you find the right next move.",
           cta: "Ask us",
         }
       : {
-          eyebrow: t.faq.assistant.eyebrow,
           heading: t.faq.assistant.heading,
           body: t.faq.assistant.body,
           cta: t.faq.assistant.cta,
@@ -53,11 +52,13 @@ export default function FAQ(props: FAQProps) {
       <div className="mx-auto max-w-[1040px] px-5 sm:px-6 lg:px-8">
         <div className="mb-3 border-b border-white/[0.11] pb-4 sm:mb-4 sm:pb-5">
           <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-brand-red sm:text-[11px]">
-            A few things worth knowing
+            {introEyebrow}
           </p>
-          <p className="mt-2 max-w-[62ch] font-body text-[14px] leading-[1.5] text-white/48 sm:text-[15px]">
-            No perfect brief required. Just a clear conversation about where you are and what needs to move.
-          </p>
+          {locale === "en" && (
+            <p className="mt-2 max-w-[62ch] font-body text-[14px] leading-[1.5] text-white/48 sm:text-[15px]">
+              No perfect brief required. Just a clear conversation about where you are and what needs to move.
+            </p>
+          )}
         </div>
 
         <Accordion className="border-b border-white/[0.11]">
