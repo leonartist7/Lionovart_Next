@@ -63,8 +63,8 @@ export function PageBuilder() {
         <SectionTitleCard
           word="ANSWERS."
           theme="dark"
-          height="16vh"
-          fontSize="clamp(4.5rem, 10vw, 9rem)"
+          height="10vh"
+          fontSize="clamp(3.75rem, 8.5vw, 7.5rem)"
         />
         <NovaSection id="faq"><FAQ /></NovaSection>
         <NovaSection id="closing-cta"><ClosingCTA /></NovaSection>
