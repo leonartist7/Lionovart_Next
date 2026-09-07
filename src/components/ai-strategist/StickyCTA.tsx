@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useNovaStore } from "@/lib/stores/nova-store";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { FAQ_ITEMS_EN } from "@/lib/faq-copy";
 
 export function StickyCTA() {
   const pathname = usePathname();
@@ -15,9 +16,10 @@ export function StickyCTA() {
   const prefersReducedMotion = useReducedMotion();
   const isOpen = useNovaStore((s) => s.isOpen);
   const openNova = useNovaStore((s) => s.openNova);
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
-  const quickQuestions = t.faq.items.slice(0, 4);
+  const quickQuestions = (locale === "en" ? FAQ_ITEMS_EN : t.faq.items).slice(0, 3);
+  const ctaLabel = locale === "en" ? "None of these? Ask us" : t.faq.assistant.cta;
 
   useEffect(() => {
     const onScroll = () => setVisible(window.scrollY > 600);
@@ -36,10 +38,10 @@ export function StickyCTA() {
     <AnimatePresence>
       {visible && (
         <motion.div
-          initial={prefersReducedMotion ? false : { opacity: 0, y: 12, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.96 }}
-          transition={{ duration: prefersReducedMotion ? 0 : 0.28, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 8 }}
+          transition={{ duration: prefersReducedMotion ? 0 : 0.24, ease: [0.16, 1, 0.3, 1] }}
           className="fixed bottom-5 right-4 z-[9990] flex flex-col items-end md:bottom-8 md:right-8"
         >
           <AnimatePresence>
@@ -47,33 +49,33 @@ export function StickyCTA() {
               <motion.div
                 id="quick-answers-panel"
                 role="dialog"
-                aria-label="Quick answers"
-                initial={prefersReducedMotion ? false : { opacity: 0, y: 12, scale: 0.98 }}
+                aria-label="Questions"
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 10, scale: 0.985 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 10, scale: 0.98 }}
-                transition={{ duration: prefersReducedMotion ? 0 : 0.22, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
-                className="mb-3 w-[min(360px,calc(100vw-2rem))] overflow-hidden rounded-[20px] border border-white/[0.12] bg-[#101010]/95 p-4 text-white backdrop-blur-xl md:p-5"
+                exit={{ opacity: 0, y: 8, scale: 0.99 }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="mb-3 w-[min(340px,calc(100vw-2rem))] overflow-hidden rounded-[14px] border border-white/[0.12] bg-[#0b0b0b]/94 px-4 pb-3 pt-4 text-white backdrop-blur-lg md:px-[18px] md:pt-[18px]"
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start justify-between gap-4 border-b border-white/[0.10] pb-3.5">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-gold">
-                      Quick answers
+                    <p className="text-[9px] font-bold uppercase tracking-[0.26em] text-brand-red">
+                      Before we talk
                     </p>
-                    <h2 className="mt-1.5 text-[20px] font-semibold leading-tight tracking-tight">
-                      What would you like to know?
-                    </h2>
+                    <p className="mt-1.5 font-clash text-[18px] font-semibold leading-[1.12] tracking-[-0.015em] text-white/92">
+                      Start with what’s on your mind.
+                    </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setPanelOpen(false)}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/[0.10] text-lg text-white/65 transition-colors hover:border-white/25 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/70"
-                    aria-label="Close quick answers"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center text-lg text-white/42 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60"
+                    aria-label="Close questions"
                   >
                     ×
                   </button>
                 </div>
 
-                <div className="mt-4 flex flex-col border-t border-white/[0.09]">
+                <div className="flex flex-col">
                   {quickQuestions.map((item: { question: string; answer: string }, index: number) => {
                     const active = selectedQuestion === index;
                     return (
@@ -82,23 +84,29 @@ export function StickyCTA() {
                           type="button"
                           onClick={() => setSelectedQuestion(active ? null : index)}
                           aria-expanded={active}
-                          className="flex min-h-12 w-full items-center justify-between gap-3 py-2.5 text-left text-[13px] font-medium leading-[1.35] text-white/88 transition-colors hover:text-white focus-visible:outline-none focus-visible:text-brand-gold"
+                          className="group flex min-h-[48px] w-full items-center gap-3 py-2.5 text-left focus-visible:outline-none"
                         >
-                          <span>{item.question}</span>
-                          <span aria-hidden className="text-base font-light text-white/45">
+                          <span className="shrink-0 text-[9px] font-semibold tracking-[0.12em] text-brand-red/70">
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                          <span className="min-w-0 flex-1 text-[13px] font-medium leading-[1.35] text-white/78 transition-colors group-hover:text-white">
+                            {item.question}
+                          </span>
+                          <span aria-hidden className="text-[15px] font-light text-white/34">
                             {active ? "−" : "+"}
                           </span>
                         </button>
+
                         <AnimatePresence initial={false}>
                           {active && (
                             <motion.div
                               initial={prefersReducedMotion ? false : { height: 0, opacity: 0 }}
                               animate={{ height: "auto", opacity: 1 }}
-                              exit={prefersReducedMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
-                              transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: prefersReducedMotion ? 0 : 0.18 }}
                               className="overflow-hidden"
                             >
-                              <p className="pb-3 pr-5 text-[13px] leading-[1.5] text-white/58">
+                              <p className="pb-3 pl-[2.1rem] pr-5 text-[12px] leading-[1.5] text-white/48">
                                 {item.answer}
                               </p>
                             </motion.div>
@@ -112,21 +120,21 @@ export function StickyCTA() {
                 <button
                   type="button"
                   onClick={() => openNova("sticky", true)}
-                  className="mt-4 flex min-h-11 w-full items-center justify-between rounded-full border border-brand-gold/30 bg-brand-gold/[0.08] px-4 text-left text-[13px] font-semibold text-white transition-colors hover:border-brand-gold/55 hover:bg-brand-gold/[0.12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/70"
+                  className="group mt-3 inline-flex min-h-10 items-center gap-2 text-left text-[12px] font-semibold text-brand-gold transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60"
                 >
-                  <span>Still have a question? Ask NOVA</span>
-                  <span aria-hidden>→</span>
+                  <span>{ctaLabel}</span>
+                  <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-1">→</span>
                 </button>
               </motion.div>
             )}
           </AnimatePresence>
 
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col items-end gap-1.5">
             <motion.span
-              animate={{ opacity: panelOpen ? 0 : 1, y: panelOpen ? 4 : 0 }}
-              className="pointer-events-none rounded-full border border-white/[0.10] bg-black/65 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/80 backdrop-blur-md"
+              animate={{ opacity: panelOpen ? 0 : 1, y: panelOpen ? 3 : 0 }}
+              className="pointer-events-none pr-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55"
             >
-              Questions? Answers here
+              Questions?
             </motion.span>
 
             <button
@@ -134,18 +142,17 @@ export function StickyCTA() {
               onClick={() => setPanelOpen((open) => !open)}
               aria-expanded={panelOpen}
               aria-controls="quick-answers-panel"
-              aria-label={panelOpen ? "Close quick answers" : "Open quick answers"}
-              className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-white/[0.18] bg-black/80 backdrop-blur-xl transition-transform duration-200 hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/70 md:h-[60px] md:w-[60px]"
+              aria-label={panelOpen ? "Close questions" : "Open questions"}
+              className="relative flex h-13 w-13 items-center justify-center overflow-hidden rounded-full border border-white/[0.16] bg-black/78 backdrop-blur-lg transition-[transform,border-color] duration-200 hover:scale-[1.035] hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 md:h-14 md:w-14"
             >
               <Image
                 src="/images/LOGO.svg"
                 alt=""
-                width={42}
-                height={42}
-                className="h-9 w-9 object-contain md:h-10 md:w-10"
+                width={38}
+                height={38}
+                className="h-8 w-8 object-contain md:h-9 md:w-9"
                 aria-hidden
               />
-              <span className="pointer-events-none absolute inset-0 rounded-full border border-brand-gold/15" aria-hidden />
             </button>
           </div>
         </motion.div>
