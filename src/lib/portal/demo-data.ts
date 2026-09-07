@@ -1,6 +1,6 @@
 import type { ProjectWithMilestones } from "@/lib/portal/projects";
 import { deriveProgress } from "@/lib/portal/projects";
-import type { AssetKind, Milestone } from "@/lib/portal/types";
+import type { AssetKind, Milestone, PortalMessage } from "@/lib/portal/types";
 
 /**
  * Fixtures for the design preview at /portal/demo.
@@ -208,4 +208,47 @@ export function demoAssets(): DemoAsset[] {
 
 export function demoAsset(id: string): DemoAsset | null {
   return DEMO_ASSETS.find((a) => a.id === id) ?? null;
+}
+
+/* ── Messages ───────────────────────────────────────────────────── */
+
+function minutesAgo(n: number): string {
+  return new Date(Date.now() - n * 60_000).toISOString();
+}
+
+export const DEMO_MESSAGES: PortalMessage[] = [
+  {
+    id: "msg-1",
+    channel: "portal",
+    direction: "in",
+    body: "Hi! Loved the second logo round — could we try the mark a touch bigger relative to the wordmark?",
+    authorUid: "demo-client",
+    authorName: DEMO_CLIENT.name,
+    status: "sent",
+    createdAt: minutesAgo(180),
+  },
+  {
+    id: "msg-2",
+    channel: "whatsapp",
+    direction: "out",
+    body: "Good catch — sizing it up now, back to you within the hour.",
+    authorUid: "demo-agency",
+    authorName: DEMO_AGENCY.name,
+    status: "sent",
+    createdAt: minutesAgo(165),
+  },
+  {
+    id: "msg-3",
+    channel: "whatsapp",
+    direction: "in",
+    body: "One more thing — here's a shot of our storefront sign for reference.",
+    mediaUrl: demoImage("northwind-storefront"),
+    status: "delivered",
+    createdAt: minutesAgo(40),
+  },
+];
+
+/** The demo composer never sends — everyone sees the same fixed conversation. */
+export function demoMessages(): PortalMessage[] {
+  return DEMO_MESSAGES;
 }

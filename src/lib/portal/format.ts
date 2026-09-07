@@ -33,6 +33,14 @@ export function relativeDate(iso: string | null | undefined): string {
   return `${Math.abs(weeks)} weeks ago`;
 }
 
+/** "2:45 PM" — fixed to en-CA for identical server/client rendering, same reason as `formatDate`. */
+export function formatTime(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const ms = Date.parse(iso);
+  if (Number.isNaN(ms)) return "";
+  return new Date(ms).toLocaleTimeString("en-CA", { hour: "numeric", minute: "2-digit" });
+}
+
 /** "1.4 MB" — one decimal place, nothing smaller than KB shown for uploads. */
 export function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;

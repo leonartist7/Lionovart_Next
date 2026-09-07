@@ -74,7 +74,7 @@ export const PORTAL_NAV: PortalNavItem[] = [
     label: "Messages",
     shortLabel: "Chat",
     icon: MessageCircle,
-    ready: false,
+    ready: true,
     primary: true,
   },
   {

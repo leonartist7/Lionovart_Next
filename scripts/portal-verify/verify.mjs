@@ -12,10 +12,12 @@
  * a screenshot, so it is asserted against raw HTML here. If you add a surface
  * with agency-only controls, add its marker to AGENCY_MARKERS below.
  */
+import { createHmac } from "node:crypto";
 import {
   BASE,
   J,
   check,
+  cookieFrom,
   createInvite,
   idTokenFor,
   pageSource,
@@ -311,6 +313,149 @@ if (run("assets")) {
   );
 }
 
+/* ── messages: the portal ⇄ WhatsApp bridge ───────────────────────── */
+if (run("messages")) {
+  console.log("\n── messages ──");
+  const fx = await setupWorkspace("Verify Messages");
+  const api = `${BASE}/api/portal/${fx.slug}/messages`;
+
+  const anonGet = await fetch(api);
+  check("unauthenticated cannot read the thread", anonGet.status === 401, `${anonGet.status}`);
+
+  // A client's message already lands where the studio reads it.
+  const clientSend = await fetch(api, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ body: "Can we push the deadline a week?" }),
+  });
+  const clientMsg = (await clientSend.json()).message;
+  check("client can send a message", clientSend.status === 201, `${clientSend.status}`);
+  check(
+    "client message is channel:portal, direction:in",
+    clientMsg?.channel === "portal" && clientMsg?.direction === "in",
+    JSON.stringify(clientMsg),
+  );
+
+  // No WhatsApp number connected yet — an agency reply also stays in the portal.
+  const agencyReply = await fetch(api, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ body: "Sure, next Friday works." }),
+  });
+  const agencyMsg = (await agencyReply.json()).message;
+  check(
+    "agency reply stays portal-only with no WhatsApp number set",
+    agencyMsg?.channel === "portal" && agencyMsg?.status === "sent",
+    JSON.stringify(agencyMsg),
+  );
+
+  const thread = await (await fetch(api, { headers: J(fx.clientCookie) })).json();
+  check("both messages appear in the thread", thread.messages.length === 2, `${thread.messages.length}`);
+
+  // A viewer-role member can read the thread but not send into it.
+  const viewerEmail = `viewer-${Date.now()}@example.com`;
+  const viewerInviteToken = await createInvite(fx, viewerEmail, "viewer");
+  const viewerIdToken = await idTokenFor(viewerEmail, "Viewer Only");
+  const viewerSessionRes = await fetch(`${BASE}/api/portal/session`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken: viewerIdToken, inviteToken: viewerInviteToken }),
+  });
+  const viewerCookie = `lv_portal_session=${cookieFrom(viewerSessionRes, "lv_portal_session")}`;
+
+  const viewerSend = await fetch(api, { method: "POST", headers: J(viewerCookie), body: JSON.stringify({ body: "trying" }) });
+  check("viewer role cannot send a message", viewerSend.status === 403, `${viewerSend.status}`);
+  const viewerRead = await fetch(api, { headers: J(viewerCookie) });
+  check("viewer role can still read the thread", viewerRead.status === 200, `${viewerRead.status}`);
+
+  // A workspace with a WhatsApp number connected: an agency reply relays out.
+  const waNumber = "15550001111";
+  const waWs = (
+    await (
+      await fetch(`${BASE}/api/portal/workspaces`, {
+        method: "POST",
+        headers: J(fx.adminCookie),
+        body: JSON.stringify({ name: "Verify WA Bridge", whatsappNumber: waNumber }),
+      })
+    ).json()
+  ).workspace;
+  const waApi = `${BASE}/api/portal/${waWs.slug}/messages`;
+
+  const waReply = await fetch(waApi, {
+    method: "POST",
+    headers: J(fx.agencyCookie), // agency has implicit access to every workspace
+    body: JSON.stringify({ body: "Files are on their way." }),
+  });
+  const waMsg = (await waReply.json()).message;
+  check(
+    "agency reply relays to WhatsApp when a number is connected",
+    waMsg?.channel === "whatsapp" && waMsg?.direction === "out",
+    JSON.stringify(waMsg),
+  );
+  check(
+    "mock driver reports delivery",
+    waMsg?.status === "sent" && waMsg?.waMessageId?.startsWith("mock-"),
+    JSON.stringify(waMsg),
+  );
+
+  /* ── webhook: signature-verified inbound delivery ──────────────── */
+  const secret = "dev-test-secret"; // matches .env.local's WHATSAPP_APP_SECRET
+  const payload = JSON.stringify({
+    entry: [
+      { changes: [{ value: { messages: [{ from: waNumber, id: "wamid.verify-1", type: "text", text: { body: "Here's the updated logo" } }] } }] },
+    ],
+  });
+  const goodSig = "sha256=" + createHmac("sha256", secret).update(payload).digest("hex");
+  const webhookUrl = `${BASE}/api/webhooks/whatsapp`;
+
+  const badSig = await fetch(webhookUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-hub-signature-256": "sha256=deadbeef" },
+    body: payload,
+  });
+  check("webhook rejects a bad signature", badSig.status === 403, `${badSig.status}`);
+
+  const accepted = await fetch(webhookUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-hub-signature-256": goodSig },
+    body: payload,
+  });
+  check("webhook accepts a correctly signed payload", accepted.status === 200, `${accepted.status}`);
+
+  const afterWebhook = await (await fetch(waApi, { headers: J(fx.agencyCookie) })).json();
+  check(
+    "inbound message lands in the right workspace's thread",
+    afterWebhook.messages.some((m) => m.waMessageId === "wamid.verify-1" && m.direction === "in"),
+    JSON.stringify(afterWebhook.messages.map((m) => m.waMessageId)),
+  );
+
+  const fxThread = await (await fetch(api, { headers: J(fx.agencyCookie) })).json();
+  check(
+    "it does not leak into a different workspace's thread",
+    !fxThread.messages.some((m) => m.waMessageId === "wamid.verify-1"),
+  );
+
+  // Meta redelivers on anything but a fast 200 — must not duplicate.
+  await fetch(webhookUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-hub-signature-256": goodSig },
+    body: payload,
+  });
+  const afterRetry = await (await fetch(waApi, { headers: J(fx.agencyCookie) })).json();
+  const dupes = afterRetry.messages.filter((m) => m.waMessageId === "wamid.verify-1").length;
+  check("a redelivered webhook does not duplicate the message", dupes === 1, `${dupes}`);
+
+  const verifyOk = await fetch(
+    `${webhookUrl}?hub.mode=subscribe&hub.verify_token=dev-test-verify-token&hub.challenge=echo-me`,
+  );
+  check(
+    "GET handshake echoes the challenge for the right token",
+    verifyOk.status === 200 && (await verifyOk.text()) === "echo-me",
+  );
+  const verifyBad = await fetch(`${webhookUrl}?hub.mode=subscribe&hub.verify_token=wrong&hub.challenge=echo-me`);
+  check("GET handshake rejects a wrong verify token", verifyBad.status === 403, `${verifyBad.status}`);
+}
+
 /* ── demo: the unauthenticated design preview ────────────────────── */
 if (run("demo")) {
   console.log("\n── demo (design preview) ──");
@@ -335,6 +480,9 @@ if (run("demo")) {
 
   const internalDirect = await fetch(`${BASE}/portal/demo/projects/internal-margin`);
   check("demo internal project 404s in client view", internalDirect.status === 404, `${internalDirect.status}`);
+
+  const demoMessages = await fetch(`${BASE}/portal/demo/messages`);
+  check("demo messages page loads", demoMessages.status === 200, `${demoMessages.status}`);
 }
 
 process.exit(summary() > 0 ? 1 : 0);

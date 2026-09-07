@@ -9,6 +9,7 @@
 | **`PORTAL_HANDOFF.md`** ← you are here | State, setup, the rules that must not break, patterns to copy, model split |
 | **`PORTAL_DESIGN.md`** | How it must look and feel. **Read before writing any UI.** Concrete decisions, not adjectives |
 | **`PORTAL_PAGES.md`** | Per-page specs for every screen still marked "Soon" |
+| **`PORTAL_PRODUCTION.md`** | Going live on Vercel — real Firebase project, WhatsApp Cloud API credentials. Config, not code |
 
 ## 🚀 Starting a new chat
 
@@ -33,7 +34,8 @@ Then confirm the environment is up (§2) before writing code. If `verify.mjs` is
 | **3 — Files** | ✅ built — signed uploads, versions, pinch-zoom viewer, agency-only delete |
 | **3 — Board / Calendar** | ⬜ next |
 | **4 — Collaboration** | ⬜ threads, pin-on-image annotation, approvals, realtime |
-| **5 — Content / WhatsApp** | ⬜ composer, approvals, adapters |
+| **5a — Messages / WhatsApp** | ✅ built — two-way bridge, signature-verified webhook, mock + live drivers |
+| **5b — Content** | ⬜ composer, per-platform previews, approvals, idea generation, image gen |
 | **6 — Polish** | ⬜ motion, a11y, anti-slop review |
 
 **Page-by-page specs for every screen still marked "Soon" are in `PORTAL_PAGES.md`** — purpose, client vs studio view, data, the hard parts, and which model should build each.
@@ -85,6 +87,12 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=lionovart-dev
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=lionovart-dev.appspot.com
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=000000000000
 NEXT_PUBLIC_FIREBASE_APP_ID=1:000000000000:web:0000000000000000000000
+
+# WhatsApp Cloud API — no real Meta credentials in dev, so the mock driver
+# handles outbound sends. The webhook secret is real so verify.mjs can
+# exercise actual HMAC signature verification.
+WHATSAPP_APP_SECRET=dev-test-secret
+WHATSAPP_VERIFY_TOKEN=dev-test-verify-token
 ```
 
 `src/lib/firebase-admin.ts` switches to emulator mode automatically when those `*_EMULATOR_HOST` vars are set. Production is untouched.
@@ -127,6 +135,8 @@ Don't invent; there's a working example of everything.
 | A form in a dialog | `src/components/portal/ProjectFormDialog.tsx` |
 | A signed-upload flow | `src/lib/portal/assets.ts` (sign → client PUTs to Storage → confirm checks the object exists) + `assets/sign-upload/route.ts` |
 | A hand-rolled gesture (pinch, drag, double-tap) | `src/components/portal/PinchZoomImage.tsx` — Framer motion values + `animate()`, no gesture library |
+| An adapter with a mock + live driver | `src/lib/portal/providers/whatsapp.ts` — one interface, selected by env var presence, so the UI never has a stub-shaped hole |
+| A signature-verified unguarded webhook | `src/app/api/webhooks/whatsapp/route.ts` — raw body read before parsing, HMAC compared in constant time, idempotent on retry |
 
 **Auth guards** (`src/lib/portal-auth.ts`) — always the first lines of a route:
 ```ts
@@ -221,7 +231,7 @@ What actually costs context, in order:
 Verification ladder, cheapest first:
 ```bash
 npx tsc --noEmit                       # types
-node scripts/portal-verify/verify.mjs  # behaviour + security (34 assertions)
+node scripts/portal-verify/verify.mjs  # behaviour + security (51 assertions)
 npm run build                          # before pushing
 node scripts/portal-verify/shots.mjs   # only when judging visuals
 ```
