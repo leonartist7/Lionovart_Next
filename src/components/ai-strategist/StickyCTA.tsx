@@ -21,7 +21,11 @@ export function StickyCTA() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  if (isOpen || pathname?.startsWith("/admin")) return null;
+  // /services/ai already offers this action in its section rail, the hero, both
+  // offers and the closing panel, so the floating pair was the fifth and sixth
+  // instance of one CTA and a third layer of fixed chrome over a full-bleed
+  // page. Scoped to that one route: every other page keeps it unchanged.
+  if (isOpen || pathname?.startsWith("/admin") || pathname === "/services/ai") return null;
 
   return (
     <AnimatePresence>

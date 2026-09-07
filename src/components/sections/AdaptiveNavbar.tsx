@@ -92,6 +92,16 @@ const REDUCED_ITEM_VARIANTS = {
 
 export type NavbarProps = {
   lightweightMenu?: boolean;
+  /**
+   * Hide the bar on scroll-down and reveal it on scroll-up for the whole page,
+   * rather than only inside the Luma showcase.
+   *
+   * The behaviour already existed; it was gated on an IntersectionObserver over
+   * `#luma-showcase`, an element most routes do not have, so everywhere else the
+   * bar simply stayed put. Pages that are full-bleed end to end need the same
+   * courtesy the showcase gets. Opt-in per route, so no existing page changes.
+   */
+  autoHideOnScroll?: boolean;
 };
 
 function LightweightMenuToggle({
@@ -118,7 +128,7 @@ function LightweightMenuToggle({
   );
 }
 
-export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps) {
+export default function AdaptiveNavbar({ lightweightMenu = false, autoHideOnScroll = false }: NavbarProps) {
   const [isPastHero, setIsPastHero] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -259,7 +269,13 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
       setIsMobileOpen(false);
     }
 
-    if (!isInLumaRef.current) return;
+    if (!isInLumaRef.current && !autoHideOnScroll) return;
+    // Never hide it over the top of the page, where there is nothing to clear
+    // and the bar is the only orientation on screen.
+    if (autoHideOnScroll && latest < 240) {
+      setNavVisible(true);
+      return;
+    }
 
     if (delta > 0) {
       setNavVisible(false);

@@ -72,7 +72,7 @@ export default function AiServicePage() {
           } as React.CSSProperties
         }
       >
-        <Navbar lightweightMenu />
+        <Navbar lightweightMenu autoHideOnScroll />
         <AiScrollSnap />
         <AiPageNav />
 
