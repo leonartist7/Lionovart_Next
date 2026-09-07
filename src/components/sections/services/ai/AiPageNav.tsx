@@ -11,6 +11,9 @@ const LINKS = [
   { id: "results", label: "ROI" },
 ] as const;
 
+/** Watched for orientation, but deliberately not given a rail entry. */
+const CLOSING_ID = "contact";
+
 /**
  * Section orientation for the AI page.
  *
@@ -34,13 +37,18 @@ export default function AiPageNav() {
   const openNova = useNovaStore((state) => state.openNova);
 
   useEffect(() => {
-    const sections = LINKS.map(({ id }) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
+    // The closing chapter is observed but has no rail entry. Without it the rail
+    // kept whichever link fired last and claimed "Start" while the reader was at
+    // the decision panel; watching it lets the rail show nothing current, which
+    // is at least true.
+    const watched = [...LINKS.map(({ id }) => id), CLOSING_ID];
+    const sections = watched.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
     const observer = new IntersectionObserver(
       (entries) => {
         const candidate = entries
           .filter((entry) => entry.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (candidate) setActive(candidate.target.id);
+        if (candidate) setActive(candidate.target.id === CLOSING_ID ? "" : candidate.target.id);
       },
       { rootMargin: "-32% 0px -55%", threshold: [0, 0.15, 0.4] },
     );

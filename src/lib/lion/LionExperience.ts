@@ -626,11 +626,10 @@ export class LionExperience {
    * gold key for the human hand, a cool cyan rim for the machine.
    */
   /**
-   * A metal with nothing to reflect is black except where a light hits it
-   * directly, which on a faceted low-poly surface produced harsh party-coloured
-   * triangles: facets catching the cyan rim went green, facets catching both
-   * lights went magenta. Giving the scene an environment turns those speculars
-   * into a continuous gold falloff, which is what makes metal read as metal.
+   * The bust's material is metallic, and a metal with nothing to reflect is
+   * black except where a light hits it directly. An environment gives its
+   * speculars something to resolve into, which is what makes the metal read as
+   * metal rather than as a flat silhouette.
    *
    * Built procedurally from a two-stop gradient, so it costs one small texture
    * and no network request.
@@ -675,44 +674,33 @@ export class LionExperience {
   private async loadLion(): Promise<void> {
     // Kept out of the main chunk: only high and ultra ever fetch the loader or
     // the model, so the tiers that fall back to the crown pay nothing for it.
-    const { FBXLoader } = await import("three/examples/jsm/loaders/FBXLoader.js");
-    const fbx = await new FBXLoader().loadAsync("/models/lion-lowpoly.fbx");
+    const { GLTFLoader } = await import("three/examples/jsm/loaders/GLTFLoader.js");
+    const gltf = await new GLTFLoader().loadAsync("/models/lion-bust.glb");
     if (this.disposed) return;
+    const model = gltf.scene;
 
-    fbx.traverse((child) => {
+    model.traverse((child) => {
       const mesh = child as THREE.Mesh;
       if (!mesh.isMesh) return;
-      mesh.geometry.computeVertexNormals();
-      // Faceted, so the low-poly geometry reads as a deliberate cut-gem finish
-      // rather than a failed attempt at smoothing.
-      mesh.material = new THREE.MeshStandardMaterial({
-        color: 0x9c6a2e,
-        emissive: 0x7a4410,
-        emissiveIntensity: 0.26,
-        // Flat shading gives every facet one normal, so a tight specular lands
-        // as a single blown-out triangle rather than a highlight that falls off.
-        // Broad roughness is what keeps a faceted surface readable under a
-        // coloured rim: at 0.34 the cyan clipped its green and blue channels and
-        // left a solid green patch on the shoulder.
-        metalness: 0.55,
-        roughness: 0.52,
-        flatShading: true,
-        transparent: true,
-        opacity: 0,
-      });
+      const mat = mesh.material as THREE.MeshStandardMaterial;
+      // The model ships its own base colour, normal and metallic-roughness maps,
+      // so it is lit rather than restyled. Only opacity is taken over, so chapter
+      // presence can cross it in and out.
+      mat.opacity = 0;
+      mat.transparent = true;
     });
 
     // Measure and recentre in the model's own unscaled local space before
     // scaling the parent, or the offset is divided by the wrong units.
-    const box = new THREE.Box3().setFromObject(fbx);
+    const box = new THREE.Box3().setFromObject(model);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
-    fbx.position.sub(center);
+    model.position.sub(center);
 
     const group = new THREE.Group();
-    group.add(fbx);
+    group.add(model);
     // Sized to sit inside the frame at the opening camera distance rather than
-    // to match the crown's raw width: the crown is a wide flat band, the lion is
+    // to match the crown's raw width: the crown is a wide flat band, the bust is
     // a tall solid, so matching max-dimension cropped it top and bottom.
     this.lionBaseScale = 1.85 / (Math.max(size.x, size.y, size.z) || 1);
     group.scale.setScalar(this.lionBaseScale);
@@ -1073,9 +1061,18 @@ export class LionExperience {
       const present = this.lionPresence > 0.002;
       this.lion.visible = present;
       if (present) {
+        const fading = this.lionPresence < 0.995;
         this.lion.traverse((o) => {
           const mat = (o as THREE.Mesh).material as THREE.MeshStandardMaterial | undefined;
-          if (mat && "opacity" in mat) mat.opacity = this.lionPresence;
+          if (!mat || !("opacity" in mat)) return;
+          mat.opacity = this.lionPresence;
+          // Opaque once fully present, so it sits in the opaque queue and depth
+          // sorts against the additive field properly instead of being sorted
+          // as a transparent surface for no reason.
+          if (mat.transparent !== fading) {
+            mat.transparent = fading;
+            mat.needsUpdate = true;
+          }
         });
         // Same composed placement as the particle field, so the layout offsets
         // authored in the ledger hold for whichever protagonist is on screen.
