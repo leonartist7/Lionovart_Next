@@ -65,7 +65,7 @@ export const PORTAL_NAV: PortalNavItem[] = [
     label: "Files",
     shortLabel: "Files",
     icon: Images,
-    ready: false,
+    ready: true,
     primary: true,
   },
   {

@@ -1,6 +1,6 @@
 import type { ProjectWithMilestones } from "@/lib/portal/projects";
 import { deriveProgress } from "@/lib/portal/projects";
-import type { Milestone } from "@/lib/portal/types";
+import type { AssetKind, Milestone } from "@/lib/portal/types";
 
 /**
  * Fixtures for the design preview at /portal/demo.
@@ -128,4 +128,84 @@ export type DemoView = "client" | "studio";
 
 export function resolveDemoView(value: string | undefined): DemoView {
   return value === "studio" ? "studio" : "client";
+}
+
+/* ── Files ──────────────────────────────────────────────────────── */
+
+export interface DemoAssetVersion {
+  n: number;
+  /** picsum.photos placeholder, or "" for a type with no real preview. */
+  url: string;
+  sizeBytes: number;
+  createdAt: string;
+  note?: string;
+}
+
+export interface DemoAsset {
+  id: string;
+  name: string;
+  mime: string;
+  kind: AssetKind;
+  currentVersion: number;
+  createdAt: string;
+  versions: DemoAssetVersion[];
+}
+
+function demoImage(seed: string): string {
+  return `https://picsum.photos/seed/${seed}/1200/900`;
+}
+
+export const DEMO_ASSETS: DemoAsset[] = [
+  {
+    id: "logo-mark",
+    name: "Logo mark — round 3.png",
+    mime: "image/png",
+    kind: "image",
+    currentVersion: 2,
+    createdAt: daysFromNow(-6),
+    versions: [
+      {
+        n: 1,
+        url: demoImage("northwind-logo-v1"),
+        sizeBytes: 812_000,
+        createdAt: daysFromNow(-9),
+        note: "First pass on the mark.",
+      },
+      {
+        n: 2,
+        url: demoImage("northwind-logo-v2"),
+        sizeBytes: 940_000,
+        createdAt: daysFromNow(-6),
+        note: "Tightened the leaf angle, warmed the brown.",
+      },
+    ],
+  },
+  {
+    id: "hero-photo",
+    name: "Homepage hero.jpg",
+    mime: "image/jpeg",
+    kind: "image",
+    currentVersion: 1,
+    createdAt: daysFromNow(-3),
+    versions: [
+      { n: 1, url: demoImage("northwind-hero"), sizeBytes: 2_400_000, createdAt: daysFromNow(-3) },
+    ],
+  },
+  {
+    id: "brand-guidelines",
+    name: "Brand guidelines draft.pdf",
+    mime: "application/pdf",
+    kind: "doc",
+    currentVersion: 1,
+    createdAt: daysFromNow(-1),
+    versions: [{ n: 1, url: "", sizeBytes: 4_100_000, createdAt: daysFromNow(-1) }],
+  },
+];
+
+export function demoAssets(): DemoAsset[] {
+  return DEMO_ASSETS;
+}
+
+export function demoAsset(id: string): DemoAsset | null {
+  return DEMO_ASSETS.find((a) => a.id === id) ?? null;
 }

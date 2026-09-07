@@ -62,12 +62,36 @@ await fetch(`${mApi}/${made[0].id}`, {
   body: JSON.stringify({ status: "done" }),
 });
 
+// A real image asset so the grid and viewer aren't empty states.
+const signed = await (
+  await fetch(`${BASE}/api/portal/${fx.slug}/assets/sign-upload`, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ name: "logo.png", mime: "image/png", sizeBytes: 20_000 }),
+  })
+).json();
+await fetch(`${BASE}/api/portal/${fx.slug}/assets/${signed.assetId}/versions`, {
+  method: "POST",
+  headers: J(fx.agencyCookie),
+  body: JSON.stringify({
+    version: 1,
+    storagePath: signed.storagePath,
+    name: "logo.png",
+    mime: "image/png",
+    sizeBytes: 20_000,
+  }),
+});
+
 const views = [
   { name: "dash-mobile-dark", cookie: fx.clientCookie, theme: "dark", w: 390, h: 900, path: `/portal/${fx.slug}` },
   { name: "dash-mobile-light", cookie: fx.clientCookie, theme: "light", w: 390, h: 900, path: `/portal/${fx.slug}` },
   { name: "dash-desktop", cookie: fx.clientCookie, theme: "dark", w: 1280, h: 900, path: `/portal/${fx.slug}` },
   { name: "project-client", cookie: fx.clientCookie, theme: "light", w: 390, h: 900, path: `/portal/${fx.slug}/projects/${project.id}` },
   { name: "project-agency", cookie: fx.agencyCookie, theme: "dark", w: 390, h: 1000, path: `/portal/${fx.slug}/projects/${project.id}` },
+  { name: "files-grid-mobile", cookie: fx.clientCookie, theme: "dark", w: 390, h: 900, path: `/portal/${fx.slug}/assets` },
+  { name: "files-grid-desktop", cookie: fx.agencyCookie, theme: "light", w: 1280, h: 900, path: `/portal/${fx.slug}/assets` },
+  { name: "files-viewer-mobile", cookie: fx.clientCookie, theme: "dark", w: 390, h: 900, path: `/portal/${fx.slug}/assets/${signed.assetId}` },
+  { name: "files-viewer-agency", cookie: fx.agencyCookie, theme: "light", w: 1280, h: 900, path: `/portal/${fx.slug}/assets/${signed.assetId}` },
 ];
 
 const browser = await chromium.launch({

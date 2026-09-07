@@ -32,3 +32,16 @@ export function relativeDate(iso: string | null | undefined): string {
   if (weeks > 0) return `in ${weeks} weeks`;
   return `${Math.abs(weeks)} weeks ago`;
 }
+
+/** "1.4 MB" — one decimal place, nothing smaller than KB shown for uploads. */
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  const units = ["KB", "MB", "GB"];
+  let value = bytes / 1024;
+  let i = 0;
+  while (value >= 1024 && i < units.length - 1) {
+    value /= 1024;
+    i++;
+  }
+  return `${value.toFixed(1)} ${units[i]}`;
+}

@@ -30,7 +30,8 @@ Then confirm the environment is up (§2) before writing code. If `verify.mjs` is
 | **1 — Foundation** | ✅ merged (PR #63) — route groups, portal theming, auth, invites, app shell |
 | **2 — Projects** | ✅ built (PR #65) — projects, milestones, derived progress, agency authoring |
 | **2b — Adaptive nav** | ✅ sections a client has no use for are absent, not empty (`visibleNavIds`) |
-| **3 — Board / Calendar / Assets** | ⬜ next |
+| **3 — Files** | ✅ built — signed uploads, versions, pinch-zoom viewer, agency-only delete |
+| **3 — Board / Calendar** | ⬜ next |
 | **4 — Collaboration** | ⬜ threads, pin-on-image annotation, approvals, realtime |
 | **5 — Content / WhatsApp** | ⬜ composer, approvals, adapters |
 | **6 — Polish** | ⬜ motion, a11y, anti-slop review |
@@ -88,6 +89,8 @@ NEXT_PUBLIC_FIREBASE_APP_ID=1:000000000000:web:0000000000000000000000
 
 `src/lib/firebase-admin.ts` switches to emulator mode automatically when those `*_EMULATOR_HOST` vars are set. Production is untouched.
 
+**If you're in a proxied sandbox and Firestore calls hang for ~45s then fail with `14 UNAVAILABLE`:** don't set `NO_PROXY`/`no_proxy` to a bare `"*"` on the **dev server's** process — grpc-js appears not to treat that as "bypass everything" the way `fetch`/`curl` do, so it tries routing plaintext gRPC through the HTTP proxy and the handshake fails. The sandbox's *default* `no_proxy` already lists `127.0.0.1` explicitly and works fine — leave it alone for `npm run dev`. (`verify.mjs`'s own `NO_PROXY="*"` override is fine — that process only does plain `fetch()`, never gRPC.) Also: a `next dev` immediately after `npm run build` can serve a stale `.next` route manifest that 404s valid API routes — `rm -rf .next` before `npm run dev` if routes that should exist come back 404.
+
 ---
 
 ## 3. The six rules that must not break
@@ -122,6 +125,8 @@ Don't invent; there's a working example of everything.
 | Data access + derived fields | `src/lib/portal/projects.ts` |
 | An agency-editable component | `src/components/portal/MilestoneRail.tsx` (one component, `editable` prop) |
 | A form in a dialog | `src/components/portal/ProjectFormDialog.tsx` |
+| A signed-upload flow | `src/lib/portal/assets.ts` (sign → client PUTs to Storage → confirm checks the object exists) + `assets/sign-upload/route.ts` |
+| A hand-rolled gesture (pinch, drag, double-tap) | `src/components/portal/PinchZoomImage.tsx` — Framer motion values + `animate()`, no gesture library |
 
 **Auth guards** (`src/lib/portal-auth.ts`) — always the first lines of a route:
 ```ts
@@ -199,7 +204,7 @@ When Opus finishes a design decision, it leaves the **contract** — types, func
 - **Realtime = cursor polling, not held SSE.** The site runs on **Cloud Run (live) and Vercel (staging)**. A held server-side `onSnapshot` works on Cloud Run and gets killed by Vercel's function duration cap — same code, silently different behaviour. Plan: `useWorkspaceFeed(workspaceId, { since })` polling `GET /api/portal/[ws]/changes?since=`, ~3s visible / ~20s idle / paused when hidden. SSE stays an upgrade behind the same hook.
 - **`server.js` only runs on Cloud Run.** It hosts the Nova voice WebSocket proxy. Vercel uses its own Next adapter and never executes it.
 - **Clients only, invited.** No public signup. Invite tokens are stored as SHA-256 hashes, bound to the recipient's address, single-use.
-- **Uploads → Firebase Storage** with server-issued signed PUT URLs, so bytes never route through Cloud Run. Cloudinary stays for marketing media.
+- **Uploads → Firebase Storage** with server-issued signed PUT URLs, so bytes never route through Cloud Run. Cloudinary stays for marketing media. Confirming an upload checks the object actually exists in Storage before writing Firestore — a client can't fabricate a version record. **No Storage emulator is wired up** (only auth + firestore in `firebase.json`), so `src/lib/portal/assets.ts` mocks the sign/read/exists calls under `FIRESTORE_EMULATOR_HOST` — verify.mjs exercises the validation and permission logic, never real bytes.
 - **Annotation pins are normalized 0–1** against the rendered image box, tied to a specific asset **version**.
 
 ---
@@ -216,7 +221,7 @@ What actually costs context, in order:
 Verification ladder, cheapest first:
 ```bash
 npx tsc --noEmit                       # types
-node scripts/portal-verify/verify.mjs  # behaviour + security (20 assertions)
+node scripts/portal-verify/verify.mjs  # behaviour + security (34 assertions)
 npm run build                          # before pushing
 node scripts/portal-verify/shots.mjs   # only when judging visuals
 ```

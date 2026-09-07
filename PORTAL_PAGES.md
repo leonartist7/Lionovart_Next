@@ -63,7 +63,9 @@ Decide this before building Content, because it changes whether Content is a nav
 
 ---
 
-## 🖼️ Files — `/portal/[ws]/assets` and `/[assetId]`
+## 🖼️ Files — `/portal/[ws]/assets` and `/[assetId]` ✅ Built
+
+**Delivered as specced**, except "studio can request approval on a specific version" — that's Approvals' job (next) and reuses the shared `approvals` collection rather than a second flow. Everything below is kept as the record of what was decided, and to explain choices Approvals will need to know about (versions, the coordinate space).
 
 **Purpose.** Where work is delivered and where feedback gets pinned. Build the viewer knowing annotation lands on top of it in Phase 4.
 
@@ -161,7 +163,7 @@ Currently unspecced and easy to forget until it's missing.
 
 ## 🎯 Suggested order
 
-1. **Files** — unblocks annotation, and delivering work is the portal's core job
+1. ~~**Files** — unblocks annotation, and delivering work is the portal's core job~~ ✅ Built
 2. **Approvals** — highest client value; fills the empty "awaiting you" slot
 3. **Board** — the biggest single build; do it when the surrounding pages are stable
 4. **Calendar** — small, satisfying, pure layout

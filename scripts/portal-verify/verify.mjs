@@ -209,6 +209,108 @@ if (run("nav")) {
   check("Content tab appears once a content project exists", withContent.html.includes(">Content</span>"));
 }
 
+/* ── assets: sign-upload validation, roles, confirm integrity ────── */
+if (run("assets")) {
+  console.log("\n── assets ──");
+  const fx = await setupWorkspace("Verify Assets");
+  const sign = `${BASE}/api/portal/${fx.slug}/assets/sign-upload`;
+
+  const badMime = await fetch(sign, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ name: "virus.exe", mime: "application/x-msdownload", sizeBytes: 1000 }),
+  });
+  check("disallowed mime rejected", badMime.status === 400, `${badMime.status}`);
+
+  const tooBig = await fetch(sign, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ name: "big.png", mime: "image/png", sizeBytes: 26 * 1024 * 1024 }),
+  });
+  check("oversize file rejected", tooBig.status === 400, `${tooBig.status}`);
+
+  // A client (role client_owner) can upload their own material.
+  const signed = await (
+    await fetch(sign, {
+      method: "POST",
+      headers: J(fx.clientCookie),
+      body: JSON.stringify({ name: "reference.png", mime: "image/png", sizeBytes: 50_000 }),
+    })
+  ).json();
+  check("client can request an upload", Boolean(signed.uploadUrl), JSON.stringify(signed));
+
+  // Confirm without ever PUTting bytes: the mocked-upload path under the
+  // emulators trusts this (no Storage emulator is wired up), but a real
+  // deployment's `objectExists` check is what this same call exercises there.
+  const confirmed = await (
+    await fetch(`${BASE}/api/portal/${fx.slug}/assets/${signed.assetId}/versions`, {
+      method: "POST",
+      headers: J(fx.clientCookie),
+      body: JSON.stringify({
+        version: signed.version,
+        storagePath: signed.storagePath,
+        name: "reference.png",
+        mime: "image/png",
+        sizeBytes: 50_000,
+      }),
+    })
+  ).json();
+  check("upload confirms into an asset", confirmed.asset?.id === signed.assetId, JSON.stringify(confirmed));
+
+  const list = await (
+    await fetch(`${BASE}/api/portal/${fx.slug}/assets`, { headers: J(fx.clientCookie) })
+  ).json();
+  check("asset appears in the list", list.assets.some((a) => a.id === signed.assetId));
+
+  // Delete is agency-only.
+  const clientDelete = await fetch(`${BASE}/api/portal/${fx.slug}/assets/${signed.assetId}`, {
+    method: "DELETE",
+    headers: J(fx.clientCookie),
+  });
+  check("client cannot delete a file", clientDelete.status === 403, `${clientDelete.status}`);
+
+  const agencyDelete = await fetch(`${BASE}/api/portal/${fx.slug}/assets/${signed.assetId}`, {
+    method: "DELETE",
+    headers: J(fx.agencyCookie),
+  });
+  check("agency can delete a file", agencyDelete.status === 200, `${agencyDelete.status}`);
+
+  const afterDelete = await fetch(`${BASE}/api/portal/${fx.slug}/assets/${signed.assetId}`, {
+    headers: J(fx.agencyCookie),
+  });
+  check("deleted file 404s", afterDelete.status === 404, `${afterDelete.status}`);
+
+  // Delete markup itself must never reach a client's page source.
+  const uploaded2 = await (
+    await fetch(sign, {
+      method: "POST",
+      headers: J(fx.agencyCookie),
+      body: JSON.stringify({ name: "logo.png", mime: "image/png", sizeBytes: 20_000 }),
+    })
+  ).json();
+  await fetch(`${BASE}/api/portal/${fx.slug}/assets/${uploaded2.assetId}/versions`, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({
+      version: 1,
+      storagePath: uploaded2.storagePath,
+      name: "logo.png",
+      mime: "image/png",
+      sizeBytes: 20_000,
+    }),
+  });
+  const gridAsClient = await pageSource(`/portal/${fx.slug}/assets/${uploaded2.assetId}`, fx.clientCookie);
+  check(
+    "delete control absent from client HTML",
+    !gridAsClient.html.includes("aria-label=\"Delete logo.png\""),
+  );
+  const gridAsAgency = await pageSource(`/portal/${fx.slug}/assets/${uploaded2.assetId}`, fx.agencyCookie);
+  check(
+    "delete control present for agency",
+    gridAsAgency.html.includes("Delete"),
+  );
+}
+
 /* ── demo: the unauthenticated design preview ────────────────────── */
 if (run("demo")) {
   console.log("\n── demo (design preview) ──");
