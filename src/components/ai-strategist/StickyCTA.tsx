@@ -8,6 +8,8 @@ import { useNovaStore } from "@/lib/stores/nova-store";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { FAQ_ITEMS_EN } from "@/lib/faq-copy";
 
+const EASE = [0.16, 1, 0.3, 1] as [number, number, number, number];
+
 export function StickyCTA() {
   const pathname = usePathname();
   const [visible, setVisible] = useState(false);
@@ -19,6 +21,10 @@ export function StickyCTA() {
   const { t, locale } = useLanguage();
 
   const quickQuestions = (locale === "en" ? FAQ_ITEMS_EN : t.faq.items).slice(0, 3);
+  const panelEyebrow = locale === "en" ? "Before we talk" : t.faq.eyebrow;
+  const panelHeading =
+    locale === "en" ? "Start with what’s on your mind." : `${t.faq.heading} ${t.faq.headingAccent}`;
+  const triggerLabel = locale === "en" ? "Questions?" : t.faq.eyebrow;
   const ctaLabel = locale === "en" ? "None of these? Ask us" : t.faq.assistant.cta;
 
   useEffect(() => {
@@ -41,7 +47,7 @@ export function StickyCTA() {
           initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 8 }}
-          transition={{ duration: prefersReducedMotion ? 0 : 0.24, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: prefersReducedMotion ? 0 : 0.24, ease: EASE }}
           className="fixed bottom-5 right-4 z-[9990] flex flex-col items-end md:bottom-8 md:right-8"
         >
           <AnimatePresence>
@@ -49,20 +55,20 @@ export function StickyCTA() {
               <motion.div
                 id="quick-answers-panel"
                 role="dialog"
-                aria-label="Questions"
+                aria-label={triggerLabel}
                 initial={prefersReducedMotion ? false : { opacity: 0, y: 10, scale: 0.985 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.99 }}
-                transition={{ duration: prefersReducedMotion ? 0 : 0.2, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.2, ease: EASE }}
                 className="mb-3 w-[min(340px,calc(100vw-2rem))] overflow-hidden rounded-[14px] border border-white/[0.12] bg-[#0b0b0b]/94 px-4 pb-3 pt-4 text-white backdrop-blur-lg md:px-[18px] md:pt-[18px]"
               >
                 <div className="flex items-start justify-between gap-4 border-b border-white/[0.10] pb-3.5">
                   <div>
                     <p className="text-[9px] font-bold uppercase tracking-[0.26em] text-brand-red">
-                      Before we talk
+                      {panelEyebrow}
                     </p>
                     <p className="mt-1.5 font-clash text-[18px] font-semibold leading-[1.12] tracking-[-0.015em] text-white/92">
-                      Start with what’s on your mind.
+                      {panelHeading}
                     </p>
                   </div>
                   <button
@@ -134,7 +140,7 @@ export function StickyCTA() {
               animate={{ opacity: panelOpen ? 0 : 1, y: panelOpen ? 3 : 0 }}
               className="pointer-events-none pr-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55"
             >
-              Questions?
+              {triggerLabel}
             </motion.span>
 
             <button
@@ -143,7 +149,7 @@ export function StickyCTA() {
               aria-expanded={panelOpen}
               aria-controls="quick-answers-panel"
               aria-label={panelOpen ? "Close questions" : "Open questions"}
-              className="relative flex h-13 w-13 items-center justify-center overflow-hidden rounded-full border border-white/[0.16] bg-black/78 backdrop-blur-lg transition-[transform,border-color] duration-200 hover:scale-[1.035] hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 md:h-14 md:w-14"
+              className="relative flex h-[52px] w-[52px] items-center justify-center overflow-hidden rounded-full border border-white/[0.16] bg-black/78 backdrop-blur-lg transition-[transform,border-color] duration-200 hover:scale-[1.035] hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 md:h-14 md:w-14"
             >
               <Image
                 src="/images/LOGO.svg"
