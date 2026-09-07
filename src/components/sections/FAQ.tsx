@@ -1,7 +1,5 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView, useReducedMotion } from "framer-motion";
 import {
   Accordion,
   AccordionItem,
@@ -9,8 +7,8 @@ import {
   AccordionContent,
 } from "@/components/ui/accordion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
-import AssistantCard from "@/components/sections/faq/AssistantCard";
+import { useNovaStore } from "@/lib/stores/nova-store";
+import { FAQ_ITEMS_EN } from "@/lib/faq-copy";
 
 type FAQItem = {
   _key?: string;
@@ -24,73 +22,87 @@ type FAQProps = {
 };
 
 export default function FAQ(props: FAQProps) {
-  const ref = useRef<HTMLElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-  const prefersReducedMotion = useReducedMotion();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  const openNova = useNovaStore((s) => s.openNova);
 
-  const faqItems = props.items || t.faq.items;
+  const faqItems = props.items || (locale === "en" ? FAQ_ITEMS_EN : t.faq.items);
+  const handoff =
+    locale === "en"
+      ? {
+          eyebrow: "Still figuring it out?",
+          heading: "You don’t need the perfect question.",
+          body: "Tell us what’s on your mind. We’ll help you find the right next move.",
+          cta: "Ask us",
+        }
+      : {
+          eyebrow: t.faq.assistant.eyebrow,
+          heading: t.faq.assistant.heading,
+          body: t.faq.assistant.body,
+          cta: t.faq.assistant.cta,
+        };
 
-  const FAQS = faqItems.map((item: FAQItem, i: number) => ({
-    id: item._key ?? `faq-${i + 1}`,
+  const faqs = faqItems.map((item: FAQItem, index: number) => ({
+    id: item._key ?? `faq-${index + 1}`,
+    number: String(index + 1).padStart(2, "0"),
     question: item.question,
     answer: item.answer,
   }));
 
   return (
-    <section
-      ref={ref}
-      id="faq"
-      className="bg-bg-brand-black py-12 sm:py-14 lg:py-16"
-    >
-      <div className="mx-auto grid max-w-[1180px] gap-8 px-5 sm:px-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.7fr)] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-16 lg:px-8">
-        {/* Header */}
-        <div className="relative z-40 order-1 lg:col-start-1 lg:row-start-1">
-          <SplitTextReveal
-            as="h2"
-            className="text-[clamp(4.5rem,11vw,8.5rem)] font-bold uppercase leading-[0.8] tracking-[-0.045em] text-text-main"
-            step={18}
-            delay={120}
-            from="center"
-          >
-            FAQ
-          </SplitTextReveal>
+    <section id="faq" className="bg-bg-brand-black pb-10 pt-4 sm:pb-12 sm:pt-5 lg:pb-14 lg:pt-6">
+      <div className="mx-auto max-w-[1040px] px-5 sm:px-6 lg:px-8">
+        <div className="mb-3 border-b border-white/[0.11] pb-4 sm:mb-4 sm:pb-5">
+          <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-brand-red sm:text-[11px]">
+            A few things worth knowing
+          </p>
+          <p className="mt-2 max-w-[62ch] font-body text-[14px] leading-[1.5] text-white/48 sm:text-[15px]">
+            No perfect brief required. Just a clear conversation about where you are and what needs to move.
+          </p>
         </div>
 
-        {/* Accordion — intentionally flat/editorial: no raised cards or neumorphic shadows. */}
-        <motion.div
-          initial={prefersReducedMotion ? false : { opacity: 0, y: 28 }}
-          animate={prefersReducedMotion || isInView ? { opacity: 1, y: 0 } : {}}
-          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.5, delay: 0.15, ease: "easeOut" }}
-          className="relative z-40 order-2 w-full lg:col-start-1 lg:row-start-2 lg:self-start"
-        >
-          <Accordion className="border-t border-white/[0.10]">
-            {FAQS.map((faq: { id: string; question: string; answer: string }) => (
-              <AccordionItem
-                key={faq.id}
-                value={faq.id}
-                className="border-b border-white/[0.10] bg-transparent px-0 transition-colors duration-200 data-[state=open]:border-brand-red/35"
-              >
-                <AccordionTrigger className="min-h-14 py-3.5 pr-2 text-left text-[16px] font-semibold leading-[1.25] tracking-tight text-text-main normal-case hover:no-underline sm:min-h-[58px] sm:text-[17px] lg:text-[18px]">
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="max-w-[62ch] pb-4 pr-10 text-[14px] leading-[1.55] text-text-muted sm:text-[15px] lg:pb-4">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </motion.div>
+        <Accordion className="border-b border-white/[0.11]">
+          {faqs.map((faq) => (
+            <AccordionItem
+              key={faq.id}
+              value={faq.id}
+              className="border-t border-white/[0.11] bg-transparent transition-colors duration-200 data-[state=open]:border-white/[0.18]"
+            >
+              <AccordionTrigger className="min-h-[54px] rounded-none py-3.5 pr-0 text-left normal-case hover:no-underline focus-visible:border-transparent focus-visible:ring-0 sm:min-h-[58px] sm:py-4">
+                <span className="flex min-w-0 items-baseline gap-3.5 sm:gap-5">
+                  <span className="shrink-0 font-body text-[10px] font-semibold tracking-[0.14em] text-brand-red/75 sm:text-[11px]">
+                    {faq.number}
+                  </span>
+                  <span className="font-clash text-[16px] font-semibold leading-[1.2] tracking-[-0.015em] text-white/88 transition-colors duration-200 group-hover/accordion-trigger:text-white sm:text-[18px] lg:text-[19px]">
+                    {faq.question}
+                  </span>
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="pb-4 pl-[2.35rem] pr-8 pt-0 font-body text-[14px] leading-[1.55] text-white/52 sm:pb-5 sm:pl-[3.45rem] sm:pr-14 sm:text-[15px]">
+                <p className="max-w-[66ch]">{faq.answer}</p>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
 
-        {/* Nova promo — restrained surface, aligned with the FAQ rather than floating above it. */}
-        <motion.div
-          initial={prefersReducedMotion ? false : { opacity: 0, y: 28 }}
-          animate={prefersReducedMotion || isInView ? { opacity: 1, y: 0 } : {}}
-          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.5, delay: 0.25, ease: "easeOut" }}
-          className="relative z-40 order-3 w-full lg:col-start-2 lg:row-start-1 lg:row-span-2"
-        >
-          <AssistantCard />
-        </motion.div>
+        <div className="flex flex-col gap-4 pt-6 sm:flex-row sm:items-end sm:justify-between sm:gap-8 sm:pt-7">
+          <div className="max-w-[560px]">
+            <p className="font-clash text-[18px] font-semibold leading-tight tracking-[-0.015em] text-white/90 sm:text-[20px]">
+              {handoff.heading}
+            </p>
+            <p className="mt-1.5 font-body text-[13px] leading-[1.5] text-white/45 sm:text-[14px]">
+              {handoff.body}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => openNova("offer", true)}
+            className="group inline-flex min-h-11 shrink-0 items-center gap-2 self-start font-body text-[13px] font-semibold text-brand-gold transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 sm:self-auto"
+          >
+            <span>{handoff.cta}</span>
+            <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+          </button>
+        </div>
       </div>
     </section>
   );
