@@ -1,19 +1,24 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, useCallback } from "react";
 import { useReducedMotion } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import InkRevealArtwork, {
   type InkRevealArtworkHandle,
 } from "@/components/sections/strong-together/InkRevealArtwork";
+import { useLionJourney } from "./lion-journey/LionJourney";
 import MarqueeSlanted from "@/components/sections/MarqueeSlanted";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function StrongTogetherTransition() {
+  const journey = useLionJourney();
+  const setReveal = journey?.setReveal;
+  const setRevealSection = journey?.setRevealSection;
   const reduceMotion = useReducedMotion() ?? false;
   const sectionRef = useRef<HTMLElement>(null);
+  const attachSection = useCallback((node: HTMLElement | null) => { sectionRef.current = node; setRevealSection?.(node); }, [setRevealSection]);
   const artHandleRef = useRef<InkRevealArtworkHandle>(null);
   const aloneRef = useRef<HTMLHeadingElement>(null);
   const aloneORef = useRef<HTMLSpanElement>(null);
@@ -78,6 +83,7 @@ export default function StrongTogetherTransition() {
         gsap.set(art, { opacity: 1 });
         gsap.set(alone, { opacity: 0 });
         gsap.set(together, { opacity: 1, y: 0 });
+        setReveal?.(1);
         return;
       }
 
@@ -89,7 +95,10 @@ export default function StrongTogetherTransition() {
       gsap.set(alone, { opacity: 1, y: 0 });
       gsap.set(together, { opacity: 0, y: 0 });
 
+      setReveal?.(0);
+      const coverage = { value: 0 };
       const timeline = gsap.timeline({
+        onUpdate: () => setReveal?.(coverage.value),
         scrollTrigger: {
           trigger: section,
           start: "top top",
@@ -101,7 +110,7 @@ export default function StrongTogetherTransition() {
         },
       });
 
-      timeline
+      timeline.to(coverage, { value: 1, duration: 0.58, ease: "power2.inOut" }, 0.04)
         .to(
           primary,
           {
@@ -134,15 +143,15 @@ export default function StrongTogetherTransition() {
       if (frame !== null) cancelAnimationFrame(frame);
       ctx.revert();
     };
-  }, [reduceMotion]);
+  }, [reduceMotion, setReveal]);
 
   return (
     <section
-      ref={sectionRef}
+      ref={attachSection}
       id="stronger-together"
       aria-labelledby="strong-together-title"
       data-art-directed="light"
-      className="relative h-[125svh] overflow-clip bg-bg-dark"
+      className="lion-reveal relative h-[125svh] overflow-clip bg-bg-dark"
     >
       <div className="sticky top-0 h-[100svh] min-h-[560px] overflow-hidden bg-[#0d0d0d]">
         <div className="pointer-events-none absolute inset-0 z-[4]" aria-hidden="true">

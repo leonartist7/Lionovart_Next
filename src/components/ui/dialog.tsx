@@ -13,8 +13,9 @@ function DialogContent({
   className,
   children,
   showClose = true,
+  backdropClassName,
   ...props
-}: DialogPrimitive.Popup.Props & { showClose?: boolean }) {
+}: DialogPrimitive.Popup.Props & { showClose?: boolean; backdropClassName?: string }) {
   return (
     <DialogPrimitive.Portal>
       {/* A modal task dims its background and pushes it back, so attention has
@@ -25,6 +26,7 @@ function DialogContent({
           "transition-opacity duration-200 ease-out",
           "data-closed:opacity-0 data-open:opacity-100",
           "motion-reduce:transition-none",
+          backdropClassName,
         )}
       />
       <DialogPrimitive.Popup

@@ -11,6 +11,8 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
+import { useLionJourney } from "../lion-journey/LionJourney";
+import { SPLIT_START, SPLIT_END } from "../lion-journey/motion";
 import PillarCardView from "@/components/three/pillars/PillarCardView";
 import type { PillarId } from "@/components/three/pillars/config/pillars";
 
@@ -51,8 +53,6 @@ const TILT_X = 5;
 // back up re-joins them and the video comes back together); past
 // SPLIT_END the scene is settled and the cursor rig can arm.
 const SECTION_HEIGHT_VH = 190;
-const SPLIT_START = 0.08;
-const SPLIT_END = 0.58;
 
 // Caps the canvas backing-store size on very-high-DPR screens.
 const CANVAS_DPR_CAP = 2;
@@ -304,6 +304,7 @@ function Pane({
  * splits into three without paying for three decode pipelines.
  */
 export default function DisciplineSplit3D({ cards, video }: Props) {
+  const journey = useLionJourney();
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -334,8 +335,11 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
      is a direct useTransform of scrollYProgress, not a triggered timeline. --- */
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
   const scrollFlip = useTransform(scrollYProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
+  const completedJourney = useMotionValue(1);
+  const handoff = journey?.progress ?? completedJourney;
+  const gatedFlip = useTransform([scrollFlip, handoff], ([split, progress]: number[]) => progress >= 1 ? split : 0);
   const staticFlip = useMotionValue(1);
-  const flip = reduce ? staticFlip : scrollFlip;
+  const flip = reduce ? staticFlip : gatedFlip;
 
   // Cursor rig arms only once the sequence has fully landed, and disarms
   // again the moment scrolling back pulls it out of the settled state.
@@ -523,7 +527,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
   }, [px, py]);
 
   return (
-    <section ref={sectionRef} className="relative bg-bg-dark" style={{ height: `${SECTION_HEIGHT_VH}vh` }}>
+    <section ref={(node) => { sectionRef.current = node; journey?.setVideoSection(node); }} className={journey ? "relative lion-video-section" : "relative bg-bg-dark"} style={{ height: `${SECTION_HEIGHT_VH}vh` }}>
       <div className="sticky top-0 z-40 flex min-h-screen flex-col items-center justify-center gap-[clamp(2.5rem,6vh,5rem)] overflow-hidden px-3 py-24 md:px-4">
         {/* Ambient wash â€” the same footage, blurred past legibility, pooling
             behind the stage. It's what makes the translucent panes read as
@@ -549,7 +553,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
         />
 
         <div
-          ref={stageRef}
+          ref={(node) => { stageRef.current = node; journey?.setVideo(node); }}
           className="relative z-40 w-[min(80vw,450px)] lg:w-[min(85vw,1060px)] xl:w-[min(85vw,1220px)] 2xl:w-[min(78vw,1400px)]"
           style={{ perspective: "1400px" }}
           onPointerEnter={measure}

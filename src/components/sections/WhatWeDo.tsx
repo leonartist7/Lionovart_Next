@@ -1,6 +1,7 @@
 "use client";
 
 import DisciplineSplit3D from "@/components/sections/what-we-do/DisciplineSplit3D";
+import { useLionJourney } from "./lion-journey/LionJourney";
 
 const SPLIT_VIDEO =
   "https://res.cloudinary.com/dgio9uutc/video/upload/w_1440,c_limit,f_auto,q_auto/v1779845634/Footage_07_o3rfbu.mp4";
@@ -24,9 +25,11 @@ const CARDS = [
 ];
 
 export default function WhatWeDo() {
+  const journey = useLionJourney();
   return (
-    <section id="what-we-build" className="bg-bg-dark text-white">
-      <div className="mx-auto max-w-[1500px] px-6 pb-6 pt-24 md:px-[6vw] md:pb-10 md:pt-32">
+    <section id="what-we-build" className={`${journey ? "" : "bg-bg-dark"} text-white`}>
+      <div className={`${journey ? "lion-intro-wrap" : ""} mx-auto max-w-[1500px] px-6 pb-6 pt-24 md:px-[6vw] md:pb-10 md:pt-32`}>
+      <div ref={journey?.intro} className={journey ? "lion-intro" : ""}>
         <p className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-[#e5192a]">
           Three disciplines. One name.
         </p>
@@ -38,6 +41,7 @@ export default function WhatWeDo() {
         </p>
       </div>
 
+      </div>
       <DisciplineSplit3D cards={CARDS} video={SPLIT_VIDEO} />
     </section>
   );

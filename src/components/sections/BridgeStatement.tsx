@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import { useLionJourney } from "./lion-journey/LionJourney";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
@@ -16,6 +17,7 @@ export default function BridgeStatement({
 }: {
   variant?: BridgeVariant;
 }) {
+  const journey = useLionJourney();
   const { t } = useLanguage();
   const prefersReducedMotion = useReducedMotion() ?? false;
 
@@ -62,6 +64,8 @@ export default function BridgeStatement({
 
   return (
     <section
+      ref={variant === "recognition" ? journey?.bridge : undefined}
+      data-gold-bridge={variant === "recognition" ? "" : undefined}
       aria-labelledby={headingId}
       className={`relative isolate flex min-h-[30svh] items-center overflow-hidden px-5 py-14 sm:px-8 sm:py-16 md:min-h-[34svh] md:px-[6vw] ${
         isVow ? "bg-[#f7f4ef] text-[#171412]" : "bg-bg-dark text-white"

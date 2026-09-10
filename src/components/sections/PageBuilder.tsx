@@ -1,5 +1,5 @@
 import HeroTop from "@/components/sections/HeroTop";
-import SceneVideoBackdrop from "@/components/sections/SceneVideoBackdrop";
+import LionJourney, { JourneyProof } from "@/components/sections/lion-journey/LionJourney";
 import StrongTogetherTransition from "@/components/sections/StrongTogetherTransition";
 import BridgeStatement from "@/components/sections/BridgeStatement";
 
@@ -14,7 +14,6 @@ import AuditStrip from "@/components/sections/AuditStrip";
 import FAQ from "@/components/sections/FAQ";
 import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
 import ClosingCTA from "@/components/sections/ClosingCTA";
-import TubesCursor from "@/components/ui/TubesCursor";
 import ExitIntentModal from "@/components/ui/ExitIntentModal";
 import { TrailAttractionProvider } from "@/contexts/TrailAttractionContext";
 
@@ -34,21 +33,18 @@ function NovaSection({ id, children }: { id: string; children: React.ReactNode }
 export function PageBuilder() {
   return (
     <TrailAttractionProvider>
-      <SceneVideoBackdrop />
-      <TubesCursor layer="landing" />
       <ExitIntentModal />
 
-      <NovaSection id="hero"><HeroTop /></NovaSection>
-
-      {/* relative z-[2] is required, not cosmetic: SceneVideoBackdrop is
-          position:fixed z-[0], and a positioned z-index:0 element paints
-          ABOVE non-positioned block descendants. Without a stacking context
-          here the backdrop covers every section below the hero (the hero
-          only survives because its content is `relative z-40`). */}
-      <div className="relative z-[2]">
+      <LionJourney>
+        <NovaSection id="hero"><HeroTop /></NovaSection>
         <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
+        <JourneyProof />
         <BridgeStatement />
         <StrongTogetherTransition />
+      </LionJourney>
+
+      {/* Later chapters cover the retired opening scene. */}
+      <div className="relative z-[2]">
         <BridgeStatement variant="vow" />
         <NovaSection id="problems"><PawRevealStack /></NovaSection>
         <NovaSection id="services"><HomepageServicesChapter /></NovaSection>

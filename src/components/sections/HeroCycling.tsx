@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -18,6 +18,8 @@ export interface Word {
 }
 
 export interface HeroCyclingProps {
+  alignment?: "left" | "center";
+  paused?: boolean;
   /** Static first line(s). Can be a string or array of strings for multiple lines. */
   staticText?: string | string[];
   /** Ordered cycling sequence. Loops infinitely. */
@@ -39,6 +41,12 @@ export interface HeroCyclingProps {
 // ─── Defaults ─────────────────────────────────────────────────────────────────
 
 const DEFAULT_HOLD_MS = 2500;
+const subscribeMounted = () => () => {};
+const subscribeMotion = (listener: () => void) => {
+  const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+  media.addEventListener("change", listener);
+  return () => media.removeEventListener("change", listener);
+};
 
 const DEFAULT_WORDS: Word[] = [
   {
@@ -90,6 +98,8 @@ const wordVariants = {
  *   <HeroCycling staticText="YOUR BRAND DESERVES" words={[...]} />
  */
 export default function HeroCycling({
+  alignment = "center",
+  paused = false,
   staticText = "YOUR BRAND DESERVES",
   words = DEFAULT_WORDS,
   fontSize = "clamp(2.5rem, 8vw, 6.5rem)",
@@ -101,19 +111,9 @@ export default function HeroCycling({
 }: HeroCyclingProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [prefersReduced, setPrefersReduced] = useState(false);
-  const [hasMounted, setHasMounted] = useState(false);
+  const prefersReduced = useSyncExternalStore(subscribeMotion, () => window.matchMedia("(prefers-reduced-motion: reduce)").matches, () => false);
+  const hasMounted = useSyncExternalStore(subscribeMounted, () => true, () => false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // ── Detect reduced motion (client-only) ──────────────────────────────────
-  useEffect(() => {
-    setHasMounted(true);
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setPrefersReduced(mq.matches);
-    const onChange = (e: MediaQueryListEvent) => setPrefersReduced(e.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
 
   // ── Warm image words so a swap never fades in a half-loaded frame ────────
   useEffect(() => {
@@ -127,7 +127,7 @@ export default function HeroCycling({
 
   // ── Cycling timer ────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!hasMounted || (prefersReduced && !forceAnimate) || isPaused || words.length <= 1) return;
+    if (!hasMounted || (prefersReduced && !forceAnimate) || isPaused || paused || words.length <= 1) return;
 
     const holdMs = words[currentIndex]?.holdMs ?? DEFAULT_HOLD_MS;
     timerRef.current = setTimeout(() => {
@@ -137,7 +137,7 @@ export default function HeroCycling({
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [currentIndex, forceAnimate, hasMounted, isPaused, prefersReduced, words]);
+  }, [currentIndex, forceAnimate, hasMounted, isPaused, paused, prefersReduced, words]);
 
   // ── Pause when tab is hidden ─────────────────────────────────────────────
   useEffect(() => {
@@ -172,7 +172,7 @@ export default function HeroCycling({
     color: "#ffffff",
     margin: 0,
     whiteSpace: "nowrap",
-    textAlign: "center",
+    textAlign: alignment,
     width: "100%",
   };
 
@@ -206,7 +206,7 @@ export default function HeroCycling({
             fill
             style={{
               objectFit: "contain",
-              objectPosition: "center center",
+              objectPosition: `${alignment} center`,
               WebkitMaskImage: `${FEATHER_X}, ${FEATHER_Y}`,
               WebkitMaskComposite: "source-in",
               maskImage: `${FEATHER_X}, ${FEATHER_Y}`,
@@ -219,7 +219,7 @@ export default function HeroCycling({
       );
     }
 
-    return <span style={cyclingTextStyle}>{word.content}</span>;
+    return <span style={{ ...cyclingTextStyle, fontSize: alignment === "left" ? `min(${cyclingClampSize}, calc(100cqw / ${Math.max(1, word.content.length * 0.72)}))` : cyclingClampSize }}>{word.content}</span>;
   };
 
   // Reduced motion / pre-mount: static first word, no animation
@@ -228,7 +228,7 @@ export default function HeroCycling({
   return (
     <div
       aria-label="Hero tagline"
-      style={{ fontFamily: "var(--font-heading)" }}
+      style={{ fontFamily: "var(--font-heading)", containerType: alignment === "left" ? "inline-size" : undefined }}
     >
       {/* ── Static Text Lines ── */}
       {Array.isArray(staticText) ? (

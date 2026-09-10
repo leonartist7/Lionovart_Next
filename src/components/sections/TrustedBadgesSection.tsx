@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+
+const subscribeMounted = () => () => {};
 
 /* ── Responsive size map ─────────────────────────────────── */
 type ScreenTier = "sm" | "md" | "lg" | "xl";
@@ -137,12 +139,7 @@ function TrustBadgesInner({
     return () => observer.disconnect();
   }, []);
 
-  /* External trigger from parent (e.g. GSAP scroll sequence) */
-  useEffect(() => {
-    if (externalTrigger) setInView(true);
-  }, [externalTrigger]);
-
-  const shouldAnimate = inView;
+  const shouldAnimate = inView || Boolean(externalTrigger);
   const brandsCount    = useCountUp(50, 1600, shouldAnimate);
   const countriesCount = useCountUp(7,  1400, shouldAnimate);
 
@@ -291,8 +288,7 @@ function DynamicTrustBadges({
   badges: { brands: readonly string[]; experience: readonly string[]; countries: string };
   externalTrigger?: boolean;
 }) {
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => { setIsMounted(true); }, []);
+  const isMounted = useSyncExternalStore(subscribeMounted, () => true, () => false);
   if (!isMounted) return <div className="w-full max-w-[1100px] mx-auto opacity-0 invisible h-[120px]" />;
   return <TrustBadgesInner badges={badges} externalTrigger={externalTrigger} />;
 }
@@ -300,9 +296,11 @@ function DynamicTrustBadges({
 /* ── Public component ───────────────────────────────────── */
 export default function TrustedBadgesSection({
   variant = "dark",
+  compact = false,
   externalTrigger,
 }: {
   variant?: "dark" | "light";
+  compact?: boolean;
   externalTrigger?: boolean;
 }) {
   const { t } = useLanguage();
@@ -311,12 +309,13 @@ export default function TrustedBadgesSection({
 
   return (
     <section
+      data-compact-proof={compact ? "" : undefined}
       className={`${
         variant === "light" ? "bg-transparent" : "bg-transparent"
       } pt-1 md:pt-2 pb-2 md:pb-3 flex flex-col items-center gap-1 text-center`}
     >
       <DynamicTrustBadges badges={badges} externalTrigger={externalTrigger} />
-      <motion.p
+      {!compact && <motion.p
         initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
@@ -325,7 +324,7 @@ export default function TrustedBadgesSection({
         }`}
       >
         {trustText}
-      </motion.p>
+      </motion.p>}
     </section>
   );
 }
