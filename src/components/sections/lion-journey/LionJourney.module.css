@@ -4,7 +4,7 @@
 .fallback { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 .slot { position: relative; width: 100%; height: 500px; grid-column: 1; grid-row: 1 / 5; align-self: center; pointer-events: none; }
 .poster { position: absolute; inset: 0; transition: opacity 400ms ease; }
-.poster img { position: absolute; width: 100%; height: 100%; object-fit: contain; transform: scaleX(-1); }
+.poster img { position: absolute; width: 100%; height: 100%; object-fit: contain; transform: scaleX(-1); mask-image: linear-gradient(to bottom, #000 72%, #000b 83%, transparent 94%); }
 .journey[data-lion-ready] .poster, .journey[data-lion-ready] .fallback { opacity: 0; }
 .journey[data-lion-still] .poster, .journey[data-lion-still] .fallback { opacity: 1; transition: none; }
 .journey :global(.lion-hero) { --lion-title-size: clamp(2.75rem,4.6vw,4.5rem); --lion-word-size: clamp(2.75rem,4.8vw,4.7rem); position: relative; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.15fr); column-gap: 64px; row-gap: 24px; max-width: 1500px; margin-inline: auto; padding: clamp(144px,16vh,184px) 6vw 64px; align-items: start; }

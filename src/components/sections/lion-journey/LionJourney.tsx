@@ -71,10 +71,20 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       engine?.resize(innerWidth, innerHeight);
       engine?.setRoute(anchors);
       const route = journeyRoute(anchors);
-      const d = Array.from({length: 161}, (_, i) => { const p = routePoint(route, i/160); return `${i ? "L" : "M"}${p.x.toFixed(1)},${p.y.toFixed(1)}`; }).join(" ");
       if (fallback.current && host.current) {
         fallback.current.setAttribute("viewBox", `0 ${rect(host.current).top} ${innerWidth} ${host.current.offsetHeight}`);
-        fallback.current.querySelectorAll("path").forEach(path => path.setAttribute("d", d));
+        fallback.current.querySelectorAll("path").forEach((path, strand) => {
+          const s = strand / 17, band = anchors!.mobile ? 34 : 78;
+          const d = Array.from({length: 321}, (_, i) => {
+            const t = i / 320, p = routePoint(route, t);
+            const a = routePoint(route, Math.max(0, t - 0.001)), b = routePoint(route, Math.min(1, t + 0.001));
+            const length = Math.hypot(b.x-a.x, b.y-a.y) || 1;
+            const phase = t*64 + Math.floor(s*3)*2.094 + s*0.9;
+            const offset = (Math.sin(phase)*(Math.sin(t*21)*0.25+0.75)*band*0.85 + Math.sin(t*27+s*4)*band*0.22 + (s-0.5)*band*0.38)*Math.max(0, Math.sin(t*Math.PI))**0.3;
+            return `${i ? "L" : "M"}${(p.x+(b.y-a.y)/length*offset).toFixed(1)},${(p.y-(b.x-a.x)/length*offset).toFixed(1)}`;
+          }).join(" ");
+          path.setAttribute("d", d);
+        });
       }
       pendingMeasure = false;
     };
@@ -133,7 +143,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
     return () => { disposed = true; cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener("scroll", wake); window.removeEventListener("resize", resize); window.removeEventListener("pageshow", resize); document.removeEventListener("visibilitychange", wake); media.removeEventListener("change", resize); update.current = () => {}; engine?.dispose(); };
   }, [progress]);
   return <Context.Provider value={context}><div ref={host} className={styles.journey} data-lion-journey data-lion-active={active}>
-    <svg ref={fallback} className={styles.fallback} aria-hidden="true" preserveAspectRatio="none" fill="none">{Array.from({length:12},(_,i)=><path key={i} stroke={i%3 ? "#9a733a" : "#edd4a0"} strokeWidth="0.8" opacity="0.35" transform={`translate(${(i-6)*3},0)`} />)}</svg>
+    <svg ref={fallback} className={styles.fallback} aria-hidden="true" preserveAspectRatio="none" fill="none">{Array.from({length:18},(_,i)=><path key={i} stroke={i%3 ? "#9a733a" : "#edd4a0"} strokeWidth={i%4 ? "0.7" : "1.2"} opacity="0.42" />)}</svg>
     <div ref={canvasHost} className={styles.canvas} aria-hidden="true" />{children}
   </div>{!active && <TubesCursor layer="landing" />}</Context.Provider>;
 }

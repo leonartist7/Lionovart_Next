@@ -52,8 +52,8 @@ are uploaded per frame.
 
 Two batched stream meshes use antique gold `#8b6026`, champagne `#f7dba3`, physical
 specular/clearcoat response, tapered thickness and reduced opacity near the
-partnership statement. Desktop uses 24 strands/160 particles; below 1024px uses
-12 strands/48 particles. Runtime breakpoint changes rebuild decorative geometry.
+partnership statement. Desktop uses 36 strands/240 particles; below 1024px uses
+18 strands/80 particles. Runtime breakpoint changes rebuild decorative geometry.
 DPR is capped at 1.5 desktop/1.25 mobile and can decrease after sustained slow
 frames. Rendering pauses for hidden tabs, the dialog, reduced motion and completed
 concealment. Textures, geometry, materials, listeners and loaders are disposed.
@@ -115,3 +115,11 @@ changed here.
 
 An existing root-body hydration attribute warning and a GSAP target warning may
 appear in development. No deployment was performed.
+
+## Silk refinement — September 11
+
+Three interwoven strand families use wider curls, a slower secondary wave, and varying tubular thickness. Smooth champagne-gold beads replace the faint additive motes. The lowest 18% of the mane fades with a world-space shader while the face and original PBR maps remain intact; the source GLB is unchanged. The poster has a corresponding lower-edge mask, and the static fallback uses 18 separately curled paths. Geometry remains batched and animation remains uniform-driven.
+
+Desktop and 390px phone layouts were inspected with WebGPU, and the mobile asset rendered with WebGL2. Both shaders compiled and the static path rendered without a GPU canvas. Desktop-browser warm cadence was approximately 6ms median; physical-mobile performance remains unverified. TypeScript, scoped lint and all nine motion tests passed.
+
+The September 11 production build compiled and passed TypeScript, then failed prerendering /demo/pillars and /services/print with a null useContext error outside this refinement. Full production-build success is not claimed.

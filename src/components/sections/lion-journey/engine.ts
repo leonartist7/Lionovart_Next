@@ -1,6 +1,6 @@
 import * as THREE from "three/webgpu";
 import { WebGPURenderer, MeshPhysicalNodeMaterial, PMREMGenerator } from "three/webgpu";
-import { uniform, positionLocal, vec3, sin, cos, attribute, fract, mix, color, cross, textureLoad, ivec2, smoothstep } from "three/tsl";
+import { uniform, positionLocal, positionWorld, vec3, sin, cos, attribute, fract, mix, color, cross, textureLoad, ivec2, smoothstep } from "three/tsl";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
@@ -15,6 +15,8 @@ export class LionEngine {
   private renderer?: WebGPURenderer;
   private environment?: THREE.RenderTarget;
   private clock = uniform(0);
+  private maneBottom = uniform(-1);
+  private maneFadeEnd = uniform(-0.65);
   private band = uniform(44);
   private bridgeY = uniform(3000);
   private revealY = uniform(4000);
@@ -86,6 +88,29 @@ export class LionEngine {
     const scale = 2 / box.getSize(new THREE.Vector3()).y;
     gltf.scene.position.copy(center).multiplyScalar(-scale);
     gltf.scene.scale.setScalar(scale);
+    // Preserve the supplied PBR appearance; dissolve only the lowest mane tips.
+    // World-space height stays consistent across meshes and the lion's yaw.
+    const converted = new Map<THREE.Material, THREE.MeshStandardNodeMaterial>();
+    gltf.scene.traverse(object => {
+      if (!(object instanceof THREE.Mesh)) return;
+      const soften = (source: THREE.Material) => {
+        if (!(source instanceof THREE.MeshStandardMaterial)) return source;
+        if (converted.has(source)) return converted.get(source)!;
+        const material = new THREE.MeshStandardNodeMaterial({
+          color: source.color, map: source.map, metalness: source.metalness, roughness: source.roughness,
+          metalnessMap: source.metalnessMap, roughnessMap: source.roughnessMap,
+          normalMap: source.normalMap, normalScale: source.normalScale,
+          aoMap: source.aoMap, aoMapIntensity: source.aoMapIntensity,
+          emissive: source.emissive, emissiveMap: source.emissiveMap, emissiveIntensity: source.emissiveIntensity,
+          side: source.side, transparent: true, depthWrite: true, alphaTest: 0.015,
+        });
+        material.opacityNode = smoothstep(this.maneBottom, this.maneFadeEnd, positionWorld.y).mul(source.opacity);
+        converted.set(source, material);
+        return material;
+      };
+      object.material = Array.isArray(object.material) ? object.material.map(soften) : soften(object.material);
+    });
+    converted.forEach((_, source) => source.dispose());
     this.lion.add(gltf.scene);
     this.makeSilk(mobile);
     this.resize(innerWidth, innerHeight);
@@ -104,7 +129,7 @@ export class LionEngine {
       data.set([tangent.x, tangent.y, 0, 1], (512+i)*4);
     }
     this.routeTexture.needsUpdate = true;
-    this.band.value = anchors.mobile ? 22 : 52;
+    this.band.value = anchors.mobile ? 34 : 78;
     this.bridgeY.value = anchors.bridge.top;
     this.revealY.value = anchors.reveal.top + anchors.reveal.height * 0.65;
     if (this.mobileTier !== anchors.mobile) {
@@ -118,8 +143,8 @@ export class LionEngine {
     // Float texture holds the sampled document spline and its tangents. It is
     // uploaded only on layout changes; particles and folds run entirely on GPU.
     const makeMaterial = (motes: boolean) => {
-      const material = new MeshPhysicalNodeMaterial({ roughness: 0.32, metalness: motes ? 0 : 0.65, clearcoat: 0.65,
-        transparent: true, depthWrite: false, blending: motes ? THREE.AdditiveBlending : THREE.NormalBlending });
+      const material = new MeshPhysicalNodeMaterial({ roughness: motes ? 0.24 : 0.3, metalness: motes ? 0.35 : 0.65, clearcoat: 0.65,
+        transparent: true, depthWrite: false, blending: THREE.NormalBlending });
       const flow = attribute<"vec3">("flow", "vec3");
       const t = motes ? fract(flow.x.add(this.clock.mul(0.008))) : flow.x;
       const sample = t.mul(511), index = sample.floor().toInt(), next = sample.floor().add(1).min(511).toInt();
@@ -127,22 +152,28 @@ export class LionEngine {
       const tangent = mix(textureLoad(this.routeTexture,ivec2(index,1)).xyz,textureLoad(this.routeTexture,ivec2(next,1)).xyz,sample.fract()).normalize();
       const normal = vec3(tangent.y.negate(),tangent.x,0).normalize();
       const strand = flow.y;
-      const phase = t.mul(48).sub(this.clock.mul(0.48)).add(strand.mul(2.2));
+      // Three interwoven families open and gather together, like a loose braid.
+      // A second slower wave avoids identical, evenly spaced sine-wire loops.
+      const family = strand.mul(3).floor();
+      const phase = t.mul(64).sub(this.clock.mul(0.62)).add(family.mul(2.094)).add(strand.mul(0.9));
       const taper = sin(t.mul(Math.PI)).max(0).pow(0.3);
-      const lateral = sin(phase).mul(this.band.mul(0.45)).add(strand.sub(0.5).mul(this.band)).mul(taper);
+      const breath = sin(t.mul(21).sub(this.clock.mul(0.23))).mul(0.25).add(0.75);
+      const lateral = sin(phase).mul(breath).mul(this.band.mul(0.85))
+        .add(sin(t.mul(27).add(strand.mul(4)).sub(this.clock.mul(0.19))).mul(this.band.mul(0.22)))
+        .add(strand.sub(0.5).mul(this.band.mul(0.38))).mul(taper);
       const radial = normal.mul(cos(flow.z)).add(cross(tangent,normal).mul(sin(flow.z)));
-      const thickness = strand.mul(0.35).add(0.48).mul(taper).add(0.12);
+      const thickness = sin(strand.mul(31)).mul(0.5).add(0.5).pow(3).mul(0.7).add(0.36).mul(taper).add(0.1);
       const offset = motes ? positionLocal : radial.mul(thickness);
-      material.positionNode = center.add(normal.mul(lateral)).add(vec3(0,0,cos(phase).mul(12))).add(offset);
+      material.positionNode = center.add(normal.mul(lateral)).add(vec3(0,0,cos(phase).mul(this.band.mul(0.55)))).add(offset);
       const shade = mix(color("#8b6026"),color("#f7dba3"),sin(strand.mul(18)).mul(0.5).add(0.5).pow(2));
-      material.colorNode = shade;
-      material.emissiveNode = shade.mul(motes ? 1.4 : 0.2);
+      material.colorNode = motes ? color("#eecb83") : shade;
+      material.emissiveNode = motes ? color("#eecb83").mul(0.75) : shade.mul(0.24);
       const quiet = smoothstep(this.bridgeY, this.revealY, center.y.negate());
-      material.opacityNode = taper.mul(quiet.mul(-0.6).add(0.9)).mul(motes ? 0.85 : 0.72);
+      material.opacityNode = taper.mul(quiet.mul(-0.6).add(0.98)).mul(motes ? 1 : 0.8);
       if (!motes) material.normalNode = radial.normalize();
       return material;
     };
-    const strands = mobile ? 12 : 24, segments = mobile ? 256 : 512, sides = mobile ? 4 : 6;
+    const strands = mobile ? 18 : 36, segments = mobile ? 256 : 512, sides = mobile ? 4 : 6;
     const positions: number[] = [], flows: number[] = [], indices: number[] = [];
     for(let s=0;s<strands;s++) {
       const start=positions.length/3;
@@ -156,16 +187,19 @@ export class LionEngine {
     geometry.setAttribute("normal",new THREE.Float32BufferAttribute(positions.map((_,i)=>i%3===2?1:0),3));
     geometry.setAttribute("flow",new THREE.Float32BufferAttribute(flows,3)); geometry.setIndex(indices);
     const threads=new THREE.Mesh(geometry,makeMaterial(false)); threads.frustumCulled=false; this.silk.add(threads);
-    const seed=new THREE.IcosahedronGeometry(1,0), base=seed.getAttribute("position"), dots:number[]=[], dotFlows:number[]=[];
-    for(let i=0;i<(mobile?48:160);i++) {
-      const t=(i*0.61803398875)%1,s=(i*0.754877666)%1,size=0.5+((i*0.4142)%1)**4*1.1;
+    const sphere=new THREE.SphereGeometry(1,8,6), seed=sphere.toNonIndexed(); sphere.dispose();
+    const base=seed.getAttribute("position"), dots:number[]=[], dotFlows:number[]=[], dotNormals:number[]=[];
+    const normals=seed.getAttribute("normal"), particleCount=mobile?80:240;
+    for(let i=0;i<particleCount;i++) {
+      const t=(i*0.61803398875)%1,s=(i*0.754877666)%1,size=1.15+((i*0.4142)%1)**3*(mobile?1.4:2.2);
       for(let j=0;j<base.count;j++) { dots.push(base.getX(j)*size,base.getY(j)*size,base.getZ(j)*size); dotFlows.push(t,s,0); }
+      for(let j=0;j<base.count;j++) dotNormals.push(normals.getX(j),normals.getY(j),normals.getZ(j));
     }
     seed.dispose();
     const dotGeometry=new THREE.BufferGeometry(); dotGeometry.setAttribute("position",new THREE.Float32BufferAttribute(dots,3));
-    dotGeometry.setAttribute("flow",new THREE.Float32BufferAttribute(dotFlows,3)); dotGeometry.computeVertexNormals();
+    dotGeometry.setAttribute("flow",new THREE.Float32BufferAttribute(dotFlows,3)); dotGeometry.setAttribute("normal",new THREE.Float32BufferAttribute(dotNormals,3));
     const motes=new THREE.Mesh(dotGeometry,makeMaterial(true)); motes.frustumCulled=false; this.particles.add(motes); this.silk.add(this.particles);
-    this.host.dataset.strands=String(strands); this.host.dataset.particles=String(mobile?48:160);
+    this.host.dataset.strands=String(strands); this.host.dataset.particles=String(particleCount);
   }
 
   resize(width: number, height: number) {
@@ -189,6 +223,8 @@ export class LionEngine {
       group.scale.setScalar(pose.size / 2);
     };
     place(this.lion, lion);
+    this.maneBottom.value = this.lion.position.y - lion.size * 0.5;
+    this.maneFadeEnd.value = this.lion.position.y - lion.size * 0.32;
     this.lion.visible = lionVisible;
     this.silk.position.set(-this.width / 2, this.height / 2 + scroll, 0);
     this.lion.rotation.y = -0.9 + lion.turn;
