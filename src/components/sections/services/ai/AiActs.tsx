@@ -56,7 +56,7 @@ const SYSTEMS = [
     eyebrow: "Capture & Convert",
     title: "Every opportunity gets answered.",
     lead: "Helpful, on-brand responses. At any hour.",
-    body: "Voice and chat agents welcome every customer in your language and your tone, answer what they need, qualify the opportunity and take the next useful action, without adding another tool for your team to babysit.",
+    body: "Regent answers the phone and the chat, in your language and your tone. It qualifies the opportunity and takes the next useful action, so nothing sits waiting for someone to notice it.",
     capabilities: [
       "Phone, chat and missed-call recovery",
       "Appointments, reservations and estimates",
@@ -73,7 +73,7 @@ const SYSTEMS = [
     eyebrow: "Serve & Retain",
     title: "Make every customer feel remembered.",
     lead: "Fast help, thoughtful follow-through, consistent care.",
-    body: "Questions, requests, reminders and reviews are handled with shared context, so customers get a useful answer quickly and your team steps in exactly when a human matters most.",
+    body: "Regent remembers every conversation, so a question gets a useful answer fast and your team steps in exactly when a human matters. Reminders go out. Reviews get followed up. Nothing falls through.",
     capabilities: [
       "Customer support across phone and chat",
       "Reminders, rescheduling and updates",
@@ -90,7 +90,7 @@ const SYSTEMS = [
     eyebrow: "Run & Fulfill",
     title: "Give your team the hours back.",
     lead: "Less repetition. Fewer errors. More room to lead.",
-    body: "Scheduling, documents, invoices and recurring coordination move quietly in the background while your people stay focused on customers, judgment and the work only they can do.",
+    body: "Regent handles the scheduling, the documents, the invoices, the recurring coordination, quietly, in the background. Your team keeps the work only they can do: judgment, customers, the calls that matter.",
     capabilities: [
       "Intake, scheduling and dispatch",
       "Invoices, documents and payment reminders",
@@ -107,7 +107,7 @@ const SYSTEMS = [
     eyebrow: "See & Scale",
     title: "See the next move before it costs you.",
     lead: "The business finally speaks in one clear voice.",
-    body: "Customer, sales, marketing and operational signals become timely decisions. You see where revenue leaks, where demand is growing and what deserves your attention now.",
+    body: "Regent turns every signal, customer, sales, marketing, operations, into one clear read on the business. You see where revenue leaks, where demand is building, and what actually needs you today.",
     capabilities: [
       "Live performance and attribution dashboards",
       "Retention, reviews and customer reactivation",
@@ -152,14 +152,14 @@ export function AiSystems() {
         >
           <div className="max-w-[58rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)]">
             <p className="text-[13px] font-medium uppercase tracking-[0.18em] text-white/68 md:text-[14px]">
-              Four high-return systems
+              Four things Regent already does
             </p>
             <h2
               id="ai-systems-heading"
               className="mt-4 max-w-[24ch] font-light leading-[1.14] text-white/78"
               style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(1.45rem, 2.2vw, 2rem)" }}
             >
-              Start with the leak costing you most. Connect the rest as you grow.
+              Start with the one costing you the most. Regent already runs the rest.
             </h2>
           </div>
 
@@ -264,11 +264,11 @@ export function AiFlow() {
     <section id="process" ref={ref} data-ai-chapter="flow" data-ai-snap className={ACT}>
       <div className={SHELL}>
         <div className="[text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:ml-auto md:w-[60%]">
-          <Eyebrow>The Lionovart AI Operating System</Eyebrow>
+          <Eyebrow>How Regent works</Eyebrow>
           <Heading>Four systems. One clear advantage.</Heading>
           <p className="mt-7 max-w-[50ch] text-[18px] font-light leading-[1.68] text-white/80 md:text-[20px]">
-            Not four disconnected products. One custom operating system that shares context across
-            conversations, decisions and recurring work, so every improvement makes the next one stronger.
+            Not four disconnected products. Regent shares context across every conversation, decision
+            and task, so every improvement makes the next one stronger.
           </p>
 
           <div className="relative mt-14 md:mt-18">
@@ -358,20 +358,20 @@ function FlowStep({
 const STEPS = [
   {
     n: "01",
-    t: "Blueprint",
-    d: "We audit the work, establish the baseline and identify the opportunity with the clearest return.",
-    signal: "Find the highest-value leak",
+    t: "Audit",
+    d: "Free. We measure where the hours actually go and find the leak worth fixing first. That number becomes the baseline Regent is built against.",
+    signal: "No cost to find out",
   },
   {
     n: "02",
     t: "Build",
-    d: "We design, connect, train and test the system around the tools and standards your team already uses.",
+    d: "We design, connect, train and test Regent around the tools and standards your team already uses.",
     signal: "Launch without operational chaos",
   },
   {
     n: "03",
     t: "Optimize",
-    d: "We monitor real activity, improve weak points and expand what works as the business evolves.",
+    d: "We monitor real activity, improve weak points and expand what Regent does as the business evolves.",
     signal: "Stay current. Keep compounding.",
   },
 ];
@@ -390,8 +390,8 @@ export function AiProcess() {
           <Eyebrow>One partner from strategy to scale</Eyebrow>
           <Heading>You get the result. We run the complexity.</Heading>
           <p className="mt-7 max-w-[49ch] text-[18px] font-light leading-[1.68] text-white/80 md:text-[20px]">
-            No tool maze. No unfinished handoff. Lionovart stays responsible for strategy,
-            implementation, integration and continuous improvement, from the first blueprint onward.
+            No tool maze. No unfinished handoff. Lionovart stays responsible for Regent from the
+            free audit onward, through build, integration and every improvement after.
           </p>
         </div>
 
@@ -432,16 +432,16 @@ export function AiProcess() {
 
 const OFFERS = [
   {
-    kind: "Focused build",
+    kind: "One part of Regent, running",
     title: "Solve the problem costing you most.",
-    blurb: "Begin with one high-impact system, measure the value it returns, and create the foundation for everything that follows.",
-    items: ["Opportunity blueprint", "Custom system build", "Integrations and testing", "Team handoff and launch"],
+    blurb: "Turn on the one part of Regent that fixes your biggest leak first. Measure what it returns, then decide what's next.",
+    items: ["Free opportunity audit", "Custom system build", "Integrations and testing", "Team handoff and launch"],
     cta: "Book the systems audit",
   },
   {
-    kind: "Connected partnership",
+    kind: "Regent, fully connected",
     title: "Build the business behind the vision.",
-    blurb: "Connect multiple functions into one intelligent platform, then keep it trained, measured and improving as your company grows.",
+    blurb: "Turn on Regent across the business from day one. Every function shares context, and we keep it trained and improving as you grow.",
     items: ["Multi-system architecture", "Custom dashboards", "Continuous optimization", "Priority strategy and support"],
     cta: "Talk through the full system",
   },
