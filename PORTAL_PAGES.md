@@ -146,6 +146,26 @@ These are two different components, not one responsive one. Trying to make a mon
 
 ---
 
+## 🤖 Assistant — `/portal/[ws]/assistant`
+
+**Purpose.** A read-only, tool-using Gemini agent scoped to one workspace — "what's the status", "what did we discuss about the deadline", "what files came in this week" — answered from real data, not invented. Not in the original six-page plan; added once Messages gave it something worth reading.
+
+| | |
+|---|---|
+| **Everyone sees** | The same panel — no agency/client split. It reads with the viewer's own role, so a client's session never gets an internal project even via a tool call |
+| **Data** | Three tools, each a thin wrapper over an already-tested function: `get_workspace_status` → `listProjects` · `list_recent_files` → `listAssets` · `search_messages` → `listMessages` |
+| **Nav** | Non-primary — lives in the mobile `MoreMenu`, not the 5-tab bar. Unconditional, no kind-gating |
+
+**Why no new filtering logic.** The security-relevant question — can this viewer see this project — is already answered by `listProjects(workspaceId, viewerRole)`, tested in `verify.mjs`'s `projects` and `gating` sections. The assistant's tools call that same function with the caller's real role. Writing a second, parallel filter for the agent's tool outputs would be a second place for that rule to go stale; this way there isn't one.
+
+**It cannot act.** No tool writes anything. Asked to approve, post, or schedule, the system prompt tells it to say so and point at the real page (Approvals, Content, Messages) rather than attempt it — the same approval-first posture as the rest of the portal.
+
+**Testable without a live key.** No `GEMINI_API_KEY` is configured in this dev environment, so `verify.mjs` proves the honest-degrade path (a clear error, not a crash) rather than a live conversation. That's a real path worth having regardless of whether a key is ever set here.
+
+🔴 **Opus** built this one — the tool/security boundary (what data a function call can return per role) is exactly the kind of thing in the "Escalate to Opus" list below.
+
+---
+
 ## 🔔 Notifications — cross-cutting, not a page
 
 Currently unspecced and easy to forget until it's missing.

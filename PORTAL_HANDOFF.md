@@ -35,6 +35,7 @@ Then confirm the environment is up (§2) before writing code. If `verify.mjs` is
 | **3 — Board / Calendar** | ⬜ next |
 | **4 — Collaboration** | ⬜ threads, pin-on-image annotation, approvals, realtime |
 | **5a — Messages / WhatsApp** | ✅ built — two-way bridge, signature-verified webhook, mock + live drivers |
+| **5c — Assistant** | ✅ built — read-only Gemini agent scoped to one workspace, non-primary nav item |
 | **5b — Content** | ⬜ composer, per-platform previews, approvals, idea generation, image gen |
 | **6 — Polish** | ⬜ motion, a11y, anti-slop review |
 
@@ -97,7 +98,7 @@ WHATSAPP_VERIFY_TOKEN=dev-test-verify-token
 
 `src/lib/firebase-admin.ts` switches to emulator mode automatically when those `*_EMULATOR_HOST` vars are set. Production is untouched.
 
-**If you're in a proxied sandbox and Firestore calls hang for ~45s then fail with `14 UNAVAILABLE`:** don't set `NO_PROXY`/`no_proxy` to a bare `"*"` on the **dev server's** process — grpc-js appears not to treat that as "bypass everything" the way `fetch`/`curl` do, so it tries routing plaintext gRPC through the HTTP proxy and the handshake fails. The sandbox's *default* `no_proxy` already lists `127.0.0.1` explicitly and works fine — leave it alone for `npm run dev`. (`verify.mjs`'s own `NO_PROXY="*"` override is fine — that process only does plain `fetch()`, never gRPC.) Also: a `next dev` immediately after `npm run build` can serve a stale `.next` route manifest that 404s valid API routes — `rm -rf .next` before `npm run dev` if routes that should exist come back 404.
+**If you're in a proxied sandbox and Firestore/Auth-emulator calls fail (`14 UNAVAILABLE`, or the Admin Auth SDK throwing `ECONNREFUSED` to `127.0.0.1:9099` despite `curl` reaching it fine):** don't set `NO_PROXY`/`no_proxy` to a bare `"*"` on **any** Node process talking to the emulators — this once seemed safe for `verify.mjs`'s plain `fetch()` calls, but a later proxy build broke it for the Admin Auth SDK's own HTTP client too, not just grpc-js. The sandbox's *default* `no_proxy` already lists `127.0.0.1` explicitly and works fine on its own — `harness.mjs` no longer overrides it, for either the dev server or verify.mjs. Also: a `next dev` immediately after `npm run build` can serve a stale `.next` route manifest that 404s valid API routes — `rm -rf .next` before `npm run dev` if routes that should exist come back 404. And: verify.mjs's own repeated runs count against the real per-IP rate limiter on `/api/portal/session` (30 tokens, refilling at 0.5/s) — if a run crashes with a 429 or an "undefined workspace" error after several back-to-back runs, that's the limiter, not a regression; wait ~60s and rerun.
 
 ---
 
@@ -137,6 +138,7 @@ Don't invent; there's a working example of everything.
 | A hand-rolled gesture (pinch, drag, double-tap) | `src/components/portal/PinchZoomImage.tsx` — Framer motion values + `animate()`, no gesture library |
 | An adapter with a mock + live driver | `src/lib/portal/providers/whatsapp.ts` — one interface, selected by env var presence, so the UI never has a stub-shaped hole |
 | A signature-verified unguarded webhook | `src/app/api/webhooks/whatsapp/route.ts` — raw body read before parsing, HMAC compared in constant time, idempotent on retry |
+| A Gemini tool-calling agent | `src/lib/portal/assistant-tools.ts` + `api/portal/[workspace]/assistant/route.ts` — mirrors `/api/strategist/chat`'s SSE function-calling loop. **Every tool delegates to an already-filtered data function** (`listProjects`, not a new query) so role-based visibility is inherited, never reimplemented |
 
 **Auth guards** (`src/lib/portal-auth.ts`) — always the first lines of a route:
 ```ts
@@ -231,7 +233,7 @@ What actually costs context, in order:
 Verification ladder, cheapest first:
 ```bash
 npx tsc --noEmit                       # types
-node scripts/portal-verify/verify.mjs  # behaviour + security (51 assertions)
+node scripts/portal-verify/verify.mjs  # behaviour + security (56 assertions)
 npm run build                          # before pushing
 node scripts/portal-verify/shots.mjs   # only when judging visuals
 ```

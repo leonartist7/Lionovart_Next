@@ -369,7 +369,10 @@ if (run("messages")) {
   check("viewer role can still read the thread", viewerRead.status === 200, `${viewerRead.status}`);
 
   // A workspace with a WhatsApp number connected: an agency reply relays out.
-  const waNumber = "15550001111";
+  // Unique per run — the Firestore emulator persists across verify.mjs runs,
+  // and a repeated number would let `findWorkspaceByWhatsappNumber`'s
+  // `.limit(1)` match an earlier run's workspace instead of this one's.
+  const waNumber = `1555${Date.now()}`.slice(0, 11);
   const waWs = (
     await (
       await fetch(`${BASE}/api/portal/workspaces`, {
@@ -456,6 +459,44 @@ if (run("messages")) {
   check("GET handshake rejects a wrong verify token", verifyBad.status === 403, `${verifyBad.status}`);
 }
 
+/* ── assistant: the read-only workspace agent ────────────────────── */
+if (run("assistant")) {
+  console.log("\n── assistant ──");
+  const fx = await setupWorkspace("Verify Assistant");
+  const api = `${BASE}/api/portal/${fx.slug}/assistant`;
+
+  const anon = await fetch(api, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: "What's the status?" }),
+  });
+  check("unauthenticated cannot reach the assistant", anon.status === 401, `${anon.status}`);
+
+  const foreign = await fetch(`${BASE}/api/portal/nonexistent-workspace/assistant`, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ message: "hi" }),
+  });
+  check("unknown workspace 404s", foreign.status === 404, `${foreign.status}`);
+
+  const empty = await fetch(api, { method: "POST", headers: J(fx.clientCookie), body: JSON.stringify({ message: "  " }) });
+  check("an empty message is rejected", empty.status === 400, `${empty.status}`);
+
+  // No GEMINI_API_KEY in this environment — proves the route degrades
+  // honestly instead of crashing when the AI provider isn't configured.
+  const noKey = await fetch(api, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ message: "What's the status of my project?" }),
+  });
+  const noKeyBody = await noKey.json().catch(() => ({}));
+  check(
+    "without an API key it fails honestly, not a 500 crash page",
+    noKey.status === 500 && typeof noKeyBody.error === "string",
+    JSON.stringify(noKeyBody),
+  );
+}
+
 /* ── demo: the unauthenticated design preview ────────────────────── */
 if (run("demo")) {
   console.log("\n── demo (design preview) ──");
@@ -483,6 +524,9 @@ if (run("demo")) {
 
   const demoMessages = await fetch(`${BASE}/portal/demo/messages`);
   check("demo messages page loads", demoMessages.status === 200, `${demoMessages.status}`);
+
+  const demoAssistant = await fetch(`${BASE}/portal/demo/assistant`);
+  check("demo assistant page loads", demoAssistant.status === 200, `${demoAssistant.status}`);
 }
 
 process.exit(summary() > 0 ? 1 : 0);
