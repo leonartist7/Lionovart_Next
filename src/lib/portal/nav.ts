@@ -1,5 +1,6 @@
 import type { ProjectKind } from "@/lib/portal/types";
 import {
+  Bot,
   CalendarDays,
   FolderOpen,
   LayoutGrid,
@@ -93,6 +94,15 @@ export const PORTAL_NAV: PortalNavItem[] = [
     shortLabel: "Content",
     icon: Sparkles,
     ready: false,
+    primary: false,
+  },
+  {
+    id: "assistant",
+    segment: "assistant",
+    label: "Assistant",
+    shortLabel: "Assistant",
+    icon: Bot,
+    ready: true,
     primary: false,
   },
   {

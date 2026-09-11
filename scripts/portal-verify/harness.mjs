@@ -16,9 +16,12 @@ export const AGENCY_EMAIL = "leonartist.cs@gmail.com"; // must match NOVA_ADMIN_
 
 process.env.FIRESTORE_EMULATOR_HOST ??= "127.0.0.1:8080";
 process.env.FIREBASE_AUTH_EMULATOR_HOST ??= "127.0.0.1:9099";
-// The sandbox proxy blocks localhost otherwise.
-process.env.NO_PROXY = "*";
-process.env.no_proxy = "*";
+// Deliberately NOT forcing NO_PROXY="*" here: the sandbox's default no_proxy
+// already lists 127.0.0.1 explicitly, and overriding it to a bare "*" broke
+// the Admin Auth SDK's own HTTP client (ECONNREFUSED to the emulator) under
+// a later proxy build, even though it once worked. Leave the environment's
+// default alone — same lesson as the `npm run dev` note below, now proven to
+// apply here too.
 
 const { initializeApp } = await import("firebase-admin/app");
 const { getAuth } = await import("firebase-admin/auth");
