@@ -1,5 +1,5 @@
 import HeroTop from "@/components/sections/HeroTop";
-import LionJourney, { JourneyProof } from "@/components/sections/lion-journey/LionJourney";
+import LionJourney from "@/components/sections/lion-journey/LionJourney";
 import StrongTogetherTransition from "@/components/sections/StrongTogetherTransition";
 import BridgeStatement from "@/components/sections/BridgeStatement";
 
@@ -38,7 +38,6 @@ export function PageBuilder() {
       <LionJourney>
         <NovaSection id="hero"><HeroTop /></NovaSection>
         <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
-        <JourneyProof />
         <BridgeStatement />
         <StrongTogetherTransition />
       </LionJourney>
