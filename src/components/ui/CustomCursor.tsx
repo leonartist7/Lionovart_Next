@@ -1,191 +1,28 @@
 "use client";
 
+import { MagneticCursor } from "@/components/ui/magnetic-cursor";
+
 /**
- * CustomCursor — LIONOVART premium pointer
- * ----------------------------------------
- * - Inner dot tracks the pointer with zero lag (raw motion values).
- * - Outer ring is spring-lagged via useSpring.
- * - mix-blend-mode: difference auto-inverts over black AND cream sections.
- * - On a, button, [data-cursor]: ring grows + fills.
- * - On [data-cursor="<text>"]: replaces ring with a filled gold disc + label.
- * - Hidden on coarse pointers (touch); reduced-motion friendly.
+ * LIONOVART cursor preset.
  *
- * Perf notes:
- * - Position updates are RAF-throttled to 1 paint per frame regardless of
- *   mouse poll rate (matters for 1000Hz gaming mice).
- * - Hover detection runs on pointerover (event delegation) instead of a
- *   per-frame elementFromPoint hit-test, which forced a synchronous layout
- *   flush every frame. closest() on the event target is far cheaper and
- *   only fires when the element under the pointer changes.
- * - State is only updated when the resolved mode/label actually changes.
+ * Keeps this compatibility component because the public site layout already
+ * mounts <CustomCursor />. The actual pointer engine lives in
+ * magnetic-cursor.tsx so other surfaces can reuse/configure it independently.
  */
-
-import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
-
-type CursorMode = "default" | "hover" | "label";
-
-const INTERACTIVE_SELECTOR =
-  'a, button, [role="button"], input, textarea, select, summary, label, [data-cursor]';
-
 export default function CustomCursor() {
-  const [enabled, setEnabled] = useState(false);
-  const [mode, setMode] = useState<CursorMode>("default");
-  const [labelText, setLabelText] = useState("");
-
-  // Raw pointer position (dot follows this directly).
-  const x = useMotionValue(-100);
-  const y = useMotionValue(-100);
-  // Spring-lagged position for ring + label.
-  const ringX = useSpring(x, { stiffness: 320, damping: 28, mass: 0.6 });
-  const ringY = useSpring(y, { stiffness: 320, damping: 28, mass: 0.6 });
-
-  // Refs hold current state for the RAF loop without re-binding.
-  const modeRef = useRef<CursorMode>("default");
-  const labelRef = useRef<string>("");
-  useEffect(() => {
-    modeRef.current = mode;
-  }, [mode]);
-  useEffect(() => {
-    labelRef.current = labelText;
-  }, [labelText]);
-
-  /* ── Mount: detect pointer capability ──────────────────────────────── */
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const fine = window.matchMedia("(pointer: fine)").matches;
-    if (!fine) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setEnabled(true);
-    document.body.classList.add("cursor-active");
-    return () => {
-      document.body.classList.remove("cursor-active");
-    };
-  }, []);
-
-  /* ── RAF loop (position only) + pointerover hover delegation ───────── */
-  useEffect(() => {
-    if (!enabled) return;
-
-    // Latest pointer coords captured by the move listener.
-    let px = -100;
-    let py = -100;
-    let dirty = false;
-    let rafId = 0;
-    let inside = true;
-
-    const handleMove = (e: PointerEvent) => {
-      px = e.clientX;
-      py = e.clientY;
-      dirty = true;
-    };
-
-    const handleLeaveWindow = () => {
-      inside = false;
-      dirty = true;
-    };
-
-    const handleEnterWindow = () => {
-      inside = true;
-    };
-
-    // Hover detection via event delegation — fires only when the element
-    // under the pointer changes, not every frame. No elementFromPoint, so
-    // no per-frame synchronous layout flush.
-    const handleOver = (e: PointerEvent) => {
-      const target = e.target;
-      const el =
-        target instanceof Element
-          ? (target.closest(INTERACTIVE_SELECTOR) as HTMLElement | null)
-          : null;
-
-      let nextMode: CursorMode = "default";
-      let nextLabel = "";
-      if (el) {
-        const attr = el.getAttribute("data-cursor");
-        if (attr && attr !== "true" && attr !== "false") {
-          nextMode = "label";
-          nextLabel = attr;
-        } else {
-          nextMode = "hover";
-        }
-      }
-      if (nextMode !== modeRef.current) {
-        setMode(nextMode);
-        modeRef.current = nextMode;
-      }
-      if (nextLabel !== labelRef.current) {
-        setLabelText(nextLabel);
-        labelRef.current = nextLabel;
-      }
-    };
-
-    const tick = () => {
-      if (dirty) {
-        if (!inside) {
-          x.set(-100);
-          y.set(-100);
-        } else {
-          x.set(px);
-          y.set(py);
-        }
-        dirty = false;
-      }
-      rafId = requestAnimationFrame(tick);
-    };
-    rafId = requestAnimationFrame(tick);
-
-    window.addEventListener("pointermove", handleMove, { passive: true });
-    window.addEventListener("pointerover", handleOver, { passive: true });
-    document.addEventListener("mouseleave", handleLeaveWindow);
-    document.addEventListener("mouseenter", handleEnterWindow);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.removeEventListener("pointermove", handleMove);
-      window.removeEventListener("pointerover", handleOver);
-      document.removeEventListener("mouseleave", handleLeaveWindow);
-      document.removeEventListener("mouseenter", handleEnterWindow);
-    };
-  }, [enabled, x, y]);
-
-  if (!enabled) return null;
-
-  const showLabel = mode === "label";
-  // Ring hides only when the gold label disc takes over.
-  const ringHidden = showLabel;
-
   return (
-    <>
-      {/* Solid red dot — bound to RAW x/y (no spring) so it tracks the
-          pointer with zero lag. Grows slightly on interactive hover. */}
-      <motion.div
-        className="cursor-layer cursor-ring"
-        style={{ x, y }}
-        animate={{
-          opacity: ringHidden ? 0 : 1,
-          width: mode === "hover" ? 16 : 10,
-          height: mode === "hover" ? 16 : 10,
-          marginTop: mode === "hover" ? -8 : -5,
-          marginLeft: mode === "hover" ? -8 : -5,
-        }}
-        transition={{ duration: 0.18, ease: "easeOut" }}
-      />
-
-      {/* Contextual gold label (Play / Drag / …) — no blend mode */}
-      <motion.div
-        className="cursor-label"
-        style={{ x: ringX, y: ringY }}
-        initial={false}
-        animate={{
-          opacity: showLabel ? 1 : 0,
-          scale: showLabel ? 1 : 0.4,
-        }}
-        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        aria-hidden
-      >
-        {labelText}
-      </motion.div>
-    </>
+    <MagneticCursor
+      magneticFactor={0.55}
+      lerpAmount={0.12}
+      hoverPadding={10}
+      blendMode="exclusion"
+      cursorSize={40}
+      cursorColor="#ffffff"
+      contrastBoost={1.5}
+      speedMultiplier={0.02}
+      maxScaleX={1}
+      maxScaleY={0.3}
+      disableOnTouch
+    />
   );
 }
