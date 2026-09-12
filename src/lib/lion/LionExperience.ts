@@ -162,6 +162,14 @@ export class LionExperience {
   private bloomTarget = 0;
   private bloomW = 0;
 
+  /** Audit-scan sweep for the systems arrival, see playSystemsScan(). Local
+   *  space, low-left of the ~1.3-radius room cluster so the front reads as
+   *  entering rather than a centered "loading ring". */
+  private scanOrigin = new THREE.Vector3(-1.7, -1.3, 0.3);
+  private scanMaxRadius = 4.2;
+  private scanTimeline: gsap.core.Timeline | null = null;
+  private scanPlayed = false;
+
   private pointer = new THREE.Vector2(0, 0);
   private pointerWorld = new THREE.Vector3(999, 999, 0);
   private pointerProjection = new THREE.Vector3();
@@ -245,6 +253,50 @@ export class LionExperience {
     if (pose.lookY !== undefined) this.camPoseTarget.lookY = pose.lookY;
     if (pose.fov !== undefined) this.camPoseTarget.fov = pose.fov;
     this.activeUntil = performance.now() + 700;
+  }
+
+  /**
+   * The audit-scan arrival for the systems chapter: one continuous wavefront
+   * sweeps the room cluster once as AiSystems steps through the four systems
+   * in sequence, then fades. Idempotent and reduced-motion aware; AiSystems
+   * calls this once when the section first enters view.
+   */
+  playSystemsScan(durationSec = 2.6): void {
+    if (this.scanPlayed || !this.material) return;
+    this.scanPlayed = true;
+
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      // No sweep: land on the fully-revealed, unscanned-looking state so the
+      // static composed frame shows the finished field, not a half scan.
+      this.material.uniforms.uScanRadius.value = this.scanMaxRadius;
+      this.material.uniforms.uScanEnabled.value = 0;
+      return;
+    }
+
+    const uniforms = this.material.uniforms;
+    const state = { radius: 0, enabled: 1 };
+    uniforms.uScanEnabled.value = 1;
+    this.activeUntil = performance.now() + (durationSec + 1) * 1000;
+
+    this.scanTimeline = gsap.timeline()
+      .to(state, {
+        radius: this.scanMaxRadius,
+        duration: durationSec,
+        ease: "power2.out", // approximates 1 - (1-t)^1.35: fast start, no stall at the far edge
+        onUpdate: () => {
+          uniforms.uScanRadius.value = state.radius;
+          this.activeUntil = performance.now() + 700;
+        },
+      })
+      .to(state, {
+        enabled: 0,
+        duration: durationSec * 0.28,
+        ease: "power1.out",
+        onUpdate: () => { uniforms.uScanEnabled.value = state.enabled; },
+      }, `-=${durationSec * 0.28}`); // fade the reveal mask out over the sweep's own tail, not after it
   }
 
   private toWorld(nx: number, ny: number): THREE.Vector3 {
@@ -600,6 +652,9 @@ export class LionExperience {
         uPixelRatio: { value: dpr },
         uBloom: { value: 0 },
         uCrest: { value: new THREE.Vector3(0, 0, 0) },
+        uScanOrigin: { value: this.scanOrigin },
+        uScanRadius: { value: 0 },
+        uScanEnabled: { value: 0 },
       },
     });
 
@@ -1281,6 +1336,8 @@ export class LionExperience {
   dispose(): void {
     this.disposed = true;
     this.stop();
+    this.scanTimeline?.kill();
+    this.scanTimeline = null;
     if (this.pointerEventsBound) {
       window.removeEventListener("pointermove", this.onPointerMove);
       document.documentElement.removeEventListener("pointerenter", this.onPointerEnter);

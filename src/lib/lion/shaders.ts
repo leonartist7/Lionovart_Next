@@ -89,6 +89,9 @@ uniform float uDofAmount;    // depth-of-field strength
 uniform float uOrganicDetail;// 0 mobile, 1 full curl-noise detail
 uniform float uBloom;        // Act 7: the crown reforms as a crest over the CTA
 uniform vec3  uCrest;        // world-space center of that crest
+uniform vec3  uScanOrigin;   // local-space origin the audit scan sweeps from
+uniform float uScanRadius;   // grows once as the four systems arrive in sequence
+uniform float uScanEnabled;  // 0 outside the systems arrival, fades in/out around it
 
 attribute vec3 aNormal;
 attribute vec4 aRand;        // x,y,z,w in [0,1]
@@ -233,6 +236,21 @@ void main(){
   float md = length(away);
   finalPos += normalize(away + 1e-4) * smoothstep(0.20, 0.0, md) * uMouseStrength * (1.0 - m * 0.75);
 
+  // ---------- audit scan (systems arrival) ------------------------------------
+  // One continuous wavefront sweeps the room cluster once as the four systems
+  // arrive in sequence (schedule lives in AiSystems.tsx, radius/enabled driven
+  // from LionExperience.playSystemsScan). Local space is correct here: unlike
+  // the wireframe-cage technique this is adapted from, there is only ever one
+  // particle representation to keep in sync with, so there is no second front
+  // that could drift out of registration.
+  float scanDist = distance(finalPos, uScanOrigin);
+  float scanRim = exp(-pow((scanDist - uScanRadius) / 0.18, 2.0));
+  float scanTrail = smoothstep(uScanRadius, uScanRadius - 1.4, scanDist);
+  // Particles ahead of the front dim rather than vanish: this is a decorative
+  // field, not the page's primary legibility channel, so a hard discard would
+  // read as missing geometry rather than "not yet classified".
+  float scanReveal = mix(1.0, mix(0.24, 1.0, scanTrail), uScanEnabled);
+
   // ---------- lighting / color ----------------------------------------------
   vec4 world = modelMatrix * vec4(finalPos, 1.0);
   vec3 viewDir = normalize(world.xyz - cameraPosition);
@@ -279,10 +297,12 @@ void main(){
   // subtle per-particle twinkle
   float twinkle = 0.90 + 0.10 * sin(uTime * (1.0 + aRand.z * 1.4) + aRand.x * 40.0);
 
-  vColor = col * twinkle;
+  // scan-line glow: the machine reading the field, brightest exactly at the front
+  vColor = col * twinkle + vec3(0.22, 0.62, 0.95) * scanRim * uScanEnabled;
   float systemT = smoothstep(0.08, 0.32, m);
   vAlpha = mix(0.97, 0.92, systemT) * introT;
   vAlpha = mix(vAlpha, 0.98, uBloom);
+  vAlpha *= scanReveal;
 
   // ---------- projection -----------------------------------------------------
   vec4 mv = viewMatrix * world;

@@ -10,6 +10,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Tabs } from "@base-ui/react/tabs";
+import gsap from "gsap";
 import {
   motion,
   useReducedMotion,
@@ -19,8 +20,16 @@ import {
 } from "framer-motion";
 import { useNovaStore } from "@/lib/stores/nova-store";
 import { getConductor } from "@/lib/lion/conductor";
+import { getLionStage } from "@/lib/lion/stage-ref";
 import { NODES } from "./graph";
 import { LiquidGlass } from "./LiquidGlass";
+
+// The audit-scan arrival, see LionExperience.playSystemsScan(). One shared
+// duration drives both the particle wavefront and the tab-stepping sequence
+// below so the copy panel changes land with whichever system the scan is
+// currently revealing, rather than two unrelated timers drifting apart.
+const SCAN_TOTAL_MS = 3200;
+const SCAN_STEP_MS = SCAN_TOTAL_MS / 4;
 
 const SHELL = "mx-auto w-full max-w-[1280px] px-6 md:px-10 lg:px-14";
 const ACT =
@@ -126,6 +135,8 @@ export function AiSystems() {
   const [activeValue, setActiveValue] = useState<string>(SYSTEMS[0].number);
   const activeSystem = SYSTEMS.find((system) => system.number === activeValue) ?? SYSTEMS[0];
   const reduce = useReducedMotion();
+  const scanPlayedRef = useRef(false);
+  const scanTimelineRef = useRef<gsap.core.Timeline | null>(null);
 
   useEffect(() => {
     // The tab is the only non-scroll input to the story. The conductor owns
@@ -134,6 +145,54 @@ export function AiSystems() {
     const index = SYSTEMS.findIndex((system) => system.number === activeSystem.number);
     getConductor().setActiveSystem(index < 0 ? 0 : index);
   }, [activeSystem]);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const cancelScan = () => {
+      scanTimelineRef.current?.kill();
+      scanTimelineRef.current = null;
+    };
+
+    // A real click or keypress inside the section means the visitor is
+    // already driving the tabs themselves; stepping the panel out from under
+    // them would fight their input. One-shot, then get out of the way.
+    section.addEventListener("pointerdown", cancelScan, { once: true });
+    section.addEventListener("keydown", cancelScan, { once: true });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (scanPlayedRef.current || !entries[0]?.isIntersecting) return;
+        scanPlayedRef.current = true;
+        observer.disconnect();
+
+        // The particle wavefront always plays (its reduced-motion branch
+        // lands on a static composed frame); the tab auto-advance is the
+        // part that actually moves things on screen, so only that skips.
+        getLionStage()?.playSystemsScan(SCAN_TOTAL_MS / 1000);
+        if (reduce) return;
+
+        // GSAP's ticker, not raw setTimeout: under the WebGL main-thread
+        // load this section carries, plain setTimeout steps measurably drift
+        // and can bunch together, skipping intermediate systems entirely.
+        const tl = gsap.timeline();
+        [1, 2, 3, 0].forEach((index, step) => {
+          tl.call(() => setActiveValue(SYSTEMS[index].number), [], (SCAN_STEP_MS * (step + 1)) / 1000);
+        });
+        scanTimelineRef.current = tl;
+      },
+      { threshold: 0.35 },
+    );
+    observer.observe(section);
+
+    return () => {
+      observer.disconnect();
+      cancelScan();
+      section.removeEventListener("pointerdown", cancelScan);
+      section.removeEventListener("keydown", cancelScan);
+    };
+  }, [reduce]);
 
   return (
     <section
@@ -147,7 +206,11 @@ export function AiSystems() {
       <div className={SHELL}>
         <Tabs.Root
           value={activeValue}
-          onValueChange={(value) => setActiveValue(String(value))}
+          onValueChange={(value) => {
+            scanTimelineRef.current?.kill();
+            scanTimelineRef.current = null;
+            setActiveValue(String(value));
+          }}
           className="w-full"
         >
           <div className="max-w-[58rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)]">
