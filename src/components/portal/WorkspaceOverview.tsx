@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { ProjectCard } from "@/components/portal/ProjectCard";
+import type { ApprovalCardData } from "@/components/portal/ApprovalCard";
 import { deriveProgress, nextMilestone, type ProjectWithMilestones } from "@/lib/portal/projects";
 import { formatDate, relativeDate } from "@/lib/portal/format";
 
@@ -11,7 +12,8 @@ import { formatDate, relativeDate } from "@/lib/portal/format";
  *
  * `addProjectSlot` is where the agency's "add a project" control goes — the
  * caller decides whether to pass one, which is how the control stays absent
- * from a client's response entirely.
+ * from a client's response entirely. `awaitingApprovals` is the same idea for
+ * the "awaiting you" slot: passed only when the viewer can act on it.
  */
 export function WorkspaceOverview({
   workspaceName,
@@ -19,12 +21,14 @@ export function WorkspaceOverview({
   workspaceSlug,
   projects,
   addProjectSlot,
+  awaitingApprovals = [],
 }: {
   workspaceName: string;
   firstName: string;
   workspaceSlug: string;
   projects: ProjectWithMilestones[];
   addProjectSlot?: React.ReactNode;
+  awaitingApprovals?: ApprovalCardData[];
 }) {
   const active = projects.filter((p) => p.status !== "delivered");
 
@@ -90,6 +94,39 @@ export function WorkspaceOverview({
               {allMilestones.length} milestones complete
             </p>
           </section>
+
+          {awaitingApprovals.length > 0 && (
+            <section aria-labelledby="overview-awaiting" className="mt-8">
+              <h2 id="overview-awaiting" className="text-muted-foreground mb-3 text-sm font-medium">
+                Awaiting you
+              </h2>
+              <ul className="border-border bg-card divide-border divide-y overflow-hidden rounded-2xl border">
+                {awaitingApprovals.map((approval) => (
+                  <li key={approval.id}>
+                    <Link
+                      href={`/portal/${workspaceSlug}/approvals`}
+                      className="hover:bg-muted/60 focus-visible:ring-primary/50 flex items-center gap-3 p-4 transition-colors focus-visible:ring-3 focus-visible:outline-none focus-visible:-outline-offset-2"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-foreground truncate text-sm font-medium">
+                          {approval.targetLabel}
+                        </p>
+                        <p className="text-muted-foreground mt-0.5 truncate text-xs">
+                          {approval.contextLabel ? `${approval.contextLabel} · ` : ""}
+                          requested {relativeDate(approval.requestedAt)}
+                        </p>
+                      </div>
+                      <ArrowRight
+                        size={15}
+                        className="text-muted-foreground shrink-0"
+                        aria-hidden="true"
+                      />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           {upcoming.length > 0 && (
             <section aria-labelledby="overview-next" className="mt-8">

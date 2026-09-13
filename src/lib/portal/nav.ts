@@ -57,7 +57,7 @@ export const PORTAL_NAV: PortalNavItem[] = [
     label: "Approvals",
     shortLabel: "Approve",
     icon: CheckCircle2,
-    ready: false,
+    ready: true,
     primary: true,
   },
   {
@@ -84,7 +84,7 @@ export const PORTAL_NAV: PortalNavItem[] = [
     label: "Calendar",
     shortLabel: "Calendar",
     icon: CalendarDays,
-    ready: false,
+    ready: true,
     primary: false,
   },
   {

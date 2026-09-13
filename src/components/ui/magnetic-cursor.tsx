@@ -170,7 +170,7 @@ export const MagneticCursor: FC<MagneticCursorProps> = ({
         rotate: 0,
         duration: detachDuration,
         ease: "power3.out",
-        overwrite: "all",
+        overwrite: true,
         onComplete: () => {
           isDetaching = false;
         },
@@ -216,7 +216,7 @@ export const MagneticCursor: FC<MagneticCursorProps> = ({
         rotate: 0,
         duration: prefersReducedMotion ? 0.1 : 0.3,
         ease: "power3.out",
-        overwrite: "all",
+        overwrite: true,
       });
     };
 

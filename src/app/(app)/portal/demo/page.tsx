@@ -6,6 +6,7 @@ import {
   DEMO_AGENCY,
   DEMO_CLIENT,
   DEMO_WORKSPACE,
+  demoApprovals,
   demoProjects,
   resolveDemoView,
 } from "@/lib/portal/demo-data";
@@ -33,6 +34,7 @@ export default async function DemoOverviewPage({
         workspaceSlug="demo"
         projects={demoProjects(view)}
         addProjectSlot={view === "studio" ? <DemoAddProject /> : undefined}
+        awaitingApprovals={demoApprovals()}
       />
     </DemoShell>
   );
