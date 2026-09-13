@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
+import { ArrowRight, ChevronLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { MilestoneRail } from "@/components/portal/MilestoneRail";
@@ -117,6 +117,23 @@ export default async function ProjectDetailPage({ params }: Params) {
             projectId={project.id}
           />
         </div>
+      </section>
+
+      <section aria-labelledby="project-board" className="mt-8">
+        <h2 id="project-board" className="text-muted-foreground mb-4 text-sm font-medium">
+          Board
+        </h2>
+        <Link
+          href={`/portal/${slug}/projects/${project.id}/board`}
+          className="border-border bg-card hover:border-primary/40 group focus-visible:ring-primary/50 flex items-center justify-between gap-3 rounded-2xl border p-5 transition-[border-color] duration-150 ease-out active:scale-[0.995] focus-visible:ring-3 focus-visible:outline-none"
+        >
+          <span className="text-foreground text-[15px] font-medium">Open the board</span>
+          <ArrowRight
+            size={16}
+            className="text-muted-foreground group-hover:text-foreground shrink-0 transition-colors"
+            aria-hidden="true"
+          />
+        </Link>
       </section>
     </div>
   );

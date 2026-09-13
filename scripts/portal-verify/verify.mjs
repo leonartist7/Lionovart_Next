@@ -26,7 +26,7 @@ import {
 } from "./harness.mjs";
 
 /** Strings that must appear for agency and never for a client. */
-const AGENCY_MARKERS = ["Add a milestone", "Add a project", "Request approval"];
+const AGENCY_MARKERS = ["Add a milestone", "Add a project", "Add a task", "Internal only", "Request approval"];
 
 const only = process.argv[2];
 const run = (name) => !only || only === name;
@@ -151,6 +151,178 @@ if (run("projects")) {
   const listPage = await pageSource(`/portal/${fx.slug}/projects`, fx.clientCookie);
   check("internal project name absent from client HTML", !listPage.html.includes("INTERNAL Margin Review"));
   check("client still sees their own project", listPage.html.includes("Brand Identity System"));
+}
+
+/* ── board: fractional-index reorder, agency-only mutation, visibility ── */
+if (run("board")) {
+  console.log("\n── board ──");
+  const fx = await setupWorkspace("Verify Board");
+  const projApi = `${BASE}/api/portal/${fx.slug}/projects`;
+
+  const project = (
+    await (
+      await fetch(projApi, {
+        method: "POST",
+        headers: J(fx.agencyCookie),
+        body: JSON.stringify({ name: "Board Check", kind: "web" }),
+      })
+    ).json()
+  ).project;
+  const api = `${projApi}/${project.id}/tasks`;
+
+  const createdRes = await fetch(api, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ title: "Design system", column: "backlog" }),
+  });
+  const task = (await createdRes.json()).task;
+  check("agency creates a task", createdRes.status === 201, `id=${task?.id}`);
+
+  const clientCreate = await fetch(api, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ title: "Client attempt" }),
+  });
+  check("client cannot create a task", clientCreate.status === 403, `${clientCreate.status}`);
+
+  const clientMove = await fetch(`${api}/${task.id}`, {
+    method: "PATCH",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ column: "in_progress" }),
+  });
+  check("client PATCH on a task is 403", clientMove.status === 403, `${clientMove.status}`);
+
+  // Internal tasks: absent from the client's list JSON and the client's
+  // rendered board HTML — never confirmed-but-hidden.
+  const internal = (
+    await (
+      await fetch(api, {
+        method: "POST",
+        headers: J(fx.agencyCookie),
+        body: JSON.stringify({ title: "INTERNAL budget note", visibility: "internal" }),
+      })
+    ).json()
+  ).task;
+
+  const clientList = await (await fetch(api, { headers: J(fx.clientCookie) })).json();
+  check(
+    "internal task hidden from client list",
+    !clientList.tasks.some((t) => t.id === internal.id),
+    `client sees ${clientList.tasks.length}`,
+  );
+
+  const boardPath = `/portal/${fx.slug}/projects/${project.id}/board`;
+  const clientBoard = await pageSource(boardPath, fx.clientCookie);
+  const agencyBoard = await pageSource(boardPath, fx.agencyCookie);
+  check("internal task absent from client board HTML", !clientBoard.html.includes("INTERNAL budget note"));
+  check("internal task present on agency board HTML", agencyBoard.html.includes("INTERNAL budget note"));
+  check("agency-only board controls absent from client HTML", !clientBoard.html.includes("Add a task"));
+  check("agency-only board controls present for agency", agencyBoard.html.includes("Add a task"));
+
+  // Order persists after reload: three tasks in one column, insert the third
+  // between the first two, then re-fetch and confirm the sequence held.
+  const seeded = [];
+  for (const title of ["Card A", "Card B", "Card C"]) {
+    const r = await fetch(api, {
+      method: "POST",
+      headers: J(fx.agencyCookie),
+      body: JSON.stringify({ title, column: "review" }),
+    });
+    seeded.push((await r.json()).task);
+  }
+  const [cardA, cardB, cardC] = seeded;
+
+  const moveRes = await fetch(`${api}/${cardC.id}`, {
+    method: "PATCH",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ column: "review", prevTaskId: cardA.id, nextTaskId: cardB.id }),
+  });
+  check("move between two tasks succeeds", moveRes.status === 200, `${moveRes.status}`);
+
+  const afterMove = await (await fetch(api, { headers: J(fx.agencyCookie) })).json();
+  const reviewOrder = afterMove.tasks
+    .filter((t) => t.column === "review")
+    .sort((x, y) => x.order - y.order)
+    .map((t) => t.title);
+  check(
+    "reorder persists after reload (A, C, B)",
+    JSON.stringify(reviewOrder) === JSON.stringify(["Card A", "Card C", "Card B"]),
+    reviewOrder.join(", "),
+  );
+
+  // "Keyboard reorder": there's no headless browser here, so this exercises
+  // the exact PATCH contract KanbanBoard's ArrowUp/ArrowDown handler fires for
+  // a single-slot move — the endpoint contract is what's under test, the
+  // arrow key is just one caller of it.
+  const keyboardMove = await fetch(`${api}/${cardB.id}`, {
+    method: "PATCH",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ column: "review", prevTaskId: cardA.id, nextTaskId: cardC.id }),
+  });
+  check("keyboard-style single-slot move succeeds", keyboardMove.status === 200, `${keyboardMove.status}`);
+  const afterKeyboard = await (await fetch(api, { headers: J(fx.agencyCookie) })).json();
+  const orderAfterKeyboard = afterKeyboard.tasks
+    .filter((t) => t.column === "review")
+    .sort((x, y) => x.order - y.order)
+    .map((t) => t.title);
+  check(
+    "keyboard-style move persists after reload (A, B, C)",
+    JSON.stringify(orderAfterKeyboard) === JSON.stringify(["Card A", "Card B", "Card C"]),
+    orderAfterKeyboard.join(", "),
+  );
+
+  // The hard part: repeated midpoint inserts between the same fixed pair
+  // eventually collapse float precision — moveTask must detect that and
+  // rebalance the column rather than silently producing duplicate orders.
+  const edgeA = (
+    await (
+      await fetch(api, {
+        method: "POST",
+        headers: J(fx.agencyCookie),
+        body: JSON.stringify({ title: "Edge A", column: "approved" }),
+      })
+    ).json()
+  ).task;
+  const edgeB = (
+    await (
+      await fetch(api, {
+        method: "POST",
+        headers: J(fx.agencyCookie),
+        body: JSON.stringify({ title: "Edge B", column: "approved" }),
+      })
+    ).json()
+  ).task;
+
+  let left = edgeA;
+  let right = edgeB;
+  for (let i = 0; i < 60; i++) {
+    const inserted = (
+      await (
+        await fetch(api, {
+          method: "POST",
+          headers: J(fx.agencyCookie),
+          body: JSON.stringify({ title: `Insert ${i}`, column: "approved" }),
+        })
+      ).json()
+    ).task;
+    const moved = await fetch(`${api}/${inserted.id}`, {
+      method: "PATCH",
+      headers: J(fx.agencyCookie),
+      body: JSON.stringify({ column: "approved", prevTaskId: left.id, nextTaskId: right.id }),
+    });
+    if (!moved.ok) break;
+    right = inserted;
+  }
+
+  const approved = (await (await fetch(api, { headers: J(fx.agencyCookie) })).json()).tasks.filter(
+    (t) => t.column === "approved",
+  );
+  const orders = approved.map((t) => t.order);
+  check(
+    "62 midpoint inserts between the same pair rebalance instead of colliding",
+    approved.length === 62 && new Set(orders).size === orders.length,
+    `${approved.length} tasks, ${new Set(orders).size} distinct orders`,
+  );
 }
 
 /* ── gating: agency controls must never reach a client ───────────── */

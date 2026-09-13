@@ -1,6 +1,6 @@
 import type { ProjectWithMilestones } from "@/lib/portal/projects";
 import { deriveProgress } from "@/lib/portal/projects";
-import type { AssetKind, Milestone, PortalMessage } from "@/lib/portal/types";
+import type { AssetKind, Milestone, PortalMessage, Task, TaskColumn } from "@/lib/portal/types";
 
 /**
  * Fixtures for the design preview at /portal/demo.
@@ -128,6 +128,46 @@ export type DemoView = "client" | "studio";
 
 export function resolveDemoView(value: string | undefined): DemoView {
   return value === "studio" ? "studio" : "client";
+}
+
+/* ── Board ──────────────────────────────────────────────────────── */
+
+function tasks(
+  projectId: string,
+  spec: [title: string, column: TaskColumn, visibility?: "client" | "internal"][],
+): Task[] {
+  return spec.map(([title, column, visibility = "client"], i) => ({
+    id: `t-${projectId}-${i}`,
+    title,
+    column,
+    // Spaced the same way a real move would leave headroom — not sequential
+    // integers, so the demo can't be mistaken for the pre-fractional pattern.
+    order: (i + 1) * 1000,
+    visibility,
+    createdAt: daysFromNow(-10),
+    updatedAt: daysFromNow(-10),
+  }));
+}
+
+// Only "site-build" has a board fixture — the demo proves the surface works,
+// it doesn't need every project wired up.
+const DEMO_TASKS: Record<string, Task[]> = {
+  "site-build": tasks("site-build", [
+    ["Sitemap outline", "done"],
+    ["Homepage wireframe", "done"],
+    ["Component library", "in_progress"],
+    ["Contact form build", "in_progress"],
+    ["Cross-browser QA", "review"],
+    ["Staging review", "approved"],
+    // Only ever visible in the studio view — proves the client/studio split.
+    ["Analytics wiring — pending budget sign-off", "backlog", "internal"],
+  ]),
+};
+
+/** The client sees no internal tasks — same filter the real data layer applies. */
+export function demoTasks(view: DemoView, projectId: string): Task[] {
+  const all = DEMO_TASKS[projectId] ?? [];
+  return view === "studio" ? all : all.filter((t) => t.visibility !== "internal");
 }
 
 /* ── Files ──────────────────────────────────────────────────────── */
