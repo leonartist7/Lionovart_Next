@@ -162,6 +162,13 @@ export class LionExperience {
   private bloomTarget = 0;
   private bloomW = 0;
 
+  /** The bridge's "hidden cost" beat: ambient dust drains downward instead of
+   *  recycling, so loss is a literal decrease in what's on screen rather than
+   *  a metaphor. Driven by the same bridgePanelOpacity(0, t) curve the DOM
+   *  copy already fades on, so the two can never drift apart. */
+  private leakTarget = 0;
+  private leak = 0;
+
   /** Audit-scan sweep for the systems arrival, see playSystemsScan(). Local
    *  space, low-left of the ~1.3-radius room cluster so the front reads as
    *  entering rather than a centered "loading ring". */
@@ -215,6 +222,12 @@ export class LionExperience {
   /** Act 7: 0 = energy current, 1 = reformed crown above the CTA. */
   setBloom(v: number): void {
     this.bloomTarget = clamp01(v);
+    if (typeof performance !== "undefined") this.activeUntil = performance.now() + 700;
+  }
+
+  /** 0..1: how much the bridge's "hidden cost" beat is in effect. */
+  setLeak(v: number): void {
+    this.leakTarget = clamp01(v);
     if (typeof performance !== "undefined") this.activeUntil = performance.now() + 700;
   }
 
@@ -797,6 +810,7 @@ export class LionExperience {
         uDofAmount: { value: quality.dof },
         uMorph: { value: 0 },
         uBloom: { value: 0 },
+        uLeak: { value: 0 },
       },
     });
 
@@ -1068,6 +1082,7 @@ export class LionExperience {
     this.morph += (this.morphTarget - this.morph) * (1 - Math.exp(-9 * dt));
     this.layout += (this.layoutTarget - this.layout) * (1 - Math.exp(-7 * dt));
     this.bloomW += (this.bloomTarget - this.bloomW) * (1 - Math.exp(-6 * dt));
+    this.leak += (this.leakTarget - this.leak) * (1 - Math.exp(-6 * dt));
     const m = this.morph;
 
     if (this.material) {
@@ -1092,6 +1107,7 @@ export class LionExperience {
       du.uTime.value = t;
       du.uMorph.value = m;
       du.uBloom.value = this.bloomW;
+      du.uLeak.value = this.leak;
     }
 
     if (this.swarmMat) {

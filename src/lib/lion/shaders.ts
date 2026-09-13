@@ -349,6 +349,9 @@ uniform float uPixelRatio;
 uniform float uFocusDist;
 uniform float uDofAmount;
 uniform float uMorph;
+uniform float uLeak; // 0 normally; during the bridge's "hidden cost" beat, dust
+                      // drains downward and does not recycle -- loss as a
+                      // literal decrease in what's on screen, not a metaphor
 attribute vec4 aRand;
 varying float vAlpha;
 varying float vMix;
@@ -358,9 +361,17 @@ void main(){
   float m = smoothstep(0.0, 1.0, uMorph);
   float ph = fract(uTime * (0.018 + aRand.y * 0.022) + aRand.x);
 
-  vec3 ambient = position + normalize(vec3(0.48, 1.0, 0.16)) * ph * 6.0;
+  // The leak tilts the drift from its normal upward ambient direction toward
+  // straight down, and stops recycling the Y axis so particles that fall
+  // past the bottom of the box stay gone instead of wrapping back to the top.
+  vec3 driftDir = normalize(mix(vec3(0.48, 1.0, 0.16), vec3(0.05, -1.0, 0.05), uLeak));
+  vec3 ambient = position + driftDir * ph * 6.0;
   ambient.x = mod(ambient.x + 4.0, 8.0) - 4.0;
-  ambient.y = mod(ambient.y + 3.0, 6.0) - 3.0;
+  float wrappedY = mod(ambient.y + 3.0, 6.0) - 3.0;
+  ambient.y = mix(wrappedY, ambient.y, uLeak);
+  // Fade out as a particle actually falls below the box rather than popping
+  // it to invisible at a fixed line -- the drain reads as continuous.
+  float leakFade = mix(1.0, smoothstep(-6.0, -3.0, ambient.y), uLeak);
 
   vec3 burstDir = normalize(aRand.xyz - 0.5 + 1e-4);
   vec3 burst = burstDir * (1.6 + aRand.w * 3.4);
@@ -381,7 +392,7 @@ void main(){
   // rooms, so it must be nearly gone before Front Desk (0.58-0.64) begins —
   // each room's own silhouette carries the story, not stale ambient dust.
   float roomsFade = 1.0 - smoothstep(0.48, 0.58, m) * 0.92;
-  vAlpha = life * (0.22 + aRand.z * 0.42) * burstGlow * roomsFade;
+  vAlpha = life * (0.22 + aRand.z * 0.42) * burstGlow * roomsFade * leakFade;
   vMix = aRand.z;
   vStory = smoothstep(0.10, 0.50, m);
 

@@ -26,6 +26,10 @@ export interface StoryState {
    * mesh ignore this entirely and the crown carries every chapter.
    */
   lion: number;
+  /** 0..1: the bridge's "hidden cost" beat -- ambient dust drains instead of
+   *  recycling. Only the bridge chapter sets this; every other chapter holds
+   *  it at 0 so the drain never bleeds into a beat it doesn't belong to. */
+  leak: number;
 }
 
 /**
@@ -150,6 +154,9 @@ export const CHAPTERS: ChapterDef[] = [
       layout: bridgeLayout(t),
       bloom: 0,
       lion: 0,
+      // Same curve the DOM already fades "The hidden cost" panel on, so the
+      // drain and the copy that names it can never drift apart.
+      leak: bridgePanelOpacity(0, t),
     }),
     // The immersive push. This used to be derived from morph inside the render
     // loop; it is authored here so the shot is readable and tunable as data.

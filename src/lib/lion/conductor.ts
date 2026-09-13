@@ -206,6 +206,7 @@ export class Conductor {
       if (state.layout !== undefined) engine.setLayout(state.layout);
       engine.setBloom(state.bloom ?? 0);
       engine.setLionPresence(state.lion ?? 0);
+      engine.setLeak(state.leak ?? 0);
       const pose = active.def.camera?.(t, this.ctx);
       if (pose) engine.setCameraPose(pose);
     }
