@@ -26,7 +26,7 @@ import {
 } from "./harness.mjs";
 
 /** Strings that must appear for agency and never for a client. */
-const AGENCY_MARKERS = ["Add a milestone", "Add a project"];
+const AGENCY_MARKERS = ["Add a milestone", "Add a project", "Request approval"];
 
 const only = process.argv[2];
 const run = (name) => !only || only === name;
@@ -313,6 +313,182 @@ if (run("assets")) {
   );
 }
 
+/* ── approvals: the "what needs me" queue ─────────────────────────── */
+if (run("approvals")) {
+  console.log("\n── approvals ──");
+  const fx = await setupWorkspace("Verify Approvals");
+  const api = `${BASE}/api/portal/${fx.slug}/approvals`;
+
+  // Seed a milestone to approve.
+  const projApi = `${BASE}/api/portal/${fx.slug}/projects`;
+  const project = (
+    await (
+      await fetch(projApi, {
+        method: "POST",
+        headers: J(fx.agencyCookie),
+        body: JSON.stringify({ name: "Brand Identity System", kind: "brand" }),
+      })
+    ).json()
+  ).project;
+  const milestone = (
+    await (
+      await fetch(`${projApi}/${project.id}/milestones`, {
+        method: "POST",
+        headers: J(fx.agencyCookie),
+        body: JSON.stringify({ title: "Refinement round" }),
+      })
+    ).json()
+  ).milestone;
+
+  const clientCreate = await fetch(api, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ targetType: "milestone", targetId: milestone.id }),
+  });
+  check("client cannot request an approval", clientCreate.status === 403, `${clientCreate.status}`);
+
+  const created = await fetch(api, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ targetType: "milestone", targetId: milestone.id }),
+  });
+  const approval = (await created.json()).approval;
+  check("agency requests an approval", created.status === 201, `id=${approval?.id}`);
+
+  // client_owner (the default fixture role, ≥ approver) sees the queue.
+  const clientList = await (await fetch(api, { headers: J(fx.clientCookie) })).json();
+  check(
+    "the queue shows the pending approval",
+    clientList.approvals?.some((a) => a.id === approval.id),
+    `count=${clientList.approvals?.length}`,
+  );
+
+  // A collaborator (below approver) sees the queue but not the decide buttons.
+  const collabEmail = `collab-${Date.now()}@example.com`;
+  const collabToken = await createInvite(fx, collabEmail, "collaborator");
+  const collabIdToken = await idTokenFor(collabEmail, "Collaborator Only");
+  const collabSessionRes = await fetch(`${BASE}/api/portal/session`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken: collabIdToken, inviteToken: collabToken }),
+  });
+  const collabCookie = `lv_portal_session=${cookieFrom(collabSessionRes, "lv_portal_session")}`;
+
+  const collabList = await fetch(api, { headers: J(collabCookie) });
+  check("collaborator can still read the queue", collabList.status === 200, `${collabList.status}`);
+
+  const collabPage = await pageSource(`/portal/${fx.slug}/approvals`, collabCookie);
+  const clientPage = await pageSource(`/portal/${fx.slug}/approvals`, fx.clientCookie);
+  check(
+    "decide buttons absent for a collaborator",
+    !collabPage.html.includes("Request changes"),
+  );
+  check(
+    "decide buttons present for client_owner (≥ approver)",
+    clientPage.html.includes("Request changes"),
+  );
+
+  const agencyPage = await pageSource(`/portal/${fx.slug}/approvals`, fx.agencyCookie);
+  check("Request approval control present for agency", agencyPage.html.includes("Request approval"));
+  check(
+    "Request approval control absent from client HTML",
+    !clientPage.html.includes("Request approval"),
+  );
+
+  const collabDecide = await fetch(`${api}/${approval.id}`, {
+    method: "PATCH",
+    headers: J(collabCookie),
+    body: JSON.stringify({ state: "approved" }),
+  });
+  check("collaborator cannot decide", collabDecide.status === 403, `${collabDecide.status}`);
+
+  const noNote = await fetch(`${api}/${approval.id}`, {
+    method: "PATCH",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ state: "changes_requested" }),
+  });
+  check("request changes without a note is rejected", noNote.status === 400, `${noNote.status}`);
+
+  const decided = await fetch(`${api}/${approval.id}`, {
+    method: "PATCH",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ state: "changes_requested", note: "Please tighten the leaf angle." }),
+  });
+  const decidedBody = await decided.json();
+  check(
+    "request changes with a note is recorded",
+    decided.status === 200 && decidedBody.approval?.decidedBy && decidedBody.approval?.decidedAt,
+    JSON.stringify(decidedBody),
+  );
+
+  const redecide = await fetch(`${api}/${approval.id}`, {
+    method: "PATCH",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ state: "approved" }),
+  });
+  check("a decided approval cannot be re-decided", redecide.status === 409, `${redecide.status}`);
+
+  // Overview's "awaiting you" slot wires to the same query.
+  const secondMilestone = (
+    await (
+      await fetch(`${projApi}/${project.id}/milestones`, {
+        method: "POST",
+        headers: J(fx.agencyCookie),
+        body: JSON.stringify({ title: "Handover" }),
+      })
+    ).json()
+  ).milestone;
+  await fetch(api, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ targetType: "milestone", targetId: secondMilestone.id }),
+  });
+  const overview = await pageSource(`/portal/${fx.slug}`, fx.clientCookie);
+  check("Overview shows the pending approval under Awaiting you", overview.html.includes("Handover"));
+}
+
+/* ── calendar: read-only agenda + month grid ──────────────────────── */
+if (run("calendar")) {
+  console.log("\n── calendar ──");
+  const fx = await setupWorkspace("Verify Calendar");
+  const api = `${BASE}/api/portal/${fx.slug}/projects`;
+
+  const dueAt = new Date(Date.now() + 5 * 86_400_000).toISOString();
+  const project = (
+    await (
+      await fetch(api, {
+        method: "POST",
+        headers: J(fx.agencyCookie),
+        body: JSON.stringify({ name: "Website Build", kind: "web", dueAt }),
+      })
+    ).json()
+  ).project;
+
+  const milestoneDueAt = new Date(Date.now() + 2 * 86_400_000).toISOString();
+  await fetch(`${api}/${project.id}/milestones`, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ title: "QA pass", dueAt: milestoneDueAt }),
+  });
+
+  const page = await pageSource(`/portal/${fx.slug}/calendar`, fx.clientCookie);
+  check("calendar shows a project's due date", page.html.includes("Website Build"));
+  check("calendar shows a milestone's due date", page.html.includes("QA pass"));
+
+  // Internal-visibility parity with Projects: hidden from a client's calendar.
+  const internalDueAt = new Date(Date.now() + 3 * 86_400_000).toISOString();
+  await fetch(api, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ name: "INTERNAL Margin Review", kind: "brand", visibility: "internal", dueAt: internalDueAt }),
+  });
+  const pageAfter = await pageSource(`/portal/${fx.slug}/calendar`, fx.clientCookie);
+  check(
+    "internal project's due date absent from client calendar",
+    !pageAfter.html.includes("INTERNAL Margin Review"),
+  );
+}
+
 /* ── messages: the portal ⇄ WhatsApp bridge ───────────────────────── */
 if (run("messages")) {
   console.log("\n── messages ──");
@@ -527,6 +703,12 @@ if (run("demo")) {
 
   const demoAssistant = await fetch(`${BASE}/portal/demo/assistant`);
   check("demo assistant page loads", demoAssistant.status === 200, `${demoAssistant.status}`);
+
+  const demoApprovals = await fetch(`${BASE}/portal/demo/approvals`);
+  check("demo approvals page loads", demoApprovals.status === 200, `${demoApprovals.status}`);
+
+  const demoCalendar = await fetch(`${BASE}/portal/demo/calendar`);
+  check("demo calendar page loads", demoCalendar.status === 200, `${demoCalendar.status}`);
 }
 
 process.exit(summary() > 0 ? 1 : 0);

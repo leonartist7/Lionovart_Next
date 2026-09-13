@@ -252,3 +252,38 @@ export const DEMO_MESSAGES: PortalMessage[] = [
 export function demoMessages(): PortalMessage[] {
   return DEMO_MESSAGES;
 }
+
+/* ── Approvals ──────────────────────────────────────────────────── */
+
+export interface DemoApproval {
+  id: string;
+  targetType: "asset" | "post" | "milestone";
+  targetLabel: string;
+  contextLabel?: string;
+  requestedAt: string;
+  state: "pending" | "approved" | "changes_requested";
+}
+
+export const DEMO_APPROVALS: DemoApproval[] = [
+  {
+    id: "approval-logo-v2",
+    targetType: "asset",
+    targetLabel: "Logo mark — round 3.png",
+    contextLabel: "Version 2",
+    requestedAt: daysFromNow(-1),
+    state: "pending",
+  },
+  {
+    id: "approval-refinement",
+    targetType: "milestone",
+    targetLabel: "Refinement round",
+    contextLabel: "Brand Identity System",
+    requestedAt: daysFromNow(-2),
+    state: "pending",
+  },
+];
+
+/** Everyone sees the same fixed queue — the demo never mutates a decision. */
+export function demoApprovals(): DemoApproval[] {
+  return DEMO_APPROVALS.filter((a) => a.state === "pending");
+}

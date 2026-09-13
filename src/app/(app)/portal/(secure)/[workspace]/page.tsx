@@ -8,6 +8,7 @@ import {
   getPortalSession,
   getWorkspaceAccessBySlug,
 } from "@/lib/portal-auth";
+import { listPendingApprovals } from "@/lib/portal/approvals";
 import { listProjects } from "@/lib/portal/projects";
 import { roleAtLeast } from "@/lib/portal/types";
 
@@ -32,6 +33,10 @@ export default async function WorkspaceOverviewPage({
   // Decided here, on the server, so the control is absent from a client's
   // response rather than rendered and hidden.
   const canAdd = roleAtLeast(access.membership.role, "agency");
+  const canDecideApprovals = roleAtLeast(access.membership.role, "approver");
+  const awaitingApprovals = canDecideApprovals
+    ? await listPendingApprovals(access.workspace.id, access.membership.role)
+    : [];
 
   return (
     <WorkspaceOverview
@@ -40,6 +45,7 @@ export default async function WorkspaceOverviewPage({
       workspaceSlug={slug}
       projects={projects}
       addProjectSlot={canAdd ? <ProjectFormDialog workspaceSlug={slug} /> : undefined}
+      awaitingApprovals={awaitingApprovals}
     />
   );
 }
