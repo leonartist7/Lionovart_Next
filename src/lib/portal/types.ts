@@ -111,6 +111,15 @@ export interface Task {
   updatedAt: string;
 }
 
+/**
+ * Deterministic ordering: fractional index, tie-broken by id. Concurrent
+ * drags can produce two tasks with the same `order` — every viewer still
+ * needs to render them in the same sequence until a rebalance separates them.
+ */
+export function compareTasks(a: Task, b: Task): number {
+  return a.order - b.order || a.id.localeCompare(b.id);
+}
+
 /* ── Assets ─────────────────────────────────────────────────────── */
 
 export type AssetKind = "image" | "video" | "doc" | "other";

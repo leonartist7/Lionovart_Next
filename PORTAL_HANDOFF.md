@@ -32,7 +32,8 @@ Then confirm the environment is up (§2) before writing code. If `verify.mjs` is
 | **2 — Projects** | ✅ built (PR #65) — projects, milestones, derived progress, agency authoring |
 | **2b — Adaptive nav** | ✅ sections a client has no use for are absent, not empty (`visibleNavIds`) |
 | **3 — Files** | ✅ built — signed uploads, versions, pinch-zoom viewer, agency-only delete |
-| **3 — Board / Calendar** | ⬜ next |
+| **3 — Board** | ✅ built — kanban with fractional-index reorder, drag + keyboard, agency-only mutation |
+| **3 — Calendar** | ⬜ next |
 | **4 — Collaboration** | ⬜ threads, pin-on-image annotation, approvals, realtime |
 | **5a — Messages / WhatsApp** | ✅ built — two-way bridge, signature-verified webhook, mock + live drivers |
 | **5c — Assistant** | ✅ built — read-only Gemini agent scoped to one workspace, non-primary nav item |
