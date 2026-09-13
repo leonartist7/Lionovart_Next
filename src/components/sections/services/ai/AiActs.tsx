@@ -47,11 +47,11 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
 function Heading({ children, wide = false }: { children: React.ReactNode; wide?: boolean }) {
   return (
     <h2
-      className={`mt-6 font-normal tracking-[-0.045em] text-white ${wide ? "max-w-[16ch]" : "max-w-[13ch]"}`}
+      className={`mt-6 font-normal tracking-[-0.02em] text-white ${wide ? "max-w-[16ch]" : "max-w-[13ch]"}`}
       style={{
         fontFamily: "var(--font-ai-display)",
         fontSize: "clamp(2.8rem, 5.5vw, 5.7rem)",
-        lineHeight: 0.97,
+        lineHeight: 0.9,
       }}
     >
       {children}
@@ -272,7 +272,7 @@ export function AiSystems() {
                     </div>
 
                     <h3
-                      className="mt-6 max-w-[16ch] font-normal leading-[0.98] tracking-[-0.045em] text-white"
+                      className="mt-6 max-w-[16ch] font-normal leading-[0.9] tracking-[-0.02em] text-white"
                       style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(2.65rem, 4.8vw, 4.9rem)" }}
                     >
                       {system.title}

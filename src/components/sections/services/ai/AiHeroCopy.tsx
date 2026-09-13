@@ -56,7 +56,7 @@ export default function AiHeroCopy() {
               AI Systems &amp; Consulting
             </p>
             <h1
-              className="max-w-[14ch] font-normal leading-[0.91] tracking-[-0.05em] text-white"
+              className="max-w-[14ch] font-normal leading-[0.9] tracking-[-0.02em] text-white"
               style={{ fontSize: "clamp(3.15rem, 6.8vw, 7rem)", fontFamily: "var(--font-ai-display)" }}
             >
               You built it.{" "}

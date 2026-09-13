@@ -77,7 +77,7 @@ export default function AiRoi() {
               The capacity already inside your business
             </p>
             <h2
-              className="mt-6 max-w-[12ch] font-normal leading-[0.97] tracking-[-0.045em] text-[#111111]"
+              className="mt-6 max-w-[12ch] font-normal leading-[0.9] tracking-[-0.02em] text-[#111111]"
               style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(2.8rem, 5.4vw, 5.5rem)" }}
             >
               What would you do with the hours back?

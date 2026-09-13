@@ -99,11 +99,11 @@ export default function AiChaosBeat() {
                   {String(index + 1).padStart(2, "0")} / {String(CHAPTERS.length).padStart(2, "0")} · {chapter.eyebrow}
                 </p>
                 <h2
-                  className="mt-6 font-normal tracking-[-0.045em] text-white"
+                  className="mt-6 font-normal tracking-[-0.02em] text-white"
                   style={{
                     fontFamily: "var(--font-ai-display)",
                     fontSize: "clamp(2.8rem, 5.5vw, 5.8rem)",
-                    lineHeight: 0.96,
+                    lineHeight: 0.9,
                   }}
                 >
                   {chapter.title}

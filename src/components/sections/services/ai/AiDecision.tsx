@@ -14,7 +14,7 @@ export default function AiDecision() {
             One conversation to start
           </p>
           <h2
-            className="mx-auto mt-6 max-w-[13ch] font-normal leading-[0.94] tracking-[-0.05em] text-white"
+            className="mx-auto mt-6 max-w-[13ch] font-normal leading-[0.9] tracking-[-0.02em] text-white"
             style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(2.9rem, 7.5vw, 6.8rem)" }}
           >
             You built it. Now let it run.

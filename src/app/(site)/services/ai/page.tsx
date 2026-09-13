@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
 import AiLionStage from "@/components/sections/services/ai/AiLionStage";
@@ -16,22 +15,6 @@ import {
   AiProcess,
   AiOffers,
 } from "@/components/sections/services/ai/AiActs";
-
-/**
- * This page runs its own display face, not the site-wide Clash Display.
- * SERVICE_PAGES_SPEC section 6.3 asks for one typeface across the site; that is
- * deliberately overridden here so the AI page reads as machine-built. Scoped to
- * this route by CSS variable, so nothing else on the site is affected.
- *
- * To swap it: change the import and the `display` name. Orbitron and Chakra
- * Petch are the more overtly sci-fi options; Space Grotesk stays premium.
- */
-const display = Space_Grotesk({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-ai-display",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "AI Systems & Consulting",
@@ -60,9 +43,16 @@ export default function AiServicePage() {
         // The fixed stage owns the black base. Most chapters stay transparent
         // so the particles remain continuous, while intentional opaque relief
         // sections (the ROI chapter) can still establish a light reading beat.
-        className={`${display.variable} relative z-10 min-h-screen bg-transparent`}
+        className="relative z-10 min-h-screen bg-transparent"
         style={
           {
+            // Reverted from a page-local Space Grotesk override back to the
+            // site-wide Clash Display (locked decision, AI_PAGE_HANDOFF.md
+            // section 4). --font-ai-display stays as the name every component
+            // in this directory already references, aliased to the variable
+            // the root layout already puts on <html> -- no component below
+            // needs to change.
+            "--font-ai-display": "var(--font-clash-display)",
             // The page moves from electric intelligence back into the brand's
             // gold crown. These accents stay scoped to this route; the primary
             // CTA still carries the site-wide brand red.
