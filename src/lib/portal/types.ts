@@ -173,7 +173,14 @@ export interface Thread {
   status: "open" | "resolved";
   createdBy: string;
   createdAt: string;
+  /** Latest comment — the sort key for "most recent activity". */
   lastMessageAt: string;
+  /**
+   * Any change at all, including a resolve or a reopen. This is the polling
+   * cursor: `lastMessageAt` alone would miss a resolve, and a client polling
+   * `?since=` would never learn the thread closed.
+   */
+  updatedAt: string;
   participants: string[];
   resolvedBy?: string;
   resolvedAt?: string;
