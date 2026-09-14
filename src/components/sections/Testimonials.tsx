@@ -436,7 +436,7 @@ export default function Testimonials(
             </div>
           </div>
 
-          <div className="testimonials-globe-transition hidden md:block">
+          <div className="testimonials-globe-transition">
             <GlobePulse className="opacity-90 lg:opacity-100" />
             <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-bg-brand-black via-bg-brand-black/60 to-transparent lg:hidden" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-bg-brand-black to-transparent lg:h-1/5" />
