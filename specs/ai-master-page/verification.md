@@ -1,5 +1,10 @@
 # Verification Record
 
+> Historical record as of the crown-only implementation. The lion was
+> reintroduced afterward (`AI_PAGE_HANDOFF.md`), which reverses the asset
+> audit line below specifically -- `lion-bust.glb` is now in active use.
+> Everything else here still describes what was verified at the time.
+
 ## Passed
 
 - `tsc --noEmit` — passed for the full project.

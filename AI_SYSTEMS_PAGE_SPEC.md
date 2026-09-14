@@ -1,5 +1,13 @@
 # LIONOVART — `/services/ai` — Smart Systems & AI
 
+> **Archived.** This was the original pre-implementation design brief for
+> `/services/ai` ("the approval document" below is no longer accurate — the
+> route shipped and has since been redesigned twice over). `specs/ai-master-
+> page/spec.md` is what was actually built against and verified, and is
+> itself partially superseded by the redesign tracked in
+> `AI_PAGE_HANDOFF.md`. Kept for historical reference to the original
+> positioning and register thinking; not binding on current implementation.
+>
 > Status: **DESIGN SPEC (no code yet). This is the approval document.**
 > Register: **brand** (the design IS the product). System: "The Creative King" (`DESIGN.md`).
 > Spine: inherits the 7-act arc from `SERVICE_PAGES_SPEC.md §0.3`, with per-act media rebuilt for this page.

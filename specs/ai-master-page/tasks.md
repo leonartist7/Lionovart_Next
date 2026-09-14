@@ -1,5 +1,10 @@
 # Implementation Tasks
 
+> Historical record as of the crown-only implementation this checklist
+> verified. The redesign tracked in `AI_PAGE_HANDOFF.md` reintroduced the
+> lion afterward, which reverses line 3 below specifically -- see the
+> notice at the top of `spec.md` in this directory for what's current.
+
 - [x] Replace sampled lion geometry with a deterministic crown constellation.
 - [x] Preserve one renderer and tune all responsive quality tiers.
 - [x] Replace per-panel SVG distortion and mobile backdrop blur with one efficient glass primitive.

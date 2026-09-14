@@ -1,5 +1,26 @@
 # AI Systems Master Page Specification
 
+> **Partially superseded.** This spec was written and verified against, then
+> superseded in part by, the audit-first redesign tracked in
+> `AI_PAGE_HANDOFF.md` (branch `claude/ai-services-redesign`). Specifically
+> reversed, per that handoff's section 4 locked decisions:
+> - **Principle 2, "Crown, not lion"** — the lion is now the protagonist at
+>   both ends of the page; the crown is the low-tier fallback for devices
+>   without the mesh. See `AI_PAGE_HANDOFF.md` section 4.
+> - **The responsive/performance contract's particle-budget table below**
+>   (77/177/777/1,377) — current desktop/ultra counts are roughly 14,000 and
+>   26,000. See `AI_PAGE_HANDOFF.md` section 2.
+> - **"Delivery mechanism — Blueprint, Build, Optimize"** under Commercial
+>   journey — step one is now named Audit (it leads with the free audit as
+>   the lead magnet). See `AiActs.tsx`'s `STEPS` array.
+>
+> Everything else here — the product outcome, the remaining experience
+> principles, the interaction contract, and most acceptance criteria —
+> remains accurate and binding. `tasks.md` and `verification.md` in this
+> same directory are historical verification records from before the
+> redesign; they are not rewritten here, but carry a note pointing to this
+> one.
+
 ## Product outcome
 
 `/services/ai` must help an owner understand the commercial value of a connected AI operating system, identify the first system worth building, and start a consultation without needing to understand AI tooling.
