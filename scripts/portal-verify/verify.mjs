@@ -1132,6 +1132,27 @@ if (run("collaboration")) {
   const anon = await fetch(threads);
   check("unauthenticated cannot list threads", anon.status === 401, `${anon.status}`);
 
+  /* Firestore does not cascade: deleting a file must take its conversation
+     with it, or the threads outlive the thing they were about. */
+  const doomed = await uploadAs(fx.agencyCookie, "doomed.png");
+  await fetch(threads, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ targetType: "asset", targetId: doomed, body: "Note on a file about to go." }),
+  });
+  await fetch(`${BASE}/api/portal/${fx.slug}/assets/${doomed}`, {
+    method: "DELETE",
+    headers: J(fx.agencyCookie),
+  });
+  const orphans = await (
+    await fetch(`${threads}?targetType=asset&targetId=${doomed}`, { headers: J(fx.agencyCookie) })
+  ).json();
+  check(
+    "deleting a file takes its threads with it",
+    orphans.threads.length === 0 && orphans.ids.length === 0,
+    `${orphans.ids.length} orphaned`,
+  );
+
   // The design preview renders the same components against fixtures.
   const preview = await fetch(`${BASE}/portal/demo/assets/logo-mark`);
   const previewHtml = await preview.text();

@@ -387,6 +387,29 @@ export async function deleteComment(
   return { threadDeleted: false };
 }
 
+/**
+ * Removes every thread on a target, and their comments.
+ *
+ * Firestore does not cascade, so call this wherever the target itself is
+ * deleted or the conversation outlives the thing it was about — an asset's
+ * threads would otherwise sit in the database forever, invisible to clients
+ * (the visibility gate drops threads on an asset it can't find) but still
+ * returned to agency staff as a conversation about nothing.
+ */
+export async function deleteThreadsForTarget(
+  workspaceId: string,
+  targetType: ThreadTarget,
+  targetId: string,
+): Promise<number> {
+  if (!adminDb) return 0;
+  const snap = await threadsRef(workspaceId)
+    .where("targetType", "==", targetType)
+    .where("targetId", "==", targetId)
+    .get();
+  await Promise.all(snap.docs.map((d) => deleteThread(workspaceId, d.id)));
+  return snap.size;
+}
+
 /** Deletes a thread and every comment on it. Agency only — enforced by the route. */
 export async function deleteThread(workspaceId: string, threadId: string): Promise<void> {
   if (!adminDb) return;
