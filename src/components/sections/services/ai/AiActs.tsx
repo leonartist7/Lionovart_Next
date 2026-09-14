@@ -583,7 +583,13 @@ export function AiOffers() {
           whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.35 }}
           transition={{ duration: 0.9, ease: EXPO }}
-          className="mt-24 max-w-[68rem] border-y border-white/14 py-10 md:mt-32 md:py-14"
+          // The offers chapter shifts the particle field left (layout: -0.44 in
+          // chapters.ts). Unlike every other beat on the page, this block used
+          // to span the full shell from the left edge, giving the particles no
+          // clear space to occupy -- a real overlap, not a camera problem. A
+          // right-aligned safe column, matching the width every other beat's
+          // reading column already uses, fixes it without touching the camera.
+          className="mt-24 border-y border-white/14 py-10 md:mt-32 md:w-[58%] md:py-14 md:ml-auto"
         >
           <div className="grid gap-7 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-10">
             <span

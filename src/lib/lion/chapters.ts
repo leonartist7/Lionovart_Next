@@ -92,7 +92,12 @@ export const SYSTEM_STATES = [
 
 /** Panel centres and layout targets for the three-beat bridge. */
 const BRIDGE_CENTERS = [0.16, 0.5, 0.84] as const;
-const BRIDGE_LAYOUTS = [0.42, -0.42, 0.42] as const;
+// Was [0.42, -0.42, 0.42]: a symmetric left-right-left swing that read as a
+// metronome across the page's most purely sequential scroll beat. The third
+// panel is a resolution ("the connected ecosystem"), not a return to the
+// first panel's state, so the field now holds where panel two left it
+// instead of swinging back -- matches AiChaosBeat's panel 2 side="right".
+const BRIDGE_LAYOUTS = [0.42, -0.42, -0.42] as const;
 
 /** Layout offset for the bridge at local progress `t`. Exported for the DOM. */
 export function bridgeLayout(t: number): number {

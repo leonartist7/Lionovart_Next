@@ -33,7 +33,10 @@ const CHAPTERS = [
     eyebrow: "The connected ecosystem",
     title: "Now the whole business moves together.",
     body: "Voice, inbox, calendar, customers, operations and payments share context as one living system that responds faster while asking less from your team.",
-    side: "left",
+    // Was "left", swinging back to mirror panel 0. A resolution beat settling
+    // where panel 1 left off reads better than an oscillation back to start
+    // (see BRIDGE_LAYOUTS in chapters.ts, which this must match).
+    side: "right",
   },
 ] as const;
 
