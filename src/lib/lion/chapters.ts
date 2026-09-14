@@ -219,8 +219,18 @@ export const CHAPTERS: ChapterDef[] = [
     resolve: () => ({ morph: 1, layout: -0.44, bloom: 0, lion: 0 }),
     // The longest dead stretch on the page: morph is pinned at 1 for roughly
     // 4.6 viewports. A slow withdrawal gives the offers, guarantee and industry
-    // list a moving world to sit in without competing with the copy.
-    camera: (t) => ({ dist: lerp(4.34, 6.4, t), height: lerp(0.08, 0.02, t), lookY: 0, fov: 42 }),
+    // list a moving world to sit in without competing with the copy. The
+    // two-up offer grid is the densest, most CTA-critical copy in the chapter
+    // and it renders right at chapter entry, so a linear lerp left the field
+    // still close and bright exactly where it overlapped that text. Easing
+    // the withdrawal (cubic-out) front-loads most of the pull-back into the
+    // first ~35% of the chapter instead, so the grid clears the field before
+    // its copy is readable, while the guarantee/industry-list tail -- which
+    // was already fine -- keeps the same slow drift it had.
+    camera: (t) => {
+      const distT = 1 - (1 - t) ** 3;
+      return { dist: lerp(4.34, 6.4, distT), height: lerp(0.08, 0.02, t), lookY: 0, fov: 42 };
+    },
   },
   {
     id: "close",

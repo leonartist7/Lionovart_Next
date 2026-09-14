@@ -536,7 +536,19 @@ export function AiOffers() {
           <Heading wide>Start focused. Grow into something powerful.</Heading>
         </div>
 
-        <div className="mt-14 grid gap-x-14 gap-y-14 border-t border-white/14 pt-10 md:mt-20 lg:grid-cols-2 lg:pt-14">
+        <div className="relative mt-14 grid gap-x-14 gap-y-14 border-t border-white/14 pt-10 md:mt-20 lg:grid-cols-2 lg:pt-14">
+          {/* This chapter's particle field sits shifted left (chapters.ts,
+              layout: -0.44) and is still close/bright at chapter entry, right
+              where the first offer's copy renders. Text-shadow alone wasn't
+              enough against the bright cyan rings; a plain radial scrim (not
+              LiquidGlass -- the spec reserves glass surfaces for interactive
+              panels, this column is neither) restores legibility without
+              adding a surface that doesn't belong here. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -inset-x-10 -inset-y-16 -z-10 lg:right-1/2"
+            style={{ background: "radial-gradient(ellipse 90% 75% at 30% 45%, rgba(0,0,0,0.82), rgba(0,0,0,0.5) 55%, transparent 78%)" }}
+          />
           {OFFERS.map((offer, index) => (
             <motion.article
               key={offer.kind}
