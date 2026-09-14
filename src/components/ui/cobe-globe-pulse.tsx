@@ -1,5 +1,9 @@
 "use client";
 
+import { useCallback, useEffect, useRef } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
+import type { Globe } from "cobe";
+
 interface PulseMarker {
   id: string;
   location: [number, number];
@@ -19,97 +23,338 @@ const defaultMarkers: PulseMarker[] = [
   { id: "seoul", location: [37.57, 126.98], delay: 1.5 },
 ];
 
-/*
- * Lightweight replacement for the former COBE/WebGL globe.
- * This section is decorative proof-of-reach, so a static SVG gives us the
- * same visual read with no canvas, GPU context, resize loop or RAF work.
- */
 export function GlobePulse({
   markers = defaultMarkers,
   className = "",
+  speed = 0.003,
 }: GlobePulseProps) {
-  const markerPositions = [
-    { x: 118, y: 135 },
-    { x: 202, y: 116 },
-    { x: 224, y: 151 },
-    { x: 288, y: 171 },
-  ];
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const pointerInteracting = useRef<{ x: number; y: number } | null>(null);
+  const dragOffset = useRef({ phi: 0, theta: 0 });
+  const phiOffsetRef = useRef(0);
+  const thetaOffsetRef = useRef(0);
+  const isPausedRef = useRef(false);
+
+  const handlePointerDown = useCallback((event: ReactPointerEvent<HTMLCanvasElement>) => {
+    // Keep touch scrolling native on phones/tablets; drag interaction is desktop-only.
+    if (event.pointerType === "touch") return;
+
+    pointerInteracting.current = { x: event.clientX, y: event.clientY };
+    if (canvasRef.current) canvasRef.current.style.cursor = "grabbing";
+    isPausedRef.current = true;
+  }, []);
+
+  const handlePointerUp = useCallback(() => {
+    if (pointerInteracting.current !== null) {
+      phiOffsetRef.current += dragOffset.current.phi;
+      thetaOffsetRef.current += dragOffset.current.theta;
+      dragOffset.current = { phi: 0, theta: 0 };
+    }
+
+    pointerInteracting.current = null;
+    if (canvasRef.current) canvasRef.current.style.cursor = "grab";
+    isPausedRef.current = false;
+  }, []);
+
+  useEffect(() => {
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (pointerInteracting.current === null) return;
+
+      dragOffset.current = {
+        phi: (event.clientX - pointerInteracting.current.x) / 300,
+        theta: (event.clientY - pointerInteracting.current.y) / 1000,
+      };
+    };
+
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    window.addEventListener("pointerup", handlePointerUp, { passive: true });
+
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+    };
+  }, [handlePointerUp]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const canvas = canvasRef.current;
+    if (!container || !canvas) return;
+
+    let globe: Globe | null = null;
+    let animationId = 0;
+    let resizeFrame = 0;
+    let phi = 0;
+    let lastFrame = 0;
+    let lastWidth = 0;
+    let isVisible = false;
+    let isLoading = false;
+    let isDisposed = false;
+
+    const isMobile = window.matchMedia("(max-width: 767px)").matches;
+    const isTablet = window.matchMedia("(min-width: 768px) and (max-width: 1023px)").matches;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const saveData = Boolean(
+      (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData
+    );
+
+    // Adaptive render profile: preserve the premium look while avoiding expensive
+    // Retina over-rendering and excessive map sampling on smaller devices.
+    const devicePixelRatio = Math.min(
+      window.devicePixelRatio || 1,
+      saveData ? 1 : isMobile ? 1.2 : isTablet ? 1.45 : 1.65
+    );
+    const mapSamples = saveData ? 4500 : isMobile ? 7000 : isTablet ? 10000 : 13000;
+    const targetFps = isMobile ? 30 : isTablet ? 45 : 60;
+    const frameInterval = 1000 / targetFps;
+    const shouldAnimate = !reduceMotion && !saveData;
+
+    const stopAnimation = () => {
+      if (animationId) cancelAnimationFrame(animationId);
+      animationId = 0;
+    };
+
+    const animate = (time: number) => {
+      animationId = 0;
+      if (!globe || !isVisible || document.hidden || !shouldAnimate) return;
+
+      const elapsed = lastFrame ? time - lastFrame : frameInterval;
+      if (!lastFrame || elapsed >= frameInterval) {
+        if (!isPausedRef.current) {
+          // Keep rotation speed consistent even when mobile/tablet FPS is capped.
+          const normalizedElapsed = Math.min(elapsed, 100) / (1000 / 60);
+          phi += speed * normalizedElapsed;
+        }
+
+        globe.update({
+          phi: phi + phiOffsetRef.current + dragOffset.current.phi,
+          theta: 0.2 + thetaOffsetRef.current + dragOffset.current.theta,
+        });
+        lastFrame = time;
+      }
+
+      animationId = requestAnimationFrame(animate);
+    };
+
+    const startAnimation = () => {
+      if (!globe || animationId || !isVisible || document.hidden || !shouldAnimate) return;
+      lastFrame = 0;
+      animationId = requestAnimationFrame(animate);
+    };
+
+    const init = async () => {
+      const width = Math.round(canvas.offsetWidth);
+      if (width === 0 || globe || isLoading || isDisposed) return;
+      isLoading = true;
+
+      try {
+        const { default: createGlobe } = await import("cobe");
+        if (isDisposed) return;
+
+        lastWidth = width;
+        globe = createGlobe(canvas, {
+          devicePixelRatio,
+          width,
+          height: width,
+          phi: 0,
+          theta: 0.2,
+          dark: 1,
+          diffuse: 1.5,
+          mapSamples,
+          mapBrightness: 10,
+          baseColor: [0.5, 0.5, 0.5],
+          markerColor: [0.9, 0.1, 0.12],
+          glowColor: [0.05, 0.05, 0.05],
+          markerElevation: 0,
+          markers: markers.map((marker) => ({
+            location: marker.location,
+            size: isMobile ? 0.022 : 0.025,
+            // COBE v2 updates CSS anchors on each update. Keep the premium
+            // pulse anchors on larger screens, but skip that DOM work on mobile.
+            ...(isMobile ? {} : { id: marker.id }),
+          })),
+          arcs: [],
+          arcColor: [0.9, 0.1, 0.12],
+          arcWidth: 0.5,
+          arcHeight: 0.25,
+          opacity: 0.7,
+        });
+
+        canvas.style.opacity = "1";
+        globe.update({ phi, theta: 0.2 });
+        startAnimation();
+      } catch {
+        // Keep the lightweight CSS fallback visible if WebGL cannot initialize.
+        canvas.style.opacity = "0";
+      } finally {
+        isLoading = false;
+      }
+    };
+
+    // Load COBE only shortly before the globe enters view instead of adding WebGL
+    // work to the initial page load.
+    const preloadObserver = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          void init();
+          preloadObserver.disconnect();
+        }
+      },
+      { rootMargin: "240px 0px" }
+    );
+
+    // Completely stop our render loop when the section is off-screen.
+    const visibilityObserver = new IntersectionObserver(
+      (entries) => {
+        isVisible = Boolean(entries[0]?.isIntersecting);
+        container.dataset.globeActive = String(isVisible);
+
+        if (isVisible) {
+          void init();
+          startAnimation();
+        } else {
+          stopAnimation();
+        }
+      },
+      { threshold: 0.04 }
+    );
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (!globe || resizeFrame) return;
+
+      resizeFrame = requestAnimationFrame(() => {
+        resizeFrame = 0;
+        if (!globe) return;
+
+        const width = Math.round(canvas.offsetWidth);
+        if (width > 0 && Math.abs(width - lastWidth) >= 2) {
+          lastWidth = width;
+          globe.update({ width, height: width });
+        }
+      });
+    });
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) stopAnimation();
+      else startAnimation();
+    };
+
+    preloadObserver.observe(container);
+    visibilityObserver.observe(container);
+    resizeObserver.observe(container);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      isDisposed = true;
+      preloadObserver.disconnect();
+      visibilityObserver.disconnect();
+      resizeObserver.disconnect();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      stopAnimation();
+      if (resizeFrame) cancelAnimationFrame(resizeFrame);
+      globe?.destroy();
+    };
+  }, [markers, speed]);
 
   return (
     <div
+      ref={containerRef}
+      data-globe-active="false"
       className={`relative aspect-square select-none ${className}`}
-      aria-label="Globe showing Lionovart's international client reach"
+      aria-label="Interactive globe showing Lionovart's international client reach"
       role="img"
     >
-      <svg
-        viewBox="0 0 400 400"
-        className="h-full w-full"
+      <style>{`
+        @keyframes globe-pulse-expand {
+          0% { transform: scale(0.3); opacity: 0.8; }
+          100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        .globe-pulse-ring { animation-play-state: paused !important; }
+        [data-globe-active="true"] .globe-pulse-ring { animation-play-state: running !important; }
+
+        @media (max-width: 767px) {
+          .globe-pulse-overlay { display: none !important; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .globe-pulse-ring { animation: none !important; }
+        }
+      `}</style>
+
+      <div className="pointer-events-none absolute inset-[9%] rounded-full border border-white/10 bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.08),transparent_42%)]" />
+
+      <canvas
+        ref={canvasRef}
+        onPointerDown={handlePointerDown}
         aria-hidden="true"
-        focusable="false"
-      >
-        <defs>
-          <radialGradient id="lionovart-globe-fill" cx="36%" cy="28%" r="76%">
-            <stop offset="0%" stopColor="#2a2a2a" />
-            <stop offset="58%" stopColor="#111111" />
-            <stop offset="100%" stopColor="#080808" />
-          </radialGradient>
-          <radialGradient id="lionovart-globe-glow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.08" />
-            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-          </radialGradient>
-          <clipPath id="lionovart-globe-clip">
-            <circle cx="200" cy="200" r="145" />
-          </clipPath>
-        </defs>
+        style={{
+          width: "100%",
+          height: "100%",
+          cursor: "grab",
+          opacity: 0,
+          transition: "opacity 900ms ease",
+          borderRadius: "50%",
+          touchAction: "pan-y",
+        }}
+      />
 
-        <circle cx="200" cy="200" r="157" fill="url(#lionovart-globe-glow)" />
-        <circle
-          cx="200"
-          cy="200"
-          r="145"
-          fill="url(#lionovart-globe-fill)"
-          stroke="rgba(255,255,255,0.18)"
-          strokeWidth="1.2"
-        />
-
-        <g
-          clipPath="url(#lionovart-globe-clip)"
-          fill="none"
-          stroke="rgba(255,255,255,0.16)"
-          strokeWidth="1"
+      {markers.map((marker) => (
+        <div
+          key={marker.id}
+          className="globe-pulse-overlay"
+          style={{
+            position: "absolute",
+            positionAnchor: `--cobe-${marker.id}`,
+            bottom: "anchor(center)",
+            left: "anchor(center)",
+            translate: "-50% 50%",
+            width: 32,
+            height: 32,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            pointerEvents: "none",
+            opacity: `var(--cobe-visible-${marker.id}, 0)`,
+            filter: `blur(calc((1 - var(--cobe-visible-${marker.id}, 0)) * 8px))`,
+            transition: "opacity 0.4s, filter 0.4s",
+          }}
         >
-          <ellipse cx="200" cy="200" rx="112" ry="145" />
-          <ellipse cx="200" cy="200" rx="58" ry="145" />
-          <ellipse cx="200" cy="200" rx="18" ry="145" />
-          <ellipse cx="200" cy="200" rx="145" ry="112" />
-          <ellipse cx="200" cy="200" rx="145" ry="64" />
-          <ellipse cx="200" cy="200" rx="145" ry="26" />
-          <path d="M55 200H345" />
-          <path d="M200 55V345" opacity="0.35" />
-        </g>
-
-        <g>
-          {markers.slice(0, markerPositions.length).map((marker, index) => {
-            const position = markerPositions[index];
-            if (!position) return null;
-            return (
-              <g key={marker.id}>
-                <circle
-                  cx={position.x}
-                  cy={position.y}
-                  r="10"
-                  fill="none"
-                  stroke="#e5192a"
-                  strokeOpacity="0.34"
-                  strokeWidth="1"
-                />
-                <circle cx={position.x} cy={position.y} r="4.2" fill="#e5192a" />
-                <circle cx={position.x} cy={position.y} r="1.6" fill="#ffffff" />
-              </g>
-            );
-          })}
-        </g>
-      </svg>
+          <span
+            className="globe-pulse-ring"
+            style={{
+              position: "absolute",
+              inset: 0,
+              border: "1px solid #E5232A",
+              borderRadius: "50%",
+              opacity: 0,
+              animation: `globe-pulse-expand 2s ease-out infinite ${marker.delay}s`,
+            }}
+          />
+          <span
+            className="globe-pulse-ring"
+            style={{
+              position: "absolute",
+              inset: 0,
+              border: "1px solid #E5232A",
+              borderRadius: "50%",
+              opacity: 0,
+              animation: `globe-pulse-expand 2s ease-out infinite ${marker.delay + 0.5}s`,
+            }}
+          />
+          <span
+            style={{
+              width: 7,
+              height: 7,
+              background: "#E5232A",
+              borderRadius: "50%",
+              boxShadow: "0 0 0 2px #111, 0 0 0 3px #E5232A",
+            }}
+          />
+        </div>
+      ))}
     </div>
   );
 }
