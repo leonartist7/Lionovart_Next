@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CalendarClock, CheckCircle2 } from "lucide-react";
 import type { CalendarItem } from "@/lib/portal/calendar";
-import { groupByDay } from "@/lib/portal/calendar";
+import { calendarHref, groupByDay } from "@/lib/portal/calendar";
 import { formatDate } from "@/lib/portal/format";
 
 /** Mobile: a day-grouped list scrolling forward from today. */
@@ -33,7 +33,7 @@ export function CalendarAgenda({
             {group.items.map((item) => (
               <li key={item.id}>
                 <Link
-                  href={`/portal/${workspaceSlug}/projects/${item.projectId}`}
+                  href={calendarHref(item, workspaceSlug)}
                   className="hover:bg-muted/60 focus-visible:ring-primary/50 flex items-center gap-3 p-4 transition-colors focus-visible:ring-3 focus-visible:outline-none focus-visible:-outline-offset-2"
                 >
                   <span className="text-muted-foreground shrink-0">
