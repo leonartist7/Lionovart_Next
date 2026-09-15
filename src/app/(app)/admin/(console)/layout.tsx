@@ -12,7 +12,7 @@ export default async function ConsoleLayout({ children }: { children: React.Reac
     <div className="flex h-screen flex-col overflow-hidden bg-[#0a0a0a] md:flex-row">
       <AdminSidebar email={session.email} />
       <main className="flex-1 overflow-y-auto px-5 py-6 md:px-8 md:py-6">
-        <div className="mx-auto max-w-6xl">{children}</div>
+        <div className="mx-auto w-full max-w-[1600px]">{children}</div>
       </main>
     </div>
   );

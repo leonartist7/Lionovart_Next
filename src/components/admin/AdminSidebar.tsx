@@ -2,12 +2,21 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Users, MessageSquare, SlidersHorizontal, BarChart3, ShieldAlert, Building2 } from "lucide-react";
+import {
+  Users,
+  MessageSquare,
+  SlidersHorizontal,
+  BarChart3,
+  ShieldAlert,
+  Building2,
+  MessageCircle,
+} from "lucide-react";
 
 const NAV = [
   { href: "/admin/leads", label: "Leads", icon: Users },
   { href: "/admin/conversations", label: "Conversations", icon: MessageSquare },
   { href: "/admin/portal", label: "Portal", icon: Building2 },
+  { href: "/admin/whatsapp", label: "WhatsApp", icon: MessageCircle },
   { href: "/admin/objections", label: "Objections", icon: ShieldAlert },
   { href: "/admin/studio", label: "Studio", icon: SlidersHorizontal },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
@@ -29,7 +38,7 @@ export function AdminSidebar({ email }: { email: string }) {
         <div className="flex items-center gap-2 px-5 py-6">
           <span className="size-1.5 rounded-full bg-[var(--color-brand-red)]" />
           <span className="font-[var(--font-clash)] text-xs tracking-[0.25em] text-white uppercase">
-            Nova
+            LIONOVART CRM
           </span>
         </div>
 
@@ -70,7 +79,7 @@ export function AdminSidebar({ email }: { email: string }) {
         <div className="flex items-center gap-2">
           <span className="size-1.5 rounded-full bg-[var(--color-brand-red)]" />
           <span className="font-[var(--font-clash)] text-xs tracking-[0.25em] text-white uppercase">
-            Nova
+            LIONOVART CRM
           </span>
         </div>
         <nav className="flex items-center gap-4">

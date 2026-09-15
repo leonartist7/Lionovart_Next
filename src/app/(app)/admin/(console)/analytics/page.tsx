@@ -19,9 +19,21 @@ function countThisWeek(leads: FirebaseFirestore.DocumentData[]): number {
   const now = Date.now();
   const weekMs = 7 * 24 * 60 * 60 * 1000;
   return leads.filter((l) => {
-    const created = l.created_at ? Date.parse(l.created_at) : NaN;
+    const created = timestampMs(l.created_at);
     return !Number.isNaN(created) && now - created < weekMs;
   }).length;
+}
+
+function timestampMs(value: unknown): number {
+  if (typeof value === "string") return Date.parse(value);
+  if (value && typeof value === "object" && "toMillis" in value && typeof (value as { toMillis?: unknown }).toMillis === "function") {
+    return (value as { toMillis: () => number }).toMillis();
+  }
+  return NaN;
+}
+
+function currentTimeMs(): number {
+  return Date.now();
 }
 
 function BarRow({ label, count, max }: { label: string; count: number; max: number }) {
@@ -76,6 +88,30 @@ export default async function AnalyticsPage() {
   const maxSource = Math.max(1, ...Object.values(bySource));
   const maxStatus = Math.max(1, ...Object.values(byStatus));
 
+  const whatsappConversations = conversations.filter((conversation) => conversation.source === "whatsapp");
+  const analyzedWhatsApp = whatsappConversations.filter((conversation) => conversation.intelligence).length;
+  const now = currentTimeMs();
+  const openReplyWindows = whatsappConversations.filter((conversation) => {
+    const lastInbound = timestampMs(conversation.last_inbound_at);
+    return !Number.isNaN(lastInbound) && now - lastInbound < 24 * 60 * 60 * 1000;
+  }).length;
+  const qualificationScores = whatsappConversations.flatMap((conversation) =>
+    typeof conversation.intelligence?.qualificationScore === "number" ? [conversation.intelligence.qualificationScore] : [],
+  );
+  const averageQualification = qualificationScores.length
+    ? Math.round(qualificationScores.reduce((sum, score) => sum + score, 0) / qualificationScores.length)
+    : 0;
+  const followUpsDue = whatsappConversations.filter((conversation) => {
+    const followUp = timestampMs(conversation.follow_up_at);
+    return !Number.isNaN(followUp) && followUp <= now;
+  }).length;
+  const whatsappStages: Record<string, number> = {};
+  for (const conversation of whatsappConversations) {
+    const stage = conversation.lead_stage || "new";
+    whatsappStages[stage] = (whatsappStages[stage] || 0) + 1;
+  }
+  const maxWhatsAppStage = Math.max(1, ...Object.values(whatsappStages));
+
   return (
     <div>
       <PageHeader />
@@ -106,6 +142,20 @@ export default async function AnalyticsPage() {
             ))}
           </div>
         </div>
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-emerald-300/10 bg-emerald-300/[0.035] p-5">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div><p className="text-[11px] tracking-wide text-emerald-200/55 uppercase">WhatsApp intelligence</p><p className="mt-1 text-sm text-white/60">Live operational health for the Cloud API inbox.</p></div>
+          <span className="rounded-full bg-emerald-300/10 px-2.5 py-1 text-[10px] text-emerald-100">{whatsappConversations.length} threads</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <StatTile label="Analyzed" value={`${analyzedWhatsApp}/${whatsappConversations.length}`} />
+          <StatTile label="Reply windows open" value={String(openReplyWindows)} />
+          <StatTile label="Avg qualification" value={averageQualification ? `${averageQualification}/100` : "—"} />
+          <StatTile label="Follow-ups due" value={String(followUpsDue)} />
+        </div>
+        {Object.keys(whatsappStages).length > 0 ? <div className="mt-5 space-y-3">{Object.entries(whatsappStages).map(([stage, count]) => <BarRow key={stage} label={stage} count={count} max={maxWhatsAppStage} />)}</div> : null}
       </div>
 
       <a
