@@ -26,7 +26,7 @@ export function LionSlot() {
   const journey = useLionJourney();
   return <div ref={journey?.slot} className={styles.slot} aria-hidden="true"><div className={styles.poster} data-lion-poster>
     {/* eslint-disable-next-line @next/next/no-img-element */}
-    <img src="/models/lion/lion-poster.png" alt="" width={900} height={900} fetchPriority="high" />
+    <img src="/models/lion/lion-poster.png?v=hid-20260914" alt="" width={900} height={900} fetchPriority="high" />
   </div></div>;
 }
 export function JourneyProof() {
@@ -61,13 +61,16 @@ export default function LionJourney({ children }: { children: ReactNode }) {
     let time = 0, last = 0, pendingMeasure = true;
     const rect = (node: HTMLElement): Rect => { const r = node.getBoundingClientRect(); return { left: r.left, top: r.top + scrollY, width: r.width, height: r.height }; };
     const measure = () => {
-      if (!hero.current || !copy.current || !slot.current || !intro.current || !video.current || !videoSection.current || !proof.current || !bridge.current || !reveal.current) return;
+      if (!hero.current || !copy.current || !slot.current || !intro.current || !video.current || !videoSection.current || !bridge.current || !reveal.current) return;
       const section = rect(videoSection.current), surface = rect(video.current);
       // Undo sticky displacement on reload-at-depth. The video starts centered
       // in the first viewport of its section, not at the restored scroll offset.
       const stickyOffset = clamp(scrollY - section.top, 0, Math.max(0, section.height - innerHeight));
       surface.top -= stickyOffset;
-      anchors = { hero: rect(hero.current), copy: rect(copy.current), slot: rect(slot.current), intro: rect(intro.current), video: surface, videoSection: section, proof: rect(proof.current), bridge: rect(bridge.current), reveal: rect(reveal.current), end: section.top, mobile: innerWidth < 1024 };
+      // The proof row is optional; its absence must not block the entire scene.
+      const bridgeBounds = rect(bridge.current);
+      const proofBounds = proof.current ? rect(proof.current) : { ...bridgeBounds, height: 0 };
+      anchors = { hero: rect(hero.current), copy: rect(copy.current), slot: rect(slot.current), intro: rect(intro.current), video: surface, videoSection: section, proof: proofBounds, bridge: bridgeBounds, reveal: rect(reveal.current), end: section.top, mobile: innerWidth < 1024 };
       engine?.resize(innerWidth, innerHeight);
       engine?.setRoute(anchors);
       const route = journeyRoute(anchors);

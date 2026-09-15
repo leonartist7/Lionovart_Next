@@ -1,10 +1,17 @@
 {
   "desktop": {
-    "triangles": 144998,
-    "bytes": 1620316
+    "triangles": 145000,
+    "bytes": 2098304,
+    "textureLimit": 2048
   },
   "mobile": {
-    "triangles": 54999,
-    "bytes": 1248444
+    "triangles": 55000,
+    "bytes": 820060,
+    "textureLimit": 1024
+  },
+  "source": {
+    "name": "Lion-HID.glb",
+    "bytes": 62215076,
+    "sha256": "bc63a4fce615f1eb1b6ad3cfdfc2f22347dfdc6de081e18db75d734471b33e05"
   }
 }
