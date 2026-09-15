@@ -16,12 +16,12 @@ export default function CustomCursor() {
       lerpAmount={0.12}
       hoverPadding={10}
       blendMode="exclusion"
-      cursorSize={40}
+      cursorSize={14}
       cursorColor="#ffffff"
       contrastBoost={1.5}
       speedMultiplier={0.02}
-      maxScaleX={1}
-      maxScaleY={0.3}
+      maxScaleX={0.55}
+      maxScaleY={0.12}
       disableOnTouch
     />
   );
