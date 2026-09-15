@@ -3,7 +3,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
-import { AssetViewer } from "@/components/portal/AssetViewer";
+import { AssetCollaboration } from "@/components/portal/AssetCollaboration";
 import { VersionList } from "@/components/portal/VersionList";
 import { UploadDialog } from "@/components/portal/UploadDialog";
 import { DeleteAssetButton } from "@/components/portal/DeleteAssetButton";
@@ -13,6 +13,7 @@ import {
   getWorkspaceAccessBySlug,
 } from "@/lib/portal-auth";
 import { getAsset, listVersions, signReadUrl } from "@/lib/portal/assets";
+import { listThreads } from "@/lib/portal/threads";
 import { roleAtLeast } from "@/lib/portal/types";
 import { formatBytes, formatDate } from "@/lib/portal/format";
 
@@ -55,11 +56,17 @@ export default async function AssetDetailPage({ params, searchParams }: Params) 
   const active = versions.find((ver) => ver.n === requestedVersion) ?? versions[0];
   if (!active) notFound();
 
-  const [viewUrl, versionItems] = await Promise.all([
+  const [viewUrl, versionItems, feed] = await Promise.all([
     signReadUrl(active.storagePath),
     Promise.all(
       versions.map(async (ver) => ({ ...ver, downloadUrl: await signReadUrl(ver.storagePath) })),
     ),
+    // Threads on an asset belonging to an `internal` project never come back
+    // here for a client — filtered in the data layer, not the component.
+    listThreads(access.workspace.id, access.membership.role, {
+      targetType: "asset",
+      targetId: assetId,
+    }),
   ]);
 
   const canUpload = roleAtLeast(access.membership.role, "collaborator");
@@ -96,9 +103,19 @@ export default async function AssetDetailPage({ params, searchParams }: Params) 
         )}
       </header>
 
-      <section className="mt-7">
-        <AssetViewer kind={asset.kind} url={viewUrl} name={asset.name} />
-      </section>
+      <AssetCollaboration
+        workspaceSlug={slug}
+        assetId={assetId}
+        assetName={asset.name}
+        assetKind={asset.kind}
+        viewUrl={viewUrl}
+        activeVersion={active.n}
+        initialThreads={feed.threads}
+        initialCursor={feed.cursor}
+        currentUid={access.session.uid}
+        isAgency={roleAtLeast(access.membership.role, "agency")}
+        canComment={roleAtLeast(access.membership.role, "collaborator")}
+      />
 
       {versions.length > 1 && (
         <section aria-labelledby="asset-versions" className="mt-8">

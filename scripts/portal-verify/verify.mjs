@@ -845,6 +845,324 @@ if (run("assistant")) {
   );
 }
 
+/* ── collaboration: threads, pins, resolve, internal visibility ───── */
+if (run("collaboration")) {
+  console.log("\n── collaboration ──");
+  const fx = await setupWorkspace("Verify Collaboration");
+  const threads = `${BASE}/api/portal/${fx.slug}/threads`;
+  const sign = `${BASE}/api/portal/${fx.slug}/assets/sign-upload`;
+
+  /** Signs + confirms an upload, optionally attaching it to a project. */
+  const uploadAs = async (cookie, name, projectId) => {
+    const signed = await (
+      await fetch(sign, {
+        method: "POST",
+        headers: J(cookie),
+        body: JSON.stringify({ name, mime: "image/png", sizeBytes: 30_000 }),
+      })
+    ).json();
+    await fetch(`${BASE}/api/portal/${fx.slug}/assets/${signed.assetId}/versions`, {
+      method: "POST",
+      headers: J(cookie),
+      body: JSON.stringify({
+        version: signed.version,
+        storagePath: signed.storagePath,
+        name,
+        mime: "image/png",
+        sizeBytes: 30_000,
+        ...(projectId ? { projectId } : {}),
+      }),
+    });
+    return signed.assetId;
+  };
+
+  const assetId = await uploadAs(fx.agencyCookie, "concept.png");
+
+  // A client raising feedback is the whole point of the feature.
+  const opened = await fetch(threads, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ targetType: "asset", targetId: assetId, body: "The spacing feels tight." }),
+  });
+  const clientThread = (await opened.json()).thread;
+  check("client can open a thread", opened.status === 201, `${opened.status}`);
+  check("the thread carries its first comment", clientThread?.comments?.length === 1);
+
+  /* Pin coordinates: normalized against the rendered image box, and stored
+     exactly as measured. Deliberately awkward floats — a server that rounded,
+     clamped or re-derived them would land the pin somewhere else. */
+  const PIN = { x: 0.1234567890123, y: 0.9876543210987 };
+  const pinned = await fetch(threads, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({
+      targetType: "asset",
+      targetId: assetId,
+      versionId: 1,
+      pin: PIN,
+      body: "This corner is the problem.",
+    }),
+  });
+  const pinThread = (await pinned.json()).thread;
+  check("client can drop a pin", pinned.status === 201, `${pinned.status}`);
+
+  const reread = await (
+    await fetch(`${threads}?targetType=asset&targetId=${assetId}`, { headers: J(fx.clientCookie) })
+  ).json();
+  const roundTripped = reread.threads.find((t) => t.id === pinThread.id);
+  check(
+    "pin coordinates survive a round trip unchanged",
+    roundTripped?.pin?.x === PIN.x && roundTripped?.pin?.y === PIN.y,
+    JSON.stringify(roundTripped?.pin),
+  );
+  check("a pin is tied to its version", roundTripped?.versionId === 1, `v${roundTripped?.versionId}`);
+
+  // v2 does not inherit v1's pins: the same query at v2 finds none of them.
+  const v2Pins = reread.threads.filter((t) => t.pin && t.versionId === 2);
+  check("v2 does not inherit v1's pins", v2Pins.length === 0, `${v2Pins.length} carried over`);
+
+  const offBox = await fetch(threads, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({
+      targetType: "asset",
+      targetId: assetId,
+      versionId: 1,
+      pin: { x: 640, y: 480 }, // viewport pixels, not normalized
+      body: "wrong space",
+    }),
+  });
+  check("a pin outside 0–1 is rejected", offBox.status === 400, `${offBox.status}`);
+
+  const versionless = await fetch(threads, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({
+      targetType: "asset",
+      targetId: assetId,
+      pin: { x: 0.5, y: 0.5 },
+      body: "which version?",
+    }),
+  });
+  check("a pin without a version is rejected", versionless.status === 400, `${versionless.status}`);
+
+  /* Comments: anyone in the workspace may reply; nobody edits anyone else's. */
+  const replied = await fetch(`${threads}/${clientThread.id}/comments`, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ body: "Opening it up by 8px in the next round." }),
+  });
+  const agencyComment = (await replied.json()).comment;
+  check("agency can reply on a client's thread", replied.status === 201, `${replied.status}`);
+
+  const emptyComment = await fetch(`${threads}/${clientThread.id}/comments`, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ body: "   " }),
+  });
+  check("an empty comment is rejected", emptyComment.status === 400, `${emptyComment.status}`);
+
+  const stealDelete = await fetch(
+    `${threads}/${clientThread.id}/comments/${agencyComment.id}`,
+    { method: "DELETE", headers: J(fx.clientCookie) },
+  );
+  check(
+    "client cannot delete another author's comment",
+    stealDelete.status === 403,
+    `${stealDelete.status}`,
+  );
+
+  const ownDelete = await fetch(
+    `${threads}/${pinThread.id}/comments/${pinThread.comments[0].id}`,
+    { method: "DELETE", headers: J(fx.clientCookie) },
+  );
+  check("client can delete their own comment", ownDelete.status === 200, `${ownDelete.status}`);
+  check(
+    "the thread goes with its last comment",
+    (await ownDelete.json()).threadDeleted === true,
+  );
+
+  /* Resolve / unresolve — the author or the studio, and it toggles back. */
+  const resolved = await fetch(`${threads}/${clientThread.id}`, {
+    method: "PATCH",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ resolved: true }),
+  });
+  check("the author can resolve their thread", (await resolved.json()).thread?.status === "resolved");
+
+  const reopened = await fetch(`${threads}/${clientThread.id}`, {
+    method: "PATCH",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ resolved: false }),
+  });
+  const reopenedThread = (await reopened.json()).thread;
+  check("agency can reopen it", reopenedThread?.status === "open", `${reopenedThread?.status}`);
+  check("reopening clears the resolver", !reopenedThread?.resolvedBy);
+
+  const agencyThread = (
+    await (
+      await fetch(threads, {
+        method: "POST",
+        headers: J(fx.agencyCookie),
+        body: JSON.stringify({
+          targetType: "asset",
+          targetId: assetId,
+          body: "Studio question for the client.",
+        }),
+      })
+    ).json()
+  ).thread;
+  const strangerResolve = await fetch(`${threads}/${agencyThread.id}`, {
+    method: "PATCH",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ resolved: true }),
+  });
+  check(
+    "a client cannot close someone else's thread",
+    strangerResolve.status === 403,
+    `${strangerResolve.status}`,
+  );
+
+  /* The `since` cursor — the realtime path, polled, never a held stream.
+     A quiet poll costs the caller nothing but still reports every live id, so
+     a thread deleted on someone else's screen disappears from this one. */
+  const settled = await (
+    await fetch(`${threads}?targetType=asset&targetId=${assetId}`, { headers: J(fx.clientCookie) })
+  ).json();
+  const cursor = settled.cursor;
+
+  const quiet = await (
+    await fetch(
+      `${threads}?targetType=asset&targetId=${assetId}&since=${encodeURIComponent(cursor)}`,
+      { headers: J(fx.clientCookie) },
+    )
+  ).json();
+  check(
+    "a quiet poll returns no threads but every live id",
+    quiet.threads.length === 0 && quiet.ids.length === settled.ids.length,
+    `${quiet.threads.length} changed of ${quiet.ids.length}`,
+  );
+
+  await fetch(`${threads}/${agencyThread.id}/comments`, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ body: "Answering the studio." }),
+  });
+  const moved = await (
+    await fetch(
+      `${threads}?targetType=asset&targetId=${assetId}&since=${encodeURIComponent(cursor)}`,
+      { headers: J(fx.clientCookie) },
+    )
+  ).json();
+  check(
+    "since= returns only the thread that changed",
+    moved.threads.length === 1 && moved.threads[0].id === agencyThread.id,
+    `${moved.threads.length} changed`,
+  );
+  check(
+    "the cursor advances past the change it reported",
+    moved.cursor > cursor,
+    `${moved.cursor} > ${cursor}`,
+  );
+
+  /* Internal visibility: a thread on an internal project's asset is ABSENT
+     for a client — not hidden, and a 404 rather than a 403 on write, so the
+     portal never confirms the internal record exists. */
+  const internalProject = (
+    await (
+      await fetch(`${BASE}/api/portal/${fx.slug}/projects`, {
+        method: "POST",
+        headers: J(fx.agencyCookie),
+        body: JSON.stringify({
+          name: "INTERNAL Margin Review",
+          kind: "brand",
+          visibility: "internal",
+        }),
+      })
+    ).json()
+  ).project;
+
+  const internalAsset = await uploadAs(fx.agencyCookie, "margins.png", internalProject.id);
+  const SECRET = "INTERNAL NOTE margin is under water";
+  await fetch(threads, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ targetType: "asset", targetId: internalAsset, body: SECRET }),
+  });
+
+  const agencySees = await (
+    await fetch(`${threads}?targetType=asset&targetId=${internalAsset}`, {
+      headers: J(fx.agencyCookie),
+    })
+  ).json();
+  check("agency sees the internal thread", agencySees.threads.length === 1, `${agencySees.threads.length}`);
+
+  const clientSees = await (
+    await fetch(`${threads}?targetType=asset&targetId=${internalAsset}`, {
+      headers: J(fx.clientCookie),
+    })
+  ).json();
+  check(
+    "internal-asset thread hidden from the client API",
+    clientSees.threads.length === 0 && clientSees.ids.length === 0,
+    `${clientSees.threads.length}`,
+  );
+
+  const clientHtml = await pageSource(`/portal/${fx.slug}/assets/${internalAsset}`, fx.clientCookie);
+  check("internal-asset thread ABSENT from client HTML", !clientHtml.html.includes(SECRET));
+
+  const agencyHtml = await pageSource(`/portal/${fx.slug}/assets/${internalAsset}`, fx.agencyCookie);
+  check("internal-asset thread present for agency", agencyHtml.html.includes(SECRET));
+
+  const clientWrite = await fetch(threads, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ targetType: "asset", targetId: internalAsset, body: "poke" }),
+  });
+  check(
+    "commenting on an internal asset 404s for a client (never 403)",
+    clientWrite.status === 404,
+    `${clientWrite.status}`,
+  );
+
+  // The client's own asset still carries its conversation into the page.
+  const ownHtml = await pageSource(`/portal/${fx.slug}/assets/${assetId}`, fx.clientCookie);
+  check("the client's own thread renders on their page", ownHtml.html.includes("The spacing feels tight."));
+
+  const anon = await fetch(threads);
+  check("unauthenticated cannot list threads", anon.status === 401, `${anon.status}`);
+
+  /* Firestore does not cascade: deleting a file must take its conversation
+     with it, or the threads outlive the thing they were about. */
+  const doomed = await uploadAs(fx.agencyCookie, "doomed.png");
+  await fetch(threads, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ targetType: "asset", targetId: doomed, body: "Note on a file about to go." }),
+  });
+  await fetch(`${BASE}/api/portal/${fx.slug}/assets/${doomed}`, {
+    method: "DELETE",
+    headers: J(fx.agencyCookie),
+  });
+  const orphans = await (
+    await fetch(`${threads}?targetType=asset&targetId=${doomed}`, { headers: J(fx.agencyCookie) })
+  ).json();
+  check(
+    "deleting a file takes its threads with it",
+    orphans.threads.length === 0 && orphans.ids.length === 0,
+    `${orphans.ids.length} orphaned`,
+  );
+
+  // The design preview renders the same components against fixtures.
+  const preview = await fetch(`${BASE}/portal/demo/assets/logo-mark`);
+  const previewHtml = await preview.text();
+  check(
+    "demo file page renders its pinned threads",
+    preview.status === 200 && previewHtml.includes("The leaf still reads as a feather"),
+    `${preview.status}`,
+  );
+}
+
 /* ── demo: the unauthenticated design preview ────────────────────── */
 if (run("demo")) {
   console.log("\n── demo (design preview) ──");
