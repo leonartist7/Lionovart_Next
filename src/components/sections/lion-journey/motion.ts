@@ -14,6 +14,8 @@ export function journeyProgress(scroll: number, a: Anchors) {
   const start = a.start ?? a.hero.top;
   return clamp((scroll - start) / Math.max(1, a.end - start));
 }
+/** Leave a quiet entrance before the partnership statement. */
+export const streamEnd = (a: Anchors) => a.bridge.top - (a.mobile ? 64 : 96);
 export function journeyRoute(a: Anchors): Point[] {
   const w = a.hero.width, left = a.hero.left;
   return [
@@ -21,9 +23,7 @@ export function journeyRoute(a: Anchors): Point[] {
     { x: left + w * (a.mobile ? 0.8 : 0.79), y: a.intro.top + a.intro.height * 0.24 },
     { x: a.video.left + a.video.width * 0.74, y: a.video.top + a.video.height * 0.48 },
     { x: left + w * 0.16, y: a.videoSection.top + a.videoSection.height * 0.72 },
-    { x: left + w * 0.22, y: a.proof.top + a.proof.height * 0.5 },
-    { x: left + w * 0.8, y: a.bridge.top + a.bridge.height * 0.48 },
-    { x: left + w * 0.2, y: a.reveal.top + a.reveal.height * 0.68 },
+    { x: left + w * 0.25, y: streamEnd(a) },
   ];
 }
 /** Shape-preserving cubic Hermite spline: continuous tangents without overshoot. */

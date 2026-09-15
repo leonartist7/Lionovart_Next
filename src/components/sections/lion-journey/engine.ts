@@ -4,7 +4,7 @@ import { uniform, positionLocal, positionWorld, vec3, sin, cos, attribute, fract
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
-import { journeyRoute, routePoint, type Anchors, type Pose } from "./motion";
+import { journeyRoute, routePoint, streamEnd, type Anchors, type Pose } from "./motion";
 
 /** One scene, one TSL shader, WebGPU with WebGL2 fallback. No simulation or post stack. */
 export class LionEngine {
@@ -18,8 +18,8 @@ export class LionEngine {
   private maneBottom = uniform(-1);
   private maneFadeEnd = uniform(-0.65);
   private band = uniform(44);
-  private bridgeY = uniform(3000);
-  private revealY = uniform(4000);
+  private fadeStartY = uniform(3000);
+  private fadeEndY = uniform(4000);
   private routeTexture = new THREE.DataTexture(new Float32Array(512 * 2 * 4), 512, 2, THREE.RGBAFormat, THREE.FloatType);
   private mobileTier = false;
   private loader = new DRACOLoader();
@@ -130,8 +130,8 @@ export class LionEngine {
     }
     this.routeTexture.needsUpdate = true;
     this.band.value = anchors.mobile ? 34 : 78;
-    this.bridgeY.value = anchors.bridge.top;
-    this.revealY.value = anchors.reveal.top + anchors.reveal.height * 0.65;
+    this.fadeEndY.value = streamEnd(anchors);
+    this.fadeStartY.value = this.fadeEndY.value - (anchors.mobile ? 140 : 220);
     if (this.mobileTier !== anchors.mobile) {
       this.disposeObject(this.silk); this.silk.clear(); this.particles.clear();
       this.makeSilk(anchors.mobile);
@@ -155,21 +155,22 @@ export class LionEngine {
       // Three interwoven families open and gather together, like a loose braid.
       // A second slower wave avoids identical, evenly spaced sine-wire loops.
       const family = strand.mul(3).floor();
-      const phase = t.mul(64).sub(this.clock.mul(0.62)).add(family.mul(2.094)).add(strand.mul(0.9));
+      const phase = t.mul(44).sub(this.clock.mul(0.62)).add(family.mul(2.094)).add(strand.mul(0.9));
       const taper = sin(t.mul(Math.PI)).max(0).pow(0.3);
       const breath = sin(t.mul(21).sub(this.clock.mul(0.23))).mul(0.25).add(0.75);
       const lateral = sin(phase).mul(breath).mul(this.band.mul(0.85))
-        .add(sin(t.mul(27).add(strand.mul(4)).sub(this.clock.mul(0.19))).mul(this.band.mul(0.22)))
+        .add(sin(t.mul(18).add(strand.mul(4)).sub(this.clock.mul(0.19))).mul(this.band.mul(0.22)))
         .add(strand.sub(0.5).mul(this.band.mul(0.38))).mul(taper);
       const radial = normal.mul(cos(flow.z)).add(cross(tangent,normal).mul(sin(flow.z)));
       const thickness = sin(strand.mul(31)).mul(0.5).add(0.5).pow(3).mul(0.7).add(0.36).mul(taper).add(0.1);
       const offset = motes ? positionLocal : radial.mul(thickness);
-      material.positionNode = center.add(normal.mul(lateral)).add(vec3(0,0,cos(phase).mul(this.band.mul(0.55)))).add(offset);
+      const displaced = center.add(normal.mul(lateral)).add(vec3(0,0,cos(phase).mul(this.band.mul(0.55)))).add(offset);
+      material.positionNode = displaced;
       const shade = mix(color("#8b6026"),color("#f7dba3"),sin(strand.mul(18)).mul(0.5).add(0.5).pow(2));
       material.colorNode = motes ? color("#eecb83") : shade;
       material.emissiveNode = motes ? color("#eecb83").mul(0.75) : shade.mul(0.24);
-      const quiet = smoothstep(this.bridgeY, this.revealY, center.y.negate());
-      material.opacityNode = taper.mul(quiet.mul(-0.6).add(0.98)).mul(motes ? 1 : 0.8);
+      const quiet = smoothstep(this.fadeStartY, this.fadeEndY, displaced.y.negate());
+      material.opacityNode = taper.mul(quiet.oneMinus()).mul(motes ? 0.98 : 0.8);
       if (!motes) material.normalNode = radial.normalize();
       return material;
     };

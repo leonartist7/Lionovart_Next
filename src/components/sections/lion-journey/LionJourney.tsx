@@ -2,7 +2,7 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useMotionValue, type MotionValue } from "framer-motion";
 import { useLenis } from "lenis/react";
-import { journeyPose, journeyProgress, journeyRoute, routePoint, SILK_LAG, clamp, type Anchors, type Rect } from "./motion";
+import { journeyPose, journeyProgress, journeyRoute, routePoint, streamEnd, SILK_LAG, clamp, type Anchors, type Rect } from "./motion";
 import type { LionEngine } from "./engine";
 import styles from "./LionJourney.module.css";
 import TubesCursor from "@/components/ui/TubesCursor";
@@ -75,6 +75,10 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       engine?.setRoute(anchors);
       const route = journeyRoute(anchors);
       if (fallback.current && host.current) {
+        const end = streamEnd(anchors) - rect(host.current).top;
+        const mask = `linear-gradient(to bottom, #000 ${end - (anchors.mobile ? 140 : 220)}px, transparent ${end}px)`;
+        fallback.current.style.maskImage = mask;
+        fallback.current.style.setProperty("-webkit-mask-image", mask);
         fallback.current.setAttribute("viewBox", `0 ${rect(host.current).top} ${innerWidth} ${host.current.offsetHeight}`);
         fallback.current.querySelectorAll("path").forEach((path, strand) => {
           const s = strand / 17, band = anchors!.mobile ? 34 : 78;
@@ -82,8 +86,8 @@ export default function LionJourney({ children }: { children: ReactNode }) {
             const t = i / 320, p = routePoint(route, t);
             const a = routePoint(route, Math.max(0, t - 0.001)), b = routePoint(route, Math.min(1, t + 0.001));
             const length = Math.hypot(b.x-a.x, b.y-a.y) || 1;
-            const phase = t*64 + Math.floor(s*3)*2.094 + s*0.9;
-            const offset = (Math.sin(phase)*(Math.sin(t*21)*0.25+0.75)*band*0.85 + Math.sin(t*27+s*4)*band*0.22 + (s-0.5)*band*0.38)*Math.max(0, Math.sin(t*Math.PI))**0.3;
+            const phase = t*44 + Math.floor(s*3)*2.094 + s*0.9;
+            const offset = (Math.sin(phase)*(Math.sin(t*21)*0.25+0.75)*band*0.85 + Math.sin(t*18+s*4)*band*0.22 + (s-0.5)*band*0.38)*Math.max(0, Math.sin(t*Math.PI))**0.3;
             return `${i ? "L" : "M"}${(p.x+(b.y-a.y)/length*offset).toFixed(1)},${(p.y-(b.x-a.x)/length*offset).toFixed(1)}`;
           }).join(" ");
           path.setAttribute("d", d);
@@ -101,7 +105,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       progress.set(p);
       const complete = scrollY >= anchors.reveal.top && coverage.current >= 0.999;
       setActive(!complete);
-      const visible = !complete && scrollY < anchors.reveal.top + anchors.reveal.height && !document.hidden && !reduced();
+      const visible = !complete && scrollY < streamEnd(anchors) && !document.hidden && !reduced();
       container.style.visibility = ready && visible ? "visible" : "hidden";
       host.current?.toggleAttribute("data-lion-still", reduced());
       host.current?.toggleAttribute("data-lion-ready", ready && !reduced());

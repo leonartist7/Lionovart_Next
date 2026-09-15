@@ -7,7 +7,7 @@
 .poster img { position: absolute; width: 100%; height: 100%; object-fit: contain; transform: scaleX(-1); mask-image: linear-gradient(to bottom, #000 72%, #000b 83%, transparent 94%); }
 .journey[data-lion-ready] .poster, .journey[data-lion-ready] .fallback { opacity: 0; }
 .journey[data-lion-still] .poster, .journey[data-lion-still] .fallback { opacity: 1; transition: none; }
-.journey :global(.lion-hero) { --lion-title-size: clamp(2.75rem,4.6vw,4.5rem); --lion-word-size: clamp(2.75rem,4.8vw,4.7rem); position: relative; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.15fr); column-gap: 64px; row-gap: 24px; max-width: 1500px; margin-inline: auto; padding: clamp(144px,16vh,184px) 6vw 64px; align-items: start; }
+.journey :global(.lion-hero) { --lion-title-size: clamp(2.75rem,4.6vw,4.5rem); --lion-word-size: clamp(2.75rem,4.8vw,4.7rem); position: relative; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.15fr); column-gap: 64px; row-gap: 24px; max-width: 1500px; margin-inline: auto; padding: clamp(144px,16vh,184px) 6vw 88px; align-items: start; }
 .journey :global(.lion-copy), .journey :global(.lion-description), .journey :global(.lion-cta), .journey :global(.lion-trust) { position: relative; z-index: 2; grid-column: 2; min-width: 0; }
 .journey :global(.lion-copy) { grid-row: 1; text-shadow: 0 2px 22px #08080a; }
 .journey :global(.lion-description) { font-size: clamp(1rem,1.3vw,1.1875rem); line-height: 1.6; color: #b4b1b4; max-width: 46ch; text-shadow: 0 1px 14px #08080a; }
@@ -15,7 +15,7 @@
 .journey :global(.lion-peek-trigger) { display: inline-flex; justify-content: center; align-items: center; gap: 12px; min-width: 136px; min-height: 44px; padding: 10px 18px; border-radius: 999px; border: 1px solid #ff81936b; background: linear-gradient(#e5192a,#a7081a); box-shadow: inset 0 1px 0 #ffffff33; color: white; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 160ms, transform 160ms; }
 .journey :global(.lion-peek-trigger:hover) { transform: translateY(-1px); background: #d31226; }
 .journey :global(.lion-peek-trigger:focus-visible) { outline: 2px solid #edce91; outline-offset: 4px; }
-.journey :global(.lion-intro-wrap) { padding-top: 72px; padding-bottom: 24px; }
+.journey :global(.lion-intro-wrap) { padding-top: 72px; padding-bottom: 48px; }
 .journey :global(.lion-intro) { position: relative; z-index: 2; width: min(100%,620px); text-shadow: 0 2px 28px #08080a, 0 0 12px #08080a; }
 .journey :global(.lion-intro h2) { font-size: clamp(3rem,5.4vw,5.6rem); max-width: 14ch; }
 .journey :global(.lion-video-section) { background: transparent; }
@@ -24,13 +24,13 @@
 .journey :global(.lion-reveal) { background: transparent; }
 .journey :global(.lion-reveal > div) { background: transparent; }
 @media (max-width: 1023px) {
- .journey :global(.lion-hero) { --lion-title-size: clamp(1.5rem,6.6vw,2.25rem); --lion-word-size: clamp(1.65rem,7vw,2.65rem); grid-template-columns: minmax(0,0.88fr) minmax(0,1.12fr); gap: 20px 14px; padding: 132px 20px 36px; }
+ .journey :global(.lion-hero) { --lion-title-size: clamp(1.5rem,6.6vw,2.25rem); --lion-word-size: clamp(1.65rem,7vw,2.65rem); grid-template-columns: minmax(0,0.88fr) minmax(0,1.12fr); gap: 20px 14px; padding: 132px 20px 52px; }
  .slot { grid-row: 1; height: clamp(142px,45vw,256px); align-self: center; }
  .journey :global(.lion-copy) { align-self: center; }
  .journey :global(.lion-description), .journey :global(.lion-cta), .journey :global(.lion-trust) { grid-column: 1 / -1; }
  .journey :global(.lion-description) { font-size: 15px; max-width: 52ch; }
  .journey :global(.lion-trust) { font-size: 11px; max-width: 45ch; }
- .journey :global(.lion-intro-wrap) { padding: 52px 20px 16px; }
+ .journey :global(.lion-intro-wrap) { padding: 52px 20px 32px; }
  .journey :global(.lion-intro h2) { font-size: clamp(2.25rem,8.4vw,4rem); max-width: 14ch; line-height: .92; }
  .journey :global(.lion-intro p) { max-width: 40ch; }
 }

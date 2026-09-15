@@ -131,3 +131,7 @@ Replaced both web GLBs and all poster/comparison renders with derivatives of `C:
 Reproduce with Blender running `scripts/prepare-lion.py -- --source <source.glb> desktop`, then a fresh process for `mobile`, followed by Python + Pillow running `scripts/compress-lion-textures.py`. Compression repacks opaque images as JPEG without changing mesh buffers. Versioned asset URLs refresh cached models and posters. Existing silk, pose, scale normalization and scroll handoff remain in place.
 
 The optional proof-row anchor now falls back to the partnership boundary when the row is absent, fixing a startup blocker in the current layout. The updated model uses its front-facing orientation to look toward the hero title. Both GLB buffer layouts and embedded images validate, and the source hash remains unchanged. TypeScript, scoped lint, and all nine motion tests pass.
+
+## Quieter partnership entrance
+
+The gold route now ends after the cards, 64px before the partnership section on mobile and 96px before it on desktop. Strands and beads taper over the final 140/220px, with the same mask on the static fallback. Rendering pauses once the endpoint scrolls above the viewport; reverse scroll restores it. Cursor tubes remain suppressed through the white reveal. Hero bottom spacing and introduction-to-video spacing each increase by 16px on mobile and 24px on desktop. Curl frequency is reduced to preserve broad folds along the shorter route. This supersedes the earlier gold-to-white-reveal choreography.
