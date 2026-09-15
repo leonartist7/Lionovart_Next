@@ -13,6 +13,7 @@ import CustomCursor from "@/components/ui/CustomCursor";
 import TubesCursor from "@/components/ui/TubesCursor";
 import BottomBlur from "@/components/ui/BottomBlur";
 import SplashScreen from "@/components/ui/SplashScreen";
+import SiteTitleReveal from "@/components/ui/SiteTitleReveal";
 import { SITE, SITE_URL, OG_IMAGE } from "@/lib/seo/config";
 import { JsonLd } from "@/lib/seo/JsonLd";
 import {
@@ -89,6 +90,7 @@ export default async function RootLayout({
         <LanguageProvider>
           <SmoothScrollProvider>
             <SplashScreen />
+            <SiteTitleReveal />
             {children}
           </SmoothScrollProvider>
           <NovaPortalMount />

@@ -657,6 +657,13 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
+/* The custom pointer is allowed to pass behind the 3D card section. The
+   cards keep their own edge light and depth, while the pointer remains a
+   source for the surrounding glow instead of painting over the faces. */
+.cursor-behind {
+  z-index: 1 !important;
+}
+
 @media (pointer: coarse) {
   .cursor-layer,
   .cursor-label {
@@ -1072,5 +1079,31 @@
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     border-color: var(--foreground);
+  }
+}
+
+/* Editorial headings resolve one rendered line at a time. The line and word
+   indices are measured after each responsive reflow by SiteTitleReveal. */
+.site-title-reveal {
+  /* Existing art-directed heading components sometimes supply a Framer
+     translateY reveal. Keep the global treatment purely tonal. */
+  transform: none !important;
+}
+
+.site-title-reveal-word {
+  display: inline-block;
+  opacity: 0.22;
+  filter: grayscale(1);
+}
+
+.site-title-reveal--active .site-title-reveal-word {
+  will-change: opacity, filter;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-title-reveal-word {
+    opacity: 1;
+    filter: none;
+    will-change: auto;
   }
 }

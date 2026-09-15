@@ -24,19 +24,19 @@ export function createGlassShellMaterial(tier: QualityTier): THREE.MeshPhysicalM
     // tight on the bevel instead of a milky wash; the dim env (see engine)
     // means tight highlights stay narrow colored bands, never white plates.
     roughness: low ? 0.08 : 0.05,
-    transmission: low ? 0 : 1,
-    thickness: 0.5,
+    transmission: low ? 0 : 0.78,
+    thickness: 0.28,
     ior: 1.45,
     attenuationColor: new THREE.Color("#0d0d10"),
     attenuationDistance: 2.2,
-    clearcoat: 1,
-    clearcoatRoughness: 0.08,
+    clearcoat: 0.55,
+    clearcoatRoughness: 0.16,
     // Kept low: the glass body must stay smoked-clear; identity light comes
     // from the rim shader + flares, not from env reflection.
-    envMapIntensity: 0.35,
-    specularIntensity: 0.7,
+    envMapIntensity: 0.12,
+    specularIntensity: 0.34,
     transparent: true,
-    opacity: low ? 0.55 : 1,
+    opacity: low ? 0.62 : 0.9,
   });
   // LOW tier has no transmission pass — fake the glass with transparency.
   if (low) {

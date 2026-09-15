@@ -1,18 +1,29 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { AnimatePresence, motion, useAnimation, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useAnimation, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
 import { SovereignFoilContour } from "@/components/ui/SovereignFoilContour";
+import { ImageStreamHero } from "@/components/ui/image-stream-hero";
 
 const PAW_IMAGE =
-  "https://res.cloudinary.com/dgio9uutc/image/upload/v1775085187/Untitled_design_4_muu53f.png";
+  "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_320/v1775085187/Untitled_design_4_muu53f.png";
 const PAW_IN_DURATION = 0.35;
 const PULL_DURATION = 0.7;
 const PULL_EASE = [0.2, 0, 0.6, 1] as const;
 const RETURN_EASE = [0.2, 1, 0.3, 1] as const;
+const SHOWCASE_IMAGE_BASE =
+  "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_1400,c_fill,g_auto";
+const SHOWCASE_IMAGES = [
+  `${SHOWCASE_IMAGE_BASE}/v1775277351/1_1_bv3shm.avif`,
+  `${SHOWCASE_IMAGE_BASE}/v1775277353/freepik_a-highly-polished-professional-uiux-website-homepage-mockup-for-a-modern-luxury-car-dealership.-clean-gridbased-layout-with-a-dark-theme-featuring-charcoal-grey-backgrounds-metallic-silve_0001_zglhcb.avif`,
+  `${SHOWCASE_IMAGE_BASE}/v1775277354/freepik_from-this-brand-help-me-make-a-mockup-of-her-landing-page-keeping-the-visual-identity..-looking-very-premium-and-elegant-and-perfect_0001_1_u6hnjz.avif`,
+  `${SHOWCASE_IMAGE_BASE}/v1775277351/Thumb_2_p6ksrb.avif`,
+  `${SHOWCASE_IMAGE_BASE}/v1775277352/Frame_1_zhyago.avif`,
+  `${SHOWCASE_IMAGE_BASE}/v1775277350/image_19_rnwg8w.avif`,
+];
 
 type ImagineItem = {
   problem: { heading: string; body: string };
@@ -24,6 +35,32 @@ type ImagineItem = {
 };
 
 type CardPhase = "closed" | "revealing" | "active" | "summary";
+
+function PartnershipStatement() {
+  return (
+    <div className="w-full max-w-[720px]">
+      <p className="font-mono text-[8px] font-bold uppercase tracking-[0.31em] text-white/70 sm:text-[10px]">One Partnership</p>
+      <h2 className="mx-auto mt-4 max-w-[13ch] font-clash text-[clamp(2.05rem,7.5vw,4.2rem)] font-semibold uppercase leading-[0.9] tracking-[-0.04em] sm:mt-5 lg:text-[clamp(2.8rem,4.1vw,4.15rem)]">
+        <span className="block">Your entire brand</span>
+        <span className="mt-[0.1em] block">Growth team</span>
+      </h2>
+      <p className="mx-auto mt-4 max-w-[29ch] font-body text-[12.5px] font-medium leading-[1.5] text-white/82 sm:mt-5 sm:text-[16px] lg:text-[17px]">More visibility. More clients. Less you have to manage.</p>
+    </div>
+  );
+}
+
+function LogoHandoffWords() {
+  return (
+    <div className="flex flex-col items-center gap-[clamp(8rem,22svh,13rem)] px-5 text-center">
+      <p className="font-clash text-[clamp(1.3rem,1rem+1.2vw,2rem)] font-bold uppercase leading-none tracking-[-0.045em] text-[#171717]">
+        Lead
+      </p>
+      <p className="font-clash text-[clamp(1.3rem,1rem+1.2vw,2rem)] font-bold uppercase leading-none tracking-[-0.045em] text-[#171717]">
+        Forward
+      </p>
+    </div>
+  );
+}
 
 function StatusHeading({ item, compact = false }: { item: ImagineItem; compact?: boolean }) {
   return (
@@ -57,7 +94,7 @@ function SolutionSurface({
   const isActive = phase === "active";
   const isSummary = phase === "summary";
   const isCovered = phase === "closed" || phase === "revealing";
-  const hasFullDetails = !isSummary;
+  const hasFullDetails = isActive;
 
   return (
     <div
@@ -67,7 +104,7 @@ function SolutionSurface({
       aria-hidden={isCovered}
       className={`relative h-full w-full overflow-hidden bg-[#faf9f6] text-[#171717] ${isCovered ? "absolute inset-0" : ""}`}
     >
-      {isActive ? <SovereignFoilContour active /> : null}
+      {isActive ? <SovereignFoilContour /> : null}
 
       {isSummary ? (
         <button
@@ -79,7 +116,7 @@ function SolutionSurface({
           <StatusHeading item={item} compact />
         </button>
       ) : (
-        <div className="relative z-10 min-h-[15.5rem] px-5 py-6 sm:px-8 sm:py-7 md:min-h-[16.5rem] md:px-10 md:py-8 lg:px-12">
+        <div className="relative z-10 min-h-[12rem] px-5 py-5 sm:px-7 sm:py-5.5 md:min-h-[12.5rem] md:px-8 md:py-6 lg:px-10">
           <div className="mx-auto max-w-[700px]">
             <StatusHeading item={item} />
 
@@ -91,11 +128,11 @@ function SolutionSurface({
                   exit={{ opacity: 0, y: reduceMotion ? 0 : -4 }}
                   transition={isActive ? (reduceMotion ? { duration: 0.01 } : { duration: 0.36, delay: 0.1, ease: RETURN_EASE }) : { duration: 0 }}
                 >
-                  <p className="mt-3 max-w-[680px] font-sans text-[0.875rem] leading-[1.55] text-[#585858] sm:text-[0.9375rem]">
+                  <p className="mt-2.5 max-w-[680px] font-sans text-[0.8125rem] leading-[1.5] text-[#585858] sm:text-[0.875rem]">
                     {item.solution.body}
                   </p>
 
-                  <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5 min-[430px]:grid-cols-3 md:mt-7 md:gap-x-6">
+                  <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-3.5 min-[430px]:grid-cols-3 md:mt-5 md:gap-x-5">
                     {item.solution.stats.map((stat, index) => (
                       <div
                         key={stat.label}
@@ -104,7 +141,7 @@ function SolutionSurface({
                         <span className="font-clash text-[clamp(1.5rem,1.2rem+1vw,2.25rem)] font-bold leading-none tracking-[-0.045em] text-[#e5192a]">
                           {stat.value}
                         </span>
-                        <span className="mt-1.5 max-w-[11rem] text-[0.6875rem] font-semibold uppercase leading-[1.25] tracking-[0.08em] text-[#747474] md:text-xs">
+                        <span className="mt-1 max-w-[11rem] text-[0.625rem] font-semibold uppercase leading-[1.25] tracking-[0.08em] text-[#747474] md:text-[0.6875rem]">
                           {stat.label}
                         </span>
                       </div>
@@ -183,7 +220,7 @@ function PawRevealCard({
       transition={reduceMotion ? { duration: 0.01 } : { duration: 0.46, ease: RETURN_EASE }}
       className={`relative overflow-hidden rounded-[1.375rem] border shadow-[0_18px_32px_-24px_rgba(0,0,0,0.8)] md:rounded-[1.5rem] ${isSummary ? "border-[#e3b72b]/80 bg-[#faf9f6] shadow-[0_0_0_1px_rgba(240,201,23,0.25),0_16px_32px_-24px_rgba(181,135,0,0.8)]" : "border-white/[0.08] bg-black"}`}
     >
-      <div className={`relative overflow-hidden ${isSummary ? "" : "min-h-[15.5rem] bg-black md:min-h-[16.5rem]"}`}>
+      <div className={`relative overflow-hidden ${isSummary ? "" : isCovered ? "h-[7rem] bg-black md:h-[7.5rem]" : "min-h-[12rem] bg-black md:min-h-[12.5rem]"}`}>
         <SolutionSurface item={item} panelId={panelId} phase={phase} onActivate={onActivateSummary} isInteractionLocked={isInteractionLocked} />
 
         {isCovered ? <motion.button
@@ -194,18 +231,18 @@ function PawRevealCard({
           onClick={() => void reveal()}
           initial={{ y: "0%" }}
           animate={cardControls}
-          className="group absolute inset-0 z-20 flex w-full items-center justify-center overflow-hidden bg-black px-5 py-5 text-center will-change-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[#f0c917] sm:px-8 md:px-12"
+          className="group absolute inset-0 z-20 flex w-full items-center justify-center overflow-hidden bg-black px-5 py-4 text-center will-change-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[#f0c917] sm:px-7 md:px-10"
         >
           <span className="pointer-events-none absolute inset-0 border border-white/[0.04]" aria-hidden="true" />
           <span className="pointer-events-none absolute left-5 top-5 hidden h-1.5 w-1.5 rounded-full bg-[#f0c917] shadow-[0_0_12px_rgba(240,201,23,0.52)] md:block" aria-hidden="true" />
-          <span className="relative z-10 max-w-[760px] font-clash text-[clamp(1.4375rem,1.2rem+1.5vw,2.625rem)] font-bold uppercase leading-[1.04] tracking-[-0.012em] [word-spacing:0.08em] text-white">
+          <span className="relative z-10 max-w-[720px] font-clash text-[clamp(1.2rem,1.02rem+1.2vw,2.125rem)] font-bold uppercase leading-[1.04] tracking-[-0.012em] [word-spacing:0.07em] text-white">
             {item.problem.heading}
           </span>
         </motion.button> : null}
 
         {isCovered ? <motion.div
           aria-hidden="true"
-          className="pointer-events-none absolute bottom-0 left-0 z-30 h-[10rem] w-[10rem] will-change-transform sm:h-[11rem] sm:w-[11rem] md:h-[12.5rem] md:w-[12.5rem] lg:h-[14rem] lg:w-[14rem]"
+          className="pointer-events-none absolute bottom-0 left-0 z-30 h-[6rem] w-[6rem] will-change-transform sm:h-[6.5rem] sm:w-[6.5rem] md:h-[7.25rem] md:w-[7.25rem]"
           initial={{ x: "-50%", y: "0%", rotate: -6, scale: 0.9 }}
           animate={pawControls}
         >
@@ -231,9 +268,64 @@ export default function PawRevealStack() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [revealingIndex, setRevealingIndex] = useState<number | null>(null);
   const [revealedIndexes, setRevealedIndexes] = useState<number[]>([]);
+  const [showWorkStream, setShowWorkStream] = useState(false);
+  const [circleEntryOffset, setCircleEntryOffset] = useState(0);
   const interactionLock = useRef(false);
+  const chapterRef = useRef<HTMLElement>(null);
+  const reduceMotion = useReducedMotion() ?? false;
   const { t } = useLanguage();
   const items: ImagineItem[] = t.problems.items;
+  const { scrollYProgress } = useScroll({
+    target: chapterRef,
+    offset: ["start start", "end end"],
+  });
+  const circleScale = useTransform(
+    scrollYProgress,
+    reduceMotion ? [0, 1] : [0, 0.52, 0.76, 0.84, 1],
+    reduceMotion ? [1, 1] : [1, 1, 0.2, 0.075, 0.075],
+  );
+  const cardOpacity = useTransform(
+    scrollYProgress,
+    reduceMotion ? [0, 1] : [0, 0.46, 0.57, 1],
+    reduceMotion ? [1, 1] : [1, 1, 0, 0],
+  );
+  const cardY = useTransform(scrollYProgress, reduceMotion ? [0, 1] : [0, 0.57], [0, reduceMotion ? 0 : -18]);
+  const statementOpacity = useTransform(
+    scrollYProgress,
+    reduceMotion ? [0, 1] : [0, 0.54, 0.62, 0.72, 1],
+    reduceMotion ? [0, 0] : [0, 0, 1, 0, 0],
+  );
+  const statementY = useTransform(scrollYProgress, reduceMotion ? [0, 1] : [0.54, 0.72], [reduceMotion ? 0 : 18, reduceMotion ? 0 : -14]);
+  const logoOpacity = useTransform(scrollYProgress, reduceMotion ? [0, 1] : [0, 0.74, 0.84, 1], reduceMotion ? [0, 0] : [0, 0, 1, 1]);
+  const logoMarkScale = useTransform(scrollYProgress, reduceMotion ? [0, 1] : [0, 0.76, 0.84, 1], reduceMotion ? [0.8, 0.8] : [0.8, 0.8, 0.68, 0.68]);
+  const streamOpacity = useTransform(scrollYProgress, reduceMotion ? [0, 1] : [0, 0.82, 0.89, 1], reduceMotion ? [0, 0] : [0, 0, 1, 1]);
+  const streamScale = useTransform(scrollYProgress, reduceMotion ? [0, 1] : [0.82, 1], [0.975, 1.012]);
+  const handoffCaptionOpacity = useTransform(scrollYProgress, reduceMotion ? [0, 1] : [0, 0.84, 0.9, 1], reduceMotion ? [0, 0] : [0, 0, 1, 1]);
+  const handoffCaptionY = useTransform(scrollYProgress, reduceMotion ? [0, 1] : [0.84, 0.9], [reduceMotion ? 0 : 12, 0]);
+  const circleY = useTransform(
+    scrollYProgress,
+    reduceMotion ? [0, 1] : [0, 0.46, 0.58, 1],
+    reduceMotion ? [0, 0] : [circleEntryOffset, circleEntryOffset, 0, 0],
+  );
+
+  useEffect(() => {
+    const updateCircleEntryOffset = () => {
+      const diameter = Math.min(
+        Math.min(window.innerWidth, window.innerHeight) * 1.56,
+        Math.max(window.innerWidth, window.innerHeight) * 1.2,
+      );
+      setCircleEntryOffset(Math.max(0, diameter / 2 - window.innerHeight / 2 + 32));
+    };
+
+    updateCircleEntryOffset();
+    window.addEventListener("resize", updateCircleEntryOffset);
+    return () => window.removeEventListener("resize", updateCircleEntryOffset);
+  }, []);
+
+  useMotionValueEvent(scrollYProgress, "change", (progress) => {
+    const next = progress > 0.78;
+    setShowWorkStream((current) => (current === next ? current : next));
+  });
 
   const startReveal = (index: number) => {
     if (interactionLock.current) return false;
@@ -257,55 +349,66 @@ export default function PawRevealStack() {
   };
 
   return (
-    <section className="bg-bg-surface-light pb-0 pt-12 sm:pt-16 md:pt-20 lg:pt-24 xl:pt-28">
-      <div className="mx-auto w-full max-w-[1120px] px-3.5 sm:px-6">
-        <div className="rounded-[1.75rem] bg-[#e5192a] px-3.5 py-10 shadow-[0_24px_48px_-26px_rgba(229,25,42,0.52)] sm:px-6 sm:py-12 md:rounded-[2rem] md:px-8 md:py-14 lg:px-10 lg:py-16">
-          <motion.div
-            className="mb-8 flex flex-col items-center text-center md:mb-10"
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "0px 0px -20% 0px" }}
-            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <p className="mb-2 font-clash text-xs font-semibold uppercase tracking-[0.17em] text-white sm:text-[0.8125rem]">
-              {t.problems.eyebrow}
-            </p>
-            <SplitTextReveal
-              as="h2"
-              className="font-clash text-[clamp(2.75rem,2rem+3vw,4.5rem)] font-bold uppercase leading-[0.95] tracking-[-0.045em] text-white"
-              step={18}
-              delay={120}
-              from="center"
-            >
-              {t.problems.heading}
-            </SplitTextReveal>
+    <section
+      ref={chapterRef}
+      aria-label="Imagine and one partnership"
+      className="relative z-30 isolate h-[340svh] overflow-visible bg-bg-surface-light sm:h-[320svh] lg:h-[320vh]"
+    >
+      <div className="sticky top-0 h-svh overflow-visible">
+        {showWorkStream ? <motion.div
+          style={{ opacity: streamOpacity, scale: streamScale }}
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 z-10 w-screen -translate-x-1/2 -translate-y-1/2 transform-gpu"
+        >
+          <ImageStreamHero
+            images={SHOWCASE_IMAGES.map((src, index) => ({ src, alt: t.services.items[index]?.title ?? "Lionovart selected work" }))}
+            cards={7}
+            speed={30}
+            axis={50}
+            path={{ cardWidth: 17.5, cardHeight: 23.5, birthHeight: 3.4, exitHeight: 40, railBirth: -5.5, railExit: 32, fan: 2.7, turnBirth: 5, turnExit: 23, stops: 18 }}
+            className="h-[19rem] w-full overflow-visible sm:h-[27rem] lg:h-[32rem]"
+          />
+        </motion.div> : null}
+
+        <motion.div
+          style={{ scale: circleScale, y: circleY, width: "min(156vmin, 120vmax)" }}
+          className="pointer-events-none absolute left-1/2 top-1/2 z-20 aspect-square -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full bg-[#f51b2c] will-change-transform"
+        >
+          <div aria-hidden="true" className="absolute inset-0 rounded-full shadow-[0_46px_120px_-52px_rgba(245,27,44,0.58),inset_0_1px_0_rgba(255,255,255,0.16),inset_0_-34px_90px_rgba(105,0,14,0.1)]" />
+          <motion.div style={{ opacity: statementOpacity, y: statementY }} className="absolute inset-0 flex items-center justify-center px-[20vw] text-center text-white sm:px-[14vmin] lg:px-[13vmin]">
+            <PartnershipStatement />
           </motion.div>
+          <motion.img src="/images/lionovart-icon.svg" alt="" aria-hidden="true" style={{ opacity: logoOpacity, scale: logoMarkScale }} className="absolute inset-0 h-full w-full object-contain p-[12%]" decoding="async" />
+        </motion.div>
 
-          <div className="mx-auto flex w-full max-w-[1040px] flex-col gap-3 sm:gap-4 md:gap-[1.125rem]">
-            {items.map((item, index) => {
-              const phase: CardPhase = revealingIndex === index
-                ? "revealing"
-                : activeIndex === index
-                  ? "active"
-                  : revealedIndexes.includes(index)
-                    ? "summary"
-                    : "closed";
+        <motion.div
+          aria-hidden="true"
+          style={{ opacity: handoffCaptionOpacity, y: handoffCaptionY }}
+          className="pointer-events-none absolute inset-0 z-[25] flex items-center justify-center"
+        >
+          <LogoHandoffWords />
+        </motion.div>
 
-              return (
-                <PawRevealCard
-                  key={item.problem.heading}
-                  item={item}
-                  index={index}
-                  phase={phase}
-                  onRevealStart={() => startReveal(index)}
-                  onRevealComplete={() => completeReveal(index)}
-                  onActivateSummary={() => activateSummary(index)}
-                  isInteractionLocked={revealingIndex !== null}
-                />
-              );
-            })}
+        <motion.div
+          style={{ opacity: cardOpacity, y: cardY, pointerEvents: revealingIndex === null ? "auto" : "none" }}
+          className="absolute inset-0 z-30 flex items-center justify-center px-3.5 py-5 sm:px-6 md:py-7"
+        >
+          <div className="w-full max-w-[660px]">
+            <motion.div className="mb-4 flex flex-col items-center text-center sm:mb-5" initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}>
+              <p className="mb-1.5 font-clash text-[0.625rem] font-semibold uppercase tracking-[0.17em] text-white sm:text-xs">{t.problems.eyebrow}</p>
+              <SplitTextReveal as="h2" className="font-clash text-[clamp(2.15rem,1.65rem+2.15vw,3.5rem)] font-bold uppercase leading-[0.95] tracking-[-0.045em] text-white" step={18} delay={120} from="center">
+                {t.problems.heading}
+              </SplitTextReveal>
+            </motion.div>
+
+            <div className="mx-auto flex w-full flex-col gap-2.5 sm:gap-3">
+              {items.map((item, index) => {
+                const phase: CardPhase = revealingIndex === index ? "revealing" : activeIndex === index ? "active" : revealedIndexes.includes(index) ? "summary" : "closed";
+                return <PawRevealCard key={item.problem.heading} item={item} index={index} phase={phase} onRevealStart={() => startReveal(index)} onRevealComplete={() => completeReveal(index)} onActivateSummary={() => activateSummary(index)} isInteractionLocked={revealingIndex !== null} />;
+              })}
+            </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

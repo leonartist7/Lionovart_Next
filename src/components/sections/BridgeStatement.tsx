@@ -27,12 +27,10 @@ export default function BridgeStatement({
 
   const reveal = {
     hidden: {
-      opacity: 0,
-      y: prefersReducedMotion ? 0 : "105%",
+      opacity: 1,
     },
     visible: {
       opacity: 1,
-      y: 0,
       transition: {
         duration: prefersReducedMotion ? 0.2 : 0.9,
         ease: [0.16, 1, 0.3, 1] as const,
@@ -83,6 +81,7 @@ export default function BridgeStatement({
         <div className="overflow-hidden pb-[0.08em]">
           <motion.p
             {...itemAnim}
+            data-site-title-reveal
             className={`font-clash text-[clamp(1.9rem,4.8vw,5rem)] font-semibold uppercase leading-[0.9] tracking-[-0.045em] text-balance ${
               isVow ? "text-[#171412]" : "text-white"
             }`}
@@ -95,6 +94,7 @@ export default function BridgeStatement({
         <div className="overflow-hidden pb-[0.08em] text-right">
           <motion.p
             {...itemAnim}
+            data-site-title-reveal
             className="font-clash text-[clamp(1.9rem,4.8vw,5rem)] font-semibold uppercase leading-[0.9] tracking-[-0.045em]"
             style={{ wordSpacing: "0.18em" }}
           >

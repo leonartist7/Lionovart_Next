@@ -11,12 +11,14 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
-import { useLionJourney } from "../lion-journey/LionJourney";
 import { SPLIT_START, SPLIT_END } from "../lion-journey/motion";
-import PillarCardView from "@/components/three/pillars/PillarCardView";
-import type { PillarId } from "@/components/three/pillars/config/pillars";
-
-const PILLAR_IDS: readonly PillarId[] = ["LION", "NOVA", "ART"];
+import { useLionJourney } from "../lion-journey/LionJourney";
+const FACE_TINTS = [
+  "rgba(176, 112, 28, 0.16), rgba(7, 7, 10, 0.88)",
+  "rgba(92, 54, 196, 0.16), rgba(7, 7, 10, 0.88)",
+  "rgba(170, 24, 42, 0.16), rgba(7, 7, 10, 0.88)",
+] as const;
+const EDGE_TINTS = ["#e8a020", "#7b3ff2", "#e5192a"] as const;
 
 // Locked tag style (flip to red here if preferred).
 interface Card {
@@ -102,28 +104,32 @@ function Pane({
   const stagger = Math.abs(dir) * 0.08;
 
   const splitP = useLocalProgress(flip, 0 + stagger, 0.36 + stagger);
-  const flipP = useLocalProgress(flip, 0.14 + stagger, 0.52 + stagger);
+  const cardP = useLocalProgress(flip, 0.26 + stagger, 0.56 + stagger);
   const ringP = useLocalProgress(flip, 0.02 + stagger, 0.2 + stagger);
-  const backP = useLocalProgress(flip, 0.42 + stagger, 0.62 + stagger);
-  const codeP = useLocalProgress(flip, 0.46 + stagger, 0.68 + stagger);
   const contentP = useLocalProgress(flip, 0.56 + i * 0.05, 0.8 + i * 0.05);
 
   // The split-apart translate/tilt — driven straight off scroll, so it
   // scrubs forward and backward with the gesture instead of playing once.
   const paneX = useTransform(splitP, (p) => (isDesktop ? `${dir * 2.4 * p}vw` : "0vw"));
   const paneY = useTransform(splitP, (p) => (isDesktop ? "0vh" : `${dir * 2.4 * p}vh`));
-  const paneRotateY = useTransform(splitP, (p) => (isDesktop ? dir * -11 * p : 0));
-  const paneRotateX = useTransform(splitP, (p) => (isDesktop ? 0 : dir * 11 * p));
+  // One sculptural rhythm across the set: the two outer cards share a quiet
+  // lean while the middle counters it. The effect gives depth without making
+  // any card look like a separate panel sitting on top of another.
+  const cardLean = i === 1 ? 8 : -8;
+  const paneRotateY = useTransform(splitP, (p) => (isDesktop ? cardLean * p : 0));
+  const paneRotateX = useTransform(splitP, (p) => (isDesktop ? 0 : cardLean * p));
   const paneBorderRadius = useTransform(splitP, (p) => 18 * p);
 
-  // The flip itself — a separate nested rotateY, independent of the split's
-  // own rotateY tilt and the cursor rig's group tilt. Three different nodes,
-  // three different timelines; the browser composes them, we don't have to.
-  const innerFlipRotateY = useTransform(flipP, (p) => 180 * p);
-
-  const backImageOpacity = useTransform(backP, [0, 1], [0, 0.28]);
-  const codeMarkY = useTransform(codeP, [0, 1], [10, 0]);
+  // The glass surface rises directly out of the matching video slice. There
+  // is deliberately no second face rotating through the middle: during the
+  // handoff both layers occupy the same card plane, so the split reads as one
+  // object becoming dimensional rather than two cards crossing over.
+  const videoOpacity = useTransform(cardP, [0, 0.58, 1], [1, 0.62, 0]);
+  const cardZ = useTransform(cardP, [0, 1], [0, 16]);
+  const cardScale = useTransform(cardP, [0, 1], [0.992, 1]);
+  const backImageOpacity = useTransform(cardP, [0, 1], [0, 0.28]);
   const contentY = useTransform(contentP, [0, 1], [18, 0]);
+  const markOpacity = useTransform(contentP, [0, 1], [0, 0.24]);
 
   return (
     <motion.div
@@ -140,44 +146,62 @@ function Pane({
       // Lift on hover; `z` composes with the group tilt instead of fighting it.
       whileHover={armed ? { z: 46, transition: { duration: 0.4, ease: "easeOut" } } : undefined}
     >
-      {/* The flip -- its own nested rotateY, separate from the pane's resting
-          tilt above and the cursor rig further up the tree. */}
+      {/* The unbroken front surface is the video crop until the glass card
+          has risen into the same position. */}
       <motion.div
-        className="absolute inset-0"
-        style={{ rotateY: innerFlipRotateY, transformStyle: "preserve-3d", borderRadius: "inherit" }}
+        className="absolute inset-0 overflow-hidden rounded-[inherit]"
+        style={{ opacity: videoOpacity }}
       >
-        {/* Front face -- this pane's own crop of the one shared video. */}
-        <div
-          className="absolute inset-0 overflow-hidden rounded-[inherit]"
-          style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
-        >
-          <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />
-          <motion.div
-            className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/20"
-            style={{ opacity: ringP }}
-          />
-        </div>
+        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />
+        <motion.div
+          className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/10"
+          style={{ opacity: ringP }}
+        />
+      </motion.div>
 
-        {/* Back face -- revealed once the pane has turned to face forward.
-            Deliberately translucent: the blurred footage washing behind the
-            stage is what the glass refracts, so the fill stays light. */}
+      {/* One continuous glass body, lifted forward only after the video has
+          faded from the exact same plane. */}
+      <motion.div
+        className="absolute inset-0 z-[1] rounded-[inherit]"
+        style={{
+          opacity: cardP,
+          z: cardZ,
+          scale: cardScale,
+          transformStyle: "preserve-3d",
+        }}
+      >
+        {/* Glass face -- this pane becomes the final card without a second
+            rotating back-face entering the composition. */}
         <div
-          className="absolute inset-0 overflow-hidden rounded-[inherit] bg-bg-dark/45"
+          className="absolute inset-0 z-[1] overflow-hidden rounded-[inherit]"
           style={{
-            backfaceVisibility: "hidden",
-            WebkitBackfaceVisibility: "hidden",
-            transform: "rotateY(180deg)",
-            // No backdrop filter here. Three independently transformed blur
-            // layers are expensive during scroll and can contend with the
-            // fixed navbar compositor layer.
-            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.28), inset 1px 0 0 rgba(255,255,255,0.07)",
+            background: `linear-gradient(135deg, ${FACE_TINTS[i]}, rgba(4,4,6,0.94) 72%)`,
+            boxShadow: `inset 0 1px 0 rgba(255,255,255,0.22), inset 0 0 34px ${EDGE_TINTS[i]}22, 0 24px 48px -28px rgba(0,0,0,0.95)`,
           }}
         >
-          {/* Live 3D pillar card — the real glass object for this pane,
-              lit by the scroll-scrubbed flip (backP) so scrolling back
-              darkens it continuously. DOM layers below remain as the
-              no-WebGL fallback; typography stays DOM above it. */}
-          <PillarCardView pillar={PILLAR_IDS[i % PILLAR_IDS.length]} reveal={backP} />
+          {/* One continuous bevel: always present, then intensified by the
+              pointer's proximity to this pane. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] p-[1.25px] transition-opacity duration-300"
+            style={{
+              opacity: "calc(0.56 + (var(--spot-active, 0) * 0.44))",
+              background: `linear-gradient(135deg, ${EDGE_TINTS[i]}, rgba(255,245,214,0.78) 18%, ${EDGE_TINTS[i]} 52%, rgba(255,255,255,0.4) 76%, ${EDGE_TINTS[i]})`,
+              WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+              WebkitMaskComposite: "xor",
+              mask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+              maskComposite: "exclude",
+            }}
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 rounded-[inherit] transition-opacity duration-300"
+            style={{
+              opacity: "calc(0.12 + (var(--spot-active, 0) * 0.34))",
+              background: `radial-gradient(180px circle at var(--spot-x, 50%) var(--spot-y, 20%), ${EDGE_TINTS[i]}66, transparent 72%)`,
+              mixBlendMode: "screen",
+            }}
+          />
           {card.image ? (
             <motion.img
               src={card.image}
@@ -192,24 +216,13 @@ function Pane({
             style={{
               background:
                 "radial-gradient(120% 85% at 6% 0%, rgba(255,255,255,0.23) 0%, transparent 48%), linear-gradient(150deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.045) 52%, rgba(255,255,255,0.025) 100%)",
-              opacity: backP,
+              opacity: cardP,
             }}
           />
           <motion.div
-            className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/20"
-            style={{ opacity: backP }}
+            className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/10"
+            style={{ opacity: cardP }}
           />
-          {/* The pillar word, oversize and bled off the top-left corner. */}
-          {/* Left edge shares the text block's margin, so the card reads as
-              one composition: pillar word top, promise bottom, same spine. */}
-          <motion.span
-            aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-3 select-none font-clash text-[2.9rem] font-bold uppercase leading-[0.78] tracking-[-0.05em] text-white/[0.08] md:left-6 md:top-5 md:text-[clamp(3.25rem,5.6vw,4.75rem)]"
-            style={{ opacity: codeP, y: codeMarkY }}
-          >
-            {card.code}
-          </motion.span>
-
           {/* Spotlight, armed only once the flip has fully landed. The edge
               light carries the effect; the surface wash underneath is now
               just enough to seat it, not compete with it. Colour comes from
@@ -238,7 +251,7 @@ function Pane({
                   selection rather than decoration. */}
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 rounded-[inherit] p-[3.5px] blur-[5px] transition-opacity duration-500 ease-out"
+                className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] p-[1.25px] blur-[2px] transition-opacity duration-500 ease-out"
                 style={{
                   opacity: "calc(var(--spot-active, 0) * 0.95)",
                   background: `radial-gradient(circle 300px at var(--spot-x, 50%) var(--spot-y, 35%), rgba(${SPOT_STOPS[i][0]},1) 0%, rgba(${SPOT_STOPS[i][2]},0.3) 52%, transparent 72%)`,
@@ -251,7 +264,7 @@ function Pane({
               />
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 rounded-[inherit] p-[1.75px] transition-opacity duration-500 ease-out"
+                className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] p-[1px] transition-opacity duration-500 ease-out"
                 style={{
                   opacity: "var(--spot-active, 0)",
                   background: `radial-gradient(circle 300px at var(--spot-x, 50%) var(--spot-y, 35%), rgba(255,245,214,1) 0%, rgba(${SPOT_STOPS[i][0]},1) 16%, rgba(${SPOT_STOPS[i][1]},0.6) 45%, rgba(${SPOT_STOPS[i][2]},0.14) 65%, transparent 80%)`,
@@ -265,16 +278,32 @@ function Pane({
             </>
           ) : null}
 
+          {/* Quiet pillar signature. It belongs to the surface, not the
+              content block: outlined and deliberately faint so it adds a
+              recognisable brand texture without becoming a second heading. */}
+          <motion.span
+            aria-hidden="true"
+            className="pointer-events-none absolute left-4 top-4 z-[2] select-none font-clash text-[clamp(2rem,5vw,4.9rem)] font-bold uppercase leading-[0.78] tracking-[-0.07em] md:left-6 md:top-6"
+            style={{
+              opacity: markOpacity,
+              color: "transparent",
+              WebkitTextStroke: "1px rgba(255,255,255,0.42)",
+              textShadow: `0 0 18px ${EDGE_TINTS[i]}30`,
+            }}
+          >
+            {card.code}
+          </motion.span>
+
           <motion.div
-            className="absolute inset-x-0 bottom-0 p-4 text-left [text-shadow:0_1px_10px_rgba(0,0,0,0.75)] md:p-6"
+            className="absolute inset-x-0 bottom-0 z-10 flex min-h-[8.8rem] flex-col justify-end p-4 pt-16 text-left [background:linear-gradient(0deg,rgba(4,4,6,0.96)_0%,rgba(4,4,6,0.84)_64%,transparent_100%)] [text-shadow:0_1px_10px_rgba(0,0,0,0.75)] md:min-h-[10.5rem] md:p-6 md:pt-20"
             style={{ opacity: contentP, y: contentY }}
           >
-            <h3 className="font-clash text-[1.1rem] font-bold uppercase leading-[0.95] text-white md:text-[1.9rem]" style={{ wordSpacing: "0.2em" }}>
+            <h3 className="max-w-[24ch] font-clash text-[clamp(1.05rem,2.2vw,1.55rem)] font-bold uppercase leading-[0.96] text-white [text-wrap:balance]">
               {card.title}
             </h3>
             {/* Reserved height keeps the three headings on one baseline even
                 when a locale wraps the body to a different line count. */}
-            <p className="mt-1.5 max-w-[25ch] font-body text-[11px] leading-[1.35] text-white/70 md:mt-2 md:min-h-[63px] md:max-w-[34ch] md:text-[14px] md:leading-[1.5]">
+            <p className="mt-1.5 max-w-[34ch] font-body text-[clamp(0.72rem,1.3vw,0.9rem)] leading-[1.45] text-white/70 md:mt-2 md:min-h-[3.9rem]">
               {card.body}
             </p>
           </motion.div>
@@ -335,11 +364,10 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
      is a direct useTransform of scrollYProgress, not a triggered timeline. --- */
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
   const scrollFlip = useTransform(scrollYProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
-  const completedJourney = useMotionValue(1);
-  const handoff = journey?.progress ?? completedJourney;
-  const gatedFlip = useTransform([scrollFlip, handoff], ([split, progress]: number[]) => progress >= 1 ? split : 0);
   const staticFlip = useMotionValue(1);
-  const flip = reduce ? staticFlip : gatedFlip;
+  // The video-to-card handoff belongs to this section.  Keeping it local means
+  // the cards always reveal as the visitor scrolls through WHAT WE BUILD.
+  const flip = reduce ? staticFlip : scrollFlip;
 
   // Cursor rig arms only once the sequence has fully landed, and disarms
   // again the moment scrolling back pulls it out of the settled state.
@@ -416,7 +444,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
         canvas.height = Math.max(1, Math.round(paneRect.height * dpr));
       }
     }
-  }, [isDesktop]);
+  }, [isDesktop, stageRef]);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -459,7 +487,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
       io.disconnect();
       stopLoop();
     };
-  }, [startLoop, stopLoop]);
+  }, [startLoop, stopLoop, sectionRef]);
 
   /* Cursor rig â€” normalised -1..1, spring-smoothed. Releasing sets the raw
      values to 0 and the spring carries them home; no exit animation needed,
@@ -482,38 +510,60 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
     // against the true 3D geometry is exactly what leaves the outer edge of
     // the outer two cards dead to hover. The visual rectangle is the target.
     paneRectsRef.current = paneNodesRef.current.map((el) => el?.getBoundingClientRect() ?? null);
-  }, []);
+  }, [stageRef]);
 
   useEffect(() => {
     if (!armed) return;
+    // The cards have moved since the joined-video state. Capture their settled
+    // screen positions before the shared hover field begins using them.
+    const frame = requestAnimationFrame(measure);
     window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", measure);
+    };
   }, [armed, measure]);
 
   const handleMove = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
+    (e: React.PointerEvent<HTMLElement>) => {
       if (!armed) return;
       const r = rectRef.current;
       if (!r) return;
-      px.set(((e.clientX - r.left) / r.width) * 2 - 1);
-      py.set(((e.clientY - r.top) / r.height) * 2 - 1);
+      // The rig remains stable even when the pointer is in the breathing room
+      // around the cards, rather than only when it is over the stage itself.
+      px.set(Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1)));
+      py.set(Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height) * 2 - 1)));
 
-      // Per-pane spotlight: a flat box test against each pane's cached rect,
-      // independent of the pane's own 3D tilt. Touch has no hover concept,
-      // and tracking it would fight Lenis for the scroll gesture.
+      // Once the video has split, the cursor becomes a light source for the
+      // whole card assembly. Every pane follows the same pointer, including
+      // the gaps between cards, so the effect reads as one object instead of
+      // three unrelated hover targets.
       if (e.pointerType !== "touch") {
         paneRectsRef.current.forEach((pr, i) => {
           const el = paneNodesRef.current[i];
           if (!el || !pr) return;
-          const inside =
-            e.clientX >= pr.left && e.clientX <= pr.right && e.clientY >= pr.top && e.clientY <= pr.bottom;
-          el.style.setProperty("--spot-active", inside ? "1" : "0");
-          if (inside) {
-            // No mirroring: the back face's own rotateY(180deg) cancels
-            // against the parent's flip, so its local axes match the screen.
-            el.style.setProperty("--spot-x", `${e.clientX - pr.left}px`);
-            el.style.setProperty("--spot-y", `${e.clientY - pr.top}px`);
-          }
+          // The stage still moves as one object, but light belongs only to
+          // the card directly beneath the pointer.
+          const spotX = Math.max(0, Math.min(pr.width, e.clientX - pr.left));
+          const spotY = Math.max(0, Math.min(pr.height, e.clientY - pr.top));
+          const intensity =
+            e.clientX >= pr.left &&
+            e.clientX <= pr.right &&
+            e.clientY >= pr.top &&
+            e.clientY <= pr.bottom
+              ? 1
+              : 0;
+
+          el.style.setProperty("--spot-active", intensity.toFixed(3));
+          // Clamp the inner spotlight to the card's own contour.
+          el.style.setProperty(
+            "--spot-x",
+            `${spotX}px`,
+          );
+          el.style.setProperty(
+            "--spot-y",
+            `${spotY}px`,
+          );
         });
       }
     },
@@ -527,8 +577,21 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
   }, [px, py]);
 
   return (
-    <section ref={(node) => { sectionRef.current = node; journey?.setVideoSection(node); }} className={journey ? "relative lion-video-section" : "relative bg-bg-dark"} style={{ height: `${SECTION_HEIGHT_VH}vh` }}>
-      <div className="sticky top-0 z-40 flex min-h-screen flex-col items-center justify-center gap-[clamp(2.5rem,6vh,5rem)] overflow-hidden px-3 py-24 md:px-4">
+    <section
+      ref={(node) => { sectionRef.current = node; journey?.setVideoSection(node); }}
+      data-cursor-behind
+      className={journey ? "relative lion-video-section" : "relative isolate"}
+      style={{
+        height: `${SECTION_HEIGHT_VH}vh`,
+        backgroundColor: journey ? "transparent" : "rgba(4, 4, 6, 0.78)",
+      }}
+    >
+      <div
+        className="sticky top-0 z-40 flex min-h-screen flex-col items-center justify-center gap-[clamp(2.5rem,6vh,5rem)] overflow-hidden px-3 py-24 md:px-4"
+        onPointerEnter={measure}
+        onPointerMove={handleMove}
+        onPointerLeave={handleLeave}
+      >
         {/* Ambient wash â€” the same footage, blurred past legibility, pooling
             behind the stage. It's what makes the translucent panes read as
             glass, and it's masked to a soft pool so it never squares off
@@ -554,11 +617,8 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
 
         <div
           ref={(node) => { stageRef.current = node; journey?.setVideo(node); }}
-          className="relative z-40 w-[min(80vw,450px)] lg:w-[min(85vw,1060px)] xl:w-[min(85vw,1220px)] 2xl:w-[min(78vw,1400px)]"
+          className="relative z-40 w-[min(78vw,430px)] lg:w-[min(78vw,980px)] xl:w-[min(76vw,1120px)] 2xl:w-[min(72vw,1280px)]"
           style={{ perspective: "1400px" }}
-          onPointerEnter={measure}
-          onPointerMove={handleMove}
-          onPointerLeave={handleLeave}
         >
           {/* Hidden source: the section's only decoder. Kept at real layout
               size via opacity (not display/visibility) so nothing throttles
@@ -578,7 +638,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
           {/* Glass plane â€” tilts as one sheet so the three panes stay a single
               object. Individual feedback lives on the panes' hover lift. */}
           <motion.div
-            className="relative flex h-[clamp(350px,66vh,660px)] w-full flex-col lg:h-[clamp(300px,54vh,560px)] lg:flex-row xl:h-[clamp(320px,56vh,620px)] 2xl:h-[clamp(340px,58vh,680px)]"
+            className="relative flex h-[clamp(330px,58vh,580px)] w-full flex-col lg:h-[clamp(270px,44vh,470px)] lg:flex-row xl:h-[clamp(290px,46vh,510px)] 2xl:h-[clamp(310px,48vh,550px)]"
             style={{
               rotateX,
               rotateY,
@@ -608,14 +668,14 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
                 when the cursor tilts the three-card assembly. */}
             <motion.div
               aria-hidden
-              className="pointer-events-none absolute inset-0 rounded-[18px]"
+              className="pointer-events-none absolute inset-0 rounded-[14px]"
               style={{
                 opacity: sheen,
                 transform: "translateZ(2px)",
                 background:
-                  "radial-gradient(75% 65% at 50% -18%, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0.075) 38%, transparent 72%)",
-                maskImage: "linear-gradient(180deg, #000 0%, transparent 58%)",
-                WebkitMaskImage: "linear-gradient(180deg, #000 0%, transparent 58%)",
+                  "radial-gradient(68% 38% at 50% -12%, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.035) 42%, transparent 72%)",
+                maskImage: "linear-gradient(180deg, #000 0%, transparent 38%)",
+                WebkitMaskImage: "linear-gradient(180deg, #000 0%, transparent 38%)",
               }}
             />
           </motion.div>

@@ -9,7 +9,7 @@ import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeom
 export const CARD = {
   width: 3.6,
   height: 2.15,
-  depth: 0.16,
+  depth: 0.11,
   corner: 0.22,
 } as const;
 
@@ -65,7 +65,7 @@ export function createSmokedCoreGeometry(
 export function createEdgeFrameGeometry(
   w: number = CARD.width,
   h: number = CARD.height,
-  band = 0.15,
+  band = 0.07,
 ): THREE.ExtrudeGeometry {
   const rOut = Math.min(CARD.corner, Math.min(w, h) * 0.12);
   const outer = new THREE.Shape();
@@ -79,10 +79,10 @@ export function createEdgeFrameGeometry(
   );
   outer.holes.push(inner);
   const geo = new THREE.ExtrudeGeometry(outer, {
-    depth: CARD.depth * 0.9,
+    depth: CARD.depth * 0.55,
     bevelEnabled: true,
-    bevelThickness: 0.03,
-    bevelSize: 0.03,
+    bevelThickness: 0.014,
+    bevelSize: 0.018,
     bevelSegments: 2,
     curveSegments: 48,
   });

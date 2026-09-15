@@ -149,7 +149,10 @@ export function createPillarCard(
   content.position.z = 0.075;
   content.renderOrder = 15;
 
-  group.add(backing, core, shell, edge, content);
+  // Keep the card as one readable object: the glass shell is the body, while
+  // the rim and corner flares provide the depth cues. The old backing/core
+  // sandwich read as a second black card inside the glass.
+  group.add(shell, edge, content);
 
   // Flares — starburst sprites pinned to the rim corners. Opacity is a true
   // specular glint (Blinn-Phong of rim-light dir × corner-leaning normal ×

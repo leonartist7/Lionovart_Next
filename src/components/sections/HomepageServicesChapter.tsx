@@ -7,7 +7,6 @@ import {
   useMotionValueEvent,
   useReducedMotion,
   useScroll,
-  useTransform,
 } from "framer-motion";
 import {
   useCallback,
@@ -17,21 +16,6 @@ import {
   type WheelEvent,
 } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ImageStreamHero } from "@/components/ui/image-stream-hero";
-import { getWhatsAppUrl } from "@/lib/contact";
-import { useNovaStore } from "@/lib/stores/nova-store";
-
-const C =
-  "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_1400,c_fill,g_auto";
-
-const SHOWCASE_IMAGES = [
-  `${C}/v1775277351/1_1_bv3shm.avif`,
-  `${C}/v1775277353/freepik_a-highly-polished-professional-uiux-website-homepage-mockup-for-a-modern-luxury-car-dealership.-clean-gridbased-layout-with-a-dark-theme-featuring-charcoal-grey-backgrounds-metallic-silve_0001_zglhcb.avif`,
-  `${C}/v1775277354/freepik_from-this-brand-help-me-make-a-mockup-of-her-landing-page-keeping-the-visual-identity..-looking-very-premium-and-elegant-and-perfect_0001_1_u6hnjz.avif`,
-  `${C}/v1775277351/Thumb_2_p6ksrb.avif`,
-  `${C}/v1775277352/Frame_1_zhyago.avif`,
-  `${C}/v1775277350/image_19_rnwg8w.avif`,
-];
 
 const SERVICE_MEDIA = {
   branding: [
@@ -70,16 +54,8 @@ const SERVICE_META = [
 const SERVICE_COUNT = SERVICE_META.length;
 
 const EASE = [0.16, 1, 0.3, 1] as const;
-const INTRO_END = 0.068;
-const SERVICE_START = 0.058;
-const SERVICE_END = 0.64;
-const PARTNERSHIP_START = 0.645;
-const PARTNERSHIP_PEAK = 0.735;
-const COPY_FADE_START = 0.79;
-const COPY_END = 0.825;
-const MORPH_START = 0.835;
-const LOGO_START = 0.885;
-const STREAM_START = 0.9;
+const SERVICE_START = 0;
+const SERVICE_END = 1;
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
@@ -150,12 +126,9 @@ function ServiceMediaCarousel({
 export default function HomepageServicesChapter() {
   const { t } = useLanguage();
   const reduceMotion = useReducedMotion() ?? false;
-  const openNova = useNovaStore((state) => state.openNova);
-  const chapterRef = useRef<HTMLElement>(null);
+  const chapterRef = useRef<HTMLDivElement>(null);
   const wheelLockRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [showIntro, setShowIntro] = useState(true);
-  const [showServiceCopy, setShowServiceCopy] = useState(true);
 
   const services = SERVICE_META.map((meta, index) => ({
     ...meta,
@@ -172,105 +145,7 @@ export default function HomepageServicesChapter() {
     offset: ["start start", "end end"],
   });
 
-  const introOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.012, 0.036, INTRO_END],
-    [1, 1, 0.3, 0],
-  );
-  const introY = useTransform(
-    scrollYProgress,
-    [0, INTRO_END],
-    [0, -34],
-  );
-
-  const serviceStageOpacity = useTransform(
-    scrollYProgress,
-    [
-      0,
-      0.034,
-      SERVICE_START + 0.032,
-      PARTNERSHIP_START + 0.042,
-      PARTNERSHIP_START + 0.064,
-    ],
-    [0.72, 0.9, 1, 1, 0],
-  );
-  const serviceY = useTransform(
-    scrollYProgress,
-    [0, SERVICE_START + 0.032, SERVICE_END - 0.012, PARTNERSHIP_START + 0.052],
-    [128, 0, 0, -18],
-  );
-  const serviceCopyOpacity = useTransform(
-    scrollYProgress,
-    [SERVICE_END - 0.05, PARTNERSHIP_START - 0.018, PARTNERSHIP_START - 0.004],
-    [1, 0.32, 0],
-  );
-  const serviceMediaOpacity = useTransform(
-    scrollYProgress,
-    [PARTNERSHIP_START - 0.014, PARTNERSHIP_START + 0.012, PARTNERSHIP_START + 0.035],
-    [1, 1, 0],
-  );
-
-  const circleOpacity = useTransform(
-    scrollYProgress,
-    [PARTNERSHIP_START + 0.004, PARTNERSHIP_START + 0.032, 1],
-    [0, 1, 1],
-  );
-  const circleScale = useTransform(
-    scrollYProgress,
-    [PARTNERSHIP_START, PARTNERSHIP_PEAK, MORPH_START, 0.95, 1],
-    [0.42, 1, 1, 0.29, 0.21],
-  );
-  const circleShadow = useTransform(
-    scrollYProgress,
-    [PARTNERSHIP_START, PARTNERSHIP_PEAK, 0.94],
-    [0.22, 0.6, 0.28],
-  );
-  const partnershipCopyOpacity = useTransform(
-    scrollYProgress,
-    [PARTNERSHIP_START + 0.046, PARTNERSHIP_START + 0.078, COPY_FADE_START, COPY_END],
-    [0, 1, 1, 0],
-  );
-  const partnershipCopyScale = useTransform(
-    scrollYProgress,
-    [PARTNERSHIP_START + 0.046, PARTNERSHIP_PEAK, COPY_END],
-    [0.97, 1, 0.985],
-  );
-
-  const logoOpacity = useTransform(
-    scrollYProgress,
-    [LOGO_START - 0.018, LOGO_START, LOGO_START + 0.035, 1],
-    [0, 0, 1, 1],
-  );
-  const streamOpacity = useTransform(
-    scrollYProgress,
-    [STREAM_START, STREAM_START + 0.035, 1],
-    [0, 1, 1],
-  );
-  const streamScale = useTransform(
-    scrollYProgress,
-    [STREAM_START, 1],
-    [0.975, 1.015],
-  );
-  const selectorOpacity = useTransform(
-    scrollYProgress,
-    [SERVICE_START + 0.002, SERVICE_START + 0.034, SERVICE_END - 0.016, PARTNERSHIP_START + 0.02],
-    [0, 1, 1, 0],
-  );
-
   useMotionValueEvent(scrollYProgress, "change", (value) => {
-    const shouldShowIntro = value < INTRO_END + 0.008;
-    setShowIntro((current) => (current === shouldShowIntro ? current : shouldShowIntro));
-
-    const shouldShowServiceCopy = value < PARTNERSHIP_START - 0.004;
-    setShowServiceCopy((current) =>
-      current === shouldShowServiceCopy ? current : shouldShowServiceCopy,
-    );
-
-    if (value < SERVICE_START) {
-      setActiveIndex((current) => (current === 0 ? current : 0));
-      return;
-    }
-
     const normalized = clamp(
       (value - SERVICE_START) / (SERVICE_END - SERVICE_START),
       0,
@@ -297,20 +172,6 @@ export default function HomepageServicesChapter() {
     [],
   );
 
-  const goToPartnership = useCallback(
-    (behavior: ScrollBehavior = "smooth") => {
-      const element = chapterRef.current;
-      if (!element) return;
-      const sectionTop = element.getBoundingClientRect().top + window.scrollY;
-      const travel = Math.max(1, element.offsetHeight - window.innerHeight);
-      window.scrollTo({
-        top: sectionTop + travel * (PARTNERSHIP_START + 0.05),
-        behavior,
-      });
-    },
-    [],
-  );
-
   const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
     const horizontalIntent = Math.abs(event.deltaX) > Math.abs(event.deltaY) * 1.08;
     if (!horizontalIntent || Math.abs(event.deltaX) < 10) return;
@@ -324,8 +185,7 @@ export default function HomepageServicesChapter() {
   const handleKeys = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "ArrowRight") {
       event.preventDefault();
-      if (activeIndex === SERVICE_COUNT - 1) goToPartnership();
-      else goToService(activeIndex + 1);
+      goToService(activeIndex + 1);
     }
     if (event.key === "ArrowLeft") {
       event.preventDefault();
@@ -366,34 +226,27 @@ export default function HomepageServicesChapter() {
           ))}
         </div>
 
-        <div className="relative flex min-h-[92svh] items-center justify-center overflow-hidden px-5 py-16">
-          <div className="flex aspect-square w-[152vw] shrink-0 items-center justify-center rounded-full bg-brand-red px-[19vw] text-center text-white sm:w-[124vmin] sm:px-[13vmin]">
-            <div>
-              <p className="font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-white/72">
-                One Partnership
-              </p>
-              <h3 className="mx-auto mt-5 max-w-[13ch] font-clash text-[clamp(2.2rem,7vw,4.5rem)] font-semibold uppercase leading-[0.9] tracking-[-0.045em]">
-                Your entire brand<br />Growth team
-              </h3>
-              <p className="mx-auto mt-6 font-body text-[14px] font-medium leading-[1.7] text-white/82 sm:text-[18px]">
-                <span className="block">More visibility. More clients.</span>
-                <span className="block">Less you have to manage.</span>
-              </p>
-            </div>
-          </div>
-        </div>
-
       </section>
     );
   }
 
   return (
     <section
-      ref={chapterRef}
       id="services"
       data-art-directed="light"
-      className="relative isolate h-[395svh] overflow-clip bg-bg-surface-light text-[#111111] lg:h-[410vh]"
+      className="relative z-20 isolate overflow-clip bg-bg-surface-light text-[#111111]"
     >
+      <header className="mx-auto flex min-h-[39svh] max-w-[1280px] flex-col justify-end px-5 pb-8 text-center sm:min-h-[40svh] sm:px-8 sm:pb-10 lg:min-h-[44vh] lg:pb-14">
+        <p className="font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-brand-red sm:text-[11px]">
+          {t.services.eyebrow}
+        </p>
+        <h2 className="mx-auto mt-4 max-w-[10ch] font-clash text-[clamp(3.2rem,10vw,7.4rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em]">
+          {t.services.heading}{" "}
+          <span className="text-brand-red">{t.services.headingAccent}</span>
+        </h2>
+      </header>
+
+      <div ref={chapterRef} className="relative h-[330svh] sm:h-[310svh] lg:h-[340vh]">
       <div
         className="sticky top-0 h-svh overflow-hidden bg-bg-surface-light outline-none"
         tabIndex={0}
@@ -408,25 +261,7 @@ export default function HomepageServicesChapter() {
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_76%,rgba(229,25,42,0.04),transparent_36%)]"
         />
 
-        {showIntro && (
-          <motion.header
-            style={{ opacity: introOpacity, y: introY }}
-            className="pointer-events-none absolute inset-x-0 top-[18svh] z-30 mx-auto px-5 text-center sm:top-[19svh] sm:px-8 lg:top-[18vh]"
-          >
-            <p className="font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-brand-red sm:text-[11px]">
-              {t.services.eyebrow}
-            </p>
-            <h2 className="mx-auto mt-4 max-w-[10ch] font-clash text-[clamp(3.2rem,10vw,7.4rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em]">
-              {t.services.heading}{" "}
-              <span className="text-brand-red">{t.services.headingAccent}</span>
-            </h2>
-          </motion.header>
-        )}
-
-        <motion.div
-          style={{ opacity: serviceStageOpacity, y: serviceY }}
-          className="absolute inset-0 z-40"
-        >
+        <div className="absolute inset-0 z-40">
           <span className="sr-only" aria-live="polite">{activeService.title}</span>
 
           <div className="absolute inset-x-0 bottom-[10.5svh] top-[4.5svh] mx-auto max-w-[1500px] px-4 sm:px-8 lg:bottom-[12vh] lg:top-[9vh] lg:px-12">
@@ -443,57 +278,40 @@ export default function HomepageServicesChapter() {
               style={{ touchAction: "pan-y" }}
               className="flex h-full flex-col items-center justify-center gap-7 sm:gap-9 lg:gap-[clamp(2.75rem,5.5svh,5rem)]"
             >
-              <motion.div
-                style={{ opacity: serviceMediaOpacity }}
-                className="relative order-1 aspect-video w-[min(92vw,61svh)] overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:w-[min(70vw,64svh)] lg:rounded-[1.55rem]"
-              >
+              <div className="relative order-1 aspect-video w-[min(92vw,61svh)] overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:w-[min(70vw,64svh)] lg:rounded-[1.55rem]">
                 <ServiceMediaCarousel
                   key={activeService.id}
                   images={activeService.media}
                   alt={`${activeService.title} service visual`}
                 />
-              </motion.div>
+              </div>
 
-              {showServiceCopy && (
-                <motion.div
-                  style={{ opacity: serviceCopyOpacity }}
-                  className="order-2 flex min-w-0 flex-col justify-center text-center"
-                >
-                  <AnimatePresence initial={false} mode="popLayout">
-                    <motion.div
-                      key={activeService.id}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -6 }}
-                      transition={{ duration: 0.26, ease: EASE }}
-                    >
-                      <h3 className="mx-auto max-w-[13ch] font-clash text-[clamp(2.15rem,8.6vw,3.75rem)] font-semibold uppercase leading-[0.86] tracking-[-0.052em] sm:text-[clamp(2.45rem,7.5vw,4.5rem)] lg:max-w-[11ch] lg:text-[clamp(3.2rem,5vw,6.2rem)]">
-                        {activeService.title}
-                      </h3>
-                      <p className="mx-auto mt-4 max-w-[36ch] font-body text-[13px] font-medium leading-[1.52] text-black/60 sm:mt-5 sm:text-[15px] lg:mt-6 lg:max-w-[38ch] lg:text-[18px] lg:leading-[1.62]">
-                        {activeService.description}
-                      </p>
-                      <div className="mx-auto mt-5 flex max-h-[4.6rem] max-w-[38rem] flex-wrap justify-center gap-1.5 overflow-hidden sm:mt-6 sm:max-h-none sm:gap-2 lg:mt-7 lg:max-w-[40rem]">
-                        {activeService.deliverables.map((item) => (
-                          <span
-                            key={item}
-                            className="rounded-full border border-black/[0.09] bg-white/32 px-2.5 py-1.5 font-mono text-[7.5px] font-bold uppercase tracking-[0.09em] text-black/46 sm:px-3 sm:text-[8.5px] lg:text-[9px]"
-                          >
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                    </motion.div>
-                  </AnimatePresence>
-                </motion.div>
-              )}
+              <div className="order-2 flex min-w-0 flex-col justify-center text-center">
+                <div>
+                    <h3 className="mx-auto max-w-[13ch] font-clash text-[clamp(2.15rem,8.6vw,3.75rem)] font-semibold uppercase leading-[0.86] tracking-[-0.052em] sm:text-[clamp(2.45rem,7.5vw,4.5rem)] lg:max-w-[11ch] lg:text-[clamp(3.2rem,5vw,6.2rem)]">
+                      {activeService.title}
+                    </h3>
+                    <p className="mx-auto mt-4 max-w-[36ch] font-body text-[13px] font-medium leading-[1.52] text-black/60 sm:mt-5 sm:text-[15px] lg:mt-6 lg:max-w-[38ch] lg:text-[18px] lg:leading-[1.62]">
+                      {activeService.description}
+                    </p>
+                    <div className="mx-auto mt-5 flex max-h-[4.6rem] max-w-[38rem] flex-wrap justify-center gap-1.5 overflow-hidden sm:mt-6 sm:max-h-none sm:gap-2 lg:mt-7 lg:max-w-[40rem]">
+                      {activeService.deliverables.map((item) => (
+                        <span
+                          key={item}
+                          className="rounded-full border border-black/[0.09] bg-white/32 px-2.5 py-1.5 font-mono text-[7.5px] font-bold uppercase tracking-[0.09em] text-black/46 sm:px-3 sm:text-[8.5px] lg:text-[9px]"
+                        >
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                </div>
+              </div>
 
             </motion.div>
           </div>
-        </motion.div>
+        </div>
 
-        <motion.nav
-          style={{ opacity: selectorOpacity }}
+        <nav
           aria-label="Services"
           className="absolute bottom-[3.2svh] left-1/2 z-40 w-fit max-w-[calc(100vw-1rem)] -translate-x-1/2 sm:bottom-[4vh]"
         >
@@ -525,109 +343,9 @@ export default function HomepageServicesChapter() {
                 </button>
               );
             })}
-            <button
-              type="button"
-              aria-label="One Partnership"
-              onClick={() => goToPartnership()}
-              className="relative z-10 flex h-8 min-w-8 items-center justify-center rounded-full px-2 font-mono text-[7.5px] font-bold uppercase tracking-[0.09em] text-black/46 transition hover:bg-white/24 hover:text-black/72 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/35 sm:h-9 sm:min-w-9 sm:px-3 sm:text-[8.5px]"
-            >
-              <span className="hidden sm:inline">All</span>
-              <span className="sm:hidden">+</span>
-            </button>
           </div>
-        </motion.nav>
-
-        <motion.div
-          style={{ opacity: streamOpacity, scale: streamScale }}
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-[48%] z-10 -translate-y-1/2 transform-gpu"
-        >
-          <ImageStreamHero
-            images={SHOWCASE_IMAGES.map((src, index) => ({
-              src,
-              alt: t.services.items[index]?.title ?? "Lionovart selected work",
-            }))}
-            cards={7}
-            speed={30}
-            axis={50}
-            path={{
-              cardWidth: 17.5,
-              cardHeight: 23.5,
-              birthHeight: 3.4,
-              exitHeight: 40,
-              railBirth: -5.5,
-              railExit: 32,
-              fan: 2.7,
-              turnBirth: 5,
-              turnExit: 23,
-              stops: 18,
-            }}
-            className="h-[20rem] w-full overflow-visible sm:h-[27rem] lg:h-[32rem]"
-          />
-        </motion.div>
-
-        <motion.div
-          style={{ opacity: circleOpacity, scale: circleScale }}
-          className="pointer-events-none absolute left-1/2 top-1/2 z-30 aspect-square w-[152vw] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-red sm:w-[124vmin] lg:w-[128vmin] xl:w-[132vmin]"
-        >
-          <motion.div
-            aria-hidden="true"
-            style={{ opacity: circleShadow }}
-            className="absolute inset-0 rounded-full shadow-[0_46px_120px_-52px_rgba(229,25,42,0.68),inset_0_1px_0_rgba(255,255,255,0.16),inset_0_-34px_90px_rgba(105,0,14,0.12)]"
-          />
-
-          <motion.div
-            style={{ opacity: partnershipCopyOpacity, scale: partnershipCopyScale }}
-            className="pointer-events-auto absolute inset-0 flex items-center justify-center px-[20vw] text-center text-white sm:px-[14vmin] lg:px-[13vmin]"
-          >
-            <div className="w-full max-w-[720px]">
-              <p className="font-mono text-[8px] font-bold uppercase tracking-[0.31em] text-white/70 sm:text-[10px]">
-                One Partnership
-              </p>
-              <h3 className="mx-auto mt-4 max-w-[13ch] font-clash text-[clamp(2.05rem,7.5vw,4.2rem)] font-semibold uppercase leading-[0.9] tracking-[-0.04em] sm:mt-5 lg:text-[clamp(2.8rem,4.1vw,4.15rem)]">
-                <span className="block">Your entire brand</span>
-                <span className="mt-[0.1em] block">Growth team</span>
-              </h3>
-              <p className="mx-auto mt-4 font-body text-[12.5px] font-medium leading-[1.5] text-white/82 sm:mt-5 sm:text-[16px] lg:text-[17px]">
-                <span className="block">More visibility. More clients.</span>
-                <span className="mt-1 block text-white">Less you have to manage.</span>
-              </p>
-              <div className="mx-auto mt-5 flex max-w-[29rem] flex-row flex-wrap justify-center gap-2 sm:mt-6 sm:gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => openNova("offer", true)}
-                  className="rounded-full bg-white px-5 py-2.5 text-[8.5px] font-bold uppercase tracking-[0.12em] text-brand-red shadow-[0_10px_26px_-20px_rgba(0,0,0,0.42)] transition duration-300 hover:scale-[1.012] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand-red sm:px-6 sm:py-3 sm:text-[9.5px]"
-                >
-                  Get your free brand audit
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    window.open(
-                      getWhatsAppUrl(
-                        "Hi Leon — I'd like to talk about the brand & growth partnership.",
-                      ),
-                      "_blank",
-                      "noopener,noreferrer",
-                    )
-                  }
-                  className="rounded-full border border-white/32 bg-white/[0.07] px-5 py-2.5 text-[8.5px] font-bold uppercase tracking-[0.12em] text-white backdrop-blur-md transition duration-300 hover:border-white/55 hover:bg-white/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:px-6 sm:py-3 sm:text-[9.5px]"
-                >
-                  Talk to us
-                </button>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.img
-            src="/images/lionovart-icon.svg"
-            alt=""
-            aria-hidden="true"
-            style={{ opacity: logoOpacity }}
-            className="absolute inset-0 h-full w-full rounded-full object-cover"
-            decoding="async"
-          />
-        </motion.div>
+        </nav>
+      </div>
       </div>
     </section>
   );
