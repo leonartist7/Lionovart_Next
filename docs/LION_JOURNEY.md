@@ -59,12 +59,12 @@ frames. Rendering pauses for hidden tabs, the dialog, reduced motion and complet
 concealment. Textures, geometry, materials, listeners and loaders are disposed.
 
 The original `C:\Users\leona\Documents\LIONHEAD.glb` remains untouched.
-Previously verified derivatives are retained:
+The active derivatives now use the updated `Lion-HID.glb` source:
 
 | Asset | Triangles | Bytes |
 | --- | ---: | ---: |
-| Desktop | 144,998 | 1,620,316 |
-| Mobile | 54,999 | 1,248,444 |
+| Desktop | 145,000 | 2,098,304 |
+| Mobile | 55,000 | 820,060 |
 
 The original includes an enclosing default cube excluded from derivatives.
 `scripts/prepare-lion.py` and comparison renders remain available. Facial detail
@@ -123,3 +123,11 @@ Three interwoven strand families use wider curls, a slower secondary wave, and v
 Desktop and 390px phone layouts were inspected with WebGPU, and the mobile asset rendered with WebGL2. Both shaders compiled and the static path rendered without a GPU canvas. Desktop-browser warm cadence was approximately 6ms median; physical-mobile performance remains unverified. TypeScript, scoped lint and all nine motion tests passed.
 
 The September 11 production build compiled and passed TypeScript, then failed prerendering /demo/pillars and /services/print with a null useContext error outside this refinement. Full production-build success is not claimed.
+
+## Updated lion model — September 15
+
+Replaced both web GLBs and all poster/comparison renders with derivatives of `C:\Users\leona\Downloads\Lion-HID.glb` (62,215,076 bytes; 2,000,000 source triangles). The source remains untouched; its SHA-256 is recorded in `public/models/lion/asset-report.json`. Desktop uses 2K textures and mobile uses 1K textures. The face and mane silhouette were compared against a render of the unsimplified model.
+
+Reproduce with Blender running `scripts/prepare-lion.py -- --source <source.glb> desktop`, then a fresh process for `mobile`, followed by Python + Pillow running `scripts/compress-lion-textures.py`. Compression repacks opaque images as JPEG without changing mesh buffers. Versioned asset URLs refresh cached models and posters. Existing silk, pose, scale normalization and scroll handoff remain in place.
+
+The optional proof-row anchor now falls back to the partnership boundary when the row is absent, fixing a startup blocker in the current layout. The updated model uses its front-facing orientation to look toward the hero title. Both GLB buffer layouts and embedded images validate, and the source hash remains unchanged. TypeScript, scoped lint, and all nine motion tests pass.

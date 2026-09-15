@@ -79,7 +79,7 @@ export class LionEngine {
     this.loader.setDecoderPath("/models/lion/draco/");
     this.loader.setWorkerLimit(1);
     const missingAsset = process.env.NODE_ENV !== "production" && new URLSearchParams(location.search).has("lionFailAsset");
-    const asset = `/models/lion/lion-${missingAsset ? "missing-test" : mobile ? "mobile" : "desktop"}.glb`;
+    const asset = `/models/lion/lion-${missingAsset ? "missing-test" : mobile ? "mobile" : "desktop"}.glb?v=hid-20260914`;
     this.host.dataset.asset = asset;
     const gltf = await new GLTFLoader().setDRACOLoader(this.loader).loadAsync(asset);
     if (this.disposed) { this.disposeObject(gltf.scene); return; }
@@ -227,7 +227,9 @@ export class LionEngine {
     this.maneFadeEnd.value = this.lion.position.y - lion.size * 0.32;
     this.lion.visible = lionVisible;
     this.silk.position.set(-this.width / 2, this.height / 2 + scroll, 0);
-    this.lion.rotation.y = -0.9 + lion.turn;
+    // The updated asset is front-facing: look toward the title, then turn left
+    // as the lion reaches the right-hand introduction.
+    this.lion.rotation.y = lion.turn * 1.25;
     this.clock.value = time;
     this.particles.visible = this.dpr >= 1;
 
