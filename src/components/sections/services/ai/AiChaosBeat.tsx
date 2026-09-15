@@ -98,7 +98,7 @@ export default function AiChaosBeat() {
   }, []);
 
   return (
-    <section ref={wrapRef} data-lion-zone className="relative h-[390svh] motion-reduce:h-auto md:h-[420svh]">
+    <section ref={wrapRef} data-lion-zone className="relative h-[240svh] motion-reduce:h-auto md:h-[260svh]">
       {CHAPTERS.map((chapter, index) => (
         <span
           key={`${chapter.eyebrow}-snap`}

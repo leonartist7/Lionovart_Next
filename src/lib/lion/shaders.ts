@@ -95,8 +95,11 @@ attribute vec4 aRand;        // x,y,z,w in [0,1]
 attribute vec3 aSpawn;       // intro spawn position (far field)
 attribute vec3 aBurst;       // precomputed story targets
 attribute vec3 aEcosystem;
-attribute vec3 aEnergy;
-attribute vec3 aHub;
+// The four sold systems, each its own room with its own axis of motion:
+attribute vec3 aFrontDesk;      // Capture & Convert — a low arc that breathes
+attribute vec3 aFollowThrough;  // Serve & Retain — a racetrack loop that turns
+attribute vec3 aBackOffice;     // Run & Fulfill — rows that drift like a conveyor
+attribute vec3 aControlRoom;    // See & Scale — rings that sweep at their own rate
 
 varying vec3  vColor;
 varying float vAlpha;
@@ -158,34 +161,62 @@ void main(){
     ecosystem.x * ecoS + ecosystem.z * ecoC
   );
 
-  // A double-helix current: energy visibly travelling through the connected
-  // system, rather than a low-resolution full-screen shader.
-  vec3 energy = aEnergy;
-  float flowY = mod(energy.y - uTime * (0.18 + aRand.y * 0.08) + 2.2, 4.4) - 2.2;
-  float energyTurn = -uTime * 0.82;
-  float energyC = cos(energyTurn), energyS = sin(energyTurn);
-  energy.xz = vec2(
-    energy.x * energyC - energy.z * energyS,
-    energy.x * energyS + energy.z * energyC
+  // Front Desk (Capture & Convert): a wide, low arc that breathes toward the
+  // viewer instead of turning bodily — a reception counter that is always open,
+  // never spinning.
+  vec3 frontDesk = aFrontDesk;
+  float fdPulse = 1.0 + 0.05 * sin(uTime * 0.6 + aRand.x * 6.2831853);
+  frontDesk.xy *= fdPulse;
+
+  // Follow-Through (Serve & Retain): a closed racetrack loop turning as one
+  // lane, so even a sparse ring of points reads as particles travelling a
+  // circuit that keeps coming back around.
+  // A single shared rate keeps the loop rigid — any per-particle speed
+  // variance drifts particles apart over the page's lifetime and smears
+  // the ring into noise instead of a legible circuit.
+  vec3 followThrough = aFollowThrough;
+  float ftTurn = uTime * 0.24;
+  float ftC = cos(ftTurn), ftS = sin(ftTurn);
+  followThrough.xy = vec2(
+    followThrough.x * ftC - followThrough.y * ftS,
+    followThrough.x * ftS + followThrough.y * ftC
   );
-  energy.y = flowY;
 
-  // Five stacked data rings condense the flow into an efficient platform hub.
-  vec3 hub = aHub;
-  float layer = floor(aRand.y * 5.0);
-  float hubTurn = uTime * (0.22 + layer * 0.035);
-  float hubC = cos(hubTurn), hubS = sin(hubTurn);
-  hub.xz = vec2(hub.x * hubC - hub.z * hubS, hub.x * hubS + hub.z * hubC);
+  // Back Office (Run & Fulfill): four lanes drifting sideways like a
+  // conveyor, alternating direction so adjacent rows read as distinct work.
+  // Speed varies per row (a discrete group), never per particle within a
+  // row — a shared rate keeps each lane rigid instead of smearing apart.
+  vec3 backOffice = aBackOffice;
+  float boRow = floor(aRand.y * 4.0);
+  float boDir = mod(boRow, 2.0) < 0.5 ? 1.0 : -1.0;
+  backOffice.x = mod(backOffice.x + 1.12 + uTime * (0.10 + boRow * 0.015) * boDir, 2.24) - 1.12;
 
+  // Control Room (See & Scale): three concentric rings sweeping at their own
+  // rate, like a dashboard reading several channels at once.
+  vec3 controlRoom = aControlRoom;
+  float crRing = floor(aRand.y * 3.0);
+  float crTurn = uTime * (0.16 + crRing * 0.13);
+  float crC = cos(crTurn), crS = sin(crTurn);
+  controlRoom.xy = vec2(
+    controlRoom.x * crC - controlRoom.y * crS,
+    controlRoom.x * crS + controlRoom.y * crC
+  );
+
+  // Four non-overlapping windows, one per sold system: each fully resolves
+  // before the next begins, so every tab lands on one clean, legible form.
   float burstT = smoothstep(0.08, 0.28, m);
   float ecosystemT = smoothstep(0.30, 0.50, m);
-  float flowT = smoothstep(0.56, 0.76, m);
-  float hubT = smoothstep(0.80, 0.97, m);
+  float frontDeskT = smoothstep(0.58, 0.64, m);
+  float followThroughT = smoothstep(0.64, 0.76, m);
+  float backOfficeT = smoothstep(0.76, 0.88, m);
+  float controlRoomT = smoothstep(0.88, 1.0, m);
 
   vec3 finalPos = mix(p, burst, burstT);
   finalPos = mix(finalPos, ecosystem, ecosystemT);
-  finalPos = mix(finalPos, energy, flowT);
-  finalPos = mix(finalPos, hub, hubT);
+  finalPos = mix(finalPos, frontDesk, frontDeskT);
+  finalPos = mix(finalPos, followThrough, followThroughT);
+  finalPos = mix(finalPos, backOffice, backOfficeT);
+  finalPos = mix(finalPos, controlRoom, controlRoomT);
 
   // ---------- Act 7: reform ---------------------------------------------------
   // Keep the sparse crown large enough for its peaks and base band to resolve.
@@ -228,22 +259,19 @@ void main(){
   vec3 rim = vec3(1.2, 0.75, 0.30) * fres * (0.38 + 0.52 * m);
   vec3 col = gold + rim;
 
-  // Color follows the same chapters: gold erupts into electric violet/cyan,
-  // then resolves into a warm connected platform before the CTA crown returns.
-  vec3 ecosystemColor = mix(
-    vec3(0.10, 0.72, 1.48),
-    vec3(0.88, 0.18, 1.42),
-    aRand.z
-  );
-  ecosystemColor = mix(ecosystemColor, vec3(1.28, 0.76, 0.24), step(0.78, aRand.w) * 0.72);
-  float energyPulse = 0.78 + 0.22 * sin(
-    flowY * 4.0 - uTime * 1.25 + aRand.y * 6.2831853
-  );
-  vec3 energyColor = mix(vec3(0.06, 0.92, 1.62), vec3(0.96, 0.16, 1.48), aRand.z) * energyPulse;
-  vec3 hubColor = mix(vec3(0.24, 0.78, 1.48), vec3(1.42, 0.82, 0.26), aRand.y);
+  // Color stays inside the settled two-tone system everywhere: gold is the
+  // human hand, cyan is the machine. No violet or magenta in the field.
+  vec3 cyan = vec3(0.10, 0.78, 1.46);
+  vec3 warmGold = vec3(1.32, 0.82, 0.27);
+  vec3 ecosystemColor = mix(cyan, warmGold, 0.30 + aRand.z * 0.18);
   col = mix(col, ecosystemColor, ecosystemT);
-  col = mix(col, energyColor, flowT);
-  col = mix(col, hubColor, hubT);
+
+  // Each room leans further machine-run than the last: Front Desk still
+  // greets with warmth, Control Room reads as pure oversight.
+  col = mix(col, mix(warmGold, cyan, 0.32 + aRand.z * 0.18), frontDeskT);
+  col = mix(col, mix(warmGold, cyan, 0.54 + aRand.z * 0.18), followThroughT);
+  col = mix(col, mix(warmGold, cyan, 0.66 + aRand.z * 0.16), backOfficeT);
+  col = mix(col, mix(warmGold, cyan, 0.80 + aRand.z * 0.16), controlRoomT);
 
   // reforming: the gold comes back with the shape
   col = mix(col, gold * 1.08, uBloom);
@@ -329,7 +357,11 @@ void main(){
 
   float life = smoothstep(0.0, 0.18, ph) * smoothstep(1.0, 0.78, ph);
   float burstGlow = 1.0 + 0.8 * smoothstep(0.12, 0.25, m) * (1.0 - smoothstep(0.34, 0.48, m));
-  vAlpha = life * (0.22 + aRand.z * 0.42) * burstGlow;
+  // Dust still travels its own old flow curve, unrelated to any of the four
+  // rooms, so it must be nearly gone before Front Desk (0.58-0.64) begins —
+  // each room's own silhouette carries the story, not stale ambient dust.
+  float roomsFade = 1.0 - smoothstep(0.48, 0.58, m) * 0.92;
+  vAlpha = life * (0.22 + aRand.z * 0.42) * burstGlow * roomsFade;
   vMix = aRand.z;
   vStory = smoothstep(0.10, 0.50, m);
 
@@ -354,7 +386,7 @@ void main(){
   float d = length(gl_PointCoord - 0.5);
   float a = smoothstep(0.5, 0.10, d) * vAlpha;
   if (a < 0.006) discard;
-  vec3 tech = mix(vec3(0.08, 0.88, 1.55), vec3(0.92, 0.20, 1.45), vMix);
+  vec3 tech = vec3(0.08, 0.88, 1.55) * (0.75 + vMix * 0.35);
   vec3 col = mix(uColor, tech, vStory);
   col = mix(col, uColor * 1.08, uBloom);
   gl_FragColor = vec4(col * a, a);
@@ -394,19 +426,31 @@ vec3 swarmPos(vec4 r, float lag, float t, float m){
   float ecoTilt = (r.y - 0.5) * 1.4;
   ecosystem = vec3(ecosystem.x, ecosystem.y * cos(ecoTilt) - ecosystem.z * sin(ecoTilt), ecosystem.y * sin(ecoTilt) + ecosystem.z * cos(ecoTilt));
 
-  float flowY = mod(r.x * 4.6 - t * (0.22 + r.y * 0.11) + 2.3, 4.6) - 2.3;
-  float flowAngle = flowY * 2.45 + r.w * 6.2831853 - t * 0.78 - lag * 0.9;
-  vec3 flow = vec3(cos(flowAngle) * (0.30 + r.z * 0.30), flowY, sin(flowAngle) * (0.25 + r.z * 0.22));
+  // The four rooms, mirroring the main field's forms procedurally so the
+  // ambient swarm never tells a different story than the crown particles.
+  float fdAngle = (r.x - 0.5) * 2.35;
+  float fdRadius = (1.0 + r.z * 0.30) * (1.0 + 0.05 * sin(t * 0.6 + r.w * 6.2831853));
+  vec3 frontDesk = vec3(sin(fdAngle) * fdRadius, -0.16 + cos(fdAngle) * fdRadius * 0.38, -cos(fdAngle) * 0.30);
 
-  float layer = floor(r.y * 5.0);
-  float hubAngle = r.x * 6.2831853 + t * (0.28 + layer * 0.035) - lag * 0.55;
-  float hubRadius = 0.54 + r.z * 0.78;
-  vec3 hub = vec3(cos(hubAngle) * hubRadius, (layer - 2.0) * 0.34, sin(hubAngle) * hubRadius * 0.5);
+  float ftAngle = r.x * 6.2831853 + t * 0.24 - lag * 0.4;
+  vec3 followThrough = vec3(cos(ftAngle) * (1.08 + r.z * 0.10), sin(ftAngle) * (0.50 + r.z * 0.08), (r.w - 0.5) * 0.26);
+
+  float boRow = floor(r.y * 4.0);
+  float boDir = mod(boRow, 2.0) < 0.5 ? 1.0 : -1.0;
+  float boX = mod(r.x * 2.24 - 1.12 + t * (0.10 + boRow * 0.015) * boDir + lag, 2.24) - 1.12;
+  vec3 backOffice = vec3(boX, (boRow - 1.5) * 0.58, (r.z - 0.5) * 0.22);
+
+  float crRing = floor(r.y * 3.0);
+  float crAngle = r.x * 6.2831853 + t * (0.16 + crRing * 0.13) - lag * 0.5;
+  float crRadius = 0.32 + crRing * 0.46;
+  vec3 controlRoom = vec3(cos(crAngle) * crRadius, sin(crAngle) * crRadius * 0.86, (r.z - 0.5) * 0.18);
 
   vec3 p = mix(hero, burst, smoothstep(0.08, 0.28, m));
   p = mix(p, ecosystem, smoothstep(0.30, 0.50, m));
-  p = mix(p, flow, smoothstep(0.56, 0.76, m));
-  p = mix(p, hub, smoothstep(0.80, 0.97, m));
+  p = mix(p, frontDesk, smoothstep(0.58, 0.64, m));
+  p = mix(p, followThrough, smoothstep(0.64, 0.76, m));
+  p = mix(p, backOffice, smoothstep(0.76, 0.88, m));
+  p = mix(p, controlRoom, smoothstep(0.88, 1.0, m));
   return p;
 }
 
@@ -448,14 +492,17 @@ void main(){
   p = mix(p, ctaSwarmPos(aRand, aLag, uTime, uCta), uBloom);
 
   float pulse = 0.78 + 0.22 * sin(uTime * (0.8 + aRand.y) + aRand.x * 6.2831853);
-  vAlpha = pulse * (0.62 + aRand.w * 0.42) * (1.0 - aTrail * 0.76);
+  // Recede during the four rooms so the comet heads accent each room's own
+  // silhouette instead of blurring it into a haze.
+  float roomsFade = 1.0 - smoothstep(0.56, 0.72, m) * 0.55;
+  vAlpha = pulse * (0.62 + aRand.w * 0.42) * (1.0 - aTrail * 0.76) * roomsFade;
   vMix = aRand.z;
   vGlint = step(aTrail, 0.001) * step(0.78, fract(aRand.x * 7.31));
   vGlint *= 0.55 + 0.45 * sin(uTime * 2.2 + aRand.x * 40.0);
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
-  float size = (8.0 + aRand.w * 10.5) * (1.0 - aTrail * 0.54);
+  float size = (8.0 + aRand.w * 10.5) * (1.0 - aTrail * 0.54) * (1.0 - smoothstep(0.56, 0.72, m) * 0.35);
   gl_PointSize = size * uPixelRatio * (2.5 / -mv.z);
   float coc = clamp(abs(-mv.z - uFocusDist) * uDofAmount, 0.0, 2.0);
   gl_PointSize *= 1.0 + coc;
@@ -481,7 +528,7 @@ void main(){
   float a = clamp((core + inner + halo + star) * vAlpha, 0.0, 1.0);
   if (a < 0.006) discard;
   vec3 gold = mix(vec3(1.05, 0.50, 0.12), vec3(1.48, 1.16, 0.70), vMix);
-  vec3 tech = mix(vec3(0.08, 0.86, 1.55), vec3(0.94, 0.18, 1.44), vMix);
+  vec3 tech = vec3(0.08, 0.86, 1.55) * (0.78 + vMix * 0.32);
   vec3 col = mix(gold, tech, smoothstep(0.12, 0.50, uMorph));
   col = mix(col, gold, uBloom);
   col = mix(col, vec3(1.45, 1.18, 0.76), clamp(core * 0.32, 0.0, 1.0));
@@ -510,11 +557,12 @@ void main(){
   a = mix(a, ctaSwarmPos(aRand, aLag, uTime, uCta), uBloom);
   b = mix(b, ctaSwarmPos(aRandB, aLagB, uTime, uCta), uBloom);
 
+  // Connecting threads stay prominent through hero/ecosystem, then step back
+  // during the four rooms so each room's own silhouette reads cleanly.
   float heroW = 1.0 - smoothstep(0.10, 0.24, m);
-  float ecosystemW = smoothstep(0.30, 0.46, m) * (1.0 - smoothstep(0.58, 0.74, m));
-  float flowW = smoothstep(0.58, 0.72, m) * (1.0 - smoothstep(0.80, 0.92, m));
-  float hubW = smoothstep(0.82, 0.96, m);
-  float chapterW = max(max(heroW, ecosystemW), max(flowW * 0.34, hubW * 0.72));
+  float ecosystemW = smoothstep(0.30, 0.46, m) * (1.0 - smoothstep(0.54, 0.60, m));
+  float roomsW = smoothstep(0.58, 0.66, m) * 0.28;
+  float chapterW = max(max(heroW, ecosystemW), roomsW);
   chapterW = mix(chapterW, 0.9, uBloom);
   float d = length(a - b);
   vAlpha = (1.0 - smoothstep(0.10, 0.48, d)) * chapterW * 0.62 * uFade;
