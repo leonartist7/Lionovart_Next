@@ -31,9 +31,6 @@ export interface MagneticCursorProps {
   contrastBoost?: number;
 }
 
-const TEXT_SELECTOR =
-  "p, span, h1, h2, h3, h4, h5, h6, blockquote, input[type='text'], input[type='email'], input[type='search'], textarea, [contenteditable='true']";
-
 const readGsapNumber = (value: unknown, fallback: number) => {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   const parsed = Number.parseFloat(String(value));
@@ -57,6 +54,9 @@ const shapeRadius = (shape: CursorShape) => {
  * Optional: `data-magnetic-color="#e5192a"` overrides the cursor fill while
  * snapped. Existing `data-cursor="Play"` / `data-cursor="Drag"` labels are
  * preserved and rendered by the site's existing cursor-label styling.
+ *
+ * Normal text and controls do not alter the cursor shape or size. The cursor
+ * only changes dimensions for explicit `data-magnetic` targets.
  */
 export const MagneticCursor: FC<MagneticCursorProps> = ({
   children,
@@ -64,7 +64,7 @@ export const MagneticCursor: FC<MagneticCursorProps> = ({
   magneticFactor = 0.2,
   hoverPadding = 12,
   hoverAttribute = "data-magnetic",
-  cursorSize = 24,
+  cursorSize = 14,
   cursorColor = "white",
   blendMode = "exclusion",
   cursorClassName = "",
@@ -97,7 +97,6 @@ export const MagneticCursor: FC<MagneticCursorProps> = ({
     let initialized = false;
     let inViewport = true;
     let isDetaching = false;
-    let textHover = false;
     let magneticEl: HTMLElement | null = null;
     let magneticBounds: DOMRect | null = null;
     let magneticXTo: ((value: number) => void) | null = null;
@@ -184,7 +183,6 @@ export const MagneticCursor: FC<MagneticCursorProps> = ({
       magneticEl = el;
       magneticBounds = el.getBoundingClientRect();
       isDetaching = false;
-      textHover = false;
 
       const rawXTo = gsap.quickTo(el, "x", {
         duration: prefersReducedMotion ? 0.01 : 1,
@@ -281,19 +279,6 @@ export const MagneticCursor: FC<MagneticCursorProps> = ({
         return;
       }
 
-      if (textHover) {
-        gsap.set(cursorEl, {
-          x: current.x,
-          y: current.y,
-          scaleX: 0.55,
-          scaleY: 1.45,
-          rotate: 0,
-          force3D: true,
-          overwrite: "auto",
-        });
-        return;
-      }
-
       const speed = Math.hypot(deltaX, deltaY) * speedMultiplier;
       gsap.set(cursorEl, {
         x: current.x,
@@ -339,8 +324,6 @@ export const MagneticCursor: FC<MagneticCursorProps> = ({
         magneticXTo((event.clientX - centerX) * magneticFactor);
         magneticYTo((event.clientY - centerY) * magneticFactor);
       }
-
-      textHover = !magneticEl && Boolean(eventTarget?.closest(TEXT_SELECTOR));
 
       if (!inViewport) inViewport = true;
       gsap.to(cursorEl, {
