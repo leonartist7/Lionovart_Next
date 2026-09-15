@@ -26,7 +26,16 @@ import {
 } from "./harness.mjs";
 
 /** Strings that must appear for agency and never for a client. */
-const AGENCY_MARKERS = ["Add a milestone", "Add a project", "Add a task", "Internal only", "Request approval"];
+const AGENCY_MARKERS = [
+  "Add a milestone",
+  "Add a project",
+  "Add a task",
+  "Internal only",
+  "Request approval",
+  "New post",
+  "Generate ideas",
+  "Generate an image",
+];
 
 const only = process.argv[2];
 const run = (name) => !only || only === name;
@@ -845,6 +854,335 @@ if (run("assistant")) {
   );
 }
 
+/* ── content: composer, per-platform rules, approval reuse ───────── */
+if (run("content")) {
+  console.log("\n── content ──");
+  const fx = await setupWorkspace("Verify Content");
+  const api = `${BASE}/api/portal/${fx.slug}/content`;
+
+  const clientCreate = await fetch(api, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ state: "draft", caption: "Client attempt", platforms: ["x"] }),
+  });
+  check("client cannot create a post", clientCreate.status === 403, `${clientCreate.status}`);
+
+  // ── Per-platform validation is enforced server-side, not just in the form.
+  const longCaption = "a".repeat(300);
+  const overLength = (
+    await (
+      await fetch(api, {
+        method: "POST",
+        headers: J(fx.agencyCookie),
+        body: JSON.stringify({ state: "draft", caption: longCaption, platforms: ["x"] }),
+      })
+    ).json()
+  ).post;
+
+  const overSubmit = await fetch(`${api}/${overLength.id}/submit`, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: "{}",
+  });
+  const overBody = await overSubmit.json();
+  check(
+    "an over-length caption is rejected before a client sees it",
+    overSubmit.status === 422 &&
+      overBody.validation?.issues?.some((i) => i.severity === "error" && i.platform === "x"),
+    `${overSubmit.status} ${JSON.stringify(overBody.error ?? "")}`,
+  );
+  check(
+    "a rejected submission leaves the post in draft",
+    (await (await fetch(`${api}/${overLength.id}`, { headers: J(fx.agencyCookie) })).json()).post
+      .state === "draft",
+  );
+
+  // Hashtags count toward the limit — a caption that fits alone can still fail.
+  const tagged = (
+    await (
+      await fetch(api, {
+        method: "POST",
+        headers: J(fx.agencyCookie),
+        body: JSON.stringify({
+          state: "draft",
+          caption: "b".repeat(275),
+          hashtags: ["#StudioLife"],
+          platforms: ["x"],
+        }),
+      })
+    ).json()
+  ).post;
+  const taggedSubmit = await fetch(`${api}/${tagged.id}/submit`, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: "{}",
+  });
+  check(
+    "hashtags count toward the character limit",
+    taggedSubmit.status === 422,
+    `${taggedSubmit.status}`,
+  );
+
+  // ── A real, valid post.
+  const post = (
+    await (
+      await fetch(api, {
+        method: "POST",
+        headers: J(fx.agencyCookie),
+        body: JSON.stringify({
+          state: "draft",
+          caption: "The new cups arrived.",
+          hashtags: ["#Packaging"],
+          platforms: ["linkedin"],
+        }),
+      })
+    ).json()
+  ).post;
+  check("agency creates a draft", Boolean(post?.id), `id=${post?.id}`);
+
+  // Drafts are studio-only: absent from the client's list, page and direct URL.
+  const clientList = await (await fetch(api, { headers: J(fx.clientCookie) })).json();
+  check(
+    "a draft is absent from the client's pipeline",
+    !clientList.posts?.some((p) => p.id === post.id),
+    `count=${clientList.posts?.length}`,
+  );
+  const clientDirect = await fetch(`${api}/${post.id}`, { headers: J(fx.clientCookie) });
+  check("a client hitting a draft's URL gets 404, not 403", clientDirect.status === 404, `${clientDirect.status}`);
+  const clientPage = await pageSource(`/portal/${fx.slug}/content/${post.id}`, fx.clientCookie);
+  check("a draft's page 404s for a client", clientPage.status === 404, `${clientPage.status}`);
+
+  // ── The approval-owned edges cannot be taken from the content API at all.
+  const directApprove = await fetch(`${api}/${post.id}`, {
+    method: "PATCH",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ state: "approved" }),
+  });
+  check(
+    "a post cannot be approved through the content API",
+    directApprove.status === 409,
+    `${directApprove.status}`,
+  );
+
+  const submit = await fetch(`${api}/${post.id}/submit`, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: "{}",
+  });
+  const submitBody = await submit.json();
+  check("a valid draft goes to review", submit.status === 201 && submitBody.post.state === "in_review", `${submit.status}`);
+
+  // The approval it created is a row in the real approvals collection, reached
+  // through the existing queue — not a parallel one built for Content.
+  const queue = await (
+    await fetch(`${BASE}/api/portal/${fx.slug}/approvals`, { headers: J(fx.clientCookie) })
+  ).json();
+  const queued = queue.approvals?.filter((a) => a.targetType === "post" && a.targetId === post.id) ?? [];
+  check(
+    "submitting creates exactly one row in the real approvals queue",
+    queued.length === 1 && queued[0].id === submitBody.approvalId,
+    `rows=${queued.length}`,
+  );
+  check(
+    "the queue row carries the post's caption, not a placeholder",
+    queued[0]?.targetLabel === "The new cups arrived.",
+    `${queued[0]?.targetLabel}`,
+  );
+
+  // A post in review can't be edited under the client who is deciding on it.
+  const editInReview = await fetch(`${api}/${post.id}`, {
+    method: "PATCH",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ caption: "Changed while they were looking at it" }),
+  });
+  check("a post in review can't be edited", editInReview.status === 409, `${editInReview.status}`);
+
+  // ── The decision goes through the Approvals primitive, and moves the post.
+  const decide = await fetch(`${BASE}/api/portal/${fx.slug}/approvals/${submitBody.approvalId}`, {
+    method: "PATCH",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ state: "approved" }),
+  });
+  check("the client decides through Approvals", decide.status === 200, `${decide.status}`);
+  const afterDecision = await (await fetch(`${api}/${post.id}`, { headers: J(fx.agencyCookie) })).json();
+  check(
+    "the approval decision moves the post to approved",
+    afterDecision.post.state === "approved",
+    `${afterDecision.post.state}`,
+  );
+
+  // ── Scheduling is agency-only and needs a real future time.
+  const clientSchedule = await fetch(`${api}/${post.id}`, {
+    method: "PATCH",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ state: "scheduled" }),
+  });
+  check("client cannot schedule a post", clientSchedule.status === 403, `${clientSchedule.status}`);
+
+  const noDate = await fetch(`${api}/${post.id}`, {
+    method: "PATCH",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ state: "scheduled" }),
+  });
+  check("scheduling without a date is rejected", noDate.status === 400, `${noDate.status}`);
+
+  // Rescheduling an approved post is allowed; rewriting its caption is not.
+  // The client approved what it says, not when it goes out.
+  const editApproved = await fetch(`${api}/${post.id}`, {
+    method: "PATCH",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ caption: "Rewritten after approval" }),
+  });
+  check("an approved post's caption can't be edited", editApproved.status === 409, `${editApproved.status}`);
+
+  const setDate = await fetch(`${api}/${post.id}`, {
+    method: "PATCH",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ scheduledFor: new Date(Date.now() + 3 * 86_400_000).toISOString() }),
+  });
+  check("an approved post can be given a date", setDate.status === 200, `${setDate.status}`);
+
+  const pastDate = await fetch(`${api}/${post.id}`, {
+    method: "PATCH",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ scheduledFor: new Date(Date.now() - 86_400_000).toISOString() }),
+  });
+  await pastDate.json().catch(() => ({}));
+  const pastSchedule = await fetch(`${api}/${post.id}`, {
+    method: "PATCH",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ state: "scheduled" }),
+  });
+  check("a time in the past can't be scheduled", pastSchedule.status === 400, `${pastSchedule.status}`);
+
+  await fetch(`${api}/${post.id}`, {
+    method: "PATCH",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ scheduledFor: new Date(Date.now() + 3 * 86_400_000).toISOString() }),
+  });
+  const scheduled = await fetch(`${api}/${post.id}`, {
+    method: "PATCH",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ state: "scheduled" }),
+  });
+  check("agency schedules an approved post", scheduled.status === 200, `${scheduled.status}`);
+
+  // ── Publishing: validated for real, confirmed explicitly, append-only.
+  const publishApi = `${api}/${post.id}/publish`;
+  const unconfirmed = await fetch(publishApi, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ platforms: ["linkedin"] }),
+  });
+  check("publishing without confirmation is rejected", unconfirmed.status === 400, `${unconfirmed.status}`);
+
+  const clientPublish = await fetch(publishApi, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ confirmed: true, platforms: ["linkedin"] }),
+  });
+  check("client cannot mark a post as posted", clientPublish.status === 403, `${clientPublish.status}`);
+
+  const published = await fetch(publishApi, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ confirmed: true, platforms: ["linkedin"], urls: { linkedin: "https://example.com/a" } }),
+  });
+  const publishedBody = await published.json();
+  check(
+    "agency records a post as published",
+    published.status === 200 && publishedBody.post.state === "published",
+    `${published.status} ${publishedBody.post?.state}`,
+  );
+  const firstRecord = publishedBody.post.publishResults.linkedin;
+
+  const rePublish = await fetch(publishApi, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ confirmed: true, platforms: ["linkedin"], urls: { linkedin: "https://example.com/rewritten" } }),
+  });
+  const rePublished = (await rePublish.json()).post;
+  check(
+    "a recorded publish is never rewritten by a later one",
+    rePublished.publishResults.linkedin.at === firstRecord.at &&
+      rePublished.publishResults.linkedin.url === firstRecord.url,
+    JSON.stringify(rePublished.publishResults.linkedin),
+  );
+
+  const editPublished = await fetch(`${api}/${post.id}`, {
+    method: "PATCH",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ caption: "Rewriting history" }),
+  });
+  check("a published post can't be edited", editPublished.status === 409, `${editPublished.status}`);
+
+  const movePublished = await fetch(`${api}/${post.id}`, {
+    method: "PATCH",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ state: "draft" }),
+  });
+  check("a published post can't be moved back", movePublished.status === 409, `${movePublished.status}`);
+
+  const deletePublished = await fetch(`${api}/${post.id}`, {
+    method: "DELETE",
+    headers: J(fx.agencyCookie),
+  });
+  check("a published post can't be deleted", deletePublished.status === 409, `${deletePublished.status}`);
+
+  // ── Agency controls never reach a client's browser.
+  const contentAsClient = await pageSource(`/portal/${fx.slug}/content`, fx.clientCookie);
+  const contentAsAgency = await pageSource(`/portal/${fx.slug}/content`, fx.agencyCookie);
+  const contentMarkers = ["New post", "Generate ideas", "Generate an image"];
+  const leaked = contentMarkers.filter((m) => contentAsClient.html.includes(m));
+  check("content authoring controls ABSENT from client page source", leaked.length === 0, `leaked:[${leaked}]`);
+  check(
+    "content authoring controls present for agency",
+    contentMarkers.every((m) => contentAsAgency.html.includes(m)),
+  );
+  check(
+    "a draft's caption never reaches the client's content page",
+    !contentAsClient.html.includes("Where the beans come from"),
+  );
+
+  // ── The AI surfaces are agency-only and degrade honestly without a key.
+  const clientIdeas = await fetch(`${api}/ai/ideas`, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ platforms: ["instagram"] }),
+  });
+  check("client cannot generate ideas", clientIdeas.status === 403, `${clientIdeas.status}`);
+
+  const noKeyIdeas = await fetch(`${api}/ai/ideas`, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ platforms: ["instagram"] }),
+  });
+  const noKeyBody = await noKeyIdeas.json().catch(() => ({}));
+  check(
+    "without an API key idea generation fails honestly",
+    noKeyIdeas.status === 503 && typeof noKeyBody.error === "string",
+    JSON.stringify(noKeyBody),
+  );
+
+  const noSubject = await fetch(`${api}/ai/image`, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ template: "square" }),
+  });
+  check("image generation needs a subject", noSubject.status === 400, `${noSubject.status}`);
+
+  const badTemplate = await fetch(`${api}/ai/image`, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ subject: "proofs drying", template: "billboard" }),
+  });
+  check("an unknown image template is rejected", badTemplate.status === 400, `${badTemplate.status}`);
+
+  // ── A scheduled post lands on the calendar it was promised to.
+  const calendar = await pageSource(`/portal/${fx.slug}/calendar`, fx.agencyCookie);
+  check("a scheduled post appears on the calendar", calendar.html.includes("The new cups arrived."));
+}
+
 /* ── demo: the unauthenticated design preview ────────────────────── */
 if (run("demo")) {
   console.log("\n── demo (design preview) ──");
@@ -881,6 +1219,21 @@ if (run("demo")) {
 
   const demoCalendar = await fetch(`${BASE}/portal/demo/calendar`);
   check("demo calendar page loads", demoCalendar.status === 200, `${demoCalendar.status}`);
+
+  const demoContent = await fetch(`${BASE}/portal/demo/content`);
+  const demoContentHtml = await demoContent.text();
+  check("demo content page loads", demoContent.status === 200, `${demoContent.status}`);
+  check(
+    "demo client view has no drafts in the pipeline",
+    !demoContentHtml.includes("Where the beans come from"),
+  );
+  const demoContentStudio = await (await fetch(`${BASE}/portal/demo/content?view=studio`)).text();
+  check(
+    "demo studio view shows drafts",
+    demoContentStudio.includes("Where the beans come from"),
+  );
+  const demoDraftDirect = await fetch(`${BASE}/portal/demo/content/post-draft-origin`);
+  check("demo draft 404s in client view", demoDraftDirect.status === 404, `${demoDraftDirect.status}`);
 }
 
 process.exit(summary() > 0 ? 1 : 0);

@@ -1,30 +1,55 @@
 import "server-only";
+import { listPosts, postSummary } from "@/lib/portal/posts";
 import { listProjects, type ProjectWithMilestones } from "@/lib/portal/projects";
 import type { PortalRole } from "@/lib/portal/types";
 
 /**
- * Calendar items derived from project and milestone due dates.
- *
- * `post.scheduledFor` belongs here too per the page spec, but there is no
- * posts collection yet — Content hasn't been built. Nothing to query, so it's
- * left out rather than wired to a function that doesn't exist.
+ * Calendar items derived from project and milestone due dates, plus scheduled
+ * content once Content exists to schedule any.
  */
 
 export interface CalendarItem {
   id: string;
   date: string;
   title: string;
-  kind: "project" | "milestone";
-  projectId: string;
-  projectName: string;
+  kind: "project" | "milestone" | "post";
+  /** Absent for a post — content isn't attached to a project. */
+  projectId?: string;
+  projectName?: string;
+  /** Present only for a scheduled post. */
+  postId?: string;
+}
+
+/**
+ * Where an entry goes when it's tapped. A scheduled post belongs to Content,
+ * not to a project — without this, a post entry linked at
+ * `/projects/undefined`.
+ */
+export function calendarHref(item: CalendarItem, workspaceSlug: string): string {
+  return item.kind === "post"
+    ? `/portal/${workspaceSlug}/content/${item.postId}`
+    : `/portal/${workspaceSlug}/projects/${item.projectId}`;
 }
 
 /**
  * Pure — no Firestore. Shared by the real page and the `/portal/demo/calendar`
  * preview so the two can never disagree, the same way `deriveProgress` is.
  */
-export function deriveCalendarItems(projects: ProjectWithMilestones[]): CalendarItem[] {
+export function deriveCalendarItems(
+  projects: ProjectWithMilestones[],
+  posts: readonly CalendarPost[] = [],
+): CalendarItem[] {
   const items: CalendarItem[] = [];
+  for (const post of posts) {
+    if (!post.scheduledFor) continue;
+    items.push({
+      id: `post-${post.id}`,
+      date: post.scheduledFor,
+      title: post.title,
+      kind: "post",
+      postId: post.id,
+    });
+  }
   for (const project of projects) {
     if (project.dueAt) {
       items.push({
@@ -52,13 +77,31 @@ export function deriveCalendarItems(projects: ProjectWithMilestones[]): Calendar
   return items.sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
 }
 
-/** The one query behind both the mobile agenda and the desktop month grid. */
+/** A scheduled post, reduced to what the calendar needs. */
+export interface CalendarPost {
+  id: string;
+  title: string;
+  scheduledFor?: string;
+}
+
+/**
+ * The one query behind both the mobile agenda and the desktop month grid.
+ *
+ * `listPosts` applies the same role filter Content does, so a client's
+ * calendar can't show a draft that isn't visible to them on the Content page.
+ */
 export async function listCalendarItems(
   workspaceId: string,
   viewerRole: PortalRole,
 ): Promise<CalendarItem[]> {
-  const projects = await listProjects(workspaceId, viewerRole);
-  return deriveCalendarItems(projects);
+  const [projects, posts] = await Promise.all([
+    listProjects(workspaceId, viewerRole),
+    listPosts(workspaceId, viewerRole),
+  ]);
+  return deriveCalendarItems(
+    projects,
+    posts.map((p) => ({ id: p.id, title: postSummary(p), scheduledFor: p.scheduledFor })),
+  );
 }
 
 /** Local calendar day, e.g. "2026-09-13" — for grouping the agenda list. */

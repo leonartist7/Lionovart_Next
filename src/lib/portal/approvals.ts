@@ -20,6 +20,31 @@ function approvalsRef(workspaceId: string) {
   return adminDb.collection("workspaces").doc(workspaceId).collection("approvals");
 }
 
+/**
+ * The caption line behind a `post` approval, read directly rather than through
+ * `listPosts`.
+ *
+ * `posts.ts` imports `createApproval` from this module — that direction is the
+ * important one, because it is what makes Content use the real approval
+ * primitive instead of a second flow. Importing back the other way for a
+ * display string would close the cycle, so this reads the one field it needs.
+ * There is no visibility decision here to duplicate: a post only has a pending
+ * approval while it is `in_review`, which every member of the workspace can
+ * already see.
+ */
+async function postCaptions(workspaceId: string, ids: readonly string[]): Promise<Map<string, string>> {
+  const labels = new Map<string, string>();
+  if (!adminDb || ids.length === 0) return labels;
+  const posts = adminDb.collection("workspaces").doc(workspaceId).collection("posts");
+  const docs = await Promise.all([...new Set(ids)].map((id) => posts.doc(id).get()));
+  for (const doc of docs) {
+    if (!doc.exists) continue;
+    const caption = String(doc.data()?.caption ?? "").trim().split("\n")[0] ?? "";
+    labels.set(doc.id, caption.length > 70 ? `${caption.slice(0, 69)}\u2026` : caption);
+  }
+  return labels;
+}
+
 export interface CreateApprovalInput {
   targetType: Approval["targetType"];
   targetId: string;
@@ -74,9 +99,13 @@ export async function listPendingApprovals(
 
   if (pending.length === 0) return [];
 
-  const [projects, assets] = await Promise.all([
+  const [projects, assets, captions] = await Promise.all([
     listProjects(workspaceId, viewerRole),
     listAssets(workspaceId),
+    postCaptions(
+      workspaceId,
+      pending.filter((a) => a.targetType === "post").map((a) => a.targetId),
+    ),
   ]);
 
   const milestoneById = new Map(
@@ -116,11 +145,36 @@ export async function listPendingApprovals(
         targetId: a.targetId,
         versionId: a.versionId,
         requestedAt: a.requestedAt,
-        targetLabel: "Social post",
+        targetLabel: captions.get(a.targetId) || "Social post",
+        contextLabel: "Social post",
       });
     }
   }
   return withContext;
+}
+
+/**
+ * Decisions already made about one target, newest first.
+ *
+ * `listPendingApprovals` deliberately only returns what is still pending — it
+ * is the "what needs me" queue. A post that came back with changes requested
+ * needs the opposite: the note that explains why. Same collection, same
+ * append-only history, read from the other end.
+ */
+export async function listDecisionsFor(
+  workspaceId: string,
+  targetType: Approval["targetType"],
+  targetId: string,
+): Promise<Approval[]> {
+  if (!adminDb) return [];
+  const snap = await approvalsRef(workspaceId)
+    .where("targetType", "==", targetType)
+    .where("targetId", "==", targetId)
+    .get();
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() }) as Approval)
+    .filter((a) => a.state !== "pending")
+    .sort((a, b) => (b.decidedAt ?? "").localeCompare(a.decidedAt ?? ""));
 }
 
 export type DecideApprovalResult = { approval: Approval } | { error: string; status: number };

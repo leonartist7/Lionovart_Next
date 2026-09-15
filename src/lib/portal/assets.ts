@@ -80,6 +80,36 @@ async function objectExists(path: string): Promise<boolean> {
   return exists;
 }
 
+/**
+ * Writes bytes the server already holds straight into Storage.
+ *
+ * The signed-PUT flow exists so a *client's* bytes never route through this
+ * server. A generated image is different: it is produced here, so a round trip
+ * back out to a signed URL would add a hop and a failure mode for nothing.
+ * Mocked under the emulator for the same reason the rest of this module is —
+ * no Storage emulator is wired up.
+ */
+export async function writeServerObject(path: string, bytes: Buffer, mime: string): Promise<void> {
+  if (isEmulated()) return;
+  if (!adminStorage) throw new Error("Storage is not configured");
+  await adminStorage.bucket().file(path).save(bytes, { contentType: mime });
+}
+
+/** The canonical object path for an asset version — shared with server-side writers. */
+export function assetStoragePath(
+  workspaceId: string,
+  assetId: string,
+  version: number,
+  filename: string,
+): string {
+  return storagePath(workspaceId, assetId, version, filename);
+}
+
+/** A fresh asset id, so a server-side writer can name its object before writing. */
+export function newAssetId(workspaceId: string): string {
+  return assetsRef(workspaceId).doc().id;
+}
+
 /** Short-lived signed read URL — assets are private, never a public bucket. */
 export async function signReadUrl(path: string): Promise<string> {
   if (isEmulated()) return `http://mock-download.local/${encodeURIComponent(path)}`;
@@ -153,6 +183,9 @@ export interface ConfirmUploadInput {
   uploadedBy: string;
   note?: string;
   projectId?: string;
+  /** Known only when the server produced the image; uploads don't carry it. */
+  width?: number;
+  height?: number;
 }
 
 /**
@@ -176,6 +209,7 @@ export async function confirmUpload(
     uploadedBy: input.uploadedBy,
     createdAt: now,
     ...(input.note ? { note: input.note } : {}),
+    ...(input.width && input.height ? { width: input.width, height: input.height } : {}),
   };
   await versionsRef(workspaceId, input.assetId).doc(String(input.version)).set(versionDoc);
 
