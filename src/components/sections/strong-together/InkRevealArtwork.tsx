@@ -69,22 +69,20 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
         // Keep the artwork from swelling to full-bleed on big viewports.
         // Cap its height to a share of the visible area so the centered
         // headline stays comfortably above the hands/paw image.
-        const maxArtH = viewH * 0.36;
+        const maxArtH = viewH * 0.28;
         if (artH > maxArtH) {
           artH = maxArtH;
           artW = artH * IMAGE_ASPECT;
         }
 
-        // Only 1% of the image's height is allowed to tuck under the top of
-        // the red marquee band. The marquee's top edge is the reference line
-        // — the image's bottom edge sits 1% of its own height below it.
-        const marqueeEl = document.getElementById("stronger-marquee-wrap");
+        // Reserve the strip height even while it is hidden during the reveal.
+        const marqueeEl = document.getElementById("stronger-work-strip");
         const marqueeView = marqueeEl
           ? (marqueeEl.clientHeight * VIEWBOX) / Math.max(rect.width, rect.height)
           : 0;
         const sceneBottom = visibleY + viewH;
 
-        const artBottom = sceneBottom - marqueeView + artH * 0.01;
+        const artBottom = sceneBottom - marqueeView - viewH * 0.025;
         art.setAttribute("x", String((VIEWBOX - artW) / 2));
         art.setAttribute("y", String(artBottom - artH));
         art.setAttribute("width", String(artW));
@@ -94,7 +92,7 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
       applyGeometry();
       const observer = new ResizeObserver(applyGeometry);
       observer.observe(svg);
-      const marqueeEl = document.getElementById("stronger-marquee-wrap");
+      const marqueeEl = document.getElementById("stronger-work-strip");
       if (marqueeEl) observer.observe(marqueeEl);
       return () => observer.disconnect();
     }, []);    useImperativeHandle(
