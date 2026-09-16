@@ -1,4 +1,4 @@
-import HeroTop from "@/components/sections/HeroTop";
+import HeroOpening from "@/components/sections/lion-journey/HeroOpening";
 import LionJourney from "@/components/sections/lion-journey/LionJourney";
 import StrongTogetherTransition from "@/components/sections/StrongTogetherTransition";
 import BridgeStatement from "@/components/sections/BridgeStatement";
@@ -36,7 +36,7 @@ export function PageBuilder() {
       <ExitIntentModal />
 
       <LionJourney>
-        <NovaSection id="hero"><HeroTop /></NovaSection>
+        <HeroOpening />
         <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
         <BridgeStatement />
         <StrongTogetherTransition />
@@ -52,7 +52,7 @@ export function PageBuilder() {
         <NovaSection id="comparison"><Comparison /></NovaSection>
 
         {/* Narrative order: About -> Why Us -> Brands Elevated/results -> Process. */}
-        <NovaSection id="testimonials"><Testimonials /></NovaSection>
+        <div id="client-experience"><NovaSection id="testimonials"><Testimonials /></NovaSection></div>
         <NovaSection id="process"><ProcessExperience /></NovaSection>
         <AuditStrip />
 

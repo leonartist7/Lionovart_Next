@@ -137,10 +137,10 @@ export const ja: Translations = {
   },
 
   bridge: {
-    line1: "[TODO: translate]",
-    line2: "[TODO: translate]",
-    accent: "[TODO: translate]",
-    body: "[TODO: translate]",
+    line1: "依頼を超えて、共に描く。",
+    line2: "あなたの想いを、",
+    accent: "未来へつなぐ。",
+    body: "あなたが大切に育ててきたブランドを、同じ想いで共に育てていきます。",
   },
   vow: {
     line1: "[TODO: translate]",

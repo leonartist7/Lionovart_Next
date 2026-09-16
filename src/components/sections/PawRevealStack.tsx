@@ -41,10 +41,10 @@ function PartnershipStatement() {
     <div className="w-full max-w-[720px]">
       <p className="font-mono text-[8px] font-bold uppercase tracking-[0.31em] text-white/70 sm:text-[10px]">One Partnership</p>
       <h2 className="mx-auto mt-4 max-w-[13ch] font-clash text-[clamp(2.05rem,7.5vw,4.2rem)] font-semibold uppercase leading-[0.9] tracking-[-0.04em] sm:mt-5 lg:text-[clamp(2.8rem,4.1vw,4.15rem)]">
-        <span className="block">Your entire brand</span>
-        <span className="mt-[0.1em] block">Growth team</span>
+        <span className="block">Your vision.</span>
+        <span className="mt-[0.1em] block">A studio around it.</span>
       </h2>
-      <p className="mx-auto mt-4 max-w-[29ch] font-body text-[12.5px] font-medium leading-[1.5] text-white/82 sm:mt-5 sm:text-[16px] lg:text-[17px]">More visibility. More clients. Less you have to manage.</p>
+      <p className="mx-auto mt-4 max-w-[46ch] font-body text-[12.5px] font-medium leading-[1.5] text-white/82 sm:mt-5 sm:text-[16px] lg:text-[17px]">Artists, strategists and technologists working together on your identity, digital presence and the systems behind your business.</p>
     </div>
   );
 }
@@ -220,7 +220,7 @@ function PawRevealCard({
       transition={reduceMotion ? { duration: 0.01 } : { duration: 0.46, ease: RETURN_EASE }}
       className={`relative overflow-hidden rounded-[1.375rem] border shadow-[0_18px_32px_-24px_rgba(0,0,0,0.8)] md:rounded-[1.5rem] ${isSummary ? "border-[#e3b72b]/80 bg-[#faf9f6] shadow-[0_0_0_1px_rgba(240,201,23,0.25),0_16px_32px_-24px_rgba(181,135,0,0.8)]" : "border-white/[0.08] bg-black"}`}
     >
-      <div className={`relative overflow-hidden ${isSummary ? "" : isCovered ? "h-[7rem] bg-black md:h-[7.5rem]" : "min-h-[12rem] bg-black md:min-h-[12.5rem]"}`}>
+      <div className={`relative overflow-hidden ${isSummary ? "" : isCovered ? "h-[9rem] bg-black md:h-[8rem]" : "min-h-[12rem] bg-black md:min-h-[12.5rem]"}`}>
         <SolutionSurface item={item} panelId={panelId} phase={phase} onActivate={onActivateSummary} isInteractionLocked={isInteractionLocked} />
 
         {isCovered ? <motion.button
@@ -231,11 +231,11 @@ function PawRevealCard({
           onClick={() => void reveal()}
           initial={{ y: "0%" }}
           animate={cardControls}
-          className="group absolute inset-0 z-20 flex w-full items-center justify-center overflow-hidden bg-black px-5 py-4 text-center will-change-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[#f0c917] sm:px-7 md:px-10"
+          className="group absolute inset-0 z-20 flex w-full items-center justify-center overflow-hidden bg-black px-5 pb-10 pt-4 text-center will-change-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[#f0c917] sm:px-7 md:px-10"
         >
           <span className="pointer-events-none absolute inset-0 border border-white/[0.04]" aria-hidden="true" />
           <span className="pointer-events-none absolute left-5 top-5 hidden h-1.5 w-1.5 rounded-full bg-[#f0c917] shadow-[0_0_12px_rgba(240,201,23,0.52)] md:block" aria-hidden="true" />
-          <span className="relative z-10 max-w-[720px] font-clash text-[clamp(1.2rem,1.02rem+1.2vw,2.125rem)] font-bold uppercase leading-[1.04] tracking-[-0.012em] [word-spacing:0.07em] text-white">
+          <span className="relative z-10 max-w-[720px] font-clash text-[clamp(1.05rem,0.95rem+1.2vw,2rem)] font-bold uppercase leading-[1.04] tracking-[-0.012em] [word-spacing:0.07em] text-white">
             {item.problem.heading}
           </span>
         </motion.button> : null}
@@ -269,10 +269,13 @@ export default function PawRevealStack() {
   const [revealingIndex, setRevealingIndex] = useState<number | null>(null);
   const [revealedIndexes, setRevealedIndexes] = useState<number[]>([]);
   const [showWorkStream, setShowWorkStream] = useState(false);
-  const [circleEntryOffset, setCircleEntryOffset] = useState(0);
+  const [scene, setScene] = useState({ diameter: 1200, height: 900, viewport: 900 });
+  const contentRef = useRef<HTMLDivElement>(null);
   const interactionLock = useRef(false);
   const chapterRef = useRef<HTMLElement>(null);
   const reduceMotion = useReducedMotion() ?? false;
+  const staticScene = reduceMotion;
+  const centerShift = (scene.height - scene.viewport) / 2;
   const { t } = useLanguage();
   const items: ImagineItem[] = t.problems.items;
   const { scrollYProgress } = useScroll({
@@ -281,46 +284,45 @@ export default function PawRevealStack() {
   });
   const circleScale = useTransform(
     scrollYProgress,
-    reduceMotion ? [0, 1] : [0, 0.52, 0.76, 0.84, 1],
-    reduceMotion ? [1, 1] : [1, 1, 0.2, 0.075, 0.075],
+    staticScene ? [0, 1] : [0, 0.52, 0.76, 0.84, 1],
+    staticScene ? [1, 1] : [1, 1, 0.2, 0.075, 0.075],
   );
   const cardOpacity = useTransform(
     scrollYProgress,
-    reduceMotion ? [0, 1] : [0, 0.46, 0.57, 1],
-    reduceMotion ? [1, 1] : [1, 1, 0, 0],
+    staticScene ? [0, 1] : [0, 0.46, 0.57, 1],
+    staticScene ? [1, 1] : [1, 1, 0, 0],
   );
-  const cardY = useTransform(scrollYProgress, reduceMotion ? [0, 1] : [0, 0.57], [0, reduceMotion ? 0 : -18]);
+  const cardY = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.57], [0, staticScene ? 0 : -18]);
   const statementOpacity = useTransform(
     scrollYProgress,
-    reduceMotion ? [0, 1] : [0, 0.54, 0.62, 0.72, 1],
-    reduceMotion ? [0, 0] : [0, 0, 1, 0, 0],
+    staticScene ? [0, 1] : [0, 0.54, 0.62, 0.72, 1],
+    staticScene ? [0, 0] : [0, 0, 1, 0, 0],
   );
-  const statementY = useTransform(scrollYProgress, reduceMotion ? [0, 1] : [0.54, 0.72], [reduceMotion ? 0 : 18, reduceMotion ? 0 : -14]);
-  const logoOpacity = useTransform(scrollYProgress, reduceMotion ? [0, 1] : [0, 0.74, 0.84, 1], reduceMotion ? [0, 0] : [0, 0, 1, 1]);
-  const logoMarkScale = useTransform(scrollYProgress, reduceMotion ? [0, 1] : [0, 0.76, 0.84, 1], reduceMotion ? [0.8, 0.8] : [0.8, 0.8, 0.68, 0.68]);
-  const streamOpacity = useTransform(scrollYProgress, reduceMotion ? [0, 1] : [0, 0.82, 0.89, 1], reduceMotion ? [0, 0] : [0, 0, 1, 1]);
-  const streamScale = useTransform(scrollYProgress, reduceMotion ? [0, 1] : [0.82, 1], [0.975, 1.012]);
-  const handoffCaptionOpacity = useTransform(scrollYProgress, reduceMotion ? [0, 1] : [0, 0.84, 0.9, 1], reduceMotion ? [0, 0] : [0, 0, 1, 1]);
-  const handoffCaptionY = useTransform(scrollYProgress, reduceMotion ? [0, 1] : [0.84, 0.9], [reduceMotion ? 0 : 12, 0]);
-  const circleY = useTransform(
-    scrollYProgress,
-    reduceMotion ? [0, 1] : [0, 0.46, 0.58, 1],
-    reduceMotion ? [0, 0] : [circleEntryOffset, circleEntryOffset, 0, 0],
-  );
-
+  const statementY = useTransform(scrollYProgress, staticScene ? [0, 1] : [0.54, 0.72], [staticScene ? 0 : 18, staticScene ? 0 : -14]);
+  const logoOpacity = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.74, 0.84, 1], staticScene ? [0, 0] : [0, 0, 1, 1]);
+  const logoMarkScale = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.76, 0.84, 1], staticScene ? [0.8, 0.8] : [0.8, 0.8, 0.68, 0.68]);
+  const streamOpacity = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.82, 0.89, 1], staticScene ? [0, 0] : [0, 0, 1, 1]);
+  const streamScale = useTransform(scrollYProgress, staticScene ? [0, 1] : [0.82, 1], [0.975, 1.012]);
+  const handoffCaptionOpacity = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.84, 0.9, 1], staticScene ? [0, 0] : [0, 0, 1, 1]);
+  const handoffCaptionY = useTransform(scrollYProgress, staticScene ? [0, 1] : [0.84, 0.9], [staticScene ? 0 : 12, 0]);
+  const circleY = useTransform(scrollYProgress, [0, 0.46, 0.72, 1], [0, 0, centerShift, centerShift]);
   useEffect(() => {
-    const updateCircleEntryOffset = () => {
-      const diameter = Math.min(
-        Math.min(window.innerWidth, window.innerHeight) * 1.56,
-        Math.max(window.innerWidth, window.innerHeight) * 1.2,
-      );
-      setCircleEntryOffset(Math.max(0, diameter / 2 - window.innerHeight / 2 + 32));
+    const content = contentRef.current;
+    if (!content) return;
+    const measure = () => {
+      const width = content.offsetWidth;
+      const height = content.offsetHeight;
+      // The diagonal encloses all four corners, with breathing room for the title and cards.
+      const diameter = Math.ceil(Math.max(Math.hypot(width + 160, height + 200), Math.min(window.innerWidth, window.innerHeight) * 1.75));
+      const stageHeight = Math.max(window.innerHeight, height + 160);
+      setScene(previous => previous.diameter === diameter && previous.height === stageHeight && previous.viewport === window.innerHeight ? previous : { diameter, height: stageHeight, viewport: window.innerHeight });
     };
-
-    updateCircleEntryOffset();
-    window.addEventListener("resize", updateCircleEntryOffset);
-    return () => window.removeEventListener("resize", updateCircleEntryOffset);
-  }, []);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(content);
+    window.addEventListener("resize", measure);
+    return () => { observer.disconnect(); window.removeEventListener("resize", measure); };
+  }, [reduceMotion]);
 
   useMotionValueEvent(scrollYProgress, "change", (progress) => {
     const next = progress > 0.78;
@@ -352,11 +354,12 @@ export default function PawRevealStack() {
     <section
       ref={chapterRef}
       aria-label="Imagine and one partnership"
-      className="relative z-30 isolate h-[340svh] overflow-visible bg-bg-surface-light sm:h-[320svh] lg:h-[320vh]"
+      style={{ height: staticScene ? scene.height : scene.height + scene.viewport * 2.4 }}
+      className="relative z-30 isolate overflow-visible bg-bg-surface-light"
     >
-      <div className="sticky top-0 h-svh overflow-visible">
-        {showWorkStream ? <motion.div
-          style={{ opacity: streamOpacity, scale: streamScale }}
+      <div style={{ height: scene.height, top: Math.min(0, scene.viewport - scene.height) }} className={staticScene ? "relative overflow-visible" : "sticky overflow-visible"}>
+        {showWorkStream && !staticScene ? <motion.div
+          style={{ opacity: streamOpacity, scale: streamScale, top: `calc(50% + ${centerShift}px)` }}
           aria-hidden="true"
           className="pointer-events-none absolute left-1/2 top-1/2 z-10 w-screen -translate-x-1/2 -translate-y-1/2 transform-gpu"
         >
@@ -371,7 +374,8 @@ export default function PawRevealStack() {
         </motion.div> : null}
 
         <motion.div
-          style={{ scale: circleScale, y: circleY, width: "min(156vmin, 120vmax)" }}
+          data-imagine-circle
+          style={{ scale: circleScale, y: circleY, width: scene.diameter }}
           className="pointer-events-none absolute left-1/2 top-1/2 z-20 aspect-square -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full bg-[#f51b2c] will-change-transform"
         >
           <div aria-hidden="true" className="absolute inset-0 rounded-full shadow-[0_46px_120px_-52px_rgba(245,27,44,0.58),inset_0_1px_0_rgba(255,255,255,0.16),inset_0_-34px_90px_rgba(105,0,14,0.1)]" />
@@ -383,7 +387,7 @@ export default function PawRevealStack() {
 
         <motion.div
           aria-hidden="true"
-          style={{ opacity: handoffCaptionOpacity, y: handoffCaptionY }}
+          style={{ opacity: handoffCaptionOpacity, y: handoffCaptionY, top: centerShift * 2 }}
           className="pointer-events-none absolute inset-0 z-[25] flex items-center justify-center"
         >
           <LogoHandoffWords />
@@ -393,7 +397,7 @@ export default function PawRevealStack() {
           style={{ opacity: cardOpacity, y: cardY, pointerEvents: revealingIndex === null ? "auto" : "none" }}
           className="absolute inset-0 z-30 flex items-center justify-center px-3.5 py-5 sm:px-6 md:py-7"
         >
-          <div className="w-full max-w-[660px]">
+          <div ref={contentRef} data-imagine-content className="w-full max-w-[660px]">
             <motion.div className="mb-4 flex flex-col items-center text-center sm:mb-5" initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}>
               <p className="mb-1.5 font-clash text-[0.625rem] font-semibold uppercase tracking-[0.17em] text-white sm:text-xs">{t.problems.eyebrow}</p>
               <SplitTextReveal as="h2" className="font-clash text-[clamp(2.15rem,1.65rem+2.15vw,3.5rem)] font-bold uppercase leading-[0.95] tracking-[-0.045em] text-white" step={18} delay={120} from="center">

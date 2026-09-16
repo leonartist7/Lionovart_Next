@@ -137,10 +137,10 @@ export const ko: Translations = {
   },
 
   bridge: {
-    line1: "[TODO: translate]",
-    line2: "[TODO: translate]",
-    accent: "[TODO: translate]",
-    body: "[TODO: translate]",
+    line1: "대행을 넘어, 동행으로.",
+    line2: "당신의 비전을",
+    accent: "오래 남을 유산으로.",
+    body: "당신이 쌓아온 브랜드를 같은 마음으로 함께 가꿉니다.",
   },
   vow: {
     line1: "[TODO: translate]",

@@ -50,7 +50,7 @@ export default function ClosingCTA({ crest = false }: { crest?: boolean }) {
 
       <div className="relative z-40 mx-auto flex max-w-[1280px] flex-col items-center gap-8 md:gap-10">
         <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red md:text-[13px]">
-          One partnership — fully done for you
+          Your next chapter, together
         </p>
 
         <div className="w-full">
@@ -60,12 +60,12 @@ export default function ClosingCTA({ crest = false }: { crest?: boolean }) {
             fontSize="clamp(2.6rem, 9.5vw, 7rem)"
             cyclingFontSize="clamp(3.2rem, 12.5vw, 9.5rem)"
             imageFontSize="clamp(2.86rem, 10.45vw, 7.7rem)"
-            forceAnimate
+
           />
         </div>
 
         <p className="max-w-[46ch] font-body text-[15px] leading-[1.6] text-white/70 md:text-[18px]">
-          Brand, web, content, AI and print — built and run for you.
+          Bring your ambition. We will shape the identity, experiences and systems to carry it forward.
         </p>
 
         <div className="mt-2 flex items-center gap-5">

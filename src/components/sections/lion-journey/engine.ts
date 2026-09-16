@@ -4,7 +4,7 @@ import { uniform, positionLocal, positionWorld, vec3, sin, cos, attribute, fract
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
-import { journeyRoute, routePoint, streamEnd, type Anchors, type Pose } from "./motion";
+import { goldRoute, routePoint, streamEnd, type Anchors, type Pose } from "./motion";
 
 /** One scene, one TSL shader, WebGPU with WebGL2 fallback. No simulation or post stack. */
 export class LionEngine {
@@ -18,6 +18,8 @@ export class LionEngine {
   private maneBottom = uniform(-1);
   private maneFadeEnd = uniform(-0.65);
   private band = uniform(44);
+  private fadeInStartY = uniform(0);
+  private fadeInEndY = uniform(100);
   private fadeStartY = uniform(3000);
   private fadeEndY = uniform(4000);
   private routeTexture = new THREE.DataTexture(new Float32Array(512 * 2 * 4), 512, 2, THREE.RGBAFormat, THREE.FloatType);
@@ -120,7 +122,7 @@ export class LionEngine {
   }
 
   setRoute(anchors: Anchors) {
-    const points = journeyRoute(anchors), data = this.routeTexture.image.data as Float32Array;
+    const points = goldRoute(anchors), data = this.routeTexture.image.data as Float32Array;
     for (let i = 0; i < 512; i++) {
       const t = i / 511, p = routePoint(points, t);
       const before = routePoint(points, Math.max(0,t-0.001)), after = routePoint(points,Math.min(1,t+0.001));
@@ -130,6 +132,8 @@ export class LionEngine {
     }
     this.routeTexture.needsUpdate = true;
     this.band.value = anchors.mobile ? 34 : 78;
+    this.fadeInStartY.value = points[0].y;
+    this.fadeInEndY.value = points[0].y + (anchors.mobile ? 60 : 100);
     this.fadeEndY.value = streamEnd(anchors);
     this.fadeStartY.value = this.fadeEndY.value - (anchors.mobile ? 140 : 220);
     if (this.mobileTier !== anchors.mobile) {
@@ -170,7 +174,7 @@ export class LionEngine {
       material.colorNode = motes ? color("#eecb83") : shade;
       material.emissiveNode = motes ? color("#eecb83").mul(0.75) : shade.mul(0.24);
       const quiet = smoothstep(this.fadeStartY, this.fadeEndY, displaced.y.negate());
-      material.opacityNode = taper.mul(quiet.oneMinus()).mul(motes ? 0.98 : 0.8);
+      material.opacityNode = taper.mul(smoothstep(this.fadeInStartY, this.fadeInEndY, displaced.y.negate())).mul(quiet.oneMinus()).mul(motes ? 0.98 : 0.8);
       if (!motes) material.normalNode = radial.normalize();
       return material;
     };
@@ -231,6 +235,7 @@ export class LionEngine {
     // The updated asset is front-facing: look toward the title, then turn left
     // as the lion reaches the right-hand introduction.
     this.lion.rotation.y = lion.turn * 1.25;
+    this.lion.rotation.x = lion.pitch ?? 0;
     this.clock.value = time;
     this.particles.visible = this.dpr >= 1;
 

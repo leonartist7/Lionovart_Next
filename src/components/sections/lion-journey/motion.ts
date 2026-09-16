@@ -5,8 +5,8 @@ export const SPLIT_START = 0.08;
 export const SPLIT_END = 0.58;
 export type Rect = { left: number; top: number; width: number; height: number };
 export type Point = { x: number; y: number };
-export type Anchors = { slot: Rect; copy: Rect; intro: Rect; video: Rect; hero: Rect; videoSection: Rect; proof: Rect; bridge: Rect; reveal: Rect; start?: number; end: number; mobile: boolean };
-export type Pose = Point & { size: number; turn: number };
+export type Anchors = { slot: Rect; cta?: Rect; copy: Rect; intro: Rect; video: Rect; hero: Rect; videoSection: Rect; proof: Rect; bridge: Rect; reveal: Rect; start?: number; end: number; mobile: boolean };
+export type Pose = Point & { size: number; turn: number; pitch?: number };
 export const clamp = (n: number, a = 0, b = 1) => Math.max(a, Math.min(b, n));
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 const ease = (t: number) => t * t * (3 - 2 * t);
@@ -45,4 +45,44 @@ export function journeyPose(progress: number, a: Anchors): Pose {
   const size = Math.min(a.slot.height * 0.86, a.mobile ? a.slot.width * 1.05 : 430);
   const endSize = Math.min(size * 0.82, a.video.height * 0.75, a.video.width * 0.4);
   return { ...routePoint(points, p * 2 / (points.length - 1)), size: mix(size, endSize, ease(clamp((p - 0.72)/0.28))), turn: mix(0.4, -0.4, ease(clamp(p/0.52))) };
+}
+
+/** Gold begins at the invitation; the lion retains its independent route. */
+export function goldRoute(a: Anchors): Point[] {
+  const points = journeyRoute(a);
+  const cta = a.cta ?? a.slot;
+  points[0] = { x: cta.left + cta.width / 2, y: cta.top + cta.height };
+  points[points.length - 1] = { x: a.hero.left + a.hero.width / 2, y: streamEnd(a) };
+  return points;
+}
+
+export type OpeningMode = "current" | "pause" | "pinned";
+/** A scroll hold, so reversing direction follows the same route. */
+export function pauseProgress(progress: number) {
+  const p = clamp(progress);
+  return p < .42 ? p / .42 * .5 : p <= .58 ? .5 : .5 + (p - .58) / .42 * .5;
+}
+
+export function openingPose(scroll: number, anchors: Anchors, opening: Rect, stageHeight: number): Pose {
+  const runway = Math.max(1, opening.height - stageHeight);
+  const local = clamp((scroll - opening.top) / runway);
+  const travel = ease(clamp((local - .2) / .44));
+  const initial = journeyPose(0, anchors);
+  const points = journeyRoute(anchors);
+  const offset = clamp(scroll - opening.top, 0, runway);
+  const settled = { x: points[1].x, y: points[1].y + runway, size: initial.size * .72, turn: -.4 };
+  if (scroll <= opening.top + runway) return {
+    x: mix(initial.x, points[1].x, travel),
+    y: mix(initial.y, points[1].y, travel) + offset,
+    size: mix(initial.size, settled.size, travel),
+    turn: mix(initial.turn, settled.turn, travel),
+  };
+  const remaining = ease(clamp((scroll - opening.top - runway) / Math.max(1, anchors.end - opening.top - runway)));
+  const end = journeyPose(1, anchors);
+  return { x: mix(settled.x, end.x, remaining), y: mix(settled.y, end.y, remaining), size: mix(settled.size, end.size, remaining), turn: -.4 };
+}
+
+/** Separate copy beats: outgoing text is gone before the next title enters. */
+export function openingCopyState(progress: number) {
+  return { hero: 1 - ease(clamp((progress - .16) / .2)), intro: ease(clamp((progress - .44) / .2)) };
 }

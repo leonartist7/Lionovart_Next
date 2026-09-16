@@ -137,10 +137,10 @@ export const it: Translations = {
   },
 
   bridge: {
-    line1: "[TODO: translate]",
-    line2: "[TODO: translate]",
-    accent: "[TODO: translate]",
-    body: "[TODO: translate]",
+    line1: "Più di un’agenzia. Un’intesa.",
+    line2: "Per lasciare il segno,",
+    accent: "insieme alla tua impresa.",
+    body: "Costruiamo con te un’identità che duri, con la stessa cura che dedichi al tuo lavoro.",
   },
   vow: {
     line1: "[TODO: translate]",

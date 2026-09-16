@@ -146,10 +146,10 @@ export const fr: Translations = {
   },
 
   bridge: {
-    line1: "Plus qu'une agence.",
-    line2: "Le partenariat qui",
-    accent: "bâtit votre héritage.",
-    body: "Nous ne prenons pas de clients. Nous prenons part à ce que vous bâtissez.",
+    line1: "Plus qu’une agence. Une alliance.",
+    line2: "Pour bâtir votre héritage,",
+    accent: "avec confiance.",
+    body: "Nous prenons part à ce que vous bâtissez, avec le même soin que vous y mettez.",
   },
 
   vow: {

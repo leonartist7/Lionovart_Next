@@ -9,7 +9,7 @@ interface ReviewItem {
 export const en = {
   whatWeDo: {
     eyebrow: "What We Do",
-    statement: "We make brands impossible to ignore.",
+    statement: "Give your vision a world.",
     trust: [
       "+20 Brands in the Lion's Pride",
       "Trusted Across 3 Continents",
@@ -45,7 +45,7 @@ export const en = {
     staticText: ["LET'S MAKE", "YOUR BRAND"],
     cyclingWords: ["ROAR", "STAND OUT", "MEMORABLE", "MAGNETIC", "SELL MORE", "DOMINATE"],
     subtitle:
-      "We build brands, develop websites, and produce content so your business becomes impossible to ignore.",
+      "The brand you imagine deserves to exist.",
     ctaStart: "Get Started",
     ctaStartOpening: "Opening WhatsApp.",
     ctaStrategist: "Talk to our agent",
@@ -158,10 +158,10 @@ export const en = {
 
   /** Beat 5 — Recognition. Runs after the turn, on the cream the bloom created. */
   vow: {
-    line1: "Nobody sees the hours behind the brand.",
-    line2: "We do.",
-    accent: "We've worked them.",
-    body: "So we don't start with a pitch. We start with what you've already built.",
+    line1: "You’ve brought it this far.",
+    line2: "Let’s shape",
+    accent: "what comes next.",
+    body: "Tell us what you’ve built, what matters to you, and where you want to go.",
   },
 
   footer: {
@@ -593,7 +593,7 @@ export const en = {
   },
 
   services: {
-    eyebrow: "Everything your business needs, nothing that it doesn't.",
+    eyebrow: "The craft behind your next chapter.",
     heading: "Our",
     headingAccent: "Expertise",
     items: [

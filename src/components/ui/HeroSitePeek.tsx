@@ -1,59 +1,116 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./dialog";
+import { CONTACT_EMAIL } from "@/lib/contact";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";
 import { useLionJourney } from "@/components/sections/lion-journey/LionJourney";
 import { FUNNEL_EVENT, trackFunnelEvent } from "@/lib/funnel-events";
 
+type Step = "closed" | "website" | "contact" | "done";
 export default function HeroSitePeek() {
   const journey = useLionJourney();
-  const [open, setOpen] = useState(false);
+  const setPaused = journey?.setDialogOpen;
+  const [step, setStep] = useState<Step>("closed");
   const [website, setWebsite] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [contact, setContact] = useState("");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [result, setResult] = useState<{ message: string; website_url: string } | null>(null);
+  const restoreFocus = useRef(false);
+  const input = useRef<HTMLInputElement>(null);
+  const host = useRef<HTMLDivElement>(null);
+  const shader = useRef<HTMLDivElement>(null);
   const request = useRef<AbortController | null>(null);
+  const reduced = useReducedMotion();
   useEffect(() => () => request.current?.abort(), []);
-  const onOpenChange = (value: boolean) => { setOpen(value); journey?.setDialogOpen(value); };
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (status === "loading" || status === "done") return;
-    if (!website.trim()) { setError("Enter a website URL."); setStatus("error"); return; }
-    setStatus("loading"); setError("");
+  useEffect(() => () => setPaused?.(false), [setPaused]);
+  useEffect(() => {
+    if (!shader.current || reduced) return;
+    let mount: ShaderMount | undefined;
+    try {
+      mount = new ShaderMount(shader.current, liquidMetalFragmentShader,
+        { u_repetition: 4, u_softness: 0.5, u_shiftRed: 0.65, u_shiftBlue: 0, u_distortion: 0, u_contour: 0, u_angle: 45, u_scale: 8, u_shape: 1, u_offsetX: 0.1, u_offsetY: -0.1 }, undefined, 0.6);
+    } catch { return; }
+    let visible = true;
+    const update = () => mount?.setSpeed(visible && !document.hidden ? 0.6 : 0);
+    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; update(); });
+    observer.observe(shader.current);
+    document.addEventListener("visibilitychange", update);
+    return () => { observer.disconnect(); document.removeEventListener("visibilitychange", update); mount?.dispose(); };
+  }, [reduced]);
+  const changeStep = (next: Step) => { setError(""); setStep(next); };
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (loading) return;
+    if (step === "website") {
+      try {
+        const url = new URL(/^https?:\/\//i.test(website.trim()) ? website.trim() : `https://${website.trim()}`);
+        if (!/^https?:$/.test(url.protocol) || !url.hostname.includes(".") || url.username || url.password) throw new Error();
+        setWebsite(url.toString()); changeStep("contact");
+      } catch { setError("Enter your website, like yourbrand.com."); }
+      return;
+    }
+    const value = contact.trim();
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    const digits = value.replace(/\D/g, "").length;
+    const isPhone = /^\+?[\d\s().-]+$/.test(value) && digits >= 7 && digits <= 15;
+    if (!isEmail && !isPhone) { setError("Add an email or a phone number with your country code."); return; }
+    setLoading(true); setError("");
     request.current = new AbortController();
     try {
-      const response = await fetch("/api/strategist/peek", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ website_url: website.trim() }), signal: request.current.signal });
-      if (!response.ok) throw new Error("request failed");
+      const response = await fetch("/api/strategist/lead", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.any([request.current.signal, AbortSignal.timeout(15000)]),
+        body: JSON.stringify({ name: new URL(website).hostname, website_url: website, contact: value, contact_type: isEmail ? "email" : "phone", source: "hero_website", project_summary: "Website introduction from the homepage." }),
+      });
       const data = await response.json();
-      if (typeof data.message !== "string" || typeof data.website_url !== "string") throw new Error("invalid response");
-      setResult(data); setStatus("done");
+      if (!response.ok || data.saved !== true) throw new Error();
+      changeStep("done");
       trackFunnelEvent(FUNNEL_EVENT.HERO_PEEK_SUBMITTED, { ok: true });
     } catch {
       if (request.current?.signal.aborted) return;
-      setError("We couldn't check that website. Please try again."); setStatus("error");
+      setError("Your details haven't been saved. Try again or contact us.");
       trackFunnelEvent(FUNNEL_EVENT.HERO_PEEK_SUBMITTED, { ok: false });
-    }
+    } finally { setLoading(false); }
   };
-  return <Dialog open={open} onOpenChange={onOpenChange}>
-    <DialogTrigger className="lion-peek-trigger">Have a look <span aria-hidden="true">↗</span></DialogTrigger>
-    <DialogContent className="z-[250] border-white/15 bg-[#111013] text-white sm:max-w-[460px]" backdropClassName="z-[249]" data-lenis-prevent>
-      <DialogHeader>
-        <DialogTitle className="text-white">{result ? "A first look at your website" : "Show us your website"}</DialogTitle>
-        <DialogDescription className="text-white/60">{result ? "Your next step starts here." : "Share your website for a first look from Nova."}</DialogDescription>
-      </DialogHeader>
-      {result ? <div>
-        <p className="text-base leading-relaxed text-white/85" role="status">{result.message}</p>
-        <Link href={`/audit?website=${encodeURIComponent(result.website_url)}`} onClick={() => trackFunnelEvent(FUNNEL_EVENT.HERO_PEEK_CTA_CLICKED)} className="mt-6 inline-flex min-h-11 items-center rounded-full bg-brand-red px-6 text-sm font-semibold text-white">See the full picture</Link>
-      </div> : <form onSubmit={submit} noValidate aria-busy={status === "loading"}>
-        <label htmlFor="hero-site-peek-url" className="mb-2 block text-sm text-white/80">Website URL</label>
-        <input id="hero-site-peek-url" type="text" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck={false} value={website}
-          onChange={e => { setWebsite(e.target.value); if (status === "error") { setStatus("idle"); setError(""); } }}
-          placeholder="yourwebsite.com" aria-invalid={status === "error"} aria-describedby={error ? "hero-peek-error" : undefined}
-          className="min-h-12 w-full rounded-xl border border-white/20 bg-black/30 px-4 text-base text-white outline-none focus-visible:ring-2 focus-visible:ring-[#e5bd77]" />
-        {error && <p id="hero-peek-error" role="alert" className="mt-3 text-sm text-red-300">{error}</p>}
-        <button type="submit" disabled={status === "loading"} className="mt-5 inline-flex min-h-11 items-center rounded-full bg-brand-red px-6 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#e5bd77] disabled:opacity-60">{status === "loading" ? "Taking a look…" : "Have a look"}</button>
-        <span className="sr-only" role="status">{status === "loading" ? "Checking your website" : ""}</span>
-      </form>}
-    </DialogContent>
-  </Dialog>;
+  const expanded = step !== "closed";
+  return <div ref={host} className="hero-invitation" data-trail-preserve-palette
+    onFocusCapture={() => setPaused?.(true)}
+    onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused?.(false); }}>
+    <div ref={journey?.cta} className={`hero-capsule ${expanded ? "hero-capsule-open" : ""} ${step === "done" ? "hero-capsule-done" : ""}`}>
+      <div ref={shader} className="hero-capsule-metal" aria-hidden="true" />
+      <div className="hero-capsule-interior" aria-hidden="true" />
+      <AnimatePresence initial={false} mode="wait">
+        {step === "closed" ? <motion.button key="invitation" type="button" className="hero-capsule-trigger"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? 0 : 0.12 }}
+          onAnimationComplete={() => { if (restoreFocus.current) host.current?.querySelector<HTMLButtonElement>(".hero-capsule-trigger")?.focus({ preventScroll: true }); restoreFocus.current = false; }}
+          onClick={() => changeStep("website")}>
+          Show us your world <span aria-hidden="true">↗</span>
+        </motion.button> : step === "done" ? <motion.div key="done" className="hero-form-success" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          onAnimationComplete={() => host.current?.querySelector<HTMLElement>(".hero-form-success p")?.focus({ preventScroll: true })}>
+          <p role="status" tabIndex={-1}>Your introduction is with us.</p>
+          <Link href={`/audit?website=${encodeURIComponent(website)}`}>Tell us what comes next ↗</Link>
+        </motion.div> : <motion.form key="fields" onSubmit={submit} noValidate aria-busy={loading} className="hero-capsule-form"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? 0 : 0.18 }}>
+          <label className="sr-only" htmlFor="hero-introduction">{step === "website" ? "Your website" : "Email or phone number"}</label>
+          <motion.input ref={input} key={step} id="hero-introduction" type="text" inputMode={step === "website" ? "url" : "text"}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: reduced ? 0 : 0.18 }}
+            onAnimationComplete={() => input.current?.focus({ preventScroll: true })}
+            autoComplete={step === "website" ? "url" : "off"} autoCapitalize="none" spellCheck={false}
+            maxLength={step === "website" ? 2048 : 254} disabled={loading}
+            value={step === "website" ? website : contact} placeholder={step === "website" ? "Your website" : "Email or phone number"}
+            onChange={event => { (step === "website" ? setWebsite : setContact)(event.target.value); setError(""); }}
+            aria-invalid={!!error} aria-describedby={error ? "hero-intro-error" : undefined} />
+          <button type="submit" disabled={loading} aria-label={step === "website" ? "Continue to contact details" : "Send your introduction"}>{loading ? "…" : "→"}</button>
+        </motion.form>}
+      </AnimatePresence>
+    </div>
+    <div className="hero-capsule-meta">
+      {expanded && step !== "done" && <>
+        <button type="button" disabled={loading} onClick={() => { restoreFocus.current = step === "website"; changeStep(step === "contact" ? "website" : "closed"); }}>{step === "contact" ? "← Website" : "Close"}</button>
+      </>}
+    </div>
+    {error && <p id="hero-intro-error" role="alert" className="hero-form-error">{error} {step === "contact" && <a href={`mailto:${CONTACT_EMAIL}`}>Contact us ↗</a>}</p>}
+    <span role="status" className="sr-only">{loading ? "Sending your introduction" : ""}</span>
+  </div>;
 }

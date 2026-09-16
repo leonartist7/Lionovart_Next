@@ -145,10 +145,10 @@ export const es: Translations = {
   },
 
   bridge: {
-    line1: "Más que una agencia.",
-    line2: "La alianza que",
-    accent: "construye tu legado.",
-    body: "No trabajamos para clientes. Trabajamos por lo que estás construyendo.",
+    line1: "Más que una agencia. A tu lado.",
+    line2: "La alianza que construye",
+    accent: "tu legado.",
+    body: "Nos implicamos en lo que construyes, con el mismo cuidado que le dedicas.",
   },
 
   vow: {
