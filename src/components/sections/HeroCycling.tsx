@@ -32,6 +32,7 @@ export interface HeroCyclingProps {
   imageFontSize?: string;
   /** Color of text cycling words. Images are unaffected. */
   cyclingColor?: string;
+  staticColor?: string;
   /** Letter spacing for both static and cycling text. */
   letterSpacing?: string;
   /** Force animation even when OS has prefers-reduced-motion enabled. Default: false */
@@ -106,6 +107,7 @@ export default function HeroCycling({
   cyclingFontSize,
   imageFontSize,
   cyclingColor = "#ffffff",
+  staticColor = "#ffffff",
   letterSpacing = "0.05em",
   forceAnimate = false,
 }: HeroCyclingProps) {
@@ -169,7 +171,7 @@ export default function HeroCycling({
     fontFamily: "var(--font-heading)",
     fontWeight: 700,
     textTransform: "uppercase",
-    color: "#ffffff",
+    color: staticColor,
     margin: 0,
     whiteSpace: "nowrap",
     textAlign: alignment,

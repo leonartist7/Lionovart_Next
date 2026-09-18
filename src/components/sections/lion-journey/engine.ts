@@ -15,6 +15,8 @@ export class LionEngine {
   private renderer?: WebGPURenderer;
   private environment?: THREE.RenderTarget;
   private clock = uniform(0);
+  private moteSize = uniform(200);
+  private moteOpacity = uniform(1);
   private maneBottom = uniform(-1);
   private maneFadeEnd = uniform(-0.65);
   private band = uniform(44);
@@ -169,12 +171,12 @@ export class LionEngine {
       const thickness = sin(strand.mul(31)).mul(0.5).add(0.5).pow(3).mul(0.7).add(0.36).mul(taper).add(0.1);
       const offset = motes ? positionLocal : radial.mul(thickness);
       const displaced = center.add(normal.mul(lateral)).add(vec3(0,0,cos(phase).mul(this.band.mul(0.55)))).add(offset);
-      material.positionNode = displaced;
+      material.positionNode = motes ? vec3(flow.x.sub(.5).mul(this.moteSize.mul(.42)), flow.y.negate().mul(this.moteSize.mul(.13)).add(sin(this.clock.mul(.25).add(flow.x.mul(6))).mul(3)), 0).add(positionLocal) : displaced;
       const shade = mix(color("#8b6026"),color("#f7dba3"),sin(strand.mul(18)).mul(0.5).add(0.5).pow(2));
       material.colorNode = motes ? color("#eecb83") : shade;
-      material.emissiveNode = motes ? color("#eecb83").mul(0.75) : shade.mul(0.24);
+      material.emissiveNode = motes ? color("#eecb83").mul(0.2) : shade.mul(0.24);
       const quiet = smoothstep(this.fadeStartY, this.fadeEndY, displaced.y.negate());
-      material.opacityNode = taper.mul(smoothstep(this.fadeInStartY, this.fadeInEndY, displaced.y.negate())).mul(quiet.oneMinus()).mul(motes ? 0.98 : 0.8);
+      material.opacityNode = motes ? this.moteOpacity.mul(.32) : taper.mul(smoothstep(this.fadeInStartY, this.fadeInEndY, displaced.y.negate())).mul(quiet.oneMinus()).mul(motes ? 0.98 : 0.8);
       if (!motes) material.normalNode = radial.normalize();
       return material;
     };
@@ -194,9 +196,9 @@ export class LionEngine {
     const threads=new THREE.Mesh(geometry,makeMaterial(false)); threads.frustumCulled=false; this.silk.add(threads);
     const sphere=new THREE.SphereGeometry(1,8,6), seed=sphere.toNonIndexed(); sphere.dispose();
     const base=seed.getAttribute("position"), dots:number[]=[], dotFlows:number[]=[], dotNormals:number[]=[];
-    const normals=seed.getAttribute("normal"), particleCount=mobile?80:240;
+    const normals=seed.getAttribute("normal"), particleCount=mobile?20:60;
     for(let i=0;i<particleCount;i++) {
-      const t=(i*0.61803398875)%1,s=(i*0.754877666)%1,size=1.15+((i*0.4142)%1)**3*(mobile?1.4:2.2);
+      const t=(i*0.61803398875)%1,s=(i*0.754877666)%1,size=.65+((i*0.4142)%1)**3*.8;
       for(let j=0;j<base.count;j++) { dots.push(base.getX(j)*size,base.getY(j)*size,base.getZ(j)*size); dotFlows.push(t,s,0); }
       for(let j=0;j<base.count;j++) dotNormals.push(normals.getX(j),normals.getY(j),normals.getZ(j));
     }
@@ -216,7 +218,7 @@ export class LionEngine {
     this.renderer.setSize(width, height);
   }
 
-  render(lion: Pose, scroll: number, time: number, mobile: boolean, lionVisible: boolean) {
+  render(lion: Pose, scroll: number, time: number, mobile: boolean, lionVisible: boolean, heroInfluence = 1) {
     if (!this.renderer || this.disposed) return;
     if (mobile && this.dpr > 1.25) {
       this.dpr = 1.25;
@@ -232,12 +234,15 @@ export class LionEngine {
     this.maneFadeEnd.value = this.lion.position.y - lion.size * 0.32;
     this.lion.visible = lionVisible;
     this.silk.position.set(-this.width / 2, this.height / 2 + scroll, 0);
-    // The updated asset is front-facing: look toward the title, then turn left
-    // as the lion reaches the right-hand introduction.
+    // Scroll choreography supplies the hero-right, title-left, then video-front
+    // orientation; pitch adds the final, subtle upward look.
     this.lion.rotation.y = lion.turn * 1.25;
     this.lion.rotation.x = lion.pitch ?? 0;
     this.clock.value = time;
-    this.particles.visible = this.dpr >= 1;
+    this.particles.position.set(lion.x, -lion.y - lion.size * .42, 0);
+    this.moteSize.value = lion.size;
+    this.moteOpacity.value = heroInfluence;
+    this.particles.visible = this.dpr >= 1 && lionVisible && heroInfluence > 0;
 
     try { this.renderer.render(this.scene, this.camera); }
     catch { this.onError(); return; }

@@ -63,7 +63,7 @@ export function PageBuilder() {
           fontSize="clamp(3.75rem, 8.5vw, 7.5rem)"
         />
         <NovaSection id="faq"><FAQ /></NovaSection>
-        <NovaSection id="closing-cta"><ClosingCTA /></NovaSection>
+        <NovaSection id="closing-cta"><ClosingCTA workShowcase /></NovaSection>
       </div>
     </TrailAttractionProvider>
   );

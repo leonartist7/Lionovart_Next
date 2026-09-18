@@ -36,6 +36,7 @@ export const ko: Translations = {
   },
 
   hero: {
+    trustLine: "국경을 넘어, 70개 이상의 도전하는 브랜드가 신뢰합니다",
     staticText: ["당신의 브랜드를", "이렇게 만듭니다"],
     cyclingWords: ["포효하게", "돋보이게", "기억에 남게", "매력적으로", "더 팔리게", "시장을 지배하게"],
     subtitle:

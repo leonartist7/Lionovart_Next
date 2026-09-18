@@ -56,9 +56,12 @@ export default function SmoothScrollProvider({ children }: { children: ReactNode
   );
   const options = useMemo(() => ({
     autoRaf: false,
-    // Keep the classic route's original motion curve exactly.
-    lerp: reducedMotion ? 1 : 0.1,
+    // Premium continuity without making the page feel like it is chasing the
+    // wheel on a trackpad or precision mouse.
+    lerp: reducedMotion ? 1 : 0.13,
     smoothWheel: true,
+    wheelMultiplier: 1.05,
+    touchMultiplier: 1,
     prevent: (node: HTMLElement) => Boolean(node.closest?.('[data-lenis-prevent]')),
   }), [reducedMotion]);
 

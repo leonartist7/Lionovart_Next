@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useAnimation, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { SplitTextReveal } from "@/components/ui/SplitTextReveal";
+
 import { SovereignFoilContour } from "@/components/ui/SovereignFoilContour";
 import { SHOWCASE_IMAGES } from "./showcase-images";
 import { ImageStreamHero } from "@/components/ui/image-stream-hero";
@@ -24,7 +24,7 @@ type ImagineItem = {
   };
 };
 
-type CardPhase = "closed" | "revealing" | "active" | "summary";
+type CardPhase = "closed" | "revealing" | "returning" | "active" | "summary";
 
 function PartnershipStatement() {
   return (
@@ -72,18 +72,20 @@ function SolutionSurface({
   panelId,
   phase,
   onActivate,
+  onReturn,
   isInteractionLocked,
 }: {
   item: ImagineItem;
   panelId: string;
   phase: CardPhase;
   onActivate: () => void;
+  onReturn: () => void;
   isInteractionLocked: boolean;
 }) {
   const reduceMotion = useReducedMotion();
   const isActive = phase === "active";
   const isSummary = phase === "summary";
-  const isCovered = phase === "closed" || phase === "revealing";
+  const isCovered = phase === "closed" || phase === "revealing" || phase === "returning";
   const hasFullDetails = isActive;
 
   return (
@@ -94,7 +96,7 @@ function SolutionSurface({
       aria-hidden={isCovered}
       className={`relative h-full w-full overflow-hidden bg-[#faf9f6] text-[#171717] ${isCovered ? "absolute inset-0" : ""}`}
     >
-      {isActive ? <SovereignFoilContour /> : null}
+      {!isCovered ? <SovereignFoilContour /> : null}
 
       {isSummary ? (
         <button
@@ -137,6 +139,14 @@ function SolutionSurface({
                       </div>
                     ))}
                   </div>
+                  <button
+                    type="button"
+                    onClick={onReturn}
+                    disabled={isInteractionLocked}
+                    className="mt-5 inline-flex min-h-9 items-center rounded-full border border-[#b98b10]/45 px-3.5 font-clash text-[0.625rem] font-bold uppercase tracking-[0.14em] text-[#71510a] transition-colors hover:border-[#b98b10] hover:bg-[#f3e5b9]/45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b98b10] disabled:opacity-50"
+                  >
+                    Return to prompt
+                  </button>
                 </motion.div>
               ) : null}
             </AnimatePresence>
@@ -153,6 +163,8 @@ function PawRevealCard({
   phase,
   onRevealStart,
   onRevealComplete,
+  onReturnStart,
+  onReturnComplete,
   onActivateSummary,
   isInteractionLocked,
 }: {
@@ -161,6 +173,8 @@ function PawRevealCard({
   phase: CardPhase;
   onRevealStart: () => boolean;
   onRevealComplete: () => void;
+  onReturnStart: () => boolean;
+  onReturnComplete: () => void;
   onActivateSummary: () => void;
   isInteractionLocked: boolean;
 }) {
@@ -168,9 +182,11 @@ function PawRevealCard({
   const pawControls = useAnimation();
   const reduceMotion = useReducedMotion();
   const panelId = `imagine-result-${index}`;
+  const returnStarted = useRef(false);
   const isClosed = phase === "closed";
   const isSummary = phase === "summary";
-  const isCovered = phase === "closed" || phase === "revealing";
+  const isActive = phase === "active";
+  const isCovered = phase === "closed" || phase === "revealing" || phase === "returning";
 
   const reveal = async () => {
     if (!onRevealStart()) return;
@@ -182,7 +198,9 @@ function PawRevealCard({
       return;
     }
 
-    await pawControls.set({ x: "-70%", y: "0%", rotate: -6, scale: 0.9 });
+    pawControls.set({ x: "-70%", y: "0%", rotate: -6, scale: 0.9 });
+    // The cover waits on the actual paw animation instead of a timer, so a
+    // rerender or slower device can never make the pull start mid-sweep.
     await pawControls.start({
       x: "-10%",
       y: "0%",
@@ -190,7 +208,6 @@ function PawRevealCard({
       scale: 1.15,
       transition: { duration: PAW_IN_DURATION, ease: RETURN_EASE },
     });
-    await new Promise((resolve) => window.setTimeout(resolve, PAW_IN_DURATION * 850));
     await Promise.all([
       cardControls.start({ y: "105%", transition: { duration: PULL_DURATION, ease: PULL_EASE } }),
       pawControls.start({
@@ -204,14 +221,48 @@ function PawRevealCard({
     onRevealComplete();
   };
 
+  useEffect(() => {
+    if (phase !== "returning") {
+      returnStarted.current = false;
+      return;
+    }
+    if (returnStarted.current) return;
+    returnStarted.current = true;
+
+    const returnToPrompt = async () => {
+      if (reduceMotion) {
+        cardControls.set({ y: "0%" });
+        pawControls.set({ x: "-70%", y: "0%", rotate: -6, scale: 0.9 });
+        onReturnComplete();
+        return;
+      }
+
+      cardControls.set({ y: "105%" });
+      pawControls.set({ x: "-10%", y: "105%", rotate: 4, scale: 1.05 });
+      await Promise.all([
+        cardControls.start({ y: "0%", transition: { duration: PULL_DURATION, ease: PULL_EASE } }),
+        pawControls.start({ y: "0%", transition: { duration: PULL_DURATION, ease: PULL_EASE } }),
+      ]);
+      await pawControls.start({
+        x: "-70%",
+        rotate: -6,
+        scale: 0.9,
+        transition: { duration: PAW_IN_DURATION, ease: RETURN_EASE },
+      });
+      onReturnComplete();
+    };
+
+    void returnToPrompt();
+  }, [cardControls, onReturnComplete, pawControls, phase, reduceMotion]);
+
   return (
     <motion.article
       layout
       transition={reduceMotion ? { duration: 0.01 } : { duration: 0.46, ease: RETURN_EASE }}
-      className={`relative overflow-hidden rounded-[1.375rem] border shadow-[0_18px_32px_-24px_rgba(0,0,0,0.8)] md:rounded-[1.5rem] ${isSummary ? "border-[#e3b72b]/80 bg-[#faf9f6] shadow-[0_0_0_1px_rgba(240,201,23,0.25),0_16px_32px_-24px_rgba(181,135,0,0.8)]" : "border-white/[0.08] bg-black"}`}
+      className={`relative overflow-hidden rounded-[1.375rem] border shadow-[0_18px_32px_-24px_rgba(0,0,0,0.8)] md:rounded-[1.5rem] ${isSummary || isActive ? "border-[#e3b72b]/80 bg-[#faf9f6] shadow-[0_0_0_1px_rgba(240,201,23,0.25),0_16px_32px_-24px_rgba(181,135,0,0.8)]" : "border-white/[0.08] bg-black"}`}
     >
       <div className={`relative overflow-hidden ${isSummary ? "" : isCovered ? "h-[9rem] bg-black md:h-[8rem]" : "min-h-[12rem] bg-black md:min-h-[12.5rem]"}`}>
-        <SolutionSurface item={item} panelId={panelId} phase={phase} onActivate={onActivateSummary} isInteractionLocked={isInteractionLocked} />
+        <SolutionSurface item={item} panelId={panelId} phase={phase} onActivate={onActivateSummary} onReturn={onReturnStart} isInteractionLocked={isInteractionLocked} />
 
         {isCovered ? <motion.button
           type="button"
@@ -257,6 +308,7 @@ function PawRevealCard({
 export default function PawRevealStack() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [revealingIndex, setRevealingIndex] = useState<number | null>(null);
+  const [returningIndex, setReturningIndex] = useState<number | null>(null);
   const [revealedIndexes, setRevealedIndexes] = useState<number[]>([]);
   const [showWorkStream, setShowWorkStream] = useState(false);
   const [scene, setScene] = useState({ diameter: 1200, height: 900, viewport: 900 });
@@ -265,6 +317,7 @@ export default function PawRevealStack() {
   const chapterRef = useRef<HTMLElement>(null);
   const reduceMotion = useReducedMotion() ?? false;
   const staticScene = reduceMotion;
+  const circlePadding = Math.max(0, (scene.diameter - scene.height) / 2) + 64;
   const centerShift = (scene.height - scene.viewport) / 2;
   const { t } = useLanguage();
   const items: ImagineItem[] = t.problems.items;
@@ -303,8 +356,8 @@ export default function PawRevealStack() {
       const width = content.offsetWidth;
       const height = content.offsetHeight;
       // The diagonal encloses all four corners, with breathing room for the title and cards.
-      const diameter = Math.ceil(Math.max(Math.hypot(width + 160, height + 200), Math.min(window.innerWidth, window.innerHeight) * 1.75));
-      const stageHeight = Math.max(window.innerHeight, height + 160);
+      const diameter = Math.ceil(Math.max(Math.hypot(width + 160, height + 280), Math.min(window.innerWidth, window.innerHeight) * 1.75));
+      const stageHeight = Math.max(window.innerHeight, height + 240);
       setScene(previous => previous.diameter === diameter && previous.height === stageHeight && previous.viewport === window.innerHeight ? previous : { diameter, height: stageHeight, viewport: window.innerHeight });
     };
     measure();
@@ -334,6 +387,21 @@ export default function PawRevealStack() {
     interactionLock.current = false;
   };
 
+  const startReturn = (index: number) => {
+    if (interactionLock.current || activeIndex !== index) return false;
+
+    interactionLock.current = true;
+    setReturningIndex(index);
+    return true;
+  };
+
+  const completeReturn = (index: number) => {
+    setActiveIndex((current) => current === index ? null : current);
+    setRevealedIndexes((current) => current.filter((value) => value !== index));
+    setReturningIndex(null);
+    interactionLock.current = false;
+  };
+
   const activateSummary = (index: number) => {
     if (interactionLock.current) return;
 
@@ -344,7 +412,7 @@ export default function PawRevealStack() {
     <section
       ref={chapterRef}
       aria-label="Imagine and one partnership"
-      style={{ height: staticScene ? scene.height : scene.height + scene.viewport * 2.4 }}
+      style={{ paddingTop: circlePadding, paddingBottom: circlePadding, height: (staticScene ? scene.height : scene.height + scene.viewport * 1.45) + circlePadding * 2 }}
       className="relative z-30 isolate overflow-visible bg-bg-surface-light"
     >
       <div style={{ height: scene.height, top: Math.min(0, scene.viewport - scene.height) }} className={staticScene ? "relative overflow-visible" : "sticky overflow-visible"}>
@@ -384,21 +452,21 @@ export default function PawRevealStack() {
         </motion.div>
 
         <motion.div
-          style={{ opacity: cardOpacity, y: cardY, pointerEvents: revealingIndex === null ? "auto" : "none" }}
+          style={{ opacity: cardOpacity, y: cardY, pointerEvents: revealingIndex === null && returningIndex === null ? "auto" : "none" }}
           className="absolute inset-0 z-30 flex items-center justify-center px-3.5 py-5 sm:px-6 md:py-7"
         >
           <div ref={contentRef} data-imagine-content className="w-full max-w-[660px]">
             <motion.div className="mb-4 flex flex-col items-center text-center sm:mb-5" initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}>
               <p className="mb-1.5 font-clash text-[0.625rem] font-semibold uppercase tracking-[0.17em] text-white sm:text-xs">{t.problems.eyebrow}</p>
-              <SplitTextReveal as="h2" className="font-clash text-[clamp(2.15rem,1.65rem+2.15vw,3.5rem)] font-bold uppercase leading-[0.95] tracking-[-0.045em] text-white" step={18} delay={120} from="center">
+              <h2 className="font-clash text-[clamp(2.15rem,1.65rem+2.15vw,3.5rem)] font-bold uppercase leading-[0.95] tracking-[-0.045em] text-white">
                 {t.problems.heading}
-              </SplitTextReveal>
+              </h2>
             </motion.div>
 
             <div className="mx-auto flex w-full flex-col gap-2.5 sm:gap-3">
               {items.map((item, index) => {
-                const phase: CardPhase = revealingIndex === index ? "revealing" : activeIndex === index ? "active" : revealedIndexes.includes(index) ? "summary" : "closed";
-                return <PawRevealCard key={item.problem.heading} item={item} index={index} phase={phase} onRevealStart={() => startReveal(index)} onRevealComplete={() => completeReveal(index)} onActivateSummary={() => activateSummary(index)} isInteractionLocked={revealingIndex !== null} />;
+                const phase: CardPhase = returningIndex === index ? "returning" : revealingIndex === index ? "revealing" : activeIndex === index ? "active" : revealedIndexes.includes(index) ? "summary" : "closed";
+                return <PawRevealCard key={item.problem.heading} item={item} index={index} phase={phase} onRevealStart={() => startReveal(index)} onRevealComplete={() => completeReveal(index)} onReturnStart={() => startReturn(index)} onReturnComplete={() => completeReturn(index)} onActivateSummary={() => activateSummary(index)} isInteractionLocked={revealingIndex !== null || returningIndex !== null} />;
               })}
             </div>
           </div>

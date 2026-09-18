@@ -549,9 +549,11 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
                     duration: reducedMotion ? 0 : 0.18,
                     delay: reducedMotion ? 0 : (NAV_LINKS.length + 1) * 0.045,
                   }}
+                  className="flex w-full justify-center"
                 >
-                  <LanguageSwitcher isHeroMode={false} />
+                  <LanguageSwitcher isHeroMode={false} inMenu />
                 </motion.div>
+
               </nav>
             </motion.div>
           )}

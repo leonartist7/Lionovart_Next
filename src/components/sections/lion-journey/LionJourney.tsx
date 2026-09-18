@@ -6,7 +6,6 @@ import { journeyPose, journeyProgress, openingPose, pauseProgress, type OpeningM
 import type { LionEngine } from "./engine";
 import styles from "./LionJourney.module.css";
 import TubesCursor from "@/components/ui/TubesCursor";
-import OpeningVideo from "./OpeningVideo";
 import TrustedBadgesSection from "../TrustedBadgesSection";
 
 type ElementRef = RefObject<HTMLDivElement | null>;
@@ -129,7 +128,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       anchors = { cta: cta.current ? rect(cta.current) : undefined, hero: rect(hero.current), copy: rect(copy.current), slot: rect(slot.current), intro: rect(intro.current), video: surface, videoSection: section, proof: proofBounds, bridge: bridgeBounds, reveal: rect(reveal.current), end: section.top, mobile: innerWidth < 1024 };
       openingBounds = opening.current ? rect(opening.current) : undefined;
       stageHeight = opening.current?.querySelector<HTMLElement>(".hero-opening-stage")?.offsetHeight ?? innerHeight;
-      const pinned = modeRef.current === "pinned" && !reduced();
+      const pinned = modeRef.current === "pinned" && opening.current?.dataset.openingMode === "pinned" && !reduced();
       if (pinned && openingBounds) {
         const displacement = clamp(scrollY - openingBounds.top, 0, Math.max(0, openingBounds.height - stageHeight));
         for (const key of ["hero", "copy", "slot", "intro", "cta"] as const) {
@@ -174,7 +173,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       if (!anchors) return;
       const p = journeyProgress(scrollY, anchors);
       progress.set(p);
-      const pinned = modeRef.current === "pinned" && !reduced() && !!openingBounds;
+      const pinned = modeRef.current === "pinned" && opening.current?.dataset.openingMode === "pinned" && !reduced() && !!openingBounds;
       const openingP = pinned ? clamp((scrollY - openingBounds!.top) / Math.max(1, openingBounds!.height - stageHeight)) : 0;
       openingProgress.set(openingP);
       backdropOpacity.set(scrollY < anchors.reveal.top ? 1 : 1 - clamp(coverage.current));
@@ -210,9 +209,9 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       const influence = pinned ? 1 - clamp(openingP / .36) : 1 - p;
       lion.x += pointerX * 10 * influence;
       lion.y += pointerY * 6 * influence;
-      lion.pitch = -pointerY * Math.PI / 90 * influence;
+      lion.pitch = (lion.pitch ?? 0) - pointerY * Math.PI / 90 * influence;
       lion.turn += (Math.sin(time * Math.PI / 5) * Math.PI / 60 + pointerX * Math.PI / 60) * influence / 1.25;
-      engine.render(lion, scrollY, time, anchors.mobile, p < 1);
+      engine.render(lion, scrollY, time, anchors.mobile, p < 1, influence);
       if (host.current) {
         host.current.dataset.lionProgress = p.toFixed(3);
         host.current.dataset.lionPose = JSON.stringify(lion);
@@ -245,7 +244,6 @@ export default function LionJourney({ children }: { children: ReactNode }) {
     return () => { window.removeEventListener("pointerout", onPointerOut); window.removeEventListener("blur", neutralPointer); window.removeEventListener("pointermove", onPointer); disposed = true; cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener("scroll", wake); window.removeEventListener("resize", resize); window.removeEventListener("pageshow", resize); document.removeEventListener("visibilitychange", wake); media.removeEventListener("change", resize); update.current = () => {}; engine?.dispose(); };
   }, [progress, openingProgress, backdropOpacity]);
   return <Context.Provider value={context}><div ref={host} className={styles.journey} data-lion-journey data-lion-active={active}>
-    <OpeningVideo />
     <svg ref={fallback} className={styles.fallback} aria-hidden="true" preserveAspectRatio="none" fill="none">{Array.from({length:18},(_,i)=><path key={i} stroke={i%3 ? "#9a733a" : "#edd4a0"} strokeWidth={i%4 ? "0.7" : "1.2"} opacity="0.42" />)}</svg>
     <div ref={canvasHost} className={styles.canvas} aria-hidden="true" />{children}
   </div><TubesCursor layer="landing" enableRandomizeOnClick={false} /></Context.Provider>;

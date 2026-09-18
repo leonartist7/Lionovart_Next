@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, useCallback } from "react";
+import { useLayoutEffect, useRef, useCallback, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -8,8 +8,7 @@ import InkRevealArtwork, {
   type InkRevealArtworkHandle,
 } from "@/components/sections/strong-together/InkRevealArtwork";
 import { useLionJourney } from "./lion-journey/LionJourney";
-import Image from "next/image";
-import { SHOWCASE_IMAGES } from "./showcase-images";
+import LogoWorkShowcase from "./LogoWorkShowcase";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -25,6 +24,7 @@ export default function StrongTogetherTransition() {
   const aloneORef = useRef<HTMLSpanElement>(null);
   const togetherRef = useRef<HTMLHeadingElement>(null);
   const workRef = useRef<HTMLDivElement>(null);
+  const [workActive, setWorkActive] = useState(false);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -95,52 +95,55 @@ export default function StrongTogetherTransition() {
       gsap.set(blooms, {
         attr: { r: (_, el) => Number(el.dataset.rStart) },
       });
-      gsap.set(art, { opacity: 0.72 });
+      gsap.set(art, { opacity: 0 });
       gsap.set(alone, { opacity: 1, y: 0 });
       gsap.set(together, { opacity: 0, y: 0 });
-      gsap.set(work, { autoAlpha: 0, y: 16 });
+      gsap.set(work, { autoAlpha: 0, y: 0 });
 
       setReveal?.(0);
       const coverage = { value: 0 };
       const timeline = gsap.timeline({
-        onUpdate: () => setReveal?.(coverage.value),
+        onUpdate: () => {
+          setReveal?.(coverage.value);
+          setWorkActive(coverage.value > 0);
+        },
         scrollTrigger: {
           trigger: section,
           start: "top top",
           end: "bottom bottom",
-          scrub: 0.8,
+          scrub: 0.3,
           invalidateOnRefresh: true,
           onRefreshInit: placeBloomOnO,
           onRefresh: placeBloomOnO,
         },
       });
 
-      timeline.to(coverage, { value: 1, duration: 0.58, ease: "power2.inOut" }, 0.04)
+      timeline.to(coverage, { value: 1, duration: 0.18, ease: "power2.inOut" }, 0)
         .to(
           primary,
           {
             attr: { r: () => Number(primary.dataset.rFinal) },
-            duration: 0.58,
+            duration: 0.18,
             ease: "power2.inOut",
           },
-          0.04
+          0
         )
         .to(
           secondaries,
           {
             attr: { r: (_, el) => Number(el.dataset.rFinal) },
-            duration: 0.42,
+            duration: 0.14,
             ease: "power2.inOut",
             stagger: 0.025,
           },
-          0.16
+          0.04
         )
-        .to(art, { opacity: 1, duration: 0.3, ease: "none" }, 0.18)
-        .to(alone, { opacity: 0, y: -10, duration: 0.14, ease: "none" }, 0.38)
-        .to(together, { opacity: 1, duration: 0.24, ease: "power4.out" }, 0.42)
-        // The white bloom finishes at 0.62; reveal the work only after it.
-        .to(work, { autoAlpha: 1, y: 0, duration: 0.18, ease: "power2.out" }, 0.68)
-        .to({}, { duration: 0.14 }, 0.86);
+        .to(art, { opacity: 1, duration: 0.12, ease: "power2.out" }, 0.18)
+        .to(alone, { opacity: 0, y: -10, duration: 0.1, ease: "none" }, 0.08)
+        .to(together, { opacity: 1, duration: 0.12, ease: "power2.out" }, 0.18)
+        // The entire composition enters together as soon as the white bloom completes.
+        .to(work, { autoAlpha: 1, y: 0, duration: 0.12, ease: "power2.out" }, 0.18)
+        .to({}, { duration: 0.52 }, 0.3);
     }, section);
 
     window.addEventListener("resize", scheduleBloomPlacement, { passive: true });
@@ -159,9 +162,9 @@ export default function StrongTogetherTransition() {
       id="stronger-together"
       aria-labelledby="strong-together-title"
       data-art-directed="light"
-      className="lion-reveal relative h-[160svh] overflow-clip bg-bg-dark"
+      className="lion-reveal relative h-[160svh] overflow-visible bg-bg-dark"
     >
-      <div className="sticky top-0 h-[100svh] overflow-hidden bg-[#0d0d0d]">
+      <div className="sticky top-0 h-[100svh] overflow-visible bg-[#0d0d0d]">
         <div className="pointer-events-none absolute inset-0 z-[4]" aria-hidden="true">
           <InkRevealArtwork
             ref={artHandleRef}
@@ -170,11 +173,11 @@ export default function StrongTogetherTransition() {
           />
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 top-[32%] z-[5] -translate-y-1/2 px-5 text-center md:px-12">
+        <div className="pointer-events-none absolute inset-x-0 top-[22%] z-[5] -translate-y-1/2 px-5 text-center md:px-12">
           <h2
             ref={aloneRef}
             aria-hidden="true"
-            className="mx-auto max-w-[11ch] font-clash text-[clamp(2.5rem,10vw,10rem)] font-semibold leading-[0.78] tracking-[-0.065em] text-[#f2ede3]"
+            className="mx-auto max-w-[11ch] font-clash text-[clamp(2.5rem,min(8vw,10svh),7rem)] font-semibold leading-[0.78] tracking-[-0.065em] text-[#f2ede3]"
           >
             <span className="block">Strong</span>
             <span className="block">
@@ -184,21 +187,15 @@ export default function StrongTogetherTransition() {
           <h2
             id="strong-together-title"
             ref={togetherRef}
-            className="absolute inset-x-0 top-0 mx-auto max-w-[11ch] px-4 font-clash text-[clamp(2.5rem,10vw,10rem)] font-semibold uppercase leading-[0.78] tracking-[-0.065em] text-[#171412]"
+            className="absolute inset-x-0 top-0 mx-auto max-w-[11ch] px-4 font-clash text-[clamp(2.5rem,min(8vw,10svh),7rem)] font-semibold uppercase leading-[0.78] tracking-[-0.065em] text-[#171412]"
           >
             <span className="block">STRONGER</span>
             <span className="block">TOGETHER</span>
           </h2>
         </div>
 
-        <div ref={workRef} id="stronger-work-strip" style={{ opacity: 0, visibility: "hidden" }} className="absolute inset-x-0 bottom-0 z-[6] bg-[#f2ede3] pb-3 pt-3 sm:pb-5">
-          <div aria-label="Selected brand and website work" tabIndex={0} className="flex gap-3 overflow-x-auto overscroll-x-contain px-4 [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-[#171412] sm:gap-4 sm:px-6">
-            {SHOWCASE_IMAGES.map((src, index) => (
-              <div key={src} className="relative h-[clamp(100px,20svh,200px)] w-[clamp(160px,25vw,340px)] shrink-0 overflow-hidden rounded-lg bg-white">
-                <Image src={src} alt={`Selected Lionovart project ${index + 1}`} fill sizes="(max-width: 640px) 180px, (max-width: 1360px) 25vw, 340px" loading="lazy" decoding="async" className="object-contain" />
-              </div>
-            ))}
-          </div>
+        <div ref={workRef} id="stronger-work-showcase" style={{ opacity: 0, visibility: "hidden", bottom: "calc(21.5% - clamp(38px, 6vw, 80px))" }} className="absolute inset-x-0 z-[6] h-[40%]">
+          <LogoWorkShowcase active={reduceMotion || workActive} />
         </div>
       </div>
     </section>

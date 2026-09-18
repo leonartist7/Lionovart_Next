@@ -1,5 +1,6 @@
 "use client";
 
+import LogoWorkShowcase from "./LogoWorkShowcase";
 import HeroCycling, { type Word } from "@/components/sections/HeroCycling";
 import VideoBackdrop from "@/components/ui/VideoBackdrop";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
@@ -20,7 +21,7 @@ const FOOTER_CLIP =
  * Used once per page (the footer is now navigation/legal only), so pages never
  * double-close. `crest` adds the brand crest beside the button (branding page).
  */
-export default function ClosingCTA({ crest = false }: { crest?: boolean }) {
+export default function ClosingCTA({ crest = false, workShowcase = false }: { crest?: boolean; workShowcase?: boolean }) {
   const { t, locale } = useLanguage();
   const openNova = useNovaStore((s) => s.openNova);
 
@@ -44,18 +45,22 @@ export default function ClosingCTA({ crest = false }: { crest?: boolean }) {
   return (
     <section
       id="closing-cta"
-      className="relative overflow-hidden bg-[#0a0a0a] px-6 pb-16 pt-28 text-center text-white md:pb-20 md:pt-36"
+      className={`relative overflow-hidden px-6 pb-16 pt-20 text-center md:pb-20 md:pt-28 ${workShowcase ? "bg-[#f2ede3] text-[#171412]" : "bg-[#0a0a0a] text-white"}`}
     >
-      <VideoBackdrop src={FOOTER_CLIP} className="absolute inset-0 z-0" overlayClassName="bg-black/70" />
+      {!workShowcase ? <VideoBackdrop src={FOOTER_CLIP} className="absolute inset-0 z-0" overlayClassName="bg-black/70" /> : null}
 
       <div className="relative z-40 mx-auto flex max-w-[1280px] flex-col items-center gap-8 md:gap-10">
         <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red md:text-[13px]">
           Your next chapter, together
         </p>
 
+        {workShowcase ? <div className="relative h-[clamp(280px,42vw,520px)] w-screen"><LogoWorkShowcase /></div> : null}
+
         <div className="w-full">
           <HeroCycling
             staticText={t.hero.staticText}
+            staticColor={workShowcase ? "#171412" : "#ffffff"}
+            cyclingColor={workShowcase ? "#171412" : "#ffffff"}
             words={words}
             fontSize="clamp(2.6rem, 9.5vw, 7rem)"
             cyclingFontSize="clamp(3.2rem, 12.5vw, 9.5rem)"
@@ -64,7 +69,7 @@ export default function ClosingCTA({ crest = false }: { crest?: boolean }) {
           />
         </div>
 
-        <p className="max-w-[46ch] font-body text-[15px] leading-[1.6] text-white/70 md:text-[18px]">
+        <p className={`max-w-[46ch] font-body text-[15px] leading-[1.6] md:text-[18px] ${workShowcase ? "text-black/65" : "text-white/70"}`}>
           Bring your ambition. We will shape the identity, experiences and systems to carry it forward.
         </p>
 

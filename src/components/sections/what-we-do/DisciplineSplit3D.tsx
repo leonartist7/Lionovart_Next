@@ -54,7 +54,7 @@ const TILT_X = 5;
 // panes track the scrollbar directly (forward *and* backward — scrolling
 // back up re-joins them and the video comes back together); past
 // SPLIT_END the scene is settled and the cursor rig can arm.
-const SECTION_HEIGHT_VH = 190;
+const SECTION_HEIGHT_VH = 160;
 
 // Caps the canvas backing-store size on very-high-DPR screens.
 const CANVAS_DPR_CAP = 2;

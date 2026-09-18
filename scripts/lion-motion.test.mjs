@@ -32,6 +32,15 @@ test('layout refresh keeps the finish before translated partnership copy',()=>{
  assert.ok(journeyRoute(b).at(-1).y>journeyRoute(a).at(-1).y);
 });
 
+test('lion follows the right-to-left-to-front orientation journey',()=>{
+ const a=fixture(1440);
+ const hero=journeyPose(0,a),title=journeyPose(.48,a),video=journeyPose(1,a);
+ assert.ok(hero.turn>.35,'hero begins facing right');
+ assert.ok(title.turn<-.4,'lion faces left alongside the second title');
+ assert.ok(Math.abs(video.turn)<.001,'lion faces front at the video');
+ assert.ok((video.pitch ?? 0)<-.12,'lion subtly looks upward before disappearing');
+});
+
 test('stream tangents stay continuous at chapter joins',()=>{
  const route=journeyRoute(fixture(1440)),e=1e-6;
  for(let i=1;i<route.length-1;i++) {

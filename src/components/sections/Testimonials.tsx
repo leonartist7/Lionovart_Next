@@ -265,7 +265,7 @@ function ReviewCardSurface({ card }: { card: Review }) {
   return (
     <figure
       data-review-visual
-      className="testimonial-card-surface relative w-full overflow-hidden rounded-2xl bg-white/[0.035] p-4 transition-[transform,box-shadow,background-color] duration-300 ease-out group-hover/review:bg-white/[0.07] motion-safe:group-hover/review:-translate-y-1.5 motion-safe:group-hover/review:scale-[1.022] group-hover/review:shadow-[0_22px_50px_-18px_rgba(0,0,0,0.75)] sm:p-5 lg:p-6"
+      className="testimonial-card-surface relative w-full overflow-hidden rounded-2xl bg-white/[0.035] p-4 outline outline-1 outline-white/[0.08] transition-[background-color,outline-color] duration-200 ease-out group-hover/review:bg-white/[0.07] group-hover/review:outline-brand-gold/45 sm:p-5 lg:p-6"
     >
       <div className="flex items-center gap-2 sm:gap-3">
         {avatar && (
@@ -301,7 +301,7 @@ function ReviewCardSurface({ card }: { card: Review }) {
             </span>
           )}
           <div className="flex items-baseline gap-1.5">
-            <span className="font-clash text-base font-bold leading-none text-brand-gold sm:text-lg lg:text-[22px]">
+            <span className="bg-gradient-to-r from-[#f47721] via-[#f0c917] to-[#ffe49a] bg-clip-text font-clash text-base font-bold leading-none text-transparent drop-shadow-[0_1px_8px_rgba(240,201,23,0.25)] sm:text-lg lg:text-[22px]">
               {card.stat}
             </span>
             <span className="font-body text-[9px] uppercase tracking-[0.06em] text-white/55 sm:text-[10px] lg:text-[11px]">

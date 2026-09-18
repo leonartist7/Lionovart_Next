@@ -36,6 +36,7 @@ export const fr: Translations = {
   },
 
   hero: {
+    trustLine: "Plus de 70 marques ambitieuses nous font confiance, sans frontières",
     staticText: ["NOUS RENDONS", "VOTRE MARQUE"],
     cyclingWords: ["RUGIR", "ATTIRANTE", "MÉMORABLE", "MAGNÉTIQUE", "VENDRE PLUS", "DOMINER"],
     subtitle:

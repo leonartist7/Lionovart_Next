@@ -36,6 +36,7 @@ export const ja: Translations = {
   },
 
   hero: {
+    trustLine: "国境を越えて、70以上の意欲あるブランドからの信頼",
     staticText: ["あなたのブランドを", "こう変える"],
     cyclingWords: ["轟かせる", "際立たせる", "記憶に残す", "惹きつける", "もっと売る", "市場を制す"],
     subtitle:

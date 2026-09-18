@@ -42,6 +42,7 @@ export const en = {
   },
 
   hero: {
+    trustLine: "Trusted by 70+ ambitious brands across borders",
     staticText: ["LET'S MAKE", "YOUR BRAND"],
     cyclingWords: ["ROAR", "STAND OUT", "MEMORABLE", "MAGNETIC", "SELL MORE", "DOMINATE"],
     subtitle:

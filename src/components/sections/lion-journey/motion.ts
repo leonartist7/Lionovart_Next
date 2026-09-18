@@ -21,7 +21,9 @@ export function journeyRoute(a: Anchors): Point[] {
   return [
     { x: a.slot.left + a.slot.width / 2, y: a.slot.top + a.slot.height / 2 },
     { x: left + w * (a.mobile ? 0.8 : 0.79), y: a.intro.top + a.intro.height * 0.24 },
-    { x: a.video.left + a.video.width * 0.74, y: a.video.top + a.video.height * 0.48 },
+    // The lion moves from its right-side profile into the visual centre of
+    // the film before it disappears, rather than slipping off-axis.
+    { x: a.video.left + a.video.width * 0.5, y: a.video.top + a.video.height * 0.48 },
     { x: left + w * 0.16, y: a.videoSection.top + a.videoSection.height * 0.72 },
     { x: left + w * 0.25, y: streamEnd(a) },
   ];
@@ -42,9 +44,23 @@ export function routePoint(points: Point[], progress: number): Point {
 }
 export function journeyPose(progress: number, a: Anchors): Pose {
   const p = clamp(progress), points = journeyRoute(a);
-  const size = Math.min(a.slot.height * 0.86, a.mobile ? a.slot.width * 1.05 : 430);
+  const size = Math.min(a.slot.height * 0.86, a.slot.width * .96, 760);
   const endSize = Math.min(size * 0.82, a.video.height * 0.75, a.video.width * 0.4);
-  return { ...routePoint(points, p * 2 / (points.length - 1)), size: mix(size, endSize, ease(clamp((p - 0.72)/0.28))), turn: mix(0.4, -0.4, ease(clamp(p/0.52))) };
+  // Treat orientation as three intentional visual beats, instead of a single
+  // interpolation: profile right in the hero, profile left by the title, then
+  // forward and slightly upward as the lion sinks into the film.
+  const titleBeat = 0.48;
+  const turn = p <= titleBeat
+    ? mix(0.4, -0.42, ease(clamp(p / titleBeat)))
+    : mix(-0.42, 0, ease(clamp((p - titleBeat) / (1 - titleBeat))));
+  return {
+    ...routePoint(points, p * 2 / (points.length - 1)),
+    size: mix(size, endSize, ease(clamp((p - 0.72)/0.28))),
+    turn,
+    // A small negative X rotation lifts the muzzle toward the viewer while
+    // keeping the face front-on when it passes behind the video.
+    pitch: mix(0, -0.13, ease(clamp((p - 0.58) / 0.42))),
+  };
 }
 
 /** Gold begins at the invitation; the lion retains its independent route. */
@@ -70,16 +86,23 @@ export function openingPose(scroll: number, anchors: Anchors, opening: Rect, sta
   const initial = journeyPose(0, anchors);
   const points = journeyRoute(anchors);
   const offset = clamp(scroll - opening.top, 0, runway);
-  const settled = { x: points[1].x, y: points[1].y + runway, size: initial.size * .72, turn: -.4 };
+  const settled = { x: points[1].x, y: points[1].y + runway, size: initial.size * .72, turn: -0.42, pitch: 0 };
   if (scroll <= opening.top + runway) return {
     x: mix(initial.x, points[1].x, travel),
     y: mix(initial.y, points[1].y, travel) + offset,
     size: mix(initial.size, settled.size, travel),
     turn: mix(initial.turn, settled.turn, travel),
+    pitch: mix(initial.pitch ?? 0, settled.pitch, travel),
   };
   const remaining = ease(clamp((scroll - opening.top - runway) / Math.max(1, anchors.end - opening.top - runway)));
   const end = journeyPose(1, anchors);
-  return { x: mix(settled.x, end.x, remaining), y: mix(settled.y, end.y, remaining), size: mix(settled.size, end.size, remaining), turn: -.4 };
+  return {
+    x: mix(settled.x, end.x, remaining),
+    y: mix(settled.y, end.y, remaining),
+    size: mix(settled.size, end.size, remaining),
+    turn: mix(settled.turn, end.turn, remaining),
+    pitch: mix(settled.pitch, end.pitch ?? 0, remaining),
+  };
 }
 
 /** Separate copy beats: outgoing text is gone before the next title enters. */

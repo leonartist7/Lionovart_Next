@@ -149,16 +149,20 @@ export function ImageStreamHero({
                     animationDelay: `${-(index * speed) / cards}s`,
                   }}
                 >
-                  <Image
-                    src={image.src}
-                    alt=""
-                    fill
-                    loading="lazy"
-                    decoding="async"
-                    draggable={false}
-                    sizes="(max-width: 639px) 38vw, 34vw"
-                    className="object-cover"
-                  />
+                  {image.src.includes("res.cloudinary.com/") ? (
+                    // Responsive CDN variants account for the cards' enlarged exit pose.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={image.src.replace(/w_\d+/, "w_960")}
+                      srcSet={[768, 960, 1280, 1600].map(width => `${image.src.replace(/w_\d+/, `w_${width}`)} ${width}w`).join(", ")}
+                      sizes="(max-width: 639px) 480px, 60vw"
+                      alt=""
+                      loading="eager"
+                      decoding="async"
+                      draggable={false}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : <Image src={image.src} alt="" fill loading="lazy" decoding="async" draggable={false} sizes="(max-width: 639px) 480px, 60vw" className="object-cover" />}
                 </div>
               );
             }),

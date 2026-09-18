@@ -12,12 +12,12 @@ export default function HeroTop() {
     <div className="lion-content">
     <div ref={journey?.copy} className="lion-copy">
       <h1 id="hero-heading" className="lion-headline" data-scroll-title-skip>
-        {locale === "en" ? <><span>MAKE</span><span>YOUR BRAND</span><span className="lion-roar"><button type="button" className="roar-demo-trigger" aria-label="ROAR — opening demo controls" aria-expanded={journey?.demoOpen ?? false} aria-controls="opening-demo-panel" onClick={() => journey?.setDemoOpen(true)}>ROAR</button></span></> : <>{t.hero.staticText.map(line => <span key={line}>{line}</span>)}<span className="lion-roar"><button type="button" className="roar-demo-trigger" aria-label="Opening demo controls" aria-expanded={journey?.demoOpen ?? false} aria-controls="opening-demo-panel" onClick={() => journey?.setDemoOpen(true)}>{t.hero.cyclingWords[0]}</button></span></>}
+        {locale === "en" ? <><span>MAKE</span><span className="lion-your-brand"><span>YOUR</span><span>BRAND</span></span><span className="lion-roar"><button type="button" className="roar-demo-trigger" aria-label="ROAR — opening demo controls" aria-expanded={journey?.demoOpen ?? false} aria-controls="opening-demo-panel" onClick={() => journey?.setDemoOpen(true)}>ROAR</button></span></> : <>{t.hero.staticText.map(line => <span key={line}>{line}</span>)}<span className="lion-roar"><button type="button" className="roar-demo-trigger" aria-label="Opening demo controls" aria-expanded={journey?.demoOpen ?? false} aria-controls="opening-demo-panel" onClick={() => journey?.setDemoOpen(true)}>{t.hero.cyclingWords[0]}</button></span></>}
       </h1>
     </div>
     <p className="lion-description">{t.hero.subtitle}</p>
     <div className="lion-cta"><HeroSitePeek /><HeroClientProof /></div>
-    <a className="lion-trust lion-scroll" href="#what-we-build">Step inside our world <span aria-hidden="true">↓</span></a>
+    <p className="lion-trust">{t.hero.trustLine}</p>
     </div>
   </section>;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useId } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Locale } from "@/lib/i18n";
@@ -14,10 +14,17 @@ const LANGUAGES: { code: Locale; label: string; flag: string }[] = [
   { code: "ko", label: "KO", flag: "https://flagcdn.com/w40/kr.png" },
 ];
 
-export function LanguageSwitcher({ isHeroMode }: { isHeroMode?: boolean }) {
+type LanguageSwitcherProps = {
+  isHeroMode?: boolean;
+  /** Expands the locale list within a containing navigation panel. */
+  inMenu?: boolean;
+};
+
+export function LanguageSwitcher({ isHeroMode, inMenu = false }: LanguageSwitcherProps) {
   const { locale, setLocale } = useLanguage();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const listboxId = useId();
 
   // Close on outside click
   useEffect(() => {
@@ -28,17 +35,26 @@ export function LanguageSwitcher({ isHeroMode }: { isHeroMode?: boolean }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, []);
+
   const current = LANGUAGES.find((l) => l.code === locale) ?? LANGUAGES[0];
 
   return (
-    <div ref={ref} className="relative shrink-0">
+    <div ref={ref} className={`relative shrink-0 ${inMenu ? "w-full max-w-[240px]" : ""}`}>
       {/* Trigger pill */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] transition-colors select-none ${
+        aria-controls={open ? listboxId : undefined}
+        className={`flex min-h-11 min-w-11 touch-manipulation items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] transition-colors select-none ${
           isHeroMode === false
             ? "text-black/70 hover:text-black hover:bg-black/[0.07]"
             : "text-white/90 hover:text-white hover:bg-white/10"
@@ -52,7 +68,7 @@ export function LanguageSwitcher({ isHeroMode }: { isHeroMode?: boolean }) {
         <span>{current.label}</span>
         {/* Chevron */}
         <svg
-          className={`w-2.5 h-2.5 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`h-2.5 w-2.5 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
           fill="none"
           viewBox="0 0 10 6"
           stroke="currentColor"
@@ -66,13 +82,17 @@ export function LanguageSwitcher({ isHeroMode }: { isHeroMode?: boolean }) {
       <AnimatePresence>
         {open && (
           <motion.ul
+            id={listboxId}
             role="listbox"
             aria-label="Select language"
             initial={{ opacity: 0, y: -6, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.96 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute right-0 top-full mt-1.5 min-w-[96px] rounded-xl z-[9999]"
+            className={inMenu
+              ? "relative mt-2 w-full min-w-0 origin-top rounded-xl"
+              : "absolute right-0 top-full z-[9999] mt-1.5 min-w-[96px] max-w-[calc(100vw-1.5rem)] origin-top-right rounded-xl"
+            }
               style={{
                 background: "#000000",
                 border: "1px solid rgba(255,255,255,0.12)",
