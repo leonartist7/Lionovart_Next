@@ -3,10 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { DemoShell } from "@/components/portal/DemoShell";
-import { AssetViewer } from "@/components/portal/AssetViewer";
+import { AssetCollaboration } from "@/components/portal/AssetCollaboration";
 import { VersionList } from "@/components/portal/VersionList";
 import { UploadDialog } from "@/components/portal/UploadDialog";
-import { demoAsset, resolveDemoView } from "@/lib/portal/demo-data";
+import { demoAsset, demoThreads, resolveDemoView } from "@/lib/portal/demo-data";
 import { formatBytes, formatDate } from "@/lib/portal/format";
 
 export const metadata: Metadata = {
@@ -57,9 +57,20 @@ export default async function DemoAssetDetailPage({
           {view === "studio" && <UploadDialog workspaceSlug="demo" assetId={assetId} demo />}
         </header>
 
-        <section className="mt-7">
-          <AssetViewer kind={asset.kind} url={active.url} name={asset.name} />
-        </section>
+        <AssetCollaboration
+          workspaceSlug="demo"
+          assetId={assetId}
+          assetName={asset.name}
+          assetKind={asset.kind}
+          viewUrl={active.url}
+          activeVersion={active.n}
+          initialThreads={demoThreads(assetId)}
+          initialCursor=""
+          currentUid={view === "studio" ? "demo-agency" : "demo-client"}
+          isAgency={view === "studio"}
+          canComment
+          demo
+        />
 
         {asset.versions.length > 1 && (
           <section aria-labelledby="asset-versions" className="mt-8">

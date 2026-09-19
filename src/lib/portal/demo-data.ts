@@ -1,6 +1,14 @@
 import type { ProjectWithMilestones } from "@/lib/portal/projects";
 import { deriveProgress } from "@/lib/portal/projects";
-import type { AssetKind, Milestone, PortalMessage, Task, TaskColumn } from "@/lib/portal/types";
+import type {
+  AssetKind,
+  Comment,
+  Milestone,
+  PortalMessage,
+  Task,
+  TaskColumn,
+  Thread,
+} from "@/lib/portal/types";
 
 /**
  * Fixtures for the design preview at /portal/demo.
@@ -326,4 +334,86 @@ export const DEMO_APPROVALS: DemoApproval[] = [
 /** Everyone sees the same fixed queue — the demo never mutates a decision. */
 export function demoApprovals(): DemoApproval[] {
   return DEMO_APPROVALS.filter((a) => a.state === "pending");
+}
+
+/* ── Collaboration threads & pins ───────────────────────────────── */
+
+/**
+ * Structurally the same shape `listThreads` returns, declared locally so this
+ * fixture file never imports the `server-only` data layer.
+ */
+export type DemoThread = Thread & { comments: Comment[] };
+
+const DEMO_CLIENT_UID = "demo-client";
+const DEMO_AGENCY_UID = "demo-agency";
+
+function demoThread(
+  id: string,
+  assetId: string,
+  spec: {
+    pin?: { x: number; y: number };
+    versionId?: number;
+    resolved?: boolean;
+    ageDays: number;
+    comments: [author: "client" | "agency", body: string][];
+  },
+): DemoThread {
+  const at = daysFromNow(spec.ageDays);
+  const comments = spec.comments.map(([who, body], i) => ({
+    id: `${id}-c${i}`,
+    body,
+    authorUid: who === "client" ? DEMO_CLIENT_UID : DEMO_AGENCY_UID,
+    authorName: who === "client" ? DEMO_CLIENT.name : DEMO_AGENCY.name,
+    createdAt: daysFromNow(spec.ageDays + i * 0.02),
+  }));
+  const last = comments[comments.length - 1].createdAt;
+  return {
+    id,
+    targetType: "asset",
+    targetId: assetId,
+    ...(spec.pin ? { pin: spec.pin, versionId: spec.versionId ?? 1 } : {}),
+    status: spec.resolved ? "resolved" : "open",
+    createdBy: comments[0].authorUid,
+    createdAt: at,
+    lastMessageAt: last,
+    updatedAt: last,
+    participants: [...new Set(comments.map((c) => c.authorUid))],
+    comments,
+  };
+}
+
+export const DEMO_THREADS: DemoThread[] = [
+  demoThread("thread-leaf", "logo-mark", {
+    pin: { x: 0.42, y: 0.31 },
+    versionId: 2,
+    ageDays: -2,
+    comments: [
+      ["client", "The leaf still reads as a feather at small sizes. Can the spine be heavier?"],
+      ["agency", "Agreed — thickening the spine and shortening the tip for the next round."],
+    ],
+  }),
+  demoThread("thread-wordmark", "logo-mark", {
+    pin: { x: 0.68, y: 0.74 },
+    versionId: 2,
+    ageDays: -1,
+    comments: [["client", "Wordmark sits low against the mark. Half a step up?"]],
+  }),
+  demoThread("thread-brown", "logo-mark", {
+    pin: { x: 0.2, y: 0.6 },
+    versionId: 2,
+    resolved: true,
+    ageDays: -3,
+    comments: [
+      ["client", "This brown is colder than the packaging."],
+      ["agency", "Warmed it two steps — that's the version you're looking at."],
+    ],
+  }),
+  demoThread("thread-general", "logo-mark", {
+    ageDays: -4,
+    comments: [["agency", "Version 2 is ready for a decision whenever you have five minutes."]],
+  }),
+];
+
+export function demoThreads(assetId: string): DemoThread[] {
+  return DEMO_THREADS.filter((t) => t.targetId === assetId);
 }
