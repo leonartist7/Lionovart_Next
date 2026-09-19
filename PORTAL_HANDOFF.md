@@ -38,7 +38,7 @@ Then confirm the environment is up (§2) before writing code. If `verify.mjs` is
 | **4 — Approvals** | ✅ built — one-tap approve, request-changes with a required note, append-only decisions, gated to approver+ |
 | **5a — Messages / WhatsApp** | ✅ built — two-way bridge, signature-verified webhook, mock + live drivers |
 | **5c — Assistant** | ✅ built — read-only Gemini agent scoped to one workspace, non-primary nav item |
-| **5b — Content** | ⬜ composer, per-platform previews, approvals, idea generation, image gen |
+| **5b — Content** | ✅ built — composer, per-platform previews with real limits, state machine, approval via the existing primitive, Gemini ideas + on-brand plates, `ManualPublisher` |
 | **6 — Polish** | ⬜ motion, a11y, anti-slop review |
 
 **Page-by-page specs for every screen still marked "Soon" are in `PORTAL_PAGES.md`** — purpose, client vs studio view, data, the hard parts, and which model should build each.
@@ -141,6 +141,9 @@ Don't invent; there's a working example of everything.
 | An adapter with a mock + live driver | `src/lib/portal/providers/whatsapp.ts` — one interface, selected by env var presence, so the UI never has a stub-shaped hole |
 | A signature-verified unguarded webhook | `src/app/api/webhooks/whatsapp/route.ts` — raw body read before parsing, HMAC compared in constant time, idempotent on retry |
 | A Gemini tool-calling agent | `src/lib/portal/assistant-tools.ts` + `api/portal/[workspace]/assistant/route.ts` — mirrors `/api/strategist/chat`'s SSE function-calling loop. **Every tool delegates to an already-filtered data function** (`listProjects`, not a new query) so role-based visibility is inherited, never reimplemented |
+| A rule both the form and the server must apply | `src/lib/portal/platforms.ts` — pure, no `server-only`. The composer validates on every keystroke and the submit route validates before a post may reach a client, through the **same** `validatePost`. Two copies of "what Instagram accepts" is two places for it to go stale |
+| A one-shot (non-streaming) Gemini call | `src/lib/portal/content-ai.ts` — `generateContent` with a `responseSchema`, and an honest 503 when `GEMINI_API_KEY` is absent |
+| Reusing an existing primitive instead of rebuilding it | `submitForReview` in `src/lib/portal/posts.ts` creates the approval through `createApproval`, and `transitionPost` **refuses** `in_review → approved` by name, pointing the caller at Approvals. The decision is mirrored onto the post from the approvals route and nowhere else |
 
 **Auth guards** (`src/lib/portal-auth.ts`) — always the first lines of a route:
 ```ts
@@ -220,6 +223,9 @@ When Opus finishes a design decision, it leaves the **contract** — types, func
 - **Clients only, invited.** No public signup. Invite tokens are stored as SHA-256 hashes, bound to the recipient's address, single-use.
 - **Uploads → Firebase Storage** with server-issued signed PUT URLs, so bytes never route through Cloud Run. Cloudinary stays for marketing media. Confirming an upload checks the object actually exists in Storage before writing Firestore — a client can't fabricate a version record. **No Storage emulator is wired up** (only auth + firestore in `firebase.json`), so `src/lib/portal/assets.ts` mocks the sign/read/exists calls under `FIRESTORE_EMULATOR_HOST` — verify.mjs exercises the validation and permission logic, never real bytes.
 - **Annotation pins are normalized 0–1** against the rendered image box, tied to a specific asset **version**.
+- **Social publishing is manual, and says so.** `SocialPublisher` in `src/lib/portal/providers/social.ts` is the seam; `ManualPublisher` is the only driver. It runs the real per-platform validation, then records what the studio confirms it posted by hand. Meta/LinkedIn drivers slot in behind the same interface once app review clears.
+- **Generated images are *plates*, not finished graphics.** Gemini is told to render no text at all; the headline, rule and wordmark are laid over it as real type in `BrandImageGenerator`. An image model holds a palette reliably and does not hold Clash Display at a specific weight — letting it try produces the almost-right lettering that reads as generated. `src/lib/portal/brand.ts` mirrors the `globals.css` brand tokens as plain strings because a prompt can't read a CSS custom property; **if a token changes there, change it here too.**
+- **A post's content is frozen from `in_review` onward; its schedule is not.** Editing a caption the client is deciding on, or one they already approved, means the thing that ships isn't the thing that was approved. Moving an approved post from Tuesday to Thursday changes nothing they decided on, so it doesn't cost a new approval round. See `EDITABLE_STATES` vs `SCHEDULABLE_STATES`.
 
 ---
 
@@ -235,7 +241,7 @@ What actually costs context, in order:
 Verification ladder, cheapest first:
 ```bash
 npx tsc --noEmit                       # types
-node scripts/portal-verify/verify.mjs  # behaviour + security (56 assertions)
+node scripts/portal-verify/verify.mjs  # behaviour + security (127 assertions)
 npm run build                          # before pushing
 node scripts/portal-verify/shots.mjs   # only when judging visuals
 ```

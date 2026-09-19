@@ -1,6 +1,7 @@
 import type { ProjectWithMilestones } from "@/lib/portal/projects";
 import { deriveProgress } from "@/lib/portal/projects";
-import type { AssetKind, Milestone, PortalMessage, Task, TaskColumn } from "@/lib/portal/types";
+import type { AssetKind, Milestone, PortalMessage, Post, Task, TaskColumn } from "@/lib/portal/types";
+import { CLIENT_VISIBLE_STATES } from "@/lib/portal/platforms";
 
 /**
  * Fixtures for the design preview at /portal/demo.
@@ -326,4 +327,109 @@ export const DEMO_APPROVALS: DemoApproval[] = [
 /** Everyone sees the same fixed queue — the demo never mutates a decision. */
 export function demoApprovals(): DemoApproval[] {
   return DEMO_APPROVALS.filter((a) => a.state === "pending");
+}
+
+/* ── Content ────────────────────────────────────────────────────── */
+
+function post(
+  id: string,
+  state: Post["state"],
+  caption: string,
+  platforms: Post["platforms"],
+  hashtags: string[],
+  scheduledInDays?: number,
+  assetIds: string[] = [],
+): Post {
+  return {
+    id,
+    caption,
+    hashtags,
+    platforms,
+    assetIds,
+    state,
+    scheduledFor: scheduledInDays === undefined ? undefined : daysFromNow(scheduledInDays),
+    createdBy: "demo-agency",
+    createdAt: daysFromNow(-6),
+    updatedAt: daysFromNow(-1),
+  };
+}
+
+export const DEMO_POSTS: Post[] = [
+  post(
+    "post-review-espresso",
+    "in_review",
+    "The new cups arrived. Same weight in the hand as the old ones, half the material — the difference is in the wall, not the shape.",
+    ["instagram", "linkedin"],
+    ["#Packaging", "#BrandIdentity"],
+    undefined,
+    ["hero-photo"],
+  ),
+  post(
+    "post-scheduled-launch",
+    "scheduled",
+    "Doors open Thursday at seven. The roastery stays open late all week.",
+    ["instagram", "facebook"],
+    ["#Northwind"],
+    4,
+    ["logo-mark"],
+  ),
+  post(
+    "post-published-proofs",
+    "published",
+    "Proofs, drying. Four rounds to get the red right.",
+    ["instagram"],
+    ["#Letterpress"],
+    -9,
+    ["hero-photo"],
+  ),
+  // Studio-only: a client never receives an idea or a draft.
+  post(
+    "post-draft-origin",
+    "draft",
+    "Where the beans come from, and why we changed who we buy from this year.",
+    ["linkedin"],
+    ["#Sourcing"],
+  ),
+  post("post-idea-barista", "idea", "A morning with the openers — 5am to first pour.", ["instagram"], [], undefined, [
+    "logo-mark",
+  ]),
+];
+
+/** The same state filter `listPosts` applies — ideas and drafts are studio-only. */
+export function demoPosts(view: DemoView): Post[] {
+  return view === "studio"
+    ? DEMO_POSTS
+    : DEMO_POSTS.filter((p) => CLIENT_VISIBLE_STATES.includes(p.state));
+}
+
+export function demoPost(view: DemoView, id: string): Post | null {
+  return demoPosts(view).find((p) => p.id === id) ?? null;
+}
+
+/**
+ * A demo post's attachments, shaped for the validator and the preview.
+ * Dimensions are the placeholder's real ones, so the aspect-ratio rules are
+ * exercised in the preview rather than skipped.
+ */
+export function demoPostMedia(post: Post): {
+  assetId: string;
+  name: string;
+  kind: AssetKind;
+  width: number;
+  height: number;
+  thumbnailUrl: string | null;
+}[] {
+  return post.assetIds.flatMap((id) => {
+    const asset = DEMO_ASSETS.find((a) => a.id === id);
+    if (!asset) return [];
+    const version = asset.versions.find((v) => v.n === asset.currentVersion);
+    return [{
+      assetId: asset.id,
+      name: asset.name,
+      kind: asset.kind,
+      width: 1200,
+      height: 900,
+      thumbnailUrl: version?.url || null,
+    }];
+  });
 }
