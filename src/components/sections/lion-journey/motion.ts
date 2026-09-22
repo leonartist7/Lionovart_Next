@@ -63,15 +63,22 @@ export function journeyPose(progress: number, a: Anchors): Pose {
   };
 }
 
-/** Gold begins at the invitation; the lion retains its independent route. */
+/** One left-side gold flow gestures toward the invitation before continuing. */
 export function goldRoute(a: Anchors): Point[] {
   const points = journeyRoute(a);
   const cta = a.cta ?? a.slot;
-  points[0] = { x: cta.left + cta.width / 2, y: cta.top + cta.height };
+  const lion = journeyPose(0, a);
+  const invitationY = cta.top + cta.height / 2;
+  const invitationX = Math.max(8, cta.left - 24);
+  points[0] = { x: lion.x, y: Math.min(lion.y + lion.size * .4, invitationY - 90) };
+  const clearY = Math.max(invitationY + 180, points[0].y + 240);
+  points[1].y = Math.max(points[1].y, clearY + 180);
+  points.splice(1, 0,
+    { x: invitationX, y: invitationY },
+    { x: a.mobile ? invitationX : lion.x, y: clearY });
   points[points.length - 1] = { x: a.hero.left + a.hero.width / 2, y: streamEnd(a) };
   return points;
 }
-
 export type OpeningMode = "current" | "pause" | "pinned";
 /** A scroll hold, so reversing direction follows the same route. */
 export function pauseProgress(progress: number) {
@@ -86,7 +93,9 @@ export function openingPose(scroll: number, anchors: Anchors, opening: Rect, sta
   const initial = journeyPose(0, anchors);
   const points = journeyRoute(anchors);
   const offset = clamp(scroll - opening.top, 0, runway);
-  const settled = { x: points[1].x, y: points[1].y + runway, size: initial.size * .72, turn: -0.42, pitch: 0 };
+  // Land the title pose at the hero scale. Reducing it during this turn made
+  // the model feel as if it popped away before the next scene had started.
+  const settled = { x: points[1].x, y: points[1].y + runway, size: initial.size, turn: -0.42, pitch: 0 };
   if (scroll <= opening.top + runway) return {
     x: mix(initial.x, points[1].x, travel),
     y: mix(initial.y, points[1].y, travel) + offset,

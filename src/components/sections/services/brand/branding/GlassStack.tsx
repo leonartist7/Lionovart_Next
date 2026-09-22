@@ -7,7 +7,7 @@
  * RevealOnScroll handles reduced-motion.
  */
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import RevealOnScroll from "./RevealOnScroll";
 import { SERVICE_ROUTES } from "@/lib/service-routes";
 

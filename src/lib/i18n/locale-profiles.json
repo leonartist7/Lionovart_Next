@@ -1,0 +1,32 @@
+{
+  "en": {
+    "market": "Canada (English)",
+    "voice": "Direct, confident and warm. Keep premium language grounded and avoid empty hype.",
+    "rules": ["Keep LIONOVART, NOVA, WhatsApp and product names unchanged.", "Use Canadian spelling where relevant."]
+  },
+  "fr": {
+    "market": "France",
+    "voice": "Natural contemporary French for ambitious business owners; transcreate rhythm and confidence rather than translating word for word.",
+    "rules": ["Use vous, never tu.", "Do not translate LIONOVART or NOVA.", "Avoid literal English marketing idioms."]
+  },
+  "es": {
+    "market": "International Spanish",
+    "voice": "Neutral, modern Spanish that works across markets; confident without regional slang.",
+    "rules": ["Use usted where direct address is needed.", "Avoid Spain-only and Latin America-only idioms.", "Do not translate LIONOVART or NOVA."]
+  },
+  "it": {
+    "market": "Italy",
+    "voice": "Polished, direct Italian for business owners; prioritize natural persuasion over literal phrasing.",
+    "rules": ["Use lei for direct address.", "Do not translate LIONOVART or NOVA."]
+  },
+  "ja": {
+    "market": "Japan",
+    "voice": "Professional, clear Japanese with respectful business register. Shorten and recast English slogans when needed.",
+    "rules": ["Do not force English word order.", "Keep LIONOVART and NOVA in Latin characters.", "Avoid exaggerated claims that sound unnatural in Japanese."]
+  },
+  "ko": {
+    "market": "Korea",
+    "voice": "Professional, concise Korean for founders and operators; favour natural business Korean over literal translations.",
+    "rules": ["Use an appropriate formal business register.", "Keep LIONOVART and NOVA in Latin characters.", "Do not force English word order."]
+  }
+}

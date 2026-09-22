@@ -23,9 +23,8 @@ export default function HeroTop() {
         {locale === "en" ? <><span>MAKE</span><span className="lion-your-brand"><span>YOUR</span><span>BRAND</span></span><span className="lion-roar"><button type="button" className="roar-demo-trigger" aria-label="ROAR — opening demo controls" aria-expanded={journey?.demoOpen ?? false} aria-controls="opening-demo-panel" onClick={() => journey?.setDemoOpen(true)}>ROAR</button></span></> : <>{t.hero.staticText.map(line => <span key={line}>{line}</span>)}<span className="lion-roar"><button type="button" className="roar-demo-trigger" aria-label="Opening demo controls" aria-expanded={journey?.demoOpen ?? false} aria-controls="opening-demo-panel" onClick={() => journey?.setDemoOpen(true)}>{t.hero.cyclingWords[0]}</button></span></>}
       </h1>
     </div>
-    <p className="lion-description">{t.hero.subtitle}</p>
-    <div className="lion-cta"><HeroSitePeek /><HeroClientProof /></div>
-    <p className="lion-trust">{t.hero.trustLine}</p>
+    <p className={`lion-description${locale === "ja" || locale === "ko" ? "" : " editorial-accent editorial-hero"}`}>{t.hero.subtitle}</p>
+    <div className="lion-cta"><HeroSitePeek /><div className="lion-social-proof"><HeroClientProof /><p className="lion-trust">{t.hero.trustLine}</p></div></div>
     </div>
   </section>;
 }

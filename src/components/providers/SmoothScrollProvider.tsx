@@ -67,7 +67,6 @@ export default function SmoothScrollProvider({ children }: { children: ReactNode
 
   return (
     <LenisProvider
-      key={reducedMotion ? 'reduced' : 'motion'}
       root
       options={options}
     >

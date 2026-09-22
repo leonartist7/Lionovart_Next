@@ -1,0 +1,14 @@
+"use client";
+
+import { useSyncExternalStore } from "react";
+
+const query = "(prefers-reduced-motion: reduce)";
+const subscribe = (callback: () => void) => {
+  const media = window.matchMedia(query);
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+};
+// Keep the first client render identical to SSR, then apply the preference.
+export function useHydratedReducedMotion() {
+  return useSyncExternalStore(subscribe, () => window.matchMedia(query).matches, () => false);
+}

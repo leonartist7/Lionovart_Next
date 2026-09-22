@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./editorial.css";
 
 /* Inlined from shadcn/dist/tailwind.css â€” avoids Turbopack bare-specifier CSS import issue */
 @theme inline {
@@ -81,6 +82,7 @@
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-clash-display);
   --font-body: var(--font-dm-sans);
+  --font-editorial: var(--font-playfair-display), Georgia, serif;
 
   /* --- Brand Colors --- */
   --color-bg-dark: #0a0a0a;

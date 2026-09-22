@@ -1,7 +1,7 @@
 "use client";
 import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   AnimatePresence,
   motion,
@@ -11,7 +11,7 @@ import {
   useTransform,
 } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useLenis } from "lenis/react";
 import { Menu, X } from "lucide-react";
 import { getWhatsAppUrl } from "@/lib/contact";
@@ -25,13 +25,6 @@ const HERO_THRESHOLD_RATIO = 0.62;
 const GLASS_THRESHOLD = 2;
 const MOBILE_CLOSE_DELTA = 5;
 const LUMA_REVEAL_DELTA = 15;
-
-const NAV_LINKS = [
-  { label: "We", target: "about" },
-  { label: "Expertise", target: "services", hasDropdown: true },
-  { label: "Work", target: "work" },
-  { label: "Results", target: "testimonials" },
-];
 
 const CARD_VARIANTS = {
   hidden: {
@@ -137,12 +130,20 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
   const { scrollY } = useScroll();
   const navTop = useTransform(scrollY, [0, 40], [40, 0]);
   const navChromeOpacity = useTransform(scrollY, [GLASS_THRESHOLD, 96], [0, 1]);
-  const reducedMotion = Boolean(useReducedMotion());
+  const motionPreference = useReducedMotion();
+  const hydrated = useSyncExternalStore(() => () => {}, () => true, () => false);
+  const reducedMotion = hydrated && Boolean(motionPreference);
   const { t, locale } = useLanguage();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lenis = useLenis() as any;
 
   const services: string[] = (t.services?.items ?? []).map((service: { title: string }) => service.title);
+  const navLinks = [
+    { label: t.nav.we, target: "about" },
+    { label: t.nav.expertise, target: "services", hasDropdown: true },
+    { label: t.nav.work, target: "work" },
+    { label: t.nav.results, target: "testimonials" },
+  ];
   const ctaLabel = t.nav.cta;
   const useLightweightMenu = lightweightMenu || reducedMotion;
 
@@ -346,7 +347,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
                   exit={{ opacity: 0, transition: { duration: reducedMotion ? 0 : 0.18 } }}
                 >
                   <ul className="flex items-center justify-start gap-7 2xl:gap-8">
-                    {NAV_LINKS.map((link) => (
+                    {navLinks.map((link) => (
                       <li
                         key={link.target}
                         className="relative"
@@ -386,6 +387,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
             </AnimatePresence>
 
             <div className="flex flex-1 items-center justify-end gap-2 xl:gap-5">
+
               <AnimatePresence initial={false}>
                 {heroMode && (
                   <motion.div
@@ -457,8 +459,9 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
               transition={{ duration: reducedMotion ? 0 : 0.3, ease: [0.4, 0, 0.2, 1] }}
               className={`absolute top-0 -z-10 ${styles.menuPanel} ${styles.panelGlass}`}
             >
+
               <nav className="flex flex-col items-center justify-center gap-5 px-6 pb-8 pt-[78px] xl:flex-row xl:gap-x-6 xl:pt-[84px]">
-                {NAV_LINKS.map((link, index) => (
+                {navLinks.map((link, index) => (
                   <motion.div
                     key={link.target}
                     initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
@@ -537,7 +540,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
                   exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
                   transition={{
                     duration: reducedMotion ? 0 : 0.2,
-                    delay: reducedMotion ? 0 : NAV_LINKS.length * 0.045,
+                    delay: reducedMotion ? 0 : navLinks.length * 0.045,
                   }}
                   className="flex w-full justify-center xl:w-auto"
                 >
@@ -556,7 +559,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
                   exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
                   transition={{
                     duration: reducedMotion ? 0 : 0.18,
-                    delay: reducedMotion ? 0 : (NAV_LINKS.length + 1) * 0.045,
+                    delay: reducedMotion ? 0 : (navLinks.length + 1) * 0.045,
                   }}
                   className="flex w-full justify-center"
                 >

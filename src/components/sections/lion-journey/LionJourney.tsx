@@ -30,6 +30,10 @@ interface JourneyContext {
   setDialogOpen: (value: boolean) => void;
 }
 const Context = createContext<JourneyContext | null>(null);
+// Keep cursor parallax comfortably inside the lion's authored scroll path.
+// Values are screen-space units because the scene camera matches the viewport.
+const CURSOR_DRIFT_X = 16;
+const CURSOR_DRIFT_Y = 10;
 export const useLionJourney = () => useContext(Context);
 export function LionSlot() {
   const journey = useLionJourney();
@@ -153,9 +157,11 @@ export default function LionJourney({ children }: { children: ReactNode }) {
         fallback.current.style.setProperty("-webkit-mask-image", mask);
         fallback.current.setAttribute("viewBox", `0 ${rect(host.current).top} ${innerWidth} ${host.current.offsetHeight}`);
         fallback.current.querySelectorAll("path").forEach((path, strand) => {
-          const s = strand / 17, band = anchors!.mobile ? 34 : 78;
+          const s = strand / 17, baseBand = anchors!.mobile ? 34 : 78;
           const d = Array.from({length: 321}, (_, i) => {
             const t = i / 320, p = routePoint(route, t);
+            const widening = clamp((t - .12) / .28);
+            const band = baseBand * (.22 + .78 * widening * widening * (3 - 2 * widening));
             const a = routePoint(route, Math.max(0, t - 0.001)), b = routePoint(route, Math.min(1, t + 0.001));
             const length = Math.hypot(b.x-a.x, b.y-a.y) || 1;
             const phase = t*44 + Math.floor(s*3)*2.094 + s*0.9;
@@ -210,8 +216,10 @@ export default function LionJourney({ children }: { children: ReactNode }) {
         pointerY += ((finePointer.matches ? targetY : 0) - pointerY) * damping;
       }
       const influence = pinned ? 1 - clamp(openingP / .36) : 1 - p;
-      lion.x += pointerX * 10 * influence;
-      lion.y += pointerY * 6 * influence;
+      // The model remains on its authored route; this is only a restrained
+      // parallax nudge toward the cursor, spring-smoothed above.
+      lion.x += pointerX * CURSOR_DRIFT_X * influence;
+      lion.y += pointerY * CURSOR_DRIFT_Y * influence;
       lion.pitch = (lion.pitch ?? 0) - pointerY * Math.PI / 90 * influence;
       lion.turn += (Math.sin(time * Math.PI / 5) * Math.PI / 60 + pointerX * Math.PI / 60) * influence / 1.25;
       engine.render(lion, scrollY, time, anchors.mobile, p < 1, influence);

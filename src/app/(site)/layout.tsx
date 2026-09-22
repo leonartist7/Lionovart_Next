@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { preload } from "react-dom";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import "../globals.css";
 // Required Lenis stylesheet — missing this causes native scroll to fight Lenis every frame.
 import "lenis/dist/lenis.css";
-import { clashDisplay, dmSans } from "@/lib/fonts";
+import { clashDisplay, dmSans, playfairDisplay } from "@/lib/fonts";
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { PostHogInit } from "@/components/PostHogInit";
@@ -17,6 +19,7 @@ import SplashScreen from "@/components/ui/SplashScreen";
 import SiteTitleReveal from "@/components/ui/SiteTitleReveal";
 import { SITE, SITE_URL, OG_IMAGE } from "@/lib/seo/config";
 import { JsonLd } from "@/lib/seo/JsonLd";
+import { isLocale, localeDetails } from "@/i18n/routing";
 import {
   organizationSchema,
   localBusinessSchema,
@@ -78,16 +81,20 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [requestedLocale, messages] = await Promise.all([getLocale(), getMessages()]);
+  const locale = isLocale(requestedLocale) ? requestedLocale : "en";
+
   // Starts the exact SVG request in the document head, before the body streams.
   preload("/images/LOGO.svg", { as: "image", fetchPriority: "high" });
 
   return (
-    <html lang="en" className={`${clashDisplay.variable} ${dmSans.variable} h-full antialiased`} style={{ backgroundColor: "#000" }} suppressHydrationWarning>
+    <html lang={localeDetails[locale].htmlLang} className={`${clashDisplay.variable} ${dmSans.variable} ${playfairDisplay.variable} h-full antialiased`} style={{ backgroundColor: "#000" }} suppressHydrationWarning>
       <body className="min-h-full flex flex-col" style={{ backgroundColor: "#000" }}>
         {/* Site-wide entity graph — Organization, ProfessionalService, WebSite.
             Powers Google rich results + AEO citations (ChatGPT/Gemini/Perplexity). */}
-        <JsonLd data={[organizationSchema(), localBusinessSchema(), websiteSchema()]} />
+        <JsonLd data={[organizationSchema(), localBusinessSchema(), websiteSchema(locale)]} />
         <PostHogInit />
+        <NextIntlClientProvider locale={locale} messages={messages}>
         <LanguageProvider>
           <IntroProvider>
           <SmoothScrollProvider>
@@ -102,6 +109,7 @@ export default async function RootLayout({
           <BottomBlur />
         </IntroProvider>
         </LanguageProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

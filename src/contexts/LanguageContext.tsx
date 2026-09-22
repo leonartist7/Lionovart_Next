@@ -1,6 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useCallback, useContext, ReactNode } from "react";
+import { useLocale, useMessages } from "next-intl";
+import { useRouter } from "next/navigation";
 import { locales, type Locale, type Translations } from "@/lib/i18n";
 
 interface LanguageContextValue {
@@ -12,29 +14,23 @@ interface LanguageContextValue {
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("en");
+  const router = useRouter();
+  const activeLocale = useLocale();
+  const locale: Locale = activeLocale in locales ? activeLocale as Locale : "en";
+  const messages = useMessages() as Translations;
 
-  // Restore persisted locale on mount
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("lionovart-locale") as Locale | null;
-      if (saved && saved in locales) setLocaleState(saved);
-    } catch {
-      // localStorage unavailable — stay on "en"
-    }
-  }, []);
+  const setLocale = useCallback((next: Locale) => {
+    if (next === locale || typeof window === "undefined") return;
 
-  const setLocale = (next: Locale) => {
-    setLocaleState(next);
-    try {
-      localStorage.setItem("lionovart-locale", next);
-    } catch {
-      // ignore
-    }
-  };
+    const segments = window.location.pathname.split("/").filter(Boolean);
+    if (segments[0] in locales) segments.shift();
+    const pathname = segments.length ? `/${segments.join("/")}` : "/";
+    const prefix = next === "en" ? "" : `/${next}`;
+    router.push(`${prefix}${pathname === "/" ? "" : pathname}${window.location.search}${window.location.hash}`);
+  }, [locale, router]);
 
   return (
-    <LanguageContext.Provider value={{ locale, setLocale, t: locales[locale] }}>
+    <LanguageContext.Provider value={{ locale, setLocale, t: messages }}>
       {children}
     </LanguageContext.Provider>
   );

@@ -19,3 +19,13 @@ docs/v2-screenshots/
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+
+# Isolated discovery verification builds
+.next-discovery/
+.next-discovery-build/
+.next-selected-work/
+.next-typography-build/
+/reports/selected-work/
+
+.vercel
+.env*

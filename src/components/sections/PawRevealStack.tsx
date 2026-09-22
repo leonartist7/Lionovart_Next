@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useAnimation, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -25,6 +25,7 @@ type ImagineItem = {
 };
 
 type CardPhase = "closed" | "revealing" | "returning" | "active" | "summary";
+type CardTransition = { kind: "reveal" | "return"; index: number } | null;
 
 function PartnershipStatement() {
   return (
@@ -107,8 +108,14 @@ function SolutionSurface({
         >
           <StatusHeading item={item} compact />
         </button>
-      ) : (
-        <div className="relative z-10 min-h-[12rem] px-5 py-5 sm:px-7 sm:py-5.5 md:min-h-[12.5rem] md:px-8 md:py-6 lg:px-10">
+      ) : isActive ? (
+        <button
+          type="button"
+          onClick={onReturn}
+          disabled={isInteractionLocked}
+          aria-label="Return to prompt"
+          className="relative z-10 block min-h-[12rem] w-full touch-manipulation px-5 py-5 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[#b98b10] disabled:cursor-default sm:px-7 sm:py-5.5 md:min-h-[12.5rem] md:px-8 md:py-6 lg:px-10"
+        >
           <div className="mx-auto max-w-[700px]">
             <StatusHeading item={item} />
 
@@ -124,12 +131,9 @@ function SolutionSurface({
                     {item.solution.body}
                   </p>
 
-                  <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-3.5 min-[430px]:grid-cols-3 md:mt-5 md:gap-x-5">
-                    {item.solution.stats.map((stat, index) => (
-                      <div
-                        key={stat.label}
-                        className={`flex min-w-0 flex-col text-left ${index === 2 ? "col-span-2 min-[430px]:col-span-1" : ""}`}
-                      >
+                  <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-3.5 md:mt-5 md:gap-x-5">
+                    {item.solution.stats.slice(0, 2).map((stat) => (
+                      <div key={stat.label} className="flex min-w-0 flex-col text-left">
                         <span className="font-clash text-[clamp(1.5rem,1.2rem+1vw,2.25rem)] font-bold leading-none tracking-[-0.045em] text-[#e5192a]">
                           {stat.value}
                         </span>
@@ -139,17 +143,15 @@ function SolutionSurface({
                       </div>
                     ))}
                   </div>
-                  <button
-                    type="button"
-                    onClick={onReturn}
-                    disabled={isInteractionLocked}
-                    className="mt-5 inline-flex min-h-9 items-center rounded-full border border-[#b98b10]/45 px-3.5 font-clash text-[0.625rem] font-bold uppercase tracking-[0.14em] text-[#71510a] transition-colors hover:border-[#b98b10] hover:bg-[#f3e5b9]/45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b98b10] disabled:opacity-50"
-                  >
-                    Return to prompt
-                  </button>
                 </motion.div>
               ) : null}
             </AnimatePresence>
+          </div>
+        </button>
+      ) : (
+        <div className="relative z-10 min-h-[12rem] px-5 py-5 sm:px-7 sm:py-5.5 md:min-h-[12.5rem] md:px-8 md:py-6 lg:px-10">
+          <div className="mx-auto max-w-[700px]">
+            <StatusHeading item={item} />
           </div>
         </div>
       )}
@@ -182,7 +184,8 @@ function PawRevealCard({
   const pawControls = useAnimation();
   const reduceMotion = useReducedMotion();
   const panelId = `imagine-result-${index}`;
-  const returnStarted = useRef(false);
+  const returnCompletionReported = useRef(false);
+  const returnPawExitStarted = useRef(false);
   const isClosed = phase === "closed";
   const isSummary = phase === "summary";
   const isActive = phase === "active";
@@ -223,37 +226,52 @@ function PawRevealCard({
 
   useEffect(() => {
     if (phase !== "returning") {
-      returnStarted.current = false;
+      returnCompletionReported.current = false;
+      returnPawExitStarted.current = false;
       return;
     }
-    if (returnStarted.current) return;
-    returnStarted.current = true;
 
-    const returnToPrompt = async () => {
-      if (reduceMotion) {
-        cardControls.set({ y: "0%" });
-        pawControls.set({ x: "-70%", y: "0%", rotate: -6, scale: 0.9 });
-        onReturnComplete();
-        return;
-      }
+    cardControls.set({ y: "105%" });
+    pawControls.set({ x: "-10%", y: "105%", rotate: 4, scale: 1.05 });
 
-      cardControls.set({ y: "105%" });
-      pawControls.set({ x: "-10%", y: "105%", rotate: 4, scale: 1.05 });
-      await Promise.all([
-        cardControls.start({ y: "0%", transition: { duration: PULL_DURATION, ease: PULL_EASE } }),
-        pawControls.start({ y: "0%", transition: { duration: PULL_DURATION, ease: PULL_EASE } }),
-      ]);
-      await pawControls.start({
-        x: "-70%",
-        rotate: -6,
-        scale: 0.9,
-        transition: { duration: PAW_IN_DURATION, ease: RETURN_EASE },
-      });
+    if (reduceMotion) {
+      cardControls.set({ y: "0%" });
+      pawControls.set({ x: "-70%", y: "0%", rotate: -6, scale: 0.9 });
+      returnCompletionReported.current = true;
       onReturnComplete();
-    };
+      return;
+    }
 
-    void returnToPrompt();
+    // First return the cover and paw along the same path. The paw exits only
+    // after the cover is back, mirroring the reveal choreography in reverse.
+    void cardControls.start({ y: "0%", transition: { duration: PULL_DURATION, ease: PULL_EASE } });
+    void pawControls.start({
+      y: "0%",
+      x: "-10%",
+      rotate: 4,
+      scale: 1.05,
+      transition: { duration: PULL_DURATION, ease: PULL_EASE },
+    });
   }, [cardControls, onReturnComplete, pawControls, phase, reduceMotion]);
+
+  const handleCoverAnimationComplete = () => {
+    if (phase !== "returning" || returnCompletionReported.current || returnPawExitStarted.current) return;
+
+    returnPawExitStarted.current = true;
+    void pawControls.start({
+      x: "-70%",
+      rotate: -6,
+      scale: 0.9,
+      transition: { duration: PAW_IN_DURATION, ease: RETURN_EASE },
+    });
+  };
+
+  const handlePawAnimationComplete = () => {
+    if (phase !== "returning" || !returnPawExitStarted.current || returnCompletionReported.current) return;
+
+    returnCompletionReported.current = true;
+    onReturnComplete();
+  };
 
   return (
     <motion.article
@@ -272,6 +290,7 @@ function PawRevealCard({
           onClick={() => void reveal()}
           initial={{ y: "0%" }}
           animate={cardControls}
+          onAnimationComplete={handleCoverAnimationComplete}
           className="group absolute inset-0 z-20 flex w-full items-center justify-center overflow-hidden bg-black px-5 pb-10 pt-4 text-center will-change-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[#f0c917] sm:px-7 md:px-10"
         >
           <span className="pointer-events-none absolute inset-0 border border-white/[0.04]" aria-hidden="true" />
@@ -286,20 +305,13 @@ function PawRevealCard({
           className="pointer-events-none absolute bottom-0 left-0 z-30 h-[6rem] w-[6rem] will-change-transform sm:h-[6.5rem] sm:w-[6.5rem] md:h-[7.25rem] md:w-[7.25rem]"
           initial={{ x: "-50%", y: "0%", rotate: -6, scale: 0.9 }}
           animate={pawControls}
+          onAnimationComplete={handlePawAnimationComplete}
         >
           <div className="relative h-full w-full drop-shadow-[0_0_30px_rgba(240,201,23,0.55)]">
             <Image src={PAW_IMAGE} alt="" fill sizes="(min-width: 1024px) 224px, 176px" className="object-contain object-bottom-left" />
           </div>
         </motion.div> : null}
 
-        {isClosed ? (
-          <span className="pointer-events-none absolute bottom-4 right-4 z-30 inline-flex items-center gap-2 rounded-full border border-[#f0c917]/35 bg-black/30 px-3 py-1.5 font-clash text-[0.6875rem] font-bold uppercase tracking-[0.16em] text-[#f8d95e] sm:bottom-5 sm:right-5 sm:px-4 sm:text-xs" aria-hidden="true">
-            Reveal
-            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 16 16">
-              <path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-            </svg>
-          </span>
-        ) : null}
       </div>
     </motion.article>
   );
@@ -307,13 +319,11 @@ function PawRevealCard({
 
 export default function PawRevealStack() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [revealingIndex, setRevealingIndex] = useState<number | null>(null);
-  const [returningIndex, setReturningIndex] = useState<number | null>(null);
+  const [transition, setTransition] = useState<CardTransition>(null);
   const [revealedIndexes, setRevealedIndexes] = useState<number[]>([]);
   const [showWorkStream, setShowWorkStream] = useState(false);
   const [scene, setScene] = useState({ diameter: 1200, height: 900, viewport: 900 });
   const contentRef = useRef<HTMLDivElement>(null);
-  const interactionLock = useRef(false);
   const chapterRef = useRef<HTMLElement>(null);
   const reduceMotion = useReducedMotion() ?? false;
   const staticScene = reduceMotion;
@@ -372,41 +382,37 @@ export default function PawRevealStack() {
     setShowWorkStream((current) => (current === next ? current : next));
   });
 
-  const startReveal = (index: number) => {
-    if (interactionLock.current) return false;
+  const startReveal = useCallback((index: number) => {
+    if (transition) return false;
 
-    interactionLock.current = true;
-    setRevealingIndex(index);
+    setTransition({ kind: "reveal", index });
     return true;
-  };
+  }, [transition]);
 
-  const completeReveal = (index: number) => {
+  const completeReveal = useCallback((index: number) => {
     setActiveIndex(index);
     setRevealedIndexes((previous) => (previous.includes(index) ? previous : [...previous, index]));
-    setRevealingIndex(null);
-    interactionLock.current = false;
-  };
+    setTransition((current) => current?.kind === "reveal" && current.index === index ? null : current);
+  }, []);
 
-  const startReturn = (index: number) => {
-    if (interactionLock.current || activeIndex !== index) return false;
+  const startReturn = useCallback((index: number) => {
+    if (transition || activeIndex !== index) return false;
 
-    interactionLock.current = true;
-    setReturningIndex(index);
+    setTransition({ kind: "return", index });
     return true;
-  };
+  }, [activeIndex, transition]);
 
-  const completeReturn = (index: number) => {
+  const completeReturn = useCallback((index: number) => {
     setActiveIndex((current) => current === index ? null : current);
     setRevealedIndexes((current) => current.filter((value) => value !== index));
-    setReturningIndex(null);
-    interactionLock.current = false;
-  };
+    setTransition((current) => current?.kind === "return" && current.index === index ? null : current);
+  }, []);
 
-  const activateSummary = (index: number) => {
-    if (interactionLock.current) return;
+  const activateSummary = useCallback((index: number) => {
+    if (transition) return;
 
     setActiveIndex(index);
-  };
+  }, [transition]);
 
   return (
     <section
@@ -452,7 +458,7 @@ export default function PawRevealStack() {
         </motion.div>
 
         <motion.div
-          style={{ opacity: cardOpacity, y: cardY, pointerEvents: revealingIndex === null && returningIndex === null ? "auto" : "none" }}
+          style={{ opacity: cardOpacity, y: cardY, pointerEvents: transition === null ? "auto" : "none" }}
           className="absolute inset-0 z-30 flex items-center justify-center px-3.5 py-5 sm:px-6 md:py-7"
         >
           <div ref={contentRef} data-imagine-content className="w-full max-w-[660px]">
@@ -465,8 +471,8 @@ export default function PawRevealStack() {
 
             <div className="mx-auto flex w-full flex-col gap-2.5 sm:gap-3">
               {items.map((item, index) => {
-                const phase: CardPhase = returningIndex === index ? "returning" : revealingIndex === index ? "revealing" : activeIndex === index ? "active" : revealedIndexes.includes(index) ? "summary" : "closed";
-                return <PawRevealCard key={item.problem.heading} item={item} index={index} phase={phase} onRevealStart={() => startReveal(index)} onRevealComplete={() => completeReveal(index)} onReturnStart={() => startReturn(index)} onReturnComplete={() => completeReturn(index)} onActivateSummary={() => activateSummary(index)} isInteractionLocked={revealingIndex !== null || returningIndex !== null} />;
+                const phase: CardPhase = transition?.index === index ? transition.kind === "return" ? "returning" : "revealing" : activeIndex === index ? "active" : revealedIndexes.includes(index) ? "summary" : "closed";
+                return <PawRevealCard key={item.problem.heading} item={item} index={index} phase={phase} onRevealStart={() => startReveal(index)} onRevealComplete={() => completeReveal(index)} onReturnStart={() => startReturn(index)} onReturnComplete={() => completeReturn(index)} onActivateSummary={() => activateSummary(index)} isInteractionLocked={transition !== null} />;
               })}
             </div>
           </div>

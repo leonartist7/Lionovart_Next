@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNovaStore } from "@/lib/stores/nova-store";
 import { FUNNEL_EVENT, trackFunnelEvent } from "@/lib/funnel-events";

@@ -56,7 +56,7 @@ export const KNOWS_LANGUAGES = [
 ] as const;
 
 /** Locales the SITE itself is currently localized into (i18n bundles present). */
-export const SITE_LOCALES = ["en", "es", "fr", "it", "ko"] as const;
+export const SITE_LOCALES = ["en", "es", "fr", "it", "ja", "ko"] as const;
 
 /** Social / external profiles — drives schema `sameAs` and footer.
  *  Fill the real handles as accounts go live (see master plan, Phase 2). */

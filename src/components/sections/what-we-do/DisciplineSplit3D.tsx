@@ -115,7 +115,7 @@ function Pane({
   // One sculptural rhythm across the set: the two outer cards share a quiet
   // lean while the middle counters it. The effect gives depth without making
   // any card look like a separate panel sitting on top of another.
-  const cardLean = i === 1 ? 8 : -8;
+  const cardLean = i === 1 ? -8 : 8;
   const paneRotateY = useTransform(splitP, (p) => (isDesktop ? cardLean * p : 0));
   const paneRotateX = useTransform(splitP, (p) => (isDesktop ? 0 : cardLean * p));
   const paneBorderRadius = useTransform(splitP, (p) => 18 * p);

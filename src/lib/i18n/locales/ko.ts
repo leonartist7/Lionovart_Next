@@ -30,6 +30,8 @@ export const ko: Translations = {
 
   nav: {
     we: "소개",
+    expertise: "전문 분야",
+    work: "작업물",
     services: "서비스",
     results: "성과",
     cta: "시작하기",

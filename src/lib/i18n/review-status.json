@@ -1,0 +1,8 @@
+{
+  "en": { "status": "approved", "reviewedBy": "source", "reviewedAt": "2026-09-18" },
+  "fr": { "status": "review-required" },
+  "es": { "status": "review-required" },
+  "it": { "status": "review-required" },
+  "ja": { "status": "review-required" },
+  "ko": { "status": "review-required" }
+}

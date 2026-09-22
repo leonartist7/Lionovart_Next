@@ -3,16 +3,14 @@
 import { useState, useRef, useEffect, useId } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { Locale } from "@/lib/i18n";
+import { LOCALES, localeDetails, type Locale } from "@/i18n/routing";
 
-const LANGUAGES: { code: Locale; label: string; flag: string }[] = [
-  { code: "en", label: "EN", flag: "https://flagcdn.com/w40/ca.png" },
-  { code: "fr", label: "FR", flag: "https://flagcdn.com/w40/fr.png" },
-  { code: "es", label: "ES", flag: "https://flagcdn.com/w40/es.png" },
-  { code: "it", label: "IT", flag: "https://flagcdn.com/w40/it.png" },
-  { code: "ja", label: "JA", flag: "https://flagcdn.com/w40/jp.png" },
-  { code: "ko", label: "KO", flag: "https://flagcdn.com/w40/kr.png" },
-];
+const LANGUAGES: { code: Locale; label: string; name: string; flag: string }[] = LOCALES.map((code) => ({
+  code,
+  label: code.toUpperCase(),
+  name: localeDetails[code].label,
+  flag: localeDetails[code].flag,
+}));
 
 type LanguageSwitcherProps = {
   isHeroMode?: boolean;
@@ -62,7 +60,7 @@ export function LanguageSwitcher({ isHeroMode, inMenu = false }: LanguageSwitche
       >
         <img
           src={current.flag}
-          alt={current.label}
+          alt=""
           className="w-[18px] h-[13px] rounded-[2px] object-cover"
         />
         <span>{current.label}</span>
@@ -119,10 +117,11 @@ export function LanguageSwitcher({ isHeroMode, inMenu = false }: LanguageSwitche
                   >
                     <img
                       src={lang.flag}
-                      alt={lang.label}
+                      alt=""
                       className="w-[18px] h-[13px] rounded-[2px] object-cover"
                     />
-                    {lang.label}
+                    <span>{lang.label}</span>
+                    <span className="sr-only">{lang.name}</span>
                     {isActive && (
                       <svg
                         className="ml-auto w-3 h-3 text-brand-red shrink-0"

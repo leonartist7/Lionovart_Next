@@ -16,6 +16,7 @@ import {
   OG_IMAGE,
   abs,
 } from "./config";
+import { locales, type Locale } from "@/lib/i18n";
 
 // Stable @id anchors so nodes can reference each other across the graph.
 const ORG_ID = `${SITE_URL}/#organization`;
@@ -104,16 +105,16 @@ export function localBusinessSchema() {
   };
 }
 
-export function websiteSchema() {
+export function websiteSchema(locale: Locale = "en") {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "@id": WEBSITE_ID,
     url: SITE_URL,
     name: SITE.name,
-    description: SITE.description,
+    description: locales[locale].hero.subtitle,
     publisher: { "@id": ORG_ID },
-    inLanguage: "en",
+    inLanguage: locale,
   };
 }
 

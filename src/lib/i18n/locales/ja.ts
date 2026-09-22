@@ -30,6 +30,8 @@ export const ja: Translations = {
 
   nav: {
     we: "私たち",
+    expertise: "専門分野",
+    work: "実績",
     services: "サービス",
     results: "実績",
     cta: "始める",

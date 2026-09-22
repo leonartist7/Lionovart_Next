@@ -1,7 +1,9 @@
 "use client";
 
+import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
+
 import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValueEvent, useReducedMotion, useTransform } from "framer-motion";
+import { motion, useMotionValueEvent, useTransform } from "framer-motion";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { openingCopyState } from "./motion";
 import HeroTop from "../HeroTop";
@@ -10,7 +12,7 @@ import { useLionJourney } from "./LionJourney";
 
 export default function HeroOpening() {
   const { opening: openingRef, openingProgress, demoMode, demoOpen, setDemoOpen, setDemoMode } = useLionJourney()!;
-  const reduced = useReducedMotion();
+  const reduced = useHydratedReducedMotion();
   const [shortLayout, setShortLayout] = useState(false);
   const [peek, setPeek] = useState(true);
   const pinned = demoMode === "pinned" && !reduced && !shortLayout;

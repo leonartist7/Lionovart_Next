@@ -30,6 +30,8 @@ export const it: Translations = {
 
   nav: {
     we: "Chi Siamo",
+    expertise: "Competenze",
+    work: "Progetti",
     services: "Servizi",
     results: "Risultati",
     cta: "Inizia",

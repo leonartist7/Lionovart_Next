@@ -50,7 +50,7 @@ export default function ClosingCTA({ crest = false, workShowcase = false }: { cr
       {!workShowcase ? <VideoBackdrop src={FOOTER_CLIP} className="absolute inset-0 z-0" overlayClassName="bg-black/70" /> : null}
 
       <div className="relative z-40 mx-auto flex max-w-[1280px] flex-col items-center gap-8 md:gap-10">
-        <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red md:text-[13px]">
+        <p className={locale === "ja" || locale === "ko" ? "text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red md:text-[13px]" : "editorial-accent editorial-closing text-brand-red"}>
           Your next chapter, together
         </p>
 

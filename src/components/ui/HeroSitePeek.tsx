@@ -1,7 +1,7 @@
 "use client";
 import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { CONTACT_EMAIL } from "@/lib/contact";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";

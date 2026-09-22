@@ -1,0 +1,30 @@
+/* Opt-in typography: never changes heading, body, or interface defaults. */
+.editorial-accent {
+  font-family: var(--font-playfair-display), Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-synthesis: none;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+  padding-inline: 0.08em;
+}
+
+/* Specificity intentionally exceeds the journey's desktop/mobile subtitle rules. */
+.lion-description.editorial-accent.editorial-hero {
+  font-size: clamp(1.375rem, 2.1vw, 1.875rem);
+  line-height: 1.35;
+}
+
+.editorial-bridge {
+  font-size: clamp(2rem, 4.8vw, 5rem);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.editorial-closing {
+  font-size: clamp(1.5rem, 2.5vw, 2.25rem);
+  line-height: 1.25;
+}

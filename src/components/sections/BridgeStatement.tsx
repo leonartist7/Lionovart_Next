@@ -18,7 +18,8 @@ export default function BridgeStatement({
   variant?: BridgeVariant;
 }) {
   const journey = useLionJourney();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  const editorial = locale !== "ja" && locale !== "ko";
   const prefersReducedMotion = useReducedMotion() ?? false;
 
   const copy = variant === "vow" ? t.vow : t.bridge;
@@ -91,7 +92,7 @@ export default function BridgeStatement({
           </motion.p>
         </div>
 
-        <div className="overflow-hidden pb-[0.08em] text-right">
+        <div className={`overflow-hidden text-right ${editorial ? "px-[0.12em] pb-[0.2em] pt-[0.12em]" : "pb-[0.08em]"}`}>
           <motion.p
             {...itemAnim}
             data-site-title-reveal
@@ -99,7 +100,7 @@ export default function BridgeStatement({
             style={{ wordSpacing: "0.18em" }}
           >
             <span className={isVow ? "text-[#171412]" : "text-white"}>{copy.line2} </span>
-            <span className="text-brand-red">{copy.accent}</span>
+            <span className={`text-brand-red${editorial ? " editorial-accent editorial-bridge" : ""}`}>{copy.accent}</span>
           </motion.p>
         </div>
 

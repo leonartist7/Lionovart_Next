@@ -158,25 +158,26 @@ export class LionEngine {
       const tangent = mix(textureLoad(this.routeTexture,ivec2(index,1)).xyz,textureLoad(this.routeTexture,ivec2(next,1)).xyz,sample.fract()).normalize();
       const normal = vec3(tangent.y.negate(),tangent.x,0).normalize();
       const strand = flow.y;
+      const ribbonWidth = this.band.mul(mix(.22, 1, smoothstep(.12, .4, t)));
       // Three interwoven families open and gather together, like a loose braid.
       // A second slower wave avoids identical, evenly spaced sine-wire loops.
       const family = strand.mul(3).floor();
       const phase = t.mul(44).sub(this.clock.mul(0.62)).add(family.mul(2.094)).add(strand.mul(0.9));
       const taper = sin(t.mul(Math.PI)).max(0).pow(0.3);
       const breath = sin(t.mul(21).sub(this.clock.mul(0.23))).mul(0.25).add(0.75);
-      const lateral = sin(phase).mul(breath).mul(this.band.mul(0.85))
-        .add(sin(t.mul(18).add(strand.mul(4)).sub(this.clock.mul(0.19))).mul(this.band.mul(0.22)))
-        .add(strand.sub(0.5).mul(this.band.mul(0.38))).mul(taper);
+      const lateral = sin(phase).mul(breath).mul(ribbonWidth.mul(0.85))
+        .add(sin(t.mul(18).add(strand.mul(4)).sub(this.clock.mul(0.19))).mul(ribbonWidth.mul(0.22)))
+        .add(strand.sub(0.5).mul(ribbonWidth.mul(0.38))).mul(taper);
       const radial = normal.mul(cos(flow.z)).add(cross(tangent,normal).mul(sin(flow.z)));
       const thickness = sin(strand.mul(31)).mul(0.5).add(0.5).pow(3).mul(0.7).add(0.36).mul(taper).add(0.1);
       const offset = motes ? positionLocal : radial.mul(thickness);
-      const displaced = center.add(normal.mul(lateral)).add(vec3(0,0,cos(phase).mul(this.band.mul(0.55)))).add(offset);
+      const displaced = center.add(normal.mul(lateral)).add(vec3(0,0,cos(phase).mul(ribbonWidth.mul(0.55)))).add(offset);
       material.positionNode = motes ? vec3(flow.x.sub(.5).mul(this.moteSize.mul(.42)), flow.y.negate().mul(this.moteSize.mul(.13)).add(sin(this.clock.mul(.25).add(flow.x.mul(6))).mul(3)), 0).add(positionLocal) : displaced;
       const shade = mix(color("#8b6026"),color("#f7dba3"),sin(strand.mul(18)).mul(0.5).add(0.5).pow(2));
       material.colorNode = motes ? color("#eecb83") : shade;
       material.emissiveNode = motes ? color("#eecb83").mul(0.2) : shade.mul(0.24);
       const quiet = smoothstep(this.fadeStartY, this.fadeEndY, displaced.y.negate());
-      material.opacityNode = motes ? this.moteOpacity.mul(.32) : taper.mul(smoothstep(this.fadeInStartY, this.fadeInEndY, displaced.y.negate())).mul(quiet.oneMinus()).mul(motes ? 0.98 : 0.8);
+      material.opacityNode = motes ? this.moteOpacity.mul(.32) : taper.mul(smoothstep(0, .045, t)).mul(quiet.oneMinus()).mul(motes ? 0.98 : 0.8);
       if (!motes) material.normalNode = radial.normalize();
       return material;
     };

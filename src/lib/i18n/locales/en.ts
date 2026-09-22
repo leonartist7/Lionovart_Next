@@ -36,6 +36,8 @@ export const en = {
 
   nav: {
     we: "We",
+    expertise: "Expertise",
+    work: "Work",
     services: "Services",
     results: "Results",
     cta: "Start",

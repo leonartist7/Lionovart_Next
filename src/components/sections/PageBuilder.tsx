@@ -7,6 +7,7 @@ import AboutExperience from "@/components/sections/AboutExperience";
 import WhatWeDo from "@/components/sections/WhatWeDo";
 import PawRevealStack from "@/components/sections/PawRevealStack";
 import HomepageServicesChapter from "@/components/sections/HomepageServicesChapter";
+import SelectedWork from "@/components/sections/SelectedWork";
 import Comparison from "@/components/sections/Comparison";
 import ProcessExperience from "@/components/sections/ProcessExperience";
 import Testimonials from "@/components/sections/Testimonials";
@@ -46,6 +47,7 @@ export function PageBuilder() {
       <div className="relative z-[2]">
         <BridgeStatement variant="vow" />
         <NovaSection id="problems"><PawRevealStack /></NovaSection>
+        <SelectedWork />
         <NovaSection id="services"><HomepageServicesChapter /></NovaSection>
         {/* Introduce the people behind the work before showing the comparison. */}
         <NovaSection id="about"><AboutExperience /></NovaSection>

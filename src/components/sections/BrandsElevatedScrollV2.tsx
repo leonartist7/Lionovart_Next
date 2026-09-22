@@ -44,30 +44,30 @@ type Layout = {
 };
 
 const CARDS: Card[] = [
-  { id: "rocco", name: "CocoRocco", image: IMG + "CocoRocco  - Resto/Rocco-Profile.avif", logo: IMG + "CocoRocco  - Resto/cocorocco-logo.svg", quote: "Guests arrive already knowing what they want.", statLabel: "Guests arrive more informed" },
-  { id: "forty-seven", name: "Forty Seven", image: IMG + "Forty Seven - Hotel/Fortyseven-back.png", logo: IMG + "Forty Seven - Hotel/logo.webp", quote: "The place finally feels as good online as it does in person.", statLabel: "Direct reservations increased" },
+  { id: "rocco", name: "CocoRocco", image: IMG + "CocoRocco  - Resto/Rocco-Profile.avif", logo: IMG + "CocoRocco  - Resto/cocorocco-logo.svg", quote: "Guests arrive already knowing what they want.", stat: "€↑", statLabel: "more confident menu orders" },
+  { id: "forty-seven", name: "Forty Seven", image: IMG + "Forty Seven - Hotel/Fortyseven-back.png", logo: IMG + "Forty Seven - Hotel/logo.webp", quote: "The place finally feels as good online as it does in person.", stat: "€↑", statLabel: "more direct booking value" },
   { id: "miller-carter", name: "Miller & Carter", image: IMG + "Miller&Carter - Resto/MC-back.avif", logo: IMG + "Miller&Carter - Resto/mc-logo.avif", quote: "Weekends haven’t looked back.", stat: "2.4×", statLabel: "weekend covers" },
   { id: "odace", name: "Odace", image: IMG + "France/ODACE/ODACE_-background.webp", logo: IMG + "France/ODACE/logo-odace.avif", quote: "The kind of branding that makes a jewellery house feel timeless.", stat: "~28%", statLabel: "stronger product discovery" },
   { id: "northline", name: "Northline Motors", image: IMG + "Northlinemotors/Marc-Cardealer-M.jpg", logo: IMG + "Northlinemotors/Northlinemotors-logo.webp", quote: "The leads show up ready to buy.", stat: "4×", statLabel: "online sales pace" },
   { id: "lumura", name: "Lumura", image: IMG + "Italy/Lumura/Team2025.avif", logo: IMG + "Italy/Lumura/lumura-logo.webp", quote: "Refined, calm, and unmistakably us.", stat: "~35%", statLabel: "more qualified enquiries" },
-  { id: "lahaut", name: "Lahaut", image: IMG + "Lahaut  - Resto/Lahaut-back.avif", logo: IMG + "Lahaut  - Resto/lahaut-logo-bleu.svg", statLabel: "Brand identity · digital experience" },
-  { id: "podium", name: "Podium", image: IMG + "Podium  - Resto/Podium-back.avif", logo: IMG + "Podium  - Resto/Podium-logo.svg", statLabel: "Brand identity · digital experience" },
+  { id: "lahaut", name: "Lahaut", image: IMG + "Lahaut  - Resto/Lahaut-back.avif", logo: IMG + "Lahaut  - Resto/lahaut-logo-bleu.svg", quote: "A complete identity built to feel as considered as the table.", stat: "TIME↓", statLabel: "faster brand execution" },
+  { id: "podium", name: "Podium", image: IMG + "Podium  - Resto/Podium-back.avif", logo: IMG + "Podium  - Resto/Podium-logo.svg", quote: "A digital experience that carries the brand through every interaction.", stat: "TIME↓", statLabel: "smoother digital delivery" },
 ];
 
 /* Four roomy desktop rows. The opening row sits closer to the top edge so the
    title has a clearer, calmer field around it. */
 const DESKTOP: Layout[] = [
-  { left: "3%", top: "0%", width: "clamp(220px,26vw,440px)", aspectRatio: "3 / 2", yFrom: "0vh", yTo: "-148vh", xFrom: "-1.6vw", xTo: "1.4vw", zIndex: 30 },
-  { left: "calc(100% - clamp(220px,26vw,440px) - 3%)", top: "0%", width: "clamp(220px,26vw,440px)", aspectRatio: "3 / 2", yFrom: "0vh", yTo: "-142vh", xFrom: "1.6vw", xTo: "-1.3vw", zIndex: 20 },
+  { left: "3%", top: "0%", width: "clamp(220px,26vw,440px)", aspectRatio: "4 / 3", yFrom: "0vh", yTo: "-148vh", xFrom: "-1.6vw", xTo: "1.4vw", zIndex: 30 },
+  { left: "calc(100% - clamp(220px,26vw,440px) - 3%)", top: "0%", width: "clamp(220px,26vw,440px)", aspectRatio: "4 / 3", yFrom: "0vh", yTo: "-142vh", xFrom: "1.6vw", xTo: "-1.3vw", zIndex: 20 },
 
-  { left: "3%", top: "53%", width: "clamp(220px,26vw,440px)", aspectRatio: "3 / 2", yFrom: "0vh", yTo: "-136vh", xFrom: "1vw", xTo: "-1.2vw", zIndex: 20 },
-  { left: "calc(100% - clamp(220px,26vw,440px) - 3%)", top: "60%", width: "clamp(220px,26vw,440px)", aspectRatio: "3 / 2", yFrom: "0vh", yTo: "-132vh", xFrom: "-1vw", xTo: "1.2vw", zIndex: 30 },
+  { left: "3%", top: "53%", width: "clamp(220px,26vw,440px)", aspectRatio: "4 / 3", yFrom: "0vh", yTo: "-136vh", xFrom: "1vw", xTo: "-1.2vw", zIndex: 20 },
+  { left: "calc(100% - clamp(220px,26vw,440px) - 3%)", top: "60%", width: "clamp(220px,26vw,440px)", aspectRatio: "4 / 3", yFrom: "0vh", yTo: "-132vh", xFrom: "-1vw", xTo: "1.2vw", zIndex: 30 },
 
-  { left: "2%", top: "105%", width: "clamp(220px,26vw,440px)", aspectRatio: "3 / 2", yFrom: "0vh", yTo: "-123vh", xFrom: "-1.2vw", xTo: "1.2vw", zIndex: 30 },
-  { left: "calc(100% - clamp(220px,26vw,440px) - 3%)", top: "98%", width: "clamp(220px,26vw,440px)", aspectRatio: "3 / 2", yFrom: "0vh", yTo: "-118vh", xFrom: "1.2vw", xTo: "-1.1vw", zIndex: 20 },
+  { left: "2%", top: "105%", width: "clamp(220px,26vw,440px)", aspectRatio: "4 / 3", yFrom: "0vh", yTo: "-123vh", xFrom: "-1.2vw", xTo: "1.2vw", zIndex: 30 },
+  { left: "calc(100% - clamp(220px,26vw,440px) - 3%)", top: "98%", width: "clamp(220px,26vw,440px)", aspectRatio: "4 / 3", yFrom: "0vh", yTo: "-118vh", xFrom: "1.2vw", xTo: "-1.1vw", zIndex: 20 },
 
-  { left: "3%", top: "145%", width: "clamp(220px,26vw,440px)", aspectRatio: "3 / 2", yFrom: "0vh", yTo: "-105vh", xFrom: "1vw", xTo: "-1.1vw", zIndex: 20 },
-  { left: "calc(100% - clamp(220px,26vw,440px) - 3%)", top: "153%", width: "clamp(220px,26vw,440px)", aspectRatio: "3 / 2", yFrom: "0vh", yTo: "-101vh", xFrom: "-1vw", xTo: "1.1vw", zIndex: 30 },
+  { left: "3%", top: "145%", width: "clamp(220px,26vw,440px)", aspectRatio: "4 / 3", yFrom: "0vh", yTo: "-105vh", xFrom: "1vw", xTo: "-1.1vw", zIndex: 20 },
+  { left: "calc(100% - clamp(220px,26vw,440px) - 3%)", top: "153%", width: "clamp(220px,26vw,440px)", aspectRatio: "4 / 3", yFrom: "0vh", yTo: "-101vh", xFrom: "-1vw", xTo: "1.1vw", zIndex: 30 },
 ];
 
 /* Mobile keeps a tight, edge-safe two-column rhythm so the image edges stay
@@ -106,7 +106,7 @@ function ProofCard({ card, layout, progress, reduced }: { card: Card; layout: La
       </div>
 
       <div className="absolute inset-0 z-10 flex flex-col justify-end p-3 sm:p-5 md:p-6 lg:p-7">
-        {card.quote && <blockquote className="mb-1.5 line-clamp-2 font-body text-[8px] leading-[1.3] text-white/88 sm:mb-2 sm:text-[9px] md:mb-3 md:line-clamp-3 md:text-xs md:leading-[1.4]">&ldquo;{card.quote}&rdquo;</blockquote>}
+        {card.quote && <blockquote className="mb-1.5 break-words font-body text-[clamp(0.6875rem,2.55vw,0.875rem)] leading-[1.35] text-white/88 sm:mb-2 md:mb-3 md:text-[clamp(0.75rem,1.7vw,1.0625rem)]">&ldquo;{card.quote}&rdquo;</blockquote>}
         {card.stat ? (
           <div className="flex items-end gap-2 md:gap-3">
             <span className="bg-gradient-to-r from-[#f47721] via-[#f0c917] to-[#ffe49a] bg-clip-text font-clash text-[clamp(1.3rem,3vw,2.25rem)] font-semibold leading-none tracking-[-0.04em] text-transparent drop-shadow-[0_1px_8px_rgba(240,201,23,0.25)]">{card.stat}</span>

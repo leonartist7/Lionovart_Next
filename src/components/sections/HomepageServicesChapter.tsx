@@ -1,11 +1,13 @@
 "use client";
 
+import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
+
 import Image from "next/image";
 import {
   AnimatePresence,
   motion,
   useMotionValueEvent,
-  useReducedMotion,
+
   useScroll,
 } from "framer-motion";
 import {
@@ -125,7 +127,7 @@ function ServiceMediaCarousel({
 
 export default function HomepageServicesChapter() {
   const { t } = useLanguage();
-  const reduceMotion = useReducedMotion() ?? false;
+  const reduceMotion = useHydratedReducedMotion() ?? false;
   const chapterRef = useRef<HTMLDivElement>(null);
   const wheelLockRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -141,7 +143,7 @@ export default function HomepageServicesChapter() {
 
   const activeService = services[activeIndex] ?? services[0];
   const { scrollYProgress } = useScroll({
-    target: chapterRef,
+    target: reduceMotion ? undefined : chapterRef,
     offset: ["start start", "end end"],
   });
 

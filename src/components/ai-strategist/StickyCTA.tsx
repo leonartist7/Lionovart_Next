@@ -31,8 +31,10 @@ export function StickyCTA() {
   }, []);
 
   useEffect(() => {
-    if (isOpen) setPanelOpen(false);
-  }, [isOpen]);
+    return useNovaStore.subscribe((state, previous) => {
+      if (state.isOpen && !previous.isOpen) setPanelOpen(false);
+    });
+  }, []);
 
   if (isOpen || pathname?.startsWith("/admin")) return null;
 
@@ -118,11 +120,12 @@ export function StickyCTA() {
             className="relative flex h-[52px] w-[52px] items-center justify-center overflow-hidden rounded-full border border-white/[0.16] bg-black/80 backdrop-blur-lg transition-[transform,border-color] duration-200 hover:scale-[1.035] hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 md:h-14 md:w-14"
           >
             <Image
-              src="/images/LOGO.svg"
+              src="/images/Icon.avif"
               alt=""
-              width={38}
-              height={38}
-              className="h-8 w-8 object-contain md:h-9 md:w-9"
+              width={56}
+              height={56}
+              sizes="56px"
+              className="h-full w-full rounded-full object-cover"
               aria-hidden
             />
           </button>

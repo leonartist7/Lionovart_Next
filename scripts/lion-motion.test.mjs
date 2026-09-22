@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {journeyPose,journeyProgress,journeyRoute,routePoint,streamEnd} from '../src/components/sections/lion-journey/motion.ts';
+import {journeyPose,journeyProgress,journeyRoute,openingPose,routePoint,streamEnd} from '../src/components/sections/lion-journey/motion.ts';
 function fixture(w) {
  const mobile=w<1024,heroHeight=mobile?510:680;
  return {hero:{left:0,top:40,width:w,height:heroHeight},copy:{left:w*.48,top:172,width:w*.45,height:160},slot:{left:w*.05,top:172,width:w*.39,height:mobile?Math.min(w*.45,256):500},intro:{left:20,top:heroHeight+100,width:w-40,height:270},video:{left:w*.08,top:heroHeight+520,width:w*.84,height:mobile?420:400},videoSection:{left:0,top:heroHeight+400,width:w,height:2400},proof:{left:0,top:heroHeight+2800,width:w,height:160},bridge:{left:0,top:heroHeight+2960,width:w,height:360},reveal:{left:0,top:heroHeight+3320,width:w,height:1100},end:heroHeight+400,mobile};
@@ -39,6 +39,16 @@ test('lion follows the right-to-left-to-front orientation journey',()=>{
  assert.ok(title.turn<-.4,'lion faces left alongside the second title');
  assert.ok(Math.abs(video.turn)<.001,'lion faces front at the video');
  assert.ok((video.pitch ?? 0)<-.12,'lion subtly looks upward before disappearing');
+});
+
+test('pinned opening holds scale through the title pose before shrinking into the video',()=>{
+ const a={...fixture(1440),end:2200};
+ const opening={left:0,top:a.hero.top,width:a.hero.width,height:a.hero.height+800};
+ const hero=openingPose(opening.top,a,opening,a.hero.height);
+ const title=openingPose(opening.top+800,a,opening,a.hero.height);
+ const video=openingPose(a.end,a,opening,a.hero.height);
+ assert.equal(title.size,hero.size,'the title turn does not shrink the lion');
+ assert.ok(video.size<title.size,'the shrink happens only during the video handoff');
 });
 
 test('stream tangents stay continuous at chapter joins',()=>{
