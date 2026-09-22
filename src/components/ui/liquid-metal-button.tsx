@@ -1,4 +1,5 @@
 "use client";
+import { useIntroLifecycle } from "./IntroLifecycle";
 
 import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";
 import { Sparkles } from "lucide-react";
@@ -35,6 +36,7 @@ export function LiquidMetalButton({
   noShadow = false,
   alwaysAnimate = false,
 }: LiquidMetalButtonProps) {
+  const { released } = useIntroLifecycle();
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
   const [ripples, setRipples] = useState<
@@ -75,6 +77,7 @@ export function LiquidMetalButton({
     const isInView = useInView(shaderRef, { margin: "200px" });
 
   useEffect(() => {
+    if (!released) return;
     const loadShader = async () => {
       try {
         if (shaderRef.current) {
@@ -105,7 +108,7 @@ export function LiquidMetalButton({
         shaderMount.current = null;
       }
     };
-  }, []);
+  }, [released]);
 
   // Most shader buttons pause off-screen. Persistent controls, such as Nova,
   // can opt out so their surface remains alive whenever the tab is active.
@@ -117,7 +120,7 @@ export function LiquidMetalButton({
         shaderMount.current.setSpeed(0); // Pause when off-screen
       }
     }
-  }, [alwaysAnimate, isInView, isHovered]);
+  }, [alwaysAnimate, isInView, isHovered, released]);
 
   const handleMouseEnter = () => {
     if (typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches) {

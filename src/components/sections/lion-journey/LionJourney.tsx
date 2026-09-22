@@ -102,6 +102,8 @@ export default function LionJourney({ children }: { children: ReactNode }) {
     let baseCta: Rect | undefined, lastPinOffset = -1;
     let disposed = false, frame = 0, ready = false, failed = false, loading = false;
     let time = 0, last = 0, pendingMeasure = true;
+    let introReleased = document.documentElement.dataset.splashComplete === "true" || !document.querySelector("[data-intro]");
+    let warmed = false;
     const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
     let pointerX = 0, pointerY = 0, targetX = 0, targetY = 0;
     const onPointer = (event: PointerEvent) => {
@@ -187,6 +189,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       if (!visible || failed) { last = 0; engine?.pause(); return; }
       if (!engine) { void load(); return; }
       if (!ready) return;
+      if (!introReleased && warmed) { last = 0; engine.pause(); return; }
       const dt = last ? Math.min((now-last)/1000, 1/30) : 0;
       last = now;
       if (!dialogOpen.current) time += dt;
@@ -212,12 +215,14 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       lion.pitch = (lion.pitch ?? 0) - pointerY * Math.PI / 90 * influence;
       lion.turn += (Math.sin(time * Math.PI / 5) * Math.PI / 60 + pointerX * Math.PI / 60) * influence / 1.25;
       engine.render(lion, scrollY, time, anchors.mobile, p < 1, influence);
+      warmed = true;
+      host.current?.setAttribute("data-animation-active", String(introReleased && !dialogOpen.current));
       if (host.current) {
         host.current.dataset.lionProgress = p.toFixed(3);
         host.current.dataset.lionPose = JSON.stringify(lion);
         host.current.dataset.lionVisible = String(p < 1);
       }
-      if (!dialogOpen.current) frame = requestAnimationFrame(render);
+      if (!dialogOpen.current && introReleased) frame = requestAnimationFrame(render);
       else { last = 0; engine.pause(); }
     };
     const wake = () => { if (!frame && !disposed) frame = requestAnimationFrame(render); };
@@ -234,14 +239,16 @@ export default function LionJourney({ children }: { children: ReactNode }) {
         ready = true; pendingMeasure = true; wake();
       } catch (error) { if (process.env.NODE_ENV !== "production") console.warn("Lion scene uses its poster fallback", error); fail(); }
     }
+    const releaseIntro = () => { introReleased = true; last = 0; wake(); };
+    window.addEventListener("lionovart:splash-complete", releaseIntro);
     update.current = wake;
-    const resize = () => { pendingMeasure = true; wake(); };
+    const resize = () => { pendingMeasure = true; warmed = false; wake(); };
     const observer = new ResizeObserver(resize);
     [opening.current, hero.current, cta.current, copy.current, slot.current, intro.current, video.current, videoSection.current, proof.current, bridge.current, reveal.current].forEach(el => { if (el) observer.observe(el); });
     window.addEventListener("scroll", wake, { passive: true }); window.addEventListener("resize", resize); window.addEventListener("pageshow", resize);
     document.addEventListener("visibilitychange", wake); media.addEventListener("change", resize);
     void document.fonts.ready.then(() => { if (!disposed) resize(); }); wake();
-    return () => { window.removeEventListener("pointerout", onPointerOut); window.removeEventListener("blur", neutralPointer); window.removeEventListener("pointermove", onPointer); disposed = true; cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener("scroll", wake); window.removeEventListener("resize", resize); window.removeEventListener("pageshow", resize); document.removeEventListener("visibilitychange", wake); media.removeEventListener("change", resize); update.current = () => {}; engine?.dispose(); };
+    return () => { window.removeEventListener("lionovart:splash-complete", releaseIntro); window.removeEventListener("pointerout", onPointerOut); window.removeEventListener("blur", neutralPointer); window.removeEventListener("pointermove", onPointer); disposed = true; cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener("scroll", wake); window.removeEventListener("resize", resize); window.removeEventListener("pageshow", resize); document.removeEventListener("visibilitychange", wake); media.removeEventListener("change", resize); update.current = () => {}; engine?.dispose(); };
   }, [progress, openingProgress, backdropOpacity]);
   return <Context.Provider value={context}><div ref={host} className={styles.journey} data-lion-journey data-lion-active={active}>
     <svg ref={fallback} className={styles.fallback} aria-hidden="true" preserveAspectRatio="none" fill="none">{Array.from({length:18},(_,i)=><path key={i} stroke={i%3 ? "#9a733a" : "#edd4a0"} strokeWidth={i%4 ? "0.7" : "1.2"} opacity="0.42" />)}</svg>

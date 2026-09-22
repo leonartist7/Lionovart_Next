@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useRef } from "react";
 import HeroClientProof from "./HeroClientProof";
 import HeroSitePeek from "@/components/ui/HeroSitePeek";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -6,8 +7,15 @@ import { LionSlot, useLionJourney } from "./lion-journey/LionJourney";
 
 export default function HeroTop() {
   const journey = useLionJourney();
+  const localHero = useRef<HTMLElement | null>(null);
+  const mounted = journey?.hero ?? localHero;
+  useEffect(() => {
+    const node = mounted.current;
+    node?.setAttribute("data-intro-hero-mounted", "");
+    return () => node?.removeAttribute("data-intro-hero-mounted");
+  }, [mounted]);
   const { t, locale } = useLanguage();
-  return <section ref={journey?.hero} className="lion-hero" aria-labelledby="hero-heading">
+  return <section ref={mounted} className="lion-hero" aria-labelledby="hero-heading">
     <LionSlot />
     <div className="lion-content">
     <div ref={journey?.copy} className="lion-copy">

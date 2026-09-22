@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { DotLottieReact, type DotLottie } from "@lottiefiles/dotlottie-react";
+import type { DotLottie } from "@lottiefiles/dotlottie-react";
+import dynamic from "next/dynamic";
+import { useReducedMotion } from "framer-motion";
+import { useIntroLifecycle } from "./IntroLifecycle";
+const DotLottieReact = dynamic(() => import("@lottiefiles/dotlottie-react").then(module => module.DotLottieReact), { ssr: false });
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +32,9 @@ export function MenuBurgerLottie({
   "aria-label": ariaLabel = "Toggle menu",
   className,
 }: MenuBurgerLottieProps) {
+  const { released } = useIntroLifecycle();
+  const reduced = useReducedMotion();
+  const saveData = typeof navigator !== "undefined" && (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
   const [dotLottie, setDotLottie] = useState<DotLottie | null>(null);
   const [lottieReady, setLottieReady] = useState(false);
   /** Keeps icon animation in sync when `isOpen` changes without using this button (e.g. nav link). */
@@ -136,7 +143,7 @@ export function MenuBurgerLottie({
         {!lottieReady && (
           <Menu className="absolute h-6 w-6 text-white" aria-hidden />
         )}
-        <DotLottieReact
+        {released && !reduced && !saveData && <DotLottieReact
           src={MENU_BURGER_LOTTIE_SRC}
           loop={false}
           autoplay={false}
@@ -148,7 +155,7 @@ export function MenuBurgerLottie({
           )}
           layout={{ fit: "contain", align: [0.5, 0.5] }}
           renderConfig={{ autoResize: true }}
-        />
+        />}
       </span>
     </button>
   );

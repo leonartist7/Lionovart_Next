@@ -1,4 +1,5 @@
 "use client";
+import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CONTACT_EMAIL } from "@/lib/contact";
@@ -9,6 +10,7 @@ import { FUNNEL_EVENT, trackFunnelEvent } from "@/lib/funnel-events";
 
 type Step = "closed" | "website" | "contact" | "done";
 export default function HeroSitePeek() {
+  const { released } = useIntroLifecycle();
   const journey = useLionJourney();
   const setPaused = journey?.setDialogOpen;
   const [step, setStep] = useState<Step>("closed");
@@ -25,7 +27,7 @@ export default function HeroSitePeek() {
   useEffect(() => () => request.current?.abort(), []);
   useEffect(() => () => setPaused?.(false), [setPaused]);
   useEffect(() => {
-    if (!shader.current || reduced) return;
+    if (!shader.current || reduced || !released) return;
     let mount: ShaderMount | undefined;
     try {
       mount = new ShaderMount(shader.current, liquidMetalFragmentShader,
@@ -37,7 +39,7 @@ export default function HeroSitePeek() {
     observer.observe(shader.current);
     document.addEventListener("visibilitychange", update);
     return () => { observer.disconnect(); document.removeEventListener("visibilitychange", update); mount?.dispose(); };
-  }, [reduced]);
+  }, [reduced, released]);
   const changeStep = (next: Step) => { setError(""); setStep(next); };
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();

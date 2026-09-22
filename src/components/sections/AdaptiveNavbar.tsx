@@ -1,4 +1,5 @@
 "use client";
+import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 
 import { useEffect, useRef, useState } from "react";
 import {
@@ -119,6 +120,13 @@ function LightweightMenuToggle({
 }
 
 export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps) {
+  const { released } = useIntroLifecycle();
+  const introHeader = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const node = introHeader.current;
+    node?.setAttribute("data-intro-header-mounted", "");
+    return () => node?.removeAttribute("data-intro-header-mounted");
+  }, []);
   const [isPastHero, setIsPastHero] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -283,12 +291,13 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
     >
       <div
         className={`${styles.shell} ${heroMode ? styles.expanded : styles.compact}`}
+        ref={introHeader}
         data-nav-state={heroMode ? "expanded" : "compact"}
         data-nav-glass={isScrolled ? "active" : "inactive"}
       >
         <motion.header
           initial={reducedMotion ? false : { opacity: 0, y: -14 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={released ? { opacity: 1, y: 0 } : { opacity: 0, y: -14 }}
           transition={{ duration: reducedMotion ? 0 : 0.42, ease: "easeOut" }}
           className={`relative w-full ${styles.header}`}
         >
@@ -453,7 +462,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
                   <motion.div
                     key={link.target}
                     initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    animate={released ? { opacity: 1, y: 0 } : { opacity: 0, y: -14 }}
                     exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
                     transition={{ duration: reducedMotion ? 0 : 0.18, delay: reducedMotion ? 0 : index * 0.045 }}
                     className="flex flex-col items-center"
@@ -524,7 +533,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
 
                 <motion.div
                   initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  animate={released ? { opacity: 1, y: 0 } : { opacity: 0, y: -14 }}
                   exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
                   transition={{
                     duration: reducedMotion ? 0 : 0.2,
@@ -543,7 +552,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
 
                 <motion.div
                   initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  animate={released ? { opacity: 1, y: 0 } : { opacity: 0, y: -14 }}
                   exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
                   transition={{
                     duration: reducedMotion ? 0 : 0.18,

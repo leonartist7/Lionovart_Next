@@ -1107,3 +1107,10 @@
     will-change: auto;
   }
 }
+/* Keep CSS entrance/ambient motion parked while the server-rendered intro owns
+   the screen. Content stays laid out and critical images can decode normally. */
+body:has([data-intro]) main *,
+body:has([data-intro]) main *::before,
+body:has([data-intro]) main *::after {
+  animation-play-state: paused !important;
+}

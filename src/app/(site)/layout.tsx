@@ -12,6 +12,7 @@ import { StickyCTA } from "@/components/ai-strategist/StickyCTA";
 import CustomCursor from "@/components/ui/CustomCursor";
 import TubesCursor from "@/components/ui/TubesCursor";
 import BottomBlur from "@/components/ui/BottomBlur";
+import { IntroProvider } from "@/components/ui/IntroLifecycle";
 import SplashScreen from "@/components/ui/SplashScreen";
 import SiteTitleReveal from "@/components/ui/SiteTitleReveal";
 import { SITE, SITE_URL, OG_IMAGE } from "@/lib/seo/config";
@@ -81,13 +82,14 @@ export default async function RootLayout({
   preload("/images/LOGO.svg", { as: "image", fetchPriority: "high" });
 
   return (
-    <html lang="en" className={`${clashDisplay.variable} ${dmSans.variable} h-full antialiased`} style={{ backgroundColor: "#e5192a" }} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col" style={{ backgroundColor: "#e5192a" }}>
+    <html lang="en" className={`${clashDisplay.variable} ${dmSans.variable} h-full antialiased`} style={{ backgroundColor: "#000" }} suppressHydrationWarning>
+      <body className="min-h-full flex flex-col" style={{ backgroundColor: "#000" }}>
         {/* Site-wide entity graph — Organization, ProfessionalService, WebSite.
             Powers Google rich results + AEO citations (ChatGPT/Gemini/Perplexity). */}
         <JsonLd data={[organizationSchema(), localBusinessSchema(), websiteSchema()]} />
         <PostHogInit />
         <LanguageProvider>
+          <IntroProvider>
           <SmoothScrollProvider>
             <SplashScreen />
             <SiteTitleReveal />
@@ -98,6 +100,7 @@ export default async function RootLayout({
           <TubesCursor />
           <CustomCursor />
           <BottomBlur />
+        </IntroProvider>
         </LanguageProvider>
       </body>
     </html>

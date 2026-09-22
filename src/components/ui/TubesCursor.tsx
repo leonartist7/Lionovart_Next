@@ -1,4 +1,5 @@
 "use client";
+import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
@@ -65,6 +66,7 @@ export default function TubesCursor({
   className = "",
   layer = "global",
 }: TubesCursorProps) {
+  const { released } = useIntroLifecycle();
   const pathname = usePathname();
   const attraction = useTrailAttraction();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -76,7 +78,7 @@ export default function TubesCursor({
   // brand recolor on the one page where the palette is the point. Continuity
   // is carried there by the palette instead (the lion uses these same colors).
   const isLionRoute = pathname.startsWith("/services/ai");
-  const hidden = layer === "global" && (isLandingRoute || isLionRoute);
+  const hidden = !released || (layer === "global" && (isLandingRoute || isLionRoute));
 
   useEffect(() => {
     if (hidden || typeof window === "undefined") return;

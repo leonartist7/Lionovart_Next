@@ -1,4 +1,5 @@
 "use client";
+import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 
 import { useLayoutEffect } from "react";
 
@@ -129,7 +130,9 @@ function updateTitleProgress(record: TitleRecord, viewportHeight: number) {
  * on every screen size without character-level motion.
  */
 export default function SiteTitleReveal() {
+  const { released } = useIntroLifecycle();
   useLayoutEffect(() => {
+    if (!released) return;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (reduceMotion.matches) return;
 
@@ -231,7 +234,7 @@ export default function SiteTitleReveal() {
         );
       });
     };
-  }, []);
+  }, [released]);
 
   return null;
 }

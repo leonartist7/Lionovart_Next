@@ -1,4 +1,5 @@
 "use client";
+import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 
 import { MagneticCursor } from "@/components/ui/magnetic-cursor";
 
@@ -10,6 +11,8 @@ import { MagneticCursor } from "@/components/ui/magnetic-cursor";
  * magnetic-cursor.tsx so other surfaces can reuse/configure it independently.
  */
 export default function CustomCursor() {
+  const { released } = useIntroLifecycle();
+  if (!released) return null;
   return (
     <MagneticCursor
       magneticFactor={0.55}

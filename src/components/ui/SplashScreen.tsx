@@ -1,171 +1,228 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLenis } from "lenis/react";
 import type { DotLottie } from "@lottiefiles/dotlottie-web";
+import { useIntroLifecycle } from "./IntroLifecycle";
+import { fitScene } from "./intro-scene";
+import { waitForIntroContent } from "./intro-readiness";
 import styles from "./SplashScreen.module.css";
 
 const SESSION_KEY = "lionovart_splash_seen";
-const DURATION = 3000;
-
-/** Extend the stage and circular wipes while keeping the original artwork centered. */
-function fitScene(source: Record<string, unknown>, width: number, height: number) {
-  const scene = structuredClone(source);
-  const w = Math.max(800, 600 * width / height);
-  const h = Math.max(600, 800 * height / width);
-  scene.w = w;
-  scene.h = h;
-  // IDs belong to the supplied Jitter export, not arbitrary Lottie scenes.
-  const layers = scene.layers as Array<{
-    ind: number;
-    ks: Record<string, unknown>;
-    shapes?: Array<{ ty: string; s?: { k: number[] } }>;
-  }>;
-  layers.find(layer => layer.ind === 0)!.ks.p = { a: 0, k: [(w - 800) / 2, (h - 600) / 2] };
-  layers.find(layer => layer.ind === 77)!.shapes![0].s!.k = [w, h];
-  const diameter = Math.max(1080, Math.hypot(w, h) * 1.08);
-  for (const layer of layers) {
-    if ([60, 62, 64, 66, 68, 70].includes(layer.ind)) layer.shapes![0].s!.k = [diameter, diameter];
-  }
-  return scene;
-}
+type Phase = "preparing" | "fading-in" | "playing" | "revealing" | "complete";
 
 export default function SplashScreen() {
   const [visible, setVisible] = useState(true);
   const overlay = useRef<HTMLDivElement>(null);
-  const canvas = useRef<HTMLCanvasElement>(null);
-  const player = useRef<DotLottie | null>(null);
-  const completed = useRef(false);
+  const stage = useRef<HTMLDivElement>(null);
+  const overflowBeforeIntro = useRef("");
+  const skip = useRef<() => void>(() => {});
+  const { released, release } = useIntroLifecycle();
   const lenis = useLenis();
 
-  const finish = useCallback(() => {
-    if (completed.current) return;
-    completed.current = true;
-    player.current?.destroy();
-    player.current = null;
-    try { sessionStorage.setItem(SESSION_KEY, "1"); } catch { /* Storage may be disabled. */ }
-    document.documentElement.dataset.splashComplete = "true";
-    window.dispatchEvent(new Event("lionovart:splash-complete"));
-    setVisible(false);
-  }, []);
-
-  // Lenis becoming ready must not restart the intro timer.
   useEffect(() => {
     if (!visible) return;
     const previous = document.body.style.overflow;
+    overflowBeforeIntro.current = previous;
     document.body.style.overflow = "hidden";
     lenis?.stop();
-    return () => {
-      document.body.style.overflow = previous;
-      lenis?.start();
-    };
+    return () => { document.body.style.overflow = previous; lenis?.start(); };
   }, [visible, lenis]);
 
   useEffect(() => {
-    if (!visible) return;
-    let seen = false;
-    try { seen = sessionStorage.getItem(SESSION_KEY) === "1"; } catch { /* Continue without storage. */ }
-    // Count from the server-rendered overlay's first paint, even after slow hydration.
-    const animationTime = overlay.current?.getAnimations()[0]?.currentTime;
-    const elapsed = typeof animationTime === "number" ? animationTime : 0;
-    const started = performance.now() - elapsed;
+    const screen = overlay.current, surface = stage.current;
+    if (!screen || !surface) return;
+    let disposed = false, phase: Phase = "preparing";
+    let active: DotLottie | undefined, resizing = false, resizeFrame = 0;
+    const players = new Set<DotLottie>();
+    const timers = new Set<ReturnType<typeof setTimeout>>();
     const abort = new AbortController();
-    const timer = window.setTimeout(finish, seen ? 0 : Math.max(0, DURATION - elapsed));
-    let observer: ResizeObserver | undefined;
-    let disposed = false;
+    // This CSS clock begins in the server HTML, before hydration or font downloads.
+    const clock = screen.getAnimations().find(a => (a as CSSAnimation).animationName.includes("intro-failsafe"));
+    const elapsed = typeof clock?.currentTime === "number" ? clock.currentTime : 0;
+    const started = performance.now() - elapsed;
+    const after = (fn: () => void, ms: number) => {
+      const timer = setTimeout(() => { timers.delete(timer); if (!disposed) fn(); }, Math.max(0, ms));
+      timers.add(timer); return timer;
+    };
+    const move = (next: Phase) => {
+      phase = next; screen.dataset.phase = next;
+      performance.mark(`lionovart:intro:${next}`);
+    };
+    const destroyPlayers = () => { players.forEach(player => player.destroy()); players.clear(); active = undefined; };
+    const finish = () => {
+      if (disposed || phase === "complete") return;
+      move("complete");
+      abort.abort(); destroyPlayers();
+      timers.forEach(clearTimeout); timers.clear();
+      observer.disconnect(); cancelAnimationFrame(resizeFrame);
+      try { sessionStorage.setItem(SESSION_KEY, "1"); } catch { /* Storage is optional. */ }
+      // Release the actual overlay/lock before notifying existing listeners.
+      screen.style.display = "none";
+      document.body.style.overflow = overflowBeforeIntro.current;
+      const announce = document.documentElement.dataset.splashComplete !== "true";
+      document.documentElement.dataset.splashComplete = "true";
+      release(); setVisible(false);
+      if (announce) window.dispatchEvent(new Event("lionovart:splash-complete"));
+    };
+    const reveal = (immediate = false) => {
+      if (disposed || phase === "complete" || phase === "revealing") return;
+      abort.abort(); active?.pause(); move("revealing");
+      if (immediate || media.matches) finish(); else after(finish, 450);
+    };
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(() => { void resize(); });
+    });
     const media = matchMedia("(prefers-reduced-motion: reduce)");
     const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
     const onVisibility = () => {
-      if (document.hidden) player.current?.pause();
-      else if (performance.now() - started >= DURATION) finish();
-      else player.current?.play();
+      if (document.hidden) active?.pause();
+      else if (performance.now() - started >= 9000) finish();
+      else if (phase === "playing" && !resizing) active?.play();
+      else if (phase === "preparing") startWhenReady();
     };
-    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") finish(); };
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") reveal(true); };
     const onFocus = (event: FocusEvent) => {
-      if (event.target instanceof Node && !overlay.current?.contains(event.target)) finish();
+      if (phase !== "complete" && event.target instanceof Node && !screen.contains(event.target)) reveal(true);
     };
-    const onMotion = () => { if (media.matches) finish(); };
+    const onMotion = () => { if (media.matches) reveal(true); };
+    const onFailsafe = (event: AnimationEvent) => { if (event.target === screen) finish(); };
     document.addEventListener("visibilitychange", onVisibility);
     document.addEventListener("keydown", onKey);
     document.addEventListener("focusin", onFocus);
     media.addEventListener("change", onMotion);
+    screen.addEventListener("animationend", onFailsafe);
+    skip.current = () => reveal(true);
+    after(finish, 9000 - elapsed);
+    const preparationTimer = after(() => { if (phase === "preparing") reveal(); }, 3000 - elapsed);
+    let contentReady = false, frameReady = false;
+    let Player: typeof DotLottie | undefined, source: Record<string, unknown> | undefined;
+    let lastWidth = 0, lastHeight = 0;
+    const staticOnly = media.matches || connection?.saveData || /^(slow-)?2g$/.test(connection?.effectiveType ?? "");
 
-    if (!seen && !media.matches && !connection?.saveData && !/^(slow-)?2g$/.test(connection?.effectiveType ?? "")) {
-      void Promise.all([
-        import("@lottiefiles/dotlottie-web"),
-        fetch("/animations/intro.json", { signal: abort.signal }).then(response => {
-          if (!response.ok) throw new Error("Intro unavailable");
-          return response.json();
-        }),
-      ]).then(([{ DotLottie }, source]) => {
-        if (disposed || completed.current || !canvas.current || performance.now() - started > 2400) return;
-        DotLottie.setWasmUrl("/animations/dotlottie-player.wasm");
-        const element = canvas.current;
-        const bounds = element.getBoundingClientRect();
-        const instance = new DotLottie({
-          canvas: element,
-          data: fitScene(source, bounds.width, bounds.height),
-          autoplay: false,
-          loop: false,
-          useFrameInterpolation: false,
-          layout: { fit: "fill", align: [0.5, 0.5] },
-          renderConfig: {
-            devicePixelRatio: Math.min(window.devicePixelRatio || 1, 1.5, 1600 / Math.max(bounds.width, bounds.height)),
-            freezeOnOffscreen: true,
-            autoResize: true,
-          },
-        });
-        player.current = instance;
-        instance.addEventListener("load", () => {
-          if (disposed || completed.current) return;
-          const remaining = (DURATION - 150 - (performance.now() - started)) / 1000;
-          if (remaining < 0.4) return;
-          instance.setSpeed(instance.duration / remaining);
-          if (!document.hidden) instance.play();
-          overlay.current?.setAttribute("data-ready", "true");
-        });
-        instance.addEventListener("loadError", () => overlay.current?.removeAttribute("data-ready"));
-        let lastRatio = bounds.width / bounds.height;
-        observer = new ResizeObserver(([entry]) => {
-          const { width, height } = entry.contentRect;
-          if (!width || !height || Math.abs(width / height - lastRatio) < 0.01) return;
-          lastRatio = width / height;
-          // Rotation uses the static fallback without restarting the intro.
-          instance.destroy();
-          player.current = null;
-          overlay.current?.removeAttribute("data-ready");
-          observer?.disconnect();
-        });
-        observer.observe(element);
-      }).catch(() => { /* Static fallback and independent deadline remain available. */ });
+    function startWhenReady() {
+      if (disposed || phase !== "preparing" || !contentReady || document.hidden) return;
+      if (performance.now() - started >= 3000 || staticOnly) { reveal(); return; }
+      if (!frameReady) return;
+      clearTimeout(preparationTimer);
+      screen!.dataset.frameReady = "true";
+      move("fading-in");
+      void resize();
+      after(() => {
+        if (phase !== "fading-in") return;
+        move("playing");
+        if (!document.hidden && !resizing) active?.play();
+      }, 350);
     }
-
+    async function prepare(frame: number) {
+      const bounds = surface!.getBoundingClientRect();
+      const canvas = document.createElement("canvas");
+      canvas.className = styles.canvas;
+      canvas.style.visibility = "hidden";
+      surface!.append(canvas);
+      const player = new Player!({ canvas, autoplay: false, loop: false, speed: 1,
+        useFrameInterpolation: false, layout: { fit: "fill", align: [0.5, 0.5] },
+        renderConfig: { devicePixelRatio: Math.min(devicePixelRatio || 1, 1.5, 1600 / Math.max(bounds.width, bounds.height)), autoResize: false, freezeOnOffscreen: false },
+      });
+      players.add(player);
+      await new Promise<void>((resolve, reject) => {
+        let rendered = false, loaded = false, paintFrame = 0;
+        const cancel = () => { cleanup(); reject(new Error("Intro cancelled")); };
+        const error = () => { cleanup(); reject(new Error("Intro rendering failed")); };
+        const cleanup = () => {
+          cancelAnimationFrame(paintFrame);
+          abort.signal.removeEventListener("abort", cancel);
+          player.removeEventListener("render", render);
+          player.removeEventListener("loadError", error);
+          player.removeEventListener("renderError", error);
+        };
+        const render = () => {
+          if (rendered || !loaded) return;
+          // The player's load notification can precede its canvas draw. Confirm an
+          // opaque exported background pixel, once, before exposing either buffer.
+          const pixel = canvas.getContext("2d")?.getImageData(0, 0, 1, 1).data;
+          if (pixel?.[3] !== 255) return;
+          rendered = true; cleanup(); resolve();
+        };
+        player.addEventListener("render", render);
+        player.addEventListener("loadError", error);
+        player.addEventListener("renderError", error);
+        abort.signal.addEventListener("abort", cancel, { once: true });
+        player.addEventListener("load", () => {
+          player.setFrame(frame); loaded = true;
+          // Some core versions omit a Render event for a paused seek.
+          paintFrame = requestAnimationFrame(render);
+        });
+        const load = () => player.load({ data: fitScene(source!, bounds.width, bounds.height), autoplay: false, loop: false, speed: 1 });
+        if (player.isReady) load(); else player.addEventListener("ready", load);
+        if (abort.signal.aborted) cancel();
+      });
+      if (disposed || abort.signal.aborted) { player.destroy(); players.delete(player); canvas.remove(); throw new Error("Intro cancelled"); }
+      player.addEventListener("complete", () => { if (active === player) reveal(); });
+      player.addEventListener("renderError", () => reveal());
+      return { player, canvas, width: bounds.width, height: bounds.height };
+    }
+    async function resize() {
+      if (!active || resizing || !["fading-in", "playing"].includes(phase)) return;
+      const bounds = surface!.getBoundingClientRect();
+      if (Math.abs(bounds.width - lastWidth) < 2 && Math.abs(bounds.height - lastHeight) < 2) return;
+      resizing = true;
+      const previous = active;
+      previous.pause();
+      const heldCanvas = previous.canvas as HTMLCanvasElement;
+      const pixel = heldCanvas.getContext("2d")?.getImageData(0, 0, 1, 1).data;
+      if (pixel) surface!.style.backgroundColor = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+      try {
+        const next = await prepare(previous.currentFrame);
+        if (abort.signal.aborted) return;
+        next.canvas.style.visibility = "visible";
+        active = next.player; lastWidth = next.width; lastHeight = next.height;
+        const oldCanvas = previous.canvas as HTMLCanvasElement;
+        previous.destroy(); players.delete(previous);
+        oldCanvas.remove();
+        resizing = false;
+        if (phase === "playing" && !document.hidden) active.play();
+        // Coalesce repeated rotation/viewport changes without restarting playback.
+        void resize();
+      } catch { resizing = false; if (!abort.signal.aborted) reveal(); }
+    }
+    let seen = false;
+    try { seen = sessionStorage.getItem(SESSION_KEY) === "1"; } catch { /* Continue without storage. */ }
+    if (released || seen || elapsed >= 9000) finish();
+    else if (elapsed >= 3000) reveal();
+    else {
+      void waitForIntroContent(abort.signal).then(() => { contentReady = true; startWhenReady(); }).catch(() => { if (!abort.signal.aborted) reveal(); });
+      if (!staticOnly) void Promise.all([
+        import("@lottiefiles/dotlottie-web"),
+        fetch("/animations/intro.json", { signal: abort.signal }).then(response => { if (!response.ok) throw new Error("Intro unavailable"); return response.json(); }),
+      ]).then(async ([module, json]) => {
+        if (disposed || abort.signal.aborted) return;
+        Player = module.DotLottie; source = json;
+        Player.setWasmUrl("/animations/dotlottie-player.wasm");
+        const next = await prepare(0);
+        active = next.player; lastWidth = next.width; lastHeight = next.height;
+        next.canvas.style.visibility = "visible";
+        frameReady = true; observer.observe(surface); startWhenReady();
+      }).catch(() => { if (!abort.signal.aborted) reveal(); });
+    }
     return () => {
-      disposed = true;
-      abort.abort();
-      clearTimeout(timer);
-      observer?.disconnect();
-      player.current?.destroy();
-      player.current = null;
+      disposed = true; abort.abort(); destroyPlayers(); surface.replaceChildren();
+      observer.disconnect(); cancelAnimationFrame(resizeFrame);
+      timers.forEach(clearTimeout);
       document.removeEventListener("visibilitychange", onVisibility);
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("focusin", onFocus);
       media.removeEventListener("change", onMotion);
+      screen.removeEventListener("animationend", onFailsafe);
     };
-  }, [finish, visible]);
+  }, [released, release, visible]);
 
   if (!visible) return null;
-  return (
-    <div ref={overlay} className={styles.screen} data-intro="true" onAnimationEnd={event => {
-      if (event.target === event.currentTarget) finish();
-    }}>
-      <noscript><style>{`[data-intro="true"]{display:none!important}`}</style></noscript>
-      <div className={styles.fallback} role="status" aria-label="LIONOVART">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/LOGO.svg" width="480" height="77" alt="LIONOVART" />
-      </div>
-      <canvas ref={canvas} className={styles.canvas} aria-hidden="true" />
-      <button className={styles.skip} onClick={finish} aria-label="Skip intro">↗</button>
-    </div>
-  );
+  return <div ref={overlay} className={styles.screen} data-intro="true" data-phase="preparing" aria-label="Loading LIONOVART">
+    <noscript><style>{`[data-intro="true"]{display:none!important}`}</style></noscript>
+    <div ref={stage} className={styles.stage} aria-hidden="true" />
+    <span className={styles.status} role="status">Loading LIONOVART</span>
+    <button className={styles.skip} onClick={() => skip.current()} aria-label="Skip intro">Skip ↗</button>
+  </div>;
 }
