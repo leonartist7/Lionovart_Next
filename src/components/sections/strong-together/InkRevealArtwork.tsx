@@ -5,7 +5,7 @@ import { forwardRef, useEffect, useId, useImperativeHandle, useLayoutEffect, use
 const VIEWBOX = 1000;
 const IMAGE_ASPECT = 1672 / 941;
 const STRONGER_TOGETHER_IMAGE =
-  "https://res.cloudinary.com/dgio9uutc/image/upload/v1787734490/lion_paw_and_human_high_five_optimized_htzire.webp";
+  "/images/lion-paw-human-high-five.webp";
 
 type Bloom = { cx: number; cy: number; rStart: number; rFinal: number };
 
@@ -36,6 +36,8 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
     const uid = rawId.replace(/:/g, "");
     const maskId = `ink-mask-${uid}`;
     const filterId = `ink-filter-${uid}`;
+    const artFadeId = `ink-art-fade-${uid}`;
+    const artFadeGradientId = `ink-art-fade-gradient-${uid}`;
 
     const clientPointToViewBox = (clientX: number, clientY: number) => {
       const svg = svgRef.current;
@@ -60,33 +62,31 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
         const rect = svg.getBoundingClientRect();
         if (!rect.width || !rect.height) return;
         const scale = Math.max(rect.width, rect.height) / VIEWBOX;
-        const viewW = rect.width / scale;
-        const viewH = rect.height / scale;
-        const visibleY = (VIEWBOX - viewH) / 2;
-        let artW = Math.min(viewW, viewH * IMAGE_ASPECT);
-        let artH = artW / IMAGE_ASPECT;
-
-        // Keep the artwork from swelling to full-bleed on big viewports.
-        // Cap its height to a share of the visible area so the centered
-        // headline stays comfortably above the hands/paw image.
-        const maxArtH = viewH * 0.24;
-        if (artH > maxArtH) {
-          artH = maxArtH;
-          artW = artH * IMAGE_ASPECT;
-        }
-
-        // Reserve the strip height even while it is hidden during the reveal.
         const marqueeEl = document.getElementById("stronger-work-showcase");
-        const marqueeView = marqueeEl
-          ? (marqueeEl.clientHeight * VIEWBOX) / Math.max(rect.width, rect.height)
-          : 0;
-        const sceneBottom = visibleY + viewH;
+        const ribbonSvg = marqueeEl?.querySelector("svg");
+        const curve = ribbonSvg?.querySelector<SVGPathElement>("[data-ribbon-curve]");
+        const heading = document.getElementById("strong-together-title");
+        if (!marqueeEl || !ribbonSvg || !curve || !heading) return;
 
-        const artBottom = sceneBottom - marqueeView - viewH * 0.015;
-        art.setAttribute("x", String((VIEWBOX - artW) / 2));
-        art.setAttribute("y", String(artBottom - artH));
-        art.setAttribute("width", String(artW));
-        art.setAttribute("height", String(artH));
+        // Measure the arc itself instead of reserving the entire marquee box:
+        // its top is far above the box's lower edge, especially on phones.
+        const ribbonRect = ribbonSvg.getBoundingClientRect();
+        const ribbonViewBox = ribbonSvg.viewBox.baseVal;
+        const apex = curve.getPointAtLength(curve.getTotalLength() / 2);
+        const apexY = ribbonRect.top + (apex.y - ribbonViewBox.y) * ribbonRect.height / ribbonViewBox.height;
+        const headingBottom = heading.getBoundingClientRect().bottom;
+        const available = Math.max(0, apexY - headingBottom);
+        const ribbonThickness = Math.max(48, Math.min(68, ribbonRect.width * 0.061));
+        const artBottom = apexY + ribbonThickness * 0.42;
+        const titleGap = Math.min(24, Math.max(8, available * 0.08));
+        const artHeightPx = Math.max(48, Math.min(320, rect.width * 0.52, artBottom - headingBottom - titleGap));
+        const artWidthPx = artHeightPx * IMAGE_ASPECT;
+        const visibleY = (VIEWBOX - rect.height / scale) / 2;
+
+        art.setAttribute("x", String((VIEWBOX - artWidthPx / scale) / 2));
+        art.setAttribute("y", String(visibleY + (artBottom - artHeightPx - rect.top) / scale));
+        art.setAttribute("width", String(artWidthPx / scale));
+        art.setAttribute("height", String(artHeightPx / scale));
       };
 
       applyGeometry();
@@ -94,8 +94,16 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
       observer.observe(svg);
       const marqueeEl = document.getElementById("stronger-work-showcase");
       if (marqueeEl) observer.observe(marqueeEl);
-      return () => observer.disconnect();
-    }, []);    useImperativeHandle(
+      const heading = document.getElementById("strong-together-title");
+      if (heading) observer.observe(heading);
+      const curve = marqueeEl?.querySelector("[data-ribbon-curve]");
+      const curveObserver = new MutationObserver(applyGeometry);
+      if (curve) curveObserver.observe(curve, { attributes: true, attributeFilter: ["d"] });
+      document.fonts?.ready.then(applyGeometry);
+      return () => { observer.disconnect(); curveObserver.disconnect(); };
+    }, []);
+
+    useImperativeHandle(
       ref,
       () => ({
         get blooms() {
@@ -131,6 +139,14 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
         className={className}
       >
         <defs>
+          <linearGradient id={artFadeGradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#fff" />
+            <stop offset="82%" stopColor="#fff" />
+            <stop offset="100%" stopColor="#000" />
+          </linearGradient>
+          <mask id={artFadeId} maskUnits="objectBoundingBox" maskContentUnits="objectBoundingBox" x="0" y="0" width="1" height="1">
+            <rect x="0" y="0" width="1" height="1" fill={`url(#${artFadeGradientId})`} />
+          </mask>
           <filter
             id={filterId}
             x="-15%"
@@ -179,7 +195,8 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
           <image
             ref={artRef}
             href={STRONGER_TOGETHER_IMAGE}
-            preserveAspectRatio="xMidYMid slice"
+            preserveAspectRatio="xMidYMid meet"
+            mask={`url(#${artFadeId})`}
             opacity={reducedMotion ? 1 : 0.72}
           />
         </g>

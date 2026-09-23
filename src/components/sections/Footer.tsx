@@ -3,14 +3,28 @@
 import { Link } from "@/i18n/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
+import styles from "./Footer.module.css";
 
-export type FooterVariant = "standard" | "curtain";
+export type FooterVariant = "standard" | "curtain" | "compact";
 
 /** The closing CTA owns the final visual moment; this footer carries the signature and legal links. */
 export default function Footer({ variant = "standard" }: { variant?: FooterVariant }) {
   const { t } = useLanguage();
   const year = new Date().getFullYear();
   const isCurtain = variant === "curtain";
+
+  if (variant === "compact") return (
+    <footer id="footer-compact" className={styles.compact} data-art-directed="dark">
+      <div className={styles.inner}>
+        <span className={styles.wordmark}>LIONOVART®</span>
+        <p className={styles.copyright}>&copy; {year} LIONOVART. {t.footer.copyright}</p>
+        <nav aria-label="Legal" className={styles.legal}>
+          <Link href="/privacy">{t.footer.privacy}</Link>
+          <Link href="/terms">{t.footer.terms}</Link>
+        </nav>
+      </div>
+    </footer>
+  );
 
   return (
     <footer

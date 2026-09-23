@@ -110,7 +110,7 @@ function PanelsPreview() {
   return (
     <section
       data-about-direction="panels"
-      className="relative overflow-hidden bg-[#f7f4ef] py-[clamp(5rem,9vw,9rem)] text-[#171412]"
+      className="relative overflow-hidden bg-bg-surface-light py-[clamp(5rem,9vw,9rem)] text-[#171412]"
     >
       <div className="mx-auto w-full max-w-[1420px] px-[max(1.25rem,5vw)]">
         <div className="max-w-[790px]">

@@ -23,7 +23,7 @@ export default async function Home() {
         <Navbar />
         <PageBuilder />
       </main>
-      <Footer variant="curtain" />
+      <Footer variant="compact" />
     </>
   );
 }

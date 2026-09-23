@@ -1,0 +1,41 @@
+.closing {
+  font-family: var(--font-clash-display), sans-serif;
+}
+
+.heading {
+  margin: 0;
+  font-size: var(--closing-heading);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  word-spacing: 0.08em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.headingLine { display: block; }
+
+/* Invisible siblings reserve the largest translated word's natural height. */
+.slot {
+  display: grid;
+  align-items: center;
+  margin-top: 8px;
+  min-height: var(--closing-art);
+}
+
+.word {
+  grid-area: 1 / 1;
+  min-width: 0;
+  width: 100%;
+  font-size: var(--closing-word);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.reserve { visibility: hidden; pointer-events: none; }
+.art { position: relative; width: 100%; max-width: 30rem; height: var(--closing-art); margin-inline: auto; }

@@ -77,6 +77,7 @@ type ImageStreamHeroProps = React.ComponentProps<"div"> & {
   speed?: number;
   axis?: number;
   path?: CorridorPath;
+  paused?: boolean;
 };
 
 export function ImageStreamHero({
@@ -85,6 +86,7 @@ export function ImageStreamHero({
   speed = 20,
   axis = 52,
   path,
+  paused = false,
   className,
   style,
   children,
@@ -133,6 +135,7 @@ export function ImageStreamHero({
               return (
                 <div
                   key={`${animationName}-${index}`}
+                  data-image-stream-card
                   className={cn(
                     cardClass,
                     "absolute overflow-hidden border border-white/55 bg-[#151515] shadow-[0_28px_55px_-28px_rgba(0,0,0,0.68)] [backface-visibility:hidden]",
@@ -147,6 +150,7 @@ export function ImageStreamHero({
                     borderRadius: `${geometry.cardRadius}cqw`,
                     animation: `${animationName} ${speed}s linear infinite`,
                     animationDelay: `${-(index * speed) / cards}s`,
+                    animationPlayState: paused ? "paused" : "running",
                   }}
                 >
                   {image.src.includes("res.cloudinary.com/") ? (

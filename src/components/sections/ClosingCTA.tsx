@@ -1,6 +1,12 @@
 "use client";
 
-import LogoWorkShowcase from "./LogoWorkShowcase";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useInView } from "framer-motion";
+import { Pause, Play } from "lucide-react";
+import { ImageStreamHero } from "@/components/ui/image-stream-hero";
+import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
+import { SHOWCASE_IMAGES } from "./showcase-images";
+import styles from "./ClosingCTA.module.css";
 import HeroCycling, { type Word } from "@/components/sections/HeroCycling";
 import VideoBackdrop from "@/components/ui/VideoBackdrop";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
@@ -14,6 +20,83 @@ import { EN_WORD_ART } from "@/lib/word-art";
 // scrim, so the extra quality was never visible.
 const FOOTER_CLIP =
   "https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto:eco/v1779845599/Footage_02_chsoa3.mp4";
+
+const showcaseImages = SHOWCASE_IMAGES.map(src => ({ src }));
+const subscribeVisibility = (callback: () => void) => {
+  document.addEventListener("visibilitychange", callback);
+  return () => document.removeEventListener("visibilitychange", callback);
+};
+const getHidden = () => document.hidden;
+const getServerHidden = () => true;
+
+function CompactClosing({ words, onStart }: { words: Word[]; onStart: () => void }) {
+  const { t, locale } = useLanguage();
+  const sectionRef = useRef<HTMLElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(sectionRef);
+  const reducedMotion = useHydratedReducedMotion();
+  const hidden = useSyncExternalStore(subscribeVisibility, getHidden, getServerHidden);
+  const [userPaused, setUserPaused] = useState(false);
+  const [stageWidth, setStageWidth] = useState(390);
+  const paused = userPaused || reducedMotion || hidden || !inView;
+  const mobile = stageWidth < 640;
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const observer = new ResizeObserver(([entry]) => setStageWidth(Math.max(1, entry.contentRect.width)));
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, []);
+
+  const path = useMemo(() => ({
+    cardWidth: 17.5,
+    cardHeight: 23.5,
+    birthHeight: 3.4,
+    exitHeight: (stageWidth < 640 ? 125 : stageWidth < 1024 ? 180 : 230) / stageWidth * 100,
+    railBirth: -5.5,
+    railExit: stageWidth < 640 ? 58 : 85,
+    fan: 2.7,
+    turnBirth: 5,
+    turnExit: 23,
+    stops: 18,
+  }), [stageWidth]);
+
+  return (
+    <section id="closing-cta" ref={sectionRef} className={styles.section} data-art-directed="light" data-scroll-title-skip>
+      <div className={styles.copy}>
+        <p className={`${styles.accent} ${locale === "ja" || locale === "ko" ? "font-body" : "editorial-accent"}`}>
+          Your next chapter, together
+        </p>
+        <HeroCycling variant="closing" staticText={t.hero.staticText} words={words} staticColor="#171412" cyclingColor="#171412" paused={paused} />
+        <p className={styles.description}>
+          Bring your ambition. We will shape the identity, experiences and systems to carry it forward.
+        </p>
+      </div>
+      <div ref={stageRef} className={styles.stage} data-closing-stage>
+        <div className={styles.media} aria-hidden="true">
+          <ImageStreamHero images={showcaseImages} cards={6} speed={30} axis={mobile ? 65 : 58} path={path} paused={paused} className={styles.stream} />
+        </div>
+        <div className={styles.action}>
+          <TrailAttractionTarget>
+            <LiquidMetalButton label="Start your brand" width={mobile ? 220 : 240} height={56} paused={paused} onClick={onStart} />
+          </TrailAttractionTarget>
+        </div>
+        <button
+          type="button"
+          className={styles.motionControl}
+          aria-label={reducedMotion ? "Motion reduced by your device settings" : userPaused ? "Play animations" : "Pause animations"}
+          aria-pressed={userPaused || reducedMotion}
+          disabled={reducedMotion}
+          onClick={() => setUserPaused(value => !value)}
+        >
+          {userPaused || reducedMotion ? <Play size={12} aria-hidden="true" /> : <Pause size={12} aria-hidden="true" />}
+          {reducedMotion ? "Reduced motion" : userPaused ? "Play motion" : "Pause motion"}
+        </button>
+      </div>
+    </section>
+  );
+}
 
 /**
  * ClosingCTA — the single, canonical page close. Cinematic video backdrop +
@@ -42,10 +125,12 @@ export default function ClosingCTA({ crest = false, workShowcase = false }: { cr
           type: "text" as const,
         }));
 
+  if (workShowcase) return <CompactClosing words={words} onStart={() => openNova("offer", true)} />;
+
   return (
     <section
       id="closing-cta"
-      className={`relative overflow-hidden px-6 pb-16 pt-20 text-center md:pb-20 md:pt-28 ${workShowcase ? "bg-[#f2ede3] text-[#171412]" : "bg-[#0a0a0a] text-white"}`}
+      className={`relative overflow-hidden px-6 pb-16 pt-20 text-center md:pb-20 md:pt-28 ${workShowcase ? "bg-bg-surface-light text-[#171412]" : "bg-bg-dark text-white"}`}
     >
       {!workShowcase ? <VideoBackdrop src={FOOTER_CLIP} className="absolute inset-0 z-0" overlayClassName="bg-black/70" /> : null}
 
@@ -53,8 +138,6 @@ export default function ClosingCTA({ crest = false, workShowcase = false }: { cr
         <p className={locale === "ja" || locale === "ko" ? "text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red md:text-[13px]" : "editorial-accent editorial-closing text-brand-red"}>
           Your next chapter, together
         </p>
-
-        {workShowcase ? <div className="relative h-[clamp(280px,42vw,520px)] w-screen"><LogoWorkShowcase /></div> : null}
 
         <div className="w-full">
           <HeroCycling

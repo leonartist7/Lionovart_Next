@@ -13,6 +13,10 @@ interface LiquidMetalButtonProps {
   viewMode?: "text" | "icon";
   /** Override text-mode width (px). Default: 160 */
   width?: number;
+  /** Text-mode height; icon mode remains 46px. */
+  height?: number;
+  /** Pause the shader and decorative click/hover animation. */
+  paused?: boolean;
   /** "red" = dark-red interior + white text (default). "white" = white interior + red text. */
   variant?: "red" | "white";
   /** Tint the exposed liquid-metal edge. */
@@ -30,6 +34,8 @@ export function LiquidMetalButton({
   onClick,
   viewMode = "text",
   width = 160,
+  height = 46,
+  paused = false,
   variant = "red",
   metalTone = "silver",
   textColor,
@@ -43,10 +49,10 @@ export function LiquidMetalButton({
     Array<{ x: number; y: number; id: number }>
   >([]);
   const shaderRef = useRef<HTMLDivElement>(null);
-  // biome-ignore lint/suspicious/noExplicitAny: External library without types
-  const shaderMount = useRef<any>(null);
+  const shaderMount = useRef<ShaderMount | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const rippleId = useRef(0);
+  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const metalFilter = metalTone === "gold"
     ? "sepia(1) saturate(2.5) hue-rotate(2deg) brightness(1.03) contrast(1.12)"
     : undefined;
@@ -65,25 +71,26 @@ export function LiquidMetalButton({
     } else {
       return {
         width,
-        height: 46,
+        height,
         innerWidth: width - 4,
-        innerHeight: 42,
+        innerHeight: height - 4,
         shaderWidth: width,
-        shaderHeight: 46,
+        shaderHeight: height,
       };
     }
-  }, [viewMode, width]);
+  }, [viewMode, width, height]);
 
     const isInView = useInView(shaderRef, { margin: "200px" });
 
   useEffect(() => {
     if (!released) return;
+    const shaderElement = shaderRef.current;
     const loadShader = async () => {
       try {
-        if (shaderRef.current) {
-          if (shaderMount.current?.destroy) shaderMount.current.destroy();
+        if (shaderElement) {
+          shaderMount.current?.dispose();
           shaderMount.current = new ShaderMount(
-            shaderRef.current,
+            shaderElement,
             liquidMetalFragmentShader,
             { u_repetition: 4, u_softness: 0.5, u_shiftRed: 0.65, u_shiftBlue: 0.0, u_distortion: 0, u_contour: 0, u_angle: 45, u_scale: 8, u_shape: 1, u_offsetX: 0.1, u_offsetY: -0.1 },
             undefined,
@@ -98,13 +105,13 @@ export function LiquidMetalButton({
     loadShader();
 
     return () => {
-      if (shaderMount.current?.destroy) {
-        const canvas = shaderRef.current?.querySelector("canvas");
+      if (shaderMount.current) {
+        const canvas = shaderElement?.querySelector("canvas");
         if (canvas) {
           const gl = (canvas.getContext("webgl") || canvas.getContext("experimental-webgl")) as WebGLRenderingContext | null;
           gl?.getExtension("WEBGL_lose_context")?.loseContext();
         }
-        shaderMount.current.destroy();
+        shaderMount.current.dispose();
         shaderMount.current = null;
       }
     };
@@ -113,19 +120,21 @@ export function LiquidMetalButton({
   // Most shader buttons pause off-screen. Persistent controls, such as Nova,
   // can opt out so their surface remains alive whenever the tab is active.
   useEffect(() => {
+    if (clickTimer.current) clearTimeout(clickTimer.current);
     if (shaderMount.current?.setSpeed) {
-      if (alwaysAnimate || isInView) {
+      if (released && !paused && (alwaysAnimate || isInView)) {
         shaderMount.current.setSpeed(isHovered ? 1 : 0.6);
       } else {
         shaderMount.current.setSpeed(0); // Pause when off-screen
       }
     }
-  }, [alwaysAnimate, isInView, isHovered, released]);
+    return () => { if (clickTimer.current) clearTimeout(clickTimer.current); };
+  }, [alwaysAnimate, isInView, isHovered, paused, released]);
 
   const handleMouseEnter = () => {
     if (typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches) {
       setIsHovered(true);
-      shaderMount.current?.setSpeed?.(1);
+      if (!paused) shaderMount.current?.setSpeed?.(1);
     }
   };
 
@@ -133,7 +142,7 @@ export function LiquidMetalButton({
     if (typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches) {
       setIsHovered(false);
       setIsPressed(false);
-      shaderMount.current?.setSpeed?.(0.6);
+      if (!paused) shaderMount.current?.setSpeed?.(0.6);
     }
   };
 
@@ -141,9 +150,10 @@ export function LiquidMetalButton({
   const handleTouchEnd = () => setIsPressed(false);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (shaderMount.current?.setSpeed) {
+    if (!paused && shaderMount.current?.setSpeed) {
       shaderMount.current.setSpeed(2.4);
-      setTimeout(() => {
+      if (clickTimer.current) clearTimeout(clickTimer.current);
+      clickTimer.current = setTimeout(() => {
         if (isHovered) {
           shaderMount.current?.setSpeed?.(1);
         } else {
@@ -152,7 +162,7 @@ export function LiquidMetalButton({
       }, 300);
     }
 
-    if (buttonRef.current) {
+    if (!paused && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
@@ -335,6 +345,7 @@ export function LiquidMetalButton({
 
           <button
             ref={buttonRef}
+            type="button"
             data-cta-target
             onClick={handleClick}
             onMouseEnter={handleMouseEnter}
@@ -352,7 +363,6 @@ export function LiquidMetalButton({
               background: "transparent",
               border: "none",
               cursor: "pointer",
-              outline: "none",
               zIndex: 40,
               transformStyle: "preserve-3d",
               transform: "translateZ(25px)",

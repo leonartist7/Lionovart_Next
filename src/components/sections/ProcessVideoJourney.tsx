@@ -191,7 +191,7 @@ export default function ProcessVideoJourney() {
 
   return (
     <section id="process" data-art-directed="dark" data-process-direction="video"
-      aria-labelledby="process-heading" className="relative isolate bg-black px-5 py-20 text-white sm:px-8 lg:px-12 lg:py-28">
+      aria-labelledby="process-heading" className="relative isolate bg-bg-dark px-5 py-20 text-white sm:px-8 lg:px-12 lg:py-28">
       <div className="mx-auto max-w-[1440px]">
         <header className="mb-10 lg:mb-14">
           <p className="flex items-center gap-3 font-body text-[10px] font-bold uppercase tracking-[0.28em] text-[#c7a86a]">

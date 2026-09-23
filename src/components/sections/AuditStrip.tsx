@@ -16,7 +16,7 @@ export default function AuditStrip() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section className="bg-black py-10">
+    <section className="bg-bg-dark py-10">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}

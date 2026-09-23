@@ -1,0 +1,13 @@
+.titleFrame {
+  top: 42%;
+}
+
+.ribbonFrame {
+  bottom: -5svh;
+}
+
+@media (max-height: 500px) {
+  .titleFrame {
+    top: 33%;
+  }
+}

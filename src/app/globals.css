@@ -85,9 +85,9 @@
   --font-editorial: var(--font-playfair-display), Georgia, serif;
 
   /* --- Brand Colors --- */
-  --color-bg-dark: #0a0a0a;
-  --color-bg-brand-black: #0a0a0a;
-  --color-bg-off-white: #f7f4ef;
+  --color-bg-dark: var(--site-surface-dark);
+  --color-bg-brand-black: var(--site-surface-dark);
+  --color-bg-off-white: var(--site-surface-light);
   --color-brand-red: #e5192a;
   --color-brand-red-secondary: #db0000;
   --color-brand-gold: #f0c917;
@@ -97,7 +97,7 @@
   --color-nav-glass: rgba(0, 0, 0, 0.7);
 
   /* --- Light surface & dark-on-light text --- */
-  --color-bg-surface-light: #f7f4ef;
+  --color-bg-surface-light: var(--site-surface-light);
   --color-text-dark-primary: #111111;
   --color-text-dark-secondary: #555555;
   --color-text-dark-tertiary: #999999;
@@ -187,6 +187,9 @@
    Root variables â€” LIONOVART dark theme default
    ============================================= */
 :root {
+  /* Shared chapter surfaces for utility classes and motion layers. */
+  --site-surface-dark: #0a0a0a;
+  --site-surface-light: #f7f4ef;
   /* Process lion circle (the "i" dot). */
   --lion-circle-d: clamp(272px, 64vmin, 600px);
   --background: #0d0d0d;

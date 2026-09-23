@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
+import styles from "./HeroCycling.module.css";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -18,6 +19,7 @@ export interface Word {
 }
 
 export interface HeroCyclingProps {
+  variant?: "default" | "closing";
   alignment?: "left" | "center";
   paused?: boolean;
   /** Static first line(s). Can be a string or array of strings for multiple lines. */
@@ -99,6 +101,7 @@ const wordVariants = {
  *   <HeroCycling staticText="YOUR BRAND DESERVES" words={[...]} />
  */
 export default function HeroCycling({
+  variant = "default",
   alignment = "center",
   paused = false,
   staticText = "YOUR BRAND DESERVES",
@@ -226,6 +229,42 @@ export default function HeroCycling({
 
   // Reduced motion / pre-mount: static first word, no animation
   const showStatic = !hasMounted || (prefersReduced && !forceAnimate);
+
+  if (variant === "closing") {
+    const visibleWord = words[showStatic ? 0 : currentIndex] ?? words[0];
+    const lines = Array.isArray(staticText) ? staticText : [staticText];
+    return (
+      <div className={styles.closing}>
+        <h2 className={styles.heading} style={{ color: staticColor }}>
+          {lines.map((line, index) => <span className={styles.headingLine} key={index}>{line}</span>)}
+          {words[0] && <span className="sr-only"> {words[0].type === "image" ? words[0].alt : words[0].content}</span>}
+        </h2>
+        <div className={styles.slot} aria-hidden="true" data-closing-cycle>
+          {words.filter(word => word.type === "text").map((word, index) => (
+            <span key={index} className={`${styles.word} ${styles.reserve}`}>{word.content}</span>
+          ))}
+          {visibleWord && <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={visibleWord.content}
+              className={styles.word}
+              style={{ color: cyclingColor }}
+              variants={wordVariants}
+              initial={showStatic || paused ? false : "initial"}
+              animate="animate"
+              exit={showStatic || paused ? undefined : "exit"}
+              data-closing-word={visibleWord.alt ?? visibleWord.content}
+            >
+              {visibleWord.type === "image" ? (
+                <div className={styles.art}>
+                  <Image src={visibleWord.content} alt="" fill sizes="(max-width: 639px) 85vw, 520px" style={{ objectFit: "contain" }} />
+                </div>
+              ) : visibleWord.content}
+            </motion.div>
+          </AnimatePresence>}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

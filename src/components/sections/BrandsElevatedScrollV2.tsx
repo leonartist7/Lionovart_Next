@@ -150,11 +150,11 @@ export default function BrandsElevatedScrollV2() {
     <div
       ref={ref}
       className={`relative w-full ${reduced ? "min-h-[140svh]" : "h-[225svh] md:h-[245svh] lg:h-[250svh]"}`}
-      style={{ background: "linear-gradient(to bottom, #f7f4ef 0%, #f7f4ef 45%, #0a0a0a 55%, #0a0a0a 100%)" }}
+      style={{ background: "linear-gradient(to bottom, var(--site-surface-light) 0%, var(--site-surface-light) 45%, var(--site-surface-dark) 55%, var(--site-surface-dark) 100%)" }}
       aria-label="Brands elevated — selected client results"
     >
-      <div className="sticky top-0 h-[100dvh] min-h-[100svh] overflow-hidden bg-[#f7f4ef]">
-        <motion.div className="pointer-events-none absolute inset-0 bg-[#0a0a0a]" style={{ opacity: black }} aria-hidden />
+      <div className="sticky top-0 h-[100dvh] min-h-[100svh] overflow-hidden bg-bg-surface-light">
+        <motion.div className="pointer-events-none absolute inset-0 bg-bg-dark" style={{ opacity: black }} aria-hidden />
         <Title progress={scrollYProgress} reduced={reduced} />
         <div className={`absolute inset-0 z-10 hidden md:block ${styles.cardPlane}`}>
           {CARDS.map((card, i) => <ProofCard key={card.id} card={card} layout={DESKTOP[i]} progress={scrollYProgress} reduced={reduced} />)}
