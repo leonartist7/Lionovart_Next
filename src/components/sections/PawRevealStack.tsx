@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useAnimation, useMotionValueEvent, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
+import { useLenis } from "lenis/react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 import { SovereignFoilContour } from "@/components/ui/SovereignFoilContour";
@@ -341,6 +342,7 @@ export default function PawRevealStack() {
   const entryPadding = Math.min(128, Math.max(48, scene.viewport * 0.08));
   const exitPadding = Math.min(64, Math.max(24, scene.viewport * 0.04));
   const { t, locale } = useLanguage();
+  const lenis = useLenis();
   const items: ImagineItem[] = t.problems.items;
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -356,13 +358,23 @@ export default function PawRevealStack() {
   useEffect(() => {
     if (window.location.hash !== "#problems" && window.location.hash !== "#imagine") return;
     let frame = 0;
+    let readyFrame = 0;
     const landOnImagine = () => {
-      frame = requestAnimationFrame(() => chapterRef.current?.scrollIntoView({ behavior: "instant", block: "start" }));
+      // The splash releases its body lock and starts Lenis in a React effect.
+      // Wait until that commit has painted before restoring a deep link.
+      readyFrame = requestAnimationFrame(() => {
+        frame = requestAnimationFrame(() => {
+          const section = chapterRef.current;
+          if (!section) return;
+          if (lenis) lenis.scrollTo(section, { immediate: true, force: true });
+          else section.scrollIntoView({ behavior: "instant", block: "start" });
+        });
+      });
     };
     if (document.documentElement.dataset.splashComplete === "true") landOnImagine();
     else window.addEventListener("lionovart:splash-complete", landOnImagine, { once: true });
-    return () => { cancelAnimationFrame(frame); window.removeEventListener("lionovart:splash-complete", landOnImagine); };
-  }, []);
+    return () => { cancelAnimationFrame(readyFrame); cancelAnimationFrame(frame); window.removeEventListener("lionovart:splash-complete", landOnImagine); };
+  }, [lenis]);
   const circleScale = useTransform(
     scrollYProgress,
     staticScene ? [0, 1] : [0, 0.69, 0.85, 0.91, 1],
