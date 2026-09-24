@@ -25,3 +25,9 @@ Verification:
 - Local screenshots are in `../previews/consolidated-homepage/`; machine-readable browser results are in `../reports/consolidated-homepage-verification.json`.
 
 No missing or corrupt local poster/high-five assets were found. `npm ci` reported 15 dependency advisories (10 moderate, 4 high, 1 critical) from the unchanged lockfile; these are pre-existing dependency findings, not consolidation regressions. Real project films are still absent, so Selected Work is a poster gallery until footage is supplied.
+
+## Homepage scroll refinement
+
+The later local refinement keeps the navbar hidden during downward scrolling and reveals it on a deliberate upward movement, while an open menu or keyboard focus holds it visible. Imagine now keeps its gold solution contour mounted through the pull, uses Playfair on ivory solution headings, shows all three stats on desktop, sizes its circle from the viewport, and holds the partnership statement and moving-image sequence longer. The chapter's large trailing pad and the gallery's top pad were reduced. The Stronger Together bloom, chapter background, and subsequent sections use the same ivory surface.
+
+The updated browser matrix passed at 320–3840px, short landscape, all five non-English locales, reduced motion, manual/rapid project selection, and both Selected Work themes. Focused lint, type, and a production build passed. A normal build initially hit `ENOSPC` in Webpack's persistent cache; the failed generated `.next` output was cleared, and the production build passed using the new `LIONOVART_DISABLE_WEBPACK_CACHE=1` local build option. The drive had roughly 350 MB free after verification, so future builds may need more free space. No source or artwork corruption was found.

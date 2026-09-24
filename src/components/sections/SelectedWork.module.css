@@ -8,7 +8,7 @@
   z-index: 31;
   isolation: isolate;
   overflow: clip;
-  padding: clamp(64px, 6vw, 144px) 16px 0;
+  padding: clamp(48px, 4vw, 88px) 16px 0;
   background: var(--surface);
   color: var(--ink);
 }
@@ -55,7 +55,7 @@
 @media (min-width: 1024px) { .section { padding-inline: 48px; } }
 @media (min-width: 1600px) { .section { padding-inline: 64px; } }
 @media (max-width: 639px) {
-  .section { padding-top: 64px; }
+  .section { padding-top: 48px; }
   .stage { height: clamp(440px, 78svh, 740px); }
   .stageBottom { inset-inline: 16px; bottom: 16px; }
   .captionRow { margin-bottom: 22px; }

@@ -15,8 +15,8 @@
 .journey :global(.lion-video-section) { background: transparent; }
 .journey :global(.lion-proof) { position: relative; z-index: 2; padding: 24px 20px 48px; }
 .journey :global([data-gold-bridge]) { background: transparent; isolation: auto; z-index: 2; text-shadow: 0 2px 24px #08080a; }
-.journey :global(.lion-reveal) { background: transparent; }
-.journey :global(.lion-reveal > div) { background: transparent; }
+.journey :global(.lion-reveal) { background: var(--site-surface-light); }
+.journey :global(.lion-reveal > div) { background: #0d0d0d; }
 @media (max-width: 1023px) {
  .journey :global(.lion-intro-wrap) { padding: 52px 20px 32px; }
  .journey :global(.lion-intro h2) { font-size: clamp(2.25rem,8.4vw,4rem); max-width: 14ch; line-height: .92; }

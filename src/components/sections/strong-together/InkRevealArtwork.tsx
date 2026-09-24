@@ -191,7 +191,7 @@ const InkRevealArtwork = forwardRef<InkRevealArtworkHandle, InkRevealArtworkProp
           </mask>
         </defs>
         <g mask={`url(#${maskId})`}>
-          <rect width={VIEWBOX} height={VIEWBOX} fill="#f2ede3" />
+          <rect width={VIEWBOX} height={VIEWBOX} fill="var(--site-surface-light)" />
           <image
             ref={artRef}
             href={STRONGER_TOGETHER_IMAGE}

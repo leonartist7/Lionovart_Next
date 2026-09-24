@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useAnimation, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useAnimation, useMotionValueEvent, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -12,8 +12,8 @@ import { ImageStreamHero } from "@/components/ui/image-stream-hero";
 const PAW_IMAGE =
   "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_320/v1775085187/Untitled_design_4_muu53f.png";
 const PAW_IN_DURATION = 0.35;
-const PULL_DURATION = 0.7;
-const PULL_EASE = [0.2, 0, 0.6, 1] as const;
+const PULL_DURATION = 0.9;
+const PULL_EASE = [0.16, 1, 0.3, 1] as const;
 const RETURN_EASE = [0.2, 1, 0.3, 1] as const;
 type ImagineItem = {
   problem: { heading: string; body: string };
@@ -29,13 +29,13 @@ type CardTransition = { kind: "reveal" | "return"; index: number } | null;
 
 function PartnershipStatement() {
   return (
-    <div className="w-full max-w-[720px]">
-      <p className="font-mono text-[8px] font-bold uppercase tracking-[0.31em] text-white/70 sm:text-[10px]">One Partnership</p>
-      <h2 className="mx-auto mt-4 max-w-[13ch] font-clash text-[clamp(2.05rem,7.5vw,4.2rem)] font-semibold uppercase leading-[0.9] tracking-[-0.04em] sm:mt-5 lg:text-[clamp(2.8rem,4.1vw,4.15rem)]">
+    <div className="w-full max-w-[min(84vw,1500px)]">
+      <p className="font-mono text-[clamp(9px,0.55vw,13px)] font-bold uppercase tracking-[0.31em] text-white/80">One Partnership</p>
+      <h2 className="mx-auto mt-4 max-w-[13ch] font-clash text-[clamp(2.05rem,2rem+2.6vw,8rem)] font-semibold uppercase leading-[0.9] tracking-[-0.04em] sm:mt-5">
         <span className="block">Your vision.</span>
         <span className="mt-[0.1em] block">A studio around it.</span>
       </h2>
-      <p className="mx-auto mt-4 max-w-[46ch] font-body text-[12.5px] font-medium leading-[1.5] text-white/82 sm:mt-5 sm:text-[16px] lg:text-[17px]">Artists, strategists and technologists working together on your identity, digital presence and the systems behind your business.</p>
+      <p className="mx-auto mt-4 max-w-[46ch] font-body text-[clamp(12.5px,0.65vw+8px,24px)] font-medium leading-[1.5] text-white/85 sm:mt-5">Artists, strategists and technologists working together on your identity, digital presence and the systems behind your business.</p>
     </div>
   );
 }
@@ -54,6 +54,8 @@ function LogoHandoffWords() {
 }
 
 function StatusHeading({ item, compact = false }: { item: ImagineItem; compact?: boolean }) {
+  const { locale } = useLanguage();
+  const headingFont = locale === "ja" || locale === "ko" ? "font-body" : "font-editorial";
   return (
     <div className={`flex items-start gap-3 ${compact ? "justify-center" : ""}`}>
       <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#14966c] text-white md:h-6 md:w-6" aria-hidden="true">
@@ -61,7 +63,7 @@ function StatusHeading({ item, compact = false }: { item: ImagineItem; compact?:
           <path d="m5 13 4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </span>
-      <h3 className={`font-clash font-bold uppercase leading-[1.1] tracking-[-0.01em] [word-spacing:0.08em] text-[#141414] ${compact ? "max-w-[740px] text-[clamp(0.9375rem,0.84rem+0.45vw,1.25rem)]" : "max-w-[640px] text-[clamp(1rem,0.92rem+0.45vw,1.375rem)]"}`}>
+      <h3 className={`max-w-[1200px] ${headingFont} text-[clamp(1.25rem,1rem+0.72vw,2.8rem)] font-semibold leading-[1.14] tracking-[-0.025em] text-[#141414]`}>
         {item.solution.heading}
       </h3>
     </div>
@@ -75,6 +77,7 @@ function SolutionSurface({
   onActivate,
   onReturn,
   isInteractionLocked,
+  reduceMotion,
 }: {
   item: ImagineItem;
   panelId: string;
@@ -82,12 +85,12 @@ function SolutionSurface({
   onActivate: () => void;
   onReturn: () => void;
   isInteractionLocked: boolean;
+  reduceMotion: boolean;
 }) {
-  const reduceMotion = useReducedMotion();
   const isActive = phase === "active";
   const isSummary = phase === "summary";
   const isCovered = phase === "closed" || phase === "revealing" || phase === "returning";
-  const hasFullDetails = isActive;
+  const isExpanded = isActive || phase === "revealing" || phase === "returning";
 
   return (
     <div
@@ -95,49 +98,49 @@ function SolutionSurface({
       role="region"
       aria-label={item.solution.heading}
       aria-hidden={isCovered}
-      className={`relative h-full w-full overflow-hidden bg-[#faf9f6] text-[#171717] ${isCovered ? "absolute inset-0" : ""}`}
+      className={`relative h-full w-full overflow-hidden bg-bg-surface-light text-[#171717] ${phase === "closed" ? "absolute inset-0" : ""}`}
     >
-      {!isCovered ? <SovereignFoilContour /> : null}
+      <SovereignFoilContour />
 
       {isSummary ? (
         <button
           type="button"
           onClick={onActivate}
           disabled={isInteractionLocked}
-          className="group relative z-10 flex min-h-[5.75rem] w-full items-center justify-center px-5 py-5 text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[#d6a900] sm:px-8 md:min-h-[6.25rem]"
+          className="group relative z-10 flex min-h-[clamp(5.75rem,3vw,9rem)] w-full items-center justify-center px-5 py-5 text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[#d6a900] sm:px-8"
         >
           <StatusHeading item={item} compact />
         </button>
-      ) : isActive ? (
+      ) : isExpanded ? (
         <button
           type="button"
           onClick={onReturn}
           disabled={isInteractionLocked}
           aria-label="Return to prompt"
-          className="relative z-10 block min-h-[12rem] w-full touch-manipulation px-5 py-5 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[#b98b10] disabled:cursor-default sm:px-7 sm:py-5.5 md:min-h-[12.5rem] md:px-8 md:py-6 lg:px-10"
+          className="relative z-10 block min-h-[clamp(12rem,7.5vw,18rem)] w-full touch-manipulation px-5 py-5 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[#b98b10] disabled:cursor-default sm:px-7 sm:py-5.5 md:px-8 md:py-6 lg:px-10 2xl:px-14 2xl:py-9"
         >
-          <div className="mx-auto max-w-[700px]">
+          <div className="mx-auto max-w-[1200px]">
             <StatusHeading item={item} />
 
             <AnimatePresence initial={false}>
-              {hasFullDetails ? (
+              {isExpanded ? (
                 <motion.div
-                  initial={isActive ? { opacity: 0, y: reduceMotion ? 0 : 8 } : false}
+                  initial={false}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: reduceMotion ? 0 : -4 }}
-                  transition={isActive ? (reduceMotion ? { duration: 0.01 } : { duration: 0.36, delay: 0.1, ease: RETURN_EASE }) : { duration: 0 }}
+                  transition={reduceMotion ? { duration: 0 } : { duration: 0.45, ease: RETURN_EASE }}
                 >
-                  <p className="mt-2.5 max-w-[680px] font-sans text-[0.8125rem] leading-[1.5] text-[#585858] sm:text-[0.875rem]">
+                  <p className="mt-2.5 max-w-[1100px] font-body text-[clamp(0.8125rem,0.7rem+0.22vw,1.25rem)] leading-[1.5] text-[#585858]">
                     {item.solution.body}
                   </p>
 
-                  <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-3.5 md:mt-5 md:gap-x-5">
-                    {item.solution.stats.slice(0, 2).map((stat) => (
-                      <div key={stat.label} className="flex min-w-0 flex-col text-left">
-                        <span className="font-clash text-[clamp(1.5rem,1.2rem+1vw,2.25rem)] font-bold leading-none tracking-[-0.045em] text-[#e5192a]">
+                  <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-3.5 md:mt-5 md:gap-x-5 lg:grid-cols-3">
+                    {item.solution.stats.slice(0, 3).map((stat, index) => (
+                      <div key={stat.label} className={`min-w-0 flex-col text-left ${index === 2 ? "hidden lg:flex" : "flex"}`}>
+                        <span className="font-clash text-[clamp(1.5rem,1.2rem+1vw,2.75rem)] font-bold leading-none tracking-[-0.045em] text-[#e5192a]">
                           {stat.value}
                         </span>
-                        <span className="mt-1 max-w-[11rem] text-[0.625rem] font-semibold uppercase leading-[1.25] tracking-[0.08em] text-[#747474] md:text-[0.6875rem]">
+                        <span className="mt-1 max-w-[16rem] text-[clamp(0.625rem,0.48rem+0.18vw,0.875rem)] font-semibold uppercase leading-[1.25] tracking-[0.08em] text-[#676767]">
                           {stat.label}
                         </span>
                       </div>
@@ -150,7 +153,7 @@ function SolutionSurface({
         </button>
       ) : (
         <div className="relative z-10 min-h-[12rem] px-5 py-5 sm:px-7 sm:py-5.5 md:min-h-[12.5rem] md:px-8 md:py-6 lg:px-10">
-          <div className="mx-auto max-w-[700px]">
+          <div className="mx-auto max-w-[1200px]">
             <StatusHeading item={item} />
           </div>
         </div>
@@ -169,6 +172,7 @@ function PawRevealCard({
   onReturnComplete,
   onActivateSummary,
   isInteractionLocked,
+  reduceMotion,
 }: {
   item: ImagineItem;
   index: number;
@@ -179,17 +183,24 @@ function PawRevealCard({
   onReturnComplete: () => void;
   onActivateSummary: () => void;
   isInteractionLocked: boolean;
+  reduceMotion: boolean;
 }) {
   const cardControls = useAnimation();
   const pawControls = useAnimation();
-  const reduceMotion = useReducedMotion();
   const panelId = `imagine-result-${index}`;
   const returnCompletionReported = useRef(false);
   const returnPawExitStarted = useRef(false);
+  const previousPhase = useRef<CardPhase>(phase);
   const isClosed = phase === "closed";
   const isSummary = phase === "summary";
-  const isActive = phase === "active";
   const isCovered = phase === "closed" || phase === "revealing" || phase === "returning";
+
+  useEffect(() => {
+    if (phase === "active" && previousPhase.current === "revealing") {
+      document.querySelector<HTMLButtonElement>(`#${panelId} > button`)?.focus({ preventScroll: true });
+    }
+    previousPhase.current = phase;
+  }, [panelId, phase]);
 
   const reveal = async () => {
     if (!onRevealStart()) return;
@@ -276,11 +287,11 @@ function PawRevealCard({
   return (
     <motion.article
       layout
-      transition={reduceMotion ? { duration: 0.01 } : { duration: 0.46, ease: RETURN_EASE }}
-      className={`relative overflow-hidden rounded-[1.375rem] border shadow-[0_18px_32px_-24px_rgba(0,0,0,0.8)] md:rounded-[1.5rem] ${isSummary || isActive ? "border-[#e3b72b]/80 bg-[#faf9f6] shadow-[0_0_0_1px_rgba(240,201,23,0.25),0_16px_32px_-24px_rgba(181,135,0,0.8)]" : "border-white/[0.08] bg-black"}`}
+      transition={reduceMotion ? { duration: 0 } : { duration: 0.82, ease: RETURN_EASE }}
+      className={`relative overflow-hidden rounded-[1.375rem] border shadow-[0_18px_32px_-24px_rgba(0,0,0,0.8)] md:rounded-[1.5rem] ${phase !== "closed" ? "border-[#e3b72b]/80 bg-bg-surface-light shadow-[0_0_0_1px_rgba(240,201,23,0.25),0_16px_32px_-24px_rgba(181,135,0,0.8)]" : "border-white/[0.08] bg-black"}`}
     >
-      <div className={`relative overflow-hidden ${isSummary ? "" : isCovered ? "h-[9rem] bg-black md:h-[8rem]" : "min-h-[12rem] bg-black md:min-h-[12.5rem]"}`}>
-        <SolutionSurface item={item} panelId={panelId} phase={phase} onActivate={onActivateSummary} onReturn={onReturnStart} isInteractionLocked={isInteractionLocked} />
+      <div className={`relative overflow-hidden ${phase === "closed" ? "h-[clamp(9rem,5vw,12rem)] bg-black" : isSummary ? "" : "min-h-[clamp(12rem,7.5vw,18rem)] bg-bg-surface-light"}`}>
+        <SolutionSurface item={item} panelId={panelId} phase={phase} onActivate={onActivateSummary} onReturn={onReturnStart} isInteractionLocked={isInteractionLocked} reduceMotion={reduceMotion} />
 
         {isCovered ? <motion.button
           type="button"
@@ -295,7 +306,7 @@ function PawRevealCard({
         >
           <span className="pointer-events-none absolute inset-0 border border-white/[0.04]" aria-hidden="true" />
           <span className="pointer-events-none absolute left-5 top-5 hidden h-1.5 w-1.5 rounded-full bg-[#f0c917] shadow-[0_0_12px_rgba(240,201,23,0.52)] md:block" aria-hidden="true" />
-          <span className="relative z-10 max-w-[720px] font-clash text-[clamp(1.05rem,0.95rem+1.2vw,2rem)] font-bold uppercase leading-[1.04] tracking-[-0.012em] [word-spacing:0.07em] text-white">
+          <span className="relative z-10 max-w-[1200px] font-clash text-[clamp(1.05rem,0.95rem+1.2vw,3.2rem)] font-bold uppercase leading-[1.04] tracking-[-0.012em] [word-spacing:0.07em] text-white">
             {item.problem.heading}
           </span>
         </motion.button> : null}
@@ -323,62 +334,76 @@ export default function PawRevealStack() {
   const [revealedIndexes, setRevealedIndexes] = useState<number[]>([]);
   const [showWorkStream, setShowWorkStream] = useState(false);
   const [scene, setScene] = useState({ diameter: 1200, height: 900, viewport: 900 });
+  const [reduceMotion, setReduceMotion] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const chapterRef = useRef<HTMLElement>(null);
-  const reduceMotion = useReducedMotion() ?? false;
-  const staticScene = reduceMotion;
-  const circlePadding = Math.max(0, (scene.diameter - scene.height) / 2) + 64;
-  const centerShift = (scene.height - scene.viewport) / 2;
-  const { t } = useLanguage();
+  const staticScene = reduceMotion || scene.viewport < 500;
+  const entryPadding = Math.min(128, Math.max(48, scene.viewport * 0.08));
+  const exitPadding = Math.min(64, Math.max(24, scene.viewport * 0.04));
+  const { t, locale } = useLanguage();
   const items: ImagineItem[] = t.problems.items;
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduceMotion(media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
   const { scrollYProgress } = useScroll({
     target: chapterRef,
     offset: ["start start", "end end"],
   });
+  useEffect(() => {
+    if (window.location.hash !== "#problems" && window.location.hash !== "#imagine") return;
+    let frame = 0;
+    const landOnImagine = () => {
+      frame = requestAnimationFrame(() => chapterRef.current?.scrollIntoView({ behavior: "instant", block: "start" }));
+    };
+    if (document.documentElement.dataset.splashComplete === "true") landOnImagine();
+    else window.addEventListener("lionovart:splash-complete", landOnImagine, { once: true });
+    return () => { cancelAnimationFrame(frame); window.removeEventListener("lionovart:splash-complete", landOnImagine); };
+  }, []);
   const circleScale = useTransform(
     scrollYProgress,
-    staticScene ? [0, 1] : [0, 0.52, 0.76, 0.84, 1],
-    staticScene ? [1, 1] : [1, 1, 0.2, 0.075, 0.075],
+    staticScene ? [0, 1] : [0, 0.69, 0.85, 0.91, 1],
+    staticScene ? [1, 1] : [1, 1, 0.22, 0.075, 0.075],
   );
   const cardOpacity = useTransform(
     scrollYProgress,
-    staticScene ? [0, 1] : [0, 0.46, 0.57, 1],
+    staticScene ? [0, 1] : [0, 0.45, 0.54, 1],
     staticScene ? [1, 1] : [1, 1, 0, 0],
   );
-  const cardY = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.57], [0, staticScene ? 0 : -18]);
+  const cardY = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.54], [0, staticScene ? 0 : -18]);
   const statementOpacity = useTransform(
     scrollYProgress,
-    staticScene ? [0, 1] : [0, 0.54, 0.62, 0.72, 1],
-    staticScene ? [0, 0] : [0, 0, 1, 0, 0],
+    staticScene ? [0, 1] : [0, 0.49, 0.55, 0.71, 0.79, 1],
+    staticScene ? [0, 0] : [0, 0, 1, 1, 0, 0],
   );
-  const statementY = useTransform(scrollYProgress, staticScene ? [0, 1] : [0.54, 0.72], [staticScene ? 0 : 18, staticScene ? 0 : -14]);
-  const logoOpacity = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.74, 0.84, 1], staticScene ? [0, 0] : [0, 0, 1, 1]);
-  const logoMarkScale = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.76, 0.84, 1], staticScene ? [0.8, 0.8] : [0.8, 0.8, 0.68, 0.68]);
+  const statementY = useTransform(scrollYProgress, staticScene ? [0, 1] : [0.49, 0.79], [staticScene ? 0 : 18, staticScene ? 0 : -14]);
+  const logoOpacity = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.73, 0.82, 1], staticScene ? [0, 0] : [0, 0.75, 1, 1]);
+  const logoMarkScale = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.73, 0.85, 1], staticScene ? [0.8, 0.8] : [0.8, 0.8, 0.68, 0.68]);
   const streamOpacity = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.82, 0.89, 1], staticScene ? [0, 0] : [0, 0, 1, 1]);
-  const streamScale = useTransform(scrollYProgress, staticScene ? [0, 1] : [0.82, 1], [0.975, 1.012]);
-  const handoffCaptionOpacity = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.84, 0.9, 1], staticScene ? [0, 0] : [0, 0, 1, 1]);
-  const handoffCaptionY = useTransform(scrollYProgress, staticScene ? [0, 1] : [0.84, 0.9], [staticScene ? 0 : 12, 0]);
-  const circleY = useTransform(scrollYProgress, [0, 0.46, 0.72, 1], [0, 0, centerShift, centerShift]);
+  const streamScale = useTransform(scrollYProgress, staticScene ? [0, 1] : [0.82, 1], [0.975, 1]);
+  const handoffCaptionOpacity = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.85, 0.91, 1], staticScene ? [0, 0] : [0, 0, 1, 1]);
+  const handoffCaptionY = useTransform(scrollYProgress, staticScene ? [0, 1] : [0.85, 0.91], [staticScene ? 0 : 12, 0]);
   useEffect(() => {
     const content = contentRef.current;
     if (!content) return;
     const measure = () => {
-      const width = content.offsetWidth;
-      const height = content.offsetHeight;
-      // The diagonal encloses all four corners, with breathing room for the title and cards.
-      const diameter = Math.ceil(Math.max(Math.hypot(width + 160, height + 280), Math.min(window.innerWidth, window.innerHeight) * 1.75));
-      const stageHeight = Math.max(window.innerHeight, height + 240);
+      // Viewport geometry alone controls the circle. Card expansion cannot
+      // resize the circle or change the scroll journey halfway through.
+      const diameter = Math.ceil(Math.hypot(window.innerWidth, window.innerHeight) * 1.08);
+      const stageHeight = Math.max(window.innerHeight, content.offsetHeight + 320);
       setScene(previous => previous.diameter === diameter && previous.height === stageHeight && previous.viewport === window.innerHeight ? previous : { diameter, height: stageHeight, viewport: window.innerHeight });
     };
     measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(content);
+    void document.fonts?.ready.then(measure);
     window.addEventListener("resize", measure);
-    return () => { observer.disconnect(); window.removeEventListener("resize", measure); };
-  }, [reduceMotion]);
+    return () => { window.removeEventListener("resize", measure); };
+  }, [locale]);
 
   useMotionValueEvent(scrollYProgress, "change", (progress) => {
-    const next = progress > 0.78;
+    const next = progress > 0.8;
     setShowWorkStream((current) => (current === next ? current : next));
   });
 
@@ -417,13 +442,14 @@ export default function PawRevealStack() {
   return (
     <section
       ref={chapterRef}
+      id="problems"
       aria-label="Imagine and one partnership"
-      style={{ paddingTop: circlePadding, paddingBottom: circlePadding, height: (staticScene ? scene.height : scene.height + scene.viewport * 1.45) + circlePadding * 2 }}
-      className="relative z-30 isolate overflow-visible bg-bg-surface-light"
+      style={{ paddingTop: entryPadding, paddingBottom: exitPadding, height: scene.height + (staticScene ? 0 : scene.viewport * 4.1) + entryPadding + exitPadding }}
+      className="relative z-30 isolate overflow-clip bg-bg-surface-light"
     >
-      <div style={{ height: scene.height, top: Math.min(0, scene.viewport - scene.height) }} className={staticScene ? "relative overflow-visible" : "sticky overflow-visible"}>
+      <div style={{ height: scene.height, top: Math.min(0, (scene.viewport - scene.height) / 2) }} className={staticScene ? "relative overflow-visible" : "sticky overflow-visible"}>
         {showWorkStream && !staticScene ? <motion.div
-          style={{ opacity: streamOpacity, scale: streamScale, top: `calc(50% + ${centerShift}px)` }}
+          style={{ opacity: streamOpacity, scale: streamScale }}
           aria-hidden="true"
           className="pointer-events-none absolute left-1/2 top-1/2 z-10 w-screen -translate-x-1/2 -translate-y-1/2 transform-gpu"
         >
@@ -439,32 +465,32 @@ export default function PawRevealStack() {
 
         <motion.div
           data-imagine-circle
-          style={{ scale: circleScale, y: circleY, width: scene.diameter }}
+          style={{ scale: staticScene ? 1 : circleScale, width: scene.diameter }}
           className="pointer-events-none absolute left-1/2 top-1/2 z-20 aspect-square -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full bg-[#f51b2c] will-change-transform"
         >
           <div aria-hidden="true" className="absolute inset-0 rounded-full shadow-[0_46px_120px_-52px_rgba(245,27,44,0.58),inset_0_1px_0_rgba(255,255,255,0.16),inset_0_-34px_90px_rgba(105,0,14,0.1)]" />
-          <motion.div style={{ opacity: statementOpacity, y: statementY }} className="absolute inset-0 flex items-center justify-center px-[20vw] text-center text-white sm:px-[14vmin] lg:px-[13vmin]">
+          <motion.div style={{ opacity: staticScene ? 0 : statementOpacity, y: staticScene ? 0 : statementY }} className="absolute inset-0 flex items-center justify-center px-[min(20vw,260px)] text-center text-white">
             <PartnershipStatement />
           </motion.div>
-          <motion.img src="/images/lionovart-icon.svg" alt="" aria-hidden="true" style={{ opacity: logoOpacity, scale: logoMarkScale }} className="absolute inset-0 h-full w-full object-contain p-[12%]" decoding="async" />
+          <motion.img src="/images/lionovart-icon.svg" alt="" aria-hidden="true" style={{ opacity: staticScene ? 0 : logoOpacity, scale: staticScene ? 0.8 : logoMarkScale }} className="absolute inset-0 h-full w-full object-contain p-[12%]" decoding="async" />
         </motion.div>
 
         <motion.div
           aria-hidden="true"
-          style={{ opacity: handoffCaptionOpacity, y: handoffCaptionY, top: centerShift * 2 }}
+          style={{ opacity: staticScene ? 0 : handoffCaptionOpacity, y: staticScene ? 0 : handoffCaptionY }}
           className="pointer-events-none absolute inset-0 z-[25] flex items-center justify-center"
         >
           <LogoHandoffWords />
         </motion.div>
 
         <motion.div
-          style={{ opacity: cardOpacity, y: cardY, pointerEvents: transition === null ? "auto" : "none" }}
+          style={{ opacity: staticScene ? 1 : cardOpacity, y: staticScene ? 0 : cardY, pointerEvents: transition === null ? "auto" : "none" }}
           className="absolute inset-0 z-30 flex items-center justify-center px-3.5 py-5 sm:px-6 md:py-7"
         >
-          <div ref={contentRef} data-imagine-content className="w-full max-w-[660px]">
+          <div ref={contentRef} data-imagine-content className="w-full max-w-[clamp(660px,48vw,1800px)]">
             <motion.div className="mb-4 flex flex-col items-center text-center sm:mb-5" initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}>
               <p className="mb-1.5 font-clash text-[0.625rem] font-semibold uppercase tracking-[0.17em] text-white sm:text-xs">{t.problems.eyebrow}</p>
-              <h2 className="font-clash text-[clamp(2.15rem,1.65rem+2.15vw,3.5rem)] font-bold uppercase leading-[0.95] tracking-[-0.045em] text-white">
+              <h2 className="font-clash text-[clamp(2.15rem,1.5rem+2.5vw,7.5rem)] font-bold uppercase leading-[0.95] tracking-[-0.045em] text-white">
                 {t.problems.heading}
               </h2>
             </motion.div>
@@ -472,7 +498,7 @@ export default function PawRevealStack() {
             <div className="mx-auto flex w-full flex-col gap-2.5 sm:gap-3">
               {items.map((item, index) => {
                 const phase: CardPhase = transition?.index === index ? transition.kind === "return" ? "returning" : "revealing" : activeIndex === index ? "active" : revealedIndexes.includes(index) ? "summary" : "closed";
-                return <PawRevealCard key={item.problem.heading} item={item} index={index} phase={phase} onRevealStart={() => startReveal(index)} onRevealComplete={() => completeReveal(index)} onReturnStart={() => startReturn(index)} onReturnComplete={() => completeReturn(index)} onActivateSummary={() => activateSummary(index)} isInteractionLocked={transition !== null} />;
+                return <PawRevealCard key={item.problem.heading} item={item} index={index} phase={phase} onRevealStart={() => startReveal(index)} onRevealComplete={() => completeReveal(index)} onReturnStart={() => startReturn(index)} onReturnComplete={() => completeReturn(index)} onActivateSummary={() => activateSummary(index)} isInteractionLocked={transition !== null} reduceMotion={reduceMotion} />;
               })}
             </div>
           </div>

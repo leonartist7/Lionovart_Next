@@ -23,8 +23,8 @@ import styles from "./AdaptiveNavbar.module.css";
 const SCROLL_OFFSET = -88;
 const HERO_THRESHOLD_RATIO = 0.62;
 const GLASS_THRESHOLD = 2;
-const MOBILE_CLOSE_DELTA = 5;
-const LUMA_REVEAL_DELTA = 15;
+const NAV_REVEAL_DELTA = 20;
+const NAV_HIDE_DELTA = 8;
 
 const CARD_VARIANTS = {
   hidden: {
@@ -133,7 +133,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
   const motionPreference = useReducedMotion();
   const hydrated = useSyncExternalStore(() => () => {}, () => true, () => false);
   const reducedMotion = hydrated && Boolean(motionPreference);
-  const { t, locale } = useLanguage();
+  const { t } = useLanguage();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lenis = useLenis() as any;
 
@@ -151,12 +151,11 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
   const heroThresholdRef = useRef(600);
   const isPastHeroRef = useRef(false);
   const isScrolledRef = useRef(false);
-  const isInLumaRef = useRef(false);
   const isVisibleRef = useRef(true);
-  const hideAtRef = useRef(0);
   const lastScrollRef = useRef(0);
+  const directionStartRef = useRef(0);
   const isMobileOpenRef = useRef(false);
-  const suppressCloseUntil = useRef(0);
+  const navFocusedRef = useRef(false);
 
   const setNavVisible = (nextVisible: boolean) => {
     if (isVisibleRef.current === nextVisible) return;
@@ -191,7 +190,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
     setExpertiseOpen(false);
   };
 
-  const goToService = (_title: string) => scrollToTarget("services");
+  const goToService = () => scrollToTarget("services");
 
   const openNavCta = () => {
     setIsMobileOpen(false);
@@ -221,10 +220,6 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
   }, [isMobileOpen]);
 
   useEffect(() => {
-    suppressCloseUntil.current = Date.now() + 800;
-  }, [locale]);
-
-  useEffect(() => {
     const updateHeroThreshold = () => {
       heroThresholdRef.current = window.innerHeight * HERO_THRESHOLD_RATIO;
       syncThresholdState(scrollY.get());
@@ -233,25 +228,11 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
     updateHeroThreshold();
     window.addEventListener("resize", updateHeroThreshold, { passive: true });
     return () => window.removeEventListener("resize", updateHeroThreshold);
-    // scrollY is a stable MotionValue; syncThresholdState intentionally reads refs.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scrollY]);
 
   useEffect(() => {
-    const element = document.getElementById("luma-showcase");
-    if (!element) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        isInLumaRef.current = entry.isIntersecting;
-        if (!entry.isIntersecting) setNavVisible(true);
-      },
-      { threshold: 0 }
-    );
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
+    if (isMobileOpen || expertiseOpen || mobileExpertiseOpen) setNavVisible(true);
+  }, [isMobileOpen, expertiseOpen, mobileExpertiseOpen]);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     const previous = lastScrollRef.current;
@@ -260,22 +241,19 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
 
     syncThresholdState(latest);
 
-    if (
-      isMobileOpenRef.current &&
-      Math.abs(delta) >= MOBILE_CLOSE_DELTA &&
-      Date.now() >= suppressCloseUntil.current
-    ) {
-      setIsMobileOpen(false);
-    }
-
-    if (!isInLumaRef.current) return;
-
-    if (delta > 0) {
-      setNavVisible(false);
-      hideAtRef.current = latest;
-    } else if (delta < 0 && hideAtRef.current - latest >= LUMA_REVEAL_DELTA) {
+    if (latest <= 64 || isMobileOpenRef.current || navFocusedRef.current || expertiseOpen || mobileExpertiseOpen) {
+      directionStartRef.current = latest;
       setNavVisible(true);
+      return;
     }
+
+    // A fresh direction starts a new distance measurement. Small touchpad and
+    // touch-scroll oscillations cannot repeatedly flash the navigation.
+    if ((delta > 0 && directionStartRef.current > latest) || (delta < 0 && directionStartRef.current < latest)) {
+      directionStartRef.current = previous;
+    }
+    if (delta > 0 && latest - directionStartRef.current >= NAV_HIDE_DELTA) setNavVisible(false);
+    if (delta < 0 && directionStartRef.current - latest >= NAV_REVEAL_DELTA) setNavVisible(true);
   });
 
   const heroMode = !isPastHero;
@@ -289,6 +267,10 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
       style={{ top: navTop }}
       animate={{ y: isVisible ? 0 : "-120%" }}
       transition={{ duration: reducedMotion ? 0 : 0.32, ease: [0.4, 0, 0.2, 1] }}
+      onFocusCapture={() => { navFocusedRef.current = true; setNavVisible(true); }}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) navFocusedRef.current = false;
+      }}
     >
       <div
         className={`${styles.shell} ${heroMode ? styles.expanded : styles.compact}`}
@@ -439,7 +421,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
                     key={title}
                     variants={itemVariants}
                     type="button"
-                    onClick={() => goToService(title)}
+                    onClick={goToService}
                     className="rounded-xl px-5 py-4 text-left text-[17px] font-semibold tracking-wide text-black/75 transition-colors hover:bg-black/[0.05] hover:text-black"
                   >
                     {title}
@@ -522,7 +504,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
                               key={title}
                               variants={itemVariants}
                               type="button"
-                              onClick={() => goToService(title)}
+                              onClick={goToService}
                               className="min-h-11 px-2 text-[15px] font-semibold tracking-wide text-black/65 transition-colors hover:text-black"
                             >
                               {title}

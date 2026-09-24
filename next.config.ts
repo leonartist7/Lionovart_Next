@@ -12,6 +12,11 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
+  // Local low-disk verification can skip Webpack's large persistent cache.
+  webpack: (config, { dev }) => {
+    if (!dev && process.env.LIONOVART_DISABLE_WEBPACK_CACHE === "1") config.cache = false;
+    return config;
+  },
   images: {
     // Keep unoptimized for Cloud Run / static asset path simplicity;
     // remote media is already optimized via Cloudinary transforms.

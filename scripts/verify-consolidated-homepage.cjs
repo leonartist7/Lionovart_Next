@@ -1,4 +1,5 @@
 /* Local browser smoke test for the integrated homepage. */
+/* eslint-disable @typescript-eslint/no-require-imports -- This executable is CommonJS. */
 const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const os = require('node:os');
@@ -54,10 +55,20 @@ try {
   command('wait', '--fn', "document.documentElement.dataset.splashComplete === 'true'");
   command('wait', '--fn', "document.fonts.status === 'loaded'");
   command('wait', '#selected-work');
+  // Keep the artwork stable while the viewport matrix is measured. Autoplay
+  // can otherwise replace the image between a resize and naturalWidth check.
+  command('find', 'role', 'button', 'click', '--name', 'Pause preview');
   for (const [width, height] of [[320,740],[390,844],[768,1024],[1024,768],[1440,900],[1920,1080],[2560,1440],[3840,2160],[844,390]]) {
     command('set', 'viewport', String(width), String(height));
+    command('wait', '--fn', "document.querySelector('#selected-work [role=region] img')?.naturalWidth>0");
     const m = measure();
     check(`${width}×${height} layout`, !m.overflow && m.imageLoaded && m.stage.width>0 && m.stage.right<=width+1 && m.ribbonPhrases>0 && m.services && m.clashLoaded, m);
+    if (width === 320 || width === 3840) {
+      evaluate("document.querySelector('#problems').scrollIntoView({behavior:'instant',block:'start'})");
+      if (width === 320) evaluate("document.querySelector('#problems button[aria-controls=\"imagine-result-0\"]')?.click()");
+      command('wait', '1400');
+      command('screenshot', path.join(screenshots, `imagine-${width}.png`));
+    }
     if (width === 320 || width === 1440 || width === 3840) {
       evaluate("window.scrollTo({top:document.querySelector('#stronger-together').offsetTop+innerHeight*.48,behavior:'instant'})");
       command('wait','450');
@@ -77,10 +88,26 @@ try {
   command('set','media','light','reduced-motion');
   command('wait','500');
   check('Reduced motion removes autoplay control', evaluate('!document.querySelector("#selected-work button[aria-label^=Pause]")'));
+  const reducedImagine = evaluate(`(() => {
+    const section=document.querySelector('#problems');
+    const cards=section?.querySelector('[data-imagine-content]');
+    return {height:section?.offsetHeight,viewport:innerHeight,opacity:cards?getComputedStyle(cards.parentElement).opacity:null,media:matchMedia('(prefers-reduced-motion: reduce)').matches};
+  })()`);
+  check('Reduced-motion Imagine remains readable', reducedImagine.media && reducedImagine.height<reducedImagine.viewport*3 && Number(reducedImagine.opacity)>0.9, reducedImagine);
   command('set','media','light');
   command('open',`${base}/?workTheme=dark#selected-work`);
   command('wait','--fn',"document.documentElement.dataset.splashComplete === 'true'");
   check('Dark gallery URL',evaluate("document.querySelector('#selected-work')?.dataset.theme==='dark'"));
+  command('set','viewport','390','844');
+  for (const locale of ['fr','es','it','ja','ko']) {
+    command('open',`${base}/${locale}/#problems`);
+    command('wait','--fn',"document.documentElement.dataset.splashComplete === 'true'");
+    check(`${locale} Imagine layout`,evaluate(`(() => {
+      const section=document.querySelector('#problems');
+      const cards=section?.querySelector('[data-imagine-content]');
+      return !!cards && cards.getBoundingClientRect().width>0 && document.documentElement.scrollWidth<=innerWidth+1;
+    })()`));
+  }
   const errors=command('errors');
   check('Browser errors', !errors?.errors?.length, errors);
 } finally {
