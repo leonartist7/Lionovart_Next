@@ -125,7 +125,7 @@ function ServiceMediaCarousel({
   );
 }
 
-export default function HomepageServicesChapter() {
+export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingClick?: () => void }) {
   const { t } = useLanguage();
   const reduceMotion = useHydratedReducedMotion() ?? false;
   const chapterRef = useRef<HTMLDivElement>(null);
@@ -207,8 +207,9 @@ export default function HomepageServicesChapter() {
             {t.services.eyebrow}
           </p>
           <h2 className="mx-auto mt-4 max-w-[10ch] font-clash text-[clamp(3rem,9vw,7rem)] font-semibold uppercase leading-[0.84] tracking-[-0.055em]">
-            {t.services.heading}{" "}
-            <span className="text-brand-red">{t.services.headingAccent}</span>
+            {onHeadingClick ? <button type="button" onClick={onHeadingClick} aria-pressed="false" className="cursor-pointer bg-transparent text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red">
+              {t.services.heading}{" "}<span className="text-brand-red">{t.services.headingAccent}</span>
+            </button> : <>{t.services.heading}{" "}<span className="text-brand-red">{t.services.headingAccent}</span></>}
           </h2>
         </div>
 
@@ -243,8 +244,9 @@ export default function HomepageServicesChapter() {
           {t.services.eyebrow}
         </p>
         <h2 className="mx-auto mt-4 max-w-[10ch] font-clash text-[clamp(3.2rem,10vw,7.4rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em]">
-          {t.services.heading}{" "}
-          <span className="text-brand-red">{t.services.headingAccent}</span>
+          {onHeadingClick ? <button type="button" onClick={onHeadingClick} aria-pressed="false" className="cursor-pointer bg-transparent text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red">
+            {t.services.heading}{" "}<span className="text-brand-red">{t.services.headingAccent}</span>
+          </button> : <>{t.services.heading}{" "}<span className="text-brand-red">{t.services.headingAccent}</span></>}
         </h2>
       </header>
 

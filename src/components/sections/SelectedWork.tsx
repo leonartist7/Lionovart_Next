@@ -5,17 +5,24 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Pause, Play } from "lucide-react";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { SERVICE_GALLERY_PROJECTS } from "./services/galleryProjects";
 import { WORK_PROJECTS } from "./selected-work/projects";
 import type { GlassRenderer } from "./selected-work/glassRenderer";
 import styles from "./SelectedWork.module.css";
 
-const COUNT = WORK_PROJECTS.length;
 const INTERVAL = 5000;
 const FALLBACK_DURATION = 650;
 type Selection = { index: number; manual: boolean };
+type GalleryMode = "work" | "services";
+type GalleryProject = { id: string; name: string; poster: string; color: string; video?: string; discipline?: string };
 
-export default function SelectedWork() {
+export default function SelectedWork({ mode = "work", onHeadingClick }: { mode?: GalleryMode; onHeadingClick?: () => void }) {
   const t = useTranslations("selectedWork");
+  const { t: siteT } = useLanguage();
+  const isServices = mode === "services";
+  const projects: readonly GalleryProject[] = isServices ? SERVICE_GALLERY_PROJECTS : WORK_PROJECTS;
+  const count = projects.length;
   const reduceMotion = useHydratedReducedMotion();
   const [theme, setTheme] = useState<"ivory" | "dark">("ivory");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -48,18 +55,22 @@ export default function SelectedWork() {
   const transitionToken = useRef(0);
   const swipe = useRef<{ x: number; y: number; id: number } | null>(null);
   const previewVideo = useRef<HTMLVideoElement>(null);
-  const project = WORK_PROJECTS[activeIndex];
+  const project = projects[activeIndex];
+  const projectName = isServices ? (siteT.services.items[activeIndex]?.title ?? project.name) : project.name;
+  const projectDescription = isServices
+    ? (siteT.services.items[activeIndex]?.description ?? "")
+    : t(project.discipline as "identityDigital" | "identityIllustration" | "identityCampaign");
   const canAdvance = inView && pageVisible && !paused && !hovered && !focused && !pointerActive && !fxActive && fallbackFrom === null && engineStatus !== "loading" && !reduceMotion;
 
   useEffect(() => {
-    const readTheme = () => setTheme(new URLSearchParams(window.location.search).get("workTheme") === "dark" ? "dark" : "ivory");
+    const readTheme = () => setTheme(!isServices && new URLSearchParams(window.location.search).get("workTheme") === "dark" ? "dark" : "ivory");
     readTheme();
     window.addEventListener("popstate", readTheme);
     return () => window.removeEventListener("popstate", readTheme);
-  }, []);
+  }, [isServices]);
 
   useEffect(() => {
-    if (window.location.hash !== "#selected-work") return;
+    if (isServices || window.location.hash !== "#selected-work") return;
     let frame = 0;
     const landOnWork = () => {
       frame = requestAnimationFrame(() => sectionRef.current?.scrollIntoView({ behavior: "instant", block: "start" }));
@@ -67,7 +78,7 @@ export default function SelectedWork() {
     if (document.documentElement.dataset.splashComplete === "true") landOnWork();
     else window.addEventListener("lionovart:splash-complete", landOnWork, { once: true });
     return () => { cancelAnimationFrame(frame); window.removeEventListener("lionovart:splash-complete", landOnWork); };
-  }, []);
+  }, [isServices]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -92,7 +103,7 @@ export default function SelectedWork() {
     engineStatusRef.current = "loading";
     setEngineStatus("loading");
     void import("./selected-work/glassRenderer").then(async ({ createGlassRenderer }) => {
-      const created = await createGlassRenderer(canvas, WORK_PROJECTS);
+      const created = await createGlassRenderer(canvas, projects);
       if (cancelled) { created.dispose(); return; }
       engine = created;
       engineRef.current = created;
@@ -125,7 +136,7 @@ export default function SelectedWork() {
       setFallbackFrom(null);
       setEngineStatus("loading");
     };
-  }, [near, reduceMotion]);
+  }, [near, reduceMotion, projects]);
 
   const launch = (selection: Selection) => {
     const target = selection.index;
@@ -142,7 +153,7 @@ export default function SelectedWork() {
     setActiveIndex(target);
     setVideoFailed(false);
     setVideoPaused(false);
-    if (selection.manual) setAnnouncement(`${WORK_PROJECTS[target].name}, ${target + 1} / ${COUNT}`);
+    if (selection.manual) setAnnouncement(`${isServices ? (siteT.services.items[target]?.title ?? projects[target].name) : projects[target].name}, ${target + 1} / ${count}`);
     const engine = engineRef.current;
     const token = ++transitionToken.current;
     const finish = () => {
@@ -182,13 +193,13 @@ export default function SelectedWork() {
   useEffect(() => { launchRef.current = launch; });
 
   const select = useCallback((index: number, manual = true) => {
-    const target = (index + COUNT) % COUNT;
+    const target = (index + count) % count;
     if (target === activeRef.current) {
       pendingRef.current = null;
       return;
     }
     launchRef.current({ index: target, manual });
-  }, []);
+  }, [count]);
 
   useEffect(() => {
     if (!canAdvance) return;
@@ -226,42 +237,47 @@ export default function SelectedWork() {
     if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.25) select(activeRef.current + (dx < 0 ? 1 : -1));
   };
 
-  return <section ref={sectionRef} id="selected-work" data-scroll-title-skip data-theme={theme} data-art-directed={theme === "dark" ? "dark" : "light"} aria-labelledby="selected-work-heading" className={styles.section}
+  return <section ref={sectionRef} id={isServices ? "services" : "selected-work"} data-scroll-title-skip data-theme={theme} data-gallery={mode} data-art-directed={theme === "dark" ? "dark" : "light"} aria-labelledby={isServices ? "services-heading" : "selected-work-heading"} className={styles.section}
     onFocusCapture={(event) => { if (event.target instanceof HTMLElement) setFocused(event.target.matches(":focus-visible")); }}
     onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
     <div className={styles.container}>
       <header className={styles.header}>
-        <h2 id="selected-work-heading" className={styles.eyebrow}><span aria-hidden="true" />{t("eyebrow")}</h2>
+        {isServices ? <div className={styles.serviceHeader}>
+          <p className={styles.eyebrow}><span aria-hidden="true" />{siteT.services.eyebrow}</p>
+          <h2 id="services-heading" className={styles.serviceHeading}>
+            <button type="button" onClick={onHeadingClick} aria-pressed="true" className={styles.headingSwitch}>{siteT.services.heading} <span>{siteT.services.headingAccent}</span></button>
+          </h2>
+        </div> : <h2 id="selected-work-heading" className={styles.eyebrow}><span aria-hidden="true" />{t("eyebrow")}</h2>}
       </header>
-      <div ref={stageRef} className={styles.stage} style={{ "--project-color": project.color } as CSSProperties} role="region" aria-label={`${project.name} — ${t(project.discipline)}`} tabIndex={0}
+      <div ref={stageRef} className={styles.stage} style={{ "--project-color": project.color } as CSSProperties} role="region" aria-label={`${projectName} — ${projectDescription}`} tabIndex={0}
         onPointerEnter={(event) => { if (event.pointerType === "mouse") setHovered(true); }}
         onPointerLeave={(event) => { if (event.pointerType === "mouse") setHovered(false); }}
         onKeyDown={(event) => {
           if (event.target !== event.currentTarget) return;
           if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
             event.preventDefault();
-            select(event.key === "Home" ? 0 : event.key === "End" ? COUNT - 1 : activeRef.current + (event.key === "ArrowRight" ? 1 : -1));
+            select(event.key === "Home" ? 0 : event.key === "End" ? count - 1 : activeRef.current + (event.key === "ArrowRight" ? 1 : -1));
           }
         }}
         onPointerDown={startSwipe} onPointerUp={endSwipe} onPointerCancel={() => { swipe.current = null; setPointerActive(false); }}>
-        <Image key={project.id} src={project.poster} alt={`${project.name} — ${t(project.discipline)}`} fill priority={activeIndex === 0} sizes="(min-width: 2560px) 2400px, (min-width: 1024px) 94vw, calc(100vw - 32px)" className={styles.artwork} draggable={false} />
-        {fallbackFrom !== null && <Image key={`fallback-${fallbackFrom}-${activeIndex}`} src={WORK_PROJECTS[fallbackFrom].poster} alt="" fill sizes="(min-width: 2560px) 2400px, (min-width: 1024px) 94vw, calc(100vw - 32px)" className={styles.fallbackArtwork} draggable={false} />}
-        {project.video && !videoFailed && <video ref={previewVideo} key={`${project.id}-video`} src={project.video} poster={project.poster} muted playsInline loop preload="none" className={styles.film} onError={() => setVideoFailed(true)} onPlay={() => setVideoPlaying(true)} onPause={() => setVideoPlaying(false)} aria-label={project.name} />}
+        <Image key={project.id} src={project.poster} alt={`${projectName} — ${projectDescription}`} fill priority={activeIndex === 0} sizes="(min-width: 2560px) 2400px, (min-width: 1024px) 94vw, calc(100vw - 32px)" className={styles.artwork} draggable={false} />
+        {fallbackFrom !== null && <Image key={`fallback-${fallbackFrom}-${activeIndex}`} src={projects[fallbackFrom].poster} alt="" fill sizes="(min-width: 2560px) 2400px, (min-width: 1024px) 94vw, calc(100vw - 32px)" className={styles.fallbackArtwork} draggable={false} />}
+        {project.video && !videoFailed && <video ref={previewVideo} key={`${project.id}-video`} src={project.video} poster={project.poster} muted playsInline loop preload="none" className={styles.film} onError={() => setVideoFailed(true)} onPlay={() => setVideoPlaying(true)} onPause={() => setVideoPlaying(false)} aria-label={projectName} />}
         <canvas ref={canvasRef} className={styles.canvas} data-active={fxActive} aria-hidden="true" />
         <div className={styles.scrim} aria-hidden="true" />
-        <div className={styles.stageTop} aria-hidden="true"><span>{String(activeIndex + 1).padStart(2, "0")}</span><span>{String(COUNT).padStart(2, "0")}</span></div>
+        <div className={styles.stageTop} aria-hidden="true"><span>{String(activeIndex + 1).padStart(2, "0")}</span><span>{String(count).padStart(2, "0")}</span></div>
         <div className={styles.stageBottom}>
           <div className={styles.captionRow}>
-            <div className={styles.identity} key={project.id}><h3>{project.name}</h3><p>{t(project.discipline)}</p></div>
+            <div className={styles.identity} key={project.id}><h3>{projectName}</h3><p>{projectDescription}</p></div>
             <div className={styles.controls}>
               {project.video && !videoFailed && <button type="button" className={styles.control} aria-label={videoPlaying ? t("pause") : t("play")} onClick={() => { if (videoPlaying) { setVideoPaused(true); previewVideo.current?.pause(); } else { setVideoPaused(false); void previewVideo.current?.play(); } }}>{videoPlaying ? <Pause size={16} /> : <Play size={16} />}</button>}
               {!reduceMotion && <button type="button" className={styles.control} onClick={() => setPaused((value) => !value)} aria-label={paused ? t("play") : t("pause")} aria-pressed={paused}>{paused ? <Play size={16} /> : <Pause size={16} />}<span>{paused ? t("play") : t("pause")}</span></button>}
             </div>
           </div>
-          <nav className={styles.projectNav} aria-label={t("browse")}>
-            {WORK_PROJECTS.map((item, index) => <button type="button" key={item.id} className={styles.projectButton} data-active={index === activeIndex} aria-current={index === activeIndex ? "true" : undefined} onClick={() => select(index)}>
+          <nav className={styles.projectNav} aria-label={isServices ? `${siteT.services.heading} ${siteT.services.headingAccent}` : t("browse")} style={{ "--gallery-count": count } as CSSProperties}>
+            {projects.map((item, index) => <button type="button" key={item.id} className={styles.projectButton} data-active={index === activeIndex} aria-current={index === activeIndex ? "true" : undefined} onClick={() => select(index)}>
               <span className={styles.projectRule} aria-hidden="true"><span style={{ transform: `scaleX(${index === activeIndex ? progress : 0})` }} /></span>
-              <span className={styles.projectNumber}>{String(index + 1).padStart(2, "0")}</span><span className={styles.projectLabel}>{item.name}</span>
+              <span className={styles.projectNumber}>{String(index + 1).padStart(2, "0")}</span><span className={styles.projectLabel}>{isServices ? (siteT.services.items[index]?.title ?? item.name) : item.name}</span>
             </button>)}
           </nav>
         </div>

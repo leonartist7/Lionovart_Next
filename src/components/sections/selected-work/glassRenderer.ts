@@ -1,6 +1,5 @@
 import gsap from "gsap";
 import * as THREE from "three";
-import type { WorkProject } from "./projects";
 
 const vertexShader = `
 varying vec2 vUv;
@@ -72,7 +71,7 @@ export type GlassRenderer = {
 
 export async function createGlassRenderer(
   canvas: HTMLCanvasElement,
-  projects: readonly WorkProject[],
+  projects: readonly { poster: string }[],
 ): Promise<GlassRenderer> {
   const textures: THREE.Texture[] = [];
   const sizes: THREE.Vector2[] = [];

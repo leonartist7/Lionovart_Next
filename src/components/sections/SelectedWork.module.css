@@ -40,7 +40,7 @@
 .controls { display: flex; align-items: center; gap: 8px; }
 .control { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-width: 44px; min-height: 44px; padding: 0 14px; border: 1px solid #fffc; border-radius: 99px; background: #0d0d0d88; color: white; font: 500 11px var(--font-dm-sans), sans-serif; cursor: pointer; backdrop-filter: blur(10px); }
 .control:hover { background: #0d0d0dd9; }
-.projectNav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(10px, 1.8vw, 30px); }
+.projectNav { display: grid; grid-template-columns: repeat(var(--gallery-count, 4), minmax(0, 1fr)); gap: clamp(10px, 1.8vw, 30px); }
 .projectButton { position: relative; display: flex; align-items: baseline; gap: clamp(7px, .8vw, 14px); min-width: 0; min-height: 48px; padding: 17px 0 3px; border: 0; background: transparent; color: white; text-align: left; cursor: pointer; opacity: .68; transition: opacity .2s ease; }
 .projectButton[data-active="true"],.projectButton:hover { opacity: 1; }
 .projectRule { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #fffa; overflow: hidden; }
@@ -49,11 +49,23 @@
 .projectLabel { overflow: hidden; font: 500 clamp(12px, 1.15vw, 18px)/1.25 var(--font-clash-display), sans-serif; white-space: nowrap; text-overflow: ellipsis; }
 .divider { margin-top: clamp(48px, 5.5vw, 104px); border-top: 1px solid var(--line); }
 .section + :global([data-nova-section="services"]) header { min-height: auto; padding-top: clamp(64px, 7vw, 128px); }
+.section[data-gallery="services"] { padding-top: clamp(52px, 5vw, 104px); }
+.section[data-gallery="services"] .header { padding-top: 0; margin-bottom: clamp(24px, 3vw, 48px); }
+.serviceHeader { width: 100%; }
+.serviceHeading { margin: clamp(12px, 1.5vw, 22px) 0 0; font: 600 clamp(42px, 6.5vw, 108px)/.86 var(--font-clash-display), sans-serif; letter-spacing: -.06em; text-transform: uppercase; }
+.serviceHeading span { color: var(--red); }
+.headingSwitch { padding: 0; border: 0; background: transparent; color: inherit; font: inherit; letter-spacing: inherit; text-align: left; text-transform: inherit; cursor: pointer; }
+.section[data-gallery="services"] .identity p { max-width: min(55ch, 72vw); line-height: 1.4; }
+.section[data-gallery="services"] .projectLabel { font-size: clamp(11px, .95vw, 15px); }
 .section button:focus-visible,.stage:focus-visible { outline: 2px solid var(--red); outline-offset: 4px; }
 .srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 @media (min-width: 640px) { .section { padding-inline: 32px; } .eyebrow { font-size: 12px; } }
 @media (min-width: 1024px) { .section { padding-inline: 48px; } }
 @media (min-width: 1600px) { .section { padding-inline: 64px; } }
+@media (min-width: 640px) and (max-width: 1279px) {
+  .section[data-gallery="services"] .projectNav { grid-auto-flow: column; grid-auto-columns: minmax(165px, 23vw); grid-template-columns: none; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }
+  .section[data-gallery="services"] .projectNav::-webkit-scrollbar { display: none; }
+}
 @media (max-width: 639px) {
   .section { padding-top: 48px; }
   .stage { height: clamp(440px, 78svh, 740px); }
@@ -65,6 +77,9 @@
   .projectNav { grid-auto-flow: column; grid-auto-columns: minmax(112px, 33vw); grid-template-columns: none; gap: 12px; overflow-x: auto; margin-right: -16px; padding-right: 16px; overscroll-behavior-x: contain; scrollbar-width: none; }
   .projectNav::-webkit-scrollbar { display: none; }
   .projectLabel { font-size: 12px; }
+  .section[data-gallery="services"] { padding-top: 48px; }
+  .serviceHeading { font-size: clamp(40px, 11vw, 64px); }
+  .section[data-gallery="services"] .identity p { max-width: 38ch; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 }
 @media (max-height: 540px) and (orientation: landscape) { .stage { height: 480px; } }
 @media (prefers-reduced-motion: reduce) { .section * { animation: none !important; transition-duration: 0ms !important; scroll-behavior: auto !important; } }
