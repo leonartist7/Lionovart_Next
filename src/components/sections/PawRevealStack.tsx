@@ -334,6 +334,7 @@ export default function PawRevealStack() {
   const [transition, setTransition] = useState<CardTransition>(null);
   const [revealedIndexes, setRevealedIndexes] = useState<number[]>([]);
   const [showWorkStream, setShowWorkStream] = useState(false);
+  const [circlePhase, setCirclePhase] = useState<"copy" | "clear" | "mark">("copy");
   const [scene, setScene] = useState({ diameter: 1200, height: 900, viewport: 900 });
   const [reduceMotion, setReduceMotion] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -388,12 +389,14 @@ export default function PawRevealStack() {
   const cardY = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.54], [0, staticScene ? 0 : -18]);
   const statementOpacity = useTransform(
     scrollYProgress,
-    staticScene ? [0, 1] : [0, 0.49, 0.55, 0.71, 0.79, 1],
+    staticScene ? [0, 1] : [0, 0.49, 0.55, 0.71, 0.76, 1],
     staticScene ? [0, 0] : [0, 0, 1, 1, 0, 0],
   );
-  const statementY = useTransform(scrollYProgress, staticScene ? [0, 1] : [0.49, 0.79], [staticScene ? 0 : 18, staticScene ? 0 : -14]);
-  const logoOpacity = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.73, 0.82, 1], staticScene ? [0, 0] : [0, 0.75, 1, 1]);
-  const logoMarkScale = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.73, 0.85, 1], staticScene ? [0.8, 0.8] : [0.8, 0.8, 0.68, 0.68]);
+  const statementY = useTransform(scrollYProgress, staticScene ? [0, 1] : [0.49, 0.76], [staticScene ? 0 : 18, staticScene ? 0 : -14]);
+  // Let the partnership copy fully clear before the mark enters. Both still
+  // happen during the circle shrink, but their opaque forms never overlap.
+  const logoOpacity = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.78, 0.86, 1], staticScene ? [0, 0] : [0, 0.75, 1, 1]);
+  const logoMarkScale = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.78, 0.88, 1], staticScene ? [0.8, 0.8] : [0.8, 0.8, 0.68, 0.68]);
   const streamOpacity = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.82, 0.89, 1], staticScene ? [0, 0] : [0, 0, 1, 1]);
   const streamScale = useTransform(scrollYProgress, staticScene ? [0, 1] : [0.82, 1], [0.975, 1]);
   const handoffCaptionOpacity = useTransform(scrollYProgress, staticScene ? [0, 1] : [0, 0.85, 0.91, 1], staticScene ? [0, 0] : [0, 0, 1, 1]);
@@ -417,6 +420,8 @@ export default function PawRevealStack() {
   useMotionValueEvent(scrollYProgress, "change", (progress) => {
     const next = progress > 0.8;
     setShowWorkStream((current) => (current === next ? current : next));
+    const phase = progress < 0.76 ? "copy" : progress < 0.78 ? "clear" : "mark";
+    setCirclePhase((current) => (current === phase ? current : phase));
   });
 
   const startReveal = useCallback((index: number) => {
@@ -481,10 +486,10 @@ export default function PawRevealStack() {
           className="pointer-events-none absolute left-1/2 top-1/2 z-20 aspect-square -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full bg-[#f51b2c] will-change-transform"
         >
           <div aria-hidden="true" className="absolute inset-0 rounded-full shadow-[0_46px_120px_-52px_rgba(245,27,44,0.58),inset_0_1px_0_rgba(255,255,255,0.16),inset_0_-34px_90px_rgba(105,0,14,0.1)]" />
-          <motion.div style={{ opacity: staticScene ? 0 : statementOpacity, y: staticScene ? 0 : statementY }} className="absolute inset-0 flex items-center justify-center px-[min(20vw,260px)] text-center text-white">
+          <motion.div style={{ opacity: staticScene ? 0 : statementOpacity, y: staticScene ? 0 : statementY, visibility: circlePhase === "copy" ? "visible" : "hidden" }} className="absolute inset-0 flex items-center justify-center px-[min(20vw,260px)] text-center text-white">
             <PartnershipStatement />
           </motion.div>
-          <motion.img src="/images/lionovart-icon.svg" alt="" aria-hidden="true" style={{ opacity: staticScene ? 0 : logoOpacity, scale: staticScene ? 0.8 : logoMarkScale }} className="absolute inset-0 h-full w-full object-contain p-[12%]" decoding="async" />
+          <motion.img src="/images/lionovart-icon.svg" alt="" aria-hidden="true" style={{ opacity: staticScene ? 0 : logoOpacity, scale: staticScene ? 0.8 : logoMarkScale, visibility: circlePhase === "mark" ? "visible" : "hidden" }} className="absolute inset-0 h-full w-full object-contain p-[12%]" decoding="async" />
         </motion.div>
 
         <motion.div
