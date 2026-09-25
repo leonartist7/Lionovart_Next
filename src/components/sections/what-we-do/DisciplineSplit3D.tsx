@@ -31,6 +31,7 @@ interface Card {
 interface Props {
   cards: Card[];
   video: string;
+  pinned?: boolean;
 }
 
 interface CropRect {
@@ -152,6 +153,12 @@ function Pane({
         className="absolute inset-0 overflow-hidden rounded-[inherit]"
         style={{ opacity: videoOpacity }}
       >
+        {/* A frame from the same film stays visible before decode and on failure. */}
+        <img src="/images/hero_img/footage-07-poster.jpg" alt="" aria-hidden="true"
+          className="absolute max-w-none object-cover"
+          style={isDesktop
+            ? { width: "300%", height: "100%", left: `-${i * 100}%`, top: 0 }
+            : { width: "100%", height: "300%", left: 0, top: `-${i * 100}%` }} />
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />
         <motion.div
           className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/10"
@@ -332,7 +339,7 @@ function Pane({
  * <canvas>, cropped to that pane's third, so the video is what visibly
  * splits into three without paying for three decode pipelines.
  */
-export default function DisciplineSplit3D({ cards, video }: Props) {
+export default function DisciplineSplit3D({ cards, video, pinned = false }: Props) {
   const journey = useLionJourney();
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -347,6 +354,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
   const reduce = useReducedMotion();
   const [isDesktop, setIsDesktop] = useState(true);
   const [entranceDone, setEntranceDone] = useState(false);
+  const [videoSrc, setVideoSrc] = useState(video);
   // Reduced motion gets the settled state and no cursor tilt at all.
   const armed = !reduce && entranceDone;
 
@@ -364,10 +372,14 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
      is a direct useTransform of scrollYProgress, not a triggered timeline. --- */
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
   const scrollFlip = useTransform(scrollYProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
+  const openingProgress = journey?.openingProgress ?? scrollYProgress;
+  const openingFlip = useTransform(openingProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
+  const entranceY = useTransform(openingProgress, [0, .46], [isDesktop ? "58svh" : "67svh", "-5svh"]);
+  const entranceScale = useTransform(openingProgress, [0, .46], [.82, 1]);
   const staticFlip = useMotionValue(1);
   // The video-to-card handoff belongs to this section.  Keeping it local means
   // the cards always reveal as the visitor scrolls through WHAT WE BUILD.
-  const flip = reduce ? staticFlip : scrollFlip;
+  const flip = reduce || (journey && !pinned) ? staticFlip : pinned ? openingFlip : scrollFlip;
 
   // Cursor rig arms only once the sequence has fully landed, and disarms
   // again the moment scrolling back pulls it out of the settled state.
@@ -385,7 +397,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
     if (rafRef.current != null || reduce) return;
     const tick = () => {
       const v = videoRef.current;
-      if (v) {
+      if (v && v.readyState >= 2) {
         cropRectsRef.current.forEach((rect, i) => {
           const canvas = canvasRefs.current[i];
           if (!canvas || !rect) return;
@@ -468,26 +480,37 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
   useEffect(() => {
     const sec = sectionRef.current;
     if (!sec) return;
+    const videoElement = videoRef.current;
+    let inView = false;
+    const update = () => {
+      const v = videoRef.current;
+      if (!v) return;
+      if (inView && !document.hidden && !reduce && flip.get() < .98) {
+        void v.play().catch(() => {});
+        startLoop();
+      } else {
+        v.pause();
+        stopLoop();
+      }
+    };
     const io = new IntersectionObserver(
       ([entry]) => {
-        const v = videoRef.current;
-        if (!v) return;
-        if (entry.isIntersecting) {
-          void v.play().catch(() => {});
-          startLoop();
-        } else {
-          v.pause();
-          stopLoop();
-        }
+        inView = entry.isIntersecting;
+        update();
       },
-      { rootMargin: "300px 0px" },
+      { rootMargin: "120px 0px" },
     );
     io.observe(sec);
+    const unsubscribe = flip.on("change", update);
+    document.addEventListener("visibilitychange", update);
     return () => {
       io.disconnect();
+      unsubscribe();
+      document.removeEventListener("visibilitychange", update);
+      videoElement?.pause();
       stopLoop();
     };
-  }, [startLoop, stopLoop, sectionRef]);
+  }, [startLoop, stopLoop, flip, reduce]);
 
   /* Cursor rig â€” normalised -1..1, spring-smoothed. Releasing sets the raw
      values to 0 and the spring carries them home; no exit animation needed,
@@ -580,14 +603,23 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
     <section
       ref={(node) => { sectionRef.current = node; journey?.setVideoSection(node); }}
       data-cursor-behind
+      id={pinned ? undefined : "what-we-build"}
+      data-cards-armed={armed}
       className={journey ? "relative lion-video-section" : "relative isolate"}
       style={{
-        height: `${SECTION_HEIGHT_VH}vh`,
+        height: pinned ? "100%" : journey ? "auto" : `${SECTION_HEIGHT_VH}vh`,
         backgroundColor: journey ? "transparent" : "rgba(4, 4, 6, 0.78)",
       }}
     >
+      {journey && !pinned && <img
+        src="/images/hero_img/footage-07-poster.jpg"
+        alt="A still from the LIONOVART studio film"
+        className="mx-auto mt-5 block h-[min(46svh,420px)] w-[min(90vw,980px)] object-cover"
+      />}
       <div
-        className="sticky top-0 z-40 flex min-h-screen flex-col items-center justify-center gap-[clamp(2.5rem,6vh,5rem)] overflow-hidden px-3 py-24 md:px-4"
+        className={pinned
+          ? "opening-video-layout relative z-40 h-full overflow-hidden"
+          : "sticky top-0 z-40 flex min-h-screen flex-col items-center justify-center gap-[clamp(2.5rem,6vh,5rem)] overflow-hidden px-3 py-24 md:px-4"}
         onPointerEnter={measure}
         onPointerMove={handleMove}
         onPointerLeave={handleLeave}
@@ -615,23 +647,25 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
           }}
         />
 
-        <div
-          ref={(node) => { stageRef.current = node; journey?.setVideo(node); }}
-          className="relative z-40 w-[min(78vw,430px)] lg:w-[min(78vw,980px)] xl:w-[min(76vw,1120px)] 2xl:w-[min(72vw,1280px)]"
-          style={{ perspective: "1400px" }}
-        >
+        <div ref={(node) => journey?.setVideo(node)}
+          className="opening-video-anchor relative z-40 w-[min(78vw,430px)] lg:w-[min(78vw,980px)] xl:w-[min(76vw,1120px)] 2xl:w-[min(72vw,1280px)]">
+        <motion.div ref={stageRef} className="relative w-full"
+          style={{ perspective: "1400px", y: pinned ? entranceY : 0, scale: pinned ? entranceScale : 1 }}>
           {/* Hidden source: the section's only decoder. Kept at real layout
               size via opacity (not display/visibility) so nothing throttles
               its decode â€” the canvases are what's actually seen. */}
           <video
             ref={videoRef}
             className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-0"
-            src={video}
-            autoPlay
+            src={videoSrc}
             loop
             muted
             playsInline
             preload="metadata"
+            poster="/images/hero_img/footage-07-poster.jpg"
+            onError={() => {
+              if (videoSrc !== "/images/hero_img/Footage 07.mp4") setVideoSrc("/images/hero_img/Footage 07.mp4");
+            }}
             aria-hidden="true"
           />
 
@@ -679,6 +713,7 @@ export default function DisciplineSplit3D({ cards, video }: Props) {
               }}
             />
           </motion.div>
+        </motion.div>
         </div>
 
       </div>

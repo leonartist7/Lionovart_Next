@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useInView } from "framer-motion";
-import { Pause, Play } from "lucide-react";
 import { ImageStreamHero } from "@/components/ui/image-stream-hero";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { SHOWCASE_IMAGES } from "./showcase-images";
@@ -36,9 +35,8 @@ function CompactClosing({ words, onStart }: { words: Word[]; onStart: () => void
   const inView = useInView(sectionRef);
   const reducedMotion = useHydratedReducedMotion();
   const hidden = useSyncExternalStore(subscribeVisibility, getHidden, getServerHidden);
-  const [userPaused, setUserPaused] = useState(false);
   const [stageWidth, setStageWidth] = useState(390);
-  const paused = userPaused || reducedMotion || hidden || !inView;
+  const paused = reducedMotion || hidden || !inView;
   const mobile = stageWidth < 640;
 
   useEffect(() => {
@@ -79,20 +77,9 @@ function CompactClosing({ words, onStart }: { words: Word[]; onStart: () => void
         </div>
         <div className={styles.action}>
           <TrailAttractionTarget>
-            <LiquidMetalButton label="Start your brand" width={mobile ? 220 : 240} height={56} paused={paused} onClick={onStart} />
+            <LiquidMetalButton label={"Start\nyour brand"} stackedLabel width={172} height={172} paused={paused} onClick={onStart} />
           </TrailAttractionTarget>
         </div>
-        <button
-          type="button"
-          className={styles.motionControl}
-          aria-label={reducedMotion ? "Motion reduced by your device settings" : userPaused ? "Play animations" : "Pause animations"}
-          aria-pressed={userPaused || reducedMotion}
-          disabled={reducedMotion}
-          onClick={() => setUserPaused(value => !value)}
-        >
-          {userPaused || reducedMotion ? <Play size={12} aria-hidden="true" /> : <Pause size={12} aria-hidden="true" />}
-          {reducedMotion ? "Reduced motion" : userPaused ? "Play motion" : "Pause motion"}
-        </button>
       </div>
     </section>
   );

@@ -3,6 +3,7 @@
 import OpeningProof from "./OpeningProof";
 import DisciplineSplit3D from "@/components/sections/what-we-do/DisciplineSplit3D";
 import { useLionJourney } from "./lion-journey/LionJourney";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 
 const SPLIT_VIDEO =
   "https://res.cloudinary.com/dgio9uutc/video/upload/w_1440,c_limit,f_auto,q_auto/v1779845634/Footage_07_o3rfbu.mp4";
@@ -25,33 +26,18 @@ const CARDS = [
   },
 ];
 
-export default function WhatWeDo() {
+export default function WhatWeDo({ pinned = false }: { pinned?: boolean }) {
   const journey = useLionJourney();
+  const staticProgress = useMotionValue(1);
+  const proofProgress = journey?.openingProgress ?? staticProgress;
+  const proofOpacity = useTransform(proofProgress, [.68, .88], [0, 1]);
+  const proofY = useTransform(proofProgress, [.68, .88], [22, 0]);
   return (
-    <section id="opening-work" className={`${journey ? "" : "bg-bg-dark"} text-white`}>
-      <DisciplineSplit3D cards={CARDS} video={SPLIT_VIDEO} />
-      <OpeningProof />
+    <section id="opening-work" data-nova-section="what-we-do" className={`${journey ? "opening-work" : "bg-bg-dark"}${pinned ? " opening-work-pinned" : ""} text-white`}>
+      <DisciplineSplit3D cards={CARDS} video={SPLIT_VIDEO} pinned={pinned} />
+      <motion.div className="opening-proof-stage" style={{ opacity: pinned ? proofOpacity : 1, y: pinned ? proofY : 0 }}>
+        <OpeningProof />
+      </motion.div>
     </section>
-  );
-}
-
-
-export function WhatWeDoIntro() {
-  const journey = useLionJourney();
-  return (
-<div className={`${journey ? "lion-intro-wrap" : ""} mx-auto max-w-[1500px] px-6 pb-6 pt-24 md:px-[6vw] md:pb-10 md:pt-32`}>
-      <div ref={journey?.intro} className={journey ? "lion-intro" : ""}>
-        <p className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-[#e5192a]">
-          Three disciplines. One name.
-        </p>
-        <h2 className="mt-5 max-w-[12ch] font-clash text-[clamp(3.3rem,7vw,8rem)] font-semibold uppercase leading-[0.79] tracking-[-0.065em]" style={{ wordSpacing: "0.22em" }}>
-          Give your vision a world.
-        </h2>
-        <p className="mt-7 max-w-[48ch] font-body text-[15px] leading-[1.7] text-white/55 md:text-[16px]">
-          We bring art, strategy and technology together to shape your identity, your digital presence, and the systems that move your business forward.
-        </p>
-      </div>
-
-      </div>
   );
 }

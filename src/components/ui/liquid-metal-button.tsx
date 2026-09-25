@@ -9,6 +9,8 @@ import { useInView } from "framer-motion";
 
 interface LiquidMetalButtonProps {
   label?: string;
+  /** Stack the label inside compact shapes such as a circular CTA. */
+  stackedLabel?: boolean;
   onClick?: () => void;
   viewMode?: "text" | "icon";
   /** Override text-mode width (px). Default: 160 */
@@ -31,6 +33,7 @@ interface LiquidMetalButtonProps {
 
 export function LiquidMetalButton({
   label = "Get Started",
+  stackedLabel = false,
   onClick,
   viewMode = "text",
   width = 160,
@@ -238,7 +241,9 @@ export function LiquidMetalButton({
                   textShadow: "none",
                   transition: "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
                   transform: "scale(1)",
-                  whiteSpace: "nowrap",
+                  whiteSpace: stackedLabel ? "pre-line" : "nowrap",
+                  lineHeight: stackedLabel ? 1.2 : undefined,
+                  maxWidth: stackedLabel ? "120px" : undefined,
                 }}
               >
                 {label}
@@ -371,7 +376,7 @@ export function LiquidMetalButton({
               overflow: "hidden",
               borderRadius: "100px",
             }}
-            aria-label={label}
+            aria-label={label.replace(/\s+/g, " ")}
           >
             {ripples.map((ripple) => (
               <span

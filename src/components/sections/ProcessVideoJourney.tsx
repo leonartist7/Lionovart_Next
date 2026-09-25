@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PROCESS_FILM_COPY } from "./process-video-copy";
 
@@ -11,92 +11,63 @@ const FILMS = {
 };
 
 type Connection = EventTarget & { saveData?: boolean };
-type Controller = { toggle: () => void; retry: () => void };
-const CONTROL = "inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-4 text-xs font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c7a86a]";
 
 export default function ProcessVideoJourney() {
   const { t, locale } = useLanguage();
   const copy = PROCESS_FILM_COPY[locale];
   const videoRef = useRef<HTMLVideoElement>(null);
-  const controller = useRef<Controller | null>(null);
-  const [playing, setPlaying] = useState(false);
-  const [ended, setEnded] = useState(false);
-  const [muted, setMuted] = useState(true);
   const [failed, setFailed] = useState(false);
-  const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
+
     const desktop = window.matchMedia("(min-width: 1024px)");
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     const connection = (navigator as Navigator & { connection?: Connection }).connection;
     let near = false;
     let visible = false;
     let disposed = false;
-    let manualPause = false;
-    let explicitPlay = false;
-    let complete = false;
-    let playbackBlocked = false;
     let mediaFailed = false;
-    let pending = false;
-    let revision = 0;
     let resumeAt = 0;
-    let selected = desktop.matches ? "desktop" : "mobile";
+    let selected: keyof typeof FILMS = desktop.matches ? "desktop" : "mobile";
 
     const prefersManual = () => reduced.matches || Boolean(connection?.saveData);
-    const allowed = () => visible && !document.hidden && !manualPause && !complete &&
-      !playbackBlocked && !mediaFailed && (!prefersManual() || explicitPlay);
 
     function loadSource() {
       if (video!.getAttribute("src")) return;
       video!.preload = "auto";
-      video!.src = FILMS[selected as keyof typeof FILMS];
+      video!.src = FILMS[selected];
       video!.load();
     }
 
-    function reconcile() {
+    function syncPlayback() {
       if (disposed) return;
-      if (!allowed()) {
+      if (!visible || document.hidden || prefersManual() || mediaFailed) {
         video!.pause();
         return;
       }
+
       loadSource();
-      if (pending || !video!.paused) return;
-      pending = true;
-      const attempt = revision;
-      void video!.play().then(() => {
-        if (!disposed && attempt === revision && !allowed()) video!.pause();
-      }).catch((error: unknown) => {
-        if (disposed || attempt !== revision) return;
-        // Leaving view or changing sources can interrupt a pending play normally.
-        if (error instanceof DOMException && error.name === "AbortError") return;
-        playbackBlocked = true;
-        setBlocked(true);
-      }).finally(() => {
-        if (disposed || attempt !== revision) return;
-        pending = false;
-        // A rapid exit/re-entry can abort play while the latest state permits it.
-        if (allowed() && video!.paused) reconcile();
-      });
+      if (video!.paused) void video!.play().catch(() => {});
     }
 
     function chooseSource() {
       const next = desktop.matches ? "desktop" : "mobile";
       video!.poster = `/images/process/process-${next}-poster.jpg`;
       if (next === selected) return;
+
       const loaded = Boolean(video!.getAttribute("src"));
       resumeAt = Number.isFinite(video!.duration) && video!.duration > 0
-        ? video!.currentTime / video!.duration : 0;
+        ? video!.currentTime / video!.duration
+        : 0;
       selected = next;
-      revision += 1;
-      pending = false;
       video!.pause();
       video!.removeAttribute("src");
       mediaFailed = false;
       setFailed(false);
-      if (loaded && (explicitPlay || !prefersManual())) loadSource();
-      reconcile();
+      if (loaded && near && !prefersManual()) loadSource();
+      syncPlayback();
     }
 
     function onMetadata() {
@@ -104,96 +75,69 @@ export default function ProcessVideoJourney() {
         video!.currentTime = Math.min(resumeAt * video!.duration, video!.duration - 0.05);
         resumeAt = 0;
       }
-      reconcile();
+      syncPlayback();
     }
-    function onPlay() {
-      if (!allowed()) { video!.pause(); return; }
-      setPlaying(true);
-      setEnded(false);
-      setBlocked(false);
-    }
-    function onPause() { setPlaying(false); }
-    function onEnded() { complete = true; setEnded(true); setPlaying(false); }
+
     function onError() {
       mediaFailed = true;
       setFailed(true);
-      setPlaying(false);
-    }
-    function onVolume() { setMuted(video!.muted); }
-    function onPreference() {
-      if (prefersManual()) explicitPlay = false;
-      if (near && !prefersManual()) loadSource();
-      reconcile();
-    }
-    function playExplicitly() {
-      manualPause = false;
-      explicitPlay = true;
-      playbackBlocked = false;
-      setBlocked(false);
-      if (complete) { video!.currentTime = 0; complete = false; setEnded(false); }
-      loadSource();
-      reconcile();
+      video!.pause();
     }
 
-    controller.current = {
-      toggle: () => {
-        if (!video.paused || pending) {
-          manualPause = true;
-          video.pause();
-        } else playExplicitly();
-      },
-      retry: () => {
-        revision += 1;
-        pending = false;
-        mediaFailed = false;
-        setFailed(false);
-        video.removeAttribute("src");
-        playExplicitly();
-      },
-    };
+    function onPlay() {
+      if (!visible || document.hidden || prefersManual() || mediaFailed) video!.pause();
+    }
+
+    function onPreference() {
+      if (near && !prefersManual()) loadSource();
+      syncPlayback();
+    }
+
     video.muted = true;
+    video.loop = true;
     chooseSource();
+
     const proximity = new IntersectionObserver(([entry]) => {
       near = entry.isIntersecting;
       if (near && !prefersManual()) loadSource();
     }, { rootMargin: "400px 0px" });
     const visibility = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting && entry.intersectionRatio >= 0.5;
-      reconcile();
-    }, { threshold: [0, 0.5] });
-    const events = { loadedmetadata: onMetadata, play: onPlay, pause: onPause,
-      ended: onEnded, error: onError, volumechange: onVolume };
-    Object.entries(events).forEach(([name, listener]) => video.addEventListener(name, listener));
+      visible = entry.isIntersecting && entry.intersectionRatio >= 0.25;
+      syncPlayback();
+    }, { threshold: [0, 0.25] });
+
+    video.addEventListener("loadedmetadata", onMetadata);
+    video.addEventListener("error", onError);
+    video.addEventListener("play", onPlay);
     proximity.observe(video);
     visibility.observe(video);
     desktop.addEventListener("change", chooseSource);
     reduced.addEventListener("change", onPreference);
     connection?.addEventListener("change", onPreference);
-    document.addEventListener("visibilitychange", reconcile);
+    document.addEventListener("visibilitychange", syncPlayback);
+
     return () => {
       disposed = true;
-      controller.current = null;
       proximity.disconnect();
       visibility.disconnect();
       desktop.removeEventListener("change", chooseSource);
       reduced.removeEventListener("change", onPreference);
       connection?.removeEventListener("change", onPreference);
-      document.removeEventListener("visibilitychange", reconcile);
-      Object.entries(events).forEach(([name, listener]) => video.removeEventListener(name, listener));
+      document.removeEventListener("visibilitychange", syncPlayback);
+      video.removeEventListener("loadedmetadata", onMetadata);
+      video.removeEventListener("error", onError);
+      video.removeEventListener("play", onPlay);
       video.pause();
       video.removeAttribute("src");
       video.load();
     };
   }, []);
 
-  const PlaybackIcon = ended ? RotateCcw : playing ? Pause : Play;
-  const playbackLabel = ended ? copy.replay : playing ? copy.pause : copy.play;
-
   return (
     <section id="process" data-art-directed="dark" data-process-direction="video"
-      aria-labelledby="process-heading" className="relative isolate bg-bg-dark px-5 py-20 text-white sm:px-8 lg:px-12 lg:py-28">
+      aria-labelledby="process-heading" className="relative isolate bg-bg-dark px-5 py-16 text-white sm:px-8 lg:px-12 lg:py-24">
       <div className="mx-auto max-w-[1440px]">
-        <header className="mb-10 lg:mb-14">
+        <header className="mb-9 lg:mb-12">
           <p className="flex items-center gap-3 font-body text-[10px] font-bold uppercase tracking-[0.28em] text-[#c7a86a]">
             <span aria-hidden="true" className="h-px w-8 bg-[#c7a86a]" />{t.process.eyebrow}
           </p>
@@ -202,61 +146,38 @@ export default function ProcessVideoJourney() {
           </h2>
         </header>
 
-        <figure aria-label={copy.film}>
-          <div className="mx-auto aspect-[9/16] w-full max-w-[calc(75svh*9/16)] overflow-hidden bg-black lg:aspect-video lg:max-w-none">
-            <video ref={videoRef} id="process-film" muted playsInline preload="none"
-              aria-label={copy.film} aria-describedby="process-film-description"
-              className="block h-full w-full object-contain" />
-          </div>
-          <figcaption className="mt-3 border-t border-[#c7a86a]/25 pt-3 font-body">
-            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-              <span className="text-[10px] uppercase tracking-[0.16em] text-[#c7a86a]">{copy.film}</span>
-              <div className="flex items-center gap-1">
-                <button type="button" className={CONTROL} aria-controls="process-film"
-                  disabled={failed} onClick={() => controller.current?.toggle()}>
-                  <PlaybackIcon size={15} aria-hidden="true" />{playbackLabel}
-                </button>
-                <button type="button" className={CONTROL} aria-controls="process-film"
-                  onClick={() => { if (videoRef.current) videoRef.current.muted = !videoRef.current.muted; }}>
-                  {muted ? <VolumeX size={15} aria-hidden="true" /> : <Volume2 size={15} aria-hidden="true" />}
-                  {muted ? copy.unmute : copy.mute}
-                </button>
-              </div>
+        <div className="grid grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] items-stretch gap-4 sm:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] sm:gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] lg:gap-12">
+          <figure aria-label={copy.film} className="min-w-0 self-start overflow-hidden bg-black/70">
+            <div className="mx-auto aspect-[9/16] max-h-[42svh] w-full max-w-[220px] overflow-hidden sm:max-h-[48svh] sm:max-w-[260px] lg:aspect-video lg:max-h-none lg:max-w-none">
+              <video ref={videoRef} id="process-film" muted loop autoPlay playsInline preload="none"
+                poster="/images/process/process-mobile-poster.jpg"
+                aria-label={copy.film} aria-describedby="process-film-description"
+                className="block h-full w-full object-contain" />
             </div>
-            <div role="status" className="text-sm leading-relaxed text-white/65">
-              {failed ? <p className="mt-3">{copy.unavailable} <button type="button" className={`${CONTROL} underline`} onClick={() => controller.current?.retry()}>{copy.retry}</button></p>
-                : blocked ? <p className="mt-3">{copy.blocked}</p> : null}
-            </div>
-          </figcaption>
-        </figure>
+            <p id="process-film-description" lang="en" className="sr-only">
+              Golden light builds the LIONOVART monogram through four stages, adds a crown, then draws a circle around the completed mark. Clarity — find the signal. Elevate — shape the direction. Create — build the connection. Rise and Optimize — amplify the outcome. Everything connects. Vision, built to rise.
+            </p>
+            {failed ? <p role="status" className="px-4 py-3 font-body text-xs leading-relaxed text-white/65">{copy.unavailable}</p> : null}
+          </figure>
 
-        <ol className="mt-12 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:gap-x-10">
-          {copy.stages.map((stage, index) => (
-            <li key={index} className="border-t border-[#c7a86a]/25 pt-5">
-              <p aria-hidden="true" className="font-body text-[10px] tracking-[0.2em] text-[#c7a86a]">0{index + 1} / 04</p>
-              <h3 className="mt-3 font-clash text-[clamp(1.35rem,2.1vw,1.9rem)] font-semibold uppercase leading-tight tracking-[-0.025em]">{stage}</h3>
-              <p className="mt-3 max-w-[42ch] font-body text-sm leading-[1.75] text-white/65">{t.process.steps[index].description}</p>
-            </li>
-          ))}
-        </ol>
+          <ol className="grid content-center gap-0">
+            {copy.stages.map((stage, index) => (
+              <li key={index} className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-x-2 border-t border-[#c7a86a]/25 py-4 sm:py-5 lg:grid-cols-[3rem_minmax(0,1fr)] lg:py-5">
+                <p aria-hidden="true" className="pt-1 font-body text-[10px] tabular-nums tracking-[0.16em] text-[#c7a86a]">0{index + 1}</p>
+                <div>
+                  <h3 className="font-clash text-[clamp(1.2rem,2vw,1.75rem)] font-semibold uppercase leading-tight tracking-[-0.025em]">{stage}</h3>
+                  <p className="mt-2 max-w-[42ch] font-body text-[13px] leading-[1.65] text-white/65 sm:text-sm">{t.process.steps[index].description}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
 
-        <details className="mt-8 max-w-2xl font-body text-xs leading-relaxed text-white/60">
-          <summary className="w-fit cursor-pointer py-3 underline decoration-white/25 underline-offset-4 focus-visible:outline-2 focus-visible:outline-[#c7a86a]">{copy.transcript}</summary>
-          <div id="process-film-description" lang="en" className="space-y-2 pb-4 pt-2">
-            <p>Golden light builds the LIONOVART monogram through four stages, adds a crown, then draws a circle around the completed mark.</p>
-            <ol className="list-inside list-decimal space-y-1">
-              <li>Clarity — Find the signal.</li><li>Elevate — Shape the direction.</li>
-              <li>Create — Build the connection.</li><li>Rise &amp; Optimize — Amplify the outcome.</li>
-            </ol>
-            <p>Everything connects. Vision, built to rise.</p>
-          </div>
-        </details>
-
-        <div className="mt-12 border-t border-[#c7a86a]/25 pt-10 text-center lg:mt-16">
+        <div className="mt-8 border-t border-[#c7a86a]/25 pt-7 text-center lg:mt-10">
           <a href="#closing-cta" className="inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-[#f7f4ef] px-8 py-4 font-clash text-xs font-semibold uppercase tracking-[0.12em] text-[#111] transition-colors hover:bg-[#f0d59b] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c7a86a]">
             {t.process.cta}<ArrowUpRight size={17} aria-hidden="true" />
           </a>
-          <p className="mt-4 font-body text-xs text-white/55">{t.process.ctaSub}</p>
+          <p className="mt-3 font-body text-xs text-white/55">{t.process.ctaSub}</p>
         </div>
       </div>
     </section>

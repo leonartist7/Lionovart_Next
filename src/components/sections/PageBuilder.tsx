@@ -4,14 +4,12 @@ import StrongTogetherTransition from "@/components/sections/StrongTogetherTransi
 import BridgeStatement from "@/components/sections/BridgeStatement";
 
 import AboutExperience from "@/components/sections/AboutExperience";
-import WhatWeDo from "@/components/sections/WhatWeDo";
 import PawRevealStack from "@/components/sections/PawRevealStack";
 import ServicesSwitcher from "@/components/sections/ServicesSwitcher";
 import SelectedWork from "@/components/sections/SelectedWork";
 import Comparison from "@/components/sections/Comparison";
 import ProcessExperience from "@/components/sections/ProcessExperience";
 import Testimonials from "@/components/sections/Testimonials";
-import AuditStrip from "@/components/sections/AuditStrip";
 import FAQ from "@/components/sections/FAQ";
 import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
 import ClosingCTA from "@/components/sections/ClosingCTA";
@@ -38,7 +36,6 @@ export function PageBuilder() {
 
       <LionJourney>
         <HeroOpening />
-        <NovaSection id="what-we-do"><WhatWeDo /></NovaSection>
         <BridgeStatement />
         <StrongTogetherTransition />
       </LionJourney>
@@ -56,7 +53,6 @@ export function PageBuilder() {
         {/* Narrative order: About -> Why Us -> Brands Elevated/results -> Process. */}
         <div id="client-experience"><NovaSection id="testimonials"><Testimonials /></NovaSection></div>
         <NovaSection id="process"><ProcessExperience /></NovaSection>
-        <AuditStrip />
 
         <SectionTitleCard
           word="ANSWERS."

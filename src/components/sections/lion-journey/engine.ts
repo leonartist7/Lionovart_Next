@@ -4,7 +4,7 @@ import { uniform, positionLocal, positionWorld, vec3, sin, cos, attribute, fract
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
-import { goldRoute, routePoint, streamEnd, type Anchors, type Pose } from "./motion";
+import { goldRoute, routePoint, journeyPose, type Anchors, type Pose } from "./motion";
 
 /** One scene, one TSL shader, WebGPU with WebGL2 fallback. No simulation or post stack. */
 export class LionEngine {
@@ -20,10 +20,7 @@ export class LionEngine {
   private maneBottom = uniform(-1);
   private maneFadeEnd = uniform(-0.65);
   private band = uniform(44);
-  private fadeInStartY = uniform(0);
-  private fadeInEndY = uniform(100);
-  private fadeStartY = uniform(3000);
-  private fadeEndY = uniform(4000);
+  private flourishOpacity = uniform(1);
   private routeTexture = new THREE.DataTexture(new Float32Array(512 * 2 * 4), 512, 2, THREE.RGBAFormat, THREE.FloatType);
   private mobileTier = false;
   private loader = new DRACOLoader();
@@ -125,23 +122,27 @@ export class LionEngine {
 
   setRoute(anchors: Anchors) {
     const points = goldRoute(anchors), data = this.routeTexture.image.data as Float32Array;
+    const origin = journeyPose(0, anchors);
     for (let i = 0; i < 512; i++) {
       const t = i / 511, p = routePoint(points, t);
       const before = routePoint(points, Math.max(0,t-0.001)), after = routePoint(points,Math.min(1,t+0.001));
       const tangent = new THREE.Vector3(after.x-before.x, before.y-after.y, 0).normalize();
-      data.set([p.x, -p.y, -260, 1], i*4);
+      data.set([p.x - origin.x, origin.y - p.y, -260, 1], i*4);
       data.set([tangent.x, tangent.y, 0, 1], (512+i)*4);
     }
     this.routeTexture.needsUpdate = true;
-    this.band.value = anchors.mobile ? 34 : 78;
-    this.fadeInStartY.value = points[0].y;
-    this.fadeInEndY.value = points[0].y + (anchors.mobile ? 60 : 100);
-    this.fadeEndY.value = streamEnd(anchors);
-    this.fadeStartY.value = this.fadeEndY.value - (anchors.mobile ? 140 : 220);
+    this.band.value = anchors.mobile ? 3.5 : 5;
     if (this.mobileTier !== anchors.mobile) {
       this.disposeObject(this.silk); this.silk.clear(); this.particles.clear();
       this.makeSilk(anchors.mobile);
     }
+  }
+
+  setFlourishProgress(progress: number) {
+    const fade = Math.max(0, Math.min(1, (progress - .22) / .42));
+    this.flourishOpacity.value = 1 - fade * fade * (3 - 2 * fade);
+    this.band.value = (this.mobileTier ? 3.5 : 5) * (1 + fade * .55);
+    this.silk.scale.setScalar(1 + fade * .5);
   }
 
   private makeSilk(mobile: boolean) {
@@ -176,12 +177,11 @@ export class LionEngine {
       const shade = mix(color("#8b6026"),color("#f7dba3"),sin(strand.mul(18)).mul(0.5).add(0.5).pow(2));
       material.colorNode = motes ? color("#eecb83") : shade;
       material.emissiveNode = motes ? color("#eecb83").mul(0.2) : shade.mul(0.24);
-      const quiet = smoothstep(this.fadeStartY, this.fadeEndY, displaced.y.negate());
-      material.opacityNode = motes ? this.moteOpacity.mul(.32) : taper.mul(smoothstep(0, .045, t)).mul(quiet.oneMinus()).mul(motes ? 0.98 : 0.8);
+      material.opacityNode = motes ? this.moteOpacity.mul(.32) : taper.mul(smoothstep(0, .045, t)).mul(this.flourishOpacity).mul(0.8);
       if (!motes) material.normalNode = radial.normalize();
       return material;
     };
-    const strands = mobile ? 18 : 36, segments = mobile ? 256 : 512, sides = mobile ? 4 : 6;
+    const strands = mobile ? 8 : 12, segments = mobile ? 256 : 512, sides = mobile ? 4 : 6;
     const positions: number[] = [], flows: number[] = [], indices: number[] = [];
     for(let s=0;s<strands;s++) {
       const start=positions.length/3;
@@ -234,13 +234,13 @@ export class LionEngine {
     this.maneBottom.value = this.lion.position.y - lion.size * 0.5;
     this.maneFadeEnd.value = this.lion.position.y - lion.size * 0.32;
     this.lion.visible = lionVisible;
-    this.silk.position.set(-this.width / 2, this.height / 2 + scroll, 0);
-    // Scroll choreography supplies the hero-right, title-left, then video-front
-    // orientation; pitch adds the final, subtle upward look.
+    // The orbit travels with the head, then opens and fades as it enters the film.
+    this.silk.position.copy(this.lion.position);
+    // The scroll route turns directly from hero-right to video-front.
     this.lion.rotation.y = lion.turn * 1.25;
     this.lion.rotation.x = lion.pitch ?? 0;
     this.clock.value = time;
-    this.particles.position.set(lion.x, -lion.y - lion.size * .42, 0);
+    this.particles.position.set(0, -lion.size * .42, 0);
     this.moteSize.value = lion.size;
     this.moteOpacity.value = heroInfluence;
     this.particles.visible = this.dpr >= 1 && lionVisible && heroInfluence > 0;

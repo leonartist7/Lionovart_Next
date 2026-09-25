@@ -1,60 +1,69 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {journeyPose,journeyProgress,journeyRoute,openingPose,routePoint,streamEnd} from '../src/components/sections/lion-journey/motion.ts';
-function fixture(w) {
- const mobile=w<1024,heroHeight=mobile?510:680;
- return {hero:{left:0,top:40,width:w,height:heroHeight},copy:{left:w*.48,top:172,width:w*.45,height:160},slot:{left:w*.05,top:172,width:w*.39,height:mobile?Math.min(w*.45,256):500},intro:{left:20,top:heroHeight+100,width:w-40,height:270},video:{left:w*.08,top:heroHeight+520,width:w*.84,height:mobile?420:400},videoSection:{left:0,top:heroHeight+400,width:w,height:2400},proof:{left:0,top:heroHeight+2800,width:w,height:160},bridge:{left:0,top:heroHeight+2960,width:w,height:360},reveal:{left:0,top:heroHeight+3320,width:w,height:1100},end:heroHeight+400,mobile};
+import { goldRoute, journeyPose, journeyProgress, journeyRoute, openingPose, routePoint } from '../src/components/sections/lion-journey/motion.ts';
+
+function fixture(width) {
+  const mobile = width < 1024, height = mobile ? 760 : 720;
+  const hero = {left: 0, top: 40, width, height};
+  const slot = {left: width * (mobile ? .02 : .15), top: 125,
+    width: mobile ? width * .38 : Math.min(330, width * .22),
+    height: mobile ? Math.min(width * .44, 275) : Math.min(345, width * .24)};
+  const cta = {left: width * (mobile ? .05 : .49), top: mobile ? 515 : 500, width: mobile ? width * .8 : 230, height: 48};
+  const video = {left: width * .1, top: 150, width: width * .8, height: mobile ? 330 : 360};
+  return {hero, slot, cta, copy: {...cta, height: 170}, video,
+    videoSection: hero, proof: {...hero, top: 650, height: 80},
+    bridge: {...hero, top: 1750, height: 300}, reveal: {...hero, top: 2050, height: 900},
+    end: 520, mobile};
 }
-for(const w of [320,390,430,768,1024,1440,1920]) test(`${w}px: connected, reversible lion route and bounded full stream`,()=>{
- const a=fixture(w),route=journeyRoute(a);
- assert.equal(route.at(-1).y,streamEnd(a));
- assert.ok(a.bridge.top-streamEnd(a)>=64);
- let previous=journeyPose(0,a);
- for(let i=0;i<=1000;i++) {
-  const p=i/1000,pose=journeyPose(p,a);
-  assert.ok(Math.hypot(pose.x-previous.x,pose.y-previous.y)<12);
-  assert.deepEqual({x:pose.x,y:pose.y},routePoint(route,p*2/(route.length-1)));
-  assert.deepEqual(pose,journeyPose(p,a));
-  if(p<.72) assert.equal(pose.size,journeyPose(0,a).size);
-  previous=pose;
- }
- let y=0;
- for(let i=0;i<=1000;i++) { const p=routePoint(route,i/1000); assert.ok(p.x>=0&&p.x<=w); assert.ok(p.y>=y); y=p.y; }
- const end=journeyPose(1,a),half=end.size/2;
- assert.ok(end.x-half>=a.video.left&&end.x+half<=a.video.left+a.video.width);
- assert.ok(end.y-half>=a.video.top&&end.y+half<=a.video.top+a.video.height);
- assert.ok(end.x>journeyPose(0,a).x);
- assert.equal(journeyProgress(a.end,a),1); assert.equal(journeyProgress(-100,a),0);
-});
-test('layout refresh keeps the finish before translated partnership copy',()=>{
- const a=fixture(390),b={...a,bridge:{...a.bridge,top:a.bridge.top+300,height:660},reveal:{...a.reveal,top:a.reveal.top+600}};
- assert.equal(journeyPose(0,a).x,journeyPose(0,b).x);
- assert.ok(journeyRoute(b).at(-1).y>journeyRoute(a).at(-1).y);
-});
 
-test('lion follows the right-to-left-to-front orientation journey',()=>{
- const a=fixture(1440);
- const hero=journeyPose(0,a),title=journeyPose(.48,a),video=journeyPose(1,a);
- assert.ok(hero.turn>.35,'hero begins facing right');
- assert.ok(title.turn<-.4,'lion faces left alongside the second title');
- assert.ok(Math.abs(video.turn)<.001,'lion faces front at the video');
- assert.ok((video.pitch ?? 0)<-.12,'lion subtly looks upward before disappearing');
-});
+for (const width of [320, 390, 768, 1024, 1440, 1920]) {
+  test(`${width}px: lion travels directly toward the film and faces forward`, () => {
+    const anchors = fixture(width);
+    const route = journeyRoute(anchors);
+    assert.equal(route.length, 3, 'no intermediate title waypoint');
+    const first = journeyPose(0, anchors), last = journeyPose(1, anchors);
+    assert.ok(first.size <= (anchors.mobile ? 260 : 300), 'lion remains secondary to the headline');
+    assert.ok(first.turn > .35 && Math.abs(last.turn) < .001);
+    assert.ok(last.size < first.size);
+    assert.ok(Math.abs(last.x - anchors.video.left - anchors.video.width / 2) < .001);
+    let previous = first;
+    for (let i = 1; i <= 1000; i++) {
+      const pose = journeyPose(i / 1000, anchors);
+      assert.ok(Math.hypot(pose.x - previous.x, pose.y - previous.y) < 8);
+      assert.ok(pose.turn <= previous.turn + 1e-9);
+      assert.ok(pose.x >= 0 && pose.x <= width);
+      previous = pose;
+    }
+    assert.equal(journeyProgress(anchors.end, anchors), 1);
+  });
 
-test('pinned opening holds scale through the title pose before shrinking into the video',()=>{
- const a={...fixture(1440),end:2200};
- const opening={left:0,top:a.hero.top,width:a.hero.width,height:a.hero.height+800};
- const hero=openingPose(opening.top,a,opening,a.hero.height);
- const title=openingPose(opening.top+800,a,opening,a.hero.height);
- const video=openingPose(a.end,a,opening,a.hero.height);
- assert.equal(title.size,hero.size,'the title turn does not shrink the lion');
- assert.ok(video.size<title.size,'the shrink happens only during the video handoff');
-});
+  test(`${width}px: gold strands orbit the head and clear the invitation`, () => {
+    const anchors = fixture(width), route = goldRoute(anchors);
+    const lion = journeyPose(0, anchors);
+    assert.equal(route.length, 17);
+    assert.ok(Math.hypot(route[0].x - route.at(-1).x, route[0].y - route.at(-1).y) < .001);
+    for (let i = 0; i <= 100; i++) {
+      const p = routePoint(route, i / 100);
+      assert.ok(p.x >= 0 && p.x <= width, `x=${p.x}`);
+      assert.ok(p.y >= anchors.hero.top && p.y <= anchors.hero.top + anchors.hero.height);
+      assert.ok(Math.abs(p.x - lion.x) <= lion.size * .7);
+      assert.ok(Math.abs(p.y - lion.y) <= lion.size * .52);
+      assert.ok(p.x < anchors.cta.left || p.x > anchors.cta.left + anchors.cta.width || p.y < anchors.cta.top || p.y > anchors.cta.top + anchors.cta.height,
+        'orbit does not cross the CTA');
+    }
+  });
+}
 
-test('stream tangents stay continuous at chapter joins',()=>{
- const route=journeyRoute(fixture(1440)),e=1e-6;
- for(let i=1;i<route.length-1;i++) {
-  const t=i/(route.length-1),a=routePoint(route,t-e),b=routePoint(route,t),c=routePoint(route,t+e);
-  assert.ok(Math.hypot((c.x-2*b.x+a.x)/e,(c.y-2*b.y+a.y)/e)<2);
- }
+test('sticky motion reverses along the same screen path', () => {
+  const anchors = fixture(1440);
+  const opening = {left: 0, top: 40, width: 1440, height: 1692};
+  const stageHeight = 720, runway = opening.height - stageHeight;
+  const samples = [0, .12, .25, .49, .7, 1].map(t => opening.top + runway * t);
+  for (const scroll of samples) {
+    const a = openingPose(scroll, anchors, opening, stageHeight);
+    const b = openingPose(scroll, anchors, opening, stageHeight);
+    assert.deepEqual(a, b);
+    assert.ok(a.turn >= -1e-9 && a.turn <= .4 + 1e-9);
+  }
+  assert.ok(Math.abs(openingPose(samples[3], anchors, opening, stageHeight).turn) < .001);
 });
