@@ -15,10 +15,12 @@ export function journeyProgress(scroll: number, a: Anchors) {
 
 export function journeyRoute(a: Anchors): Point[] {
   const start = { x: a.slot.left + a.slot.width / 2, y: a.slot.top + a.slot.height / 2 };
-  const target = { x: a.video.left + a.video.width / 2, y: a.video.top + a.video.height / 2 };
+  // The lion crosses the hero at its opening height; the expanding film
+  // overtakes it instead of the lion dropping toward the film.
+  const target = { x: a.video.left + a.video.width / 2, y: start.y - Math.min(24, a.hero.height * .025) };
   return [
     start,
-    { x: mix(start.x, target.x, .55), y: mix(start.y, target.y, .42) },
+    { x: mix(start.x, target.x, .55), y: mix(start.y, target.y, .55) },
     target,
   ];
 }
@@ -41,7 +43,7 @@ export function routePoint(points: Point[], progress: number): Point {
 export function journeyPose(progress: number, a: Anchors): Pose {
   const p = ease(clamp(progress));
   const size = Math.min(a.slot.height * .86, a.slot.width * .96, 760);
-  const endSize = Math.min(size * .76, a.video.height * .7, a.video.width * .36);
+  const endSize = Math.min(size * 1.2, a.video.height * .98, a.video.width * .5);
   return {
     ...routePoint(journeyRoute(a), p),
     size: mix(size, endSize, ease(clamp((progress - .38) / .62))),

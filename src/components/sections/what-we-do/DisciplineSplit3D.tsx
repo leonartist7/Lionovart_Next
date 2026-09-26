@@ -87,6 +87,8 @@ function Pane({
   isDesktop,
   flip,
   armed,
+  filmSurfaceOpacity,
+  showPanePoster,
   canvasRef,
   paneRef: registerPane,
 }: {
@@ -96,6 +98,8 @@ function Pane({
   isDesktop: boolean;
   flip: MotionValue<number>;
   armed: boolean;
+  filmSurfaceOpacity: MotionValue<number>;
+  showPanePoster: boolean;
   canvasRef: (el: HTMLCanvasElement | null) => void;
   paneRef: (el: HTMLDivElement | null) => void;
 }) {
@@ -155,20 +159,22 @@ function Pane({
           has risen into the same position. */}
       <motion.div
         className="absolute inset-0 overflow-hidden rounded-[inherit]"
-        style={{ opacity: videoOpacity }}
+        style={{ opacity: filmSurfaceOpacity }}
       >
-        {/* A frame from the same film stays visible before decode and on failure. */}
+        <motion.div className="absolute inset-0 overflow-hidden rounded-[inherit]" style={{ opacity: videoOpacity }}>
+        {/* The poster is only the pane source before decode or on failure. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/images/hero_img/footage-07-poster.jpg" alt="" aria-hidden="true"
           className="absolute max-w-none object-cover"
           style={isDesktop
-            ? { width: "300%", height: "100%", left: `-${i * 100}%`, top: 0 }
-            : { width: "100%", height: "300%", left: 0, top: `-${i * 100}%` }} />
-        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />
+            ? { width: "300%", height: "100%", left: `-${i * 100}%`, top: 0, opacity: showPanePoster ? 1 : 0 }
+            : { width: "100%", height: "300%", left: 0, top: `-${i * 100}%`, opacity: showPanePoster ? 1 : 0 }} />
+        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" style={{ opacity: showPanePoster ? 0 : 1 }} />
         <motion.div
           className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/10"
           style={{ opacity: ringP }}
         />
+        </motion.div>
       </motion.div>
 
       {/* One continuous glass body, lifted forward only after the video has
@@ -359,16 +365,25 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
   const reduce = useReducedMotion();
   const [isDesktop, setIsDesktop] = useState(true);
   const [isTablet, setIsTablet] = useState(false);
+  const [shortScreen, setShortScreen] = useState(false);
+  const [veryShort, setVeryShort] = useState(false);
   const [entranceDone, setEntranceDone] = useState(false);
   const [videoSrc, setVideoSrc] = useState(video);
   const [videoFailed, setVideoFailed] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+  const [canvasReady, setCanvasReady] = useState(false);
+  const [canvasFailed, setCanvasFailed] = useState(false);
   // The scroll-authored film-to-card sequence remains available on every device.
   // Reduced motion only removes the optional pointer-driven card tilt.
   const armed = !reduce && entranceDone;
 
   useEffect(() => {
-    if (process.env.NODE_ENV !== "production" && new URLSearchParams(location.search).has("filmStill")) {
-      const frame = requestAnimationFrame(() => setVideoFailed(true));
+    if (process.env.NODE_ENV !== "production") {
+      const params = new URLSearchParams(location.search);
+      const frame = requestAnimationFrame(() => {
+        if (params.has("filmStill")) setVideoFailed(true);
+        if (params.has("canvasStill")) setCanvasFailed(true);
+      });
       return () => cancelAnimationFrame(frame);
     }
   }, []);
@@ -376,11 +391,15 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px), (min-width: 640px) and (max-height: 700px)");
     const tablet = window.matchMedia("(min-width: 768px)");
-    const u = () => { setIsDesktop(mq.matches); setIsTablet(tablet.matches); };
+    const short = window.matchMedia("(max-height: 700px)");
+    const veryShortScreen = window.matchMedia("(max-height: 500px)");
+    const u = () => { setIsDesktop(mq.matches); setIsTablet(tablet.matches); setShortScreen(short.matches); setVeryShort(veryShortScreen.matches); };
     u();
     mq.addEventListener("change", u);
     tablet.addEventListener("change", u);
-    return () => { mq.removeEventListener("change", u); tablet.removeEventListener("change", u); };
+    short.addEventListener("change", u);
+    veryShortScreen.addEventListener("change", u);
+    return () => { mq.removeEventListener("change", u); tablet.removeEventListener("change", u); short.removeEventListener("change", u); veryShortScreen.removeEventListener("change", u); };
   }, []);
 
   /* --- Scroll-scrubbed master progress: 0 (joined) to 1 (split, flipped,
@@ -391,12 +410,17 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
   const scrollFlip = useTransform(scrollYProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
   const openingProgress = journey?.openingProgress ?? scrollYProgress;
   const openingFlip = useTransform(openingProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
-  const joinedVideoOpacity = useTransform(openingFlip, [0, .18, .34], [1, 1, 0]);
-  const entranceY = useTransform(openingProgress, [0, .46], [isDesktop ? "44svh" : isTablet ? "52svh" : "62svh", "-5svh"]);
+  const flip = pinned ? openingFlip : scrollFlip;
+  const paneSourceAvailable = canvasReady || canvasFailed || videoFailed || !videoReady;
+  const showPanePoster = canvasFailed || videoFailed || !videoReady;
+  // The full frame and pane crops never blend moving footage over itself.
+  // Wait for all three crops before switching surfaces in either direction.
+  const joinedSurfaceOpacity = useTransform(flip, (p): number => p < .02 || !paneSourceAvailable ? 1 : 0);
+  const paneSurfaceOpacity = useTransform(flip, (p): number => p >= .02 && paneSourceAvailable ? 1 : 0);
+  const entranceY = useTransform(openingProgress, [0, .46, .8, .9], [isDesktop ? "44svh" : isTablet ? "52svh" : shortScreen ? "36svh" : "62svh", "-5svh", "-5svh", veryShort ? "-27svh" : isDesktop ? "-5svh" : "-10svh"]);
   const entranceScale = useTransform(openingProgress, [0, .46], [.82, 1]);
   // The video-to-card handoff belongs to this section.  Keeping it local means
   // the cards always reveal as the visitor scrolls through WHAT WE BUILD.
-  const flip = pinned ? openingFlip : scrollFlip;
 
   // Cursor rig arms only once the sequence has fully landed, and disarms
   // again the moment scrolling back pulls it out of the settled state.
@@ -414,13 +438,19 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
     const tick = () => {
       const v = videoRef.current;
       if (v && v.readyState >= 2) {
+        setVideoReady(true);
+        let drawn = 0;
         cropRectsRef.current.forEach((rect, i) => {
           const canvas = canvasRefs.current[i];
           if (!canvas || !rect) return;
           const ctx = canvas.getContext("2d");
-          if (!ctx) return;
-          ctx.drawImage(v, rect.sx, rect.sy, rect.sw, rect.sh, 0, 0, canvas.width, canvas.height);
+          if (!ctx) { setCanvasFailed(true); return; }
+          try {
+            ctx.drawImage(v, rect.sx, rect.sy, rect.sw, rect.sh, 0, 0, canvas.width, canvas.height);
+            drawn++;
+          } catch { setCanvasFailed(true); }
         });
+        if (drawn === 3) setCanvasReady(true);
 
         // Ambient wash: the whole frame at a deliberately tiny backing store,
         // scaled up and blurred by CSS. At this size the draw is free, and
@@ -667,13 +697,13 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
           {/* An identical film still carries the joined frame if decoding fails. */}
           <motion.img src="/images/hero_img/footage-07-poster.jpg" alt="" aria-hidden="true"
             className="pointer-events-none absolute inset-0 z-[1] h-full w-full rounded-[16px] object-cover"
-            style={{ opacity: joinedVideoOpacity }} />
+            style={{ opacity: videoFailed || !videoReady ? joinedSurfaceOpacity : 0 }} />
           {/* The same decoder is the seamless rounded film until the panes
               begin to separate; its frames are also mirrored into them. */}
           <motion.video
             ref={videoRef}
             className="pointer-events-none absolute inset-0 z-[2] h-full w-full rounded-[16px] object-cover"
-            style={{ opacity: videoFailed ? 0 : joinedVideoOpacity }}
+            style={{ opacity: videoReady && !videoFailed ? joinedSurfaceOpacity : 0 }}
             src={videoSrc}
             loop
             muted
@@ -681,7 +711,11 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
             preload="metadata"
             poster="/images/hero_img/footage-07-poster.jpg"
             onError={() => {
-              if (videoSrc !== "/images/hero_img/Footage 07.mp4") setVideoSrc("/images/hero_img/Footage 07.mp4");
+              if (videoSrc !== "/images/hero_img/Footage 07.mp4") {
+                setVideoReady(false);
+                setCanvasReady(false);
+                setVideoSrc("/images/hero_img/Footage 07.mp4");
+              }
               else setVideoFailed(true);
             }}
             aria-hidden="true"
@@ -707,6 +741,8 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
                 isDesktop={isDesktop}
                 flip={flip}
                 armed={armed}
+                filmSurfaceOpacity={paneSurfaceOpacity}
+                showPanePoster={showPanePoster}
                 canvasRef={(el) => {
                   canvasRefs.current[i] = el;
                 }}

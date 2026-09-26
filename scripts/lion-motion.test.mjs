@@ -24,7 +24,10 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     const first = journeyPose(0, anchors), last = journeyPose(1, anchors);
     assert.ok(first.size <= (anchors.mobile ? 260 : 300), 'lion remains secondary to the headline');
     assert.ok(first.turn > .35 && Math.abs(last.turn) < .001);
-    assert.ok(last.size < first.size);
+    assert.ok(last.size >= first.size * 1.08 && last.size <= first.size * 1.2,
+      'lion grows modestly as the film expands');
+    assert.ok(last.y <= first.y && first.y - last.y <= 24,
+      'lion moves level or slightly upward');
     assert.ok(Math.abs(last.x - anchors.video.left - anchors.video.width / 2) < .001);
     let previous = first;
     for (let i = 1; i <= 1000; i++) {
@@ -72,4 +75,7 @@ test('sticky motion reverses along the same screen path', () => {
     assert.ok(a.turn >= -1e-9 && a.turn <= .4 + 1e-9);
   }
   assert.ok(Math.abs(openingPose(samples[3], anchors, opening, stageHeight).turn) < .001);
+  assert.ok(openingPose(samples[3], anchors, opening, stageHeight).y - samples[3]
+    <= openingPose(samples[0], anchors, opening, stageHeight).y - samples[0],
+  'sticky lion never drops down the viewport');
 });

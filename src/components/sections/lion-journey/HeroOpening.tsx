@@ -5,7 +5,6 @@ import { motion, useMotionValueEvent, useTransform } from "framer-motion";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import HeroTop from "../HeroTop";
 import WhatWeDo from "../WhatWeDo";
-import OpeningProof from "../OpeningProof";
 import { useLionJourney } from "./LionJourney";
 
 export default function HeroOpening() {
@@ -54,7 +53,7 @@ export default function HeroOpening() {
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  return (<>
+  return (
     <div ref={openingRef} className="hero-opening hero-opening-pinned" data-opening-mode="pinned">
       <span id="what-we-build" className="opening-work-anchor" aria-hidden="true" />
       <div className="hero-opening-stage">
@@ -65,6 +64,5 @@ export default function HeroOpening() {
         <WhatWeDo pinned />
       </div>
     </div>
-    <div className="opening-mobile-proof"><OpeningProof /></div>
-  </>);
+  );
 }
