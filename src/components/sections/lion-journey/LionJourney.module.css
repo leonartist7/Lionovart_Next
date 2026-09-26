@@ -195,6 +195,15 @@
  .journey :global(.hero-client-proof) { width:112px; }
  .journey :global(.lion-trust) { max-width:32ch; font-size:12px; margin-top:-8px; }
 }
+@media(min-width:640px) and (max-width:767px) {
+ .journey :global(.lion-copy) { padding-top:48px; }
+ .journey :global(.lion-headline .lion-your-brand) { display:flex; }
+ .journey :global(.lion-your-brand > span) { display:inline; }
+ .slot { left:0; top:calc(var(--hero-nav-clearance,84px) + 5px); width:min(22%,130px); height:140px; }
+}
+@media(min-width:640px) and (max-width:767px) and (max-height:700px) {
+ .journey :global(.opening-work-pinned .opening-video-anchor) { top:calc(var(--hero-overflow, 0px) + 58svh); }
+}
 @media(max-width:359px) { .journey :global(.lion-hero) { margin-inline:16px; } .slot { left:-12px; width:31%; } }
 .journey :global(.hero-opening-stage) { --hero-nav-clearance:100px; }
 
