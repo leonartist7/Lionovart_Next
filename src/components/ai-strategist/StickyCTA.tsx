@@ -24,11 +24,22 @@ export function StickyCTA() {
   const moreLabel = locale === "en" ? "Something else?" : t.faq.assistant.cta;
 
   useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 600);
+    const boundary = document.querySelector<HTMLElement>("[data-voice-reveal-boundary]");
+    const onScroll = () => {
+      const next = boundary ? boundary.getBoundingClientRect().top <= 0 : window.scrollY > 600;
+      setVisible(next);
+      if (!next) setPanelOpen(false);
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    window.addEventListener("pageshow", onScroll);
     onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("pageshow", onScroll);
+    };
+  }, [pathname]);
 
   useEffect(() => {
     return useNovaStore.subscribe((state, previous) => {

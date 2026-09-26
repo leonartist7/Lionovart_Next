@@ -4,6 +4,7 @@ import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useTrailAttraction } from "@/contexts/TrailAttractionContext";
+import { isLocale } from "@/i18n/routing";
 
 const DEFAULT_TUBE_COLORS = ["#e5192a", "#f0c917", "#ffffff"];
 const DEFAULT_LIGHT_COLORS = ["#e5192a", "#f0c917", "#ffffff", "#60aed5"];
@@ -71,7 +72,8 @@ export default function TubesCursor({
   const attraction = useTrailAttraction();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const appRef = useRef<TubesApp | null>(null);
-  const isLandingRoute = pathname === "/";
+  const pathParts = pathname.split("/").filter(Boolean);
+  const isLandingRoute = pathParts.length === 0 || (pathParts.length === 1 && isLocale(pathParts[0]));
   // /services/ai runs its own full-viewport WebGL canvas. Two stacked
   // mix-blend-screen contexts wash each other out, and this component
   // randomizes its palette on every document click, which would fight the

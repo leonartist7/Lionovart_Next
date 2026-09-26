@@ -119,7 +119,8 @@ function Pane({
   const cardLean = i === 1 ? -8 : 8;
   const paneRotateY = useTransform(splitP, (p) => (isDesktop ? cardLean * p : 0));
   const paneRotateX = useTransform(splitP, (p) => (isDesktop ? 0 : cardLean * p));
-  const paneBorderRadius = useTransform(splitP, (p) => 18 * p);
+  const innerRadius = useTransform(splitP, (p) => 18 * p);
+  const outerRadius = useTransform(splitP, (p) => 16 + 2 * p);
 
   // The glass surface rises directly out of the matching video slice. There
   // is deliberately no second face rotating through the middle: during the
@@ -141,7 +142,10 @@ function Pane({
         y: paneY,
         rotateX: paneRotateX,
         rotateY: paneRotateY,
-        borderRadius: paneBorderRadius,
+        borderTopLeftRadius: i === 0 ? outerRadius : innerRadius,
+        borderTopRightRadius: (isDesktop ? i === 2 : i === 0) ? outerRadius : innerRadius,
+        borderBottomLeftRadius: (isDesktop ? i === 0 : i === 2) ? outerRadius : innerRadius,
+        borderBottomRightRadius: i === 2 ? outerRadius : innerRadius,
         transformStyle: "preserve-3d",
       }}
       // Lift on hover; `z` composes with the group tilt instead of fighting it.
@@ -154,6 +158,7 @@ function Pane({
         style={{ opacity: videoOpacity }}
       >
         {/* A frame from the same film stays visible before decode and on failure. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/images/hero_img/footage-07-poster.jpg" alt="" aria-hidden="true"
           className="absolute max-w-none object-cover"
           style={isDesktop
@@ -353,17 +358,29 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
 
   const reduce = useReducedMotion();
   const [isDesktop, setIsDesktop] = useState(true);
+  const [isTablet, setIsTablet] = useState(false);
   const [entranceDone, setEntranceDone] = useState(false);
   const [videoSrc, setVideoSrc] = useState(video);
-  // Reduced motion gets the settled state and no cursor tilt at all.
+  const [videoFailed, setVideoFailed] = useState(false);
+  // The scroll-authored film-to-card sequence remains available on every device.
+  // Reduced motion only removes the optional pointer-driven card tilt.
   const armed = !reduce && entranceDone;
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    const u = () => setIsDesktop(mq.matches);
+    if (process.env.NODE_ENV !== "production" && new URLSearchParams(location.search).has("filmStill")) {
+      const frame = requestAnimationFrame(() => setVideoFailed(true));
+      return () => cancelAnimationFrame(frame);
+    }
+  }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px), (min-width: 640px) and (max-height: 700px)");
+    const tablet = window.matchMedia("(min-width: 768px)");
+    const u = () => { setIsDesktop(mq.matches); setIsTablet(tablet.matches); };
     u();
     mq.addEventListener("change", u);
-    return () => mq.removeEventListener("change", u);
+    tablet.addEventListener("change", u);
+    return () => { mq.removeEventListener("change", u); tablet.removeEventListener("change", u); };
   }, []);
 
   /* --- Scroll-scrubbed master progress: 0 (joined) to 1 (split, flipped,
@@ -374,17 +391,16 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
   const scrollFlip = useTransform(scrollYProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
   const openingProgress = journey?.openingProgress ?? scrollYProgress;
   const openingFlip = useTransform(openingProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
-  const entranceY = useTransform(openingProgress, [0, .46], [isDesktop ? "58svh" : "67svh", "-5svh"]);
+  const joinedVideoOpacity = useTransform(openingFlip, [0, .18, .34], [1, 1, 0]);
+  const entranceY = useTransform(openingProgress, [0, .46], [isDesktop ? "44svh" : isTablet ? "52svh" : "62svh", "-5svh"]);
   const entranceScale = useTransform(openingProgress, [0, .46], [.82, 1]);
-  const staticFlip = useMotionValue(1);
   // The video-to-card handoff belongs to this section.  Keeping it local means
   // the cards always reveal as the visitor scrolls through WHAT WE BUILD.
-  const flip = reduce || (journey && !pinned) ? staticFlip : pinned ? openingFlip : scrollFlip;
+  const flip = pinned ? openingFlip : scrollFlip;
 
   // Cursor rig arms only once the sequence has fully landed, and disarms
   // again the moment scrolling back pulls it out of the settled state.
   useMotionValueEvent(flip, "change", (v) => {
-    if (reduce) return;
     setEntranceDone(v > 0.98);
   });
 
@@ -394,7 +410,7 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
   const rafRef = useRef<number | null>(null);
 
   const startLoop = useCallback(() => {
-    if (rafRef.current != null || reduce) return;
+    if (rafRef.current != null) return;
     const tick = () => {
       const v = videoRef.current;
       if (v && v.readyState >= 2) {
@@ -418,7 +434,7 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
-  }, [reduce]);
+  }, []);
 
   const stopLoop = useCallback(() => {
     if (rafRef.current != null) {
@@ -485,8 +501,10 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
     const update = () => {
       const v = videoRef.current;
       if (!v) return;
-      if (inView && !document.hidden && !reduce && flip.get() < .98) {
-        void v.play().catch(() => {});
+      if (inView && !document.hidden && !videoFailed && flip.get() < .98) {
+        void v.play().catch((error: DOMException) => {
+          if (error.name !== "AbortError") setVideoFailed(true);
+        });
         startLoop();
       } else {
         v.pause();
@@ -510,7 +528,7 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
       videoElement?.pause();
       stopLoop();
     };
-  }, [startLoop, stopLoop, flip, reduce]);
+  }, [startLoop, stopLoop, flip, videoFailed]);
 
   /* Cursor rig â€” normalised -1..1, spring-smoothed. Releasing sets the raw
      values to 0 and the spring carries them home; no exit animation needed,
@@ -520,8 +538,8 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
   const sx = useSpring(px, CURSOR_SPRING);
   const sy = useSpring(py, CURSOR_SPRING);
 
-  const rotateY = useTransform(sx, [-1, 1], [-TILT_Y, TILT_Y]);
-  const rotateX = useTransform(sy, [-1, 1], [TILT_X, -TILT_X]);
+  const rotateY = useTransform(sx, [-1, 1], reduce ? [0, 0] : [-TILT_Y, TILT_Y]);
+  const rotateX = useTransform(sy, [-1, 1], reduce ? [0, 0] : [TILT_X, -TILT_X]);
   const sheen = useTransform(sx, [-1, 0, 1], [0.55, 0.14, 0.55]);
 
   // Cache the stage rect instead of measuring on every pointermove â€” a
@@ -611,11 +629,6 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
         backgroundColor: journey ? "transparent" : "rgba(4, 4, 6, 0.78)",
       }}
     >
-      {journey && !pinned && <img
-        src="/images/hero_img/footage-07-poster.jpg"
-        alt="A still from the LIONOVART studio film"
-        className="mx-auto mt-5 block h-[min(46svh,420px)] w-[min(90vw,980px)] object-cover"
-      />}
       <div
         className={pinned
           ? "opening-video-layout relative z-40 h-full overflow-hidden"
@@ -651,12 +664,16 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
           className="opening-video-anchor relative z-40 w-[min(78vw,430px)] lg:w-[min(78vw,980px)] xl:w-[min(76vw,1120px)] 2xl:w-[min(72vw,1280px)]">
         <motion.div ref={stageRef} className="relative w-full"
           style={{ perspective: "1400px", y: pinned ? entranceY : 0, scale: pinned ? entranceScale : 1 }}>
-          {/* Hidden source: the section's only decoder. Kept at real layout
-              size via opacity (not display/visibility) so nothing throttles
-              its decode â€” the canvases are what's actually seen. */}
-          <video
+          {/* An identical film still carries the joined frame if decoding fails. */}
+          <motion.img src="/images/hero_img/footage-07-poster.jpg" alt="" aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-[1] h-full w-full rounded-[16px] object-cover"
+            style={{ opacity: joinedVideoOpacity }} />
+          {/* The same decoder is the seamless rounded film until the panes
+              begin to separate; its frames are also mirrored into them. */}
+          <motion.video
             ref={videoRef}
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-0"
+            className="pointer-events-none absolute inset-0 z-[2] h-full w-full rounded-[16px] object-cover"
+            style={{ opacity: videoFailed ? 0 : joinedVideoOpacity }}
             src={videoSrc}
             loop
             muted
@@ -665,6 +682,7 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
             poster="/images/hero_img/footage-07-poster.jpg"
             onError={() => {
               if (videoSrc !== "/images/hero_img/Footage 07.mp4") setVideoSrc("/images/hero_img/Footage 07.mp4");
+              else setVideoFailed(true);
             }}
             aria-hidden="true"
           />
@@ -672,7 +690,7 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
           {/* Glass plane â€” tilts as one sheet so the three panes stay a single
               object. Individual feedback lives on the panes' hover lift. */}
           <motion.div
-            className="relative flex h-[clamp(330px,58vh,580px)] w-full flex-col lg:h-[clamp(270px,44vh,470px)] lg:flex-row xl:h-[clamp(290px,46vh,510px)] 2xl:h-[clamp(310px,48vh,550px)]"
+            className={`opening-film-plane relative flex h-[clamp(330px,58vh,580px)] w-full ${isDesktop ? "flex-row" : "flex-col"} lg:h-[clamp(270px,44vh,470px)] xl:h-[clamp(290px,46vh,510px)] 2xl:h-[clamp(310px,48vh,550px)]`}
             style={{
               rotateX,
               rotateY,

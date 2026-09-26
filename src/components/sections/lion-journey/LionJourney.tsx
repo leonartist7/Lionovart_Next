@@ -57,11 +57,10 @@ export default function LionJourney({ children }: { children: ReactNode }) {
   useEffect(() => {
     const container = canvasHost.current;
     if (!container) return;
-    const media = matchMedia("(prefers-reduced-motion: reduce)");
     const forcedStill = process.env.NODE_ENV !== "production" && new URLSearchParams(location.search).has("lionStill");
-    const reduced = () => media.matches || forcedStill;
+    const reduced = () => forcedStill;
     let engine: LionEngine | undefined, anchors: Anchors | undefined;
-    let openingBounds: Rect | undefined, stageHeight = innerHeight, hostTop = 0;
+    let openingBounds: Rect | undefined, stageHeight = innerHeight, pinStart = 0, hostTop = 0;
     let disposed = false, frame = 0, ready = false, failed = false, loading = false;
     let time = 0, last = 0, pendingMeasure = true;
     let introReleased = document.documentElement.dataset.splashComplete === "true" || !document.querySelector("[data-intro]");
@@ -88,10 +87,11 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       hostTop = host.current ? rect(host.current).top : 0;
       openingBounds = opening.current ? rect(opening.current) : undefined;
       stageHeight = opening.current?.querySelector<HTMLElement>(".hero-opening-stage")?.offsetHeight ?? innerHeight;
-      const pinned = opening.current?.dataset.openingMode === "pinned" && !reduced();
-      anchors = { cta: cta.current ? rect(cta.current) : undefined, hero: rect(hero.current), copy: rect(copy.current), slot: rect(slot.current), video: surface, videoSection: section, proof: proofBounds, bridge: bridgeBounds, reveal: rect(reveal.current), end: pinned && openingBounds ? openingBounds.top + (openingBounds.height - stageHeight) * .49 : section.top + section.height, mobile: innerWidth < 1024 };
+      pinStart = (openingBounds?.top ?? 0) + (Number.parseFloat(opening.current?.style.getPropertyValue("--hero-overflow") ?? "0") || 0);
+      const pinned = opening.current?.dataset.openingMode === "pinned";
+      anchors = { cta: cta.current ? rect(cta.current) : undefined, hero: rect(hero.current), copy: rect(copy.current), slot: rect(slot.current), video: surface, videoSection: section, proof: proofBounds, bridge: bridgeBounds, reveal: rect(reveal.current), end: pinned && openingBounds ? pinStart + (openingBounds.height - stageHeight) * .49 : section.top + section.height, mobile: innerWidth < 1024 };
       if (pinned && openingBounds) {
-        const displacement = clamp(scrollY - openingBounds.top, 0, Math.max(0, openingBounds.height - stageHeight));
+        const displacement = clamp(scrollY - pinStart, 0, Math.max(0, openingBounds.height - stageHeight));
         for (const key of ["hero", "copy", "slot", "video", "videoSection", "proof", "cta"] as const) {
           const bounds = anchors[key];
           if (bounds) bounds.top -= displacement;
@@ -125,8 +125,8 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       if (disposed) return;
       if (pendingMeasure) measure();
       if (!anchors) return;
-      const pinned = opening.current?.dataset.openingMode === "pinned" && !reduced() && !!openingBounds;
-      const openingP = pinned ? clamp((scrollY - openingBounds!.top) / Math.max(1, openingBounds!.height - stageHeight)) : 0;
+      const pinned = opening.current?.dataset.openingMode === "pinned" && !!openingBounds;
+      const openingP = pinned ? clamp((scrollY - pinStart) / Math.max(1, openingBounds!.height - stageHeight)) : 0;
       const p = pinned ? clamp(openingP / .49) : journeyProgress(scrollY, anchors);
       progress.set(p);
       openingProgress.set(openingP);
@@ -138,7 +138,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       container.style.transform = `translate3d(0,${scrollY - hostTop}px,0)`;
       container.style.visibility = ready && visible ? "visible" : "hidden";
       if (fallback.current) {
-        const pose = pinned ? openingPose(scrollY, anchors, openingBounds!, stageHeight) : journeyPose(p, anchors);
+        const pose = pinned ? openingPose(scrollY, anchors, { ...openingBounds!, top: pinStart }, stageHeight) : journeyPose(p, anchors);
         const origin = journeyPose(0, anchors);
         fallback.current.style.transform = `translate3d(${pose.x - origin.x}px,${pose.y - origin.y}px,0)`;
         fallback.current.style.opacity = String(ready && pinned && visible && !reduced() ? 0 : 1 - clamp((p - .22) / .42));
@@ -154,7 +154,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       const dt = last ? Math.min((now-last)/1000, 1/30) : 0;
       last = now;
       if (!dialogOpen.current) time += dt;
-      const lion = pinned ? openingPose(scrollY, anchors, openingBounds!, stageHeight)
+      const lion = pinned ? openingPose(scrollY, anchors, { ...openingBounds!, top: pinStart }, stageHeight)
         : journeyPose(p, anchors);
       if (!dialogOpen.current) {
         const damping = 1 - Math.exp(-dt / .15);
@@ -201,9 +201,9 @@ export default function LionJourney({ children }: { children: ReactNode }) {
     const observer = new ResizeObserver(resize);
     [opening.current, hero.current, cta.current, copy.current, slot.current, video.current, videoSection.current, proof.current, bridge.current, reveal.current].forEach(el => { if (el) observer.observe(el); });
     window.addEventListener("scroll", wake, { passive: true }); window.addEventListener("resize", resize); window.addEventListener("pageshow", resize);
-    document.addEventListener("visibilitychange", wake); media.addEventListener("change", resize);
+    document.addEventListener("visibilitychange", wake);
     void document.fonts.ready.then(() => { if (!disposed) resize(); }); wake();
-    return () => { window.removeEventListener("lionovart:splash-complete", releaseIntro); window.removeEventListener("pointerout", onPointerOut); window.removeEventListener("blur", neutralPointer); window.removeEventListener("pointermove", onPointer); disposed = true; cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener("scroll", wake); window.removeEventListener("resize", resize); window.removeEventListener("pageshow", resize); document.removeEventListener("visibilitychange", wake); media.removeEventListener("change", resize); update.current = () => {}; engine?.dispose(); };
+    return () => { window.removeEventListener("lionovart:splash-complete", releaseIntro); window.removeEventListener("pointerout", onPointerOut); window.removeEventListener("blur", neutralPointer); window.removeEventListener("pointermove", onPointer); disposed = true; cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener("scroll", wake); window.removeEventListener("resize", resize); window.removeEventListener("pageshow", resize); document.removeEventListener("visibilitychange", wake); update.current = () => {}; engine?.dispose(); };
   }, [progress, openingProgress, backdropOpacity]);
   return <Context.Provider value={context}><div ref={host} className={styles.journey} data-lion-journey data-lion-active={active}>
     <svg ref={fallback} className={styles.fallback} aria-hidden="true" preserveAspectRatio="none" fill="none">{Array.from({length:12},(_,i)=><path key={i} stroke={i%3 ? "#9a733a" : "#edd4a0"} strokeWidth={i%4 ? "0.7" : "1.2"} opacity="0.42" />)}</svg>

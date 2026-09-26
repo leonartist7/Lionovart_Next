@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { motion, useMotionValueEvent, useTransform } from "framer-motion";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import HeroTop from "../HeroTop";
 import WhatWeDo from "../WhatWeDo";
 import OpeningProof from "../OpeningProof";
@@ -11,10 +10,7 @@ import { useLionJourney } from "./LionJourney";
 
 export default function HeroOpening() {
   const { opening: openingRef, openingProgress } = useLionJourney()!;
-  const reduced = useHydratedReducedMotion();
-  const [shortLayout, setShortLayout] = useState(false);
   const [heroInert, setHeroInert] = useState(false);
-  const pinned = !reduced && !shortLayout;
   const heroOpacity = useTransform(openingProgress, [0, 0.03, 0.26], [1, 1, 0]);
   useMotionValueEvent(openingProgress, "change", p => setHeroInert(p > 0.25));
 
@@ -30,7 +26,15 @@ export default function HeroOpening() {
       frame = requestAnimationFrame(() => {
         const clearance = Math.max(64, (nav?.getBoundingClientRect().bottom ?? 100) - Math.max(0, stage.getBoundingClientRect().top));
         stage.style.setProperty("--hero-nav-clearance", `${clearance}px`);
-        setShortLayout(innerHeight <= 640 || hero.scrollHeight > innerHeight + 2);
+        // Let an unusually tall hero scroll into view before the shared film
+        // and card stage pins. This keeps the CTA reachable at 200% zoom.
+        const overflow = Math.max(0, hero.scrollHeight - innerHeight);
+        const previous = Number.parseFloat(opening!.style.getPropertyValue("--hero-overflow")) || 0;
+        if (Math.abs(previous - overflow) > 1) {
+          opening!.style.setProperty("--hero-overflow", `${overflow}px`);
+          window.dispatchEvent(new Event("resize"));
+          ScrollTrigger.refresh();
+        }
       });
     };
     const observer = new ResizeObserver(measure);
@@ -48,19 +52,19 @@ export default function HeroOpening() {
       ScrollTrigger.refresh();
     });
     return () => cancelAnimationFrame(frame);
-  }, [pinned]);
+  }, []);
 
   return (<>
-    <div ref={openingRef} className={`hero-opening${pinned ? " hero-opening-pinned" : ""}`} data-opening-mode={pinned ? "pinned" : "static"}>
-      {pinned && <span id="what-we-build" className="opening-work-anchor" aria-hidden="true" />}
+    <div ref={openingRef} className="hero-opening hero-opening-pinned" data-opening-mode="pinned">
+      <span id="what-we-build" className="opening-work-anchor" aria-hidden="true" />
       <div className="hero-opening-stage">
         <motion.div data-nova-section="hero" data-opening-hero className="opening-hero-layer"
-          style={{ opacity: pinned ? heroOpacity : 1 }} inert={pinned && heroInert}>
+          style={{ opacity: heroOpacity }} inert={heroInert}>
           <HeroTop />
         </motion.div>
-        <WhatWeDo pinned={pinned} />
+        <WhatWeDo pinned />
       </div>
     </div>
-    {pinned && <div className="opening-mobile-proof"><OpeningProof /></div>}
+    <div className="opening-mobile-proof"><OpeningProof /></div>
   </>);
 }

@@ -1,6 +1,6 @@
 /** Shared scroll geometry for the hero, lion, and head orbit. */
 export const SPLIT_START = 0.48;
-export const SPLIT_END = 0.84;
+export const SPLIT_END = 0.8;
 export type Rect = { left: number; top: number; width: number; height: number };
 export type Point = { x: number; y: number };
 export type Anchors = { slot: Rect; cta?: Rect; copy: Rect; video: Rect; hero: Rect; videoSection: Rect; proof: Rect; bridge: Rect; reveal: Rect; end: number; mobile: boolean };
@@ -53,14 +53,15 @@ export function journeyPose(progress: number, a: Anchors): Pose {
 /** A single tilted orbit around the mane, clear of the headline and CTA. */
 export function goldRoute(a: Anchors): Point[] {
   const lion = journeyPose(0, a);
-  const radiusX = Math.min(lion.size * .57, lion.x - 12, a.hero.width - lion.x - 12);
-  const radiusY = Math.min(lion.size * .48, Math.max(24, (a.cta?.top ?? a.hero.top + a.hero.height) - lion.y - 22));
-  const tilt = a.mobile ? .08 : .15;
+  const radiusX = Math.min(lion.size * .49, lion.x - 12, a.hero.left + a.hero.width - lion.x - 12);
+  const centerY = lion.y + lion.size * .22;
+  const radiusY = Math.min(lion.size * .27, Math.max(12, (a.cta?.top ?? a.hero.top + a.hero.height) - centerY - 22));
+  const tilt = a.mobile ? .1 : .13;
   return Array.from({ length: 17 }, (_, index) => {
     const angle = (index / 16) * Math.PI * 2 + Math.PI * .75;
     return {
-      x: lion.x + Math.cos(angle) * radiusX + Math.sin(angle) * radiusY * tilt,
-      y: lion.y + Math.sin(angle) * radiusY,
+      x: lion.x + Math.cos(angle) * radiusX,
+      y: centerY + Math.sin(angle) * radiusY + Math.cos(angle) * radiusX * tilt,
     };
   });
 }

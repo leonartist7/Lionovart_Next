@@ -38,6 +38,7 @@ export function PageBuilder() {
         <HeroOpening />
         <BridgeStatement />
         <StrongTogetherTransition />
+        <span data-voice-reveal-boundary aria-hidden="true" />
       </LionJourney>
 
       {/* Later chapters cover the retired opening scene. */}

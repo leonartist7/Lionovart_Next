@@ -30,8 +30,8 @@ export default function WhatWeDo({ pinned = false }: { pinned?: boolean }) {
   const journey = useLionJourney();
   const staticProgress = useMotionValue(1);
   const proofProgress = journey?.openingProgress ?? staticProgress;
-  const proofOpacity = useTransform(proofProgress, [.68, .88], [0, 1]);
-  const proofY = useTransform(proofProgress, [.68, .88], [22, 0]);
+  const proofOpacity = useTransform(proofProgress, [.68, .84], [0, 1]);
+  const proofY = useTransform(proofProgress, [.68, .84], [22, 0]);
   return (
     <section id="opening-work" data-nova-section="what-we-do" className={`${journey ? "opening-work" : "bg-bg-dark"}${pinned ? " opening-work-pinned" : ""} text-white`}>
       <DisciplineSplit3D cards={CARDS} video={SPLIT_VIDEO} pinned={pinned} />

@@ -42,6 +42,12 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     const lion = journeyPose(0, anchors);
     assert.equal(route.length, 17);
     assert.ok(Math.hypot(route[0].x - route.at(-1).x, route[0].y - route.at(-1).y) < .001);
+    const orbitCenterY = route.slice(0, -1).reduce((sum, point) => sum + point.y, 0) / 16;
+    assert.ok(orbitCenterY > lion.y + lion.size * .17 && orbitCenterY < lion.y + lion.size * .28,
+      'orbit sits below the center of the mane');
+    const left = route.reduce((a, b) => a.x < b.x ? a : b);
+    const right = route.reduce((a, b) => a.x > b.x ? a : b);
+    assert.ok(right.y > left.y, 'orbit has a gentle downward tilt toward the right');
     for (let i = 0; i <= 100; i++) {
       const p = routePoint(route, i / 100);
       assert.ok(p.x >= 0 && p.x <= width, `x=${p.x}`);
