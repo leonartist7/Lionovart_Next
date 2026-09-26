@@ -52,6 +52,14 @@ export function journeyPose(progress: number, a: Anchors): Pose {
   };
 }
 
+/** True only after the opaque joined film covers the visible mane. */
+export function lionCoveredByFrame(lion: Pose, scroll: number, frame: Rect) {
+  const radius = lion.size * .45;
+  const screenY = lion.y - scroll;
+  return frame.left <= lion.x - radius && frame.left + frame.width >= lion.x + radius
+    && frame.top <= screenY - radius && frame.top + frame.height >= screenY + radius;
+}
+
 /** A single tilted orbit around the mane, clear of the headline and CTA. */
 export function goldRoute(a: Anchors): Point[] {
   const lion = journeyPose(0, a);

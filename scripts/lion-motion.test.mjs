@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { goldRoute, journeyPose, journeyProgress, journeyRoute, openingPose, routePoint } from '../src/components/sections/lion-journey/motion.ts';
+import { goldRoute, journeyPose, journeyProgress, journeyRoute, lionCoveredByFrame, openingPose, routePoint } from '../src/components/sections/lion-journey/motion.ts';
 
 function fixture(width) {
   const mobile = width < 1024, height = mobile ? 760 : 720;
@@ -78,4 +78,11 @@ test('sticky motion reverses along the same screen path', () => {
   assert.ok(openingPose(samples[3], anchors, opening, stageHeight).y - samples[3]
     <= openingPose(samples[0], anchors, opening, stageHeight).y - samples[0],
   'sticky lion never drops down the viewport');
+});
+
+test('lion remains visible until the film covers its mane', () => {
+  const lion = { x: 300, y: 520, size: 120, turn: 0 };
+  assert.equal(lionCoveredByFrame(lion, 200, {left: 240, top: 260, width: 120, height: 120}), true);
+  assert.equal(lionCoveredByFrame(lion, 200, {left: 270, top: 260, width: 120, height: 120}), false);
+  assert.equal(lionCoveredByFrame(lion, 200, {left: 240, top: 300, width: 120, height: 120}), false);
 });

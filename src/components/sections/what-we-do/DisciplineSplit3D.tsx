@@ -13,6 +13,7 @@ import {
 } from "framer-motion";
 import { SPLIT_START, SPLIT_END } from "../lion-journey/motion";
 import { useLionJourney } from "../lion-journey/LionJourney";
+import OpeningProof from "../OpeningProof";
 const FACE_TINTS = [
   "rgba(176, 112, 28, 0.16), rgba(7, 7, 10, 0.88)",
   "rgba(92, 54, 196, 0.16), rgba(7, 7, 10, 0.88)",
@@ -409,6 +410,7 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
   const scrollFlip = useTransform(scrollYProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
   const openingProgress = journey?.openingProgress ?? scrollYProgress;
+  const proofOpacity = useTransform(openingProgress, [.58, .76], [0, 1]);
   const openingFlip = useTransform(openingProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
   const flip = pinned ? openingFlip : scrollFlip;
   const paneSourceAvailable = canvasReady || canvasFailed || videoFailed || !videoReady;
@@ -417,7 +419,13 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
   // Wait for all three crops before switching surfaces in either direction.
   const joinedSurfaceOpacity = useTransform(flip, (p): number => p < .02 || !paneSourceAvailable ? 1 : 0);
   const paneSurfaceOpacity = useTransform(flip, (p): number => p >= .02 && paneSourceAvailable ? 1 : 0);
-  const entranceY = useTransform(openingProgress, [0, .46, .8, .9], [isDesktop ? "44svh" : isTablet ? "52svh" : shortScreen ? "36svh" : "62svh", "-5svh", "-5svh", veryShort ? "-27svh" : isDesktop ? "-5svh" : "-10svh"]);
+  // The joined film keeps its opening peek while the settled card and proof
+  // assembly rests higher in the sticky frame. Only very short screens need
+  // a second small lift to keep the proof readable.
+  const peekY = shortScreen
+    ? isDesktop && !isTablet ? "55svh" : isDesktop ? "59svh" : "51svh"
+    : isDesktop ? "61svh" : isTablet ? "61svh" : "70svh";
+  const entranceY = useTransform(openingProgress, [0, .46, .8, .9], [peekY, "-5svh", "-5svh", veryShort ? "-15svh" : "-5svh"]);
   const entranceScale = useTransform(openingProgress, [0, .46], [.82, 1]);
   // The video-to-card handoff belongs to this section.  Keeping it local means
   // the cards always reveal as the visitor scrolls through WHAT WE BUILD.
@@ -767,6 +775,9 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
               }}
             />
           </motion.div>
+          {pinned && <motion.div className="opening-proof-stage" style={{ opacity: proofOpacity }}>
+            <OpeningProof />
+          </motion.div>}
         </motion.div>
         </div>
 

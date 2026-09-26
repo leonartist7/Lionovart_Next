@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useMotionValue, type MotionValue } from "framer-motion";
-import { journeyPose, journeyProgress, openingPose, goldRoute, routePoint, clamp, type Anchors, type Rect } from "./motion";
+import { journeyPose, journeyProgress, openingPose, goldRoute, routePoint, lionCoveredByFrame, clamp, type Anchors, type Rect } from "./motion";
 import type { LionEngine } from "./engine";
 import styles from "./LionJourney.module.css";
 
@@ -28,7 +28,7 @@ const CURSOR_DRIFT_Y = 10;
 export const useLionJourney = () => useContext(Context);
 export function LionSlot() {
   const journey = useLionJourney();
-  return <div ref={journey?.slot} className={styles.slot} aria-hidden="true"><div className={styles.poster} data-lion-poster>
+  return <div ref={journey?.slot} className={styles.slot} data-lion-slot aria-hidden="true"><div className={styles.poster} data-lion-poster>
     {/* eslint-disable-next-line @next/next/no-img-element */}
     <img src="/models/lion/lion-poster.png?v=hid-20260914" alt="" width={900} height={900} fetchPriority="high" />
   </div></div>;
@@ -39,6 +39,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
   const cta = useRef<HTMLDivElement>(null);
   const proof = useRef<HTMLDivElement>(null), bridge = useRef<HTMLElement>(null), reveal = useRef<HTMLElement>(null);
   const host = useRef<HTMLDivElement>(null), canvasHost = useRef<HTMLDivElement>(null), fallback = useRef<SVGSVGElement>(null);
+  const travellingStill = useRef<HTMLImageElement>(null);
   const coverage = useRef(0), dialogOpen = useRef(false), update = useRef<() => void>(() => {});
   const opening = useRef<HTMLDivElement>(null);
   const openingProgress = useMotionValue(0);
@@ -133,17 +134,31 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       backdropOpacity.set(scrollY < anchors.reveal.top ? 1 : 1 - clamp(coverage.current));
       const complete = scrollY >= anchors.reveal.top && coverage.current >= 0.999;
       setActive(!complete);
-      const visible = pinned && !complete && p < .76 && scrollY < openingBounds!.top + openingBounds!.height && !document.hidden;
+      const lion = pinned ? openingPose(scrollY, anchors, { ...openingBounds!, top: pinStart }, stageHeight)
+        : journeyPose(p, anchors);
+      const film = p > .7 ? video.current?.querySelector<HTMLElement>(".opening-film-plane")?.getBoundingClientRect() : undefined;
+      const covered = !!film && lionCoveredByFrame(lion, scrollY, film);
+      // Let the film itself occlude the lion. Stop its render loop only once
+      // the full mane is covered, or after the joined-film beat has ended.
+      const visible = pinned && !complete && p < 1 && !(p > .86 && covered)
+        && scrollY < openingBounds!.top + openingBounds!.height && !document.hidden;
       // Keep the canvas inside the journey's stacking order while tracking the viewport.
       container.style.transform = `translate3d(0,${scrollY - hostTop}px,0)`;
-      container.style.visibility = ready && visible ? "visible" : "hidden";
+      const showStill = !ready || reduced();
+      container.style.visibility = ready && visible && !showStill ? "visible" : "hidden";
+      if (travellingStill.current) {
+        travellingStill.current.style.width = `${lion.size}px`;
+        travellingStill.current.style.height = `${lion.size}px`;
+        travellingStill.current.style.transform = `translate3d(${lion.x - lion.size / 2}px,${lion.y - hostTop - lion.size / 2}px,0) scaleX(-1)`;
+        travellingStill.current.style.opacity = showStill && visible ? "1" : "0";
+      }
       if (fallback.current) {
-        const pose = pinned ? openingPose(scrollY, anchors, { ...openingBounds!, top: pinStart }, stageHeight) : journeyPose(p, anchors);
         const origin = journeyPose(0, anchors);
-        fallback.current.style.transform = `translate3d(${pose.x - origin.x}px,${pose.y - origin.y}px,0)`;
+        fallback.current.style.transform = `translate3d(${lion.x - origin.x}px,${lion.y - origin.y}px,0)`;
         fallback.current.style.opacity = String(ready && pinned && visible && !reduced() ? 0 : 1 - clamp((p - .22) / .42));
       }
       host.current?.toggleAttribute("data-lion-still", reduced());
+      host.current?.toggleAttribute("data-lion-travelling", pinned && visible);
       host.current?.toggleAttribute("data-opening-static", !pinned);
       host.current?.toggleAttribute("data-lion-ready", ready && pinned && visible && !reduced());
       host.current?.toggleAttribute("data-gold-paused", dialogOpen.current);
@@ -154,8 +169,6 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       const dt = last ? Math.min((now-last)/1000, 1/30) : 0;
       last = now;
       if (!dialogOpen.current) time += dt;
-      const lion = pinned ? openingPose(scrollY, anchors, { ...openingBounds!, top: pinStart }, stageHeight)
-        : journeyPose(p, anchors);
       if (!dialogOpen.current) {
         const damping = 1 - Math.exp(-dt / .15);
         pointerX += ((finePointer.matches ? targetX : 0) - pointerX) * damping;
@@ -169,13 +182,13 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       lion.pitch = (lion.pitch ?? 0) - pointerY * Math.PI / 90 * influence;
       lion.turn += (Math.sin(time * Math.PI / 5) * Math.PI / 60 + pointerX * Math.PI / 60) * influence / 1.25;
       engine.setFlourishProgress(p);
-      engine.render(lion, scrollY, time, anchors.mobile, p < .68, influence);
+      engine.render(lion, scrollY, time, anchors.mobile, true, influence);
       warmed = true;
       host.current?.setAttribute("data-animation-active", String(introReleased && !dialogOpen.current));
       if (host.current) {
         host.current.dataset.lionProgress = p.toFixed(3);
         host.current.dataset.lionPose = JSON.stringify(lion);
-        host.current.dataset.lionVisible = String(p < .68);
+        host.current.dataset.lionVisible = String(visible);
       }
       if (!dialogOpen.current && introReleased) frame = requestAnimationFrame(render);
       else { last = 0; engine.pause(); }
@@ -207,6 +220,8 @@ export default function LionJourney({ children }: { children: ReactNode }) {
   }, [progress, openingProgress, backdropOpacity]);
   return <Context.Provider value={context}><div ref={host} className={styles.journey} data-lion-journey data-lion-active={active}>
     <svg ref={fallback} className={styles.fallback} aria-hidden="true" preserveAspectRatio="none" fill="none">{Array.from({length:12},(_,i)=><path key={i} stroke={i%3 ? "#9a733a" : "#edd4a0"} strokeWidth={i%4 ? "0.7" : "1.2"} opacity="0.42" />)}</svg>
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img ref={travellingStill} className={styles.travellingStill} src="/models/lion/lion-poster.png?v=hid-20260914" alt="" aria-hidden="true" />
     <div ref={canvasHost} className={styles.canvas} aria-hidden="true" />{children}
   </div></Context.Provider>;
 }
