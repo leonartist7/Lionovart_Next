@@ -42,11 +42,11 @@ export function routePoint(points: Point[], progress: number): Point {
 
 export function journeyPose(progress: number, a: Anchors): Pose {
   const p = ease(clamp(progress));
-  const size = Math.min(a.slot.height * .86, a.slot.width * .96, 760);
-  const endSize = Math.min(size * 1.2, a.video.height * .98, a.video.width * .5);
+  const size = Math.min(a.slot.height * .95, a.slot.width * .96, 760);
+  const endSize = Math.min(size * 1.4, a.video.height * .98, a.video.width * .5);
   return {
     ...routePoint(journeyRoute(a), p),
-    size: mix(size, endSize, ease(clamp((progress - .38) / .62))),
+    size: mix(size, endSize, ease(clamp((progress - .06) / .42))),
     turn: mix(.4, 0, p),
     pitch: mix(0, -.1, p),
   };

@@ -119,6 +119,8 @@
 .journey :global(.opening-work-pinned .opening-video-anchor) { position: absolute; left: 50%; top: calc(var(--hero-overflow, 0px) + var(--opening-video-center)); translate: -50% -50%; }
 .journey :global(.opening-work-pinned .opening-film-plane) { height: var(--opening-film-height); }
 .journey :global(.opening-work-pinned .opening-proof-stage) { position: absolute; top: calc(100% + 24px); left: 50%; width: 100vw; translate: -50% 0; }
+@media (max-width: 1023px) { .journey :global(.opening-work-pinned .opening-proof-stage) { top: calc(100% + 32px); } }
+@media (min-width: 768px) and (max-width: 1023px) and (min-height: 701px) { .journey :global(.opening-work-pinned .opening-proof-stage) { top: calc(100% + 48px); } }
 .journey :global(.opening-work-pinned .opening-proof) { padding: 0 16px; gap: clamp(16px,3vw,42px); }
 .journey :global(.opening-work-pinned .opening-laurel img) { height: clamp(48px,7vh,70px); }
 @media (min-width: 1024px) { .journey :global(.opening-work-pinned) { --opening-film-height: clamp(270px,44svh,470px); } }
@@ -201,6 +203,9 @@
  .journey :global(.hero-capsule-open) { width:100%; }
  .journey :global(.hero-client-proof) { width:112px; }
  .journey :global(.lion-trust) { max-width:32ch; font-size:12px; margin-top:-8px; }
+}
+@media (max-width: 767px) and (min-height: 740px) {
+ .journey :global(.hero-opening-pinned .lion-content) { translate: 0 10px; }
 }
 @media(min-width:640px) and (max-width:767px) {
  .journey :global(.lion-headline .lion-your-brand) { display:flex; }

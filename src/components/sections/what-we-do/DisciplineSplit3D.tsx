@@ -368,6 +368,7 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
   const [isTablet, setIsTablet] = useState(false);
   const [shortScreen, setShortScreen] = useState(false);
   const [veryShort, setVeryShort] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState(700);
   const [entranceDone, setEntranceDone] = useState(false);
   const [videoSrc, setVideoSrc] = useState(video);
   const [videoFailed, setVideoFailed] = useState(false);
@@ -394,13 +395,14 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
     const tablet = window.matchMedia("(min-width: 768px)");
     const short = window.matchMedia("(max-height: 700px)");
     const veryShortScreen = window.matchMedia("(max-height: 500px)");
-    const u = () => { setIsDesktop(mq.matches); setIsTablet(tablet.matches); setShortScreen(short.matches); setVeryShort(veryShortScreen.matches); };
+    const u = () => { setIsDesktop(mq.matches); setIsTablet(tablet.matches); setShortScreen(short.matches); setVeryShort(veryShortScreen.matches); setViewportHeight(window.innerHeight); };
     u();
     mq.addEventListener("change", u);
     tablet.addEventListener("change", u);
     short.addEventListener("change", u);
     veryShortScreen.addEventListener("change", u);
-    return () => { mq.removeEventListener("change", u); tablet.removeEventListener("change", u); short.removeEventListener("change", u); veryShortScreen.removeEventListener("change", u); };
+    window.addEventListener("resize", u);
+    return () => { mq.removeEventListener("change", u); tablet.removeEventListener("change", u); short.removeEventListener("change", u); veryShortScreen.removeEventListener("change", u); window.removeEventListener("resize", u); };
   }, []);
 
   /* --- Scroll-scrubbed master progress: 0 (joined) to 1 (split, flipped,
@@ -419,13 +421,15 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
   // Wait for all three crops before switching surfaces in either direction.
   const joinedSurfaceOpacity = useTransform(flip, (p): number => p < .02 || !paneSourceAvailable ? 1 : 0);
   const paneSurfaceOpacity = useTransform(flip, (p): number => p >= .02 && paneSourceAvailable ? 1 : 0);
-  // The joined film keeps its opening peek while the settled card and proof
-  // assembly rests higher in the sticky frame. Only very short screens need
-  // a second small lift to keep the proof readable.
+  // Let taller phones show more of the film without crowding the invitation.
+  // The settled card and proof assembly moves as one, with the short-screen
+  // second beat reserved for viewports that cannot fit both legibly.
+  const phonePeekLift = Math.min(45, Math.max(0, (viewportHeight - 700) * .25));
   const peekY = shortScreen
     ? isDesktop && !isTablet ? "55svh" : isDesktop ? "59svh" : "51svh"
-    : isDesktop ? "61svh" : isTablet ? "61svh" : "70svh";
-  const entranceY = useTransform(openingProgress, [0, .46, .8, .9], [peekY, "-5svh", "-5svh", veryShort ? "-15svh" : "-5svh"]);
+    : isDesktop ? "61svh" : isTablet ? "61svh" : `${70 - phonePeekLift / viewportHeight * 100}svh`;
+  const settledY = veryShort || (shortScreen && isDesktop) ? "-5svh" : isTablet ? "-2svh" : "2svh";
+  const entranceY = useTransform(openingProgress, [0, .46, .8, .9], [peekY, settledY, settledY, veryShort ? "-15svh" : settledY]);
   const entranceScale = useTransform(openingProgress, [0, .46], [.82, 1]);
   // The video-to-card handoff belongs to this section.  Keeping it local means
   // the cards always reveal as the visitor scrolls through WHAT WE BUILD.

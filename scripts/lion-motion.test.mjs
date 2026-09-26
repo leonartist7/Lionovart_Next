@@ -5,9 +5,13 @@ import { goldRoute, journeyPose, journeyProgress, journeyRoute, lionCoveredByFra
 function fixture(width) {
   const mobile = width < 1024, height = mobile ? 760 : 720;
   const hero = {left: 0, top: 40, width, height};
+  const slotSize = width < 360 ? 60 : width < 640 ? Math.min(90, Math.max(64, width * .18))
+    : width < 768 ? Math.min(125, Math.max(95, width * .14))
+    : width < 1200 ? Math.min(135, Math.max(95, width * .11))
+    : width < 1920 ? Math.min(170, Math.max(110, width * .11))
+    : Math.min(185, Math.max(150, width * .09));
   const slot = {left: width * (mobile ? .02 : .15), top: 125,
-    width: mobile ? width * .38 : Math.min(330, width * .22),
-    height: mobile ? Math.min(width * .44, 275) : Math.min(345, width * .24)};
+    width: slotSize, height: slotSize};
   const cta = {left: width * (mobile ? .05 : .49), top: mobile ? 515 : 500, width: mobile ? width * .8 : 230, height: 48};
   const video = {left: width * .1, top: 150, width: width * .8, height: mobile ? 330 : 360};
   return {hero, slot, cta, copy: {...cta, height: 170}, video,
@@ -24,8 +28,10 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     const first = journeyPose(0, anchors), last = journeyPose(1, anchors);
     assert.ok(first.size <= (anchors.mobile ? 260 : 300), 'lion remains secondary to the headline');
     assert.ok(first.turn > .35 && Math.abs(last.turn) < .001);
-    assert.ok(last.size >= first.size * 1.08 && last.size <= first.size * 1.2,
-      'lion grows modestly as the film expands');
+    assert.ok(last.size >= first.size * 1.3 && last.size <= first.size * 1.4,
+      'lion grows visibly but stays secondary to the film');
+    assert.ok(journeyPose(.36, anchors).size >= first.size * 1.25,
+      'growth is visible before the lion reaches the film');
     assert.ok(last.y <= first.y && first.y - last.y <= 24,
       'lion moves level or slightly upward');
     assert.ok(Math.abs(last.x - anchors.video.left - anchors.video.width / 2) < .001);
