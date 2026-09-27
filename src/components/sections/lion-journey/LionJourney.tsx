@@ -90,7 +90,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       stageHeight = opening.current?.querySelector<HTMLElement>(".hero-opening-stage")?.offsetHeight ?? innerHeight;
       pinStart = (openingBounds?.top ?? 0) + (Number.parseFloat(opening.current?.style.getPropertyValue("--hero-overflow") ?? "0") || 0);
       const pinned = opening.current?.dataset.openingMode === "pinned";
-      anchors = { cta: cta.current ? rect(cta.current) : undefined, hero: rect(hero.current), copy: rect(copy.current), slot: rect(slot.current), video: surface, videoSection: section, proof: proofBounds, bridge: bridgeBounds, reveal: rect(reveal.current), end: pinned && openingBounds ? pinStart + (openingBounds.height - stageHeight) * .49 : section.top + section.height, mobile: innerWidth < 1024 };
+      anchors = { cta: cta.current ? rect(cta.current) : undefined, hero: rect(hero.current), copy: rect(copy.current), slot: rect(slot.current), video: surface, videoSection: section, proof: proofBounds, bridge: bridgeBounds, reveal: rect(reveal.current), end: pinned && openingBounds ? pinStart + (openingBounds.height - stageHeight) * .49 : section.top + section.height, mobile: innerWidth < 800 };
       if (pinned && openingBounds) {
         const displacement = clamp(scrollY - pinStart, 0, Math.max(0, openingBounds.height - stageHeight));
         for (const key of ["hero", "copy", "slot", "video", "videoSection", "proof", "cta"] as const) {

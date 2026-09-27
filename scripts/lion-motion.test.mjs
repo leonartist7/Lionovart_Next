@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import { goldRoute, journeyPose, journeyProgress, journeyRoute, lionCoveredByFrame, openingPose, routePoint } from '../src/components/sections/lion-journey/motion.ts';
 
 function fixture(width) {
-  const mobile = width < 1024, height = mobile ? 760 : 720;
+  const mobile = width < 800, height = mobile ? 760 : 720;
   const hero = {left: 0, top: 40, width, height};
-  const slotSize = width < 360 ? 60 : width < 640 ? Math.min(90, Math.max(64, width * .18))
-    : width < 768 ? Math.min(125, Math.max(95, width * .14))
-    : width < 1200 ? Math.min(135, Math.max(95, width * .11))
+  const slotSize = width < 360 ? 72 : width < 640 ? Math.min(108, Math.max(76, width * .22))
+    : width < 768 ? Math.min(138, Math.max(108, width * .16))
+    : width < 1200 ? Math.min(150, Math.max(112, width * .14))
     : width < 1920 ? Math.min(170, Math.max(110, width * .11))
     : Math.min(185, Math.max(150, width * .09));
   const slot = {left: width * (mobile ? .02 : .15), top: 125,
@@ -20,7 +20,7 @@ function fixture(width) {
     end: 520, mobile};
 }
 
-for (const width of [320, 390, 768, 1024, 1440, 1920]) {
+for (const width of [320, 390, 768, 800, 1024, 1440, 1920]) {
   test(`${width}px: lion travels directly toward the film and faces forward`, () => {
     const anchors = fixture(width);
     const route = journeyRoute(anchors);

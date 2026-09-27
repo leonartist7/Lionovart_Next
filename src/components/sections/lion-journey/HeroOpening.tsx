@@ -31,8 +31,8 @@ export default function HeroOpening() {
           const heroBounds = hero.getBoundingClientRect();
           const wordBounds = roar.getBoundingClientRect();
           const size = slot.offsetWidth;
-          const gap = innerWidth < 640 ? 8 : innerWidth < 1024 ? 16 : 22;
-          const left = Math.max(0, wordBounds.left - heroBounds.left - size - gap);
+          const gap = innerWidth < 640 ? 16 : innerWidth < 1024 ? 26 : 22;
+          const left = Math.max(4 - heroBounds.left, wordBounds.left - heroBounds.left - size - gap);
           const top = wordBounds.top - heroBounds.top + (wordBounds.height - slot.offsetHeight) / 2;
           const previousLeft = Number.parseFloat(hero.style.getPropertyValue("--lion-slot-left"));
           const previousTop = Number.parseFloat(hero.style.getPropertyValue("--lion-slot-top"));

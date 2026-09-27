@@ -368,6 +368,7 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
   const [isTablet, setIsTablet] = useState(false);
   const [shortScreen, setShortScreen] = useState(false);
   const [veryShort, setVeryShort] = useState(false);
+  const [viewportWidth, setViewportWidth] = useState(1200);
   const [viewportHeight, setViewportHeight] = useState(700);
   const [entranceDone, setEntranceDone] = useState(false);
   const [videoSrc, setVideoSrc] = useState(video);
@@ -391,11 +392,11 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
   }, []);
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px), (min-width: 640px) and (max-height: 700px)");
+    const mq = window.matchMedia("(min-width: 800px), (min-width: 640px) and (max-height: 700px)");
     const tablet = window.matchMedia("(min-width: 768px)");
     const short = window.matchMedia("(max-height: 700px)");
     const veryShortScreen = window.matchMedia("(max-height: 500px)");
-    const u = () => { setIsDesktop(mq.matches); setIsTablet(tablet.matches); setShortScreen(short.matches); setVeryShort(veryShortScreen.matches); setViewportHeight(window.innerHeight); };
+    const u = () => { setIsDesktop(mq.matches); setIsTablet(tablet.matches); setShortScreen(short.matches); setVeryShort(veryShortScreen.matches); setViewportWidth(window.innerWidth); setViewportHeight(window.innerHeight); };
     u();
     mq.addEventListener("change", u);
     tablet.addEventListener("change", u);
@@ -424,10 +425,12 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
   // The settled card and proof assembly moves as one, with the short-screen
   // second beat reserved for viewports that cannot fit both legibly.
   const phonePeekLift = Math.min(45, Math.max(0, (viewportHeight - 700) * .25));
+  const tallPhonePeekLift = Math.min(8, Math.max(0, (viewportHeight - 720) * .065));
   const peekY = shortScreen
     ? isDesktop && !isTablet ? "55svh" : isDesktop ? "59svh" : "51svh"
-    : isDesktop ? "61svh" : isTablet ? "61svh" : `${70 - phonePeekLift / viewportHeight * 100}svh`;
-  const settledY = veryShort || (shortScreen && isDesktop) ? "-5svh" : isTablet ? "-2svh" : "2svh";
+    : isDesktop ? isTablet && viewportWidth < 1024 ? "51svh" : "61svh"
+      : isTablet ? "61svh" : `${70 - phonePeekLift / viewportHeight * 100 - tallPhonePeekLift}svh`;
+  const settledY = veryShort ? "-8svh" : shortScreen ? isDesktop ? "-5svh" : "-6svh" : isTablet ? "-2svh" : "2svh";
   const entranceY = useTransform(openingProgress, [0, .46, .8, .9], [peekY, settledY, settledY, veryShort ? "-15svh" : settledY]);
   const entranceScale = useTransform(openingProgress, [0, .46], [.82, 1]);
   // The video-to-card handoff belongs to this section.  Keeping it local means
