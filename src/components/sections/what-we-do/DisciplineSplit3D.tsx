@@ -147,6 +147,9 @@ function Pane({
         y: paneY,
         rotateX: paneRotateX,
         rotateY: paneRotateY,
+        // The film crop and glass face trade opacity as the cards form. An
+        // opaque base prevents the lion from showing through that handoff.
+        backgroundColor: "#08080a",
         borderTopLeftRadius: i === 0 ? outerRadius : innerRadius,
         borderTopRightRadius: (isDesktop ? i === 2 : i === 0) ? outerRadius : innerRadius,
         borderBottomLeftRadius: (isDesktop ? i === 0 : i === 2) ? outerRadius : innerRadius,

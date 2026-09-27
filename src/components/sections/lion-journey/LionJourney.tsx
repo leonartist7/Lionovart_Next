@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useMotionValue, type MotionValue } from "framer-motion";
-import { journeyPose, journeyProgress, openingPose, goldRoute, routePoint, lionCoveredByFrame, clamp, type Anchors, type Rect } from "./motion";
+import { journeyPose, journeyProgress, openingPose, goldRoute, goldOrbitCenter, goldOrbitTurns, routePoint, lionCoveredByFrame, clamp, type Anchors, type Rect } from "./motion";
 import type { LionEngine } from "./engine";
 import styles from "./LionJourney.module.css";
 
@@ -64,6 +64,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
     let openingBounds: Rect | undefined, stageHeight = innerHeight, pinStart = 0, hostTop = 0;
     let disposed = false, frame = 0, ready = false, failed = false, loading = false;
     let time = 0, last = 0, pendingMeasure = true;
+    const fallbackLengths: number[] = [];
     let introReleased = document.documentElement.dataset.splashComplete === "true" || !document.querySelector("[data-intro]");
     let warmed = false;
     const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
@@ -116,6 +117,9 @@ export default function LionJourney({ children }: { children: ReactNode }) {
             return `${i ? "L" : "M"}${(p.x+(b.y-a.y)/length*offset).toFixed(1)},${(p.y-(b.x-a.x)/length*offset).toFixed(1)}`;
           }).join(" ");
           path.setAttribute("d", d);
+          const length = path.getTotalLength();
+          fallbackLengths[strand] = length;
+          path.style.strokeDasharray = `${length * .68} ${length * .32}`;
         });
       }
       pendingMeasure = false;
@@ -152,15 +156,23 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       const showStill = !ready || reduced();
       container.style.visibility = ready && visible && !showStill ? "visible" : "hidden";
       if (travellingStill.current) {
-        travellingStill.current.style.width = `${lion.size}px`;
-        travellingStill.current.style.height = `${lion.size}px`;
-        travellingStill.current.style.transform = `translate3d(${lion.x - lion.size / 2}px,${lion.y - hostTop - lion.size / 2}px,0) scaleX(-1)`;
+        // The poster asset has transparent padding around the mane. Match
+        // its visible head to the full-size 3D mesh before and during travel.
+        const stillSize = lion.size * 1.35;
+        travellingStill.current.style.width = `${stillSize}px`;
+        travellingStill.current.style.height = `${stillSize}px`;
+        travellingStill.current.style.transform = `translate3d(${lion.x - stillSize / 2}px,${lion.y - hostTop - stillSize / 2}px,0) scaleX(-1)`;
         travellingStill.current.style.opacity = showStill && visible ? "1" : "0";
       }
       if (fallback.current) {
         const origin = journeyPose(0, anchors);
-        fallback.current.style.transform = `translate3d(${lion.x - origin.x}px,${lion.y - origin.y}px,0)`;
-        fallback.current.style.opacity = String(ready && pinned && visible && !reduced() ? 0 : 1 - clamp((p - .22) / .42));
+        const orbit = goldOrbitCenter(anchors);
+        fallback.current.style.transform = `translate3d(${lion.x - origin.x}px,${lion.y - origin.y + (lion.size - origin.size) * .22}px,0)`;
+        fallback.current.querySelector("g")?.setAttribute("transform", `translate(${orbit.x} ${orbit.y}) scale(${lion.size / origin.size}) translate(${-orbit.x} ${-orbit.y})`);
+        fallback.current.querySelectorAll("path").forEach((path, strand) => {
+          path.style.strokeDashoffset = String(-fallbackLengths[strand] * (goldOrbitTurns(p) + strand / 12));
+        });
+        fallback.current.style.opacity = String(ready && pinned && visible && !reduced() ? 0 : 1 - clamp((p - .34) / .38));
       }
       host.current?.toggleAttribute("data-lion-still", reduced());
       host.current?.toggleAttribute("data-lion-travelling", pinned && visible);
@@ -219,7 +231,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
     return () => { window.removeEventListener("lionovart:splash-complete", releaseIntro); window.removeEventListener("pointerout", onPointerOut); window.removeEventListener("blur", neutralPointer); window.removeEventListener("pointermove", onPointer); disposed = true; cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener("scroll", wake); window.removeEventListener("resize", resize); window.removeEventListener("pageshow", resize); document.removeEventListener("visibilitychange", wake); update.current = () => {}; engine?.dispose(); };
   }, [progress, openingProgress, backdropOpacity]);
   return <Context.Provider value={context}><div ref={host} className={styles.journey} data-lion-journey data-lion-active={active}>
-    <svg ref={fallback} className={styles.fallback} aria-hidden="true" preserveAspectRatio="none" fill="none">{Array.from({length:12},(_,i)=><path key={i} stroke={i%3 ? "#9a733a" : "#edd4a0"} strokeWidth={i%4 ? "0.7" : "1.2"} opacity="0.42" />)}</svg>
+    <svg ref={fallback} className={styles.fallback} aria-hidden="true" preserveAspectRatio="none" fill="none"><g>{Array.from({length:12},(_,i)=><path key={i} stroke={i%3 ? "#9a733a" : "#edd4a0"} strokeWidth={i%4 ? "0.7" : "1.2"} opacity="0.54" />)}</g></svg>
     {/* eslint-disable-next-line @next/next/no-img-element */}
     <img ref={travellingStill} className={styles.travellingStill} src="/models/lion/lion-poster.png?v=hid-20260914" alt="" aria-hidden="true" />
     <div ref={canvasHost} className={styles.canvas} aria-hidden="true" />{children}

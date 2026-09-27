@@ -3,7 +3,7 @@
 .canvas canvas { display: block; width: 100%; height: 100%; }
 .fallback { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 .poster { position: absolute; inset: 0; }
-.poster img { position: absolute; width: 100%; height: 100%; object-fit: contain; transform: scaleX(-1); }
+.poster img { position: absolute; top: -17.5%; left: -17.5%; width: 135%; height: 135%; object-fit: contain; transform: scaleX(-1); }
 .journey[data-lion-ready] .poster, .journey[data-lion-ready] .fallback { opacity: 0; }
 .journey[data-lion-travelling] .poster { opacity: 0; }
 .journey[data-lion-still] .fallback { opacity: 1; transition: none; }

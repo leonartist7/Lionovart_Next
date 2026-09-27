@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { goldRoute, journeyPose, journeyProgress, journeyRoute, lionCoveredByFrame, openingPose, routePoint } from '../src/components/sections/lion-journey/motion.ts';
+import { goldRoute, goldOrbitCenter, goldOrbitTurns, journeyPose, journeyProgress, journeyRoute, lionCoveredByFrame, openingPose, routePoint } from '../src/components/sections/lion-journey/motion.ts';
 
 function fixture(width) {
   const mobile = width < 800, height = mobile ? 760 : 720;
@@ -52,6 +52,9 @@ for (const width of [320, 390, 768, 800, 1024, 1440, 1920]) {
     assert.equal(route.length, 17);
     assert.ok(Math.hypot(route[0].x - route.at(-1).x, route[0].y - route.at(-1).y) < .001);
     const orbitCenterY = route.slice(0, -1).reduce((sum, point) => sum + point.y, 0) / 16;
+    const orbitCenter = goldOrbitCenter(anchors);
+    assert.ok(Math.abs(orbitCenter.y - orbitCenterY) < .001);
+    assert.equal(orbitCenter.x, lion.x);
     assert.ok(orbitCenterY > lion.y + lion.size * .17 && orbitCenterY < lion.y + lion.size * .28,
       'orbit sits below the center of the mane');
     const left = route.reduce((a, b) => a.x < b.x ? a : b);
@@ -68,6 +71,15 @@ for (const width of [320, 390, 768, 800, 1024, 1440, 1920]) {
     }
   });
 }
+
+test('gold orbit makes a reversible scroll-authored turn', () => {
+  assert.equal(goldOrbitTurns(0), 0);
+  assert.equal(goldOrbitTurns(.34), .5);
+  assert.equal(goldOrbitTurns(.68), 1);
+  assert.equal(goldOrbitTurns(1), 1);
+  const forward = [0, .13, .3, .52, .68].map(goldOrbitTurns);
+  assert.deepEqual([...forward].reverse(), [.68, .52, .3, .13, 0].map(goldOrbitTurns));
+});
 
 test('sticky motion reverses along the same screen path', () => {
   const anchors = fixture(1440);

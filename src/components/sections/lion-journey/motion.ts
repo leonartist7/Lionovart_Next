@@ -76,6 +76,16 @@ export function goldRoute(a: Anchors): Point[] {
   });
 }
 
+export function goldOrbitCenter(a: Anchors): Point {
+  const lion = journeyPose(0, a);
+  return { x: lion.x, y: lion.y + lion.size * .22 };
+}
+
+/** One clockwise turn while the lion approaches the opaque film. */
+export function goldOrbitTurns(progress: number) {
+  return clamp(progress / .68);
+}
+
 /** Sticky screen position becomes a document position by adding the pin offset. */
 export function openingPose(scroll: number, anchors: Anchors, opening: Rect, stageHeight: number): Pose {
   const runway = Math.max(1, opening.height - stageHeight);
