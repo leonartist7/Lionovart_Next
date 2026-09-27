@@ -58,6 +58,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
   useEffect(() => {
     const container = canvasHost.current;
     if (!container) return;
+    const heroLayer = opening.current?.querySelector<HTMLElement>(".opening-hero-layer");
     const forcedStill = process.env.NODE_ENV !== "production" && new URLSearchParams(location.search).has("lionStill");
     const reduced = () => forcedStill;
     let engine: LionEngine | undefined, anchors: Anchors | undefined;
@@ -145,6 +146,16 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       // The lion stays solid until the frame covers its full mane.
       const visible = pinned && !complete && !covered
         && scrollY < openingBounds!.top + openingBounds!.height && !document.hidden;
+      // The headline layer sits above the transparent WebGL canvas. Cut only
+      // the moving mane's footprint out of that layer, so faded letters can
+      // never show through an otherwise opaque lion during the crossing.
+      if (heroLayer) {
+        const mask = ready && visible && !reduced()
+          ? `radial-gradient(circle ${lion.size * .54}px at ${lion.x}px ${lion.y - scrollY - heroLayer.getBoundingClientRect().top}px, transparent 0 ${lion.size * .49}px, #000 ${lion.size * .54}px)`
+          : "";
+        heroLayer.style.maskImage = mask;
+        heroLayer.style.webkitMaskImage = mask;
+      }
       if (host.current) {
         host.current.dataset.lionProgress = p.toFixed(3);
         host.current.dataset.lionPose = JSON.stringify(lion);
@@ -228,7 +239,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
     window.addEventListener("scroll", wake, { passive: true }); window.addEventListener("resize", resize); window.addEventListener("pageshow", resize);
     document.addEventListener("visibilitychange", wake);
     void document.fonts.ready.then(() => { if (!disposed) resize(); }); wake();
-    return () => { window.removeEventListener("lionovart:splash-complete", releaseIntro); window.removeEventListener("pointerout", onPointerOut); window.removeEventListener("blur", neutralPointer); window.removeEventListener("pointermove", onPointer); disposed = true; cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener("scroll", wake); window.removeEventListener("resize", resize); window.removeEventListener("pageshow", resize); document.removeEventListener("visibilitychange", wake); update.current = () => {}; engine?.dispose(); };
+    return () => { window.removeEventListener("lionovart:splash-complete", releaseIntro); window.removeEventListener("pointerout", onPointerOut); window.removeEventListener("blur", neutralPointer); window.removeEventListener("pointermove", onPointer); disposed = true; cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener("scroll", wake); window.removeEventListener("resize", resize); window.removeEventListener("pageshow", resize); document.removeEventListener("visibilitychange", wake); if (heroLayer) { heroLayer.style.maskImage = ""; heroLayer.style.webkitMaskImage = ""; } update.current = () => {}; engine?.dispose(); };
   }, [progress, openingProgress, backdropOpacity]);
   return <Context.Provider value={context}><div ref={host} className={styles.journey} data-lion-journey data-lion-active={active}>
     <svg ref={fallback} className={styles.fallback} aria-hidden="true" preserveAspectRatio="none" fill="none"><g>{Array.from({length:12},(_,i)=><path key={i} stroke={i%3 ? "#9a733a" : "#edd4a0"} strokeWidth={i%4 ? "0.7" : "1.2"} opacity="0.54" />)}</g></svg>

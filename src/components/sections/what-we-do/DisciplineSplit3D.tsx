@@ -417,6 +417,10 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
   const scrollFlip = useTransform(scrollYProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
   const openingProgress = journey?.openingProgress ?? scrollYProgress;
   const openingFlip = useTransform(openingProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
+  // The wash lives in the video layer, above the WebGL lion. Keep it off
+  // until the opaque film has covered the mane; otherwise its translucent
+  // footage tints the head and makes it appear see-through.
+  const pinnedWashOpacity = useTransform(openingProgress, [0, .36, .5], [0, 0, .3]);
   const flip = pinned ? openingFlip : scrollFlip;
   const paneSourceAvailable = canvasReady || canvasFailed || videoFailed || !videoReady;
   const showPanePoster = canvasFailed || videoFailed || !videoReady;
@@ -688,7 +692,7 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
             behind the stage. It's what makes the translucent panes read as
             glass, and it's masked to a soft pool so it never squares off
             into a panel. Oversized so the blur's own edge stays offscreen. */}
-        <canvas
+        <motion.canvas
           ref={washRef}
           width={72}
           height={40}
@@ -699,7 +703,7 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
             // black-red-gold system. It should read as light in the room,
             // not as a second palette.
             filter: "blur(64px) saturate(0.72) contrast(1.05)",
-            opacity: 0.3,
+            opacity: pinned ? pinnedWashOpacity : 0.3,
             maskImage:
               "radial-gradient(52% 46% at 50% 50%, #000 0%, rgba(0,0,0,0.55) 58%, transparent 84%)",
             WebkitMaskImage:
