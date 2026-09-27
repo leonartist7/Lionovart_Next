@@ -2,12 +2,12 @@
 .canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100svh; z-index: 1; pointer-events: none; visibility: hidden; overflow: hidden; }
 .canvas canvas { display: block; width: 100%; height: 100%; }
 .fallback { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-.poster { position: absolute; inset: 0; transition: opacity 400ms ease; }
-.poster img { position: absolute; width: 100%; height: 100%; object-fit: contain; transform: scaleX(-1); mask-image: linear-gradient(to bottom, #000 72%, #000b 83%, transparent 94%); }
+.poster { position: absolute; inset: 0; }
+.poster img { position: absolute; width: 100%; height: 100%; object-fit: contain; transform: scaleX(-1); }
 .journey[data-lion-ready] .poster, .journey[data-lion-ready] .fallback { opacity: 0; }
 .journey[data-lion-travelling] .poster { opacity: 0; }
 .journey[data-lion-still] .fallback { opacity: 1; transition: none; }
-.travellingStill { position:absolute; top:0; left:0; z-index:1; width:1px; height:1px; object-fit:contain; opacity:0; pointer-events:none; mask-image:linear-gradient(to bottom,#000 72%,#000b 83%,transparent 94%); }
+.travellingStill { position:absolute; top:0; left:0; z-index:1; width:1px; height:1px; object-fit:contain; opacity:0; pointer-events:none; }
 .journey[data-opening-static] .fallback { display: none; }
 
 
@@ -19,7 +19,6 @@
 .journey :global(.lion-reveal > div) { background: #0d0d0d; }
 @media (max-width: 1023px) {
 }
-@media (prefers-reduced-motion: reduce) { .poster { transition: none; }  }
 
 .journey :global([data-compact-proof] > div) { flex-wrap: nowrap; gap: 18px; }
 .journey :global([data-compact-proof] > div > div) { flex-basis: auto; }
@@ -185,7 +184,7 @@
 }
 @media(max-width:767px) {
  .journey :global(.hero-opening-pinned .lion-hero) { align-content: center; padding-bottom: 130px; }
- .journey :global(.hero-opening-pinned .lion-content) { translate: 0; }
+ .journey :global(.hero-opening-pinned .lion-content) { translate: 0 -12px; }
  .journey :global(.lion-hero) { width:auto; margin-inline:20px; padding:calc(var(--hero-nav-clearance,84px) + 20px) 0 56px; display:grid; grid-template-columns:minmax(0,1fr); align-content:start; gap:24px; }
  .journey :global(.lion-content) { grid-column:1; display:grid; grid-template-columns:minmax(0,1fr); justify-items:center; gap:16px; }
  .journey :global(.lion-copy) { width:100%; max-width:none; margin:0; justify-self:center; text-align:center; padding-top:0; }
@@ -205,7 +204,10 @@
  .journey :global(.lion-trust) { max-width:32ch; font-size:12px; margin-top:-8px; }
 }
 @media (max-width: 767px) and (min-height: 740px) {
- .journey :global(.hero-opening-pinned .lion-content) { translate: 0 10px; }
+ .journey :global(.hero-opening-pinned .lion-content) { translate: 0 -24px; }
+}
+@media (max-width: 767px) and (max-height: 640px) {
+ .journey :global(.hero-opening-pinned .lion-content) { translate: 0; }
 }
 @media(min-width:640px) and (max-width:767px) {
  .journey :global(.lion-headline .lion-your-brand) { display:flex; }

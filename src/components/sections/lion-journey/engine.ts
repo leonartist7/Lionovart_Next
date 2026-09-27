@@ -1,6 +1,6 @@
 import * as THREE from "three/webgpu";
 import { WebGPURenderer, MeshPhysicalNodeMaterial, PMREMGenerator } from "three/webgpu";
-import { uniform, positionLocal, positionWorld, vec3, sin, cos, attribute, fract, mix, color, cross, textureLoad, ivec2, smoothstep } from "three/tsl";
+import { uniform, positionLocal, vec3, sin, cos, attribute, fract, mix, color, cross, textureLoad, ivec2, smoothstep } from "three/tsl";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
@@ -17,8 +17,6 @@ export class LionEngine {
   private clock = uniform(0);
   private moteSize = uniform(200);
   private moteOpacity = uniform(1);
-  private maneBottom = uniform(-1);
-  private maneFadeEnd = uniform(-0.65);
   private band = uniform(44);
   private flourishOpacity = uniform(1);
   private routeTexture = new THREE.DataTexture(new Float32Array(512 * 2 * 4), 512, 2, THREE.RGBAFormat, THREE.FloatType);
@@ -89,8 +87,8 @@ export class LionEngine {
     const scale = 2 / box.getSize(new THREE.Vector3()).y;
     gltf.scene.position.copy(center).multiplyScalar(-scale);
     gltf.scene.scale.setScalar(scale);
-    // Preserve the supplied PBR appearance; dissolve only the lowest mane tips.
-    // World-space height stays consistent across meshes and the lion's yaw.
+    // Preserve the supplied PBR appearance and the asset's own alpha edges.
+    // The opaque film, not a shader dissolve, hides the mane during travel.
     const converted = new Map<THREE.Material, THREE.MeshStandardNodeMaterial>();
     gltf.scene.traverse(object => {
       if (!(object instanceof THREE.Mesh)) return;
@@ -103,9 +101,9 @@ export class LionEngine {
           normalMap: source.normalMap, normalScale: source.normalScale,
           aoMap: source.aoMap, aoMapIntensity: source.aoMapIntensity,
           emissive: source.emissive, emissiveMap: source.emissiveMap, emissiveIntensity: source.emissiveIntensity,
-          side: source.side, transparent: true, depthWrite: true, alphaTest: 0.015,
+          side: source.side, transparent: source.transparent, depthWrite: source.depthWrite,
+          alphaTest: source.alphaTest, opacity: source.opacity,
         });
-        material.opacityNode = smoothstep(this.maneBottom, this.maneFadeEnd, positionWorld.y).mul(source.opacity);
         converted.set(source, material);
         return material;
       };
@@ -231,8 +229,6 @@ export class LionEngine {
       group.scale.setScalar(pose.size / 2);
     };
     place(this.lion, lion);
-    this.maneBottom.value = this.lion.position.y - lion.size * 0.5;
-    this.maneFadeEnd.value = this.lion.position.y - lion.size * 0.32;
     this.lion.visible = lionVisible;
     // The orbit travels with the head, then opens and fades as it enters the film.
     this.silk.position.copy(this.lion.position);

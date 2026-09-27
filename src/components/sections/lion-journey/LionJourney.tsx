@@ -138,10 +138,15 @@ export default function LionJourney({ children }: { children: ReactNode }) {
         : journeyPose(p, anchors);
       const film = p > .7 ? video.current?.querySelector<HTMLElement>(".opening-film-plane")?.getBoundingClientRect() : undefined;
       const covered = !!film && lionCoveredByFrame(lion, scrollY, film);
-      // Let the film itself occlude the lion. Stop its render loop only once
-      // the full mane is covered, or after the joined-film beat has ended.
-      const visible = pinned && !complete && p < 1 && !(p > .86 && covered)
+      // The lion stays solid until the frame covers its full mane.
+      const visible = pinned && !complete && !covered
         && scrollY < openingBounds!.top + openingBounds!.height && !document.hidden;
+      if (host.current) {
+        host.current.dataset.lionProgress = p.toFixed(3);
+        host.current.dataset.lionPose = JSON.stringify(lion);
+        host.current.dataset.lionCovered = String(covered);
+        host.current.dataset.lionVisible = String(visible);
+      }
       // Keep the canvas inside the journey's stacking order while tracking the viewport.
       container.style.transform = `translate3d(0,${scrollY - hostTop}px,0)`;
       const showStill = !ready || reduced();
@@ -185,11 +190,6 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       engine.render(lion, scrollY, time, anchors.mobile, true, influence);
       warmed = true;
       host.current?.setAttribute("data-animation-active", String(introReleased && !dialogOpen.current));
-      if (host.current) {
-        host.current.dataset.lionProgress = p.toFixed(3);
-        host.current.dataset.lionPose = JSON.stringify(lion);
-        host.current.dataset.lionVisible = String(visible);
-      }
       if (!dialogOpen.current && introReleased) frame = requestAnimationFrame(render);
       else { last = 0; engine.pause(); }
     };

@@ -412,7 +412,6 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
   const scrollFlip = useTransform(scrollYProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
   const openingProgress = journey?.openingProgress ?? scrollYProgress;
-  const proofOpacity = useTransform(openingProgress, [.58, .76], [0, 1]);
   const openingFlip = useTransform(openingProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
   const flip = pinned ? openingFlip : scrollFlip;
   const paneSourceAvailable = canvasReady || canvasFailed || videoFailed || !videoReady;
@@ -779,9 +778,9 @@ export default function DisciplineSplit3D({ cards, video, pinned = false }: Prop
               }}
             />
           </motion.div>
-          {pinned && <motion.div className="opening-proof-stage" style={{ opacity: proofOpacity }}>
+          {pinned && <div className="opening-proof-stage">
             <OpeningProof />
-          </motion.div>}
+          </div>}
         </motion.div>
         </div>
 
