@@ -21,15 +21,18 @@ export default function StrongTogetherRibbon({ active, reducedMotion }: Props) {
   const unitMeasureRef = useRef<SVGTextElement>(null);
   const textPathRef = useRef<SVGTextPathElement>(null);
   const crownRefs = useRef<(SVGUseElement | null)[]>([]);
-  const [size, setSize] = useState({ width: 1200, height: 360 });
+  const [size, setSize] = useState({ width: 1200, height: 800 });
   const [nearView, setNearView] = useState(false);
   const id = useId().replace(/:/g, "");
   const pathId = `strong-ribbon-path-${id}`;
   const crownId = `strong-ribbon-crown-${id}`;
   const fontSize = Math.max(23, Math.min(38, size.width * 0.034));
   const ribbonWidth = Math.max(48, Math.min(68, size.width * 0.061));
-  const crownSize = fontSize;
-  const curve = `M ${-size.width * 0.22} ${size.height * 0.91} Q ${size.width * 0.5} ${-size.height * 0.65} ${size.width * 1.22} ${size.height * 0.91}`;
+  const crownSize = fontSize * 0.82;
+  const curve = size.width < 640
+    ? `M ${-size.width * 0.12} ${size.height * 0.78} C ${size.width * 0.2} ${size.height * 0.75}, ${size.width * 0.28} ${size.height * 0.45}, ${size.width * 0.52} ${size.height * 0.54} S ${size.width * 0.84} ${size.height * 0.34}, ${size.width * 1.12} ${size.height * 0.31}`
+    : `M ${-size.width * 0.12} ${size.height * 0.82} C ${size.width * 0.19} ${size.height * 0.82}, ${size.width * 0.26} ${size.height * 0.31}, ${size.width * 0.52} ${size.height * 0.52} S ${size.width * 0.82} ${size.height * 0.25}, ${size.width * 1.12} ${size.height * 0.25}`;
+  const darkField = `${curve} L ${size.width * 1.12} ${-size.height * 0.12} L ${-size.width * 0.12} ${-size.height * 0.12} Z`;
 
   useEffect(() => {
     const root = rootRef.current;
@@ -134,6 +137,7 @@ export default function StrongTogetherRibbon({ active, reducedMotion }: Props) {
             <g fill="none" stroke="#ffcc29" strokeLinecap="round" strokeWidth="16.84"><path d="m251.75 70.27-73.35 103.59"/><path d="m24.37 139.01 99.66 44.3"/><path d="m239.53 375.5h49.54"/><path d="m76.15 375.5h121.55"/></g>
           </symbol>
         </defs>
+        <path d={darkField} fill="#0d0d0d" />
         <path d={curve} fill="none" stroke="#dc0f0f" strokeWidth={ribbonWidth} strokeLinecap="round" />
         {phrases.map((phrase, index) => <text key={`${phrase}-${index}`} ref={(element) => { measureRefs.current[index] = element; }} className={styles.measure} fontSize={fontSize} letterSpacing="2.2" fontWeight="800">{phrase}</text>)}
         <text ref={unitMeasureRef} className={styles.measure} fontSize={fontSize} letterSpacing="2.2" fontWeight="800">{phrases.map((phrase, index) => <tspan key={`${phrase}-${index}`}>{phrase}{SPACING}</tspan>)}</text>

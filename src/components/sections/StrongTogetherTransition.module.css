@@ -1,13 +1,61 @@
-.titleFrame {
-  top: 42%;
+.section {
+  position: relative;
+  isolation: isolate;
+  height: 100svh;
+  min-height: 520px;
+  overflow: hidden;
+  background: var(--site-surface-light);
 }
 
-.ribbonFrame {
-  bottom: -5svh;
+.marquee {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
 }
 
-@media (max-height: 500px) {
-  .titleFrame {
-    top: 33%;
+.alone,
+.together {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  max-width: 58%;
+  font-size: clamp(2rem, 6.3vw, 6.8rem);
+  font-weight: 600;
+  line-height: .83;
+  letter-spacing: -.065em;
+  white-space: nowrap;
+}
+
+.alone {
+  top: 19%;
+  left: clamp(20px, 6vw, 120px);
+  color: #f2ede3;
+}
+
+.together {
+  right: clamp(20px, 6vw, 120px);
+  bottom: 17%;
+  align-items: flex-end;
+  color: #171412;
+}
+
+@media (max-width: 639px) {
+  .section { min-height: 480px; }
+  .alone,
+  .together {
+    font-size: clamp(1.72rem, 7.6vw, 3.25rem);
+    max-width: calc(100% - 40px);
   }
+  .alone { top: 18%; }
+  .together { bottom: 17%; }
+}
+
+@media (max-height: 500px) and (min-width: 640px) {
+  .section { min-height: 360px; }
+  .alone,
+  .together { font-size: clamp(2rem, 5vw, 4rem); }
+  .alone { top: 12%; }
+  .together { bottom: 10%; }
 }

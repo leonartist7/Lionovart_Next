@@ -340,7 +340,10 @@ export default function PawRevealStack() {
   const contentRef = useRef<HTMLDivElement>(null);
   const chapterRef = useRef<HTMLElement>(null);
   const staticScene = reduceMotion || scene.viewport < 500;
-  const entryPadding = Math.min(128, Math.max(48, scene.viewport * 0.08));
+  // The opening circle is wider than the viewport. Reserve its actual
+  // overhang so the previous section cannot cut off its top edge.
+  const circleOverhang = Math.max(0, (scene.diameter - scene.viewport) / 2);
+  const entryPadding = Math.ceil(circleOverhang + Math.min(128, Math.max(48, scene.viewport * 0.08)));
   const exitPadding = Math.min(64, Math.max(24, scene.viewport * 0.04));
   const { t, locale } = useLanguage();
   const lenis = useLenis();
@@ -504,15 +507,15 @@ export default function PawRevealStack() {
           style={{ opacity: staticScene ? 1 : cardOpacity, y: staticScene ? 0 : cardY, pointerEvents: transition === null ? "auto" : "none" }}
           className="absolute inset-0 z-30 flex items-center justify-center px-3.5 py-5 sm:px-6 md:py-7"
         >
-          <div ref={contentRef} data-imagine-content className="w-full max-w-[clamp(660px,48vw,1800px)]">
-            <motion.div className="mb-4 flex flex-col items-center text-center sm:mb-5" initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}>
-              <p className="mb-1.5 font-clash text-[0.625rem] font-semibold uppercase tracking-[0.17em] text-white sm:text-xs">{t.problems.eyebrow}</p>
-              <h2 className="font-clash text-[clamp(2.15rem,1.5rem+2.5vw,7.5rem)] font-bold uppercase leading-[0.95] tracking-[-0.045em] text-white">
+          <div ref={contentRef} data-imagine-content className="w-full">
+            <motion.div className="mx-auto mb-[clamp(2rem,4svh,4.5rem)] flex w-full max-w-[min(92vw,1600px)] flex-col items-center px-2 text-center" initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}>
+              <p className="mb-2 font-clash text-[0.625rem] font-semibold uppercase tracking-[0.17em] text-white sm:mb-3 sm:text-xs">{t.problems.eyebrow}</p>
+              <h2 className="max-w-full font-clash text-[clamp(3rem,1.5rem+5vw,8rem)] font-bold uppercase leading-[0.9] tracking-[-0.05em] text-balance text-white [overflow-wrap:anywhere]">
                 {t.problems.heading}
               </h2>
             </motion.div>
 
-            <div className="mx-auto flex w-full flex-col gap-2.5 sm:gap-3">
+            <div className="mx-auto flex w-full max-w-[clamp(660px,48vw,1800px)] flex-col gap-2.5 sm:gap-3">
               {items.map((item, index) => {
                 const phase: CardPhase = transition?.index === index ? transition.kind === "return" ? "returning" : "revealing" : activeIndex === index ? "active" : revealedIndexes.includes(index) ? "summary" : "closed";
                 return <PawRevealCard key={item.problem.heading} item={item} index={index} phase={phase} onRevealStart={() => startReveal(index)} onRevealComplete={() => completeReveal(index)} onReturnStart={() => startReturn(index)} onReturnComplete={() => completeReturn(index)} onActivateSummary={() => activateSummary(index)} isInteractionLocked={transition !== null} reduceMotion={reduceMotion} />;
