@@ -4,7 +4,7 @@ import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useTrailAttraction } from "@/contexts/TrailAttractionContext";
-import { isLocale } from "@/i18n/routing";
+import { isLocale } from "@/i18n/routing";\nimport { isCareersPath } from "@/lib/careers-route";
 
 const DEFAULT_TUBE_COLORS = ["#e5192a", "#f0c917", "#ffffff"];
 const DEFAULT_LIGHT_COLORS = ["#e5192a", "#f0c917", "#ffffff", "#60aed5"];
@@ -80,7 +80,7 @@ export default function TubesCursor({
   // brand recolor on the one page where the palette is the point. Continuity
   // is carried there by the palette instead (the lion uses these same colors).
   const isLionRoute = pathname.startsWith("/services/ai");
-  const hidden = !released || (layer === "global" && (isLandingRoute || isLionRoute));
+  const hidden = !released || isCareersPath(pathname) || (layer === "global" && (isLandingRoute || isLionRoute));
 
   useEffect(() => {
     if (hidden || typeof window === "undefined") return;
