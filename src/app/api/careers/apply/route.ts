@@ -20,6 +20,17 @@ function isHttpUrl(input: string) {
 }
 
 export async function POST(request: Request) {
+  const origin = request.headers.get("origin");
+  if (origin) {
+    try {
+      if (new URL(origin).host !== new URL(request.url).host) {
+        return NextResponse.json({ error: "Invalid application origin." }, { status: 403 });
+      }
+    } catch {
+      return NextResponse.json({ error: "Invalid application origin." }, { status: 403 });
+    }
+  }
+
   const length = Number(request.headers.get("content-length") || 0);
   if (length > MAX_BODY_BYTES) {
     return NextResponse.json({ error: "Application is too large." }, { status: 413 });
@@ -44,7 +55,9 @@ export async function POST(request: Request) {
     location: value(body.location, 160),
     primaryDiscipline: value(body.primaryDiscipline, 120),
     collaboration: Array.isArray(body.collaboration)
-      ? body.collaboration.filter((item): item is string => typeof item === "string").slice(0, 8).map((item) => item.trim().slice(0, 80))
+      ? body.collaboration
+          .filter((item): item is string => typeof item === "string" && COLLABORATION.has(item))
+          .slice(0, 6)
       : [],
     workUrl: value(body.workUrl, 500),
     secondaryUrl: value(body.secondaryUrl, 500),
@@ -59,7 +72,7 @@ export async function POST(request: Request) {
     application.name.length < 2 ||
     !EMAIL.test(application.email) ||
     application.location.length < 2 ||
-    application.primaryDiscipline.length < 2 ||
+    !DISCIPLINES.has(application.primaryDiscipline) ||
     application.strength.length < 40 ||
     application.project.length < 60 ||
     application.why.length < 50
