@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useNovaStore } from "@/lib/stores/nova-store";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { FAQ_ITEMS_EN } from "@/lib/faq-copy";
+import { FAQ_ITEMS_EN } from "@/lib/faq-copy";\nimport { isCareersPath } from "@/lib/careers-route";
 
 const EASE = [0.16, 1, 0.3, 1] as [number, number, number, number];
 
@@ -47,7 +47,7 @@ export function StickyCTA() {
     });
   }, []);
 
-  if (isOpen || pathname?.startsWith("/admin")) return null;
+  if (isOpen || pathname?.startsWith("/admin") || isCareersPath(pathname)) return null;
 
   return (
     <AnimatePresence>
