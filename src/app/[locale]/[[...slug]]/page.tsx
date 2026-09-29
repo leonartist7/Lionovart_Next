@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import Home from "../../(site)/page";
 import AuditPage from "../../(site)/audit/page";
 import AuditThanksPage from "../../(site)/audit/thanks/page";
-import CallPage from "../../(site)/call/page";
+import CallPage from "../../(site)/call/page";\nimport CareersPage from "../../(site)/careers/page";\nimport TalentApplicationPage from "../../(site)/careers/apply/page";
 import PricingPage from "../../(site)/pricing/page";
 import PrivacyPage from "../../(site)/privacy/page";
 import TermsPage from "../../(site)/terms/page";
@@ -25,7 +25,7 @@ const pages: Record<string, Page> = {
   "/": Home,
   "/audit": AuditPage,
   "/audit/thanks": AuditThanksPage,
-  "/call": CallPage,
+  "/call": CallPage,\n  "/careers": CareersPage,\n  "/careers/apply": TalentApplicationPage,
   "/pricing": PricingPage,
   "/privacy": PrivacyPage,
   "/terms": TermsPage,
