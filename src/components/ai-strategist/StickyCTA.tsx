@@ -6,7 +6,8 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useNovaStore } from "@/lib/stores/nova-store";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { FAQ_ITEMS_EN } from "@/lib/faq-copy";\nimport { isCareersPath } from "@/lib/careers-route";
+import { FAQ_ITEMS_EN } from "@/lib/faq-copy";
+import { isCareersPath } from "@/lib/careers-route";
 
 const EASE = [0.16, 1, 0.3, 1] as [number, number, number, number];
 
