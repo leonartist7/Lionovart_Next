@@ -4,7 +4,8 @@ import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useTrailAttraction } from "@/contexts/TrailAttractionContext";
-import { isLocale } from "@/i18n/routing";\nimport { isCareersPath } from "@/lib/careers-route";
+import { isLocale } from "@/i18n/routing";
+import { isCareersPath } from "@/lib/careers-route";
 
 const DEFAULT_TUBE_COLORS = ["#e5192a", "#f0c917", "#ffffff"];
 const DEFAULT_LIGHT_COLORS = ["#e5192a", "#f0c917", "#ffffff", "#60aed5"];
