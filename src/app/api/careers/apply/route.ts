@@ -6,6 +6,25 @@ export const runtime = "nodejs";
 const MAX_BODY_BYTES = 24_000;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const DISCIPLINES = new Set([
+  "Brand & design",
+  "Film, motion & 3D",
+  "Web & product",
+  "AI & automation",
+  "Events & experiences",
+  "Strategy & growth",
+  "Production & operations",
+  "Create my own role",
+]);
+const COLLABORATION = new Set([
+  "Full-time",
+  "Part-time",
+  "Freelance",
+  "Project-based",
+  "Internship",
+  "Specialist partner",
+]);
+
 function value(input: unknown, max: number) {
   return typeof input === "string" ? input.trim().slice(0, max) : "";
 }
