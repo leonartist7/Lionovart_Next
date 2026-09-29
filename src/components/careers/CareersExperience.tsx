@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";\nimport type { ReactNode } from "react";
+import { motion, useReducedMotion } from "motion/react";
+import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
