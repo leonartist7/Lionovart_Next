@@ -1,7 +1,7 @@
 "use client";
 import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 
-import { MagneticCursor } from "@/components/ui/magnetic-cursor";
+import { MagneticCursor } from "@/components/ui/magnetic-cursor";\nimport { usePathname } from "next/navigation";\nimport { isCareersPath } from "@/lib/careers-route";
 
 /**
  * LIONOVART cursor preset.
