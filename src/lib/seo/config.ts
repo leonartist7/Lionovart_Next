@@ -117,7 +117,8 @@ export const SERVICES: ServiceDef[] = [
 /** Static, indexable routes for the sitemap. Service slugs are appended. */
 export const STATIC_ROUTES = [
   { path: "/", changeFrequency: "weekly" as const, priority: 1.0 },
-  { path: "/services", changeFrequency: "monthly" as const, priority: 0.9 },\n  { path: "/careers", changeFrequency: "monthly" as const, priority: 0.6 },
+  { path: "/services", changeFrequency: "monthly" as const, priority: 0.9 },
+  { path: "/careers", changeFrequency: "monthly" as const, priority: 0.6 },
   { path: "/privacy", changeFrequency: "yearly" as const, priority: 0.2 },
   { path: "/terms", changeFrequency: "yearly" as const, priority: 0.2 },
 ];
