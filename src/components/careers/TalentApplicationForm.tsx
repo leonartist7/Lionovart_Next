@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";\nimport type { FormEvent } from "react";
+import { useState } from "react";
+import type { FormEvent } from "react";
 import { Link } from "@/i18n/navigation";
 import { ArrowLeft, ArrowUpRight, Check } from "lucide-react";
 
