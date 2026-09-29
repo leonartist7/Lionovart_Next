@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { useNovaStore } from "@/lib/stores/nova-store";\nimport { isCareersPath } from "@/lib/careers-route";
+import { useNovaStore } from "@/lib/stores/nova-store";
+import { isCareersPath } from "@/lib/careers-route";
 
 const StrategistPanel = dynamic(() => import("./StrategistPanel"), { ssr: false });
 
