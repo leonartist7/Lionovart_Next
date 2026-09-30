@@ -12,7 +12,6 @@ import ProcessExperience from "@/components/sections/ProcessExperience";
 import Testimonials from "@/components/sections/Testimonials";
 import FAQ from "@/components/sections/FAQ";
 import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
-import ClosingCTA from "@/components/sections/ClosingCTA";
 import ExitIntentModal from "@/components/ui/ExitIntentModal";
 import { TrailAttractionProvider } from "@/contexts/TrailAttractionContext";
 
@@ -62,7 +61,6 @@ export function PageBuilder() {
           fontSize="clamp(3.75rem, 8.5vw, 7.5rem)"
         />
         <NovaSection id="faq"><FAQ /></NovaSection>
-        <NovaSection id="closing-cta"><ClosingCTA workShowcase /></NovaSection>
       </div>
     </TrailAttractionProvider>
   );
