@@ -10,58 +10,58 @@ const disciplines = [
   {
     index: "01",
     title: "Brand & design",
-    description: "Turn strategy into identities people can recognize, remember, and feel.",
+    description: "Give a good idea a voice and a visual world people will remember.",
     roles: ["Brand strategist", "Art director", "Identity designer", "Graphic / type designer"],
   },
   {
     index: "02",
     title: "Film, motion & 3D",
-    description: "Create cinematic stories, motion systems, product worlds, and visual moments with presence.",
+    description: "Tell stories through images, movement, sound, and worlds that stay with people.",
     roles: ["Director / DP", "Editor", "Motion designer", "3D / CGI artist", "Photographer"],
   },
   {
     index: "03",
     title: "Web & product",
-    description: "Design and build digital experiences where strong taste and engineering reinforce each other.",
+    description: "Make websites and products that feel as considered as they are useful.",
     roles: ["Product designer", "UX / UI designer", "Creative developer", "Frontend / Next.js", "Full-stack engineer"],
   },
   {
     index: "04",
     title: "AI & automation",
-    description: "Build useful intelligence: agents, workflows, integrations, internal tools, and new product behavior.",
+    description: "Turn new technology into tools and workflows people actually want to use.",
     roles: ["AI engineer", "Automation architect", "Agent builder", "Integration specialist"],
   },
   {
     index: "05",
     title: "Events & experiences",
-    description: "Shape physical experiences from concept to atmosphere, interaction, sound, light, and execution.",
+    description: "Create the moments people walk into, take part in, and talk about afterward.",
     roles: ["Experience designer", "Event producer", "AV / lighting", "Scenography", "Creative technologist"],
   },
   {
     index: "06",
     title: "Strategy & growth",
-    description: "Find the sharp idea, the right audience, and the story that makes the work commercially matter.",
+    description: "Find the insight, the audience, and the words that give an idea somewhere to go.",
     roles: ["Creative strategist", "Copywriter", "Growth strategist", "Paid media", "SEO / AEO"],
   },
   {
     index: "07",
     title: "Production & operations",
-    description: "Make ambitious work move: clear scopes, strong communication, reliable delivery, calm execution.",
+    description: "Keep good ideas moving with clear plans, honest conversations, and thoughtful delivery.",
     roles: ["Producer", "Project manager", "Client experience", "Production coordinator"],
   },
   {
     index: "08",
     title: "Create your own role",
-    description: "If your best contribution sits between disciplines, tell us what you would build and why it matters.",
+    description: "Do your best work between disciplines? Show us what only you could bring.",
     roles: ["Hybrid makers", "Unusual specialists", "New disciplines", "Future-facing talent"],
   },
 ] as const;
 
 const principles = [
-  ["Craft before cosmetics", "We care about the details people feel even when they cannot name them."],
-  ["Own the outcome", "Bring judgment, communicate early, and finish the work you put your name on."],
-  ["Cross the borders", "Strategy can meet film. Code can meet events. AI can meet brand. That is the point."],
-  ["Curiosity with standards", "Explore new tools aggressively without lowering the bar for the final result."],
+  ["Care about the details", "The small choices matter. We notice the ones that make the whole thing feel right."],
+  ["Say what you think", "Share your point of view, ask the hard question, and give others room to do the same."],
+  ["Work across disciplines", "A film can start with a strategist. A website can get better because a filmmaker sees it differently."],
+  ["Stay curious", "Try the new tool. Then ask whether it actually makes the work better."],
 ] as const;
 
 const pathways = [
@@ -150,7 +150,7 @@ export default function CareersExperience() {
                   <br />
                   should exist
                   <br />
-                  <span className="text-brand-red">next.</span>
+                  <span className="font-editorial font-normal italic normal-case tracking-[-0.06em] text-brand-red">next.</span>
                 </h1>
               </motion.div>
 
@@ -161,7 +161,7 @@ export default function CareersExperience() {
                 className="max-w-md lg:pb-4"
               >
                 <p className="text-lg leading-relaxed text-white/70">
-                  LIONOVART brings strategy, design, film, technology, AI, and physical experiences together. We are building a circle of people who are exceptional at their craft and curious beyond it.
+                  We bring strategy, design, film, technology, AI, and live experiences together. If you care deeply about your craft and get excited by what other people bring to the table, we would like to meet you.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Link
@@ -182,7 +182,7 @@ export default function CareersExperience() {
 
             <div className="flex flex-col gap-5 border-t border-white/10 pt-5 sm:flex-row sm:items-end sm:justify-between">
               <p className="max-w-xl text-sm leading-relaxed text-white/45">
-                We care more about evidence, judgment, curiosity, and how you think than a perfect list of credentials.
+                A portfolio, a reel, a shipped project, or a story about a problem you solved tells us more than a perfect list of credentials.
               </p>
               <div className="flex flex-wrap gap-x-5 gap-y-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
                 <span>Creative</span><span>Technology</span><span>Experiences</span><span>Systems</span>
@@ -196,10 +196,13 @@ export default function CareersExperience() {
             <Reveal>
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-red">How we think</p>
               <h2 className="mt-5 max-w-[1050px] font-clash text-[clamp(2.8rem,6.8vw,6.7rem)] font-semibold uppercase leading-[0.92] tracking-[-0.045em]">
-                Specialists, not boxes.
+                Good work takes people.
                 <br />
-                Collaborators, not passengers.
+                <span className="font-editorial font-normal italic normal-case tracking-[-0.045em]">And people make it together.</span>
               </h2>
+              <p className="mt-7 max-w-2xl text-lg leading-relaxed text-white/60">
+                We want to know what you care about making, how you work with others, and what you do when the first idea is not the right one.
+              </p>
             </Reveal>
 
             <div className="mt-20 grid border-t border-white/10 md:grid-cols-2">
@@ -227,7 +230,7 @@ export default function CareersExperience() {
                   Or invent one.
                 </h2>
                 <p className="mt-6 max-w-2xl text-lg leading-relaxed text-black/60">
-                  Our work crosses disciplines. These are useful starting points, not rigid departments.
+                  Pick the area closest to your work. These are starting points for a conversation, not a checklist you have to fit.
                 </p>
               </div>
             </Reveal>
@@ -265,7 +268,7 @@ export default function CareersExperience() {
                 The right relationship depends on the work.
               </h2>
               <p className="mt-7 max-w-xl text-lg leading-relaxed text-white/60">
-                We are open to conversations across different collaboration models depending on the role, project, timing, and location.
+                Some people join a team. Others join a project. Tell us what kind of collaboration makes sense for you; it depends on the work, timing, and location.
               </p>
               <div className="mt-10 flex flex-wrap gap-2">
                 {pathways.map((pathway) => (
@@ -282,13 +285,13 @@ export default function CareersExperience() {
                 No perfect job title required.
               </h3>
               <p className="mt-5 leading-relaxed text-white/60">
-                We may not have a fixed opening that matches you today. Introduce yourself anyway. Strong people often create the reason for the next project, partnership, or role.
+                This is an open invitation, not a list of vacant jobs. We may not have the right opportunity today, but we would still like to see what you make. If your work fits a current or upcoming need, we will get in touch.
               </p>
               <Link
                 href="/careers/apply"
                 className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-bold uppercase tracking-[0.08em] text-black transition-transform active:scale-[0.98]"
               >
-                Join the talent network <ArrowUpRight className="h-4 w-4" aria-hidden />
+                Introduce yourself <ArrowUpRight className="h-4 w-4" aria-hidden />
               </Link>
             </Reveal>
           </div>
@@ -301,11 +304,11 @@ export default function CareersExperience() {
               <div className="space-y-0 border-t border-white/10">
                 {[
                   "A point of view, backed by craft.",
-                  "Work that shipped — not just concepts.",
+                  "A project you can talk us through, finished or still evolving.",
                   "Clear communication and low ego.",
-                  "Taste with technical or commercial awareness.",
+                  "Care for how the work looks, works, and reaches people.",
                   "People who learn fast without pretending to know everything.",
-                  "A desire to make the result better, not merely finish the task.",
+                  "The instinct to make something better, not just get it done.",
                 ].map((line, index) => (
                   <div key={line} className="grid grid-cols-[42px_1fr] gap-4 border-b border-white/10 py-6 sm:grid-cols-[64px_1fr]">
                     <span className="text-xs text-white/25">0{index + 1}</span>
@@ -324,17 +327,17 @@ export default function CareersExperience() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/60">Your move</p>
             <div className="mt-5 grid items-end gap-10 lg:grid-cols-[1.3fr_.7fr]">
               <h2 className="max-w-5xl font-clash text-[clamp(3.2rem,8vw,8rem)] font-semibold uppercase leading-[0.86] tracking-[-0.055em]">
-                Bring us the thing you do exceptionally well.
+                Show us what you love to make.
               </h2>
               <div className="lg:pb-3">
                 <p className="max-w-md text-lg leading-relaxed text-white/75">
-                  Show the work. Tell us how you think. Tell us what you want to help build.
+                  Share a piece of work you are proud of. Tell us what you did, what you learned, and what you would like to make next.
                 </p>
                 <Link
                   href="/careers/apply"
                   className="mt-8 inline-flex min-h-14 items-center gap-3 rounded-full bg-white px-7 text-sm font-bold uppercase tracking-[0.1em] text-black transition-transform active:scale-[0.98]"
                 >
-                  Start application <ArrowUpRight className="h-4 w-4" aria-hidden />
+                  Introduce yourself <ArrowUpRight className="h-4 w-4" aria-hidden />
                 </Link>
               </div>
             </div>

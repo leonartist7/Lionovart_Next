@@ -35,23 +35,24 @@ export default function TalentApplicationPage() {
           <div className="lg:sticky lg:top-10 lg:self-start">
             <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-brand-red">Talent application</p>
             <h1 className="mt-5 font-clash text-[clamp(3.4rem,7vw,6.6rem)] font-semibold uppercase leading-[0.86] tracking-[-0.055em]">
-              Show us
+              Tell us
               <br />
-              how you
+              what you
               <br />
-              think.
+              make.
             </h1>
             <p className="mt-7 max-w-md text-lg leading-relaxed text-black/55">
-              This is not a cover-letter contest. Give us the clearest view of your craft, your judgment, and the kind of work you want to make next.
+              Start with a piece of work you care about. Tell us what you brought to it and what you would like to do next. A polished cover letter is not required.
             </p>
 
             <div className="mt-10 border-t border-black/10 pt-6">
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-black/45">Before you start</p>
               <ul className="mt-4 space-y-3 text-sm leading-relaxed text-black/55">
-                <li>Lead with your strongest work, not everything you have ever made.</li>
+                <li>Choose work that shows how you think, not everything you have ever made.</li>
                 <li>Be precise about what you personally contributed.</li>
                 <li>Different backgrounds and non-linear careers are welcome.</li>
                 <li>You do not need to match a conventional job title.</li>
+                <li>We will contact you if your work fits a current or upcoming need.</li>
               </ul>
             </div>
           </div>
