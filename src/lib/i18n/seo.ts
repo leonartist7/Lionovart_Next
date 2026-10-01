@@ -39,8 +39,10 @@ export function getLocalizedPageMetadata(locale: Locale, pathname: string): Meta
   const urlPath = localizedPath(locale, path);
   // The parent layout applies the site title template. Keeping this as the
   // page label avoids a duplicated “| LIONOVART” in the browser title.
-  const title = PAGE_LABELS[locale][path] ?? SITE.name;
-  const socialTitle = `${title} | ${SITE.name}`;
+  const pageTitle = PAGE_LABELS[locale][path] ?? SITE.name;
+  const isEnglishHome = locale === "en" && path === "/";
+  const title = isEnglishHome ? { absolute: SITE.title } : pageTitle;
+  const socialTitle = isEnglishHome ? SITE.title : `${pageTitle} | ${SITE.name}`;
   const languages = Object.fromEntries(LOCALES.map((code) => [code, localizedPath(code, path)]));
 
   return {
