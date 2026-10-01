@@ -1,5 +1,16 @@
 # LIONOVART — SEO & AEO Master Plan
 
+> **Current positioning — approved October 1, 2026:** LIONOVART serves businesses
+> across Europe and North America. The main domain, search titles, descriptions,
+> social previews, service keywords, and localized SEO must remain city-neutral.
+> The previous Calgary-first strategy below is historical and is superseded
+> wherever it conflicts with this direction. Do not restore a city address or
+> city-centroid coordinates to the site-wide schema. Use the Organization and
+> Service entities with the shared service regions in `src/lib/seo/config.ts`.
+> Existing city campaign URLs and factual client locations are separate from
+> the agency's general positioning.
+
+
 > **What this is:** the full search strategy for lionovart.com — classic SEO
 > (Google rankings) **and** AEO (Answer Engine Optimization: getting cited by
 > ChatGPT, Gemini, Perplexity, and Google AI Overviews). Grounded in the actual

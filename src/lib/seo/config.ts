@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════
    LIONOVART — SEO / AEO single source of truth
    ───────────────────────────────────────────────────────────────────
-   All canonical business facts (NAP, services, locales, socials) live
+   All canonical business facts (service areas, services, locales, socials) live
    here so metadata, structured data (JSON-LD), the sitemap, robots and
    the manifest never drift apart. Update facts in ONE place.
 
@@ -17,9 +17,10 @@ export const SITE = {
   name: "LIONOVART",
   legalName: "LIONOVART",
   tagline: "We build brands that roar.",
-  /** Short, factual default description. Refine during copy pass. */
+  title: "LIONOVART — Creative Agency | Brand, Web & AI Systems",
+  /** Shared default for search snippets, social previews, and organization data. */
   description:
-    "LIONOVART is a Calgary-based creative agency building premium brands, websites, video, and AI-powered systems for ambitious founders — brand identity, web design, content, and growth marketing under one roof.",
+    "Brand identity, websites, apps, films, content and AI systems for ambitious businesses. LIONOVART brings strategy and creative work together.",
   url: SITE_URL,
   email: "connect@lionovart.com",
   phone: "+1-587-897-4772",
@@ -36,19 +37,22 @@ export const SITE = {
 export const LOGO_PATH = "/images/LOGO.svg";
 export const OG_IMAGE = "/images/LION-CIRCLE.avif";
 
-/** Name/Address/Phone for LocalBusiness schema + GBP consistency.
- *  Street is intentionally omitted until the Google Business Profile is
- *  set up (see master plan, Phase 1). Locality-level data is valid. */
-export const NAP = {
-  locality: "Calgary",
-  region: "AB",
-  regionName: "Alberta",
-  country: "CA",
-  countryName: "Canada",
-  // Calgary city centroid — replace with verified address geo once GBP is live.
-  latitude: 51.0447,
-  longitude: -114.0719,
-} as const;
+/** Current service regions; these describe client coverage, not an office address. */
+export const SERVICE_AREAS = [
+  { "@type": "Continent", name: "Europe" },
+  { "@type": "Continent", name: "North America" },
+] as const;
+
+export const SITE_KEYWORDS = [
+  "creative agency",
+  "brand identity",
+  "web design",
+  "app development",
+  "logo design",
+  "video production",
+  "social media management",
+  "AI automation agency",
+] as const;
 
 /** Languages the team delivers in (claim from brief). knowsLanguage in schema. */
 export const KNOWS_LANGUAGES = [
@@ -72,7 +76,7 @@ export type ServiceDef = {
   slug: string;          // url path under /services
   name: string;          // schema serviceType / page name
   short: string;         // factual one-liner (refine in copy pass)
-  keywords: string[];    // primary intent keywords (Calgary-weighted)
+  keywords: string[];    // service intent keywords
 };
 
 export const SERVICES: ServiceDef[] = [
@@ -82,10 +86,10 @@ export const SERVICES: ServiceDef[] = [
     short:
       "Logo systems, visual identity, typography, brand voice, and guidelines for businesses that want to look like the obvious premium choice.",
     keywords: [
-      "brand identity Calgary",
-      "logo design Calgary",
-      "brand designer Calgary",
-      "rebranding agency Alberta",
+      "brand identity",
+      "logo design",
+      "brand designer",
+      "rebranding agency",
     ],
   },
   {
@@ -94,10 +98,10 @@ export const SERVICES: ServiceDef[] = [
     short:
       "Custom websites, web apps, UI/UX, e-commerce, and CMS builds engineered for performance, conversion, and search visibility.",
     keywords: [
-      "web design Calgary",
-      "website developer Calgary",
-      "small business website Calgary",
-      "ecommerce website Alberta",
+      "web design",
+      "website developer",
+      "small business website",
+      "ecommerce website",
     ],
   },
   {
@@ -106,10 +110,10 @@ export const SERVICES: ServiceDef[] = [
     short:
       "Brand films, social reels, motion design, and full content management — strategy, copy, and a monthly content calendar.",
     keywords: [
-      "video production Calgary",
-      "social media management Calgary",
-      "content creation agency Calgary",
-      "reels editor Alberta",
+      "video production",
+      "social media management",
+      "content creation agency",
+      "reels editor",
     ],
   },
 ];

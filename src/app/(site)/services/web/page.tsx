@@ -13,7 +13,7 @@ import { serviceSchema, breadcrumbSchema } from "@/lib/seo/schema";
 export const metadata: Metadata = {
   title: "Web Design & App Development",
   description:
-    "Fast, conversion-focused websites and apps with UI/UX, CMS, e-commerce, and SEO. Custom web design for Calgary businesses that turns visitors into booked calls.",
+    "Custom websites and apps built for speed, usability and conversion. Web design, UI/UX, e-commerce, CMS and SEO aligned with your business goals.",
   alternates: { canonical: "/services/web" },
 };
 

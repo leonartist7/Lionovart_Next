@@ -8,7 +8,7 @@
 import {
   SITE,
   SITE_URL,
-  NAP,
+  SERVICE_AREAS,
   KNOWS_LANGUAGES,
   SOCIAL_PROFILES,
   SERVICES,
@@ -21,7 +21,6 @@ import { locales, type Locale } from "@/lib/i18n";
 // Stable @id anchors so nodes can reference each other across the graph.
 const ORG_ID = `${SITE_URL}/#organization`;
 const WEBSITE_ID = `${SITE_URL}/#website`;
-const LOCALBIZ_ID = `${SITE_URL}/#localbusiness`;
 
 export function organizationSchema() {
   return {
@@ -46,50 +45,10 @@ export function organizationSchema() {
       telephone: SITE.phone,
       email: SITE.email,
       contactType: "sales",
-      areaServed: ["CA", "GB", "EU"],
+      areaServed: SERVICE_AREAS.map((area) => ({ ...area })),
       availableLanguage: [...KNOWS_LANGUAGES],
     },
-    areaServed: [
-      { "@type": "City", name: "Calgary" },
-      { "@type": "AdministrativeArea", name: "Alberta" },
-      { "@type": "Country", name: "Canada" },
-      { "@type": "Place", name: "United Kingdom" },
-      { "@type": "Place", name: "Europe" },
-    ],
-    ...(SOCIAL_PROFILES.length ? { sameAs: SOCIAL_PROFILES } : {}),
-  };
-}
-
-/** ProfessionalService = the local-SEO + "agency near me" entity. */
-export function localBusinessSchema() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "ProfessionalService",
-    "@id": LOCALBIZ_ID,
-    name: SITE.name,
-    url: SITE_URL,
-    image: abs(OG_IMAGE),
-    telephone: SITE.phone,
-    email: SITE.email,
-    priceRange: "$$",
-    parentOrganization: { "@id": ORG_ID },
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: NAP.locality,
-      addressRegion: NAP.region,
-      addressCountry: NAP.country,
-    },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: NAP.latitude,
-      longitude: NAP.longitude,
-    },
-    areaServed: [
-      { "@type": "City", name: "Calgary" },
-      { "@type": "AdministrativeArea", name: "Alberta" },
-    ],
-    knowsLanguage: [...KNOWS_LANGUAGES],
-    ...(SOCIAL_PROFILES.length ? { sameAs: SOCIAL_PROFILES } : {}),
+    areaServed: SERVICE_AREAS.map((area) => ({ ...area })),
     hasOfferCatalog: {
       "@type": "OfferCatalog",
       name: "Creative & Digital Services",
@@ -102,6 +61,7 @@ export function localBusinessSchema() {
         },
       })),
     },
+    ...(SOCIAL_PROFILES.length ? { sameAs: SOCIAL_PROFILES } : {}),
   };
 }
 
@@ -130,11 +90,7 @@ export function serviceSchema(slug: string) {
     serviceType: s.name,
     url: abs(`/services/${s.slug}`),
     provider: { "@id": ORG_ID },
-    areaServed: [
-      { "@type": "City", name: "Calgary" },
-      { "@type": "AdministrativeArea", name: "Alberta" },
-      { "@type": "Country", name: "Canada" },
-    ],
+    areaServed: SERVICE_AREAS.map((area) => ({ ...area })),
   };
 }
 

@@ -17,32 +17,22 @@ import BottomBlur from "@/components/ui/BottomBlur";
 import { IntroProvider } from "@/components/ui/IntroLifecycle";
 import SplashScreen from "@/components/ui/SplashScreen";
 import SiteTitleReveal from "@/components/ui/SiteTitleReveal";
-import { SITE, SITE_URL, OG_IMAGE } from "@/lib/seo/config";
+import { SITE, SITE_URL, OG_IMAGE, SITE_KEYWORDS } from "@/lib/seo/config";
 import { JsonLd } from "@/lib/seo/JsonLd";
 import { isLocale, localeDetails } from "@/i18n/routing";
 import {
   organizationSchema,
-  localBusinessSchema,
   websiteSchema,
 } from "@/lib/seo/schema";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    // v1 SEO default — refine wording during the copywriting pass.
-    default: "LIONOVART — Calgary Creative Agency | Brand, Web & AI Systems",
+    default: SITE.title,
     template: "%s | LIONOVART",
   },
   description: SITE.description,
-  keywords: [
-    "creative agency Calgary",
-    "brand identity Calgary",
-    "web design Calgary",
-    "logo design Calgary",
-    "video production Calgary",
-    "social media management Calgary",
-    "AI automation agency",
-  ],
+  keywords: [...SITE_KEYWORDS],
   alternates: {
     canonical: "/",
   },
@@ -50,7 +40,7 @@ export const metadata: Metadata = {
     icon: "/images/favicon.svg",
   },
   openGraph: {
-    title: "LIONOVART — Creative & Digital Agency in Calgary",
+    title: SITE.title,
     description: SITE.description,
     url: SITE_URL,
     siteName: SITE.name,
@@ -60,7 +50,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "LIONOVART — Creative & Digital Agency in Calgary",
+    title: SITE.title,
     description: SITE.description,
     images: [OG_IMAGE],
   },
@@ -90,9 +80,9 @@ export default async function RootLayout({
   return (
     <html lang={localeDetails[locale].htmlLang} className={`${clashDisplay.variable} ${dmSans.variable} ${playfairDisplay.variable} h-full antialiased`} style={{ backgroundColor: "#000" }} suppressHydrationWarning>
       <body className="min-h-full flex flex-col" style={{ backgroundColor: "#000" }}>
-        {/* Site-wide entity graph — Organization, ProfessionalService, WebSite.
+        {/* Site-wide entity graph — Organization and WebSite.
             Powers Google rich results + AEO citations (ChatGPT/Gemini/Perplexity). */}
-        <JsonLd data={[organizationSchema(), localBusinessSchema(), websiteSchema(locale)]} />
+        <JsonLd data={[organizationSchema(), websiteSchema(locale)]} />
         <PostHogInit />
         <NextIntlClientProvider locale={locale} messages={messages}>
         <LanguageProvider>

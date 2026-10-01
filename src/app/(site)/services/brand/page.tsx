@@ -8,7 +8,7 @@ import { serviceSchema, breadcrumbSchema } from "@/lib/seo/schema";
 export const metadata: Metadata = {
   title: "Brand Identity & Logo Design",
   description:
-    "Identity, voice, and motion — crafted into one presence people remember. Brand identity, logo systems, and guidelines for Calgary businesses ready to look premium.",
+    "Brand strategy, visual identity, logo systems, voice and guidelines. Build a coherent presence that people recognize, remember and trust.",
   alternates: { canonical: "/services/brand" },
 };
 

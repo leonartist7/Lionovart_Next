@@ -14,7 +14,7 @@ import { serviceSchema, breadcrumbSchema } from "@/lib/seo/schema";
 export const metadata: Metadata = {
   title: "Video Production & Social Media Content",
   description:
-    "Brand films, social reels, motion design, and full social media management in Calgary. One studio that makes your brand impossible to ignore.",
+    "Brand films, social reels, motion design and social media management. Creative content that gives your brand a recognizable voice and visual presence.",
   alternates: { canonical: "/services/content-studio" },
 };
 
