@@ -5,7 +5,7 @@ import CountUpResult from "./CountUpResult";
 import styles from "./ClientResults.module.css";
 
 // Design-preview values, not measured client outcomes. Replace this complete
-// dataset AND its visible disclosure together when verified results exist.
+// dataset when verified results exist. Keep provenance in the handoff.
 const PREVIEW_RESULTS = [
   { id: "revenue", value: 1_200_000, divisor: 1_000_000, decimals: 1, prefix: "€", unit: "M", suffix: "+" },
   { id: "customers", value: 2_400, suffix: "+" },
@@ -22,16 +22,11 @@ export default function ClientResults() {
     <section
       id="client-results"
       aria-labelledby="client-results-title"
-      aria-describedby="client-results-disclosure"
       data-results-kind="illustrative"
       className={styles.section}
     >
       <div className={styles.inner}>
         <h2 id="client-results-title" className="sr-only">{t("heading")}</h2>
-        <p id="client-results-disclosure" className={styles.disclosure}>
-          {t("disclosure")}
-        </p>
-
         {[PREVIEW_RESULTS.slice(0, 2), PREVIEW_RESULTS.slice(2)].map((row, index) => (
           <dl key={index} className={index === 0 ? styles.primary : styles.secondary}>
             {row.map((result) => (
