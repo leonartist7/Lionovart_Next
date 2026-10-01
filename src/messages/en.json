@@ -694,5 +694,28 @@
     "identityDigital": "Brand identity · Digital design",
     "identityIllustration": "Brand identity · Illustration",
     "identityCampaign": "Brand identity · Campaign"
+  },
+  "results": {
+    "eyebrow": "Results preview",
+    "heading": "More to show for it.",
+    "subtitle": "More revenue. More customers. More time for what matters.",
+    "disclosure": "Illustrative figures for this design preview. These are not verified client results.",
+    "revenue": {
+      "label": "Client revenue",
+      "caption": "An example of commercial impact"
+    },
+    "customers": {
+      "label": "New customers"
+    },
+    "hours": {
+      "label": "Hours given back"
+    },
+    "conversion": {
+      "label": "Higher conversion"
+    },
+    "returning": {
+      "label": "More returning customers"
+    },
+    "footnote": "Actual results will identify the client, measurement period and source."
   }
 }
