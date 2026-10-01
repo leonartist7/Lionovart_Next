@@ -1,6 +1,6 @@
 # LIONOVART
 
-> LIONOVART is a Calgary, Alberta–based multidisciplinary creative and digital
+> LIONOVART is a multidisciplinary creative and digital
 > agency for ambitious founders. One studio delivers brand identity, web & app
 > design and development, video & social content, print, AI systems, and growth
 > marketing — every discipline in-house, founder-direct. Tagline: "We build
@@ -11,7 +11,7 @@
 - Website: https://lionovart.com
 - Email: connect@lionovart.com
 - Phone / WhatsApp: +1-587-897-4772
-- Location: Calgary, Alberta, Canada (serving Calgary, Canada, the UK, and Europe)
+- Service area: Europe and North America
 
 ## Services
 - Brand Identity & Strategy — https://lionovart.com/services/brand
@@ -20,7 +20,7 @@
   Custom websites, web apps, UI/UX, e-commerce, CMS, SEO, voice/automation agents.
 - Content Studio (Video & Social) — https://lionovart.com/services/content-studio
   Brand films, social reels, motion design, full social media content & strategy.
-- Print & Physical Branding — cards, packaging, signage, apparel, event branding (Calgary).
+- Print & Physical Branding — cards, packaging, signage, apparel, event branding.
 - Smart Systems & AI — voice agents, automations, chatbots, CRM/email workflows.
 - Growth Marketing — SEO/AEO, Google Business Profile optimization, local search, analytics.
 

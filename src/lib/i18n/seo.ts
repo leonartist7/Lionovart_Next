@@ -3,12 +3,12 @@ import { OG_IMAGE, SITE, SITE_URL } from "@/lib/seo/config";
 import { LOCALES, type Locale } from "@/i18n/routing";
 
 const DESCRIPTION: Record<Locale, string> = {
-  en: "LIONOVART is a Calgary creative agency for ambitious founders: brand identity, websites, video, content and AI-powered systems.",
-  fr: "LIONOVART est une agence créative de Calgary pour les fondateurs ambitieux : identité de marque, sites web, vidéo, contenu et systèmes propulsés par l’IA.",
-  es: "LIONOVART es una agencia creativa de Calgary para fundadores ambiciosos: identidad de marca, sitios web, vídeo, contenido y sistemas con IA.",
-  it: "LIONOVART è un’agenzia creativa di Calgary per fondatori ambiziosi: identità di marca, siti web, video, contenuti e sistemi basati sull’IA.",
-  ja: "LIONOVARTは、意欲ある創業者のためのカルガリーのクリエイティブエージェンシーです。ブランド、Webサイト、映像、コンテンツ、AIシステムを提供します。",
-  ko: "LIONOVART는 야심 찬 창업자를 위한 캘거리의 크리에이티브 에이전시입니다. 브랜드, 웹사이트, 영상, 콘텐츠 및 AI 시스템을 만듭니다.",
+  en: SITE.description,
+  fr: "LIONOVART est une agence créative pour les fondateurs ambitieux : identité de marque, sites web, vidéo, contenu et systèmes propulsés par l’IA.",
+  es: "LIONOVART es una agencia creativa para fundadores ambiciosos: identidad de marca, sitios web, vídeo, contenido y sistemas con IA.",
+  it: "LIONOVART è un’agenzia creativa per fondatori ambiziosi: identità di marca, siti web, video, contenuti e sistemi basati sull’IA.",
+  ja: "LIONOVARTは、意欲ある創業者のためのクリエイティブエージェンシーです。ブランド、Webサイト、映像、コンテンツ、AIシステムを提供します。",
+  ko: "LIONOVART는 야심 찬 창업자를 위한 크리에이티브 에이전시입니다. 브랜드, 웹사이트, 영상, 콘텐츠 및 AI 시스템을 만듭니다.",
 };
 
 const PAGE_LABELS: Record<Locale, Record<string, string>> = {
