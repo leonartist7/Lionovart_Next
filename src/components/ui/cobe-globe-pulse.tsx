@@ -165,7 +165,7 @@ export function GlobePulse({
           mapSamples,
           mapBrightness: 10,
           baseColor: [0.5, 0.5, 0.5],
-          markerColor: [0.9, 0.1, 0.12],
+          markerColor: [1, 0.67, 0.17],
           glowColor: [0.05, 0.05, 0.05],
           markerElevation: 0,
           markers: markers.map((marker) => ({
@@ -176,7 +176,7 @@ export function GlobePulse({
             ...(isMobile ? {} : { id: marker.id }),
           })),
           arcs: [],
-          arcColor: [0.9, 0.1, 0.12],
+          arcColor: [1, 0.67, 0.17],
           arcWidth: 0.5,
           arcHeight: 0.25,
           opacity: 0.7,
@@ -327,7 +327,7 @@ export function GlobePulse({
             style={{
               position: "absolute",
               inset: 0,
-              border: "1px solid #E5232A",
+              border: "1px solid #FFD166",
               borderRadius: "50%",
               opacity: 0,
               animation: `globe-pulse-expand 2s ease-out infinite ${marker.delay}s`,
@@ -338,7 +338,7 @@ export function GlobePulse({
             style={{
               position: "absolute",
               inset: 0,
-              border: "1px solid #E5232A",
+              border: "1px solid #FFD166",
               borderRadius: "50%",
               opacity: 0,
               animation: `globe-pulse-expand 2s ease-out infinite ${marker.delay + 0.5}s`,
@@ -348,9 +348,9 @@ export function GlobePulse({
             style={{
               width: 7,
               height: 7,
-              background: "#E5232A",
+              background: "#FFAA2B",
               borderRadius: "50%",
-              boxShadow: "0 0 0 2px #111, 0 0 0 3px #E5232A",
+              boxShadow: "0 0 0 2px #111, 0 0 0 3px #FFAA2B, 0 0 12px rgba(255, 170, 43, 0.45)",
             }}
           />
         </div>
