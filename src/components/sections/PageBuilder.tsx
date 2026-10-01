@@ -10,7 +10,6 @@ import SelectedWork from "@/components/sections/SelectedWork";
 import Comparison from "@/components/sections/Comparison";
 import ProcessExperience from "@/components/sections/ProcessExperience";
 import Testimonials from "@/components/sections/Testimonials";
-import ClientResults from "@/components/sections/ClientResults";
 import FAQ from "@/components/sections/FAQ";
 import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
 import ExitIntentModal from "@/components/ui/ExitIntentModal";
@@ -53,7 +52,7 @@ export function PageBuilder() {
 
         {/* Narrative order: About -> Why Us -> Brands Elevated/results -> Process. */}
         <div id="client-experience">
-          <NovaSection id="testimonials"><Testimonials /><ClientResults /></NovaSection>
+          <NovaSection id="testimonials"><Testimonials /></NovaSection>
         </div>
         <NovaSection id="process"><ProcessExperience /></NovaSection>
 

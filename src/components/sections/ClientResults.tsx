@@ -27,38 +27,23 @@ export default function ClientResults() {
       className={styles.section}
     >
       <div className={styles.inner}>
-        <header className={styles.header}>
-          <p className={styles.eyebrow}>{t("eyebrow")}</p>
-          <h2 id="client-results-title" className={styles.heading}>
-            {t("heading")}
-          </h2>
-          <p className={styles.subtitle}>{t("subtitle")}</p>
-          <p id="client-results-disclosure" className={styles.disclosure}>
-            {t("disclosure")}
-          </p>
-        </header>
+        <h2 id="client-results-title" className="sr-only">{t("heading")}</h2>
+        <p id="client-results-disclosure" className={styles.disclosure}>
+          {t("disclosure")}
+        </p>
 
-        <dl className={styles.metrics}>
-          {PREVIEW_RESULTS.map((result) => (
-            <div
-              key={result.id}
-              data-result={result.id}
-              className={result.id === "revenue" ? styles.featured : styles.metric}
-            >
-              <dt className={styles.label}>
-                {t(`${result.id}.label`)}
-                {result.id === "revenue" && (
-                  <span className={styles.featuredCaption}>{t("revenue.caption")}</span>
-                )}
-              </dt>
-              <dd className={styles.value}>
-                <CountUpResult {...result} locale={locale} />
-              </dd>
-            </div>
-          ))}
-        </dl>
-
-        <p className={styles.footnote}>{t("footnote")}</p>
+        {[PREVIEW_RESULTS.slice(0, 2), PREVIEW_RESULTS.slice(2)].map((row, index) => (
+          <dl key={index} className={index === 0 ? styles.primary : styles.secondary}>
+            {row.map((result) => (
+              <div key={result.id} data-result={result.id} className={styles.metric}>
+                <dt className={styles.label}>{t(`${result.id}.label`)}</dt>
+                <dd className={styles.value}>
+                  <CountUpResult {...result} locale={locale} />
+                </dd>
+              </div>
+            ))}
+          </dl>
+        ))}
       </div>
     </section>
   );
