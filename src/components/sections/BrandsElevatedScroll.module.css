@@ -13,3 +13,18 @@
    scale so the image rows read as an intentional editorial grid. */
 .cardPlane {
 }
+
+/* The results live within the existing scene height. Their opaque surface
+   takes over the closing area as it scrolls up, above the sticky card plane. */
+.resultsInset {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 40;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resultsInset {
+    position: relative;
+  }
+}

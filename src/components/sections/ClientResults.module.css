@@ -12,15 +12,6 @@
   padding-inline: clamp(1.25rem, 5.2vw, 5rem);
 }
 
-.disclosure {
-  max-width: 72ch;
-  margin: 0 0 1.25rem;
-  font-family: var(--font-dm-sans), sans-serif;
-  font-size: 0.8rem;
-  line-height: 1.6;
-  color: rgb(247 244 239 / 65%);
-}
-
 .primary,
 .secondary {
   display: grid;
@@ -143,10 +134,6 @@
 
   .secondary .value {
     font-size: clamp(1.25rem, 6.6vw, 3.25rem);
-  }
-
-  .disclosure {
-    font-size: 0.75rem;
   }
 }
 
