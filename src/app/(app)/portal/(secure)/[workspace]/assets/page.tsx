@@ -27,7 +27,7 @@ export default async function AssetsPage({
   const access = await getWorkspaceAccessBySlug(session, slug);
   if (!access) notFound();
 
-  const assets = await listAssetsWithVersions(access.workspace.id);
+  const assets = await listAssetsWithVersions(access.workspace.id, access.membership.role);
   const items: AssetListItem[] = await Promise.all(
     assets.map(async (a) => ({
       asset: a,

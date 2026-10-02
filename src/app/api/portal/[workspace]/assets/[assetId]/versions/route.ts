@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireWorkspace } from "@/lib/portal-auth";
-import { confirmUpload, listVersions } from "@/lib/portal/assets";
+import { confirmUpload, getAsset, listVersions } from "@/lib/portal/assets";
 
 type Params = { params: Promise<{ workspace: string; assetId: string }> };
 
@@ -10,7 +10,11 @@ export async function GET(req: NextRequest, { params }: Params) {
   const access = await requireWorkspace(req, workspace);
   if (access instanceof NextResponse) return access;
 
-  const versions = await listVersions(access.workspace.id, assetId);
+  // A version record carries its Storage path — a hidden file has no history to show.
+  if (!(await getAsset(access.workspace.id, assetId, access.membership.role))) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  const versions = await listVersions(access.workspace.id, assetId, access.membership.role);
   return NextResponse.json({ versions });
 }
 
@@ -59,6 +63,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     uploadedBy: access.session.uid,
     note: body.note,
     projectId: body.projectId,
+    viewerRole: access.membership.role,
   });
 
   if ("error" in result) {

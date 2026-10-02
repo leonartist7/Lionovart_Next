@@ -10,10 +10,12 @@ export async function GET(req: NextRequest, { params }: Params) {
   const access = await requireWorkspace(req, workspace);
   if (access instanceof NextResponse) return access;
 
-  const asset = await getAsset(access.workspace.id, assetId);
+  // Null for a file in an internal project — 404, never 403, so a client
+  // learns nothing about whether it exists.
+  const asset = await getAsset(access.workspace.id, assetId, access.membership.role);
   if (!asset) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const versions = await listVersions(access.workspace.id, assetId);
+  const versions = await listVersions(access.workspace.id, assetId, access.membership.role);
   return NextResponse.json({ asset, versions });
 }
 
@@ -23,7 +25,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
   const access = await requireWorkspace(req, workspace, "agency");
   if (access instanceof NextResponse) return access;
 
-  const asset = await getAsset(access.workspace.id, assetId);
+  const asset = await getAsset(access.workspace.id, assetId, access.membership.role);
   if (!asset) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   await deleteAsset(access.workspace.id, assetId);

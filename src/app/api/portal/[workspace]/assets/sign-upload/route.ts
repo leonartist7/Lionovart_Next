@@ -26,12 +26,16 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "name, mime and sizeBytes are required." }, { status: 400 });
   }
 
-  const result = await signUpload(access.workspace.id, {
-    assetId: body.assetId,
-    name,
-    mime: body.mime,
-    sizeBytes: body.sizeBytes,
-  });
+  const result = await signUpload(
+    access.workspace.id,
+    {
+      assetId: body.assetId,
+      name,
+      mime: body.mime,
+      sizeBytes: body.sizeBytes,
+    },
+    access.membership.role,
+  );
 
   if ("error" in result) {
     return NextResponse.json({ error: result.error }, { status: 400 });

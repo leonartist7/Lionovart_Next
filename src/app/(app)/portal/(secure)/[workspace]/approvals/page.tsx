@@ -41,7 +41,7 @@ export default async function ApprovalsPage({
   if (canRequest) {
     const [projects, assets] = await Promise.all([
       listProjects(access.workspace.id, access.membership.role),
-      listAssets(access.workspace.id),
+      listAssets(access.workspace.id, access.membership.role),
     ]);
     requestSlot = (
       <RequestApprovalDialog

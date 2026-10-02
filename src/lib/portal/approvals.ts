@@ -76,7 +76,7 @@ export async function listPendingApprovals(
 
   const [projects, assets] = await Promise.all([
     listProjects(workspaceId, viewerRole),
-    listAssets(workspaceId),
+    listAssets(workspaceId, viewerRole),
   ]);
 
   const milestoneById = new Map(
@@ -100,13 +100,16 @@ export async function listPendingApprovals(
       });
     } else if (a.targetType === "asset") {
       const asset = assetById.get(a.targetId);
+      // Hidden (internal project) or deleted — drop, don't leak a row labelled
+      // with the file's name or a blank "File". Same rule as milestones above.
+      if (!asset) continue;
       withContext.push({
         id: a.id,
         targetType: a.targetType,
         targetId: a.targetId,
         versionId: a.versionId,
         requestedAt: a.requestedAt,
-        targetLabel: asset?.name ?? "File",
+        targetLabel: asset.name,
         contextLabel: a.versionId ? `Version ${a.versionId}` : undefined,
       });
     } else {

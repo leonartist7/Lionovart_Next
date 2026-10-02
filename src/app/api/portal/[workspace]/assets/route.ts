@@ -10,6 +10,6 @@ export async function GET(req: NextRequest, { params }: Params) {
   const access = await requireWorkspace(req, workspace);
   if (access instanceof NextResponse) return access;
 
-  const assets = await listAssets(access.workspace.id);
+  const assets = await listAssets(access.workspace.id, access.membership.role);
   return NextResponse.json({ assets });
 }

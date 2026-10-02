@@ -96,6 +96,29 @@ export async function listProjects(
   );
 }
 
+/**
+ * The ids of the projects this viewer may see — one query, no milestone reads.
+ *
+ * This is how a record that belongs to a project (a file, a thread) inherits
+ * its project's `internal` visibility without re-deciding it. `null` means
+ * "all of them" (agency), so callers can skip the filter entirely rather than
+ * build a set they'd ignore.
+ */
+export async function visibleProjectIds(
+  workspaceId: string,
+  viewerRole: PortalRole,
+): Promise<Set<string> | null> {
+  if (roleAtLeast(viewerRole, "agency")) return null;
+  if (!adminDb) return new Set();
+
+  const snap = await projectsRef(workspaceId).get();
+  return new Set(
+    snap.docs
+      .filter((d) => (d.data() as { visibility?: string }).visibility !== "internal")
+      .map((d) => d.id),
+  );
+}
+
 export async function getProject(
   workspaceId: string,
   projectId: string,

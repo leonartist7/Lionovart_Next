@@ -845,6 +845,161 @@ if (run("assistant")) {
   );
 }
 
+/* ── assetgate: a file inherits its project's visibility ──────────── */
+if (run("assetgate")) {
+  console.log("\n── assetgate ──");
+  const fx = await setupWorkspace("Verify Asset Gate");
+  const ws = `${BASE}/api/portal/${fx.slug}`;
+  const projects = `${ws}/projects`;
+
+  const mkProject = async (name, visibility) =>
+    (
+      await (
+        await fetch(projects, {
+          method: "POST",
+          headers: J(fx.agencyCookie),
+          body: JSON.stringify({ name, kind: "brand", visibility }),
+        })
+      ).json()
+    ).project;
+
+  /** Signs + confirms a v1 upload; returns the confirm response so rejections are observable. */
+  const upload = async (cookie, name, projectId) => {
+    const signed = await (
+      await fetch(`${ws}/assets/sign-upload`, {
+        method: "POST",
+        headers: J(cookie),
+        body: JSON.stringify({ name, mime: "image/png", sizeBytes: 30_000 }),
+      })
+    ).json();
+    const res = await fetch(`${ws}/assets/${signed.assetId}/versions`, {
+      method: "POST",
+      headers: J(cookie),
+      body: JSON.stringify({
+        version: signed.version,
+        storagePath: signed.storagePath,
+        name,
+        mime: "image/png",
+        sizeBytes: 30_000,
+        ...(projectId ? { projectId } : {}),
+      }),
+    });
+    return { id: signed.assetId, status: res.status, signed };
+  };
+
+  const internalProject = await mkProject("INTERNAL Margin Review", "internal");
+  const clientProject = await mkProject("Brand Identity", "client");
+
+  const secret = await upload(fx.agencyCookie, "INTERNAL-margins.png", internalProject.id);
+  const shared = await upload(fx.agencyCookie, "shared-concept.png", clientProject.id);
+  const loose = await upload(fx.clientCookie, "client-reference.png"); // no project
+
+  /* list */
+  const agencyList = (await (await fetch(`${ws}/assets`, { headers: J(fx.agencyCookie) })).json()).assets;
+  const clientList = (await (await fetch(`${ws}/assets`, { headers: J(fx.clientCookie) })).json()).assets;
+  check("agency sees every file", [secret, shared, loose].every((a) => agencyList.some((x) => x.id === a.id)));
+  check(
+    "internal project's file absent from the client's list API",
+    !clientList.some((a) => a.id === secret.id),
+    `client sees ${clientList.length} of ${agencyList.length}`,
+  );
+  check(
+    "a client still sees client-project and project-less files",
+    clientList.some((a) => a.id === shared.id) && clientList.some((a) => a.id === loose.id),
+  );
+
+  /* direct reads — 404, never 403 (a 403 confirms the file exists) */
+  const direct = await fetch(`${ws}/assets/${secret.id}`, { headers: J(fx.clientCookie) });
+  check("internal file by direct id 404s for a client", direct.status === 404, `${direct.status}`);
+  const versions = await fetch(`${ws}/assets/${secret.id}/versions`, { headers: J(fx.clientCookie) });
+  check("its version history 404s too (storage paths included)", versions.status === 404, `${versions.status}`);
+  const okDirect = await fetch(`${ws}/assets/${shared.id}`, { headers: J(fx.clientCookie) });
+  check("a visible file still opens for a client", okDirect.status === 200, `${okDirect.status}`);
+  const agencyDirect = await fetch(`${ws}/assets/${secret.id}`, { headers: J(fx.agencyCookie) });
+  check("agency can open the internal file", agencyDirect.status === 200, `${agencyDirect.status}`);
+
+  /* pages: absence from source, not hidden */
+  const clientGrid = await pageSource(`/portal/${fx.slug}/assets`, fx.clientCookie);
+  check(
+    "internal file's name ABSENT from the client's Files HTML",
+    !clientGrid.html.includes("INTERNAL-margins.png") && !clientGrid.html.includes(secret.id),
+  );
+  const agencyGrid = await pageSource(`/portal/${fx.slug}/assets`, fx.agencyCookie);
+  check("internal file's name present for agency", agencyGrid.html.includes("INTERNAL-margins.png"));
+  const clientPage = await pageSource(`/portal/${fx.slug}/assets/${secret.id}`, fx.clientCookie);
+  check("internal file's page 404s for a client", clientPage.status === 404, `${clientPage.status}`);
+
+  /* writes: a file you can't see is a file you can't touch */
+  const ghost = await fetch(`${ws}/assets/sign-upload`, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ assetId: "doesNotExist0123456789", name: "x.png", mime: "image/png", sizeBytes: 100 }),
+  });
+  const hidden = await fetch(`${ws}/assets/sign-upload`, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ assetId: secret.id, name: "x.png", mime: "image/png", sizeBytes: 100 }),
+  });
+  check(
+    "adding a version to a hidden file is indistinguishable from a missing one",
+    hidden.status === ghost.status && (await hidden.text()) === (await ghost.text()),
+    `hidden=${hidden.status} missing=${ghost.status}`,
+  );
+
+  const v2 = await fetch(`${ws}/assets/${secret.id}/versions`, {
+    method: "POST",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({
+      version: 2,
+      storagePath: "portal/x/assets/y/v2/x.png",
+      name: "x.png",
+      mime: "image/png",
+      sizeBytes: 100,
+    }),
+  });
+  const after = (await (await fetch(`${ws}/assets/${secret.id}`, { headers: J(fx.agencyCookie) })).json()).asset;
+  check(
+    "a client cannot confirm a version onto a hidden file",
+    v2.status >= 400 && after.currentVersion === 1,
+    `status=${v2.status} currentVersion=${after.currentVersion}`,
+  );
+
+  const attach = await upload(fx.clientCookie, "sneaky.png", internalProject.id);
+  check(
+    "a client cannot attach an upload to a project they can't see",
+    attach.status >= 400,
+    `${attach.status}`,
+  );
+  const bogus = await upload(fx.agencyCookie, "orphan.png", "noSuchProject0123456789");
+  check("a file can't be attached to a project that doesn't exist", bogus.status >= 400, `${bogus.status}`);
+
+  /* approvals: the queue labels each request with the file's name */
+  const req = await fetch(`${ws}/approvals`, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ targetType: "asset", targetId: secret.id, versionId: 1 }),
+  });
+  const approvalId = (await req.json()).approval?.id;
+  const clientQueue = (await (await fetch(`${ws}/approvals`, { headers: J(fx.clientCookie) })).json()).approvals;
+  check(
+    "an approval on an internal file is absent from the client's queue",
+    !clientQueue.some((a) => a.id === approvalId || a.targetLabel === "INTERNAL-margins.png"),
+    JSON.stringify(clientQueue.map((a) => a.targetLabel)),
+  );
+  const agencyQueue = (await (await fetch(`${ws}/approvals`, { headers: J(fx.agencyCookie) })).json()).approvals;
+  check("…and present for the studio", agencyQueue.some((a) => a.id === approvalId));
+
+  /* fail closed: a file whose project is gone is hidden, not exposed */
+  const doomed = await mkProject("Doomed", "client");
+  const orphan = await upload(fx.agencyCookie, "orphaned.png", doomed.id);
+  await fetch(`${projects}/${doomed.id}`, { method: "DELETE", headers: J(fx.agencyCookie) });
+  const orphanList = (await (await fetch(`${ws}/assets`, { headers: J(fx.clientCookie) })).json()).assets;
+  check(
+    "a file whose project was deleted fails closed for a client",
+    !orphanList.some((a) => a.id === orphan.id),
+  );
+}
+
 /* ── demo: the unauthenticated design preview ────────────────────── */
 if (run("demo")) {
   console.log("\n── demo (design preview) ──");

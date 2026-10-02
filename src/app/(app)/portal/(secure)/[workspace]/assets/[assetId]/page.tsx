@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const access = await getWorkspaceAccessBySlug(session, slug);
   if (!access) return { title: "File" };
 
-  const asset = await getAsset(access.workspace.id, assetId);
+  const asset = await getAsset(access.workspace.id, assetId, access.membership.role);
   return { title: asset?.name ?? "File" };
 }
 
@@ -47,10 +47,10 @@ export default async function AssetDetailPage({ params, searchParams }: Params) 
   const access = await getWorkspaceAccessBySlug(session, slug);
   if (!access) notFound();
 
-  const asset = await getAsset(access.workspace.id, assetId);
+  const asset = await getAsset(access.workspace.id, assetId, access.membership.role);
   if (!asset) notFound();
 
-  const versions = await listVersions(access.workspace.id, assetId);
+  const versions = await listVersions(access.workspace.id, assetId, access.membership.role);
   const requestedVersion = v ? Number(v) : asset.currentVersion;
   const active = versions.find((ver) => ver.n === requestedVersion) ?? versions[0];
   if (!active) notFound();

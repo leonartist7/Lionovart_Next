@@ -111,7 +111,7 @@ These are the ones where being wrong is **silent** — the app looks fine and is
 1. **Agency gating is server-side. A client's browser must never RECEIVE agency controls.**
    Not `hidden`, not `display:none` — absent from the response. Decide with `roleAtLeast(role, "agency")` in the server component (see `projects/[projectId]/page.tsx`) or `<AgencyOnly>`. `verify.mjs` asserts this against raw HTML. **If you add an agency-only control, add its label to `AGENCY_MARKERS` in `scripts/portal-verify/verify.mjs`.**
 
-2. **`internal` visibility is filtered in the data layer**, in `src/lib/portal/projects.ts` — never fetched-then-filtered in the component, and never hidden with CSS. A client hitting an internal record's URL gets a 404, not a 403 (a 403 confirms it exists).
+2. **`internal` visibility is filtered in the data layer**, in `src/lib/portal/projects.ts` — never fetched-then-filtered in the component, and never hidden with CSS. A client hitting an internal record's URL gets a 404, not a 403 (a 403 confirms it exists). **Records that belong to a project inherit this** — a file (`assets.ts`) is gated by its `projectId` via `visibleProjectIds()`, and the viewer's role is a *required* argument on every asset read and write so a caller can't forget the filter. A file whose project no longer exists fails closed.
 
 3. **Progress is derived, never stored.** `deriveProgress()` computes it from milestones on every read. Never add a writable progress field.
 
