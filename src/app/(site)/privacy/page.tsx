@@ -27,15 +27,18 @@ export default function PrivacyPage() {
                 When you use Nova, your voice is processed by Google&apos;s Gemini Live API in real time.
                 The conversation transcript and any contact details you provide (name, phone, email,
                 website) are stored securely in our database so Leonardo can follow up with you
-                personally.
+                personally. If you submit a talent application, we also collect the contact details,
+                work links, availability, and written responses you choose to provide.
               </p>
             </section>
             <section>
               <h2 className="mb-2 text-lg font-semibold text-white">How we use it</h2>
               <p>
-                Your information is used solely to facilitate the business conversation you initiated
-                and to allow Leonardo to prepare a personalised response. It is never sold, rented,
-                or shared with third parties for marketing purposes.
+                Your information is used to facilitate the business conversation you initiated and
+                to allow Leonardo to prepare a personalised response. Talent application information
+                is used to evaluate fit for current or future collaboration and to contact you about
+                relevant opportunities. It is never sold, rented, or shared with third parties for
+                marketing purposes.
               </p>
             </section>
             <section>
@@ -55,7 +58,9 @@ export default function PrivacyPage() {
               <h2 className="mb-2 text-lg font-semibold text-white">Data retention</h2>
               <p>
                 Conversation data is retained for up to 90 days to allow for follow-up, after
-                which it is deleted unless you have become an active client.
+                which it is deleted unless you have become an active client. Talent application
+                information is retained only as long as reasonably necessary to evaluate current or
+                future collaboration, and you can request deletion at any time.
               </p>
             </section>
           </div>

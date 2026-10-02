@@ -239,7 +239,8 @@ function CompactFooter({ year }: { year: number }) {
             &copy; {year} LIONOVART. {t.footer.copyright}
           </p>
 
-          <nav aria-label="Legal" className={styles.legal}>
+          <nav aria-label="Footer" className={styles.legal}>
+            <Link href="/careers">Careers</Link>
             <Link href="/privacy">{t.footer.privacy}</Link>
             <Link href="/terms">{t.footer.terms}</Link>
           </nav>
@@ -277,9 +278,15 @@ export default function Footer({ variant = "standard" }: { variant?: FooterVaria
           &copy; {year} LIONOVART. {t.footer.copyright}
         </p>
         <nav
-          aria-label="Legal"
+          aria-label="Footer"
           className="flex gap-5 text-[10px] uppercase tracking-[0.12em] sm:text-[11px]"
         >
+          <Link
+            href="/careers"
+            className="text-white/80 transition-colors duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand-red"
+          >
+            Careers
+          </Link>
           <Link
             href="/privacy"
             className="text-white/80 transition-colors duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand-red"
