@@ -1,6 +1,6 @@
 # LIONOVART — About page and homepage restructuring
 
-Prepared October 2, 2026. Status audit and executable plan. Website implementation remains pending.
+Prepared October 2, 2026. Status audit and executable plan. Phase 1 is implemented and verified on its preview branch; phases 2–5 remain pending. See `docs/about-page-progress.md` for current execution evidence.
 
 ## Verified status
 
@@ -42,7 +42,7 @@ The homepage becomes shorter where the founder and long comparison currently sit
 | Phase | Deliverable | Current status | Completion gate |
 | --- | --- | --- | --- |
 | 0 | Baseline and recovery audit | Complete for this planning turn | Source and deployment checked; refresh before coding |
-| 1 | Functional About page, designed for phones first | Pending | Direct route and reload work; complete story readable at 320–390px |
+| 1 | Functional About page, designed for phones first | Complete on preview branch | Direct route and reload work; complete story readable at 320–390px |
 | 2 | Homepage restructuring and comparison migration | Pending | Founder moved; two-provider/four-topic homepage comparison; full detail available on About |
 | 3 | Premium composition and restrained motion | Pending | Mobile, tablet and desktop layouts refined; reduced motion works |
 | 4 | Navigation, localization, SEO and NOVA integration | Pending | Routes, links, language switching, metadata and assistant actions work together |
