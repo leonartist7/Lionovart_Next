@@ -3,14 +3,14 @@ import LionJourney from "@/components/sections/lion-journey/LionJourney";
 import StrongTogetherTransition from "@/components/sections/StrongTogetherTransition";
 import BridgeStatement from "@/components/sections/BridgeStatement";
 
-import AboutExperience from "@/components/sections/AboutExperience";
+import CompactIntroduction from "@/components/sections/CompactIntroduction";
 import PawRevealStack from "@/components/sections/PawRevealStack";
 import ServicesSwitcher from "@/components/sections/ServicesSwitcher";
 import SelectedWork from "@/components/sections/SelectedWork";
-import Comparison from "@/components/sections/Comparison";
 import ProcessExperience from "@/components/sections/ProcessExperience";
 import Testimonials from "@/components/sections/Testimonials";
 import FAQ from "@/components/sections/FAQ";
+import ClosingCTA from "@/components/sections/ClosingCTA";
 import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
 import ExitIntentModal from "@/components/ui/ExitIntentModal";
 import { TrailAttractionProvider } from "@/contexts/TrailAttractionContext";
@@ -46,11 +46,9 @@ export function PageBuilder() {
         <NovaSection id="problems"><PawRevealStack /></NovaSection>
         <SelectedWork />
         <NovaSection id="services"><ServicesSwitcher /></NovaSection>
-        {/* Introduce the people behind the work before showing the comparison. */}
-        <NovaSection id="about"><AboutExperience /></NovaSection>
-        <NovaSection id="comparison"><Comparison /></NovaSection>
+        <NovaSection id="about"><CompactIntroduction /></NovaSection>
 
-        {/* Narrative order: About -> Why Us -> Brands Elevated/results -> Process. */}
+        {/* Compact introduction/comparison -> Brands Elevated/results -> Process. */}
         <div id="client-experience">
           <NovaSection id="testimonials"><Testimonials /></NovaSection>
         </div>
@@ -63,6 +61,7 @@ export function PageBuilder() {
           fontSize="clamp(3.75rem, 8.5vw, 7.5rem)"
         />
         <NovaSection id="faq"><FAQ /></NovaSection>
+        <NovaSection id="closing-cta"><ClosingCTA workShowcase /></NovaSection>
       </div>
     </TrailAttractionProvider>
   );

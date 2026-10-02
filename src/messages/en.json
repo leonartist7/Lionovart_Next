@@ -717,5 +717,41 @@
       "label": "More returning customers"
     },
     "footnote": "Actual results will identify the client, measurement period and source."
+  },
+  "compactComparison": {
+    "heading": "Innovation is not a choice.",
+    "headingAccent": "It’s a necessity.",
+    "description": "Brand strategy, design and technology, connected to strengthen your business across digital platforms, content and real-world experiences.",
+    "stats": [
+      "Years combined experience",
+      "Industries served",
+      "On-time delivery"
+    ],
+    "caption": "LIONOVART and other working approaches",
+    "others": "Others",
+    "rows": [
+      {
+        "topic": "Direction",
+        "lionovart": "One shared brief",
+        "others": "Briefs may differ"
+      },
+      {
+        "topic": "Consistency",
+        "lionovart": "One brand system",
+        "others": "Coordination varies"
+      },
+      {
+        "topic": "Creative + tech",
+        "lionovart": "Connected expertise",
+        "others": "Separate specialists"
+      },
+      {
+        "topic": "Collaboration",
+        "lionovart": "Direct with Leonardo",
+        "others": "Varies by provider"
+      }
+    ],
+    "scope": "Approaches vary by provider and project.",
+    "link": "More about LIONOVART"
   }
 }

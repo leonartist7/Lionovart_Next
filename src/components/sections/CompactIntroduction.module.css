@@ -1,0 +1,63 @@
+.section {
+  position: relative;
+  background: var(--site-surface-light, #f7f4ef);
+  color: #171412;
+  padding: 1.5rem 1.25rem 1.75rem;
+  scroll-margin-top: 5rem;
+  font-family: var(--font-dm-sans), sans-serif;
+}
+.grid { display: grid; gap: 1.5rem; max-width: 1280px; margin-inline: auto; }
+.copy, .comparison { min-width: 0; }
+.heading {
+  font-family: var(--font-clash-display), sans-serif;
+  font-size: clamp(1.8rem, 7.8vw, 2.65rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+.heading span { color: #e5192a; }
+.description { margin-top: 1rem; max-width: 47ch; font-size: 1rem; line-height: 1.55; color: #514c46; text-wrap: pretty; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 1.25rem; }
+.stats > div { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: .4rem; padding-inline: .65rem; }
+.stats > div:first-child { padding-left: 0; }
+.stats > div + div { border-left: 1px solid #17141224; }
+.stats dd { font-family: var(--font-clash-display), sans-serif; font-size: clamp(1.75rem, 7.5vw, 2.4rem); font-weight: 600; line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.stats dt { max-width: 15ch; font-size: .75rem; line-height: 1.3; color: #625d56; }
+.comparison { scroll-margin-top: 5rem; }
+.table { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0; }
+.brandColumn { background: #e5192a; }
+.table thead th { padding: .85rem .9rem; font-family: var(--font-clash-display), sans-serif; font-size: .9375rem; font-weight: 600; letter-spacing: -.015em; text-align: left; }
+.table thead th:first-child { background: #e5192a; color: white; border-radius: 12px 0 0 0; }
+.table thead th:last-child { background: #eee8df; border-radius: 0 12px 0 0; }
+.table .topic { padding: .45rem .9rem .25rem; background: linear-gradient(to right, #e5192a 50%, #eee8df 50%); color: white; border-top: 1px solid #ffffff30; font-size: .6875rem; font-weight: 500; letter-spacing: .04em; text-align: left; }
+.table td { padding: .55rem .9rem .65rem; font-size: .8125rem; font-weight: 500; line-height: 1.35; vertical-align: top; overflow-wrap: break-word; }
+.table td:first-child { background: #e5192a; color: white; }
+.table td:last-child { background: #eee8df; color: #514c46; }
+.table tbody:last-child td:first-child { border-radius: 0 0 0 12px; }
+.table tbody:last-child td:last-child { border-radius: 0 0 12px 0; }
+.comparisonFooter { display: flex; flex-direction: column; margin-top: .65rem; }
+.comparisonFooter > p { font-size: .6875rem; line-height: 1.5; color: #625d56; }
+.link { display: inline-flex; gap: 1rem; align-items: center; justify-content: space-between; width: fit-content; min-height: 44px; font-size: .8125rem; font-weight: 600; text-underline-offset: .3em; }
+.link:hover { color: #c1121f; text-decoration: underline; }
+.link:focus-visible { outline: 2px solid #e5192a; outline-offset: 4px; border-radius: 2px; }
+.srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+@media (min-width: 600px) {
+  .section { padding: 3rem 2.5rem; }
+  .grid { max-width: 620px; gap: 2rem; }
+  .heading { font-size: 2.8rem; }
+  .table thead th { font-size: 1.125rem; }
+  .table td { font-size: .9375rem; padding: .7rem 1.2rem .85rem; }
+  .table .topic { font-size: .75rem; padding-inline: 1.2rem; }
+  .comparisonFooter > p { font-size: .75rem; }
+}
+@media (min-width: 1024px) {
+  .section { padding: 4rem max(3rem, 5vw) 4.5rem; }
+  .grid { max-width: 1280px; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: center; gap: clamp(2rem, 5vw, 5rem); }
+  .heading { font-size: clamp(2.8rem, 4.4vw, 4.25rem); }
+  .description { margin-top: 1.5rem; font-size: 1.0625rem; line-height: 1.65; }
+  .stats { margin-top: 2rem; }
+  .stats > div { padding-inline: 1.1rem; }
+  .stats dd { font-size: clamp(2rem, 3.1vw, 2.9rem); }
+  .stats dt { font-size: .8125rem; }
+}

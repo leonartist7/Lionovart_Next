@@ -587,5 +587,41 @@
       "label": "More returning customers"
     },
     "footnote": "Actual results will identify the client, measurement period and source."
+  },
+  "compactComparison": {
+    "heading": "Innovar no es una opción.",
+    "headingAccent": "Es una necesidad.",
+    "description": "LIONOVART une estrategia de marca, diseño y tecnología para desarrollar la presencia de tu negocio en plataformas digitales, contenido y experiencias presenciales.",
+    "stats": [
+      "Años de experiencia conjunta",
+      "Sectores atendidos",
+      "Entregas a tiempo"
+    ],
+    "caption": "LIONOVART y otras formas de trabajar",
+    "others": "Otros",
+    "rows": [
+      {
+        "topic": "Dirección",
+        "lionovart": "Un mismo brief",
+        "others": "Puede haber briefs distintos"
+      },
+      {
+        "topic": "Coherencia de marca",
+        "lionovart": "Un sistema de marca",
+        "others": "Depende de la coordinación"
+      },
+      {
+        "topic": "Creatividad + tecnología",
+        "lionovart": "Conectadas con tu proyecto",
+        "others": "Puede requerir varios proveedores"
+      },
+      {
+        "topic": "Colaboración",
+        "lionovart": "Directamente con Leonardo",
+        "others": "Varía según el proveedor"
+      }
+    ],
+    "scope": "El enfoque varía según el proveedor y el proyecto.",
+    "link": "Conoce LIONOVART"
   }
 }

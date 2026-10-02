@@ -618,5 +618,41 @@
       "label": "More returning customers"
     },
     "footnote": "Actual results will identify the client, measurement period and source."
+  },
+  "compactComparison": {
+    "heading": "イノベーションは選択ではない。",
+    "headingAccent": "必要なものです。",
+    "description": "LIONOVARTはブランド戦略、デザイン、テクノロジーを組み合わせ、デジタルプラットフォーム、コンテンツ、リアルな体験を通して事業の存在感を築きます。",
+    "stats": [
+      "チームの累積経験年数",
+      "対応業界数",
+      "納期遵守率"
+    ],
+    "caption": "LIONOVARTと他の制作体制",
+    "others": "その他",
+    "rows": [
+      {
+        "topic": "方向性",
+        "lionovart": "共通のブリーフ",
+        "others": "個別のブリーフの場合も"
+      },
+      {
+        "topic": "ブランドの一貫性",
+        "lionovart": "一つのブランド体系",
+        "others": "連携の方法による"
+      },
+      {
+        "topic": "クリエイティブと技術",
+        "lionovart": "プロジェクト全体で連携",
+        "others": "別の提供者が必要な場合も"
+      },
+      {
+        "topic": "協働",
+        "lionovart": "Leonardoと直接",
+        "others": "提供者によって異なる"
+      }
+    ],
+    "scope": "体制は提供者とプロジェクトによって異なります。",
+    "link": "LIONOVARTについて"
   }
 }

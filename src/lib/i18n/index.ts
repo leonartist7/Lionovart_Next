@@ -26,4 +26,4 @@ export const locales: Record<Locale, typeof en> = {
   ko: deployable("ko", ko) as typeof en,
 };
 
-export type { Translations } from "./locales/en";
+export type Translations = typeof en;

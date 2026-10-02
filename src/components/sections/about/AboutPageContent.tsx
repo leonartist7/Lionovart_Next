@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { CONTACT_EMAIL } from "@/lib/contact";
 import styles from "./AboutPageContent.module.css";
+import WorkingModels from "./WorkingModels";
 
 // Pillar meanings follow the existing PillarsDemo / brand discipline framing.
 const pillars = [
@@ -104,7 +105,7 @@ export default function AboutPageContent() {
         </div>
       </section>
 
-      {/* Phase two adds the detailed working-model comparison here. */}
+      <WorkingModels />
       <section id="about-contact" className={styles.closing} aria-labelledby="contact-heading">
         <div className={styles.container}>
           <p className={styles.eyebrow}>Your next chapter</p>

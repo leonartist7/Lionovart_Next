@@ -2,6 +2,8 @@
 import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 
 import { MagneticCursor } from "@/components/ui/magnetic-cursor";
+import { usePathname } from "next/navigation";
+import { isCareersPath } from "@/lib/careers-route";
 
 /**
  * LIONOVART cursor preset.
@@ -12,7 +14,8 @@ import { MagneticCursor } from "@/components/ui/magnetic-cursor";
  */
 export default function CustomCursor() {
   const { released } = useIntroLifecycle();
-  if (!released) return null;
+  const pathname = usePathname();
+  if (!released || isCareersPath(pathname)) return null;
   return (
     <MagneticCursor
       magneticFactor={0.55}
