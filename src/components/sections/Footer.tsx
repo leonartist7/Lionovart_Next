@@ -109,7 +109,7 @@ function CompactFooter({ year }: { year: number }) {
       className={styles.compact}
       data-art-directed="dark"
     >
-      <section id="closing-cta" data-nova-section="closing-cta" className={styles.finale}>
+      <section id="footer-finale" className={styles.finale}>
         <div className={styles.atmosphere} aria-hidden="true" />
 
         <div className={styles.lionBase} aria-hidden="true">
@@ -228,23 +228,19 @@ function CompactFooter({ year }: { year: number }) {
               <LocationList />
             </details>
           </div>
+
+          <div className={styles.finaleUtility}>
+            <span className={styles.wordmark}>LIONOVART®</span>
+            <p className={styles.copyright}>
+              &copy; {year} LIONOVART. {t.footer.copyright}
+            </p>
+            <nav aria-label="Legal" className={styles.legal}>
+              <Link href="/privacy">{t.footer.privacy}</Link>
+              <Link href="/terms">{t.footer.terms}</Link>
+            </nav>
+          </div>
         </div>
       </section>
-
-      <div className={styles.utility}>
-        <div className={styles.utilityInner}>
-          <span className={styles.wordmark}>LIONOVART®</span>
-
-          <p className={styles.copyright}>
-            &copy; {year} LIONOVART. {t.footer.copyright}
-          </p>
-
-          <nav aria-label="Legal" className={styles.legal}>
-            <Link href="/privacy">{t.footer.privacy}</Link>
-            <Link href="/terms">{t.footer.terms}</Link>
-          </nav>
-        </div>
-      </div>
     </footer>
   );
 }
