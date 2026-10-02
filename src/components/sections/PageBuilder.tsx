@@ -44,7 +44,7 @@ export function PageBuilder() {
       <div className="relative z-[2]">
         <BridgeStatement variant="vow" />
         <NovaSection id="problems"><PawRevealStack /></NovaSection>
-        <SelectedWork />
+        <SelectedWork goldThreads />
         <NovaSection id="services"><ServicesSwitcher /></NovaSection>
         {/* Introduce the people behind the work before showing the comparison. */}
         <NovaSection id="about"><AboutExperience /></NovaSection>

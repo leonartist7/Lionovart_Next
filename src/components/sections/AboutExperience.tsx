@@ -1,5 +1,7 @@
 "use client";
 
+import GoldThreads from "@/components/ui/GoldThreads";
+
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
@@ -110,8 +112,9 @@ function PanelsPreview() {
   return (
     <section
       data-about-direction="panels"
-      className="relative overflow-hidden bg-bg-surface-light py-[clamp(5rem,9vw,9rem)] text-[#171412]"
+      className="relative isolate overflow-hidden bg-bg-surface-light py-[clamp(5rem,9vw,9rem)] text-[#171412]"
     >
+      <GoldThreads />
       <div className="mx-auto w-full max-w-[1420px] px-[max(1.25rem,5vw)]">
         <div className="max-w-[790px]">
           <motion.p

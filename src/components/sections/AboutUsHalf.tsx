@@ -1,5 +1,7 @@
 "use client";
 
+import GoldThreads from "@/components/ui/GoldThreads";
+
 import { useRef } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -165,7 +167,8 @@ export default function AboutUsHalf(props: any) {
 
   /* â”€â”€ GSAP â€” desktop pinned scroll sequence â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   return (
-    <section ref={sectionRef} className="relative bg-bg-surface-light">
+    <section ref={sectionRef} className="relative isolate bg-bg-surface-light">
+      <GoldThreads />
 
       {/* â”€â”€ DESKTOP: Pinned two-column magazine layout â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div

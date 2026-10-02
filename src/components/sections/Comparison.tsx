@@ -1,5 +1,7 @@
 "use client";
 
+import GoldThreads from "@/components/ui/GoldThreads";
+
 import { motion } from "framer-motion";
 import { CheckCircle, XCircle } from "lucide-react";
 import Image from "next/image";
@@ -43,7 +45,8 @@ export default function Comparison(props: any) {
     props.competitors || t.comparison.competitors;
 
   return (
-    <section className="bg-bg-surface-light px-4 pb-[100px] pt-[140px] md:px-8 md:pb-[140px] md:pt-[190px]">
+    <section className="relative isolate bg-bg-surface-light px-4 pb-[100px] pt-[140px] md:px-8 md:pb-[140px] md:pt-[190px]">
+      <GoldThreads />
       <div className="max-w-[1200px] lg:max-w-[1400px] mx-auto">
         <motion.header
           className="mb-10 text-center md:mb-14"

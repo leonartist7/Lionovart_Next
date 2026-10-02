@@ -1,5 +1,7 @@
 "use client";
 
+import GoldThreads from "@/components/ui/GoldThreads";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useAnimation, useMotionValueEvent, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
@@ -467,7 +469,8 @@ export default function PawRevealStack() {
       style={{ paddingTop: entryPadding, paddingBottom: exitPadding, height: scene.height + (staticScene ? 0 : scene.viewport * 4.1) + entryPadding + exitPadding }}
       className="relative z-30 isolate overflow-clip bg-bg-surface-light"
     >
-      <div style={{ height: scene.height, top: Math.min(0, (scene.viewport - scene.height) / 2) }} className={staticScene ? "relative overflow-visible" : "sticky overflow-visible"}>
+      <div style={{ height: scene.height, top: Math.min(0, (scene.viewport - scene.height) / 2) }} className={staticScene ? "relative isolate overflow-visible" : "sticky isolate overflow-visible"}>
+        <GoldThreads />
         {showWorkStream && !staticScene ? <motion.div
           style={{ opacity: streamOpacity, scale: streamScale }}
           aria-hidden="true"
