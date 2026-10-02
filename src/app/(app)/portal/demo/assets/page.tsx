@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { DemoShell } from "@/components/portal/DemoShell";
 import { AssetGrid, type AssetListItem } from "@/components/portal/AssetGrid";
-import { demoAssets, resolveDemoView } from "@/lib/portal/demo-data";
+import { demoAssets, demoThreads, resolveDemoView } from "@/lib/portal/demo-data";
 
 export const metadata: Metadata = {
   title: "Files · preview",
@@ -30,6 +30,10 @@ export default async function DemoAssetsPage({
     },
     thumbnailUrl:
       a.kind === "image" ? (a.versions.find((v) => v.n === a.currentVersion)?.url ?? null) : null,
+    // Same rule as the live page: unresolved, and not a pin on a superseded version.
+    openThreads: demoThreads(a.id).filter(
+      (t) => t.status !== "resolved" && (!t.pin || t.versionId === a.currentVersion),
+    ).length,
   }));
 
   return (

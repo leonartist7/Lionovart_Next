@@ -8,6 +8,7 @@ import {
   getWorkspaceAccessBySlug,
 } from "@/lib/portal-auth";
 import { listAssetsWithVersions, signReadUrl } from "@/lib/portal/assets";
+import { countOpenThreadsByAsset } from "@/lib/portal/threads";
 import { roleAtLeast } from "@/lib/portal/types";
 
 export const metadata: Metadata = { title: "Files" };
@@ -28,10 +29,18 @@ export default async function AssetsPage({
   if (!access) notFound();
 
   const assets = await listAssetsWithVersions(access.workspace.id);
+  // Threads on an internal project's file are filtered out inside the count,
+  // so a client's tile never advertises a conversation they can't open.
+  const openCounts = await countOpenThreadsByAsset(
+    access.workspace.id,
+    access.membership.role,
+    new Map(assets.map((a) => [a.id, a.currentVersion])),
+  );
   const items: AssetListItem[] = await Promise.all(
     assets.map(async (a) => ({
       asset: a,
       thumbnailUrl: a.kind === "image" && a.version ? await signReadUrl(a.version.storagePath) : null,
+      openThreads: openCounts.get(a.id) ?? 0,
     })),
   );
 

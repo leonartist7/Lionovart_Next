@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireWorkspace } from "@/lib/portal-auth";
+import { notifyThreadActivity } from "@/lib/portal/notifications";
 import { THREAD_TARGETS, createThread, listThreads } from "@/lib/portal/threads";
-import type { AnnotationPin, ThreadTarget } from "@/lib/portal/types";
+import { roleAtLeast, type AnnotationPin, type ThreadTarget } from "@/lib/portal/types";
 
 type Params = { params: Promise<{ workspace: string }> };
 
@@ -74,5 +75,20 @@ export async function POST(req: NextRequest, { params }: Params) {
   if ("error" in result) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }
+
+  const first = result.thread.comments[0];
+  await notifyThreadActivity({
+    workspace: access.workspace,
+    thread: result.thread,
+    commentId: first.id,
+    kind: result.thread.pin ? "pin" : "thread",
+    body: first.body,
+    actor: {
+      uid: access.session.uid,
+      name: access.session.name,
+      isAgency: roleAtLeast(access.membership.role, "agency"),
+    },
+  });
+
   return NextResponse.json({ thread: result.thread }, { status: 201 });
 }

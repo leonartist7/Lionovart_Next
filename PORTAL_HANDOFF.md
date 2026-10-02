@@ -34,7 +34,7 @@ Then confirm the environment is up (§2) before writing code. If `verify.mjs` is
 | **3 — Files** | ✅ built — signed uploads, versions, pinch-zoom viewer, agency-only delete |
 | **3 — Board** | ✅ built — kanban with fractional-index reorder, drag + keyboard, agency-only mutation |
 | **3 — Calendar** | ✅ built — milestone/project due dates, day-agenda on mobile, month grid on desktop, read-only |
-| **4 — Collaboration** | ✅ built — threads + comments on a file, pin-on-image annotation normalized to the rendered image box and tied to one version, cursor-polled updates |
+| **4 — Collaboration** | ✅ built — threads + comments on a file, pin-on-image annotation normalized to the rendered image box and tied to one version, cursor-polled updates, email notifications (visibility-gated, throttled), open-comment count on the Files grid. Not built: a workspace-wide `/changes` feed, in-app unread badges |
 | **4 — Approvals** | ✅ built — one-tap approve, request-changes with a required note, append-only decisions, gated to approver+ |
 | **5a — Messages / WhatsApp** | ✅ built — two-way bridge, signature-verified webhook, mock + live drivers |
 | **5c — Assistant** | ✅ built — read-only Gemini agent scoped to one workspace, non-primary nav item |
@@ -141,6 +141,7 @@ Don't invent; there's a working example of everything.
 | A coordinate normalized to a *rendered* box | `src/components/portal/PinchZoomImage.tsx` — `object-contain` letterboxes the image, so the container box and the image box differ; annotation pins measure against the image box and survive any screen size |
 | A polled realtime surface | `src/components/portal/AssetCollaboration.tsx` — `GET …/threads?since=` every ~3.5s while visible, paused when hidden, `ids` in the response so deletes propagate. Same shape as `ChatThread.tsx`; **not** held SSE (§6) |
 | A thread / comment on anything | `src/lib/portal/threads.ts` — a pin *is* a thread; visibility is decided by resolving the thread's target (`internal` project → its assets' threads are absent, and a write to one 404s) |
+| A "tell someone" fan-out | `src/lib/portal/notifications.ts` — recipients are decided by who can *see* the thread (same gate as `listThreads`), never by workspace membership; every decision lands in a `workspaces/{ws}/notifications` outbox that is also the throttle state and what `verify.mjs` asserts on. Mail goes through `providers/email.ts` (Resend live / mock, same shape as the WhatsApp adapter). Awaited in the route, **not** `after()` — Cloud Run throttles CPU post-response (§6's split-host trap) |
 | An adapter with a mock + live driver | `src/lib/portal/providers/whatsapp.ts` — one interface, selected by env var presence, so the UI never has a stub-shaped hole |
 | A signature-verified unguarded webhook | `src/app/api/webhooks/whatsapp/route.ts` — raw body read before parsing, HMAC compared in constant time, idempotent on retry |
 | A Gemini tool-calling agent | `src/lib/portal/assistant-tools.ts` + `api/portal/[workspace]/assistant/route.ts` — mirrors `/api/strategist/chat`'s SSE function-calling loop. **Every tool delegates to an already-filtered data function** (`listProjects`, not a new query) so role-based visibility is inherited, never reimplemented |
@@ -238,7 +239,7 @@ What actually costs context, in order:
 Verification ladder, cheapest first:
 ```bash
 npx tsc --noEmit                       # types
-node scripts/portal-verify/verify.mjs  # behaviour + security (115 assertions)
+node scripts/portal-verify/verify.mjs  # behaviour + security (127 assertions)
 npm run build                          # before pushing
 node scripts/portal-verify/shots.mjs   # only when judging visuals
 ```

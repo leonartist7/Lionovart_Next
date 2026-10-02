@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FileText, Film, Image as ImageIcon, Trash2 } from "lucide-react";
+import { FileText, Film, Image as ImageIcon, MessageSquare, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import { formatDate } from "@/lib/portal/format";
 import type { Asset } from "@/lib/portal/types";
@@ -21,12 +21,15 @@ export function AssetCard({
   thumbnailUrl,
   workspaceSlug,
   canDelete,
+  openThreads = 0,
   demo = false,
 }: {
   asset: Asset;
   thumbnailUrl: string | null;
   workspaceSlug: string;
   canDelete: boolean;
+  /** Unresolved comments on what the file page shows by default. Zero renders nothing. */
+  openThreads?: number;
   demo?: boolean;
 }) {
   const router = useRouter();
@@ -69,9 +72,22 @@ export function AssetCard({
 
       <div className="p-3">
         <p className="text-foreground truncate text-sm font-medium">{asset.name}</p>
-        <p className="text-muted-foreground mt-0.5 text-xs">
-          v{asset.currentVersion} · {formatDate(asset.createdAt)}
-        </p>
+        <div className="text-muted-foreground mt-0.5 flex items-center justify-between gap-2 text-xs">
+          <p>
+            v{asset.currentVersion} · {formatDate(asset.createdAt)}
+          </p>
+          {openThreads > 0 && (
+            // Neutral, not red: the pin markers on the file already carry the
+            // accent, and a tile that shouts for every conversation stops
+            // meaning "this one is waiting".
+            <span className="text-foreground inline-flex items-center gap-1 font-medium tabular-nums">
+              <MessageSquare size={12} aria-hidden="true" />
+              {openThreads}
+              {/* One string, so it is one text node — and so assertable. */}
+              <span className="sr-only">{`${openThreads} open ${openThreads === 1 ? "comment" : "comments"}`}</span>
+            </span>
+          )}
+        </div>
       </div>
 
       {canDelete && (

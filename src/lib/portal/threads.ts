@@ -77,7 +77,7 @@ type TargetRef = Pick<Thread, "targetType" | "targetId">;
  * only what the supplied targets actually need — a page of asset threads never
  * reads the task collections.
  */
-async function buildVisibilityGate(
+export async function buildVisibilityGate(
   workspaceId: string,
   viewerRole: PortalRole,
   targets: TargetRef[],
@@ -194,6 +194,39 @@ export async function listThreads(
   return { threads, ids: visible.map((t) => t.id), cursor };
 }
 
+/**
+ * Open threads per asset, for the Files grid. Counts what the file page shows
+ * by default: general comments, plus pins on the version that is current — an
+ * unresolved pin on a superseded version is feedback on a design that has
+ * since been replaced, and a count the page then can't account for is a number
+ * that isn't true.
+ *
+ * Same visibility gate as `listThreads`, and no comment reads: this runs once
+ * per render of a list page.
+ */
+export async function countOpenThreadsByAsset(
+  workspaceId: string,
+  viewerRole: PortalRole,
+  currentVersions: ReadonlyMap<string, number>,
+): Promise<Map<string, number>> {
+  const counts = new Map<string, number>();
+  if (!adminDb || currentVersions.size === 0) return counts;
+
+  const snap = await threadsRef(workspaceId).where("targetType", "==", "asset").get();
+  const open = snap.docs.map(toThread).filter((t) => t.status !== "resolved");
+  if (open.length === 0) return counts;
+
+  const gate = await buildVisibilityGate(workspaceId, viewerRole, open);
+  for (const t of open) {
+    if (!gate(t)) continue;
+    const current = currentVersions.get(t.targetId);
+    if (current === undefined) continue;
+    if (t.pin && t.versionId !== current) continue;
+    counts.set(t.targetId, (counts.get(t.targetId) ?? 0) + 1);
+  }
+  return counts;
+}
+
 /** One thread with its comments, or null when it doesn't exist *or* isn't visible. */
 export async function getThread(
   workspaceId: string,
@@ -296,12 +329,13 @@ export async function addComment(
   threadId: string,
   viewerRole: PortalRole,
   input: { body: string; authorUid: string; authorName: string },
-): Promise<{ comment: Comment } | ThreadError> {
+): Promise<{ comment: Comment; thread: Thread } | ThreadError> {
   const body = input.body.trim();
   if (!body) return { error: "A comment can't be empty.", status: 400 };
 
-  const thread = await getThread(workspaceId, threadId, viewerRole);
-  if (!thread) return { error: "Not found", status: 404 };
+  const found = await getThread(workspaceId, threadId, viewerRole);
+  if (!found) return { error: "Not found", status: 404 };
+  const { comments: _existing, ...thread } = found;
 
   const now = new Date().toISOString();
   const comment = await writeComment(workspaceId, threadId, { ...input, body }, now);
@@ -310,7 +344,7 @@ export async function addComment(
     updatedAt: now,
     participants: FieldValue.arrayUnion(input.authorUid),
   });
-  return { comment };
+  return { comment, thread };
 }
 
 /**

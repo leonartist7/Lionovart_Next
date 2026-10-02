@@ -5,6 +5,7 @@ import type { Asset } from "@/lib/portal/types";
 export interface AssetListItem {
   asset: Asset;
   thumbnailUrl: string | null;
+  openThreads?: number;
 }
 
 export function AssetGrid({
@@ -38,11 +39,12 @@ export function AssetGrid({
 
   return (
     <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {items.map(({ asset, thumbnailUrl }) => (
+      {items.map(({ asset, thumbnailUrl, openThreads }) => (
         <AssetCard
           key={asset.id}
           asset={asset}
           thumbnailUrl={thumbnailUrl}
+          openThreads={openThreads}
           workspaceSlug={workspaceSlug}
           canDelete={canDelete}
           demo={demo}

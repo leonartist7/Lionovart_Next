@@ -1153,6 +1153,168 @@ if (run("collaboration")) {
     `${orphans.ids.length} orphaned`,
   );
 
+  /* ── notifications: who gets told, and who must not be ──────────── */
+  // The outbox (workspaces/{ws}/notifications) records every decision whether
+  // or not mail went out, so this asserts on WHO WOULD BE TOLD — meaningful
+  // even with no RESEND_API_KEY, where every send reports "unconfigured".
+  const { initializeApp: initApp } = await import("firebase-admin/app");
+  const { getFirestore } = await import("firebase-admin/firestore");
+  const db = getFirestore(initApp({ projectId: "lionovart-dev" }, "verify-notify-" + Date.now()));
+  const outbox = async () =>
+    (await db.collection("workspaces").doc(fx.workspace.id).collection("notifications").get()).docs.map(
+      (d) => d.data(),
+    );
+  const forAsset = async (id) => (await outbox()).filter((r) => r.targetId === id);
+  const STUDIO = "leonartist.cs@gmail.com";
+  const told = (r) => r.status === "sent" || r.status === "unconfigured";
+
+  const post = (cookie, payload) =>
+    fetch(threads, { method: "POST", headers: J(cookie), body: JSON.stringify(payload) });
+
+  const noteAsset = await uploadAs(fx.agencyCookie, "notify.png");
+
+  const first = await post(fx.clientCookie, {
+    targetType: "asset",
+    targetId: noteAsset,
+    body: "First thought on the notify file.",
+  });
+  const firstThread = (await first.json()).thread;
+  let rows = await forAsset(noteAsset);
+  check(
+    "a client's comment tells the studio",
+    rows.some((r) => r.recipientEmail === STUDIO && told(r) && r.kind === "thread"),
+    JSON.stringify(rows.map((r) => [r.recipientEmail, r.status])),
+  );
+  check(
+    "the author is never told about their own comment",
+    !rows.some((r) => r.recipientEmail === fx.clientEmail.toLowerCase()),
+  );
+
+  await post(fx.clientCookie, {
+    targetType: "asset",
+    targetId: noteAsset,
+    body: "Second thought, seconds later.",
+  });
+  rows = await forAsset(noteAsset);
+  const studioRows = rows.filter((r) => r.recipientEmail === STUDIO);
+  check(
+    "a burst is throttled to one email per person per file",
+    studioRows.filter(told).length === 1 && studioRows.some((r) => r.status === "throttled"),
+    JSON.stringify(studioRows.map((r) => r.status)),
+  );
+
+  const studioReply = await fetch(`${threads}/${firstThread.id}/comments`, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({ body: "Noted — on it." }),
+  });
+  rows = await forAsset(noteAsset);
+  check(
+    "a studio reply tells the client",
+    studioReply.status === 201 &&
+      rows.some((r) => r.recipientEmail === fx.clientEmail.toLowerCase() && told(r) && r.kind === "reply"),
+    JSON.stringify(rows.map((r) => [r.recipientEmail, r.kind, r.status])),
+  );
+  check(
+    "the studio is not mailed its own reply",
+    rows.filter((r) => r.recipientEmail === STUDIO && r.kind === "reply").length === 0,
+  );
+
+  // The point of the gate: an email is a way to leak an internal conversation
+  // as surely as a page is. The positive control above proves the dispatcher
+  // is alive in this very run, so an empty result here means "gated", not "broken".
+  const internalNote = await uploadAs(fx.agencyCookie, "internal-notes.png", internalProject.id);
+  for (let i = 0; i < 4; i++) {
+    await post(fx.agencyCookie, {
+      targetType: "asset",
+      targetId: internalNote,
+      body: `Internal margin note ${i + 1}`,
+    });
+  }
+  rows = await forAsset(internalNote);
+  check(
+    "a studio comment on an internal file is never mailed to the client",
+    rows.filter((r) => r.recipientEmail === fx.clientEmail.toLowerCase()).length === 0,
+    `${rows.length} rows`,
+  );
+
+  /* ── open-comment count on the Files grid ───────────────────────── */
+  // One tile's chip, read out of the raw HTML by slicing that asset's own <a>.
+  const chipFor = (html, id) => {
+    const at = html.indexOf(`/assets/${id}"`);
+    if (at === -1) return 0;
+    const tile = html.slice(at, html.indexOf("</a>", at));
+    const m = tile.match(/>(\d+) open comments?</);
+    return m ? Number(m[1]) : 0;
+  };
+  const filesAsAgency = (await pageSource(`/portal/${fx.slug}/assets`, fx.agencyCookie)).html;
+  const filesAsClient = (await pageSource(`/portal/${fx.slug}/assets`, fx.clientCookie)).html;
+
+  check(
+    "the Files grid counts open comments on a tile",
+    chipFor(filesAsAgency, noteAsset) === 2 && chipFor(filesAsClient, noteAsset) === 2,
+    `agency=${chipFor(filesAsAgency, noteAsset)} client=${chipFor(filesAsClient, noteAsset)}`,
+  );
+  check(
+    "an internal file's count is visible to the studio",
+    chipFor(filesAsAgency, internalNote) === 4,
+    `${chipFor(filesAsAgency, internalNote)}`,
+  );
+  check(
+    "an internal file's count never reaches the client",
+    chipFor(filesAsClient, internalNote) === 0,
+    `${chipFor(filesAsClient, internalNote)}`,
+  );
+
+  await fetch(`${threads}/${firstThread.id}`, {
+    method: "PATCH",
+    headers: J(fx.clientCookie),
+    body: JSON.stringify({ resolved: true }),
+  });
+  const afterResolve = (await pageSource(`/portal/${fx.slug}/assets`, fx.clientCookie)).html;
+  check(
+    "resolving a thread lowers the count",
+    chipFor(afterResolve, noteAsset) === 1,
+    `${chipFor(afterResolve, noteAsset)}`,
+  );
+
+  // A pin on a superseded version is feedback on a design that was replaced:
+  // the tile must only promise what the file page will actually show.
+  const versioned = await uploadAs(fx.agencyCookie, "versioned.png");
+  await post(fx.clientCookie, { targetType: "asset", targetId: versioned, body: "General note." });
+  await post(fx.clientCookie, {
+    targetType: "asset",
+    targetId: versioned,
+    versionId: 1,
+    pin: { x: 0.3, y: 0.3 },
+    body: "Pin on v1.",
+  });
+  const beforeV2 = (await pageSource(`/portal/${fx.slug}/assets`, fx.clientCookie)).html;
+  const v2 = await (
+    await fetch(sign, {
+      method: "POST",
+      headers: J(fx.agencyCookie),
+      body: JSON.stringify({ assetId: versioned, name: "versioned.png", mime: "image/png", sizeBytes: 30_000 }),
+    })
+  ).json();
+  await fetch(`${BASE}/api/portal/${fx.slug}/assets/${versioned}/versions`, {
+    method: "POST",
+    headers: J(fx.agencyCookie),
+    body: JSON.stringify({
+      version: v2.version,
+      storagePath: v2.storagePath,
+      name: "versioned.png",
+      mime: "image/png",
+      sizeBytes: 30_000,
+    }),
+  });
+  const afterV2 = (await pageSource(`/portal/${fx.slug}/assets`, fx.clientCookie)).html;
+  check(
+    "a pin on a superseded version drops out of the count",
+    chipFor(beforeV2, versioned) === 2 && chipFor(afterV2, versioned) === 1,
+    `before=${chipFor(beforeV2, versioned)} after=${chipFor(afterV2, versioned)}`,
+  );
+
   // The design preview renders the same components against fixtures.
   const preview = await fetch(`${BASE}/portal/demo/assets/logo-mark`);
   const previewHtml = await preview.text();
