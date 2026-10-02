@@ -1,0 +1,464 @@
+{
+  "base": "http://localhost:3013",
+  "checks": [
+    {
+      "width": 390,
+      "scrollWidth": 390,
+      "h1Count": 1,
+      "title": "About \u2014 The art of innovation | LIONOVART",
+      "canonical": "https://lionovart.com/about",
+      "playfair": "\"Playfair Display\", \"Playfair Display Fallback\", Georgia, serif",
+      "numbers": [
+        {
+          "value": "3",
+          "state": "complete",
+          "text": "3"
+        },
+        {
+          "value": "6",
+          "state": "complete",
+          "text": "6"
+        },
+        {
+          "value": "1",
+          "state": "complete",
+          "text": "1"
+        }
+      ],
+      "comparisonTableVisible": false,
+      "mobileTopics": [
+        "01\nSpeed\n+",
+        "02\nFlexibility\n+",
+        "03\nQuality\n+",
+        "04\nScalability\n+",
+        "05\nEfficiency\n+",
+        "06\nPrint & physical\n+",
+        "07\nSupport\n+"
+      ],
+      "images": [
+        {
+          "src": "/images/LION-CIRCLE.avif",
+          "loaded": true
+        },
+        {
+          "src": "/images/services-gallery/brand.webp",
+          "loaded": true
+        },
+        {
+          "src": "/images/services-gallery/web.webp",
+          "loaded": true
+        },
+        {
+          "src": "/images/Leon-Studioshot.avif",
+          "loaded": true
+        }
+      ],
+      "portraitRatio": 1,
+      "clipped": [],
+      "status": 200
+    },
+    {
+      "width": 320,
+      "scrollWidth": 320,
+      "h1Count": 1,
+      "title": "About \u2014 The art of innovation | LIONOVART",
+      "canonical": "https://lionovart.com/about",
+      "playfair": "\"Playfair Display\", \"Playfair Display Fallback\", Georgia, serif",
+      "numbers": [
+        {
+          "value": "3",
+          "state": "complete",
+          "text": "3"
+        },
+        {
+          "value": "6",
+          "state": "complete",
+          "text": "6"
+        },
+        {
+          "value": "1",
+          "state": "complete",
+          "text": "1"
+        }
+      ],
+      "comparisonTableVisible": false,
+      "mobileTopics": [
+        "01\nSpeed\n+",
+        "02\nFlexibility\n+",
+        "03\nQuality\n+",
+        "04\nScalability\n+",
+        "05\nEfficiency\n+",
+        "06\nPrint & physical\n+",
+        "07\nSupport\n+"
+      ],
+      "images": [
+        {
+          "src": "/images/LION-CIRCLE.avif",
+          "loaded": true
+        },
+        {
+          "src": "/images/services-gallery/brand.webp",
+          "loaded": true
+        },
+        {
+          "src": "/images/services-gallery/web.webp",
+          "loaded": true
+        },
+        {
+          "src": "/images/Leon-Studioshot.avif",
+          "loaded": true
+        }
+      ],
+      "portraitRatio": 1,
+      "clipped": [],
+      "status": 200
+    },
+    {
+      "width": 375,
+      "scrollWidth": 375,
+      "h1Count": 1,
+      "title": "About \u2014 The art of innovation | LIONOVART",
+      "canonical": "https://lionovart.com/about",
+      "playfair": "\"Playfair Display\", \"Playfair Display Fallback\", Georgia, serif",
+      "numbers": [
+        {
+          "value": "3",
+          "state": "complete",
+          "text": "3"
+        },
+        {
+          "value": "6",
+          "state": "complete",
+          "text": "6"
+        },
+        {
+          "value": "1",
+          "state": "complete",
+          "text": "1"
+        }
+      ],
+      "comparisonTableVisible": false,
+      "mobileTopics": [
+        "01\nSpeed\n+",
+        "02\nFlexibility\n+",
+        "03\nQuality\n+",
+        "04\nScalability\n+",
+        "05\nEfficiency\n+",
+        "06\nPrint & physical\n+",
+        "07\nSupport\n+"
+      ],
+      "images": [
+        {
+          "src": "/images/LION-CIRCLE.avif",
+          "loaded": true
+        },
+        {
+          "src": "/images/services-gallery/brand.webp",
+          "loaded": true
+        },
+        {
+          "src": "/images/services-gallery/web.webp",
+          "loaded": true
+        },
+        {
+          "src": "/images/Leon-Studioshot.avif",
+          "loaded": true
+        }
+      ],
+      "portraitRatio": 1,
+      "clipped": [],
+      "status": 200
+    },
+    {
+      "width": 768,
+      "scrollWidth": 768,
+      "h1Count": 1,
+      "title": "About \u2014 The art of innovation | LIONOVART",
+      "canonical": "https://lionovart.com/about",
+      "playfair": "\"Playfair Display\", \"Playfair Display Fallback\", Georgia, serif",
+      "numbers": [
+        {
+          "value": "3",
+          "state": "complete",
+          "text": "3"
+        },
+        {
+          "value": "6",
+          "state": "complete",
+          "text": "6"
+        },
+        {
+          "value": "1",
+          "state": "complete",
+          "text": "1"
+        }
+      ],
+      "comparisonTableVisible": false,
+      "mobileTopics": [
+        "01\nSpeed\n+",
+        "02\nFlexibility\n+",
+        "03\nQuality\n+",
+        "04\nScalability\n+",
+        "05\nEfficiency\n+",
+        "06\nPrint & physical\n+",
+        "07\nSupport\n+"
+      ],
+      "images": [
+        {
+          "src": "/images/LION-CIRCLE.avif",
+          "loaded": true
+        },
+        {
+          "src": "/images/services-gallery/brand.webp",
+          "loaded": true
+        },
+        {
+          "src": "/images/services-gallery/web.webp",
+          "loaded": true
+        },
+        {
+          "src": "/images/Leon-Studioshot.avif",
+          "loaded": true
+        }
+      ],
+      "portraitRatio": 1,
+      "clipped": [],
+      "status": 200
+    },
+    {
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1Count": 1,
+      "title": "About \u2014 The art of innovation | LIONOVART",
+      "canonical": "https://lionovart.com/about",
+      "playfair": "\"Playfair Display\", \"Playfair Display Fallback\", Georgia, serif",
+      "numbers": [
+        {
+          "value": "3",
+          "state": "complete",
+          "text": "3"
+        },
+        {
+          "value": "6",
+          "state": "complete",
+          "text": "6"
+        },
+        {
+          "value": "1",
+          "state": "complete",
+          "text": "1"
+        }
+      ],
+      "comparisonTableVisible": false,
+      "mobileTopics": [
+        "01\nSpeed\n+",
+        "02\nFlexibility\n+",
+        "03\nQuality\n+",
+        "04\nScalability\n+",
+        "05\nEfficiency\n+",
+        "06\nPrint & physical\n+",
+        "07\nSupport\n+"
+      ],
+      "images": [
+        {
+          "src": "/images/LION-CIRCLE.avif",
+          "loaded": true
+        },
+        {
+          "src": "/images/services-gallery/brand.webp",
+          "loaded": true
+        },
+        {
+          "src": "/images/services-gallery/web.webp",
+          "loaded": true
+        },
+        {
+          "src": "/images/Leon-Studioshot.avif",
+          "loaded": true
+        }
+      ],
+      "portraitRatio": 1,
+      "clipped": [],
+      "status": 200
+    },
+    {
+      "width": 1100,
+      "scrollWidth": 1100,
+      "h1Count": 1,
+      "title": "About \u2014 The art of innovation | LIONOVART",
+      "canonical": "https://lionovart.com/about",
+      "playfair": "\"Playfair Display\", \"Playfair Display Fallback\", Georgia, serif",
+      "numbers": [
+        {
+          "value": "3",
+          "state": "complete",
+          "text": "3"
+        },
+        {
+          "value": "6",
+          "state": "complete",
+          "text": "6"
+        },
+        {
+          "value": "1",
+          "state": "complete",
+          "text": "1"
+        }
+      ],
+      "comparisonTableVisible": true,
+      "mobileTopics": [
+        "01Speed+",
+        "02Flexibility+",
+        "03Quality+",
+        "04Scalability+",
+        "05Efficiency+",
+        "06Print & physical+",
+        "07Support+"
+      ],
+      "images": [
+        {
+          "src": "/images/LION-CIRCLE.avif",
+          "loaded": true
+        },
+        {
+          "src": "/images/services-gallery/brand.webp",
+          "loaded": true
+        },
+        {
+          "src": "/images/services-gallery/web.webp",
+          "loaded": true
+        },
+        {
+          "src": "/images/Leon-Studioshot.avif",
+          "loaded": true
+        }
+      ],
+      "portraitRatio": 1,
+      "clipped": [],
+      "status": 200
+    },
+    {
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1Count": 1,
+      "title": "About \u2014 The art of innovation | LIONOVART",
+      "canonical": "https://lionovart.com/about",
+      "playfair": "\"Playfair Display\", \"Playfair Display Fallback\", Georgia, serif",
+      "numbers": [
+        {
+          "value": "3",
+          "state": "complete",
+          "text": "3"
+        },
+        {
+          "value": "6",
+          "state": "complete",
+          "text": "6"
+        },
+        {
+          "value": "1",
+          "state": "complete",
+          "text": "1"
+        }
+      ],
+      "comparisonTableVisible": true,
+      "mobileTopics": [
+        "01Speed+",
+        "02Flexibility+",
+        "03Quality+",
+        "04Scalability+",
+        "05Efficiency+",
+        "06Print & physical+",
+        "07Support+"
+      ],
+      "images": [
+        {
+          "src": "/images/LION-CIRCLE.avif",
+          "loaded": true
+        },
+        {
+          "src": "/images/services-gallery/brand.webp",
+          "loaded": true
+        },
+        {
+          "src": "/images/services-gallery/web.webp",
+          "loaded": true
+        },
+        {
+          "src": "/images/Leon-Studioshot.avif",
+          "loaded": true
+        }
+      ],
+      "portraitRatio": 1,
+      "clipped": [],
+      "status": 200
+    }
+  ],
+  "shortViewport": {
+    "width": 390,
+    "height": 667
+  },
+  "disclosures": {
+    "touch": true,
+    "keyboard": true
+  },
+  "reducedMotion": {
+    "states": [
+      "complete",
+      "complete",
+      "complete"
+    ],
+    "animationNames": [
+      "none",
+      "none",
+      "none",
+      "none",
+      "none",
+      "none",
+      "none",
+      "none",
+      "none",
+      "none",
+      "none",
+      "none",
+      "none",
+      "none",
+      "none",
+      "none",
+      "none",
+      "none",
+      "none"
+    ]
+  },
+  "textZoom200": {
+    "width": 390,
+    "scrollWidth": 390,
+    "clipped": []
+  },
+  "localeFallback": "/fr/about -> /about",
+  "reload": true,
+  "pageErrors": [],
+  "implementation": {
+    "commit": "790a86e0caad81a16043fd6f09a44cbc0221d7c6",
+    "tree": "b8e4a9108e8ed1b5c269565279500a70e4b21050",
+    "localCommit": "63e6ec23da6a078ff8891bebdbdaf5b4b8505341"
+  },
+  "hosted": {
+    "url": "https://lionovartnext-r4swpb4ej-lionovart.vercel.app/about",
+    "deployment": "dpl_HNpgH1Nni7LKYb9pmvsCUek5euN9",
+    "state": "READY",
+    "status": 200,
+    "publicRequestStatus": 200,
+    "expectedAgencyContent": true,
+    "viewportTests": "identical local production-build tree"
+  },
+  "screenshots": {
+    "hero": "navigation retained",
+    "componentCaptures": "fixed navigation shell excluded for readability"
+  },
+  "limitations": [
+    "Chromium emulation; real-device Safari/WebKit not verified",
+    "No appointment submission or external voice-service certification",
+    "Production integration and full localization remain later phases"
+  ]
+}

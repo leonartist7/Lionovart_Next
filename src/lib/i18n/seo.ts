@@ -37,8 +37,8 @@ export function localizedPath(locale: Locale, pathname: string) {
 export function getLocalizedPageMetadata(locale: Locale, pathname: string): Metadata {
   const path = pathname || "/";
   if (path === "/about") {
-    const title = "About — The mind behind the work";
-    const description = "Meet Leonardo, founder and creative director of LIONOVART. A connected approach to brand, design, film, technology and real-world experiences.";
+    const title = "About — The art of innovation";
+    const description = "Inside LIONOVART: an independent creative and digital agency connecting brand strategy, design, technology and real-world experiences under one creative direction.";
     return {
       title,
       description,

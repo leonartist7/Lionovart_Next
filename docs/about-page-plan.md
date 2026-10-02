@@ -1,6 +1,6 @@
 # LIONOVART — About page and homepage restructuring
 
-Prepared October 2, 2026. Status audit and executable plan. Phases 1 and 2 are implemented and verified on preview branches; phases 3–5 remain pending. See `docs/about-page-progress.md` for current execution evidence.
+Prepared October 2, 2026. Status audit and executable plan. Phase 1 is implemented on its preview branch. The latest agency-focused revision brings forward the detailed About comparison and About composition work; homepage restructuring and phases 4–5 remain pending. See `docs/about-page-progress.md` for current execution evidence.
 
 ## Verified status
 
@@ -31,7 +31,7 @@ This turn checks source and deployment metadata; it does not claim a visual brow
 
 Homepage affected sequence: **Services → compact comparison → existing client results → existing process**.
 
-About page: **Opening → Leonardo → connected philosophy → LION / NOVA / ART → working principles → detailed comparison → contact invitation**.
+About page: **Agency opening → agency proposition and numbers → connected expertise with imagery → LION / NOVA / ART → detailed working-model comparison → Leonardo as creative lead → contact invitation**. This agency-first order supersedes the initial founder-first composition, following the latest feedback.
 
 Use LIONOVART throughout. Navigation label: About. English URL: `/about`.
 
@@ -43,8 +43,8 @@ The homepage becomes shorter where the founder and long comparison currently sit
 | --- | --- | --- | --- |
 | 0 | Baseline and recovery audit | Complete for this planning turn | Source and deployment checked; refresh before coding |
 | 1 | Functional About page, designed for phones first | Complete on preview branch | Direct route and reload work; complete story readable at 320–390px |
-| 2 | Homepage restructuring and comparison migration | Complete on preview branch | Founder moved; two-provider/four-topic homepage comparison; full detail available on About |
-| 3 | Premium composition and restrained motion | Pending | Mobile, tablet and desktop layouts refined; reduced motion works |
+| 2 | Homepage restructuring and comparison migration | About comparison built; homepage pending | Founder moved; two-provider/four-topic homepage comparison; full detail available on About |
+| 3 | Premium composition and restrained motion | About refinement built; complete phase review pending | Mobile, tablet and desktop layouts refined; reduced motion works |
 | 4 | Navigation, localization, SEO and NOVA integration | Pending | Routes, links, language switching, metadata and assistant actions work together |
 | 5 | Final verification, integration and release | Pending | Required checks pass; tested commit matches the deployed result |
 
@@ -70,6 +70,8 @@ Likely implementation targets, subject to refreshed source:
 - Focused About components under a suitable existing component directory.
 - `src/app/[locale]/[[...slug]]/page.tsx` route registration, because public localized URLs use an explicit page map.
 - Existing site navbar, footer, language and contact conventions. The site root layout does not currently mount navbar/footer directly; follow the existing page composition and avoid duplicating them.
+
+The initial chapter brief below is retained as history. The latest revision prioritizes the agency over the founder, uses Playfair Display for selected phrases and large numbers, and fills the detailed comparison earlier at the user’s request.
 
 Build these chapters:
 
@@ -103,10 +105,13 @@ Goal: make the requested homepage change only after its new destination works.
 
 Update PageBuilder to remove the prominent AboutExperience portrait/story chapter. Replace the full homepage Comparison with a dedicated compact presentation. Reuse shared comparison content where useful, but give the two presentations separate layout responsibilities.
 
-Homepage compact comparison:
+Homepage compact comparison (follow the newer `LIONOVART-Compact-Homepage-Section-Plan.md` for the final composition):
 
-- Heading: **Innovation is not a choice. It’s a necessity.** (October 2 compact-section amendment.)
-- Supporting line: **Brand strategy, design and technology, connected to strengthen your business across digital platforms, content and real-world experiences.** Keep the three existing metrics in the compact copy block.
+- One compact ivory chapter: headline, copy and three-number strip on the left; comparison on the right at desktop sizes. Mobile order: headline, copy, numbers, comparison, scope note and About link. No founder photo.
+- Reuse verified agency-structure numbers unless substantiated outcome figures are supplied. Preserve the existing client-results scene without duplicating its metrics.
+
+- Heading: **Innovation is not a choice. It’s a necessity.** Keep “necessity” red. This supersedes the earlier “One direction. Every touchpoint.” proposal in line with the newer compact-homepage plan.
+- Supporting line: **A connected approach to your brand, content, platforms, and experiences.**
 - Exactly two provider headings: **Others** and **LIONOVART**.
 - Four topics maximum: creative direction, brand consistency, connected creative/technical work, direct collaboration.
 - Topic label spans its pair of entries; do not create a third provider/feature column.

@@ -68,3 +68,32 @@ Evidence:
 These screenshots were captured from the production build of the identical implementation tree. Hosted verification checked deployment metadata and the About HTML; it did not perform a separate hosted viewport run.
 
 **Next: phase 2.** Continue from this branch/current source, move the homepage portrait/story into the completed About destination, replace the homepage matrix with the compact Others/LIONOVART presentation, and add its detailed working-model comparison to About. Preserve the current client-results scene, process, SEO and footer. Integrate any newer approved master changes deliberately; do not discard another preview branch's work.
+
+## Agency-focused refinement — October 2, 2026
+
+The latest feedback supersedes the founder-first opening. About now introduces LIONOVART as a creative and digital agency; Leonardo appears later as the founder and creative lead. The page describes specialist production partners without inventing a permanent team or staff count.
+
+- Playfair Display accents the opening, selected chapter phrases and large numbers. Clash Display and DM Sans continue to carry headings and body/interface text.
+- The agency number strip uses **3 brand pillars, 6 connected disciplines and 1 creative direction**, all supported by the current service and brand structure. These are agency-structure figures, not client outcomes. The historical 15+ years, 10+ industries and 100% on-time claims remain unsubstantiated and are not republished here.
+- Existing LIONOVART lion artwork and service illustrations add brand presence and an asymmetric visual sequence. Service images are labeled as expertise illustrations, not invented client work.
+- Count-up numbers, progressive CSS scroll movement and restrained hover responses add motion. Essential text stays visible; reduced motion is static. No additional dependency, autoplay video or pinned scroll sequence was added.
+- The detailed working-model comparison is brought forward from phase 2 at the user's request. It covers the existing seven topics and five provider types with balanced descriptions, without universal delivery, price or competitor claims. Wide screens use a semantic table; phones and tablets use native topic disclosures with explicitly labeled provider entries and an initially expanded Speed topic.
+- Metadata now reflects the agency proposition. English fallback and existing contact/navigation behavior remain as described in phase one.
+
+Verified implementation:
+
+- Remote implementation commit: `790a86e0caad81a16043fd6f09a44cbc0221d7c6`.
+- Source tree: `b8e4a9108e8ed1b5c269565279500a70e4b21050`, identical to locally built and checked commit `63e6ec23da6a078ff8891bebdbdaf5b4b8505341`.
+- Preview: https://lionovartnext-r4swpb4ej-lionovart.vercel.app/about
+- Deployment: `dpl_HNpgH1Nni7LKYb9pmvsCUek5euN9`, READY at the implementation commit above.
+- Hosted response: HTTP 200 via authenticated fetch and a separate public request; expected agency heading, comparison, number labels, founder copy and hero asset present.
+- `npm run build` passed, including TypeScript and page generation. Changed-file ESLint and `git diff --check` passed.
+- Production-build Chromium checks passed at 320, 375, 390, 768, 1024, 1100 and 1440px: no horizontal overflow or clipped text blocks, one H1, Playfair loaded, all About images loaded, square founder portrait and the expected comparison presentation at each breakpoint.
+- Touch/click and Enter-key disclosure toggling passed at 390×667. Reduced-motion counters immediately show final values and decorative animations are disabled. At 200% root text size / 390px, text-range checks find no clipped text or horizontal overflow after refining headline and pillar wrapping.
+- English locale fallback and reload passed; no browser page errors. Existing contact service limitations from the phase-one checkpoint still apply. Real-device Safari/WebKit has not been verified.
+
+Evidence: [checks](../reports/about-agency-refinement/checks.json), [mobile opening](../reports/about-agency-refinement/about-390-hero.webp), [desktop opening](../reports/about-agency-refinement/about-1440-hero.webp), [mobile agency](../reports/about-agency-refinement/about-390-agency.webp), [mobile comparison](../reports/about-agency-refinement/about-390-comparison.webp), [desktop comparison](../reports/about-agency-refinement/about-1440-comparison.webp). Component captures exclude the fixed navigation shell for readability; hero captures retain it. Browser evidence comes from the identical local production build; hosted verification checked deployment metadata and returned HTML.
+
+Phase 1 and this requested refinement are complete on the existing preview branch / draft PR 78. Phase 2 still needs the compact homepage chapter and founder removal. About composition and comparison work have been brought forward, while complete phase 3 review, phase 4 integration/localization and phase 5 release remain pending.
+
+During refinement, master advanced to `afa959030a93feb940b4c1230412ac78a1477f2d` with footer and careers changes. Those are separate work; preserve and reconcile them when integrating this preview. This update does not replace master or its production deployment. The plan now records the newer compact-homepage headline and layout direction instead of the earlier headline proposal.
