@@ -1,5 +1,40 @@
 # About page — execution progress
 
+## Current checkpoint — About/homepage reconciliation, October 2, 2026
+
+Status: **the requested branch consolidation is complete and verified on the unified PR 80 preview**. Production release remains phase 5. This checkpoint supersedes the older “homepage pending” and separate-preview status statements below; earlier evidence is retained as history.
+
+- Canonical review PR: https://github.com/leonartist7/Lionovart_Next/pull/80, branch `codex/compact-homepage-comparison-20261002`.
+- Combined source commit: `1ae97c34f977a7ff18bec632b69c531791d527e4`, with both previous branch heads as parents: homepage `a99b9bdcd1e46510c5a41ff1e8cfa834ba0de32a` and latest agency About `b2e443b6538b4a4d57646b36c2ec1302bab0b48a`.
+- Source tree: `fb8d6854840461c0ce8c52ddf2076d8639ecf906`, identical to the built and browser-checked local commit `72f39492a0d932a1a61f04c8b87f7003787c87fe`.
+- Preserves master `afa959030a93feb940b4c1230412ac78a1477f2d`; refreshed before publication and hosted verification. GitHub reports PR 80 mergeable against current master.
+- Unified preview: https://lionovartnext-b0cfx0hle-lionovart.vercel.app
+- About: https://lionovartnext-b0cfx0hle-lionovart.vercel.app/about
+- Deployment: `dpl_9Sbbttx5jEfKEjqfDBpKipKQ3dQ1`, READY at the combined source commit. Hosted homepage and About both return HTTP 200 and contain the intended respective content.
+
+Reconciliation choices:
+
+- Kept the latest agency About component byte-for-byte: opening, agency voice, Playfair phrases/numbers, lion/service imagery, 3/6/1 figures, pillar copy, founder chapter and contact invitation.
+- Kept the latest agency comparison table/disclosures. Added the existing `/about#comparison` destination while retaining `#approach`. A small client helper waits for font readiness and intro completion before landing the deep link; it respects the existing Lenis CSS scroll margin and cleans up listeners/animation frames.
+- Removed the unused earlier WorkingModels component and stylesheet after confirming no other callers. There is one detailed comparison on About.
+- Compact homepage components, PageBuilder and all six message catalogs are identical to PR 80's previous head. Its four-topic red LIONOVART / Others chart, innovation heading and existing homepage numbers are retained.
+- Careers components/routes, current footer, cycling CTA and cursor/NOVA fixes match current master. SEO combines the agency About metadata with the newer careers rules instead of replacing the whole file from the older branch.
+- The plan retains the latest agency direction, and the progress document now carries both workstreams plus this current checkpoint.
+
+Verification:
+
+- Production build and TypeScript pass. Targeted ESLint, catalog shape validation for all six locales, and diff whitespace checks pass. ESLint required only a local ignored symlink supplying the installed Zod peer under zod-validation-error; no dependency or lockfile change was made.
+- Combined production-build Chromium checks pass on both pages at 320, 375, 390, 768, 1024, 1100 and 1440px. No horizontal overflow or clipped relevant copy; one About H1; Playfair loads; About figures are 3/6/1; portrait loads at 1:1; the comparison switches correctly at 1100px.
+- Homepage has four topics, two provider headers, three existing figures, no founder portrait, one footer with Careers, and the existing results/process destinations. The compact section is 724px tall at 390px and 563px at 1440px in this capture; earlier captures remain historical evidence. No matching old two-section height baseline was collected.
+- Homepage-to-latest-About navigation, back/forward, direct comparison landing, first-visit normal-motion comparison landing, touch/click disclosure toggling and Enter-key toggling pass. The comparison target lands at approximately 100px below the viewport top in both reduced and first-visit normal motion.
+- 390×667 interactions and About at 200% root text size pass with no text-range clipping. Reduced-motion rendering and normal-motion final count-up values pass. French About URLs still redirect to English. Careers and application routes respond HTTP 200; no form was submitted.
+- No browser page errors. During verification, the local single-process Chromium harness needed its extra context kept open until browser shutdown; closing that context prematurely terminated the harness. This did not require a website change.
+- Real-device Safari/WebKit, a complete performance comparison and external voice/booking service readiness remain unverified. Existing homepage metric provenance is unchanged by this consolidation. Non-English review gates remain in place.
+
+Evidence: [checks](../reports/about-homepage-reconciliation/checks.json), [mobile homepage](../reports/about-homepage-reconciliation/homepage-390-compact.webp), [desktop homepage](../reports/about-homepage-reconciliation/homepage-1440-compact.webp), [mobile About opening](../reports/about-homepage-reconciliation/about-390-hero.webp), [mobile detailed comparison](../reports/about-homepage-reconciliation/about-390-comparison.webp), [desktop detailed comparison](../reports/about-homepage-reconciliation/about-1440-comparison.webp). Component captures exclude the fixed navbar shell; the hero retains it. Viewport evidence is from the identical local production-build tree; hosted checks cover deployment metadata and returned HTML.
+
+Next: phase 3, reviewing the two pages as one experience. Phase 4 navigation/localization/SEO/NOVA integration and phase 5 final production release remain later steps. PR 78's work is incorporated in PR 80; use the unified PR for further work.
+
 ## Phase 2 — compact homepage and comparison migration
 
 Date: October 2, 2026. Status: **implemented and verified on the preview branch**. Integration to master remains phase 5.

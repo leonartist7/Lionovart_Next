@@ -1,6 +1,6 @@
 # LIONOVART — About page and homepage restructuring
 
-Prepared October 2, 2026. Status audit and executable plan. Phase 1 is implemented on its preview branch. The latest agency-focused revision brings forward the detailed About comparison and About composition work; homepage restructuring and phases 4–5 remain pending. See `docs/about-page-progress.md` for current execution evidence.
+Prepared October 2, 2026. Status audit and executable plan. The phase-one agency About page and phase-two compact homepage are implemented and verified together on the unified PR 80 preview. Phase 3 composition review, phase 4 full integration/localization and phase 5 production release remain pending. See `docs/about-page-progress.md` for current execution evidence.
 
 ## Verified status
 
@@ -43,7 +43,7 @@ The homepage becomes shorter where the founder and long comparison currently sit
 | --- | --- | --- | --- |
 | 0 | Baseline and recovery audit | Complete for this planning turn | Source and deployment checked; refresh before coding |
 | 1 | Functional About page, designed for phones first | Complete on preview branch | Direct route and reload work; complete story readable at 320–390px |
-| 2 | Homepage restructuring and comparison migration | About comparison built; homepage pending | Founder moved; two-provider/four-topic homepage comparison; full detail available on About |
+| 2 | Homepage restructuring and comparison migration | Implemented, reconciled and verified on unified preview | Founder moved; two-provider/four-topic homepage comparison; full detail available on About |
 | 3 | Premium composition and restrained motion | About refinement built; complete phase review pending | Mobile, tablet and desktop layouts refined; reduced motion works |
 | 4 | Navigation, localization, SEO and NOVA integration | Pending | Routes, links, language switching, metadata and assistant actions work together |
 | 5 | Final verification, integration and release | Pending | Required checks pass; tested commit matches the deployed result |
