@@ -1,6 +1,6 @@
 # LIONOVART — About page and homepage restructuring
 
-Prepared October 2, 2026. Status audit and executable plan. Phase 1 is implemented and verified on its preview branch; phases 2–5 remain pending. See `docs/about-page-progress.md` for current execution evidence.
+Prepared October 2, 2026. Status audit and executable plan. Phases 1 and 2 are implemented and verified on preview branches; phases 3–5 remain pending. See `docs/about-page-progress.md` for current execution evidence.
 
 ## Verified status
 
@@ -43,7 +43,7 @@ The homepage becomes shorter where the founder and long comparison currently sit
 | --- | --- | --- | --- |
 | 0 | Baseline and recovery audit | Complete for this planning turn | Source and deployment checked; refresh before coding |
 | 1 | Functional About page, designed for phones first | Complete on preview branch | Direct route and reload work; complete story readable at 320–390px |
-| 2 | Homepage restructuring and comparison migration | Pending | Founder moved; two-provider/four-topic homepage comparison; full detail available on About |
+| 2 | Homepage restructuring and comparison migration | Complete on preview branch | Founder moved; two-provider/four-topic homepage comparison; full detail available on About |
 | 3 | Premium composition and restrained motion | Pending | Mobile, tablet and desktop layouts refined; reduced motion works |
 | 4 | Navigation, localization, SEO and NOVA integration | Pending | Routes, links, language switching, metadata and assistant actions work together |
 | 5 | Final verification, integration and release | Pending | Required checks pass; tested commit matches the deployed result |
@@ -105,8 +105,8 @@ Update PageBuilder to remove the prominent AboutExperience portrait/story chapte
 
 Homepage compact comparison:
 
-- Heading: **One direction. Every touchpoint.**
-- Supporting line: **A connected approach to your brand, content, platforms, and experiences.**
+- Heading: **Innovation is not a choice. It’s a necessity.** (October 2 compact-section amendment.)
+- Supporting line: **Brand strategy, design and technology, connected to strengthen your business across digital platforms, content and real-world experiences.** Keep the three existing metrics in the compact copy block.
 - Exactly two provider headings: **Others** and **LIONOVART**.
 - Four topics maximum: creative direction, brand consistency, connected creative/technical work, direct collaboration.
 - Topic label spans its pair of entries; do not create a third provider/feature column.

@@ -1,5 +1,25 @@
 # About page — execution progress
 
+## Phase 2 — compact homepage and comparison migration
+
+Date: October 2, 2026. Status: **implemented and verified on the preview branch**. Integration to master remains phase 5.
+
+- Branch: `codex/compact-homepage-comparison-20261002`; PR: https://github.com/leonartist7/Lionovart_Next/pull/80.
+- Builds on phase-one commit `eafdf71f0e1e7a4ee059507691a2ce3fafcd79bf`, reconciled with master `afa959030a93feb940b4c1230412ac78a1477f2d` so current careers, cycling CTA and footer work remains present.
+- Verified implementation: `467242dba221aca3d893ca86186c78a859a1a50c`; tree `475f1408323016c5dac1953f77c87ff0e9f31413`. Remote tree and locally built tree match exactly.
+- Preview: https://lionovartnext-f9lm55l2n-lionovart.vercel.app, READY. Homepage combined section at `/#about`; fuller comparison at `/about#comparison`.
+- Replaces consecutive portrait/About and large comparison blocks with one ivory section. Retains the innovation headline, short description and three existing metrics. Desktop puts the red LIONOVART / Others comparison to the right; mobile places it below the stats. The old hidden layout switch is no longer mounted on the homepage.
+- Founder story and portrait remain on the working About page. The seven original comparison subjects are available there as labeled descriptions of five working models, without universal pass/fail scoring or blanket turnaround/pricing guarantees.
+- At 390px, the full compact section is 756px tall; at 1440px it is 563px. The old two blocks were replaced by one; this turn did not capture a matching pixel-height baseline for the old pair.
+- Production build, TypeScript, changed-file ESLint, diff whitespace check and all six catalog shape checks passed. ESLint uses the existing local nested-Zod peer workaround described under phase 1; no lockfile or dependency changes were committed.
+- Chromium checks passed at 320, 375, 390, 430, 768, 1024 and 1440px, plus touch/mobile emulation at 390px. No document or text overflow and no page errors. The two provider headings, three metrics, four homepage topics, About navigation, portrait destination and seven detailed topics were checked.
+- Normal/reduced motion retain visible essential content. Results and process sections still exist after the changed page height. On a 320px phone at 200% text size, stats reflow and the section grows naturally without horizontal overflow; comparison labels remain inside the red column.
+- Source copy lives in the JSON catalogs. New translation drafts are present in all six catalogs, preserving their existing review gates; non-English catalogs still fall back to approved English. About remains English, with localized About URLs redirected as in phase 1.
+- Existing figures `15+`, `10+`, `100%` are retained as requested. Their inclusion in source is not independent verification of the claims; factual validation remains an editorial release item.
+- Safari/WebKit and physical devices were not tested. Broader About composition, shared navigation/SEO/NOVA integration and release remain phases 3–5.
+
+Evidence: [checks](../reports/compact-comparison/checks.json), [390px homepage](../reports/compact-comparison/homepage-390.jpg), [1440px homepage](../reports/compact-comparison/homepage-1440.jpg), [390px detailed comparison](../reports/compact-comparison/about-comparison-390.jpg).
+
 ## Phase 1 — implementation checkpoint
 
 Date: October 2, 2026.
