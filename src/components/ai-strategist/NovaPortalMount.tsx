@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useNovaStore } from "@/lib/stores/nova-store";
+import { isCareersPath } from "@/lib/careers-route";
 
 const StrategistPanel = dynamic(() => import("./StrategistPanel"), { ssr: false });
 
@@ -23,7 +24,7 @@ export function NovaPortalMount() {
 
   // NOVA Console (/admin) is an internal tool — the customer-facing voice
   // widget has no business appearing over it.
-  if (pathname?.startsWith("/admin")) return null;
+  if (pathname?.startsWith("/admin") || isCareersPath(pathname)) return null;
   if (!everOpened) return null;
 
   return (

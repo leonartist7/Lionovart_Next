@@ -5,6 +5,8 @@ import Home from "../../(site)/page";
 import AuditPage from "../../(site)/audit/page";
 import AuditThanksPage from "../../(site)/audit/thanks/page";
 import CallPage from "../../(site)/call/page";
+import CareersPage from "../../(site)/careers/page";
+import TalentApplicationPage from "../../(site)/careers/apply/page";
 import PricingPage from "../../(site)/pricing/page";
 import PrivacyPage from "../../(site)/privacy/page";
 import TermsPage from "../../(site)/terms/page";
@@ -26,6 +28,8 @@ const pages: Record<string, Page> = {
   "/audit": AuditPage,
   "/audit/thanks": AuditThanksPage,
   "/call": CallPage,
+  "/careers": CareersPage,
+  "/careers/apply": TalentApplicationPage,
   "/pricing": PricingPage,
   "/privacy": PrivacyPage,
   "/terms": TermsPage,

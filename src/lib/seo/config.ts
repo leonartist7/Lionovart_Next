@@ -122,6 +122,7 @@ export const SERVICES: ServiceDef[] = [
 export const STATIC_ROUTES = [
   { path: "/", changeFrequency: "weekly" as const, priority: 1.0 },
   { path: "/services", changeFrequency: "monthly" as const, priority: 0.9 },
+  { path: "/careers", changeFrequency: "monthly" as const, priority: 0.6 },
   { path: "/privacy", changeFrequency: "yearly" as const, priority: 0.2 },
   { path: "/terms", changeFrequency: "yearly" as const, priority: 0.2 },
 ];
