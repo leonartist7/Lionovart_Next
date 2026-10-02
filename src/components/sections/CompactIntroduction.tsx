@@ -40,7 +40,7 @@ export default function CompactIntroduction() {
             </tr></thead>
             {copy.rows.map((row, index) => (
               <tbody key={row.topic}>
-                <tr><th id={`compact-topic-${index}`} scope="rowgroup" colSpan={2} className={styles.topic}>{row.topic}</th></tr>
+                <tr><th id={`compact-topic-${index}`} scope="rowgroup" colSpan={2} className={styles.topic}><span>{row.topic}</span></th></tr>
                 <tr>
                   <td headers={`compact-lionovart compact-topic-${index}`}>{row.lionovart}</td>
                   <td headers={`compact-others compact-topic-${index}`}>{row.others}</td>

@@ -18,7 +18,7 @@
 }
 .heading span { color: #e5192a; }
 .description { margin-top: 1rem; max-width: 47ch; font-size: 1rem; line-height: 1.55; color: #514c46; text-wrap: pretty; }
-.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 1.25rem; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 5.4em), 1fr)); row-gap: 1rem; margin-top: 1.25rem; }
 .stats > div { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: .4rem; padding-inline: .65rem; }
 .stats > div:first-child { padding-left: 0; }
 .stats > div + div { border-left: 1px solid #17141224; }
@@ -27,10 +27,11 @@
 .comparison { scroll-margin-top: 5rem; }
 .table { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0; }
 .brandColumn { background: #e5192a; }
-.table thead th { padding: .85rem .9rem; font-family: var(--font-clash-display), sans-serif; font-size: .9375rem; font-weight: 600; letter-spacing: -.015em; text-align: left; }
+.table thead th { padding: .85rem .9rem; font-family: var(--font-clash-display), sans-serif; font-size: .9375rem; font-weight: 600; letter-spacing: -.015em; text-align: left; overflow-wrap: anywhere; }
 .table thead th:first-child { background: #e5192a; color: white; border-radius: 12px 0 0 0; }
 .table thead th:last-child { background: #eee8df; border-radius: 0 12px 0 0; }
 .table .topic { padding: .45rem .9rem .25rem; background: linear-gradient(to right, #e5192a 50%, #eee8df 50%); color: white; border-top: 1px solid #ffffff30; font-size: .6875rem; font-weight: 500; letter-spacing: .04em; text-align: left; }
+.topic span { display: block; max-width: calc(50% - .9rem); overflow-wrap: anywhere; }
 .table td { padding: .55rem .9rem .65rem; font-size: .8125rem; font-weight: 500; line-height: 1.35; vertical-align: top; overflow-wrap: break-word; }
 .table td:first-child { background: #e5192a; color: white; }
 .table td:last-child { background: #eee8df; color: #514c46; }
@@ -49,6 +50,7 @@
   .table thead th { font-size: 1.125rem; }
   .table td { font-size: .9375rem; padding: .7rem 1.2rem .85rem; }
   .table .topic { font-size: .75rem; padding-inline: 1.2rem; }
+  .topic span { max-width: calc(50% - 1.2rem); }
   .comparisonFooter > p { font-size: .75rem; }
 }
 @media (min-width: 1024px) {
