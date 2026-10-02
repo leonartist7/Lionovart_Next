@@ -230,7 +230,6 @@ function CompactFooter({ year }: { year: number }) {
           </div>
 
           <div className={styles.finaleUtility}>
-            <span className={styles.wordmark}>LIONOVART®</span>
             <p className={styles.copyright}>
               &copy; {year} LIONOVART. {t.footer.copyright}
             </p>
