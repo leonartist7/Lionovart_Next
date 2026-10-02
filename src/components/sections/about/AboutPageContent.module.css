@@ -1,0 +1,85 @@
+.page { background: var(--site-surface-dark, #0a0a0a); color: #f7f4ef; font-family: var(--font-dm-sans), sans-serif; }
+.page section { scroll-margin-top: 100px; }
+.container { width: min(100% - 2.5rem, 1280px); margin-inline: auto; min-width: 0; }
+.page h1, .page h2, .page h3 { font-family: var(--font-clash-display), sans-serif; font-weight: 600; }
+.eyebrow { font-size: .75rem; font-weight: 600; line-height: 1.5; letter-spacing: .15em; text-transform: uppercase; }
+.opening { padding-block: 10rem 3.5rem; }
+.opening .eyebrow, .closing .eyebrow { color: #f0c917; }
+.heroTitle { margin-top: 1.75rem; font-size: clamp(3.9rem, 15vw, 10.5rem); line-height: .91; letter-spacing: -.045em; }
+.heroAccent { color: #f0c917; }
+.openingBottom { display: flex; flex-direction: column; gap: 1.75rem; margin-top: 2.5rem; }
+.introduction { max-width: 42ch; font-size: 1.0625rem; line-height: 1.65; color: #c1beb8; }
+.textLink { display: inline-flex; width: fit-content; align-items: center; justify-content: space-between; gap: 1rem; min-height: 44px; padding-block: .5rem; font-size: .9375rem; font-weight: 600; text-decoration: underline; text-underline-offset: .4em; }
+.textLink span { text-decoration: none; }
+.page a:focus-visible { outline: 2px solid currentColor; outline-offset: 6px; }
+.chapterMarker { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid #ffffff30; color: #aaa6a0; font-size: .75rem; letter-spacing: .12em; }
+.founder { background: var(--site-surface-light, #f7f4ef); color: #171412; padding-block: 4rem; }
+.founderGrid { display: grid; gap: 2rem; }
+.founder .eyebrow, .approach .eyebrow { color: #8a3127; }
+.founderName { margin-top: .85rem; font-size: clamp(2.75rem, 9vw, 5.5rem); line-height: 1; letter-spacing: -.04em; }
+.role { margin-top: .7rem; font-size: .9375rem; color: #55514b; }
+.portrait { margin: 0; min-width: 0; }
+.portraitImage { display: block; width: 100%; height: auto; aspect-ratio: 1; }
+.portrait figcaption { margin-top: .8rem; color: #625d56; font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; }
+.founderStory h3 { font-size: clamp(1.8rem, 6.5vw, 3rem); line-height: 1.1; letter-spacing: -.025em; }
+.founderStory p, .prose p { margin-top: 1.5rem; font-size: 1rem; line-height: 1.75; max-width: 55ch; }
+.founderStory p { color: #514c46; }
+.desktopBreak { display: none; }
+.philosophy, .pillars, .approach { padding-block: 4rem; }
+.philosophy .eyebrow, .pillars .eyebrow { color: #bcb7ad; }
+.sectionTitle { margin-top: 1.5rem; font-size: clamp(2.3rem, 9.5vw, 5.6rem); line-height: 1; letter-spacing: -.035em; }
+.sectionTitle span { color: #f0c917; }
+.philosophyGrid { display: grid; gap: 1rem; }
+.prose { color: #c1beb8; }
+.prose .textLink { margin-top: 1.25rem; color: #f7f4ef; }
+.pillars { padding-top: 1rem; }
+.sectionHeader { margin-bottom: 2.5rem; }
+.pillarRow { padding-block: 2.25rem; border-top: 1px solid #ffffff30; display: grid; gap: 1.5rem; }
+.pillarName { display: flex; align-items: baseline; gap: 1rem; font-family: var(--font-clash-display), sans-serif; font-weight: 600; font-size: clamp(3rem, 13vw, 6.5rem); line-height: 1; letter-spacing: -.04em; }
+.index { color: #c4a354; font-family: var(--font-dm-sans), sans-serif; font-size: .75rem; font-weight: 500; line-height: 1.5; letter-spacing: .08em; }
+.pillarCopy h3 { font-size: clamp(1.6rem, 5vw, 2.25rem); line-height: 1.15; letter-spacing: -.02em; }
+.pillarCopy > p { max-width: 50ch; margin-top: 1rem; font-size: 1rem; line-height: 1.75; color: #c1beb8; }
+.pillarCopy .disciplines { font-size: .8125rem; color: #c4a354; line-height: 1.7; }
+.approach { color: #171412; background: var(--site-surface-light, #f7f4ef); }
+.principles { margin-top: 2.5rem; }
+.principleRow { display: grid; grid-template-columns: 1.25rem minmax(0, 1fr); column-gap: 1rem; row-gap: 1rem; padding-block: 1.75rem; border-top: 1px solid #17141230; }
+.principleRow .index { color: #8a3127; padding-top: .2rem; }
+.principleRow h3 { font-size: 1.5rem; line-height: 1.2; letter-spacing: -.02em; }
+.principleRow p { grid-column: 2; color: #514c46; font-size: 1rem; line-height: 1.75; max-width: 50ch; }
+.closing { padding-block: 4.5rem 5rem; }
+.closingCopy { margin-top: 1.75rem; max-width: 40ch; font-size: 1.0625rem; line-height: 1.7; color: #c1beb8; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem 2rem; margin-top: 2rem; }
+.primaryLink { display: inline-flex; align-items: center; gap: 2rem; padding: 1rem 1.75rem; min-height: 48px; border-radius: 100px; background: #e5192a; color: #fff; font-size: 1rem; font-weight: 600; }
+.primaryLink:hover { background: #c1121f; }
+@media (min-width: 768px) {
+  .container { width: min(100% - 5rem, 1280px); }
+  .opening { padding-block: 12rem 4rem; }
+  .heroTitle { font-size: clamp(7rem, 12vw, 10.5rem); }
+  .openingBottom { flex-direction: row; justify-content: space-between; align-items: flex-end; gap: 3rem; }
+  .introduction { font-size: 1.125rem; }
+  .founder, .philosophy, .pillars, .approach { padding-block: 6rem; }
+  .founderGrid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 2rem 3rem; align-items: start; }
+  .founderIdentity { grid-column: 2; grid-row: 1; }
+  .portrait { grid-column: 1; grid-row: 1 / 3; }
+  .founderStory { grid-column: 2; }
+  .founderName { font-size: clamp(2.7rem, 5vw, 5rem); }
+  .founderStory h3 { font-size: 2rem; }
+  .sectionTitle { font-size: clamp(3.4rem, 6.5vw, 5.6rem); }
+  .pillarRow { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 3rem; padding-block: 3rem; }
+  .pillarName { font-size: clamp(4.3rem, 8vw, 6.5rem); }
+  .principleRow { grid-template-columns: 1.25rem minmax(0, 1fr) minmax(0, 1.1fr); gap: 2rem; padding-block: 2rem; }
+  .principleRow p { grid-column: 3; }
+  .closing { padding-block: 6rem; }
+}
+@media (min-width: 1200px) {
+  .container { width: min(100% - 8rem, 1280px); }
+  .founderGrid { column-gap: 6rem; }
+  .founderStory h3 { font-size: 2.8rem; }
+  .founderStory p, .prose p { font-size: 1.125rem; }
+  .philosophyGrid { grid-template-columns: minmax(0, 1fr) minmax(0, .8fr); gap: 6rem; align-items: start; }
+  .prose p:first-child { margin-top: 1.5rem; }
+  .desktopBreak { display: inline; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page { scroll-behavior: auto; }
+}

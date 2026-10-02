@@ -36,6 +36,17 @@ export function localizedPath(locale: Locale, pathname: string) {
 
 export function getLocalizedPageMetadata(locale: Locale, pathname: string): Metadata {
   const path = pathname || "/";
+  if (path === "/about") {
+    const title = "About — The mind behind the work";
+    const description = "Meet Leonardo, founder and creative director of LIONOVART. A connected approach to brand, design, film, technology and real-world experiences.";
+    return {
+      title,
+      description,
+      alternates: { canonical: "/about", languages: { en: "/about" } },
+      openGraph: { title: `${title} | ${SITE.name}`, description, url: `${SITE_URL}/about`, siteName: SITE.name, locale: "en_CA", type: "website", images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: SITE.name }] },
+      twitter: { card: "summary_large_image", title: `${title} | ${SITE.name}`, description, images: [OG_IMAGE] },
+    };
+  }
   const urlPath = localizedPath(locale, path);
   // The parent layout applies the site title template. Keeping this as the
   // page label avoids a duplicated “| LIONOVART” in the browser title.
