@@ -1709,6 +1709,8 @@ if (run("content")) {
     body: JSON.stringify({ state: "scheduled" }),
   });
   check("agency schedules an approved post", scheduled.status === 200, `${scheduled.status}`);
+  const beforePublishCalendar = await pageSource(`/portal/${fx.slug}/calendar`, fx.agencyCookie);
+  check("a scheduled post appears on the calendar", beforePublishCalendar.html.includes("The new cups arrived."));
 
   // ── Publishing: validated for real, confirmed explicitly, append-only.
   const publishApi = `${api}/${post.id}/publish`;
@@ -1823,7 +1825,7 @@ if (run("content")) {
 
   // ── A scheduled post lands on the calendar it was promised to.
   const calendar = await pageSource(`/portal/${fx.slug}/calendar`, fx.agencyCookie);
-  check("a scheduled post appears on the calendar", calendar.html.includes("The new cups arrived."));
+  check("a published post leaves the scheduled calendar", !calendar.html.includes("The new cups arrived."));
 }
 
 /* ── demo: the unauthenticated design preview ────────────────────── */

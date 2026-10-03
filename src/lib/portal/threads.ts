@@ -142,25 +142,30 @@ export async function buildVisibilityGate(
   };
 }
 
-/** Initializes legacy labels once and advances a per-version counter atomically. */
-async function pinSequence(workspaceId: string, assetId: string, versionId: number, tx: FirebaseFirestore.Transaction, allocate: boolean): Promise<{ next: number; labels: Map<string, number> }> {
-  const counter = adminDb!.collection("workspaces").doc(workspaceId).collection("pinCounters").doc(assetId).collection("versions").doc(String(versionId));
-  const saved = await tx.get(counter);
-  const labels = new Map<string, number>();
-  let next = Number(saved.data()?.last ?? 0);
-  if (!saved.exists) {
-    const pins = await tx.get(threadsRef(workspaceId).where("targetType", "==", "asset").where("targetId", "==", assetId));
+function pinCounter(workspaceId: string, assetId: string, versionId: number) {
+  return adminDb!.collection("workspaces").doc(workspaceId).collection("pinCounters").doc(assetId).collection("versions").doc(String(versionId));
+}
+
+/** Bootstrap legacy labels in one create-only batch before hot counter transactions. */
+async function ensurePinSequence(workspaceId: string, assetId: string, versionId: number): Promise<Map<string, number>> {
+  const counter = pinCounter(workspaceId, assetId, versionId);
+  const query = threadsRef(workspaceId).where("targetType", "==", "asset").where("targetId", "==", assetId);
+  if (!(await counter.get()).exists) {
+    const pins = await query.get();
     const ordered = pins.docs.filter((doc) => doc.data().pin && doc.data().versionId === versionId).sort((a, b) => String(a.data().createdAt).localeCompare(String(b.data().createdAt)) || a.id.localeCompare(b.id));
-    next = Math.max(0, ...ordered.map((doc) => Number(doc.data().pinNumber ?? 0)));
+    let last = Math.max(0, ...ordered.map((doc) => Number(doc.data().pinNumber ?? 0)));
+    const batch = adminDb!.batch();
     for (const doc of ordered) {
-      const assigned = Number(doc.data().pinNumber ?? ++next);
-      labels.set(doc.id, assigned);
-      if (!doc.data().pinNumber) tx.update(doc.ref, { pinNumber: assigned });
+      if (!doc.data().pinNumber) batch.update(doc.ref, { pinNumber: ++last, updatedAt: new Date().toISOString() });
+    }
+    batch.create(counter, { last });
+    try { await batch.commit(); } catch (error) {
+      // Another initializer won. Its counter and labels committed together.
+      if ((error as { code?: number }).code !== 6) throw error;
     }
   }
-  if (allocate) next++;
-  tx.set(counter, { last: next }, { merge: true });
-  return { next, labels };
+  const labeled = await query.get();
+  return new Map(labeled.docs.filter((doc) => doc.data().pin && doc.data().versionId === versionId).map((doc) => [doc.id, Number(doc.data().pinNumber)]));
 }
 
 /* ── Reads ──────────────────────────────────────────────────────── */
@@ -216,9 +221,9 @@ export async function listThreads(
   const legacy = all.filter((thread) => thread.pin && !thread.pinNumber && thread.versionId !== undefined);
   const versions = new Map(legacy.map((thread) => [thread.targetId + ":" + thread.versionId, thread]));
   for (const thread of versions.values()) {
-    const sequence = await adminDb.runTransaction((tx) => pinSequence(workspaceId, thread.targetId, thread.versionId!, tx, false));
+    const labels = await ensurePinSequence(workspaceId, thread.targetId, thread.versionId!);
     for (const candidate of all) {
-      const label = sequence.labels.get(candidate.id);
+      const label = labels.get(candidate.id);
       if (label) candidate.pinNumber = label;
     }
   }
@@ -364,9 +369,16 @@ export async function createThread(
 
   const ref = threadsRef(workspaceId).doc();
   const commentRef = commentsRef(workspaceId, ref.id).doc();
+  if (input.pin) await ensurePinSequence(workspaceId, input.targetId, input.versionId!);
   return adminDb.runTransaction(async (tx) => {
-    const sequence = input.pin ? await pinSequence(workspaceId, input.targetId, input.versionId!, tx, true) : null;
-    const data = { ...doc, ...(sequence ? { pinNumber: sequence.next } : {}) };
+    let pinNumber: number | undefined;
+    if (input.pin) {
+      const counter = pinCounter(workspaceId, input.targetId, input.versionId!);
+      const saved = await tx.get(counter);
+      pinNumber = Number(saved.data()?.last ?? 0) + 1;
+      tx.update(counter, { last: pinNumber });
+    }
+    const data = { ...doc, ...(pinNumber ? { pinNumber } : {}) };
     const comment = { body, authorUid: input.authorUid, authorName: input.authorName, createdAt: now };
     tx.create(ref, data);
     tx.create(commentRef, comment);

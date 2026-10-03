@@ -1,4 +1,5 @@
 import "server-only";
+import { isDeepStrictEqual } from "node:util";
 import { adminDb } from "@/lib/firebase-admin";
 import { listAssetsWithVersions } from "@/lib/portal/assets";
 import { validatePost, type MediaInfo, type PostValidation } from "@/lib/portal/platforms";
@@ -362,7 +363,7 @@ export async function submitForReview(
     const current = toPost(latest);
     if (current.state !== "draft") return { error: "This post is no longer a draft.", status: 409 };
     // The exact content validated above must still be the content submitted.
-    if (JSON.stringify(latest.data()) !== JSON.stringify(doc.data())) {
+    if (!isDeepStrictEqual(latest.data(), doc.data())) {
       return { error: "The draft changed. Reload and submit the current version.", status: 409 };
     }
     const workspace = adminDb!.collection("workspaces").doc(workspaceId);
