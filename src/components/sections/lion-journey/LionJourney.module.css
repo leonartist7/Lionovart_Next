@@ -245,3 +245,19 @@
 }
 @media(max-height:700px) { .journey :global(.hero-opening-pinned .lion-content) { translate: -8vw 0; } }
 @media(max-width:767px) and (max-height:700px) { .journey :global(.hero-opening-pinned .lion-content) { translate: 0 0; } }
+
+/* The editor hides the entire lion treatment, including both poster fallbacks. */
+.journey[data-lion-enabled="false"] .canvas,
+.journey[data-lion-enabled="false"] .fallback,
+.journey[data-lion-enabled="false"] .travellingStill,
+.journey[data-lion-enabled="false"] .poster { visibility: hidden !important; opacity: 0 !important; }
+
+/* Three compact badges sit together beneath the 3D cards. */
+.journey :global(.opening-work-pinned .opening-proof) { display: grid; grid-template-columns: auto auto auto; justify-content: center; align-items: center; column-gap: clamp(16px, 3vw, 42px); row-gap: 14px; }
+.journey :global(.opening-proof .opening-flags) { grid-column: 1 / -1; order: 3; }
+@media(max-width:599px) {
+  .journey :global(.opening-work-pinned .opening-proof) { column-gap: 8px; padding-inline: 8px; }
+  .journey :global(.opening-proof .opening-laurel) { gap: 3px; }
+  .journey :global(.opening-proof .opening-laurel span) { font-size: clamp(10px, 2.8vw, 15px); }
+  .journey :global(.opening-work-pinned .opening-laurel img) { height: 42px; }
+}

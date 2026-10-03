@@ -3,6 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { useMotionValue, type MotionValue } from "framer-motion";
 import { journeyPose, journeyProgress, openingPose, goldRoute, goldOrbitCenter, goldOrbitTurns, routePoint, lionCoveredByFrame, clamp, type Anchors, type Rect } from "./motion";
 import type { LionEngine } from "./engine";
+import { useHeroComposition } from "../hero-background/HeroComposition";
 import styles from "./LionJourney.module.css";
 
 type ElementRef = RefObject<HTMLDivElement | null>;
@@ -34,6 +35,8 @@ export function LionSlot() {
   </div></div>;
 }
 export default function LionJourney({ children }: { children: ReactNode }) {
+  const { composition: { scene } } = useHeroComposition();
+  const lionEnabled = useRef(scene.lionVisible);
   const hero = useRef<HTMLElement>(null), copy = useRef<HTMLDivElement>(null), slot = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLDivElement>(null), videoSection = useRef<HTMLElement>(null);
   const cta = useRef<HTMLDivElement>(null);
@@ -47,6 +50,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
   const progress = useMotionValue(0);
   const paused = useMotionValue(false);
   const [active, setActive] = useState(true);
+  useEffect(() => { lionEnabled.current = scene.lionVisible; update.current(); }, [scene.lionVisible]);
   const setVideo = useCallback((node: HTMLDivElement | null) => { video.current = node; }, []);
   const setVideoSection = useCallback((node: HTMLElement | null) => { videoSection.current = node; }, []);
   const setRevealSection = useCallback((node: HTMLElement | null) => { reveal.current = node; }, []);
@@ -146,7 +150,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       const film = p > .7 ? video.current?.querySelector<HTMLElement>(".opening-joined-film:not([inert]), .opening-film-plane")?.getBoundingClientRect() : undefined;
       const covered = !!film && lionCoveredByFrame(lion, scrollY, film);
       // The lion stays solid until the frame covers its full mane.
-      const visible = pinned && !complete && !covered
+      const visible = lionEnabled.current && pinned && !complete && !covered
         && scrollY < openingBounds!.top + openingBounds!.height && !document.hidden;
       // The headline layer sits above the transparent WebGL canvas. Cut only
       // the moving mane's footprint out of that layer, so faded letters can
@@ -243,7 +247,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
     void document.fonts.ready.then(() => { if (!disposed) resize(); }); wake();
     return () => { window.removeEventListener("lionovart:splash-complete", releaseIntro); window.removeEventListener("pointerout", onPointerOut); window.removeEventListener("blur", neutralPointer); window.removeEventListener("pointermove", onPointer); disposed = true; cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener("scroll", wake); window.removeEventListener("resize", resize); window.removeEventListener("pageshow", resize); document.removeEventListener("visibilitychange", wake); if (heroLayer) { heroLayer.style.maskImage = ""; heroLayer.style.webkitMaskImage = ""; } update.current = () => {}; engine?.dispose(); };
   }, [progress, openingProgress, backdropOpacity]);
-  return <Context.Provider value={context}><div ref={host} className={styles.journey} data-lion-journey data-lion-active={active}>
+  return <Context.Provider value={context}><div ref={host} className={styles.journey} data-lion-journey data-lion-enabled={scene.lionVisible} data-lion-active={active}>
     <svg ref={fallback} className={styles.fallback} aria-hidden="true" preserveAspectRatio="none" fill="none"><g>{Array.from({length:12},(_,i)=><path key={i} stroke={i%3 ? "#9a733a" : "#edd4a0"} strokeWidth={i%4 ? "0.7" : "1.2"} opacity="0.54" />)}</g></svg>
     {/* eslint-disable-next-line @next/next/no-img-element */}
     <img ref={travellingStill} className={styles.travellingStill} src="/models/lion/lion-poster.png?v=hid-20260914" alt="" aria-hidden="true" />

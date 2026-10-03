@@ -1,11 +1,17 @@
-.proof { width: min(100%, 580px); margin-inline: auto; }
-.trust { color: #c2bdb8; font-size: 12px; line-height: 1.5; text-align: center; text-wrap: balance; margin: 0 0 16px; }
-.clients { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
-.client { display: flex; flex-direction: column; align-items: center; padding: 0 14px; text-align: center; color: #fff; text-decoration: none; min-width: 0; gap: 6px; }
-.client + .client { border-left: 1px solid #e5bd7726; }
-.logo { width: 116px; height: 32px; object-fit: contain; filter: grayscale(1) brightness(0) invert(1); opacity: .72; transition: opacity 160ms ease; }
-.client:hover .logo { opacity: 1; }
-.value { font-family: var(--font-heading), sans-serif; font-size: 26px; line-height: 1.05; letter-spacing: -.035em; font-variant-numeric: tabular-nums; margin-top: 3px; color: #e5bd77; }
-.label { font-size: 10px; line-height: 1.4; color: #aaa6a4; max-width: 18ch; text-wrap: balance; }
-@media(max-width:767px) { .trust { font-size: 11px; margin-bottom: 13px; } .client { padding-inline: 8px; } .logo { width: min(100%, 98px); height: 25px; } .value { font-size: 23px; } .label { font-size: 9px; } }
-@media(prefers-reduced-motion:reduce) { .logo { transition: none; } }
+.proof { display: flex; align-items: center; justify-content: center; gap: 6px; color: #fff; text-decoration: none; }
+.laurel { width: 28px; height: 88px; object-fit: contain; flex-shrink: 0; }
+.rating { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.stars, .faces { display: flex; justify-content: center; }
+.stars img { width: 18px; height: 18px; object-fit: contain; }
+.faces img { width: 25px; height: 25px; object-fit: cover; border-radius: 50%; border: 1px solid #e5bd77; margin-left: -5px; }
+.faces img:first-child { margin-left: 0; }
+.title { display: flex; flex-direction: column; text-align: center; font-family: var(--font-heading); font-size: 14px; font-weight: 600; line-height: 1; letter-spacing: -.025em; text-transform: uppercase; }
+.proof:focus-visible { outline: 2px solid #e5bd77; outline-offset: 6px; border-radius: 4px; }
+@media(max-width:599px) {
+  .proof { gap: 2px; }
+  .laurel { width: 13px; height: 64px; }
+  .stars img { width: 12px; height: 12px; }
+  .faces img { width: 18px; height: 18px; margin-left: -5px; }
+  .title { font-size: 10px; }
+  .rating { gap: 4px; }
+}

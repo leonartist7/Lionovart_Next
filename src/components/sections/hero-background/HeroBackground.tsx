@@ -2,14 +2,14 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { DEFAULT_COMPOSITION, type Composition } from "./config";
+import { useHeroComposition } from "./HeroComposition";
 import styles from "./HeroBackground.module.css";
 
 const BackgroundEditor = dynamic(() => import("./BackgroundEditor"), { ssr: false });
 export default function HeroBackground() {
   const backdrop = useRef<HTMLDivElement>(null);
   const [editing, setEditing] = useState(false);
-  const [composition, setComposition] = useState<Composition>(DEFAULT_COMPOSITION);
+  const { composition, setComposition } = useHeroComposition();
   useEffect(() => {
     const task = requestAnimationFrame(() => setEditing(new URLSearchParams(location.search).get("heroEditor") === "1"));
     let frame = 0;

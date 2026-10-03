@@ -11,10 +11,8 @@ import { useLionJourney } from "./LionJourney";
 export default function HeroOpening() {
   const { opening: openingRef, openingProgress } = useLionJourney()!;
   const [heroInert, setHeroInert] = useState(false);
-  const [workInert, setWorkInert] = useState(true);
-  const workOpacity = useTransform(openingProgress, [0, .04, .16], [0, 0, 1]);
   const heroOpacity = useTransform(openingProgress, [0, 0.03, 0.26], [1, 1, 0]);
-  useMotionValueEvent(openingProgress, "change", p => { setHeroInert(p > 0.25); setWorkInert(p <= .04); });
+  useMotionValueEvent(openingProgress, "change", p => { setHeroInert(p > 0.25); });
 
   useEffect(() => {
     const opening = openingRef.current;
@@ -83,9 +81,9 @@ export default function HeroOpening() {
           <HeroLightRays active={!heroInert} />
           <HeroTop />
         </motion.div>
-        <motion.div className="opening-work-layer" style={{ opacity: workOpacity }} inert={workInert}>
+        <div className="opening-work-layer">
           <WhatWeDo pinned />
-        </motion.div>
+        </div>
       </div>
     </div>
   );

@@ -1,33 +1,33 @@
 "use client";
-import Image from "next/image";
-import { useLanguage } from "@/contexts/LanguageContext";
+/* eslint-disable @next/next/no-img-element */
 import styles from "./HeroClientProof.module.css";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-// Existing client results, reused from Testimonials. Lumura remains an estimate.
-const CLIENTS = [
-  { name: "Northline Motors", logo: "/images/Testimonials/Northlinemotors/Northlinemotors-logo.webp", value: "4×" },
-  { name: "Miller & Carter", logo: "/images/Testimonials/Miller&Carter - Resto/mc-logo.avif", value: "2.4×" },
-  { name: "Lumura", logo: "/images/Testimonials/Italy/Lumura/lumura-logo.webp", value: "~35%" },
+const FACES = [
+  "/images/Testimonials/UK/Jess-Beautysalon-W.avif",
+  "/images/Testimonials/Northlinemotors/Marc-Cardealer-M.jpg",
+  "/images/Testimonials/Italy/Lumura/Team2025.avif",
+  "/images/Testimonials/Spain/Pablo-hotel-M.avif",
+  "/images/Testimonials/Canada/Maya-Flowerstore-W.avif",
 ];
-const LABELS = {
-  en: ["online sales pace", "weekend covers", "more qualified enquiries · est."],
-  fr: ["rythme des ventes en ligne", "couverts le week-end", "demandes en plus · estim."],
-  es: ["ritmo de ventas online", "comensales en fin de semana", "más consultas · estim."],
-  it: ["ritmo vendite online", "coperti nel weekend", "più richieste · stima"],
-  ja: ["オンライン販売ペース", "週末の来客数", "問い合わせ増加 · 推定"],
-  ko: ["온라인 판매 속도", "주말 방문 고객", "문의 증가 · 추정"],
-};
+const ASSETS = "https://res.cloudinary.com/dgio9uutc/image/upload/";
+
 export default function HeroClientProof() {
-  const { t, locale } = useLanguage();
-  const labels = LABELS[locale] ?? LABELS.en;
-  return <div className={styles.proof} data-hero-client-results>
-    <p className={styles.trust}>{t.hero.trustLine}</p>
-    <div className={styles.clients}>
-      {CLIENTS.map((client, i) => <a key={client.name} href="#client-experience" className={styles.client}>
-        <Image src={client.logo.split("/").map(encodeURIComponent).join("/")} alt={client.name} width={130} height={36} className={styles.logo} />
-        <span className={styles.value}>{client.value}</span>
-        <span className={styles.label}>{labels[i]}</span>
-      </a>)}
-    </div>
-  </div>;
+  const { t } = useLanguage();
+  const title = t.hero.badges.experience;
+  return (
+    <a data-client-experience-rating className={styles.proof} href="#client-experience" aria-label={title.join(" ")}>
+      <img className={styles.laurel} src={`${ASSETS}v1787020265/Laurel-L_vxtg55.webp`} alt="" width={52} height={130} />
+      <span className={styles.rating}>
+        <span className={styles.stars} aria-hidden="true">
+          {[0, 1, 2, 3, 4].map(i => <img key={i} src={`${ASSETS}v1787020126/Golden_Beveled_Star_Icon_wwcwek.webp`} alt="" width={27} height={27} />)}
+        </span>
+        <span className={styles.faces} aria-hidden="true">
+          {FACES.map(src => <img key={src} src={src} alt="" width={32} height={32} />)}
+        </span>
+        <span className={styles.title}>{title.map(line => <span key={line}>{line}</span>)}</span>
+      </span>
+      <img className={styles.laurel} src={`${ASSETS}v1787020265/Laurel-R_kj7isz.webp`} alt="" width={52} height={130} />
+    </a>
+  );
 }

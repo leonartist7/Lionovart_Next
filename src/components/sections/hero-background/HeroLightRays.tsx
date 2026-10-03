@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useSyncExternalStore } from "react";
 import { useReducedMotion } from "framer-motion";
+import { useHeroComposition } from "./HeroComposition";
 import styles from "./HeroLightRays.module.css";
 
 // Keep the upstream JS + plain CSS component intact and load WebGL only on the client.
@@ -15,14 +16,15 @@ const isPageVisible = () => document.visibilityState === "visible";
 const serverVisible = () => false;
 
 export default function HeroLightRays({ active }: { active: boolean }) {
+  const { composition: { scene } } = useHeroComposition();
   const visible = useSyncExternalStore(subscribeVisibility, isPageVisible, serverVisible);
   const reducedMotion = useReducedMotion();
   const animated = active && visible && !reducedMotion;
-  return <div className={styles.host} aria-hidden="true" data-hero-light-rays data-rays-active={animated}>
-    {active && reducedMotion && <div className={styles.still} />}
+  return <div className={styles.host} aria-hidden="true" data-hero-light-rays data-rays-active={animated} data-rays-color={scene.raysColor} data-rays-origin={scene.raysOrigin}>
+    {active && reducedMotion && <div className={styles.still} style={{ background: `radial-gradient(ellipse at 50% ${scene.raysOrigin === "top-center" ? "0%" : "100%"}, ${scene.raysColor}26 0%, ${scene.raysColor}0a 35%, transparent 72%)` }} />}
     {animated && <LightRays
-      raysOrigin="top-center"
-      raysColor="#00ffff"
+      raysOrigin={scene.raysOrigin}
+      raysColor={scene.raysColor}
       raysSpeed={1.5}
       lightSpread={0.8}
       rayLength={1.2}

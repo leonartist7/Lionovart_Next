@@ -1,9 +1,12 @@
 export type Placement = { x: number; y: number; width: number; rotation: number; opacity: number; visible: boolean };
 export type Layer = { id: string; name: string; src: string; desktop: Placement; mobile: Placement };
-export type Composition = { version: 1; layers: Layer[] };
+export type SceneSettings = { lionVisible: boolean; raysColor: string; raysOrigin: "top-center" | "bottom-center" };
+export const DEFAULT_SCENE: SceneSettings = { lionVisible: true, raysColor: "#00ffff", raysOrigin: "top-center" };
+export type Composition = { version: 1; layers: Layer[]; scene: SceneSettings };
 const names = ["Onyx & gold ring", "Ivory & gold ring", "Three-tone ring", "Flowing gold ribbon", "Open gold ribbon", "Fine gold ring", "Bold onyx ring"];
 export const DEFAULT_COMPOSITION: Composition = {
   version: 1,
+  scene: DEFAULT_SCENE,
   layers: names.map((name, i) => ({
     id: String(i + 1), name, src: `/images/hero-backgrounds/background-${i + 1}.webp`,
     desktop: { x: 50, y: 66, width: i === 4 ? 145 : 110, rotation: 0, opacity: 30, visible: i === 4 },
@@ -27,5 +30,10 @@ export function parseComposition(value: unknown): Composition | null {
       }
     }
   }
-  return { version: 1, layers: config.layers.map((layer, i) => ({ ...layer, name: names[i] })) };
+  // Older exported layouts keep the original lion and cyan rays.
+  const scene = config.scene ?? DEFAULT_SCENE;
+  if (typeof scene.lionVisible !== "boolean" || typeof scene.raysColor !== "string"
+    || !/^#[0-9a-f]{6}$/i.test(scene.raysColor)
+    || !["top-center", "bottom-center"].includes(scene.raysOrigin)) return null;
+  return { version: 1, scene: { lionVisible: scene.lionVisible, raysColor: scene.raysColor, raysOrigin: scene.raysOrigin }, layers: config.layers.map((layer, i) => ({ ...layer, name: names[i] })) };
 }

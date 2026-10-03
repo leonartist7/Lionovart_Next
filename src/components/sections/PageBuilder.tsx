@@ -1,3 +1,4 @@
+import { HeroCompositionProvider } from "./hero-background/HeroComposition";
 import HeroBackground from "@/components/sections/hero-background/HeroBackground";
 import HeroOpening from "@/components/sections/lion-journey/HeroOpening";
 import LionJourney from "@/components/sections/lion-journey/LionJourney";
@@ -34,13 +35,13 @@ export function PageBuilder() {
     <TrailAttractionProvider>
       <ExitIntentModal />
 
-      <LionJourney>
+      <HeroCompositionProvider><LionJourney>
         <HeroBackground />
         <HeroOpening />
         <BridgeStatement />
         <StrongTogetherTransition />
         <span data-voice-reveal-boundary aria-hidden="true" />
-      </LionJourney>
+      </LionJourney></HeroCompositionProvider>
 
       {/* Later chapters cover the retired opening scene. */}
       <div className="relative z-[2]">

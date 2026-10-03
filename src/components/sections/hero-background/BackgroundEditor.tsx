@@ -76,6 +76,19 @@ export default function BackgroundEditor({ composition, onChange }: Props) {
     {open ? <aside className={styles.panel} aria-label="Hero background editor" data-lenis-prevent>
       <h2>Compose the background</h2>
       <p>{profile === "mobile" ? "Mobile" : "Desktop"} placement · resize the browser to edit the other layout.</p>
+      <fieldset className={styles.sceneControls}>
+        <legend>Hero scene</legend>
+        <label>Show 3D lion<input type="checkbox" checked={composition.scene.lionVisible}
+          onChange={event => onChange({ ...composition, scene: { ...composition.scene, lionVisible: event.target.checked } })} /></label>
+        <label htmlFor="hero-rays-color">Ray color<output>{composition.scene.raysColor}</output></label>
+        <input id="hero-rays-color" type="color" value={composition.scene.raysColor}
+          onChange={event => onChange({ ...composition, scene: { ...composition.scene, raysColor: event.target.value } })} />
+        <label htmlFor="hero-rays-origin">Rays come from</label>
+        <select id="hero-rays-origin" value={composition.scene.raysOrigin}
+          onChange={event => onChange({ ...composition, scene: { ...composition.scene, raysOrigin: event.target.value as "top-center" | "bottom-center" } })}>
+          <option value="top-center">Top</option><option value="bottom-center">Bottom</option>
+        </select>
+      </fieldset>
       <label htmlFor="hero-background-layer">Image</label>
       <select id="hero-background-layer" value={selected} onChange={event => { setSelected(event.target.value); setMoving(false); }}>
         {composition.layers.map(item => <option key={item.id} value={item.id}>{item.name}{item[profile].visible ? " · visible" : ""}</option>)}

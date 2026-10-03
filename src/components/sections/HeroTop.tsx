@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useRef } from "react";
-import HeroClientProof from "./HeroClientProof";
 import HeroSitePeek from "@/components/ui/HeroSitePeek";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LionSlot, useLionJourney } from "./lion-journey/LionJourney";
@@ -24,7 +23,7 @@ export default function HeroTop() {
       </h1>
     </div>
     <p className={`lion-description${locale === "ja" || locale === "ko" ? "" : " editorial-accent editorial-hero"}`}>{t.hero.subtitle}</p>
-    <div className="lion-cta"><HeroSitePeek /><HeroClientProof /></div>
+    <div className="lion-cta"><HeroSitePeek /><p className="lion-trust">{t.hero.trustLine}</p></div>
     </div>
   </section>;
 }

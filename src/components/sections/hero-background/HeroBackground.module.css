@@ -19,3 +19,7 @@
 .handle { position: fixed; z-index: 10999; transform: translate(-50%, -50%); display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: #171412; border: 1px solid #e5bd77; color: #e5bd77; cursor: grab; touch-action: none; box-shadow: 0 0 0 8px #e5bd7720; font-size: 26px; }
 .handle:active { cursor: grabbing; }
 @media(max-width:599px) { .panel { padding: 14px; max-height: 55svh; } }
+
+.sceneControls { border: 0; border-bottom: 1px solid #ffffff25; padding: 0 0 16px; margin: 16px 0; min-width: 0; }
+.sceneControls legend { font-weight: 600; color: #e5bd77; }
+.panel input[type=color] { display: block; width: 100%; height: 38px; border: 1px solid #ffffff30; border-radius: 6px; background: #242124; margin-top: 8px; padding: 3px; cursor: pointer; }
