@@ -170,6 +170,8 @@ export interface Thread {
   versionId?: number;
   /** Present only for image annotations. A pin *is* a thread. */
   pin?: AnnotationPin;
+  /** Stable per-version annotation number; never reused after deletion. */
+  pinNumber?: number;
   status: "open" | "resolved";
   createdBy: string;
   createdAt: string;
@@ -242,6 +244,8 @@ export interface Post {
   timezone?: string;
   state: PostState;
   publishResults?: Partial<Record<Platform, PublishResult>>;
+  /** The request that owns the current review cycle. */
+  approvalId?: string;
   createdBy: string;
   createdAt: string;
   updatedAt: string;

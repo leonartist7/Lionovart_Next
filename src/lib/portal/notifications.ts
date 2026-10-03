@@ -1,4 +1,5 @@
 import "server-only";
+import { createHash } from "node:crypto";
 import { adminDb } from "@/lib/firebase-admin";
 import { SITE_URL } from "@/lib/seo/config";
 import { renderActivityEmail, type ActivityKind } from "@/lib/portal/activity-email";
@@ -12,8 +13,8 @@ import { roleAtLeast, type PortalRole, type Thread, type Workspace } from "@/lib
  *
  * Every decision lands in an **outbox** — `workspaces/{ws}/notifications` —
  * whether or not an email actually went out. That one collection is the audit
- * trail ("did the client get told?"), the throttle state, and what
- * `verify.mjs` asserts against, so there is no second place to keep any of it.
+ * trail ("did the client get told?"), and what
+ * `verify.mjs` asserts against. Per-recipient/file claims serialize sends.
  *
  * Who is told is decided by who can SEE the thread, not by who is in the
  * workspace: recipients go through the same visibility gate `listThreads`
@@ -134,26 +135,27 @@ async function dispatch({ workspace, thread, commentId, kind, body, actor }: Thr
 
   await Promise.all(
     visible.map(async (r) => {
-      // Equality filters only, compared in memory — a date range alongside them
-      // would need a composite index, and this repo ships no index config.
-      const prior = await outboxRef(workspace.id)
-        .where("recipientEmail", "==", r.email)
-        .where("targetId", "==", asset.id)
-        .get();
-      const recentlyTold = prior.docs.some((d) => {
-        const row = d.data();
-        return COUNTS_AS_TOLD.includes(row.status) && now - Date.parse(row.createdAt) < THROTTLE_MS;
+      const entry = outboxRef(workspace.id).doc();
+      const claimId = createHash("sha256").update(JSON.stringify([r.email, asset.id])).digest("hex");
+      const claimRef = adminDb!.collection("workspaces").doc(workspace.id).collection("notificationClaims").doc(claimId);
+      const claimed = await adminDb!.runTransaction(async (tx) => {
+        const claim = await tx.get(claimRef);
+        if (now - Number(claim.data()?.at ?? 0) < THROTTLE_MS) return false;
+        const prior = await tx.get(outboxRef(workspace.id).where("recipientEmail", "==", r.email).where("targetId", "==", asset.id));
+        if (prior.docs.some((doc) => COUNTS_AS_TOLD.includes(doc.data().status) && now - Date.parse(doc.data().createdAt) < THROTTLE_MS)) return false;
+        tx.set(claimRef, { at: now, owner: entry.id });
+        return true;
       });
 
       let status: Status = "throttled";
       let error: string | undefined;
-      if (!recentlyTold) {
+      if (claimed) {
         const result = await mailer.send({ to: r.email, ...mail });
         status = result.ok ? "sent" : result.unconfigured ? "unconfigured" : "failed";
         if (!result.ok && !result.unconfigured) error = result.error;
       }
 
-      await outboxRef(workspace.id).add({
+      await entry.create({
         recipientEmail: r.email,
         recipientRole: r.role,
         targetType: thread.targetType,
@@ -167,6 +169,13 @@ async function dispatch({ workspace, thread, commentId, kind, body, actor }: Thr
         ...(error ? { error } : {}),
         createdAt: new Date(now).toISOString(),
       });
+      if (claimed && status === "failed") {
+        await adminDb!.runTransaction(async (tx) => {
+          const claim = await tx.get(claimRef);
+          if (claim.data()?.owner === entry.id) tx.delete(claimRef);
+        });
+      }
+
     }),
   );
 }

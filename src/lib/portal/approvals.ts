@@ -218,9 +218,18 @@ export async function decideApproval(
         visible = (await listProjects(workspaceId, input.viewerRole))
           .some((project) => project.milestones.some((milestone) => milestone.id === current.targetId));
       } else {
-        visible = (await postCaptions(workspaceId, [current.targetId], input.viewerRole)).has(current.targetId);
+        // Post visibility is checked against the transactional snapshot below.
+        visible = true;
       }
       if (!visible) return { error: "Not found", status: 404 };
+    }
+    let postRef: FirebaseFirestore.DocumentReference | undefined;
+    if (current.targetType === "post") {
+      postRef = adminDb!.collection("workspaces").doc(workspaceId).collection("posts").doc(current.targetId);
+      const postDoc = await tx.get(postRef);
+      const post = postDoc.data();
+      if (!postDoc.exists || (input.viewerRole !== "agency" && !CLIENT_VISIBLE_STATES.includes(post?.state))) return { error: "Not found", status: 404 };
+      if (post?.state !== "in_review" || (post.approvalId && post.approvalId !== approvalId)) return { error: "This post no longer belongs to this review request.", status: 409 };
     }
     if (current.state !== "pending") {
       return { error: "This approval has already been decided.", status: 409 };
@@ -232,6 +241,7 @@ export async function decideApproval(
       ...(input.note ? { note: input.note } : {}),
     };
     tx.update(ref, patch);
+    if (postRef) tx.update(postRef, { state: input.state === "approved" ? "approved" : "rejected", updatedAt: patch.decidedAt });
     return { approval: { ...current, ...patch } };
   });
 }

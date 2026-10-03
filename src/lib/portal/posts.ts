@@ -1,6 +1,5 @@
 import "server-only";
 import { adminDb } from "@/lib/firebase-admin";
-import { createApproval } from "@/lib/portal/approvals";
 import { listAssetsWithVersions } from "@/lib/portal/assets";
 import { validatePost, type MediaInfo, type PostValidation } from "@/lib/portal/platforms";
 export { CLIENT_VISIBLE_STATES } from "@/lib/portal/platforms";
@@ -17,8 +16,7 @@ import { roleAtLeast, type Platform, type PortalRole, type Post, type PostState,
  *    the same way `internal` projects are — absent, not hidden, and a direct
  *    URL 404s rather than 403s.
  * 2. **`in_review → approved | rejected` cannot be written from here.** It is
- *    reachable only through `applyApprovalDecision`, which the approvals route
- *    calls after the real `decideApproval` has run. There is exactly one
+ *    committed atomically by `decideApproval` with the approval record. There is exactly one
  *    approval flow in this codebase and this module is not it.
  * 3. **`published` is terminal and append-only.** No transition out, no edit,
  *    and `publishResults` merge — a platform that already published is never
@@ -215,7 +213,8 @@ export async function updatePost(
   patch: UpdatePostInput,
 ): Promise<PostResult> {
   const ref = postsRef(workspaceId).doc(postId);
-  const doc = await ref.get();
+  return adminDb!.runTransaction(async (tx) => {
+  const doc = await tx.get(ref);
   if (!doc.exists) return { error: "Not found", status: 404 };
 
   const post = toPost(doc);
@@ -255,8 +254,9 @@ export async function updatePost(
   if (Object.keys(clean).length === 0) return { post };
 
   clean.updatedAt = new Date().toISOString();
-  await ref.update(clean);
-  return { post: toPost(await ref.get()) };
+  tx.update(ref, clean);
+  return { post: { ...post, ...clean } as Post };
+  });
 }
 
 /**
@@ -272,7 +272,8 @@ export async function transitionPost(
   to: PostState,
 ): Promise<PostResult> {
   const ref = postsRef(workspaceId).doc(postId);
-  const doc = await ref.get();
+  return adminDb!.runTransaction(async (tx) => {
+  const doc = await tx.get(ref);
   if (!doc.exists) return { error: "Not found", status: 404 };
 
   const post = toPost(doc);
@@ -303,8 +304,11 @@ export async function transitionPost(
     }
   }
 
-  await ref.update({ state: to, updatedAt: new Date().toISOString() });
-  return { post: toPost(await ref.get()) };
+  const unscheduled = post.state === "scheduled" && to === "approved";
+  const updatedAt = new Date().toISOString();
+  tx.update(ref, { state: to, ...(unscheduled ? { scheduledFor: null } : {}), updatedAt });
+  return { post: { ...post, state: to, ...(unscheduled ? { scheduledFor: undefined } : {}), updatedAt } };
+  });
 }
 
 export type SubmitResult =
@@ -319,8 +323,8 @@ export type SubmitResult =
  * premise, and a client cannot see a post at all until it is in review — so
  * this call is the exact boundary that promise lives on.
  *
- * The approval row is created through `createApproval`, the same primitive the
- * Approvals queue already runs on, with `targetType: "post"`.
+ * The approval row uses the shared approvals collection and lands atomically
+ * with the draft transition, so simultaneous submissions create one request.
  */
 export async function submitForReview(
   workspaceId: string,
@@ -351,41 +355,31 @@ export async function submitForReview(
     return { error: "This can't post as written — fix the errors first.", status: 422, validation };
   }
 
-  const approval = await createApproval(workspaceId, {
-    targetType: "post",
-    targetId: postId,
-    requestedBy,
-  });
-  await ref.update({ state: "in_review", updatedAt: new Date().toISOString() });
-  return { post: toPost(await ref.get()), approvalId: approval.id };
-}
-
-/**
- * in_review → approved | rejected, applied from a decision the real Approvals
- * primitive has already recorded.
- *
- * Called by the approvals route after `decideApproval` returns, and by nothing
- * else. It deliberately takes the decision as an argument rather than reading
- * or writing the approvals collection itself: the decision, its author, its
- * timestamp and its note live in exactly one place, and this only mirrors the
- * resulting state onto the post.
- */
-export async function applyApprovalDecision(
-  workspaceId: string,
-  postId: string,
-  decision: "approved" | "changes_requested",
-): Promise<void> {
-  if (!adminDb) return;
-  const ref = postsRef(workspaceId).doc(postId);
-  const doc = await ref.get();
-  if (!doc.exists) return;
-
-  const post = toPost(doc);
-  if (post.state !== "in_review") return; // already moved on — never rewrite a later state
-
-  await ref.update({
-    state: decision === "approved" ? "approved" : "rejected",
-    updatedAt: new Date().toISOString(),
+  const approvalRef = adminDb!.collection("workspaces").doc(workspaceId).collection("approvals").doc();
+  return adminDb!.runTransaction(async (tx) => {
+    const latest = await tx.get(ref);
+    if (!latest.exists) return { error: "Not found", status: 404 };
+    const current = toPost(latest);
+    if (current.state !== "draft") return { error: "This post is no longer a draft.", status: 409 };
+    // The exact content validated above must still be the content submitted.
+    if (JSON.stringify(latest.data()) !== JSON.stringify(doc.data())) {
+      return { error: "The draft changed. Reload and submit the current version.", status: 409 };
+    }
+    const workspace = adminDb!.collection("workspaces").doc(workspaceId);
+    const assetRefs = [...new Set(current.assetIds)].map((id) => workspace.collection("assets").doc(id));
+    const assetDocs = assetRefs.length ? await tx.getAll(...assetRefs) : [];
+    if (assetDocs.some((asset) => !asset.exists)) return { error: "An attachment is no longer available.", status: 422 };
+    const projectIds = [...new Set(assetDocs.map((asset) => asset.data()?.projectId).filter((id): id is string => typeof id === "string" && Boolean(id)))];
+    const projectDocs = projectIds.length ? await tx.getAll(...projectIds.map((id) => workspace.collection("projects").doc(id))) : [];
+    if (projectDocs.some((project) => !project.exists || project.data()?.visibility === "internal")) return { error: "Every attachment must be available to the client before review.", status: 422 };
+    const versions = assetDocs.length ? await tx.getAll(...assetDocs.map((asset) => asset.ref.collection("versions").doc(String(asset.data()?.currentVersion)))) : [];
+    const liveMedia: MediaInfo[] = assetDocs.map((asset, index) => ({ assetId: asset.id, name: String(asset.data()?.name ?? ""), kind: asset.data()?.kind, width: versions[index]?.data()?.width, height: versions[index]?.data()?.height }));
+    const checked = validatePost(current, liveMedia);
+    if (!checked.ok) return { error: "This can't post as written — fix the errors first.", status: 422, validation: checked };
+    const now = new Date().toISOString();
+    tx.create(approvalRef, { targetType: "post", targetId: postId, versionId: null, state: "pending", requestedBy, requestedAt: now });
+    tx.update(ref, { state: "in_review", approvalId: approvalRef.id, updatedAt: now });
+    return { post: { ...current, state: "in_review", approvalId: approvalRef.id, updatedAt: now }, approvalId: approvalRef.id };
   });
 }
 
@@ -403,33 +397,34 @@ export async function markPublished(
   results: Partial<Record<Platform, PublishResult>>,
 ): Promise<PostResult> {
   const ref = postsRef(workspaceId).doc(postId);
-  const doc = await ref.get();
-  if (!doc.exists) return { error: "Not found", status: 404 };
-
-  const post = toPost(doc);
-  const existing = post.publishResults ?? {};
-  const merged: Partial<Record<Platform, PublishResult>> = { ...existing };
-  for (const [platform, result] of Object.entries(results) as [Platform, PublishResult][]) {
-    if (existing[platform]?.status === "published") continue; // never overwrite a real publish
-    merged[platform] = result;
-  }
-
-  const anyPublished = Object.values(merged).some((r) => r?.status === "published");
-  await ref.update({
-    publishResults: merged,
-    ...(anyPublished ? { state: "published" as PostState } : {}),
-    updatedAt: new Date().toISOString(),
+  return adminDb!.runTransaction(async (tx) => {
+    const doc = await tx.get(ref);
+    if (!doc.exists) return { error: "Not found", status: 404 };
+    const post = toPost(doc);
+    if (!["approved", "scheduled", "published"].includes(post.state)) return { error: "This post is not approved for publishing.", status: 409 };
+    const existing = post.publishResults ?? {};
+    const merged: Partial<Record<Platform, PublishResult>> = { ...existing };
+    for (const [platform, result] of Object.entries(results) as [Platform, PublishResult][]) {
+      if (!post.platforms.includes(platform) || existing[platform]?.status === "published") continue;
+      merged[platform] = result;
+    }
+    const anyPublished = Object.values(merged).some((result) => result?.status === "published");
+    const updatedAt = new Date().toISOString();
+    const state = anyPublished ? "published" as const : post.state;
+    tx.update(ref, { publishResults: merged, state, updatedAt });
+    return { post: { ...post, publishResults: merged, state, updatedAt } };
   });
-  return { post: toPost(await ref.get()) };
 }
 
 export async function deletePost(workspaceId: string, postId: string): Promise<{ error: string; status: number } | null> {
   const ref = postsRef(workspaceId).doc(postId);
-  const doc = await ref.get();
+  return adminDb!.runTransaction(async (tx) => {
+  const doc = await tx.get(ref);
   if (!doc.exists) return { error: "Not found", status: 404 };
   if (toPost(doc).state === "published") {
     return { error: "A published post is a record of what went out — it stays.", status: 409 };
   }
-  await ref.delete();
+  tx.delete(ref);
   return null;
+  });
 }

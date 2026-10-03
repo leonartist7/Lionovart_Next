@@ -143,6 +143,14 @@ export default async function PostPage({
 
         {!isAgency && (
           <section className="mt-8">
+            <h2 className="text-muted-foreground mb-3 text-sm font-medium">Full caption</h2>
+            <p className="text-foreground max-w-3xl whitespace-pre-wrap break-words text-[15px] leading-relaxed">{post.caption}</p>
+            {post.hashtags.length > 0 && <p className="text-muted-foreground mt-3 break-words text-sm">{post.hashtags.join(" ")}</p>}
+            {previewMedia.length > 1 && <ul className="mt-5 grid grid-cols-2 gap-3">
+              {previewMedia.map((media) => <li key={media.assetId}>
+                {media.thumbnailUrl ? <img src={media.thumbnailUrl} alt={media.name} className="w-full rounded-xl object-contain" /> : <p className="text-sm">{media.name}</p>}
+              </li>)}
+            </ul>}
             <h2 className="text-muted-foreground mb-3 text-sm font-medium">How it will look</h2>
             <div className="grid gap-4 md:grid-cols-2">
               {validation.perPlatform.map((v) => (

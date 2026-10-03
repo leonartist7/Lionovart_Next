@@ -1,7 +1,7 @@
 import "server-only";
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase-admin";
-import { listAssets } from "@/lib/portal/assets";
+import { getAsset, listAssets } from "@/lib/portal/assets";
 import { listProjects } from "@/lib/portal/projects";
 import { listTasks } from "@/lib/portal/tasks";
 import { CLIENT_VISIBLE_STATES } from "@/lib/portal/platforms";
@@ -90,6 +90,12 @@ export async function buildVisibilityGate(
     return () => true;
   }
 
+  if (kinds.size === 1 && kinds.has("asset")) {
+    const ids = [...new Set(targets.map((target) => target.targetId))];
+    const visible = new Set((await Promise.all(ids.map((id) => getAsset(workspaceId, id, viewerRole)))).filter((asset) => asset !== null).map((asset) => asset.id));
+    return (target) => visible.has(target.targetId);
+  }
+
   // Already internal-filtered for this role — the one place that decision lives.
   const projects = await listProjects(workspaceId, viewerRole);
   const visibleProjectIds = new Set(projects.map((p) => p.id));
@@ -134,6 +140,27 @@ export async function buildVisibilityGate(
         return visiblePostIds.has(t.targetId);
     }
   };
+}
+
+/** Initializes legacy labels once and advances a per-version counter atomically. */
+async function pinSequence(workspaceId: string, assetId: string, versionId: number, tx: FirebaseFirestore.Transaction, allocate: boolean): Promise<{ next: number; labels: Map<string, number> }> {
+  const counter = adminDb!.collection("workspaces").doc(workspaceId).collection("pinCounters").doc(assetId).collection("versions").doc(String(versionId));
+  const saved = await tx.get(counter);
+  const labels = new Map<string, number>();
+  let next = Number(saved.data()?.last ?? 0);
+  if (!saved.exists) {
+    const pins = await tx.get(threadsRef(workspaceId).where("targetType", "==", "asset").where("targetId", "==", assetId));
+    const ordered = pins.docs.filter((doc) => doc.data().pin && doc.data().versionId === versionId).sort((a, b) => String(a.data().createdAt).localeCompare(String(b.data().createdAt)) || a.id.localeCompare(b.id));
+    next = Math.max(0, ...ordered.map((doc) => Number(doc.data().pinNumber ?? 0)));
+    for (const doc of ordered) {
+      const assigned = Number(doc.data().pinNumber ?? ++next);
+      labels.set(doc.id, assigned);
+      if (!doc.data().pinNumber) tx.update(doc.ref, { pinNumber: assigned });
+    }
+  }
+  if (allocate) next++;
+  tx.set(counter, { last: next }, { merge: true });
+  return { next, labels };
 }
 
 /* ── Reads ──────────────────────────────────────────────────────── */
@@ -186,6 +213,15 @@ export async function listThreads(
 
   const snap = await query.get();
   const all = snap.docs.map(toThread);
+  const legacy = all.filter((thread) => thread.pin && !thread.pinNumber && thread.versionId !== undefined);
+  const versions = new Map(legacy.map((thread) => [thread.targetId + ":" + thread.versionId, thread]));
+  for (const thread of versions.values()) {
+    const sequence = await adminDb.runTransaction((tx) => pinSequence(workspaceId, thread.targetId, thread.versionId!, tx, false));
+    for (const candidate of all) {
+      const label = sequence.labels.get(candidate.id);
+      if (label) candidate.pinNumber = label;
+    }
+  }
 
   const gate = await buildVisibilityGate(workspaceId, viewerRole, all);
   const visible = all.filter(gate).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
@@ -326,9 +362,16 @@ export async function createThread(
     participants: [input.authorUid],
   };
 
-  const ref = await threadsRef(workspaceId).add(doc);
-  const comment = await writeComment(workspaceId, ref.id, { ...input, body }, now);
-  return { thread: { id: ref.id, ...doc, comments: [comment] } };
+  const ref = threadsRef(workspaceId).doc();
+  const commentRef = commentsRef(workspaceId, ref.id).doc();
+  return adminDb.runTransaction(async (tx) => {
+    const sequence = input.pin ? await pinSequence(workspaceId, input.targetId, input.versionId!, tx, true) : null;
+    const data = { ...doc, ...(sequence ? { pinNumber: sequence.next } : {}) };
+    const comment = { body, authorUid: input.authorUid, authorName: input.authorName, createdAt: now };
+    tx.create(ref, data);
+    tx.create(commentRef, comment);
+    return { thread: { id: ref.id, ...data, comments: [{ id: commentRef.id, ...comment }] } };
+  });
 }
 
 export async function addComment(

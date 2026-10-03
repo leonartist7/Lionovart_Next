@@ -20,7 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  const localizedStaticPaths = STATIC_ROUTES.map((route) => route.path).filter((path) => path !== "/careers");
+  const localizedStaticPaths = STATIC_ROUTES.map((route) => route.path).filter((path) => path !== "/careers" && path !== "/about");
   const canonicalPaths = [...localizedStaticPaths, ...SERVICES.map((service) => `/services/${service.slug}`)];
   const localizedEntries: MetadataRoute.Sitemap = LOCALES
     .filter((locale) => locale !== "en")

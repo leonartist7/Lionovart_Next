@@ -1936,12 +1936,19 @@ if (run("integration")) {
   const submitHidden = await request(`/content/${draft.id}/submit`, "POST", fx.agencyCookie, {});
   check("review refuses internal attachments", submitHidden.status === 422);
   await request(`/content/${draft.id}`, "PATCH", fx.agencyCookie, { assetIds: [] });
-  const submitVisible = await request(`/content/${draft.id}/submit`, "POST", fx.agencyCookie, {});
-  check("review accepts the corrected draft", submitVisible.status === 201);
+  const submissions = await Promise.all([
+    request(`/content/${draft.id}/submit`, "POST", fx.agencyCookie, {}),
+    request(`/content/${draft.id}/submit`, "POST", fx.agencyCookie, {}),
+  ]);
+  check("review accepts the corrected draft", submissions.some((response) => response.status === 201));
+  check("concurrent review submissions create one request", submissions.filter((response) => response.status === 201).length === 1 && submissions.filter((response) => response.status === 409).length === 1);
   const reviewedThread = await (await request(`/threads?targetType=post&targetId=${draft.id}`, "GET", fx.clientCookie)).json();
   check("post thread becomes visible when the post enters review", reviewedThread.ids?.includes(studioThread.id));
   const inReview = await (await request("/approvals", "GET", fx.clientCookie)).json();
   const postApproval = inReview.approvals.find((a) => a.targetId === draft.id);
+  check("concurrent submission leaves exactly one pending approval", inReview.approvals.filter((a) => a.targetId === draft.id).length === 1);
+  const queueHtml = await pageSource(`/portal/${fx.slug}/approvals`, fx.clientCookie);
+  check("post approval links to complete content", queueHtml.html.includes(`/content/${draft.id}`) && queueHtml.html.includes("Review full post"));
   assertApproval: {
     if (!postApproval) { check("post review has one pending approval", false); break assertApproval; }
     const races = await Promise.all([
@@ -1949,7 +1956,69 @@ if (run("integration")) {
       request(`/approvals/${postApproval.id}`, "PATCH", fx.clientCookie, { state: "changes_requested", note: "Different decision" }),
     ]);
     check("concurrent approval decisions record exactly one outcome", races.filter((r) => r.status === 200).length === 1 && races.filter((r) => r.status === 409).length === 1);
+    const winner = await races.find((response) => response.status === 200).json();
+    const decidedPost = (await (await request(`/content/${draft.id}`, "GET", fx.agencyCookie)).json()).post;
+    check("approval outcome and post state agree atomically", decidedPost.state === (winner.approval.state === "approved" ? "approved" : "rejected"));
+
   }
+
+  const { initializeApp } = await import("firebase-admin/app");
+  const { getFirestore } = await import("firebase-admin/firestore");
+  const db = getFirestore(initializeApp({ projectId: "lionovart-dev" }, "verify-integration-" + Date.now()));
+  const workspaceRef = db.collection("workspaces").doc(fx.workspace.id);
+
+  // A missing/stale target must leave the decision pending rather than commit half a result.
+  const stale = workspaceRef.collection("approvals").doc();
+  await stale.set({ targetType: "post", targetId: "missing-post", state: "pending", requestedBy: "fixture", requestedAt: new Date().toISOString() });
+  const staleResponse = await request(`/approvals/${stale.id}`, "PATCH", fx.agencyCookie, { state: "approved" });
+  check("missing post rejects approval without deciding it", staleResponse.status === 404 && (await stale.get()).data().state === "pending");
+
+  const pin = async (body) => (await (await request("/threads", "POST", fx.agencyCookie,
+    { targetType: "asset", targetId: first.assetId, versionId: 2, pin: { x: 0.25, y: 0.5 }, body })).json()).thread;
+  const pinRace = await Promise.all([pin("Pin A"), pin("Pin B")]);
+  check("concurrent pins get distinct persistent numbers", new Set(pinRace.map((thread) => thread.pinNumber)).size === 2 && pinRace.every((thread) => thread.pinNumber > 0));
+  check("each created pin includes its opening comment", pinRace.every((thread) => thread.comments.length === 1));
+  const orderedPins = pinRace.sort((a, b) => a.pinNumber - b.pinNumber);
+  await request(`/threads/${orderedPins[0].id}/comments/${orderedPins[0].comments[0].id}`, "DELETE", fx.agencyCookie);
+  const afterDelete = await (await request(`/threads?targetType=asset&targetId=${first.assetId}`, "GET", fx.agencyCookie)).json();
+  check("deleting an earlier pin does not renumber later pins", afterDelete.threads.find((thread) => thread.id === orderedPins[1].id)?.pinNumber === orderedPins[1].pinNumber);
+  const nextPin = await pin("Pin C");
+  check("deleted pin numbers are never reused", nextPin.pinNumber > Math.max(...pinRace.map((thread) => thread.pinNumber)));
+
+  // Race two activity sends against a fresh file: only one can claim each recipient.
+  const notifyAsset = await sign("concurrent-notify.png");
+  await confirm(notifyAsset);
+  const note = (body) => request("/threads", "POST", fx.agencyCookie, { targetType: "asset", targetId: notifyAsset.assetId, body });
+  await Promise.all([note("Concurrent note A"), note("Concurrent note B")]);
+  const notifications = await workspaceRef.collection("notifications").where("targetId", "==", notifyAsset.assetId).get();
+  const counts = new Map();
+  for (const doc of notifications.docs) {
+    const row = doc.data();
+    if (["sent", "unconfigured"].includes(row.status)) counts.set(row.recipientEmail, (counts.get(row.recipientEmail) ?? 0) + 1);
+  }
+  check("concurrent activity claims one send per recipient", counts.size > 0 && [...counts.values()].every((count) => count === 1));
+
+  const multi = (await (await request("/content", "POST", fx.agencyCookie,
+    { state: "draft", caption: "A complete multi-platform update.", platforms: ["linkedin", "x"] })).json()).post;
+  await request(`/content/${multi.id}/submit`, "POST", fx.agencyCookie, {});
+  const multiQueue = (await (await request("/approvals", "GET", fx.clientCookie)).json()).approvals;
+  const multiApproval = multiQueue.find((approval) => approval.targetId === multi.id);
+  await request(`/approvals/${multiApproval.id}`, "PATCH", fx.clientCookie, { state: "approved" });
+  const schedule = new Date(Date.now() + 86400000).toISOString();
+  await request(`/content/${multi.id}`, "PATCH", fx.agencyCookie, { scheduledFor: schedule });
+  await request(`/content/${multi.id}`, "PATCH", fx.agencyCookie, { state: "scheduled" });
+  const scheduledHtml = await pageSource(`/portal/${fx.slug}/content/${multi.id}`, fx.agencyCookie);
+  check("scheduled posts expose a save schedule action", scheduledHtml.html.includes("Save schedule"));
+  await request(`/content/${multi.id}`, "PATCH", fx.agencyCookie, { state: "approved" });
+  const unscheduledPost = (await (await request(`/content/${multi.id}`, "GET", fx.agencyCookie)).json()).post;
+  const calendarAfter = await pageSource(`/portal/${fx.slug}/calendar`, fx.agencyCookie);
+  check("unscheduling clears the date and removes the calendar item", !unscheduledPost.scheduledFor && !calendarAfter.html.includes("A complete multi-platform update."));
+  await request(`/content/${multi.id}/publish`, "POST", fx.agencyCookie, { confirmed: true, platforms: ["linkedin"] });
+  const partialHtml = await pageSource(`/portal/${fx.slug}/content/${multi.id}`, fx.agencyCookie);
+  check("partially published posts can record remaining platforms", partialHtml.html.includes("Mark as posted"));
+  const secondPublish = await request(`/content/${multi.id}/publish`, "POST", fx.agencyCookie, { confirmed: true, platforms: ["x"] });
+  const completedPost = (await (await request(`/content/${multi.id}`, "GET", fx.agencyCookie)).json()).post;
+  check("remaining platform appends without losing earlier publication", secondPublish.status === 200 && completedPost.publishResults.linkedin.status === "published" && completedPost.publishResults.x.status === "published");
 
 }
 

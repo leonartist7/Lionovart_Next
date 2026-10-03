@@ -2,7 +2,7 @@ name: Integrated verification
 
 on:
   push:
-    branches: [master]
+    branches: [master, integration/lionovart-latest-20261003]
   pull_request:
     branches: [master]
 
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: integrated-verification-${{ github.ref }}
+  group: integrated-verification-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:

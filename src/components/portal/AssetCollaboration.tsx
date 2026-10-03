@@ -56,7 +56,8 @@ export function AssetCollaboration({
   canComment: boolean;
   demo?: boolean;
 }) {
-  const [threads, setThreads] = useState(initialThreads);
+  const [threads, setThreads] = useState(() => initialThreads.map((thread, index) => thread.pin && !thread.pinNumber ? { ...thread, pinNumber: index + 1 } : thread));
+  const demoSequence = useRef(Math.max(0, ...initialThreads.map((thread, index) => thread.pinNumber ?? index + 1)));
   const [annotating, setAnnotating] = useState(false);
   const [draftPin, setDraftPin] = useState<AnnotationPin | null>(null);
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
@@ -121,7 +122,7 @@ export function AssetCollaboration({
           id,
           targetType: "asset",
           targetId: assetId,
-          ...(pin ? { pin, versionId: activeVersion } : {}),
+          ...(pin ? { pin, versionId: activeVersion, pinNumber: ++demoSequence.current } : {}),
           status: "open",
           createdBy: currentUid,
           createdAt: now,
@@ -272,7 +273,7 @@ export function AssetCollaboration({
     const ordered = [...threads].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
     const pinned = ordered.filter((t) => t.pin && t.versionId === activeVersion);
     const general = ordered.filter((t) => !t.pin);
-    const numbers = new Map(pinned.map((t, i) => [t.id, i + 1]));
+    const numbers = new Map(pinned.map((t, i) => [t.id, t.pinNumber ?? i + 1]));
     return {
       pinThreads: pinned,
       panelThreads: [...pinned, ...general],

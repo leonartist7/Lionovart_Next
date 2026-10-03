@@ -1,7 +1,7 @@
 import "server-only";
 import { adminDb, adminStorage } from "@/lib/firebase-admin";
 import { visibleProjectIds } from "@/lib/portal/projects";
-import type { Asset, AssetKind, AssetVersion, PortalRole } from "@/lib/portal/types";
+import { roleAtLeast, type Asset, type AssetKind, type AssetVersion, type PortalRole } from "@/lib/portal/types";
 
 /**
  * Asset and version reads/writes, plus the signed-upload flow.
@@ -326,7 +326,10 @@ export async function getAsset(
   const doc = await assetsRef(workspaceId).doc(assetId).get();
   if (!doc.exists) return null;
   const asset = { id: doc.id, ...doc.data() } as Asset;
-  if (!canSee(asset, await visibleProjectIds(workspaceId, viewerRole))) return null;
+  if (asset.projectId && !roleAtLeast(viewerRole, "agency")) {
+    const project = await adminDb.collection("workspaces").doc(workspaceId).collection("projects").doc(asset.projectId).get();
+    if (!project.exists || project.data()?.visibility === "internal") return null;
+  }
   return asset;
 }
 

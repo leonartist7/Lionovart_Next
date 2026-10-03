@@ -34,9 +34,19 @@ Next.js and its ESLint configuration are pinned to 16.3.8, addressing the critic
 
 The audit report records any remaining noncritical SDK/tool advisories. It is a dependency inventory, not a claim that every reported code path is reachable. CI fails if a critical application advisory remains.
 
+## Automated review corrections
+
+Review submission creates one pending approval and transitions the exact validated draft in the same transaction. Deciding a post approval updates its matching post atomically; missing or stale targets leave the decision untouched. Post edits, transitions and publish-result appends also use transactions. A partial publication remains immutable while the studio can record its remaining platforms; scheduled posts have a schedule-save action, and unscheduling clears their calendar date.
+
+Thread creation includes its first comment atomically. Per-version counters persist annotation numbers, including a one-time migration of older pins; deleted numbers are not reused. Recipient/file claims serialize activity notifications before sending, while the existing outbox records outcomes. Asset-specific polls now read only their targets and parent visibility records. Clients can open the complete post from the approval queue, read the full caption and inspect its media. Preview folds count Unicode code points.
+
+Image generation clearly saves a background plate. The unsaved headline-overlay controls are removed until a real composition/export flow exists. The English About page is added to the sitemap without publishing its redirected locale variants.
+
 ## Verification and release
 
-The workflow runs the existing motion tests, production build/type checking, the combined portal suite with emulator-only providers, cross-feature upload/visibility regressions, authenticated NOVA WebSocket upgrade, and browser checks at 320, 390, 768 and 1440 pixels, including Imagine results remaining open after scrolling away and back. Browser screenshots and structured results are attached to the workflow run.
+Full source lint is recorded, and the gate rejects additional source errors compared with the exact baseline using the same current rule set. Existing site lint findings remain documented in the artifact.
+
+The workflow runs the existing motion tests, production build/type checking, the combined portal suite with emulator-only providers, cross-feature upload/visibility regressions, authenticated NOVA WebSocket upgrade, and browser checks at 320, 390, 768, 1024, 1440, 1920 and 2560 pixels plus 844×390 landscape and enlarged About root text, including Imagine results remaining open after scrolling away and back. Browser screenshots and structured results are attached to the workflow run.
 
 Runtime checks explicitly start `server.js` with `NODE_ENV=production`; Next development mode must not reuse a production build directory. No real email, WhatsApp or Gemini request is made by these checks.
 

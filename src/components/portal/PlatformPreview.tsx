@@ -42,8 +42,9 @@ export function PlatformPreview({
   const over = validation.length > validation.maxChars;
   const near = !over && validation.length > validation.maxChars * 0.9;
 
-  const visible = fold && validation.composed.length > fold ? validation.composed.slice(0, fold) : null;
-  const hidden = visible ? validation.composed.slice(visible.length) : null;
+  const characters = Array.from(validation.composed);
+  const visible = fold && characters.length > fold ? characters.slice(0, fold).join("") : null;
+  const hidden = visible && fold ? characters.slice(fold).join("") : null;
 
   const errors = validation.issues.filter((i) => i.severity === "error");
   const warnings = validation.issues.filter((i) => i.severity === "warning");

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { CheckCircle2, FileText, Image as ImageIcon, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,6 +14,7 @@ export interface ApprovalCardData {
   id: string;
   targetType: "asset" | "post" | "milestone";
   targetLabel: string;
+  targetId?: string;
   contextLabel?: string;
   requestedAt: string;
 }
@@ -83,6 +85,11 @@ export function ApprovalCard({
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-foreground truncate text-sm font-medium">{approval.targetLabel}</p>
+          {approval.targetType === "post" && approval.targetId && (
+            <Link className="mt-2 inline-flex min-h-11 items-center text-sm font-medium underline" href={`/portal/${workspaceSlug}/content/${approval.targetId}`}>
+              Review full post
+            </Link>
+          )}
           <p className="text-muted-foreground mt-0.5 truncate text-xs">
             {approval.contextLabel ? `${approval.contextLabel} · ` : ""}
             requested {relativeDate(approval.requestedAt)}

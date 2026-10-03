@@ -100,7 +100,7 @@ export async function listCalendarItems(
   ]);
   return deriveCalendarItems(
     projects,
-    posts.map((p) => ({ id: p.id, title: postSummary(p), scheduledFor: p.scheduledFor })),
+    posts.filter((p) => p.state === "scheduled").map((p) => ({ id: p.id, title: postSummary(p), scheduledFor: p.scheduledFor })),
   );
 }
 

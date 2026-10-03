@@ -315,11 +315,19 @@ export function PostComposer({
           </>
         )}
         {post.state === "scheduled" && (
+          <Button type="button" size="lg" variant="outline" disabled={busy || !dirty || !scheduledFor}
+            onClick={async () => {
+              if (await call("", { scheduledFor: new Date(scheduledFor).toISOString() })) toast.add({ title: "Schedule saved" });
+            }}>
+            Save schedule
+          </Button>
+        )}
+        {post.state === "scheduled" && (
           <Button type="button" size="lg" variant="ghost" disabled={busy} onClick={() => move("approved", "Unscheduled")}>
             Unschedule
           </Button>
         )}
-        {(post.state === "approved" || post.state === "scheduled") && (
+        {(post.state === "approved" || post.state === "scheduled" || (post.state === "published" && post.platforms.some((platform) => post.publishResults?.[platform]?.status !== "published"))) && (
           <PublishDialog workspaceSlug={workspaceSlug} post={post} disabled={!validation.ok} />
         )}
       </div>
