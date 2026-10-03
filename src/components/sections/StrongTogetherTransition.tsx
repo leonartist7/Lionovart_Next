@@ -1,5 +1,7 @@
 "use client";
 
+import GoldThreads from "@/components/ui/GoldThreads";
+
 import { useEffect, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
 import { useLionJourney } from "./lion-journey/LionJourney";
@@ -29,6 +31,7 @@ export default function StrongTogetherTransition() {
       data-art-directed="light"
       className={styles.section}
     >
+      <GoldThreads />
       <div className={styles.marquee}>
         <StrongTogetherRibbon active reducedMotion={reduceMotion} />
       </div>

@@ -1,5 +1,7 @@
 "use client";
 
+import GoldThreads from "@/components/ui/GoldThreads";
+
 import { motion, useReducedMotion } from "framer-motion";
 import { useLionJourney } from "./lion-journey/LionJourney";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -70,6 +72,7 @@ export default function BridgeStatement({
         isVow ? "bg-bg-surface-light text-[#171412]" : "bg-bg-dark text-white"
       }`}
     >
+      {isVow && <GoldThreads single />}
       <h2 id={headingId} className="sr-only">
         {copy.line1} {copy.line2} {copy.accent}
       </h2>

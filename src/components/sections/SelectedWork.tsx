@@ -1,5 +1,7 @@
 "use client";
 
+import GoldThreads from "@/components/ui/GoldThreads";
+
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -17,7 +19,7 @@ type Selection = { index: number; manual: boolean };
 type GalleryMode = "work" | "services";
 type GalleryProject = { id: string; name: string; poster: string; color: string; video?: string; discipline?: string };
 
-export default function SelectedWork({ mode = "work", onHeadingClick }: { mode?: GalleryMode; onHeadingClick?: () => void }) {
+export default function SelectedWork({ mode = "work", onHeadingClick, goldThreads = false }: { mode?: GalleryMode; onHeadingClick?: () => void; goldThreads?: boolean }) {
   const t = useTranslations("selectedWork");
   const { t: siteT } = useLanguage();
   const isServices = mode === "services";
@@ -240,6 +242,7 @@ export default function SelectedWork({ mode = "work", onHeadingClick }: { mode?:
   return <section ref={sectionRef} id={isServices ? "services" : "selected-work"} data-scroll-title-skip data-theme={theme} data-gallery={mode} data-art-directed={theme === "dark" ? "dark" : "light"} aria-labelledby={isServices ? "services-heading" : "selected-work-heading"} className={styles.section}
     onFocusCapture={(event) => { if (event.target instanceof HTMLElement) setFocused(event.target.matches(":focus-visible")); }}
     onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
+    {goldThreads && theme === "ivory" && <GoldThreads />}
     <div className={styles.container}>
       <header className={styles.header}>
         {isServices ? <div className={styles.serviceHeader}>

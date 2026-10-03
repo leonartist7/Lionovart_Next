@@ -11,7 +11,7 @@ import {
   useTransform,
 } from "framer-motion";
 import Image from "next/image";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useLenis } from "lenis/react";
 import { Menu, X } from "lucide-react";
 import { getWhatsAppUrl } from "@/lib/contact";
@@ -86,6 +86,7 @@ const REDUCED_ITEM_VARIANTS = {
 
 export type NavbarProps = {
   lightweightMenu?: boolean;
+  sectionFallback?: boolean;
 };
 
 function LightweightMenuToggle({
@@ -112,7 +113,8 @@ function LightweightMenuToggle({
   );
 }
 
-export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps) {
+export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallback = false }: NavbarProps) {
+  const router = useRouter();
   const { released } = useIntroLifecycle();
   const introHeader = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -180,9 +182,10 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
 
   const scrollToTarget = (target: string) => {
     const element = document.querySelector<HTMLElement>(`[data-nova-section="${target}"], #${target}`);
-    if (!element) return;
+    if (!element && !sectionFallback) return;
 
-    if (lenis?.scrollTo) lenis.scrollTo(element, { offset: SCROLL_OFFSET });
+    if (!element) router.push(`/#${target === "work" ? "selected-work" : target}`);
+    else if (lenis?.scrollTo) lenis.scrollTo(element, { offset: SCROLL_OFFSET });
     else element.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
 
     setIsMobileOpen(false);

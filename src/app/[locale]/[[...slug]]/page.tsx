@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import Home from "../../(site)/page";
+import AboutPage from "../../(site)/about/page";
 import AuditPage from "../../(site)/audit/page";
 import AuditThanksPage from "../../(site)/audit/thanks/page";
 import CallPage from "../../(site)/call/page";
@@ -25,6 +26,7 @@ type Page = (props: { searchParams?: Promise<Record<string, string | string[] | 
 
 const pages: Record<string, Page> = {
   "/": Home,
+  "/about": AboutPage,
   "/audit": AuditPage,
   "/audit/thanks": AuditThanksPage,
   "/call": CallPage,
@@ -59,6 +61,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function LocalizedPublicPage({ params, searchParams }: { params: Promise<{ locale: string; slug?: string[] }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const { locale, slug } = await params;
   if (!isLocale(locale)) notFound();
+  // The new story launches in English; translations are completed in phase four.
+  // Return to the English URL instead of publishing a mixed-language page.
+  if (pathFrom(slug) === "/about" && locale !== "en") redirect("/about");
   const PageComponent = pages[pathFrom(slug)];
   if (!PageComponent) notFound();
   return <PageComponent key={locale as Locale} searchParams={searchParams} />;

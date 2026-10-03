@@ -125,7 +125,9 @@ These are two different components, not one responsive one. Trying to make a mon
 
 ---
 
-## ✨ Content — `/portal/[ws]/content` and `/[postId]`
+## ✨ Content — `/portal/[ws]/content` and `/[postId]` ✅ Built
+
+**Delivered as specced.** The IA decision above was resolved before building: Content is a nav item, kind-gated to workspaces with a `content` or `marketing` project (`KIND_GATED` in `nav.ts`), so a brand-identity client never sees it. Everything below is kept as the record of what was decided.
 
 **Purpose.** Ideas → draft → client approval → scheduled. The workflow, not the publishing.
 
@@ -141,6 +143,19 @@ These are two different components, not one responsive one. Trying to make a mon
 **Publishing is deliberately not built.** `ManualPublisher` validates for real, then marks published on confirmation. Real Meta/LinkedIn drivers slot in behind `SocialPublisher` once app review clears — weeks of external approval that no amount of code shortens.
 
 **Approval reuses the Approvals primitive.** Same `approvals` collection, `targetType: "post"`. Do not build a second approval flow.
+
+**What was built, and the decisions inside it:**
+
+- **`src/lib/portal/platforms.ts` is pure** — the composer and the submit route run the identical `validatePost`. A client physically cannot be shown a post that fails it, because `draft → in_review` is only reachable through `submitForReview`, which validates first.
+- **Hashtags count toward the character limit**, because they do on every one of these platforms. X additionally counts every URL as 23 characters, t.co-wrapped — the classic case where a naive counter is wrong in the direction that bites.
+- **The preview shows the fold**, not just the limit. Instagram hides everything past ~125 characters behind "more"; a caption whose point lands in sentence three is invisible to most of the audience while being comfortably legal. That is the reason to render four previews instead of one textarea.
+- **Approval reuses the Approvals primitive, enforced rather than agreed.** `transitionPost` refuses `in_review → approved | rejected` by name and points the caller at Approvals; the decision is mirrored onto the post from the approvals route and nowhere else. `verify.mjs content` asserts both halves.
+- **Ideas and drafts are studio-only**, filtered in `listPosts` the way `internal` projects are. A client hitting a draft's URL gets a 404.
+- **Content is frozen from `in_review`; the schedule is not.** See `EDITABLE_STATES` vs `SCHEDULABLE_STATES` in `posts.ts`.
+- **`published` is terminal and append-only** — no edit, no transition out, no delete, and a platform already recorded is never rewritten by a later confirmation.
+- **Image generation produces a plate, not a graphic.** Gemini is told to render no text; the type is set over it. See `brand.ts`.
+
+**Not built, deliberately:** live social drivers (app review), and rasterised export of the composited template — the overlay is a preview, not a downloadable file.
 
 🔴 **Opus:** `SocialPublisher` interface, per-platform validation rules · 🟢 **Sonnet:** composer, previews, pipeline board, Gemini idea generation
 
@@ -188,7 +203,7 @@ Currently unspecced and easy to forget until it's missing.
 3. **Board** — the biggest single build; do it when the surrounding pages are stable
 4. **Calendar** — small, satisfying, pure layout
 5. **Messages** — needs the WhatsApp adapter
-6. **Content** — largest surface, and the IA decision above gates it
+6. ~~**Content** — largest surface, and the IA decision above gates it~~ ✅ Built
 
 Files + Approvals together make the portal genuinely useful. Everything after that is depth.
 

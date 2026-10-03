@@ -1,6 +1,16 @@
 import type { ProjectWithMilestones } from "@/lib/portal/projects";
 import { deriveProgress } from "@/lib/portal/projects";
-import type { AssetKind, Milestone, PortalMessage, Task, TaskColumn } from "@/lib/portal/types";
+import { CLIENT_VISIBLE_STATES } from "@/lib/portal/platforms";
+import type {
+  AssetKind,
+  Comment,
+  Milestone,
+  PortalMessage,
+  Post,
+  Task,
+  TaskColumn,
+  Thread,
+} from "@/lib/portal/types";
 
 /**
  * Fixtures for the design preview at /portal/demo.
@@ -326,4 +336,191 @@ export const DEMO_APPROVALS: DemoApproval[] = [
 /** Everyone sees the same fixed queue — the demo never mutates a decision. */
 export function demoApprovals(): DemoApproval[] {
   return DEMO_APPROVALS.filter((a) => a.state === "pending");
+}
+
+/* ── Content ────────────────────────────────────────────────────── */
+
+function post(
+  id: string,
+  state: Post["state"],
+  caption: string,
+  platforms: Post["platforms"],
+  hashtags: string[],
+  scheduledInDays?: number,
+  assetIds: string[] = [],
+): Post {
+  return {
+    id,
+    caption,
+    hashtags,
+    platforms,
+    assetIds,
+    state,
+    scheduledFor: scheduledInDays === undefined ? undefined : daysFromNow(scheduledInDays),
+    createdBy: "demo-agency",
+    createdAt: daysFromNow(-6),
+    updatedAt: daysFromNow(-1),
+  };
+}
+
+export const DEMO_POSTS: Post[] = [
+  post(
+    "post-review-espresso",
+    "in_review",
+    "The new cups arrived. Same weight in the hand as the old ones, half the material — the difference is in the wall, not the shape.",
+    ["instagram", "linkedin"],
+    ["#Packaging", "#BrandIdentity"],
+    undefined,
+    ["hero-photo"],
+  ),
+  post(
+    "post-scheduled-launch",
+    "scheduled",
+    "Doors open Thursday at seven. The roastery stays open late all week.",
+    ["instagram", "facebook"],
+    ["#Northwind"],
+    4,
+    ["logo-mark"],
+  ),
+  post(
+    "post-published-proofs",
+    "published",
+    "Proofs, drying. Four rounds to get the red right.",
+    ["instagram"],
+    ["#Letterpress"],
+    -9,
+    ["hero-photo"],
+  ),
+  // Studio-only: a client never receives an idea or a draft.
+  post(
+    "post-draft-origin",
+    "draft",
+    "Where the beans come from, and why we changed who we buy from this year.",
+    ["linkedin"],
+    ["#Sourcing"],
+  ),
+  post("post-idea-barista", "idea", "A morning with the openers — 5am to first pour.", ["instagram"], [], undefined, [
+    "logo-mark",
+  ]),
+];
+
+/** The same state filter `listPosts` applies — ideas and drafts are studio-only. */
+export function demoPosts(view: DemoView): Post[] {
+  return view === "studio"
+    ? DEMO_POSTS
+    : DEMO_POSTS.filter((p) => CLIENT_VISIBLE_STATES.includes(p.state));
+}
+
+export function demoPost(view: DemoView, id: string): Post | null {
+  return demoPosts(view).find((p) => p.id === id) ?? null;
+}
+
+/**
+ * A demo post's attachments, shaped for the validator and the preview.
+ * Dimensions are the placeholder's real ones, so the aspect-ratio rules are
+ * exercised in the preview rather than skipped.
+ */
+export function demoPostMedia(post: Post): {
+  assetId: string;
+  name: string;
+  kind: AssetKind;
+  width: number;
+  height: number;
+  thumbnailUrl: string | null;
+}[] {
+  return post.assetIds.flatMap((id) => {
+    const asset = DEMO_ASSETS.find((a) => a.id === id);
+    if (!asset) return [];
+    const version = asset.versions.find((v) => v.n === asset.currentVersion);
+    return [{
+      assetId: asset.id,
+      name: asset.name,
+      kind: asset.kind,
+      width: 1200,
+      height: 900,
+      thumbnailUrl: version?.url || null,
+    }];
+  });
+}
+
+/* ── Collaboration threads & pins ───────────────────────────────── */
+
+/**
+ * Structurally the same shape `listThreads` returns, declared locally so this
+ * fixture file never imports the `server-only` data layer.
+ */
+export type DemoThread = Thread & { comments: Comment[] };
+
+const DEMO_CLIENT_UID = "demo-client";
+const DEMO_AGENCY_UID = "demo-agency";
+
+function demoThread(
+  id: string,
+  assetId: string,
+  spec: {
+    pin?: { x: number; y: number };
+    versionId?: number;
+    resolved?: boolean;
+    ageDays: number;
+    comments: [author: "client" | "agency", body: string][];
+  },
+): DemoThread {
+  const at = daysFromNow(spec.ageDays);
+  const comments = spec.comments.map(([who, body], i) => ({
+    id: `${id}-c${i}`,
+    body,
+    authorUid: who === "client" ? DEMO_CLIENT_UID : DEMO_AGENCY_UID,
+    authorName: who === "client" ? DEMO_CLIENT.name : DEMO_AGENCY.name,
+    createdAt: daysFromNow(spec.ageDays + i * 0.02),
+  }));
+  const last = comments[comments.length - 1].createdAt;
+  return {
+    id,
+    targetType: "asset",
+    targetId: assetId,
+    ...(spec.pin ? { pin: spec.pin, versionId: spec.versionId ?? 1 } : {}),
+    status: spec.resolved ? "resolved" : "open",
+    createdBy: comments[0].authorUid,
+    createdAt: at,
+    lastMessageAt: last,
+    updatedAt: last,
+    participants: [...new Set(comments.map((c) => c.authorUid))],
+    comments,
+  };
+}
+
+export const DEMO_THREADS: DemoThread[] = [
+  demoThread("thread-leaf", "logo-mark", {
+    pin: { x: 0.42, y: 0.31 },
+    versionId: 2,
+    ageDays: -2,
+    comments: [
+      ["client", "The leaf still reads as a feather at small sizes. Can the spine be heavier?"],
+      ["agency", "Agreed — thickening the spine and shortening the tip for the next round."],
+    ],
+  }),
+  demoThread("thread-wordmark", "logo-mark", {
+    pin: { x: 0.68, y: 0.74 },
+    versionId: 2,
+    ageDays: -1,
+    comments: [["client", "Wordmark sits low against the mark. Half a step up?"]],
+  }),
+  demoThread("thread-brown", "logo-mark", {
+    pin: { x: 0.2, y: 0.6 },
+    versionId: 2,
+    resolved: true,
+    ageDays: -3,
+    comments: [
+      ["client", "This brown is colder than the packaging."],
+      ["agency", "Warmed it two steps — that's the version you're looking at."],
+    ],
+  }),
+  demoThread("thread-general", "logo-mark", {
+    ageDays: -4,
+    comments: [["agency", "Version 2 is ready for a decision whenever you have five minutes."]],
+  }),
+];
+
+export function demoThreads(assetId: string): DemoThread[] {
+  return DEMO_THREADS.filter((t) => t.targetId === assetId);
 }

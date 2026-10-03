@@ -1,0 +1,176 @@
+{
+  "results": [
+    {
+      "width": 320,
+      "height": 568,
+      "sectionHeight": 843,
+      "sectionWidth": 320,
+      "documentWidth": 320,
+      "overflow": [],
+      "stats": 3,
+      "topics": 4,
+      "providerHeaders": [
+        "LIONOVART",
+        "Others"
+      ],
+      "aboutHref": "/en/about",
+      "layout": "stacked",
+      "bodyFont": "16px",
+      "brandColor": "rgb(229, 25, 42)",
+      "portraits": 0
+    },
+    {
+      "width": 375,
+      "height": 667,
+      "sectionHeight": 751,
+      "sectionWidth": 375,
+      "documentWidth": 375,
+      "overflow": [],
+      "stats": 3,
+      "topics": 4,
+      "providerHeaders": [
+        "LIONOVART",
+        "Others"
+      ],
+      "aboutHref": "/en/about",
+      "layout": "stacked",
+      "bodyFont": "16px",
+      "brandColor": "rgb(229, 25, 42)",
+      "portraits": 0
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "sectionHeight": 756,
+      "sectionWidth": 390,
+      "documentWidth": 390,
+      "overflow": [],
+      "stats": 3,
+      "topics": 4,
+      "providerHeaders": [
+        "LIONOVART",
+        "Others"
+      ],
+      "aboutHref": "/en/about",
+      "layout": "stacked",
+      "bodyFont": "16px",
+      "brandColor": "rgb(229, 25, 42)",
+      "portraits": 0
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "sectionHeight": 709,
+      "sectionWidth": 430,
+      "documentWidth": 430,
+      "overflow": [],
+      "stats": 3,
+      "topics": 4,
+      "providerHeaders": [
+        "LIONOVART",
+        "Others"
+      ],
+      "aboutHref": "/en/about",
+      "layout": "stacked",
+      "bodyFont": "16px",
+      "brandColor": "rgb(229, 25, 42)",
+      "portraits": 0
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "sectionHeight": 811,
+      "sectionWidth": 768,
+      "documentWidth": 768,
+      "overflow": [],
+      "stats": 3,
+      "topics": 4,
+      "providerHeaders": [
+        "LIONOVART",
+        "Others"
+      ],
+      "aboutHref": "/en/about",
+      "layout": "stacked",
+      "bodyFont": "16px",
+      "brandColor": "rgb(229, 25, 42)",
+      "portraits": 0
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "sectionHeight": 563,
+      "sectionWidth": 1024,
+      "documentWidth": 1024,
+      "overflow": [],
+      "stats": 3,
+      "topics": 4,
+      "providerHeaders": [
+        "LIONOVART",
+        "Others"
+      ],
+      "aboutHref": "/en/about",
+      "layout": "side-by-side",
+      "bodyFont": "17px",
+      "brandColor": "rgb(229, 25, 42)",
+      "portraits": 0
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "sectionHeight": 563,
+      "sectionWidth": 1440,
+      "documentWidth": 1440,
+      "overflow": [],
+      "stats": 3,
+      "topics": 4,
+      "providerHeaders": [
+        "LIONOVART",
+        "Others"
+      ],
+      "aboutHref": "/en/about",
+      "layout": "side-by-side",
+      "bodyFont": "17px",
+      "brandColor": "rgb(229, 25, 42)",
+      "portraits": 0
+    },
+    {
+      "about": {
+        "topics": 7,
+        "providerEntries": 35,
+        "width": 390,
+        "portrait": true
+      }
+    },
+    {
+      "locale": "fr",
+      "heading": "Innovation is not a choice.It\u2019s a necessity.",
+      "aboutHref": "/en/about"
+    },
+    {
+      "motion": "normal",
+      "headingOpacity": "1",
+      "comparisonOpacity": "1",
+      "resultSceneExists": 1,
+      "processExists": 1
+    },
+    {
+      "phoneEmulation": true,
+      "sectionHeight": 756,
+      "documentWidth": 390,
+      "width": 390
+    },
+    {
+      "enlargedText": "200%",
+      "width": 320,
+      "documentWidth": 320,
+      "bodyFont": "32px",
+      "sectionHeight": 3178,
+      "overflow": []
+    }
+  ],
+  "errors": [],
+  "implementationCommit": "467242dba221aca3d893ca86186c78a859a1a50c",
+  "implementationTree": "475f1408323016c5dac1953f77c87ff0e9f31413",
+  "preview": "https://lionovartnext-f9lm55l2n-lionovart.vercel.app",
+  "browser": "Chromium 153.0.8010.0"
+}

@@ -93,7 +93,7 @@ export const PORTAL_NAV: PortalNavItem[] = [
     label: "Content",
     shortLabel: "Content",
     icon: Sparkles,
-    ready: false,
+    ready: true,
     primary: false,
   },
   {

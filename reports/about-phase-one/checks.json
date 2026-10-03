@@ -1,0 +1,131 @@
+{
+  "base": "http://localhost:3013",
+  "checks": [
+    {
+      "width": 390,
+      "scrollWidth": 390,
+      "h1Count": 1,
+      "title": "About \u2014 The mind behind the work | LIONOVART",
+      "canonical": "https://lionovart.com/about",
+      "headings": [
+        "Leonardo.",
+        "A brand shouldfeel connected.",
+        "Three forces.One point of view.",
+        "The difference ishow it comes together.",
+        "Let\u2019s make itunmistakable."
+      ],
+      "imageReady": true,
+      "portraitRatio": 1,
+      "clipped": [],
+      "status": 200
+    },
+    {
+      "width": 320,
+      "scrollWidth": 320,
+      "h1Count": 1,
+      "title": "About \u2014 The mind behind the work | LIONOVART",
+      "canonical": "https://lionovart.com/about",
+      "headings": [
+        "Leonardo.",
+        "A brand shouldfeel connected.",
+        "Three forces.One point of view.",
+        "The difference ishow it comes together.",
+        "Let\u2019s make itunmistakable."
+      ],
+      "imageReady": true,
+      "portraitRatio": 1,
+      "clipped": [],
+      "status": 200
+    },
+    {
+      "width": 375,
+      "scrollWidth": 375,
+      "h1Count": 1,
+      "title": "About \u2014 The mind behind the work | LIONOVART",
+      "canonical": "https://lionovart.com/about",
+      "headings": [
+        "Leonardo.",
+        "A brand shouldfeel connected.",
+        "Three forces.One point of view.",
+        "The difference ishow it comes together.",
+        "Let\u2019s make itunmistakable."
+      ],
+      "imageReady": true,
+      "portraitRatio": 1,
+      "clipped": [],
+      "status": 200
+    },
+    {
+      "width": 768,
+      "scrollWidth": 768,
+      "h1Count": 1,
+      "title": "About \u2014 The mind behind the work | LIONOVART",
+      "canonical": "https://lionovart.com/about",
+      "headings": [
+        "Leonardo.",
+        "A brand shouldfeel connected.",
+        "Three forces.One point of view.",
+        "The difference ishow it comes together.",
+        "Let\u2019s make itunmistakable."
+      ],
+      "imageReady": true,
+      "portraitRatio": 1,
+      "clipped": [],
+      "status": 200
+    },
+    {
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1Count": 1,
+      "title": "About \u2014 The mind behind the work | LIONOVART",
+      "canonical": "https://lionovart.com/about",
+      "headings": [
+        "Leonardo.",
+        "A brand shouldfeel connected.",
+        "Three forces.One point of view.",
+        "The difference ishow it comes together.",
+        "Let\u2019s make itunmistakable."
+      ],
+      "imageReady": true,
+      "portraitRatio": 1,
+      "clipped": [],
+      "status": 200
+    },
+    {
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1Count": 1,
+      "title": "About \u2014 The mind behind the work | LIONOVART",
+      "canonical": "https://lionovart.com/about",
+      "headings": [
+        "Leonardo.",
+        "A brand shouldfeel connected.",
+        "Three forces.One point of view.",
+        "The difference ishow it comes together.",
+        "Let\u2019s make itunmistakable."
+      ],
+      "imageReady": true,
+      "portraitRatio": 1,
+      "clipped": [],
+      "status": 200
+    }
+  ],
+  "shortHeight": 667,
+  "reducedMotion": true,
+  "contact": {
+    "path": "/call",
+    "novaDialogOpened": true,
+    "voiceStartup": "existing local service error; external booking not verified"
+  },
+  "localeFallback": "/fr/about -> /about",
+  "reload": true,
+  "pageErrors": [],
+  "implementationCommit": "a35b3c3045defb4e4d5b5752e42d35a8ad68b22e",
+  "implementationTree": "ad3f1e5e8e56030b37cead3914a0defa72dd1808",
+  "hostedVerification": {
+    "url": "https://lionovartnext-h1stk5nbt-lionovart.vercel.app/about",
+    "deploymentState": "READY",
+    "status": 200,
+    "viewportRun": false
+  }
+}

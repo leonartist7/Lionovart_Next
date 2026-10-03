@@ -79,7 +79,7 @@ export async function executePortalAssistantTool(
       };
     }
     case "list_recent_files": {
-      const assets = await listAssets(ctx.workspaceId);
+      const assets = await listAssets(ctx.workspaceId, ctx.viewerRole);
       return {
         files: assets.slice(0, 10).map((a) => ({ name: a.name, kind: a.kind, uploadedAt: a.createdAt })),
       };

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { CalendarItem } from "@/lib/portal/calendar";
+import { calendarHref, type CalendarItem } from "@/lib/portal/calendar";
 import { cn } from "@/lib/utils";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -118,7 +118,7 @@ export function CalendarMonthGrid({
                 {dayItems.slice(0, 2).map((item) => (
                   <Link
                     key={item.id}
-                    href={`/portal/${workspaceSlug}/projects/${item.projectId}`}
+                    href={calendarHref(item, workspaceSlug)}
                     title={item.title}
                     className="bg-primary/10 text-primary hover:bg-primary/20 truncate rounded px-1 py-0.5 text-[11px] transition-colors"
                   >

@@ -1,5 +1,7 @@
 "use client";
 
+import GoldThreads from "@/components/ui/GoldThreads";
+
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
 import Image from "next/image";
@@ -200,8 +202,9 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
       <section
         id="services"
         data-art-directed="light"
-        className="overflow-hidden bg-bg-surface-light text-[#111111]"
+        className="relative isolate overflow-hidden bg-bg-surface-light text-[#111111]"
       >
+        <GoldThreads />
         <div className="mx-auto max-w-[1280px] px-5 py-20 text-center sm:px-8 lg:py-28">
           <p className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-brand-red">
             {t.services.eyebrow}
@@ -239,6 +242,7 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
       data-art-directed="light"
       className="relative z-20 isolate overflow-clip bg-bg-surface-light text-[#111111]"
     >
+      <GoldThreads single />
       <header className="mx-auto flex min-h-[39svh] max-w-[1280px] flex-col justify-end px-5 pb-8 text-center sm:min-h-[40svh] sm:px-8 sm:pb-10 lg:min-h-[44vh] lg:pb-14">
         <p className="font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-brand-red sm:text-[11px]">
           {t.services.eyebrow}
@@ -260,6 +264,7 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
         onKeyDown={handleKeys}
         style={{ overscrollBehaviorX: "contain" }}
       >
+        <GoldThreads />
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_76%,rgba(229,25,42,0.04),transparent_36%)]"
