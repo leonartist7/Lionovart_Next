@@ -111,6 +111,23 @@ jobs:
             };
             const repo = context.repo;
             function assert(ok, message) { if (!ok) throw new Error(message); }
+            await new Promise((resolve, reject) => {
+              const socket = require('node:tls').connect({host:'lionovart.com',port:443,servername:'lionovart.com',rejectUnauthorized:false}, () => {
+                const chain = [];
+                let certificate = socket.getPeerCertificate(true);
+                const seen = new Set();
+                while (certificate && certificate.fingerprint256 && !seen.has(certificate.fingerprint256)) {
+                  seen.add(certificate.fingerprint256);
+                  chain.push({subject:certificate.subject,issuer:certificate.issuer,validFrom:certificate.valid_from,validTo:certificate.valid_to,fingerprint256:certificate.fingerprint256});
+                  certificate = certificate.issuerCertificate;
+                }
+                core.info(JSON.stringify({certificateInspectionOnly:true,runnerTime:new Date().toISOString(),authorized:socket.authorized,error:socket.authorizationError,chain},null,2));
+                socket.end();
+                resolve();
+              });
+              socket.setTimeout(15000, () => { socket.destroy(); reject(new Error('Certificate inspection timeout')); });
+              socket.on('error',reject);
+            });
             const master = (await github.rest.git.getRef({...repo,ref:'heads/master'})).data.object.sha;
             assert(master === manifest.release, 'Master moved; refresh the retirement manifest before proceeding.');
             const checks = (await github.rest.checks.listForRef({...repo,ref:master,per_page:100})).data.check_runs;
