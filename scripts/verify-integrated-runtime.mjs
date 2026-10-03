@@ -49,6 +49,13 @@ try {
       assert.equal(response.status(), 200, `${route} responds at ${width}px`);
       await page.waitForTimeout(7000);
       if (route === "/") {
+        // Exercise and dismiss the exit prompt before scrolling between cards.
+        // A synthetic mouseout matches the desktop exit-intent event; dismiss
+        // through the actual button so the subsequent clicks stay realistic.
+        await page.evaluate(() => document.dispatchEvent(new MouseEvent("mouseout", { clientY: 0, bubbles: true })));
+        const exitPrompt = page.getByRole("dialog", { name: "Get a free brand audit" });
+        await exitPrompt.getByRole("button", { name: "Close", exact: true }).click();
+        await exitPrompt.waitFor({ state: "hidden" });
         const comparison = page.locator('[data-nova-section="comparison"]');
         await comparison.scrollIntoViewIfNeeded();
         assert.equal(await comparison.locator("table").count(), 1, "Compact comparison remains addressable by NOVA");
