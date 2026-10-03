@@ -1,32 +1,33 @@
 "use client";
-/* eslint-disable @next/next/no-img-element */
+import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
+import styles from "./HeroClientProof.module.css";
 
-const FACES = [
-  "/images/Testimonials/UK/Jess-Beautysalon-W.avif",
-  "/images/Testimonials/Northlinemotors/Marc-Cardealer-M.jpg",
-  "/images/Testimonials/Italy/Lumura/Team2025.avif",
-  "/images/Testimonials/Spain/Pablo-hotel-M.avif",
-  "/images/Testimonials/Canada/Maya-Flowerstore-W.avif",
+// Existing client results, reused from Testimonials. Lumura remains an estimate.
+const CLIENTS = [
+  { name: "Northline Motors", logo: "/images/Testimonials/Northlinemotors/Northlinemotors-logo.webp", value: "4×" },
+  { name: "Miller & Carter", logo: "/images/Testimonials/Miller&Carter - Resto/mc-logo.avif", value: "2.4×" },
+  { name: "Lumura", logo: "/images/Testimonials/Italy/Lumura/lumura-logo.webp", value: "~35%" },
 ];
-const ASSETS = "https://res.cloudinary.com/dgio9uutc/image/upload/";
-
+const LABELS = {
+  en: ["online sales pace", "weekend covers", "more qualified enquiries · est."],
+  fr: ["rythme des ventes en ligne", "couverts le week-end", "demandes en plus · estim."],
+  es: ["ritmo de ventas online", "comensales en fin de semana", "más consultas · estim."],
+  it: ["ritmo vendite online", "coperti nel weekend", "più richieste · stima"],
+  ja: ["オンライン販売ペース", "週末の来客数", "問い合わせ増加 · 推定"],
+  ko: ["온라인 판매 속도", "주말 방문 고객", "문의 증가 · 추정"],
+};
 export default function HeroClientProof() {
-  const { t } = useLanguage();
-  const title = t.hero.badges.experience;
-  return (
-    <a className="hero-client-proof" href="#client-experience" aria-label={title.join(" ")}>
-      <img className="hero-client-laurel" src={`${ASSETS}v1787020265/Laurel-L_vxtg55.webp`} alt="" width={52} height={130} />
-      <span className="hero-client-rating">
-        <span className="hero-client-stars" aria-hidden="true">
-          {[0, 1, 2, 3, 4].map(i => <img key={i} src={`${ASSETS}v1787020126/Golden_Beveled_Star_Icon_wwcwek.webp`} alt="" width={27} height={27} />)}
-        </span>
-        <span className="hero-client-faces" aria-hidden="true">
-          {FACES.map(src => <img key={src} src={src} alt="" width={32} height={32} />)}
-        </span>
-        <span className="hero-client-title">{title.map(line => <span key={line}>{line}</span>)}</span>
-      </span>
-      <img className="hero-client-laurel" src={`${ASSETS}v1787020265/Laurel-R_kj7isz.webp`} alt="" width={52} height={130} />
-    </a>
-  );
+  const { t, locale } = useLanguage();
+  const labels = LABELS[locale] ?? LABELS.en;
+  return <div className={styles.proof} data-hero-client-results>
+    <p className={styles.trust}>{t.hero.trustLine}</p>
+    <div className={styles.clients}>
+      {CLIENTS.map((client, i) => <a key={client.name} href="#client-experience" className={styles.client}>
+        <Image src={client.logo.split("/").map(encodeURIComponent).join("/")} alt={client.name} width={130} height={36} className={styles.logo} />
+        <span className={styles.value}>{client.value}</span>
+        <span className={styles.label}>{labels[i]}</span>
+      </a>)}
+    </div>
+  </div>;
 }

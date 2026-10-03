@@ -24,7 +24,7 @@ export default function HeroTop() {
       </h1>
     </div>
     <p className={`lion-description${locale === "ja" || locale === "ko" ? "" : " editorial-accent editorial-hero"}`}>{t.hero.subtitle}</p>
-    <div className="lion-cta"><HeroSitePeek /><div className="lion-social-proof"><HeroClientProof /><p className="lion-trust">{t.hero.trustLine}</p></div></div>
+    <div className="lion-cta"><HeroSitePeek /><HeroClientProof /></div>
     </div>
   </section>;
 }

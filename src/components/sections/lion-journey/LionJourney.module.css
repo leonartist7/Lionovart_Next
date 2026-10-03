@@ -228,3 +228,20 @@
 .journey :global(.lion-social-proof .hero-client-proof) { flex-shrink:0; }
 .journey :global(.lion-social-proof .lion-trust) { margin:0; max-width:23ch; text-wrap:pretty; }
 @media(max-width:767px) { .journey :global(.lion-social-proof) { gap:14px; } .journey :global(.lion-social-proof .lion-trust) { flex:1; min-width:0; } }
+
+
+/* One centered proof group, with space reserved for the navigation. */
+.journey :global(.lion-cta) { width: min(100%, 580px); gap: 24px; }
+.journey :global(.hero-opening-pinned .lion-content) { translate: -8vw -40px; }
+.journey :global(.hero-opening-pinned .lion-hero) { padding-bottom: 56px; }
+.journey :global(.opening-work-layer) { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+@media(min-width:768px) and (max-width:1023px) {
+  .journey :global(.hero-opening-pinned .lion-content) { translate: -6vw -40px; }
+}
+@media(max-width:767px) {
+  .journey :global(.hero-opening-pinned .lion-content) { translate: 0 -32px; }
+  .journey :global(.lion-cta) { gap: 20px; }
+  .journey :global(.hero-opening-pinned .lion-hero) { padding-bottom: 40px; }
+}
+@media(max-height:700px) { .journey :global(.hero-opening-pinned .lion-content) { translate: -8vw 0; } }
+@media(max-width:767px) and (max-height:700px) { .journey :global(.hero-opening-pinned .lion-content) { translate: 0 0; } }

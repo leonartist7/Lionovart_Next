@@ -1,3 +1,4 @@
+import HeroBackground from "@/components/sections/hero-background/HeroBackground";
 import HeroOpening from "@/components/sections/lion-journey/HeroOpening";
 import LionJourney from "@/components/sections/lion-journey/LionJourney";
 import StrongTogetherTransition from "@/components/sections/StrongTogetherTransition";
@@ -34,6 +35,7 @@ export function PageBuilder() {
       <ExitIntentModal />
 
       <LionJourney>
+        <HeroBackground />
         <HeroOpening />
         <BridgeStatement />
         <StrongTogetherTransition />

@@ -1,0 +1,21 @@
+.backdrop { position: fixed; inset: 0; height: 100svh; overflow: hidden; z-index: 0; pointer-events: none; contain: paint; }
+.layer { position: absolute; left: var(--desktop-x); top: var(--desktop-y); width: var(--desktop-width); opacity: var(--desktop-opacity); transform: translate(-50%, -50%) rotate(var(--desktop-rotation)); }
+.layer img { display: block; width: 100%; height: auto; max-width: none; user-select: none; }
+@media(max-width:767px) { .layer { left: var(--mobile-x); top: var(--mobile-y); width: var(--mobile-width); opacity: var(--mobile-opacity); transform: translate(-50%, -50%) rotate(var(--mobile-rotation)); } }
+.panel { position: fixed; right: 16px; bottom: 16px; z-index: 11000; width: min(340px, calc(100vw - 32px)); max-height: min(720px, 85svh); overflow-y: auto; overscroll-behavior: contain; padding: 20px; background: #161516f5; color: #f6eee2; border: 1px solid #c5a16666; border-radius: 16px; box-shadow: 0 12px 55px #0008; font: 13px/1.45 var(--font-body), sans-serif; }
+.panel h2 { font-size: 20px; margin: 0 0 4px; letter-spacing: -.025em; }
+.panel p { color: #bcb6ac; margin: 0 0 14px; font-size: 12px; }
+.panel label { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+.panel select { background: #242124; color: #fff; width: 100%; padding: 10px; border: 1px solid #ffffff30; border-radius: 6px; margin-top: 10px; }
+.panel input[type=range] { width: 100%; accent-color: #e5bd77; display: block; margin: 6px 0; min-height: 24px; }
+.panel input[type=checkbox] { accent-color: #e5bd77; width: 20px; height: 20px; }
+.panel output { font-variant-numeric: tabular-nums; color: #e5bd77; }
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+.panel button, .launcher { min-height: 44px; cursor: pointer; border: 1px solid #ffffff30; border-radius: 7px; padding: 8px 12px; color: #f6eee2; background: #292528; }
+.panel button:hover, .launcher:hover { background: #44392b; }
+.panel button:focus-visible, .panel input:focus-visible, .panel select:focus-visible, .handle:focus-visible, .launcher:focus-visible { outline: 2px solid #e5bd77; outline-offset: 3px; }
+.status { margin-top: 12px; min-height: 36px; font-size: 12px; color: #e5bd77; }
+.launcher { position: fixed; right: 16px; bottom: 16px; z-index: 11000; background: #161516; font-size: 13px; }
+.handle { position: fixed; z-index: 10999; transform: translate(-50%, -50%); display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: #171412; border: 1px solid #e5bd77; color: #e5bd77; cursor: grab; touch-action: none; box-shadow: 0 0 0 8px #e5bd7720; font-size: 26px; }
+.handle:active { cursor: grabbing; }
+@media(max-width:599px) { .panel { padding: 14px; max-height: 55svh; } }
