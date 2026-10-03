@@ -2,7 +2,7 @@ name: Integrated verification
 
 on:
   push:
-    branches: [integration/lionovart-latest-20261003]
+    branches: [master]
   pull_request:
     branches: [master]
 

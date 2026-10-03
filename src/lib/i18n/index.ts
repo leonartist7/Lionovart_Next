@@ -11,8 +11,8 @@ export { LOCALES, type Locale } from "@/i18n/routing";
 
 /**
  * Deployable message catalogs. These JSON files are the sole runtime source
- * and are synchronized with Tolgee. The legacy TypeScript files are retained
- * only as a one-time migration source and must not be edited for new copy.
+ * and are synchronized with Tolgee. Edit copy in these catalogs; the legacy
+ * TypeScript migration sources have been retired.
  */
 const deployable = <T>(locale: Exclude<Locale, "en">, messages: T): T =>
   reviewStatus[locale]?.status === "approved" ? messages : en as T;

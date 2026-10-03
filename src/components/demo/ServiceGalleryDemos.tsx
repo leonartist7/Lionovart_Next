@@ -17,7 +17,7 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
-import { en } from "@/lib/i18n/locales/en";
+import en from "@/messages/en.json";
 import { PREMIUM_VARIANTS } from "./ServiceGalleryPremium";
 import {
   EASE,
