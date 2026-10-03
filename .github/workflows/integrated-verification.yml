@@ -51,6 +51,8 @@ jobs:
           java-version: "21"
       - name: Install locked application dependencies
         run: npm ci
+      - name: Record application dependency advisories
+        run: node scripts/verify-dependency-advisories.mjs
       - name: Motion and intro regression tests
         run: node --test scripts/intro-readiness.test.mjs scripts/intro-scene.test.mjs scripts/lion-motion.test.mjs
       - name: Production build and type checking

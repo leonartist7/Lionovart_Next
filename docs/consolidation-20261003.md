@@ -26,7 +26,7 @@ The compact introduction retains the comparison anchor used by NOVA. Gold decora
 
 A complete scan of 475 source modules and literal imports found no runtime import of the four retired homepage sections: AboutExperience, AboutUsHalf, Comparison and AboutPaintTransition. They are removed after the replacement layout is integrated. The two gallery demos now use the canonical English JSON catalog, allowing all six duplicate TypeScript catalogs to be removed. Historical prototypes and library/demo components are retained. The accidentally tracked local worktree gitlink is removed from the repository index; its commit remains in history.
 
-Docker copies the repository's `.npmrc` (which specifies `legacy-peer-deps=true`) and uses `npm ci` with the committed lockfile so Cloud Run and Vercel resolve the same application dependencies. This does not establish the cause of the earlier Cloud Build failure.
+Docker copies the repository's `.npmrc` (which specifies `legacy-peer-deps=true`) and uses `npm ci` with the committed lockfile so Cloud Run and Vercel resolve the same application dependencies. The container check also reproduced a fatal Next CLI conflict between Docker's old `TURBOPACK=0` environment variable and the current `--webpack` build script. Those duplicate Docker flags are removed; the package script is the single bundler choice. Earlier Google build logs remain unavailable, so this is a reproduced container failure rather than a claim based on those logs.
 
 ## Verification and release
 

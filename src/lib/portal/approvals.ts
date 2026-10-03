@@ -29,9 +29,8 @@ function approvalsRef(workspaceId: string) {
  * important one, because it is what makes Content use the real approval
  * primitive instead of a second flow. Importing back the other way for a
  * display string would close the cycle, so this reads the one field it needs.
- * There is no visibility decision here to duplicate: a post only has a pending
- * approval while it is `in_review`, which every member of the workspace can
- * already see.
+ * Apply the shared client-visible state list even to stale or manually
+ * requested approvals, so a caption cannot expose a draft through the queue.
  */
 async function postCaptions(workspaceId: string, ids: readonly string[], viewerRole: PortalRole): Promise<Map<string, string>> {
   const labels = new Map<string, string>();
