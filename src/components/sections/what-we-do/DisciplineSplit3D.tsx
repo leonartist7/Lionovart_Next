@@ -210,7 +210,7 @@ function Pane({
           </motion.div>
           {/* One continuous bevel: always present, then intensified by the
               pointer's proximity to this pane. */}
-          <div
+          <motion.div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] p-[1.25px] transition-opacity duration-300"
             style={{
@@ -796,6 +796,7 @@ export default function DisciplineSplit3D({
       data-opening-transition="continuous-split-v4"
       id={pinned ? undefined : "what-we-build"}
       data-cards-armed={armed}
+      data-film-active={filmActive}
       className={journey ? "relative lion-video-section" : "relative isolate"}
       style={{
         height: pinned ? "100%" : journey ? "auto" : `${SECTION_HEIGHT_VH}vh`,
