@@ -83,8 +83,6 @@ export async function buildVisibilityGate(
   viewerRole: PortalRole,
   targets: TargetRef[],
 ): Promise<(t: TargetRef) => boolean> {
-  if (roleAtLeast(viewerRole, "agency")) return () => true;
-
   const kinds = new Set(targets.map((t) => t.targetType));
   if (!kinds.has("project") && !kinds.has("asset") && !kinds.has("task") && !kinds.has("post")) {
     return () => true;
@@ -95,6 +93,8 @@ export async function buildVisibilityGate(
     const visible = new Set((await Promise.all(ids.map((id) => getAsset(workspaceId, id, viewerRole)))).filter((asset) => asset !== null).map((asset) => asset.id));
     return (target) => visible.has(target.targetId);
   }
+
+  if (roleAtLeast(viewerRole, "agency")) return () => true;
 
   // Already internal-filtered for this role — the one place that decision lives.
   const projects = await listProjects(workspaceId, viewerRole);

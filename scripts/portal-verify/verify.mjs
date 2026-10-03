@@ -1989,16 +1989,20 @@ if (run("integration")) {
 
   // Race two activity sends against a fresh file: only one can claim each recipient.
   const notifyAsset = await sign("concurrent-notify.png");
-  await confirm(notifyAsset);
+  const notifyUpload = await confirm(notifyAsset, fx.agencyCookie, { name: "concurrent-notify.png" });
+  check("notification race fixture uploads its real file", notifyUpload.status === 201, String(notifyUpload.status));
   const note = (body) => request("/threads", "POST", fx.agencyCookie, { targetType: "asset", targetId: notifyAsset.assetId, body });
-  await Promise.all([note("Concurrent note A"), note("Concurrent note B")]);
+  const notes = await Promise.all([note("Concurrent note A"), note("Concurrent note B")]);
+  check("both concurrent notes are committed", notes.every((response) => response.status === 201), JSON.stringify(notes.map((response) => response.status)));
   const notifications = await workspaceRef.collection("notifications").where("targetId", "==", notifyAsset.assetId).get();
   const counts = new Map();
   for (const doc of notifications.docs) {
     const row = doc.data();
     if (["sent", "unconfigured"].includes(row.status)) counts.set(row.recipientEmail, (counts.get(row.recipientEmail) ?? 0) + 1);
   }
-  check("concurrent activity claims one send per recipient", counts.size > 0 && [...counts.values()].every((count) => count === 1));
+  check("concurrent activity claims one send per recipient", counts.size > 0 && [...counts.values()].every((count) => count === 1), JSON.stringify(notifications.docs.map((doc) => [doc.data().recipientEmail, doc.data().status])));
+  const orphan = await request("/threads", "POST", fx.agencyCookie, { targetType: "asset", targetId: "missing-file", body: "No orphan thread" });
+  check("a studio thread cannot target a missing file", orphan.status === 404);
 
   const multi = (await (await request("/content", "POST", fx.agencyCookie,
     { state: "draft", caption: "A complete multi-platform update.", platforms: ["linkedin", "x"] })).json()).post;
