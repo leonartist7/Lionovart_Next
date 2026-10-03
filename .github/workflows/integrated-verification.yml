@@ -101,3 +101,24 @@ jobs:
       - name: Container logs
         if: always()
         run: docker logs integrated-container 2>/dev/null || true
+
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Fetch the recorded release baseline
+        run: git fetch --depth=1 origin e1723e35b215dc34b478c326b6791e866ae2b8f5
+      - name: Inventory full lint and reject new source errors
+        run: node scripts/verify-source-lint.mjs
+      - name: Lint evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-lint
+          path: verification-output/lint*.json

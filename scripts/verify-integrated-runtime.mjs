@@ -39,8 +39,8 @@ try {
   await mkdir("verification-output", { recursive: true });
   browser = await chromium.launch({ headless: true });
   const results = [];
-  for (const width of [320, 390, 768, 1440]) {
-    const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: "reduce" });
+  for (const { width, height } of [320, 390, 768, 1024, 1440, 1920, 2560].map((width) => ({ width, height: 900 })).concat([{ width: 844, height: 390 }])) {
+    const context = await browser.newContext({ viewport: { width, height }, reducedMotion: "reduce" });
     const page = await context.newPage();
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
@@ -74,15 +74,15 @@ try {
       }
       const overflowing = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 2);
       assert.equal(overflowing, false, `No horizontal overflow on ${route} at ${width}px`);
-      const filename = `${width}-${route.replaceAll("/", "_") || "home"}.png`;
+      const filename = `${width}x${height}-${route.replaceAll("/", "_") || "home"}.png`;
       await page.screenshot({ path: "verification-output/" + filename, fullPage: true });
-      results.push({ width, route, status: response.status(), horizontalOverflow: overflowing });
+      results.push({ width, height, route, status: response.status(), horizontalOverflow: overflowing });
     }
     assert.deepEqual(errors, [], `No uncaught browser errors at ${width}px`);
     await context.close();
   }
   await writeFile("verification-output/results.json", JSON.stringify(results, null, 2) + "\n");
-  console.log("PASS: production runtime, portal suite and twelve browser viewport checks");
+  console.log("PASS: production runtime, portal suite and twenty-four browser viewport checks");
 } finally {
   await browser?.close();
   server.kill("SIGTERM");
