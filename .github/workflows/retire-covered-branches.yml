@@ -1,0 +1,152 @@
+name: Retire verified covered branches
+on:
+  push:
+    branches:
+      - maintenance/retire-covered-20261003
+permissions:
+  contents: write
+  checks: read
+concurrency:
+  group: lionovart-branch-retirement-20261003
+  cancel-in-progress: false
+jobs:
+  retire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Verify release and atomically archive covered refs
+        uses: actions/github-script@v7
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const { execFileSync } = require('node:child_process');
+            const fs = require('node:fs');
+            const path = require('node:path');
+            const manifest = {
+              "date": "2026-10-03",
+              "repository": "leonartist7/Lionovart_Next",
+              "release": "84f0624cb36293f9857fafcc08e8b373f84813cb",
+              "mergeRelease": "5885a4c21ee8f3f7672fcf837dcd42b7c5dd59f0",
+              "baseline": "e1723e35b215dc34b478c326b6791e866ae2b8f5",
+              "verificationRun": "https://github.com/leonartist7/Lionovart_Next/actions/runs/37101586629",
+              "maintenanceBranch": "maintenance/retire-covered-20261003",
+              "archivePrefix": "archive/20261003/",
+              "candidates": [
+                {
+                  "name": "claude/client-portal-collaboration-0gdbra",
+                  "sha": "e7022dcc98475c09e4b28ea4e8190b17f555f7a5"
+                },
+                {
+                  "name": "claude/copywriting-brand-messaging-ek4t36",
+                  "sha": "cc7b5f43de807ff13b2b7175c774ee9737ee51c2"
+                },
+                {
+                  "name": "claude/hero-section-blank-space-guxqqh",
+                  "sha": "567423ab6cc1d72bd2380f8a48e3b9dcf10c5534"
+                },
+                {
+                  "name": "claude/portal-approvals-calendar",
+                  "sha": "6a17f71b1cabb88a00eb3491c0267b39d493d563"
+                },
+                {
+                  "name": "claude/portal-asset-visibility",
+                  "sha": "619727225fef986dcde090f9432f2b8f535f220d"
+                },
+                {
+                  "name": "claude/portal-board",
+                  "sha": "88be62af7b7af103f7317eb1fb7610522cbfaa36"
+                },
+                {
+                  "name": "claude/portal-board-l1hity",
+                  "sha": "7103c4215af12c83b38609f86c5e8695bf6a2afb"
+                },
+                {
+                  "name": "claude/portal-collaboration",
+                  "sha": "b9e69fcf42d887dbe699cd5583f4a388a059398f"
+                },
+                {
+                  "name": "claude/portal-collaboration-threads-rw0e77",
+                  "sha": "b9e69fcf42d887dbe699cd5583f4a388a059398f"
+                },
+                {
+                  "name": "claude/portal-content",
+                  "sha": "23465c9933c61b3fdec69cd29e50668ff1e4bf08"
+                },
+                {
+                  "name": "codex/adaptive-glass-navbar-20260902",
+                  "sha": "4d3e078e1a43750d51f6d6b2f07085c7dac08d28"
+                },
+                {
+                  "name": "codex/compact-homepage-comparison-20261002",
+                  "sha": "a86870819dacc2fbb81670f9cb3d40dc842307b1"
+                },
+                {
+                  "name": "codex/imagine-persistent-reveals-20260929",
+                  "sha": "7a8c76dac3087c82fbf34236379c2f37088c815a"
+                },
+                {
+                  "name": "codex/navbar-glass-polish-20260902",
+                  "sha": "a71046ac79a723d31f719538b33595ee023a1f19"
+                },
+                {
+                  "name": "codex/opening-film-proportions-20261003",
+                  "sha": "c71e3bbdaf3abc99e17d4e57f3eaa742e7ccb7c4"
+                },
+                {
+                  "name": "codex/responsive-opening-film-20261003",
+                  "sha": "d1c3cd02494aec7240ac883ad758b2d3a14565a6"
+                },
+                {
+                  "name": "integration/lionovart-latest-20261003",
+                  "sha": "42b61ecb69cbd09d64d14404631292e5beb815e8"
+                }
+              ],
+              "preserve": [
+                "codex/opening-film-smooth-handoff-20261003",
+                "codex/opening-film-shared-frame-20261003",
+                "codex/opening-film-balanced-flow-20261003"
+              ]
+            };
+            const repo = context.repo;
+            function assert(ok, message) { if (!ok) throw new Error(message); }
+            const master = (await github.rest.git.getRef({...repo,ref:'heads/master'})).data.object.sha;
+            assert(master === manifest.release, 'Master moved; refresh the retirement manifest before proceeding.');
+            const checks = (await github.rest.checks.listForRef({...repo,ref:master,per_page:100})).data.check_runs;
+            assert(checks.some(c => c.name.startsWith('rmgpgab-') && c.conclusion === 'success'), 'Production Cloud Build has not succeeded.');
+            const publicResponse = await fetch('https://lionovart.com/?retirement=' + Date.now(), {signal:AbortSignal.timeout(45000),headers:{'Cache-Control':'no-cache'}});
+            assert(publicResponse.ok, 'Public homepage is unavailable.');
+            const html = await publicResponse.text();
+            assert(html.includes('LIONOVART — Creative Agency') && html.includes('id="comparison"') && html.includes('id="about"'), 'Public homepage does not contain the verified release.');
+            const about = await fetch('https://lionovart.com/about?retirement=' + Date.now(),{signal:AbortSignal.timeout(45000)});
+            assert(about.ok && (await about.text()).includes('About — The art of innovation'), 'Public About route is unavailable.');
+            for (const c of manifest.candidates) {
+              assert(!manifest.preserve.includes(c.name), 'Protected checkpoint or active branch in retirement list.');
+              const live = (await github.rest.git.getRef({...repo,ref:'heads/' + c.name})).data.object.sha;
+              assert(live === c.sha, 'Branch moved: ' + c.name);
+              const comparison = (await github.rest.repos.compareCommits({...repo,base:c.sha,head:master})).data;
+              assert(comparison.merge_base_commit.sha === c.sha && comparison.behind_by === 0, 'Branch is not fully covered: ' + c.name);
+            }
+            const maintenance = (await github.rest.git.getRef({...repo,ref:'heads/' + manifest.maintenanceBranch})).data.object.sha;
+            assert(maintenance === context.sha, 'Maintenance branch moved.');
+            const gitDir = path.join(process.env.RUNNER_TEMP, 'lionovart-retirement.git');
+            fs.mkdirSync(gitDir);
+            const auth = Buffer.from('x-access-token:' + process.env.GH_TOKEN).toString('base64');
+            core.setSecret(auth);
+            const env = {...process.env,GIT_TERMINAL_PROMPT:'0',GIT_CONFIG_COUNT:'1',GIT_CONFIG_KEY_0:'http.https://github.com/.extraheader',GIT_CONFIG_VALUE_0:'AUTHORIZATION: basic ' + auth};
+            const git = args => execFileSync('git',args,{cwd:gitDir,env,encoding:'utf8',stdio:['ignore','pipe','pipe']});
+            git(['init','--bare']);
+            const url = 'https://github.com/' + manifest.repository + '.git';
+            const shas = [...new Set([master,manifest.baseline,maintenance,...manifest.candidates.map(c=>c.sha)])];
+            git(['fetch','--filter=blob:none','--depth=1',url,...shas]);
+            const tags = manifest.candidates.map(c=>({name:manifest.archivePrefix+c.name,sha:c.sha}));
+            tags.push({name:manifest.archivePrefix+'master-before-consolidation',sha:manifest.baseline});
+            tags.push({name:manifest.archivePrefix+manifest.maintenanceBranch,sha:maintenance});
+            const removals = [...manifest.candidates,{name:manifest.maintenanceBranch,sha:maintenance}];
+            const args = ['push','--atomic','--porcelain',...removals.map(c=>'--force-with-lease=refs/heads/'+c.name+':'+c.sha),url,...tags.map(t=>t.sha+':refs/tags/'+t.name),...removals.map(c=>':refs/heads/'+c.name)];
+            core.info(git(args));
+            await core.summary.addHeading('Covered branches archived');
+            await core.summary.addRaw('Release: ' + master + '\n\n');
+            await core.summary.addTable([['Branch','Archived SHA'],...manifest.candidates.map(c=>[c.name,c.sha])]);
+            await core.summary.addRaw('\nAll archival tags and branch removals were applied in one atomic push. Master and preserved active branches were not modified.\n').write();

@@ -1,0 +1,85 @@
+{
+  "date": "2026-10-03",
+  "repository": "leonartist7/Lionovart_Next",
+  "release": "84f0624cb36293f9857fafcc08e8b373f84813cb",
+  "mergeRelease": "5885a4c21ee8f3f7672fcf837dcd42b7c5dd59f0",
+  "baseline": "e1723e35b215dc34b478c326b6791e866ae2b8f5",
+  "verificationRun": "https://github.com/leonartist7/Lionovart_Next/actions/runs/37101586629",
+  "maintenanceBranch": "maintenance/retire-covered-20261003",
+  "archivePrefix": "archive/20261003/",
+  "candidates": [
+    {
+      "name": "claude/client-portal-collaboration-0gdbra",
+      "sha": "e7022dcc98475c09e4b28ea4e8190b17f555f7a5"
+    },
+    {
+      "name": "claude/copywriting-brand-messaging-ek4t36",
+      "sha": "cc7b5f43de807ff13b2b7175c774ee9737ee51c2"
+    },
+    {
+      "name": "claude/hero-section-blank-space-guxqqh",
+      "sha": "567423ab6cc1d72bd2380f8a48e3b9dcf10c5534"
+    },
+    {
+      "name": "claude/portal-approvals-calendar",
+      "sha": "6a17f71b1cabb88a00eb3491c0267b39d493d563"
+    },
+    {
+      "name": "claude/portal-asset-visibility",
+      "sha": "619727225fef986dcde090f9432f2b8f535f220d"
+    },
+    {
+      "name": "claude/portal-board",
+      "sha": "88be62af7b7af103f7317eb1fb7610522cbfaa36"
+    },
+    {
+      "name": "claude/portal-board-l1hity",
+      "sha": "7103c4215af12c83b38609f86c5e8695bf6a2afb"
+    },
+    {
+      "name": "claude/portal-collaboration",
+      "sha": "b9e69fcf42d887dbe699cd5583f4a388a059398f"
+    },
+    {
+      "name": "claude/portal-collaboration-threads-rw0e77",
+      "sha": "b9e69fcf42d887dbe699cd5583f4a388a059398f"
+    },
+    {
+      "name": "claude/portal-content",
+      "sha": "23465c9933c61b3fdec69cd29e50668ff1e4bf08"
+    },
+    {
+      "name": "codex/adaptive-glass-navbar-20260902",
+      "sha": "4d3e078e1a43750d51f6d6b2f07085c7dac08d28"
+    },
+    {
+      "name": "codex/compact-homepage-comparison-20261002",
+      "sha": "a86870819dacc2fbb81670f9cb3d40dc842307b1"
+    },
+    {
+      "name": "codex/imagine-persistent-reveals-20260929",
+      "sha": "7a8c76dac3087c82fbf34236379c2f37088c815a"
+    },
+    {
+      "name": "codex/navbar-glass-polish-20260902",
+      "sha": "a71046ac79a723d31f719538b33595ee023a1f19"
+    },
+    {
+      "name": "codex/opening-film-proportions-20261003",
+      "sha": "c71e3bbdaf3abc99e17d4e57f3eaa742e7ccb7c4"
+    },
+    {
+      "name": "codex/responsive-opening-film-20261003",
+      "sha": "d1c3cd02494aec7240ac883ad758b2d3a14565a6"
+    },
+    {
+      "name": "integration/lionovart-latest-20261003",
+      "sha": "42b61ecb69cbd09d64d14404631292e5beb815e8"
+    }
+  ],
+  "preserve": [
+    "codex/opening-film-smooth-handoff-20261003",
+    "codex/opening-film-shared-frame-20261003",
+    "codex/opening-film-balanced-flow-20261003"
+  ]
+}
