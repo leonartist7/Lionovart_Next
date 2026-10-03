@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "3d-cloth-material": {
+      "source": "MengTo/Skills",
+      "sourceType": "github",
+      "skillPath": "agent-skills/3d/3d-cloth-material/SKILL.md",
+      "computedHash": "70c76a5469dd8a2a05cfcde545a37530cfdd64a05e7b70f36d282768c555be53"
+    },
     "3d-falling-leaves": {
       "source": "MengTo/Skills",
       "sourceType": "github",
@@ -25,6 +31,18 @@
       "skillPath": "agent-skills/3d/3d-high-resolution-textures/SKILL.md",
       "computedHash": "382cc434c86920f7450308ed396924faadf93ec8bbdee11c74f05a22cabd51e1"
     },
+    "3d-orbit-inspect-demo": {
+      "source": "MengTo/Skills",
+      "sourceType": "github",
+      "skillPath": "agent-skills/3d/3d-orbit-inspect-demo/SKILL.md",
+      "computedHash": "80077bcef7b2eb42f4789b1a14880a456f3cc693ccd52ece2ad1f5b0851aadde"
+    },
+    "3d-paper-material": {
+      "source": "MengTo/Skills",
+      "sourceType": "github",
+      "skillPath": "agent-skills/3d/3d-paper-material/SKILL.md",
+      "computedHash": "68bb47b565180d39804ac87c485a964082fccd1589cb0c21bf4f98da12b2e152"
+    },
     "3d-retina-resolution": {
       "source": "MengTo/Skills",
       "sourceType": "github",
@@ -43,11 +61,29 @@
       "skillPath": "agent-skills/3d/3d-sky-rays/SKILL.md",
       "computedHash": "d18d4ff41bf93803d16bec5fed611e824d68877c1a63e62104a6e266a26dd3a5"
     },
+    "3d-ultra-realistic-water": {
+      "source": "MengTo/Skills",
+      "sourceType": "github",
+      "skillPath": "agent-skills/3d/3d-ultra-realistic-water/SKILL.md",
+      "computedHash": "430399c3b84cdd70507e95007b16e7652d0fc309804aa0d118979a7306c9334f"
+    },
     "3d-virtual-tour": {
       "source": "MengTo/Skills",
       "sourceType": "github",
       "skillPath": "agent-skills/3d/3d-virtual-tour/SKILL.md",
       "computedHash": "9d463a2ba89c72f105566bc9993b4df10c7f83d7f06bbe95494c7d196b873100"
+    },
+    "3d-wood-lighting-scorecard": {
+      "source": "MengTo/Skills",
+      "sourceType": "github",
+      "skillPath": "agent-skills/3d/3d-wood-lighting-scorecard/SKILL.md",
+      "computedHash": "fd32bdf1e57985074db816b5bb1400c029adda8fc757d2c90338d492448dfbfb"
+    },
+    "3d-wood-material": {
+      "source": "MengTo/Skills",
+      "sourceType": "github",
+      "skillPath": "agent-skills/3d/3d-wood-material/SKILL.md",
+      "computedHash": "ce6cf11d00f0e7c27772e128b9bbe0fb6ae5ef66b4fe6535a6a034a140768239"
     },
     "add-mouse-driven-orbit": {
       "source": "MengTo/Skills",
@@ -198,6 +234,12 @@
       "sourceType": "github",
       "skillPath": "skills/brandkit/SKILL.md",
       "computedHash": "b63012f3c3d21197e0185d3e9cc7ec40c589fb10e0b5a32a561739de31aa3f20"
+    },
+    "break-ui": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/break-ui/SKILL.md",
+      "computedHash": "60ada67662925f4df5e3c6ff41cac3ab241b66f8898100a5ffcd7ba7196cb868"
     },
     "bright-green-tech-system-webgl": {
       "source": "MengTo/Skills",
@@ -493,6 +535,12 @@
       "skillPath": "skills/find-animation-opportunities/SKILL.md",
       "computedHash": "465d087c41768e4f14ed640dd049036009f613feb55baaa5831b68b33178f9d2"
     },
+    "fire-paper-loader": {
+      "source": "MengTo/Skills",
+      "sourceType": "github",
+      "skillPath": "agent-skills/web-design/fire-paper-loader/SKILL.md",
+      "computedHash": "d575b45f0b2bae82ab42ddab08776c8a72f31558be1920d82df93a41b2cfb755"
+    },
     "framed-grid-layout": {
       "source": "MengTo/Skills",
       "sourceType": "github",
@@ -516,6 +564,18 @@
       "sourceType": "github",
       "skillPath": "agent-skills/web-design/funky-purple-container-tech/SKILL.md",
       "computedHash": "e9ae8d0d0fd39a83c6efbfda02e83b31736dd0a6fda41f359c35e3b6d073db25"
+    },
+    "game-dev-combat-animation": {
+      "source": "MengTo/Skills",
+      "sourceType": "github",
+      "skillPath": "agent-skills/game-combat/game-dev-combat-animation/SKILL.md",
+      "computedHash": "46052702c53209fd6d3d63fa4f1551bde46c17870965121fa1822995ed324552"
+    },
+    "game-dev-combat-skill-polish": {
+      "source": "MengTo/Skills",
+      "sourceType": "github",
+      "skillPath": "agent-skills/game-combat/game-dev-combat-skill-polish/SKILL.md",
+      "computedHash": "a28f929ee0770e49153bb6e021951e92b01222607e43293d599c56fd21d09ca6"
     },
     "generate-reference-inspired-brand-worlds": {
       "source": "MengTo/Skills",
@@ -582,6 +642,12 @@
       "sourceType": "github",
       "skillPath": "skills/soft-skill/SKILL.md",
       "computedHash": "7db385e4c5370e5a7fca9704a1361b056e4504ea6a03924bb86f33a4f00b5c73"
+    },
+    "horizontal-scroll-scenes": {
+      "source": "MengTo/Skills",
+      "sourceType": "github",
+      "skillPath": "agent-skills/web-design/horizontal-scroll-scenes/SKILL.md",
+      "computedHash": "0b69a1c46a31dc0aa989be319b92316e602e59d6b6a055916bb6a1e017a7e158"
     },
     "html-to-interaction-prompts": {
       "source": "MengTo/Skills",
@@ -744,6 +810,12 @@
       "sourceType": "github",
       "skillPath": "agent-skills/web-design/orange-clean-paper-saas/SKILL.md",
       "computedHash": "84ff02e3ead7385b0a6165054a284d2655ccdcd502922e852e73ce0567c240b1"
+    },
+    "paper-cinder-transition": {
+      "source": "MengTo/Skills",
+      "sourceType": "github",
+      "skillPath": "agent-skills/web-design/paper-cinder-transition/SKILL.md",
+      "computedHash": "5afbfbb9d69de15a28a83de60fe7c610023adb4eba2480f56cbb051b45a75aa0"
     },
     "performance-profiling": {
       "source": "MengTo/Skills",
@@ -990,6 +1062,30 @@
       "sourceType": "github",
       "skillPath": "agent-skills/web-design/webgl-laser/SKILL.md",
       "computedHash": "a94b0e767aa7ec9c13a72b30f7559b4ee0684ba24fa0502ca4dec12ff7926d3b"
+    },
+    "workflow-progress-screenshots": {
+      "source": "MengTo/Skills",
+      "sourceType": "github",
+      "skillPath": "agent-skills/workflow/workflow-progress-screenshots/SKILL.md",
+      "computedHash": "ca09cbcc0557500646af2443a610fb928213ad2a88053a50c40490e718f6dbb3"
+    },
+    "workflow-score-to-target": {
+      "source": "MengTo/Skills",
+      "sourceType": "github",
+      "skillPath": "agent-skills/workflow/workflow-score-to-target/SKILL.md",
+      "computedHash": "13153a67cddea68b0784e15b1db54f642dfd6b6629ae118a6b018c483821eb73"
+    },
+    "workflow-ship-change": {
+      "source": "MengTo/Skills",
+      "sourceType": "github",
+      "skillPath": "agent-skills/workflow/workflow-ship-change/SKILL.md",
+      "computedHash": "32792d37c074625fa318236d268540a10766410bb9e3ec1026b5779968d5b9bd"
+    },
+    "workflow-threads-manager": {
+      "source": "MengTo/Skills",
+      "sourceType": "github",
+      "skillPath": "agent-skills/workflow/workflow-threads-manager/SKILL.md",
+      "computedHash": "0e57b94ae39a8b9a8d7211102bf0fda4d01a27330824a2788458a20eb4d17cb6"
     },
     "write-like-meng-on-x": {
       "source": "MengTo/Skills",
