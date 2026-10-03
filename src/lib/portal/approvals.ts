@@ -1,7 +1,8 @@
 import "server-only";
 import { adminDb } from "@/lib/firebase-admin";
-import { listAssets } from "@/lib/portal/assets";
+import { getAsset, listAssets } from "@/lib/portal/assets";
 import { listProjects } from "@/lib/portal/projects";
+import { CLIENT_VISIBLE_STATES } from "@/lib/portal/platforms";
 import type { Approval, PortalRole } from "@/lib/portal/types";
 
 /**
@@ -32,13 +33,13 @@ function approvalsRef(workspaceId: string) {
  * approval while it is `in_review`, which every member of the workspace can
  * already see.
  */
-async function postCaptions(workspaceId: string, ids: readonly string[]): Promise<Map<string, string>> {
+async function postCaptions(workspaceId: string, ids: readonly string[], viewerRole: PortalRole): Promise<Map<string, string>> {
   const labels = new Map<string, string>();
   if (!adminDb || ids.length === 0) return labels;
   const posts = adminDb.collection("workspaces").doc(workspaceId).collection("posts");
   const docs = await Promise.all([...new Set(ids)].map((id) => posts.doc(id).get()));
   for (const doc of docs) {
-    if (!doc.exists) continue;
+    if (!doc.exists || (viewerRole !== "agency" && !CLIENT_VISIBLE_STATES.includes(doc.data()?.state))) continue;
     const caption = String(doc.data()?.caption ?? "").trim().split("\n")[0] ?? "";
     labels.set(doc.id, caption.length > 70 ? `${caption.slice(0, 69)}\u2026` : caption);
   }
@@ -105,6 +106,7 @@ export async function listPendingApprovals(
     postCaptions(
       workspaceId,
       pending.filter((a) => a.targetType === "post").map((a) => a.targetId),
+      viewerRole,
     ),
   ]);
 
@@ -142,6 +144,7 @@ export async function listPendingApprovals(
         contextLabel: a.versionId ? `Version ${a.versionId}` : undefined,
       });
     } else {
+      if (!captions.has(a.targetId)) continue;
       withContext.push({
         id: a.id,
         targetType: a.targetType,
@@ -185,6 +188,7 @@ export type DecideApprovalResult = { approval: Approval } | { error: string; sta
 export interface DecideApprovalInput {
   state: "approved" | "changes_requested";
   decidedBy: string;
+  viewerRole: PortalRole;
   note?: string;
 }
 
@@ -202,20 +206,33 @@ export async function decideApproval(
   }
 
   const ref = approvalsRef(workspaceId).doc(approvalId);
-  const doc = await ref.get();
-  if (!doc.exists) return { error: "Not found", status: 404 };
-
-  const current = { id: doc.id, ...doc.data() } as Approval;
-  if (current.state !== "pending") {
-    return { error: "This approval has already been decided.", status: 409 };
-  }
-
-  const patch = {
-    state: input.state,
-    decidedBy: input.decidedBy,
-    decidedAt: new Date().toISOString(),
-    ...(input.note ? { note: input.note } : {}),
-  };
-  await ref.update(patch);
-  return { approval: { ...current, ...patch } };
+  return adminDb!.runTransaction(async (tx) => {
+    const doc = await tx.get(ref);
+    if (!doc.exists) return { error: "Not found", status: 404 };
+    const current = { id: doc.id, ...doc.data() } as Approval;
+    // A guessed id cannot bypass the same target visibility as the queue.
+    if (input.viewerRole !== "agency") {
+      let visible = false;
+      if (current.targetType === "asset") {
+        visible = Boolean(await getAsset(workspaceId, current.targetId, input.viewerRole));
+      } else if (current.targetType === "milestone") {
+        visible = (await listProjects(workspaceId, input.viewerRole))
+          .some((project) => project.milestones.some((milestone) => milestone.id === current.targetId));
+      } else {
+        visible = (await postCaptions(workspaceId, [current.targetId], input.viewerRole)).has(current.targetId);
+      }
+      if (!visible) return { error: "Not found", status: 404 };
+    }
+    if (current.state !== "pending") {
+      return { error: "This approval has already been decided.", status: 409 };
+    }
+    const patch = {
+      state: input.state,
+      decidedBy: input.decidedBy,
+      decidedAt: new Date().toISOString(),
+      ...(input.note ? { note: input.note } : {}),
+    };
+    tx.update(ref, patch);
+    return { approval: { ...current, ...patch } };
+  });
 }

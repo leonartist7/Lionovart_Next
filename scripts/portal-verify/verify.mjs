@@ -997,6 +997,13 @@ if (run("assetgate")) {
   );
   const agencyQueue = (await (await fetch(`${ws}/approvals`, { headers: J(fx.agencyCookie) })).json()).approvals;
   check("…and present for the studio", agencyQueue.some((a) => a.id === approvalId));
+  const hiddenDecision = await fetch(`${ws}/approvals/${approvalId}`, {
+    method: "PATCH", headers: J(fx.clientCookie), body: JSON.stringify({ state: "approved" }),
+  });
+  check("a guessed internal-file approval id cannot be decided by a client", hiddenDecision.status === 404);
+  const stillPending = (await (await fetch(`${ws}/approvals`, { headers: J(fx.agencyCookie) })).json()).approvals;
+  check("rejected hidden approval decision preserves the pending request", stillPending.some((a) => a.id === approvalId));
+
 
   /* fail closed: a file whose project is gone is hidden, not exposed */
   const doomed = await mkProject("Doomed", "client");
@@ -1932,6 +1939,17 @@ if (run("integration")) {
   check("review accepts the corrected draft", submitVisible.status === 201);
   const reviewedThread = await (await request(`/threads?targetType=post&targetId=${draft.id}`, "GET", fx.clientCookie)).json();
   check("post thread becomes visible when the post enters review", reviewedThread.ids?.includes(studioThread.id));
+  const inReview = await (await request("/approvals", "GET", fx.clientCookie)).json();
+  const postApproval = inReview.approvals.find((a) => a.targetId === draft.id);
+  assertApproval: {
+    if (!postApproval) { check("post review has one pending approval", false); break assertApproval; }
+    const races = await Promise.all([
+      request(`/approvals/${postApproval.id}`, "PATCH", fx.clientCookie, { state: "approved" }),
+      request(`/approvals/${postApproval.id}`, "PATCH", fx.clientCookie, { state: "changes_requested", note: "Different decision" }),
+    ]);
+    check("concurrent approval decisions record exactly one outcome", races.filter((r) => r.status === 200).length === 1 && races.filter((r) => r.status === 409).length === 1);
+  }
+
 }
 
 process.exit(summary() > 0 ? 1 : 0);

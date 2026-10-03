@@ -18,7 +18,7 @@ The first five heads are parents of the integration commit, preserving their his
 
 ## Conflict resolutions
 
-New file consumers pass the viewer's role. A client's content attachments cannot resolve an internal file, and review rejects inaccessible attachments. Draft and idea discussion threads inherit the post's visibility. Upload confirmation reads and creates asset/version records in a transaction: a version-one replay cannot replace an existing asset and concurrent confirmations cannot replace a version or skip the current version.
+New file consumers pass the viewer's role. A client's content attachments cannot resolve an internal file, and review rejects inaccessible attachments. Draft and idea discussion threads inherit the post's visibility. Approval decisions enforce target visibility by id and commit exactly one outcome in a transaction. Upload confirmation reads and creates asset/version records in a transaction: a version-one replay cannot replace an existing asset and concurrent confirmations cannot replace a version or skip the current version.
 
 The compact introduction retains the comparison anchor used by NOVA. Gold decoration is isolated inside the surviving chapter owners, pauses offscreen, and respects reduced motion.
 
@@ -26,7 +26,7 @@ The compact introduction retains the comparison anchor used by NOVA. Gold decora
 
 A complete scan of 475 source modules and literal imports found no runtime import of the four retired homepage sections: AboutExperience, AboutUsHalf, Comparison and AboutPaintTransition. They are removed after the replacement layout is integrated. The two gallery demos now use the canonical English JSON catalog, allowing all six duplicate TypeScript catalogs to be removed. Historical prototypes and library/demo components are retained. The accidentally tracked local worktree gitlink is removed from the repository index; its commit remains in history.
 
-Docker uses `npm ci` and the committed lockfile so Cloud Run and Vercel resolve the same application dependencies. This does not establish the cause of the earlier Cloud Build failure.
+Docker copies the repository's `.npmrc` (which specifies `legacy-peer-deps=true`) and uses `npm ci` with the committed lockfile so Cloud Run and Vercel resolve the same application dependencies. This does not establish the cause of the earlier Cloud Build failure.
 
 ## Verification and release
 

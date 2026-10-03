@@ -33,6 +33,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const result = await decideApproval(access.workspace.id, approvalId, {
     state: state as "approved" | "changes_requested",
     decidedBy: access.session.uid,
+    viewerRole: access.membership.role,
     note: body.note,
   });
 
