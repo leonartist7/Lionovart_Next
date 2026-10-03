@@ -4,7 +4,7 @@
 > different chats. They do not conflict (different files). This doc tracks both so
 > either chat can continue without confusion.
 
-Last updated: 2026-06-04
+Last updated: 2026-06-12
 
 ---
 
@@ -43,16 +43,26 @@ and Social Media & Content.
 - Homepage `Services` items now link to their pages; Navbar expertise menu routes to service pages
   (unbuilt ones fall back to in-page scroll). New `/services` overview hub built.
 
+**Phase 2 (Tier-2 pages) — Smart Systems & AI + Growth Marketing now BUILT (spine-complete):**
+- `src/app/services/ai/page.tsx` and `src/app/services/growth/page.tsx` ship on the shared `_shared`
+  shell (CurtainHero → StatementRelay → ProcessBand → OfferCards → ProofAndClose) with distinct
+  per-page copy/offers. `ready:true` flipped for both in `service-routes.ts`, so `/services` overview
+  and the Navbar expertise menu now link them.
+- These are spine-complete and conversion-ready. Their bespoke Act-1/Act-3 signature scenes (per
+  `SERVICE_PAGES_SPEC.md` §5: AI = Nova orb + live flow diagram; Growth = search pin rising to #1 +
+  ceremonial metrics ascent) are intentionally NOT yet built — they need a browser to verify and the
+  cloud container has no node_modules. They're the next polish pass, to add + verify locally.
+- `print` stays `ready:false` (Tier 3 / "deferred" per spec). No `/services/led` route per spec sitemap.
+
 **Next:**
-1. Locally verify (`npm run dev`): `/services`, `/services/content-studio`, `/services/brand`,
-   `/services/web`, the homepage Services section (6 items + working links), and the nav expertise
-   menu. (No node_modules in the cloud container, so verify locally.)
-2. Phase 2: build remaining pages on the shared shell — Smart Systems & AI, Growth Marketing,
-   Print & Physical, LED Glass (user chose FULL pages for all). Flip `ready:true` in
-   `service-routes.ts` as each ships so nav/overview start linking them.
-3. Phase 3: 3-skill audit (impeccable critique/audit + design-taste pre-flight + ui-ux-pro-max).
-4. Optional: retrofit `/services/content-studio` onto the shared `_shared` components.
-5. Add `/work` index. (No `/contact` form, Nova is the endpoint.)
+1. Locally verify (`npm run dev`): the two new pages `/services/ai`, `/services/growth`, plus the
+   existing `/services`, `/services/content-studio`, `/services/brand`, `/services/web`, the homepage
+   Services section, and the nav expertise menu. (No node_modules in the cloud container, verify locally.)
+2. Add the bespoke signature scenes to `/ai` and `/growth` (see above), then re-verify in the browser.
+3. Decide on `print` (Tier 3): build a full page or keep it "Soon". Flip `ready` when shipped.
+4. Phase 3: 3-skill audit (impeccable critique/audit + design-taste pre-flight + ui-ux-pro-max).
+5. Optional: retrofit `/services/content-studio` onto the shared `_shared` components.
+6. Add `/work` index. (No `/contact` form, Nova is the endpoint.)
 
 **Decisions locked:**
 - CONVERSION ENDPOINT = the Nova voice agent, NOT a form. CTAs call
