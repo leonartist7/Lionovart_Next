@@ -69,23 +69,25 @@ const TILT_X = 5;
 // SPLIT_END the scene is settled and the cursor rig can arm.
 const SECTION_HEIGHT_VH = 160;
 
-// One reversible sequence: fit the film, replace its surface, reshape, split.
-const FILM_SHRINK_END = 0.46;
+// One reversible sequence: shrink the shared frame, replace its surface, divide.
+const FILM_SHRINK_END = 0.42;
 const FILM_FADE_START = 0.12;
 const FILM_FADE_END = 0.40;
-const CARD_MORPH_END = 0.70;
-const CARD_SPLIT_START = 0.54;
+const CARD_SETTLE_END = 0.70;
+const CARD_SPLIT_START = 0.44;
+const SPLIT_FINISH = Math.min(0.9, SPLIT_END + 0.08);
 const FRAME_EASE = cubicBezier(0.77, 0, 0.175, 1);
 
 function cue(progress: number, start: number, end: number) {
   return Math.max(0, Math.min(1, (progress - start) / (end - start)));
 }
 
-// Both layers read the same rectangle until the footage is fully gone.
-// Uniform film scaling preserves its aspect; only the empty glass reshapes.
+// The normal desktop/portrait stage now shares the source aspect ratio,
+// so glassX and glassY stay equal: no post-fade height squash or stretch.
+// Compact phone layouts retain a safe, readable fallback card arrangement.
 function handoffGeometry(frame: FilmFrame, progress: number) {
   const shrink = FRAME_EASE(cue(progress, 0, FILM_SHRINK_END));
-  const morph = FRAME_EASE(cue(progress, FILM_FADE_END, CARD_MORPH_END));
+  const morph = FRAME_EASE(cue(progress, FILM_FADE_END, CARD_SETTLE_END));
   const filmScale = 1 + (frame.handoffScale - 1) * shrink;
   const offset = frame.centerOffset + (frame.handoffOffset - frame.centerOffset) * shrink;
   const sx = frame.width * filmScale / frame.stageWidth;
@@ -143,9 +145,9 @@ function Pane({
   // with the scrollbar.
   const stagger = Math.abs(dir) * 0.025;
 
-  const splitP = useLocalProgress(flip, CARD_SPLIT_START + stagger, 0.90 + stagger);
-  const cardP = useLocalProgress(flip, FILM_FADE_END, CARD_MORPH_END);
-  const contentP = useLocalProgress(flip, 0.64 + i * 0.03, 0.86 + i * 0.03);
+  const splitP = useLocalProgress(flip, CARD_SPLIT_START + stagger, 0.84 + stagger);
+  const cardP = useLocalProgress(flip, FILM_FADE_END, CARD_SETTLE_END);
+  const contentP = useLocalProgress(flip, 0.46 + i * 0.025, 0.72 + i * 0.025);
 
   // The split-apart translate/tilt — driven straight off scroll, so it
   // scrubs forward and backward with the gesture instead of playing once.
@@ -340,8 +342,9 @@ function Pane({
 /* â”€â”€â”€ Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /**
- * The film and glass share an outline throughout a reversible scroll handoff.
- * Once the film fades, the glass reshapes and separates into the final cards.
+ * The film and glass share an aspect and outline through the scroll handoff.
+ * Once the film fades, the glass divides into the final cards without a
+ * separate height reshape on normal desktop and portrait phone layouts.
  * Film geometry is measured on layout changes, never on scroll.
  */
 export default function DisciplineSplit3D({
@@ -411,9 +414,9 @@ export default function DisciplineSplit3D({
      scroll range. Scrolling back through that range reverses it -- this
      is a direct useTransform of scrollYProgress, not a triggered timeline. --- */
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
-  const scrollFlip = useTransform(scrollYProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
+  const scrollFlip = useTransform(scrollYProgress, [SPLIT_START, SPLIT_FINISH], [0, 1], { clamp: true });
   const openingProgress = journey?.openingProgress ?? scrollYProgress;
-  const openingFlip = useTransform(openingProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
+  const openingFlip = useTransform(openingProgress, [SPLIT_START, SPLIT_FINISH], [0, 1], { clamp: true });
   // The wash lives in the video layer, above the WebGL lion. Keep it off
   // until the opaque film has covered the mane; otherwise its translucent
   // footage tints the head and makes it appear see-through.
@@ -434,7 +437,7 @@ export default function DisciplineSplit3D({
   // Fill the shared frame before exposing it: crossfading two transparent
   // layers together caused a dark dip midway through the previous handoff.
   const cardPresence = useTransform(flip, [0.02, FILM_FADE_START], [0, 1], { ease: FRAME_EASE });
-  const proofPresence = useTransform(flip, [CARD_MORPH_END, 0.94], [0, 1], { ease: FRAME_EASE });
+  const proofPresence = useTransform(flip, [CARD_SETTLE_END, 0.94], [0, 1], { ease: FRAME_EASE });
   const proofTransform = useTransform(flip, (p) => {
     const offset = filmFrame ? reduce ? filmFrame.restOffset : handoffGeometry(filmFrame, p).glassOffset : 0;
     return `translateY(${offset}px)`;
@@ -488,7 +491,7 @@ export default function DisciplineSplit3D({
     // Keep the film close to the joined cards instead of making it nearly
     // fullscreen. Portrait media keeps its generous available height.
     const scale = Math.min(viewportWidth * 0.86 / sourceWidth,
-      stage.offsetWidth * 1.08 / sourceWidth,
+      stage.offsetWidth * 1.14 / sourceWidth,
       (landscape ? 1400 : 420) / sourceWidth,
       availableHeight * (landscape ? 0.88 : 0.94) / sourceHeight);
     const fittedWidth = sourceWidth * scale, fittedHeight = sourceHeight * scale;
@@ -691,6 +694,7 @@ export default function DisciplineSplit3D({
     <section
       ref={(node) => { sectionRef.current = node; journey?.setVideoSection(node); }}
       data-cursor-behind
+      data-opening-transition="shared-aspect-v3"
       id={pinned ? undefined : "what-we-build"}
       data-cards-armed={armed}
       className={journey ? "relative lion-video-section" : "relative isolate"}
@@ -731,7 +735,7 @@ export default function DisciplineSplit3D({
         />
 
         <div ref={(node) => journey?.setVideo(node)}
-          className="opening-video-anchor relative z-40 w-[min(84vw,400px)] md:w-[min(84vw,1160px)]">
+          className="opening-video-anchor relative z-40 w-[min(80vw,360px)] md:w-[min(82vw,1120px)]">
         <motion.div ref={stageRef} className="relative w-full"
           style={{ perspective: "1400px", y: pinned ? entranceY : 0, scale: pinned ? entranceScale : 1 }}>
           {/* A single generously sized film stays intact through its fade. */}
@@ -786,10 +790,11 @@ export default function DisciplineSplit3D({
           {/* Glass plane â€” tilts as one sheet so the three panes stay a single
               object. Individual feedback lives on the panes' hover lift. */}
           <motion.div
-            className={`opening-film-plane relative flex h-[clamp(360px,62svh,560px)] w-full ${isDesktop ? "flex-row" : "flex-col"} md:h-[clamp(300px,54svh,540px)]`}
+            className={`opening-film-plane relative flex aspect-[9/16] w-full ${isDesktop ? "flex-row" : "flex-col"} md:aspect-video`}
             style={{
               rotateX,
               rotateY,
+              aspectRatio: filmFrame ? filmFrame.width / filmFrame.height : undefined,
               transformStyle: "preserve-3d",
               willChange: "transform",
             }}
