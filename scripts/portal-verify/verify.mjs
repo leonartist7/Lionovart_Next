@@ -1930,8 +1930,8 @@ if (run("integration")) {
   await request(`/content/${draft.id}`, "PATCH", fx.agencyCookie, { assetIds: [] });
   const submitVisible = await request(`/content/${draft.id}/submit`, "POST", fx.agencyCookie, {});
   check("review accepts the corrected draft", submitVisible.status === 201);
-  const reviewedThread = await request(`/threads/${studioThread.id}`, "GET", fx.clientCookie);
-  check("post thread becomes visible when the post enters review", reviewedThread.status === 200);
+  const reviewedThread = await (await request(`/threads?targetType=post&targetId=${draft.id}`, "GET", fx.clientCookie)).json();
+  check("post thread becomes visible when the post enters review", reviewedThread.ids?.includes(studioThread.id));
 }
 
 process.exit(summary() > 0 ? 1 : 0);

@@ -24,7 +24,7 @@ The compact introduction retains the comparison anchor used by NOVA. Gold decora
 
 ## Cleanup
 
-A complete scan of 475 source modules and literal imports found no runtime import of the four retired homepage sections: AboutExperience, AboutUsHalf, Comparison and AboutPaintTransition. They are removed after the replacement layout is integrated. The two gallery demos now use the canonical English JSON catalog, allowing all six duplicate TypeScript catalogs to be removed. Historical prototypes and library/demo components are retained.
+A complete scan of 475 source modules and literal imports found no runtime import of the four retired homepage sections: AboutExperience, AboutUsHalf, Comparison and AboutPaintTransition. They are removed after the replacement layout is integrated. The two gallery demos now use the canonical English JSON catalog, allowing all six duplicate TypeScript catalogs to be removed. Historical prototypes and library/demo components are retained. The accidentally tracked local worktree gitlink is removed from the repository index; its commit remains in history.
 
 Docker uses `npm ci` and the committed lockfile so Cloud Run and Vercel resolve the same application dependencies. This does not establish the cause of the earlier Cloud Build failure.
 
