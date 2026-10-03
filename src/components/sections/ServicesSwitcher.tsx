@@ -42,6 +42,6 @@ export default function ServicesSwitcher() {
   };
 
   return view === "glass"
-    ? <SelectedWork mode="services" onHeadingClick={toggle} />
+    ? <SelectedWork goldThreads mode="services" onHeadingClick={toggle} />
     : <HomepageServicesChapter onHeadingClick={toggle} />;
 }

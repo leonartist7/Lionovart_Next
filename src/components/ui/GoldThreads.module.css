@@ -1,0 +1,47 @@
+.layer {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  user-select: none;
+  /* Leave the reading area quieter than the edges. */
+  mask-image: linear-gradient(90deg, #000, #000 12%, #0003 38%, #0003 62%, #000 88%, #000);
+}
+
+.rail {
+  position: absolute;
+  width: clamp(420px, 52vw, 860px);
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.left { left: -18%; top: -90px; }
+.right { right: -19%; bottom: -120px; }
+
+.glint {
+  animation: goldThreadTravel 28s linear infinite;
+  animation-delay: -9s;
+  animation-play-state: paused;
+}
+
+.right .glint { animation-duration: 34s; animation-delay: -21s; }
+.rail[data-running="true"] .glint { animation-play-state: running; }
+
+@keyframes goldThreadTravel {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  12% { opacity: 1; }
+  78% { opacity: 1; }
+  90%, 100% { transform: translate3d(980px, -980px, 0); opacity: 0; }
+}
+
+@media (max-width: 767px) {
+  .rail { width: 430px; opacity: .7; }
+  .left { left: -280px; top: 0; }
+  .right { display: none; }
+  .layer { mask-image: linear-gradient(90deg, #000, #0008 24%, transparent 58%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glint { display: none; animation: none; }
+}

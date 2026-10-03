@@ -618,5 +618,41 @@
       "label": "More returning customers"
     },
     "footnote": "Actual results will identify the client, measurement period and source."
+  },
+  "compactComparison": {
+    "heading": "혁신은 선택이 아닙니다.",
+    "headingAccent": "필수입니다.",
+    "description": "LIONOVART는 브랜드 전략, 디자인, 기술을 연결하여 디지털 플랫폼, 콘텐츠, 현장 경험 전반에서 비즈니스의 존재감을 만듭니다.",
+    "stats": [
+      "팀의 합산 경력 연수",
+      "지원 산업 수",
+      "정시 납품률"
+    ],
+    "caption": "LIONOVART와 다른 작업 방식",
+    "others": "기타",
+    "rows": [
+      {
+        "topic": "방향",
+        "lionovart": "하나의 공동 브리프",
+        "others": "개별 브리프를 쓸 수 있음"
+      },
+      {
+        "topic": "브랜드 일관성",
+        "lionovart": "하나의 브랜드 시스템",
+        "others": "협업 방식에 따라 다름"
+      },
+      {
+        "topic": "창작과 기술",
+        "lionovart": "프로젝트 중심으로 연결",
+        "others": "별도 제공자가 필요할 수 있음"
+      },
+      {
+        "topic": "협업",
+        "lionovart": "Leonardo와 직접",
+        "others": "제공자에 따라 다름"
+      }
+    ],
+    "scope": "작업 방식은 제공자와 프로젝트에 따라 다릅니다.",
+    "link": "LIONOVART 알아보기"
   }
 }

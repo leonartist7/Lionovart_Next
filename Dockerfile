@@ -1,13 +1,13 @@
 # STAGE 1: Define the base image for all stages
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
 
 # STAGE 2: Install dependencies
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 # Copy package files and install
-COPY package.json package-lock.json* ./
-RUN npm install
+COPY package.json package-lock.json .npmrc ./
+RUN npm ci
 
 # STAGE 3: Build the application
 FROM base AS builder
@@ -59,8 +59,6 @@ ENV BOOKING_URL=$BOOKING_URL
 ENV FIREBASE_ADMIN_CLIENT_EMAIL=$FIREBASE_ADMIN_CLIENT_EMAIL
 ENV FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID
 # Build-time optimization flags
-ENV TURBOPACK=0
-ENV NEXT_TURBOPACK=0
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Run the Next.js build

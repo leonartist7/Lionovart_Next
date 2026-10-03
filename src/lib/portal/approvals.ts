@@ -1,7 +1,8 @@
 import "server-only";
 import { adminDb } from "@/lib/firebase-admin";
-import { listAssets } from "@/lib/portal/assets";
+import { getAsset, listAssets } from "@/lib/portal/assets";
 import { listProjects } from "@/lib/portal/projects";
+import { CLIENT_VISIBLE_STATES } from "@/lib/portal/platforms";
 import type { Approval, PortalRole } from "@/lib/portal/types";
 
 /**
@@ -18,6 +19,30 @@ export const APPROVAL_TARGET_TYPES: Approval["targetType"][] = ["asset", "post",
 function approvalsRef(workspaceId: string) {
   if (!adminDb) throw new Error("Firestore is not configured");
   return adminDb.collection("workspaces").doc(workspaceId).collection("approvals");
+}
+
+/**
+ * The caption line behind a `post` approval, read directly rather than through
+ * `listPosts`.
+ *
+ * `posts.ts` imports `createApproval` from this module — that direction is the
+ * important one, because it is what makes Content use the real approval
+ * primitive instead of a second flow. Importing back the other way for a
+ * display string would close the cycle, so this reads the one field it needs.
+ * Apply the shared client-visible state list even to stale or manually
+ * requested approvals, so a caption cannot expose a draft through the queue.
+ */
+async function postCaptions(workspaceId: string, ids: readonly string[], viewerRole: PortalRole): Promise<Map<string, string>> {
+  const labels = new Map<string, string>();
+  if (!adminDb || ids.length === 0) return labels;
+  const posts = adminDb.collection("workspaces").doc(workspaceId).collection("posts");
+  const docs = await Promise.all([...new Set(ids)].map((id) => posts.doc(id).get()));
+  for (const doc of docs) {
+    if (!doc.exists || (viewerRole !== "agency" && !CLIENT_VISIBLE_STATES.includes(doc.data()?.state))) continue;
+    const caption = String(doc.data()?.caption ?? "").trim().split("\n")[0] ?? "";
+    labels.set(doc.id, caption.length > 70 ? `${caption.slice(0, 69)}\u2026` : caption);
+  }
+  return labels;
 }
 
 export interface CreateApprovalInput {
@@ -74,9 +99,14 @@ export async function listPendingApprovals(
 
   if (pending.length === 0) return [];
 
-  const [projects, assets] = await Promise.all([
+  const [projects, assets, captions] = await Promise.all([
     listProjects(workspaceId, viewerRole),
-    listAssets(workspaceId),
+    listAssets(workspaceId, viewerRole),
+    postCaptions(
+      workspaceId,
+      pending.filter((a) => a.targetType === "post").map((a) => a.targetId),
+      viewerRole,
+    ),
   ]);
 
   const milestoneById = new Map(
@@ -100,27 +130,56 @@ export async function listPendingApprovals(
       });
     } else if (a.targetType === "asset") {
       const asset = assetById.get(a.targetId);
+      // Hidden (internal project) or deleted — drop, don't leak a row labelled
+      // with the file's name or a blank "File". Same rule as milestones above.
+      if (!asset) continue;
       withContext.push({
         id: a.id,
         targetType: a.targetType,
         targetId: a.targetId,
         versionId: a.versionId,
         requestedAt: a.requestedAt,
-        targetLabel: asset?.name ?? "File",
+        targetLabel: asset.name,
         contextLabel: a.versionId ? `Version ${a.versionId}` : undefined,
       });
     } else {
+      if (!captions.has(a.targetId)) continue;
       withContext.push({
         id: a.id,
         targetType: a.targetType,
         targetId: a.targetId,
         versionId: a.versionId,
         requestedAt: a.requestedAt,
-        targetLabel: "Social post",
+        targetLabel: captions.get(a.targetId) || "Social post",
+        contextLabel: "Social post",
       });
     }
   }
   return withContext;
+}
+
+/**
+ * Decisions already made about one target, newest first.
+ *
+ * `listPendingApprovals` deliberately only returns what is still pending — it
+ * is the "what needs me" queue. A post that came back with changes requested
+ * needs the opposite: the note that explains why. Same collection, same
+ * append-only history, read from the other end.
+ */
+export async function listDecisionsFor(
+  workspaceId: string,
+  targetType: Approval["targetType"],
+  targetId: string,
+): Promise<Approval[]> {
+  if (!adminDb) return [];
+  const snap = await approvalsRef(workspaceId)
+    .where("targetType", "==", targetType)
+    .where("targetId", "==", targetId)
+    .get();
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() }) as Approval)
+    .filter((a) => a.state !== "pending")
+    .sort((a, b) => (b.decidedAt ?? "").localeCompare(a.decidedAt ?? ""));
 }
 
 export type DecideApprovalResult = { approval: Approval } | { error: string; status: number };
@@ -128,6 +187,7 @@ export type DecideApprovalResult = { approval: Approval } | { error: string; sta
 export interface DecideApprovalInput {
   state: "approved" | "changes_requested";
   decidedBy: string;
+  viewerRole: PortalRole;
   note?: string;
 }
 
@@ -145,20 +205,43 @@ export async function decideApproval(
   }
 
   const ref = approvalsRef(workspaceId).doc(approvalId);
-  const doc = await ref.get();
-  if (!doc.exists) return { error: "Not found", status: 404 };
-
-  const current = { id: doc.id, ...doc.data() } as Approval;
-  if (current.state !== "pending") {
-    return { error: "This approval has already been decided.", status: 409 };
-  }
-
-  const patch = {
-    state: input.state,
-    decidedBy: input.decidedBy,
-    decidedAt: new Date().toISOString(),
-    ...(input.note ? { note: input.note } : {}),
-  };
-  await ref.update(patch);
-  return { approval: { ...current, ...patch } };
+  return adminDb!.runTransaction(async (tx) => {
+    const doc = await tx.get(ref);
+    if (!doc.exists) return { error: "Not found", status: 404 };
+    const current = { id: doc.id, ...doc.data() } as Approval;
+    // A guessed id cannot bypass the same target visibility as the queue.
+    if (input.viewerRole !== "agency") {
+      let visible = false;
+      if (current.targetType === "asset") {
+        visible = Boolean(await getAsset(workspaceId, current.targetId, input.viewerRole));
+      } else if (current.targetType === "milestone") {
+        visible = (await listProjects(workspaceId, input.viewerRole))
+          .some((project) => project.milestones.some((milestone) => milestone.id === current.targetId));
+      } else {
+        // Post visibility is checked against the transactional snapshot below.
+        visible = true;
+      }
+      if (!visible) return { error: "Not found", status: 404 };
+    }
+    let postRef: FirebaseFirestore.DocumentReference | undefined;
+    if (current.targetType === "post") {
+      postRef = adminDb!.collection("workspaces").doc(workspaceId).collection("posts").doc(current.targetId);
+      const postDoc = await tx.get(postRef);
+      const post = postDoc.data();
+      if (!postDoc.exists || (input.viewerRole !== "agency" && !CLIENT_VISIBLE_STATES.includes(post?.state))) return { error: "Not found", status: 404 };
+      if (post?.state !== "in_review" || (post.approvalId && post.approvalId !== approvalId)) return { error: "This post no longer belongs to this review request.", status: 409 };
+    }
+    if (current.state !== "pending") {
+      return { error: "This approval has already been decided.", status: 409 };
+    }
+    const patch = {
+      state: input.state,
+      decidedBy: input.decidedBy,
+      decidedAt: new Date().toISOString(),
+      ...(input.note ? { note: input.note } : {}),
+    };
+    tx.update(ref, patch);
+    if (postRef) tx.update(postRef, { state: input.state === "approved" ? "approved" : "rejected", updatedAt: patch.decidedAt });
+    return { approval: { ...current, ...patch } };
+  });
 }

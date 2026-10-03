@@ -32,11 +32,14 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const result = await decideApproval(access.workspace.id, approvalId, {
     state: state as "approved" | "changes_requested",
     decidedBy: access.session.uid,
+    viewerRole: access.membership.role,
     note: body.note,
   });
 
   if ("error" in result) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }
+
+  // Post state and its approval decision commit in the same transaction.
   return NextResponse.json({ approval: result.approval });
 }
