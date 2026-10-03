@@ -138,11 +138,11 @@ async function dispatch({ workspace, thread, commentId, kind, body, actor }: Thr
       const entry = outboxRef(workspace.id).doc();
       const claimId = createHash("sha256").update(JSON.stringify([r.email, asset.id])).digest("hex");
       const claimRef = adminDb!.collection("workspaces").doc(workspace.id).collection("notificationClaims").doc(claimId);
-      const claimed = await adminDb!.runTransaction(async (tx) => {
+      const prior = await outboxRef(workspace.id).where("recipientEmail", "==", r.email).where("targetId", "==", asset.id).get();
+      const recentlyTold = prior.docs.some((doc) => COUNTS_AS_TOLD.includes(doc.data().status) && now - Date.parse(doc.data().createdAt) < THROTTLE_MS);
+      const claimed = !recentlyTold && await adminDb!.runTransaction(async (tx) => {
         const claim = await tx.get(claimRef);
         if (now - Number(claim.data()?.at ?? 0) < THROTTLE_MS) return false;
-        const prior = await tx.get(outboxRef(workspace.id).where("recipientEmail", "==", r.email).where("targetId", "==", asset.id));
-        if (prior.docs.some((doc) => COUNTS_AS_TOLD.includes(doc.data().status) && now - Date.parse(doc.data().createdAt) < THROTTLE_MS)) return false;
         tx.set(claimRef, { at: now, owner: entry.id });
         return true;
       });
