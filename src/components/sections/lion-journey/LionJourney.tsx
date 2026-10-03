@@ -141,7 +141,9 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       setActive(!complete);
       const lion = pinned ? openingPose(scrollY, anchors, { ...openingBounds!, top: pinStart }, stageHeight)
         : journeyPose(p, anchors);
-      const film = p > .7 ? video.current?.querySelector<HTMLElement>(".opening-film-plane")?.getBoundingClientRect() : undefined;
+      // Use the enlarged joined film until its fade finishes; afterward the
+      // glass assembly defines the surface covering the travelling lion.
+      const film = p > .7 ? video.current?.querySelector<HTMLElement>(".opening-joined-film:not([inert]), .opening-film-plane")?.getBoundingClientRect() : undefined;
       const covered = !!film && lionCoveredByFrame(lion, scrollY, film);
       // The lion stays solid until the frame covers its full mane.
       const visible = pinned && !complete && !covered

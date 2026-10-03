@@ -46,13 +46,6 @@ interface FilmFrame {
   top: number;
 }
 
-interface CropRect {
-  dx: number;
-  dy: number;
-  dw: number;
-  dh: number;
-}
-
 /* â”€â”€â”€ Motion tuning â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 // Soft enough that releasing the cursor glides home instead of snapping.
@@ -69,8 +62,8 @@ const TILT_X = 5;
 // SPLIT_END the scene is settled and the cursor rig can arm.
 const SECTION_HEIGHT_VH = 160;
 
-// Caps the canvas backing-store size on very-high-DPR screens.
-const CANVAS_DPR_CAP = 2;
+// Finish the intact film fade before any card begins separating.
+const FILM_FADE_END = 0.28;
 
 // Maps a slice of the master 0→1 scrub progress to its own local 0→1 —
 // each animated property (translate, flip, opacity, ...) reads its cue
@@ -99,11 +92,6 @@ function Pane({
   isDesktop,
   flip,
   armed,
-  filmSurfaceOpacity,
-  showPanePoster,
-  poster,
-  filmFrame,
-  canvasRef,
   paneRef: registerPane,
 }: {
   card: Card;
@@ -112,22 +100,16 @@ function Pane({
   isDesktop: boolean;
   flip: MotionValue<number>;
   armed: boolean;
-  filmSurfaceOpacity: MotionValue<number>;
-  showPanePoster: boolean;
-  poster: string;
-  filmFrame: FilmFrame | null;
-  canvasRef: (el: HTMLCanvasElement | null) => void;
   paneRef: (el: HTMLDivElement | null) => void;
 }) {
   // Centre pane leads, outer two lag slightly behind it on the scrub —
   // reads as choreographed rather than three panes moving in lockstep
   // with the scrollbar.
-  const stagger = Math.abs(dir) * 0.08;
+  const stagger = Math.abs(dir) * 0.04;
 
-  const splitP = useLocalProgress(flip, 0 + stagger, 0.36 + stagger);
-  const cardP = useLocalProgress(flip, 0.26 + stagger, 0.56 + stagger);
-  const ringP = useLocalProgress(flip, 0.02 + stagger, 0.2 + stagger);
-  const contentP = useLocalProgress(flip, 0.56 + i * 0.05, 0.8 + i * 0.05);
+  const splitP = useLocalProgress(flip, 0.32 + stagger, 0.72 + stagger);
+  const cardP = useLocalProgress(flip, stagger, 0.2 + stagger);
+  const contentP = useLocalProgress(flip, 0.22 + i * 0.035, 0.52 + i * 0.035);
 
   // The split-apart translate/tilt — driven straight off scroll, so it
   // scrubs forward and backward with the gesture instead of playing once.
@@ -142,11 +124,8 @@ function Pane({
   const innerRadius = useTransform(splitP, (p) => 18 * p);
   const outerRadius = useTransform(splitP, (p) => 16 + 2 * p);
 
-  // The glass surface rises directly out of the matching video slice. There
-  // is deliberately no second face rotating through the middle: during the
-  // handoff both layers occupy the same card plane, so the split reads as one
-  // object becoming dimensional rather than two cards crossing over.
-  const videoOpacity = useTransform(cardP, [0, 0.58, 1], [1, 0.62, 0]);
+  // Card surfaces arrive under the intact film. Only the completed glass
+  // faces separate, so no letterboxed video slices can become exposed.
   const cardZ = useTransform(cardP, [0, 1], [0, 16]);
   const cardScale = useTransform(cardP, [0, 1], [0.992, 1]);
   const backImageOpacity = useTransform(cardP, [0, 1], [0, 0.28]);
@@ -162,8 +141,7 @@ function Pane({
         y: paneY,
         rotateX: paneRotateX,
         rotateY: paneRotateY,
-        // The film crop and glass face trade opacity as the cards form. An
-        // opaque base prevents the lion from showing through that handoff.
+        // The complete glass face has an opaque base before it separates.
         backgroundColor: "#08080a",
         borderTopLeftRadius: i === 0 ? outerRadius : innerRadius,
         borderTopRightRadius: (isDesktop ? i === 2 : i === 0) ? outerRadius : innerRadius,
@@ -174,35 +152,7 @@ function Pane({
       // Lift on hover; `z` composes with the group tilt instead of fighting it.
       whileHover={armed ? { z: 46, transition: { duration: 0.4, ease: "easeOut" } } : undefined}
     >
-      {/* The unbroken front surface is the video crop until the glass card
-          has risen into the same position. */}
-      <motion.div
-        className="absolute inset-0 overflow-hidden rounded-[inherit]"
-        style={{ opacity: filmSurfaceOpacity }}
-      >
-        <motion.div className="absolute inset-0 overflow-hidden rounded-[inherit]" style={{ opacity: videoOpacity }}>
-        {/* The poster is only the pane source before decode or on failure. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={poster || undefined} alt="" aria-hidden="true"
-          className="absolute max-w-none object-contain"
-          style={filmFrame
-            ? { width: filmFrame.width, height: filmFrame.height,
-              left: isDesktop ? `calc(${150 - i * 100}% - ${filmFrame.width / 2}px)` : `calc(50% - ${filmFrame.width / 2}px)`,
-              top: isDesktop ? filmFrame.top : `calc(${filmFrame.top}px - ${i * 100}%)`,
-              opacity: showPanePoster ? 1 : 0 }
-            : isDesktop
-              ? { width: "300%", height: "100%", left: `-${i * 100}%`, top: 0, opacity: showPanePoster ? 1 : 0 }
-              : { width: "100%", height: "300%", left: 0, top: `-${i * 100}%`, opacity: showPanePoster ? 1 : 0 }} />
-        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" style={{ opacity: showPanePoster ? 0 : 1 }} />
-        <motion.div
-          className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/10"
-          style={{ opacity: ringP }}
-        />
-        </motion.div>
-      </motion.div>
-
-      {/* One continuous glass body, lifted forward only after the video has
-          faded from the exact same plane. */}
+      {/* The glass body rises underneath the fading, unbroken film. */}
       <motion.div
         className="absolute inset-0 z-[1] rounded-[inherit]"
         style={{
@@ -357,22 +307,9 @@ function Pane({
 /* â”€â”€â”€ Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /**
- * DisciplineSplit3D -- plays the clip joined and full-frame, then, as
- * scroll moves through the section, splits the three panes apart and
- * flips each one from its own crop of that footage to a glass card (the
- * outcome pillars). Desktop splits horizontally, mobile vertically.
- *
- * The whole sequence is scroll-scrubbed, not triggered: a single motion
- * value tracks scrollYProgress directly, and every pane's translate,
- * flip, and content reveal is a useTransform of that value. Scrolling
- * forward plays it, scrolling back reverses it continuously -- there's
- * no canned timeline running on its own clock once a threshold is
- * crossed.
- *
- * A single hidden <video> is the only decoder in the section; a shared
- * requestAnimationFrame loop mirrors its frames into each pane's own
- * <canvas>, cropped to that pane's third, so the video is what visibly
- * splits into three without paying for three decode pipelines.
+ * A single full-aspect film crossfades into the glass cards before they
+ * separate. The reversible scroll sequence animates only transform/opacity;
+ * film geometry is measured on layout changes, never on scroll.
  */
 export default function DisciplineSplit3D({
   cards, video, mobileVideo = video, videoFallback = video,
@@ -384,9 +321,6 @@ export default function DisciplineSplit3D({
   const stageRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const rectRef = useRef<DOMRect | null>(null);
-  const canvasRefs = useRef<(HTMLCanvasElement | null)[]>([]);
-  const cropRectsRef = useRef<(CropRect | null)[]>([]);
-  const washRef = useRef<HTMLCanvasElement | null>(null);
   const paneNodesRef = useRef<(HTMLDivElement | null)[]>([]);
   const paneRectsRef = useRef<(DOMRect | null)[]>([]);
 
@@ -398,6 +332,8 @@ export default function DisciplineSplit3D({
   const [viewportWidth, setViewportWidth] = useState(1200);
   const [viewportHeight, setViewportHeight] = useState(700);
   const [entranceDone, setEntranceDone] = useState(false);
+  const [finePointer, setFinePointer] = useState(false);
+  const [filmActive, setFilmActive] = useState(true);
   // Resolve the viewport before attaching a source: phones never fetch the landscape film.
   const [videoSrc, setVideoSrc] = useState("");
   const [activePoster, setActivePoster] = useState("");
@@ -405,19 +341,16 @@ export default function DisciplineSplit3D({
   const [playBlocked, setPlayBlocked] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
-  const [canvasReady, setCanvasReady] = useState(false);
-  const [canvasFailed, setCanvasFailed] = useState(false);
   const [filmFrame, setFilmFrame] = useState<FilmFrame | null>(null);
-  // The scroll-authored film-to-card sequence remains available on every device.
-  // Reduced motion only removes the optional pointer-driven card tilt.
-  const armed = !reduce && entranceDone;
+  // The scroll handoff is reversible on every device; optional pointer tilt
+  // is available only after settling, with a mouse and motion enabled.
+  const armed = !reduce && entranceDone && finePointer;
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "production") {
       const params = new URLSearchParams(location.search);
       const frame = requestAnimationFrame(() => {
         if (params.has("filmStill")) setVideoFailed(true);
-        if (params.has("canvasStill")) setCanvasFailed(true);
       });
       return () => cancelAnimationFrame(frame);
     }
@@ -426,16 +359,18 @@ export default function DisciplineSplit3D({
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 800px), (min-width: 640px) and (max-height: 700px)");
     const tablet = window.matchMedia("(min-width: 768px)");
+    const pointer = window.matchMedia("(hover: hover) and (pointer: fine)");
     const short = window.matchMedia("(max-height: 700px)");
     const veryShortScreen = window.matchMedia("(max-height: 500px)");
-    const u = () => { setIsDesktop(mq.matches); setIsTablet(tablet.matches); setShortScreen(short.matches); setVeryShort(veryShortScreen.matches); setViewportWidth(window.innerWidth); setViewportHeight(window.innerHeight); };
+    const u = () => { setIsDesktop(mq.matches); setIsTablet(tablet.matches); setShortScreen(short.matches); setVeryShort(veryShortScreen.matches); setViewportWidth(window.innerWidth); setViewportHeight(window.innerHeight); setFinePointer(pointer.matches); };
     u();
     mq.addEventListener("change", u);
     tablet.addEventListener("change", u);
+    pointer.addEventListener("change", u);
     short.addEventListener("change", u);
     veryShortScreen.addEventListener("change", u);
     window.addEventListener("resize", u);
-    return () => { mq.removeEventListener("change", u); tablet.removeEventListener("change", u); short.removeEventListener("change", u); veryShortScreen.removeEventListener("change", u); window.removeEventListener("resize", u); };
+    return () => { mq.removeEventListener("change", u); tablet.removeEventListener("change", u); pointer.removeEventListener("change", u); short.removeEventListener("change", u); veryShortScreen.removeEventListener("change", u); window.removeEventListener("resize", u); };
   }, []);
 
   /* --- Scroll-scrubbed master progress: 0 (joined) to 1 (split, flipped,
@@ -451,12 +386,11 @@ export default function DisciplineSplit3D({
   // footage tints the head and makes it appear see-through.
   const pinnedWashOpacity = useTransform(openingProgress, [0, .36, .5], [0, 0, .3]);
   const flip = pinned ? openingFlip : scrollFlip;
-  const paneSourceAvailable = canvasReady || canvasFailed || videoFailed || !videoReady;
-  const showPanePoster = canvasFailed || videoFailed || !videoReady;
-  // The full frame and pane crops never blend moving footage over itself.
-  // Wait for all three crops before switching surfaces in either direction.
-  const joinedSurfaceOpacity = useTransform(flip, (p): number => p < .02 || !paneSourceAvailable ? 1 : 0);
-  const paneSurfaceOpacity = useTransform(flip, (p): number => p >= .02 && paneSourceAvailable ? 1 : 0);
+  const filmOpacity = useTransform(flip, [0, 0.04, FILM_FADE_END], [1, 1, 0]);
+  const filmTransform = useTransform(flip, [0, FILM_FADE_END],
+    ["translateX(-50%) scale(1)", reduce ? "translateX(-50%) scale(1)" : "translateX(-50%) scale(0.94)"]);
+  const cardPresence = useTransform(flip, [0.06, 0.26], [0, 1]);
+  const proofPresence = useTransform(flip, [0.26, 0.52], [0, 1]);
   // Let taller phones show more of the film without crowding the invitation.
   // The settled card and proof assembly moves as one, with the short-screen
   // second beat reserved for viewports that cannot fit both legibly.
@@ -474,122 +408,52 @@ export default function DisciplineSplit3D({
 
   // Cursor rig arms only once the sequence has fully landed, and disarms
   // again the moment scrolling back pulls it out of the settled state.
+  useEffect(() => {
+    const v = flip.get();
+    setEntranceDone(v > 0.98);
+    setFilmActive(v < FILM_FADE_END);
+  }, [flip]);
   useMotionValueEvent(flip, "change", (v) => {
     setEntranceDone(v > 0.98);
+    setFilmActive(v < FILM_FADE_END);
   });
 
-  /* â”€â”€â”€ Video mirror: one decode, drawn into 3 cropped canvases via rAF.
-     Stops for good once every pane has finished flipping â€” the front
-     faces are then permanently hidden by backface-visibility. â”€â”€â”€ */
-  const rafRef = useRef<number | null>(null);
-
-  const startLoop = useCallback(() => {
-    if (rafRef.current != null) return;
-    const tick = () => {
-      const v = videoRef.current;
-      if (v && v.readyState >= 2) {
-        setVideoReady(true);
-        let drawn = 0;
-        cropRectsRef.current.forEach((rect, i) => {
-          const canvas = canvasRefs.current[i];
-          if (!canvas || !rect) return;
-          const ctx = canvas.getContext("2d");
-          if (!ctx) { setCanvasFailed(true); return; }
-          try {
-            ctx.fillStyle = "#08080a";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            // Mirror object-contain, including letterboxing, through the split.
-            ctx.drawImage(v, rect.dx * canvas.width, rect.dy * canvas.height,
-              rect.dw * canvas.width, rect.dh * canvas.height);
-            drawn++;
-          } catch { setCanvasFailed(true); }
-        });
-        if (drawn === 3) setCanvasReady(true);
-
-        // Ambient wash: the whole frame at a deliberately tiny backing store,
-        // scaled up and blurred by CSS. At this size the draw is free, and
-        // the blur is what the glass panes refract.
-        const wash = washRef.current;
-        const wctx = wash?.getContext("2d");
-        if (wash && wctx) {
-          wctx.drawImage(v, 0, 0, wash.width, wash.height);
-        }
-      }
-      // Keep one still frame when paused; never run a permanent idle mirror loop.
-      rafRef.current = v && !v.paused ? requestAnimationFrame(tick) : null;
-    };
-    rafRef.current = requestAnimationFrame(tick);
-  }, []);
-
-  const stopLoop = useCallback(() => {
-    if (rafRef.current != null) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
-  }, []);
-
-  // The film has its own true-aspect frame inside the unchanged card stage.
-  // Cap it by both viewport axes and the safe area below the navigation.
-  // Use layout sizes, excluding the entrance/hover transforms.
-  const recomputeCrops = useCallback(() => {
+  // The film is independent of the narrower card stage. Fit its true aspect
+  // inside the viewport safe area, allowing a generous desktop frame and a
+  // tall portrait frame without stretching or cropping either source.
+  const measureFilm = useCallback(() => {
     const v = videoRef.current, stage = stageRef.current;
-    if (!v || !stage) return;
-    const width = stage.offsetWidth, height = stage.offsetHeight;
-    if (!width || !height) return;
+    if (!v || !stage || !stage.offsetHeight) return;
     const landscape = window.matchMedia("(min-width: 768px)").matches;
     const sourceWidth = v.videoWidth || (landscape ? 16 : 9);
     const sourceHeight = v.videoHeight || (landscape ? 9 : 16);
     const opening = stage.closest<HTMLElement>(".hero-opening-stage");
     const work = stage.closest<HTMLElement>(".opening-work-pinned");
-    // The pinned stage uses 100svh, which can be smaller than innerHeight on phones.
-    const overflow = opening ? Number.parseFloat(getComputedStyle(opening).getPropertyValue("--hero-overflow")) || 0 : 0;
+    const openingStyles = opening ? getComputedStyle(opening) : null;
+    const overflow = Number.parseFloat(openingStyles?.getPropertyValue("--hero-overflow") || "") || 0;
     const viewport = opening ? Math.max(1, opening.offsetHeight - overflow) : window.innerHeight;
-    const navClearance = opening ? Number.parseFloat(getComputedStyle(opening).getPropertyValue("--hero-nav-clearance")) || 100 : 0;
+    const viewportWidth = document.documentElement.clientWidth;
+    const navClearance = Number.parseFloat(openingStyles?.getPropertyValue("--hero-nav-clearance") || "") || 100;
     const safeTop = pinned ? navClearance + 16 : 24;
     const safeBottom = viewport - 24;
-    const centerPercent = work ? Number.parseFloat(getComputedStyle(work).getPropertyValue("--opening-video-center")) || 41 : 50;
-    const center = pinned ? viewport * (centerPercent + Number.parseFloat(settledY)) / 100 : viewport / 2;
-    const bandTop = pinned ? Math.max(safeTop, center - height / 2) : safeTop;
-    const bandBottom = pinned ? Math.min(safeBottom, center + height / 2) : safeBottom;
-    const availableHeight = Math.max(1, bandBottom - bandTop);
-    const scale = Math.min(width / sourceWidth, height / sourceHeight,
-      (landscape ? 900 : 320) / sourceWidth,
-      viewport * .52 / sourceHeight, availableHeight / sourceHeight);
+    const availableHeight = Math.max(1, safeBottom - safeTop);
+    const scale = Math.min(viewportWidth * 0.9 / sourceWidth,
+      (landscape ? 1600 : 460) / sourceWidth, availableHeight * 0.94 / sourceHeight);
     const fittedWidth = sourceWidth * scale, fittedHeight = sourceHeight * scale;
-    const left = (width - fittedWidth) / 2;
-    // Short screens may need the film shifted down within the card stage.
-    const safeCenter = Math.max(bandTop + fittedHeight / 2,
-      Math.min(center, bandBottom - fittedHeight / 2));
-    const top = (height - fittedHeight) / 2 + (pinned ? safeCenter - center : 0);
-    setFilmFrame(previous => previous && Math.abs(previous.width - fittedWidth) < .1
-      && Math.abs(previous.height - fittedHeight) < .1 && Math.abs(previous.top - top) < .1
+    const centerPercent = work ? Number.parseFloat(getComputedStyle(work).getPropertyValue("--opening-video-center")) || 41 : 50;
+    const stageCenter = pinned ? viewport * (centerPercent + Number.parseFloat(settledY)) / 100 : viewport / 2;
+    const filmCenter = pinned ? (safeTop + safeBottom) / 2 : viewport / 2;
+    const top = stage.offsetHeight / 2 + filmCenter - stageCenter - fittedHeight / 2;
+    setFilmFrame(previous => previous && Math.abs(previous.width - fittedWidth) < 0.1
+      && Math.abs(previous.height - fittedHeight) < 0.1 && Math.abs(previous.top - top) < 0.1
       ? previous : { width: fittedWidth, height: fittedHeight, top });
-
-    const paneWidth = isDesktop ? width / 3 : width;
-    const paneHeight = isDesktop ? height : height / 3;
-    const dpr = Math.min(window.devicePixelRatio || 1, CANVAS_DPR_CAP);
-    for (let i = 0; i < 3; i++) {
-      cropRectsRef.current[i] = {
-        dx: (left - (isDesktop ? i * paneWidth : 0)) / paneWidth,
-        dy: (top - (isDesktop ? 0 : i * paneHeight)) / paneHeight,
-        dw: fittedWidth / paneWidth, dh: fittedHeight / paneHeight,
-      };
-      const canvas = canvasRefs.current[i];
-      if (canvas) {
-        canvas.width = Math.max(1, Math.round(paneWidth * dpr));
-        canvas.height = Math.max(1, Math.round(paneHeight * dpr));
-      }
-    }
-  }, [isDesktop, pinned, settledY]);
+  }, [pinned, settledY]);
 
   useEffect(() => {
     const landscape = window.matchMedia("(min-width: 768px)");
     const selectSource = () => {
-      stopLoop();
       videoRef.current?.pause();
       setVideoReady(false);
-      setCanvasReady(false);
-      setCanvasFailed(false);
       setVideoFailed(false);
       setPlayBlocked(false);
       fallbackSrcRef.current = landscape.matches ? videoFallback : mobileVideoFallback;
@@ -599,29 +463,29 @@ export default function DisciplineSplit3D({
     selectSource();
     landscape.addEventListener("change", selectSource);
     return () => landscape.removeEventListener("change", selectSource);
-  }, [video, mobileVideo, videoFallback, mobileVideoFallback, poster, mobilePoster, stopLoop]);
+  }, [video, mobileVideo, videoFallback, mobileVideoFallback, poster, mobilePoster]);
 
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    v.addEventListener("loadedmetadata", recomputeCrops);
-    if (v.readyState >= 1) recomputeCrops();
-    return () => v.removeEventListener("loadedmetadata", recomputeCrops);
-  }, [recomputeCrops, videoSrc]);
+    v.addEventListener("loadedmetadata", measureFilm);
+    if (v.readyState >= 1) measureFilm();
+    return () => v.removeEventListener("loadedmetadata", measureFilm);
+  }, [measureFilm, videoSrc]);
 
   useEffect(() => {
-    recomputeCrops();
-  }, [isDesktop, recomputeCrops]);
+    measureFilm();
+  }, [isDesktop, measureFilm]);
 
   useEffect(() => {
-    const observer = new ResizeObserver(recomputeCrops);
+    const observer = new ResizeObserver(measureFilm);
     if (stageRef.current) observer.observe(stageRef.current);
-    window.addEventListener("resize", recomputeCrops);
-    return () => { observer.disconnect(); window.removeEventListener("resize", recomputeCrops); };
-  }, [recomputeCrops]);
+    window.addEventListener("resize", measureFilm);
+    return () => { observer.disconnect(); window.removeEventListener("resize", measureFilm); };
+  }, [measureFilm]);
 
-  // Perf: only decode/play the video (and run the mirror loop) while the
-  // section is in view â€” and never again once every pane has flipped.
+  // Pause the sole decoder once the intact film is faded, and resume it
+  // when scrolling back. Hidden/offscreen tabs also stop playback.
   useEffect(() => {
     const sec = sectionRef.current;
     if (!sec) return;
@@ -630,20 +494,17 @@ export default function DisciplineSplit3D({
     const update = () => {
       const v = videoRef.current;
       if (!v) return;
-      if (videoSrc && inView && !document.hidden && !videoFailed && flip.get() < .98) {
+      if (videoSrc && inView && !document.hidden && !videoFailed && flip.get() < FILM_FADE_END) {
         if (v.paused && !playPending && !playBlocked) {
           playPending = true;
           void v.play().then(() => {
-            if (disposed || !inView || document.hidden || flip.get() >= .98) v.pause();
+            if (disposed || !inView || document.hidden || flip.get() >= FILM_FADE_END) v.pause();
           }).catch((error: DOMException) => {
             if (!disposed && error.name === "NotAllowedError") setPlayBlocked(true);
           }).finally(() => { playPending = false; });
         }
-        // A decoded still also supports the handoff when autoplay is blocked.
-        if (v.readyState >= 2) startLoop();
       } else {
         v.pause();
-        stopLoop();
       }
     };
     const io = new IntersectionObserver(
@@ -666,9 +527,8 @@ export default function DisciplineSplit3D({
       videoElement?.removeEventListener("loadeddata", update);
       document.removeEventListener("visibilitychange", update);
       videoElement?.pause();
-      stopLoop();
     };
-  }, [startLoop, stopLoop, flip, videoFailed, videoSrc, playBlocked]);
+  }, [flip, videoFailed, videoSrc, playBlocked]);
 
   /* Cursor rig â€” normalised -1..1, spring-smoothed. Releasing sets the raw
      values to 0 and the spring carries them home; no exit animation needed,
@@ -759,7 +619,7 @@ export default function DisciplineSplit3D({
 
   const joinedFilmStyle = filmFrame ? {
     width: filmFrame.width, height: filmFrame.height, top: filmFrame.top,
-    left: "50%", transform: "translateX(-50%)",
+    left: "50%",
   } : {};
 
   return (
@@ -782,20 +642,20 @@ export default function DisciplineSplit3D({
         onPointerMove={handleMove}
         onPointerLeave={handleLeave}
       >
-        {/* Ambient wash â€” the same footage, blurred past legibility, pooling
+        {/* Ambient wash from the film poster, blurred past legibility, pooling
             behind the stage. It's what makes the translucent panes read as
             glass, and it's masked to a soft pool so it never squares off
             into a panel. Oversized so the blur's own edge stays offscreen. */}
-        <motion.canvas
-          ref={washRef}
-          width={72}
-          height={40}
+        <motion.div
           aria-hidden="true"
           className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-[130%] w-[130%] -translate-x-1/2 -translate-y-1/2"
           style={{
             // Held down hard: the footage runs cool magenta, and this is a
             // black-red-gold system. It should read as light in the room,
             // not as a second palette.
+            backgroundImage: activePoster ? `url("${activePoster}")` : undefined,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
             filter: "blur(64px) saturate(0.72) contrast(1.05)",
             opacity: pinned ? pinnedWashOpacity : 0.3,
             maskImage:
@@ -809,49 +669,51 @@ export default function DisciplineSplit3D({
           className="opening-video-anchor relative z-40 w-[min(78vw,430px)] lg:w-[min(78vw,980px)] xl:w-[min(76vw,1120px)] 2xl:w-[min(72vw,1280px)]">
         <motion.div ref={stageRef} className="relative w-full"
           style={{ perspective: "1400px", y: pinned ? entranceY : 0, scale: pinned ? entranceScale : 1 }}>
-          {/* An identical film still carries the joined frame if decoding fails. */}
-          <motion.img src={activePoster || undefined} alt="" aria-hidden="true"
-            className="pointer-events-none absolute inset-0 z-[1] h-full w-full rounded-[16px] bg-[#08080a] object-contain"
-            style={{ ...joinedFilmStyle, opacity: videoFailed || !videoReady ? joinedSurfaceOpacity : 0 }} />
-          {/* The same decoder is the seamless rounded film until the panes
-              begin to separate; its frames are also mirrored into them. */}
-          <motion.video
-            ref={videoRef}
-            className="absolute inset-0 z-[2] h-full w-full rounded-[16px] bg-[#08080a] object-contain"
-            style={{ ...joinedFilmStyle, opacity: videoReady && !videoFailed ? joinedSurfaceOpacity : 0, pointerEvents: playBlocked ? "auto" : "none" }}
-            src={videoSrc || undefined}
-            loop
-            muted
-            playsInline
-            preload="metadata"
-            poster={activePoster || undefined}
-            crossOrigin="anonymous"
-            controls={playBlocked}
-            onLoadedData={() => setVideoReady(true)}
-            onError={() => {
-              if (videoSrc && videoSrc !== fallbackSrcRef.current) {
-                setVideoReady(false);
-                setCanvasReady(false);
-                setVideoSrc(fallbackSrcRef.current);
-              }
-              else setVideoFailed(true);
-            }}
-            aria-hidden={!playBlocked}
-            aria-label="LIONOVART studio film"
-          />
-          {playBlocked && !videoFailed && !entranceDone && (
-            <button type="button" className="absolute left-1/2 top-1/2 z-50 min-h-11 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/80 px-6 py-3 text-white focus-visible:outline-2 focus-visible:outline-white"
-              style={{ pointerEvents: "auto" }}
-              onClick={() => {
-                const v = videoRef.current;
-                if (v) void v.play().then(() => setPlayBlocked(false)).catch(() => setPlayBlocked(true));
-              }}>Play video</button>
-          )}
-          {videoFailed && !entranceDone && (
-            <a href={`https://player.cloudinary.com/embed/?cloud_name=dgio9uutc&public_id=${isTablet ? "Demo_hero" : "hero_demo_mobile"}`}
-              target="_blank" rel="noopener noreferrer" style={{ pointerEvents: "auto" }}
-              className="absolute bottom-4 left-1/2 z-50 min-h-11 -translate-x-1/2 rounded-full bg-black/80 px-5 py-3 text-sm text-white focus-visible:outline-2 focus-visible:outline-white">Watch video</a>
-          )}
+          {/* A single generously sized film stays intact through its fade. */}
+          <motion.div data-opening-film
+            className="opening-joined-film absolute z-[2] overflow-hidden rounded-[16px] bg-[#08080a]"
+            style={{ ...joinedFilmStyle, opacity: filmFrame ? filmOpacity : 0,
+              transform: filmTransform, pointerEvents: filmActive ? "auto" : "none" }}
+            inert={!filmActive}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={activePoster || undefined} alt="" aria-hidden="true"
+              className="pointer-events-none absolute inset-0 h-full w-full object-contain"
+              style={{ opacity: videoFailed || !videoReady ? 1 : 0 }} />
+            <video
+              ref={videoRef}
+              className="absolute inset-0 h-full w-full object-contain"
+              style={{ opacity: videoReady && !videoFailed ? 1 : 0, pointerEvents: playBlocked ? "auto" : "none" }}
+              src={videoSrc || undefined}
+              loop muted playsInline preload="metadata"
+              poster={activePoster || undefined}
+              crossOrigin="anonymous"
+              controls={playBlocked && filmActive}
+              onLoadedData={() => setVideoReady(true)}
+              onError={() => {
+                if (videoSrc && videoSrc !== fallbackSrcRef.current) {
+                  setVideoReady(false);
+                  setVideoSrc(fallbackSrcRef.current);
+                } else setVideoFailed(true);
+              }}
+              aria-hidden={!filmActive || !playBlocked}
+              aria-label="LIONOVART studio film"
+            />
+            {playBlocked && !videoFailed && filmActive && (
+              <button type="button" className="absolute left-1/2 top-1/2 z-50 min-h-11 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/80 px-6 py-3 text-white focus-visible:outline-2 focus-visible:outline-white"
+                onClick={() => {
+                  const v = videoRef.current;
+                  if (v) void v.play().then(() => {
+                    setPlayBlocked(false);
+                    if (flip.get() >= FILM_FADE_END || document.hidden) v.pause();
+                  }).catch(() => setPlayBlocked(true));
+                }}>Play video</button>
+            )}
+            {videoFailed && filmActive && (
+              <a href={`https://player.cloudinary.com/embed/?cloud_name=dgio9uutc&public_id=${isTablet ? "Demo_hero" : "hero_demo_mobile"}`}
+                target="_blank" rel="noopener noreferrer"
+                className="absolute bottom-4 left-1/2 z-50 min-h-11 -translate-x-1/2 rounded-full bg-black/80 px-5 py-3 text-sm text-white focus-visible:outline-2 focus-visible:outline-white">Watch video</a>
+            )}
+          </motion.div>
 
           {/* Glass plane â€” tilts as one sheet so the three panes stay a single
               object. Individual feedback lives on the panes' hover lift. */}
@@ -860,6 +722,7 @@ export default function DisciplineSplit3D({
             style={{
               rotateX,
               rotateY,
+              opacity: cardPresence,
               transformStyle: "preserve-3d",
               willChange: "transform",
             }}
@@ -873,13 +736,6 @@ export default function DisciplineSplit3D({
                 isDesktop={isDesktop}
                 flip={flip}
                 armed={armed}
-                filmSurfaceOpacity={paneSurfaceOpacity}
-                showPanePoster={showPanePoster}
-                poster={activePoster}
-                filmFrame={filmFrame}
-                canvasRef={(el) => {
-                  canvasRefs.current[i] = el;
-                }}
                 paneRef={(el) => {
                   paneNodesRef.current[i] = el;
                 }}
@@ -901,9 +757,9 @@ export default function DisciplineSplit3D({
               }}
             />
           </motion.div>
-          {pinned && <div className="opening-proof-stage">
+          {pinned && <motion.div className="opening-proof-stage" style={{ opacity: proofPresence }}>
             <OpeningProof />
-          </div>}
+          </motion.div>}
         </motion.div>
         </div>
 
