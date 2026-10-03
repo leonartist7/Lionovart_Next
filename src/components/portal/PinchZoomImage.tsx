@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import {
   animate,
   motion,
@@ -59,16 +59,7 @@ interface ImageBox {
  * monitor, which is the exact failure this is built to avoid. The box is
  * measured from the image's natural size and re-measured on resize.
  */
-export function PinchZoomImage({
-  src,
-  alt,
-  pins = [],
-  annotating = false,
-  draftPin = null,
-  activePinId = null,
-  onPinDrop,
-  onPinSelect,
-}: {
+type PinchZoomImageProps = {
   src: string;
   alt: string;
   pins?: ImagePin[];
@@ -79,7 +70,23 @@ export function PinchZoomImage({
   activePinId?: string | null;
   onPinDrop?: (pin: AnnotationPin) => void;
   onPinSelect?: (id: string) => void;
-}) {
+};
+
+export function PinchZoomImage(props: PinchZoomImageProps) {
+  // An asset version owns its measurement, zoom and in-flight gesture state.
+  return <PinchZoomImageView key={props.src} {...props} />;
+}
+
+function PinchZoomImageView({
+  src,
+  alt,
+  pins = [],
+  annotating = false,
+  draftPin = null,
+  activePinId = null,
+  onPinDrop,
+  onPinSelect,
+}: PinchZoomImageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const reduceMotion = useReducedMotion();
@@ -137,13 +144,6 @@ export function PinchZoomImage({
     ro.observe(el);
     return () => ro.disconnect();
   }, [measure]);
-
-  // A new src is a new natural size — re-measure rather than paint pins against
-  // the previous version's box.
-  useEffect(() => {
-    setProvisional(null);
-    measure();
-  }, [src, measure]);
 
   /**
    * Screen point → normalized image coordinates, undoing the live zoom.
@@ -230,7 +230,7 @@ export function PinchZoomImage({
       return;
     }
 
-    const now = Date.now();
+    const now = e.timeStamp;
     const last = lastTap.current;
     lastTap.current = { t: now, x: e.clientX, y: e.clientY };
     if (

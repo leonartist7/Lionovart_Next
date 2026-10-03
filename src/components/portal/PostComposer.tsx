@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -48,16 +48,14 @@ export function PostComposer({
   const [hashtagText, setHashtagText] = useState(post.hashtags.join(" "));
   const [platforms, setPlatforms] = useState<Platform[]>(post.platforms);
   const [assetIds, setAssetIds] = useState<string[]>(post.assetIds);
-  // Empty on the server: `datetime-local` renders in the viewer's timezone, and
-  // the server's offset is a different one — filling it during SSR is a
-  // guaranteed hydration mismatch. Set once the browser has it.
-  const [scheduledFor, setScheduledFor] = useState("");
-  const [savedSchedule, setSavedSchedule] = useState("");
-  useEffect(() => {
-    const local = toLocalInput(post.scheduledFor);
-    setScheduledFor(local);
-    setSavedSchedule(local);
-  }, [post.scheduledFor]);
+  // Use the hydration snapshot for the viewer's timezone; server and first
+  // client render stay empty, and subsequent renders derive the saved value.
+  const hydrated = useSyncExternalStore(subscribeToHydration, clientSnapshot, serverSnapshot);
+  const [scheduleEdit, setScheduleEdit] = useState<{ source: string | undefined; value: string } | null>(null);
+  const savedSchedule = hydrated ? toLocalInput(post.scheduledFor) : "";
+  const scheduledFor = scheduleEdit && scheduleEdit.source === post.scheduledFor
+    ? scheduleEdit.value
+    : savedSchedule;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -254,7 +252,7 @@ export function PostComposer({
             <Input
               type="datetime-local"
               value={scheduledFor}
-              onChange={(e) => setScheduledFor(e.target.value)}
+              onChange={(e) => setScheduleEdit({ source: post.scheduledFor, value: e.target.value })}
             />
           </Field>
         </div>
@@ -343,6 +341,10 @@ export function PostComposer({
     </div>
   );
 }
+
+const subscribeToHydration = () => () => {};
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
 
 /** ISO → the `datetime-local` shape, in the viewer's own timezone. */
 function toLocalInput(iso: string | undefined): string {
