@@ -40,6 +40,12 @@ interface Props {
   pinned?: boolean;
 }
 
+interface FilmFrame {
+  width: number;
+  height: number;
+  top: number;
+}
+
 interface CropRect {
   dx: number;
   dy: number;
@@ -96,6 +102,7 @@ function Pane({
   filmSurfaceOpacity,
   showPanePoster,
   poster,
+  filmFrame,
   canvasRef,
   paneRef: registerPane,
 }: {
@@ -108,6 +115,7 @@ function Pane({
   filmSurfaceOpacity: MotionValue<number>;
   showPanePoster: boolean;
   poster: string;
+  filmFrame: FilmFrame | null;
   canvasRef: (el: HTMLCanvasElement | null) => void;
   paneRef: (el: HTMLDivElement | null) => void;
 }) {
@@ -177,9 +185,14 @@ function Pane({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={poster || undefined} alt="" aria-hidden="true"
           className="absolute max-w-none object-contain"
-          style={isDesktop
-            ? { width: "300%", height: "100%", left: `-${i * 100}%`, top: 0, opacity: showPanePoster ? 1 : 0 }
-            : { width: "100%", height: "300%", left: 0, top: `-${i * 100}%`, opacity: showPanePoster ? 1 : 0 }} />
+          style={filmFrame
+            ? { width: filmFrame.width, height: filmFrame.height,
+              left: isDesktop ? `calc(${150 - i * 100}% - ${filmFrame.width / 2}px)` : `calc(50% - ${filmFrame.width / 2}px)`,
+              top: isDesktop ? filmFrame.top : `calc(${filmFrame.top}px - ${i * 100}%)`,
+              opacity: showPanePoster ? 1 : 0 }
+            : isDesktop
+              ? { width: "300%", height: "100%", left: `-${i * 100}%`, top: 0, opacity: showPanePoster ? 1 : 0 }
+              : { width: "100%", height: "300%", left: 0, top: `-${i * 100}%`, opacity: showPanePoster ? 1 : 0 }} />
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" style={{ opacity: showPanePoster ? 0 : 1 }} />
         <motion.div
           className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/10"
@@ -394,6 +407,7 @@ export default function DisciplineSplit3D({
   const [videoReady, setVideoReady] = useState(false);
   const [canvasReady, setCanvasReady] = useState(false);
   const [canvasFailed, setCanvasFailed] = useState(false);
+  const [filmFrame, setFilmFrame] = useState<FilmFrame | null>(null);
   // The scroll-authored film-to-card sequence remains available on every device.
   // Reduced motion only removes the optional pointer-driven card tilt.
   const armed = !reduce && entranceDone;
@@ -514,17 +528,43 @@ export default function DisciplineSplit3D({
     }
   }, []);
 
-  // Fit the complete source inside the existing card assembly. Layout sizes
-  // exclude scroll/hover transforms, so scaling never changes the crop.
+  // The film has its own true-aspect frame inside the unchanged card stage.
+  // Cap it by both viewport axes and the safe area below the navigation.
+  // Use layout sizes, excluding the entrance/hover transforms.
   const recomputeCrops = useCallback(() => {
-    const v = videoRef.current;
-    const stage = stageRef.current;
-    if (!v || !stage || !v.videoWidth || !v.videoHeight) return;
+    const v = videoRef.current, stage = stageRef.current;
+    if (!v || !stage) return;
     const width = stage.offsetWidth, height = stage.offsetHeight;
     if (!width || !height) return;
-    const scale = Math.min(width / v.videoWidth, height / v.videoHeight);
-    const fittedWidth = v.videoWidth * scale, fittedHeight = v.videoHeight * scale;
-    const left = (width - fittedWidth) / 2, top = (height - fittedHeight) / 2;
+    const landscape = window.matchMedia("(min-width: 768px)").matches;
+    const sourceWidth = v.videoWidth || (landscape ? 16 : 9);
+    const sourceHeight = v.videoHeight || (landscape ? 9 : 16);
+    const opening = stage.closest<HTMLElement>(".hero-opening-stage");
+    const work = stage.closest<HTMLElement>(".opening-work-pinned");
+    // The pinned stage uses 100svh, which can be smaller than innerHeight on phones.
+    const overflow = opening ? Number.parseFloat(getComputedStyle(opening).getPropertyValue("--hero-overflow")) || 0 : 0;
+    const viewport = opening ? Math.max(1, opening.offsetHeight - overflow) : window.innerHeight;
+    const navClearance = opening ? Number.parseFloat(getComputedStyle(opening).getPropertyValue("--hero-nav-clearance")) || 100 : 0;
+    const safeTop = pinned ? navClearance + 16 : 24;
+    const safeBottom = viewport - 24;
+    const centerPercent = work ? Number.parseFloat(getComputedStyle(work).getPropertyValue("--opening-video-center")) || 41 : 50;
+    const center = pinned ? viewport * (centerPercent + Number.parseFloat(settledY)) / 100 : viewport / 2;
+    const bandTop = pinned ? Math.max(safeTop, center - height / 2) : safeTop;
+    const bandBottom = pinned ? Math.min(safeBottom, center + height / 2) : safeBottom;
+    const availableHeight = Math.max(1, bandBottom - bandTop);
+    const scale = Math.min(width / sourceWidth, height / sourceHeight,
+      (landscape ? 900 : 320) / sourceWidth,
+      viewport * .52 / sourceHeight, availableHeight / sourceHeight);
+    const fittedWidth = sourceWidth * scale, fittedHeight = sourceHeight * scale;
+    const left = (width - fittedWidth) / 2;
+    // Short screens may need the film shifted down within the card stage.
+    const safeCenter = Math.max(bandTop + fittedHeight / 2,
+      Math.min(center, bandBottom - fittedHeight / 2));
+    const top = (height - fittedHeight) / 2 + (pinned ? safeCenter - center : 0);
+    setFilmFrame(previous => previous && Math.abs(previous.width - fittedWidth) < .1
+      && Math.abs(previous.height - fittedHeight) < .1 && Math.abs(previous.top - top) < .1
+      ? previous : { width: fittedWidth, height: fittedHeight, top });
+
     const paneWidth = isDesktop ? width / 3 : width;
     const paneHeight = isDesktop ? height : height / 3;
     const dpr = Math.min(window.devicePixelRatio || 1, CANVAS_DPR_CAP);
@@ -540,7 +580,7 @@ export default function DisciplineSplit3D({
         canvas.height = Math.max(1, Math.round(paneHeight * dpr));
       }
     }
-  }, [isDesktop]);
+  }, [isDesktop, pinned, settledY]);
 
   useEffect(() => {
     const landscape = window.matchMedia("(min-width: 768px)");
@@ -717,6 +757,11 @@ export default function DisciplineSplit3D({
     paneNodesRef.current.forEach((el) => el?.style.setProperty("--spot-active", "0"));
   }, [px, py]);
 
+  const joinedFilmStyle = filmFrame ? {
+    width: filmFrame.width, height: filmFrame.height, top: filmFrame.top,
+    left: "50%", transform: "translateX(-50%)",
+  } : {};
+
   return (
     <section
       ref={(node) => { sectionRef.current = node; journey?.setVideoSection(node); }}
@@ -767,13 +812,13 @@ export default function DisciplineSplit3D({
           {/* An identical film still carries the joined frame if decoding fails. */}
           <motion.img src={activePoster || undefined} alt="" aria-hidden="true"
             className="pointer-events-none absolute inset-0 z-[1] h-full w-full rounded-[16px] bg-[#08080a] object-contain"
-            style={{ opacity: videoFailed || !videoReady ? joinedSurfaceOpacity : 0 }} />
+            style={{ ...joinedFilmStyle, opacity: videoFailed || !videoReady ? joinedSurfaceOpacity : 0 }} />
           {/* The same decoder is the seamless rounded film until the panes
               begin to separate; its frames are also mirrored into them. */}
           <motion.video
             ref={videoRef}
             className="absolute inset-0 z-[2] h-full w-full rounded-[16px] bg-[#08080a] object-contain"
-            style={{ opacity: videoReady && !videoFailed ? joinedSurfaceOpacity : 0, pointerEvents: playBlocked ? "auto" : "none" }}
+            style={{ ...joinedFilmStyle, opacity: videoReady && !videoFailed ? joinedSurfaceOpacity : 0, pointerEvents: playBlocked ? "auto" : "none" }}
             src={videoSrc || undefined}
             loop
             muted
@@ -831,6 +876,7 @@ export default function DisciplineSplit3D({
                 filmSurfaceOpacity={paneSurfaceOpacity}
                 showPanePoster={showPanePoster}
                 poster={activePoster}
+                filmFrame={filmFrame}
                 canvasRef={(el) => {
                   canvasRefs.current[i] = el;
                 }}
