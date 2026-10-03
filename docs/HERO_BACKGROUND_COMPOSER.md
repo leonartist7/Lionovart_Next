@@ -15,3 +15,12 @@ The three client metrics reuse existing testimonial data, not independently veri
 Verification: TypeScript and targeted ESLint passed. Inspected 1440×900, 1440×1000, 390×844, and 360×640. Confirmed no mobile horizontal overflow, loaded logos/background, keyboard movement 50→51, save/reload at 51, and normal-route default at 50 with no editor. Fade sampled at 900px viewport: opacity 1 with boundary top 1350; ~0.5 at 1103; 0/hidden at 900 and below.
 
 Also guarded SplashScreen's animationName lookup against non-CSS animations after a runtime crash. An existing body-style hydration warning remains in development; this change does not modify body styles.
+
+
+## Hero light rays
+
+The hero uses the unmodified React Bits JS-CSS registry source from https://reactbits.dev/r/LightRays-JS-CSS.json in src/components/ui/light-rays, with ogl@^1.0.11. HeroLightRays.tsx supplies the requested cyan configuration in a full-width, 600px-high decorative layer behind the hero content.
+
+The rays fade with the hero and unmount when the hero is inactive or the tab is hidden. Reduced-motion preferences use a static cyan glow. The existing background composer remains independent.
+
+Verification: registry source comparison, TypeScript, and targeted ESLint passed. Browser checks at 1440x900 and 390x844 confirmed the canvas renders with no horizontal overflow, is removed after scrolling past the hero, and returns at the top.

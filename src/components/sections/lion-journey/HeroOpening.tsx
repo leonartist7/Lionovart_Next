@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, useMotionValueEvent, useTransform } from "framer-motion";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import HeroTop from "../HeroTop";
+import HeroLightRays from "../hero-background/HeroLightRays";
 import WhatWeDo from "../WhatWeDo";
 import { useLionJourney } from "./LionJourney";
 
@@ -79,6 +80,7 @@ export default function HeroOpening() {
       <div className="hero-opening-stage">
         <motion.div data-nova-section="hero" data-opening-hero className="opening-hero-layer"
           style={{ opacity: heroOpacity }} inert={heroInert}>
+          <HeroLightRays active={!heroInert} />
           <HeroTop />
         </motion.div>
         <motion.div className="opening-work-layer" style={{ opacity: workOpacity }} inert={workInert}>
