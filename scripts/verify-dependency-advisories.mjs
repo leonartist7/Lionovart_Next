@@ -16,3 +16,7 @@ for (const [name, finding] of Object.entries(report.vulnerabilities ?? {})) {
     advisories: finding.via.filter((v) => typeof v === "object").map((v) => ({ title: v.title, url: v.url, range: v.range })),
   }));
 }
+
+if ((report.metadata?.vulnerabilities?.critical ?? 0) > 0) {
+  throw new Error("Critical application dependency advisory remains");
+}

@@ -28,9 +28,15 @@ A complete scan of 475 source modules and literal imports found no runtime impor
 
 Docker copies the repository's `.npmrc` (which specifies `legacy-peer-deps=true`) and uses `npm ci` with the committed lockfile so Cloud Run and Vercel resolve the same application dependencies. The container check also reproduced a fatal Next CLI conflict between Docker's old `TURBOPACK=0` environment variable and the current `--webpack` build script. Those duplicate Docker flags are removed; the package script is the single bundler choice. Earlier Google build logs remain unavailable, so this is a reproduced container failure rather than a claim based on those logs.
 
+## Dependency refresh
+
+Next.js and its ESLint configuration are pinned to 16.3.8, addressing the critical advisory reported for the old pin and other published Next.js fixes. The project already uses the Next 16 async request APIs and explicit Webpack script, so no major-version codemod applies. npm regenerated the lockfile and applied compatible advisory fixes without `--force`; shadcn remains available as a development tool. React stays on the existing supported 19.2.4 pin. Docker moves to Node 22 to match CI.
+
+The audit report records any remaining noncritical SDK/tool advisories. It is a dependency inventory, not a claim that every reported code path is reachable. CI fails if a critical application advisory remains.
+
 ## Verification and release
 
-The workflow runs the existing motion tests, production build/type checking, the combined portal suite with emulator-only providers, cross-feature upload/visibility regressions, authenticated NOVA WebSocket upgrade, and browser checks at 320, 390, 768 and 1440 pixels. Browser screenshots and structured results are attached to the workflow run.
+The workflow runs the existing motion tests, production build/type checking, the combined portal suite with emulator-only providers, cross-feature upload/visibility regressions, authenticated NOVA WebSocket upgrade, and browser checks at 320, 390, 768 and 1440 pixels, including Imagine results remaining open after scrolling away and back. Browser screenshots and structured results are attached to the workflow run.
 
 Runtime checks explicitly start `server.js` with `NODE_ENV=production`; Next development mode must not reuse a production build directory. No real email, WhatsApp or Gemini request is made by these checks.
 

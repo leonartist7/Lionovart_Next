@@ -53,6 +53,17 @@ try {
         await comparison.scrollIntoViewIfNeeded();
         assert.equal(await comparison.locator("table").count(), 1, "Compact comparison remains addressable by NOVA");
         assert.ok(await page.locator("[data-gold-threads]").count() > 0, "Gold decoration is mounted");
+        const firstCover = page.locator('[data-nova-section="problems"] button[aria-controls="imagine-result-0"]');
+        await firstCover.click();
+        const firstResult = page.locator("#imagine-result-0");
+        await page.waitForFunction(() => document.getElementById("imagine-result-0")?.getAttribute("aria-hidden") === "false");
+        assert.equal(await firstResult.getAttribute("aria-hidden"), "false", "Imagine result opens");
+        await comparison.scrollIntoViewIfNeeded();
+        await firstResult.scrollIntoViewIfNeeded();
+        assert.equal(await firstResult.getAttribute("aria-hidden"), "false", "Imagine result persists after scrolling away and back");
+        assert.equal(await firstCover.count(), 0, "Revealed card cover stays removed");
+        await comparison.scrollIntoViewIfNeeded();
+
       }
       const overflowing = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 2);
       assert.equal(overflowing, false, `No horizontal overflow on ${route} at ${width}px`);
