@@ -18,16 +18,19 @@ const MOBILE_VIDEO_POSTER =
 const CARDS = [
   {
     code: "LION",
+    image: "https://res.cloudinary.com/dgio9uutc/image/upload/v1791037530/ChatGPT_Image_Oct_3_2026_04_24_03_PM-1_udvcw2.png",
     title: "Lead with confidence",
     body: "Brand worlds, positioning and growth strategy with a point of view.",
   },
   {
     code: "NOVA",
+    image: "https://res.cloudinary.com/dgio9uutc/image/upload/v1791037530/ChatGPT_Image_Oct_3_2026_04_24_09_PM-2_e1i1g2.png",
     title: "Move with innovation",
     body: "AI OS, voice agents and automation that give time back.",
   },
   {
     code: "ART",
+    image: "https://res.cloudinary.com/dgio9uutc/image/upload/v1791037530/ChatGPT_Image_Oct_3_2026_04_24_14_PM-3_rcu99q.png",
     title: "Direct the emotion",
     body: "Identity, film, content, web and apps built as one world.",
   },
