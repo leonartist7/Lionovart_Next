@@ -22,6 +22,7 @@ import {
   idTokenFor,
   pageSource,
   setupWorkspace,
+  sessionFetch,
   summary,
 } from "./harness.mjs";
 
@@ -50,7 +51,7 @@ if (run("auth")) {
   // (400) would short-circuit the email-mismatch check we're testing.
   const freshToken = await createInvite(fx, "intended@example.com");
   const wrongToken = await idTokenFor("wrong@example.com", "Wrong Person");
-  const wrong = await fetch(`${BASE}/api/portal/session`, {
+  const wrong = await sessionFetch(`${BASE}/api/portal/session`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ idToken: wrongToken, inviteToken: freshToken }),
@@ -61,7 +62,7 @@ if (run("auth")) {
 
   // An invite is single use.
   const clientToken = await idTokenFor(fx.clientEmail, "Test Client");
-  const replay = await fetch(`${BASE}/api/portal/session`, {
+  const replay = await sessionFetch(`${BASE}/api/portal/session`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ idToken: clientToken, inviteToken: fx.inviteToken }),
@@ -70,7 +71,7 @@ if (run("auth")) {
 
   // No public signup.
   const strangerToken = await idTokenFor("stranger@example.com", "Stranger");
-  const stranger = await fetch(`${BASE}/api/portal/session`, {
+  const stranger = await sessionFetch(`${BASE}/api/portal/session`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ idToken: strangerToken }),
@@ -548,7 +549,7 @@ if (run("approvals")) {
   const collabEmail = `collab-${Date.now()}@example.com`;
   const collabToken = await createInvite(fx, collabEmail, "collaborator");
   const collabIdToken = await idTokenFor(collabEmail, "Collaborator Only");
-  const collabSessionRes = await fetch(`${BASE}/api/portal/session`, {
+  const collabSessionRes = await sessionFetch(`${BASE}/api/portal/session`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ idToken: collabIdToken, inviteToken: collabToken }),
@@ -713,7 +714,7 @@ if (run("messages")) {
   const viewerEmail = `viewer-${Date.now()}@example.com`;
   const viewerInviteToken = await createInvite(fx, viewerEmail, "viewer");
   const viewerIdToken = await idTokenFor(viewerEmail, "Viewer Only");
-  const viewerSessionRes = await fetch(`${BASE}/api/portal/session`, {
+  const viewerSessionRes = await sessionFetch(`${BASE}/api/portal/session`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ idToken: viewerIdToken, inviteToken: viewerInviteToken }),

@@ -59,6 +59,19 @@ export function cookieFrom(res, name) {
 /** Headers for an authenticated JSON request. */
 export const J = (cookie) => ({ "Content-Type": "application/json", Cookie: cookie });
 
+
+/** Fixture sign-ins obey the production token bucket, including when the
+ * production build runs a whole suite faster than its development server. */
+export async function sessionFetch(url, options) {
+  for (let attempt = 0; attempt < 15; attempt++) {
+    const response = await fetch(url, options);
+    if (response.status !== 429) return response;
+    await response.arrayBuffer();
+    await new Promise((resolve) => setTimeout(resolve, 2100));
+  }
+  throw new Error("Fixture sign-in remained rate limited");
+}
+
 /* ── Assertions ──────────────────────────────────────────────────── */
 
 let pass = 0;
@@ -84,11 +97,12 @@ export async function setupWorkspace(name = "Verify " + Date.now()) {
   const agencyIdToken = await idTokenFor(AGENCY_EMAIL, "Leon");
 
   // Nova console session — required to create workspaces and invites.
-  const adminRes = await fetch(`${BASE}/api/admin/session`, {
+  const adminRes = await sessionFetch(`${BASE}/api/admin/session`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ idToken: agencyIdToken }),
   });
+  if (!adminRes.ok) throw new Error(`Agency fixture sign-in failed: ${adminRes.status}`);
   const adminCookie = `nova_admin_session=${cookieFrom(adminRes, "nova_admin_session")}`;
 
   const wsRes = await fetch(`${BASE}/api/portal/workspaces`, {
@@ -107,19 +121,21 @@ export async function setupWorkspace(name = "Verify " + Date.now()) {
   const inviteToken = new URL((await invRes.json()).joinUrl).searchParams.get("token");
 
   const clientIdToken = await idTokenFor(clientEmail, "Test Client");
-  const clientRes = await fetch(`${BASE}/api/portal/session`, {
+  const clientRes = await sessionFetch(`${BASE}/api/portal/session`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ idToken: clientIdToken, inviteToken }),
   });
+  if (!clientRes.ok) throw new Error(`Client fixture sign-in failed: ${clientRes.status}`);
   const clientCookie = `lv_portal_session=${cookieFrom(clientRes, "lv_portal_session")}`;
 
   // Agency needs a PORTAL session too — the console cookie is a different one.
-  const agencyRes = await fetch(`${BASE}/api/portal/session`, {
+  const agencyRes = await sessionFetch(`${BASE}/api/portal/session`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ idToken: agencyIdToken }),
   });
+  if (!agencyRes.ok) throw new Error(`Portal agency fixture sign-in failed: ${agencyRes.status}`);
   const agencyCookie = `lv_portal_session=${cookieFrom(agencyRes, "lv_portal_session")}`;
 
   return {
