@@ -68,3 +68,34 @@ jobs:
           name: integrated-verification
           path: verification-output/
           if-no-files-found: ignore
+
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the Cloud Run production image with test-only public config
+        run: |
+          docker build --tag lionovart-verify \
+            --build-arg NEXT_PUBLIC_FIREBASE_API_KEY=demo-key \
+            --build-arg NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=lionovart-dev.firebaseapp.com \
+            --build-arg NEXT_PUBLIC_FIREBASE_PROJECT_ID=lionovart-dev \
+            --build-arg NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=lionovart-dev.appspot.com \
+            --build-arg NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=000000000000 \
+            --build-arg NEXT_PUBLIC_FIREBASE_APP_ID=1:000000000000:web:0000000000000000000000 \
+            .
+      - name: Confirm the image starts and serves the portal demo
+        run: |
+          docker run --detach --name integrated-container --publish 8080:8080 \
+            --env NOVA_WS_SECRET=ci-only-container-secret lionovart-verify
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://localhost:8080/portal/demo/content > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs integrated-container
+          exit 1
+      - name: Container logs
+        if: always()
+        run: docker logs integrated-container 2>/dev/null || true
