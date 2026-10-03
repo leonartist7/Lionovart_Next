@@ -77,6 +77,14 @@ try {
       const filename = `${width}x${height}-${route.replaceAll("/", "_") || "home"}.png`;
       await page.screenshot({ path: "verification-output/" + filename, fullPage: true });
       results.push({ width, height, route, status: response.status(), horizontalOverflow: overflowing });
+      if (route === "/about" && [390, 1440].includes(width)) {
+        await page.evaluate(() => { document.documentElement.style.fontSize = "200%"; });
+        const textOverflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 2);
+        assert.equal(textOverflow, false, "About has no horizontal overflow at 200% root text size");
+        await page.screenshot({ path: "verification-output/" + width + "-about-text-200.png", fullPage: true });
+        results.push({ width, height, route, rootTextSize: "200%", horizontalOverflow: textOverflow });
+        await page.evaluate(() => { document.documentElement.style.fontSize = ""; });
+      }
     }
     assert.deepEqual(errors, [], `No uncaught browser errors at ${width}px`);
     await context.close();
