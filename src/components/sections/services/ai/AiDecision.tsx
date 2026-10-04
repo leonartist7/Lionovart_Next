@@ -26,7 +26,7 @@ export default function AiDecision() {
             <button
               type="button"
               onClick={() => openNova("hero", true)}
-              className="min-h-14 rounded-full bg-brand-red px-8 py-4 text-[17px] font-semibold text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+              className="min-h-14 rounded-full bg-brand-red px-8 py-4 text-[17px] font-semibold text-white transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_32px_rgba(229,25,42,0.5)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
               Find my highest-ROI system
             </button>
