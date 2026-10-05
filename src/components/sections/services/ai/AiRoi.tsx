@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/contexts/LanguageContext";
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 
 import { useMemo, useRef, useState } from "react";
@@ -8,9 +9,14 @@ import { useNovaStore } from "@/lib/stores/nova-store";
 import { LiquidGlass } from "./LiquidGlass";
 
 
-
 export default function AiRoi() {
   const tr = usePublicCopy();
+  const { locale } = useLanguage();
+  const currency = new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  });
   const ref = useRef<HTMLElement>(null);
   const [hours, setHours] = useState(10);
   const [hourValue, setHourValue] = useState(55);
