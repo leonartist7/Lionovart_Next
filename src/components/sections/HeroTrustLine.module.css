@@ -1,0 +1,22 @@
+.trust {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(5px, .7vw, 12px);
+  max-width: 100%;
+  margin-top: -8px;
+  padding: 2px;
+  border: 0;
+  color: #b4b1b4;
+  background: transparent;
+  font: inherit;
+  font-size: clamp(12px, 1.05vw, 15px);
+  line-height: 1.35;
+  text-align: center;
+  cursor: pointer;
+}
+.trust:focus-visible { outline: 1px solid #e5bd77; outline-offset: 4px; border-radius: 4px; }
+.copy { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+.laurel { width: 17px; height: 44px; object-fit: contain; flex: 0 0 auto; }
+.stars { display: flex; align-items: center; justify-content: center; gap: 2px; height: 14px; }
+.stars img { width: 12px; height: 12px; object-fit: contain; }
