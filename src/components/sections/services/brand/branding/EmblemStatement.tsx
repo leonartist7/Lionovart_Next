@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 /**
  * Scene 2 — the crest scales/fades into center; two short statements flank it,
  * left slides from the left, right from the right (expo-out, slight stagger).
@@ -12,6 +14,7 @@ import BrandCrest from "./BrandCrest";
 const EXPO = [0.16, 1, 0.3, 1] as const;
 
 export default function EmblemStatement() {
+  const tr = usePublicCopy();
   const reduce = useReducedMotion();
 
   const slide = (from: number) =>
@@ -40,8 +43,8 @@ export default function EmblemStatement() {
           {...slide(-60)}
           className="flex-1 text-right font-clash text-xl font-medium uppercase leading-tight tracking-tight text-text-dark-primary md:text-3xl"
         >
-          More than
-          <br />a logo
+          {tr("More than")}
+          <br />{tr("a logo")}
         </motion.p>
 
         <motion.div {...pop} className="shrink-0">
@@ -52,8 +55,8 @@ export default function EmblemStatement() {
           {...slide(60)}
           className="flex-1 text-left font-clash text-xl font-medium uppercase leading-tight tracking-tight text-text-dark-primary md:text-3xl"
         >
-          A brand
-          <br />they feel
+          {tr("A brand")}
+          <br />{tr("they feel")}
         </motion.p>
       </div>
     </section>

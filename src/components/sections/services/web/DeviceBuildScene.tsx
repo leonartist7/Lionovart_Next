@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 /**
  * Web signature scene: a site assembles section-by-section inside a browser
  * frame as you scroll (the page performs "we build sites"). Blocks are
@@ -17,6 +19,7 @@ const HERO_CLIP =
   "https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto/v1779845553/Footage_05_yalbaj.mp4";
 
 export default function DeviceBuildScene() {
+  const tr = usePublicCopy();
   const reduce = useReducedMotion();
   const sectionRef = useRef<HTMLDivElement>(null);
   const progress = useMotionValue(reduce ? 1 : 0);
@@ -43,7 +46,7 @@ export default function DeviceBuildScene() {
       <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden px-4 py-[12vh] md:px-6">
         <div className="mx-auto w-full max-w-[1000px]">
           <p className="mb-5 text-center text-[11px] uppercase tracking-[0.3em] text-white/50">
-            Built section by section
+            {tr("Built section by section")}
           </p>
 
           {/* Browser frame */}

@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 /**
  * Shared sticky statement relay. Pins a centered line, holds, fades it out,
  * brings the next (PAS: name the stakes). Beats passed per page.
@@ -11,6 +13,7 @@ import { motion, useMotionValue, useTransform, useReducedMotion, type MotionValu
 import { useLenis } from "lenis/react";
 
 export default function StatementRelay({ beats }: { beats: string[] }) {
+  const tr = usePublicCopy();
   const reduce = useReducedMotion();
   const sectionRef = useRef<HTMLDivElement>(null);
   const progress = useMotionValue(0);
@@ -42,7 +45,7 @@ export default function StatementRelay({ beats }: { beats: string[] }) {
               className="font-clash font-medium leading-[1.05] text-white"
               style={{ fontSize: "clamp(1.6rem, 4.5vw, 3.4rem)" }}
             >
-              {i === n - 1 ? <span className="text-brand-red">{b}</span> : b}
+              {i === n - 1 ? <span className="text-brand-red">{tr(b)}</span> : tr(b)}
             </p>
           ))}
         </div>
@@ -76,6 +79,7 @@ function Beat({
   progress: MotionValue<number>;
   last: boolean;
 }) {
+  const tr = usePublicCopy();
   const seg = 1 / count;
   const c = (index + 0.5) * seg;
   const opacity = useTransform(
@@ -90,7 +94,7 @@ function Beat({
       className="absolute inset-x-0 top-1/2 -translate-y-1/2 font-clash font-medium leading-[1.04] text-white"
       style={{ opacity, y, fontSize: "clamp(1.8rem, 5.5vw, 4.6rem)" }}
     >
-      {last ? <span className="text-brand-red">{beat}</span> : beat}
+      {last ? <span className="text-brand-red">{tr(beat)}</span> : tr(beat)}
     </motion.p>
   );
 }

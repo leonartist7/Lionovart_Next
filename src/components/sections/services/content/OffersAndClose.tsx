@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 /**
  * Lower acts for /services/content-studio: Process, two Offers, Proof, CTA close.
  * The merge in offer form: one umbrella service, two buying intents —
@@ -43,6 +45,7 @@ const ENGINE = [
 ];
 
 export default function OffersAndClose() {
+  const tr = usePublicCopy();
   const reduce = useReducedMotion();
   const openNova = useNovaStore((s) => s.openNova);
   // The voice agent (Nova) handles every lead, no form. CTA opens it and auto-starts.
@@ -60,7 +63,7 @@ export default function OffersAndClose() {
             className="mb-16 font-clash font-semibold uppercase leading-[0.95] tracking-tight text-white"
             style={{ fontSize: "clamp(2.2rem, 6vw, 5rem)" }}
           >
-            How it works
+            {tr("How it works")}
           </motion.h2>
           <div className="grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 md:grid-cols-4">
             {PROCESS.map((step) => (
@@ -68,8 +71,8 @@ export default function OffersAndClose() {
                 <span className="font-clash text-brand-red" style={{ fontSize: "clamp(1.4rem,3vw,2rem)" }}>
                   {step.n}
                 </span>
-                <h3 className="mt-5 font-clash text-2xl font-semibold text-white">{step.t}</h3>
-                <p className="mt-3 max-w-[32ch] text-[15px] leading-relaxed text-white/55">{step.d}</p>
+                <h3 className="mt-5 font-clash text-2xl font-semibold text-white">{tr(step.t)}</h3>
+                <p className="mt-3 max-w-[32ch] text-[15px] leading-relaxed text-white/55">{tr(step.d)}</p>
               </motion.div>
             ))}
           </div>
@@ -80,12 +83,12 @@ export default function OffersAndClose() {
       <section className="bg-bg-dark px-6 pb-28 md:pb-36">
         <div className="mx-auto max-w-[1400px]">
           <motion.div {...motionProps} className="mb-12 max-w-2xl">
-            <p className="mb-5 text-[11px] uppercase tracking-[0.3em] text-white/50">Two ways in</p>
+            <p className="mb-5 text-[11px] uppercase tracking-[0.3em] text-white/50">{tr("Two ways in")}</p>
             <h2
               className="font-clash font-semibold uppercase leading-[0.95] tracking-tight text-white"
               style={{ fontSize: "clamp(2.2rem, 6vw, 4.6rem)" }}
             >
-              Make it once, or run it for months.
+              {tr("Make it once, or run it for months.")}
             </h2>
           </motion.div>
 
@@ -95,29 +98,29 @@ export default function OffersAndClose() {
               {...motionProps}
               className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-8 md:p-10"
             >
-              <p className="text-[11px] uppercase tracking-[0.2em] text-white/40">Project</p>
+              <p className="text-[11px] uppercase tracking-[0.2em] text-white/40">{tr("Project")}</p>
               <h3 className="mt-2 font-clash text-3xl font-semibold text-white md:text-4xl">
-                Films &amp; Campaigns
+                {tr("Films & Campaigns")}
               </h3>
               <p className="mt-4 max-w-[42ch] text-[16px] leading-relaxed text-white/60">
-                One sprint, a full film system your brand can post for months.
+                {tr("One sprint, a full film system your brand can post for months.")}
               </p>
               <ul className="mt-7 flex-1 divide-y divide-white/10">
                 {PROJECT.map((item) => (
                   <li key={item} className="flex items-center gap-4 py-3.5">
                     <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-red" />
-                    <span className="text-[15px] text-white/85">{item}</span>
+                    <span className="text-[15px] text-white/85">{tr(item)}</span>
                   </li>
                 ))}
               </ul>
               <div className="mt-8 flex items-end justify-between">
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-white/40">From</p>
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-white/40">{tr("From")}</p>
                   <p className="font-clash text-brand-red" style={{ fontSize: "clamp(1.8rem,4vw,2.6rem)" }}>
-                    $[price]
+                    {tr("$[price]")}
                   </p>
                 </div>
-                <LiquidMetalButton label="Start a project" width={190} onClick={go} />
+                <LiquidMetalButton label={tr("Start a project")} width={190} onClick={go} />
               </div>
             </motion.div>
 
@@ -127,31 +130,31 @@ export default function OffersAndClose() {
               className="relative flex flex-col rounded-2xl border border-brand-red/40 bg-brand-red/[0.06] p-8 md:p-10"
             >
               <span className="absolute right-6 top-6 rounded-full border border-brand-red/50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-brand-red">
-                Most chosen
+                {tr("Most chosen")}
               </span>
-              <p className="text-[11px] uppercase tracking-[0.2em] text-white/40">Monthly</p>
+              <p className="text-[11px] uppercase tracking-[0.2em] text-white/40">{tr("Monthly")}</p>
               <h3 className="mt-2 font-clash text-3xl font-semibold text-white md:text-4xl">
-                Content Engine
+                {tr("Content Engine")}
               </h3>
               <p className="mt-4 max-w-[42ch] text-[16px] leading-relaxed text-white/60">
-                We run your content end to end, so your brand stays top of mind every month.
+                {tr("We run your content end to end, so your brand stays top of mind every month.")}
               </p>
               <ul className="mt-7 flex-1 divide-y divide-white/10">
                 {ENGINE.map((item) => (
                   <li key={item} className="flex items-center gap-4 py-3.5">
                     <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-red" />
-                    <span className="text-[15px] text-white/85">{item}</span>
+                    <span className="text-[15px] text-white/85">{tr(item)}</span>
                   </li>
                 ))}
               </ul>
               <div className="mt-8 flex items-end justify-between">
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-white/40">From</p>
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-white/40">{tr("From")}</p>
                   <p className="font-clash text-brand-red" style={{ fontSize: "clamp(1.8rem,4vw,2.6rem)" }}>
-                    $[price]<span className="text-[0.5em] text-white/50">/mo</span>
+                    {tr("$[price]")}<span className="text-[0.5em] text-white/50">{tr("/mo")}</span>
                   </p>
                 </div>
-                <LiquidMetalButton label="Start your engine" width={200} onClick={go} />
+                <LiquidMetalButton label={tr("Start your engine")} width={200} onClick={go} />
               </div>
             </motion.div>
           </div>
@@ -165,11 +168,10 @@ export default function OffersAndClose() {
             className="font-clash font-medium leading-[1.15] text-white"
             style={{ fontSize: "clamp(1.6rem, 4vw, 3rem)" }}
           >
-            &ldquo;[ A client says, in one line, that the content changed how their
-            market sees them. ]&rdquo;
+            &ldquo;{tr("[ A client says, in one line, that the content changed how their market sees them. ]")}&rdquo;
           </blockquote>
           <figcaption className="mt-8 text-[13px] uppercase tracking-[0.18em] text-white/45">
-            [ Name ], [ Role ], [ Business ]
+            {tr("[ Name ], [ Role ], [ Business ]")}
           </figcaption>
         </motion.figure>
       </section>
@@ -182,12 +184,12 @@ export default function OffersAndClose() {
             className="font-clash font-semibold uppercase leading-[0.92] tracking-tight text-white"
             style={{ fontSize: "clamp(2.8rem, 9vw, 8rem)" }}
           >
-            Let&rsquo;s make yours <span className="text-brand-red">roar</span>.
+            {tr("Let’s make yours")} <span className="text-brand-red">{tr("roar")}</span>.
           </motion.h2>
           <motion.div {...motionProps} className="mt-12 flex flex-col items-center gap-5">
-            <LiquidMetalButton label="Talk to Nova" width={200} onClick={go} />
+            <LiquidMetalButton label={tr("Talk to Nova")} width={200} onClick={go} />
             <p className="text-[12px] uppercase tracking-[0.2em] text-white/40">
-              Tell our voice agent what you need. She takes it from there.
+              {tr("Tell our voice agent what you need. She takes it from there.")}
             </p>
           </motion.div>
         </div>

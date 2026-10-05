@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 /**
  * Shared offer block. 1-2 offers (project and/or monthly). Featured offer gets
  * the red treatment. CTAs open the Nova voice agent (no form). Reduced-motion safe.
@@ -38,6 +40,7 @@ export default function OfferCards({
   heading: string;
   offers: Offer[];
 }) {
+  const tr = usePublicCopy();
   const reduce = useReducedMotion();
   const openNova = useNovaStore((s) => s.openNova);
   const go = () => openNova("hero", true);
@@ -48,12 +51,12 @@ export default function OfferCards({
     <section className="bg-bg-dark px-6 pb-28 md:pb-36">
       <div className="mx-auto max-w-[1400px]">
         <motion.div {...mp} className="mb-12 max-w-2xl">
-          <p className="mb-5 text-[11px] uppercase tracking-[0.3em] text-white/50">{eyebrow}</p>
+          <p className="mb-5 text-[11px] uppercase tracking-[0.3em] text-white/50">{tr(eyebrow)}</p>
           <h2
             className="font-clash font-semibold uppercase leading-[0.95] tracking-tight text-white"
             style={{ fontSize: "clamp(2.2rem, 6vw, 4.6rem)" }}
           >
-            {heading}
+            {tr(heading)}
           </h2>
         </motion.div>
 
@@ -70,29 +73,29 @@ export default function OfferCards({
             >
               {o.tag && (
                 <span className="absolute right-6 top-6 rounded-full border border-brand-red/50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-brand-red">
-                  {o.tag}
+                  {tr(o.tag)}
                 </span>
               )}
-              <p className="text-[11px] uppercase tracking-[0.2em] text-white/40">{o.kind}</p>
-              <h3 className="mt-2 font-clash text-3xl font-semibold text-white md:text-4xl">{o.title}</h3>
-              <p className="mt-4 max-w-[42ch] text-[16px] leading-relaxed text-white/60">{o.blurb}</p>
+              <p className="text-[11px] uppercase tracking-[0.2em] text-white/40">{tr(o.kind)}</p>
+              <h3 className="mt-2 font-clash text-3xl font-semibold text-white md:text-4xl">{tr(o.title)}</h3>
+              <p className="mt-4 max-w-[42ch] text-[16px] leading-relaxed text-white/60">{tr(o.blurb)}</p>
               <ul className="mt-7 flex-1 divide-y divide-white/10">
                 {o.items.map((item) => (
                   <li key={item} className="flex items-center gap-4 py-3.5">
                     <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-red" />
-                    <span className="text-[15px] text-white/85">{item}</span>
+                    <span className="text-[15px] text-white/85">{tr(item)}</span>
                   </li>
                 ))}
               </ul>
               <div className="mt-8 flex items-end justify-between">
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-white/40">{o.priceLabel}</p>
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-white/40">{tr(o.priceLabel)}</p>
                   <p className="font-clash text-brand-red" style={{ fontSize: "clamp(1.8rem,4vw,2.6rem)" }}>
-                    {o.price}
-                    {o.priceSuffix && <span className="text-[0.5em] text-white/50">{o.priceSuffix}</span>}
+                    {tr(o.price)}
+                    {o.priceSuffix && <span className="text-[0.5em] text-white/50">{tr(o.priceSuffix)}</span>}
                   </p>
                 </div>
-                <LiquidMetalButton label={o.ctaLabel} width={200} onClick={go} />
+                <LiquidMetalButton label={tr(o.ctaLabel)} width={200} onClick={go} />
               </div>
             </motion.div>
           ))}

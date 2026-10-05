@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 /**
  * Act 1 — Curtain hook for /services/content-studio (Content Studio).
  * A fixed showreel card that lifts up on scroll (same entry language as the
@@ -16,6 +18,7 @@ import { motion, useMotionValue, useTransform, useReducedMotion } from "framer-m
 import { useLenis } from "lenis/react";
 
 export default function CurtainHero() {
+  const tr = usePublicCopy();
   const reduce = useReducedMotion();
   const scrollY = useMotionValue(0);
   const [vh, setVh] = useState(900);
@@ -61,19 +64,19 @@ export default function CurtainHero() {
 
           <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center select-none -translate-y-[8%]">
             <p className="mb-6 text-[12px] md:text-[14px] uppercase tracking-[0.35em] text-white/70">
-              Content Studio
+              {tr("Content Studio")}
             </p>
 
             <h1
               className="font-normal leading-[1.02] tracking-tight text-white"
               style={{ fontSize: "clamp(2rem, 7vw, 8.5rem)", fontFamily: "var(--font-clash)" }}
             >
-              <span className="block">We make brands</span>
-              <span className="block font-semibold text-brand-red">impossible to ignore</span>
+              <span className="block">{tr("We make brands")}</span>
+              <span className="block font-semibold text-brand-red">{tr("impossible to ignore")}</span>
             </h1>
 
             <p className="mt-7 text-[12px] md:text-[13px] uppercase tracking-[0.3em] text-white/55">
-              Creative content &amp; film
+              {tr("Creative content & film")}
             </p>
 
             <motion.div
@@ -82,7 +85,7 @@ export default function CurtainHero() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 1 }}
             >
-              <span className="text-[10px] uppercase tracking-[0.3em] text-white/40">Scroll</span>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-white/40">{tr("Scroll")}</span>
               <motion.div
                 className="w-px bg-white/30"
                 style={{ height: 32 }}
