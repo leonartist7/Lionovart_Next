@@ -587,5 +587,157 @@
       "label": "More returning customers"
     },
     "footnote": "Actual results will identify the client, measurement period and source."
+  },
+  "aboutPage": {
+    "metaTitle": "Sobre Leonardo y el estudio",
+    "metaDescription": "Conoce a Leonardo y la visión de LIONOVART: un estudio de innovación de marca y experiencias que conecta identidad, cine, productos digitales y experiencias en vivo.",
+    "eyebrow": "Sobre LIONOVART",
+    "headline": "La mente detrás de la creación.",
+    "intro": "LIONOVART es un estudio de innovación de marca y experiencias dirigido por Leonardo. Unimos dirección creativa, diseño y tecnología para dar forma a cómo se percibe, se entiende y se vive una marca. En una pantalla. En un espacio. Allí donde la idea necesite cobrar vida.",
+    "meet": "Conoce a Leonardo",
+    "founderRole": "Fundador y director creativo",
+    "founderHeading": "Una idea clara merece una expresión poderosa.",
+    "founderParagraphs": [
+      "Creé LIONOVART para acercar la reflexión y la realización. Me importa la primera impresión, por supuesto. Pero también la sensación que deja.",
+      "Para mí, una marca toma forma en los detalles: el ritmo de una película, la claridad de una web, la atmósfera de un espacio. Cada uno tiene su lenguaje. Aun así, pueden hablar desde una misma idea.",
+      "Mi papel es encontrar esa idea contigo, darle una dirección y acompañarla de cerca mientras se hace realidad. Aquí hay espacio para una ambición audaz. Y para el cuidado que exige llevarla a buen término."
+    ],
+    "philosophyHeading": "Una idea. Se siente en todas partes.",
+    "philosophyParagraphs": [
+      "Una identidad marca el tono. Una película le da movimiento. Una web convierte el interés en un siguiente paso útil. Los sistemas inteligentes pueden mantener ese recorrido en marcha entre bastidores.",
+      "Una experiencia en vivo la lleva al espacio: la invitación, la llegada, la luz, el sonido, el momento compartido. LIONOVART da forma al concepto, al recorrido de los invitados y a la dirección audiovisual, coordinando socios especializados en producción cuando el proyecto lo requiere.",
+      "Lo que conecta el trabajo es la idea con la que se encuentran las personas y el cuidado con el que llega a ellas."
+    ],
+    "expertiseLink": "Explora nuestras especialidades",
+    "brandHeading": "El arte de innovar.",
+    "brandIntro": "Tres instintos dan forma al trabajo. La dirección le da propósito. La inteligencia lo hace útil. El oficio le da sensibilidad.",
+    "pillars": [
+      {
+        "name": "LION",
+        "heading": "Presencia con propósito.",
+        "body": "Partir de lo que representa la marca, de a quién se dirige y de la huella que quiere dejar. Darle una dirección reconocible y una presencia que se sienta propia."
+      },
+      {
+        "name": "NOVA",
+        "heading": "Ideas que hacen avanzar.",
+        "body": "Un producto digital, un flujo de trabajo inteligente, una nueva forma de participar. La innovación se gana su lugar cuando ayuda a hacer algo, a entender algo o a vivirlo de otra manera."
+      },
+      {
+        "name": "ART",
+        "heading": "Lo que las personas sienten.",
+        "body": "Imagen, ritmo, tipografía, sonido, atmósfera. El oficio define la idea y le da un carácter con el que las personas pueden conectar."
+      }
+    ],
+    "brandSeam": "En una experiencia en vivo, los tres se encuentran: un propósito claro, un recorrido bien pensado y un momento que se siente.",
+    "principlesHeading": "La diferencia está en cómo toma forma el trabajo.",
+    "principles": [
+      {
+        "heading": "Una relación creativa directa.",
+        "body": "Trabaja directamente con Leonardo en la dirección creativa. Conoce quién lidera el trabajo, qué se está decidiendo y dónde cuenta tu aportación."
+      },
+      {
+        "heading": "Un punto de vista compartido.",
+        "body": "Acordar el briefing y la dirección antes de que el proyecto se despliegue en distintos formatos. Mantener conectadas la identidad, la historia y la experiencia elegidas a medida que avanza el trabajo."
+      },
+      {
+        "heading": "Imaginación con un camino para avanzar.",
+        "body": "Explorar la idea junto a las realidades de llevarla a cabo: usabilidad, producción, plazos y especialistas adecuados. Dar a la ambición un camino concreto hacia el mundo."
+      },
+      {
+        "heading": "Un propósito más allá de la presentación.",
+        "body": "Tener claro qué debe mejorar el proyecto. Definir la siguiente acción, la entrega y cualquier medición o trabajo continuado acordados dentro del alcance."
+      }
+    ],
+    "processLink": "Descubre cómo se desarrolla el trabajo",
+    "modelsHeading": "Encuentra la forma de colaboración adecuada.",
+    "modelsIntro": "Cada proyecto necesita una manera distinta de trabajar. La pregunta útil es quién aporta la dirección, quién realiza el trabajo y cómo se mantienen conectadas esas partes.",
+    "models": [
+      {
+        "name": "LIONOVART",
+        "heading": "Una dirección creativa que conecta.",
+        "body": "Para un proyecto que se beneficia de una idea compartida entre identidad, cine, productos digitales o experiencias en vivo. Leonardo lidera la relación creativa, con disciplinas y socios especializados organizados en torno al briefing acordado. El alcance, las responsabilidades y los plazos se establecen para cada proyecto."
+      },
+      {
+        "name": "Equipo interno",
+        "heading": "Una relación integrada en la empresa.",
+        "body": "Un equipo dedicado puede desarrollar un conocimiento profundo del negocio y participar de cerca en las decisiones diarias. La contratación, la capacidad y los conocimientos especializados dependen de la organización y sus necesidades."
+      },
+      {
+        "name": "Agencia",
+        "heading": "Un equipo establecido.",
+        "body": "Una agencia puede aportar varias disciplinas y una estructura de ejecución definida. El acceso al equipo creativo, la coordinación y la inversión varían según el equipo y el encargo."
+      },
+      {
+        "name": "Especialistas independientes",
+        "heading": "Conocimientos específicos.",
+        "body": "Un especialista independiente puede encajar muy bien en una disciplina concreta. Un proyecto con varios especialistas se beneficia de un responsable claro de la dirección general y la coordinación."
+      },
+      {
+        "name": "Trabajo con herramientas",
+        "heading": "Un enfoque práctico.",
+        "body": "Las herramientas de diseño e IA pueden ayudar a un equipo interno capacitado a explorar y producir. Alguien debe seguir asumiendo la responsabilidad del criterio, la coherencia de marca, la calidad de producción y la experiencia final."
+      }
+    ],
+    "modelsQualifier": "Modelos de trabajo orientativos. El alcance varía según el proveedor y el proyecto.",
+    "workLink": "Descubre proyectos seleccionados",
+    "closingHeading": "Hagamos que tu próximo capítulo tenga una firma propia.",
+    "closingBody": "Un briefing claro o el comienzo de una idea. Cuéntame qué tienes en mente y encontraremos la forma adecuada de darle vida.",
+    "closingCta": "Iniciemos una conversación",
+    "closingLabel": "Tu próximo capítulo"
+  },
+  "compactComparison": {
+    "eyebrow": "El enfoque LIONOVART",
+    "heading": "Una dirección. Cada punto de contacto.",
+    "body": "Una idea compartida entre la marca, los contenidos, las plataformas y las experiencias que necesita tu proyecto.",
+    "others": "Otras opciones",
+    "studio": "LIONOVART",
+    "qualifier": "Modelos de trabajo orientativos. El alcance varía según el proveedor y el proyecto.",
+    "link": "Conoce LIONOVART",
+    "rows": [
+      {
+        "topic": "Dirección creativa",
+        "others": "Puede repartirse entre varios proveedores",
+        "studio": "Una dirección para todo el trabajo acordado"
+      },
+      {
+        "topic": "Coherencia de marca",
+        "others": "Depende de la coordinación",
+        "studio": "Un sistema compartido para los puntos de contacto elegidos"
+      },
+      {
+        "topic": "Creatividad + técnica",
+        "others": "Pueden intervenir especialistas distintos",
+        "studio": "Conectadas en torno al mismo briefing"
+      },
+      {
+        "topic": "Colaboración",
+        "others": "Depende de la organización del proveedor",
+        "studio": "Una relación creativa directa con Leonardo"
+      }
+    ]
+  },
+  "siteNavigation": {
+    "about": "Sobre nosotros",
+    "expertise": "Especialidades",
+    "work": "Proyectos",
+    "results": "Resultados",
+    "menu": "Abrir o cerrar el menú",
+    "expertiseToggle": "Mostrar u ocultar la lista de especialidades",
+    "skip": "Saltar al contenido",
+    "connect": "Contacto",
+    "based": "Sede",
+    "worldwide": "Disponible en todo el mundo",
+    "book": "Reserva una conversación",
+    "brand": "Marca e identidad",
+    "web": "Web y plataformas",
+    "film": "Cine y contenidos",
+    "experiences": "Experiencias e innovación",
+    "signature": "El arte de innovar.",
+    "privacy": "Privacidad",
+    "terms": "Condiciones de uso",
+    "copyright": "Todos los derechos reservados.",
+    "legal": "Información legal",
+    "portraitAlt": "Leonardo, fundador y director creativo de LIONOVART",
+    "start": "Iniciemos una conversación"
   }
 }

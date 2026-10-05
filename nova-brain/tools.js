@@ -128,7 +128,7 @@ const STRATEGIST_TOOLS = [
       {
         name: "scroll_to_section",
         description:
-          "Smoothly scrolls the LIONOVART page (visible behind/beside the panel) to a section. Use when the user asks about services, portfolio, process, etc. Available ids: hero, about, showcase, problems, services, portfolio, process, comparison, testimonials, faq.",
+          "Navigates to the relevant localized LIONOVART page and scrolls to a section after it renders. Founder and studio philosophy live on /about. Homepage services, selected work, results and process live on /. Available ids: hero, about, founder, philosophy, lion-nova-art, working-together, working-models, problems, services, portfolio, process, comparison, testimonials, faq, closing-cta. Comparison on About opens the detailed working-model guide.",
         parameters: {
           type: Type.OBJECT,
           properties: {

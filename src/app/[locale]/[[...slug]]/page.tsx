@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
+import AboutPage from "../../(site)/about/page";
 import Home from "../../(site)/page";
 import AuditPage from "../../(site)/audit/page";
 import AuditThanksPage from "../../(site)/audit/thanks/page";
@@ -23,6 +24,7 @@ type Page = (props: { searchParams?: Promise<Record<string, string | string[] | 
 
 const pages: Record<string, Page> = {
   "/": Home,
+  "/about": AboutPage,
   "/audit": AuditPage,
   "/audit/thanks": AuditThanksPage,
   "/call": CallPage,

@@ -21,9 +21,24 @@
   overflow: hidden;
   min-height: min(960px, 92dvh);
   background:
-    radial-gradient(65% 90% at 77% 42%, rgb(229 25 42 / 34%) 0%, rgb(120 7 19 / 22%) 42%, transparent 74%),
-    radial-gradient(55% 60% at 13% 108%, rgb(240 201 23 / 8%) 0%, transparent 67%),
-    linear-gradient(180deg, #160306 0%, var(--footer-deep) 17%, #5b0712 62%, #260308 100%);
+    radial-gradient(
+      65% 90% at 77% 42%,
+      rgb(229 25 42 / 34%) 0%,
+      rgb(120 7 19 / 22%) 42%,
+      transparent 74%
+    ),
+    radial-gradient(
+      55% 60% at 13% 108%,
+      rgb(240 201 23 / 8%) 0%,
+      transparent 67%
+    ),
+    linear-gradient(
+      180deg,
+      #160306 0%,
+      var(--footer-deep) 17%,
+      #5b0712 62%,
+      #260308 100%
+    );
 }
 
 .atmosphere {
@@ -32,7 +47,8 @@
   z-index: 0;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgb(255 255 255 / 3%) 1px, transparent 1px) 0 0 / clamp(84px, 8vw, 144px) 100%,
+    linear-gradient(90deg, rgb(255 255 255 / 3%) 1px, transparent 1px) 0 0 /
+      clamp(84px, 8vw, 144px) 100%,
     radial-gradient(circle at 50% 0%, rgb(255 255 255 / 6%), transparent 30%);
   mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 100%);
   opacity: 0.48;
@@ -44,7 +60,8 @@
   width: min(100%, 1680px);
   min-height: inherit;
   margin-inline: auto;
-  padding: clamp(92px, 10vw, 164px) clamp(20px, 5.2vw, 88px) clamp(42px, 4vw, 72px);
+  padding: clamp(92px, 10vw, 164px) clamp(20px, 5.2vw, 88px)
+    clamp(42px, 4vw, 72px);
   display: flex;
   flex-direction: column;
 }
@@ -285,7 +302,11 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, rgb(247 244 239 / 38%), rgb(247 244 239 / 8%));
+  background: linear-gradient(
+    90deg,
+    rgb(247 244 239 / 38%),
+    rgb(247 244 239 / 8%)
+  );
 }
 
 .directoryBrand,
@@ -466,14 +487,22 @@
 
   .finale {
     background:
-      radial-gradient(88% 58% at 82% 32%, rgb(229 25 42 / 36%) 0%, transparent 72%),
+      radial-gradient(
+        88% 58% at 82% 32%,
+        rgb(229 25 42 / 36%) 0%,
+        transparent 72%
+      ),
       linear-gradient(180deg, #160306 0%, #4b0610 55%, #240307 100%);
   }
 
   .atmosphere {
     opacity: 0.32;
-    background:
-      linear-gradient(90deg, rgb(255 255 255 / 3%) 1px, transparent 1px) 0 0 / 72px 100%;
+    background: linear-gradient(
+        90deg,
+        rgb(255 255 255 / 3%) 1px,
+        transparent 1px
+      )
+      0 0 / 72px 100%;
   }
 
   .finaleInner {
@@ -666,5 +695,68 @@
   .primaryCta:hover .ctaIcon,
   .footerLink:hover .linkArrow {
     transform: none;
+  }
+}
+
+/* About shares the directory and lion identity, with one quiet editorial close. */
+.aboutFooter {
+  background: var(--site-surface-dark);
+}
+.aboutFinale {
+  background: var(--site-surface-dark);
+  min-height: auto;
+}
+.aboutFinale .lionBase {
+  opacity: 0.2;
+}
+.aboutFinale .lionSpotlight,
+.aboutFinale .atmosphere {
+  display: none;
+}
+.aboutFinale .eyebrow {
+  color: #b9b2a7;
+}
+.aboutStatement {
+  max-width: 16ch;
+  margin: 0;
+  font-family: var(--font-clash-display), sans-serif;
+  font-size: clamp(2.7rem, 6.5vw, 6rem);
+  font-weight: 500;
+  line-height: 1.03;
+  letter-spacing: -0.05em;
+  text-wrap: balance;
+}
+.aboutBody {
+  max-width: 49ch;
+  margin: 0;
+  font-family: var(--font-clash-display), sans-serif;
+  font-size: 18px;
+  line-height: 1.7;
+  color: #c7c1b7;
+}
+.aboutFinale .actionRow {
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.aboutFinale .coordinates {
+  font-size: 10px;
+}
+@media (max-width: 640px) {
+  .aboutFinale .metaRow {
+    align-items: start;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .aboutBody {
+    font-size: 16px;
+  }
+  .aboutFinale .actionRow {
+    align-items: start;
+  }
+  .aboutFinale .primaryCta {
+    white-space: normal;
+    line-height: 1.35;
+    height: auto;
+    min-height: 56px;
   }
 }

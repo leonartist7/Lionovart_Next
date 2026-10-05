@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { locales } from "@/lib/i18n";
 import { OG_IMAGE, SITE, SITE_URL } from "@/lib/seo/config";
 import { LOCALES, type Locale } from "@/i18n/routing";
 
@@ -39,7 +40,9 @@ export function getLocalizedPageMetadata(locale: Locale, pathname: string): Meta
   const urlPath = localizedPath(locale, path);
   // The parent layout applies the site title template. Keeping this as the
   // page label avoids a duplicated “| LIONOVART” in the browser title.
-  const pageTitle = PAGE_LABELS[locale][path] ?? SITE.name;
+  const about = path === "/about" ? locales[locale].aboutPage : undefined;
+  const description = about?.metaDescription ?? DESCRIPTION[locale];
+  const pageTitle = about?.metaTitle ?? PAGE_LABELS[locale][path] ?? SITE.name;
   const isEnglishHome = locale === "en" && path === "/";
   const title = isEnglishHome ? { absolute: SITE.title } : pageTitle;
   const socialTitle = isEnglishHome ? SITE.title : `${pageTitle} | ${SITE.name}`;
@@ -47,17 +50,17 @@ export function getLocalizedPageMetadata(locale: Locale, pathname: string): Meta
 
   return {
     title,
-    description: DESCRIPTION[locale],
+    description,
     alternates: { canonical: urlPath, languages },
     openGraph: {
       title: socialTitle,
-      description: DESCRIPTION[locale],
+      description,
       url: `${SITE_URL}${urlPath === "/" ? "" : urlPath}`,
       siteName: SITE.name,
       locale: OPEN_GRAPH_LOCALE[locale],
       type: "website",
-      images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: SITE.name }],
+      images: [{ url: about ? "/images/about-social.jpg" : OG_IMAGE, width: 1200, height: 630, alt: SITE.name }],
     },
-    twitter: { card: "summary_large_image", title: socialTitle, description: DESCRIPTION[locale], images: [OG_IMAGE] },
+    twitter: { card: "summary_large_image", title: socialTitle, description, images: [about ? "/images/about-social.jpg" : OG_IMAGE] },
   };
 }

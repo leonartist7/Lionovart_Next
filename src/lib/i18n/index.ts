@@ -15,7 +15,19 @@ export { LOCALES, type Locale } from "@/i18n/routing";
  * only as a one-time migration source and must not be edited for new copy.
  */
 const deployable = <T>(locale: Exclude<Locale, "en">, messages: T): T =>
-  reviewStatus[locale]?.status === "approved" ? messages : en as T;
+  reviewStatus[locale]?.status === "approved"
+    ? messages
+    : ({
+        ...en,
+        // Newly implemented editorial copy is reviewed separately from legacy copy.
+        ...Object.fromEntries(
+          (reviewStatus[locale]?.approvedSections ?? []).map((key) => [
+            key,
+            (messages as Record<string, unknown>)[key] ??
+              (en as Record<string, unknown>)[key],
+          ]),
+        ),
+      } as T);
 
 export const locales: Record<Locale, typeof en> = {
   en,
@@ -26,4 +38,4 @@ export const locales: Record<Locale, typeof en> = {
   ko: deployable("ko", ko) as typeof en,
 };
 
-export type { Translations } from "./locales/en";
+export type Translations = typeof en;

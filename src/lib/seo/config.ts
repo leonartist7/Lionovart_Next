@@ -120,6 +120,7 @@ export const SERVICES: ServiceDef[] = [
 
 /** Static, indexable routes for the sitemap. Service slugs are appended. */
 export const STATIC_ROUTES = [
+  { path: "/about", changeFrequency: "monthly" as const, priority: 0.7 },
   { path: "/", changeFrequency: "weekly" as const, priority: 1.0 },
   { path: "/services", changeFrequency: "monthly" as const, priority: 0.9 },
   { path: "/privacy", changeFrequency: "yearly" as const, priority: 0.2 },

@@ -11,20 +11,22 @@ const NOVA_KNOWLEDGE = {
     name: "Leonardo",
     nickname: "Leon",
     short:
-      "Leonardo (Leon) leads LIONOVART personally — he's a creative director and brand strategist who founded the studio because he was tired of agencies treating clients like invoices.",
+      "Leonardo (Leon) is the founder and creative director of LIONOVART. He brings the thinking and making closer together, leading a shared creative direction across the agreed project.",
     credibility:
-      "Hands-on with every partner, designs alongside the team, takes the strategy calls himself.",
+      "A direct creative relationship with Leonardo. Scope, responsibilities and specialist partners are defined around the brief.",
   },
 
   brand: {
     name: "LIONOVART",
     tagline: "Brands that command attention and trust.",
     positioning:
-      "A premium creative agency for founders and growing brands who want their visual story to match the value they actually deliver.",
-    base: "Calgary, Canada — working with partners across North America.",
+      "A brand innovation and experience studio connecting identity, films, digital products, intelligent systems and live experiences.",
+    base: "Serving projects across Europe and North America.",
   },
 
   philosophy: {
+    connected_direction: "One idea. Felt everywhere. LION means presence and purpose, NOVA brings useful innovation and intelligence, and ART brings emotion and craft.",
+    live_experiences: "LIONOVART shapes event concepts, guest journeys and spatial/audiovisual direction, coordinating specialist production partners as the project requires. Equipment, permits and regulated technical delivery are not implied studio capabilities.",
     modular_subscriptions:
       "We work in modular subscriptions instead of one-off invoices — like Netflix or Spotify, but for the parts of growth that matter most for where you are right now. You can scale up, scale down, or pause without starting over.",
     partnership_model:
@@ -211,16 +213,20 @@ const NOVA_KNOWLEDGE = {
 
   // Section IDs Nova can scroll the user to via scroll_to_section tool.
   page_sections: [
-    { id: "hero", label: "the hero / intro" },
-    { id: "about", label: "about us" },
-    { id: "showcase", label: "the showcase reel" },
-    { id: "problems", label: "the problems we solve" },
-    { id: "services", label: "services" },
-    { id: "portfolio", label: "portfolio / our work" },
-    { id: "process", label: "our process" },
-    { id: "comparison", label: "us vs other agencies" },
-    { id: "testimonials", label: "testimonials" },
-    { id: "faq", label: "frequently asked questions" },
+    { id: "hero", label: "the hero / intro", path: "/" },
+    { id: "about", label: "About LIONOVART", path: "/about" },
+    { id: "founder", label: "Leonardo, founder and creative director", path: "/about" },
+    { id: "philosophy", label: "One idea. Felt everywhere.", path: "/about" },
+    { id: "lion-nova-art", label: "LION / NOVA / ART philosophy", path: "/about" },
+    { id: "working-together", label: "the creative relationship", path: "/about" },
+    { id: "working-models", label: "illustrative working models", path: "/about" },
+    { id: "problems", label: "the problems we solve", path: "/" },
+    { id: "services", label: "services", path: "/" },
+    { id: "portfolio", label: "selected work", path: "/" },
+    { id: "process", label: "our process", path: "/" },
+    { id: "comparison", label: "the connected creative approach", path: "/" },
+    { id: "testimonials", label: "client results", path: "/" },
+    { id: "faq", label: "frequently asked questions", path: "/" },
   ],
 };
 

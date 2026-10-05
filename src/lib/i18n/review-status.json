@@ -1,8 +1,47 @@
 {
-  "en": { "status": "approved", "reviewedBy": "source", "reviewedAt": "2026-09-18" },
-  "fr": { "status": "review-required" },
-  "es": { "status": "review-required" },
-  "it": { "status": "review-required" },
-  "ja": { "status": "review-required" },
-  "ko": { "status": "review-required" }
+  "en": {
+    "status": "approved",
+    "reviewedBy": "source",
+    "reviewedAt": "2026-09-18"
+  },
+  "fr": {
+    "status": "review-required",
+    "approvedSections": [
+      "aboutPage",
+      "compactComparison",
+      "siteNavigation"
+    ]
+  },
+  "es": {
+    "status": "review-required",
+    "approvedSections": [
+      "aboutPage",
+      "compactComparison",
+      "siteNavigation"
+    ]
+  },
+  "it": {
+    "status": "review-required",
+    "approvedSections": [
+      "aboutPage",
+      "compactComparison",
+      "siteNavigation"
+    ]
+  },
+  "ja": {
+    "status": "review-required",
+    "approvedSections": [
+      "aboutPage",
+      "compactComparison",
+      "siteNavigation"
+    ]
+  },
+  "ko": {
+    "status": "review-required",
+    "approvedSections": [
+      "aboutPage",
+      "compactComparison",
+      "siteNavigation"
+    ]
+  }
 }

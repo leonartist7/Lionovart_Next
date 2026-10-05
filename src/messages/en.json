@@ -717,5 +717,157 @@
       "label": "More returning customers"
     },
     "footnote": "Actual results will identify the client, measurement period and source."
+  },
+  "siteNavigation": {
+    "about": "About",
+    "expertise": "Expertise",
+    "work": "Work",
+    "results": "Results",
+    "menu": "Toggle menu",
+    "expertiseToggle": "Toggle expertise list",
+    "skip": "Skip to content",
+    "connect": "Connect",
+    "based": "Based",
+    "worldwide": "Available worldwide",
+    "book": "Book a conversation",
+    "brand": "Brand & identity",
+    "web": "Web & platforms",
+    "film": "Film & content",
+    "experiences": "Experiences & innovation",
+    "signature": "The art of innovation.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "copyright": "All rights reserved.",
+    "legal": "Legal",
+    "portraitAlt": "Leonardo, founder and creative director of LIONOVART",
+    "start": "Start a conversation"
+  },
+  "compactComparison": {
+    "eyebrow": "The LIONOVART approach",
+    "heading": "One direction. Every touchpoint.",
+    "body": "A shared idea across the brand, content, platforms and experiences your project needs.",
+    "others": "Others",
+    "studio": "LIONOVART",
+    "qualifier": "Illustrative working models. Scope varies by provider and project.",
+    "link": "Meet LIONOVART",
+    "rows": [
+      {
+        "topic": "Creative direction",
+        "others": "May sit with several providers",
+        "studio": "One direction across the agreed work"
+      },
+      {
+        "topic": "Brand consistency",
+        "others": "Depends on coordination",
+        "studio": "A shared system for the chosen touchpoints"
+      },
+      {
+        "topic": "Creative + technical",
+        "others": "May involve separate specialists",
+        "studio": "Connected around the same brief"
+      },
+      {
+        "topic": "Collaboration",
+        "others": "Depends on the provider’s setup",
+        "studio": "A direct creative relationship with Leonardo"
+      }
+    ]
+  },
+  "aboutPage": {
+    "metaTitle": "About Leonardo & the Studio",
+    "metaDescription": "Meet Leonardo and the thinking behind LIONOVART: a brand innovation and experience studio connecting identity, film, digital products and live experiences.",
+    "eyebrow": "About LIONOVART",
+    "headline": "The mind behind the work.",
+    "intro": "LIONOVART is a brand innovation and experience studio led by Leonardo. We bring direction, design and technology together, shaping how a brand is seen, understood and experienced. On a screen. In a room. Wherever the idea needs to live.",
+    "meet": "Meet Leonardo",
+    "founderRole": "Founder & Creative Director",
+    "founderHeading": "A clear idea deserves a powerful expression.",
+    "founderParagraphs": [
+      "I built LIONOVART to bring the thinking and the making closer together. I care about the first impression, of course. But also the feeling that stays after it.",
+      "For me, a brand takes shape in the details: the rhythm of a film, the clarity of a website, the atmosphere of a room. Each one has a different language. They can still speak from the same idea.",
+      "My role is to find that idea with you, give it direction, and stay close as it becomes real. There is room for bold ambition here. And for the care it takes to do it well."
+    ],
+    "philosophyHeading": "One idea. Felt everywhere.",
+    "philosophyParagraphs": [
+      "An identity sets the tone. A film gives it movement. A website turns interest into a useful next step. Intelligent systems can keep that journey moving behind the scenes.",
+      "A live experience brings it into the room: the invitation, the arrival, the light, the sound, the moment people share. LIONOVART shapes the concept, guest journey and audiovisual direction, coordinating specialist production partners where the project calls for them.",
+      "What connects the work is the idea people encounter, and the care with which it reaches them."
+    ],
+    "expertiseLink": "Explore our expertise",
+    "brandHeading": "The art of innovation.",
+    "brandIntro": "Three instincts shape the work. Direction gives it purpose. Intelligence makes it useful. Craft gives it feeling.",
+    "pillars": [
+      {
+        "name": "LION",
+        "heading": "Presence with purpose.",
+        "body": "Start with what the brand stands for, who it speaks to, and what it wants to leave behind. Give it a direction people can recognise, and a presence that feels its own."
+      },
+      {
+        "name": "NOVA",
+        "heading": "Ideas that move things forward.",
+        "body": "A digital product, an intelligent workflow, a new way to participate. Innovation earns its place when it helps people do something, understand something, or experience something differently."
+      },
+      {
+        "name": "ART",
+        "heading": "The part people feel.",
+        "body": "Image, rhythm, typography, sound, atmosphere. Craft brings the idea into focus and gives it a character people can connect with."
+      }
+    ],
+    "brandSeam": "In a live experience, all three meet: a clear purpose, a considered journey, and a moment with feeling.",
+    "principlesHeading": "The difference is in how the work comes together.",
+    "principles": [
+      {
+        "heading": "A direct creative relationship.",
+        "body": "Work directly with Leonardo on the creative direction. Know who is leading the work, what is being decided, and where your input matters."
+      },
+      {
+        "heading": "A shared point of view.",
+        "body": "Agree the brief and the direction before the project spreads into different formats. Keep the chosen identity, story and experience connected as the work develops."
+      },
+      {
+        "heading": "Imagination with a way forward.",
+        "body": "Explore the idea alongside the realities of making it: usability, production, timing and the right specialists. Give the ambition a practical path into the world."
+      },
+      {
+        "heading": "A purpose beyond the reveal.",
+        "body": "Be clear about what the project is meant to improve. Define the next action, the handover and any agreed measurement or ongoing work within the scope."
+      }
+    ],
+    "processLink": "See how the work develops",
+    "modelsHeading": "Find the right shape of partnership.",
+    "modelsIntro": "Different projects need different ways of working. The useful question is who brings the direction, who makes the work, and how those parts stay connected.",
+    "models": [
+      {
+        "name": "LIONOVART",
+        "heading": "A connected creative direction.",
+        "body": "For a project that benefits from a shared idea across identity, film, digital products or live experience. Leonardo leads the creative relationship, with disciplines and specialist partners shaped around the agreed brief. Scope, responsibilities and timing are established for the project."
+      },
+      {
+        "name": "In-house",
+        "heading": "An embedded relationship.",
+        "body": "A dedicated team can build deep knowledge of the business and work closely with everyday decisions. Hiring, capacity and specialist expertise depend on the organisation and its needs."
+      },
+      {
+        "name": "An agency",
+        "heading": "An established team.",
+        "body": "An agency may bring multiple disciplines and a defined delivery structure. Creative access, coordination and investment vary with the team and engagement."
+      },
+      {
+        "name": "Independent specialists",
+        "heading": "Focused expertise.",
+        "body": "An independent specialist can be a strong fit for a particular discipline. A project involving several specialists benefits from a clear owner of the overall direction and coordination."
+      },
+      {
+        "name": "Tools-led",
+        "heading": "A hands-on approach.",
+        "body": "Design and AI tools can help a capable internal team explore and produce. Someone still needs to own judgment, brand consistency, production quality and the final experience."
+      }
+    ],
+    "modelsQualifier": "Illustrative working models. Scope varies by provider and project.",
+    "workLink": "See selected work",
+    "closingHeading": "Let’s make your next chapter unmistakable.",
+    "closingBody": "A clear brief or the beginning of an idea. Tell me what’s on your mind, and we’ll find the right shape for it.",
+    "closingCta": "Start a conversation",
+    "closingLabel": "Your next chapter"
   }
 }

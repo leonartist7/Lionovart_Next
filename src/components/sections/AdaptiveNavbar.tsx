@@ -11,7 +11,7 @@ import {
   useTransform,
 } from "framer-motion";
 import Image from "next/image";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { useLenis } from "lenis/react";
 import { Menu, X } from "lucide-react";
 import { getWhatsAppUrl } from "@/lib/contact";
@@ -30,17 +30,27 @@ const CARD_VARIANTS = {
   hidden: {
     opacity: 0,
     height: 0,
-    transition: { duration: 0.32, ease: "easeInOut" as const, when: "afterChildren" as const },
+    transition: {
+      duration: 0.32,
+      ease: "easeInOut" as const,
+      when: "afterChildren" as const,
+    },
   },
   show: {
     opacity: 1,
     height: "auto" as const,
-    transition: { duration: 0.26, ease: "easeOut" as const, when: "beforeChildren" as const },
+    transition: {
+      duration: 0.26,
+      ease: "easeOut" as const,
+      when: "beforeChildren" as const,
+    },
   },
 };
 
 const STAGGER_VARIANTS = {
-  hidden: { transition: { staggerChildren: 0.045, staggerDirection: 1 as const } },
+  hidden: {
+    transition: { staggerChildren: 0.045, staggerDirection: 1 as const },
+  },
   show: { transition: { staggerChildren: 0.045, delayChildren: 0.025 } },
 };
 
@@ -70,8 +80,16 @@ const FLAT_LIST_VARIANTS = {
 };
 
 const SERVICE_ITEM_VARIANTS = {
-  hidden: { opacity: 0, y: -5, transition: { duration: 0.24, ease: "easeInOut" as const } },
-  show: { opacity: 1, y: 0, transition: { duration: 0.22, ease: "easeOut" as const } },
+  hidden: {
+    opacity: 0,
+    y: -5,
+    transition: { duration: 0.24, ease: "easeInOut" as const },
+  },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.22, ease: "easeOut" as const },
+  },
 };
 
 const REDUCED_CARD_VARIANTS = {
@@ -95,12 +113,14 @@ function LightweightMenuToggle({
   isOpen: boolean;
   onToggle: () => void;
 }) {
+  const { t } = useLanguage();
   return (
     <button
       type="button"
       onClick={onToggle}
       aria-expanded={isOpen}
-      aria-label="Toggle menu"
+      data-menu-toggle
+      aria-label={t.siteNavigation.menu}
       className="relative z-[60] flex min-h-11 min-w-11 touch-manipulation items-center justify-center rounded-lg transition-transform duration-150 active:scale-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80 motion-reduce:transition-none"
     >
       {isOpen ? (
@@ -112,7 +132,9 @@ function LightweightMenuToggle({
   );
 }
 
-export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps) {
+export default function AdaptiveNavbar({
+  lightweightMenu = false,
+}: NavbarProps) {
   const { released } = useIntroLifecycle();
   const introHeader = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -131,18 +153,46 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
   const navTop = useTransform(scrollY, [0, 40], [40, 0]);
   const navChromeOpacity = useTransform(scrollY, [GLASS_THRESHOLD, 96], [0, 1]);
   const motionPreference = useReducedMotion();
-  const hydrated = useSyncExternalStore(() => () => {}, () => true, () => false);
+  const hydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
   const reducedMotion = hydrated && Boolean(motionPreference);
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  const pathname = usePathname();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lenis = useLenis() as any;
 
-  const services: string[] = (t.services?.items ?? []).map((service: { title: string }) => service.title);
+  const services: string[] =
+    pathname === "/about"
+      ? [
+          t.siteNavigation.brand,
+          t.siteNavigation.web,
+          t.siteNavigation.film,
+          t.siteNavigation.experiences,
+        ]
+      : (t.services?.items ?? []).map(
+          (service: { title: string }) => service.title,
+        );
   const navLinks = [
-    { label: t.nav.we, target: "about" },
-    { label: t.nav.expertise, target: "services", hasDropdown: true },
-    { label: t.nav.work, target: "work" },
-    { label: t.nav.results, target: "testimonials" },
+    { label: t.siteNavigation.about, target: "about", href: "/about" },
+    {
+      label: t.siteNavigation.expertise,
+      target: "services",
+      href: "/#services",
+      hasDropdown: true,
+    },
+    {
+      label: t.siteNavigation.work,
+      target: "selected-work",
+      href: "/#selected-work",
+    },
+    {
+      label: t.siteNavigation.results,
+      target: "client-experience",
+      href: "/#client-experience",
+    },
   ];
   const ctaLabel = t.nav.cta;
   const useLightweightMenu = lightweightMenu || reducedMotion;
@@ -179,11 +229,23 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
   };
 
   const scrollToTarget = (target: string) => {
-    const element = document.querySelector<HTMLElement>(`[data-nova-section="${target}"], #${target}`);
+    if (pathname !== "/") {
+      window.location.assign(
+        `${locale === "en" ? "" : `/${locale}`}/#${target}`,
+      );
+      return;
+    }
+    const element = document.querySelector<HTMLElement>(
+      `[data-nova-section="${target}"], #${target}`,
+    );
     if (!element) return;
 
     if (lenis?.scrollTo) lenis.scrollTo(element, { offset: SCROLL_OFFSET });
-    else element.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    else
+      element.scrollIntoView({
+        behavior: reducedMotion ? "auto" : "smooth",
+        block: "start",
+      });
 
     setIsMobileOpen(false);
     setMobileExpertiseOpen(false);
@@ -231,7 +293,8 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
   }, [scrollY]);
 
   useEffect(() => {
-    if (isMobileOpen || expertiseOpen || mobileExpertiseOpen) setNavVisible(true);
+    if (isMobileOpen || expertiseOpen || mobileExpertiseOpen)
+      setNavVisible(true);
   }, [isMobileOpen, expertiseOpen, mobileExpertiseOpen]);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
@@ -241,7 +304,13 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
 
     syncThresholdState(latest);
 
-    if (latest <= 64 || isMobileOpenRef.current || navFocusedRef.current || expertiseOpen || mobileExpertiseOpen) {
+    if (
+      latest <= 64 ||
+      isMobileOpenRef.current ||
+      navFocusedRef.current ||
+      expertiseOpen ||
+      mobileExpertiseOpen
+    ) {
       directionStartRef.current = latest;
       setNavVisible(true);
       return;
@@ -249,27 +318,57 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
 
     // A fresh direction starts a new distance measurement. Small touchpad and
     // touch-scroll oscillations cannot repeatedly flash the navigation.
-    if ((delta > 0 && directionStartRef.current > latest) || (delta < 0 && directionStartRef.current < latest)) {
+    if (
+      (delta > 0 && directionStartRef.current > latest) ||
+      (delta < 0 && directionStartRef.current < latest)
+    ) {
       directionStartRef.current = previous;
     }
-    if (delta > 0 && latest - directionStartRef.current >= NAV_HIDE_DELTA) setNavVisible(false);
-    if (delta < 0 && directionStartRef.current - latest >= NAV_REVEAL_DELTA) setNavVisible(true);
+    if (delta > 0 && latest - directionStartRef.current >= NAV_HIDE_DELTA)
+      setNavVisible(false);
+    if (delta < 0 && directionStartRef.current - latest >= NAV_REVEAL_DELTA)
+      setNavVisible(true);
   });
 
   const heroMode = !isPastHero;
   const cardVariants = reducedMotion ? REDUCED_CARD_VARIANTS : CARD_VARIANTS;
-  const flatListVariants = reducedMotion ? REDUCED_CARD_VARIANTS : FLAT_LIST_VARIANTS;
-  const itemVariants = reducedMotion ? REDUCED_ITEM_VARIANTS : SERVICE_ITEM_VARIANTS;
+  const flatListVariants = reducedMotion
+    ? REDUCED_CARD_VARIANTS
+    : FLAT_LIST_VARIANTS;
+  const itemVariants = reducedMotion
+    ? REDUCED_ITEM_VARIANTS
+    : SERVICE_ITEM_VARIANTS;
 
   return (
     <motion.div
       className="fixed left-0 right-0 z-50 flex justify-center px-3"
       style={{ top: navTop }}
       animate={{ y: isVisible ? 0 : "-120%" }}
-      transition={{ duration: reducedMotion ? 0 : 0.32, ease: [0.4, 0, 0.2, 1] }}
-      onFocusCapture={() => { navFocusedRef.current = true; setNavVisible(true); }}
+      transition={{
+        duration: reducedMotion ? 0 : 0.32,
+        ease: [0.4, 0, 0.2, 1],
+      }}
+      onKeyDownCapture={(event) => {
+        if (event.key !== "Escape") return;
+        if (isMobileOpen || expertiseOpen || mobileExpertiseOpen) {
+          event.preventDefault();
+          setIsMobileOpen(false);
+          setExpertiseOpen(false);
+          setMobileExpertiseOpen(false);
+          introHeader.current
+            ?.querySelector<HTMLButtonElement>(
+              "[data-menu-toggle], button[aria-label='Toggle menu']",
+            )
+            ?.focus();
+        }
+      }}
+      onFocusCapture={() => {
+        navFocusedRef.current = true;
+        setNavVisible(true);
+      }}
       onBlurCapture={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) navFocusedRef.current = false;
+        if (!event.currentTarget.contains(event.relatedTarget))
+          navFocusedRef.current = false;
       }}
     >
       <div
@@ -295,7 +394,10 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
           />
 
           <div className="relative mx-auto flex w-full items-center justify-between px-3.5 py-1.5 sm:px-4 xl:px-6 xl:py-2">
-            <Link href="/" className="relative z-40 inline-flex shrink-0 items-center">
+            <Link
+              href="/"
+              className="relative z-40 inline-flex shrink-0 items-center"
+            >
               <Image
                 src="/images/Icon.avif"
                 alt="Lionovart home"
@@ -326,21 +428,43 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
                   key="desktop-links"
                   className="hidden flex-1 items-center justify-start pl-[3.5rem] xl:flex"
                   initial={{ opacity: 1 }}
-                  exit={{ opacity: 0, transition: { duration: reducedMotion ? 0 : 0.18 } }}
+                  exit={{
+                    opacity: 0,
+                    transition: { duration: reducedMotion ? 0 : 0.18 },
+                  }}
                 >
                   <ul className="flex items-center justify-start gap-7 2xl:gap-8">
                     {navLinks.map((link) => (
                       <li
                         key={link.target}
                         className="relative"
-                        onMouseEnter={link.hasDropdown ? openExpertise : undefined}
-                        onMouseLeave={link.hasDropdown ? scheduleCloseExpertise : undefined}
+                        onMouseEnter={
+                          link.hasDropdown ? openExpertise : undefined
+                        }
+                        onMouseLeave={
+                          link.hasDropdown ? scheduleCloseExpertise : undefined
+                        }
                       >
-                        <button
-                          type="button"
-                          onClick={() => scrollToTarget(link.target)}
-                          aria-expanded={link.hasDropdown ? expertiseOpen : undefined}
-                          className="group relative flex items-center gap-1 text-[13px] font-semibold uppercase tracking-[0.15em] text-white/90 transition-colors hover:text-white"
+                        <Link
+                          href={link.href}
+                          aria-current={
+                            link.target === "about" && pathname === "/about"
+                              ? "page"
+                              : undefined
+                          }
+                          onClick={(event) => {
+                            setIsMobileOpen(false);
+                            setMobileExpertiseOpen(false);
+                            setExpertiseOpen(false);
+                            if (link.target !== "about" && pathname === "/") {
+                              event.preventDefault();
+                              scrollToTarget(link.target);
+                            }
+                          }}
+                          aria-expanded={
+                            link.hasDropdown ? expertiseOpen : undefined
+                          }
+                          className="group relative flex min-h-11 items-center gap-1 aria-[current=page]:underline aria-[current=page]:underline-offset-8 text-[13px] font-semibold uppercase tracking-[0.15em] text-white/90 transition-colors hover:text-white"
                         >
                           {link.label}
                           {link.hasDropdown && (
@@ -360,7 +484,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
                             </svg>
                           )}
                           <span className="absolute -bottom-1.5 left-0 h-[2px] w-full origin-left scale-x-0 bg-white transition-transform duration-300 group-hover:scale-x-100 motion-reduce:transition-none" />
-                        </button>
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -369,7 +493,6 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
             </AnimatePresence>
 
             <div className="flex flex-1 items-center justify-end gap-2 xl:gap-5">
-
               <AnimatePresence initial={false}>
                 {heroMode && (
                   <motion.div
@@ -435,40 +558,76 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
         <AnimatePresence>
           {isMobileOpen && (
             <motion.div
-              initial={reducedMotion ? { opacity: 0 } : { y: "-100%", opacity: 0.98 }}
+              initial={
+                reducedMotion ? { opacity: 0 } : { y: "-100%", opacity: 0.98 }
+              }
               animate={{ y: 0, opacity: 1 }}
-              exit={reducedMotion ? { opacity: 0 } : { y: "-100%", opacity: 0.98 }}
-              transition={{ duration: reducedMotion ? 0 : 0.3, ease: [0.4, 0, 0.2, 1] }}
+              exit={
+                reducedMotion ? { opacity: 0 } : { y: "-100%", opacity: 0.98 }
+              }
+              transition={{
+                duration: reducedMotion ? 0 : 0.3,
+                ease: [0.4, 0, 0.2, 1],
+              }}
               className={`absolute top-0 -z-10 ${styles.menuPanel} ${styles.panelGlass}`}
             >
-
               <nav className="flex flex-col items-center justify-center gap-5 px-6 pb-8 pt-[78px] xl:flex-row xl:gap-x-6 xl:pt-[84px]">
                 {navLinks.map((link, index) => (
                   <motion.div
                     key={link.target}
-                    initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
-                    animate={released ? { opacity: 1, y: 0 } : { opacity: 0, y: -14 }}
+                    initial={
+                      reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }
+                    }
+                    animate={
+                      released ? { opacity: 1, y: 0 } : { opacity: 0, y: -14 }
+                    }
                     exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
-                    transition={{ duration: reducedMotion ? 0 : 0.18, delay: reducedMotion ? 0 : index * 0.045 }}
+                    transition={{
+                      duration: reducedMotion ? 0 : 0.18,
+                      delay: reducedMotion ? 0 : index * 0.045,
+                    }}
                     className="flex flex-col items-center"
-                    onMouseEnter={link.hasDropdown ? () => setMobileExpertiseOpen(true) : undefined}
-                    onMouseLeave={link.hasDropdown ? () => setMobileExpertiseOpen(false) : undefined}
+                    onMouseEnter={
+                      link.hasDropdown
+                        ? () => setMobileExpertiseOpen(true)
+                        : undefined
+                    }
+                    onMouseLeave={
+                      link.hasDropdown
+                        ? () => setMobileExpertiseOpen(false)
+                        : undefined
+                    }
                   >
                     <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => scrollToTarget(link.target)}
-                        className="group relative flex items-center whitespace-nowrap py-1.5 text-[15px] font-semibold uppercase tracking-[0.12em] text-black/70 transition-colors hover:text-black"
+                      <Link
+                        href={link.href}
+                        aria-current={
+                          link.target === "about" && pathname === "/about"
+                            ? "page"
+                            : undefined
+                        }
+                        onClick={(event) => {
+                          setIsMobileOpen(false);
+                          setMobileExpertiseOpen(false);
+                          setExpertiseOpen(false);
+                          if (link.target !== "about" && pathname === "/") {
+                            event.preventDefault();
+                            scrollToTarget(link.target);
+                          }
+                        }}
+                        className="group relative flex min-h-11 items-center whitespace-nowrap py-1.5 aria-[current=page]:underline aria-[current=page]:underline-offset-8 text-[15px] font-semibold uppercase tracking-[0.12em] text-black/70 transition-colors hover:text-black"
                       >
                         {link.label}
                         <span className="absolute bottom-0 left-0 right-0 h-[1.5px] origin-left scale-x-0 bg-black/70 transition-transform duration-200 group-hover:scale-x-100 motion-reduce:transition-none" />
-                      </button>
+                      </Link>
 
                       {link.hasDropdown && (
                         <button
                           type="button"
-                          onClick={() => setMobileExpertiseOpen((value) => !value)}
-                          aria-label="Toggle expertise list"
+                          onClick={() =>
+                            setMobileExpertiseOpen((value) => !value)
+                          }
+                          aria-label={t.siteNavigation.expertiseToggle}
                           aria-expanded={mobileExpertiseOpen}
                           className="flex min-h-11 min-w-11 items-center justify-center text-black/60 transition-colors hover:text-black"
                         >
@@ -517,8 +676,12 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
                 ))}
 
                 <motion.div
-                  initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
-                  animate={released ? { opacity: 1, y: 0 } : { opacity: 0, y: -14 }}
+                  initial={
+                    reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }
+                  }
+                  animate={
+                    released ? { opacity: 1, y: 0 } : { opacity: 0, y: -14 }
+                  }
                   exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
                   transition={{
                     duration: reducedMotion ? 0 : 0.2,
@@ -536,8 +699,12 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
                 </motion.div>
 
                 <motion.div
-                  initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
-                  animate={released ? { opacity: 1, y: 0 } : { opacity: 0, y: -14 }}
+                  initial={
+                    reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }
+                  }
+                  animate={
+                    released ? { opacity: 1, y: 0 } : { opacity: 0, y: -14 }
+                  }
                   exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
                   transition={{
                     duration: reducedMotion ? 0 : 0.18,
@@ -547,7 +714,6 @@ export default function AdaptiveNavbar({ lightweightMenu = false }: NavbarProps)
                 >
                   <LanguageSwitcher isHeroMode={false} inMenu />
                 </motion.div>
-
               </nav>
             </motion.div>
           )}

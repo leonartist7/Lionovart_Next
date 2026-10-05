@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useCallback, type RefObject } from "react"
 import type { HandoffData, SessionState, LeadFieldKey } from "@/lib/strategist-config";
 import { trackNovaEvent, NOVA_EVENT } from "@/lib/nova-events";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useRouter } from "@/i18n/navigation";
+import { publicPath, resolveSectionDestination } from "@root/nova-brain/section-destinations";
 
 export interface LeadData {
   name: string;
@@ -79,13 +81,26 @@ function base64ToInt16Array(base64: string) {
   return new Int16Array(bytes.buffer);
 }
 
-/** Smooth-scroll to a [data-nova-section="<id>"] element on the page. */
-function scrollToNovaSection(sectionId: string): boolean {
+/** Navigate first, then report success only after the destination is rendered. */
+async function scrollToNovaSection(sectionId: string, navigate: (href: string) => void): Promise<boolean> {
   if (typeof document === "undefined") return false;
-  const target = document.querySelector(`[data-nova-section="${sectionId}"], #${sectionId}`);
-  if (!target) return false;
-  target.scrollIntoView({ behavior: "smooth", block: "start" });
-  return true;
+  const destination = resolveSectionDestination(sectionId, window.location.pathname);
+  if (!destination) return false;
+  if (publicPath(window.location.pathname) !== destination.pathname) {
+    navigate(`${destination.pathname}#${destination.target}`);
+  }
+  const deadline = Date.now() + 8000;
+  while (Date.now() < deadline) {
+    if (publicPath(window.location.pathname) === destination.pathname) {
+      const target = document.getElementById(destination.target) ?? document.querySelector(`[data-nova-section="${destination.target}"]`);
+      if (target) {
+        target.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+        return true;
+      }
+    }
+    await new Promise(resolve => window.setTimeout(resolve, 50));
+  }
+  return false;
 }
 
 export function useStrategistSession({
@@ -94,6 +109,7 @@ export function useStrategistSession({
   onClose: () => void;
 }): UseStrategistSessionReturn {
   const { locale } = useLanguage();
+  const router = useRouter();
   const [isSessionActive, setIsSessionActive] = useState(false);
   const [state, setState] = useState<SessionState>("idle");
   const [leadData, setLeadData] = useState<LeadData>(EMPTY_LEAD);
@@ -834,17 +850,14 @@ export function useStrategistSession({
               }
             } else if (call.name === "scroll_to_section") {
               const sectionId = (call.args as { section_id: string }).section_id;
-              const ok = scrollToNovaSection(sectionId);
+              const navigation = scrollToNovaSection(sectionId, (href) => router.push(href, { scroll: false }));
               if (call.id) {
-                toolPromises.push(
-                  Promise.resolve({
-                    id: call.id,
-                    name: call.name,
-                    response: ok
-                      ? { ok: true, section: sectionId }
-                      : { ok: false, error: "Section not found on this page." },
-                  }),
-                );
+                toolPromises.push(navigation.then((ok) => ({
+                  id: call.id, name: call.name,
+                  response: ok ? { ok: true, section: sectionId } : { ok: false, error: "Section destination could not be opened." },
+                })));
+              } else {
+                await navigation;
               }
             } else if (call.name === "show_handoff_cards") {
               const { whatsapp_url, booking_url, summary_message, booking_confirmed, booking_time_label } =
@@ -1009,7 +1022,7 @@ export function useStrategistSession({
       );
       stopSession();
     }
-  }, [stopSession]);
+  }, [stopSession, locale, router]);
 
   useEffect(() => {
     return () => {

@@ -14,7 +14,7 @@ export interface NovaKnowledge {
   value_bombs: string[];
   faq: Array<{ q: string; a: string }>;
   call_offer: { duration_min: number; framing: string; description: string; cta_phrasing: string[] };
-  page_sections: Array<{ id: string; label: string }>;
+  page_sections: Array<{ id: string; label: string; path: string }>;
 }
 
 export const NOVA_KNOWLEDGE: NovaKnowledge;

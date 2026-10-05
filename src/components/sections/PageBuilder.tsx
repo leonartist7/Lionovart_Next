@@ -3,7 +3,6 @@ import LionJourney from "@/components/sections/lion-journey/LionJourney";
 import StrongTogetherTransition from "@/components/sections/StrongTogetherTransition";
 import BridgeStatement from "@/components/sections/BridgeStatement";
 
-import AboutExperience from "@/components/sections/AboutExperience";
 import PawRevealStack from "@/components/sections/PawRevealStack";
 import ServicesSwitcher from "@/components/sections/ServicesSwitcher";
 import SelectedWork from "@/components/sections/SelectedWork";
@@ -47,11 +46,9 @@ export function PageBuilder() {
         <NovaSection id="problems"><PawRevealStack /></NovaSection>
         <SelectedWork />
         <NovaSection id="services"><ServicesSwitcher /></NovaSection>
-        {/* Introduce the people behind the work before showing the comparison. */}
-        <NovaSection id="about"><AboutExperience /></NovaSection>
         <NovaSection id="comparison"><Comparison /></NovaSection>
 
-        {/* Narrative order: About -> Why Us -> Brands Elevated/results -> Process. */}
+        {/* Narrative order: Services -> compact comparison -> results -> Process. */}
         <div id="client-experience">
           <NovaSection id="testimonials"><Testimonials /><ClientResults /></NovaSection>
         </div>
