@@ -1,3 +1,5 @@
+import { getLocale } from "next-intl/server";
+import { getPublicCopy } from "@/lib/i18n/public-copy";
 import { HeroCompositionProvider } from "./hero-background/HeroComposition";
 import HeroBackground from "@/components/sections/hero-background/HeroBackground";
 import HeroOpening from "@/components/sections/lion-journey/HeroOpening";
@@ -30,7 +32,8 @@ function NovaSection({ id, children }: { id: string; children: React.ReactNode }
 }
 
 /** Static landing layout — CMS block map removed (unused; restore from git if needed). */
-export function PageBuilder() {
+export async function PageBuilder() {
+  const tr = getPublicCopy(await getLocale());
   return (
     <TrailAttractionProvider>
       <ExitIntentModal />
@@ -58,7 +61,7 @@ export function PageBuilder() {
         <NovaSection id="process"><ProcessExperience /></NovaSection>
 
         <SectionTitleCard
-          word="ANSWERS."
+          word={tr("ANSWERS.")}
           theme="dark"
           height="10vh"
           fontSize="clamp(3.75rem, 8.5vw, 7.5rem)"

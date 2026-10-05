@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useInView } from "framer-motion";
 import { ImageStreamHero } from "@/components/ui/image-stream-hero";
@@ -29,6 +31,7 @@ const getHidden = () => document.hidden;
 const getServerHidden = () => true;
 
 function CompactClosing({ words, onStart }: { words: Word[]; onStart: () => void }) {
+  const tr = usePublicCopy();
   const { t, locale } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -63,13 +66,9 @@ function CompactClosing({ words, onStart }: { words: Word[]; onStart: () => void
   return (
     <section id="closing-cta" ref={sectionRef} className={styles.section} data-art-directed="light" data-scroll-title-skip>
       <div className={styles.copy}>
-        <p className={`${styles.accent} ${locale === "ja" || locale === "ko" ? "font-body" : "editorial-accent"}`}>
-          Your next chapter, together
-        </p>
+        <p className={`${styles.accent} ${locale === "ja" || locale === "ko" ? "font-body" : "editorial-accent"}`}>{tr("Your next chapter, together")}</p>
         <HeroCycling variant="closing" staticText={t.hero.staticText} words={words} staticColor="#171412" cyclingColor="#171412" paused={paused} />
-        <p className={styles.description}>
-          Bring your ambition. We will shape the identity, experiences and systems to carry it forward.
-        </p>
+        <p className={styles.description}>{tr("Bring your ambition. We will shape the identity, experiences and systems to carry it forward.")}</p>
       </div>
       <div ref={stageRef} className={styles.stage} data-closing-stage>
         <div className={styles.media} aria-hidden="true">
@@ -77,7 +76,7 @@ function CompactClosing({ words, onStart }: { words: Word[]; onStart: () => void
         </div>
         <div className={styles.action}>
           <TrailAttractionTarget>
-            <LiquidMetalButton label={"Start\nyour brand"} stackedLabel width={172} height={172} paused={paused} onClick={onStart} />
+            <LiquidMetalButton label={tr("Start\nyour brand")} stackedLabel width={172} height={172} paused={paused} onClick={onStart} />
           </TrailAttractionTarget>
         </div>
       </div>
@@ -92,6 +91,7 @@ function CompactClosing({ words, onStart }: { words: Word[]; onStart: () => void
  * double-close. `crest` adds the brand crest beside the button (branding page).
  */
 export default function ClosingCTA({ crest = false, workShowcase = false }: { crest?: boolean; workShowcase?: boolean }) {
+  const tr = usePublicCopy();
   const { t, locale } = useLanguage();
   const openNova = useNovaStore((s) => s.openNova);
 
@@ -122,9 +122,7 @@ export default function ClosingCTA({ crest = false, workShowcase = false }: { cr
       {!workShowcase ? <VideoBackdrop src={FOOTER_CLIP} className="absolute inset-0 z-0" overlayClassName="bg-black/70" /> : null}
 
       <div className="relative z-40 mx-auto flex max-w-[1280px] flex-col items-center gap-8 md:gap-10">
-        <p className={locale === "ja" || locale === "ko" ? "text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red md:text-[13px]" : "editorial-accent editorial-closing text-brand-red"}>
-          Your next chapter, together
-        </p>
+        <p className={locale === "ja" || locale === "ko" ? "text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red md:text-[13px]" : "editorial-accent editorial-closing text-brand-red"}>{tr("Your next chapter, together")}</p>
 
         <div className="w-full">
           <HeroCycling
@@ -139,14 +137,12 @@ export default function ClosingCTA({ crest = false, workShowcase = false }: { cr
           />
         </div>
 
-        <p className={`max-w-[46ch] font-body text-[15px] leading-[1.6] md:text-[18px] ${workShowcase ? "text-black/65" : "text-white/70"}`}>
-          Bring your ambition. We will shape the identity, experiences and systems to carry it forward.
-        </p>
+        <p className={`max-w-[46ch] font-body text-[15px] leading-[1.6] md:text-[18px] ${workShowcase ? "text-black/65" : "text-white/70"}`}>{tr("Bring your ambition. We will shape the identity, experiences and systems to carry it forward.")}</p>
 
         <div className="mt-2 flex items-center gap-5">
           {crest && <BrandCrest className="h-12 w-auto md:h-14" />}
           <TrailAttractionTarget>
-            <LiquidMetalButton label="Start your brand" width={220} onClick={() => openNova("offer", true)} />
+            <LiquidMetalButton label={tr("Start your brand")} width={220} onClick={() => openNova("offer", true)} />
           </TrailAttractionTarget>
         </div>
       </div>

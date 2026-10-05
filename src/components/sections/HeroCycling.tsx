@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
@@ -114,6 +116,7 @@ export default function HeroCycling({
   letterSpacing = "0.05em",
   forceAnimate = false,
 }: HeroCyclingProps) {
+  const tr = usePublicCopy();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const prefersReduced = useSyncExternalStore(subscribeMotion, () => window.matchMedia("(prefers-reduced-motion: reduce)").matches, () => false);
@@ -268,7 +271,7 @@ export default function HeroCycling({
 
   return (
     <div
-      aria-label="Hero tagline"
+      aria-label={tr("Hero tagline")}
       style={{ fontFamily: "var(--font-heading)", containerType: alignment === "left" ? "inline-size" : undefined }}
     >
       {/* ── Static Text Lines ── */}
@@ -288,7 +291,7 @@ export default function HeroCycling({
         role="region"
         aria-live="polite"
         aria-atomic="true"
-        aria-label="Cycling brand promise"
+        aria-label={tr("Cycling brand promise")}
         tabIndex={0}
         onFocus={() => setIsPaused(true)}
         onBlur={() => setIsPaused(false)}

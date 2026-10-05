@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 import GoldThreads from "@/components/ui/GoldThreads";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -40,27 +42,25 @@ const REVEAL_HINT: Record<string, string> = {
 };
 
 function PartnershipStatement() {
+  const tr = usePublicCopy();
   return (
     <div className="w-full max-w-[min(84vw,1500px)]">
-      <p className="font-mono text-[clamp(9px,0.55vw,13px)] font-bold uppercase tracking-[0.31em] text-white/80">One Partnership</p>
+      <p className="font-mono text-[clamp(9px,0.55vw,13px)] font-bold uppercase tracking-[0.31em] text-white/80">{tr("One Partnership")}</p>
       <h2 className="mx-auto mt-4 max-w-[13ch] font-clash text-[clamp(2.05rem,2rem+2.6vw,8rem)] font-semibold uppercase leading-[0.9] tracking-[-0.04em] sm:mt-5">
-        <span className="block">Your vision.</span>
-        <span className="mt-[0.1em] block">A studio around it.</span>
+        <span className="block">{tr("Your vision.")}</span>
+        <span className="mt-[0.1em] block">{tr("A studio around it.")}</span>
       </h2>
-      <p className="mx-auto mt-4 max-w-[46ch] font-body text-[clamp(12.5px,0.65vw+8px,24px)] font-medium leading-[1.5] text-white/85 sm:mt-5">Artists, strategists and technologists working together on your identity, digital presence and the systems behind your business.</p>
+      <p className="mx-auto mt-4 max-w-[46ch] font-body text-[clamp(12.5px,0.65vw+8px,24px)] font-medium leading-[1.5] text-white/85 sm:mt-5">{tr("Artists, strategists and technologists working together on your identity, digital presence and the systems behind your business.")}</p>
     </div>
   );
 }
 
 function LogoHandoffWords() {
+  const tr = usePublicCopy();
   return (
     <div className="flex flex-col items-center gap-[clamp(8rem,22svh,13rem)] px-5 text-center">
-      <p className="font-clash text-[clamp(1.3rem,1rem+1.2vw,2rem)] font-bold uppercase leading-none tracking-[-0.045em] text-[#171717]">
-        Lead
-      </p>
-      <p className="font-clash text-[clamp(1.3rem,1rem+1.2vw,2rem)] font-bold uppercase leading-none tracking-[-0.045em] text-[#171717]">
-        Forward
-      </p>
+      <p className="font-clash text-[clamp(1.3rem,1rem+1.2vw,2rem)] font-bold uppercase leading-none tracking-[-0.045em] text-[#171717]">{tr("Lead")}</p>
+      <p className="font-clash text-[clamp(1.3rem,1rem+1.2vw,2rem)] font-bold uppercase leading-none tracking-[-0.045em] text-[#171717]">{tr("Forward")}</p>
     </div>
   );
 }
@@ -235,6 +235,7 @@ function PawRevealCard({
 }
 
 export default function PawRevealStack() {
+  const tr = usePublicCopy();
   const [transition, setTransition] = useState<CardTransition>(null);
   const [revealedIndexes, setRevealedIndexes] = useState<number[]>([]);
   const [showWorkStream, setShowWorkStream] = useState(false);
@@ -351,7 +352,7 @@ export default function PawRevealStack() {
     <section
       ref={chapterRef}
       id="problems"
-      aria-label="Imagine and one partnership"
+      aria-label={tr("Imagine and one partnership")}
       style={{ paddingTop: entryPadding, paddingBottom: exitPadding, height: scene.height + (staticScene ? 0 : scene.viewport * 4.1) + entryPadding + exitPadding }}
       className="relative z-30 isolate overflow-clip bg-bg-surface-light"
     >

@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 import { useRef } from "react";
 import Image from "next/image";
 import {
@@ -88,6 +90,7 @@ const MOBILE: Layout[] = [
 ];
 
 function ProofCard({ card, layout, progress, reduced }: { card: Card; layout: Layout; progress: MotionValue<number>; reduced: boolean }) {
+  const tr = usePublicCopy();
   const y = useTransform(progress, [0, 1], reduced ? ["0vh", "0vh"] : [layout.yFrom, layout.yTo]);
   const x = useTransform(progress, [0, 1], reduced ? ["0vw", "0vw"] : [layout.xFrom ?? "0vw", layout.xTo ?? "0vw"]);
   const scale = useTransform(progress, [0, 0.5, 1], [1, 1, 1]);
@@ -107,12 +110,12 @@ function ProofCard({ card, layout, progress, reduced }: { card: Card; layout: La
       </div>
 
       <div className="absolute inset-0 z-10 flex flex-col justify-end p-3 sm:p-5 md:p-6 lg:p-7">
-        {card.quote && <blockquote className="mb-1.5 break-words font-body text-[clamp(0.6875rem,2.55vw,0.875rem)] leading-[1.35] text-white/88 sm:mb-2 md:mb-3 md:text-[clamp(0.75rem,1.7vw,1.0625rem)]">&ldquo;{card.quote}&rdquo;</blockquote>}
+        {card.quote && <blockquote className="mb-1.5 break-words font-body text-[clamp(0.6875rem,2.55vw,0.875rem)] leading-[1.35] text-white/88 sm:mb-2 md:mb-3 md:text-[clamp(0.75rem,1.7vw,1.0625rem)]">&ldquo;{tr(card.quote)}&rdquo;</blockquote>}
         {card.stat ? (
           <div className="flex items-end gap-2 md:gap-3">
-            <span className="bg-gradient-to-r from-[#f47721] via-[#f0c917] to-[#ffe49a] bg-clip-text font-clash text-[clamp(1.3rem,3vw,2.25rem)] font-semibold leading-none tracking-[-0.04em] text-transparent drop-shadow-[0_1px_8px_rgba(240,201,23,0.25)]">{card.stat}</span>
+            <span className="bg-gradient-to-r from-[#f47721] via-[#f0c917] to-[#ffe49a] bg-clip-text font-clash text-[clamp(1.3rem,3vw,2.25rem)] font-semibold leading-none tracking-[-0.04em] text-transparent drop-shadow-[0_1px_8px_rgba(240,201,23,0.25)]">{tr(card.stat)}</span>
             <div className="min-w-0 pb-0.5">
-              <p className="font-body text-[8px] uppercase leading-tight tracking-[0.06em] text-white/90 sm:text-[10px] md:text-xs">{card.statLabel}</p>
+              <p className="font-body text-[8px] uppercase leading-tight tracking-[0.06em] text-white/90 sm:text-[10px] md:text-xs">{tr(card.statLabel ?? "")}</p>
             </div>
           </div>
         ) : (
@@ -123,12 +126,13 @@ function ProofCard({ card, layout, progress, reduced }: { card: Card; layout: La
   );
 }
 function Title({ progress, reduced }: { progress: MotionValue<number>; reduced: boolean }) {
+  const tr = usePublicCopy();
   const dark = useTransform(progress, [0, 0.35, 0.41, 0.43, 1], [1, 1, 0, 0, 0]);
   const light = useTransform(progress, [0, 0.35, 0.43, 0.49, 1], [0, 0, 0, 1, 1]);
   const x = useTransform(progress, [0, 1], reduced ? ["0vw", "0vw"] : ["0.8vw", "-0.8vw"]);
   const title = "absolute left-1/2 top-1/2 w-[82vw] max-w-[26rem] -translate-x-1/2 -translate-y-1/2 font-clash text-[clamp(2.35rem,12.8vw,4.25rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em] md:w-[64vw] md:max-w-none md:text-[clamp(4.5rem,7.2vw,8.5rem)] lg:w-[58vw]";
-  const darkWords = <><span className="block text-left">PARTNERS</span><span className="mt-[0.08em] block text-right">Elevated</span></>;
-  const lightWords = <><span className="block text-left">BRANDS</span><span className="mt-[0.08em] block text-right">Innovated</span></>;
+  const darkWords = <><span className="block text-left">{tr("PARTNERS")}</span><span className="mt-[0.08em] block text-right">{tr("Elevated")}</span></>;
+  const lightWords = <><span className="block text-left">{tr("BRANDS")}</span><span className="mt-[0.08em] block text-right">{tr("Innovated")}</span></>;
 
   return (
     <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden" aria-hidden>
@@ -139,6 +143,7 @@ function Title({ progress, reduced }: { progress: MotionValue<number>; reduced: 
 }
 
 export default function BrandsElevatedScrollV2() {
+  const tr = usePublicCopy();
   const ref = useRef<HTMLDivElement>(null);
   const reduced = Boolean(useReducedMotion());
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
@@ -153,7 +158,7 @@ export default function BrandsElevatedScrollV2() {
       data-brands-scroll-scene
       className={`relative w-full ${reduced ? "min-h-[140svh]" : "h-[225svh] md:h-[245svh] lg:h-[250svh]"}`}
       style={{ background: "linear-gradient(to bottom, var(--site-surface-light) 0%, var(--site-surface-light) 45%, var(--site-surface-dark) 55%, var(--site-surface-dark) 100%)" }}
-      aria-label="Brands elevated — selected client results"
+      aria-label={tr("Brands elevated — selected client results")}
     >
       <div className="sticky top-0 h-[100dvh] min-h-[100svh] overflow-hidden bg-bg-surface-light">
         <motion.div className="pointer-events-none absolute inset-0 bg-bg-dark" style={{ opacity: black }} aria-hidden />

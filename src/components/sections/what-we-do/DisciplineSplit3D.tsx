@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   motion,
@@ -368,6 +370,7 @@ export default function DisciplineSplit3D({
   mobileVideoFallback = mobileVideo, poster = "/images/hero_img/footage-07-poster.jpg",
   mobilePoster = poster, pinned = false,
 }: Props) {
+  const tr = usePublicCopy();
   const journey = useLionJourney();
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -879,7 +882,7 @@ export default function DisciplineSplit3D({
                 } else setVideoFailed(true);
               }}
               aria-hidden={!joinedFilmVisible || !playBlocked}
-              aria-label="LIONOVART studio film"
+              aria-label={tr("LIONOVART studio film")}
             />
             {playBlocked && !videoFailed && joinedFilmVisible && (
               <button type="button" className="absolute left-1/2 top-1/2 z-50 min-h-11 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/80 px-6 py-3 text-white focus-visible:outline-2 focus-visible:outline-white"
@@ -889,12 +892,12 @@ export default function DisciplineSplit3D({
                     setPlayBlocked(false);
                     if (flip.get() >= FILM_FADE_END || document.hidden) v.pause();
                   }).catch(() => setPlayBlocked(true));
-                }}>Play video</button>
+                }}>{tr("Play video")}</button>
             )}
             {videoFailed && joinedFilmVisible && (
               <a href={`https://player.cloudinary.com/embed/?cloud_name=dgio9uutc&public_id=${isTablet ? "Demo_hero" : "hero_demo_mobile"}`}
                 target="_blank" rel="noopener noreferrer"
-                className="absolute bottom-4 left-1/2 z-50 min-h-11 -translate-x-1/2 rounded-full bg-black/80 px-5 py-3 text-sm text-white focus-visible:outline-2 focus-visible:outline-white">Watch video</a>
+                className="absolute bottom-4 left-1/2 z-50 min-h-11 -translate-x-1/2 rounded-full bg-black/80 px-5 py-3 text-sm text-white focus-visible:outline-2 focus-visible:outline-white">{tr("Watch video")}</a>
             )}
           </motion.div>
 

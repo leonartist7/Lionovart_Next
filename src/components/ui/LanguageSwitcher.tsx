@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 import { useState, useRef, useEffect, useId } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -19,6 +21,7 @@ type LanguageSwitcherProps = {
 };
 
 export function LanguageSwitcher({ isHeroMode, inMenu = false }: LanguageSwitcherProps) {
+  const tr = usePublicCopy();
   const { locale, setLocale } = useLanguage();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -82,7 +85,7 @@ export function LanguageSwitcher({ isHeroMode, inMenu = false }: LanguageSwitche
           <motion.ul
             id={listboxId}
             role="listbox"
-            aria-label="Select language"
+            aria-label={tr("Select language")}
             initial={{ opacity: 0, y: -6, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.96 }}

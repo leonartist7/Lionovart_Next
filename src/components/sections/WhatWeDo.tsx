@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 import OpeningProof from "./OpeningProof";
 import DisciplineSplit3D from "@/components/sections/what-we-do/DisciplineSplit3D";
 import { useLionJourney } from "./lion-journey/LionJourney";
@@ -37,10 +39,11 @@ const CARDS = [
 ];
 
 export default function WhatWeDo({ pinned = false }: { pinned?: boolean }) {
+  const tr = usePublicCopy();
   const journey = useLionJourney();
   return (
     <section id="opening-work" data-nova-section="what-we-do" className={`${journey ? "opening-work" : "bg-bg-dark"}${pinned ? " opening-work-pinned" : ""} text-white`}>
-      <DisciplineSplit3D cards={CARDS} video={SPLIT_VIDEO} mobileVideo={MOBILE_VIDEO}
+      <DisciplineSplit3D cards={CARDS.map(card => ({ ...card, title: tr(card.title), body: tr(card.body) }))} video={SPLIT_VIDEO} mobileVideo={MOBILE_VIDEO}
         videoFallback={VIDEO_FALLBACK} mobileVideoFallback={MOBILE_VIDEO_FALLBACK}
         poster={VIDEO_POSTER} mobilePoster={MOBILE_VIDEO_POSTER} pinned={pinned} />
       {!pinned && <div className="opening-proof-stage"><OpeningProof /></div>}

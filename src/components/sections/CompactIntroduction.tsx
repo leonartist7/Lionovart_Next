@@ -52,7 +52,7 @@ export default function CompactIntroduction() {
           </table>
           <div className={styles.comparisonFooter}>
             <p>{copy.scope}</p>
-            <Link href="/about" locale="en" className={styles.link}>
+            <Link href="/about" className={styles.link}>
               {copy.link}<span aria-hidden="true">↗</span>
             </Link>
           </div>

@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { Link } from "@/i18n/navigation";
@@ -19,12 +21,13 @@ const expertiseLinks = [
 ] as const;
 
 function ExpertiseLinks() {
+  const tr = usePublicCopy();
   return (
     <ul className={styles.linkList}>
       {expertiseLinks.map((item) => (
-        <li key={item.label}>
+        <li key={tr(item.label)}>
           <Link href={item.href} className={styles.footerLink}>
-            <span>{item.label}</span>
+            <span>{tr(item.label)}</span>
             <span aria-hidden="true" className={styles.linkArrow}>↗</span>
           </Link>
         </li>
@@ -34,6 +37,7 @@ function ExpertiseLinks() {
 }
 
 function ConnectLinks() {
+  const tr = usePublicCopy();
   return (
     <ul className={styles.linkList}>
       <li>
@@ -44,7 +48,7 @@ function ConnectLinks() {
       </li>
       <li>
         <Link href="/call" className={styles.footerLink}>
-          <span>Book a conversation</span>
+          <span>{tr("Book a conversation")}</span>
           <span aria-hidden="true" className={styles.linkArrow}>↗</span>
         </Link>
       </li>
@@ -53,16 +57,18 @@ function ConnectLinks() {
 }
 
 function LocationList() {
+  const tr = usePublicCopy();
   return (
     <ul className={styles.locationList}>
       <li>Calgary</li>
       <li>Grenoble</li>
-      <li className={styles.worldwide}>Available worldwide</li>
+      <li className={styles.worldwide}>{tr("Available worldwide")}</li>
     </ul>
   );
 }
 
 function CompactFooter({ year }: { year: number }) {
+  const tr = usePublicCopy();
   const { t } = useLanguage();
   const openNova = useNovaStore((state) => state.openNova);
   const footerRef = useRef<HTMLElement>(null);
@@ -138,28 +144,26 @@ function CompactFooter({ year }: { year: number }) {
 
         <div className={styles.finaleInner}>
           <div className={styles.metaRow}>
-            <p className={styles.eyebrow}>Got something worth building?</p>
+            <p className={styles.eyebrow}>{tr("Got something worth building?")}</p>
             <p className={styles.coordinates}>LION / NOVA / ART · 2026</p>
           </div>
 
           <h2 className={styles.statement}>
-            <span className={styles.statementLead}>Let&apos;s make it</span>
-            <span className={styles.statementStroke}>impossible</span>
-            <span>to ignore.</span>
+            <span className={styles.statementLead}>{tr("Let's make it")}</span>
+            <span className={styles.statementStroke}>{tr("impossible")}</span>
+            <span>{tr("to ignore.")}</span>
           </h2>
 
           <div className={styles.actionRow}>
-            <p className={styles.disciplines}>
-              Brand <span>·</span> Digital <span>·</span> Film <span>·</span> Experiences <span>·</span> Innovation
-            </p>
+            <p className={styles.disciplines}>{tr("Brand")}<span>·</span>{tr("Digital")}<span>·</span>{tr("Film")}<span>·</span>{tr("Experiences")}<span>·</span>{tr("Innovation")}</p>
 
             <button
               type="button"
               className={styles.primaryCta}
               onClick={() => openNova("offer", true)}
-              aria-label="Start a project with LIONOVART"
+              aria-label={tr("Start a project with LIONOVART")}
             >
-              <span>Start something</span>
+              <span>{tr("Start something")}</span>
               <span className={styles.ctaIcon} aria-hidden="true">↗</span>
             </button>
           </div>
@@ -173,21 +177,21 @@ function CompactFooter({ year }: { year: number }) {
                 height={29}
                 className={styles.logo}
               />
-              <p className={styles.signature}>The art of innovation.</p>
+              <p className={styles.signature}>{tr("The art of innovation.")}</p>
             </div>
 
             <div className={styles.directoryGroup}>
-              <p className={styles.directoryLabel}>Expertise</p>
+              <p className={styles.directoryLabel}>{tr("Expertise")}</p>
               <ExpertiseLinks />
             </div>
 
             <div className={styles.directoryGroup}>
-              <p className={styles.directoryLabel}>Connect</p>
+              <p className={styles.directoryLabel}>{tr("Connect")}</p>
               <ConnectLinks />
             </div>
 
             <div className={styles.directoryGroup}>
-              <p className={styles.directoryLabel}>Based</p>
+              <p className={styles.directoryLabel}>{tr("Based")}</p>
               <LocationList />
             </div>
           </div>
@@ -201,12 +205,12 @@ function CompactFooter({ year }: { year: number }) {
                 height={26}
                 className={styles.logo}
               />
-              <p className={styles.signature}>The art of innovation.</p>
+              <p className={styles.signature}>{tr("The art of innovation.")}</p>
             </div>
 
             <details className={styles.mobileDisclosure}>
               <summary>
-                <span>Expertise</span>
+                <span>{tr("Expertise")}</span>
                 <span aria-hidden="true" className={styles.disclosurePlus}>+</span>
               </summary>
               <ExpertiseLinks />
@@ -214,7 +218,7 @@ function CompactFooter({ year }: { year: number }) {
 
             <details className={styles.mobileDisclosure}>
               <summary>
-                <span>Connect</span>
+                <span>{tr("Connect")}</span>
                 <span aria-hidden="true" className={styles.disclosurePlus}>+</span>
               </summary>
               <ConnectLinks />
@@ -222,7 +226,7 @@ function CompactFooter({ year }: { year: number }) {
 
             <details className={styles.mobileDisclosure}>
               <summary>
-                <span>Based</span>
+                <span>{tr("Based")}</span>
                 <span aria-hidden="true" className={styles.disclosurePlus}>+</span>
               </summary>
               <LocationList />
@@ -233,8 +237,8 @@ function CompactFooter({ year }: { year: number }) {
             <p className={styles.copyright}>
               &copy; {year} LIONOVART. {t.footer.copyright}
             </p>
-            <nav aria-label="Footer" className={styles.legal}>
-              <Link href="/careers">Careers</Link>
+            <nav aria-label={tr("Footer")} className={styles.legal}>
+              <Link href="/careers">{tr("Careers")}</Link>
               <Link href="/privacy">{t.footer.privacy}</Link>
               <Link href="/terms">{t.footer.terms}</Link>
             </nav>
@@ -250,6 +254,7 @@ function CompactFooter({ year }: { year: number }) {
  * Standard/curtain variants remain available for legacy/internal surfaces.
  */
 export default function Footer({ variant = "standard" }: { variant?: FooterVariant }) {
+  const tr = usePublicCopy();
   const { t } = useLanguage();
   const year = new Date().getFullYear();
   const isCurtain = variant === "curtain";
@@ -273,15 +278,13 @@ export default function Footer({ variant = "standard" }: { variant?: FooterVaria
           &copy; {year} LIONOVART. {t.footer.copyright}
         </p>
         <nav
-          aria-label="Footer"
+          aria-label={tr("Footer")}
           className="flex gap-5 text-[10px] uppercase tracking-[0.12em] sm:text-[11px]"
         >
           <Link
             href="/careers"
             className="text-white/80 transition-colors duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand-red"
-          >
-            Careers
-          </Link>
+          >{tr("Careers")}</Link>
           <Link
             href="/privacy"
             className="text-white/80 transition-colors duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand-red"

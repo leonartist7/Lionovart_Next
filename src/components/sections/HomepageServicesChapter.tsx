@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 import GoldThreads from "@/components/ui/GoldThreads";
 
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
@@ -71,6 +73,7 @@ function ServiceMediaCarousel({
   images: readonly string[];
   alt: string;
 }) {
+  const tr = usePublicCopy();
   const [mediaIndex, setMediaIndex] = useState(0);
   const canSwipe = images.length > 1;
   const currentImage = images[mediaIndex] ?? images[0];
@@ -128,6 +131,7 @@ function ServiceMediaCarousel({
 }
 
 export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingClick?: () => void }) {
+  const tr = usePublicCopy();
   const { t } = useLanguage();
   const reduceMotion = useHydratedReducedMotion() ?? false;
   const chapterRef = useRef<HTMLDivElement>(null);
@@ -259,7 +263,7 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
         className="sticky top-0 h-svh overflow-hidden bg-bg-surface-light outline-none"
         tabIndex={0}
         role="region"
-        aria-label="Explore Lionovart expertise"
+        aria-label={tr("Explore Lionovart expertise")}
         onWheel={handleWheel}
         onKeyDown={handleKeys}
         style={{ overscrollBehaviorX: "contain" }}
@@ -347,7 +351,7 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
                       : "text-black/46 hover:bg-white/24 hover:text-black/72"
                   }`}
                 >
-                  <span className="hidden sm:inline">{service.short}</span>
+                  <span className="hidden sm:inline">{tr(service.short)}</span>
                   <span className="sm:hidden">{service.number}</span>
                 </button>
               );

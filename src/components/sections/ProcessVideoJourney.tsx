@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -13,6 +15,7 @@ const FILMS = {
 type Connection = EventTarget & { saveData?: boolean };
 
 export default function ProcessVideoJourney() {
+  const tr = usePublicCopy();
   const { t, locale } = useLanguage();
   const copy = PROCESS_FILM_COPY[locale];
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -154,9 +157,7 @@ export default function ProcessVideoJourney() {
                 aria-label={copy.film} aria-describedby="process-film-description"
                 className="block h-full w-full object-contain" />
             </div>
-            <p id="process-film-description" lang="en" className="sr-only">
-              Golden light builds the LIONOVART monogram through four stages, adds a crown, then draws a circle around the completed mark. Clarity — find the signal. Elevate — shape the direction. Create — build the connection. Rise and Optimize — amplify the outcome. Everything connects. Vision, built to rise.
-            </p>
+            <p id="process-film-description" lang={locale} className="sr-only">{tr("Golden light builds the LIONOVART monogram through four stages, adds a crown, then draws a circle around the completed mark. Clarity — find the signal. Elevate — shape the direction. Create — build the connection. Rise and Optimize — amplify the outcome. Everything connects. Vision, built to rise.")}</p>
             {failed ? <p role="status" className="px-4 py-3 font-body text-xs leading-relaxed text-white/65">{copy.unavailable}</p> : null}
           </figure>
 
