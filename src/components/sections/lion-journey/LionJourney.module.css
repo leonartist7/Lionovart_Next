@@ -277,10 +277,10 @@
 }
 
 /* English positioning statement: one line on roomy screens, two on phones. */
-.journey :global(.hero-positioning-copy) { max-width: none; width: 100%; font-size: clamp(12px,1.12vw,16px); line-height: 1.45; text-wrap: nowrap; }
+.journey :global(.lion-description.editorial-accent.editorial-hero.hero-positioning-copy) { max-width: none; width: 100%; font-size: clamp(12px,1.12vw,16px); line-height: 1.45; text-wrap: nowrap; }
 .journey :global(.lion-description-compact) { display: none; }
 @media(max-width:767px) {
-  .journey :global(.hero-positioning-copy) { font-size: clamp(10px,3vw,13px); line-height: 1.45; text-wrap: initial; }
+  .journey :global(.lion-description.editorial-accent.editorial-hero.hero-positioning-copy) { font-size: clamp(10px,3vw,13px); line-height: 1.45; text-wrap: initial; }
   .journey :global(.lion-description-wide) { display: none; }
   .journey :global(.lion-description-compact) { display: flex; flex-direction: column; align-items: center; }
   .journey :global(.lion-description-compact > span) { display: block; white-space: nowrap; }
