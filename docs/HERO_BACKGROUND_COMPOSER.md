@@ -1,10 +1,11 @@
 # Hero background composer
 Open the homepage with `?heroEditor=1` to compose the background.
 
-- Choose among the seven supplied images and toggle each layer.
-- Adjust position, size, rotation, and opacity. Move on canvas exposes a drag handle; arrow keys nudge it and Shift moves five units.
+- The editor starts as a fixed bottom-corner pill with previous/next image arrows. Selecting an image previews it immediately, showing one image at a time for the current screen size.
+- Open the gear for image thumbnails and an inclusion checkbox per image. Excluded images are skipped by the arrows; at least one must remain. The shortlist is included in saved/exported layouts, and older layouts default to all images included.
+- Adjust size, rotation, and opacity in settings. Move on canvas exposes a drag handle; arrow keys nudge it and Shift moves five units. Horizontal and vertical position fields are removed.
 - Desktop and mobile (below 768px) store separate placements. Resize the browser to edit each.
-- Preview hides the panel. Save in browser persists editor-only settings. Normal visitors always see the defaults.
+- Settings start closed. The floating pill and panel do not occupy document space. Save in browser persists editor-only settings. Normal visitors always see the defaults.
 - Export/import transfers validated JSON. To publish a choice, apply its placements to DEFAULT_COMPOSITION in src/components/sections/hero-background/config.ts.
 - Hero scene controls: Show 3D lion, Ray color, and Rays come from (Top/Bottom). These settings apply to both screen sizes and are included in Save, Export, Import, and Reset. Older image-only layouts receive the original scene defaults.
 - There is no server write endpoint.

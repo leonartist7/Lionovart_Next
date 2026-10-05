@@ -1,40 +1,84 @@
 "use client";
 import { useEffect, useRef, useState, type PointerEvent, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import { DEFAULT_COMPOSITION, STORAGE_KEY, parseComposition, type Composition, type Placement } from "./config";
 import styles from "./HeroBackground.module.css";
 
 type Props = { composition: Composition; onChange: (value: Composition) => void };
+type Profile = "desktop" | "mobile";
 const controls = [
-  ["x", "Horizontal position", -100, 200, "%"], ["y", "Vertical position", -100, 200, "%"],
   ["width", "Size", 20, 400, "vw"], ["rotation", "Rotation", -180, 180, "°"], ["opacity", "Opacity", 0, 100, "%"],
 ] as const;
+
+// Older saved layouts can contain several visible layers. Preview one candidate per viewport.
+function singleImagePreview(config: Composition): Composition {
+  const candidates = config.layers.filter(item => item.inCycle !== false);
+  const available = candidates.length ? candidates : config.layers;
+  const desktop = available.find(item => item.desktop.visible) ?? available[0];
+  const mobile = available.find(item => item.mobile.visible) ?? available[0];
+  return { ...config, layers: config.layers.map(item => ({
+    ...item, inCycle: candidates.length ? item.inCycle !== false : true,
+    desktop: { ...item.desktop, visible: item.id === desktop.id },
+    mobile: { ...item.mobile, visible: item.id === mobile.id },
+  })) };
+}
+
 export default function BackgroundEditor({ composition, onChange }: Props) {
-  const [selected, setSelected] = useState("5");
-  const [profile, setProfile] = useState<"desktop" | "mobile">("desktop");
-  const [open, setOpen] = useState(true);
+  const [profile, setProfile] = useState<Profile>("desktop");
+  const [open, setOpen] = useState(false);
   const [moving, setMoving] = useState(false);
   const [status, setStatus] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
+  const settingsButton = useRef<HTMLButtonElement>(null);
+  const closeButton = useRef<HTMLButtonElement>(null);
   const drag = useRef<{ x: number; y: number; startX: number; startY: number } | null>(null);
-  const layer = composition.layers.find(item => item.id === selected)!;
+  const candidates = composition.layers.filter(item => item.inCycle !== false);
+  const layer = candidates.find(item => item[profile].visible) ?? candidates[0] ?? composition.layers[0];
+  const selected = layer.id;
   const p = layer[profile];
+  const currentIndex = candidates.findIndex(item => item.id === selected);
 
   useEffect(() => {
     const media = matchMedia("(max-width: 767px)");
-    const sync = () => setProfile(media.matches ? "mobile" : "desktop");
+    const sync = () => { drag.current = null; setProfile(media.matches ? "mobile" : "desktop"); };
     const frame = requestAnimationFrame(() => {
       sync();
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
         const parsed = saved ? parseComposition(JSON.parse(saved)) : null;
-        if (parsed) { onChange(parsed); setStatus("Loaded your saved composition."); }
+        onChange(singleImagePreview(parsed ?? DEFAULT_COMPOSITION));
+        if (parsed) setStatus("Loaded your saved images and settings.");
       } catch { setStatus("Local storage unavailable. You can still export your layout."); }
     });
     media.addEventListener("change", sync);
     return () => { cancelAnimationFrame(frame); media.removeEventListener("change", sync); };
   }, [onChange]);
 
+  useEffect(() => {
+    if (open) closeButton.current?.focus();
+  }, [open]);
+
+  const closeSettings = () => { setOpen(false); settingsButton.current?.focus(); };
+  const choose = (id: string) => {
+    drag.current = null;
+    onChange({ ...composition, layers: composition.layers.map(item => ({
+      ...item, [profile]: { ...item[profile], visible: item.id === id },
+    })) });
+  };
+  const cycle = (direction: number) => {
+    if (candidates.length < 2) return;
+    choose(candidates[(currentIndex + direction + candidates.length) % candidates.length].id);
+  };
+  const include = (id: string, checked: boolean) => {
+    if (!checked && candidates.length === 1) {
+      setStatus("Keep at least one image in the cycle.");
+      return;
+    }
+    onChange(singleImagePreview({ ...composition, layers: composition.layers.map(item =>
+      item.id === id ? { ...item, inCycle: checked } : item) }));
+    setStatus(checked ? "Image added to the cycle." : "Image skipped. You can add it back anytime.");
+  };
   const patch = (value: Partial<Placement>) => onChange({
     ...composition,
     layers: composition.layers.map(item => item.id === selected ? { ...item, [profile]: { ...item[profile], ...value } } : item),
@@ -69,13 +113,54 @@ export default function BackgroundEditor({ composition, onChange }: Props) {
   };
 
   return createPortal(<>
-    {moving && p.visible && <button className={styles.handle} style={{ left: `${p.x}%`, top: `${p.y}%` }}
+    {moving && p.visible && <button className={styles.handle} style={{ left: `${Math.max(4, Math.min(96, p.x))}%`, top: `${Math.max(5, Math.min(88, p.y))}%` }}
       aria-label="Move selected image. Drag or use arrow keys." title="Drag to move. Arrow keys to nudge."
       onPointerDown={startDrag} onPointerMove={move} onPointerUp={() => { drag.current = null; }}
       onPointerCancel={() => { drag.current = null; }} onLostPointerCapture={() => { drag.current = null; }} onKeyDown={nudge}>↔</button>}
-    {open ? <aside className={styles.panel} aria-label="Hero background editor" data-lenis-prevent>
-      <h2>Compose the background</h2>
-      <p>{profile === "mobile" ? "Mobile" : "Desktop"} placement · resize the browser to edit the other layout.</p>
+
+    <div className={styles.pill} role="group" aria-label="Hero background preview" data-lenis-prevent>
+      <button onClick={() => cycle(-1)} disabled={candidates.length < 2} aria-label="Previous background image" title="Previous image">‹</button>
+      <div className={styles.currentImage} aria-live="polite" aria-atomic="true">
+        <span>{layer.name}</span><small>{currentIndex + 1} / {candidates.length}</small>
+      </div>
+      <button onClick={() => cycle(1)} disabled={candidates.length < 2} aria-label="Next background image" title="Next image">›</button>
+      <button onClick={() => { setMoving(value => !value); setOpen(false); }} aria-pressed={moving}
+        aria-label={moving ? "Stop moving image" : "Move image on canvas"} title={moving ? "Stop moving" : "Move on canvas"}>↔</button>
+      <button ref={settingsButton} onClick={() => { setOpen(value => !value); setMoving(false); }}
+        aria-label="Background settings" aria-expanded={open} aria-controls="hero-background-settings" title="Settings">⚙</button>
+    </div>
+
+    {open && <aside id="hero-background-settings" className={styles.panel} aria-label="Hero background settings" data-lenis-prevent
+      onKeyDown={event => { if (event.key === "Escape") { event.stopPropagation(); closeSettings(); } }}>
+      <div className={styles.panelHeading}><h2>Background settings</h2>
+        <button ref={closeButton} onClick={closeSettings} aria-label="Close background settings">×</button>
+      </div>
+      <p>{profile === "mobile" ? "Mobile" : "Desktop"} placement · drag on canvas to reposition.</p>
+      <fieldset className={styles.imageControls}>
+        <legend>Images in your cycle</legend>
+        <p>Click an image to preview. Uncheck it to skip it.</p>
+        <div className={styles.imageList}>
+          {composition.layers.map(item => <div key={item.id} className={styles.imageRow} data-selected={item.id === selected}
+            data-excluded={item.inCycle === false}>
+            <button className={styles.imageChoice} disabled={item.inCycle === false} aria-pressed={item.id === selected}
+              onClick={() => choose(item.id)} aria-label={`Preview ${item.name}`}>
+              <Image src={item.src} alt="" width={36} height={36} sizes="36px" />
+              <span>{item.name}</span>
+            </button>
+            <input type="checkbox" checked={item.inCycle !== false} aria-label={`Include ${item.name} in cycle`}
+              onChange={event => include(item.id, event.target.checked)} />
+          </div>)}
+        </div>
+      </fieldset>
+      <fieldset className={styles.imageControls}>
+        <legend>{layer.name}</legend>
+        {controls.map(([key, label, min, max, unit]) => <div key={key}>
+          <label htmlFor={`hero-background-${key}`}>{label}<output>{p[key]}{unit}</output></label>
+          <input id={`hero-background-${key}`} type="range" min={min} max={max} step="1" value={p[key]}
+            onChange={event => patch({ [key]: Number(event.target.value) })} />
+        </div>)}
+        <button className={styles.moveButton} onClick={() => { setMoving(true); setOpen(false); }}>Move on canvas</button>
+      </fieldset>
       <fieldset className={styles.sceneControls}>
         <legend>Hero scene</legend>
         <label>Show 3D lion<input type="checkbox" checked={composition.scene.lionVisible}
@@ -89,34 +174,23 @@ export default function BackgroundEditor({ composition, onChange }: Props) {
           <option value="top-center">Top</option><option value="bottom-center">Bottom</option>
         </select>
       </fieldset>
-      <label htmlFor="hero-background-layer">Image</label>
-      <select id="hero-background-layer" value={selected} onChange={event => { setSelected(event.target.value); setMoving(false); }}>
-        {composition.layers.map(item => <option key={item.id} value={item.id}>{item.name}{item[profile].visible ? " · visible" : ""}</option>)}
-      </select>
-      <label>Show this image<input type="checkbox" checked={p.visible} onChange={event => patch({ visible: event.target.checked })} /></label>
-      {controls.map(([key, label, min, max, unit]) => <div key={key}>
-        <label htmlFor={`hero-background-${key}`}>{label}<output>{p[key]}{unit}</output></label>
-        <input id={`hero-background-${key}`} type="range" min={min} max={max} step="1" value={p[key]}
-          onChange={event => patch({ [key]: Number(event.target.value) })} />
-      </div>)}
       <div className={styles.actions}>
-        <button onClick={() => { patch({ visible: true }); setMoving(true); setOpen(false); }}>{moving ? "Stop moving" : "Move on canvas"}</button>
-        <button onClick={() => { setOpen(false); setMoving(false); }}>Preview</button>
         <button onClick={save}>Save in browser</button><button onClick={exportLayout}>Export layout</button>
         <button onClick={() => fileInput.current?.click()}>Import layout</button>
-        <button onClick={() => { onChange(DEFAULT_COMPOSITION); setMoving(false); setStatus("Default restored. Save to replace your saved layout."); }}>Reset all</button>
+        <button onClick={() => { onChange(singleImagePreview(DEFAULT_COMPOSITION)); setMoving(false); setStatus("Default restored. Save to replace your saved layout."); }}>Reset all</button>
       </div>
-      <input ref={fileInput} hidden type="file" accept=".json,application/json" onChange={async event => {
-        const file = event.target.files?.[0]; event.target.value = "";
-        if (!file) return;
-        if (file.size > 100_000) { setStatus("Choose a layout JSON under 100 KB."); return; }
-        try {
-          const parsed = parseComposition(JSON.parse(await file.text()));
-          if (!parsed) throw new Error("Invalid layout");
-          onChange(parsed); setStatus("Layout imported. Save it to keep it in this browser.");
-        } catch { setStatus("This file is not a valid hero layout."); }
-      }} />
-      <div className={styles.status} role="status">{status || "Changes are local to this editor. Export when you find a composition you like."}</div>
-    </aside> : <button className={styles.launcher} onClick={() => { setOpen(true); setMoving(false); }}>{moving ? "Done moving" : "Edit background"}</button>}
+      <div className={styles.status}>{status || "Changes stay in this editor. Save to keep your shortlist and settings."}</div>
+    </aside>}
+    <input ref={fileInput} hidden type="file" accept=".json,application/json" onChange={async event => {
+      const file = event.target.files?.[0]; event.target.value = "";
+      if (!file) return;
+      if (file.size > 100_000) { setStatus("Choose a layout JSON under 100 KB."); return; }
+      try {
+        const parsed = parseComposition(JSON.parse(await file.text()));
+        if (!parsed) throw new Error("Invalid layout");
+        onChange(singleImagePreview(parsed)); setStatus("Layout imported. Save it to keep it in this browser.");
+      } catch { setStatus("This file is not a valid hero layout."); }
+    }} />
+    <span className={styles.srOnly} role="status">{status}</span>
   </>, document.body);
 }

@@ -1,5 +1,5 @@
 export type Placement = { x: number; y: number; width: number; rotation: number; opacity: number; visible: boolean };
-export type Layer = { id: string; name: string; src: string; desktop: Placement; mobile: Placement };
+export type Layer = { id: string; name: string; src: string; inCycle?: boolean; desktop: Placement; mobile: Placement };
 export type SceneSettings = { lionVisible: boolean; raysColor: string; raysOrigin: "top-center" | "bottom-center" };
 export const DEFAULT_SCENE: SceneSettings = { lionVisible: true, raysColor: "#00ffff", raysOrigin: "top-center" };
 export type Composition = { version: 1; layers: Layer[]; scene: SceneSettings };
@@ -22,6 +22,7 @@ export function parseComposition(value: unknown): Composition | null {
   for (const [i, layer] of config.layers.entries()) {
     const original = DEFAULT_COMPOSITION.layers[i];
     if (!layer || layer.id !== original.id || layer.src !== original.src) return null;
+    if (layer.inCycle !== undefined && typeof layer.inCycle !== "boolean") return null;
     for (const profile of ["desktop", "mobile"] as const) {
       const p = layer[profile];
       if (!p || typeof p.visible !== "boolean") return null;
