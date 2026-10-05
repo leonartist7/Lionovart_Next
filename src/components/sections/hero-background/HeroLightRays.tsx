@@ -1,8 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useSyncExternalStore } from "react";
-import { useReducedMotion } from "framer-motion";
+import { useState, useSyncExternalStore } from "react";
+import { motion, useMotionValueEvent, useReducedMotion, useTransform } from "framer-motion";
+import { useLionJourney } from "../lion-journey/LionJourney";
 import { useHeroComposition } from "./HeroComposition";
 import styles from "./HeroLightRays.module.css";
 
@@ -15,12 +16,16 @@ const subscribeVisibility = (callback: () => void) => {
 const isPageVisible = () => document.visibilityState === "visible";
 const serverVisible = () => false;
 
-export default function HeroLightRays({ active }: { active: boolean }) {
+export default function HeroLightRays() {
+  const { openingProgress } = useLionJourney()!;
+  const [active, setActive] = useState(() => openingProgress.get() <= 0.25);
+  const opacity = useTransform(openingProgress, [0, 0.03, 0.26], [1, 1, 0]);
+  useMotionValueEvent(openingProgress, "change", progress => setActive(progress <= 0.25));
   const { composition: { scene } } = useHeroComposition();
   const visible = useSyncExternalStore(subscribeVisibility, isPageVisible, serverVisible);
   const reducedMotion = useReducedMotion();
   const animated = active && visible && !reducedMotion;
-  return <div className={styles.host} aria-hidden="true" data-hero-light-rays data-rays-active={animated} data-rays-color={scene.raysColor} data-rays-origin={scene.raysOrigin}>
+  return <motion.div className={styles.host} style={{ opacity }} aria-hidden="true" data-hero-light-rays data-rays-active={animated} data-rays-color={scene.raysColor} data-rays-origin={scene.raysOrigin}>
     {active && reducedMotion && <div className={styles.still} style={{ background: `radial-gradient(ellipse at 50% ${scene.raysOrigin === "top-center" ? "0%" : "100%"}, ${scene.raysColor}26 0%, ${scene.raysColor}0a 35%, transparent 72%)` }} />}
     {animated && <LightRays
       raysOrigin={scene.raysOrigin}
@@ -34,5 +39,5 @@ export default function HeroLightRays({ active }: { active: boolean }) {
       distortion={0.05}
       className="custom-rays"
     />}
-  </div>;
+  </motion.div>;
 }

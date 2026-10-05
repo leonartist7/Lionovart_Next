@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useHeroComposition } from "./HeroComposition";
+import HeroLightRays from "./HeroLightRays";
 import styles from "./HeroBackground.module.css";
 
 const BackgroundEditor = dynamic(() => import("./BackgroundEditor"), { ssr: false });
@@ -56,6 +57,7 @@ export default function HeroBackground() {
         </div>;
       })}
     </div>
+    <HeroLightRays />
     {editing && <BackgroundEditor composition={composition} onChange={setComposition} />}
   </>;
 }

@@ -21,7 +21,7 @@ Also guarded SplashScreen's animationName lookup against non-CSS animations afte
 
 ## Hero light rays
 
-The hero uses the unmodified React Bits JS-CSS registry source from https://reactbits.dev/r/LightRays-JS-CSS.json in src/components/ui/light-rays, with ogl@^1.0.11. HeroLightRays.tsx supplies the requested cyan configuration in a full-width, 600px-high decorative layer behind the hero content.
+The hero uses the unmodified React Bits JS-CSS registry source from https://reactbits.dev/r/LightRays-JS-CSS.json in src/components/ui/light-rays, with ogl@^1.0.11. HeroLightRays.tsx supplies the requested cyan configuration in a full-viewport decorative layer behind the transparent lion canvas and hero content. The rays live outside the moving headline mask, so it cannot punch a dark circle into the light. A soft fade at the edge opposite the ray origin avoids a hard cutoff.
 
 The rays fade with the hero and unmount when the hero is inactive or the tab is hidden. Reduced-motion preferences use a static glow matching the chosen ray color and origin. The editor controls ray color and top/bottom origin. Its Show 3D lion toggle hides the model, both poster fallbacks, and its decorative trail without interrupting scroll progress. The headline mask is cleared while the lion is hidden.
 
