@@ -18,7 +18,7 @@ export default function HeroTrustLine({ text }: { text: string }) {
     title="Click to preview laurels, stars, or both">
     {variant !== "stars" && <img className={styles.laurel} src={LAUREL_LEFT} alt="" aria-hidden="true" />}
     <span className={styles.copy}>
-      {variant !== "laurels" && <span className={styles.stars} aria-hidden="true"}>
+      {variant !== "laurels" && <span className={styles.stars} aria-hidden="true">
         {Array.from({ length: 5 }, (_, index) => <img key={index} src={STAR} alt="" />)}
       </span>}
       <span>{text}</span>
