@@ -279,7 +279,7 @@
 }
 
 /* English positioning statement: one line on roomy screens, two on phones. */
-.journey :global(.lion-description.editorial-accent.editorial-hero.hero-positioning-copy) { max-width: none; width: 100%; font-family: var(--font-body, sans-serif); font-style: normal; font-weight: 500; font-size: clamp(15px,1.45vw,20px); line-height: 1.45; letter-spacing: 0; color: #e2e0dc; text-wrap: balance; }
+.journey :global(.lion-description.editorial-accent.editorial-hero.hero-positioning-copy) { max-width: none; width: 100%; font-family: var(--font-clash, sans-serif); font-style: normal; font-weight: 500; font-size: clamp(15px,1.45vw,20px); line-height: 1.45; letter-spacing: 0; color: #e2e0dc; text-wrap: balance; }
 .journey :global(.lion-description-compact) { display: none; }
 @media(max-width:767px) {
   .journey :global(.lion-description.editorial-accent.editorial-hero.hero-positioning-copy) { font-size: clamp(11px,3.4vw,14px); line-height: 1.45; }
