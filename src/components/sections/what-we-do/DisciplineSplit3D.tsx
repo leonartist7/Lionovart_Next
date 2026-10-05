@@ -119,6 +119,12 @@ const SPOT_STOPS: [core: string, mid: string, edge: string][] = [
   ["255,150,72", "237,72,40", "229,25,42"],
 ];
 
+// Resize without cropping the source; the existing face controls framing.
+function cardArtworkUrl(source: string, width: number) {
+  if (!source.startsWith("https://res.cloudinary.com/") || !source.includes("/image/upload/")) return source;
+  return source.replace("/image/upload/", `/image/upload/f_auto,q_auto,c_limit,w_${width}/`);
+}
+
 function Pane({
   card,
   dir,
@@ -163,7 +169,7 @@ function Pane({
   // Card surfaces arrive under the intact film. Only the completed glass
   // faces separate, so no letterboxed video slices can become exposed.
   const cardZ = useTransform(cardP, [0, 1], reducedMotion ? [0, 0] : [0, 16]);
-  const backImageOpacity = useTransform(cardP, [0, 1], [0, 0.28]);
+  const backImageOpacity = useTransform(cardP, [0, 1], [0, 1]);
   const contentY = useTransform(contentP, [0, 1], reducedMotion ? [0, 0] : [18, 0]);
   const markOpacity = useTransform(contentP, [0, 1], [0, 0.24]);
 
@@ -229,11 +235,20 @@ function Pane({
           />
           {card.image ? (
             <motion.img
-              src={card.image}
+              src={cardArtworkUrl(card.image, 960)}
+              srcSet={[480, 800, 1200].map(width => `${cardArtworkUrl(card.image!, width)} ${width}w`).join(", ")}
+              sizes="(min-width: 1440px) 430px, (min-width: 768px) 30vw, 86vw"
               alt=""
               aria-hidden="true"
-              className="absolute inset-0 h-full w-full object-cover"
+              loading="lazy"
+              decoding="async"
+              className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
               style={{ opacity: backImageOpacity }}
+              onError={event => {
+                const image = event.currentTarget;
+                image.removeAttribute("srcset");
+                if (card.image && image.src !== card.image) image.src = card.image;
+              }}
             />
           ) : null}
           <motion.div
