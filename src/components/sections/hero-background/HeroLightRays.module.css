@@ -18,5 +18,5 @@
 .still {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 0%, #00ffff26 0%, #00ffff0a 35%, transparent 72%);
+  background: radial-gradient(ellipse at 50% 0%, #ffe14a26 0%, #ffe14a0a 35%, transparent 72%);
 }

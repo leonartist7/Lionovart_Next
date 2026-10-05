@@ -36,6 +36,8 @@ const getAnchorAndDir = (origin, w, h) => {
 const LightRays = ({
   raysOrigin = 'top-center',
   raysColor = DEFAULT_COLOR,
+  raysSecondaryColor = raysColor,
+  colorCycleDuration = 0,
   raysSpeed = 1,
   lightSpread = 1,
   rayLength = 2,
@@ -127,6 +129,8 @@ uniform vec2  iResolution;
 uniform vec2  rayPos;
 uniform vec2  rayDir;
 uniform vec3  raysColor;
+uniform vec3  raysSecondaryColor;
+uniform float colorCycleDuration;
 uniform float raysSpeed;
 uniform float lightSpread;
 uniform float rayLength;
@@ -196,16 +200,24 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
   }
 
   float brightness = 1.0 - (coord.y / iResolution.y);
-  fragColor.x *= 0.1 + brightness * 0.8;
-  fragColor.y *= 0.3 + brightness * 0.6;
-  fragColor.z *= 0.5 + brightness * 0.5;
+  if (colorCycleDuration > 0.0) {
+    // Preserve the gold and red hues through the beam's falloff.
+    fragColor.rgb *= 0.3 + brightness * 0.7;
+  } else {
+    fragColor.x *= 0.1 + brightness * 0.8;
+    fragColor.y *= 0.3 + brightness * 0.6;
+    fragColor.z *= 0.5 + brightness * 0.5;
+  }
 
   if (saturation != 1.0) {
     float gray = dot(fragColor.rgb, vec3(0.299, 0.587, 0.114));
     fragColor.rgb = mix(vec3(gray), fragColor.rgb, saturation);
   }
 
-  fragColor.rgb *= raysColor;
+  float cycleMix = colorCycleDuration > 0.0
+    ? 0.5 - 0.5 * cos(iTime * 6.2831853 / colorCycleDuration)
+    : 0.0;
+  fragColor.rgb *= mix(raysColor, raysSecondaryColor, cycleMix);
 
   if (lightMode > 0.5) {
     vec3 mapped = vec3(1.0) - exp(-max(fragColor.rgb, vec3(0.0)) * 1.35);
@@ -230,6 +242,8 @@ void main() {
         rayDir: { value: [0, 1] },
 
         raysColor: { value: hexToRgb(raysColor) },
+        raysSecondaryColor: { value: hexToRgb(raysSecondaryColor) },
+        colorCycleDuration: { value: Math.max(0, colorCycleDuration) },
         raysSpeed: { value: raysSpeed },
         lightSpread: { value: lightSpread },
         rayLength: { value: rayLength },
@@ -343,6 +357,8 @@ void main() {
     isVisible,
     raysOrigin,
     raysColor,
+    raysSecondaryColor,
+    colorCycleDuration,
     raysSpeed,
     lightSpread,
     rayLength,
@@ -363,6 +379,8 @@ void main() {
     const renderer = rendererRef.current;
 
     u.raysColor.value = hexToRgb(raysColor);
+    u.raysSecondaryColor.value = hexToRgb(raysSecondaryColor);
+    u.colorCycleDuration.value = Math.max(0, colorCycleDuration);
     u.raysSpeed.value = raysSpeed;
     u.lightSpread.value = lightSpread;
     u.rayLength.value = rayLength;
@@ -381,6 +399,8 @@ void main() {
     u.rayDir.value = dir;
   }, [
     raysColor,
+    raysSecondaryColor,
+    colorCycleDuration,
     raysSpeed,
     lightSpread,
     raysOrigin,

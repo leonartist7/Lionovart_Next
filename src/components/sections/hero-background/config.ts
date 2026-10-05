@@ -1,7 +1,7 @@
 export type Placement = { x: number; y: number; width: number; rotation: number; opacity: number; visible: boolean };
 export type Layer = { id: string; name: string; src: string; inCycle?: boolean; desktop: Placement; mobile: Placement };
 export type SceneSettings = { lionVisible: boolean; raysColor: string; raysOrigin: "top-center" | "bottom-center" };
-export const DEFAULT_SCENE: SceneSettings = { lionVisible: true, raysColor: "#00ffff", raysOrigin: "top-center" };
+export const DEFAULT_SCENE: SceneSettings = { lionVisible: true, raysColor: "#ffe14a", raysOrigin: "top-center" };
 export type Composition = { version: 1; layers: Layer[]; scene: SceneSettings };
 const names = ["Onyx & gold ring", "Ivory & gold ring", "Three-tone ring", "Flowing gold ribbon", "Open gold ribbon", "Fine gold ring", "Bold onyx ring"];
 export const DEFAULT_COMPOSITION: Composition = {
@@ -31,7 +31,7 @@ export function parseComposition(value: unknown): Composition | null {
       }
     }
   }
-  // Older exported layouts keep the original lion and cyan rays.
+  // Older exported layouts keep the default lion and gold rays.
   const scene = config.scene ?? DEFAULT_SCENE;
   if (typeof scene.lionVisible !== "boolean" || typeof scene.raysColor !== "string"
     || !/^#[0-9a-f]{6}$/i.test(scene.raysColor)

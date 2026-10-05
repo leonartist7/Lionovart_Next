@@ -7,7 +7,7 @@ import { useLionJourney } from "../lion-journey/LionJourney";
 import { useHeroComposition } from "./HeroComposition";
 import styles from "./HeroLightRays.module.css";
 
-// Keep the upstream JS + plain CSS component intact and load WebGL only on the client.
+// Load the ray shader only on the client.
 const LightRays = dynamic(() => import("@/components/ui/light-rays/LightRays"), { ssr: false });
 const subscribeVisibility = (callback: () => void) => {
   document.addEventListener("visibilitychange", callback);
@@ -25,11 +25,13 @@ export default function HeroLightRays() {
   const visible = useSyncExternalStore(subscribeVisibility, isPageVisible, serverVisible);
   const reducedMotion = useReducedMotion();
   const animated = active && visible && !reducedMotion;
-  return <motion.div className={styles.host} style={{ opacity }} aria-hidden="true" data-hero-light-rays data-rays-active={animated} data-rays-color={scene.raysColor} data-rays-origin={scene.raysOrigin}>
+  return <motion.div className={styles.host} style={{ opacity }} aria-hidden="true" data-hero-light-rays data-rays-active={animated} data-rays-color={scene.raysColor} data-rays-secondary-color="#ef152b" data-rays-cycle-seconds="16" data-rays-origin={scene.raysOrigin}>
     {active && reducedMotion && <div className={styles.still} style={{ background: `radial-gradient(ellipse at 50% ${scene.raysOrigin === "top-center" ? "0%" : "100%"}, ${scene.raysColor}26 0%, ${scene.raysColor}0a 35%, transparent 72%)` }} />}
     {animated && <LightRays
       raysOrigin={scene.raysOrigin}
       raysColor={scene.raysColor}
+      raysSecondaryColor="#ef152b"
+      colorCycleDuration={16}
       raysSpeed={1.5}
       lightSpread={0.8}
       rayLength={1.2}
