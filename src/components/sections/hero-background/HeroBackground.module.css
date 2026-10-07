@@ -2,9 +2,8 @@
 /* Preserve the supplied frame's native proportions and center the complete
    artwork on both axes. The fixed backdrop retires at Imagine's boundary. */
 .frame { object-fit: contain; object-position: 50% 50%; user-select: none; pointer-events: none; }
-.layer { position: absolute; left: var(--desktop-x); top: var(--desktop-y); width: var(--desktop-width); opacity: var(--desktop-opacity); transform: translate(-50%, -50%) rotate(var(--desktop-rotation)); }
-.layer img { display: block; width: 100%; height: auto; max-width: none; user-select: none; }
-@media(max-width:767px) { .layer { left: var(--mobile-x); top: var(--mobile-y); width: var(--mobile-width); opacity: var(--mobile-opacity); transform: translate(-50%, -50%) rotate(var(--mobile-rotation)); } }
+.frameLayer { position: absolute; left: var(--desktop-x); top: var(--desktop-y); width: 100%; height: 100%; opacity: var(--desktop-opacity); transform: translate(-50%, -50%) rotate(var(--desktop-rotation)) scale(var(--desktop-scale)); }
+@media(max-width:767px) { .frameLayer { left: var(--mobile-x); top: var(--mobile-y); opacity: var(--mobile-opacity); transform: translate(-50%, -50%) rotate(var(--mobile-rotation)) scale(var(--mobile-scale)); } }
 
 .pill, .panel { position: fixed; right: max(12px, env(safe-area-inset-right)); z-index: 11000; color: #f6eee2; border: 1px solid #c5a16666; background: #161516f5; box-shadow: 0 8px 32px #0006; font: 13px/1.45 var(--font-body), sans-serif; }
 .pill { bottom: max(12px, env(safe-area-inset-bottom)); width: min(350px, calc(100vw - 24px)); display: flex; align-items: center; gap: 2px; padding: 4px; border-radius: 999px; }

@@ -47,26 +47,15 @@ export default function HeroBackground() {
           const p = layer[profile];
           variables[`--${profile}-x`] = `${p.x}%`;
           variables[`--${profile}-y`] = `${p.y}%`;
-          variables[`--${profile}-width`] = `${p.width}vw`;
+          variables[`--${profile}-scale`] = p.width / 100;
           variables[`--${profile}-rotation`] = `${p.rotation}deg`;
           variables[`--${profile}-opacity`] = p.visible ? p.opacity / 100 : 0;
         }
-        const ribbon = layer.id === "4" || layer.id === "5";
-        return <div key={layer.id} className={styles.layer} style={variables as CSSProperties} data-background-layer={layer.id}>
-          <Image src={layer.src} alt="" width={ribbon ? 1672 : 1254} height={ribbon ? 941 : 1254}
-            sizes="150vw" draggable={false} />
+        return <div key={layer.id} className={styles.frameLayer} style={variables as CSSProperties} data-background-layer={layer.id}>
+          <Image src={layer.src} alt="" fill sizes="100vw" className={styles.frame}
+            loading="eager" draggable={false} data-hero-frame />
         </div>;
       })}
-      <Image
-        src="https://res.cloudinary.com/dgio9uutc/image/upload/v1791411672/hero_frame_1_soy84j.avif"
-        alt=""
-        fill
-        sizes="100vw"
-        className={styles.frame}
-        loading="eager"
-        draggable={false}
-        data-hero-frame
-      />
     </div>
     <HeroLightRays />
     {editing && <BackgroundEditor composition={composition} onChange={setComposition} />}
