@@ -78,8 +78,10 @@ export default function HeroSitePeek() {
       trackFunnelEvent(FUNNEL_EVENT.HERO_PEEK_SUBMITTED, { ok: false });
     } finally { setLoading(false); }
   };
+  const close = () => { restoreFocus.current = true; changeStep("closed"); };
   const expanded = step !== "closed";
   return <div ref={host} className="hero-invitation" data-trail-preserve-palette
+    onKeyDown={event => { if (event.key === "Escape" && expanded && !loading) { event.preventDefault(); close(); } }}
     onFocusCapture={() => setPaused?.(true)}
     onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused?.(false); }}>
     <div ref={journey?.cta} className={`hero-capsule ${expanded ? "hero-capsule-open" : ""} ${step === "done" ? "hero-capsule-done" : ""}`}>
@@ -105,15 +107,18 @@ export default function HeroSitePeek() {
             value={step === "website" ? website : contact} placeholder={step === "website" ? tr("Your website") : tr("Email or phone number")}
             onChange={event => { (step === "website" ? setWebsite : setContact)(event.target.value); setError(""); }}
             aria-invalid={!!error} aria-describedby={error ? "hero-intro-error" : undefined} />
+          <button type="button" className="hero-capsule-dismiss" disabled={loading} onClick={close} aria-label={tr("Close")}>
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <path d="m6 6 12 12M18 6 6 18" />
+            </svg>
+          </button>
           <button type="submit" disabled={loading} aria-label={step === "website" ? tr("Continue to contact details") : tr("Send your introduction")}>{loading ? "…" : "→"}</button>
         </motion.form>}
       </AnimatePresence>
     </div>
-    <div className="hero-capsule-meta">
-      {expanded && step !== "done" && <>
-        <button type="button" disabled={loading} onClick={() => { restoreFocus.current = step === "website"; changeStep(step === "contact" ? "website" : "closed"); }}>{step === "contact" ? tr("← Website") : tr("Close")}</button>
-      </>}
-    </div>
+    {step === "contact" && <div className="hero-capsule-meta">
+      <button type="button" disabled={loading} onClick={() => changeStep("website")}>{tr("← Website")}</button>
+    </div>}
     {error && <p id="hero-intro-error" role="alert" className="hero-form-error">{error} {step === "contact" && <a href={`mailto:${CONTACT_EMAIL}`}>{tr("Contact us ↗")}</a>}</p>}
     <span role="status" className="sr-only">{loading ? tr("Sending your introduction") : ""}</span>
   </div>;

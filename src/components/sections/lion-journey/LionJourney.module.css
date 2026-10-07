@@ -1,14 +1,11 @@
 .journey { position: relative; isolation: isolate; z-index: 2; background: #08080a; }
 .canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100svh; z-index: 1; pointer-events: none; visibility: hidden; overflow: hidden; }
 .canvas canvas { display: block; width: 100%; height: 100%; }
-.fallback { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 .poster { position: absolute; inset: 0; }
 .poster img { position: absolute; top: -17.5%; left: -17.5%; width: 135%; height: 135%; object-fit: contain; transform: scaleX(-1); }
-.journey[data-lion-ready] .poster, .journey[data-lion-ready] .fallback { opacity: 0; }
+.journey[data-lion-ready] .poster { opacity: 0; }
 .journey[data-lion-travelling] .poster { opacity: 0; }
-.journey[data-lion-still] .fallback { opacity: 1; transition: none; }
 .travellingStill { position:absolute; top:0; left:0; z-index:1; width:1px; height:1px; object-fit:contain; opacity:0; pointer-events:none; }
-.journey[data-opening-static] .fallback { display: none; }
 
 
 
@@ -66,6 +63,8 @@
 .journey :global(.hero-capsule-form input::placeholder) { color: #bcb7b0; }
 .journey :global(.hero-capsule-form button) { flex: 0 0 44px; height: 44px; color: #e8c995; font-size: 1.4375rem; border-radius: 50%; cursor: pointer; transition: background 160ms ease; }
 .journey :global(.hero-capsule-form button:hover) { background: #fff1; }
+.journey :global(.hero-capsule-form .hero-capsule-dismiss) { display: grid; place-items: center; color: #bcb7b0; }
+.journey :global(.hero-capsule-form .hero-capsule-dismiss:hover) { color: #f7f2eb; }
 .journey :global(.hero-capsule:focus-within) { outline: none; }
 .journey :global(.hero-capsule-meta) { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 32px; font-size: 0.625rem; color: #bab3aa; }
 .journey :global(.hero-capsule-meta button), .journey :global(.hero-capsule-meta a) { position: relative; display: flex; align-items: center; min-height: 44px; cursor: pointer; }
@@ -220,9 +219,8 @@
 .journey :global(.lion-social-proof .lion-trust) { margin:0; max-width:23ch; text-wrap:pretty; }
 @media(max-width:767px) { .journey :global(.lion-social-proof) { gap:.875rem; } .journey :global(.lion-social-proof .lion-trust) { flex:1; min-width:0; } }
 
-/* The editor hides the entire lion treatment, including both poster fallbacks. */
+/* The editor hides the model and both poster fallbacks. */
 .journey[data-lion-enabled="false"] .canvas,
-.journey[data-lion-enabled="false"] .fallback,
 .journey[data-lion-enabled="false"] .travellingStill,
 .journey[data-lion-enabled="false"] .poster { visibility: hidden !important; opacity: 0 !important; }
 

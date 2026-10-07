@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useMotionValue, type MotionValue } from "framer-motion";
-import { journeyPose, journeyProgress, openingPose, goldRoute, goldOrbitCenter, goldOrbitTurns, routePoint, lionCoveredByFrame, clamp, type Anchors, type Rect } from "./motion";
+import { journeyPose, journeyProgress, openingPose, lionCoveredByFrame, clamp, type Anchors, type Rect } from "./motion";
 import type { LionEngine } from "./engine";
 import { useHeroComposition } from "../hero-background/HeroComposition";
 import styles from "./LionJourney.module.css";
@@ -41,7 +41,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
   const video = useRef<HTMLDivElement>(null), videoSection = useRef<HTMLElement>(null);
   const cta = useRef<HTMLDivElement>(null);
   const proof = useRef<HTMLDivElement>(null), bridge = useRef<HTMLElement>(null), reveal = useRef<HTMLElement>(null);
-  const host = useRef<HTMLDivElement>(null), canvasHost = useRef<HTMLDivElement>(null), fallback = useRef<SVGSVGElement>(null);
+  const host = useRef<HTMLDivElement>(null), canvasHost = useRef<HTMLDivElement>(null);
   const travellingStill = useRef<HTMLImageElement>(null);
   const coverage = useRef(0), dialogOpen = useRef(false), update = useRef<() => void>(() => {});
   const opening = useRef<HTMLDivElement>(null);
@@ -69,7 +69,6 @@ export default function LionJourney({ children }: { children: ReactNode }) {
     let openingBounds: Rect | undefined, stageHeight = innerHeight, pinStart = 0, hostTop = 0;
     let disposed = false, frame = 0, ready = false, failed = false, loading = false;
     let time = 0, last = 0, pendingMeasure = true;
-    const fallbackLengths: number[] = [];
     let introReleased = document.documentElement.dataset.splashComplete === "true" || !document.querySelector("[data-intro]");
     let warmed = false;
     const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
@@ -105,28 +104,6 @@ export default function LionJourney({ children }: { children: ReactNode }) {
         }
       }
       engine?.resize(innerWidth, innerHeight);
-      engine?.setRoute(anchors);
-      const route = goldRoute(anchors);
-      if (fallback.current && host.current) {
-        fallback.current.setAttribute("viewBox", `0 ${rect(host.current).top} ${innerWidth} ${host.current.offsetHeight}`);
-        fallback.current.querySelectorAll("path").forEach((path, strand) => {
-          const s = strand / 11, baseBand = anchors!.mobile ? 3.5 : 5;
-          const d = Array.from({length: 321}, (_, i) => {
-            const t = i / 320, p = routePoint(route, t);
-            const widening = clamp((t - .12) / .28);
-            const band = baseBand * (.22 + .78 * widening * widening * (3 - 2 * widening));
-            const a = routePoint(route, Math.max(0, t - 0.001)), b = routePoint(route, Math.min(1, t + 0.001));
-            const length = Math.hypot(b.x-a.x, b.y-a.y) || 1;
-            const phase = t*44 + Math.floor(s*3)*2.094 + s*0.9;
-            const offset = (Math.sin(phase)*(Math.sin(t*21)*0.25+0.75)*band*0.85 + Math.sin(t*18+s*4)*band*0.22 + (s-0.5)*band*0.38)*Math.max(0, Math.sin(t*Math.PI))**0.3;
-            return `${i ? "L" : "M"}${(p.x+(b.y-a.y)/length*offset).toFixed(1)},${(p.y-(b.x-a.x)/length*offset).toFixed(1)}`;
-          }).join(" ");
-          path.setAttribute("d", d);
-          const length = path.getTotalLength();
-          fallbackLengths[strand] = length;
-          path.style.strokeDasharray = `${length * .68} ${length * .32}`;
-        });
-      }
       pendingMeasure = false;
     };
     const fail = () => { failed = true; ready = false; host.current?.removeAttribute("data-lion-ready"); container.style.visibility = "hidden"; engine?.dispose(); engine = undefined; };
@@ -181,21 +158,10 @@ export default function LionJourney({ children }: { children: ReactNode }) {
         travellingStill.current.style.transform = `translate3d(${lion.x - stillSize / 2}px,${lion.y - hostTop - stillSize / 2}px,0) scaleX(-1)`;
         travellingStill.current.style.opacity = showStill && visible ? "1" : "0";
       }
-      if (fallback.current) {
-        const origin = journeyPose(0, anchors);
-        const orbit = goldOrbitCenter(anchors);
-        fallback.current.style.transform = `translate3d(${lion.x - origin.x}px,${lion.y - origin.y + (lion.size - origin.size) * .22}px,0)`;
-        fallback.current.querySelector("g")?.setAttribute("transform", `translate(${orbit.x} ${orbit.y}) scale(${lion.size / origin.size}) translate(${-orbit.x} ${-orbit.y})`);
-        fallback.current.querySelectorAll("path").forEach((path, strand) => {
-          path.style.strokeDashoffset = String(-fallbackLengths[strand] * (goldOrbitTurns(p) + strand / 12));
-        });
-        fallback.current.style.opacity = String(ready && pinned && visible && !reduced() ? 0 : 1 - clamp((p - .34) / .38));
-      }
       host.current?.toggleAttribute("data-lion-still", reduced());
       host.current?.toggleAttribute("data-lion-travelling", pinned && visible);
       host.current?.toggleAttribute("data-opening-static", !pinned);
       host.current?.toggleAttribute("data-lion-ready", ready && pinned && visible && !reduced());
-      host.current?.toggleAttribute("data-gold-paused", dialogOpen.current);
       if (!visible || failed) { last = 0; engine?.pause(); return; }
       if (!engine) { void load(); return; }
       if (!ready) return;
@@ -215,8 +181,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       lion.y += pointerY * CURSOR_DRIFT_Y * influence;
       lion.pitch = (lion.pitch ?? 0) - pointerY * Math.PI / 90 * influence;
       lion.turn += (Math.sin(time * Math.PI / 5) * Math.PI / 60 + pointerX * Math.PI / 60) * influence / 1.25;
-      engine.setFlourishProgress(p);
-      engine.render(lion, scrollY, time, anchors.mobile, true, influence);
+      engine.render(lion, scrollY, anchors.mobile, true);
       warmed = true;
       host.current?.setAttribute("data-animation-active", String(introReleased && !dialogOpen.current));
       if (!dialogOpen.current && introReleased) frame = requestAnimationFrame(render);
@@ -248,7 +213,6 @@ export default function LionJourney({ children }: { children: ReactNode }) {
     return () => { window.removeEventListener("lionovart:splash-complete", releaseIntro); window.removeEventListener("pointerout", onPointerOut); window.removeEventListener("blur", neutralPointer); window.removeEventListener("pointermove", onPointer); disposed = true; cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener("scroll", wake); window.removeEventListener("resize", resize); window.removeEventListener("pageshow", resize); document.removeEventListener("visibilitychange", wake); if (heroLayer) { heroLayer.style.maskImage = ""; heroLayer.style.webkitMaskImage = ""; } update.current = () => {}; engine?.dispose(); };
   }, [progress, openingProgress, backdropOpacity]);
   return <Context.Provider value={context}><div ref={host} className={styles.journey} data-lion-journey data-lion-enabled={scene.lionVisible} data-lion-active={active}>
-    <svg ref={fallback} className={styles.fallback} aria-hidden="true" preserveAspectRatio="none" fill="none"><g>{Array.from({length:12},(_,i)=><path key={i} stroke={i%3 ? "#9a733a" : "#edd4a0"} strokeWidth={i%4 ? "0.7" : "1.2"} opacity="0.54" />)}</g></svg>
     {/* eslint-disable-next-line @next/next/no-img-element */}
     <img ref={travellingStill} className={styles.travellingStill} src="/models/lion/lion-poster.png?v=hid-20260914" alt="" aria-hidden="true" />
     <div ref={canvasHost} className={styles.canvas} aria-hidden="true" />{children}

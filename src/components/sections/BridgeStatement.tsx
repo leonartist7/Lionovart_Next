@@ -8,7 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * The couplet that frames the Strong-alone turn.
- * `recognition` (default variant) runs before it on black; `vow` runs after
+ * `recognition` (default variant) runs centered over the hero artwork; `vow` runs after
  * it on the cream the bloom created, which is also what keeps the handoff
  * into the IMAGINE section free of a light-space break.
  */
@@ -68,8 +68,8 @@ export default function BridgeStatement({
       ref={variant === "recognition" ? journey?.bridge : undefined}
       data-gold-bridge={variant === "recognition" ? "" : undefined}
       aria-labelledby={headingId}
-      className={`relative isolate flex min-h-[30svh] items-center overflow-hidden px-5 py-14 sm:px-8 sm:py-16 md:min-h-[34svh] md:px-[6vw] ${
-        isVow ? "bg-bg-surface-light text-[#171412]" : "bg-bg-dark text-white"
+      className={`relative isolate flex items-center overflow-hidden px-5 py-14 sm:px-8 sm:py-16 md:px-[6vw] ${
+        isVow ? "min-h-[30svh] md:min-h-[34svh] bg-bg-surface-light text-[#171412]" : "min-h-[100svh] bg-transparent text-white text-center"
       }`}
     >
       {isVow && <GoldThreads single />}
@@ -79,7 +79,7 @@ export default function BridgeStatement({
 
       <motion.div
         aria-hidden="true"
-        className="relative z-10 mx-auto flex w-full max-w-[1500px] flex-col gap-3 md:gap-4"
+        className={`relative z-10 mx-auto flex w-full max-w-[1500px] flex-col gap-3 md:gap-4 ${isVow ? "" : "items-center"}`}
         {...containerAnim}
       >
         <div className="overflow-hidden pb-[0.08em]">
@@ -95,7 +95,7 @@ export default function BridgeStatement({
           </motion.p>
         </div>
 
-        <div className={`overflow-hidden text-right ${editorial ? "px-[0.12em] pb-[0.2em] pt-[0.12em]" : "pb-[0.08em]"}`}>
+        <div className={`overflow-hidden ${isVow ? "text-right" : "text-center"} ${editorial ? "px-[0.12em] pb-[0.2em] pt-[0.12em]" : "pb-[0.08em]"}`}>
           <motion.p
             {...itemAnim}
             data-site-title-reveal
@@ -109,7 +109,7 @@ export default function BridgeStatement({
 
         <motion.p
           {...itemAnim}
-          className={`max-w-[42ch] self-end pt-2 text-right font-body text-[13px] leading-[1.5] sm:text-[14px] ${
+          className={`max-w-[42ch] pt-2 font-body text-[13px] leading-[1.5] sm:text-[14px] ${isVow ? "self-end text-right" : "self-center text-center"} ${
             isVow ? "text-[#171412]/70" : "text-white/55"
           }`}
         >

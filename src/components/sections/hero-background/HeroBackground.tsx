@@ -19,8 +19,9 @@ export default function HeroBackground() {
       frame = 0;
       const boundary = document.getElementById("stronger-together");
       if (!backdrop.current || !boundary) return;
-      const distance = boundary.getBoundingClientRect().top - innerHeight;
-      // Finish the fade before the light chapter enters the viewport.
+      const distance = boundary.getBoundingClientRect().top;
+      // Keep the artwork behind the centered bridge; fade as the next chapter
+      // reaches the top of the viewport, after the bridge has been read.
       const t = Math.max(0, Math.min(1, distance / (innerHeight * .45)));
       backdrop.current.style.opacity = String(t * t * (3 - 2 * t));
       backdrop.current.style.visibility = t === 0 ? "hidden" : "visible";
