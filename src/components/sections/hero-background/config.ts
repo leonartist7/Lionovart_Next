@@ -11,8 +11,8 @@ export const DEFAULT_COMPOSITION: Composition = {
     id: "hero-frame",
     name: "Hero frame",
     src: HERO_FRAME_SRC,
-    desktop: { x: 50, y: 50, width: 100, rotation: 0, opacity: 80, visible: true },
-    mobile: { x: 50, y: 50, width: 100, rotation: 0, opacity: 80, visible: true },
+    desktop: { x: 50, y: 50, width: 110, rotation: 0, opacity: 80, visible: true },
+    mobile: { x: 50, y: 50, width: 108, rotation: 0, opacity: 80, visible: true },
   }],
 };
 export const STORAGE_KEY = "lionovart.hero-composition.v1";
