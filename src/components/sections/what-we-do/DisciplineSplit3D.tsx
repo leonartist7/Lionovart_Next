@@ -50,7 +50,6 @@ interface FilmFrame {
   stageWidth: number;
   stageHeight: number;
   centerOffset: number;
-  handoffOffset: number;
 }
 
 /* â”€â”€â”€ Motion tuning â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -82,18 +81,17 @@ function cue(progress: number, start: number, end: number) {
   return Math.max(0, Math.min(1, (progress - start) / (end - start)));
 }
 
-// The cards retain the film's outline throughout: one 5% uniform shrink,
-// never a second width/height morph after the image disappears.
+// Reshape the film crops into compact cards around one fixed center. Layout
+// is measured once; only transforms change while scrolling in either direction.
 function handoffGeometry(frame: FilmFrame, progress: number) {
   const p = FRAME_EASE(cue(progress, HANDOFF_START, HANDOFF_END));
-  const filmScale = 1 + (FINAL_FRAME_SCALE - 1) * p;
-  const offset = frame.centerOffset + (frame.handoffOffset - frame.centerOffset) * p;
+  const width = frame.width + (frame.stageWidth * FINAL_FRAME_SCALE - frame.width) * p;
+  const height = frame.height + (frame.stageHeight * FINAL_FRAME_SCALE - frame.height) * p;
   return {
-    filmScale,
-    filmY: offset - frame.centerOffset,
-    glassX: frame.width * filmScale / frame.stageWidth,
-    glassY: frame.height * filmScale / frame.stageHeight,
-    glassOffset: offset,
+    height,
+    glassX: width / frame.stageWidth,
+    glassY: height / frame.stageHeight,
+    glassOffset: frame.centerOffset,
   };
 }
 
@@ -171,7 +169,7 @@ function Pane({
   return (
     <motion.div
       ref={registerPane}
-      className="opening-glass-pane relative min-h-0 min-w-0 flex-1"
+      className="opening-glass-pane relative min-h-0 min-w-0 flex-1 [--opening-art-size:clamp(8.5rem,42vw,10rem)]"
       style={{
         x: paneX,
         y: paneY,
@@ -188,6 +186,9 @@ function Pane({
       // Lift on hover; `z` composes with the group tilt instead of fighting it.
       whileHover={armed ? { z: 46, transition: { duration: 0.4, ease: "easeOut" } } : undefined}
     >
+      {/* Intrinsic card sizing: a square image plus a compact footer on
+          desktop; square art beside the copy in the phone stack. */}
+      <div aria-hidden="true" className="opening-pane-sizing pointer-events-none w-full pb-36 pt-[100%] max-md:h-[var(--opening-art-size)] max-md:p-0" />
       {/* The glass body rises underneath the fading, unbroken film. */}
       <motion.div
         className="absolute inset-0 z-[1] rounded-[inherit]"
@@ -243,12 +244,12 @@ function Pane({
             <motion.img
               src={cardArtworkUrl(card.image, 960)}
               srcSet={[480, 800, 1200].map(width => `${cardArtworkUrl(card.image!, width)} ${width}w`).join(", ")}
-              sizes="(min-width: 1440px) 430px, (min-width: 768px) 30vw, 86vw"
+              sizes="(min-width: 1440px) 380px, (min-width: 768px) 30vw, 160px"
               alt=""
               aria-hidden="true"
               loading="lazy"
               decoding="async"
-              className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
+              className="pointer-events-none absolute left-0 top-0 h-[var(--opening-art-size)] w-[var(--opening-art-size)] object-contain object-center md:aspect-square md:h-auto md:w-full"
               style={{ opacity: backImageOpacity }}
               onError={event => {
                 const image = event.currentTarget;
@@ -341,7 +342,7 @@ function Pane({
           </motion.span>
 
           <motion.div
-            className="opening-pane-copy absolute inset-x-0 bottom-0 z-10 flex min-h-[8.8rem] flex-col justify-end p-4 pt-16 text-left [background:linear-gradient(0deg,rgba(4,4,6,0.96)_0%,rgba(4,4,6,0.84)_64%,transparent_100%)] [text-shadow:0_1px_10px_rgba(0,0,0,0.75)] md:min-h-[10.5rem] md:p-6 md:pt-20"
+            className="opening-pane-copy absolute inset-x-0 bottom-0 z-10 flex h-36 flex-col justify-end bg-[#08080a]/95 p-4 text-left max-md:left-[var(--opening-art-size)] max-md:h-full max-md:p-3 md:p-5"
             style={{ opacity: contentP, y: contentY }}
           >
             <h3 className="max-w-[24ch] font-clash text-[clamp(1.05rem,2.2vw,1.55rem)] font-bold uppercase leading-[0.96] text-white [text-wrap:balance]">
@@ -349,7 +350,7 @@ function Pane({
             </h3>
             {/* Reserved height keeps the three headings on one baseline even
                 when a locale wraps the body to a different line count. */}
-            <p className="mt-1.5 max-w-[34ch] font-body text-[clamp(0.72rem,1.3vw,0.9rem)] leading-[1.45] text-white/70 md:mt-2 md:min-h-[3.9rem]">
+            <p className="mt-1.5 max-w-[34ch] font-body text-[clamp(0.72rem,1.3vw,0.9rem)] leading-[1.45] text-white/70 md:mt-2 md:min-h-[3.2rem]">
               {card.body}
             </p>
           </motion.div>
@@ -362,7 +363,7 @@ function Pane({
 
 /**
  * One source frame becomes three moving film crops on the same glass faces.
- * Shrink, fade, split, light and content overlap without a second reshape.
+ * Reshape, fade, split, light and content share one stationary center.
  * Film geometry is measured on layout changes, never on scroll.
  */
 export default function DisciplineSplit3D({
@@ -376,6 +377,7 @@ export default function DisciplineSplit3D({
   const stageRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const cardGroupRef = useRef<HTMLDivElement>(null);
+  const proofRef = useRef<HTMLDivElement>(null);
   const canvasNodesRef = useRef<(HTMLCanvasElement | null)[]>([]);
   const rectRef = useRef<DOMRect | null>(null);
   const paneNodesRef = useRef<(HTMLDivElement | null)[]>([]);
@@ -448,14 +450,10 @@ export default function DisciplineSplit3D({
   const filmOpacity = useTransform(flip, [HANDOFF_START, FILM_FADE_END], [1, 0], { ease: FRAME_EASE });
   // Switch from the native film to matching pane crops while still joined.
   const joinedFilmOpacity = useTransform(flip, p => p <= HANDOFF_START ? 1 : 0);
-  const filmTransform = useTransform(flip, (p) => {
-    if (!filmFrame || reduce) return "translateX(-50%)";
-    const geometry = handoffGeometry(filmFrame, p);
-    return `translateX(-50%) translateY(${geometry.filmY}px) scale(${geometry.filmScale})`;
-  });
+  const filmTransform = "translateX(-50%)";
   const cardTransform = useTransform(flip, (p) => {
     if (!filmFrame) return "none";
-    if (reduce) return `translateY(${filmFrame.centerOffset}px) scale(${filmFrame.width / filmFrame.stageWidth}, ${filmFrame.height / filmFrame.stageHeight})`;
+    if (reduce) return `translateY(${filmFrame.centerOffset}px) scale(${FINAL_FRAME_SCALE})`;
     const geometry = handoffGeometry(filmFrame, p);
     return `translateY(${geometry.glassOffset}px) scale(${geometry.glassX}, ${geometry.glassY})`;
   });
@@ -464,8 +462,8 @@ export default function DisciplineSplit3D({
   const proofTransform = useTransform(flip, (p) => {
     if (!filmFrame) return "none";
     const geometry = handoffGeometry(filmFrame, p);
-    const offset = reduce ? filmFrame.centerOffset : geometry.glassOffset;
-    const height = filmFrame.height * (reduce ? 1 : geometry.filmScale);
+    const offset = geometry.glassOffset;
+    const height = reduce ? filmFrame.stageHeight * FINAL_FRAME_SCALE : geometry.height;
     return `translateY(${offset + (height - filmFrame.stageHeight) / 2}px)`;
   });
   // Let taller phones show more of the film without crowding the invitation.
@@ -497,8 +495,8 @@ export default function DisciplineSplit3D({
     setJoinedFilmVisible(v <= HANDOFF_START);
   });
 
-  // Fit the shared film/card outline to the safe viewport with its source
-  // aspect intact. The final assembly stays at 95% of this frame.
+  // Fit source-aspect film and the final card/proof assembly around the
+  // same stopping point. The video is already parked before the split begins.
   const measureFilm = useCallback(() => {
     const v = videoRef.current, stage = stageRef.current;
     if (!v || !stage || !stage.offsetHeight || !stage.offsetWidth) return;
@@ -514,29 +512,32 @@ export default function DisciplineSplit3D({
     const navClearance = Number.parseFloat(openingStyles?.getPropertyValue("--hero-nav-clearance") || "") || 100;
     const safeTop = pinned ? navClearance + 16 : 24;
     const safeBottom = viewport - 24;
-    const availableHeight = Math.max(1, safeBottom - safeTop);
-    // Keep the film close to the joined cards instead of making it nearly
-    // fullscreen. Portrait media keeps its generous available height.
-    const scale = Math.min(viewportWidth * 0.86 / sourceWidth,
-      stage.offsetWidth * 1.14 / sourceWidth,
-      (landscape ? 1400 : 420) / sourceWidth,
-      availableHeight * (landscape ? 0.88 : 0.94) / sourceHeight);
-    const fittedWidth = sourceWidth * scale, fittedHeight = sourceHeight * scale;
+    const stageWidth = stage.offsetWidth, stageHeight = stage.offsetHeight;
     const centerPercent = work ? Number.parseFloat(getComputedStyle(work).getPropertyValue("--opening-video-center")) || 41 : 50;
     const stageCenter = pinned ? viewport * (centerPercent + Number.parseFloat(settledY)) / 100 : viewport / 2;
-    const filmCenter = pinned ? (safeTop + safeBottom) / 2 : viewport / 2;
-    const stageWidth = stage.offsetWidth, stageHeight = stage.offsetHeight;
-    const centerOffset = filmCenter - stageCenter;
-    const top = stageHeight / 2 + centerOffset - fittedHeight / 2;
-    const handoffScale = FINAL_FRAME_SCALE;
-    const handoffHeight = fittedHeight * handoffScale;
-    // Reserve space for the outer pane's split and a modest perspective tilt.
+    const finalHeight = stageHeight * FINAL_FRAME_SCALE;
     const splitAllowance = landscape ? 12 : Math.min(28, viewport * 0.026);
-    const handoffCenter = Math.max(safeTop + splitAllowance + handoffHeight / 2,
-      Math.min(stageCenter, safeBottom - splitAllowance - handoffHeight / 2));
-    const nextFrame: FilmFrame = { width: fittedWidth, height: fittedHeight, top,
-      stageWidth, stageHeight, centerOffset,
-      handoffOffset: handoffCenter - stageCenter };
+    const proof = proofRef.current;
+    const proofGap = proof ? Number.parseFloat(getComputedStyle(proof).top) - stageHeight : 0;
+    const proofReserve = proof ? proof.offsetHeight + Math.max(0, proofGap) : 0;
+    const minCenter = safeTop + splitAllowance + finalHeight / 2;
+    const maxCenter = safeBottom - splitAllowance - proofReserve - finalHeight / 2;
+    const sharedCenter = Math.max(minCenter, Math.min(stageCenter, maxCenter));
+    // Keep the whole source image inside the space around that same center;
+    // this removes the upward translation during the video-to-card handoff.
+    const filmHeight = Math.max(1, 2 * Math.min(
+      sharedCenter - safeTop - splitAllowance,
+      safeBottom - sharedCenter - splitAllowance,
+    ));
+    const scale = Math.min(viewportWidth * 0.86 / sourceWidth,
+      stageWidth * 1.14 / sourceWidth,
+      (landscape ? 1400 : 420) / sourceWidth,
+      filmHeight / sourceHeight);
+    const width = sourceWidth * scale, height = sourceHeight * scale;
+    const centerOffset = sharedCenter - stageCenter;
+    const nextFrame: FilmFrame = { width, height,
+      top: stageHeight / 2 + centerOffset - height / 2,
+      stageWidth, stageHeight, centerOffset };
     setFilmFrame(previous => previous
       && (Object.keys(nextFrame) as (keyof FilmFrame)[]).every(key => Math.abs(previous[key] - nextFrame[key]) < 0.1)
       ? previous : nextFrame);
@@ -574,6 +575,7 @@ export default function DisciplineSplit3D({
   useEffect(() => {
     const observer = new ResizeObserver(measureFilm);
     if (stageRef.current) observer.observe(stageRef.current);
+    if (proofRef.current) observer.observe(proofRef.current);
     window.addEventListener("resize", measureFilm);
     return () => { observer.disconnect(); window.removeEventListener("resize", measureFilm); };
   }, [measureFilm]);
@@ -811,7 +813,7 @@ export default function DisciplineSplit3D({
     <section
       ref={(node) => { sectionRef.current = node; journey?.setVideoSection(node); }}
       data-cursor-behind
-      data-opening-transition="continuous-split-v4"
+      data-opening-transition="square-art-split-v5"
       id={pinned ? undefined : "what-we-build"}
       data-cards-armed={armed}
       data-film-active={filmActive}
@@ -901,18 +903,17 @@ export default function DisciplineSplit3D({
             )}
           </motion.div>
 
-          {/* The outline stays constant while its faces split and fade. */}
+          {/* The outline reshapes around a fixed center as its faces split. */}
           <motion.div ref={cardGroupRef} className="opening-card-morph relative"
             style={{ transform: cardTransform, opacity: filmFrame ? 1 : 0,
               transformStyle: "preserve-3d" }}>
           {/* Glass plane â€” tilts as one sheet so the three panes stay a single
               object. Individual feedback lives on the panes' hover lift. */}
           <motion.div
-            className={`opening-film-plane relative flex aspect-[9/16] w-full ${isDesktop ? "flex-row" : "flex-col"} md:aspect-video`}
+            className={`opening-film-plane relative flex w-full ${isDesktop ? "flex-row" : "flex-col"}`}
             style={{
               rotateX,
               rotateY,
-              aspectRatio: filmFrame ? filmFrame.width / filmFrame.height : undefined,
               transformStyle: "preserve-3d",
               willChange: "transform",
             }}
@@ -953,7 +954,7 @@ export default function DisciplineSplit3D({
             />
           </motion.div>
           </motion.div>
-          {pinned && <motion.div className="opening-proof-stage" style={{ opacity: proofPresence, transform: proofTransform }}>
+          {pinned && <motion.div ref={proofRef} className="opening-proof-stage" style={{ opacity: proofPresence, transform: proofTransform }}>
             <OpeningProof />
           </motion.div>}
         </motion.div>
