@@ -23,6 +23,12 @@ const eslintConfig = defineConfig([
       "@typescript-eslint/no-require-imports": "off",
     },
   },
+  {
+    // Preserve the React Bits registry's imperative MotionValue/ref implementation.
+    // Application components retain the normal React compiler checks.
+    files: ["src/components/ui/jelly-radio/JellyRadio.jsx"],
+    rules: { "react-hooks/refs": "off" },
+  },
 ]);
 
 export default eslintConfig;

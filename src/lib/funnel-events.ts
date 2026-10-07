@@ -6,6 +6,9 @@ import { posthog, initPostHog } from "./posthog-client";
 // events outside the NOVA conversation lifecycle: hero/banner/sticky-bar
 // clicks and the /audit form, not chat session events.
 export const FUNNEL_EVENT = {
+  WORK_ENQUIRY_COMPLETED: "funnel.work_enquiry_completed",
+  WORK_BOOKING_OPENED: "funnel.work_booking_opened",
+  WORK_AUDIT_OPENED: "funnel.work_audit_opened",
   HERO_PEEK_SUBMITTED: "funnel.hero_peek_submitted",
   HERO_PEEK_CTA_CLICKED: "funnel.hero_peek_cta_clicked",
   FOUNDER_BANNER_CLICKED: "funnel.founder_banner_clicked",

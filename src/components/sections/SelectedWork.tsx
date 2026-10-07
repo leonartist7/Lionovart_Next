@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import Image from "next/image";
+import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Pause, Play } from "lucide-react";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
@@ -247,7 +248,7 @@ export default function SelectedWork({ mode = "work", onHeadingClick }: { mode?:
           <h2 id="services-heading" className={styles.serviceHeading}>
             <button type="button" onClick={onHeadingClick} aria-pressed="true" className={styles.headingSwitch}>{siteT.services.heading} <span>{siteT.services.headingAccent}</span></button>
           </h2>
-        </div> : <h2 id="selected-work-heading" className={styles.eyebrow}><span aria-hidden="true" />{t("eyebrow")}</h2>}
+        </div> : <><h2 id="selected-work-heading" className={styles.eyebrow}><span aria-hidden="true" />{t("eyebrow")}</h2><Link href="/work" className={styles.allWork}>Explore all work ↗</Link></>}
       </header>
       <div ref={stageRef} className={styles.stage} style={{ "--project-color": project.color } as CSSProperties} role="region" aria-label={`${projectName} — ${projectDescription}`} tabIndex={0}
         onPointerEnter={(event) => { if (event.pointerType === "mouse") setHovered(true); }}

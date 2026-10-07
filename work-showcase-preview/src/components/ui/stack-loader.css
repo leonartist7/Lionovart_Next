@@ -1,0 +1,15 @@
+.lv-stack-loader{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;gap:40px;padding:32px 56px;height:100dvh;overflow:hidden;color:#0d0d0d;font-family:'LV Clash',Arial,sans-serif}
+.lv-loader-left,.lv-loader-right{opacity:0;max-width:35%;line-height:1.1}
+.lv-loader-left{font-size:clamp(22px,2.6vw,38px);font-weight:700;letter-spacing:-.035em;word-spacing:.13em}
+.lv-stack-loader:focus{outline:none}
+.lv-loader-right{font-family:'LV Playfair',Georgia,serif;font-style:italic;font-size:clamp(28px,3vw,44px);color:#c51625;letter-spacing:-.025em}
+.lv-loader-stack{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);flex:none;opacity:0}
+.lv-loader-frame{position:absolute;inset:0;overflow:hidden;border-radius:5px;background:#e7ded4;opacity:0;will-change:transform,opacity}
+.lv-loader-frame img{width:100%;height:100%;display:block;object-fit:cover}
+.lv-loader-skip{position:absolute;top:24px;right:32px;display:flex;align-items:center;gap:14px;min-height:44px;padding:10px 0;background:transparent;color:#59544f;font-size:12px}
+.lv-loader-signature{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:9px}
+.lv-loader-signature>span{font-size:28px;line-height:1;font-weight:700;letter-spacing:-.045em;white-space:nowrap}
+.lv-loader-signature sup{font-size:9px;vertical-align:top;margin-left:4px}
+.lv-loader-signature small{font-size:9px;font-weight:500;letter-spacing:.18em;color:#59544f}
+@media(max-width:760px){.lv-stack-loader{padding:24px}.lv-loader-left{position:absolute;top:10dvh;left:16px;right:16px;max-width:none;text-align:center;font-size:clamp(22px,5.5vw,32px)}.lv-loader-right{position:absolute;bottom:12dvh;left:16px;right:16px;max-width:none;text-align:center;font-size:clamp(26px,6.5vw,36px)}.lv-loader-skip{right:20px;top:8px}.lv-loader-signature{bottom:18px}.lv-loader-signature>span{font-size:24px}.lv-loader-signature small{font-size:8px}}
+@media(prefers-reduced-motion:reduce){.lv-stack-loader{display:none}}

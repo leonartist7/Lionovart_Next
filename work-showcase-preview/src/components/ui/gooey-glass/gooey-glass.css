@@ -1,0 +1,35 @@
+/* Shared frosted filter surface, adapted from Simey's styling. MIT in LICENSE.txt. */
+.lv-page{overflow-anchor:none}
+.lv-page .lv-filter-dock{background:#f5f0eb;border:0;border-radius:28px;box-shadow:inset 0 0 0 1px #ffffffad,inset 0 1px 2px #ffffffb3,inset 0 -1px 1px #6c584026;backdrop-filter:none;-webkit-backdrop-filter:none;pointer-events:none}
+.lv-filter-dock:before,.lv-filter-dock:after{content:none}
+.lv-page .lv-dock-tabs{background:linear-gradient(155deg,#fffaf380,#f5f0eb66);border:1px solid #ffffffb3;box-shadow:inset 0 1px 1px #ffffffd9,inset 0 -1px 2px #6c58401a;border-radius:999px;padding:5px;gap:4px;min-height:56px;pointer-events:auto}
+.lv-page .lv-dock-category{position:relative;isolation:isolate;min-height:44px;border:0;border-radius:999px;background:transparent;box-shadow:none;pointer-events:none}
+.lv-page .lv-dock-category:has([aria-expanded='true']){background:transparent}
+.lv-page .lv-dock-toggle{font-size:12px;font-weight:500;color:#0d0d0d;text-shadow:0 1px 2px #fff9;pointer-events:auto}
+.lv-page .lv-dock-remove{position:relative;z-index:2;color:#b20f22;pointer-events:auto}
+.lv-gooey-highlight{position:absolute;inset:0;border-radius:999px;background:#fffaf366;box-shadow:inset 0 1px 2px #ffffffb3,inset 0 -1px 3px #6c584020;z-index:-1;pointer-events:none}
+.lv-page .lv-dock-expansion{background:linear-gradient(155deg,#ffffff14,#f5f0eb05);border-radius:24px;box-shadow:inset 0 0 0 1px #ffffff66,inset 0 1px 1px #ffffff80;backdrop-filter:none;-webkit-backdrop-filter:none;pointer-events:auto}
+.lv-page .lv-dock-content{pointer-events:auto;padding-top:14px;padding-bottom:18px}
+.lv-page .lv-dock-content .jelly-radio__chip{pointer-events:auto;isolation:isolate}
+.lv-page .lv-dock-content .jelly-radio__skin{backdrop-filter:none;-webkit-backdrop-filter:none;background:linear-gradient(155deg,#fffaf3ad,#eee5db73);color:#3d3730;border-color:#ffffffad;box-shadow:inset 0 1px 1px #ffffff99;transition:color 320ms ease,border-color 320ms ease}
+/* Gradients cannot interpolate: fade a dark layer over the stable cream skin. */
+.lv-page .lv-dock-content .jelly-radio__skin::after{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(155deg,#302b29f5,#0d0d0df5);box-shadow:inset 0 1px 2px #ffffff3d;opacity:0;pointer-events:none;transition:opacity 320ms ease}
+.lv-page .lv-dock-content :is(.jelly-radio__label,.jelly-radio__icon){position:relative;z-index:1}
+.lv-page .lv-dock-content .jelly-radio__chip[data-on='true'] .jelly-radio__skin{background:linear-gradient(155deg,#fffaf3ad,#eee5db73);color:#fff;border-color:#ffffff3d;box-shadow:inset 0 1px 1px #ffffff99}
+.lv-page .lv-dock-content .jelly-radio__chip[data-on='true'] .jelly-radio__skin::after{opacity:1}
+.lv-page .lv-legacy-service{pointer-events:auto;background:#f5f0ebf5}
+.lv-page .lv-header{background:#f5f0eb}
+.lv-page .lv-header nav{position:relative;gap:4px;padding:4px;border-radius:999px;border:1px solid #ffffffd9;background:linear-gradient(155deg,#ffffff73,#ffffff24);box-shadow:inset 0 1px 2px #fff,inset 0 -1px 1px #8f76521a;backdrop-filter:none;-webkit-backdrop-filter:none}
+.lv-page .lv-header nav a{padding:11px 14px;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:999px}
+.lv-header nav .lv-nav-current{background:#ffffffa6;box-shadow:inset 0 1px 2px #fff}
+.lv-page .lv-cta{position:relative;isolation:isolate;backdrop-filter:none;-webkit-backdrop-filter:none;border:1px solid #ffffff80;background:linear-gradient(155deg,#f02237f0,#c31027f2);box-shadow:inset 0 2px 2px #ffffff70,inset 0 -2px 4px #790c2730;color:#fff}
+.lv-page .lv-cta:before{content:'';position:absolute;inset:1px;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,#ffffff40,transparent 32%,transparent 72%,#ffffff14);z-index:-1}
+.lv-page .lv-cta:hover{background:linear-gradient(155deg,#ed2035f2,#b90f24f2)}
+.lv-page .lv-service-labels li,.lv-audit-form input{backdrop-filter:none;-webkit-backdrop-filter:none}
+.lv-audit-form input{box-shadow:inset 0 1px 2px #ffffff15;background:#ffffff0b}
+/* One static blur behind the complete dock; all inner controls reuse it. */
+@supports ((backdrop-filter:blur(10px)) or (-webkit-backdrop-filter:blur(10px))){.lv-page .lv-filter-dock{background:linear-gradient(145deg,#ffffff26,#fff9ef00 42%,#e5d5c108),#f5f0eb1f;backdrop-filter:blur(10px) saturate(1.4);-webkit-backdrop-filter:blur(10px) saturate(1.4)}}
+@media(max-width:760px){.lv-page .lv-header nav{display:none}.lv-page .lv-dock-toggle{font-size:11px}}
+@media(max-width:360px){.lv-page .lv-dock-toggle{padding-inline:2px}}
+@media(hover:none){.lv-page .lv-cta:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.lv-page .lv-cta{transition:background-color .15s}.lv-page .lv-cta:hover{transform:none}}

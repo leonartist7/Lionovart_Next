@@ -6,17 +6,9 @@ import "../globals.css";
 // Required Lenis stylesheet — missing this causes native scroll to fight Lenis every frame.
 import "lenis/dist/lenis.css";
 import { clashDisplay, dmSans, playfairDisplay } from "@/lib/fonts";
-import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
+import PublicExperience from "@/components/providers/PublicExperience";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { PostHogInit } from "@/components/PostHogInit";
-import { NovaPortalMount } from "@/components/ai-strategist/NovaPortalMount";
-import { StickyCTA } from "@/components/ai-strategist/StickyCTA";
-import CustomCursor from "@/components/ui/CustomCursor";
-import TubesCursor from "@/components/ui/TubesCursor";
-import BottomBlur from "@/components/ui/BottomBlur";
-import { IntroProvider } from "@/components/ui/IntroLifecycle";
-import SplashScreen from "@/components/ui/SplashScreen";
-import SiteTitleReveal from "@/components/ui/SiteTitleReveal";
 import { SITE, SITE_URL, OG_IMAGE } from "@/lib/seo/config";
 import { JsonLd } from "@/lib/seo/JsonLd";
 import { isLocale, localeDetails } from "@/i18n/routing";
@@ -89,25 +81,14 @@ export default async function RootLayout({
 
   return (
     <html lang={localeDetails[locale].htmlLang} className={`${clashDisplay.variable} ${dmSans.variable} ${playfairDisplay.variable} h-full antialiased`} style={{ backgroundColor: "#000" }} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col" style={{ backgroundColor: "#000" }}>
+      <body className="min-h-full flex flex-col bg-black">
         {/* Site-wide entity graph — Organization, ProfessionalService, WebSite.
             Powers Google rich results + AEO citations (ChatGPT/Gemini/Perplexity). */}
         <JsonLd data={[organizationSchema(), localBusinessSchema(), websiteSchema(locale)]} />
         <PostHogInit />
         <NextIntlClientProvider locale={locale} messages={messages}>
         <LanguageProvider>
-          <IntroProvider>
-          <SmoothScrollProvider>
-            <SplashScreen />
-            <SiteTitleReveal />
-            {children}
-          </SmoothScrollProvider>
-          <NovaPortalMount />
-          <StickyCTA />
-          <TubesCursor />
-          <CustomCursor />
-          <BottomBlur />
-        </IntroProvider>
+          <PublicExperience>{children}</PublicExperience>
         </LanguageProvider>
         </NextIntlClientProvider>
       </body>

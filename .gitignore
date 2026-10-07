@@ -27,6 +27,8 @@ ui-debug.log
 .next-typography-build/
 .next-hero-check*/
 /reports/selected-work/
+.next-work/
+/reports/work-showcase/
 
 .vercel
 .env*
