@@ -6,7 +6,7 @@
   margin: 0;
   font-size: var(--closing-heading);
   font-weight: 700;
-  line-height: 1.02;
+  line-height: var(--closing-line-height, 1.02);
   letter-spacing: -0.025em;
   word-spacing: 0.08em;
   text-transform: uppercase;
@@ -20,7 +20,7 @@
 .slot {
   display: grid;
   align-items: center;
-  margin-top: 8px;
+  margin-top: var(--closing-word-gap, 8px);
   min-height: var(--closing-art);
 }
 
