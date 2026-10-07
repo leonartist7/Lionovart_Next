@@ -4,7 +4,6 @@ import { HeroCompositionProvider } from "./hero-background/HeroComposition";
 import HeroBackground from "@/components/sections/hero-background/HeroBackground";
 import HeroOpening from "@/components/sections/lion-journey/HeroOpening";
 import LionJourney from "@/components/sections/lion-journey/LionJourney";
-import StrongTogetherTransition from "@/components/sections/StrongTogetherTransition";
 import BridgeStatement from "@/components/sections/BridgeStatement";
 
 import CompactIntroduction from "@/components/sections/CompactIntroduction";
@@ -42,14 +41,12 @@ export async function PageBuilder() {
         <HeroBackground />
         <HeroOpening />
         <BridgeStatement />
-        <StrongTogetherTransition />
         <span data-voice-reveal-boundary aria-hidden="true" />
+        <NovaSection id="problems"><PawRevealStack /></NovaSection>
       </LionJourney></HeroCompositionProvider>
 
       {/* Later chapters cover the retired opening scene. */}
       <div className="relative z-[2]">
-        <BridgeStatement variant="vow" />
-        <NovaSection id="problems"><PawRevealStack /></NovaSection>
         <SelectedWork goldThreads />
         <NovaSection id="services"><ServicesSwitcher /></NovaSection>
         <NovaSection id="about"><CompactIntroduction /></NovaSection>

@@ -13,6 +13,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { SovereignFoilContour } from "@/components/ui/SovereignFoilContour";
 import { SHOWCASE_IMAGES } from "./showcase-images";
 import { ImageStreamHero } from "@/components/ui/image-stream-hero";
+import { useLionJourney } from "./lion-journey/LionJourney";
 
 const PAW_IMAGE =
   "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_320/v1775085187/Untitled_design_4_muu53f.png";
@@ -244,11 +245,22 @@ export default function PawRevealStack() {
   const [reduceMotion, setReduceMotion] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const chapterRef = useRef<HTMLElement>(null);
+  const journey = useLionJourney();
+  const setRevealSection = journey?.setRevealSection;
+  const setReveal = journey?.setReveal;
+  useEffect(() => {
+    // Imagine now retires the opening scene; the removed white chapter used
+    // to own this required anchor for the lion's scroll measurements.
+    setRevealSection?.(chapterRef.current);
+    setReveal?.(1);
+    return () => setRevealSection?.(null);
+  }, [setRevealSection, setReveal]);
   const staticScene = reduceMotion || scene.viewport < 500 || scene.height > scene.viewport * 1.2;
   // The opening circle is wider than the viewport. Reserve its actual
   // overhang so the previous section cannot cut off its top edge.
   const circleOverhang = staticScene ? 0 : Math.max(0, (scene.diameter - scene.viewport) / 2);
-  const entryPadding = Math.ceil(circleOverhang + Math.min(128, Math.max(48, scene.viewport * 0.08)));
+  // Meet the red arc immediately, without the former light spacer.
+  const entryPadding = Math.ceil(circleOverhang);
   const exitPadding = Math.min(64, Math.max(24, scene.viewport * 0.04));
   const { t, locale } = useLanguage();
   const lenis = useLenis();
@@ -288,6 +300,13 @@ export default function PawRevealStack() {
     scrollYProgress,
     staticScene ? [0, 1] : [0, 0.69, 0.85, 0.91, 1],
     staticScene ? [1, 1] : [1, 1, 0.22, 0.075, 0.075],
+  );
+  // The opening stays dark around the red circle. Reveal the light work
+  // canvas only as the circle contracts into the central logo.
+  const workCanvasOpacity = useTransform(
+    scrollYProgress,
+    staticScene ? [0, 1] : [0, 0.69, 0.85, 1],
+    staticScene ? [0, 0] : [0, 0, 1, 1],
   );
   const cardOpacity = useTransform(
     scrollYProgress,
@@ -354,8 +373,13 @@ export default function PawRevealStack() {
       id="problems"
       aria-label={tr("Imagine and one partnership")}
       style={{ paddingTop: entryPadding, paddingBottom: exitPadding, height: scene.height + (staticScene ? 0 : scene.viewport * 4.1) + entryPadding + exitPadding }}
-      className="relative z-30 isolate overflow-clip bg-bg-surface-light"
+      className="relative z-30 isolate overflow-clip bg-[#08080a]"
     >
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-bg-surface-light"
+        style={{ opacity: workCanvasOpacity }}
+      />
       <div style={{ height: scene.height, top: staticScene ? 0 : Math.min(0, (scene.viewport - scene.height) / 2) }} className={staticScene ? "relative isolate overflow-visible" : "sticky isolate overflow-visible"}>
         <GoldThreads />
         {showWorkStream && !staticScene ? <motion.div

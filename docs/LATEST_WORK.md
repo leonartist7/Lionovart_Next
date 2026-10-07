@@ -30,6 +30,15 @@ PR #85 describes an older combined preview. Do not use its head as the current s
 - Earlier consolidated About page, compact comparison, gold decoration, persistent Imagine reveals, results/footer and portal work.
 - Recent closing CTA with gold ribbons and responsive type/button sizing.
 
+## Follow-up: framed opening into Imagine
+
+- Added the supplied Cloudinary `hero_frame_1_soy84j.avif` as a decorative, viewport-fitted image in the fixed hero backdrop. It stays with the opening/film/bridge and exits at Imagine's boundary; links and controls remain interactive.
+- Removed Stronger Together and the separate white vow lead-in from the homepage.
+- Moved Imagine into the journey context and registered its section as the required reveal boundary, preserving the lion's opening measurements.
+- Imagine now enters as a red circle against the dark opening. The ivory work canvas appears during circle contraction, preserving the paw/benefit reveals, exact logo and varied image stream.
+- Removed the extra entrance spacer. Existing reduced-motion/static card behavior remains.
+- Source checks cover composition and boundary wiring. Preview build and visual feel-check remain separate gates; no local browser verification is claimed.
+
 ## Local-to-cloud limitation — unresolved
 
 The local Windows execution service failed before any filesystem or git command ran: sandbox provisioning / sandbox-bin lock failure. The Codex app project and terminal readers also failed.

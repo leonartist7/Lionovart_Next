@@ -17,7 +17,7 @@ export default function HeroBackground() {
 
     const update = () => {
       frame = 0;
-      const boundary = document.getElementById("stronger-together");
+      const boundary = document.getElementById("problems");
       if (!backdrop.current || !boundary) return;
       const distance = boundary.getBoundingClientRect().top;
       // Keep the artwork behind the centered bridge; fade as the next chapter
@@ -57,6 +57,15 @@ export default function HeroBackground() {
             sizes="150vw" draggable={false} />
         </div>;
       })}
+      <Image
+        src="https://res.cloudinary.com/dgio9uutc/image/upload/v1791411672/hero_frame_1_soy84j.avif"
+        alt=""
+        fill
+        sizes="100vw"
+        className={styles.frame}
+        draggable={false}
+        data-hero-frame
+      />
     </div>
     <HeroLightRays />
     {editing && <BackgroundEditor composition={composition} onChange={setComposition} />}
