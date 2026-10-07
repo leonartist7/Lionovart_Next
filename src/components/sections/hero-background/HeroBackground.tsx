@@ -63,6 +63,7 @@ export default function HeroBackground() {
         fill
         sizes="100vw"
         className={styles.frame}
+        loading="eager"
         draggable={false}
         data-hero-frame
       />

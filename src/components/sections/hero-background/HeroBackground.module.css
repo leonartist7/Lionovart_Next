@@ -1,7 +1,7 @@
 .backdrop { position: fixed; inset: 0; height: 100svh; overflow: hidden; z-index: 0; pointer-events: none; contain: paint; }
-/* Fit the complete decorative frame to every viewport without cropping its edges.
-   It shares the fixed backdrop's Imagine boundary and never intercepts input. */
-.frame { object-fit: fill; user-select: none; pointer-events: none; }
+/* Preserve the supplied frame's native proportions and center the complete
+   artwork on both axes. The fixed backdrop retires at Imagine's boundary. */
+.frame { object-fit: contain; object-position: 50% 50%; user-select: none; pointer-events: none; }
 .layer { position: absolute; left: var(--desktop-x); top: var(--desktop-y); width: var(--desktop-width); opacity: var(--desktop-opacity); transform: translate(-50%, -50%) rotate(var(--desktop-rotation)); }
 .layer img { display: block; width: 100%; height: auto; max-width: none; user-select: none; }
 @media(max-width:767px) { .layer { left: var(--mobile-x); top: var(--mobile-y); width: var(--mobile-width); opacity: var(--mobile-opacity); transform: translate(-50%, -50%) rotate(var(--mobile-rotation)); } }
