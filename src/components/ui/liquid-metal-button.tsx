@@ -64,21 +64,24 @@ export function LiquidMetalButton({
   const dimensions = useMemo(() => {
     if (viewMode === "icon") {
       return {
-        width: 46,
-        height: 46,
-        innerWidth: 42,
-        innerHeight: 42,
-        shaderWidth: 46,
-        shaderHeight: 46,
+        width: "46px",
+        height: "46px",
+        innerWidth: "42px",
+        innerHeight: "42px",
+        shaderWidth: "46px",
+        shaderHeight: "46px",
       };
     } else {
+      // Sections can opt into rem sizing while every shader layer stays aligned.
+      const resolvedWidth = `var(--liquid-button-width, ${width}px)`;
+      const resolvedHeight = `var(--liquid-button-height, ${height}px)`;
       return {
-        width,
-        height,
-        innerWidth: width - 4,
-        innerHeight: height - 4,
-        shaderWidth: width,
-        shaderHeight: height,
+        width: resolvedWidth,
+        height: resolvedHeight,
+        innerWidth: `calc(${resolvedWidth} - 4px)`,
+        innerHeight: `calc(${resolvedHeight} - 4px)`,
+        shaderWidth: resolvedWidth,
+        shaderHeight: resolvedHeight,
       };
     }
   }, [viewMode, width, height]);
@@ -191,8 +194,8 @@ export function LiquidMetalButton({
         <div
           style={{
             position: "relative",
-            width: `${dimensions.width}px`,
-            height: `${dimensions.height}px`,
+            width: dimensions.width,
+            height: dimensions.height,
             transformStyle: "preserve-3d",
             transition:
               "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.4s ease, height 0.4s ease",
@@ -204,8 +207,8 @@ export function LiquidMetalButton({
               position: "absolute",
               top: 0,
               left: 0,
-              width: `${dimensions.width}px`,
-              height: `${dimensions.height}px`,
+              width: dimensions.width,
+              height: dimensions.height,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -232,7 +235,7 @@ export function LiquidMetalButton({
             {viewMode === "text" && (
               <span
                 style={{
-                  fontSize: "14px",
+                  fontSize: "var(--liquid-button-label-size, 14px)",
                   color: textColor ?? (variant === "white" ? "#e5192a" : "#ffffff"),
                   fontWeight: 700,
                   letterSpacing: "0.08em",
@@ -241,9 +244,9 @@ export function LiquidMetalButton({
                   textShadow: "none",
                   transition: "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
                   transform: "scale(1)",
-                  whiteSpace: stackedLabel ? "pre-line" : "nowrap",
-                  lineHeight: stackedLabel ? 1.2 : undefined,
-                  maxWidth: stackedLabel ? "120px" : undefined,
+                  whiteSpace: stackedLabel ? "pre-line" : "var(--liquid-button-label-wrap, nowrap)",
+                  lineHeight: 1.2,
+                  maxWidth: stackedLabel ? "120px" : "var(--liquid-button-label-max-width, none)",
                 }}
               >
                 {label}
@@ -256,8 +259,8 @@ export function LiquidMetalButton({
               position: "absolute",
               top: 0,
               left: 0,
-              width: `${dimensions.width}px`,
-              height: `${dimensions.height}px`,
+              width: dimensions.width,
+              height: dimensions.height,
               transformStyle: "preserve-3d",
               transition:
                 "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.4s ease, height 0.4s ease",
@@ -267,8 +270,8 @@ export function LiquidMetalButton({
           >
             <div
               style={{
-                width: `${dimensions.innerWidth}px`,
-                height: `${dimensions.innerHeight}px`,
+                width: dimensions.innerWidth,
+                height: dimensions.innerHeight,
                 margin: "2px",
                 borderRadius: "100px",
                 background: variant === "white"
@@ -288,8 +291,8 @@ export function LiquidMetalButton({
               position: "absolute",
               top: 0,
               left: 0,
-              width: `${dimensions.width}px`,
-              height: `${dimensions.height}px`,
+              width: dimensions.width,
+              height: dimensions.height,
               transformStyle: "preserve-3d",
               transition:
                 "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.4s ease, height 0.4s ease",
@@ -299,8 +302,8 @@ export function LiquidMetalButton({
           >
             <div
               style={{
-                height: `${dimensions.height}px`,
-                width: `${dimensions.width}px`,
+                height: dimensions.height,
+                width: dimensions.width,
                 borderRadius: "100px",
                 boxShadow: noShadow
                   ? "none"
@@ -321,9 +324,9 @@ export function LiquidMetalButton({
                   borderRadius: "100px",
                   overflow: "hidden",
                   position: "relative",
-                  width: `${dimensions.shaderWidth}px`,
-                  maxWidth: `${dimensions.shaderWidth}px`,
-                  height: `${dimensions.shaderHeight}px`,
+                  width: dimensions.shaderWidth,
+                  maxWidth: dimensions.shaderWidth,
+                  height: dimensions.shaderHeight,
                   filter: metalFilter,
                   transition: "width 0.4s ease, height 0.4s ease",
                 }}
@@ -363,8 +366,8 @@ export function LiquidMetalButton({
               position: "absolute",
               top: 0,
               left: 0,
-              width: `${dimensions.width}px`,
-              height: `${dimensions.height}px`,
+              width: dimensions.width,
+              height: dimensions.height,
               background: "transparent",
               border: "none",
               cursor: "pointer",
