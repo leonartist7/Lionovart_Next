@@ -1,0 +1,28 @@
+/* Local review controls: no extra blur surfaces or animated media wrappers. */
+.lv-work-frame{position:relative;width:100%;height:100%}
+.lv-page .lv-work[data-review='true']{aspect-ratio:auto;overflow:visible;background:transparent;align-self:start}
+.lv-work[data-review='true'] .lv-work-frame{height:auto;aspect-ratio:1.6;overflow:hidden;border-radius:22px;background:#e8e2da}
+.lv-work[data-review='true'] .lv-work-frame :is(video,.lv-work-image){position:absolute;inset:0}
+.lv-review-toolbar{margin:0 0 24px;padding:18px 20px;border:1px solid #17110c22;border-radius:18px;background:#fcf9f5;min-width:0}
+.lv-review-toolbar-heading{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.lv-review-toolbar-heading>div:first-child{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.lv-review-toolbar strong{font-size:18px;font-weight:600}.lv-review-toolbar span{font-size:13px;color:#59544f}
+.lv-review-actions{display:flex;gap:8px;flex-wrap:wrap}
+.lv-review-toolbar button,.lv-review-choices button{min-height:44px;padding:10px 15px;border:1px solid #17110c28;border-radius:999px;background:transparent;color:#0d0d0d;font-size:13px;font-weight:500;line-height:1.3}
+.lv-review-actions button:first-child{background:#0d0d0d;color:#fff;border-color:#0d0d0d}
+.lv-review-toolbar p{margin:12px 0 0;font-size:12px;line-height:1.5;color:#59544f;max-width:none}
+.lv-review-toolbar .lv-review-notice{color:#b51625}.lv-review-toolbar .lv-review-feedback{color:#0d0d0d}
+.lv-review-card{padding:16px 2px 4px;min-width:0}
+.lv-review-card-heading{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:10px}
+.lv-review-card-heading strong{font-size:15px;font-weight:500;line-height:1.4;overflow-wrap:anywhere;min-width:0}
+.lv-review-card-heading strong span{color:#c51625;margin-right:5px;font-variant-numeric:tabular-nums}
+.lv-review-decision{font-size:11px;line-height:1.4;color:#59544f;flex:none}
+.lv-review-choices{display:flex;flex-wrap:wrap;gap:8px}
+.lv-review-choices button{transition:background-color .2s ease,color .2s ease,border-color .2s ease}
+.lv-review-choices button[aria-pressed='true']{background:#0d0d0d;color:#fff;border-color:#0d0d0d}
+.lv-review-card button:focus-visible,.lv-review-toolbar button:focus-visible,.lv-review-copy-fallback textarea:focus-visible{outline:2px solid #e5192a;outline-offset:3px}
+.lv-review-copy-fallback{margin-top:14px}.lv-review-copy-fallback label{display:block;font-size:13px;margin-bottom:8px}
+.lv-review-copy-fallback textarea{box-sizing:border-box;width:100%;max-width:100%;padding:12px;border:1px solid #17110c30;border-radius:10px;background:#fffdf9;color:#0d0d0d;font:13px/1.5 'LV Clash',sans-serif;resize:vertical}
+.lv-review-copy-fallback button{margin-top:8px}
+@media(max-width:760px){.lv-review-toolbar{padding:16px;margin-bottom:20px}.lv-review-card-heading{flex-wrap:wrap;gap:5px}.lv-review-decision{flex-basis:100%}.lv-review-choices{gap:6px}.lv-review-choices button{padding-inline:11px;font-size:12px}.lv-work[data-review='true'] .lv-work-frame{border-radius:18px}}
+@media(prefers-reduced-motion:reduce){.lv-review-choices button{transition:none}}

@@ -26,3 +26,7 @@ Review screenshots and temporary bundles are ignored. Existing STATUS.md records
 ## Integration still needed
 
 The public Google Calendar appointment URL has not been supplied, so booking is intentionally disabled. Audit requests use the existing /api/strategist/lead endpoint and require the hosted application; the owner reviews and emails audits manually. The static file does not provide a working backend. All supplied new examples are currently client work by the owner’s instruction; individual public IDs can be marked concept in workStatusOverrides.
+
+## Local gallery review
+
+Open the same preview with ?review=1 (or append &review=1 to an existing filter link). This mode is enabled only for file://, localhost, 127.0.0.1 and ::1 previews. Numbers are fixed against asset IDs in work-review-ids.json; append new numbers when adding future assets and never renumber existing records. Marks save in localStorage for this browser/origin and are recommendations, not publishing actions. Copy review includes every current example under Keep, Improve preview, Archive or Not reviewed. Exit review preserves the saved marks. Run node work-showcase-preview/verify-work-review.cjs for validation.

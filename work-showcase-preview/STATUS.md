@@ -1,5 +1,14 @@
 # LIONOVART results redesign
 
+## Latest — numbered local gallery review
+
+Added local-only review=1 mode to the existing complete Work page. Fixed numbers 01–53 are stored explicitly against original Cloudinary asset IDs, independent of filtering, pagination and editorial order. Each card keeps its media frame and adds its number/name plus Keep, Improve preview and Archive buttons. Selected choices toggle back to Not reviewed; Archive leaves media visible. Decisions are separate from client/concept status and never change public assignments or Cloudinary.
+
+Browser storage is versioned, keyed by asset ID, validated against known IDs and allowed decisions, and restored after refresh. Progress counts the full inventory. Copy review produces numbered groups including unreviewed examples; blocked clipboard access falls back to selectable text. Blocked storage warns visitors to copy before leaving. Exit removes only the review parameter and retains filters and saved choices. The review UI cannot be activated on public hostnames.
+
+Both existing complete previews rebuilt. TypeScript and targeted lint pass. Browser checks at 320/390/768/1440 cover all choices/deselection, persistent refresh, stable numbers across reorder/filter/pagination, global progress, export, keyboard/touch targets, no overflow, exit and local-only access. Actual Cloudinary playback retains the same video/source with no reload or scroll jump on marking. Normal gallery media/offscreen pause/resume and smooth filtering/deep-page scroll checks pass. No real leads, messages or bookings sent. Review screenshots: review/work-review-[width].png. GitHub source package synchronized.
+
+
 ## Latest — clear return to the main website
 
 Added a visible “← Back to website” label directly beneath the header logo, within one accessible link with a minimum 52px target. Both header and footer logos return to the homepage. File previews use https://lionovart.com/, matching the existing site's SEO configuration and verified live homepage; hosted Work pages use their own root /. Kept the separate Back to top footer action and the header's dimensions/navigation/booking action.
