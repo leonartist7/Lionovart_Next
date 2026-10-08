@@ -20,7 +20,7 @@
 }
 .anchor { position: absolute; top: 0; }
 .redChapter { position: relative; background: var(--imagine-red); padding: 1.5rem clamp(1.125rem, 5vw, 9rem) 3rem; }
-.intro { max-width: 105rem; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: clamp(1.25rem, 1.5vw, 2rem); text-align: left; }
+.intro { max-width: 105rem; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: clamp(1.25rem, 1.5vw, 2rem); text-align: center; justify-items: center; }
 .eyebrow { font: 500 clamp(1rem, .9rem + .25vw, 1.25rem)/1.4 var(--font-heading), sans-serif; letter-spacing: .04em; }
 .intro h2 { font-family: var(--font-heading), sans-serif; font-size: clamp(3.5rem, 1.75rem + 4.4vw, 8.5rem); font-weight: 700; text-transform: uppercase; line-height: .98; letter-spacing: -.015em; word-spacing: .08em; margin: 0; text-wrap: balance; }
 .intro h2 span { color: #fffaf1; }
@@ -53,7 +53,14 @@
 @media (hover: hover) and (pointer: fine) {
   .reviewLink:hover { color: #510711; }
 }
-@media (max-width: 63.999rem) {
+@media (1000px <= width < 1200px) {
+  .redChapter { padding-inline: clamp(1.25rem, 3vw, 2.5rem); }
+  .grid { column-gap: 1.125rem; }
+  .card { --benefit-inset: 1.125rem; }
+  .cardTop { padding: 1.125rem var(--benefit-inset) 2rem; }
+  .card h3 { font-size: clamp(2rem, 3.2vw, 2.25rem); }
+}
+@media (width < 1000px) {
   .intro { grid-template-columns: 1fr; gap: 1.5rem; max-width: 34rem; }
   .grid { grid-template-columns: 1fr; max-width: 34rem; row-gap: 0; }
   .card + .card { margin-top: 1.5rem; }

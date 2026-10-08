@@ -25,6 +25,7 @@ const french: Record<string, string> = {
   "Close details": "Refermer les détails",
 
   "Selected work": "Réalisations choisies",
+  "Your image speaks first.": "Votre image parle d’abord.",
   "Your image speaks": "Votre image parle",
   "before you do.": "avant vous.",
   "Let it speak well of the work behind it.": "Qu’elle rende justice au travail qui la porte.",

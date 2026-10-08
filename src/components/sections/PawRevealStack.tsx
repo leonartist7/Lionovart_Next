@@ -105,7 +105,7 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
         </div>
         <motion.div className={styles.detailCover} animate={cover} aria-hidden={open}>
           <div className={styles.cardSeam} aria-hidden="true" data-card-seam>
-            <Image src={CARD_SEAM_IMAGE} alt="" fill sizes="(max-width: 1023px) 90vw, (max-width: 2000px) 30vw, 560px" />
+            <Image src={CARD_SEAM_IMAGE} alt="" fill sizes="(max-width: 999px) 90vw, (max-width: 2000px) 30vw, 560px" />
           </div>
           {item.stat && <div className={styles.metric} data-benefit-stat>
             <span className={styles.metricValue}>{item.stat.qualifier && <small>{tr(item.stat.qualifier)}</small>}{tr(item.stat.value)}<span>{item.stat.unit}</span></span>
@@ -184,7 +184,7 @@ export default function PawRevealStack() {
     <span id="imagine" className={styles.anchor} aria-hidden="true" />
     <div className={styles.redChapter}>
       <header className={styles.intro}>
-        <h2 id="imagine-heading">{tr("Your image speaks")}<br /><span>{tr("before you do.")}</span></h2>
+        <h2 id="imagine-heading"><span>{tr("Your image speaks first.")}</span></h2>
         <p className={styles.introBody}>{tr("Let it speak well of the work behind it.")}</p>
       </header>
       <div ref={gridRef} className={styles.grid} data-imagine-content>
