@@ -137,7 +137,7 @@ export default function AuditCapture() {
           viewport={{ once: true, amount: 0.5 }}
           transition={reduceMotion ? { duration: 0 } : { duration: 0.9, delay: 0.1, ease: EASE }}
           className="mx-auto mt-6 max-w-[46ch] text-center text-base leading-[1.7] text-[#171412]/65 md:text-lg"
-        >{tr("A free, personalized review of your brand, website, content, and first impression, with clear next steps.")}</motion.p>
+        >{tr("A personal review of your brand, website and content, with three priority fixes to bring your presence closer to the quality of your business.")}</motion.p>
 
         <motion.form
           onSubmit={onSubmit}

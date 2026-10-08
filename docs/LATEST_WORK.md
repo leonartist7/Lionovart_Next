@@ -49,37 +49,23 @@ Before resuming in a local checkout, inspect its status and remotes, preserve un
 
 ## Remaining website edits
 
-### 1. Reproduce and correct the missing circle/carousel
+### Imagine-to-services preview — implemented 8 October
 
-The source already has circle contraction, lion logo and ImageStreamHero in PawRevealStack.tsx. The staticScene condition includes reduced motion, viewport height below 500px, or measured content above 1.2 times viewport height. The work stream and logo are entirely suppressed in that mode.
+- Rebuilt Imagine as three upright, gold-edged cards on desktop, stacked on mobile. Their main benefits are always visible; each lion-paw reveal uncovers practical improvements and stays open independently.
+- Introduced the positioning “Your business has evolved. Has the way people see it?” for established businesses whose image has fallen behind their work.
+- Separated readable content from the circle animation. Tall cards no longer disable the creative work on phones. Reduced motion and very short viewports receive all six work images in a static grid.
+- Kept the exact lion mark, contracting red circle and existing six distinct work assets in the image stream. Added pause/play and background-tab suspension.
+- Shortened the partnership hold and circle stage. Services now follow the creative sequence directly; the detailed Selected Work gallery follows services.
+- Added the personal-review offer with three priority fixes, linked to the existing localized audit route. Updated audit intro copy; submission delivery was not changed or tested.
+- Added French copy for the new section. Other locales retain the existing English fallback for these new phrases.
+- Preserved the supplied hero frame, opening film, pillar cards and gold-ribbon closing CTA.
 
-This is a source-level explanation to verify in a browser, not a confirmed reproduction. Decouple tall-content layout from the existence of creative work. Reduced-motion users should receive a readable static equivalent. Keep the ordinary-motion circle-to-logo-to-varied-work transition.
+### Remaining review decisions
 
-### 2. Implement the agreed benefit-card direction
+- Visually review the pacing and new portrait benefit cards in the branch preview.
+- The closing CTA's gold-ribbon layout remains preserved; further closing copy changes can follow review.
 
-- Three upright portrait benefit cards side by side on desktop; stacked on mobile.
-- Keep the fine golden outline and lion-paw reveal.
-- Preserve substantial benefits: clear problem, outcome and practical improvements.
-- Explain why established businesses should align their image with the quality of their work.
-- Keep benefits available without forcing visitors through three interactions.
-- Do not replace benefit cards with full-image portfolio tiles.
-- Use existing brand assets and Clash Display; generated mockups are direction references, not production screenshots.
-
-### 3. Compact the route to services
-
-Keep hero → opening film → pillar cards → partnership → benefit/circle chapter → varied work → services.
-Shorten repeated statements and empty holds. Let services enter while the work opens.
-Use multiple distinct projects/industries/styles, not one fictional case study repeated.
-The original Imagine chapter occupies roughly five viewport heights plus entry/exit space; tune a shorter sequence through actual mobile/desktop playback.
-
-### 4. Resolve the final CTA
-
-The recent gold-ribbon closing is preserved in this checkpoint.
-The proposed personal review with three priority fixes remains a future copy/flow edit.
-Reuse the existing /audit capture and thank-you route where appropriate, verifying the actual submission path before claiming end-to-end delivery.
-Do not lose the new ribbon asset when refining the CTA.
-
-### 5. Confirm remaining editorial choices
+### Editorial choices still open
 
 - Consider placing a small amount of verified client results earlier; exact placement is not yet settled.
 - Consider moving the full FAQ to About; this was discussed, not finally decided.
@@ -93,5 +79,5 @@ Do not lose the new ribbon asset when refining the CTA.
 - Run the repository's integration checks through its draft PR.
 - Check 390px mobile, tablet, desktop and 4K; normal and reduced motion; expanded benefits; EN and FR.
 - Inspect the hero/film handoff, circle-to-images transition, gold-ribbon close, button alignment and audit navigation.
-- The local sandbox and interactive browser were unavailable in this checkpoint. Do not equate build success with visual approval.
+- Latest Imagine implementation: local production build and TypeScript passed; scoped ESLint has no errors (one existing unused-variable warning in services). Desktop and phone layouts and independent paw reveals were exercised in Chromium, with no horizontal overflow. Desktop work assets loaded and were visually inspected. Local English routing loops while the current Vercel English route returns 200; verify English again on the deployed preview. Reduced-motion uses a static six-image grid; the broader page still emits a hydration warning during local reduced-motion testing. These checks do not replace Leonardo’s visual approval.
 - Keep master unchanged until Leonardo finishes the next edits and chooses to merge.

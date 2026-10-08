@@ -213,10 +213,10 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
           <p className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-brand-red">
             {t.services.eyebrow}
           </p>
-          <h2 className="mx-auto mt-4 max-w-[10ch] font-clash text-[clamp(3rem,9vw,7rem)] font-semibold uppercase leading-[0.84] tracking-[-0.055em]">
+          <h2 className="mx-auto mt-4 max-w-[17ch] font-clash text-[clamp(3rem,9vw,7rem)] font-semibold uppercase leading-[0.84] tracking-[-0.055em]">
             {onHeadingClick ? <button type="button" onClick={onHeadingClick} aria-pressed="false" className="cursor-pointer bg-transparent text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red">
-              {t.services.heading}{" "}<span className="text-brand-red">{t.services.headingAccent}</span>
-            </button> : <>{t.services.heading}{" "}<span className="text-brand-red">{t.services.headingAccent}</span></>}
+              {tr("Here’s how")}{" "}<span className="text-brand-red">{tr("we build it.")}</span>
+            </button> : <>{tr("Here’s how")}{" "}<span className="text-brand-red">{tr("we build it.")}</span></>}
           </h2>
         </div>
 
@@ -247,14 +247,14 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
       className="relative z-20 isolate overflow-clip bg-bg-surface-light text-[#111111]"
     >
       <GoldThreads single />
-      <header className="mx-auto flex min-h-[39svh] max-w-[1280px] flex-col justify-end px-5 pb-8 text-center sm:min-h-[40svh] sm:px-8 sm:pb-10 lg:min-h-[44vh] lg:pb-14">
+      <header className="mx-auto flex min-h-[28svh] max-w-[1280px] flex-col justify-end px-5 pb-8 text-center sm:min-h-[28svh] sm:px-8 sm:pb-10 lg:min-h-[30vh] lg:pb-14">
         <p className="font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-brand-red sm:text-[11px]">
           {t.services.eyebrow}
         </p>
-        <h2 className="mx-auto mt-4 max-w-[10ch] font-clash text-[clamp(3.2rem,10vw,7.4rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em]">
+        <h2 className="mx-auto mt-4 max-w-[17ch] font-clash text-[clamp(2.75rem,1.5rem+5vw,6rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em]">
           {onHeadingClick ? <button type="button" onClick={onHeadingClick} aria-pressed="false" className="cursor-pointer bg-transparent text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red">
-            {t.services.heading}{" "}<span className="text-brand-red">{t.services.headingAccent}</span>
-          </button> : <>{t.services.heading}{" "}<span className="text-brand-red">{t.services.headingAccent}</span></>}
+            {tr("Here’s how")}{" "}<span className="text-brand-red">{tr("we build it.")}</span>
+          </button> : <>{tr("Here’s how")}{" "}<span className="text-brand-red">{tr("we build it.")}</span></>}
         </h2>
       </header>
 

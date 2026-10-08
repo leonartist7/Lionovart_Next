@@ -47,8 +47,8 @@ export async function PageBuilder() {
 
       {/* Later chapters cover the retired opening scene. */}
       <div className="relative z-[2]">
-        <SelectedWork goldThreads />
         <NovaSection id="services"><ServicesSwitcher /></NovaSection>
+        <SelectedWork goldThreads />
         <NovaSection id="about"><CompactIntroduction /></NovaSection>
 
         {/* Compact introduction/comparison -> Brands Elevated/results -> Process. */}

@@ -69,7 +69,7 @@ export default function BridgeStatement({
       data-gold-bridge={variant === "recognition" ? "" : undefined}
       aria-labelledby={headingId}
       className={`relative isolate flex items-center overflow-hidden px-5 py-14 sm:px-8 sm:py-16 md:px-[6vw] ${
-        isVow ? "min-h-[30svh] md:min-h-[34svh] bg-bg-surface-light text-[#171412]" : "min-h-[100svh] bg-transparent text-white text-center"
+        isVow ? "min-h-[30svh] md:min-h-[34svh] bg-bg-surface-light text-[#171412]" : "min-h-[65svh] bg-transparent text-white text-center"
       }`}
     >
       {isVow && <GoldThreads single />}
@@ -109,7 +109,7 @@ export default function BridgeStatement({
 
         <motion.p
           {...itemAnim}
-          className={`max-w-[42ch] pt-2 font-body text-[13px] leading-[1.5] sm:text-[14px] ${isVow ? "self-end text-right" : "self-center text-center"} ${
+          className={`max-w-[42ch] pt-2 font-body text-[0.8125rem] leading-[1.5] sm:text-[0.875rem] ${isVow ? "self-end text-right" : "self-center text-center"} ${
             isVow ? "text-[#171412]/70" : "text-white/55"
           }`}
         >
