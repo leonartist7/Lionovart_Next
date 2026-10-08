@@ -15,6 +15,7 @@ import styles from "./PawRevealStack.module.css";
 import BenefitSculpture from "./BenefitSculpture";
 
 const PAW_IMAGE = "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_320/v1775085187/Untitled_design_4_muu53f.png";
+const CARD_SEAM_IMAGE = "https://res.cloudinary.com/dgio9uutc/image/upload/f_webp,q_auto,w_1200/v1791472322/magnific__enhance__13327_ykxqce.avif";
 const EASE = [0.16, 1, 0.3, 1] as const;
 const PULL_EASE = [0.32, 0.72, 0, 1] as const;
 const PAW_TIMING = { enter: .45, pull: 1.2, return: 1.05, exit: .35 } as const;
@@ -23,21 +24,21 @@ const BENEFITS = [
     title: "Look as good as your work.",
     body: "Give people a reason to trust your business before you say a word.",
     detail: "A presence that does your work justice.",
-    stat: { value: "50", unit: "ms", label: "To form a visual first impression", source: "https://doi.org/10.1080/01449290500330448" },
+    stat: { value: "46.1", unit: "%", label: "Of credibility comments referenced design", source: "https://credibility.stanford.edu/pdf/How_Do_People_Evaluate_a_Web_Site%27s_Credibility_v37.pdf", sourceLabel: "Study: Stanford / Consumer WebWatch", qualifier: null },
     points: ["A clear position in your market", "An identity that reflects your quality"],
   },
   {
     title: "Less admin. More headspace.",
     body: "Let your systems handle the routine. Put your time where it matters.",
     detail: "More space for what moves you forward.",
-    stat: { value: "15", unit: "h+", label: "Weekly time-saving target", source: null },
+    stat: { value: "15", unit: "h+", label: "Weekly time-saving target", source: null, sourceLabel: null, qualifier: null },
     points: ["Enquiries and follow-ups in one place", "Workflows built around your team"],
   },
   {
     title: "Be the name they remember.",
     body: "One recognisable world, across your website, content and identity.",
     detail: "Every encounter feels like your brand.",
-    stat: null,
+    stat: { value: "33", unit: "%", label: "Potential revenue lift with consistent branding", source: "https://www.prnewswire.com/news-releases/study-finds-companies-with-consistent-branding-can-see-up-to-33-increase-in-revenue-300967219.html", sourceLabel: "Survey: Lucidpress (2019)", qualifier: "Up to" },
     points: ["A recognisable voice", "A consistent world, everywhere"],
   },
 ];
@@ -109,12 +110,15 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
             <p>{tr(item.detail)}</p>
             <ul>{item.points.map(point => <li key={point}><Check aria-hidden="true" />{tr(point)}</li>)}</ul>
             {item.stat?.source && <a className={styles.metricSource} href={item.stat.source} target="_blank" rel="noreferrer"
-              tabIndex={open ? 0 : -1} aria-label={tr("Read the visual first impression study")}>{tr("Research: Lindgaard et al.")}</a>}
+              tabIndex={open ? 0 : -1} aria-label={tr("Read the research source")}>{tr(item.stat.sourceLabel || "Research source")}</a>}
           </div>
         </div>
         <motion.div className={styles.detailCover} animate={cover} aria-hidden={open}>
+          <div className={styles.cardSeam} aria-hidden="true" data-card-seam>
+            <Image src={CARD_SEAM_IMAGE} alt="" fill sizes="(max-width: 1023px) 90vw, (max-width: 2000px) 30vw, 560px" />
+          </div>
           {item.stat && <div className={styles.metric} data-benefit-stat>
-            <span className={styles.metricValue}>{item.stat.value}<span>{item.stat.unit}</span></span>
+            <span className={styles.metricValue}>{item.stat.qualifier && <small>{tr(item.stat.qualifier)}</small>}{tr(item.stat.value)}<span>{item.stat.unit}</span></span>
             <span className={styles.metricLabel}>{tr(item.stat.label)}</span>
           </div>}
         </motion.div>
@@ -124,9 +128,9 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
       </div>
     </div>
     <button ref={trigger} type="button" className={styles.cardToggle} aria-expanded={open || phase === "closing"} aria-controls={panelId}
-      aria-label={`${tr(open ? "Close details" : "See how")}: ${tr(item.title)}`} disabled={busy}
+      aria-label={`${tr(open ? "Hide benefit" : "Reveal benefit")}: ${tr(item.title)}`} disabled={busy}
       onClick={event => void toggle(event.detail === 0)}>
-      <span className={styles.coverLabel}>{tr(open ? "Close" : "See how")}{open ? <Minus aria-hidden="true" /> : <Plus aria-hidden="true" />}</span>
+      <span className={styles.toggleIcon}>{open ? <Minus aria-hidden="true" /> : <Plus aria-hidden="true" />}</span>
     </button>
   </article>;
 }

@@ -1,5 +1,15 @@
 /** Reviewed French public UI copy. Source phrases are gettext-style keys. */
 const french: Record<string, string> = {
+  "46.1": "46,1",
+  "Of credibility comments referenced design": "Des avis sur la crédibilité évoquent le design",
+  "Potential revenue lift with consistent branding": "Hausse potentielle des revenus avec une marque cohérente",
+  "Up to": "Jusqu’à",
+  "Study: Stanford / Consumer WebWatch": "Étude : Stanford / Consumer WebWatch",
+  "Survey: Lucidpress (2019)": "Enquête : Lucidpress (2019)",
+  "Read the research source": "Lire la source de l’étude",
+  "Research source": "Source de l’étude",
+  "Reveal benefit": "Révéler le bénéfice",
+  "Hide benefit": "Masquer le bénéfice",
   "To form a visual first impression": "Pour se faire une première impression visuelle",
   "Weekly time-saving target": "Objectif : heures gagnées chaque semaine",
   "Be the name they remember.": "Le nom qui reste en tête.",
