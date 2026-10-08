@@ -2,6 +2,7 @@ import { collectionWorks } from './collection-work';
 import legacyAssets from './legacy-assets.json';
 import approvedCuration from './work-curation.json';
 import approvedTags from './work-approved-tags.json';
+import galleryOrder from './work-gallery-order.json';
 
 const poster0 = "https://storage.googleapis.com/storage.magicpath.ai/component-assets/458193568318758912/458193568318758913/98ffa05c464a9cf1e858dab873a877fa5bb2a0204d3caba8c2f44dcd76786756.jpg";const poster1 = "https://storage.googleapis.com/storage.magicpath.ai/component-assets/458193568318758912/458193568318758913/be79634c8a89aaa279ad8809fb277d778956e220c1ea52972872ade0e8d3904a.jpg";const poster2 = "https://storage.googleapis.com/storage.magicpath.ai/component-assets/458193568318758912/458193568318758913/995c7eb8ceaa75eb96534e73369213b5fcb6f596fc44d08d6ecc4bb88b24a77a.jpg";const poster3 = "https://storage.googleapis.com/storage.magicpath.ai/component-assets/458193568318758912/458193568318758913/95291e7f379949e54e35e35db7b12ef898ef99a27ff470efc627a96538b13c4c.jpg";const poster4 = "https://storage.googleapis.com/storage.magicpath.ai/component-assets/458193568318758912/458193568318758913/4500d4cb8a8392d9ec6d5b67f543c9fed8a1cbcbd8343c5550b4c83c3447de89.jpg";const poster5 = "https://storage.googleapis.com/storage.magicpath.ai/component-assets/458193568318758912/458193568318758913/ec8c9ddf6c7c5fe4cb56675eb9441a54042e26ef5a10c348234cbded20955bc8.jpg";const poster6 = "https://storage.googleapis.com/storage.magicpath.ai/component-assets/458193568318758912/458193568318758913/7f3b5156f27e4b7ea868d02860551d3fb6d3fdda3fe7f09394c4c1bd9abe3e23.jpg";const poster7 = "https://storage.googleapis.com/storage.magicpath.ai/component-assets/458193568318758912/458193568318758913/2d1984edb23afb63f351ab98caf1f30e85c3ec168759fa0b27e91e657ed8d11e.jpg";const poster8 = "https://storage.googleapis.com/storage.magicpath.ai/component-assets/458193568318758912/458193568318758913/2d617949e6be79a18a8fe7cdbdf80a6ef2cc242234346cb343602e5f7f79b840.jpg";const poster9 = "https://storage.googleapis.com/storage.magicpath.ai/component-assets/458193568318758912/458193568318758913/226851f7b460ba6fec32c2b1cf7cab82e7cc9ceecb21e75ee61fe796e7378ca7.jpg";
 
@@ -181,14 +182,15 @@ const baselineWorks: Work[] = [...opening,
   .map(work => ({...work, services:approvedTagAssignments[work.assetId]?.services ?? work.services,
     status:workStatusOverrides[work.publicId] ?? approvedTagAssignments[work.assetId]?.status ?? work.status}));
 
-// Owner-selected opening; review numbers remain anchored to asset IDs.
-export const openingOrder = ["rakbank","blastup","fundonion","op","clothing-fashion-hightech","stormlikes","soda-bold","oma","home-interior"];
-const preferred = openingOrder.map(slug => {
-  const work = baselineWorks.find(item => item.slug === slug);
-  if (!work) throw new Error('Missing opening work: ' + slug);
+// Full owner-selected order, keyed by immutable asset ID; review numbers are unchanged.
+const preferred = galleryOrder.map(assetId => {
+  const work = baselineWorks.find(item => item.assetId === assetId);
+  if (!work) throw new Error('Missing ordered work: ' + assetId);
   return work;
 });
-export const works: Work[] = [...preferred, ...baselineWorks.filter(work => !openingOrder.includes(work.slug))];
+export const openingOrder = preferred.map(work => work.slug);
+const orderedAssetIds = new Set(galleryOrder);
+export const works: Work[] = [...preferred, ...baselineWorks.filter(work => !orderedAssetIds.has(work.assetId))];
 
 // Owner-approved archive marks hide entries without deleting source assets or changing review numbers.
 export const curationDecisions: Partial<Record<string, 'keep' | 'archive'>> = approvedCuration as Partial<Record<string, 'keep' | 'archive'>>;

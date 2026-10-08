@@ -1,5 +1,12 @@
 # LIONOVART results redesign
 
+## Latest — Rise fourth, Coinly eighth, OMa thirtieth
+
+Resolved the browser-selected cards against current source order and labels: OMa (review #04), Rise (#13), Coinly (#14). Applied final gallery positions Rise 4, Coinly 8, OMa 30. All other published works retain their previous relative order; review IDs, tags, statuses and archives remain unchanged. Recorded the complete curated order in work-gallery-order.json by stable asset ID, allowing placement beyond the opening rows without altering media records. Source remains 53 unique entries and published gallery 40.
+
+Both complete previews rebuilt. TypeScript and targeted lint pass. Four-width browser checks verify exact placements, untouched relative order, uniqueness, pagination, fixed review numbers/confirmed tags and Finance ordering. Smooth-filter checks verify retained media and no page jump. No homepage, conversion settings or Cloudinary mutations. GitHub source package synchronized.
+
+
 ## Latest — owner-selected opening sequence
 
 Updated the first projects to #12 Rakbank, #16 Blastup, #07 FundOnion, #15 OP, #22 Fashion high-tech, #01 Stormlikes, #10 Soda, #04 OMa, #36 Home interior. The owner explicitly clarified that the repeated #16 should appear only once. All remaining work retains its prior relative order. Source inventory stays at 53 unique assets and the published gallery at 40; archive choices, approved tags/statuses and permanent review numbers are unchanged.
