@@ -48,37 +48,10 @@
 .reviewOffer p span { color: #fff0e9; }
 .reviewLink { display: inline-flex; align-items: center; justify-content: space-between; gap: 2rem; min-height: 3rem; padding: .75rem 0; border-bottom: .0625rem solid currentColor; flex-shrink: 0; font-family: var(--font-heading), sans-serif; font-size: clamp(1.25rem, 1.1rem + .35vw, 1.75rem); font-weight: 500; }
 .reviewLink svg { width: 1.5rem; height: 1.5rem; }
-.handoff { height: 180svh; position: relative; background: var(--site-surface-light, #f4f0e8); color: var(--imagine-ink); }
-.stage { position: sticky; top: 0; height: 100svh; min-height: 30rem; overflow: clip; isolation: isolate; }
-.circle { position: absolute; left: 50%; top: 50%; width: 150vmax; height: 150vmax; border-radius: 50%; background: var(--imagine-red); z-index: 2; transform: translate(-50%, -50%); pointer-events: none; }
-.logo { position: absolute; inset: 14%; }
-.logo img { object-fit: contain; }
-.invitation { position: absolute; inset: 0; z-index: 4; color: #fffaf1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem; text-align: center; padding: 5rem 1.25rem; pointer-events: none; }
-.invitationTitle { max-width: 14ch; font-family: var(--font-heading), sans-serif; font-size: clamp(3rem, 1.5rem + 5vw, 9rem); font-weight: 500; line-height: 1.04; letter-spacing: -.025em; text-wrap: balance; }
-.invitation > svg { margin-top: 1rem; width: 1.5rem; height: 1.5rem; }
-.workHeading { position: absolute; top: max(5rem, 10svh); inset-inline: 1rem; text-align: center; z-index: 4; pointer-events: none; }
-.workHeading .eyebrow { color: #6b5734; }
-.workHeading h2 { font-family: var(--font-heading), sans-serif; font-size: clamp(2.5rem, 1.3rem + 2.75vw, 5.5rem); font-weight: 600; line-height: 1.02; letter-spacing: -.025em; margin-top: .75rem; }
-.workStream { position: absolute; inset: 30% 0 17%; z-index: 1; pointer-events: none; }
-.streamCanvas { height: 100%; width: 100%; overflow: visible; }
-.workFooter { position: absolute; inset-inline: 1.25rem; bottom: max(2.5rem, 6svh); z-index: 5; text-align: center; }
-.workFooter > p { font-family: var(--font-playfair-display), Georgia, serif; font-style: italic; font-weight: 400; font-synthesis: none; font-size: clamp(1.375rem, 1.1rem + .35vw, 2rem); line-height: 1.4; color: #5b5146; margin-bottom: .75rem; }
-.servicesLink { display: inline-flex; align-items: center; justify-content: center; gap: 1rem; min-height: 3rem; font-family: var(--font-heading), sans-serif; font-weight: 500; font-size: clamp(1.375rem, 1.15rem + .4vw, 2rem); }
-.servicesLink > svg { width: 1.5rem; height: 1.5rem; }
-.pause { position: absolute; right: 0; bottom: 0; width: 2.75rem; height: 2.75rem; display: grid; place-items: center; border: 1px solid #ad99734d; border-radius: 50%; cursor: pointer; }
-.pause svg { width: 1rem; height: 1rem; }
 .chapter :is(a, button, [tabindex]):focus-visible { outline: 2px solid currentColor; outline-offset: .25rem; }
 .details:focus { outline: 2px solid #986c12; outline-offset: -.5rem; }
-.staticGallery { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; max-width: 80rem; margin: 2rem auto; }
-.staticGallery > div { position: relative; aspect-ratio: 4/3; border-radius: .75rem; overflow: hidden; }
-.staticGallery img { object-fit: cover; }
-.handoff[data-static=true] { height: auto; }
-.handoff[data-static=true] .stage { position: relative; height: auto; padding: 3rem 1.25rem; }
-.handoff[data-static=true] .circle { position: relative; top: auto; left: auto; width: 6rem; height: 6rem; transform: none; margin: 0 auto 2rem; }
-.handoff[data-static=true] .workHeading, .handoff[data-static=true] .workFooter { position: relative; top: auto; bottom: auto; inset-inline: auto; }
 @media (hover: hover) and (pointer: fine) {
   .reviewLink:hover { color: #510711; }
-  .servicesLink:hover { color: #d21127; }
 }
 @media (max-width: 63.999rem) {
   .intro { grid-template-columns: 1fr; gap: 1.5rem; max-width: 34rem; }
@@ -105,14 +78,6 @@
   .reviewOffer { flex-direction: column; align-items: flex-start; max-width: 31rem; text-align: left; }
   .reviewLink { width: 100%; }
   .reviewOffer p { flex-direction: column; }
-  .handoff { height: 175svh; }
-  .workHeading { top: max(5rem, 11svh); }
-  .workHeading h2 { font-size: clamp(2.25rem, 1.5rem + 2vw, 3rem); }
-  .workStream { inset: 32% -65% 22%; }
-  .workFooter { bottom: 4svh; padding-bottom: 3.75rem; }
-  .pause { left: calc(50% - 1.375rem); bottom: 0; }
-  .staticGallery { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
-  .handoff[data-static=true] .workFooter { padding-bottom: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .chapter *, .chapter *::before, .chapter *::after { scroll-behavior: auto; }

@@ -1,5 +1,8 @@
 /** Reviewed French public UI copy. Source phrases are gettext-style keys. */
 const french: Record<string, string> = {
+  "One brand.": "Une marque.",
+  "Every encounter.": "À chaque rencontre.",
+  "Your identity, website and content—speaking the same language.": "Votre identité, votre site et vos contenus parlent le même langage.",
   "46.1": "46,1",
   "Of credibility comments referenced design": "Des avis sur la crédibilité évoquent le design",
   "Potential revenue lift with consistent branding": "Hausse potentielle des revenus avec une marque cohérente",

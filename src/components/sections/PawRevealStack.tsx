@@ -1,16 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { motion, useAnimation, useInView, useScroll, useTransform } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, useAnimation } from "framer-motion";
 import Image from "next/image";
-import { ArrowDown, ArrowUpRight, Check, Minus, Pause, Play, Plus } from "lucide-react";
+import { ArrowUpRight, Check, Minus, Plus } from "lucide-react";
 import { useLenis } from "lenis/react";
 import { Link } from "@/i18n/navigation";
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
-import { ImageStreamHero } from "@/components/ui/image-stream-hero";
 import { useLionJourney } from "./lion-journey/LionJourney";
-import { SHOWCASE_IMAGES } from "./showcase-images";
 import styles from "./PawRevealStack.module.css";
 import BenefitSculpture from "./BenefitSculpture";
 
@@ -42,14 +40,6 @@ const BENEFITS = [
     points: ["A recognisable voice", "A consistent world, everywhere"],
   },
 ];
-const shortViewportQuery = "(max-height: 480px)";
-const subscribeShortViewport = (notify: () => void) => {
-  const media = matchMedia(shortViewportQuery);
-  media.addEventListener("change", notify);
-  return () => media.removeEventListener("change", notify);
-};
-
-
 function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: number }) {
   const tr = usePublicCopy();
   const reduced = useHydratedReducedMotion();
@@ -135,67 +125,6 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
   </article>;
 }
 
-function WorkHandoff() {
-  const tr = usePublicCopy();
-  const reduced = useHydratedReducedMotion();
-  const shortViewport = useSyncExternalStore(subscribeShortViewport, () => matchMedia(shortViewportQuery).matches, () => false);
-  const staticScene = reduced || shortViewport;
-  const ref = useRef<HTMLDivElement>(null);
-  const near = useInView(ref, { margin: "160px" });
-  const [paused, setPaused] = useState(false);
-  const [pageVisible, setPageVisible] = useState(true);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const circleTransform = useTransform(scrollYProgress, [0, 0.14, 0.68, 1], ["translate(-50%, -50%) scale(1)", "translate(-50%, -50%) scale(1)", "translate(-50%, -50%) scale(0.065)", "translate(-50%, -50%) scale(0.065)"]);
-  const invitationOpacity = useTransform(scrollYProgress, [0, 0.14, 0.34], [1, 1, 0]);
-  const invitationVisibility = useTransform(scrollYProgress, p => p >= 0.34 ? "hidden" : "visible");
-  const logoOpacity = useTransform(scrollYProgress, [0, 0.38, 0.65, 1], [0, 0, 1, 1]);
-  const workOpacity = useTransform(scrollYProgress, [0, 0.4, 0.66, 1], [0, 0, 1, 1]);
-  const captionOpacity = useTransform(scrollYProgress, [0, 0.55, 0.78, 1], [0, 0, 1, 1]);
-  const captionVisibility = useTransform(scrollYProgress, p => p <= 0.55 ? "hidden" : "visible");
-
-  useEffect(() => {
-    const sync = () => setPageVisible(!document.hidden);
-    document.addEventListener("visibilitychange", sync);
-    return () => document.removeEventListener("visibilitychange", sync);
-  }, []);
-
-  return <div ref={ref} className={styles.handoff} data-imagine-handoff data-static={staticScene}>
-    <div className={styles.stage}>
-      <motion.div className={styles.circle} data-imagine-circle aria-hidden="true"
-        style={staticScene ? undefined : { transform: circleTransform }}>
-        <motion.div className={styles.logo} style={{ opacity: staticScene ? 1 : logoOpacity }}>
-          <Image src="/images/lionovart-icon.svg" alt="" fill sizes="180px" />
-        </motion.div>
-      </motion.div>
-      {!staticScene && <motion.div className={styles.invitation} style={{ opacity: invitationOpacity, visibility: invitationVisibility }}>
-        <p className={styles.eyebrow}>{tr("Now imagine the possibilities")}</p>
-        <p className={styles.invitationTitle}>{tr("Your ambition.")}<br />{tr("Made visible.")}</p>
-        <ArrowDown aria-hidden="true" />
-      </motion.div>}
-      <motion.header className={styles.workHeading} style={staticScene ? undefined : { opacity: captionOpacity, visibility: captionVisibility }}>
-        <p className={styles.eyebrow}>{tr("Selected work")}</p>
-        <h2>{tr("Different stories.")}<br />{tr("Distinct identities.")}</h2>
-      </motion.header>
-      {staticScene ? <div className={styles.staticGallery} data-imagine-static-gallery>
-        {SHOWCASE_IMAGES.map((src, index) => <div key={src}><Image src={src} alt={`${tr("Selected creative work")} ${index + 1}`} fill sizes="(max-width: 767px) 45vw, 30vw" /></div>)}
-      </div> : <motion.div className={styles.workStream} style={{ opacity: workOpacity }} aria-hidden="true">
-        {near && <ImageStreamHero images={SHOWCASE_IMAGES.map(src => ({ src }))} cards={7} speed={30} axis={50}
-          paused={paused || !pageVisible}
-          path={{ cardWidth: 19, cardHeight: 24, birthHeight: 3.4, exitHeight: 40, railBirth: -5.5, railExit: 36, fan: 2.7, turnBirth: 5, turnExit: 23, stops: 18 }}
-          className={styles.streamCanvas} />}
-      </motion.div>}
-      <motion.div className={styles.workFooter} style={staticScene ? undefined : { opacity: captionOpacity, visibility: captionVisibility }}>
-        <p>{tr("Now, let’s shape your world.")}</p>
-        <a href="#services" className={styles.servicesLink}>{tr("Explore our services")}<ArrowDown aria-hidden="true" /></a>
-        {!staticScene && <button className={styles.pause} type="button" aria-pressed={paused}
-          aria-label={tr(paused ? "Play work animation" : "Pause work animation")} onClick={() => setPaused(v => !v)}>
-          {paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
-        </button>}
-      </motion.div>
-    </div>
-  </div>;
-}
-
 export default function PawRevealStack() {
   const tr = usePublicCopy();
   const chapterRef = useRef<HTMLElement>(null);
@@ -266,6 +195,5 @@ export default function PawRevealStack() {
         <Link href="/audit" className={styles.reviewLink}>{tr("Review my brand")}<ArrowUpRight aria-hidden="true" /></Link>
       </div>
     </div>
-    <WorkHandoff />
   </section>;
 }

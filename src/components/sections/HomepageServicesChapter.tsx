@@ -212,12 +212,11 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
           <p className="font-clash text-[1rem] font-semibold tracking-[0.08em] text-brand-red">
             {tr("Our services")}
           </p>
-          <h2 className="mx-auto mt-4 max-w-[22ch] font-clash text-[clamp(3rem,9vw,7rem)] font-bold leading-[1] tracking-[-0.03em]">
-            {onHeadingClick ? <button type="button" onClick={onHeadingClick} aria-pressed="false" className="cursor-pointer bg-transparent text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red">
+          <h2 className="mx-auto mt-4 max-w-[22ch] uppercase font-clash text-[clamp(3rem,9vw,7rem)] font-bold leading-[1] tracking-[-0.03em]">
+            {onHeadingClick ? <button type="button" onClick={onHeadingClick} aria-pressed="false" className="cursor-pointer uppercase bg-transparent text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red">
               {tr("Strategy, systems")}{" "}<span className="text-brand-red">{tr("& creative craft.")}</span>
             </button> : <>{tr("Strategy, systems")}{" "}<span className="text-brand-red">{tr("& creative craft.")}</span></>}
           </h2>
-          <p className="mx-auto mt-5 max-w-[30ch] font-editorial text-[clamp(1.375rem,1.1rem+.5vw,2rem)] italic leading-[1.4]">{tr("Built around what makes you, you.")}</p>
         </div>
 
         <div className="mx-auto grid max-w-[1280px] gap-px bg-black/10 sm:grid-cols-2 lg:grid-cols-3">
@@ -247,19 +246,18 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
       className="relative z-20 isolate overflow-clip bg-bg-surface-light text-[#111111]"
     >
       <GoldThreads single />
-      <header className="mx-auto flex min-h-[28svh] max-w-[1280px] flex-col justify-end px-5 pb-8 text-center sm:min-h-[28svh] sm:px-8 sm:pb-10 lg:min-h-[30vh] lg:pb-14">
+      <header data-services-intro className="mx-auto flex max-w-[1280px] flex-col px-5 pb-6 pt-8 text-center sm:px-8 sm:pb-8 sm:pt-10 lg:pb-10 lg:pt-12">
         <p className="font-clash text-[1rem] font-semibold tracking-[0.08em] text-brand-red">
           {tr("Our services")}
         </p>
-        <h2 className="mx-auto mt-4 max-w-[17ch] font-clash text-[clamp(2.75rem,1.5rem+5vw,6rem)] font-bold leading-[1] tracking-[-0.03em]">
-          {onHeadingClick ? <button type="button" onClick={onHeadingClick} aria-pressed="false" className="cursor-pointer bg-transparent text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red">
+        <h2 className="mx-auto mt-4 max-w-[17ch] uppercase font-clash text-[clamp(2.75rem,1.5rem+5vw,6rem)] font-bold leading-[1] tracking-[-0.03em]">
+          {onHeadingClick ? <button type="button" onClick={onHeadingClick} aria-pressed="false" className="cursor-pointer uppercase bg-transparent text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red">
             {tr("Strategy, systems")}{" "}<span className="text-brand-red">{tr("& creative craft.")}</span>
           </button> : <>{tr("Strategy, systems")}{" "}<span className="text-brand-red">{tr("& creative craft.")}</span></>}
         </h2>
-        <p className="mx-auto mt-5 max-w-[30ch] font-editorial text-[clamp(1.375rem,1.1rem+.5vw,2rem)] italic leading-[1.4]">{tr("Built around what makes you, you.")}</p>
       </header>
 
-      <div ref={chapterRef} className="relative h-[330svh] sm:h-[310svh] lg:h-[340vh]">
+      <div ref={chapterRef} data-services-runway className="relative h-[330svh] sm:h-[310svh] lg:h-[340vh]">
       <div
         className="sticky top-0 h-svh overflow-hidden bg-bg-surface-light outline-none"
         tabIndex={0}

@@ -9,6 +9,7 @@ import BridgeStatement from "@/components/sections/BridgeStatement";
 import CompactIntroduction from "@/components/sections/CompactIntroduction";
 import PawRevealStack from "@/components/sections/PawRevealStack";
 import ServicesSwitcher from "@/components/sections/ServicesSwitcher";
+import WorkServicesTransition from "@/components/sections/WorkServicesTransition";
 import SelectedWork from "@/components/sections/SelectedWork";
 import ProcessExperience from "@/components/sections/ProcessExperience";
 import Testimonials from "@/components/sections/Testimonials";
@@ -47,7 +48,9 @@ export async function PageBuilder() {
 
       {/* Later chapters cover the retired opening scene. */}
       <div className="relative z-[2]">
-        <NovaSection id="services"><ServicesSwitcher /></NovaSection>
+        <WorkServicesTransition>
+          <NovaSection id="services"><ServicesSwitcher /></NovaSection>
+        </WorkServicesTransition>
         <SelectedWork goldThreads />
         <NovaSection id="about"><CompactIntroduction /></NovaSection>
 
