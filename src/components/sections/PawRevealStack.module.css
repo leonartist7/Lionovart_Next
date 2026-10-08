@@ -117,3 +117,5 @@
   .card:has(.detailCover:focus-visible) .sculpture:not([data-leaving="true"]) { transform: translateY(-.4rem) rotate(0deg); }
 }
 @media (prefers-reduced-motion: reduce) { .sculpture { transition: none; } }
+
+@media (max-width: 767px) { .sculpture { top: -1.75rem; } }
