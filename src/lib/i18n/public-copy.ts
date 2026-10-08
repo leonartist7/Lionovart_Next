@@ -1,5 +1,6 @@
 /** Reviewed French public UI copy. Source phrases are gettext-style keys. */
 const french: Record<string, string> = {
+  "Illustrative figure": "Chiffre illustratif",
   "Selected work": "Réalisations choisies",
   "Your image speaks": "Votre image parle",
   "before you do.": "avant vous.",

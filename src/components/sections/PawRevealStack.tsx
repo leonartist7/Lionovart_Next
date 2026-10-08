@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { motion, useAnimation, useInView, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import { ArrowDown, ArrowUpRight, Check, Pause, Play, Plus } from "lucide-react";
@@ -21,18 +22,21 @@ const BENEFITS = [
     title: "Look as good as your work.",
     body: "Give people a reason to trust your business before you say a word.",
     detail: "A presence that does your work justice.",
+    previewResult: { value: 1.2, prefix: "€", suffix: "M+", decimals: 1, label: "revenue" },
     points: ["A clear position in your market", "An identity that reflects your quality", "A consistent story at every touchpoint"],
   },
   {
     title: "Less admin. More headspace.",
     body: "Let your systems handle the routine. Put your time where it matters.",
     detail: "More space for what moves you forward.",
+    previewResult: { value: 8500, prefix: "", suffix: "+", decimals: 0, label: "hours" },
     points: ["Enquiries captured in one place", "Follow-ups that keep moving", "Workflows built around your team"],
   },
   {
     title: "Be recognised. Be remembered.",
     body: "Your website, your content, your identity. Finally speaking the same language.",
     detail: "Every encounter feels like your brand.",
+    previewResult: null,
     points: ["A website with a clear next step", "Content with a recognisable voice", "Campaigns that connect the whole story"],
   },
 ];
@@ -52,6 +56,20 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
   const cover = useAnimation();
   const paw = useAnimation();
   const panelId = `imagine-result-${index}`;
+  const locale = useLocale();
+  const resultCopy = useTranslations("results");
+  // The same illustrative figures used in ClientResults, never verified outcomes.
+  // Keep the visible disclosure until sourced data replaces them.
+  const preview = item.previewResult;
+  const metric = preview ? (
+    <span className={styles.metric} data-result-kind="illustrative">
+      <span className={styles.metricValue}>{preview.prefix}{new Intl.NumberFormat(locale, {
+        minimumFractionDigits: preview.decimals, maximumFractionDigits: preview.decimals,
+      }).format(preview.value)}{preview.suffix}</span>
+      <span className={styles.metricLabel}>{resultCopy(`${preview.label}.label`)}</span>
+      <span className={styles.metricDisclosure}>{tr("Illustrative figure")}</span>
+    </span>
+  ) : null;
 
   const reveal = async (keyboard: boolean) => {
     if (lock.current) return;
@@ -68,7 +86,7 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
     requestAnimationFrame(() => panel.current?.focus({ preventScroll: true }));
   };
 
-  return <article className={styles.card} data-benefit-card data-revealed={phase === "open"}>
+  return <article className={styles.card} data-benefit-card data-has-metric={Boolean(preview)} data-revealed={phase === "open"}>
     <div className={styles.cardTop}>
       <h3><span data-benefit-measure="heading">{tr(item.title)}</span></h3>
       <p className={styles.cardBody}><span data-benefit-measure="body">{tr(item.body)}</span></p>
@@ -82,13 +100,14 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
         aria-label={tr(item.detail)} aria-hidden={phase !== "open"} className={styles.details}>
         <div className={styles.detailContent} data-benefit-measure="detail">
         <p>{tr(item.detail)}</p>
-        <ul>{item.points.map(point => <li key={point}><Check aria-hidden="true" />{tr(point)}</li>)}</ul>
+        {metric || <ul>{item.points.map(point => <li key={point}><Check aria-hidden="true" />{tr(point)}</li>)}</ul>}
         </div>
       </div>
       {phase !== "open" && <>
         <motion.button type="button" className={styles.detailCover} animate={cover}
           aria-expanded={false} aria-controls={panelId} disabled={phase === "revealing"}
           onClick={event => void reveal(event.detail === 0)}>
+          {metric}
           <span className={styles.coverLabel}>{tr("See how")}<Plus aria-hidden="true" /></span>
         </motion.button>
         <motion.div className={styles.paw} aria-hidden="true" initial={{ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)" }} animate={paw}>
