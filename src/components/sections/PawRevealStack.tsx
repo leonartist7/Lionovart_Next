@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { useLocale, useTranslations } from "next-intl";
 import { motion, useAnimation, useInView, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
-import { ArrowDown, ArrowUpRight, Check, Pause, Play, Plus } from "lucide-react";
+import { ArrowDown, ArrowUpRight, Check, Minus, Pause, Play, Plus } from "lucide-react";
 import { useLenis } from "lenis/react";
 import { Link } from "@/i18n/navigation";
 import { usePublicCopy } from "@/hooks/usePublicCopy";
@@ -22,22 +21,22 @@ const BENEFITS = [
     title: "Look as good as your work.",
     body: "Give people a reason to trust your business before you say a word.",
     detail: "A presence that does your work justice.",
-    previewResult: { value: 1.2, prefix: "€", suffix: "M+", decimals: 1, label: "revenue" },
-    points: ["A clear position in your market", "An identity that reflects your quality", "A consistent story at every touchpoint"],
+    stat: { value: "50", unit: "ms", label: "To form a visual first impression", source: "https://doi.org/10.1080/01449290500330448" },
+    points: ["A clear position in your market", "An identity that reflects your quality"],
   },
   {
     title: "Less admin. More headspace.",
     body: "Let your systems handle the routine. Put your time where it matters.",
     detail: "More space for what moves you forward.",
-    previewResult: { value: 8500, prefix: "", suffix: "+", decimals: 0, label: "hours" },
-    points: ["Enquiries captured in one place", "Follow-ups that keep moving", "Workflows built around your team"],
+    stat: { value: "15", unit: "h+", label: "Weekly time-saving target", source: null },
+    points: ["Enquiries and follow-ups in one place", "Workflows built around your team"],
   },
   {
-    title: "Be recognised. Be remembered.",
-    body: "Your website, your content, your identity. Finally speaking the same language.",
+    title: "Be the name they remember.",
+    body: "One recognisable world, across your website, content and identity.",
     detail: "Every encounter feels like your brand.",
-    previewResult: null,
-    points: ["A website with a clear next step", "Content with a recognisable voice", "Campaigns that connect the whole story"],
+    stat: null,
+    points: ["A recognisable voice", "A consistent world, everywhere"],
   },
 ];
 const shortViewportQuery = "(max-height: 480px)";
@@ -47,75 +46,86 @@ const subscribeShortViewport = (notify: () => void) => {
   return () => media.removeEventListener("change", notify);
 };
 
+
 function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: number }) {
   const tr = usePublicCopy();
   const reduced = useHydratedReducedMotion();
-  const [phase, setPhase] = useState<"closed" | "revealing" | "open">("closed");
+  const [phase, setPhase] = useState<"closed" | "revealing" | "open" | "closing">("closed");
   const lock = useRef(false);
-  const panel = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
   const cover = useAnimation();
   const paw = useAnimation();
   const panelId = `imagine-result-${index}`;
-  const locale = useLocale();
-  const resultCopy = useTranslations("results");
-  // The same illustrative figures used in ClientResults, never verified outcomes.
-  // Keep the visible disclosure until sourced data replaces them.
-  const preview = item.previewResult;
-  const metric = preview ? (
-    <span className={styles.metric} data-result-kind="illustrative">
-      <span className={styles.metricValue}>{preview.prefix}{new Intl.NumberFormat(locale, {
-        minimumFractionDigits: preview.decimals, maximumFractionDigits: preview.decimals,
-      }).format(preview.value)}{preview.suffix}</span>
-      <span className={styles.metricLabel}>{resultCopy(`${preview.label}.label`)}</span>
-      <span className={styles.metricDisclosure}>{tr("Illustrative figure")}</span>
-    </span>
-  ) : null;
+  const open = phase === "open";
+  const busy = phase === "revealing" || phase === "closing";
 
-  const reveal = async (keyboard: boolean) => {
+  const toggle = async (keyboard: boolean) => {
     if (lock.current) return;
     lock.current = true;
-    setPhase("revealing");
-    if (!reduced && !keyboard) {
-      await paw.start({ opacity: 1, transform: "translate(0, 0) rotate(0deg)", transition: { duration: 0.35, ease: EASE } });
-      await Promise.all([
-        cover.start({ transform: "translateY(105%)", transition: { duration: 0.65, ease: EASE } }),
-        paw.start({ transform: "translate(8%, 170%) rotate(5deg)", transition: { duration: 0.65, ease: EASE } }),
-      ]);
+    const opening = phase === "closed";
+    setPhase(opening ? "revealing" : "closing");
+    try {
+      if (reduced || keyboard) {
+        cover.set({ transform: opening ? "translateY(105%)" : "translateY(0%)" });
+        paw.set({ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)" });
+      } else if (opening) {
+        await paw.start({ opacity: 1, transform: "translate(0, 0) rotate(0deg)", transition: { duration: .25, ease: EASE } });
+        await Promise.all([
+          cover.start({ transform: "translateY(105%)", transition: { duration: .55, ease: EASE } }),
+          paw.start({ transform: "translate(8%, 170%) rotate(5deg)", transition: { duration: .55, ease: EASE } }),
+        ]);
+        paw.set({ opacity: 0 });
+      } else {
+        paw.set({ opacity: 1, transform: "translate(8%, 170%) rotate(5deg)" });
+        await Promise.all([
+          cover.start({ transform: "translateY(0%)", transition: { duration: .5, ease: EASE } }),
+          paw.start({ transform: "translate(0, 0) rotate(0deg)", transition: { duration: .5, ease: EASE } }),
+        ]);
+        await paw.start({ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)", transition: { duration: .2, ease: EASE } });
+      }
+      setPhase(opening ? "open" : "closed");
+      if (keyboard) requestAnimationFrame(() => trigger.current?.focus({ preventScroll: true }));
+    } finally {
+      lock.current = false;
     }
-    setPhase("open");
-    requestAnimationFrame(() => panel.current?.focus({ preventScroll: true }));
   };
 
-  return <article className={styles.card} data-benefit-card data-has-metric={Boolean(preview)} data-revealed={phase === "open"}>
+  return <article className={styles.card} data-benefit-card data-has-metric={Boolean(item.stat)} data-revealed={open} data-phase={phase}>
     <div className={styles.cardTop}>
-      <h3><span data-benefit-measure="heading">{tr(item.title)}</span></h3>
-      <p className={styles.cardBody}><span data-benefit-measure="body">{tr(item.body)}</span></p>
+      <div className={styles.cardCopy} data-benefit-measure="copy">
+        <h3 id={panelId + "-title"}><span data-benefit-measure="heading">{tr(item.title)}</span></h3>
+        <p className={styles.cardBody}><span data-benefit-measure="body">{tr(item.body)}</span></p>
+      </div>
     </div>
     <div className={styles.detailShell}>
-      {phase !== "open" && <div className={styles.sculpture} data-sculpture={index} data-leaving={phase === "revealing"} aria-hidden="true">
+      <div className={styles.sculpture} data-sculpture={index} data-leaving={phase !== "closed"} aria-hidden="true">
         <BenefitSculpture kind={index} />
-      </div>}
-    <div className={styles.detailWell}>
-      <div ref={panel} id={panelId} tabIndex={phase === "open" ? -1 : undefined} role="region"
-        aria-label={tr(item.detail)} aria-hidden={phase !== "open"} className={styles.details}>
-        <div className={styles.detailContent} data-benefit-measure="detail">
-        <p>{tr(item.detail)}</p>
-        {metric || <ul>{item.points.map(point => <li key={point}><Check aria-hidden="true" />{tr(point)}</li>)}</ul>}
-        </div>
       </div>
-      {phase !== "open" && <>
-        <motion.button type="button" className={styles.detailCover} animate={cover}
-          aria-expanded={false} aria-controls={panelId} disabled={phase === "revealing"}
-          onClick={event => void reveal(event.detail === 0)}>
-          {metric}
-          <span className={styles.coverLabel}>{tr("See how")}<Plus aria-hidden="true" /></span>
-        </motion.button>
+      <div className={styles.detailWell}>
+        <div id={panelId} role="region" aria-labelledby={panelId + "-title"} aria-hidden={!open} className={styles.details}>
+          <div className={styles.detailContent} data-benefit-measure="detail">
+            <p>{tr(item.detail)}</p>
+            <ul>{item.points.map(point => <li key={point}><Check aria-hidden="true" />{tr(point)}</li>)}</ul>
+            {item.stat?.source && <a className={styles.metricSource} href={item.stat.source} target="_blank" rel="noreferrer"
+              tabIndex={open ? 0 : -1} aria-label={tr("Read the visual first impression study")}>{tr("Research: Lindgaard et al.")}</a>}
+          </div>
+        </div>
+        <motion.div className={styles.detailCover} animate={cover} aria-hidden={open}>
+          {item.stat && <div className={styles.metric} data-benefit-stat>
+            <span className={styles.metricValue}>{item.stat.value}<span>{item.stat.unit}</span></span>
+            <span className={styles.metricLabel}>{tr(item.stat.label)}</span>
+          </div>}
+        </motion.div>
         <motion.div className={styles.paw} aria-hidden="true" initial={{ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)" }} animate={paw}>
           <Image src={PAW_IMAGE} alt="" fill sizes="128px" className={styles.pawImage} />
         </motion.div>
-      </>}
+      </div>
     </div>
-    </div>
+    <button ref={trigger} type="button" className={styles.cardToggle} aria-expanded={open || phase === "closing"} aria-controls={panelId}
+      aria-label={`${tr(open ? "Close details" : "See how")}: ${tr(item.title)}`} disabled={busy}
+      onClick={event => void toggle(event.detail === 0)}>
+      <span className={styles.coverLabel}>{tr(open ? "Close" : "See how")}{open ? <Minus aria-hidden="true" /> : <Plus aria-hidden="true" />}</span>
+    </button>
   </article>;
 }
 
@@ -199,7 +209,7 @@ export default function PawRevealStack() {
     const measure = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        for (const part of ["heading", "body", "detail"]) {
+        for (const part of ["heading", "body", "copy", "detail"]) {
           const height = Math.ceil(Math.max(0, ...content.filter(el => el.dataset.benefitMeasure === part).map(el => el.getBoundingClientRect().height)));
           grid.style.setProperty(`--benefit-${part}-height`, `${height}px`);
         }

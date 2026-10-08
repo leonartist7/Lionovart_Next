@@ -1,6 +1,16 @@
 /** Reviewed French public UI copy. Source phrases are gettext-style keys. */
 const french: Record<string, string> = {
-  "Illustrative figure": "Chiffre illustratif",
+  "To form a visual first impression": "Pour se faire une première impression visuelle",
+  "Weekly time-saving target": "Objectif : heures gagnées chaque semaine",
+  "Be the name they remember.": "Le nom qui reste en tête.",
+  "One recognisable world, across your website, content and identity.": "Un univers reconnaissable, de votre site à vos contenus et votre identité.",
+  "Enquiries and follow-ups in one place": "Demandes et suivis au même endroit",
+  "A recognisable voice": "Une voix reconnaissable",
+  "A consistent world, everywhere": "Un univers cohérent, partout",
+  "Read the visual first impression study": "Lire l’étude sur la première impression visuelle",
+  "Research: Lindgaard et al.": "Étude : Lindgaard et al.",
+  "Close details": "Refermer les détails",
+
   "Selected work": "Réalisations choisies",
   "Your image speaks": "Votre image parle",
   "before you do.": "avant vous.",
