@@ -1,5 +1,14 @@
 # LIONOVART results redesign
 
+## Latest — all 40 confirmed service/status assignments applied
+
+Applied the owner’s complete 40-of-40 tag report exactly in work-approved-tags.json, keyed by original asset ID. Work data now uses approved services and client/concept status, while preserving the 13 archives, source media, ordering and permanent review numbers. Concepts are #17 AI high-tech, #18 AI technology, #20 Automotive editorial, #31 Editorial architecture, #47 Technology minimal II and #48 Technology minimal III. The other 34 published examples remain client work.
+
+All 40 now carry Web/App dev; additional totals are Brand identity 15, Digital design 16, Creative media 10, Motion 16, Smart OS 14, Event design 1. Legacy web-dev/app-dev service queries resolve to the combined tag. Subsequent local tag edits remain isolated. Fresh tag review reflects all applied assignments as confirmed and copies the current snapshot; edits clear confirmation until reconfirmed.
+
+Both complete previews rebuilt. TypeScript and targeted lint pass. Four-width checks compare every rendered status and service label with the approved data, verify exactly six Concept badges, responsive wrapping/containment, canonical and legacy service filters, combined empty states, confirmed defaults and isolated local changes. Source/inventory/image validation confirms all 53 media assets remain and only the approved 40 are displayed. Existing tag editor, filter dock and media playback checks pass. No testimonials, outcomes, media sources, booking/audit configuration or homepage changes; no real submissions or messages. GitHub source package synchronized.
+
+
 ## Latest — approved curation and local tag review
 
 Applied the owner’s pasted 51-of-53 review: 38 Keep, 13 Archive, 2 unreviewed (Perfume and OMa retained). Published gallery now contains 40 entries, pagination 12/24/36/40. All 53 media records remain in the source and original curation review mode; the explicit asset-ID number map is unchanged. Approved decisions are recorded in work-curation.json.

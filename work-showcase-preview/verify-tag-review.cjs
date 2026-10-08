@@ -18,6 +18,7 @@ const base='http://127.0.0.1:'+server.address().port+'/work',browser=await chrom
 try{
 for(const width of [320,390,768,1440]){
 const context=await browser.newContext({viewport:{width,height:950},reducedMotion:'reduce'});await context.addInitScript(()=>Object.defineProperty(navigator,'clipboard',{value:{writeText:async text=>{window.copiedTags=text;}}}));
+await context.addInitScript(seed=>{if(localStorage.getItem('lionovart.work-tags.v1')===null)localStorage.setItem('lionovart.work-tags.v1',JSON.stringify({version:1,assignments:seed}));},Object.fromEntries(publishedWorks.map(w=>[w.assetId,{...defaultTags(w),confirmed:false}])));
 const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
 await page.goto(base+'?show=60&review=tags');await page.locator('.lv-tag-review-card').first().waitFor();await page.evaluate(()=>document.fonts.ready);
 assert.equal(await page.locator('.lv-work').count(),40);assert.equal(await page.locator('.lv-tag-review-card').count(),40);assert.equal(await page.locator('.lv-review-toolbar strong').innerText(),'Tag review');
@@ -49,7 +50,7 @@ await page.goto(base+'?service=web-dev');assert.equal(await page.locator('.lv-wo
 await page.goto(base+'?service=web-app-dev');assert.equal(await page.locator('.lv-work').count(),count({service:'web-app-dev'}));
 assert.deepEqual(errors,[]);await context.close();console.log('PASS '+width+': curation, gaps/stable numbers, transparent backing, multi-select/status, confirmation, saved refresh, copy, global progress, filters, legacy links and draft isolation');
 }
-const context=await browser.newContext({reducedMotion:'reduce'});await context.addInitScript(()=>{Object.defineProperty(navigator,'clipboard',{value:{writeText:async()=>{throw new Error('blocked');}}});Storage.prototype.setItem=function(){throw new Error('blocked');};});
+const context=await browser.newContext({reducedMotion:'reduce'});await context.addInitScript(seed=>{Storage.prototype.getItem=function(){return JSON.stringify({version:1,assignments:seed});};Object.defineProperty(navigator,'clipboard',{value:{writeText:async()=>{throw new Error('blocked');}}});Storage.prototype.setItem=function(){throw new Error('blocked');};},Object.fromEntries(publishedWorks.map(w=>[w.assetId,{...defaultTags(w),confirmed:false}])));
 const page=await context.newPage();await page.goto(base+'?review=tags');await page.getByRole('button',{name:'Confirm tags #01 — Stormlikes',exact:true}).click();assert((await page.locator('.lv-review-toolbar').innerText()).includes('saving is unavailable'));
 await page.getByRole('button',{name:'Copy review',exact:true}).click();assert((await page.getByLabel('Select and copy your review').inputValue()).includes('1 of 40 confirmed'));await context.close();
 const hosted=await browser.newContext({reducedMotion:'reduce'});await hosted.route('https://example.test/work?review=tags',r=>r.fulfill({status:200,contentType:'text/html',body:html}));const publicPage=await hosted.newPage();await publicPage.goto('https://example.test/work?review=tags');await publicPage.locator('.lv-work').first().waitFor();assert.equal(await publicPage.locator('.lv-tag-review-card,.lv-review-toolbar').count(),0);await hosted.close();

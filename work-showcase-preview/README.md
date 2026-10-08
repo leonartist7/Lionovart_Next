@@ -34,3 +34,7 @@ Open the same preview with ?review=1 (or append &review=1 to an existing filter 
 ## Approved curation and tag review
 
 The approved archive list hides 13 examples; 40 remain published, including the two unreviewed examples. All 53 source records and fixed numbers are preserved. Open the existing preview with ?review=tags to assign multiple service tags and independent Concept status, then Confirm tags for each example. Copy review exports both confirmed and pending entries for handoff. Draft tag assignments affect only local tag review and persist separately from curation marks. The media-card backing is transparent; artwork remains uncropped. Original ?review=1 still exposes the full 53-entry curation collection. Run verify-tag-review.cjs and verify-collection-gallery.cjs for current curation checks.
+
+## Confirmed tags applied
+
+work-approved-tags.json records the owner’s complete 40-entry tag/status report. The public preview renders these assignments and six Concept labels. Both legacy web-dev/app-dev queries resolve to the combined Web/App dev tag. Fresh local tag review starts with the applied assignments confirmed; subsequent local changes remain drafts until sent back. verify-approved-tags.cjs checks every rendered assignment and status.

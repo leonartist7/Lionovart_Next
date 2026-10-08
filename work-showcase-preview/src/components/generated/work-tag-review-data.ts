@@ -1,4 +1,4 @@
-import { publishedWorks, type Work } from './work-data';
+import { publishedWorks, approvedTagAssignments, type Work } from './work-data';
 import { reviewNumber, isLocalPreviewUrl } from './work-review-data';
 import { normalizeServiceTags, serviceTags, serviceTagLabel } from './work-services';
 export type TagAssignment = { services: string[]; status: Work['status']; confirmed: boolean };
@@ -12,7 +12,7 @@ export function readTagMode(): boolean {
   return isLocalPreviewUrl(url) && url.searchParams.get('review') === 'tags';
 }
 export function defaultTags(work: Work): TagAssignment {
-  return { services: normalizeServiceTags(work.services), status: work.status, confirmed: false };
+  return { services: normalizeServiceTags(work.services), status: work.status, confirmed: Boolean(approvedTagAssignments[work.assetId]) };
 }
 export function parseTags(raw: string | null): TagAssignments {
   if (!raw) return {};
@@ -33,7 +33,7 @@ export function parseTags(raw: string | null): TagAssignments {
 }
 export function formatTagReview(assignments: TagAssignments): string {
   const ordered = [...publishedWorks].sort((a,b)=>Number(reviewNumber(a.assetId))-Number(reviewNumber(b.assetId)));
-  const confirmed = ordered.filter(work=>assignments[work.assetId]?.confirmed).length;
+  const confirmed = ordered.filter(work=>(assignments[work.assetId] ?? defaultTags(work)).confirmed).length;
   const lines = (work: Work) => {
     const draft = assignments[work.assetId] ?? defaultTags(work);
     return '#' + reviewNumber(work.assetId) + ' — ' + work.name + '\nStatus: ' +
@@ -41,9 +41,9 @@ export function formatTagReview(assignments: TagAssignments): string {
       (draft.services.map(serviceTagLabel).join(' · ') || 'None');
   };
   return ['LIONOVART — Work tag review', confirmed + ' of ' + publishedWorks.length + ' confirmed',
-    'Draft assignments only; public assignments have not been changed.',
+    'Current assignments with local review edits. New edits are not published automatically.',
     ...[true,false].map(complete => {
-      const group = ordered.filter(work=>Boolean(assignments[work.assetId]?.confirmed) === complete);
+      const group = ordered.filter(work=>Boolean((assignments[work.assetId] ?? defaultTags(work)).confirmed) === complete);
       return '\n' + (complete ? 'Confirmed' : 'Not confirmed') + '\n' + (group.length ? group.map(lines).join('\n\n') : 'None');
     })].join('\n');
 }

@@ -60,7 +60,7 @@ export function TagCardControls({ work, assignment, change }: {
 export function TagReviewToolbar({ assignments, unsaved, exit }: {
   assignments: TagAssignments; unsaved: boolean; exit: () => void;
 }) {
-  const confirmed = publishedWorks.filter(work=>assignments[work.assetId]?.confirmed).length;
+  const confirmed = publishedWorks.filter(work=>(assignments[work.assetId] ?? defaultTags(work)).confirmed).length;
   return <ReviewSummary title="Tag review" progress={confirmed + ' of ' + publishedWorks.length + ' confirmed'}
     text={formatTagReview(assignments)} unsaved={unsaved} exit={exit}>
     Select all relevant tags, then confirm. Concept describes status; the other tags describe the work. Public assignments stay unchanged until you send the review.
