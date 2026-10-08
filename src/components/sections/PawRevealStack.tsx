@@ -139,7 +139,7 @@ function WorkHandoff() {
       </motion.div>}
       <motion.header className={styles.workHeading} style={staticScene ? undefined : { opacity: captionOpacity, visibility: captionVisibility }}>
         <p className={styles.eyebrow}>{tr("Selected work")}</p>
-        <h2>{tr("See the difference.")}</h2>
+        <h2>{tr("Different stories.")}<br />{tr("Distinct identities.")}</h2>
       </motion.header>
       {staticScene ? <div className={styles.staticGallery} data-imagine-static-gallery>
         {SHOWCASE_IMAGES.map((src, index) => <div key={src}><Image src={src} alt={`${tr("Selected creative work")} ${index + 1}`} fill sizes="(max-width: 767px) 45vw, 30vw" /></div>)}
@@ -150,8 +150,8 @@ function WorkHandoff() {
           className={styles.streamCanvas} />}
       </motion.div>}
       <motion.div className={styles.workFooter} style={staticScene ? undefined : { opacity: captionOpacity, visibility: captionVisibility }}>
-        <p>{tr("Identity. Digital. Content. Systems.")}</p>
-        <a href="#services" className={styles.servicesLink}>{tr("Find your service")}<ArrowDown aria-hidden="true" /></a>
+        <p>{tr("Now, let’s shape your world.")}</p>
+        <a href="#services" className={styles.servicesLink}>{tr("Explore our services")}<ArrowDown aria-hidden="true" /></a>
         {!staticScene && <button className={styles.pause} type="button" aria-pressed={paused}
           aria-label={tr(paused ? "Play work animation" : "Pause work animation")} onClick={() => setPaused(v => !v)}>
           {paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
@@ -220,8 +220,8 @@ export default function PawRevealStack() {
     <span id="imagine" className={styles.anchor} aria-hidden="true" />
     <div className={styles.redChapter}>
       <header className={styles.intro}>
-        <h2 id="imagine-heading">{tr("Be seen for")}<br /><span>{tr("what you’re worth.")}</span></h2>
-        <p className={styles.introBody}>{tr("You’ve put years into your business. Let people see the difference.")}</p>
+        <h2 id="imagine-heading">{tr("Your image speaks")}<br /><span>{tr("before you do.")}</span></h2>
+        <p className={styles.introBody}>{tr("Let it speak well of the work behind it.")}</p>
       </header>
       <div ref={gridRef} className={styles.grid} data-imagine-content>
         {BENEFITS.map((item, index) => <BenefitCard key={item.title} item={item} index={index} />)}

@@ -1,0 +1,7 @@
+.partnershipLine { width: 100%; text-align: center; padding: .2em .15em .3em; }
+.partnershipLine p { margin: 0; color: #e5192a; text-transform: none; }
+.editorial { font-family: var(--font-playfair-display), Georgia, serif; font-style: italic; font-weight: 400; font-synthesis: none; font-size: clamp(1.125rem, .625rem + 2.7vw, 3.75rem); line-height: 1.3; letter-spacing: -.015em; text-wrap: balance; }
+.plain { font-family: var(--font-heading), sans-serif; font-size: clamp(1.125rem, .625rem + 2.7vw, 3.75rem); font-weight: 600; line-height: 1.3; text-wrap: balance; }
+.vow { text-align: right; }
+@media (min-width: 48rem) { .partnershipLine p { white-space: nowrap; } }
+@media (min-width: 48rem) and (max-width: 70rem) { .editorial, .plain { font-size: clamp(1.75rem, 3.4vw, 2.75rem); } }

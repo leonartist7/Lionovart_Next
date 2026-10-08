@@ -1,6 +1,7 @@
 "use client";
 
 import GoldThreads from "@/components/ui/GoldThreads";
+import styles from "./BridgeStatement.module.css";
 
 import { motion, useReducedMotion } from "framer-motion";
 import { useLionJourney } from "./lion-journey/LionJourney";
@@ -95,26 +96,24 @@ export default function BridgeStatement({
           </motion.p>
         </div>
 
-        <div className={`overflow-hidden ${isVow ? "text-right" : "text-center"} ${editorial ? "px-[0.12em] pb-[0.2em] pt-[0.12em]" : "pb-[0.08em]"}`}>
+        <div className={`${styles.partnershipLine} ${isVow ? styles.vow : ""}`}>
           <motion.p
             {...itemAnim}
             data-site-title-reveal
-            className="font-clash text-[clamp(1.9rem,4.8vw,5rem)] font-semibold uppercase leading-[0.9] tracking-[-0.045em]"
-            style={{ wordSpacing: "0.18em" }}
+            className={editorial ? styles.editorial : styles.plain}
           >
-            <span className={isVow ? "text-[#171412]" : "text-white"}>{copy.line2} </span>
-            <span className={`text-brand-red${editorial ? " editorial-accent editorial-bridge" : ""}`}>{copy.accent}</span>
+            {copy.line2} {copy.accent}
           </motion.p>
         </div>
 
-        <motion.p
+        {isVow && <motion.p
           {...itemAnim}
           className={`max-w-[42ch] pt-2 font-body text-[0.8125rem] leading-[1.5] sm:text-[0.875rem] ${isVow ? "self-end text-right" : "self-center text-center"} ${
             isVow ? "text-[#171412]/70" : "text-white/55"
           }`}
         >
           {copy.body}
-        </motion.p>
+        </motion.p>}
       </motion.div>
     </section>
   );

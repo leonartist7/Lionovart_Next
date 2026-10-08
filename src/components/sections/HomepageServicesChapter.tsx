@@ -73,7 +73,6 @@ function ServiceMediaCarousel({
   images: readonly string[];
   alt: string;
 }) {
-  const tr = usePublicCopy();
   const [mediaIndex, setMediaIndex] = useState(0);
   const canSwipe = images.length > 1;
   const currentImage = images[mediaIndex] ?? images[0];
@@ -210,14 +209,15 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
       >
         <GoldThreads />
         <div className="mx-auto max-w-[1280px] px-5 py-20 text-center sm:px-8 lg:py-28">
-          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-brand-red">
-            {t.services.eyebrow}
+          <p className="font-clash text-[1rem] font-semibold tracking-[0.08em] text-brand-red">
+            {tr("Our services")}
           </p>
-          <h2 className="mx-auto mt-4 max-w-[17ch] font-clash text-[clamp(3rem,9vw,7rem)] font-semibold uppercase leading-[0.84] tracking-[-0.055em]">
+          <h2 className="mx-auto mt-4 max-w-[22ch] font-clash text-[clamp(3rem,9vw,7rem)] font-bold leading-[1] tracking-[-0.03em]">
             {onHeadingClick ? <button type="button" onClick={onHeadingClick} aria-pressed="false" className="cursor-pointer bg-transparent text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red">
-              {tr("Here’s how")}{" "}<span className="text-brand-red">{tr("we build it.")}</span>
-            </button> : <>{tr("Here’s how")}{" "}<span className="text-brand-red">{tr("we build it.")}</span></>}
+              {tr("Strategy, systems")}{" "}<span className="text-brand-red">{tr("& creative craft.")}</span>
+            </button> : <>{tr("Strategy, systems")}{" "}<span className="text-brand-red">{tr("& creative craft.")}</span></>}
           </h2>
+          <p className="mx-auto mt-5 max-w-[30ch] font-editorial text-[clamp(1.375rem,1.1rem+.5vw,2rem)] italic leading-[1.4]">{tr("Built around what makes you, you.")}</p>
         </div>
 
         <div className="mx-auto grid max-w-[1280px] gap-px bg-black/10 sm:grid-cols-2 lg:grid-cols-3">
@@ -248,14 +248,15 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
     >
       <GoldThreads single />
       <header className="mx-auto flex min-h-[28svh] max-w-[1280px] flex-col justify-end px-5 pb-8 text-center sm:min-h-[28svh] sm:px-8 sm:pb-10 lg:min-h-[30vh] lg:pb-14">
-        <p className="font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-brand-red sm:text-[11px]">
-          {t.services.eyebrow}
+        <p className="font-clash text-[1rem] font-semibold tracking-[0.08em] text-brand-red">
+          {tr("Our services")}
         </p>
-        <h2 className="mx-auto mt-4 max-w-[17ch] font-clash text-[clamp(2.75rem,1.5rem+5vw,6rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em]">
+        <h2 className="mx-auto mt-4 max-w-[17ch] font-clash text-[clamp(2.75rem,1.5rem+5vw,6rem)] font-bold leading-[1] tracking-[-0.03em]">
           {onHeadingClick ? <button type="button" onClick={onHeadingClick} aria-pressed="false" className="cursor-pointer bg-transparent text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red">
-            {tr("Here’s how")}{" "}<span className="text-brand-red">{tr("we build it.")}</span>
-          </button> : <>{tr("Here’s how")}{" "}<span className="text-brand-red">{tr("we build it.")}</span></>}
+            {tr("Strategy, systems")}{" "}<span className="text-brand-red">{tr("& creative craft.")}</span>
+          </button> : <>{tr("Strategy, systems")}{" "}<span className="text-brand-red">{tr("& creative craft.")}</span></>}
         </h2>
+        <p className="mx-auto mt-5 max-w-[30ch] font-editorial text-[clamp(1.375rem,1.1rem+.5vw,2rem)] italic leading-[1.4]">{tr("Built around what makes you, you.")}</p>
       </header>
 
       <div ref={chapterRef} className="relative h-[330svh] sm:h-[310svh] lg:h-[340vh]">

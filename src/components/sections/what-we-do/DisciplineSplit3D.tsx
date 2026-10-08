@@ -1,6 +1,7 @@
 "use client";
 
 import { usePublicCopy } from "@/hooks/usePublicCopy";
+import styles from "./DisciplineSplit3D.module.css";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -28,6 +29,7 @@ const EDGE_TINTS = ["#e8a020", "#7b3ff2", "#e5192a"] as const;
 interface Card {
   code: string;
   title: string;
+  accent?: string;
   body: string;
   image?: string;
 }
@@ -188,7 +190,7 @@ function Pane({
     >
       {/* Intrinsic card sizing: a square image plus a compact footer on
           desktop; square art beside the copy in the phone stack. */}
-      <div aria-hidden="true" className="opening-pane-sizing pointer-events-none w-full pb-36 pt-[100%] max-md:h-[var(--opening-art-size)] max-md:p-0" />
+      <div aria-hidden="true" className="opening-pane-sizing pointer-events-none w-full pb-52 pt-[100%] max-md:h-[var(--opening-art-size)] max-md:p-0" />
       {/* The glass body rises underneath the fading, unbroken film. */}
       <motion.div
         className="absolute inset-0 z-[1] rounded-[inherit]"
@@ -342,17 +344,12 @@ function Pane({
           </motion.span>
 
           <motion.div
-            className="opening-pane-copy absolute inset-x-0 bottom-0 z-10 flex h-36 flex-col justify-end bg-[#08080a]/95 p-4 text-left max-md:left-[var(--opening-art-size)] max-md:h-full max-md:p-3 md:p-5"
+            className={`opening-pane-copy ${styles.copy} absolute inset-x-0 bottom-0 z-10 flex h-52 flex-col justify-center bg-[#08080a]/95 p-4 text-left max-md:left-[var(--opening-art-size)] max-md:h-full max-md:p-3 md:p-5`}
             style={{ opacity: contentP, y: contentY }}
           >
-            <h3 className="max-w-[24ch] font-clash text-[clamp(1.05rem,2.2vw,1.55rem)] font-bold uppercase leading-[0.96] text-white [text-wrap:balance]">
-              {card.title}
-            </h3>
-            {/* Reserved height keeps the three headings on one baseline even
-                when a locale wraps the body to a different line count. */}
-            <p className="mt-1.5 max-w-[34ch] font-body text-[clamp(0.72rem,1.3vw,0.9rem)] leading-[1.45] text-white/70 md:mt-2 md:min-h-[3.2rem]">
-              {card.body}
-            </p>
+            <h3 className={styles.title}>{card.title}</h3>
+            {card.accent && <p className={styles.accent}>{card.accent}</p>}
+            <p className={styles.body}>{card.body}</p>
           </motion.div>
         </div>
       </motion.div>
