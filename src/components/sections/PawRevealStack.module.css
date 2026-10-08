@@ -68,6 +68,7 @@
   .cardCopy { display: block; }
   .card h3 { font-size: clamp(2.25rem, 1.9rem + 1.5vw, 3rem); }
 
+  .detailWell { min-height: calc(var(--benefit-seam-height, 5rem) + var(--benefit-metric-height, 8rem) + 2.25rem); }
   .details { min-height: max(12.5rem, calc(var(--benefit-detail-height, 9.5rem) + 3rem)); }
   .sculpture { width: clamp(10rem, 50vw, 14rem); margin-left: calc(clamp(10rem, 50vw, 14rem) / -2); }
   .reviewOffer { flex-direction: column; align-items: flex-start; max-width: 34rem; text-align: left; }

@@ -104,10 +104,10 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
           </div>
         </div>
         <motion.div className={styles.detailCover} animate={cover} aria-hidden={open}>
-          <div className={styles.cardSeam} aria-hidden="true" data-card-seam>
+          <div className={styles.cardSeam} aria-hidden="true" data-card-seam data-benefit-measure="seam">
             <Image src={CARD_SEAM_IMAGE} alt="" fill sizes="(max-width: 999px) 90vw, (max-width: 2000px) 30vw, 560px" />
           </div>
-          {item.stat && <div className={styles.metric} data-benefit-stat>
+          {item.stat && <div className={styles.metric} data-benefit-stat data-benefit-measure="metric">
             <span className={styles.metricValue}>{item.stat.qualifier && <small>{tr(item.stat.qualifier)}</small>}{tr(item.stat.value)}<span>{item.stat.unit}</span></span>
             <span className={styles.metricLabel}>{tr(item.stat.label)}</span>
           </div>}
@@ -144,7 +144,7 @@ export default function PawRevealStack() {
     const measure = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        for (const part of ["heading", "body", "copy", "detail"]) {
+        for (const part of ["heading", "body", "copy", "detail", "seam", "metric"]) {
           const height = Math.ceil(Math.max(0, ...content.filter(el => el.dataset.benefitMeasure === part).map(el => el.getBoundingClientRect().height)));
           grid.style.setProperty(`--benefit-${part}-height`, `${height}px`);
         }
