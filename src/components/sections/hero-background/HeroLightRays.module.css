@@ -21,15 +21,3 @@
   inset: 0;
   background: radial-gradient(ellipse at 50% 0%, #ffe14a26 0%, #ffe14a0a 35%, transparent 72%);
 }
-
-/* The soft center stays under the measured headline on every breakpoint.
-   The viewport ray layer remains below the hero copy and lion canvas. */
-.focus {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    ellipse var(--spotlight-width, 38vw) var(--spotlight-height, 28vh)
-      at var(--spotlight-x, 50%) var(--spotlight-y, 35%),
-    var(--spotlight-color, #ffe14a26) 0%, transparent 72%
-  );
-}
