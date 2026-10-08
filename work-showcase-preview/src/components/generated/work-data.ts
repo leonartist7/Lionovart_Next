@@ -164,9 +164,9 @@ const legacyWorks: Work[] = legacyEntries.map(({video,...entry}) => {
     width:asset.width, height:asset.height, fit:'cover',
     media:{kind:'video',src:video,originalSrc:video.replace('/w_1600,c_limit,q_auto/','/')}};
 });
-export const openingOrder = ['stormlikes','perfum-elegant','home-architecture-realtor','oma','justa','architecture-contractor-editorial','fundonion','travel-bold','lsi-asia-25','soda-bold','loom-branding-elegant','rakbank'];
+const previousOpeningOrder = ['stormlikes','perfum-elegant','home-architecture-realtor','oma','justa','architecture-contractor-editorial','fundonion','travel-bold','lsi-asia-25','soda-bold','loom-branding-elegant','rakbank'];
 const combined = [...legacyWorks,...collectionWorks];
-const opening = openingOrder.map(slug => {
+const opening = previousOpeningOrder.map(slug => {
   const work = combined.find(item => item.slug === slug);
   if (!work) throw new Error('Missing opening work: '+slug);
   return work;
@@ -175,11 +175,20 @@ const opening = openingOrder.map(slug => {
 export const workStatusOverrides: Partial<Record<string, Work['status']>> = {};
 // Confirmed owner assignments are keyed by stable Cloudinary asset ID.
 export const approvedTagAssignments = approvedTags as Partial<Record<string, { services: string[]; status: Work['status'] }>>;
-export const works: Work[] = [...opening,
-  ...legacyWorks.filter(work => !openingOrder.includes(work.slug)),
-  ...collectionWorks.filter(work => !openingOrder.includes(work.slug)).sort((a,b)=>a.sourceDisplayName.localeCompare(b.sourceDisplayName,'en',{sensitivity:'base'}))]
+const baselineWorks: Work[] = [...opening,
+  ...legacyWorks.filter(work => !previousOpeningOrder.includes(work.slug)),
+  ...collectionWorks.filter(work => !previousOpeningOrder.includes(work.slug)).sort((a,b)=>a.sourceDisplayName.localeCompare(b.sourceDisplayName,'en',{sensitivity:'base'}))]
   .map(work => ({...work, services:approvedTagAssignments[work.assetId]?.services ?? work.services,
     status:workStatusOverrides[work.publicId] ?? approvedTagAssignments[work.assetId]?.status ?? work.status}));
+
+// Owner-selected opening; review numbers remain anchored to asset IDs.
+export const openingOrder = ["rakbank","blastup","fundonion","op","clothing-fashion-hightech","stormlikes","soda-bold","oma","home-interior"];
+const preferred = openingOrder.map(slug => {
+  const work = baselineWorks.find(item => item.slug === slug);
+  if (!work) throw new Error('Missing opening work: ' + slug);
+  return work;
+});
+export const works: Work[] = [...preferred, ...baselineWorks.filter(work => !openingOrder.includes(work.slug))];
 
 // Owner-approved archive marks hide entries without deleting source assets or changing review numbers.
 export const curationDecisions: Partial<Record<string, 'keep' | 'archive'>> = approvedCuration as Partial<Record<string, 'keep' | 'archive'>>;

@@ -1,5 +1,12 @@
 # LIONOVART results redesign
 
+## Latest — owner-selected opening sequence
+
+Updated the first projects to #12 Rakbank, #16 Blastup, #07 FundOnion, #15 OP, #22 Fashion high-tech, #01 Stormlikes, #10 Soda, #04 OMa, #36 Home interior. The owner explicitly clarified that the repeated #16 should appear only once. All remaining work retains its prior relative order. Source inventory stays at 53 unique assets and the published gallery at 40; archive choices, approved tags/statuses and permanent review numbers are unchanged.
+
+Both complete previews rebuilt. TypeScript and targeted lint pass. Four-width browser checks verify the exact opening, one Blastup, the full remaining order, pagination, fixed review IDs and confirmed tag defaults, plus Finance ordering. Inventory checks validate permanent media, original posters, contain frames, images, six Concepts and empty recovery. Gallery fade checks confirm retained media and no page jump. No homepage, booking/audit or Cloudinary changes. GitHub source package synchronized.
+
+
 ## Latest — all 40 confirmed service/status assignments applied
 
 Applied the owner’s complete 40-of-40 tag report exactly in work-approved-tags.json, keyed by original asset ID. Work data now uses approved services and client/concept status, while preserving the 13 archives, source media, ordering and permanent review numbers. Concepts are #17 AI high-tech, #18 AI technology, #20 Automotive editorial, #31 Editorial architecture, #47 Technology minimal II and #48 Technology minimal III. The other 34 published examples remain client work.

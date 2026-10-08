@@ -5,7 +5,7 @@ const {works,publishedWorks,openingOrder,count}=require('./test-work-inventory.c
   assert.equal(works.length,53);assert.equal(inventory.assets.length,43);
   assert.equal(inventory.assets.filter(a=>a.kind==='video').length,34);assert.equal(inventory.assets.filter(a=>a.kind==='image').length,9);
   assert.equal(new Set(works.map(w=>w.slug)).size,53);assert.equal(new Set(works.map(w=>w.assetId)).size,53);
-  assert.deepEqual(works.slice(0,12).map(w=>w.slug),openingOrder);
+  assert.deepEqual(works.slice(0,openingOrder.length).map(w=>w.slug),openingOrder);
   for(const asset of inventory.assets){const work=works.find(w=>w.publicId===asset.publicId);assert(work);assert.equal(work.assetId,asset.assetId);assert.equal(work.media.kind,asset.kind);assert.equal(work.fit,'contain');assert.equal(work.status,approvedTags[work.assetId]?.status ?? 'client');assert.equal(work.campaignIds.length,0);assert(work.media.src.startsWith('https://res.cloudinary.com/dgio9uutc/'));}
   console.log('PASS complete unique inventory, 34 videos / 9 images, opening order, permanent sources and statuses');
   const browser=await chromium.launch({channel:'msedge',headless:true});const page=await browser.newPage({reducedMotion:'reduce'});const errors=[];page.on('pageerror',error=>errors.push(error.message));

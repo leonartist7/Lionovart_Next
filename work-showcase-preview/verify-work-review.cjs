@@ -1,8 +1,9 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),http=require('node:http');
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
-const {works}=require('./test-work-inventory.cjs');
+const {works:orderedWorks}=require('./test-work-inventory.cjs');
 const {reviewNumber,formatReview,parseReview,isLocalReviewUrl,reviewStorageKey}=require('./src/components/generated/work-review-data.ts');
 const numbers=require('./src/components/generated/work-review-ids.json');
+const works=[...orderedWorks].sort((a,b)=>numbers[a.assetId]-numbers[b.assetId]);
 assert.equal(Object.keys(numbers).length,53);assert.deepEqual(Object.values(numbers).sort((a,b)=>a-b),Array.from({length:53},(_,i)=>i+1));
 for(const work of [...works].reverse())assert.equal(reviewNumber(work.assetId),String(numbers[work.assetId]).padStart(2,'0'));
 assert.equal(new Set(works.map(w=>reviewNumber(w.assetId))).size,53);
@@ -70,7 +71,7 @@ const publicPage=await hosted.newPage();await publicPage.goto('https://example.t
 assert.equal(await publicPage.locator('.lv-review-card,.lv-review-toolbar').count(),0);assert.equal(await publicPage.locator('.lv-work').count(),12);await hosted.close();
 const normal=await browser.newContext();const mediaPage=await normal.newPage();await mediaPage.goto(base+'?review=1');
 const skip=mediaPage.getByRole('button',{name:/Skip intro/});if(await skip.count())await skip.click();
-await mediaPage.waitForFunction(()=>{const v=document.querySelector('[data-work="stormlikes"] video');return v&&!v.paused&&v.currentTime>0;},null,{timeout:60000});
+await mediaPage.locator('[data-work="stormlikes"]').scrollIntoViewIfNeeded();await mediaPage.waitForFunction(()=>{const v=document.querySelector('[data-work="stormlikes"] video');return v&&!v.paused&&v.currentTime>0;},null,{timeout:60000});
 const button=mediaPage.getByRole('button',{name:'Keep #01 — Stormlikes',exact:true});await button.scrollIntoViewIfNeeded();
 await mediaPage.evaluate(()=>{window.retainedVideo=document.querySelector('[data-work="stormlikes"] video');window.retainedTime=window.retainedVideo.currentTime;window.retainedSrc=window.retainedVideo.src;window.markingScroll=scrollY;window.loads=0;window.retainedVideo.addEventListener('loadstart',()=>window.loads++);});
 await button.click();await mediaPage.waitForTimeout(120);
