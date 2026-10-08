@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import { AnimatePresence, motion, useIsPresent, useReducedMotion } from 'framer-motion';
 import JellyRadio from './JellyRadio';
 import StackLoader from '../ui/stack-loader';
+import { LiquidMetalButton, LiquidMetalMotionContext } from '../ui/liquid-metal-button';
 import { works, publishedWorks } from './work-data';
 import { ReviewCardControls, ReviewToolbar, useWorkReview } from './WorkReview';
 import type { ReviewDecision } from './work-review-data';
@@ -16,6 +17,7 @@ import './ResultsJourney.css';
 import '../ui/gooey-glass/gooey-glass.css';
 import './WorkReview.css';
 import './ProspectJourney.css';
+import '../ui/LiquidMetalButton.css';
 const labelFor = serviceTagLabel;
 const email = 'connect@lionovart.com';
 // Saved file previews return to the canonical site; hosted Work pages use their own homepage.
@@ -247,8 +249,10 @@ function Ribbons() {
   </svg>;
 }
 function CallAction({ compact = false, final = false }: { compact?: boolean; final?: boolean }) {
-  const className = `lv-cta${compact ? ' lv-cta-small' : ''}`;
-  return bookingUrl ? <a className={className} href={bookingUrl} target="_blank" rel="noopener noreferrer">Book a call <Arrow /></a> : final ? <button className={className} type="button" disabled>Book a call <Arrow /></button> : <a className={className} href="#lv-closing">Book a call <Arrow /></a>;
+  return <LiquidMetalButton label="Book a call" width={compact ? 144 : 220} height={compact ? 46 : 52}
+    noShadow={compact} className={compact ? 'lv-cta lv-cta-small' : 'lv-cta'}
+    href={bookingUrl ?? (final ? undefined : '#lv-closing')} disabled={final && !bookingUrl}
+    target={bookingUrl ? '_blank' : undefined} rel={bookingUrl ? 'noopener noreferrer' : undefined} />;
 }
 function AuditRequest() {
   const [website, setWebsite] = useState('');
@@ -289,7 +293,7 @@ function AuditRequest() {
   return status === 'saved' ? <div className="lv-audit-confirmation" role="status"><strong>Your request is in.</strong><p>I’ll review your website and email you the audit.</p></div> : <form className="lv-audit-form" onSubmit={submit} noValidate aria-busy={status === 'sending'}>
     <label htmlFor="lv-audit-website">Your website<input id="lv-audit-website" name="website" type="text" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck={false} maxLength={2048} value={website} onChange={event => { setWebsite(event.target.value); setError(''); }} placeholder="yourbrand.com" disabled={status === 'sending'} /></label>
     <label htmlFor="lv-audit-email">Your email<input id="lv-audit-email" name="email" type="email" autoComplete="email" maxLength={254} value={contact} onChange={event => { setContact(event.target.value); setError(''); }} placeholder="you@yourbrand.com" disabled={status === 'sending'} /></label>
-    <button className="lv-cta" type="submit" disabled={status === 'sending'}>{status === 'sending' ? 'Sending…' : 'Get my brand audit'}<Arrow /></button>
+    <LiquidMetalButton className="lv-cta" type="submit" width={220} height={52} disabled={status === 'sending'} label={status === 'sending' ? 'Sending…' : 'Get my brand audit'} />
     {error && <p className="lv-audit-error" role="alert">{error}</p>}
   </form>;
 }
@@ -461,7 +465,7 @@ export const LIONOVARTWorkProspectJourney = () => {
     window.location.href = `mailto:${email}?subject=${encodeURIComponent('Let’s create something — project enquiry')}&body=${encodeURIComponent(body)}`;
     setEmailPrepared(true);
   }
-  return <div className="lv-page" data-review-mode={review.enabled || tags.enabled || undefined} style={{minHeight:pageFloor || undefined}}>
+  return <LiquidMetalMotionContext.Provider value={!introActive}><div className="lv-page" data-review-mode={review.enabled || tags.enabled || undefined} style={{minHeight:pageFloor || undefined}}>
     <StackLoader active={introActive} images={introImages} onComplete={finishIntro}>
     <a className="lv-skip" href="#lv-work">Skip to work</a>
     <header className="lv-header">
@@ -480,7 +484,7 @@ export const LIONOVARTWorkProspectJourney = () => {
         <div ref={galleryContentRef} className="lv-gallery-content" aria-busy={selectionKey(selection) !== selectionKey(displaySelection)} inert={selectionKey(selection) !== selectionKey(displaySelection)}>
         {matches.length > 0 ? <><div className="lv-grid">{matches.slice(0, displaySelection.limit).map(work => <WorkCard key={work.slug} work={work} playbackEnabled={!introActive} review={review.enabled} decision={review.decisions[work.assetId]} toggleReview={review.toggle} tagAssignment={tags.enabled ? tags.assignments[work.assetId] ?? defaultTags(work) : undefined} changeTags={tags.change} />)}</div>{displaySelection.limit < matches.length && <button className="lv-more" onClick={() => update({
             limit: selection.limit + 12
-          })}>More work <span>+</span></button>}</> : <div className="lv-empty" tabIndex={-1}><span className="lv-empty-symbol">↗</span><h2>{displaySelection.campaign ? <>{displayCampaignLabel}<br /><em>for your world.</em></> : <>Room for <em>your world.</em></>}</h2><p>{displaySelection.campaign ? <>No {displayCampaignLabel} work is published in this selection yet.<br />Explore other work or tell us about your campaign.</> : <>There isn’t a published example in this selection yet.<br />Explore the full collection, or tell us what you have in mind.</>}</p><div>{displaySelection.campaign && <button className="lv-cta" onClick={() => update({campaign:'',limit:12})}>View all campaigns <Arrow diagonal={false} /></button>}<button className={displaySelection.campaign ? 'lv-text-link' : 'lv-cta'} onClick={() => update(allWork)}>Explore all work <Arrow diagonal={false} /></button><button className="lv-text-link" onClick={enquire}>{displaySelection.campaign ? 'Discuss your campaign' : 'Discuss your project'} <Arrow /></button></div></div>}
+          })}>More work <span>+</span></button>}</> : <div className="lv-empty" tabIndex={-1}><span className="lv-empty-symbol">↗</span><h2>{displaySelection.campaign ? <>{displayCampaignLabel}<br /><em>for your world.</em></> : <>Room for <em>your world.</em></>}</h2><p>{displaySelection.campaign ? <>No {displayCampaignLabel} work is published in this selection yet.<br />Explore other work or tell us about your campaign.</> : <>There isn’t a published example in this selection yet.<br />Explore the full collection, or tell us what you have in mind.</>}</p><div>{displaySelection.campaign && <LiquidMetalButton className="lv-cta" label="View all campaigns" width={240} height={52} onClick={() => update({campaign:'',limit:12})} />}<>{displaySelection.campaign ? <button className="lv-text-link" onClick={() => update(allWork)}>Explore all work <Arrow diagonal={false} /></button> : <LiquidMetalButton className="lv-cta" label="Explore all work" width={220} height={52} onClick={() => update(allWork)} />}</><button className="lv-text-link" onClick={enquire}>{displaySelection.campaign ? 'Discuss your campaign' : 'Discuss your project'} <Arrow /></button></div></div>}
         </div>
         <div ref={galleryEndRef} className="lv-gallery-end lv-gallery-next"><CallAction /><a className="lv-text-link" href="#lv-results">See client results <span aria-hidden="true">↓</span></a></div>
       </section>
@@ -510,8 +514,8 @@ export const LIONOVARTWorkProspectJourney = () => {
       {includeContext && hasFilters && <div className="lv-context"><span>Interested in {browsingContext}</span><button type="button" aria-label="Remove browsing context" onClick={() => setIncludeContext(false)}>×</button></div>}
       <div className="lv-form-row"><label>Your name<input name="name" autoComplete="name" required placeholder="Alex" maxLength={100} /></label><label>Email address<input name="email" type="email" autoComplete="email" required placeholder="you@yourbrand.com" maxLength={200} /></label></div>
       <label>A little about your project<textarea name="message" value={message} onChange={e => setMessage(e.target.value)} required rows={4} maxLength={3000} placeholder="What are you building, and what would you love to change?" /></label>
-      <button className="lv-cta lv-form-submit" type="submit">Continue in email <Arrow /></button><p className="lv-email-note" role="status">{emailPrepared ? 'Your email draft is ready to open. Send it from your email app, or use WhatsApp below.' : 'Opens a draft in your email app. You review and send it.'}</p>
+      <LiquidMetalButton className="lv-cta lv-form-submit" label="Continue in email" type="submit" width={220} height={52} /><p className="lv-email-note" role="status">{emailPrepared ? 'Your email draft is ready to open. Send it from your email app, or use WhatsApp below.' : 'Opens a draft in your email app. You review and send it.'}</p>
     </form><div className="lv-contact-alternatives"><a href={whatsapp(`Hi Leonardo, I’d love to discuss a project.${message ? ` ${message}` : ''}`)} target="_blank" rel="noreferrer">Message on WhatsApp <Arrow /></a><a href={`mailto:${email}?subject=Let%E2%80%99s%20schedule%20a%20call`}>Request a call <Arrow /></a></div></Panel>}
     </StackLoader>
-  </div>;
+  </div></LiquidMetalMotionContext.Provider>;
 };

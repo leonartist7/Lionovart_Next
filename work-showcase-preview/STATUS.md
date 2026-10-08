@@ -1,5 +1,14 @@
 # LIONOVART results redesign
 
+## Latest — homepage liquid-metal CTA component reused
+
+Reused the canonical homepage LiquidMetalButton visual layers, dark-red interior, silver contour, label treatment and exact Paper liquid-metal shader uniforms in the Work preview. Replaced filled booking, audit submit, enquiry submit and empty-result reset buttons; quieter text links and the gallery filter dock retain their existing treatments. Adapted the component for native anchors, submit buttons and disabled states without nested interactive elements. The homepage source itself is unchanged.
+
+Kept the established visual motion while limiting transitions to transform/shadow/opacity. Added a fixed metallic fallback, minimum touch targets, keyboard focus and responsive header/full-width form sizing. Metal animation starts after the existing loader, mounts only while in the viewport, and releases GPU resources when offscreen, disabled, the document is hidden or reduced motion is enabled. Live reduced-motion changes are subscribed directly; click/ripple timers and shader resources are cleaned up. Uses installed @paper-design/shaders/lucide-react/framer-motion dependencies; no install required. Each canvas is capped at 120,000 physical pixels.
+
+Both complete previews rebuilt. TypeScript and targeted lint pass. Four-width checks (320/390/768/1440) verify native link/submit/disabled semantics, focus, fitting controls, empty recovery and static reduced-motion behavior. Actual shader frames advance visibly. Runtime samples show one active canvas at the top, two at gallery-end/audit-open, one after audit-close across three cycles, and zero while hidden/reduced motion; the largest sampled canvas is 97,760 physical pixels. WebGL-unavailable fixture keeps usable controls without runtime errors. Five-width post-gallery navigation and mocked audit validation/error/success tests pass. Rendered mobile/desktop/static/animated screenshots inspected. Profiles: review/metal-cta-baseline.json and review/metal-cta-runtime.json. No actual leads, messages or bookings. Missing bookingUrl remains unchanged; GitHub source package synchronized.
+
+
 ## Latest — focused post-gallery prospect journey
 
 Applied the agreed flow to this complete page: gallery-end Book a call plus See client results anchor, one featured client result with two shorter quote treatments, compact Leonardo introduction with Discover the studio homepage link, and a booking-first closing. The audit is a native keyboard-accessible disclosure beneath the primary call action; it opens the existing website/email capture without gating booking. Removed duplicate results introduction, secondary results booking row, numbered founder steps and two equal conversion cards. Retained exact approved testimonials, outcomes, timing/traffic qualifiers and industry-prioritized story ordering. The shorter founder copy preserves direct contact, priority and proposal/scope/timing/price expectations.

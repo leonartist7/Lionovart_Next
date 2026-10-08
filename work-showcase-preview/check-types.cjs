@@ -10,7 +10,7 @@ const options = {
   target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext,
   moduleResolution: ts.ModuleResolutionKind.Bundler, jsx: ts.JsxEmit.ReactJSX,
   baseUrl: __dirname,
-  paths: { react: [path.join(dependencyRoot, '@types/react')], 'react/*': [path.join(dependencyRoot, '@types/react/*')], 'framer-motion': [path.join(dependencyRoot, 'framer-motion')], gsap: [path.join(dependencyRoot, 'gsap')], 'gsap/*': [path.join(dependencyRoot, 'gsap/*')] },
+  paths: { '@paper-design/shaders': [path.join(dependencyRoot, '@paper-design/shaders')], 'lucide-react': [path.join(dependencyRoot, 'lucide-react')], react: [path.join(dependencyRoot, '@types/react')], 'react/*': [path.join(dependencyRoot, '@types/react/*')], 'framer-motion': [path.join(dependencyRoot, 'framer-motion')], gsap: [path.join(dependencyRoot, 'gsap')], 'gsap/*': [path.join(dependencyRoot, 'gsap/*')] },
   types: [],
 };
 const program = ts.createProgram([path.join(source, 'LIONOVARTWorkProspectJourney.tsx'), path.join(source, 'work-data.ts'), declaration], options);

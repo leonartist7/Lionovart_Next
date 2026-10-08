@@ -1,0 +1,19 @@
+/* Same dark-red fill, silver contour and animated shader as the homepage. */
+.lv-metal-action{display:inline-block;position:relative;flex-shrink:0;vertical-align:middle}
+.lv-metal-shader{background:linear-gradient(125deg,#27393e 0%,#eef5f6 17%,#7f9499 29%,#ffffff 44%,#36494f 65%,#d9e6e8 82%,#627a82 100%)}
+.lv-metal-sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.lv-page :is(a,button).lv-metal-hit{padding:0!important;min-width:0!important;min-height:44px!important;background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;transform:none!important}
+.lv-page :is(a,button).lv-metal-hit:before,.lv-page :is(a,button).lv-metal-hit:after{content:none!important}
+.lv-page .lv-metal-hit:focus-visible{outline:2px solid #e5192a;outline-offset:5px}
+.lv-metal-action[data-disabled='true']{opacity:.55}
+.lv-header .lv-metal-action{--liquid-button-width:144px;--liquid-button-label-size:12px}
+.lv-audit-form>.lv-metal-action,.lv-panel .lv-metal-action:has(.lv-form-submit){--liquid-button-width:100%;display:block}
+.lv-audit-form>.lv-metal-action{--liquid-button-label-wrap:normal;--liquid-button-label-max-width:calc(100% - 24px)}
+.lv-page .lv-closing-primary .lv-metal-hit:disabled{opacity:1;transform:none!important}
+@keyframes ripple-animation{from{transform:scale(0);opacity:1}to{transform:scale(12);opacity:0}}
+@media(prefers-reduced-motion:reduce){.lv-metal-action *{transition:none!important;animation:none!important}}
+
+@media(max-width:360px){.lv-header .lv-metal-action{--liquid-button-width:128px;--liquid-button-label-size:11px}}
+
+.lv-metal-action>div>div>div{pointer-events:none}
+.lv-page .lv-metal-hit{pointer-events:auto}

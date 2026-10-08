@@ -42,3 +42,7 @@ work-approved-tags.json records the owner’s complete 40-entry tag/status repor
 ## Current prospect journey
 
 The gallery ends with Book a call and a same-page See client results link. Proof uses one featured result and two shorter quotes, preserving approved wording and qualifiers. Leonardo’s compact introduction links to the main studio homepage. The closing gives booking priority; the manual audit form is behind an accessible disclosure. The public Google Calendar appointment URL is still required to enable final booking. Run verify-post-gallery.cjs for responsive, keyboard, mocked audit and configured-booking-fixture checks.
+
+## Homepage liquid-metal CTAs
+
+The Work preview reuses the visual layers and Paper liquid-metal shader from src/components/ui/liquid-metal-button.tsx in the homepage. Its standalone adapter is src/components/ui/liquid-metal-button.tsx inside this folder, supporting native links, submit buttons and disabled states. Metal motion starts after the loader and runs only in view; hidden tabs, live reduced-motion preferences and disabled buttons use a static metallic skin. Canvas resolution is capped and cleanup releases WebGL resources. Uses already-installed dependencies. Run verify-metal-cta.cjs for behavior, fallback and resource checks.
