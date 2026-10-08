@@ -18,20 +18,20 @@ const PAW_IMAGE = "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_au
 const EASE = [0.16, 1, 0.3, 1] as const;
 const BENEFITS = [
   {
-    title: "Look the part.",
-    body: "Let your image reflect the quality of your work.",
+    title: "Look as good as your work.",
+    body: "Give people a reason to trust your business before you say a word.",
     detail: "A presence that does your work justice.",
     points: ["A clear position in your market", "An identity that reflects your quality", "A consistent story at every touchpoint"],
   },
   {
-    title: "Get your time back.",
-    body: "Less repetitive work. More room for your next move.",
+    title: "Less admin. More headspace.",
+    body: "Let your systems handle the routine. Put your time where it matters.",
     detail: "More space for what moves you forward.",
     points: ["Enquiries captured in one place", "Follow-ups that keep moving", "Workflows built around your team"],
   },
   {
-    title: "Be remembered.",
-    body: "Give people something to recognise, feel and come back to.",
+    title: "Be recognised. Be remembered.",
+    body: "Your website, your content, your identity. Finally speaking the same language.",
     detail: "Every encounter feels like your brand.",
     points: ["A website with a clear next step", "Content with a recognisable voice", "Campaigns that connect the whole story"],
   },
@@ -108,9 +108,7 @@ function WorkHandoff() {
   const [paused, setPaused] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const circleTransform = useTransform(scrollYProgress, [0, 0.12, 0.68, 1], ["translate(-50%, -50%) scale(1)", "translate(-50%, -50%) scale(1)", "translate(-50%, -50%) scale(0.065)", "translate(-50%, -50%) scale(0.065)"]);
-  const invitationOpacity = useTransform(scrollYProgress, [0, 0.12, 0.3], [1, 1, 0]);
-  const invitationVisibility = useTransform(scrollYProgress, p => p >= 0.3 ? "hidden" : "visible");
+  const circleTransform = useTransform(scrollYProgress, [0, 0.68, 1], ["translate(-50%, -50%) scale(1)", "translate(-50%, -50%) scale(0.065)", "translate(-50%, -50%) scale(0.065)"]);
   const logoOpacity = useTransform(scrollYProgress, [0, 0.38, 0.65, 1], [0, 0, 1, 1]);
   const workOpacity = useTransform(scrollYProgress, [0, 0.4, 0.66, 1], [0, 0, 1, 1]);
   const captionOpacity = useTransform(scrollYProgress, [0, 0.55, 0.78, 1], [0, 0, 1, 1]);
@@ -130,14 +128,9 @@ function WorkHandoff() {
           <Image src="/images/lionovart-icon.svg" alt="" fill sizes="180px" />
         </motion.div>
       </motion.div>
-      {!staticScene && <motion.div className={styles.invitation} style={{ opacity: invitationOpacity, visibility: invitationVisibility }}>
-        <p className={styles.eyebrow}>{tr("Now imagine the possibilities")}</p>
-        <p className={styles.invitationTitle}>{tr("Your ambition.")}<br />{tr("Made visible.")}</p>
-        <ArrowDown aria-hidden="true" />
-      </motion.div>}
       <motion.header className={styles.workHeading} style={staticScene ? undefined : { opacity: captionOpacity, visibility: captionVisibility }}>
-        <p className={styles.eyebrow}>{tr("A few of the worlds we create")}</p>
-        <h2>{tr("Many forms.")} <span>{tr("One vision.")}</span></h2>
+        <p className={styles.eyebrow}>{tr("Selected work")}</p>
+        <h2>{tr("See the difference.")}</h2>
       </motion.header>
       {staticScene ? <div className={styles.staticGallery} data-imagine-static-gallery>
         {SHOWCASE_IMAGES.map((src, index) => <div key={src}><Image src={src} alt={`${tr("Selected creative work")} ${index + 1}`} fill sizes="(max-width: 767px) 45vw, 30vw" /></div>)}
@@ -149,7 +142,7 @@ function WorkHandoff() {
       </motion.div>}
       <motion.div className={styles.workFooter} style={staticScene ? undefined : { opacity: captionOpacity, visibility: captionVisibility }}>
         <p>{tr("Identity. Digital. Content. Systems.")}</p>
-        <a href="#services" className={styles.servicesLink}>{tr("Explore what we can build")}<ArrowDown aria-hidden="true" /></a>
+        <a href="#services" className={styles.servicesLink}>{tr("Find your service")}<ArrowDown aria-hidden="true" /></a>
         {!staticScene && <button className={styles.pause} type="button" aria-pressed={paused}
           aria-label={tr(paused ? "Play work animation" : "Pause work animation")} onClick={() => setPaused(v => !v)}>
           {paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
@@ -195,15 +188,15 @@ export default function PawRevealStack() {
     <span id="imagine" className={styles.anchor} aria-hidden="true" />
     <div className={styles.redChapter}>
       <header className={styles.intro}>
-        <h2 id="imagine-heading"><span>{tr("You’ve built something great.")}</span><br />{tr("Let it show.")}</h2>
-        <p className={styles.introBody}>{tr("A brand you're proud of. More time for what you do best.")}</p>
+        <h2 id="imagine-heading">{tr("Be seen for")}<br /><span>{tr("what you’re worth.")}</span></h2>
+        <p className={styles.introBody}>{tr("You’ve put years into your business. Let people see the difference.")}</p>
       </header>
       <div className={styles.grid} data-imagine-content>
         {BENEFITS.map((item, index) => <BenefitCard key={item.title} item={item} index={index} />)}
       </div>
       <div className={styles.reviewOffer}>
         <p><span>{tr("Not sure where to start?")}</span>{tr("A personal review. Three priority fixes.")}</p>
-        <Link href="/audit" className={styles.reviewLink}>{tr("Get my three priorities")}<ArrowUpRight aria-hidden="true" /></Link>
+        <Link href="/audit" className={styles.reviewLink}>{tr("Review my brand")}<ArrowUpRight aria-hidden="true" /></Link>
       </div>
     </div>
     <WorkHandoff />

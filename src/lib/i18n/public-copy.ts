@@ -1,5 +1,17 @@
 /** Reviewed French public UI copy. Source phrases are gettext-style keys. */
 const french: Record<string, string> = {
+  "Look as good as your work.": "Une image à la hauteur de votre travail.",
+  "Give people a reason to trust your business before you say a word.": "Inspirez confiance avant même le premier échange.",
+  "Less admin. More headspace.": "Moins de tâches. Plus de liberté.",
+  "Let your systems handle the routine. Put your time where it matters.": "Confiez la routine à vos outils. Consacrez votre temps à l’essentiel.",
+  "Be recognised. Be remembered.": "Qu’on vous reconnaisse. Qu’on vous retienne.",
+  "Your website, your content, your identity. Finally speaking the same language.": "Votre site, vos contenus, votre identité. Enfin le même langage.",
+  "Be seen for": "Une image à la hauteur",
+  "what you’re worth.": "de votre valeur.",
+  "You’ve put years into your business. Let people see the difference.": "Vous avez consacré des années à votre entreprise. Que cela se voie.",
+  "See the difference.": "Voyez la différence.",
+  "Find your service": "Trouvez votre service",
+  "Review my brand": "Faire le point sur ma marque",
   "You’ve built something great.": "Vous avez de quoi être fier.",
   "Let it show.": "Ça doit se voir.",
   "A brand you're proud of. More time for what you do best.": "Une image qui vous ressemble. Du temps pour votre savoir-faire.",
