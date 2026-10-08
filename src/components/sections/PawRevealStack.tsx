@@ -70,8 +70,8 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
 
   return <article className={styles.card} data-benefit-card data-revealed={phase === "open"}>
     <div className={styles.cardTop}>
-      <h3>{tr(item.title)}</h3>
-      <p className={styles.cardBody}>{tr(item.body)}</p>
+      <h3><span data-benefit-measure="heading">{tr(item.title)}</span></h3>
+      <p className={styles.cardBody}><span data-benefit-measure="body">{tr(item.body)}</span></p>
     </div>
     <div className={styles.detailShell}>
       {phase !== "open" && <div className={styles.sculpture} data-sculpture={index} data-leaving={phase === "revealing"} aria-hidden="true">
@@ -80,8 +80,10 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
     <div className={styles.detailWell}>
       <div ref={panel} id={panelId} tabIndex={phase === "open" ? -1 : undefined} role="region"
         aria-label={tr(item.detail)} aria-hidden={phase !== "open"} className={styles.details}>
+        <div className={styles.detailContent} data-benefit-measure="detail">
         <p>{tr(item.detail)}</p>
         <ul>{item.points.map(point => <li key={point}><Check aria-hidden="true" />{tr(point)}</li>)}</ul>
+        </div>
       </div>
       {phase !== "open" && <>
         <motion.button type="button" className={styles.detailCover} animate={cover}
@@ -108,7 +110,9 @@ function WorkHandoff() {
   const [paused, setPaused] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const circleTransform = useTransform(scrollYProgress, [0, 0.68, 1], ["translate(-50%, -50%) scale(1)", "translate(-50%, -50%) scale(0.065)", "translate(-50%, -50%) scale(0.065)"]);
+  const circleTransform = useTransform(scrollYProgress, [0, 0.14, 0.68, 1], ["translate(-50%, -50%) scale(1)", "translate(-50%, -50%) scale(1)", "translate(-50%, -50%) scale(0.065)", "translate(-50%, -50%) scale(0.065)"]);
+  const invitationOpacity = useTransform(scrollYProgress, [0, 0.14, 0.34], [1, 1, 0]);
+  const invitationVisibility = useTransform(scrollYProgress, p => p >= 0.34 ? "hidden" : "visible");
   const logoOpacity = useTransform(scrollYProgress, [0, 0.38, 0.65, 1], [0, 0, 1, 1]);
   const workOpacity = useTransform(scrollYProgress, [0, 0.4, 0.66, 1], [0, 0, 1, 1]);
   const captionOpacity = useTransform(scrollYProgress, [0, 0.55, 0.78, 1], [0, 0, 1, 1]);
@@ -128,6 +132,11 @@ function WorkHandoff() {
           <Image src="/images/lionovart-icon.svg" alt="" fill sizes="180px" />
         </motion.div>
       </motion.div>
+      {!staticScene && <motion.div className={styles.invitation} style={{ opacity: invitationOpacity, visibility: invitationVisibility }}>
+        <p className={styles.eyebrow}>{tr("Now imagine the possibilities")}</p>
+        <p className={styles.invitationTitle}>{tr("Your ambition.")}<br />{tr("Made visible.")}</p>
+        <ArrowDown aria-hidden="true" />
+      </motion.div>}
       <motion.header className={styles.workHeading} style={staticScene ? undefined : { opacity: captionOpacity, visibility: captionVisibility }}>
         <p className={styles.eyebrow}>{tr("Selected work")}</p>
         <h2>{tr("See the difference.")}</h2>
@@ -155,10 +164,33 @@ function WorkHandoff() {
 export default function PawRevealStack() {
   const tr = usePublicCopy();
   const chapterRef = useRef<HTMLElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
   const journey = useLionJourney();
   const setRevealSection = journey?.setRevealSection;
   const setReveal = journey?.setReveal;
   const lenis = useLenis();
+
+  // Keep stacked cards equally proportioned as translations, fonts and widths change.
+  // Observe the natural inner content, never the equalized outer rows.
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    const content = Array.from(grid.querySelectorAll<HTMLElement>("[data-benefit-measure]"));
+    let frame = 0;
+    const measure = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        for (const part of ["heading", "body", "detail"]) {
+          const height = Math.ceil(Math.max(0, ...content.filter(el => el.dataset.benefitMeasure === part).map(el => el.getBoundingClientRect().height)));
+          grid.style.setProperty(`--benefit-${part}-height`, `${height}px`);
+        }
+      });
+    };
+    const observer = new ResizeObserver(measure);
+    content.forEach(el => observer.observe(el));
+    measure();
+    return () => { observer.disconnect(); cancelAnimationFrame(frame); };
+  }, []);
 
   useEffect(() => {
     setRevealSection?.(chapterRef.current);
@@ -191,7 +223,7 @@ export default function PawRevealStack() {
         <h2 id="imagine-heading">{tr("Be seen for")}<br /><span>{tr("what you’re worth.")}</span></h2>
         <p className={styles.introBody}>{tr("You’ve put years into your business. Let people see the difference.")}</p>
       </header>
-      <div className={styles.grid} data-imagine-content>
+      <div ref={gridRef} className={styles.grid} data-imagine-content>
         {BENEFITS.map((item, index) => <BenefitCard key={item.title} item={item} index={index} />)}
       </div>
       <div className={styles.reviewOffer}>
