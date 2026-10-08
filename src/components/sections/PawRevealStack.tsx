@@ -16,6 +16,8 @@ import BenefitSculpture from "./BenefitSculpture";
 
 const PAW_IMAGE = "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_320/v1775085187/Untitled_design_4_muu53f.png";
 const EASE = [0.16, 1, 0.3, 1] as const;
+const PULL_EASE = [0.32, 0.72, 0, 1] as const;
+const PAW_TIMING = { enter: .45, pull: 1.2, return: 1.05, exit: .35 } as const;
 const BENEFITS = [
   {
     title: "Look as good as your work.",
@@ -69,19 +71,19 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
         cover.set({ transform: opening ? "translateY(105%)" : "translateY(0%)" });
         paw.set({ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)" });
       } else if (opening) {
-        await paw.start({ opacity: 1, transform: "translate(0, 0) rotate(0deg)", transition: { duration: .25, ease: EASE } });
+        await paw.start({ opacity: 1, transform: "translate(0, 0) rotate(0deg)", transition: { duration: PAW_TIMING.enter, ease: EASE } });
         await Promise.all([
-          cover.start({ transform: "translateY(105%)", transition: { duration: .55, ease: EASE } }),
-          paw.start({ transform: "translate(8%, 170%) rotate(5deg)", transition: { duration: .55, ease: EASE } }),
+          cover.start({ transform: "translateY(105%)", transition: { duration: PAW_TIMING.pull, ease: PULL_EASE } }),
+          paw.start({ transform: "translate(8%, 170%) rotate(5deg)", transition: { duration: PAW_TIMING.pull, ease: PULL_EASE } }),
         ]);
         paw.set({ opacity: 0 });
       } else {
         paw.set({ opacity: 1, transform: "translate(8%, 170%) rotate(5deg)" });
         await Promise.all([
-          cover.start({ transform: "translateY(0%)", transition: { duration: .5, ease: EASE } }),
-          paw.start({ transform: "translate(0, 0) rotate(0deg)", transition: { duration: .5, ease: EASE } }),
+          cover.start({ transform: "translateY(0%)", transition: { duration: PAW_TIMING.return, ease: PULL_EASE } }),
+          paw.start({ transform: "translate(0, 0) rotate(0deg)", transition: { duration: PAW_TIMING.return, ease: PULL_EASE } }),
         ]);
-        await paw.start({ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)", transition: { duration: .2, ease: EASE } });
+        await paw.start({ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)", transition: { duration: PAW_TIMING.exit, ease: EASE } });
       }
       setPhase(opening ? "open" : "closed");
       if (keyboard) requestAnimationFrame(() => trigger.current?.focus({ preventScroll: true }));
@@ -117,7 +119,7 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
           </div>}
         </motion.div>
         <motion.div className={styles.paw} aria-hidden="true" initial={{ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)" }} animate={paw}>
-          <Image src={PAW_IMAGE} alt="" fill sizes="128px" className={styles.pawImage} />
+          <Image src={PAW_IMAGE} alt="" fill sizes="(max-width: 767px) 144px, (max-width: 2000px) 12vw, 240px" className={styles.pawImage} />
         </motion.div>
       </div>
     </div>
