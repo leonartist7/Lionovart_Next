@@ -75,15 +75,15 @@ export default function WorkServicesTransition({ children }: { children: ReactNo
   return <div className={styles.transition} data-work-services-transition data-static={staticScene}>
     <motion.div className={styles.scene} data-work-scene data-scroll-title-skip inert={!staticScene && retired}
       aria-hidden={!staticScene && retired}
-      style={staticScene ? undefined : { visibility: retired ? "hidden" : sceneVisibility }}>
+      style={{ visibility: staticScene ? "visible" : retired ? "hidden" : sceneVisibility }}>
       <motion.div className={styles.circle} data-imagine-circle aria-hidden="true"
-        style={staticScene ? undefined : { transform: circleTransform, opacity: circleOpacity }}>
+        style={staticScene ? { transform: "none", opacity: 1 } : { transform: circleTransform, opacity: circleOpacity }}>
         <motion.div className={styles.logo} style={{ opacity: staticScene ? 1 : logoOpacity }}>
           <Image src="/images/lionovart-icon.svg" alt="" fill sizes="180px" />
         </motion.div>
       </motion.div>
       <motion.header className={styles.heading} data-work-heading
-        style={staticScene ? undefined : { opacity: captionOpacity, visibility: captionVisibility }}>
+        style={staticScene ? { opacity: 1, visibility: "visible" } : { opacity: captionOpacity, visibility: captionVisibility }}>
         <h2>{tr("One brand.")}<br />{tr("Every encounter.")}</h2>
         <p>{tr("Your identity, website and content—speaking the same language.")}</p>
       </motion.header>
