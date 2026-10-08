@@ -30,3 +30,7 @@ The public Google Calendar appointment URL has not been supplied, so booking is 
 ## Local gallery review
 
 Open the same preview with ?review=1 (or append &review=1 to an existing filter link). This mode is enabled only for file://, localhost, 127.0.0.1 and ::1 previews. Numbers are fixed against asset IDs in work-review-ids.json; append new numbers when adding future assets and never renumber existing records. Marks save in localStorage for this browser/origin and are recommendations, not publishing actions. Copy review includes every current example under Keep, Improve preview, Archive or Not reviewed. Exit review preserves the saved marks. Run node work-showcase-preview/verify-work-review.cjs for validation.
+
+## Approved curation and tag review
+
+The approved archive list hides 13 examples; 40 remain published, including the two unreviewed examples. All 53 source records and fixed numbers are preserved. Open the existing preview with ?review=tags to assign multiple service tags and independent Concept status, then Confirm tags for each example. Copy review exports both confirmed and pending entries for handoff. Draft tag assignments affect only local tag review and persist separately from curation marks. The media-card backing is transparent; artwork remains uncropped. Original ?review=1 still exposes the full 53-entry curation collection. Run verify-tag-review.cjs and verify-collection-gallery.cjs for current curation checks.

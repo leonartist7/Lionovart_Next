@@ -26,3 +26,18 @@
 .lv-review-copy-fallback button{margin-top:8px}
 @media(max-width:760px){.lv-review-toolbar{padding:16px;margin-bottom:20px}.lv-review-card-heading{flex-wrap:wrap;gap:5px}.lv-review-decision{flex-basis:100%}.lv-review-choices{gap:6px}.lv-review-choices button{padding-inline:11px;font-size:12px}.lv-work[data-review='true'] .lv-work-frame{border-radius:18px}}
 @media(prefers-reduced-motion:reduce){.lv-review-choices button{transition:none}}
+
+.lv-tag-status{display:flex;align-items:center;gap:12px;margin-bottom:12px}.lv-tag-status>span{font-size:12px;color:#59544f}
+.lv-tag-choices{display:flex;flex-wrap:wrap;gap:7px}
+.lv-tag-choice{position:relative;display:inline-flex;min-height:44px;cursor:pointer}
+.lv-tag-choice input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.lv-tag-choice>span{display:flex;align-items:center;justify-content:center;min-height:44px;padding:9px 13px;border:1px solid #17110c28;border-radius:999px;color:#0d0d0d;font-size:12px;line-height:1.3;transition:background-color .2s ease,color .2s ease,border-color .2s ease}
+.lv-tag-choice input:checked+span{background:#0d0d0d;color:#fff;border-color:#0d0d0d}
+.lv-tag-choice input:focus-visible+span{outline:2px solid #e5192a;outline-offset:3px}
+.lv-confirm-tags{min-height:44px;margin-top:12px;padding:9px 16px;border-radius:999px;background:transparent;border:1px solid #17110c28;font-size:12px;color:#0d0d0d}
+.lv-confirm-tags[aria-pressed='true']{background:#0d0d0d;color:#fff}
+.lv-tag-review-card{padding-bottom:14px}
+@media(prefers-reduced-motion:reduce){.lv-tag-choice>span{transition:none}}
+
+/* Remove the gallery backing; retain the media itself and its uncropped frame. */
+.lv-page .lv-work,.lv-page .lv-work .lv-work-frame{background:transparent}

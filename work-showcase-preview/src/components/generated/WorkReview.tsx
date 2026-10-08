@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { works } from './work-data';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { works, curationDecisions } from './work-data';
 import { formatReview, parseReview, readReviewMode, reviewChoices, reviewNumber, reviewStorageKey,
   type ReviewDecision, type ReviewDecisions } from './work-review-data';
 
 type ReviewState = { decisions: ReviewDecisions; unsaved: boolean };
 function loadReview(): ReviewState {
   if (!readReviewMode()) return { decisions: {}, unsaved: false };
-  try { return { decisions: parseReview(window.localStorage.getItem(reviewStorageKey)), unsaved: false }; }
+  try { const saved = window.localStorage.getItem(reviewStorageKey); return { decisions: saved === null ? { ...curationDecisions } : parseReview(saved), unsaved: false }; }
   catch { return { decisions: {}, unsaved: true }; }
 }
 export function useWorkReview() {
@@ -52,13 +52,19 @@ export function ReviewCardControls({ assetId, name, decision, toggle }: {
 export function ReviewToolbar({ decisions, unsaved, exit }: {
   decisions: ReviewDecisions; unsaved: boolean; exit: () => void;
 }) {
+  return <ReviewSummary title="Gallery review" progress={works.filter(work => decisions[work.assetId]).length + ' of ' + works.length + ' reviewed'}
+    text={formatReview(decisions)} unsaved={unsaved} exit={exit}>
+    Tap a choice again to clear it. Archive marks are applied after you send the review.
+  </ReviewSummary>;
+}
+export function ReviewSummary({ title, progress, text, unsaved, exit, children }: {
+  title: string; progress: string; text: string; unsaved: boolean; exit: () => void; children: ReactNode;
+}) {
   const [copyState, setCopyState] = useState<'idle' | 'copying' | 'copied' | 'manual'>('idle');
   const [fallbackText, setFallbackText] = useState('');
   const [copiedText, setCopiedText] = useState('');
   const mounted = useRef(true);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
-  const reviewed = works.filter(work => decisions[work.assetId]).length;
-  const text = formatReview(decisions);
   async function copy() {
     if (copyState === 'copying') return;
     const snapshot = text;
@@ -70,11 +76,11 @@ export function ReviewToolbar({ decisions, unsaved, exit }: {
     } catch { if (mounted.current) { setFallbackText(snapshot); setCopyState('manual'); } }
   }
   return <aside className="lv-review-toolbar" aria-label="Local gallery review">
-    <div className="lv-review-toolbar-heading"><div><strong>Gallery review</strong>
-      <span role="status" aria-live="polite">{reviewed} of {works.length} reviewed</span></div>
+    <div className="lv-review-toolbar-heading"><div><strong>{title}</strong>
+      <span role="status" aria-live="polite">{progress}</span></div>
       <div className="lv-review-actions"><button type="button" onClick={() => void copy()} disabled={copyState === 'copying'}>Copy review</button>
         <button type="button" onClick={exit}>Exit review</button></div></div>
-    <p>Tap a choice again to clear it. Nothing is removed yet.{!unsaved && ' Saved in this browser.'}</p>
+    <p>{children}{!unsaved && ' Saved in this browser.'}</p>
     {unsaved && <p className="lv-review-notice" role="status">Browser saving is unavailable. Copy your review before leaving.</p>}
     <span className="lv-sr-only" role="status" aria-live="polite">{copyState === 'copied' && copiedText === text ? 'Review copied. Paste it into the chat.' : copyState === 'manual' ? 'Automatic copying is unavailable. Select and copy the review below.' : ''}</span>
     {copyState === 'copied' && copiedText === text && <p className="lv-review-feedback">Review copied. Paste it into this chat.</p>}

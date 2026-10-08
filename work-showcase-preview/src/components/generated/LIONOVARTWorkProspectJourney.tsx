@@ -2,9 +2,12 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import { AnimatePresence, motion, useIsPresent, useReducedMotion } from 'framer-motion';
 import JellyRadio from './JellyRadio';
 import StackLoader from '../ui/stack-loader';
-import { works } from './work-data';
+import { works, publishedWorks } from './work-data';
 import { ReviewCardControls, ReviewToolbar, useWorkReview } from './WorkReview';
 import type { ReviewDecision } from './work-review-data';
+import { TagCardControls, TagReviewToolbar, useWorkTagReview } from './WorkTagReview';
+import { defaultTags, type TagAssignment } from './work-tag-review-data';
+import { serviceOptions as services, serviceTagLabel, normalizeServiceTags } from './work-services';
 import { industries, campaigns, styles, allWork, matchesWork, type WorkSelection } from './work-filters';
 import { resultStories } from './results-data';
 const portrait = "https://storage.googleapis.com/storage.magicpath.ai/component-assets/458193568318758912/458193568318758913/97cd9378d892502216fde4a099a1cb6e884fb439d8e71511821ac3cff223343b.avif";
@@ -12,38 +15,7 @@ import './LIONOVARTWorkProspectJourney.css';
 import './ResultsJourney.css';
 import '../ui/gooey-glass/gooey-glass.css';
 import './WorkReview.css';
-const services = [{
-  value: '',
-  label: 'All services'
-}, {
-  value: 'identity',
-  label: 'Brand identity'
-}, {
-  value: 'digital',
-  label: 'Digital design'
-}, {
-  value: 'web-dev',
-  label: 'Web dev'
-}, {
-  value: 'creative-content',
-  label: 'Creative content'
-}, {
-  value: 'app-dev',
-  label: 'App dev'
-}, {
-  value: 'event-branding',
-  label: 'Event branding'
-}, {
-  value: 'campaign',
-  label: 'Campaign'
-}, {
-  value: 'motion',
-  label: 'Motion'
-}, {
-  value: 'ai-os',
-  label: 'AI operating system'
-}];
-const labelFor = (id: string) => services.find(item => item.value === id)?.label ?? id;
+const labelFor = serviceTagLabel;
 const email = 'connect@lionovart.com';
 // Saved file previews return to the canonical site; hosted Work pages use their own homepage.
 const homepageUrl = typeof window !== 'undefined' && window.location.protocol === 'file:' ? 'https://lionovart.com/' : '/';
@@ -85,13 +57,14 @@ function Chips({
 }) {
   return <JellyRadio items={items} value={value} onChange={change} ariaLabel={title} chipColor="transparent" activeColor="#0D0D0D" textColor="#3d3730" activeTextColor="#FFFFFF" size="md" gap={12} radius={24} swell={0.025} barge={6} shrink={0.02} jelly={0.5} bounce={0.08} stagger={22} stiffness={380} wrap />;
 }
-function WorkCard({work,playbackEnabled,review,decision,toggleReview}: {work:Work;playbackEnabled:boolean;review:boolean;decision?:ReviewDecision;toggleReview:(assetId:string,choice:ReviewDecision)=>void}) {
-  return <article className="lv-work" data-work={work.slug} data-asset-id={work.assetId} data-public-id={work.publicId} data-media-kind={work.media.kind} data-status={work.status} data-fit={work.fit} data-review={review || undefined} tabIndex={-1} aria-label={`${work.name}, ${work.status === 'concept' ? 'concept' : 'client work'}: ${work.services.map(labelFor).join(', ')}`}>
+function WorkCard({work,playbackEnabled,review,decision,toggleReview,tagAssignment,changeTags}: {work:Work;playbackEnabled:boolean;review:boolean;decision?:ReviewDecision;toggleReview:(assetId:string,choice:ReviewDecision)=>void;tagAssignment?:TagAssignment;changeTags:(work:Work,next:Partial<TagAssignment>)=>void}) {
+  return <article className="lv-work" data-work={work.slug} data-asset-id={work.assetId} data-public-id={work.publicId} data-media-kind={work.media.kind} data-status={tagAssignment?.status ?? work.status} data-fit={work.fit} data-review={review || Boolean(tagAssignment) || undefined} tabIndex={-1} aria-label={`${work.name}, ${(tagAssignment?.status ?? work.status) === 'concept' ? 'concept' : 'client work'}: ${(tagAssignment?.services ?? normalizeServiceTags(work.services)).map(labelFor).join(', ')}`}>
     <div className="lv-work-frame">
     {work.media.kind === 'video' ? <VideoMedia work={work} playbackEnabled={playbackEnabled} /> : <ImageMedia work={work} />}
-    {work.status === 'concept' && <span className="lv-work-kind">Concept</span>}
-    <ul className="lv-service-labels" aria-label="Services">{work.services.map(id => <li key={id}>{labelFor(id)}</li>)}</ul>
+    {(tagAssignment?.status ?? work.status) === 'concept' && <span className="lv-work-kind">Concept</span>}
+    <ul className="lv-service-labels" aria-label="Services">{(tagAssignment?.services ?? normalizeServiceTags(work.services)).map(id => <li key={id}>{labelFor(id)}</li>)}</ul>
     </div>
+    {tagAssignment && <TagCardControls work={work} assignment={tagAssignment} change={changeTags} />}
     {review && <ReviewCardControls assetId={work.assetId} name={work.name} decision={decision} toggle={toggleReview} />}
   </article>;
 }
@@ -340,6 +313,8 @@ function ClientResults({ industry, campaign }: { industry: string; campaign: str
 }
 export const LIONOVARTWorkProspectJourney = () => {
   const review = useWorkReview();
+  const tags = useWorkTagReview();
+  const catalogue = review.enabled ? works : publishedWorks;
   const [selection, setSelection] = useState<Selection>(readSelection);
   const [displaySelection, setDisplaySelection] = useState<Selection>(readSelection);
   const displayedRef = useRef(displaySelection);
@@ -351,10 +326,10 @@ export const LIONOVARTWorkProspectJourney = () => {
   const [introActive, setIntroActive] = useState(() => typeof window === 'undefined' || !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const finishIntro = useCallback(() => setIntroActive(false), []);
   const introImages = useMemo(() => {
-    const relevant = works.filter(work => matchesWork(work, selection));
+    const relevant = catalogue.filter(work => matchesWork(work, selection));
     const chosen = new Set(relevant.map(work => work.slug));
-    return [...relevant, ...works.filter(work => !chosen.has(work.slug))].slice(0, 5).map(work => work.poster);
-  }, [selection]);
+    return [...relevant, ...catalogue.filter(work => !chosen.has(work.slug))].slice(0, 5).map(work => work.poster);
+  }, [selection, catalogue]);
   const [panel, setPanel] = useState<'enquiry' | null>(null);
   const [includeContext, setIncludeContext] = useState(true);
   const [emailPrepared, setEmailPrepared] = useState(false);
@@ -363,7 +338,7 @@ export const LIONOVARTWorkProspectJourney = () => {
   const galleryContentRef = useRef<HTMLDivElement>(null);
   const galleryEndRef = useRef<HTMLDivElement>(null);
   const [dockVisible, setDockVisible] = useState(false);
-  const matches = works.filter(work => matchesWork(work, displaySelection));
+  const matches = catalogue.filter(work => matchesWork(work, displaySelection));
   const industryLabel = industries.find(i => i.value === selection.industry)?.label ?? 'All industries';
   const campaignLabel = campaigns.find(c => c.value === selection.campaign)?.label ?? 'All';
   const displayCampaignLabel = campaigns.find(c => c.value === displaySelection.campaign)?.label ?? 'All';
@@ -480,7 +455,7 @@ export const LIONOVARTWorkProspectJourney = () => {
     window.location.href = `mailto:${email}?subject=${encodeURIComponent('Let’s create something — project enquiry')}&body=${encodeURIComponent(body)}`;
     setEmailPrepared(true);
   }
-  return <div className="lv-page" data-review-mode={review.enabled || undefined} style={{minHeight:pageFloor || undefined}}>
+  return <div className="lv-page" data-review-mode={review.enabled || tags.enabled || undefined} style={{minHeight:pageFloor || undefined}}>
     <StackLoader active={introActive} images={introImages} onComplete={finishIntro}>
     <a className="lv-skip" href="#lv-work">Skip to work</a>
     <header className="lv-header">
@@ -493,10 +468,11 @@ export const LIONOVARTWorkProspectJourney = () => {
         <h1 id="lv-title"><span className="lv-title-main">YOUR STORY. YOUR VISION.</span><span className="lv-title-response"><span className="lv-title-trust">THEIR TRUST.</span> <em className="lv-title-direction">Our direction</em></span></h1>
       </section>
       <section ref={galleryRef} id="lv-work" className="lv-gallery lv-wrap" aria-label="Work gallery">
+        {tags.enabled && <TagReviewToolbar assignments={tags.assignments} unsaved={tags.unsaved} exit={tags.exit} />}
         {review.enabled && <ReviewToolbar decisions={review.decisions} unsaved={review.unsaved} exit={review.exit} />}
         <p className="lv-sr-only" role="status" aria-live="polite">{matches.length} works. {browsingContext || 'All work'}.</p>
         <div ref={galleryContentRef} className="lv-gallery-content" aria-busy={selectionKey(selection) !== selectionKey(displaySelection)} inert={selectionKey(selection) !== selectionKey(displaySelection)}>
-        {matches.length > 0 ? <><div className="lv-grid">{matches.slice(0, displaySelection.limit).map(work => <WorkCard key={work.slug} work={work} playbackEnabled={!introActive} review={review.enabled} decision={review.decisions[work.assetId]} toggleReview={review.toggle} />)}</div>{displaySelection.limit < matches.length && <button className="lv-more" onClick={() => update({
+        {matches.length > 0 ? <><div className="lv-grid">{matches.slice(0, displaySelection.limit).map(work => <WorkCard key={work.slug} work={work} playbackEnabled={!introActive} review={review.enabled} decision={review.decisions[work.assetId]} toggleReview={review.toggle} tagAssignment={tags.enabled ? tags.assignments[work.assetId] ?? defaultTags(work) : undefined} changeTags={tags.change} />)}</div>{displaySelection.limit < matches.length && <button className="lv-more" onClick={() => update({
             limit: selection.limit + 12
           })}>More work <span>+</span></button>}</> : <div className="lv-empty" tabIndex={-1}><span className="lv-empty-symbol">↗</span><h2>{displaySelection.campaign ? <>{displayCampaignLabel}<br /><em>for your world.</em></> : <>Room for <em>your world.</em></>}</h2><p>{displaySelection.campaign ? <>No {displayCampaignLabel} work is published in this selection yet.<br />Explore other work or tell us about your campaign.</> : <>There isn’t a published example in this selection yet.<br />Explore the full collection, or tell us what you have in mind.</>}</p><div>{displaySelection.campaign && <button className="lv-cta" onClick={() => update({campaign:'',limit:12})}>View all campaigns <Arrow diagonal={false} /></button>}<button className={displaySelection.campaign ? 'lv-text-link' : 'lv-cta'} onClick={() => update(allWork)}>Explore all work <Arrow diagonal={false} /></button><button className="lv-text-link" onClick={enquire}>{displaySelection.campaign ? 'Discuss your campaign' : 'Discuss your project'} <Arrow /></button></div></div>}
         </div>

@@ -23,6 +23,7 @@ const browser=await chromium.launch({channel:'msedge',headless:true});
 try{
 for(const width of [320,390,768,1440]){
 const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
+await context.addInitScript(()=>{ if(!localStorage.getItem('lionovart.work-review.v1')) localStorage.setItem('lionovart.work-review.v1',JSON.stringify({version:1,decisions:{}})); });
 await context.addInitScript(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>{window.reviewCopied=text;}}}));
 const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
 await page.goto(base+'?review=1&show=24');await page.locator('.lv-review-card').first().waitFor();await page.evaluate(()=>document.fonts.ready);
@@ -53,13 +54,13 @@ const copy=await page.evaluate(()=>window.reviewCopied);assert(copy.includes('3 
 assert.equal([...copy.matchAll(/#(\d{2}) —/g)].length,53);
 assert.equal(copy,formatReview({[works[0].assetId]:'keep',[works[1].assetId]:'improve',[works[2].assetId]:'archive'}));
 await page.getByRole('button',{name:'Exit review',exact:true}).click();assert.equal(await page.locator('.lv-review-card,.lv-review-toolbar').count(),0);assert(!new URL(page.url()).searchParams.has('review'));
-assert.equal(await page.locator('.lv-work').count(),53);assert.equal(await page.locator('.lv-work button').count(),0);
+assert.equal(await page.locator('.lv-work').count(),40);assert.equal(await page.locator('.lv-work button').count(),0);
 await page.goto(base+'?review=1');assert((await page.locator('.lv-review-toolbar').innerText()).includes('3 of 53 reviewed'));
 await page.screenshot({path:path.join(__dirname,'review/work-review-'+width+'.png')});assert.deepEqual(errors,[]);
 await context.close();console.log('PASS '+width+': numbers, all choices, deselection, saved refresh, global progress, filters/pagination, keyboard, unchanged media/scroll, export and exit');
 }
 const fallback=await browser.newContext({reducedMotion:'reduce'});
-await fallback.addInitScript(()=>{Object.defineProperty(navigator,'clipboard',{value:{writeText:async()=>{throw new Error('blocked');}}});Storage.prototype.setItem=function(){throw new Error('blocked');};});
+await fallback.addInitScript(()=>{Object.defineProperty(navigator,'clipboard',{value:{writeText:async()=>{throw new Error('blocked');}}});Storage.prototype.getItem=function(){return JSON.stringify({version:1,decisions:{}});};Storage.prototype.setItem=function(){throw new Error('blocked');};});
 const page=await fallback.newPage();await page.goto(base+'?review=1');await page.getByRole('button',{name:'Keep #01 — Stormlikes',exact:true}).click();
 assert((await page.locator('.lv-review-toolbar').innerText()).includes('saving is unavailable'));
 await page.getByRole('button',{name:'Copy review',exact:true}).click();const area=page.getByLabel('Select and copy your review');await area.focus();

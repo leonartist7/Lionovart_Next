@@ -1,7 +1,7 @@
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const assert=require('node:assert/strict');const path=require('path');const {pathToFileURL}=require('url');
 (async()=>{
-  require('fs').mkdirSync(path.join(__dirname,'review'),{recursive:true});const browser=await chromium.launch({channel:'msedge',headless:true});
+  const browser=await chromium.launch({channel:'msedge',headless:true});
   const page=await browser.newPage({reducedMotion:'no-preference'});const errors=[];
   page.on('pageerror',error=>errors.push(error.message));
   const base=pathToFileURL(path.join(__dirname,'LIONOVART-results-preview.html')).href;
@@ -9,8 +9,8 @@ const assert=require('node:assert/strict');const path=require('path');const {pat
   async function settle(count){await page.waitForFunction(count=>document.querySelectorAll('.lv-work').length===count&&getComputedStyle(document.querySelector('.lv-gallery-content')).opacity==='1'&&document.querySelector('.lv-gallery-content').getAnimations().length===0,count);}
   try{
     for(const width of [390,1440]){
-      await page.setViewportSize({width,height:900});await page.goto(base);
-      await page.getByRole('button',{name:/Skip intro/}).click();await page.locator('.lv-stack-loader').waitFor({state:'hidden'});
+      await page.setViewportSize({width,height:900});await page.goto(base,{waitUntil:'domcontentloaded'});
+      const skip = page.getByRole('button',{name:/Skip intro/}); if(await skip.count()) await skip.click();await page.locator('.lv-stack-loader').waitFor({state:'hidden'});
       await open('Industry');
       await page.locator('[data-work="fundonion"] video').evaluate(e=>e.dataset.retained='yes');
       const before=await page.evaluate(()=>scrollY);

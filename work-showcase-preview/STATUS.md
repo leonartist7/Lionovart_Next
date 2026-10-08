@@ -1,5 +1,16 @@
 # LIONOVART results redesign
 
+## Latest — approved curation and local tag review
+
+Applied the owner’s pasted 51-of-53 review: 38 Keep, 13 Archive, 2 unreviewed (Perfume and OMa retained). Published gallery now contains 40 entries, pagination 12/24/36/40. All 53 media records remain in the source and original curation review mode; the explicit asset-ID number map is unchanged. Approved decisions are recorded in work-curation.json.
+
+Added local review=tags mode over the 40 visible works. Each numbered example has independent Concept status and multiple service choices: Brand identity, combined Web/App dev, Smart OS, Creative media, Event design, Digital design and Motion. Existing web/app IDs normalize to a combined display/tag option; their service query links remain valid. Existing draft assignments seed the choices. Explicit Confirm tags marks progress; any subsequent edit clears that confirmation. Draft services/statuses are stored in a separate versioned browser record keyed by asset ID and affect only the local tag preview. Copy review includes confirmed and pending numbered assignments. Clipboard/storage fallback, exit and public-host gating share the original review behavior. No published status/service assignments are changed by local checkboxes.
+
+Removed the media-card backing with transparent article/frame backgrounds, preserving uncropped media and the readable review toolbar. The background request was interpreted as the media backing after optional clarification; no encoded backgrounds inside artwork were removed.
+
+Both existing complete previews rebuilt. TypeScript and targeted lint pass. Four-width checks cover exact approved archive IDs, 40 retained records, preserved numbers, Concept plus multiple service tags, confirmation/edit/reset, saved reload, grouped copy, unavailable storage/clipboard, public-host gating, legacy/combined service links and unchanged video/source/scroll when marking. Normal gallery playback, offscreen pause/resume, filters, query/reset, enquiry, reduced motion and source inventory/image loading pass. Curation review and gallery-fade/dock checks updated for current counts. No media deleted, Cloudinary changes, real submissions, messages or bookings. GitHub source package synchronized.
+
+
 ## Latest — numbered local gallery review
 
 Added local-only review=1 mode to the existing complete Work page. Fixed numbers 01–53 are stored explicitly against original Cloudinary asset IDs, independent of filtering, pagination and editorial order. Each card keeps its media frame and adds its number/name plus Keep, Improve preview and Archive buttons. Selected choices toggle back to Not reviewed; Archive leaves media visible. Decisions are separate from client/concept status and never change public assignments or Cloudinary.

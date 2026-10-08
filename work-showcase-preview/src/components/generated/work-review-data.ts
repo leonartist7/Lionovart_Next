@@ -13,11 +13,11 @@ const reviewNumbers: Record<string, number> = numbers;
 const assetIds = new Set(works.map(work => work.assetId));
 export const reviewNumber = (assetId: string) => String(reviewNumbers[assetId] ?? '—').padStart(2, '0');
 
-export function isLocalReviewUrl(url: URL): boolean {
+export function isLocalPreviewUrl(url: URL): boolean {
   return (url.protocol === 'file:' || (['http:', 'https:'].includes(url.protocol)
-    && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)))
-    && url.searchParams.get('review') === '1';
+    && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)));
 }
+export function isLocalReviewUrl(url: URL): boolean { return isLocalPreviewUrl(url) && url.searchParams.get('review') === '1'; }
 export function readReviewMode(): boolean {
   return typeof window !== 'undefined' && isLocalReviewUrl(new URL(window.location.href));
 }
