@@ -15,6 +15,7 @@ import './LIONOVARTWorkProspectJourney.css';
 import './ResultsJourney.css';
 import '../ui/gooey-glass/gooey-glass.css';
 import './WorkReview.css';
+import './ProspectJourney.css';
 const labelFor = serviceTagLabel;
 const email = 'connect@lionovart.com';
 // Saved file previews return to the canonical site; hosted Work pages use their own homepage.
@@ -295,20 +296,25 @@ function AuditRequest() {
 function ClientResults({ industry, campaign }: { industry: string; campaign: string }) {
   const relevant = resultStories.filter(story => story.industry === industry);
   const others = resultStories.filter(story => story.industry !== industry);
-  const stories = (industry ? [...relevant, ...others] : resultStories).slice(0, 3);
+  const [featured, ...quotes] = (industry ? [...relevant, ...others] : resultStories).slice(0, 3);
   const label = industries.find(item => item.value === industry)?.label;
-  return <section id="lv-results" className="lv-results lv-wrap" aria-labelledby="lv-results-title">
-    <div className="lv-results-heading">
-      <div><h2 id="lv-results-title">THE WORK.<br /><em>What it changed.</em></h2></div>
-      <div className="lv-results-intro"><p>Clients describe what changed after their website, brand or booking system went live.</p></div>
+  return <section id="lv-results" className="lv-results lv-wrap" aria-labelledby="lv-results-title" tabIndex={-1}>
+    <div className="lv-proof-heading"><h2 id="lv-results-title">THE WORK.<br /><em>What it changed.</em></h2></div>
+    <div className="lv-proof-layout">
+      <article className="lv-proof-feature lv-proof-story" data-story={featured.id} aria-labelledby={'result-' + featured.id}>
+        <div className="lv-proof-top"><span>{featured.sector}</span><img src={featured.image} alt="" width="44" height="44" loading="lazy" /></div>
+        <div className="lv-proof-outcome"><span className="lv-proof-metric" data-long={featured.metric.length > 9 || undefined}>{featured.metric}</span>
+          <h3 id={'result-' + featured.id}>{featured.outcome}</h3><p>{featured.period}</p></div>
+        <p className="lv-proof-response">{featured.response}</p>
+        <figure><blockquote>“{featured.quote}”</blockquote><figcaption><strong>{featured.author}</strong><span>{featured.role}</span></figcaption></figure>
+      </article>
+      <div className="lv-proof-quotes">{quotes.map(story => <article key={story.id} className="lv-proof-quote lv-proof-story" data-story={story.id}>
+        <div className="lv-proof-top"><span>{story.sector}</span><img src={story.image} alt="" width="36" height="36" loading="lazy" /></div>
+        <p className="lv-proof-response">{story.response}</p>
+        <figure><blockquote>“{story.quote}”</blockquote><figcaption><strong>{story.author}</strong><span>{story.role}</span></figcaption></figure>
+      </article>)}</div>
     </div>
-    <div className="lv-result-grid">{stories.map((story, index) => <article key={story.id} className={`lv-result-card${index === 0 ? ' lv-result-featured' : ''}`} aria-labelledby={`result-${story.id}`}>
-      <div className="lv-result-top"><span>{story.sector}</span><img src={story.image} alt="" width="48" height="48" loading="lazy" /></div>
-      <div className="lv-result-outcome"><span className="lv-result-metric" data-long={story.metric.length > 9 || undefined}>{story.metric}</span><h3 id={`result-${story.id}`}>{story.outcome}</h3><p>{story.period}</p></div>
-      <dl className="lv-result-detail">{story.challenge && <div><dt>The starting point</dt><dd>{story.challenge}</dd></div>}<div><dt>What we delivered</dt><dd>{story.response}</dd></div></dl>
-      <figure className="lv-result-quote"><blockquote>“{story.quote}”</blockquote><figcaption><strong>{story.author}</strong><span>{story.role}</span></figcaption></figure>
-    </article>)}</div>
-    <div className="lv-results-followup"><p className="lv-results-note">{campaign ? 'Client-reported results from our wider work.' : industry && relevant.length ? `${label} stories first. Results reported by the clients shown.` : 'Results reported by the clients shown, from projects across the studio.'}</p><CallAction /></div>
+    <p className="lv-proof-note">{campaign ? 'Client-reported results from our wider work.' : industry && relevant.length ? label + ' stories first. Results reported by the clients shown.' : 'Results reported by the clients shown, from projects across the studio.'}</p>
   </section>;
 }
 export const LIONOVARTWorkProspectJourney = () => {
@@ -476,20 +482,27 @@ export const LIONOVARTWorkProspectJourney = () => {
             limit: selection.limit + 12
           })}>More work <span>+</span></button>}</> : <div className="lv-empty" tabIndex={-1}><span className="lv-empty-symbol">↗</span><h2>{displaySelection.campaign ? <>{displayCampaignLabel}<br /><em>for your world.</em></> : <>Room for <em>your world.</em></>}</h2><p>{displaySelection.campaign ? <>No {displayCampaignLabel} work is published in this selection yet.<br />Explore other work or tell us about your campaign.</> : <>There isn’t a published example in this selection yet.<br />Explore the full collection, or tell us what you have in mind.</>}</p><div>{displaySelection.campaign && <button className="lv-cta" onClick={() => update({campaign:'',limit:12})}>View all campaigns <Arrow diagonal={false} /></button>}<button className={displaySelection.campaign ? 'lv-text-link' : 'lv-cta'} onClick={() => update(allWork)}>Explore all work <Arrow diagonal={false} /></button><button className="lv-text-link" onClick={enquire}>{displaySelection.campaign ? 'Discuss your campaign' : 'Discuss your project'} <Arrow /></button></div></div>}
         </div>
-        <div ref={galleryEndRef} className="lv-gallery-end"><a className="lv-text-link" href="#lv-results">Client results <span aria-hidden="true">↓</span></a></div>
+        <div ref={galleryEndRef} className="lv-gallery-end lv-gallery-next"><CallAction /><a className="lv-text-link" href="#lv-results">See client results <span aria-hidden="true">↓</span></a></div>
       </section>
       <ClientResults industry={displaySelection.industry} campaign={displaySelection.campaign} />
       <section id="lv-approach" className="lv-studio lv-wrap" aria-labelledby="lv-studio-title">
-        <div className="lv-portrait"><img src={portrait} alt="Leonardo, founder of Lionovart" loading="lazy" /><div><strong>Leonardo</strong><span>FOUNDER & CREATIVE DIRECTOR</span></div></div>
-        <div className="lv-studio-copy"><h2 id="lv-studio-title">WORK WITH<br /><em>Leonardo.</em></h2><p>I’m Leonardo, founder of LIONOVART. I’ll be your first point of contact.</p>
-          <ol className="lv-call-steps">
-            <li><span>01</span><div><h3>Start with your business.</h3><p>What you sell, who you want to reach and what isn’t working yet.</p></div></li>
-            <li><span>02</span><div><h3>Set the priority.</h3><p>We’ll discuss whether you need a new identity, a website, content or a combination.</p></div></li>
-            <li><span>03</span><div><h3>Make your next move.</h3><p>You’ll receive a proposal with the deliverables, timing and price before the work starts.</p></div></li>
-          </ol>
+        <div className="lv-portrait"><img src={portrait} alt="Leonardo, founder and creative director of LIONOVART" loading="lazy" /></div>
+        <div className="lv-studio-copy"><h2 id="lv-studio-title">WORK WITH<br /><em>Leonardo.</em></h2>
+          <p className="lv-studio-role">Founder &amp; Creative Director</p>
+          <p>You’ll speak directly with me. We’ll talk about your business and set the priority for your brand.</p>
+          <p>You’ll receive a proposal with the scope, timing and price before we start.</p>
+          <a className="lv-text-link lv-discover-studio" href={homepageUrl}>Discover the studio <Arrow /></a>
         </div>
       </section>
-      <section id="lv-closing" className="lv-closing" aria-labelledby="lv-closing-title"><Ribbons /><div className="lv-closing-content"><h2 id="lv-closing-title">LET’S START<br /><em>with your brand.</em></h2><p>Book a call, or send your website for a brand audit.</p><div className="lv-conversion-options"><div className="lv-conversion-card"><h3>A call with Leonardo.</h3><p>Choose a time to talk through your project.</p><CallAction final /></div><div className="lv-conversion-card"><h3>Your brand audit.</h3><p>I’ll review your website and brand, then email you the audit.</p><AuditRequest /></div></div></div></section>
+      <section id="lv-closing" className="lv-closing" aria-labelledby="lv-closing-title"><Ribbons />
+        <div className="lv-closing-content"><h2 id="lv-closing-title">LET’S START<br /><em>with your brand.</em></h2>
+          <p>Choose a time to talk through your project.</p>
+          <div className="lv-closing-primary"><CallAction final /></div>
+          <details className="lv-audit-disclosure"><summary>Get a brand audit instead <span aria-hidden="true">+</span></summary>
+            <div className="lv-audit-content"><p>Send your website. I’ll review your brand and email you the audit.</p><AuditRequest /></div>
+          </details>
+        </div>
+      </section>
     </main>
     <footer className="lv-footer"><a className="lv-wordmark" href={homepageUrl} aria-label="LIONOVART homepage">LIONÖVART<span>®</span></a><a href={`mailto:${email}`}>{email} <Arrow /></a><p>Independent thinking. Connected design.</p><a href="#lv-top">Back to top ↑</a></footer>
     {dockVisible && !panel && <FilterDock selection={selection} change={update} />}

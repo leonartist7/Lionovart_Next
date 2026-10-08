@@ -1,9 +1,56 @@
-const{chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');const assert=require('node:assert/strict');const path=require('path');const fs=require('fs');const{pathToFileURL}=require('url');
-(async()=>{require('fs').mkdirSync(path.join(__dirname,'review'),{recursive:true});const browser=await chromium.launch({channel:'msedge',headless:true});const page=await browser.newPage({reducedMotion:'reduce'});const errors=[];page.on('pageerror',e=>errors.push(e.message));try{const file=path.join(__dirname,'LIONOVART-results-preview.html'),base=pathToFileURL(file).href;
-for(const width of[320,390,612,980,1440]){await page.setViewportSize({width,height:900});await page.goto(base);await page.evaluate(()=>document.fonts.ready);assert.equal(await page.locator('.lv-next,.lv-audit,.lv-enquiry-link,.lv-audit-link').count(),0);assert.equal(await page.locator('.lv-conversion-options > .lv-conversion-card').count(),2);assert.equal(await page.locator('.lv-result-card').count(),3);assert((await page.locator('.lv-portrait').innerText()).includes('FOUNDER & CREATIVE DIRECTOR'));assert.deepEqual(await page.locator('.lv-call-steps h3').allTextContents(),['Start with your business.','Set the priority.','Make your next move.']);
-assert(await page.locator('.lv-result-card').first().innerText().then(t=>t.includes('>60%')));assert(await page.locator('.lv-result-card').nth(1).innerText().then(t=>t.includes('Nearly 2×')));
-const ctas=page.locator('.lv-header .lv-cta,.lv-results-followup .lv-cta,.lv-conversion-card:first-child .lv-cta');assert.equal(await ctas.count(),3);assert.deepEqual((await ctas.allTextContents()).map(t=>t.trim()),Array(3).fill('Book a call'));const href=await ctas.first().getAttribute('href');if(href==='#lv-closing'){assert.equal(await ctas.last().isDisabled(),true)}else{assert(href.startsWith('https://'));assert.equal(await ctas.last().getAttribute('href'),href)}
-await page.locator('.lv-audit-form button').click();assert((await page.locator('.lv-audit-error').innerText()).includes('Enter your website'));assert.equal(await page.locator('.lv-audit-confirmation').count(),0);
-assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.locator('#lv-approach').scrollIntoViewIfNeeded();await page.screenshot({path:path.join(__dirname,`review/post-gallery-person-${width}.png`)});await page.locator('#lv-closing').scrollIntoViewIfNeeded();await page.screenshot({path:path.join(__dirname,`review/post-gallery-call-${width}.png`)});console.log(`PASS ${width}: director/priority/next move, two CTA routes, audit inputs and no overflow`)}
-const requests=[];let saved=false;await page.route('http://work-preview.test/work',route=>route.fulfill({status:200,contentType:'text/html',body:fs.readFileSync(file,'utf8')}));await page.route('http://work-preview.test/api/strategist/lead',route=>{requests.push(route.request().postDataJSON());return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({saved})})});await page.goto('http://work-preview.test/work');const website=page.getByLabel('Your website',{exact:true}),email=page.getByLabel('Your email',{exact:true}),submit=page.getByRole('button',{name:'Get my brand audit',exact:true});await website.fill('https://user:pass@brand.example');await email.fill('owner@example.test');await submit.click();assert.equal(requests.length,0);await website.fill('yourbrand.example');await email.fill('wrong');await submit.click();assert.equal(requests.length,0);assert((await page.getByRole('alert').innerText()).includes('email'));await email.fill('owner@example.test');await submit.click();await page.getByRole('alert').filter({hasText:'wasn’t saved'}).waitFor();assert.equal(await page.locator('.lv-audit-confirmation').count(),0);saved=true;await submit.click();await page.locator('.lv-audit-confirmation').waitFor();assert.equal(requests.length,2);assert.equal(requests[1].website_url,'https://yourbrand.example/');assert.equal(requests[1].contact,'owner@example.test');assert.equal(requests[1].contact_type,'email');assert.equal(requests[1].source,'work_audit');assert.equal(requests[1].name,'yourbrand.example');assert((await page.locator('.lv-audit-confirmation').innerText()).includes('I’ll review your website and email you the audit.'));assert.deepEqual(errors,[]);console.log('PASS audit validation, existing API payload, saved:false recovery and saved:true confirmation. HTTP responses mocked; no real requests, bookings or emails sent.');
-}finally{await browser.close()}})().catch(e=>{console.error(e);process.exit(1)});
+const{chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs'),{pathToFileURL}=require('node:url');
+const source=fs.readFileSync(path.join(__dirname,'src/components/generated/LIONOVARTWorkProspectJourney.tsx'),'utf8');
+(async()=>{const browser=await chromium.launch({channel:'msedge',headless:true}),page=await browser.newPage({reducedMotion:'reduce'}),errors=[];
+page.on('pageerror',e=>errors.push(e.message));fs.mkdirSync(path.join(__dirname,'review'),{recursive:true});
+try{const file=path.join(__dirname,'LIONOVART-results-preview.html'),base=pathToFileURL(file).href;
+for(const width of[320,390,768,980,1440]){
+await page.setViewportSize({width,height:900});await page.goto(base);await page.evaluate(()=>document.fonts.ready);
+assert.equal(await page.locator('.lv-proof-feature').count(),1);assert.equal(await page.locator('.lv-proof-quote').count(),2);
+assert.equal(await page.locator('.lv-call-steps,.lv-conversion-options,.lv-conversion-card,.lv-results-intro,.lv-results-followup').count(),0);
+assert((await page.locator('.lv-studio-role').textContent()).includes('Founder & Creative Director'));
+assert((await page.locator('.lv-studio-copy').innerText()).includes('set the priority'));
+assert((await page.locator('.lv-studio-copy').innerText()).includes('scope, timing and price'));
+assert.equal(await page.getByRole('link',{name:'Discover the studio',exact:false}).getAttribute('href'),'https://lionovart.com/');
+assert((await page.locator('.lv-proof-feature').innerText()).includes('>60%'));
+assert((await page.locator('.lv-proof-quotes').innerText()).includes('nearly doubled. Same traffic'));
+const actions=page.locator('.lv-header .lv-cta,.lv-gallery-next .lv-cta,.lv-closing-primary .lv-cta');
+assert.equal(await actions.count(),3);assert.deepEqual((await actions.allTextContents()).map(t=>t.trim()),Array(3).fill('Book a call'));
+assert.equal(await page.locator('.lv-audit-disclosure').getAttribute('open'),null);
+assert.equal(await page.getByLabel('Your website',{exact:true}).isVisible(),false);
+await page.getByRole('link',{name:'See client results',exact:false}).click();
+assert.equal(new URL(page.url()).hash,'#lv-results');
+await page.waitForFunction(()=>{const r=document.getElementById('lv-results').getBoundingClientRect();return r.top>=0&&r.top<160;});
+await page.locator('.lv-filter-dock').waitFor({state:'hidden'});assert.equal(await page.locator('.lv-filter-dock').count(),0);
+assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+await page.screenshot({path:path.join(__dirname,'review/compact-proof-'+width+'.png')});
+await page.locator('#lv-approach').scrollIntoViewIfNeeded();
+const portrait=await page.locator('.lv-portrait').boundingBox();assert(portrait.height<=300);
+await page.screenshot({path:path.join(__dirname,'review/compact-founder-'+width+'.png')});
+await page.locator('#lv-closing').scrollIntoViewIfNeeded();await page.screenshot({path:path.join(__dirname,'review/compact-closing-'+width+'.png')});
+const summary=page.locator('.lv-audit-disclosure>summary');await summary.focus();await page.keyboard.press('Enter');
+assert.equal(await page.getByLabel('Your website',{exact:true}).isVisible(),true);
+await page.screenshot({path:path.join(__dirname,'review/compact-audit-'+width+'.png')});
+await page.getByRole('button',{name:'Get my brand audit',exact:true}).click();assert((await page.getByRole('alert').innerText()).includes('Enter your website'));
+await summary.focus();await page.keyboard.press('Enter');assert.equal(await page.getByLabel('Your website',{exact:true}).isVisible(),false);
+console.log('PASS '+width+': gallery actions, same-page results, one feature/two quotes, compact founder/studio link, booking priority and keyboard audit disclosure');
+}
+await page.route('http://work-preview.test/work',r=>r.fulfill({status:200,contentType:'text/html',body:fs.readFileSync(file,'utf8')}));
+const requests=[];let saved=false;await page.route('http://work-preview.test/api/strategist/lead',r=>{requests.push(r.request().postDataJSON());return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({saved})});});
+await page.goto('http://work-preview.test/work');assert.equal(await page.getByRole('link',{name:'Discover the studio',exact:false}).getAttribute('href'),'/');
+await page.locator('.lv-audit-disclosure>summary').click();
+const website=page.getByLabel('Your website',{exact:true}),email=page.getByLabel('Your email',{exact:true}),submit=page.getByRole('button',{name:'Get my brand audit',exact:true});
+await website.fill('https://user:pass@brand.example');await email.fill('owner@example.test');await submit.click();assert.equal(requests.length,0);
+await website.fill('yourbrand.example');await email.fill('wrong');await submit.click();assert.equal(requests.length,0);
+await email.fill('owner@example.test');await submit.click();await page.getByRole('alert').filter({hasText:'wasn’t saved'}).waitFor();assert.equal(await page.locator('.lv-audit-confirmation').count(),0);
+saved=true;await submit.click();await page.locator('.lv-audit-confirmation').waitFor();assert.equal(requests.length,2);
+assert.equal(requests[1].website_url,'https://yourbrand.example/');assert.equal(requests[1].contact,'owner@example.test');assert.equal(requests[1].source,'work_audit');
+assert((await page.locator('.lv-audit-confirmation').innerText()).includes('I’ll review your website and email you the audit.'));
+await page.goto(base+'?industry=wellness');assert.equal(await page.locator('.lv-proof-feature').getAttribute('data-story'),'matt');
+await page.goto(base+'?industry=hospitality');assert.deepEqual(await page.locator('.lv-proof-story').evaluateAll(es=>es.map(e=>e.dataset.story)),['pablo','jim','mateo']);
+const bookingFixture=fs.readFileSync(file,'utf8').replace('const bookingUrl = null;','const bookingUrl = "https://calendar.example.test/book";');
+await page.route('http://booking-preview.test/work',r=>r.fulfill({status:200,contentType:'text/html',body:bookingFixture}));
+await page.goto('http://booking-preview.test/work');const ready=page.locator('.lv-header .lv-cta,.lv-gallery-next .lv-cta,.lv-closing-primary .lv-cta');
+assert.equal(await ready.count(),3);for(const action of await ready.all()){assert.equal(await action.getAttribute('href'),'https://calendar.example.test/book');assert.equal(await action.getAttribute('target'),'_blank');assert((await action.getAttribute('rel')).includes('noopener'));}
+assert.deepEqual(errors,[]);console.log('PASS sector proof ordering, studio return, audit validation/payload/error/success. API responses mocked; no leads/messages/bookings sent.');
+}finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

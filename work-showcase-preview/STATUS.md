@@ -1,5 +1,14 @@
 # LIONOVART results redesign
 
+## Latest — focused post-gallery prospect journey
+
+Applied the agreed flow to this complete page: gallery-end Book a call plus See client results anchor, one featured client result with two shorter quote treatments, compact Leonardo introduction with Discover the studio homepage link, and a booking-first closing. The audit is a native keyboard-accessible disclosure beneath the primary call action; it opens the existing website/email capture without gating booking. Removed duplicate results introduction, secondary results booking row, numbered founder steps and two equal conversion cards. Retained exact approved testimonials, outcomes, timing/traffic qualifiers and industry-prioritized story ordering. The shorter founder copy preserves direct contact, priority and proposal/scope/timing/price expectations.
+
+Added scoped ProspectJourney.css using the established cream, Clash Display, Playfair italic, red, dark closing and existing ribbons. No added blur surfaces, dependencies, page or homepage edits. Maintained same-page Results navigation and canonical/same-origin studio return. Gallery media/order/review IDs, confirmed tags and six Concept labels remain unchanged.
+
+Both previews rebuilt. TypeScript and targeted lint pass. Checks at 320/390/768/980/1440 verify one featured result/two quotes, readable compact founder, no overflow, gallery actions/Results anchor/dock hiding, keyboard audit expansion/collapse, form validation and error/success states. Audit endpoint responses are mocked; no actual leads sent. A local booking fixture verifies all three Book a call links when configured. Actual bookingUrl remains null until the public Google Calendar appointment URL is supplied; the owner was asked during this work. Gallery ordering and normal outgoing/incoming fades, retained media and no-scroll behavior pass. Rendered mobile/desktop proof, founder, closing and expanded audit inspected; screenshots are review/compact-*.png. GitHub source package synchronized.
+
+
 ## Latest — Rise fourth, Coinly eighth, OMa thirtieth
 
 Resolved the browser-selected cards against current source order and labels: OMa (review #04), Rise (#13), Coinly (#14). Applied final gallery positions Rise 4, Coinly 8, OMa 30. All other published works retain their previous relative order; review IDs, tags, statuses and archives remain unchanged. Recorded the complete curated order in work-gallery-order.json by stable asset ID, allowing placement beyond the opening rows without altering media records. Source remains 53 unique entries and published gallery 40.

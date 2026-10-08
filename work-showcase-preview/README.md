@@ -38,3 +38,7 @@ The approved archive list hides 13 examples; 40 remain published, including the 
 ## Confirmed tags applied
 
 work-approved-tags.json records the owner’s complete 40-entry tag/status report. The public preview renders these assignments and six Concept labels. Both legacy web-dev/app-dev queries resolve to the combined Web/App dev tag. Fresh local tag review starts with the applied assignments confirmed; subsequent local changes remain drafts until sent back. verify-approved-tags.cjs checks every rendered assignment and status.
+
+## Current prospect journey
+
+The gallery ends with Book a call and a same-page See client results link. Proof uses one featured result and two shorter quotes, preserving approved wording and qualifiers. Leonardo’s compact introduction links to the main studio homepage. The closing gives booking priority; the manual audit form is behind an accessible disclosure. The public Google Calendar appointment URL is still required to enable final booking. Run verify-post-gallery.cjs for responsive, keyboard, mocked audit and configured-booking-fixture checks.
