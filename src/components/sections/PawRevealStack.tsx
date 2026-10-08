@@ -12,28 +12,26 @@ import { ImageStreamHero } from "@/components/ui/image-stream-hero";
 import { useLionJourney } from "./lion-journey/LionJourney";
 import { SHOWCASE_IMAGES } from "./showcase-images";
 import styles from "./PawRevealStack.module.css";
+import BenefitSculpture from "./BenefitSculpture";
 
 const PAW_IMAGE = "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_320/v1775085187/Untitled_design_4_muu53f.png";
 const EASE = [0.16, 1, 0.3, 1] as const;
 const BENEFITS = [
   {
-    pillar: "LION / BRAND VALUE", title: "Make your value unmistakable.",
-    tension: "You're better than you look.",
-    body: "Let people see the quality behind your prices, understand your difference and feel confident choosing you.",
+    title: "Look the part.",
+    body: "Let your image reflect the quality of your work.",
     detail: "A presence that does your work justice.",
     points: ["A clear position in your market", "An identity that reflects your quality", "A consistent story at every touchpoint"],
   },
   {
-    pillar: "NOVA / TIME & FOCUS", title: "Get your time back.",
-    tension: "Growth shouldn't mean doing everything.",
-    body: "Give repetitive tasks to connected systems, so your team can focus on the work only people can do.",
+    title: "Get your time back.",
+    body: "Less repetitive work. More room for your next move.",
     detail: "More space for what moves you forward.",
     points: ["Enquiries captured in one place", "Follow-ups that keep moving", "Workflows built around your team"],
   },
   {
-    pillar: "ART / CREATIVE PRESENCE", title: "Become easier to find. And choose.",
-    tension: "Good work deserves to be seen.",
-    body: "Turn your website, content and campaigns into a recognisable world that makes the next step feel natural.",
+    title: "Be remembered.",
+    body: "Give people something to recognise, feel and come back to.",
     detail: "Every encounter feels like your brand.",
     points: ["A website with a clear next step", "Content with a recognisable voice", "Campaigns that connect the whole story"],
   },
@@ -60,7 +58,7 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
     lock.current = true;
     setPhase("revealing");
     if (!reduced && !keyboard) {
-      await paw.start({ transform: "translate(0, 0) rotate(0deg)", transition: { duration: 0.35, ease: EASE } });
+      await paw.start({ opacity: 1, transform: "translate(0, 0) rotate(0deg)", transition: { duration: 0.35, ease: EASE } });
       await Promise.all([
         cover.start({ transform: "translateY(105%)", transition: { duration: 0.65, ease: EASE } }),
         paw.start({ transform: "translate(8%, 170%) rotate(5deg)", transition: { duration: 0.65, ease: EASE } }),
@@ -72,11 +70,13 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
 
   return <article className={styles.card} data-benefit-card data-revealed={phase === "open"}>
     <div className={styles.cardTop}>
-      <p className={styles.pillar}><span>{String(index + 1).padStart(2, "0")}</span>{tr(item.pillar)}</p>
-      <p className={styles.tension}>{tr(item.tension)}</p>
       <h3>{tr(item.title)}</h3>
       <p className={styles.cardBody}>{tr(item.body)}</p>
     </div>
+    <div className={styles.detailShell}>
+      {phase !== "open" && <div className={styles.sculpture} data-sculpture={index} data-leaving={phase === "revealing"} aria-hidden="true">
+        <BenefitSculpture kind={index} />
+      </div>}
     <div className={styles.detailWell}>
       <div ref={panel} id={panelId} tabIndex={phase === "open" ? -1 : undefined} role="region"
         aria-label={tr(item.detail)} aria-hidden={phase !== "open"} className={styles.details}>
@@ -87,13 +87,13 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
         <motion.button type="button" className={styles.detailCover} animate={cover}
           aria-expanded={false} aria-controls={panelId} disabled={phase === "revealing"}
           onClick={event => void reveal(event.detail === 0)}>
-          <span className={styles.coverLabel}>{tr("See what changes")}<Plus aria-hidden="true" /></span>
-          <span className={styles.coverHint}>{tr("A little reveal. A clearer picture.")}</span>
+          <span className={styles.coverLabel}>{tr("See how")}<Plus aria-hidden="true" /></span>
         </motion.button>
-        <motion.div className={styles.paw} aria-hidden="true" initial={{ transform: "translate(-35%, 8%) rotate(-6deg)" }} animate={paw}>
+        <motion.div className={styles.paw} aria-hidden="true" initial={{ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)" }} animate={paw}>
           <Image src={PAW_IMAGE} alt="" fill sizes="128px" className={styles.pawImage} />
         </motion.div>
       </>}
+    </div>
     </div>
   </article>;
 }
@@ -195,12 +195,11 @@ export default function PawRevealStack() {
     <span id="imagine" className={styles.anchor} aria-hidden="true" />
     <div className={styles.redChapter}>
       <header className={styles.intro}>
-        <p className={styles.eyebrow}>{tr("Imagine your next chapter")}</p>
-        <h2 id="imagine-heading"><span>{tr("Your business has evolved.")}</span><br />{tr("Has the way people see it?")}</h2>
-        <p className={styles.introBody}>{tr("When your image falls behind your business, people can miss what makes you worth choosing. Bring your presence, your creativity and your systems up to the level of your work.")}</p>
+        <h2 id="imagine-heading"><span>{tr("You’ve built something great.")}</span><br />{tr("Let it show.")}</h2>
+        <p className={styles.introBody}>{tr("A brand you're proud of. More time for what you do best.")}</p>
       </header>
       <div className={styles.grid} data-imagine-content>
-        {BENEFITS.map((item, index) => <BenefitCard key={item.pillar} item={item} index={index} />)}
+        {BENEFITS.map((item, index) => <BenefitCard key={item.title} item={item} index={index} />)}
       </div>
       <div className={styles.reviewOffer}>
         <p><span>{tr("Not sure where to start?")}</span>{tr("A personal review. Three priority fixes.")}</p>

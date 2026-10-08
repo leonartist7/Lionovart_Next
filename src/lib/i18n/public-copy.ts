@@ -1,5 +1,14 @@
 /** Reviewed French public UI copy. Source phrases are gettext-style keys. */
 const french: Record<string, string> = {
+  "You’ve built something great.": "Vous avez de quoi être fier.",
+  "Let it show.": "Ça doit se voir.",
+  "A brand you're proud of. More time for what you do best.": "Une image qui vous ressemble. Du temps pour votre savoir-faire.",
+  "Look the part.": "Affirmez votre valeur.",
+  "Let your image reflect the quality of your work.": "Une image à la hauteur de votre travail.",
+  "Less repetitive work. More room for your next move.": "Moins de tâches répétitives. Plus de place pour vos projets.",
+  "Be remembered.": "Marquez les esprits.",
+  "Give people something to recognise, feel and come back to.": "Une marque qu’on reconnaît, qu’on ressent et qu’on retrouve.",
+  "See how": "Voir comment",
   "LION / BRAND VALUE": "LION / VALEUR DE MARQUE",
   "NOVA / TIME & FOCUS": "NOVA / TEMPS & ÉNERGIE",
   "ART / CREATIVE PRESENCE": "ART / PRÉSENCE CRÉATIVE",
