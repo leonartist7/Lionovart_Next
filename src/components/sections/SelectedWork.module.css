@@ -85,3 +85,6 @@
 @media (prefers-reduced-motion: reduce) { .section * { animation: none !important; transition-duration: 0ms !important; scroll-behavior: auto !important; } }
 @keyframes captionIn { from { opacity: .25; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fallbackOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* Leave the lower edge for the persistent services/work navigation. */
+.section[data-floating-navigation=true] .stageBottom { bottom: clamp(5.5rem, 9svh, 8rem); }

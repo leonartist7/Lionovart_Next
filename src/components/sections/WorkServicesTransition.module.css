@@ -167,3 +167,17 @@
 .transition[data-carousel-services-preview="true"] .runway {
   margin-top: -100svh;
 }
+
+@media (width < 360px) and (height <= 650px) {
+  .transition[data-carousel-services-preview="true"] .streamViewport {
+    mask-image:
+      linear-gradient(to right, transparent, #000 var(--stream-edge), #000 calc(100% - var(--stream-edge)), transparent),
+      linear-gradient(to bottom, #000 0%, #000 28%, transparent 36%);
+  }
+}
+
+@media (width < 360px) and (height <= 650px) {
+  .transition[data-carousel-services-preview="true"] .heading { top: 3.5rem; }
+  .transition[data-carousel-services-preview="true"] .heading h2 { font-size: 1.75rem; }
+  .transition[data-carousel-services-preview="true"] .heading p { font-size: 1rem; }
+}

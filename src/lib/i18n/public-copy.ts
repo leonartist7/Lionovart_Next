@@ -1,5 +1,17 @@
 /** Reviewed French public UI copy. Source phrases are gettext-style keys. */
 const french: Record<string, string> = {
+  "The art of innovating brands": "L’art de réinventer les marques",
+  "Industries": "Secteurs",
+  "Styles": "Styles",
+  "All industries": "Tous les secteurs",
+  "All styles": "Tous les styles",
+  "Finance": "Finance",
+  "Social media": "Réseaux sociaux",
+  "Editorial": "Éditorial",
+  "Illustrative": "Illustratif",
+  "Browse selected work": "Explorer nos réalisations",
+  "Browse industries": "Explorer les secteurs",
+  "Browse styles": "Explorer les styles",
   "Our expertise": "Notre expertise",
   "Let your systems handle the routine. Keep time for what matters.": "Vos outils gèrent la routine. Vous gardez du temps pour l’essentiel.",
   "Your website, content and identity. One recognisable brand.": "Site, contenus, identité. Une marque reconnaissable.",

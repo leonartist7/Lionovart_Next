@@ -1,7 +1,6 @@
 "use client";
 
 import GoldThreads from "@/components/ui/GoldThreads";
-import { Link } from "@/i18n/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import styles from "./CompactIntroduction.module.css";
 
@@ -52,9 +51,6 @@ export default function CompactIntroduction() {
           </table>
           <div className={styles.comparisonFooter}>
             <p>{copy.scope}</p>
-            <Link href="/about" className={styles.link}>
-              {copy.link}<span aria-hidden="true">↗</span>
-            </Link>
           </div>
         </div>
       </div>

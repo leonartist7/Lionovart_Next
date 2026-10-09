@@ -1,4 +1,4 @@
-.journey { position: relative; isolation: isolate; z-index: 2; background: #08080a; color: #f7f4ef; }
+.journey { position: relative; isolation: isolate; z-index: 2; background: linear-gradient(to bottom, #08080a 0, #08080a var(--journey-dark-height, 100%), transparent var(--journey-dark-height, 100%)); color: #f7f4ef; }
 .journey :global(.lion-video-section) { background: transparent; }
 .journey :global(.lion-proof) { position: relative; z-index: 2; padding: 24px 20px 48px; }
 .journey :global([data-gold-bridge]) { background: transparent; isolation: auto; z-index: 2; text-shadow: 0 2px 24px #08080a; }

@@ -6,6 +6,7 @@ import ServicesCurves from "./ServicesCurves";
 import { ServicesArrivalLayer } from "./ServicesArrival";
 import { useServicesCarouselPreview } from "./ServicesPreview";
 import styles from "./ServicesCarouselPreview.module.css";
+import ServicesWorkNavigation from "./ServicesWorkNavigation";
 
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
@@ -157,6 +158,7 @@ export default function HomepageServicesChapter() {
   });
 
   useMotionValueEvent(scrollYProgress, "change", (value) => {
+    if (reduceMotion) return;
     const normalized = clamp(
       (value - SERVICE_START) / (SERVICE_END - SERVICE_START),
       0,
@@ -174,13 +176,18 @@ export default function HomepageServicesChapter() {
       const element = chapterRef.current;
       if (!element) return;
       const next = carouselPreview ? (index % SERVICE_COUNT + SERVICE_COUNT) % SERVICE_COUNT : clamp(index, 0, SERVICE_COUNT - 1);
+      if (reduceMotion) {
+        setActiveIndex(next);
+        element.querySelector<HTMLElement>(`[data-service-static="${SERVICE_META[next].id}"]`)?.scrollIntoView({ behavior, block: "center" });
+        return;
+      }
       const sectionTop = element.getBoundingClientRect().top + window.scrollY;
       const travel = Math.max(1, element.offsetHeight - window.innerHeight);
       const ratio = (next + 0.5) / SERVICE_COUNT;
       const targetProgress = SERVICE_START + ratio * (SERVICE_END - SERVICE_START);
       window.scrollTo({ top: sectionTop + travel * targetProgress, behavior });
     },
-    [carouselPreview],
+    [carouselPreview, reduceMotion],
   );
 
   const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
@@ -215,9 +222,9 @@ export default function HomepageServicesChapter() {
         <ServicesCurves />
         <h2 className="sr-only">{tr("Our services")}</h2>
 
-        <div className="mx-auto grid max-w-[1280px] gap-px bg-black/10 sm:grid-cols-2 lg:grid-cols-3">
+        <div ref={chapterRef} data-services-static className="mx-auto grid max-w-[1280px] gap-px bg-black/10 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((service) => (
-            <article key={service.id} className="bg-bg-surface-light p-7 text-center sm:p-9">
+            <article key={service.id} data-service-static={service.id} className="bg-bg-surface-light p-7 text-center sm:p-9">
               <span className="font-mono text-[10px] font-bold tracking-[0.22em] text-black/35">
                 {service.number}
               </span>
@@ -230,7 +237,7 @@ export default function HomepageServicesChapter() {
             </article>
           ))}
         </div>
-
+        <ServicesWorkNavigation services={services} activeIndex={activeIndex} onSelect={goToService} />
       </section>
     );
   }
@@ -309,42 +316,10 @@ export default function HomepageServicesChapter() {
           </div>
         </div>
 
-        <nav
-          aria-label="Services"
-          className="absolute bottom-[3.2svh] left-1/2 z-40 w-fit max-w-[calc(100vw-1rem)] -translate-x-1/2 sm:bottom-[4vh]"
-        >
-          <div className="relative flex items-center justify-center gap-0.5 overflow-hidden rounded-full border border-white/55 bg-white/[0.2] p-1 shadow-[0_16px_42px_-28px_rgba(20,20,20,0.42),inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(255,255,255,0.2)] backdrop-blur-[26px] backdrop-saturate-200 sm:gap-1 sm:p-1.5">
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/95 to-transparent"
-            />
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_-35%,rgba(255,255,255,0.72),transparent_42%),linear-gradient(145deg,rgba(255,255,255,0.16),rgba(255,255,255,0.04))]"
-            />
-            {services.map((service, index) => {
-              const selected = index === activeIndex;
-              return (
-                <button
-                  key={service.id}
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() => goToService(index)}
-                  className={`relative z-10 flex h-8 min-w-8 items-center justify-center rounded-full px-2 font-mono text-[7.5px] font-bold uppercase tracking-[0.09em] transition-[background-color,color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/35 sm:h-9 sm:min-w-9 sm:px-3 sm:text-[8.5px] ${
-                    selected
-                      ? "scale-[1.015] bg-white/70 text-black shadow-[0_7px_18px_-13px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.96)] ring-1 ring-white/80"
-                      : "text-black/46 hover:bg-white/24 hover:text-black/72"
-                  }`}
-                >
-                  <span className="hidden sm:inline">{tr(service.short)}</span>
-                  <span className="sm:hidden">{service.number}</span>
-                </button>
-              );
-            })}
-          </div>
-        </nav>
+
       </div>
       </div>
+      <ServicesWorkNavigation services={services} activeIndex={activeIndex} onSelect={goToService} />
     </section>
   );
 }

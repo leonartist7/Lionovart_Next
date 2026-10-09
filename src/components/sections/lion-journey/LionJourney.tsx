@@ -58,6 +58,12 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       const openingP = pinned ? clamp((scrollY - pinStart) / Math.max(1, bounds.height - stageHeight)) : 0;
       openingProgress.set(openingP);
       progress.set(clamp(openingP / .49));
+      // The dark opening ends at Imagine; its rounded cap has a clear surround.
+      if (host.current && reveal.current) {
+        const height = reveal.current.getBoundingClientRect().top - host.current.getBoundingClientRect().top;
+        const value = `${height}px`;
+        if (host.current.style.getPropertyValue("--journey-dark-height") !== value) host.current.style.setProperty("--journey-dark-height", value);
+      }
       const complete = !!reveal.current && reveal.current.getBoundingClientRect().top <= 0 && coverage.current >= .999;
       backdropOpacity.set(reveal.current && reveal.current.getBoundingClientRect().top <= 0 ? 1 - clamp(coverage.current) : 1);
       setActive(current => current === !complete ? current : !complete);

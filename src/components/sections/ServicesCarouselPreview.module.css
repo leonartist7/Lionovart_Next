@@ -30,3 +30,27 @@
   .chapter[data-carousel-preview=true] .panel { top: 48svh; bottom: 12svh; }
   .chapter[data-carousel-preview=true] [data-service-title] { max-width: 18ch; font-size: clamp(1.875rem, 1.2rem + 3vw, 2.5rem); }
 }
+
+/* Leave a clear reading gap above the shared floating pill on short laptops. */
+@media (640px <= width) and (480px < height <= 800px) {
+  .chapter:not([data-carousel-preview=true]) .panel {
+    bottom: calc(4svh + 4.25rem);
+  }
+  .chapter:not([data-carousel-preview=true]) .panel > div { gap: 1.25rem; }
+  .chapter:not([data-carousel-preview=true]) [data-service-media] { width: min(92vw, 52svh); }
+  .chapter:not([data-carousel-preview=true]) [data-service-title] {
+    max-width: 20ch;
+    font-size: clamp(2.125rem, 4.5vw, 3.5rem);
+    line-height: .94;
+  }
+  .chapter:not([data-carousel-preview=true]) [data-service-description],
+  .chapter:not([data-carousel-preview=true]) [data-service-tags] { margin-top: .75rem; }
+}
+
+@media (width < 360px) and (height <= 650px) {
+  .chapter[data-carousel-preview=true] .panel { top: 38svh; bottom: 14svh; }
+  .chapter[data-carousel-preview=true] [data-service-title] { font-size: 1.75rem; }
+  .chapter[data-carousel-preview=true] [data-service-description] { font-size: .9375rem; margin-top: .625rem; }
+  .chapter[data-carousel-preview=true] [data-service-tags] { margin-top: .625rem; gap: .25rem; }
+  .chapter[data-carousel-preview=true] [data-service-tags] span { padding: .25rem .375rem; }
+}

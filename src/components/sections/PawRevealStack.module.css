@@ -5,7 +5,7 @@
   z-index: 30;
   isolation: isolate;
   overflow: clip;
-  background: #08080a;
+  background: transparent;
   color: white;
   padding-top: clamp(3rem, 9vw, 12rem);
   scroll-margin-top: 3rem;
@@ -14,7 +14,7 @@
   content: "";
   position: absolute;
   inset: 0 0 auto;
-  height: clamp(3.1rem, 9.1vw, 12.1rem);
+  height: calc(clamp(3rem, 9vw, 12rem) + .0625rem);
   border-radius: 50% 50% 0 0 / 100% 100% 0 0;
   background: var(--imagine-red);
 }

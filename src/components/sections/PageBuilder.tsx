@@ -4,7 +4,7 @@ import { HeroCompositionProvider } from "./hero-background/HeroComposition";
 import HeroBackground from "@/components/sections/hero-background/HeroBackground";
 import HeroOpening from "@/components/sections/lion-journey/HeroOpening";
 import LionJourney from "@/components/sections/lion-journey/LionJourney";
-import BridgeStatement from "@/components/sections/BridgeStatement";
+import { WorkBrowseProvider } from "./selected-work/WorkBrowse";
 
 import CompactIntroduction from "@/components/sections/CompactIntroduction";
 import PawRevealStack from "@/components/sections/PawRevealStack";
@@ -40,11 +40,11 @@ export async function PageBuilder() {
 
       {/* One shared runway joins the benefit cards, work and services. */}
       <div className="relative z-[2]">
+        <WorkBrowseProvider>
         <WorkServicesTransition intro={
           <HeroCompositionProvider><LionJourney>
             <HeroBackground />
             <HeroOpening />
-            <BridgeStatement />
             <span data-voice-reveal-boundary aria-hidden="true" />
             <NovaSection id="problems"><PawRevealStack /></NovaSection>
           </LionJourney></HeroCompositionProvider>
@@ -52,6 +52,7 @@ export async function PageBuilder() {
           <NovaSection id="services"><ServicesSwitcher /></NovaSection>
         </WorkServicesTransition>
         <SelectedWork servicesCurves />
+        </WorkBrowseProvider>
         <NovaSection id="about"><CompactIntroduction /></NovaSection>
 
         {/* Compact introduction/comparison -> Brands Elevated/results -> Process. */}
