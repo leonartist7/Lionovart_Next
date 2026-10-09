@@ -5,7 +5,7 @@ import { usePublicCopy } from "@/hooks/usePublicCopy";
 import ServicesCurves from "./ServicesCurves";
 import { ServicesArrivalLayer } from "./ServicesArrival";
 import { useServicesCarouselPreview } from "./ServicesPreview";
-import styles from "./HomepageServicesChapter.module.css";
+import styles from "./ServicesCarouselPreview.module.css";
 
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
