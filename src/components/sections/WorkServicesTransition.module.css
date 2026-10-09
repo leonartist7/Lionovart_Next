@@ -122,3 +122,12 @@
 .servicesCue:focus-visible { outline: .125rem solid #986c12; outline-offset: .25rem; }
 
 .transition[data-static=true] .servicesCue { position: relative; top: auto; bottom: auto; left: auto; transform: none; display: flex; margin: -1rem auto 1.5rem; }
+
+.servicesSeam {
+  position: absolute;
+  inset: 0 8% auto;
+  height: .0625rem;
+  z-index: 30;
+  background: linear-gradient(90deg, transparent, #ba96574d, transparent);
+  pointer-events: none;
+}
