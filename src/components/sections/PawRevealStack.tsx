@@ -27,14 +27,14 @@ const BENEFITS = [
   },
   {
     title: "Less admin. More headspace.",
-    body: "Let your systems handle the routine. Keep time for what matters.",
-    detail: "Room for better work.",
+    body: "Let your systems handle the routine.",
+    detail: "More time for what matters.",
     stat: { value: "15", unit: "h+", label: "Weekly time-saving target", source: null, sourceLabel: null, qualifier: null },
     points: ["Enquiries and follow-ups in one place", "Workflows built around your team"],
   },
   {
     title: "Be the name they remember.",
-    body: "Your website, content and identity. One recognisable brand.",
+    body: "Bring your website, content and identity together.",
     detail: "Unmistakably you. Everywhere.",
     stat: { value: "33", unit: "%", label: "Potential revenue lift with consistent branding", source: "https://www.prnewswire.com/news-releases/study-finds-companies-with-consistent-branding-can-see-up-to-33-increase-in-revenue-300967219.html", sourceLabel: "Survey: Lucidpress (2019)", qualifier: "Up to" },
     points: ["A recognisable voice", "A consistent world, everywhere"],
@@ -50,6 +50,7 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
   const paw = useAnimation();
   const panelId = `imagine-result-${index}`;
   const open = phase === "open";
+  const showBenefit = phase === "revealing" || open;
   const busy = phase === "revealing" || phase === "closing";
 
   const toggle = async (keyboard: boolean) => {
@@ -83,10 +84,11 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
     }
   };
 
-  return <article className={styles.card} data-benefit-card data-revealed={open} data-phase={phase}>
+  return <article className={styles.card} data-benefit-card data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
     <div className={styles.cardTop}>
-      <div className={styles.cardCopy} data-benefit-measure="copy">
-        <p className={styles.cardBody}><span data-benefit-measure="body">{tr(item.body)}</span></p>
+      <div className={styles.cardCopy}>
+        <p className={styles.cardBody} data-benefit-measure="copy" aria-hidden={showBenefit}>{tr(item.body)}</p>
+        <h3 id={panelId + "-title"} className={styles.cardHeadline} data-benefit-measure="copy" aria-hidden={!showBenefit}>{tr(item.detail)}</h3>
       </div>
     </div>
     <div className={styles.detailShell}>
@@ -96,7 +98,6 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
       <div className={styles.detailWell}>
         <div id={panelId} role="region" aria-labelledby={panelId + "-title"} aria-hidden={!open} className={styles.details}>
           <div className={styles.detailContent} data-benefit-measure="detail">
-            <h3 id={panelId + "-title"}>{tr(item.detail)}</h3>
             <ul>{item.points.map(point => <li key={point}><Check aria-hidden="true" />{tr(point)}</li>)}</ul>
           {item.stat && <div className={styles.metric} data-benefit-stat>
             <span className={styles.metricValue}>{item.stat.qualifier && <small>{tr(item.stat.qualifier)}</small>}{tr(item.stat.value)}<span>{item.stat.unit}</span></span>

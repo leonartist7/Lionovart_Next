@@ -108,7 +108,10 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
   const persistentCaptionOpacity = useTransform(scrollYProgress, [0, .2, .36], [0, 0, 1]);
   const persistentVisibility = useTransform(scrollYProgress, p => p <= .2 ? "hidden" : "visible");
   const logoPointerEvents = useTransform(scrollYProgress, p => p >= .35 ? "auto" : "none");
-  const circleOpacity = useTransform(scrollYProgress, [.76, .98], [1, 0]);
+  // Keep the handoff circle out of the transparent Imagine surround.
+  // It takes over only when the final, solid-red viewport starts to retire.
+  const persistentCircleOpacity = useTransform(scrollYProgress, [0, .001], [0, 1]);
+  const circleOpacity = useTransform(scrollYProgress, [0, .001, .76, .98], [0, 1, 1, 0]);
   const logoOpacity = useTransform(scrollYProgress, [.18, .35], [0, 1]);
   // The stationary white backdrop covers the cards; individual images stay opaque.
   const workOpacity = persistentWorkOpacity;
@@ -154,7 +157,7 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
         aria-label={tr(preview ? "Return to the fading services transition" : "Preview services below the carousel")}
         title={tr(preview ? "Return to the fading services transition" : "Preview services below the carousel")}
         onClick={togglePreview}
-        style={staticScene ? { top: "auto", transform: "none", opacity: 1, pointerEvents: "auto" } : { top: originY, transform: circleTransform, opacity: carouselServices ? 1 : circleOpacity, pointerEvents: logoPointerEvents }}>
+        style={staticScene ? { top: "auto", transform: "none", opacity: 1, pointerEvents: "auto" } : { top: originY, transform: circleTransform, opacity: carouselServices ? persistentCircleOpacity : circleOpacity, pointerEvents: logoPointerEvents }}>
         <motion.div className={styles.logo} style={{ opacity: staticScene ? 1 : logoOpacity }}>
           <Image src="/images/lionovart-icon.svg" alt="" fill sizes="180px" />
         </motion.div>

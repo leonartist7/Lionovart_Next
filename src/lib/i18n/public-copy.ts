@@ -1,5 +1,8 @@
 /** Reviewed French public UI copy. Source phrases are gettext-style keys. */
 const french: Record<string, string> = {
+  "Let your systems handle the routine.": "Vos outils gèrent la routine.",
+  "More time for what matters.": "Du temps pour l’essentiel.",
+  "Bring your website, content and identity together.": "Site, contenus, identité : un même univers.",
   "The art of innovating brands": "L’art de réinventer les marques",
   "Industries": "Secteurs",
   "Styles": "Styles",
