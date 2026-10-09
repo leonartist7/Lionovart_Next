@@ -110,7 +110,8 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
   const logoPointerEvents = useTransform(scrollYProgress, p => p >= .35 ? "auto" : "none");
   const circleOpacity = useTransform(scrollYProgress, [.76, .98], [1, 0]);
   const logoOpacity = useTransform(scrollYProgress, [.18, .35], [0, 1]);
-  const workOpacity = useTransform(scrollYProgress, [0, .2, .38, .5, .74], [0, 0, 1, 1, 0]);
+  // The stationary white backdrop covers the cards; individual images stay opaque.
+  const workOpacity = persistentWorkOpacity;
   const captionOpacity = useTransform(scrollYProgress, [0, .2, .36, .74, .97], [0, 0, 1, 1, 0]);
   const captionVisibility = useTransform(scrollYProgress, p => p <= .2 || p >= .97 ? "hidden" : "visible");
   const pauseVisibility = useTransform(scrollYProgress, p => p <= .2 || p >= .74 ? "hidden" : "visible");
@@ -163,7 +164,7 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
       </div> : <div className={styles.streamViewport} data-work-stream-viewport><motion.div className={styles.workStream} data-work-stream style={{ top: originY, opacity: carouselServices ? persistentWorkOpacity : workOpacity }} aria-hidden="true">
         {(near || (carouselServices && servicesNear)) && <ImageStreamHero images={SHOWCASE_IMAGES.map(src => ({ src }))} cards={6} speed={30} hoverSpeed={.55} axis={0}
           paused={paused || !pageVisible || (!carouselServices && retired)}
-          path={{ cardWidth: 19, cardHeight: 24, birthHeight: 3.4, exitHeight: 40, railBirth: 0, railExit: 36, fan: 2.7, turnBirth: 12, turnExit: 52, stops: 24, anchorTop: true, descent: -2, exitFade: .72 }}
+          path={{ cardWidth: 19, cardHeight: 24, birthHeight: 3.4, exitHeight: 40, railBirth: 0, railExit: 50, fan: 2.7, turnBirth: 12, turnExit: 52, stops: 24, anchorTop: true, descent: -4 }}
           className={styles.streamCanvas} />}
       </motion.div></div>}
       <motion.a href="#services" className={styles.servicesCue} data-services-cue

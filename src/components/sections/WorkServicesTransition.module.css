@@ -158,3 +158,12 @@
     linear-gradient(to bottom, #000 0%, #000 36%, transparent 48%);
   mask-composite: intersect;
 }
+
+/* Keep the preview scene's full sticky boundary; overlap the runway instead.
+   Both the carousel and final service then leave with the section's bottom. */
+.transition[data-carousel-services-preview="true"] .scene {
+  margin-bottom: 0;
+}
+.transition[data-carousel-services-preview="true"] .runway {
+  margin-top: -100svh;
+}
