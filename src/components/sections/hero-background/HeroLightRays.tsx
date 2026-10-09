@@ -27,7 +27,7 @@ export default function HeroLightRays() {
   const animated = active && visible && !reducedMotion;
 
   return <motion.div className={styles.host} style={{ opacity }} aria-hidden="true" data-hero-light-rays data-rays-active={animated} data-rays-color={scene.raysColor} data-rays-secondary-color="#ef152b" data-rays-cycle-seconds="16" data-rays-origin={scene.raysOrigin}>
-    {active && reducedMotion && <div className={styles.still} style={{ background: `radial-gradient(ellipse at 50% ${scene.raysOrigin === "top-center" ? "0%" : "100%"}, ${scene.raysColor}26 0%, ${scene.raysColor}0a 35%, transparent 72%)` }} />}
+    {active && reducedMotion && <div className={styles.still} style={{ background: `radial-gradient(ellipse at 50% ${scene.raysOrigin === "top-center" ? "0%" : "100%"}, ${scene.raysColor}33 0%, ${scene.raysColor}0d 35%, transparent 72%)` }} />}
     {animated && <LightRays
       raysOrigin={scene.raysOrigin}
       raysColor={scene.raysColor}
@@ -35,11 +35,12 @@ export default function HeroLightRays() {
       colorCycleDuration={16}
       raysSpeed={1.5}
       lightSpread={0.8}
-      rayLength={1.2}
-      followMouse={false}
-      mouseInfluence={0}
+      rayLength={2.4}
+      intensity={1.35}
+      followMouse={true}
+      mouseInfluence={0.1}
       noiseAmount={0.1}
-      distortion={0}
+      distortion={0.05}
       className="custom-rays"
     />}
   </motion.div>;

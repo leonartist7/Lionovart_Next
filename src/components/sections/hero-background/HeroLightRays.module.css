@@ -8,7 +8,6 @@
   z-index: 0;
   isolation: isolate;
   pointer-events: none;
-  filter: brightness(1.18);
   mask-image: linear-gradient(to bottom, #000 85%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, #000 85%, transparent 100%);
 }
@@ -19,5 +18,5 @@
 .still {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 0%, #ffe14a26 0%, #ffe14a0a 35%, transparent 72%);
+  background: radial-gradient(ellipse at 50% 0%, #ffe14a33 0%, #ffe14a0d 35%, transparent 72%);
 }

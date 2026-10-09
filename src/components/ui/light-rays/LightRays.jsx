@@ -41,6 +41,7 @@ const LightRays = ({
   raysSpeed = 1,
   lightSpread = 1,
   rayLength = 2,
+  intensity = 1,
   pulsating = false,
   fadeDistance = 1.0,
   saturation = 1.0,
@@ -134,6 +135,7 @@ uniform float colorCycleDuration;
 uniform float raysSpeed;
 uniform float lightSpread;
 uniform float rayLength;
+uniform float intensity;
 uniform float pulsating;
 uniform float fadeDistance;
 uniform float saturation;
@@ -219,6 +221,11 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     : 0.0;
   fragColor.rgb *= mix(raysColor, raysSecondaryColor, cycleMix);
 
+  // Raise both radiance and coverage: color-only filters leave transparent
+  // beams faint after compositing against the hero artwork.
+  fragColor *= max(intensity, 0.0);
+  fragColor.a = clamp(fragColor.a, 0.0, 1.0);
+
   if (lightMode > 0.5) {
     vec3 mapped = vec3(1.0) - exp(-max(fragColor.rgb, vec3(0.0)) * 1.35);
     float energy = clamp(max(mapped.r, max(mapped.g, mapped.b)), 0.0, 1.0);
@@ -247,6 +254,7 @@ void main() {
         raysSpeed: { value: raysSpeed },
         lightSpread: { value: lightSpread },
         rayLength: { value: rayLength },
+        intensity: { value: Math.max(0, intensity) },
         pulsating: { value: pulsating ? 1.0 : 0.0 },
         fadeDistance: { value: fadeDistance },
         saturation: { value: saturation },
@@ -362,6 +370,7 @@ void main() {
     raysSpeed,
     lightSpread,
     rayLength,
+    intensity,
     pulsating,
     fadeDistance,
     saturation,
@@ -384,6 +393,7 @@ void main() {
     u.raysSpeed.value = raysSpeed;
     u.lightSpread.value = lightSpread;
     u.rayLength.value = rayLength;
+    u.intensity.value = Math.max(0, intensity);
     u.pulsating.value = pulsating ? 1.0 : 0.0;
     u.fadeDistance.value = fadeDistance;
     u.saturation.value = saturation;
@@ -405,6 +415,7 @@ void main() {
     lightSpread,
     raysOrigin,
     rayLength,
+    intensity,
     pulsating,
     fadeDistance,
     saturation,
