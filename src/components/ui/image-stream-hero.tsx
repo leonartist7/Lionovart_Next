@@ -18,6 +18,10 @@ export type CorridorPath = {
   turnBirth?: number;
   turnExit?: number;
   stops?: number;
+  /** Keep growing cards beneath their shared birth point. */
+  anchorTop?: boolean;
+  /** Additional downward curve, in projected container-width units. */
+  descent?: number;
 };
 
 const DEFAULT_PATH: Required<CorridorPath> = {
@@ -33,6 +37,8 @@ const DEFAULT_PATH: Required<CorridorPath> = {
   turnBirth: 6,
   turnExit: 28,
   stops: 24,
+  anchorTop: false,
+  descent: 0,
 };
 
 function createKeyframes(
@@ -55,10 +61,16 @@ function createKeyframes(
     const turn =
       path.turnBirth + (path.turnExit - path.turnBirth) * progress;
 
+    // Compensate for perspective so the visible top edges form a gentle fan.
+    const projectedDrop =
+      (path.anchorTop ? (path.cardHeight * scale - path.birthHeight) / 2 : 0) +
+      path.descent * progress * progress;
+    const drop = projectedDrop / scale;
+
     steps.push(
       `${(progress * 100).toFixed(2)}%{transform:translate3d(${(
         direction * rail
-      ).toFixed(2)}cqw,0,${depth.toFixed(2)}cqw) rotateY(${(
+      ).toFixed(2)}cqw,${drop.toFixed(2)}cqw,${depth.toFixed(2)}cqw) rotateY(${(
         -direction * turn
       ).toFixed(2)}deg)}`,
     );

@@ -11,6 +11,7 @@ import { SHOWCASE_IMAGES } from "./showcase-images";
 import styles from "./WorkServicesTransition.module.css";
 import { ServicesArrivalContext } from "./ServicesArrival";
 
+const LOGO_SCALE = .04875;
 const shortViewportQuery = "(max-height: 480px)";
 const subscribeShortViewport = (notify: () => void) => {
   const media = matchMedia(shortViewportQuery);
@@ -25,6 +26,29 @@ export default function WorkServicesTransition({ children }: { children: ReactNo
   const shortViewport = useSyncExternalStore(subscribeShortViewport, () => matchMedia(shortViewportQuery).matches, () => false);
   const staticScene = reduced || shortViewport;
   const runwayRef = useRef<HTMLDivElement>(null);
+  const sceneRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLElement>(null);
+  const circleRef = useRef<HTMLDivElement>(null);
+  const originY = useMotionValue(0);
+  useEffect(() => {
+    if (staticScene) return;
+    const scene = sceneRef.current, heading = headingRef.current, circle = circleRef.current;
+    if (!scene || !heading || !circle) return;
+    // One measured origin ties the circle shrink and both image rails together.
+    const sync = () => {
+      const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+      const gap = Math.min(2 * rem, Math.max(1.25 * rem, scene.clientHeight * .022));
+      originY.set(heading.offsetTop + heading.offsetHeight + gap + circle.offsetWidth * LOGO_SCALE / 2);
+    };
+    const observer = new ResizeObserver(sync);
+    observer.observe(scene);
+    observer.observe(heading);
+    observer.observe(circle);
+    window.addEventListener("resize", sync);
+    void document.fonts.ready.then(sync);
+    sync();
+    return () => { observer.disconnect(); window.removeEventListener("resize", sync); };
+  }, [originY, staticScene]);
   const near = useInView(runwayRef, { margin: "160px" });
   const [paused, setPaused] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
@@ -55,7 +79,7 @@ export default function WorkServicesTransition({ children }: { children: ReactNo
   }, [scrollYProgress, staticScene]);
   const circleTransform = useTransform(scrollYProgress, [0, .04, .35, 1], [
     "translate(-50%, -50%) scale(1)", "translate(-50%, -50%) scale(1)",
-    "translate(-50%, -50%) scale(0.065)", "translate(-50%, -50%) scale(0.065)",
+    `translate(-50%, -50%) scale(${LOGO_SCALE})`, `translate(-50%, -50%) scale(${LOGO_SCALE})`,
   ]);
   const circleOpacity = useTransform(scrollYProgress, [.62, .96], [1, 0]);
   const logoOpacity = useTransform(scrollYProgress, [.18, .35], [0, 1]);
@@ -78,32 +102,32 @@ export default function WorkServicesTransition({ children }: { children: ReactNo
   }, []);
 
   return <div className={styles.transition} data-work-services-transition data-static={staticScene}>
-    <motion.div className={styles.scene} data-work-scene data-scroll-title-skip inert={!staticScene && retired}
+    <motion.div ref={sceneRef} className={styles.scene} data-work-scene data-scroll-title-skip inert={!staticScene && retired}
       aria-hidden={!staticScene && retired}
       style={{ visibility: staticScene ? "visible" : retired ? "hidden" : sceneVisibility }}>
-      <motion.div className={styles.circle} data-imagine-circle aria-hidden="true"
-        style={staticScene ? { transform: "none", opacity: 1 } : { transform: circleTransform, opacity: circleOpacity }}>
-        <motion.div className={styles.logo} style={{ opacity: staticScene ? 1 : logoOpacity }}>
-          <Image src="/images/lionovart-icon.svg" alt="" fill sizes="180px" />
-        </motion.div>
-      </motion.div>
-      <motion.a href="#services" className={styles.servicesCue} data-services-cue
-        style={staticScene ? { opacity: 1, visibility: "visible" } : { opacity: cueOpacity, visibility: cueVisibility }}>
-        {tr("Our expertise")}<ArrowDown aria-hidden="true" />
-      </motion.a>
-      <motion.header className={styles.heading} data-work-heading
+      <motion.header ref={headingRef} className={styles.heading} data-work-heading
         style={staticScene ? { opacity: 1, visibility: "visible" } : { opacity: captionOpacity, visibility: captionVisibility }}>
         <h2>{tr("One partnership")}</h2>
         <p>{tr("Designing your legacy")}</p>
       </motion.header>
+      <motion.div ref={circleRef} className={styles.circle} data-imagine-circle aria-hidden="true"
+        style={staticScene ? { top: "auto", transform: "none", opacity: 1 } : { top: originY, transform: circleTransform, opacity: circleOpacity }}>
+        <motion.div className={styles.logo} style={{ opacity: staticScene ? 1 : logoOpacity }}>
+          <Image src="/images/lionovart-icon.svg" alt="" fill sizes="180px" />
+        </motion.div>
+      </motion.div>
       {staticScene ? <div className={styles.staticGallery} data-imagine-static-gallery>
         {SHOWCASE_IMAGES.map((src, index) => <div key={src}><Image src={src} alt={`${tr("Selected creative work")} ${index + 1}`} fill sizes="(max-width: 767px) 45vw, 30vw" /></div>)}
-      </div> : <motion.div className={styles.workStream} data-work-stream style={{ opacity: workOpacity }} aria-hidden="true">
-        {near && <ImageStreamHero images={SHOWCASE_IMAGES.map(src => ({ src }))} cards={6} speed={30} hoverSpeed={.55} axis={50}
+      </div> : <motion.div className={styles.workStream} data-work-stream style={{ top: originY, opacity: workOpacity }} aria-hidden="true">
+        {near && <ImageStreamHero images={SHOWCASE_IMAGES.map(src => ({ src }))} cards={6} speed={30} hoverSpeed={.55} axis={0}
           paused={paused || !pageVisible || retired}
-          path={{ cardWidth: 19, cardHeight: 24, birthHeight: 3.4, exitHeight: 40, railBirth: -5.5, railExit: 36, fan: 2.7, turnBirth: 12, turnExit: 52, stops: 24 }}
+          path={{ cardWidth: 19, cardHeight: 24, birthHeight: 3.4, exitHeight: 40, railBirth: 0, railExit: 36, fan: 2.7, turnBirth: 12, turnExit: 52, stops: 24, anchorTop: true, descent: 2.5 }}
           className={styles.streamCanvas} />}
       </motion.div>}
+      <motion.a href="#services" className={styles.servicesCue} data-services-cue
+        style={staticScene ? { opacity: 1, visibility: "visible" } : { opacity: cueOpacity, visibility: cueVisibility }}>
+        {tr("Our expertise")}<ArrowDown aria-hidden="true" />
+      </motion.a>
       {!staticScene && <motion.button className={styles.pause} type="button" aria-pressed={paused}
         style={{ opacity: captionOpacity, visibility: captionVisibility }}
         aria-label={tr(paused ? "Play work animation" : "Pause work animation")} onClick={() => setPaused(v => !v)}>
