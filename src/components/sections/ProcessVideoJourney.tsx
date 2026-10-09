@@ -4,8 +4,12 @@ import { usePublicCopy } from "@/hooks/usePublicCopy";
 
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
+import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PROCESS_FILM_COPY } from "./process-video-copy";
+import styles from "./ProcessVideoJourney.module.css";
+
+const STEP_RING = "https://res.cloudinary.com/dgio9uutc/image/upload/v1791549765/steps_1_urfdp7.avif";
 
 const FILMS = {
   desktop: "https://res.cloudinary.com/dgio9uutc/video/upload/v1788922516/Process-desktop_zpnn7g.mp4",
@@ -149,9 +153,9 @@ export default function ProcessVideoJourney() {
           </h2>
         </header>
 
-        <div className="grid grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] items-stretch gap-4 sm:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] sm:gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] lg:gap-12">
-          <figure aria-label={copy.film} className="min-w-0 self-start overflow-hidden bg-black/70">
-            <div className="mx-auto aspect-[9/16] max-h-[42svh] w-full max-w-[220px] overflow-hidden sm:max-h-[48svh] sm:max-w-[260px] lg:aspect-video lg:max-h-none lg:max-w-none">
+        <div className={styles.layout}>
+          <figure aria-label={copy.film} className={styles.film}>
+            <div className={styles.filmFrame} data-process-film-frame>
               <video ref={videoRef} id="process-film" muted loop autoPlay playsInline preload="none"
                 poster="/images/process/process-mobile-poster.jpg"
                 aria-label={copy.film} aria-describedby="process-film-description"
@@ -161,13 +165,16 @@ export default function ProcessVideoJourney() {
             {failed ? <p role="status" className="px-4 py-3 font-body text-xs leading-relaxed text-white/65">{copy.unavailable}</p> : null}
           </figure>
 
-          <ol className="grid content-center gap-0">
+          <ol className={styles.steps}>
             {copy.stages.map((stage, index) => (
-              <li key={index} className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-x-2 border-t border-[#c7a86a]/25 py-4 sm:py-5 lg:grid-cols-[3rem_minmax(0,1fr)] lg:py-5">
-                <p aria-hidden="true" className="pt-1 font-body text-[10px] tabular-nums tracking-[0.16em] text-[#c7a86a]">0{index + 1}</p>
-                <div>
-                  <h3 className="font-clash text-[clamp(1.2rem,2vw,1.75rem)] font-semibold uppercase leading-tight tracking-[-0.025em]">{stage}</h3>
-                  <p className="mt-2 max-w-[42ch] font-body text-[13px] leading-[1.65] text-white/65 sm:text-sm">{t.process.steps[index].description}</p>
+              <li key={index} className={styles.step}>
+                <div className={styles.stepNumber} aria-hidden="true">
+                  <Image src={STEP_RING} alt="" fill sizes="(max-width: 639px) 64px, 76px" className={styles.ring} />
+                  <span>{index + 1}</span>
+                </div>
+                <div className={styles.stepCopy}>
+                  <h3 className={styles.stepTitle}>{stage}</h3>
+                  <p className={styles.stepDescription}>{t.process.steps[index].description}</p>
                 </div>
               </li>
             ))}
