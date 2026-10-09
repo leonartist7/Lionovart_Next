@@ -5,10 +5,15 @@ import { motion, useMotionValueEvent, useTransform } from "framer-motion";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import HeroTop from "../HeroTop";
 import WhatWeDo from "../WhatWeDo";
+import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { useLionJourney } from "./LionJourney";
 
 export default function HeroOpening() {
-  const { opening: openingRef, openingProgress } = useLionJourney()!;
+  const { opening: openingRef, openingProgress, arrivalProgress } = useLionJourney()!;
+  const reduced = useHydratedReducedMotion();
+  const [workInert, setWorkInert] = useState(false);
+  const workOpacity = useTransform(arrivalProgress, [0, .3, .9, 1], [1, 1, 0, 0]);
+  useMotionValueEvent(arrivalProgress, "change", p => setWorkInert(p >= .9));
   const [heroInert, setHeroInert] = useState(false);
   const heroOpacity = useTransform(openingProgress, [0, 0.03, 0.26], [1, 1, 0]);
   useMotionValueEvent(openingProgress, "change", p => { setHeroInert(p > 0.25); });
@@ -63,9 +68,9 @@ export default function HeroOpening() {
           style={{ opacity: heroOpacity }} inert={heroInert}>
           <HeroTop />
         </motion.div>
-        <div className="opening-work-layer">
+        <motion.div className="opening-work-layer" data-opening-cards-layer style={{ opacity: reduced ? 1 : workOpacity }} inert={!reduced && workInert}>
           <WhatWeDo pinned />
-        </div>
+        </motion.div>
       </div>
     </div>
   );

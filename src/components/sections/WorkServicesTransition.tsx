@@ -100,10 +100,10 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
   }, [introTop, scrollYProgress, servicesOpacity, staticScene]);
   const introOpacity = useTransform(scrollYProgress, [0, .14], [1, 0]);
   const introPointerEvents = useTransform(scrollYProgress, p => p >= .14 ? "none" : "auto");
-  const circleTransform = useTransform(scrollYProgress, [0, .35, 1], [
-    "translate(-50%, -50%) scale(1)",
-    `translate(-50%, -50%) scale(${LOGO_SCALE})`, `translate(-50%, -50%) scale(${LOGO_SCALE})`,
-  ]);
+  const circleScale = useTransform(scrollYProgress, [0, .35, 1], [1, LOGO_SCALE, LOGO_SCALE]);
+  const circleTransform = useTransform(circleScale, scale => `translate(-50%, -50%) scale(${scale})`);
+  // Counter the scale so the gold rim stays legible at every diameter.
+  const circleOutline = useTransform(circleScale, scale => `inset 0 0 0 ${.1875 / scale}rem #e1b95c`);
   const persistentWorkOpacity = useTransform(scrollYProgress, [0, .2, .38], [0, 0, 1]);
   const persistentCaptionOpacity = useTransform(scrollYProgress, [0, .2, .36], [0, 0, 1]);
   const persistentVisibility = useTransform(scrollYProgress, p => p <= .2 ? "hidden" : "visible");
@@ -157,7 +157,7 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
         aria-label={tr(preview ? "Return to the fading services transition" : "Preview services below the carousel")}
         title={tr(preview ? "Return to the fading services transition" : "Preview services below the carousel")}
         onClick={togglePreview}
-        style={staticScene ? { top: "auto", transform: "none", opacity: 1, pointerEvents: "auto" } : { top: originY, transform: circleTransform, opacity: carouselServices ? persistentCircleOpacity : circleOpacity, pointerEvents: logoPointerEvents }}>
+        style={staticScene ? { top: "auto", transform: "none", opacity: 1, pointerEvents: "auto" } : { top: originY, transform: circleTransform, boxShadow: circleOutline, opacity: carouselServices ? persistentCircleOpacity : circleOpacity, pointerEvents: logoPointerEvents }}>
         <motion.div className={styles.logo} style={{ opacity: staticScene ? 1 : logoOpacity }}>
           <Image src="/images/lionovart-icon.svg" alt="" fill sizes="180px" />
         </motion.div>

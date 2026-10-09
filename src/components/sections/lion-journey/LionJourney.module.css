@@ -1,4 +1,4 @@
-.journey { position: relative; isolation: isolate; z-index: 2; background: linear-gradient(to bottom, #08080a 0, #08080a var(--journey-dark-height, 100%), transparent var(--journey-dark-height, 100%)); color: #f7f4ef; }
+.journey { --opening-overlap: 100svh; position: relative; isolation: isolate; z-index: 2; background: linear-gradient(to bottom, #08080a 0, #08080a var(--journey-dark-height, 100%), transparent var(--journey-dark-height, 100%)); color: #f7f4ef; }
 .journey :global(.lion-video-section) { background: transparent; }
 .journey :global(.lion-proof) { position: relative; z-index: 2; padding: 24px 20px 48px; }
 .journey :global([data-gold-bridge]) { background: transparent; isolation: auto; z-index: 2; text-shadow: 0 2px 24px #08080a; }
@@ -97,7 +97,7 @@
 /* One pinned stage owns the hero, film, cards, and proof. */
 .journey :global(.hero-opening) { position: relative; z-index: 2; }
 .journey :global(.hero-opening-stage) { position: relative; }
-.journey :global(.hero-opening-pinned) { height: calc(250svh + var(--hero-overflow, 0px)); }
+.journey :global(.hero-opening-pinned) { height: calc(250svh + var(--hero-overflow, 0px) + var(--opening-overlap)); }
 .journey :global(.hero-opening-pinned .hero-opening-stage) { position: sticky; top: calc(-1 * var(--hero-overflow, 0px)); height: calc(100svh + var(--hero-overflow, 0px)); overflow: hidden; }
 .journey :global(.hero-opening-pinned .opening-hero-layer) { position: absolute; inset: 0; }
 .journey :global(.hero-opening-pinned .opening-hero-layer) { z-index: 2; }
@@ -122,12 +122,12 @@
  .journey :global(.opening-work-pinned) { --opening-video-center: 42svh; }
 }
 @media (max-width: 767px) {
- .journey :global(.hero-opening-pinned) { height: calc(280svh + var(--hero-overflow, 0px)); }
+ .journey :global(.hero-opening-pinned) { height: calc(280svh + var(--hero-overflow, 0px) + var(--opening-overlap)); }
  .journey :global(.opening-work-pinned .opening-proof) { padding: 0 10px; gap: 8px 14px; }
  .journey :global(.opening-work-pinned .opening-laurel img) { height: clamp(38px, 7svh, 58px); }
 }
 @media (max-height: 700px) {
- .journey :global(.hero-opening-pinned) { height: calc(280svh + var(--hero-overflow, 0px)); }
+ .journey :global(.hero-opening-pinned) { height: calc(280svh + var(--hero-overflow, 0px) + var(--opening-overlap)); }
  .journey :global(.opening-work-pinned) { --opening-video-center: 47svh; }
  .journey :global(.opening-work-pinned .opening-proof) { padding: 0 10px; gap: 6px 12px; }
  .journey :global(.opening-work-pinned .opening-laurel img) { height: 38px; }
@@ -234,3 +234,5 @@
 @media(max-width:767px) {
  .journey :global(.lion-description.editorial-accent.editorial-hero.hero-positioning-copy) { max-width:34ch; }
 }
+
+@media (prefers-reduced-motion: reduce) { .journey { --opening-overlap: 0px; } }

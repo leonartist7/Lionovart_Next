@@ -1,5 +1,7 @@
 /** Reviewed French public UI copy. Source phrases are gettext-style keys. */
 const french: Record<string, string> = {
+  "Credibility comments citing design": "Avis de crédibilité évoquant le design",
+  "Potential revenue lift from consistency": "Hausse potentielle des revenus avec une marque cohérente",
   "Let your systems handle the routine.": "Vos outils gèrent la routine.",
   "More time for what matters.": "Du temps pour l’essentiel.",
   "Bring your website, content and identity together.": "Site, contenus, identité : un même univers.",

@@ -13,7 +13,7 @@ import styles from "./PawRevealStack.module.css";
 import BenefitSculpture from "./BenefitSculpture";
 
 const PAW_IMAGE = "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_320/v1775085187/Untitled_design_4_muu53f.png";
-const CARD_SEAM_IMAGE = "https://res.cloudinary.com/dgio9uutc/image/upload/f_webp,q_auto,w_1200/v1791472322/magnific__enhance__13327_ykxqce.avif";
+const CARD_SEAM_IMAGE = "https://res.cloudinary.com/dgio9uutc/image/upload/f_webp,q_auto,w_1200/v1791532132/sepW_1_put7gh.avif";
 const EASE = [0.16, 1, 0.3, 1] as const;
 const PULL_EASE = [0.32, 0.72, 0, 1] as const;
 const PAW_TIMING = { enter: .45, pull: 1.2, return: 1.05, exit: .35 } as const;
@@ -22,7 +22,7 @@ const BENEFITS = [
     title: "Look as good as your work.",
     body: "Let your image reflect the quality of your work.",
     detail: "Trust, before a word.",
-    stat: { value: "46.1", unit: "%", label: "Of credibility comments referenced design", source: "https://credibility.stanford.edu/pdf/How_Do_People_Evaluate_a_Web_Site%27s_Credibility_v37.pdf", sourceLabel: "Study: Stanford / Consumer WebWatch", qualifier: null },
+    stat: { value: "46.1", unit: "%", label: "Credibility comments citing design", source: "https://credibility.stanford.edu/pdf/How_Do_People_Evaluate_a_Web_Site%27s_Credibility_v37.pdf", sourceLabel: "Study: Stanford / Consumer WebWatch", qualifier: null },
     points: ["Clear positioning", "An identity that reflects your quality"],
   },
   {
@@ -36,7 +36,7 @@ const BENEFITS = [
     title: "Be the name they remember.",
     body: "Bring your website, content and identity together.",
     detail: "Unmistakably you. Everywhere.",
-    stat: { value: "33", unit: "%", label: "Potential revenue lift with consistent branding", source: "https://www.prnewswire.com/news-releases/study-finds-companies-with-consistent-branding-can-see-up-to-33-increase-in-revenue-300967219.html", sourceLabel: "Survey: Lucidpress (2019)", qualifier: "Up to" },
+    stat: { value: "33", unit: "%", label: "Potential revenue lift from consistency", source: "https://www.prnewswire.com/news-releases/study-finds-companies-with-consistent-branding-can-see-up-to-33-increase-in-revenue-300967219.html", sourceLabel: "Survey: Lucidpress (2019)", qualifier: "Up to" },
     points: ["A recognisable voice", "A consistent world, everywhere"],
   },
 ];
@@ -103,20 +103,20 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
             <span className={styles.metricValue}>{item.stat.qualifier && <small>{tr(item.stat.qualifier)}</small>}{tr(item.stat.value)}<span>{item.stat.unit}</span></span>
             <span className={styles.metricLabel}>{tr(item.stat.label)}</span>
           </div>}
-            {item.stat?.source && <a className={styles.metricSource} href={item.stat.source} target="_blank" rel="noreferrer"
-              tabIndex={open ? 0 : -1} aria-label={`${tr("Read the research source")}: ${tr(item.stat.sourceLabel || "Research source")}`}>{tr("Research source")}</a>}
           </div>
         </div>
         <motion.div className={styles.detailCover} animate={cover} aria-hidden="true">
-          <div className={styles.cardSeam} aria-hidden="true" data-card-seam>
-            <Image src={CARD_SEAM_IMAGE} alt="" fill sizes="(max-width: 999px) 90vw, (max-width: 2000px) 30vw, 560px" />
-          </div>
 
         </motion.div>
         <motion.div className={styles.paw} aria-hidden="true" initial={{ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)" }} animate={paw}>
           <Image src={PAW_IMAGE} alt="" fill sizes="(max-width: 767px) 144px, (max-width: 2000px) 12vw, 240px" className={styles.pawImage} />
         </motion.div>
       </div>
+      <motion.div className={styles.seamCarrier} animate={cover} aria-hidden="true">
+        <div className={styles.cardSeam} data-card-seam>
+          <Image src={CARD_SEAM_IMAGE} alt="" fill sizes="(max-width: 999px) 90vw, (max-width: 2000px) 30vw, 560px" />
+        </div>
+      </motion.div>
     </div>
     <button ref={trigger} type="button" className={styles.cardToggle} aria-expanded={open || phase === "closing"} aria-controls={panelId}
       aria-label={`${tr(open ? "Hide benefit" : "Reveal benefit")}: ${tr(item.title)}`} disabled={busy}
@@ -135,6 +135,24 @@ export default function PawRevealStack() {
   const setReveal = journey?.setReveal;
   const lenis = useLenis();
 
+  // The entrance and the shrinking logo use the same 200vmax circle.
+  useEffect(() => {
+    const chapter = chapterRef.current;
+    if (!chapter) return;
+    const measure = () => {
+      const radius = parseFloat(getComputedStyle(chapter, "::before").width) / 2;
+      const halfWidth = chapter.clientWidth / 2;
+      const rise = radius - Math.sqrt(Math.max(0, radius * radius - halfWidth * halfWidth));
+      const value = rise.toFixed(3) + "px";
+      if (chapter.style.getPropertyValue("--imagine-cap-rise") !== value) chapter.style.setProperty("--imagine-cap-rise", value);
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(chapter);
+    window.addEventListener("resize", measure);
+    measure();
+    return () => { observer.disconnect(); window.removeEventListener("resize", measure); };
+  }, []);
+
   // Keep stacked cards equally proportioned as translations, fonts and widths change.
   // Observe the natural inner content, never the equalized outer rows.
   useEffect(() => {
@@ -148,6 +166,12 @@ export default function PawRevealStack() {
         for (const part of ["copy", "detail"]) {
           const height = Math.ceil(Math.max(0, ...content.filter(el => el.dataset.benefitMeasure === part).map(el => el.getBoundingClientRect().height)));
           grid.style.setProperty(`--benefit-${part}-height`, `${height}px`);
+        }
+        for (const card of grid.querySelectorAll<HTMLElement>("[data-benefit-card]")) {
+          const stat = card.querySelector<HTMLElement>("[data-benefit-stat]");
+          if (!stat) continue;
+          const cardBounds = card.getBoundingClientRect(), statBounds = (stat.firstElementChild ?? stat).getBoundingClientRect();
+          card.style.setProperty("--benefit-toggle-bottom", (cardBounds.bottom - statBounds.top - statBounds.height / 2 - 22) + "px");
         }
       });
     };

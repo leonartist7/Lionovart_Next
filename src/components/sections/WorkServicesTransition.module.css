@@ -30,6 +30,7 @@
   padding: 0;
   cursor: pointer;
   background: #f51b2c;
+  box-shadow: inset 0 0 0 .1875rem #e1b95c;
   z-index: 3;
   transform: translate(-50%, -50%);
   pointer-events: none;
