@@ -11,7 +11,6 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
-import ClientResults from "./ClientResults";
 import styles from "./BrandsElevatedScroll.module.css";
 
 const IMG = "/images/Testimonials/";
@@ -169,10 +168,6 @@ export default function BrandsElevatedScrollV2() {
         <div className={`absolute inset-0 z-10 md:hidden ${styles.cardPlane}`}>
           {CARDS.map((card, i) => <ProofCard key={card.id} card={card} layout={MOBILE[i]} progress={scrollYProgress} reduced={reduced} />)}
         </div>
-      </div>
-      {/* Fill the existing scene's closing space rather than add a chapter. */}
-      <div className={styles.resultsInset} data-brands-results-inset>
-        <ClientResults />
       </div>
     </div>
   );
