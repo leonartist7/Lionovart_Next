@@ -99,11 +99,12 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
     "translate(-50%, -50%) scale(1)",
     `translate(-50%, -50%) scale(${LOGO_SCALE})`, `translate(-50%, -50%) scale(${LOGO_SCALE})`,
   ]);
-  const circleOpacity = useTransform(scrollYProgress, [.62, .96], [1, 0]);
+  const circleOpacity = useTransform(scrollYProgress, [.76, .98], [1, 0]);
   const logoOpacity = useTransform(scrollYProgress, [.18, .35], [0, 1]);
-  const workOpacity = useTransform(scrollYProgress, [0, .2, .38, .62, 1], [0, 0, 1, 1, 0]);
-  const captionOpacity = useTransform(scrollYProgress, [0, .2, .36, .5, .72], [0, 0, 1, 1, 0]);
-  const captionVisibility = useTransform(scrollYProgress, p => p <= .2 || p >= .72 ? "hidden" : "visible");
+  const workOpacity = useTransform(scrollYProgress, [0, .2, .38, .5, .74], [0, 0, 1, 1, 0]);
+  const captionOpacity = useTransform(scrollYProgress, [0, .2, .36, .74, .97], [0, 0, 1, 1, 0]);
+  const captionVisibility = useTransform(scrollYProgress, p => p <= .2 || p >= .97 ? "hidden" : "visible");
+  const pauseVisibility = useTransform(scrollYProgress, p => p <= .2 || p >= .74 ? "hidden" : "visible");
   const cueOpacity = useTransform(scrollYProgress, [.32, .4, .52, .68], [0, 1, 1, 0]);
   const cueVisibility = useTransform(scrollYProgress, p => p <= .32 || p >= .68 ? "hidden" : "visible");
   const servicesPointerEvents = useTransform(scrollYProgress, p => p < .68 ? "none" : "auto");
@@ -145,18 +146,18 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
       </motion.div>
       {staticScene ? <div className={styles.staticGallery} data-imagine-static-gallery>
         {SHOWCASE_IMAGES.map((src, index) => <div key={src}><Image src={src} alt={`${tr("Selected creative work")} ${index + 1}`} fill sizes="(max-width: 767px) 45vw, 30vw" /></div>)}
-      </div> : <motion.div className={styles.workStream} data-work-stream style={{ top: originY, opacity: workOpacity }} aria-hidden="true">
+      </div> : <div className={styles.streamViewport} data-work-stream-viewport><motion.div className={styles.workStream} data-work-stream style={{ top: originY, opacity: workOpacity }} aria-hidden="true">
         {near && <ImageStreamHero images={SHOWCASE_IMAGES.map(src => ({ src }))} cards={6} speed={30} hoverSpeed={.55} axis={0}
           paused={paused || !pageVisible || retired}
-          path={{ cardWidth: 19, cardHeight: 24, birthHeight: 3.4, exitHeight: 40, railBirth: 0, railExit: 36, fan: 2.7, turnBirth: 12, turnExit: 52, stops: 24, anchorTop: true, descent: 2.5 }}
+          path={{ cardWidth: 19, cardHeight: 24, birthHeight: 3.4, exitHeight: 40, railBirth: 0, railExit: 36, fan: 2.7, turnBirth: 12, turnExit: 52, stops: 24, anchorTop: true, descent: -2, exitFade: .72 }}
           className={styles.streamCanvas} />}
-      </motion.div>}
+      </motion.div></div>}
       <motion.a href="#services" className={styles.servicesCue} data-services-cue
         style={staticScene ? { opacity: 1, visibility: "visible" } : { opacity: cueOpacity, visibility: cueVisibility }}>
         {tr("Our expertise")}<ArrowDown aria-hidden="true" />
       </motion.a>
       {!staticScene && <motion.button className={styles.pause} type="button" aria-pressed={paused}
-        style={{ opacity: captionOpacity, visibility: captionVisibility }}
+        style={{ opacity: workOpacity, visibility: pauseVisibility }}
         aria-label={tr(paused ? "Play work animation" : "Pause work animation")} onClick={() => setPaused(v => !v)}>
         {paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
       </motion.button>}

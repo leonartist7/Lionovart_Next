@@ -20,8 +20,10 @@ export type CorridorPath = {
   stops?: number;
   /** Keep growing cards beneath their shared birth point. */
   anchorTop?: boolean;
-  /** Additional downward curve, in projected container-width units. */
+  /** Projected endpoint curve; negative values lift the outer cards. */
   descent?: number;
+  /** Start fading before the loop resets; 1 disables the exit fade. */
+  exitFade?: number;
 };
 
 const DEFAULT_PATH: Required<CorridorPath> = {
@@ -39,6 +41,7 @@ const DEFAULT_PATH: Required<CorridorPath> = {
   stops: 24,
   anchorTop: false,
   descent: 0,
+  exitFade: 1,
 };
 
 function createKeyframes(
@@ -67,8 +70,14 @@ function createKeyframes(
       path.descent * progress * progress;
     const drop = projectedDrop / scale;
 
+    // Fade to zero before the animation wraps back behind the logo.
+    const fadeStart = Math.max(0, Math.min(1, path.exitFade));
+    const fade = fadeStart < 1 ? Math.max(0, (progress - fadeStart) / (1 - fadeStart)) : 0;
+    const opacity = 1 - fade * fade * (3 - 2 * fade);
+    const exitOpacity = fadeStart < 1 ? `opacity:${opacity.toFixed(4)};` : "";
+
     steps.push(
-      `${(progress * 100).toFixed(2)}%{transform:translate3d(${(
+      `${(progress * 100).toFixed(2)}%{${exitOpacity}transform:translate3d(${(
         direction * rail
       ).toFixed(2)}cqw,${drop.toFixed(2)}cqw,${depth.toFixed(2)}cqw) rotateY(${(
         -direction * turn
