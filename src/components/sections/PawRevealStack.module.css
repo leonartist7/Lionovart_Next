@@ -137,3 +137,5 @@
 .toggleIcon svg { width: 1.375rem; height: 1.375rem; }
 
 .toggleIcon { bottom: var(--benefit-toggle-bottom, .75rem); }
+
+@media (width < 360px) { .metricValue { font-size: 2.5rem; } }

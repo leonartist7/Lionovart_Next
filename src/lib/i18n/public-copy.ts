@@ -1,7 +1,7 @@
 /** Reviewed French public UI copy. Source phrases are gettext-style keys. */
 const french: Record<string, string> = {
   "Credibility comments citing design": "Avis de crédibilité évoquant le design",
-  "Potential revenue lift from consistency": "Hausse potentielle des revenus avec une marque cohérente",
+  "Potential revenue lift from consistency": "Revenus potentiels d’une marque cohérente",
   "Let your systems handle the routine.": "Vos outils gèrent la routine.",
   "More time for what matters.": "Du temps pour l’essentiel.",
   "Bring your website, content and identity together.": "Site, contenus, identité : un même univers.",
@@ -40,7 +40,7 @@ const french: Record<string, string> = {
   "Reveal benefit": "Révéler le bénéfice",
   "Hide benefit": "Masquer le bénéfice",
   "To form a visual first impression": "Pour se faire une première impression visuelle",
-  "Weekly time-saving target": "Objectif : heures gagnées chaque semaine",
+  "Weekly time-saving target": "Objectif hebdomadaire",
   "Be the name they remember.": "Le nom qui reste en tête.",
   "One recognisable world, across your website, content and identity.": "Un univers reconnaissable, de votre site à vos contenus et votre identité.",
   "Enquiries and follow-ups in one place": "Demandes et suivis au même endroit",
