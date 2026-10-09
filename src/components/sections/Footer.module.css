@@ -53,6 +53,7 @@
   gap: .375rem 1.5rem;
   margin-top: clamp(.75rem, 2vw, 2rem);
   padding-top: .75rem;
+  padding-inline-end: 3.25rem;
   border-top: .0625rem solid #fffaf133;
   font-family: var(--font-dm-sans), sans-serif;
   font-size: clamp(.6875rem, .62rem + .12vw, .8125rem);
@@ -71,7 +72,7 @@
   .brandRow { grid-template-columns: minmax(0, 1fr) minmax(0, .42fr); gap: .5rem; }
   .wordmark { font-size: clamp(1.875rem, 7.8vw, 3rem); }
   .signature { max-width: 23ch; }
-  .finaleUtility { gap: 0 .75rem; }
+  .finaleUtility { grid-template-columns: 1fr; gap: 0; }
   .legal { gap: .75rem; }
 }
 @media (width < 360px) {
