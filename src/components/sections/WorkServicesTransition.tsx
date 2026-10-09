@@ -65,6 +65,7 @@ export default function WorkServicesTransition({ children }: { children: ReactNo
   const cueOpacity = useTransform(scrollYProgress, [.32, .4, .52, .68], [0, 1, 1, 0]);
   const cueVisibility = useTransform(scrollYProgress, p => p <= .32 || p >= .68 ? "hidden" : "visible");
   const servicesOpacity = useTransform(scrollYProgress, [.7, 1], [0, 1]);
+  const servicesPointerEvents = useTransform(scrollYProgress, p => p < .68 ? "none" : "auto");
   const sceneVisibility = useTransform(scrollYProgress, p => p >= 1 ? "hidden" : "visible");
 
   useMotionValueEvent(scrollYProgress, "change", p => {
@@ -111,10 +112,10 @@ export default function WorkServicesTransition({ children }: { children: ReactNo
     </motion.div>
     <div ref={runwayRef} className={styles.runway} data-work-runway aria-hidden="true" />
     <ServicesArrivalContext.Provider value={staticScene ? 1 : servicesOpacity}>
-      <div className={styles.servicesSurface} data-services-surface>
+      <motion.div className={styles.servicesSurface} data-services-surface style={{ pointerEvents: staticScene ? "auto" : servicesPointerEvents }}>
         <motion.div className={styles.servicesSeam} data-services-seam aria-hidden="true" style={{ opacity: staticScene ? 1 : servicesOpacity }} />
         {children}
-      </div>
+      </motion.div>
     </ServicesArrivalContext.Provider>
   </div>;
 }
