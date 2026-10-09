@@ -6,7 +6,30 @@
   isolation: isolate;
   background: #08080a;
 }
+.runway { display: none; }
+.journey[data-motion="true"] .runway { display: block; height: var(--handoff-runway, 160svh); }
+.journey[data-motion="true"] .lionViewport { display: block; }
+.journey[data-motion="true"] .staticPoster { visibility: hidden; }
+.scene { position: relative; }
+.journey[data-motion="true"] .scene {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  position: sticky;
+  top: var(--scene-top, 0px);
+  min-height: 100svh;
+}
+.journey[data-motion="true"] .process { grid-area: 1 / 1; align-self: start; z-index: 3; }
+.journey[data-motion="true"] .closingSurface {
+  grid-area: 1 / 1;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.journey[data-motion="true"] .ctaContent { opacity: 0; }
+.journey[data-motion="true"] .veil { opacity: 1; }
 .lionViewport {
+  display: none;
   position: sticky;
   top: 0;
   width: 100%;
@@ -104,8 +127,12 @@
 .closingSurface { position: relative; background: var(--site-surface-light, #f2ede3); }
 .ctaContent { position: relative; z-index: 1; }
 .veil { position: absolute; inset: 0; z-index: 2; background: #08080a; opacity: 0; pointer-events: none; }
-.dock { position: relative; width: clamp(11rem, 42vw, 24rem); aspect-ratio: 1; margin-inline: auto; }
-.staticPoster { position: absolute; top: -9.4%; left: -9.4%; width: 118.8%; height: 118.8%; object-fit: contain; transform: scaleX(-1); visibility: hidden; }
+.dock { position: relative; width: clamp(9rem, 28vw, 18rem); aspect-ratio: 1; margin-inline: auto; }
+.staticPoster { position: absolute; top: -9.4%; left: -9.4%; width: 118.8%; height: 118.8%; object-fit: contain; transform: scaleX(-1); visibility: visible; }
+.journey[data-static="true"] .runway { display: none; }
+.journey[data-static="true"] .scene { display: block; position: relative; top: auto; min-height: 0; }
+.journey[data-static="true"] .closingSurface { display: block; }
+.journey[data-static="true"] .process, .journey[data-static="true"] .ctaContent { opacity: 1 !important; }
 .journey[data-static="true"] .lionViewport { display: none; }
 .journey[data-static="true"] .processGrid { grid-template-columns: minmax(0, 1fr); }
 .journey[data-static="true"] .rail { display: none; }
@@ -126,6 +153,9 @@
   .stepNumber > span, .numberShine::after { font-size: 2.25rem; }
 }
 @media (prefers-reduced-motion: reduce), (max-height: 480px) {
+  .journey .runway { display: none; }
+  .journey .scene { display: block; position: relative; top: auto; min-height: 0; }
+  .journey .closingSurface { display: block; }
   .lionViewport { display: none; }
   .processGrid { grid-template-columns: minmax(0, 1fr); }
   .rail { display: none; }

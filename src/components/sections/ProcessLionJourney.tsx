@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
@@ -25,9 +25,11 @@ export default function ProcessLionJourney() {
   const stages = PROCESS_FILM_COPY[locale].stages;
   const reduced = useHydratedReducedMotion();
   const short = useSyncExternalStore(subscribeShort, () => matchMedia(shortQuery).matches, () => false);
-  const staticMode = reduced || short;
+  const [oversizedCTA, setOversizedCTA] = useState(false);
+  const staticMode = reduced || short || oversizedCTA;
   const host = useRef<HTMLDivElement>(null);
   const viewport = useRef<HTMLDivElement>(null);
+  const scene = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLDivElement>(null);
   const poster = useRef<HTMLImageElement>(null);
   const origin = useRef<HTMLDivElement>(null);
@@ -37,36 +39,54 @@ export default function ProcessLionJourney() {
   const ctaContent = useRef<HTMLDivElement>(null);
   const dock = useRef<HTMLDivElement>(null);
 
+  // A short screen or unusually tall translation must stay readable in normal flow.
+  useEffect(() => {
+    const section = closing.current?.querySelector<HTMLElement>("#closing-cta");
+    const view = viewport.current;
+    if (!section || !view) return;
+    const checkFit = () => {
+      const smallViewport = parseFloat(getComputedStyle(view).height) || window.innerHeight;
+      setOversizedCTA(section.offsetHeight + 32 > Math.min(smallViewport, window.innerHeight));
+    };
+    const observer = new ResizeObserver(checkFit);
+    observer.observe(section);
+    observer.observe(view);
+    window.addEventListener("resize", checkFit);
+    checkFit();
+    return () => { observer.disconnect(); window.removeEventListener("resize", checkFit); };
+  }, []);
+
   useEffect(() => {
     const root = host.current, surface = canvas.current, view = viewport.current;
     const processSection = process.current, closingSection = closing.current;
-    const modelOrigin = origin.current, destination = dock.current;
-    if (!root || !surface || !view || !processSection || !closingSection || !modelOrigin || !destination) return;
+    const modelOrigin = origin.current, destination = dock.current, stickyScene = scene.current;
+    if (!root || !surface || !view || !processSection || !closingSection || !modelOrigin || !destination || !stickyScene) return;
     const rows = Array.from(root.querySelectorAll<HTMLElement>("[data-process-step]"));
     const numbers = rows.map(row => row.querySelector<HTMLElement>("[data-process-number]")!);
     const shines = rows.map(row => row.querySelector<HTMLElement>("[data-number-shine]")!);
-    const action = closingSection.querySelector<HTMLElement>("[data-closing-action]");
-    const headingCopy = closingSection.querySelector<HTMLElement>("[data-closing-copy]");
-    const processGrid = processSection.querySelector<HTMLElement>("[data-process-grid]")!;
     let engine: LionEngine | undefined;
     let disposed = false, loading = false, ready = false, failed = false, near = false, inView = false;
-    let frame = 0, last = 0, time = 0, width = 1, height = 1, gap = 0, dirty = true;
+    let frame = 0, last = 0, time = 0, width = 1, height = 1, runway = 1, sceneHeight = 1, dirty = true;
     let targetX = 0, targetY = 0, pointerX = 0, pointerY = 0;
     let pose: ReturnType<typeof processLionPose> | undefined;
     const fine = matchMedia("(hover: hover) and (pointer: fine)");
     const manual = staticMode || matchMedia("(prefers-reduced-motion: reduce)").matches || matchMedia(shortQuery).matches;
     const reset = () => {
+      root.dataset.motion = "false";
+      root.style.removeProperty("--scene-top");
+      root.style.removeProperty("--handoff-runway");
       processSection.style.opacity = "";
+      processSection.style.pointerEvents = "";
+      closingSection.style.pointerEvents = "";
       if (veil.current) veil.current.style.opacity = "";
       if (ctaContent.current) ctaContent.current.style.opacity = "";
-      if (headingCopy) headingCopy.style.transform = "";
-      if (action) action.style.transform = "";
       rows.forEach(row => { row.style.transform = ""; });
       shines.forEach(shine => { shine.style.opacity = ""; });
     };
     reset();
     view.dataset.ready = "false";
     if (manual) return reset;
+    root.dataset.motion = "true";
 
     const fail = () => {
       if (disposed) return;
@@ -78,34 +98,36 @@ export default function ProcessLionJourney() {
       const viewBounds = view.getBoundingClientRect();
       const start = modelOrigin.getBoundingClientRect();
       const finish = destination.getBoundingClientRect();
-      const closingBounds = closingSection.getBoundingClientRect();
-      const actionBottom = (action?.getBoundingClientRect().bottom ?? finish.top - 64) - viewBounds.top;
+      const rootBounds = root.getBoundingClientRect();
       const metrics = rows.map((row, index) => {
         const number = numbers[index].getBoundingClientRect();
         return { height: row.getBoundingClientRect().height, y: number.top + number.height / 2 - viewBounds.top };
       });
       pose = processLionPose({
         viewportHeight: height,
-        closingTop: closingBounds.top - viewBounds.top,
+        // Reading the steps uses natural scrolling. Only their last viewport is pinned.
+        progress: (viewBounds.top + height - rootBounds.top - sceneHeight) / runway,
         dockTop: finish.top - viewBounds.top,
         dockSize: finish.width,
         dockX: finish.left - viewBounds.left + finish.width / 2,
         originX: start.left - viewBounds.left + start.width / 2,
         originY: start.top - viewBounds.top + start.height / 2,
         railSize: start.width,
-        actionBottom,
+      });
+      // Keyboard focus always exposes the action, including before the scrub ends.
+      const focused = closingSection.contains(document.activeElement);
+      if (focused) pose = processLionPose({
+        viewportHeight: height, progress: 1,
+        dockTop: finish.top - viewBounds.top, dockSize: finish.width,
+        dockX: finish.left - viewBounds.left + finish.width / 2,
+        originX: start.left - viewBounds.left + start.width / 2,
+        originY: start.top - viewBounds.top + start.height / 2, railSize: start.width,
       });
       processSection.style.opacity = String(pose.processOpacity);
-      const focused = closingSection.contains(document.activeElement);
-      const reveal = focused ? 1 : pose.reveal;
-      if (focused) pose = { ...pose, x: finish.left - viewBounds.left + finish.width / 2, y: finish.top - viewBounds.top + finish.height / 2, size: finish.width * .88, arrival: 1 };
-      if (veil.current) veil.current.style.opacity = String(1 - reveal);
-      if (ctaContent.current) {
-        ctaContent.current.style.opacity = String(reveal);
-      }
-      const copyShift = -(start.width + gap) / 2 * pose.arrival;
-      if (headingCopy) headingCopy.style.transform = `translate3d(${copyShift}px,0,0)`;
-      if (action) action.style.transform = `translate3d(${copyShift}px,0,0)`;
+      processSection.style.pointerEvents = pose.processOpacity > 0 ? "" : "none";
+      closingSection.style.pointerEvents = pose.reveal >= .95 ? "auto" : "none";
+      if (veil.current) veil.current.style.opacity = String(1 - pose.backgroundReveal);
+      if (ctaContent.current) ctaContent.current.style.opacity = String(pose.reveal);
       rows.forEach((row, index) => {
         const strength = stepPassIntensity(metrics[index].y, pose!.y, metrics[index].height) * pose!.processOpacity;
         row.style.transform = `translate3d(${strength * (width < 640 ? 6 : 14)}px,0,0)`;
@@ -143,7 +165,11 @@ export default function ProcessLionJourney() {
     const resize = () => {
       width = Math.max(1, view.clientWidth);
       height = Math.max(1, view.clientHeight);
-      gap = parseFloat(getComputedStyle(processGrid).columnGap) || 0;
+      sceneHeight = stickyScene.offsetHeight;
+      runway = height * 1.6;
+      // A tall process reads normally, then holds its final viewport for the handoff.
+      root.style.setProperty("--scene-top", `${Math.min(0, height - sceneHeight)}px`);
+      root.style.setProperty("--handoff-runway", `${runway}px`);
       engine?.resize(width, height);
       dirty = true; wake();
     };
@@ -184,7 +210,7 @@ export default function ProcessLionJourney() {
       last = 0; dirty = true; wake();
     });
     const observer = new ResizeObserver(resize);
-    [root, view, processSection, closingSection, destination, modelOrigin].forEach(node => observer.observe(node));
+    [root, view, stickyScene, processSection, closingSection, destination, modelOrigin].forEach(node => observer.observe(node));
     rows.forEach(row => observer.observe(row));
     proximity.observe(root); intersection.observe(root);
     window.addEventListener("scroll", scroll, { passive: true });
@@ -221,6 +247,7 @@ export default function ProcessLionJourney() {
       <img ref={poster} className={styles.travellingPoster} src={LION_POSTER} alt="" width={900} height={900} loading="lazy" />
       <div ref={canvas} className={styles.canvas} />
     </div>
+    <div ref={scene} className={styles.scene}>
     <section ref={process} id="process" data-nova-section="process" className={styles.process}
       aria-labelledby="process-heading" data-scroll-title-skip data-art-directed="dark">
       <div className={styles.inner}>
@@ -256,5 +283,7 @@ export default function ProcessLionJourney() {
       </div>
       <div ref={veil} className={styles.veil} aria-hidden="true" />
     </div>
+    </div>
+    <div className={styles.runway} aria-hidden="true" />
   </div>;
 }

@@ -99,15 +99,17 @@
   .action { gap: 2rem; }
 }
 
-/* Reserve the travelling model's lane, then center this copy with transforms. */
+/* The dock and copy share a fixed, centered layout throughout the handoff. */
 .withLion {
-  --closing-heading: clamp(1.75rem, 1.2rem + 3.5vw, 5.5rem);
-  --liquid-button-width: min(13.75rem, calc(100vw - var(--process-pad) * 2 - var(--process-rail) - var(--process-gap)));
+  --closing-heading: clamp(1.75rem, 1.2rem + 3.5vw, 5rem);
+  --liquid-button-width: min(13.75rem, calc(100vw - var(--process-pad) * 2));
+  padding-top: clamp(2rem, 5svh, 4rem);
 }
-.withLion .copy, .withLion .stage {
-  max-width: none;
-  padding-left: calc(var(--process-pad) + var(--process-rail) + var(--process-gap));
-  padding-right: var(--process-pad);
+.withLion .copy, .withLion .stage { padding-inline: var(--process-pad); }
+.withLion .accent { margin-bottom: clamp(1rem, 2svh, 1.5rem); }
+.withLion .stage { margin-top: clamp(1.25rem, 3svh, 2rem); padding-bottom: 0; }
+.withLion .action { gap: 1rem; }
+.lionDock {
+  margin-top: clamp(1.5rem, 4svh, 3rem);
+  padding-bottom: clamp(1.5rem, 4svh, 3rem);
 }
-.withLion .stage { padding-bottom: 0; }
-.lionDock { margin-top: clamp(7rem, 25vw, 16rem); padding-bottom: clamp(3rem, 6svh, 5rem); }
