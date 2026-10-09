@@ -3,6 +3,7 @@
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 
 import GoldThreads from "@/components/ui/GoldThreads";
+import { ServicesArrivalLayer } from "./ServicesArrival";
 
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
@@ -235,14 +236,14 @@ export default function HomepageServicesChapter() {
     <section
       id="services"
       data-art-directed="light"
-      className="relative z-20 isolate overflow-clip bg-bg-surface-light text-[#111111]"
+      className="relative z-20 isolate overflow-clip text-[#111111]"
     >
-      <GoldThreads single />
+      <ServicesArrivalLayer><GoldThreads single /></ServicesArrivalLayer>
       <h2 className="sr-only">{tr("Our services")}</h2>
 
       <div ref={chapterRef} data-services-runway className="relative h-[330svh] sm:h-[310svh] lg:h-[340vh]">
       <div
-        className="sticky top-0 h-svh overflow-hidden bg-bg-surface-light outline-none"
+        className="sticky top-0 h-svh overflow-hidden outline-none"
         tabIndex={0}
         role="region"
         aria-label={tr("Explore Lionovart expertise")}
@@ -250,11 +251,11 @@ export default function HomepageServicesChapter() {
         onKeyDown={handleKeys}
         style={{ overscrollBehaviorX: "contain" }}
       >
-        <GoldThreads />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_76%,rgba(229,25,42,0.04),transparent_36%)]"
-        />
+        <ServicesArrivalLayer>
+          <div data-services-backdrop className="absolute inset-0 bg-bg-surface-light" />
+          <GoldThreads />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_76%,rgba(229,25,42,0.04),transparent_36%)]" />
+        </ServicesArrivalLayer>
 
         <div className="absolute inset-0 z-40">
           <span className="sr-only" aria-live="polite">{activeService.title}</span>

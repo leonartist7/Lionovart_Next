@@ -9,6 +9,7 @@ import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { SHOWCASE_IMAGES } from "./showcase-images";
 import styles from "./WorkServicesTransition.module.css";
+import { ServicesArrivalContext } from "./ServicesArrival";
 
 const shortViewportQuery = "(max-height: 480px)";
 const subscribeShortViewport = (notify: () => void) => {
@@ -17,7 +18,7 @@ const subscribeShortViewport = (notify: () => void) => {
   return () => media.removeEventListener("change", notify);
 };
 
-/** One scene stays behind the services as their opaque surface enters in document flow. */
+/** Work and services share one reversible scroll transition. */
 export default function WorkServicesTransition({ children }: { children: ReactNode }) {
   const tr = usePublicCopy();
   const reduced = useHydratedReducedMotion();
@@ -61,6 +62,9 @@ export default function WorkServicesTransition({ children }: { children: ReactNo
   const workOpacity = useTransform(scrollYProgress, [0, .2, .38, .62, 1], [0, 0, 1, 1, 0]);
   const captionOpacity = useTransform(scrollYProgress, [0, .2, .36, .5, .72], [0, 0, 1, 1, 0]);
   const captionVisibility = useTransform(scrollYProgress, p => p <= .2 || p >= .72 ? "hidden" : "visible");
+  const cueOpacity = useTransform(scrollYProgress, [.32, .4, .52, .68], [0, 1, 1, 0]);
+  const cueVisibility = useTransform(scrollYProgress, p => p <= .32 || p >= .68 ? "hidden" : "visible");
+  const servicesOpacity = useTransform(scrollYProgress, [.7, 1], [0, 1]);
   const sceneVisibility = useTransform(scrollYProgress, p => p >= 1 ? "hidden" : "visible");
 
   useMotionValueEvent(scrollYProgress, "change", p => {
@@ -82,11 +86,14 @@ export default function WorkServicesTransition({ children }: { children: ReactNo
           <Image src="/images/lionovart-icon.svg" alt="" fill sizes="180px" />
         </motion.div>
       </motion.div>
+      <motion.a href="#services" className={styles.servicesCue} data-services-cue
+        style={staticScene ? { opacity: 1, visibility: "visible" } : { opacity: cueOpacity, visibility: cueVisibility }}>
+        {tr("Our expertise")}<ArrowDown aria-hidden="true" />
+      </motion.a>
       <motion.header className={styles.heading} data-work-heading
         style={staticScene ? { opacity: 1, visibility: "visible" } : { opacity: captionOpacity, visibility: captionVisibility }}>
         <h2>{tr("One brand.")}<br />{tr("Every encounter.")}</h2>
         <p>{tr("Your identity, website and content—speaking the same language.")}</p>
-        <a href="#services" className={styles.servicesCue} data-services-cue>{tr("Services")}<ArrowDown aria-hidden="true" /></a>
       </motion.header>
       {staticScene ? <div className={styles.staticGallery} data-imagine-static-gallery>
         {SHOWCASE_IMAGES.map((src, index) => <div key={src}><Image src={src} alt={`${tr("Selected creative work")} ${index + 1}`} fill sizes="(max-width: 767px) 45vw, 30vw" /></div>)}
@@ -103,6 +110,8 @@ export default function WorkServicesTransition({ children }: { children: ReactNo
       </motion.button>}
     </motion.div>
     <div ref={runwayRef} className={styles.runway} data-work-runway aria-hidden="true" />
-    <div className={styles.servicesSurface} data-services-surface>{children}</div>
+    <ServicesArrivalContext.Provider value={staticScene ? 1 : servicesOpacity}>
+      <div className={styles.servicesSurface} data-services-surface>{children}</div>
+    </ServicesArrivalContext.Provider>
   </div>;
 }
