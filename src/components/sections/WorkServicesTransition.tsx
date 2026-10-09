@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { motion, useInView, useMotionValue, useMotionValueEvent, useTransform } from "framer-motion";
 import Image from "next/image";
-import { Pause, Play } from "lucide-react";
+import { ArrowDown, Pause, Play } from "lucide-react";
 import { ImageStreamHero } from "@/components/ui/image-stream-hero";
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
@@ -86,6 +86,7 @@ export default function WorkServicesTransition({ children }: { children: ReactNo
         style={staticScene ? { opacity: 1, visibility: "visible" } : { opacity: captionOpacity, visibility: captionVisibility }}>
         <h2>{tr("One brand.")}<br />{tr("Every encounter.")}</h2>
         <p>{tr("Your identity, website and content—speaking the same language.")}</p>
+        <a href="#services" className={styles.servicesCue} data-services-cue>{tr("Services")}<ArrowDown aria-hidden="true" /></a>
       </motion.header>
       {staticScene ? <div className={styles.staticGallery} data-imagine-static-gallery>
         {SHOWCASE_IMAGES.map((src, index) => <div key={src}><Image src={src} alt={`${tr("Selected creative work")} ${index + 1}`} fill sizes="(max-width: 767px) 45vw, 30vw" /></div>)}

@@ -20,22 +20,22 @@ const PAW_TIMING = { enter: .45, pull: 1.2, return: 1.05, exit: .35 } as const;
 const BENEFITS = [
   {
     title: "Look as good as your work.",
-    body: "Give people a reason to trust your business before you say a word.",
-    detail: "A presence that does your work justice.",
+    body: "Let your image reflect the quality of your work.",
+    detail: "Trust, before a word.",
     stat: { value: "46.1", unit: "%", label: "Of credibility comments referenced design", source: "https://credibility.stanford.edu/pdf/How_Do_People_Evaluate_a_Web_Site%27s_Credibility_v37.pdf", sourceLabel: "Study: Stanford / Consumer WebWatch", qualifier: null },
-    points: ["A clear position in your market", "An identity that reflects your quality"],
+    points: ["Clear positioning", "An identity that reflects your quality"],
   },
   {
     title: "Less admin. More headspace.",
-    body: "Let your systems handle the routine. Put your time where it matters.",
-    detail: "More space for what moves you forward.",
+    body: "Let your systems handle the routine. Keep time for what matters.",
+    detail: "Room for better work.",
     stat: { value: "15", unit: "h+", label: "Weekly time-saving target", source: null, sourceLabel: null, qualifier: null },
     points: ["Enquiries and follow-ups in one place", "Workflows built around your team"],
   },
   {
     title: "Be the name they remember.",
-    body: "One recognisable world, across your website, content and identity.",
-    detail: "Every encounter feels like your brand.",
+    body: "Your website, content and identity. One recognisable brand.",
+    detail: "Unmistakably you. Everywhere.",
     stat: { value: "33", unit: "%", label: "Potential revenue lift with consistent branding", source: "https://www.prnewswire.com/news-releases/study-finds-companies-with-consistent-branding-can-see-up-to-33-increase-in-revenue-300967219.html", sourceLabel: "Survey: Lucidpress (2019)", qualifier: "Up to" },
     points: ["A recognisable voice", "A consistent world, everywhere"],
   },
@@ -83,10 +83,9 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
     }
   };
 
-  return <article className={styles.card} data-benefit-card data-has-metric={Boolean(item.stat)} data-revealed={open} data-phase={phase}>
+  return <article className={styles.card} data-benefit-card data-revealed={open} data-phase={phase}>
     <div className={styles.cardTop}>
       <div className={styles.cardCopy} data-benefit-measure="copy">
-        <h3 id={panelId + "-title"}><span data-benefit-measure="heading">{tr(item.title)}</span></h3>
         <p className={styles.cardBody}><span data-benefit-measure="body">{tr(item.body)}</span></p>
       </div>
     </div>
@@ -97,20 +96,21 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
       <div className={styles.detailWell}>
         <div id={panelId} role="region" aria-labelledby={panelId + "-title"} aria-hidden={!open} className={styles.details}>
           <div className={styles.detailContent} data-benefit-measure="detail">
-            <p>{tr(item.detail)}</p>
+            <h3 id={panelId + "-title"}>{tr(item.detail)}</h3>
             <ul>{item.points.map(point => <li key={point}><Check aria-hidden="true" />{tr(point)}</li>)}</ul>
-            {item.stat?.source && <a className={styles.metricSource} href={item.stat.source} target="_blank" rel="noreferrer"
-              tabIndex={open ? 0 : -1} aria-label={tr("Read the research source")}>{tr(item.stat.sourceLabel || "Research source")}</a>}
-          </div>
-        </div>
-        <motion.div className={styles.detailCover} animate={cover} aria-hidden={open}>
-          <div className={styles.cardSeam} aria-hidden="true" data-card-seam data-benefit-measure="seam">
-            <Image src={CARD_SEAM_IMAGE} alt="" fill sizes="(max-width: 999px) 90vw, (max-width: 2000px) 30vw, 560px" />
-          </div>
-          {item.stat && <div className={styles.metric} data-benefit-stat data-benefit-measure="metric">
+          {item.stat && <div className={styles.metric} data-benefit-stat>
             <span className={styles.metricValue}>{item.stat.qualifier && <small>{tr(item.stat.qualifier)}</small>}{tr(item.stat.value)}<span>{item.stat.unit}</span></span>
             <span className={styles.metricLabel}>{tr(item.stat.label)}</span>
           </div>}
+            {item.stat?.source && <a className={styles.metricSource} href={item.stat.source} target="_blank" rel="noreferrer"
+              tabIndex={open ? 0 : -1} aria-label={`${tr("Read the research source")}: ${tr(item.stat.sourceLabel || "Research source")}`}>{tr("Research source")}</a>}
+          </div>
+        </div>
+        <motion.div className={styles.detailCover} animate={cover} aria-hidden="true">
+          <div className={styles.cardSeam} aria-hidden="true" data-card-seam>
+            <Image src={CARD_SEAM_IMAGE} alt="" fill sizes="(max-width: 999px) 90vw, (max-width: 2000px) 30vw, 560px" />
+          </div>
+
         </motion.div>
         <motion.div className={styles.paw} aria-hidden="true" initial={{ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)" }} animate={paw}>
           <Image src={PAW_IMAGE} alt="" fill sizes="(max-width: 767px) 144px, (max-width: 2000px) 12vw, 240px" className={styles.pawImage} />
@@ -144,7 +144,7 @@ export default function PawRevealStack() {
     const measure = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        for (const part of ["heading", "body", "copy", "detail", "seam", "metric"]) {
+        for (const part of ["copy", "detail"]) {
           const height = Math.ceil(Math.max(0, ...content.filter(el => el.dataset.benefitMeasure === part).map(el => el.getBoundingClientRect().height)));
           grid.style.setProperty(`--benefit-${part}-height`, `${height}px`);
         }
