@@ -1,5 +1,12 @@
 # LIONOVART results redesign
 
+## Latest — public Google Calendar booking connected (9 October 2026)
+
+Connected https://calendar.app.google/vjKnyMFNsjjRGZSn6 to all three Work-page Book a call actions: header, gallery-end and closing. They are enabled native links opening the calendar in a separate tab with noopener/noreferrer; the closing button no longer has the missing-calendar disabled state. Preserved the liquid-metal component, audit route and gallery data/order.
+
+Verified the public link redirects to Google Calendar appointment scheduling for Leonardo Colin, Creative Discovery Call | 15 min, and shows available appointment choices. A real click-through from the Work preview opens that booking page. No time selected, booking form filled, appointment reserved or message sent. Both previews rebuilt; TypeScript/lint and five-width post-gallery tests pass. Native link states and booking fixture tests pass, audit responses remain mocked. Metal lifecycle checks pass with the newly active footer (up to three small visible canvases when audit is expanded); offscreen/hidden/reduced-motion disposal remains correct. GitHub source package synchronized. Previous missing-booking notes are superseded.
+
+
 ## Latest — homepage liquid-metal CTA component reused
 
 Reused the canonical homepage LiquidMetalButton visual layers, dark-red interior, silver contour, label treatment and exact Paper liquid-metal shader uniforms in the Work preview. Replaced filled booking, audit submit, enquiry submit and empty-result reset buttons; quieter text links and the gallery filter dock retain their existing treatments. Adapted the component for native anchors, submit buttons and disabled states without nested interactive elements. The homepage source itself is unchanged.

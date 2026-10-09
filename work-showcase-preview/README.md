@@ -1,6 +1,6 @@
 # LIONOVART Work — current complete preview
 
-This folder preserves the complete Work page reviewed by the owner: 53 media entries, glass filter dock, smooth gallery filtering, client results, founder section, booking/audit choices, loader and return-to-website link. Open LIONOVART-results-preview.html directly in a browser. LIONOVART-work.html is the same complete page.
+This folder preserves the complete Work page reviewed by the owner: 53 source media records with 40 published examples, glass filter dock, smooth gallery filtering, client results, founder section, booking/audit choices, loader and return-to-website link. Open LIONOVART-results-preview.html directly in a browser. LIONOVART-work.html is the same complete page.
 
 This is the latest reviewed design. The application route in src/components/work is the earlier wireframe implementation; this commit preserves both without replacing the homepage or claiming the newer preview is deployed at /work.
 
@@ -25,7 +25,7 @@ Review screenshots and temporary bundles are ignored. Existing STATUS.md records
 
 ## Integration still needed
 
-The public Google Calendar appointment URL has not been supplied, so booking is intentionally disabled. Audit requests use the existing /api/strategist/lead endpoint and require the hosted application; the owner reviews and emails audits manually. The static file does not provide a working backend. All supplied new examples are currently client work by the owner’s instruction; individual public IDs can be marked concept in workStatusOverrides.
+All three Book a call actions are enabled and use the owner’s public Google Calendar appointment URL: https://calendar.app.google/vjKnyMFNsjjRGZSn6. Audit requests use the existing /api/strategist/lead endpoint and require the hosted application; the owner reviews and emails audits manually. The static file does not provide a working backend. The owner-confirmed client/concept assignments are stored in work-approved-tags.json; individual status overrides remain supported.
 
 ## Local gallery review
 
@@ -41,8 +41,12 @@ work-approved-tags.json records the owner’s complete 40-entry tag/status repor
 
 ## Current prospect journey
 
-The gallery ends with Book a call and a same-page See client results link. Proof uses one featured result and two shorter quotes, preserving approved wording and qualifiers. Leonardo’s compact introduction links to the main studio homepage. The closing gives booking priority; the manual audit form is behind an accessible disclosure. The public Google Calendar appointment URL is still required to enable final booking. Run verify-post-gallery.cjs for responsive, keyboard, mocked audit and configured-booking-fixture checks.
+The gallery ends with Book a call and a same-page See client results link. Proof uses one featured result and two shorter quotes, preserving approved wording and qualifiers. Leonardo’s compact introduction links to the main studio homepage. The closing gives booking priority; the manual audit form is behind an accessible disclosure. The public Google Calendar appointment URL is connected to the header, gallery-end and closing actions. Run verify-post-gallery.cjs for responsive, keyboard, mocked audit and configured-booking-fixture checks.
 
 ## Homepage liquid-metal CTAs
 
 The Work preview reuses the visual layers and Paper liquid-metal shader from src/components/ui/liquid-metal-button.tsx in the homepage. Its standalone adapter is src/components/ui/liquid-metal-button.tsx inside this folder, supporting native links, submit buttons and disabled states. Metal motion starts after the loader and runs only in view; hidden tabs, live reduced-motion preferences and disabled buttons use a static metallic skin. Canvas resolution is capped and cleanup releases WebGL resources. Uses already-installed dependencies. Run verify-metal-cta.cjs for behavior, fallback and resource checks.
+
+## Live booking link
+
+The owner supplied the public calendar URL on 9 October 2026. A read-only click-through confirmed it opens Google Calendar’s Creative Discovery Call | 15 min scheduling page. verify-booking.cjs checks all three enabled links and the destination without reserving an appointment.

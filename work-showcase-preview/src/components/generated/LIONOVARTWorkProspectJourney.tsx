@@ -22,8 +22,8 @@ const labelFor = serviceTagLabel;
 const email = 'connect@lionovart.com';
 // Saved file previews return to the canonical site; hosted Work pages use their own homepage.
 const homepageUrl = typeof window !== 'undefined' && window.location.protocol === 'file:' ? 'https://lionovart.com/' : '/';
-// Replace with the owner's public Google Calendar appointment link when supplied.
-const bookingUrl: string | null = null;
+// Owner-supplied public Google Calendar appointment booking page.
+const bookingUrl: string | null = "https://calendar.app.google/vjKnyMFNsjjRGZSn6";
 const whatsapp = (message: string) => `https://wa.me/15878974772?text=${encodeURIComponent(message)}`;
 type Work = typeof works[number];
 type Selection = WorkSelection;

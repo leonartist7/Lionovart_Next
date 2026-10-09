@@ -48,7 +48,7 @@ assert.equal(requests[1].website_url,'https://yourbrand.example/');assert.equal(
 assert((await page.locator('.lv-audit-confirmation').innerText()).includes('I’ll review your website and email you the audit.'));
 await page.goto(base+'?industry=wellness');assert.equal(await page.locator('.lv-proof-feature').getAttribute('data-story'),'matt');
 await page.goto(base+'?industry=hospitality');assert.deepEqual(await page.locator('.lv-proof-story').evaluateAll(es=>es.map(e=>e.dataset.story)),['pablo','jim','mateo']);
-const bookingFixture=fs.readFileSync(file,'utf8').replace('const bookingUrl = null;','const bookingUrl = "https://calendar.example.test/book";');
+const bookingFixture=fs.readFileSync(file,'utf8').replace(/const bookingUrl = [^;]+;/,'const bookingUrl = "https://calendar.example.test/book";');
 await page.route('http://booking-preview.test/work',r=>r.fulfill({status:200,contentType:'text/html',body:bookingFixture}));
 await page.goto('http://booking-preview.test/work');const ready=page.locator('.lv-header .lv-cta,.lv-gallery-next .lv-cta,.lv-closing-primary .lv-cta');
 assert.equal(await ready.count(),3);for(const action of await ready.all()){assert.equal(await action.getAttribute('href'),'https://calendar.example.test/book');assert.equal(await action.getAttribute('target'),'_blank');assert((await action.getAttribute('rel')).includes('noopener'));}
