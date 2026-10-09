@@ -8,6 +8,8 @@ const french: Record<string, string> = {
   "Room for better work.": "Place à l’essentiel.",
   "Unmistakably you. Everywhere.": "Votre signature. Partout.",
   "One brand.": "Une marque.",
+  "One partnership": "Un partenariat",
+  "Designing your legacy": "Façonner votre héritage",
   "Every encounter.": "À chaque rencontre.",
   "Your identity, website and content—speaking the same language.": "Votre identité, votre site et vos contenus parlent le même langage.",
   "46.1": "46,1",

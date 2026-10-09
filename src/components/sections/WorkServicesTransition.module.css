@@ -61,8 +61,8 @@
 .streamCanvas { height: 100%; width: 100%; overflow: visible; }
 .pause {
   position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
+  bottom: clamp(3rem, 7svh, 5rem);
+  left: 1.25rem;
   z-index: 5;
   width: 2.75rem;
   height: 2.75rem;

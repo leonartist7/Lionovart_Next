@@ -93,15 +93,15 @@ export default function WorkServicesTransition({ children }: { children: ReactNo
       </motion.a>
       <motion.header className={styles.heading} data-work-heading
         style={staticScene ? { opacity: 1, visibility: "visible" } : { opacity: captionOpacity, visibility: captionVisibility }}>
-        <h2>{tr("One brand.")}<br />{tr("Every encounter.")}</h2>
-        <p>{tr("Your identity, website and content—speaking the same language.")}</p>
+        <h2>{tr("One partnership")}</h2>
+        <p>{tr("Designing your legacy")}</p>
       </motion.header>
       {staticScene ? <div className={styles.staticGallery} data-imagine-static-gallery>
         {SHOWCASE_IMAGES.map((src, index) => <div key={src}><Image src={src} alt={`${tr("Selected creative work")} ${index + 1}`} fill sizes="(max-width: 767px) 45vw, 30vw" /></div>)}
       </div> : <motion.div className={styles.workStream} data-work-stream style={{ opacity: workOpacity }} aria-hidden="true">
-        {near && <ImageStreamHero images={SHOWCASE_IMAGES.map(src => ({ src }))} cards={7} speed={30} axis={50}
+        {near && <ImageStreamHero images={SHOWCASE_IMAGES.map(src => ({ src }))} cards={6} speed={30} hoverSpeed={.55} axis={50}
           paused={paused || !pageVisible || retired}
-          path={{ cardWidth: 19, cardHeight: 24, birthHeight: 3.4, exitHeight: 40, railBirth: -5.5, railExit: 36, fan: 2.7, turnBirth: 5, turnExit: 23, stops: 18 }}
+          path={{ cardWidth: 19, cardHeight: 24, birthHeight: 3.4, exitHeight: 40, railBirth: -5.5, railExit: 36, fan: 2.7, turnBirth: 12, turnExit: 52, stops: 24 }}
           className={styles.streamCanvas} />}
       </motion.div>}
       {!staticScene && <motion.button className={styles.pause} type="button" aria-pressed={paused}
