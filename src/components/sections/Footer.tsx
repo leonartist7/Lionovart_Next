@@ -3,13 +3,13 @@
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
 import { Link } from "@/i18n/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
 import { useNovaStore } from "@/lib/stores/nova-store";
 import { CONTACT_EMAIL } from "@/lib/contact";
 import styles from "./Footer.module.css";
+import FooterLion from "./FooterLion";
 
 export type FooterVariant = "standard" | "curtain" | "compact";
 
@@ -71,76 +71,14 @@ function CompactFooter({ year }: { year: number }) {
   const tr = usePublicCopy();
   const { t } = useLanguage();
   const openNova = useNovaStore((state) => state.openNova);
-  const footerRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const footer = footerRef.current;
-    if (!footer) return;
-
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const finePointer = window.matchMedia("(pointer: fine)");
-
-    if (reducedMotion.matches || !finePointer.matches) return;
-
-    let frame = 0;
-
-    const updateSpotlight = (event: PointerEvent) => {
-      window.cancelAnimationFrame(frame);
-      frame = window.requestAnimationFrame(() => {
-        const rect = footer.getBoundingClientRect();
-        footer.style.setProperty("--footer-x", `${event.clientX - rect.left}px`);
-        footer.style.setProperty("--footer-y", `${event.clientY - rect.top}px`);
-      });
-    };
-
-    const showSpotlight = () => footer.style.setProperty("--footer-spotlight-opacity", "1");
-    const hideSpotlight = () => footer.style.setProperty("--footer-spotlight-opacity", "0");
-
-    footer.addEventListener("pointerenter", showSpotlight);
-    footer.addEventListener("pointermove", updateSpotlight);
-    footer.addEventListener("pointerleave", hideSpotlight);
-
-    return () => {
-      window.cancelAnimationFrame(frame);
-      footer.removeEventListener("pointerenter", showSpotlight);
-      footer.removeEventListener("pointermove", updateSpotlight);
-      footer.removeEventListener("pointerleave", hideSpotlight);
-    };
-  }, []);
-
   return (
     <footer
       id="footer-compact"
-      ref={footerRef}
       className={styles.compact}
       data-art-directed="dark"
     >
       <section id="footer-finale" className={styles.finale}>
         <div className={styles.atmosphere} aria-hidden="true" />
-
-        <div className={styles.lionBase} aria-hidden="true">
-          <Image
-            src="/images/LION-CIRCLE.avif"
-            alt=""
-            fill
-            sizes="(max-width: 767px) 92vw, 58vw"
-            quality={62}
-            className={styles.lionImage}
-          />
-        </div>
-
-        <div className={styles.lionSpotlight} aria-hidden="true">
-          <div className={styles.lionBase}>
-            <Image
-              src="/images/LION-CIRCLE.avif"
-              alt=""
-              fill
-              sizes="(max-width: 767px) 92vw, 58vw"
-              quality={62}
-              className={styles.lionImageSpot}
-            />
-          </div>
-        </div>
 
         <div className={styles.finaleInner}>
           <div className={styles.metaRow}>
@@ -148,11 +86,14 @@ function CompactFooter({ year }: { year: number }) {
             <p className={styles.coordinates}>LION / NOVA / ART · 2026</p>
           </div>
 
-          <h2 className={styles.statement}>
-            <span className={styles.statementLead}>{tr("Let's make it")}</span>
-            <span className={styles.statementStroke}>{tr("impossible")}</span>
-            <span>{tr("to ignore.")}</span>
-          </h2>
+          <div className={styles.heroRow}>
+            <h2 className={styles.statement}>
+              <span className={styles.statementLead}>{tr("Let's make it")}</span>
+              <span className={styles.statementStroke}>{tr("impossible")}</span>
+              <span>{tr("to ignore.")}</span>
+            </h2>
+            <FooterLion />
+          </div>
 
           <div className={styles.actionRow}>
             <p className={styles.disciplines}>{tr("Brand")}<span>·</span>{tr("Digital")}<span>·</span>{tr("Film")}<span>·</span>{tr("Experiences")}<span>·</span>{tr("Innovation")}</p>

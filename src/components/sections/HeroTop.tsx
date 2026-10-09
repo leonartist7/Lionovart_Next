@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import HeroSitePeek from "@/components/ui/HeroSitePeek";
 import HeroTrustLine from "./HeroTrustLine";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { LionSlot, useLionJourney } from "./lion-journey/LionJourney";
+import { useLionJourney } from "./lion-journey/LionJourney";
 
 export default function HeroTop() {
   const journey = useLionJourney();
@@ -16,7 +16,6 @@ export default function HeroTop() {
   }, [mounted]);
   const { t, locale } = useLanguage();
   return <section ref={mounted} className="lion-hero" aria-labelledby="hero-heading">
-    <LionSlot />
     <div className="lion-content">
     <div ref={journey?.copy} className="lion-copy">
       <h1 id="hero-heading" className={`lion-headline${locale === "en" ? "" : " lion-headline-localized"}`} data-scroll-title-skip>

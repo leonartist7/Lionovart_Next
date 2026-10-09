@@ -163,8 +163,6 @@ export default function BackgroundEditor({ composition, onChange }: Props) {
       </fieldset>
       <fieldset className={styles.sceneControls}>
         <legend>Hero scene</legend>
-        <label>Show 3D lion<input type="checkbox" checked={composition.scene.lionVisible}
-          onChange={event => onChange({ ...composition, scene: { ...composition.scene, lionVisible: event.target.checked } })} /></label>
         <label htmlFor="hero-rays-color">Ray color<output>{composition.scene.raysColor}</output></label>
         <input id="hero-rays-color" type="color" value={composition.scene.raysColor}
           onChange={event => onChange({ ...composition, scene: { ...composition.scene, raysColor: event.target.value } })} />

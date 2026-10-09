@@ -1,14 +1,4 @@
-.journey { position: relative; isolation: isolate; z-index: 2; background: #08080a; }
-.canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100svh; z-index: 1; pointer-events: none; visibility: hidden; overflow: hidden; }
-.canvas canvas { display: block; width: 100%; height: 100%; }
-.poster { position: absolute; inset: 0; }
-.poster img { position: absolute; top: -17.5%; left: -17.5%; width: 135%; height: 135%; object-fit: contain; transform: scaleX(-1); }
-.journey[data-lion-ready] .poster { opacity: 0; }
-.journey[data-lion-travelling] .poster { opacity: 0; }
-.travellingStill { position:absolute; top:0; left:0; z-index:1; width:1px; height:1px; object-fit:contain; opacity:0; pointer-events:none; }
-
-
-
+.journey { position: relative; isolation: isolate; z-index: 2; background: #08080a; color: #f7f4ef; }
 .journey :global(.lion-video-section) { background: transparent; }
 .journey :global(.lion-proof) { position: relative; z-index: 2; padding: 24px 20px 48px; }
 .journey :global([data-gold-bridge]) { background: transparent; isolation: auto; z-index: 2; text-shadow: 0 2px 24px #08080a; }
@@ -179,10 +169,9 @@
 
 /* Hero starts beneath the measured navigation; gaps scale with the viewport. */
 .journey :global(.lion-hero) { position:relative; display:grid; grid-template-columns:minmax(0,1fr); align-items:start; align-content:start; width:90%; max-width:150rem; margin-inline:auto; padding:calc(var(--hero-nav-clearance,6.25rem) + clamp(1rem,2svh,2.5rem)) 0 clamp(2rem,4svh,4rem); min-height:100svh; }
-.slot { position:absolute; left:var(--lion-slot-left,0px); top:var(--lion-slot-top,40%); width:clamp(6.875rem,11vw,12rem); height:clamp(6.875rem,11vw,12rem); pointer-events:none; }
 .journey :global(.lion-content) { grid-column:1; display:flex; flex-direction:column; align-items:center; text-align:center; justify-self:center; width:100%; max-width:clamp(57.5rem,65vw,96rem); gap:clamp(1.5rem,2.5svh,3rem); min-width:0; position:relative; z-index:2; container-type:inline-size; }
 .journey :global(.lion-copy) { width:100%; margin:0; text-shadow:0 2px 22px #08080a; }
-.journey :global(.lion-headline) { margin:0; font-family:var(--font-heading); font-size: clamp(3.25rem,10.8cqw,12rem); line-height:.98; font-weight:700; letter-spacing:-.045em; }
+.journey :global(.lion-headline) { margin:0; color:#f7f4ef; font-family:var(--font-heading); font-size: clamp(3.25rem,10.8cqw,12rem); line-height:.98; font-weight:700; letter-spacing:-.045em; }
 .journey :global(.lion-headline > span) { display:block; white-space:nowrap; }
 .journey :global(.lion-headline .lion-lets-make) { display:flex; justify-content:center; gap:.3em; font-size: .88em; }
 .journey :global(.lion-headline .lion-your-brand) { display:flex; justify-content:center; gap:.22em; }
@@ -201,7 +190,6 @@
 @media(min-width:768px) and (max-width:1199px) {
  .journey :global(.lion-hero) { width:92%; }
  .journey :global(.lion-headline) { font-size: clamp(3.375rem,10.8cqw,6.5rem); }
- .slot { width:clamp(7rem,14vw,9.375rem); height:clamp(7rem,14vw,9.375rem); }
 }
 @media(max-width:767px) {
  .journey :global(.lion-hero) { width:auto; margin-inline:clamp(1rem,5vw,2rem); }
@@ -211,7 +199,6 @@
  .journey :global(.lion-headline-localized) { font-size: clamp(1.875rem,9vw,3.875rem); }
  .journey :global(.lion-headline-localized > span) { white-space:normal; overflow-wrap:anywhere; }
  .journey :global(.lion-headline .lion-your-brand), .journey :global(.lion-your-brand > span) { display:block; }
- .slot { width:clamp(4.75rem,22vw,6.75rem); height:clamp(4.75rem,22vw,6.75rem); }
  .journey :global(.lion-description) { max-width:34ch; }
  .journey :global(.hero-invitation) { width:100%; max-width:25rem; }
  .journey :global(.hero-capsule) { width:min(17.5rem,100%); }
@@ -221,7 +208,6 @@
 @media(min-width:640px) and (max-width:767px) {
  .journey :global(.lion-headline .lion-your-brand) { display:flex; }
  .journey :global(.lion-your-brand > span) { display:inline; }
- .slot { width:clamp(6.75rem,16vw,8.625rem); height:clamp(6.75rem,16vw,8.625rem); }
 }
 .journey :global(.hero-opening-stage) { --hero-nav-clearance:6.25rem; }
 .journey :global(.opening-work-layer) { position:absolute; inset:0; z-index:3; pointer-events:none; }
@@ -232,10 +218,6 @@
 .journey :global(.lion-social-proof .lion-trust) { margin:0; max-width:23ch; text-wrap:pretty; }
 @media(max-width:767px) { .journey :global(.lion-social-proof) { gap:.875rem; } .journey :global(.lion-social-proof .lion-trust) { flex:1; min-width:0; } }
 
-/* The editor hides the model and both poster fallbacks. */
-.journey[data-lion-enabled="false"] .canvas,
-.journey[data-lion-enabled="false"] .travellingStill,
-.journey[data-lion-enabled="false"] .poster { visibility: hidden !important; opacity: 0 !important; }
 
 /* Three compact badges sit together beneath the 3D cards. */
 .journey :global(.opening-work-pinned .opening-proof) { display: grid; grid-template-columns: auto auto auto; justify-content: center; align-items: center; column-gap: clamp(16px, 3vw, 42px); row-gap: 14px; }
