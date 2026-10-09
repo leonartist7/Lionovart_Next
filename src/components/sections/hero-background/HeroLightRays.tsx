@@ -2,7 +2,8 @@
 
 import dynamic from "next/dynamic";
 import { useState, useSyncExternalStore } from "react";
-import { motion, useMotionValueEvent, useReducedMotion, useTransform } from "framer-motion";
+import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
+import { motion, useMotionValueEvent, useTransform } from "framer-motion";
 import { useLionJourney } from "../lion-journey/LionJourney";
 import { useHeroComposition } from "./HeroComposition";
 import styles from "./HeroLightRays.module.css";
@@ -23,7 +24,7 @@ export default function HeroLightRays() {
   useMotionValueEvent(openingProgress, "change", progress => setActive(progress <= 0.25));
   const { composition: { scene } } = useHeroComposition();
   const visible = useSyncExternalStore(subscribeVisibility, isPageVisible, serverVisible);
-  const reducedMotion = useReducedMotion();
+  const reducedMotion = useHydratedReducedMotion();
   const animated = active && visible && !reducedMotion;
 
   return <motion.div className={styles.host} style={{ opacity }} aria-hidden="true" data-hero-light-rays data-rays-active={animated} data-rays-color={scene.raysColor} data-rays-secondary-color="#ef152b" data-rays-cycle-seconds="16" data-rays-origin={scene.raysOrigin}>
