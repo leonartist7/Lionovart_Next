@@ -30,6 +30,7 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
   const [introRetired, setIntroRetired] = useState(false);
   const runwayRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
+  const servicesSurfaceRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLElement>(null);
   const circleRef = useRef<HTMLDivElement>(null);
   const originY = useMotionValue(0);
@@ -57,6 +58,7 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
   const [pageVisible, setPageVisible] = useState(true);
   const [retired, setRetired] = useState(false);
   const scrollYProgress = useMotionValue(0);
+  const servicesOpacity = useMotionValue(0);
   useEffect(() => {
     const runway = runwayRef.current;
     if (!runway || staticScene) return;
@@ -67,11 +69,19 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
       if (intro && scene) introTop.set(scene.clientHeight - intro.offsetHeight);
       const rect = runway.getBoundingClientRect();
       scrollYProgress.set(Math.min(1, Math.max(0, -rect.top / Math.max(1, rect.height))));
+      // Fade a stationary backdrop only after services cover half the viewport.
+      // Measuring the arriving section keeps forward/reverse timing responsive.
+      const services = servicesSurfaceRef.current;
+      if (services && scene) {
+        const fade = Math.min(1, Math.max(0, 1 - 2 * services.getBoundingClientRect().top / Math.max(1, scene.clientHeight)));
+        servicesOpacity.set(fade * fade * (3 - 2 * fade));
+      }
     };
     window.addEventListener("scroll", sync, { passive: true });
     const observer = new ResizeObserver(sync);
     observer.observe(runway);
     if (introRef.current) observer.observe(introRef.current);
+    if (servicesSurfaceRef.current) observer.observe(servicesSurfaceRef.current);
     if (runway.parentElement) observer.observe(runway.parentElement);
     window.addEventListener("resize", sync);
     window.addEventListener("pageshow", sync);
@@ -82,7 +92,7 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
       window.removeEventListener("resize", sync);
       window.removeEventListener("pageshow", sync);
     };
-  }, [introTop, scrollYProgress, staticScene]);
+  }, [introTop, scrollYProgress, servicesOpacity, staticScene]);
   const introOpacity = useTransform(scrollYProgress, [0, .14], [1, 0]);
   const introPointerEvents = useTransform(scrollYProgress, p => p >= .14 ? "none" : "auto");
   const circleTransform = useTransform(scrollYProgress, [0, .35, 1], [
@@ -96,7 +106,6 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
   const captionVisibility = useTransform(scrollYProgress, p => p <= .2 || p >= .72 ? "hidden" : "visible");
   const cueOpacity = useTransform(scrollYProgress, [.32, .4, .52, .68], [0, 1, 1, 0]);
   const cueVisibility = useTransform(scrollYProgress, p => p <= .32 || p >= .68 ? "hidden" : "visible");
-  const servicesOpacity = useTransform(scrollYProgress, [.7, 1], [0, 1]);
   const servicesPointerEvents = useTransform(scrollYProgress, p => p < .68 ? "none" : "auto");
   const sceneVisibility = useTransform(scrollYProgress, p => p >= 1 ? "hidden" : "visible");
 
@@ -121,6 +130,8 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
     <motion.div ref={sceneRef} className={styles.scene} data-work-scene data-scroll-title-skip inert={!staticScene && retired}
       aria-hidden={!staticScene && retired}
       style={{ visibility: staticScene ? "visible" : retired ? "hidden" : sceneVisibility }}>
+      {!staticScene && <motion.div className={styles.servicesBackdrop} data-services-transition-backdrop
+        style={{ opacity: servicesOpacity }} aria-hidden="true" />}
       <motion.header ref={headingRef} className={styles.heading} data-work-heading
         style={staticScene ? { opacity: 1, visibility: "visible" } : { opacity: captionOpacity, visibility: captionVisibility }}>
         <h2>{tr("One partnership")}</h2>
@@ -152,7 +163,7 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
     </motion.div>
     <div ref={runwayRef} className={styles.runway} data-work-runway aria-hidden="true" />
     <ServicesArrivalContext.Provider value={staticScene ? 1 : servicesOpacity}>
-      <motion.div className={styles.servicesSurface} data-services-surface style={{ pointerEvents: staticScene ? "auto" : servicesPointerEvents }}>
+      <motion.div ref={servicesSurfaceRef} className={styles.servicesSurface} data-services-surface style={{ pointerEvents: staticScene ? "auto" : servicesPointerEvents }}>
         {children}
       </motion.div>
     </ServicesArrivalContext.Provider>

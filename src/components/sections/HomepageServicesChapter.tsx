@@ -251,9 +251,7 @@ export default function HomepageServicesChapter() {
         style={{ overscrollBehaviorX: "contain" }}
       >
         <ServicesArrivalLayer>
-          <div data-services-backdrop className="absolute inset-0 bg-bg-surface-light" />
           <ServicesCurves />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_76%,rgba(229,25,42,0.04),transparent_36%)]" />
         </ServicesArrivalLayer>
 
         <div className="absolute inset-0 z-40">
