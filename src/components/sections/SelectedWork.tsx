@@ -1,6 +1,7 @@
 "use client";
 
 import GoldThreads from "@/components/ui/GoldThreads";
+import ServicesCurves from "./ServicesCurves";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import Image from "next/image";
@@ -19,7 +20,7 @@ type Selection = { index: number; manual: boolean };
 type GalleryMode = "work" | "services";
 type GalleryProject = { id: string; name: string; poster: string; color: string; video?: string; discipline?: string };
 
-export default function SelectedWork({ mode = "work", onHeadingClick, goldThreads = false }: { mode?: GalleryMode; onHeadingClick?: () => void; goldThreads?: boolean }) {
+export default function SelectedWork({ mode = "work", onHeadingClick, goldThreads = false, servicesCurves = false }: { mode?: GalleryMode; onHeadingClick?: () => void; goldThreads?: boolean; servicesCurves?: boolean }) {
   const t = useTranslations("selectedWork");
   const { t: siteT } = useLanguage();
   const isServices = mode === "services";
@@ -243,6 +244,7 @@ export default function SelectedWork({ mode = "work", onHeadingClick, goldThread
     onFocusCapture={(event) => { if (event.target instanceof HTMLElement) setFocused(event.target.matches(":focus-visible")); }}
     onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
     {goldThreads && theme === "ivory" && <GoldThreads />}
+    {servicesCurves && theme === "ivory" && <ServicesCurves continuation />}
     <div className={styles.container}>
       <header className={styles.header}>
         {isServices ? <div className={styles.serviceHeader}>

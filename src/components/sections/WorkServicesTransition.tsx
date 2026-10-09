@@ -113,7 +113,6 @@ export default function WorkServicesTransition({ children }: { children: ReactNo
     <div ref={runwayRef} className={styles.runway} data-work-runway aria-hidden="true" />
     <ServicesArrivalContext.Provider value={staticScene ? 1 : servicesOpacity}>
       <motion.div className={styles.servicesSurface} data-services-surface style={{ pointerEvents: staticScene ? "auto" : servicesPointerEvents }}>
-        <motion.div className={styles.servicesSeam} data-services-seam aria-hidden="true" style={{ opacity: staticScene ? 1 : servicesOpacity }} />
         {children}
       </motion.div>
     </ServicesArrivalContext.Provider>

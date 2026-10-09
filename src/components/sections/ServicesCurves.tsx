@@ -1,13 +1,28 @@
 "use client";
 
-import { useId } from "react";
+import { useCallback, useContext, useId, useSyncExternalStore } from "react";
+import { motion } from "framer-motion";
+import { ServicesArrivalContext } from "./ServicesArrival";
+import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import styles from "./ServicesCurves.module.css";
 
 /** Mirrored gold contours frame the expertise without entering the reading area. */
-export default function ServicesCurves() {
+export default function ServicesCurves({ continuation = false }: { continuation?: boolean }) {
   const id = useId().replace(/:/g, "");
+  const arrival = useContext(ServicesArrivalContext);
+  const reduced = useHydratedReducedMotion();
+  const subscribe = useCallback((notify: () => void) =>
+    typeof arrival === "number" ? () => {} : arrival.on("change", notify), [arrival]);
+  const snapshot = useCallback(() =>
+    continuation || (typeof arrival === "number" ? arrival : arrival.get()) >= .8, [arrival, continuation]);
+  const settled = useSyncExternalStore(subscribe, snapshot, () => continuation);
+
   return (
-    <div className={styles.frame} data-services-curves aria-hidden="true">
+    <motion.div className={`${styles.frame} ${continuation ? styles.continuation : ""}`}
+      data-services-curves data-portion={continuation ? "continuation" : "start"} aria-hidden="true"
+      initial={continuation || reduced ? false : { opacity: 0 }}
+      animate={{ opacity: settled ? 1 : 0 }}
+      transition={{ duration: reduced || continuation ? 0 : settled ? 1 : .2, delay: settled && !reduced && !continuation ? .15 : 0, ease: [0.16, 1, 0.3, 1] }}>
       {(["left", "right"] as const).map((side) => (
         <svg
           key={side}
@@ -34,6 +49,6 @@ export default function ServicesCurves() {
           </g>
         </svg>
       ))}
-    </div>
+    </motion.div>
   );
 }

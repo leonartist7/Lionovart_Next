@@ -51,7 +51,7 @@ export async function PageBuilder() {
         <WorkServicesTransition>
           <NovaSection id="services"><ServicesSwitcher /></NovaSection>
         </WorkServicesTransition>
-        <SelectedWork goldThreads />
+        <SelectedWork servicesCurves />
         <NovaSection id="about"><CompactIntroduction /></NovaSection>
 
         {/* Compact introduction/comparison -> Brands Elevated/results -> Process. */}
