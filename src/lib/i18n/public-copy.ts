@@ -1,6 +1,5 @@
 /** Reviewed French public UI copy. Source phrases are gettext-style keys. */
 const french: Record<string, string> = {
-  "Let your image reflect the quality of your work.": "Une image à la hauteur de votre travail.",
   "Let your systems handle the routine. Keep time for what matters.": "Vos outils gèrent la routine. Vous gardez du temps pour l’essentiel.",
   "Your website, content and identity. One recognisable brand.": "Site, contenus, identité. Une marque reconnaissable.",
   "Clear positioning": "Un positionnement clair",
