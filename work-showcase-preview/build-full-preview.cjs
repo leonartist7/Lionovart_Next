@@ -21,5 +21,7 @@ webpack({
   // Replace the currently open preview with the complete page, keeping its URL.
   fs.writeFileSync(path.join(root,'LIONOVART-results-preview.html'),html);
   fs.writeFileSync(path.join(root,'LIONOVART-work.html'),html);
+  const previewPublishRoot = path.resolve(root, '../public');
+  if (fs.existsSync(previewPublishRoot)) fs.writeFileSync(path.join(previewPublishRoot, 'work-showcase.html'), html);
   console.log('Built the complete interactive Work page: gallery, results, next steps, founder, closing and enquiry.');
 });

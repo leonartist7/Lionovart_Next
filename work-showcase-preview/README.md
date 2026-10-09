@@ -2,7 +2,7 @@
 
 This folder preserves the complete Work page reviewed by the owner: 53 source media records with 40 published examples, glass filter dock, smooth gallery filtering, client results, founder section, booking/audit choices, loader and return-to-website link. Open LIONOVART-results-preview.html directly in a browser. LIONOVART-work.html is the same complete page.
 
-This is the latest reviewed design. The application route in src/components/work is the earlier wireframe implementation; this commit preserves both without replacing the homepage or claiming the newer preview is deployed at /work.
+This is the latest reviewed design. The existing /work route now serves the exact built public/work-showcase.html artifact through src/proxy.ts, preserving shareable filter URLs. The older application components remain available for project-detail routes; homepage and locale handling are unchanged.
 
 ## Rebuild
 
@@ -50,3 +50,7 @@ The Work preview reuses the visual layers and Paper liquid-metal shader from src
 ## Live booking link
 
 The owner supplied the public calendar URL on 9 October 2026. A read-only click-through confirmed it opens Google Calendar’s Creative Discovery Call | 15 min scheduling page. verify-booking.cjs checks all three enabled links and the destination without reserving an appointment.
+
+## Hosted preview publishing
+
+The rebuild also updates public/work-showcase.html. Push that artifact with source changes so the automatic Vercel preview serves the current approved page at /work. This is a same-origin rewrite, retaining query filters, API requests, studio links and booking behavior. Gallery-review controls remain local-only. Preview responses retain noindex/nofollow while the page is under review.

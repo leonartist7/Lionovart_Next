@@ -1,5 +1,10 @@
 # LIONOVART results redesign
 
+## Latest — connect the approved page to hosted /work preview
+
+Verified GitHub/Vercel preview e174523 was ready but /work still rendered the older thirty-entry application wireframe. Added the exact approved built page as public/work-showcase.html and a narrow /work rewrite in the existing Next.js proxy; incoming queries remain intact. Homepage, locale handling and project-detail requests continue through the existing handler. No production deployment or domain promotion. Preview responses retain noindex/nofollow. Builds now update the published artifact automatically. Root TypeScript and targeted lint pass; route-branch checks verify preserved filters, handler delegation and byte-identical artifact. Hosted verification follows the automatic preview build.
+
+
 ## Latest — public Google Calendar booking connected (9 October 2026)
 
 Connected https://calendar.app.google/vjKnyMFNsjjRGZSn6 to all three Work-page Book a call actions: header, gallery-end and closing. They are enabled native links opening the calendar in a separate tab with noopener/noreferrer; the closing button no longer has the missing-calendar disabled state. Preserved the liquid-metal component, audit route and gallery data/order.
