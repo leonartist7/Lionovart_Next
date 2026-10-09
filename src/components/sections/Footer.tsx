@@ -7,7 +7,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import StickyFooterMarquee from "@/components/sections/StickyFooterMarquee";
 import { CONTACT_EMAIL } from "@/lib/contact";
 import styles from "./Footer.module.css";
-import FooterLion from "./FooterLion";
 
 export type FooterVariant = "standard" | "curtain" | "compact";
 
@@ -22,7 +21,6 @@ function CompactFooter({ year }: { year: number }) {
             <h2 className={styles.wordmark}>LIONOVART</h2>
             <p className={styles.signature}>{tr("The art of innovating brands")}</p>
           </div>
-          <FooterLion />
         </div>
         <div className={styles.finaleUtility}>
           <a className={styles.contact} href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
@@ -39,7 +37,7 @@ function CompactFooter({ year }: { year: number }) {
 }
 
 /**
- * Compact is the homepage signature: wordmark, original lion and essential links.
+ * Compact is the homepage signature: wordmark and essential links; the lion closes the CTA above.
  * Standard/curtain variants remain available for legacy/internal surfaces.
  */
 export default function Footer({ variant = "standard" }: { variant?: FooterVariant }) {

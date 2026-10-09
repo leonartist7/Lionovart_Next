@@ -2,7 +2,7 @@
 
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 
-import { useRef, useSyncExternalStore } from "react";
+import { useRef, useSyncExternalStore, type ReactNode } from "react";
 import { useInView } from "framer-motion";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import styles from "./ClosingCTA.module.css";
@@ -27,7 +27,7 @@ const subscribeVisibility = (callback: () => void) => {
 const getHidden = () => document.hidden;
 const getServerHidden = () => true;
 
-function CompactClosing({ words, onStart }: { words: Word[]; onStart: () => void }) {
+function CompactClosing({ words, onStart, lionDock }: { words: Word[]; onStart: () => void; lionDock?: ReactNode }) {
   const tr = usePublicCopy();
   const { t, locale } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
@@ -37,8 +37,8 @@ function CompactClosing({ words, onStart }: { words: Word[]; onStart: () => void
   const paused = reducedMotion || hidden || !inView;
 
   return (
-    <section id="closing-cta" ref={sectionRef} className={styles.section} data-art-directed="light" data-scroll-title-skip>
-      <div className={styles.copy}>
+    <section id="closing-cta" ref={sectionRef} className={`${styles.section}${lionDock ? ` ${styles.withLion}` : ""}`} data-art-directed="light" data-scroll-title-skip>
+      <div className={styles.copy} data-closing-copy>
         <p className={`${styles.accent} ${locale === "ja" || locale === "ko" ? "font-body" : "editorial-accent"}`}>
           {tr("Your next chapter, together")}
         </p>
@@ -46,7 +46,7 @@ function CompactClosing({ words, onStart }: { words: Word[]; onStart: () => void
       </div>
       <div className={styles.stage} data-closing-stage>
         <div className={styles.media} aria-hidden="true" />
-        <div className={styles.action}>
+        <div className={styles.action} data-closing-action>
           <p className={styles.description}>
             {tr("Bring your ambition. We will shape the identity, experiences and systems to carry it forward.")}
           </p>
@@ -55,6 +55,7 @@ function CompactClosing({ words, onStart }: { words: Word[]; onStart: () => void
           </TrailAttractionTarget>
         </div>
       </div>
+      {lionDock && <div className={styles.lionDock}>{lionDock}</div>}
     </section>
   );
 }
@@ -65,7 +66,7 @@ function CompactClosing({ words, onStart }: { words: Word[]; onStart: () => void
  * Used once per page (the footer is now navigation/legal only), so pages never
  * double-close. `crest` adds the brand crest beside the button (branding page).
  */
-export default function ClosingCTA({ crest = false, workShowcase = false }: { crest?: boolean; workShowcase?: boolean }) {
+export default function ClosingCTA({ crest = false, workShowcase = false, lionDock }: { crest?: boolean; workShowcase?: boolean; lionDock?: ReactNode }) {
   const tr = usePublicCopy();
   const { t, locale } = useLanguage();
   const openNova = useNovaStore((s) => s.openNova);
@@ -87,7 +88,7 @@ export default function ClosingCTA({ crest = false, workShowcase = false }: { cr
           type: "text" as const,
         }));
 
-  if (workShowcase) return <CompactClosing words={words} onStart={() => openNova("offer", true)} />;
+  if (workShowcase) return <CompactClosing words={words} onStart={() => openNova("offer", true)} lionDock={lionDock} />;
 
   return (
     <section

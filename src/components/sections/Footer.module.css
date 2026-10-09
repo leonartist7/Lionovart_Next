@@ -22,7 +22,7 @@
 }
 .brandRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, .38fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: clamp(.75rem, 2vw, 3rem);
   align-items: center;
 }
@@ -69,7 +69,7 @@
 }
 @media (width < 600px) {
   .finaleInner { padding-inline: 1.125rem; }
-  .brandRow { grid-template-columns: minmax(0, 1fr) minmax(0, .42fr); gap: .5rem; }
+  .brandRow { grid-template-columns: minmax(0, 1fr); gap: .5rem; }
   .wordmark { font-size: clamp(1.875rem, 7.8vw, 3rem); }
   .signature { max-width: 23ch; }
   .finaleUtility { grid-template-columns: 1fr; gap: 0; }

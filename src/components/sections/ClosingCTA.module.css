@@ -98,3 +98,16 @@
   .stage { margin-top: 4rem; padding-bottom: 8rem; }
   .action { gap: 2rem; }
 }
+
+/* Reserve the travelling model's lane, then center this copy with transforms. */
+.withLion {
+  --closing-heading: clamp(1.75rem, 1.2rem + 3.5vw, 5.5rem);
+  --liquid-button-width: min(13.75rem, calc(100vw - var(--process-pad) * 2 - var(--process-rail) - var(--process-gap)));
+}
+.withLion .copy, .withLion .stage {
+  max-width: none;
+  padding-left: calc(var(--process-pad) + var(--process-rail) + var(--process-gap));
+  padding-right: var(--process-pad);
+}
+.withLion .stage { padding-bottom: 0; }
+.lionDock { margin-top: clamp(7rem, 25vw, 16rem); padding-bottom: clamp(3rem, 6svh, 5rem); }

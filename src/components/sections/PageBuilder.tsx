@@ -1,5 +1,3 @@
-import { getLocale } from "next-intl/server";
-import { getPublicCopy } from "@/lib/i18n/public-copy";
 import { HeroCompositionProvider } from "./hero-background/HeroComposition";
 import HeroBackground from "@/components/sections/hero-background/HeroBackground";
 import HeroOpening from "@/components/sections/lion-journey/HeroOpening";
@@ -13,9 +11,6 @@ import WorkServicesTransition from "@/components/sections/WorkServicesTransition
 import SelectedWork from "@/components/sections/SelectedWork";
 import ProcessExperience from "@/components/sections/ProcessExperience";
 import Testimonials from "@/components/sections/Testimonials";
-import FAQ from "@/components/sections/FAQ";
-import ClosingCTA from "@/components/sections/ClosingCTA";
-import { SectionTitleCard } from "@/components/ui/SectionTitleCard";
 import ExitIntentModal from "@/components/ui/ExitIntentModal";
 import { TrailAttractionProvider } from "@/contexts/TrailAttractionContext";
 
@@ -32,8 +27,7 @@ function NovaSection({ id, children }: { id: string; children: React.ReactNode }
 }
 
 /** Static landing layout — CMS block map removed (unused; restore from git if needed). */
-export async function PageBuilder() {
-  const tr = getPublicCopy(await getLocale());
+export function PageBuilder() {
   return (
     <TrailAttractionProvider>
       <ExitIntentModal />
@@ -59,16 +53,7 @@ export async function PageBuilder() {
         <div id="client-experience">
           <NovaSection id="testimonials"><Testimonials /></NovaSection>
         </div>
-        <NovaSection id="process"><ProcessExperience /></NovaSection>
-
-        <SectionTitleCard
-          word={tr("ANSWERS.")}
-          theme="dark"
-          height="10vh"
-          fontSize="clamp(3.75rem, 8.5vw, 7.5rem)"
-        />
-        <NovaSection id="faq"><FAQ /></NovaSection>
-        <NovaSection id="closing-cta"><ClosingCTA workShowcase /></NovaSection>
+        <ProcessExperience />
       </div>
     </TrailAttractionProvider>
   );

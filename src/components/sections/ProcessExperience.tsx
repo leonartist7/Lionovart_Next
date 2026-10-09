@@ -1,8 +1,8 @@
 "use client";
 
-import ProcessVideoJourney from "@/components/sections/ProcessVideoJourney";
+import ProcessLionJourney from "./ProcessLionJourney";
 
-// Previous Process and LogoProcessJourney components remain available for rollback.
+/** Homepage process and closing CTA share a single lion scene. */
 export default function ProcessExperience() {
-  return <ProcessVideoJourney />;
+  return <ProcessLionJourney />;
 }
