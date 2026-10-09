@@ -20,11 +20,14 @@ const subscribeShortViewport = (notify: () => void) => {
 };
 
 /** Work and services share one reversible scroll transition. */
-export default function WorkServicesTransition({ children }: { children: ReactNode }) {
+export default function WorkServicesTransition({ intro, children }: { intro: ReactNode; children: ReactNode }) {
   const tr = usePublicCopy();
   const reduced = useHydratedReducedMotion();
   const shortViewport = useSyncExternalStore(subscribeShortViewport, () => matchMedia(shortViewportQuery).matches, () => false);
   const staticScene = reduced || shortViewport;
+  const introRef = useRef<HTMLDivElement>(null);
+  const introTop = useMotionValue<number | string>("auto");
+  const [introRetired, setIntroRetired] = useState(false);
   const runwayRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLElement>(null);
@@ -57,15 +60,18 @@ export default function WorkServicesTransition({ children }: { children: ReactNo
   useEffect(() => {
     const runway = runwayRef.current;
     if (!runway || staticScene) return;
-    // Read the actual seam position after responsive content reflows.
-    // Every fade shares this value, avoiding cached/native timeline offsets.
+    // Pin the final viewport of the cards while the circle underneath shrinks.
+    // The overlapping scene removes the former full-screen red pause.
     const sync = () => {
+      const intro = introRef.current, scene = sceneRef.current;
+      if (intro && scene) introTop.set(scene.clientHeight - intro.offsetHeight);
       const rect = runway.getBoundingClientRect();
       scrollYProgress.set(Math.min(1, Math.max(0, -rect.top / Math.max(1, rect.height))));
     };
     window.addEventListener("scroll", sync, { passive: true });
     const observer = new ResizeObserver(sync);
     observer.observe(runway);
+    if (introRef.current) observer.observe(introRef.current);
     if (runway.parentElement) observer.observe(runway.parentElement);
     window.addEventListener("resize", sync);
     window.addEventListener("pageshow", sync);
@@ -76,9 +82,11 @@ export default function WorkServicesTransition({ children }: { children: ReactNo
       window.removeEventListener("resize", sync);
       window.removeEventListener("pageshow", sync);
     };
-  }, [scrollYProgress, staticScene]);
-  const circleTransform = useTransform(scrollYProgress, [0, .04, .35, 1], [
-    "translate(-50%, -50%) scale(1)", "translate(-50%, -50%) scale(1)",
+  }, [introTop, scrollYProgress, staticScene]);
+  const introOpacity = useTransform(scrollYProgress, [0, .14], [1, 0]);
+  const introPointerEvents = useTransform(scrollYProgress, p => p >= .14 ? "none" : "auto");
+  const circleTransform = useTransform(scrollYProgress, [0, .35, 1], [
+    "translate(-50%, -50%) scale(1)",
     `translate(-50%, -50%) scale(${LOGO_SCALE})`, `translate(-50%, -50%) scale(${LOGO_SCALE})`,
   ]);
   const circleOpacity = useTransform(scrollYProgress, [.62, .96], [1, 0]);
@@ -93,7 +101,10 @@ export default function WorkServicesTransition({ children }: { children: ReactNo
   const sceneVisibility = useTransform(scrollYProgress, p => p >= 1 ? "hidden" : "visible");
 
   useMotionValueEvent(scrollYProgress, "change", p => {
-    if (!staticScene) setRetired(current => current === (p >= 1) ? current : p >= 1);
+    if (!staticScene) {
+      setRetired(current => current === (p >= 1) ? current : p >= 1);
+      setIntroRetired(current => current === (p >= .14) ? current : p >= .14);
+    }
   });
   useEffect(() => {
     const sync = () => setPageVisible(!document.hidden);
@@ -102,6 +113,11 @@ export default function WorkServicesTransition({ children }: { children: ReactNo
   }, []);
 
   return <div className={styles.transition} data-work-services-transition data-static={staticScene}>
+    <motion.div ref={introRef} className={styles.intro} data-work-intro
+      inert={!staticScene && introRetired} aria-hidden={!staticScene && introRetired}
+      style={staticScene ? { top: "auto", opacity: 1, pointerEvents: "auto" } : { top: introTop, opacity: introOpacity, pointerEvents: introPointerEvents }}>
+      {intro}
+    </motion.div>
     <motion.div ref={sceneRef} className={styles.scene} data-work-scene data-scroll-title-skip inert={!staticScene && retired}
       aria-hidden={!staticScene && retired}
       style={{ visibility: staticScene ? "visible" : retired ? "hidden" : sceneVisibility }}>

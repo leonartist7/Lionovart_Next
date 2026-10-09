@@ -38,17 +38,17 @@ export async function PageBuilder() {
     <TrailAttractionProvider>
       <ExitIntentModal />
 
-      <HeroCompositionProvider><LionJourney>
-        <HeroBackground />
-        <HeroOpening />
-        <BridgeStatement />
-        <span data-voice-reveal-boundary aria-hidden="true" />
-        <NovaSection id="problems"><PawRevealStack /></NovaSection>
-      </LionJourney></HeroCompositionProvider>
-
-      {/* Later chapters cover the retired opening scene. */}
+      {/* One shared runway joins the benefit cards, work and services. */}
       <div className="relative z-[2]">
-        <WorkServicesTransition>
+        <WorkServicesTransition intro={
+          <HeroCompositionProvider><LionJourney>
+            <HeroBackground />
+            <HeroOpening />
+            <BridgeStatement />
+            <span data-voice-reveal-boundary aria-hidden="true" />
+            <NovaSection id="problems"><PawRevealStack /></NovaSection>
+          </LionJourney></HeroCompositionProvider>
+        }>
           <NovaSection id="services"><ServicesSwitcher /></NovaSection>
         </WorkServicesTransition>
         <SelectedWork servicesCurves />
