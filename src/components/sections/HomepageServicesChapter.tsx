@@ -2,7 +2,7 @@
 
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 
-import GoldThreads from "@/components/ui/GoldThreads";
+import ServicesCurves from "./ServicesCurves";
 import { ServicesArrivalLayer } from "./ServicesArrival";
 
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
@@ -209,7 +209,7 @@ export default function HomepageServicesChapter() {
       data-art-directed="light"
         className="relative isolate overflow-hidden bg-bg-surface-light text-[#111111]"
       >
-        <GoldThreads />
+        <ServicesCurves />
         <h2 className="sr-only">{tr("Our services")}</h2>
 
         <div className="mx-auto grid max-w-[1280px] gap-px bg-black/10 sm:grid-cols-2 lg:grid-cols-3">
@@ -238,7 +238,6 @@ export default function HomepageServicesChapter() {
       data-art-directed="light"
       className="relative z-20 isolate overflow-clip text-[#111111]"
     >
-      <ServicesArrivalLayer><GoldThreads single /></ServicesArrivalLayer>
       <h2 className="sr-only">{tr("Our services")}</h2>
 
       <div ref={chapterRef} data-services-runway className="relative h-[330svh] sm:h-[310svh] lg:h-[340vh]">
@@ -253,7 +252,7 @@ export default function HomepageServicesChapter() {
       >
         <ServicesArrivalLayer>
           <div data-services-backdrop className="absolute inset-0 bg-bg-surface-light" />
-          <GoldThreads />
+          <ServicesCurves />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_76%,rgba(229,25,42,0.04),transparent_36%)]" />
         </ServicesArrivalLayer>
 
