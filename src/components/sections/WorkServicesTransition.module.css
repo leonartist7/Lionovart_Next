@@ -26,6 +26,9 @@
   width: 200vmax;
   height: 200vmax;
   border-radius: 50%;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
   background: #f51b2c;
   z-index: 3;
   transform: translate(-50%, -50%);
@@ -143,3 +146,15 @@
 .servicesCue:focus-visible { outline: .125rem solid #986c12; outline-offset: .25rem; }
 
 .transition[data-static=true] .servicesCue { position: relative; top: auto; bottom: auto; left: auto; transform: none; display: flex; margin: 1.5rem auto 0; }
+
+.circle:focus-visible { outline: 2.5rem solid #986c12; outline-offset: 3rem; }
+.transition[data-static=true] .circle:focus-visible { outline-width: .125rem; outline-offset: .25rem; }
+/* In the test, the work stays in the upper half while the service copy scrolls below. */
+.transition[data-carousel-services-preview=true] .heading { top: max(4.5rem, 6svh); }
+.transition[data-carousel-services-preview=true] .heading h2 { font-size: clamp(2rem, 1.5rem + 2vw, 3.25rem); }
+.transition[data-carousel-services-preview=true] .heading p { margin-top: .5rem; font-size: clamp(1.125rem, 1rem + .3vw, 1.5rem); }
+.transition[data-carousel-services-preview=true] .streamViewport {
+  mask-image: linear-gradient(to right, transparent, #000 var(--stream-edge), #000 calc(100% - var(--stream-edge)), transparent),
+    linear-gradient(to bottom, #000 0%, #000 36%, transparent 48%);
+  mask-composite: intersect;
+}

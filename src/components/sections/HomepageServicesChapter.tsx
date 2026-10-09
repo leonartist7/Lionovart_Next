@@ -4,6 +4,8 @@ import { usePublicCopy } from "@/hooks/usePublicCopy";
 
 import ServicesCurves from "./ServicesCurves";
 import { ServicesArrivalLayer } from "./ServicesArrival";
+import { useServicesCarouselPreview } from "./ServicesPreview";
+import styles from "./HomepageServicesChapter.module.css";
 
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
@@ -132,6 +134,7 @@ function ServiceMediaCarousel({
 
 export default function HomepageServicesChapter() {
   const tr = usePublicCopy();
+  const carouselPreview = useServicesCarouselPreview();
   const { t } = useLanguage();
   const reduceMotion = useHydratedReducedMotion() ?? false;
   const chapterRef = useRef<HTMLDivElement>(null);
@@ -170,14 +173,14 @@ export default function HomepageServicesChapter() {
     (index: number, behavior: ScrollBehavior = "smooth") => {
       const element = chapterRef.current;
       if (!element) return;
-      const next = clamp(index, 0, SERVICE_COUNT - 1);
+      const next = carouselPreview ? (index % SERVICE_COUNT + SERVICE_COUNT) % SERVICE_COUNT : clamp(index, 0, SERVICE_COUNT - 1);
       const sectionTop = element.getBoundingClientRect().top + window.scrollY;
       const travel = Math.max(1, element.offsetHeight - window.innerHeight);
       const ratio = (next + 0.5) / SERVICE_COUNT;
       const targetProgress = SERVICE_START + ratio * (SERVICE_END - SERVICE_START);
       window.scrollTo({ top: sectionTop + travel * targetProgress, behavior });
     },
-    [],
+    [carouselPreview],
   );
 
   const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
@@ -236,7 +239,8 @@ export default function HomepageServicesChapter() {
     <section
       id="services"
       data-art-directed="light"
-      className="relative z-20 isolate overflow-clip text-[#111111]"
+      data-carousel-preview={carouselPreview}
+      className={`${styles.chapter} relative z-20 isolate overflow-clip text-[#111111]`}
     >
       <h2 className="sr-only">{tr("Our services")}</h2>
 
@@ -257,7 +261,8 @@ export default function HomepageServicesChapter() {
         <div className="absolute inset-0 z-40">
           <span className="sr-only" aria-live="polite">{activeService.title}</span>
 
-          <div className="absolute inset-x-0 bottom-[10.5svh] top-[4.5svh] mx-auto max-w-[1500px] px-4 sm:px-8 lg:bottom-[12vh] lg:top-[9vh] lg:px-12">
+          <div data-service-panel
+            className={`${styles.panel} absolute inset-x-0 bottom-[10.5svh] top-[4.5svh] mx-auto max-w-[1500px] px-4 sm:px-8 lg:bottom-[12vh] lg:top-[9vh] lg:px-12`}>
             <motion.div
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
@@ -271,23 +276,23 @@ export default function HomepageServicesChapter() {
               style={{ touchAction: "pan-y" }}
               className="flex h-full flex-col items-center justify-center gap-7 sm:gap-9 lg:gap-[clamp(2.75rem,5.5svh,5rem)]"
             >
-              <div className="relative order-1 aspect-video w-[min(92vw,61svh)] overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:w-[min(70vw,64svh)] lg:rounded-[1.55rem]">
+              {!carouselPreview && <div data-service-media className="relative order-1 aspect-video w-[min(92vw,61svh)] overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:w-[min(70vw,64svh)] lg:rounded-[1.55rem]">
                 <ServiceMediaCarousel
                   key={activeService.id}
                   images={activeService.media}
                   alt={`${activeService.title} service visual`}
                 />
-              </div>
+              </div>}
 
               <div className="order-2 flex min-w-0 flex-col justify-center text-center">
                 <div>
-                    <h3 className="mx-auto max-w-[13ch] font-clash text-[clamp(2.15rem,8.6vw,3.75rem)] font-semibold uppercase leading-[0.86] tracking-[-0.052em] sm:text-[clamp(2.45rem,7.5vw,4.5rem)] lg:max-w-[11ch] lg:text-[clamp(3.2rem,5vw,6.2rem)]">
+                    <h3 data-service-title className="mx-auto max-w-[13ch] font-clash text-[clamp(2.15rem,8.6vw,3.75rem)] font-semibold uppercase leading-[0.86] tracking-[-0.052em] sm:text-[clamp(2.45rem,7.5vw,4.5rem)] lg:max-w-[11ch] lg:text-[clamp(3.2rem,5vw,6.2rem)]">
                       {activeService.title}
                     </h3>
-                    <p className="mx-auto mt-4 max-w-[36ch] font-body text-[13px] font-medium leading-[1.52] text-black/60 sm:mt-5 sm:text-[15px] lg:mt-6 lg:max-w-[38ch] lg:text-[18px] lg:leading-[1.62]">
+                    <p data-service-description className="mx-auto mt-4 max-w-[36ch] font-body text-[13px] font-medium leading-[1.52] text-black/60 sm:mt-5 sm:text-[15px] lg:mt-6 lg:max-w-[38ch] lg:text-[18px] lg:leading-[1.62]">
                       {activeService.description}
                     </p>
-                    <div className="mx-auto mt-5 flex max-h-[4.6rem] max-w-[38rem] flex-wrap justify-center gap-1.5 overflow-hidden sm:mt-6 sm:max-h-none sm:gap-2 lg:mt-7 lg:max-w-[40rem]">
+                    <div data-service-tags className="mx-auto mt-5 flex max-h-[4.6rem] max-w-[38rem] flex-wrap justify-center gap-1.5 overflow-hidden sm:mt-6 sm:max-h-none sm:gap-2 lg:mt-7 lg:max-w-[40rem]">
                       {activeService.deliverables.map((item) => (
                         <span
                           key={item}

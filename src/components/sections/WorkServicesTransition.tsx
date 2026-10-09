@@ -10,6 +10,7 @@ import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { SHOWCASE_IMAGES } from "./showcase-images";
 import styles from "./WorkServicesTransition.module.css";
 import { ServicesArrivalContext } from "./ServicesArrival";
+import { ServicesPreviewContext, useServicesPreviewToggle } from "./ServicesPreview";
 
 const LOGO_SCALE = .04875;
 const shortViewportQuery = "(max-height: 480px)";
@@ -25,6 +26,9 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
   const reduced = useHydratedReducedMotion();
   const shortViewport = useSyncExternalStore(subscribeShortViewport, () => matchMedia(shortViewportQuery).matches, () => false);
   const staticScene = reduced || shortViewport;
+  const { preview, togglePreview } = useServicesPreviewToggle();
+  const [logoReady, setLogoReady] = useState(false);
+  const carouselServices = preview && !staticScene;
   const introRef = useRef<HTMLDivElement>(null);
   const introTop = useMotionValue<number | string>("auto");
   const [introRetired, setIntroRetired] = useState(false);
@@ -32,7 +36,7 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
   const sceneRef = useRef<HTMLDivElement>(null);
   const servicesSurfaceRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLElement>(null);
-  const circleRef = useRef<HTMLDivElement>(null);
+  const circleRef = useRef<HTMLButtonElement>(null);
   const originY = useMotionValue(0);
   useEffect(() => {
     if (staticScene) return;
@@ -54,6 +58,7 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
     return () => { observer.disconnect(); window.removeEventListener("resize", sync); };
   }, [originY, staticScene]);
   const near = useInView(runwayRef, { margin: "160px" });
+  const servicesNear = useInView(servicesSurfaceRef, { margin: "160px" });
   const [paused, setPaused] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
   const [retired, setRetired] = useState(false);
@@ -99,6 +104,10 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
     "translate(-50%, -50%) scale(1)",
     `translate(-50%, -50%) scale(${LOGO_SCALE})`, `translate(-50%, -50%) scale(${LOGO_SCALE})`,
   ]);
+  const persistentWorkOpacity = useTransform(scrollYProgress, [0, .2, .38], [0, 0, 1]);
+  const persistentCaptionOpacity = useTransform(scrollYProgress, [0, .2, .36], [0, 0, 1]);
+  const persistentVisibility = useTransform(scrollYProgress, p => p <= .2 ? "hidden" : "visible");
+  const logoPointerEvents = useTransform(scrollYProgress, p => p >= .35 ? "auto" : "none");
   const circleOpacity = useTransform(scrollYProgress, [.76, .98], [1, 0]);
   const logoOpacity = useTransform(scrollYProgress, [.18, .35], [0, 1]);
   const workOpacity = useTransform(scrollYProgress, [0, .2, .38, .5, .74], [0, 0, 1, 1, 0]);
@@ -112,6 +121,7 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
 
   useMotionValueEvent(scrollYProgress, "change", p => {
     if (!staticScene) {
+      setLogoReady(current => current === (p >= .35) ? current : p >= .35);
       setRetired(current => current === (p >= 1) ? current : p >= 1);
       setIntroRetired(current => current === (p >= .14) ? current : p >= .14);
     }
@@ -122,33 +132,37 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
     return () => document.removeEventListener("visibilitychange", sync);
   }, []);
 
-  return <div className={styles.transition} data-work-services-transition data-static={staticScene}>
+  return <div className={styles.transition} data-work-services-transition data-static={staticScene} data-carousel-services-preview={carouselServices}>
     <motion.div ref={introRef} className={styles.intro} data-work-intro
       inert={!staticScene && introRetired} aria-hidden={!staticScene && introRetired}
       style={staticScene ? { top: "auto", opacity: 1, pointerEvents: "auto" } : { top: introTop, opacity: introOpacity, pointerEvents: introPointerEvents }}>
       {intro}
     </motion.div>
-    <motion.div ref={sceneRef} className={styles.scene} data-work-scene data-scroll-title-skip inert={!staticScene && retired}
-      aria-hidden={!staticScene && retired}
-      style={{ visibility: staticScene ? "visible" : retired ? "hidden" : sceneVisibility }}>
-      {!staticScene && <motion.div className={styles.servicesBackdrop} data-services-transition-backdrop
+    <motion.div ref={sceneRef} className={styles.scene} data-work-scene data-scroll-title-skip inert={!staticScene && !carouselServices && retired}
+      aria-hidden={!staticScene && !carouselServices && retired}
+      style={{ visibility: staticScene || carouselServices ? "visible" : retired ? "hidden" : sceneVisibility }}>
+      {!staticScene && !carouselServices && <motion.div className={styles.servicesBackdrop} data-services-transition-backdrop
         style={{ opacity: servicesOpacity }} aria-hidden="true" />}
       <motion.header ref={headingRef} className={styles.heading} data-work-heading
-        style={staticScene ? { opacity: 1, visibility: "visible" } : { opacity: captionOpacity, visibility: captionVisibility }}>
+        style={staticScene ? { opacity: 1, visibility: "visible" } : { opacity: carouselServices ? persistentCaptionOpacity : captionOpacity, visibility: carouselServices ? persistentVisibility : captionVisibility }}>
         <h2>{tr("One partnership")}</h2>
         <p>{tr("Designing your legacy")}</p>
       </motion.header>
-      <motion.div ref={circleRef} className={styles.circle} data-imagine-circle aria-hidden="true"
-        style={staticScene ? { top: "auto", transform: "none", opacity: 1 } : { top: originY, transform: circleTransform, opacity: circleOpacity }}>
+      <motion.button ref={circleRef} className={styles.circle} data-imagine-circle data-services-preview-toggle type="button"
+        aria-pressed={preview} tabIndex={staticScene || logoReady ? 0 : -1}
+        aria-label={tr(preview ? "Return to the fading services transition" : "Preview services below the carousel")}
+        title={tr(preview ? "Return to the fading services transition" : "Preview services below the carousel")}
+        onClick={togglePreview}
+        style={staticScene ? { top: "auto", transform: "none", opacity: 1, pointerEvents: "auto" } : { top: originY, transform: circleTransform, opacity: carouselServices ? 1 : circleOpacity, pointerEvents: logoPointerEvents }}>
         <motion.div className={styles.logo} style={{ opacity: staticScene ? 1 : logoOpacity }}>
           <Image src="/images/lionovart-icon.svg" alt="" fill sizes="180px" />
         </motion.div>
-      </motion.div>
+      </motion.button>
       {staticScene ? <div className={styles.staticGallery} data-imagine-static-gallery>
         {SHOWCASE_IMAGES.map((src, index) => <div key={src}><Image src={src} alt={`${tr("Selected creative work")} ${index + 1}`} fill sizes="(max-width: 767px) 45vw, 30vw" /></div>)}
-      </div> : <div className={styles.streamViewport} data-work-stream-viewport><motion.div className={styles.workStream} data-work-stream style={{ top: originY, opacity: workOpacity }} aria-hidden="true">
-        {near && <ImageStreamHero images={SHOWCASE_IMAGES.map(src => ({ src }))} cards={6} speed={30} hoverSpeed={.55} axis={0}
-          paused={paused || !pageVisible || retired}
+      </div> : <div className={styles.streamViewport} data-work-stream-viewport><motion.div className={styles.workStream} data-work-stream style={{ top: originY, opacity: carouselServices ? persistentWorkOpacity : workOpacity }} aria-hidden="true">
+        {(near || (carouselServices && servicesNear)) && <ImageStreamHero images={SHOWCASE_IMAGES.map(src => ({ src }))} cards={6} speed={30} hoverSpeed={.55} axis={0}
+          paused={paused || !pageVisible || (!carouselServices && retired)}
           path={{ cardWidth: 19, cardHeight: 24, birthHeight: 3.4, exitHeight: 40, railBirth: 0, railExit: 36, fan: 2.7, turnBirth: 12, turnExit: 52, stops: 24, anchorTop: true, descent: -2, exitFade: .72 }}
           className={styles.streamCanvas} />}
       </motion.div></div>}
@@ -157,16 +171,18 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
         {tr("Our expertise")}<ArrowDown aria-hidden="true" />
       </motion.a>
       {!staticScene && <motion.button className={styles.pause} type="button" aria-pressed={paused}
-        style={{ opacity: workOpacity, visibility: pauseVisibility }}
+        style={{ opacity: carouselServices ? persistentWorkOpacity : workOpacity, visibility: carouselServices ? persistentVisibility : pauseVisibility }}
         aria-label={tr(paused ? "Play work animation" : "Pause work animation")} onClick={() => setPaused(v => !v)}>
         {paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
       </motion.button>}
     </motion.div>
     <div ref={runwayRef} className={styles.runway} data-work-runway aria-hidden="true" />
     <ServicesArrivalContext.Provider value={staticScene ? 1 : servicesOpacity}>
-      <motion.div ref={servicesSurfaceRef} className={styles.servicesSurface} data-services-surface style={{ pointerEvents: staticScene ? "auto" : servicesPointerEvents }}>
+      <ServicesPreviewContext.Provider value={carouselServices}>
+      <motion.div ref={servicesSurfaceRef} className={styles.servicesSurface} data-services-surface style={{ pointerEvents: carouselServices ? "none" : staticScene ? "auto" : servicesPointerEvents }}>
         {children}
       </motion.div>
+      </ServicesPreviewContext.Provider>
     </ServicesArrivalContext.Provider>
   </div>;
 }
