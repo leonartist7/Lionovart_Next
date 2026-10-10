@@ -1,3 +1,6 @@
+import { getLocale } from "next-intl/server";
+import { getPublicCopy } from "@/lib/i18n/public-copy";
+import { locales, type Locale } from "@/lib/i18n";
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import Navbar from "@/components/sections/Navbar";
@@ -13,19 +16,21 @@ export const metadata: Metadata = {
 };
 
 /** /services — overview hub linking every service page. */
-export default function ServicesIndexPage() {
+export default async function ServicesIndexPage() {
+  const locale = await getLocale() as Locale;
+  const tr = getPublicCopy(locale);
+  const services = locales[locale].services.items;
   return (
     <>
       <main className="bg-bg-dark min-h-screen relative z-10">
         <Navbar />
 
         <section className="mx-auto max-w-[1400px] px-6 pt-40 pb-16 md:px-10 md:pt-48">
-          <p className="mb-5 text-[11px] uppercase tracking-[0.3em] text-white/50">What we do</p>
+          <p className="mb-5 text-[11px] uppercase tracking-[0.3em] text-white/50">{tr("What we do")}</p>
           <h1
             className="font-clash font-semibold uppercase leading-[0.92] tracking-tight text-white"
             style={{ fontSize: "clamp(2.8rem, 9vw, 7rem)", wordSpacing: "0.12em" }}
-          >
-            One studio. <span className="text-brand-red">Every medium.</span>
+          >{tr("One studio.")}<span className="text-brand-red">{tr("Every medium.")}</span>
           </h1>
         </section>
 
@@ -42,9 +47,9 @@ export default function ServicesIndexPage() {
                       className="font-clash font-semibold uppercase leading-none tracking-tight text-white transition-colors group-hover:text-brand-red"
                       style={{ fontSize: "clamp(1.6rem, 4vw, 3rem)" }}
                     >
-                      {s.name}
+                      {locale === "fr" ? services[i]?.title ?? s.name : s.name}
                     </h2>
-                    <p className="mt-3 max-w-[60ch] text-[15px] leading-relaxed text-white/55">{s.blurb}</p>
+                    <p className="mt-3 max-w-[60ch] text-[15px] leading-relaxed text-white/55">{locale === "fr" ? services[i]?.description ?? s.blurb : s.blurb}</p>
                   </div>
                   <span className="hidden shrink-0 text-right md:block">
                     {s.ready ? (
@@ -52,9 +57,7 @@ export default function ServicesIndexPage() {
                         &rarr;
                       </span>
                     ) : (
-                      <span className="rounded-full border border-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/40">
-                        Soon
-                      </span>
+                      <span className="rounded-full border border-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/40">{tr("Soon")}</span>
                     )}
                   </span>
                 </div>
@@ -63,11 +66,11 @@ export default function ServicesIndexPage() {
               return (
                 <li key={s.id} className="border-b border-white/10">
                   {s.ready ? (
-                    <Link href={s.href} className="block" aria-label={s.name}>
+                    <Link href={s.href} className="block" aria-label={locale === "fr" ? services[i]?.title ?? s.name : s.name}>
                       {Row}
                     </Link>
                   ) : (
-                    <div aria-label={`${s.name} (coming soon)`}>{Row}</div>
+                    <div aria-label={`${locale === "fr" ? services[i]?.title ?? s.name : s.name} (coming soon)`}>{Row}</div>
                   )}
                 </li>
               );

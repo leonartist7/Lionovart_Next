@@ -1,7 +1,7 @@
 {
   "whatWeDo": {
-    "eyebrow": "Ce Que Nous Faisons",
-    "statement": "Nous rendons les marques impossibles à ignorer.",
+    "eyebrow": "Notre savoir-faire",
+    "statement": "Donnez un univers à votre vision.",
     "trust": [
       "+20 Marques dans la Meute du Lion",
       "Présents sur 3 Continents",
@@ -20,44 +20,44 @@
       },
       {
         "label": "Créer",
-        "kicker": "Contenu & Art",
+        "kicker": "Contenu & création",
         "body": "Vidéo et design dignes d'Hollywood — une créativité premium accessible aux marques ambitieuses."
       }
     ]
   },
   "nav": {
-    "we": "Nous",
+    "we": "À propos",
     "expertise": "Expertise",
     "work": "Réalisations",
     "services": "Services",
     "results": "Résultats",
-    "cta": "Commencer"
+    "cta": "Démarrer"
   },
   "hero": {
     "trustLine": "Plus de 70 marques ambitieuses nous font confiance, sans frontières",
     "staticText": [
-      "NOUS RENDONS",
+      "FAISONS RUGIR",
       "VOTRE MARQUE"
     ],
     "cyclingWords": [
-      "RUGIR",
-      "ATTIRANTE",
-      "MÉMORABLE",
-      "MAGNÉTIQUE",
-      "VENDRE PLUS",
-      "DOMINER"
+      "ENSEMBLE",
+      "AVEC ÉCLAT",
+      "DURABLEMENT",
+      "AVEC AUDACE",
+      "PLUS FORT",
+      "SANS LIMITES"
     ],
-    "subtitle": "Nous créons des marques, développons des sites web et produisons du contenu pour que votre entreprise soit impossible à ignorer.",
-    "ctaStart": "Commencer",
-    "ctaStartOpening": "Ouverture WhatsApp…",
-    "ctaStrategist": "Parlez avec notre agent",
-    "ctaWork": "Voir Nos Projets",
+    "subtitle": "Stratégie de marque, systèmes intelligents et création pour faire avancer votre entreprise.",
+    "ctaStart": "Démarrer",
+    "ctaStartOpening": "Ouverture de WhatsApp…",
+    "ctaStrategist": "Parler à notre agent",
+    "ctaWork": "Voir nos réalisations",
     "stats": {
       "clients": "Clients",
       "industries": "Secteurs",
-      "yearsExp": "Ans d'Exp."
+      "yearsExp": "Ans d’expérience"
     },
-    "trustText": "Approuvé par plus de 50 startups et marques mondiales, dans plus de 20 secteurs.",
+    "trustText": "Plus de 50 startups et marques internationales nous font confiance, dans plus de 20 secteurs.",
     "badges": {
       "brands": [
         "Marques",
@@ -65,9 +65,9 @@
       ],
       "experience": [
         "Expérience",
-        "Client"
+        "client"
       ],
-      "countries": "PAYS"
+      "countries": "Pays"
     }
   },
   "marquee": {
@@ -81,30 +81,30 @@
     ]
   },
   "about": {
-    "line1": "L'innovation n'est plus un choix\n— c'est une nécessité.",
-    "line2": "LIONOVART est une équipe multidisciplinaire d'artistes et d'entrepreneurs qui construisent des marques avec confiance, innovation et émotion comme piliers. Nous faisons le pont entre le numérique et le physique, la stratégie et le ressenti, le savoir-faire et le commerce — pour que votre marque travaille aussi dur que vous. Un niveau créatif mondial, rendu accessible à toute entreprise sérieuse qui veut se démarquer.",
-    "founderRole": "Fondateur & Directeur Créatif",
+    "line1": "L’innovation n’est plus un choix.\nC’est une nécessité.",
+    "line2": "Artistes et entrepreneurs, nous réunissons plusieurs disciplines autour d’une stratégie sur mesure pour vous donner les moyens d’avancer dans le monde numérique.",
+    "founderRole": "Fondateur & directeur créatif",
     "founderStatus": "Disponible",
-    "stat1Label": "Années d'Expérience",
-    "stat1Desc": "Expertise en innovation numérique, production audiovisuelle et médias imprimés.",
+    "stat1Label": "Années",
+    "stat1Desc": "Une expertise en innovation numérique, marketing et supports imprimés.",
     "stat2Label": "Pays — Portée Mondiale",
     "stat2Desc": "Une équipe multilingue au service de clients sur 4 continents."
   },
   "process": {
-    "eyebrow": "Notre Processus",
-    "heading": "Notre Système",
-    "headingAccent": "Éprouvé",
+    "eyebrow": "Notre méthode",
+    "heading": "Notre méthode",
+    "headingAccent": "éprouvée",
     "triggerLabel": "Cliquez pour voir le processus",
     "triggerSub": "60 secondes. Voyez exactement ce que vous obtenez.",
     "expectLabel": "À prévoir",
     "deliverLabel": "Ce que nous livrons",
     "gainLabel": "Ce que vous gagnez",
     "cta": "Commencer par la clarté",
-    "ctaSub": "Audit de marque gratuit de 20 minutes. Sans argumentaire.",
+    "ctaSub": "Audit de marque gratuit de 20 minutes. Sans discours commercial.",
     "steps": [
       {
         "title": "Clarté",
-        "description": "Nous examinons ce que vous vendez vraiment, qui achète, et ce qui retient les autres. Aucune supposition au départ.",
+        "description": "Ce qui vous distingue, les personnes à toucher, la direction à prendre. Nous posons les bases.",
         "tag": "Découverte",
         "timeline": "Semaine 1–2",
         "expect": "Nous examinons ce que vous vendez vraiment, qui achète, et ce qui retient les autres. Aucune supposition au départ.",
@@ -113,7 +113,7 @@
       },
       {
         "title": "Vision",
-        "description": "Nous fixons la direction — l'allure, le ton et le comportement de la marque une fois qu'elle cesse de s'excuser d'exister.",
+        "description": "Une identité affirmée, une voix juste. Nous donnons à votre marque une allure qui vous ressemble.",
         "tag": "Direction",
         "timeline": "Semaine 3–4",
         "expect": "Nous fixons la direction — l'allure, le ton et le comportement de la marque une fois qu'elle cesse de s'excuser d'exister.",
@@ -122,7 +122,7 @@
       },
       {
         "title": "Exécution",
-        "description": "Nous construisons. Site, canaux, tunnels — les systèmes qui continuent de tourner quand personne ne les surveille.",
+        "description": "Identité, site, films et contenus. Un travail soigné, construit avec vous à chaque étape.",
         "tag": "Construction",
         "timeline": "Semaine 5–8",
         "expect": "Nous construisons. Site, canaux, tunnels — les systèmes qui continuent de tourner quand personne ne les surveille.",
@@ -131,7 +131,7 @@
       },
       {
         "title": "Optimisation",
-        "description": "Nous lisons les chiffres, coupons ce qui ne fonctionne pas et poussons ce qui marche. Chaque mois, ça s'affûte.",
+        "description": "Nous lançons, observons ce qui fonctionne et affinons le travail à mesure que votre activité grandit.",
         "tag": "Croissance",
         "timeline": "En continu",
         "expect": "Nous lisons les chiffres, coupons ce qui ne fonctionne pas et poussons ce qui marche. Chaque mois, ça s'affûte.",
@@ -141,22 +141,22 @@
     ]
   },
   "bridge": {
-    "line1": "Plus qu’une agence. Une alliance.",
-    "line2": "Pour bâtir votre héritage,",
-    "accent": "avec confiance.",
-    "body": "Nous prenons part à ce que vous bâtissez, avec le même soin que vous y mettez."
+    "line1": "Plus qu’une agence.",
+    "line2": "Un partenaire",
+    "accent": "pour bâtir votre avenir.",
+    "body": "Nous nous engageons dans ce que vous construisez."
   },
   "vow": {
-    "line1": "Personne ne voit les heures derrière la marque.",
-    "line2": "Nous, si.",
-    "accent": "Nous les avons faites.",
-    "body": "C'est pourquoi nous ne commençons pas par un discours, mais par ce que vous avez déjà bâti."
+    "line1": "Vous avez déjà fait tant de chemin.",
+    "line2": "Donnons forme",
+    "accent": "à la suite.",
+    "body": "Parlez-nous de ce que vous avez construit, de ce qui compte pour vous et de là où vous voulez aller."
   },
   "footer": {
     "heading": "Prêt à",
-    "headingAccent": "Dominer ?",
-    "subtitle": "Arrêtez de vous fondre dans la masse. Revendiquez votre place en tant que leader incontesté de votre secteur.",
-    "cta": "Réserver Votre Sprint",
+    "headingAccent": "vous démarquer ?",
+    "subtitle": "Affirmez votre différence et prenez votre place parmi les références de votre secteur.",
+    "cta": "Réserver votre sprint",
     "tagline": "Identités de marque premium et sites web conçus pour les fondateurs ambitieux.",
     "privacy": "Confidentialité",
     "terms": "Conditions",
@@ -251,8 +251,8 @@
     "assistant": {
       "eyebrow": "En ligne maintenant",
       "heading": "Demandez à NOVA, notre assistant 24/7",
-      "body": "NOVA connaît nos services, nos délais et notre façon de travailler. Si votre question demande Leon, il vous met directement en relation.",
-      "examplesLabel": "Les plus posées",
+      "body": "NOVA connaît nos services, nos délais et notre façon de travailler. Si votre question nécessite l’intervention de Leon, il vous met directement en relation.",
+      "examplesLabel": "Questions fréquentes",
       "examples": [
         "Ça coûterait combien pour une entreprise de ma taille ?",
         "Vous travaillez avec des entreprises de mon secteur ?",
@@ -260,100 +260,104 @@
       ],
       "cta": "Écrire à NOVA"
     },
-    "eyebrow": "Des Questions ?",
-    "heading": "Questions Fréquemment",
-    "headingAccent": "Posées",
+    "eyebrow": "Des questions ?",
+    "heading": "Questions",
+    "headingAccent": "fréquentes",
     "items": [
       {
-        "question": "Au bout de combien de temps je vois quelque chose de concret ?",
-        "answer": "Vous voyez la direction dès les deux premières semaines, pas six mois plus tard. Le positionnement et l'identité arrivent entre la semaine 1 et 4, le site part en ligne autour des semaines 5 à 8, et tout continue de s'affiner ensuite. Rien ne disparaît dans une boîte noire pendant que vous attendez."
+        "question": "Et si je sais que quelque chose doit changer, sans savoir quoi ?",
+        "answer": "C’est suffisant pour commencer. Nous regardons ce qui vous coûte de la confiance, de la visibilité ou du temps, puis nous décidons de ce qui mérite d’être amélioré en premier. Nous ne vous proposerons pas une formule simplement parce qu’elle existe."
       },
       {
-        "question": "Qui fait réellement le travail ?",
-        "answer": "Nous. Tout est produit en interne — aucune sous-traitance, personne ne vous refile à un junior après la présentation. C'est aussi pour ça que nous limitons le nombre de partenaires que nous prenons en même temps. Vous saurez toujours qui travaille sur votre marque."
+        "question": "Combien coûte un projet avec LIONOVART ?",
+        "answer": "Cela dépend de ce qu’il faut faire évoluer. Une identité visuelle ciblée et un ensemble complet associant marque, site web et contenu sont deux projets différents. Nous définissons d’abord le périmètre, puis nous vous donnons un prix clair avant de commencer."
       },
       {
-        "question": "Et une fois que tout est en ligne ?",
-        "answer": "C'est en général là que le vrai travail commence. On regarde ce qui performe, on coupe ce qui ne marche pas, et on pousse plus fort sur ce qui fonctionne — chaque mois. La plupart de nos partenaires restent bien après le lancement, parce qu'une marque qui s'arrête commence à s'effacer."
+        "question": "Quand verrai-je les premiers résultats concrets ?",
+        "answer": "Généralement dès les deux premières semaines. Vous découvrez rapidement la direction, les décisions et le travail en cours, sans longue période de silence suivie d’une présentation surprise."
       },
       {
-        "question": "Comment on démarre ?",
-        "answer": "Par un audit de marque gratuit de 20 minutes — sans pitch, sans pression. On vous dit honnêtement où vous en êtes et quel est le mouvement le plus rentable à faire, même si ce mouvement n'est pas nous."
+        "question": "Avec qui vais-je travailler ?",
+        "answer": "Vous restez en contact direct avec les personnes qui réalisent votre projet. La stratégie, la direction créative et l’exécution restent accessibles, sans passer par une succession d’intermédiaires."
+      },
+      {
+        "question": "Que se passe-t-il après le lancement ?",
+        "answer": "Si votre marque doit continuer à évoluer, nous restons à vos côtés. Nous pouvons affiner ce qui est en ligne, produire du contenu, améliorer vos systèmes et accompagner les prochaines étapes de votre croissance."
       }
     ]
   },
   "problems": {
-    "eyebrow": "Choisissez celle qui vous ressemble.",
+    "eyebrow": "Choisissez ce qui vous parle.",
     "heading": "IMAGINEZ",
     "items": [
       {
         "problem": {
-          "heading": "Votre Marque Impose Le Respect",
-          "body": "Vous avez investi dans votre savoir-faire, votre équipe, votre espace — mais votre image ressemble encore au premier jour. Les clients choisissent celui qui a l'air du meilleur choix, même quand il ne l'est pas."
+          "heading": "Votre image doit être à la hauteur de votre travail",
+          "body": "Vous avez investi dans votre savoir-faire, votre équipe et votre lieu. Votre marque doit refléter la qualité que les clients découvrent lorsqu’ils travaillent avec vous."
         },
         "solution": {
-          "heading": "Une Marque Qui Impose Le Respect au Premier Regard",
-          "body": "Nous créons des systèmes d'identité qui inspirent confiance avant même que vous ayez dit un mot — logo, web, print, tout aligné.",
+          "heading": "Une marque qui inspire confiance au premier regard",
+          "body": "Votre identité, votre site web, vos contenus et vos supports imprimés doivent exprimer la même chose : la qualité est au rendez-vous.",
           "stats": [
             {
-              "value": "3x",
-              "label": "Valeur Perçue Après Refonte"
+              "value": "3×",
+              "label": "Valeur perçue après une refonte"
             },
             {
-              "value": "94%",
-              "label": "Premières Impressions Basées sur le Design"
+              "value": "94 %",
+              "label": "Des premières impressions liées au design"
             },
             {
               "value": "50+",
-              "label": "Marques Élevées dans le Monde"
+              "label": "Marques à travers le monde"
             }
           ]
         }
       },
       {
         "problem": {
-          "heading": "Votre Entreprise Apparaît Là Où Ça Compte",
-          "body": "Vous excellez dans ce que vous faites — vos clients vous adorent. Mais la prochaine personne qui cherche exactement ce que vous proposez ? Elle trouve votre concurrent."
+          "heading": "Votre entreprise ne doit pas reposer sur votre mémoire",
+          "body": "Prospects, relances, contenus, devis et questions clients : vous ne devriez pas avoir à tout garder en tête. Il vous faut une vision claire des prochaines étapes, sans porter chaque détail seul."
         },
         "solution": {
-          "heading": "Apparaître en Premier. Être Choisi en Premier.",
-          "body": "Des moteurs de recherche aux réseaux sociaux, nous faisons en sorte que les bonnes personnes vous trouvent — de manière constante et aux bons endroits.",
-          "stats": [
-            {
-              "value": "+70%",
-              "label": "De Réservations Directes — Résultat Client Réel"
-            },
-            {
-              "value": "5x",
-              "label": "Plus de Leads Qualifiés en Moyenne"
-            },
-            {
-              "value": "82%",
-              "label": "Du Trafic Internet Est Maintenant Vidéo"
-            }
-          ]
-        }
-      },
-      {
-        "problem": {
-          "heading": "Vous Avez Toute Une Équipe Derrière Vous",
-          "body": "Le site web, les réseaux, les emails, le contenu — en plus de gérer votre entreprise. Il est 22h et vous montez encore un reel. Vous n'avez pas créé votre entreprise pour devenir un marketeur à plein temps."
-        },
-        "solution": {
-          "heading": "Votre Équipe Créative & Digitale Complète — À Un Appel",
-          "body": "Marque, web, vidéo, réseaux, impression, IA — tout est géré. Concentrez-vous sur votre entreprise. Nous gérons son image, son son et sa croissance.",
+          "heading": "Libérez-vous des tâches répétitives",
+          "body": "Un système de gestion intelligent sur mesure fait avancer vos prospects, vos relances, vos contenus et vos tâches, sans que vous ayez à penser à chaque prochaine étape.",
           "stats": [
             {
               "value": "24/7",
-              "label": "Systèmes IA Capturant des Leads pour Vous"
+              "label": "Suivi et acquisition de prospects"
             },
             {
-              "value": "15h+",
-              "label": "Économisées par Semaine en Moyenne"
+              "value": "15 h+",
+              "label": "Gagnées par semaine sur les tâches répétitives"
             },
             {
-              "value": "100%",
-              "label": "Des Partenaires Ont Multiplié Leur ROI"
+              "value": "1 espace",
+              "label": "Pour vos prospects, tâches et contenus"
+            }
+          ]
+        }
+      },
+      {
+        "problem": {
+          "heading": "Pour vous choisir, il faut pouvoir vous trouver",
+          "body": "Quand quelqu’un vous cherche, reçoit une recommandation ou découvre votre activité en ligne, il doit pouvoir voir vos preuves de qualité et savoir comment passer à l’action."
+        },
+        "solution": {
+          "heading": "Soyez présent là où les décisions se prennent",
+          "body": "Votre site, votre présence sur les moteurs de recherche et vos contenus doivent permettre aux bons clients de vous trouver, de vous faire confiance et de passer à l’étape suivante.",
+          "stats": [
+            {
+              "value": "+70 %",
+              "label": "De réservations directes pour un client"
+            },
+            {
+              "value": "5×",
+              "label": "Plus de prospects qualifiés en moyenne"
+            },
+            {
+              "value": "82 %",
+              "label": "Du trafic internet lié à la vidéo"
             }
           ]
         }
@@ -361,29 +365,29 @@
     ]
   },
   "portfolio": {
-    "eyebrow": "Travaux Sélectionnés",
+    "eyebrow": "Réalisations choisies",
     "heading": "Conçu pour",
-    "headingAccent": "l'Impact",
+    "headingAccent": "l’impression",
     "toolsLabel": "NOS OUTILS",
     "projects": [
       {
         "id": 1,
-        "title": "Alture Brand Identity",
+        "title": "Identité de marque Alture",
         "description": "Refonte complète — système logo, typographie, palette de couleurs"
       },
       {
         "id": 2,
-        "title": "Top Platform Expertise",
+        "title": "Expertise des plateformes",
         "description": "Toujours les meilleurs outils disponibles"
       },
       {
         "id": 4,
-        "title": "Arpeggio Music App",
+        "title": "Application musicale Arpeggio",
         "description": "Design UI/UX & prototype interactif"
       },
       {
         "id": 3,
-        "title": "Fluora Campaign",
+        "title": "Campagne Fluora",
         "description": "Campagne réseaux sociaux & production vidéo"
       }
     ]
@@ -428,8 +432,8 @@
     }
   },
   "testimonials": {
-    "eyebrow": "Témoignages Clients",
-    "heading": "Encore Plus de Réussites.",
+    "eyebrow": "Témoignages clients",
+    "heading": "Toujours plus de réussites.",
     "subheading": "Ne nous croyez pas sur parole. Écoutez les fondateurs et directeurs qui ont transformé leur marque et leur entreprise avec nous.",
     "hooks": [
       "Site web qui convertit + Plus de réservations",
@@ -447,178 +451,307 @@
     ],
     "reviews": [
       {
-        "quote": "Nous avions du trafic mais presque aucune réservation directe - tout passait par des sites de réservation qui rongeaient notre marge. Dans les deux mois suivant le lancement du nouveau site, les réservations directes ont bondi de près de 70%. Cela ressemble enfin à l'endroit que nous gérons vraiment, pas à un modèle.",
-        "author": "Camille Moreau",
-        "role": "Propriétaire, Maison Verre à Annecy, France"
+        "quote": "Le nouveau site m’a permis de vendre plus de voitures en un trimestre que pendant toute l’année précédente en ligne. LIONOVART a tout repensé, et les prospects arrivent prêts à acheter.",
+        "author": "Marc",
+        "role": "Dirigeant, Northline Motors · Canada",
+        "image": "/images/Testimonials/Northlinemotors/Marc-Cardealer-M.jpg",
+        "initials": "MR"
       },
       {
-        "quote": "Je n'étais pas assez confiante pour distribuer ma carte de visite et je ne savais pas quoi publier sur Instagram pendant deux ans. Merci Leon d'avoir reconstruit toute mon identité de marque, j'ai retrouvé ma confiance et maintenant je sais quoi répondre quand on me demande ce que je fais. Ça vaut plus que de l'argent, gracias !",
-        "author": "Sofia Alvarez",
-        "role": "Fondatrice, Luminous Skin Studio – UK"
+        "quote": "Notre boutique ressemblait à tous les autres modèles Shopify. Leon l’a entièrement repensée et notre taux de conversion a presque doublé. Le même trafic, bien plus de commandes. Notre meilleur investissement !",
+        "author": "Mateo",
+        "role": "Fondateur, boutique en ligne · Canada",
+        "image": "/images/Testimonials/Canada/Mateo-Ecommerce-M.avif",
+        "initials": "MT"
       },
       {
-        "quote": "L'agent vocal qu'ils ont mis en place pour nous gère les appels en dehors des heures d'ouverture, qualifie les prospects et réserve des visites directement dans mon calendrier. J'ai reçu un appel dimanche dernier pendant que je dînais avec mes enfants - sauf que je n'y ai pas répondu, car c'était déjà géré. Ce système unique rentabilise tout le reste de ce que nous faisons avec eux.",
-        "author": "Marco De Luca",
-        "role": "Directeur, Atelier Realty – Milan"
+        "quote": "Depuis la refonte du site, notre agenda est complet trois semaines à l’avance. Nous sommes ravis.",
+        "author": "Matt",
+        "role": "Directeur, clinique privée · Canada",
+        "image": "/images/Testimonials/Canada/Matt-Clinic.avif",
+        "initials": "MA"
       },
       {
-        "quote": "Après seulement trois reels, nous avons eu plus de réservations en un week-end que pendant tout le mois précédent. Ce n'est pas seulement que les vidéos étaient belles - c'est qu'elles nous ressemblaient enfin. Chaleureuses, pas corporate. Les gens entraient en citant des passages des reels.",
-        "author": "Isabelle Chen",
-        "role": "Copropriétaire, Mesa 14 – Toronto"
+        "quote": "Lionovart a donné à ma petite boutique de fleurs une identité aussi belle que mes compositions. Les clients nous parlent spontanément du logo !",
+        "author": "Maya",
+        "role": "Propriétaire, Maison Fleur · Canada",
+        "image": "/images/Testimonials/Canada/Maya-Flowerstore-W.avif",
+        "initials": "MY"
       },
       {
-        "quote": "Je suis entrepreneur en bâtiment, pas un pro du marketing. Avant LIONOVART, je montais des posts Instagram à 23h après une journée de 12 heures sur les chantiers. Maintenant, je ne touche plus à rien. Le site web, les pubs, les réseaux sociaux, tout est pris en charge. Mon téléphone sonne plus que jamais et je peux enfin dormir.",
-        "author": "James Hollister",
-        "role": "Fondateur, Hollister Build Co. – Calgary"
+        "quote": "Travailler avec Leon a été très simple : il a immédiatement compris mon univers. Mon portfolio attire enfin des clients que je n’arrivais pas à toucher auparavant. Merci !",
+        "author": "Inès",
+        "role": "Designer indépendante · France",
+        "image": "/images/Testimonials/France/Inès-Designer.avif",
+        "initials": "IN"
+      },
+      {
+        "quote": "Leur équipe a transformé l’Instagram de notre café en une page que les gens ont envie de garder. Le samedi, nous faisons salle comble.",
+        "author": "Mathilde",
+        "role": "Propriétaire, café · France",
+        "image": "/images/Testimonials/France/Mathilde-coffee.avif",
+        "initials": "ML"
+      },
+      {
+        "quote": "Le système de réservation et l’assistant IA répondent aux demandes pendant mes visites. Le mois dernier, j’ai conclu deux ventes grâce à des prospects qualifiés pendant la nuit. LIONOVART a changé ma façon de travailler.",
+        "author": "Defne",
+        "role": "Agente immobilière, Lumina Realty · Italie",
+        "image": "/images/Testimonials/Italy/Lumura/Team2025.avif",
+        "initials": "DF"
+      },
+      {
+        "quote": "Les vidéos de nos excursions ont rempli toute la saison d’été dès avril ! Les clients nous disent qu’ils ont réservé parce que les images leur donnaient l’impression d’y être déjà.",
+        "author": "Enzo",
+        "role": "Fondateur, Apennine Adventures · Italie",
+        "image": "/images/Testimonials/Italy/Enzo-Adventures-Tours.jpg",
+        "initials": "EN"
+      },
+      {
+        "quote": "Lionovart a rendu ma marque plus haut de gamme et plus rassurante. Les ventes augmentent, les retours diminuent.",
+        "author": "Ha-eun",
+        "role": "Propriétaire, boutique lifestyle · Corée",
+        "image": "/images/Testimonials/Korea/Ha-eun-Store.avif",
+        "initials": "HE"
+      },
+      {
+        "quote": "Nouveau site, nouvelles publicités : l’équipe a doublé les rendez-vous dans mon showroom en deux mois.",
+        "author": "Jae",
+        "role": "Propriétaire, concession de motos · Corée",
+        "image": "/images/Testimonials/Korea/Jae-Motodeal.avif",
+        "initials": "JA"
+      },
+      {
+        "quote": "J’organise des excursions en petits groupes et je croulais sous les e-mails. Leon a mis en place des réservations automatisées et un site multilingue. Les voyageurs réservent et paient avant même d’arriver. Tout a changé pour mon activité en solo.",
+        "author": "Jim",
+        "role": "Fondateur, Sakura Trails · Corée",
+        "image": "/images/Testimonials/Korea/Jim-JapaneseTour.avif",
+        "initials": "JM"
+      },
+      {
+        "quote": "Notre meilleur mois à ce jour. Le nouveau site et les photos du menu ont tenu leurs promesses.",
+        "author": "KS",
+        "role": "Propriétaire, restaurant japonais · Corée",
+        "image": "/images/Testimonials/Korea/KS-Japaneserestaurant.avif",
+        "initials": "KS"
+      },
+      {
+        "quote": "Ma boutique en ligne reflète enfin l’esprit de mes vêtements. LIONOVART comprend la mode d’une manière que les autres agences n’avaient jamais saisie.",
+        "author": "Min-Ji",
+        "role": "Fondatrice, marque de vêtements · Corée",
+        "image": "/images/Testimonials/Korea/Min-Ji-Clothingstore.avif",
+        "initials": "MJ"
+      },
+      {
+        "quote": "Leur équipe a repensé notre café. Aujourd’hui, les gens traversent la ville pour son ambiance. Cela valait chaque won.",
+        "author": "Seo-yeon",
+        "role": "Propriétaire, café · Corée",
+        "image": "/images/Testimonials/Korea/Seo-yeon-coffee.avif",
+        "initials": "SY"
+      },
+      {
+        "quote": "L’agent vocal répond à chaque appel, qualifie les prospects et réserve les visites, même le dimanche. J’ai retrouvé mes soirées et mon agenda n’a jamais été aussi rempli. Merci Leon !",
+        "author": "Manu",
+        "role": "Directeur, Costa Realty · Espagne",
+        "image": "/images/Testimonials/Spain/Manu-Realestate-M.avif",
+        "initials": "MN"
+      },
+      {
+        "quote": "Depuis la refonte du site par LIONOVART, nos réservations directes ont augmenté de plus de 60 %. Nous avons enfin cessé de céder notre marge aux plateformes de réservation.",
+        "author": "Pablo",
+        "role": "Propriétaire, hôtel de charme · Espagne",
+        "image": "/images/Testimonials/Spain/Pablo-hotel-M.avif",
+        "initials": "PB"
+      },
+      {
+        "quote": "Mon portfolio est enfin à la hauteur de mon travail. Les demandes ont triplé.",
+        "author": "Sergio",
+        "role": "Photographe · Espagne",
+        "image": "/images/Testimonials/Spain/Sergio-photographer-M.avif",
+        "initials": "SG"
+      },
+      {
+        "quote": "J’ai travaillé avec beaucoup d’agences. Lionovart est la première avec laquelle j’ai eu le sentiment d’avoir un vrai partenaire. Marque, site, publicités, automatisation : une seule équipe s’occupe de tout. Je peux me concentrer sur ma croissance.",
+        "author": "Andrin",
+        "role": "Entrepreneur · Suisse",
+        "image": "/images/Testimonials/Switzerland/Andrin-Entrepreneur.avif",
+        "initials": "AN"
+      },
+      {
+        "quote": "Leon a compris exactement ce dont ma boutique avait besoin. Un résultat sobre, haut de gamme et livré à temps.",
+        "author": "Fiona",
+        "role": "Propriétaire, boutique · Suisse",
+        "image": "/images/Testimonials/Switzerland/Fiona-Shop.avif",
+        "initials": "FI"
+      },
+      {
+        "quote": "Notre page ne convertissait pas et les investisseurs trouvaient notre image amateur. LIONOVART a repensé les deux et nous avons bouclé notre levée de fonds six semaines plus tard. Les inscriptions à la démo parlent d’elles-mêmes.",
+        "author": "Ben",
+        "role": "Fondateur, startup SaaS · Royaume-Uni",
+        "image": "/images/Testimonials/UK/Ben-Saasfounder.avif",
+        "initials": "BN"
+      },
+      {
+        "quote": "Les patients nous disent que le site leur a inspiré confiance avant même leur première visite. L’équipe a parfaitement compris notre besoin.",
+        "author": "Dan",
+        "role": "Directeur, cabinet dentaire · Royaume-Uni",
+        "image": "/images/Testimonials/UK/Dan-Clinic-M.avif",
+        "initials": "DN"
+      },
+      {
+        "quote": "Pendant des années, je ne savais pas quoi publier ni comment expliquer mon activité. Leon a repensé toute ma marque et m’a redonné confiance. Aujourd’hui, je distribue ma carte avec fierté. Cela vaut bien plus que l’investissement.",
+        "author": "Jess",
+        "role": "Propriétaire, Glow Beauty Studio · Royaume-Uni",
+        "image": "/images/Testimonials/UK/Jess-Beautysalon-W.avif",
+        "initials": "JS"
       }
     ]
   },
   "services": {
-    "eyebrow": "Tout ce dont votre entreprise a besoin, rien de plus.",
+    "eyebrow": "Le savoir-faire derrière votre prochaine étape.",
     "heading": "Notre",
-    "headingAccent": "Expertise",
+    "headingAccent": "expertise",
     "items": [
       {
-        "title": "Image de Marque & Identité",
-        "description": "Des systèmes d'identité fondés sur la stratégie, pas l'improvisation: distincts, cohérents, faits pour durer.",
+        "title": "Identité & stratégie de marque",
+        "description": "Des identités fondées sur une stratégie claire, distinctives, cohérentes et mémorables.",
         "deliverables": [
-          "Stratégie de Marque",
-          "Système de Logo & Identité",
-          "Charte Graphique",
-          "Naming"
+          "Stratégie de marque",
+          "Logo & identité visuelle",
+          "Charte de marque",
+          "Création de noms"
         ]
       },
       {
-        "title": "Développement Web & App",
-        "description": "Des sites web et applications cinématographiques et performants, conçus pour convertir vos visiteurs en clients.",
+        "title": "Sites web & applications",
+        "description": "Des sites et applications immersifs, rapides et conçus pour transformer vos visiteurs en clients.",
         "deliverables": [
           "Design UI/UX",
-          "Développement Web",
-          "Apps Web & Mobile",
-          "E-Commerce"
+          "Développement web",
+          "Applications web & mobiles",
+          "Commerce en ligne"
         ]
       },
       {
-        "title": "Studio de Contenu",
-        "description": "Films de marque et systèmes de contenu qui font vivre votre histoire, mois après mois.",
+        "title": "Studio de contenu",
+        "description": "Des films de marque et une stratégie de contenu qui font vivre votre histoire, mois après mois.",
         "deliverables": [
-          "Films de Marque",
-          "Contenu Social",
-          "Motion Design",
-          "Stratégie de Contenu"
+          "Films de marque",
+          "Contenu pour les réseaux",
+          "Animation graphique",
+          "Stratégie de contenu"
         ]
       },
       {
-        "title": "Impression & Marque Physique",
-        "description": "Une présence de marque au-delà de l'écran: impression, emballage et expériences physiques faites pour marquer les esprits.",
+        "title": "Impression & univers physiques",
+        "description": "Votre marque au-delà de l’écran : supports imprimés, emballages et expériences qui marquent les esprits.",
         "deliverables": [
-          "Design d'Emballage",
-          "Papeterie & Impression",
-          "Signalétique & Affichage",
-          "Branding Événementiel"
+          "Design d’emballages",
+          "Papeterie & impression",
+          "Signalétique & affichage",
+          "Identité événementielle"
         ]
       },
       {
-        "title": "Systèmes Intelligents & IA",
-        "description": "Une automatisation intelligente qui garde votre entreprise active et performante, jour et nuit.",
+        "title": "Systèmes intelligents & IA",
+        "description": "Des automatisations intelligentes pour une entreprise réactive qui transforme ses opportunités, de jour comme de nuit.",
         "deliverables": [
-          "Agents Vocaux IA",
-          "Automatisation des Prospects",
-          "Chatbots IA",
-          "Intégration de Flux de Travail"
+          "Agents vocaux IA",
+          "Automatisation des prospects",
+          "Assistants conversationnels IA",
+          "Intégration des processus"
         ]
       },
       {
-        "title": "Marketing de Croissance",
-        "description": "SEO, publicité payante et stratégie qui placent votre marque devant les bonnes personnes, de façon constante.",
+        "title": "Marketing de croissance",
+        "description": "Référencement, publicité et stratégie pour rendre votre marque visible auprès des bonnes personnes, durablement.",
         "deliverables": [
-          "SEO & Recherche Locale",
-          "Publicités Payantes",
-          "Conseil en Entreprise",
-          "Analyses & Reporting"
+          "SEO & recherche locale",
+          "Publicité en ligne",
+          "Conseil aux entreprises",
+          "Analyse & rapports"
         ]
       }
     ]
   },
   "showcase": {
-    "eyebrow": "Sélection de Projets",
-    "heading": "Créé pour rester en mémoire.",
-    "description": "Une sélection en mouvement entre identité, expériences numériques, contenu, impression, systèmes intelligents et croissance."
+    "eyebrow": "Sélection de créations",
+    "heading": "Conçu pour marquer les esprits.",
+    "description": "Une sélection vivante d’identités, d’expériences numériques, de contenus, de supports imprimés, de systèmes intelligents et de projets de croissance."
   },
   "selectedWork": {
-    "eyebrow": "Selected work",
-    "previous": "Previous project",
-    "next": "Next project",
-    "heading": "Made to be",
-    "headingAccent": "remembered.",
-    "intro": "Distinct identities. Entire brand worlds. Take a closer look.",
-    "collection": "Four different perspectives",
-    "browse": "Choose a project",
-    "selected": "Selected",
-    "view": "View",
-    "enlarge": "Enlarge project",
-    "watch": "Watch film",
-    "pause": "Pause preview",
-    "play": "Play preview",
-    "close": "Close project viewer",
-    "handoff": "The expertise behind the work.",
-    "identityDigital": "Brand identity · Digital design",
-    "identityIllustration": "Brand identity · Illustration",
-    "identityCampaign": "Brand identity · Campaign"
+    "eyebrow": "Réalisations choisies",
+    "previous": "Projet précédent",
+    "next": "Projet suivant",
+    "heading": "Conçu pour être",
+    "headingAccent": "mémorable.",
+    "intro": "Des identités distinctives. Des univers de marque complets. Regardez de plus près.",
+    "collection": "Quatre regards différents",
+    "browse": "Choisir un projet",
+    "selected": "Sélectionné",
+    "view": "Voir",
+    "enlarge": "Agrandir le projet",
+    "watch": "Voir le film",
+    "pause": "Mettre l’aperçu en pause",
+    "play": "Lancer l’aperçu",
+    "close": "Fermer le projet",
+    "handoff": "Le savoir-faire derrière les réalisations.",
+    "identityDigital": "Identité de marque · Design numérique",
+    "identityIllustration": "Identité de marque · Illustration",
+    "identityCampaign": "Identité de marque · Campagne"
   },
   "results": {
-    "eyebrow": "Results preview",
-    "heading": "More to show for it.",
-    "subtitle": "More revenue. More customers. More time for what matters.",
-    "disclosure": "Illustrative figures for this design preview. These are not verified client results.",
+    "eyebrow": "Aperçu des résultats",
+    "heading": "Des résultats à la hauteur.",
+    "subtitle": "Plus de revenus. Plus de clients. Plus de temps pour l’essentiel.",
+    "disclosure": "Chiffres illustratifs pour cet aperçu du design. Il ne s’agit pas de résultats clients vérifiés.",
     "revenue": {
-      "label": "Client revenue",
-      "caption": "An example of commercial impact"
+      "label": "Revenus clients",
+      "caption": "Un exemple d’impact commercial"
     },
     "customers": {
-      "label": "New customers"
+      "label": "Nouveaux clients"
     },
     "hours": {
-      "label": "Hours given back"
+      "label": "Heures retrouvées"
     },
     "conversion": {
-      "label": "Higher conversion"
+      "label": "Meilleure conversion"
     },
     "returning": {
-      "label": "More returning customers"
+      "label": "Plus de clients fidèles"
     },
-    "footnote": "Actual results will identify the client, measurement period and source."
+    "footnote": "Les résultats réels préciseront le client, la période de mesure et la source."
   },
   "compactComparison": {
     "heading": "L’innovation n’est pas un choix.",
     "headingAccent": "C’est une nécessité.",
-    "description": "LIONOVART réunit stratégie de marque, design et technologie pour développer votre présence à travers les plateformes numériques, les contenus et les expériences physiques.",
+    "description": "Stratégie de marque, design et technologie s’unissent pour renforcer votre entreprise : plateformes numériques, contenus et expériences dans le monde réel.",
     "stats": [
-      "Années d’expérience cumulée",
+      "Années d’expérience cumulées",
       "Secteurs accompagnés",
-      "Livraison à temps"
+      "Livraisons dans les délais"
     ],
-    "caption": "LIONOVART et les autres approches",
+    "caption": "LIONOVART et les autres façons de travailler",
     "others": "Autres",
     "rows": [
       {
         "topic": "Direction",
-        "lionovart": "Un brief commun",
-        "others": "Des briefs parfois séparés"
+        "lionovart": "Un brief partagé",
+        "others": "Des briefs parfois différents"
       },
       {
-        "topic": "Cohérence de marque",
-        "lionovart": "Un système de marque",
-        "others": "Dépend de la coordination"
+        "topic": "Cohérence",
+        "lionovart": "Un univers de marque",
+        "others": "Coordination variable"
       },
       {
         "topic": "Création + technologie",
-        "lionovart": "Reliées à votre projet",
-        "others": "Prestataires parfois séparés"
+        "lionovart": "Expertises connectées",
+        "others": "Spécialistes séparés"
       },
       {
         "topic": "Collaboration",
-        "lionovart": "Directement avec Leonardo",
+        "lionovart": "En direct avec Leonardo",
         "others": "Selon le prestataire"
       }
     ],

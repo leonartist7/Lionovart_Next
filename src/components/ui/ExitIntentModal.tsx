@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Link } from "@/i18n/navigation";
@@ -10,6 +12,7 @@ import { FUNNEL_EVENT, trackFunnelEvent } from "@/lib/funnel-events";
 const SESSION_KEY = "lionovart:exit-intent-shown";
 
 export default function ExitIntentModal() {
+  const tr = usePublicCopy();
   const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const isNovaOpen = useNovaStore((s) => s.isOpen);
@@ -79,24 +82,19 @@ export default function ExitIntentModal() {
             <button
               type="button"
               onClick={dismiss}
-              aria-label="Close"
+              aria-label={tr("Close")}
               className="absolute right-4 top-4 text-white/40 transition-colors hover:text-white"
             >
               &times;
             </button>
 
-            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red">
-              Before you go
-            </p>
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red">{tr("Before you go")}</p>
             <h2
               id="exit-intent-heading"
               className="font-clash text-[1.75rem] font-semibold uppercase leading-[0.95] tracking-tight"
-            >
-              Get a free brand audit
-            </h2>
+            >{tr("Get a free brand audit")}</h2>
             <p className="mx-auto mt-4 max-w-[36ch] text-[14px] leading-[1.6] text-white/60">
-              A personalized review of your brand, website, and first impression —
-              no sales pitch, just clarity.
+              {tr("A personalized review of your brand, website, and first impression — no sales pitch, just clarity.")}
             </p>
 
             <Link
@@ -104,7 +102,7 @@ export default function ExitIntentModal() {
               onClick={() => trackFunnelEvent(FUNNEL_EVENT.EXIT_INTENT_CLICKED)}
               className="font-clash mt-7 inline-block rounded-full bg-brand-red px-8 py-3.5 text-[12px] font-semibold uppercase tracking-[0.14em] text-white transition-all duration-300 hover:-translate-y-[1px] hover:bg-brand-red-secondary active:scale-[0.98]"
             >
-              Get My Free Audit &rarr;
+              {tr("Get My Free Audit")} &rarr;
             </Link>
           </motion.div>
         </motion.div>

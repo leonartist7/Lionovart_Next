@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 import { motion, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
@@ -97,6 +99,7 @@ function Reveal({
 }
 
 export default function CareersExperience() {
+  const tr = usePublicCopy();
   const reduce = useReducedMotion();
 
   return (
@@ -112,13 +115,13 @@ export default function CareersExperience() {
               href="/"
               className="hidden min-h-11 items-center rounded-full px-4 text-xs font-semibold uppercase tracking-[0.14em] text-white/60 transition-colors hover:text-white sm:flex"
             >
-              Studio
+              {tr("Studio")}
             </Link>
             <Link
               href="/careers/apply"
               className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-5 text-xs font-bold uppercase tracking-[0.12em] text-black transition-transform active:scale-[0.98]"
             >
-              Apply <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+              {tr("Apply")} <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
             </Link>
           </div>
         </div>
@@ -143,14 +146,14 @@ export default function CareersExperience() {
                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               >
                 <p className="mb-7 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/50">
-                  Careers / Talent network
+                  {tr("Careers / Talent network")}
                 </p>
                 <h1 className="max-w-[1050px] font-clash text-[clamp(3.6rem,10vw,9.4rem)] font-semibold uppercase leading-[0.84] tracking-[-0.055em]">
-                  Build what
+                  {tr("Build what")}
                   <br />
-                  should exist
+                  {tr("should exist")}
                   <br />
-                  <span className="font-editorial font-normal italic normal-case tracking-[-0.06em] text-brand-red">next.</span>
+                  <span className="font-editorial font-normal italic normal-case tracking-[-0.06em] text-brand-red">{tr("next.")}</span>
                 </h1>
               </motion.div>
 
@@ -161,20 +164,20 @@ export default function CareersExperience() {
                 className="max-w-md lg:pb-4"
               >
                 <p className="text-lg leading-relaxed text-white/70">
-                  We bring strategy, design, film, technology, AI, and live experiences together. If you care deeply about your craft and get excited by what other people bring to the table, we would like to meet you.
+                  {tr("We bring strategy, design, film, technology, AI, and live experiences together. If you care deeply about your craft and get excited by what other people bring to the table, we would like to meet you.")}
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Link
                     href="/careers/apply"
                     className="inline-flex min-h-12 items-center gap-2 rounded-full bg-brand-red px-6 text-sm font-bold uppercase tracking-[0.08em] text-white transition-transform active:scale-[0.98]"
                   >
-                    Introduce yourself <ArrowUpRight className="h-4 w-4" aria-hidden />
+                    {tr("Introduce yourself")} <ArrowUpRight className="h-4 w-4" aria-hidden />
                   </Link>
                   <a
                     href="#disciplines"
                     className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-semibold text-white/80 transition-colors hover:border-white/35 hover:text-white"
                   >
-                    Explore disciplines <ArrowDown className="h-4 w-4" aria-hidden />
+                    {tr("Explore disciplines")} <ArrowDown className="h-4 w-4" aria-hidden />
                   </a>
                 </div>
               </motion.div>
@@ -182,10 +185,10 @@ export default function CareersExperience() {
 
             <div className="flex flex-col gap-5 border-t border-white/10 pt-5 sm:flex-row sm:items-end sm:justify-between">
               <p className="max-w-xl text-sm leading-relaxed text-white/45">
-                A portfolio, a reel, a shipped project, or a story about a problem you solved tells us more than a perfect list of credentials.
+                {tr("A portfolio, a reel, a shipped project, or a story about a problem you solved tells us more than a perfect list of credentials.")}
               </p>
               <div className="flex flex-wrap gap-x-5 gap-y-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
-                <span>Creative</span><span>Technology</span><span>Experiences</span><span>Systems</span>
+                <span>{tr("Creative")}</span><span>{tr("Technology")}</span><span>{tr("Experiences")}</span><span>{tr("Systems")}</span>
               </div>
             </div>
           </div>
@@ -194,14 +197,14 @@ export default function CareersExperience() {
         <section className="px-5 py-24 sm:px-8 lg:px-10 lg:py-36">
           <div className="mx-auto max-w-[1400px]">
             <Reveal>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-red">How we think</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-red">{tr("How we think")}</p>
               <h2 className="mt-5 max-w-[1050px] font-clash text-[clamp(2.8rem,6.8vw,6.7rem)] font-semibold uppercase leading-[0.92] tracking-[-0.045em]">
-                Good work takes people.
+                {tr("Good work takes people.")}
                 <br />
-                <span className="font-editorial font-normal italic normal-case tracking-[-0.045em]">And people make it together.</span>
+                <span className="font-editorial font-normal italic normal-case tracking-[-0.045em]">{tr("And people make it together.")}</span>
               </h2>
               <p className="mt-7 max-w-2xl text-lg leading-relaxed text-white/60">
-                We want to know what you care about making, how you work with others, and what you do when the first idea is not the right one.
+                {tr("We want to know what you care about making, how you work with others, and what you do when the first idea is not the right one.")}
               </p>
             </Reveal>
 
@@ -209,8 +212,8 @@ export default function CareersExperience() {
               {principles.map(([title, body], index) => (
                 <Reveal key={title} delay={index * 0.05} className="border-b border-white/10 py-8 md:[&:nth-child(odd)]:border-r md:[&:nth-child(odd)]:pr-10 md:[&:nth-child(even)]:pl-10">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/35">0{index + 1}</p>
-                  <h3 className="mt-6 font-clash text-3xl font-semibold uppercase tracking-[-0.025em]">{title}</h3>
-                  <p className="mt-4 max-w-lg leading-relaxed text-white/55">{body}</p>
+                  <h3 className="mt-6 font-clash text-3xl font-semibold uppercase tracking-[-0.025em]">{tr(title)}</h3>
+                  <p className="mt-4 max-w-lg leading-relaxed text-white/55">{tr(body)}</p>
                 </Reveal>
               ))}
             </div>
@@ -221,16 +224,16 @@ export default function CareersExperience() {
           <div className="mx-auto max-w-[1400px] px-5 py-24 sm:px-8 lg:px-10 lg:py-32">
             <Reveal className="grid gap-8 lg:grid-cols-[.65fr_1.35fr]">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-brand-red">Talent lanes</p>
+                <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-brand-red">{tr("Talent lanes")}</p>
               </div>
               <div>
                 <h2 className="font-clash text-[clamp(2.8rem,6vw,6rem)] font-semibold uppercase leading-[0.9] tracking-[-0.05em]">
-                  Find your lane.
+                  {tr("Find your lane.")}
                   <br />
-                  Or invent one.
+                  {tr("Or invent one.")}
                 </h2>
                 <p className="mt-6 max-w-2xl text-lg leading-relaxed text-black/60">
-                  Pick the area closest to your work. These are starting points for a conversation, not a checklist you have to fit.
+                  {tr("Pick the area closest to your work. These are starting points for a conversation, not a checklist you have to fit.")}
                 </p>
               </div>
             </Reveal>
@@ -244,13 +247,13 @@ export default function CareersExperience() {
                 >
                   <p className="text-xs font-semibold tracking-[0.16em] text-black/35">{item.index}</p>
                   <div>
-                    <h3 className="font-clash text-3xl font-semibold uppercase tracking-[-0.03em] md:text-4xl">{item.title}</h3>
-                    <p className="mt-3 max-w-md leading-relaxed text-black/55">{item.description}</p>
+                    <h3 className="font-clash text-3xl font-semibold uppercase tracking-[-0.03em] md:text-4xl">{tr(item.title)}</h3>
+                    <p className="mt-3 max-w-md leading-relaxed text-black/55">{tr(item.description)}</p>
                   </div>
                   <div className="flex flex-wrap content-start gap-2 md:justify-end">
                     {item.roles.map((role) => (
                       <span key={role} className="rounded-full border border-black/15 px-3 py-2 text-xs font-medium text-black/65">
-                        {role}
+                        {tr(role)}
                       </span>
                     ))}
                   </div>
@@ -263,35 +266,35 @@ export default function CareersExperience() {
         <section className="px-5 py-24 sm:px-8 lg:px-10 lg:py-36">
           <div className="mx-auto grid max-w-[1400px] gap-16 lg:grid-cols-[1.05fr_.95fr]">
             <Reveal>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-red">Ways to work together</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-red">{tr("Ways to work together")}</p>
               <h2 className="mt-5 max-w-3xl font-clash text-[clamp(2.8rem,5.8vw,5.8rem)] font-semibold uppercase leading-[0.93] tracking-[-0.045em]">
-                The right relationship depends on the work.
+                {tr("The right relationship depends on the work.")}
               </h2>
               <p className="mt-7 max-w-xl text-lg leading-relaxed text-white/60">
-                Some people join a team. Others join a project. Tell us what kind of collaboration makes sense for you; it depends on the work, timing, and location.
+                {tr("Some people join a team. Others join a project. Tell us what kind of collaboration makes sense for you; it depends on the work, timing, and location.")}
               </p>
               <div className="mt-10 flex flex-wrap gap-2">
                 {pathways.map((pathway) => (
                   <span key={pathway} className="rounded-full border border-white/15 px-4 py-2.5 text-sm text-white/70">
-                    {pathway}
+                    {tr(pathway)}
                   </span>
                 ))}
               </div>
             </Reveal>
 
             <Reveal className="self-end rounded-[2rem] border border-white/12 bg-white/[0.035] p-7 sm:p-10">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#d8b36a]">Open call</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#d8b36a]">{tr("Open call")}</p>
               <h3 className="mt-5 font-clash text-4xl font-semibold uppercase leading-[0.98] tracking-[-0.035em] sm:text-5xl">
-                No perfect job title required.
+                {tr("No perfect job title required.")}
               </h3>
               <p className="mt-5 leading-relaxed text-white/60">
-                This is an open invitation, not a list of vacant jobs. We may not have the right opportunity today, but we would still like to see what you make. If your work fits a current or upcoming need, we will get in touch.
+                {tr("This is an open invitation, not a list of vacant jobs. We may not have the right opportunity today, but we would still like to see what you make. If your work fits a current or upcoming need, we will get in touch.")}
               </p>
               <Link
                 href="/careers/apply"
                 className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-bold uppercase tracking-[0.08em] text-black transition-transform active:scale-[0.98]"
               >
-                Introduce yourself <ArrowUpRight className="h-4 w-4" aria-hidden />
+                {tr("Introduce yourself")} <ArrowUpRight className="h-4 w-4" aria-hidden />
               </Link>
             </Reveal>
           </div>
@@ -300,7 +303,7 @@ export default function CareersExperience() {
         <section className="border-t border-white/10 px-5 py-24 sm:px-8 lg:px-10 lg:py-32">
           <div className="mx-auto max-w-[1400px]">
             <Reveal className="grid gap-12 lg:grid-cols-[.7fr_1.3fr]">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/40">What we notice</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/40">{tr("What we notice")}</p>
               <div className="space-y-0 border-t border-white/10">
                 {[
                   "A point of view, backed by craft.",
@@ -312,7 +315,7 @@ export default function CareersExperience() {
                 ].map((line, index) => (
                   <div key={line} className="grid grid-cols-[42px_1fr] gap-4 border-b border-white/10 py-6 sm:grid-cols-[64px_1fr]">
                     <span className="text-xs text-white/25">0{index + 1}</span>
-                    <p className="font-clash text-2xl font-medium tracking-[-0.02em] text-white/85 sm:text-3xl">{line}</p>
+                    <p className="font-clash text-2xl font-medium tracking-[-0.02em] text-white/85 sm:text-3xl">{tr(line)}</p>
                   </div>
                 ))}
               </div>
@@ -324,20 +327,20 @@ export default function CareersExperience() {
           <div aria-hidden className="absolute -right-32 top-1/2 h-[36rem] w-[36rem] -translate-y-1/2 rounded-full border border-white/15" />
           <div aria-hidden className="absolute -right-12 top-1/2 h-[24rem] w-[24rem] -translate-y-1/2 rounded-full border border-white/15" />
           <Reveal className="relative mx-auto max-w-[1400px]">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/60">Your move</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/60">{tr("Your move")}</p>
             <div className="mt-5 grid items-end gap-10 lg:grid-cols-[1.3fr_.7fr]">
               <h2 className="max-w-5xl font-clash text-[clamp(3.2rem,8vw,8rem)] font-semibold uppercase leading-[0.86] tracking-[-0.055em]">
-                Show us what you love to make.
+                {tr("Show us what you love to make.")}
               </h2>
               <div className="lg:pb-3">
                 <p className="max-w-md text-lg leading-relaxed text-white/75">
-                  Share a piece of work you are proud of. Tell us what you did, what you learned, and what you would like to make next.
+                  {tr("Share a piece of work you are proud of. Tell us what you did, what you learned, and what you would like to make next.")}
                 </p>
                 <Link
                   href="/careers/apply"
                   className="mt-8 inline-flex min-h-14 items-center gap-3 rounded-full bg-white px-7 text-sm font-bold uppercase tracking-[0.1em] text-black transition-transform active:scale-[0.98]"
                 >
-                  Introduce yourself <ArrowUpRight className="h-4 w-4" aria-hidden />
+                  {tr("Introduce yourself")} <ArrowUpRight className="h-4 w-4" aria-hidden />
                 </Link>
               </div>
             </div>

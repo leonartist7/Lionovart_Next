@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 /**
  * Act 4 — Social/feed scene for /services/content-studio (the "Content Engine"
  * half of the merge). A big centered line sits behind floating content tiles;
@@ -27,6 +29,7 @@ const TILES = [
 const tileSrc = (seed: string) => `https://picsum.photos/seed/${seed}/320/400`;
 
 export default function SocialScene() {
+  const tr = usePublicCopy();
   const reduce = useReducedMotion();
   const sectionRef = useRef<HTMLDivElement>(null);
   const progress = useMotionValue(0);
@@ -52,12 +55,12 @@ export default function SocialScene() {
     return (
       <section className="bg-bg-dark px-6 py-28">
         <div className="mx-auto max-w-5xl text-center">
-          <p className="mb-5 text-[11px] uppercase tracking-[0.3em] text-white/50">Always on</p>
+          <p className="mb-5 text-[11px] uppercase tracking-[0.3em] text-white/50">{tr("Always on")}</p>
           <h2
             className="font-clash font-semibold uppercase leading-[0.95] tracking-tight text-white"
             style={{ fontSize: "clamp(2.2rem, 6vw, 5rem)" }}
           >
-            We don&rsquo;t just make it. We <span className="text-brand-red">run it</span>.
+            {tr("We don’t just make it. We")} <span className="text-brand-red">{tr("run it")}</span>.
           </h2>
           <div className="mt-12 grid grid-cols-3 gap-3">
             {TILES.map((t) => (
@@ -87,6 +90,7 @@ export default function SocialScene() {
 }
 
 function HeadlineReveal({ progress }: { progress: MotionValue<number> }) {
+  const tr = usePublicCopy();
   const opacity = useTransform(progress, [0, 0.55, 1], [0.25, 1, 1]);
   const scale = useTransform(progress, [0, 1], [0.92, 1]);
   return (
@@ -94,14 +98,14 @@ function HeadlineReveal({ progress }: { progress: MotionValue<number> }) {
       style={{ opacity, scale }}
       className="relative z-10 mx-auto max-w-4xl px-6 text-center"
     >
-      <p className="mb-5 text-[11px] uppercase tracking-[0.3em] text-white/50">Always on</p>
+      <p className="mb-5 text-[11px] uppercase tracking-[0.3em] text-white/50">{tr("Always on")}</p>
       <h2
         className="font-clash font-semibold uppercase leading-[0.95] tracking-tight text-white"
         style={{ fontSize: "clamp(2.2rem, 7vw, 6rem)" }}
       >
-        We don&rsquo;t just make it.
+        {tr("We don’t just make it.")}
         <br />
-        We <span className="text-brand-red">run it</span>.
+        {tr("We")} <span className="text-brand-red">{tr("run it")}</span>.
       </h2>
     </motion.div>
   );

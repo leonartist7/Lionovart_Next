@@ -1,7 +1,10 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 import { useEffect, useState, type FormEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import { CONTACT_EMAIL } from "@/lib/contact";
 import { FUNNEL_EVENT, trackFunnelEvent } from "@/lib/funnel-events";
@@ -23,6 +26,7 @@ const inputClass =
 type Status = "idle" | "submitting" | "error";
 
 export default function AuditCapture() {
+  const tr = usePublicCopy();
   const router = useRouter();
   const searchParams = useSearchParams();
   const reduceMotion = useReducedMotion();
@@ -53,13 +57,13 @@ export default function AuditCapture() {
     e.preventDefault();
     let ok = true;
     if (!name.trim()) {
-      setNameError("Name is required.");
+      setNameError(tr("Name is required."));
       ok = false;
     } else {
       setNameError(null);
     }
     if (!email.trim() || !EMAIL_RE.test(email.trim())) {
-      setEmailError("Enter a valid email.");
+      setEmailError(tr("Enter a valid email."));
       ok = false;
     } else {
       setEmailError(null);
@@ -113,9 +117,7 @@ export default function AuditCapture() {
           viewport={{ once: true, amount: 0.5 }}
           transition={reduceMotion ? { duration: 0 } : { duration: 0.8, ease: EASE }}
           className="relative mb-6 text-center text-[11px] font-medium uppercase tracking-[0.32em] text-[#e5192a] md:text-xs"
-        >
-          Free Brand Presence Audit
-        </motion.p>
+        >{tr("Free Brand Presence Audit")}</motion.p>
 
         <motion.div
           className="overflow-hidden"
@@ -126,9 +128,7 @@ export default function AuditCapture() {
           <motion.h1
             variants={lineReveal}
             className="text-center font-clash text-[clamp(2.4rem,5.5vw,3.75rem)] font-semibold uppercase leading-[0.95] tracking-tight text-[#171412]"
-          >
-            Clarity begins with one conversation.
-          </motion.h1>
+          >{tr("Clarity begins with one conversation.")}</motion.h1>
         </motion.div>
 
         <motion.p
@@ -137,10 +137,7 @@ export default function AuditCapture() {
           viewport={{ once: true, amount: 0.5 }}
           transition={reduceMotion ? { duration: 0 } : { duration: 0.9, delay: 0.1, ease: EASE }}
           className="mx-auto mt-6 max-w-[46ch] text-center text-base leading-[1.7] text-[#171412]/65 md:text-lg"
-        >
-          A free, personalized review of your brand, website, content, and first
-          impression, with clear next steps.
-        </motion.p>
+        >{tr("A personal review of your brand, website and content, with three priority fixes to bring your presence closer to the quality of your business.")}</motion.p>
 
         <motion.form
           onSubmit={onSubmit}
@@ -152,9 +149,7 @@ export default function AuditCapture() {
           className="mt-14 flex flex-col gap-5"
         >
           <div className="flex flex-col gap-2">
-            <label htmlFor="audit-name" className="text-sm text-[#171412]/80">
-              Name
-            </label>
+            <label htmlFor="audit-name" className="text-sm text-[#171412]/80">{tr("Name")}</label>
             <input
               id="audit-name"
               name="name"
@@ -165,7 +160,7 @@ export default function AuditCapture() {
               aria-invalid={nameError ? true : undefined}
               aria-describedby={nameError ? "audit-name-error" : undefined}
               className={inputClass}
-              placeholder="Your name"
+              placeholder={tr("Your name")}
               disabled={status === "submitting"}
             />
             {nameError ? (
@@ -176,9 +171,7 @@ export default function AuditCapture() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="audit-email" className="text-sm text-[#171412]/80">
-              Email
-            </label>
+            <label htmlFor="audit-email" className="text-sm text-[#171412]/80">{tr("Email")}</label>
             <input
               id="audit-email"
               name="email"
@@ -189,7 +182,7 @@ export default function AuditCapture() {
               aria-invalid={emailError ? true : undefined}
               aria-describedby={emailError ? "audit-email-error" : undefined}
               className={inputClass}
-              placeholder="you@company.com"
+              placeholder={tr("you@company.com")}
               disabled={status === "submitting"}
             />
             {emailError ? (
@@ -200,9 +193,7 @@ export default function AuditCapture() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="audit-website" className="text-sm text-[#171412]/80">
-              Website
-            </label>
+            <label htmlFor="audit-website" className="text-sm text-[#171412]/80">{tr("Website")}</label>
             <input
               id="audit-website"
               name="website"
@@ -217,9 +208,7 @@ export default function AuditCapture() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="audit-socials" className="text-sm text-[#171412]/80">
-              Instagram or social handle
-            </label>
+            <label htmlFor="audit-socials" className="text-sm text-[#171412]/80">{tr("Instagram or social handle")}</label>
             <input
               id="audit-socials"
               name="socials"
@@ -227,15 +216,13 @@ export default function AuditCapture() {
               value={socials}
               onChange={(e) => setSocials(e.target.value)}
               className={inputClass}
-              placeholder="@handle (optional)"
+              placeholder={tr("@handle (optional)")}
               disabled={status === "submitting"}
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="audit-known" className="text-sm text-[#171412]/80">
-              What do you want your brand to be known for?
-            </label>
+            <label htmlFor="audit-known" className="text-sm text-[#171412]/80">{tr("What do you want your brand to be known for?")}</label>
             <textarea
               id="audit-known"
               name="knownFor"
@@ -243,7 +230,7 @@ export default function AuditCapture() {
               value={knownFor}
               onChange={(e) => setKnownFor(e.target.value)}
               className={`${inputClass} resize-y min-h-[7rem]`}
-              placeholder="Optional"
+              placeholder={tr("Optional")}
               disabled={status === "submitting"}
             />
           </div>
@@ -253,14 +240,14 @@ export default function AuditCapture() {
             disabled={status === "submitting"}
             className="font-clash mt-2 w-full rounded-full bg-[#e5192a] px-8 py-4 text-center text-[13px] font-semibold uppercase tracking-[0.14em] text-white transition-all duration-300 hover:-translate-y-[1px] hover:bg-[#c9101f] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-70 sm:w-auto sm:self-center"
           >
-            {status === "submitting" ? "Sending..." : "Get My Free Audit"}
+            {status === "submitting" ? tr("Sending...") : tr("Get My Free Audit")}
           </button>
 
-          <p className="text-center text-sm text-[#171412]/55">No sales pitch. Just clarity.</p>
+          <p className="text-center text-sm text-[#171412]/55">{tr("No sales pitch. Just clarity.")}</p>
 
           {status === "error" ? (
             <p className="text-center text-sm text-[#e5192a]" role="alert">
-              Something went wrong. Email us instead at{" "}
+              {tr("Something went wrong. Email us instead at")}{" "}
               <a href={`mailto:${CONTACT_EMAIL}`} className="underline underline-offset-2">
                 {CONTACT_EMAIL}
               </a>

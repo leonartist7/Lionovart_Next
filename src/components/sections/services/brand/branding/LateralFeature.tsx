@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 /**
  * Lateral pillar reveal. Front visual + a slower gradient brand-form behind it,
  * the two entering from `side` at DIFFERENT speeds (multi-speed parallax →
@@ -33,6 +35,7 @@ export default function LateralFeature({
   tint = "#E5462A",
   climax = false,
 }: LateralFeatureProps) {
+  const tr = usePublicCopy();
   const reduce = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
 
@@ -96,16 +99,16 @@ export default function LateralFeature({
       className="flex-1"
     >
       <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-red">
-        {eyebrow}
+        {tr(eyebrow)}
       </p>
       <h3
         className="font-clash font-semibold uppercase leading-[0.95] tracking-tight text-text-dark-primary"
         style={{ fontSize: "clamp(2rem, 5vw, 3.6rem)", letterSpacing: "-0.03em" }}
       >
-        {title}
+        {tr(title)}
       </h3>
       <p className="mt-6 max-w-[46ch] font-body text-[16px] leading-[1.65] text-text-dark-primary/75 md:text-[18px]">
-        {body}
+        {tr(body)}
       </p>
     </motion.div>
   );

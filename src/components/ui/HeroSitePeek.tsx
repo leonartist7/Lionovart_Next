@@ -1,4 +1,6 @@
 "use client";
+
+import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
@@ -10,6 +12,7 @@ import { FUNNEL_EVENT, trackFunnelEvent } from "@/lib/funnel-events";
 
 type Step = "closed" | "website" | "contact" | "done";
 export default function HeroSitePeek() {
+  const tr = usePublicCopy();
   const { released } = useIntroLifecycle();
   const journey = useLionJourney();
   const setPaused = journey?.setDialogOpen;
@@ -49,14 +52,14 @@ export default function HeroSitePeek() {
         const url = new URL(/^https?:\/\//i.test(website.trim()) ? website.trim() : `https://${website.trim()}`);
         if (!/^https?:$/.test(url.protocol) || !url.hostname.includes(".") || url.username || url.password) throw new Error();
         setWebsite(url.toString()); changeStep("contact");
-      } catch { setError("Enter your website, like yourbrand.com."); }
+      } catch { setError(tr("Enter your website, like yourbrand.com.")); }
       return;
     }
     const value = contact.trim();
     const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
     const digits = value.replace(/\D/g, "").length;
     const isPhone = /^\+?[\d\s().-]+$/.test(value) && digits >= 7 && digits <= 15;
-    if (!isEmail && !isPhone) { setError("Add an email or a phone number with your country code."); return; }
+    if (!isEmail && !isPhone) { setError(tr("Add an email or a phone number with your country code.")); return; }
     setLoading(true); setError("");
     request.current = new AbortController();
     try {
@@ -71,12 +74,14 @@ export default function HeroSitePeek() {
       trackFunnelEvent(FUNNEL_EVENT.HERO_PEEK_SUBMITTED, { ok: true });
     } catch {
       if (request.current?.signal.aborted) return;
-      setError("Your details haven't been saved. Try again or contact us.");
+      setError(tr("Your details haven't been saved. Try again or contact us."));
       trackFunnelEvent(FUNNEL_EVENT.HERO_PEEK_SUBMITTED, { ok: false });
     } finally { setLoading(false); }
   };
+  const close = () => { restoreFocus.current = true; changeStep("closed"); };
   const expanded = step !== "closed";
   return <div ref={host} className="hero-invitation" data-trail-preserve-palette
+    onKeyDown={event => { if (event.key === "Escape" && expanded && !loading) { event.preventDefault(); close(); } }}
     onFocusCapture={() => setPaused?.(true)}
     onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused?.(false); }}>
     <div ref={journey?.cta} className={`hero-capsule ${expanded ? "hero-capsule-open" : ""} ${step === "done" ? "hero-capsule-done" : ""}`}>
@@ -86,33 +91,35 @@ export default function HeroSitePeek() {
         {step === "closed" ? <motion.button key="invitation" type="button" className="hero-capsule-trigger"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? 0 : 0.12 }}
           onAnimationComplete={() => { if (restoreFocus.current) host.current?.querySelector<HTMLButtonElement>(".hero-capsule-trigger")?.focus({ preventScroll: true }); restoreFocus.current = false; }}
-          onClick={() => changeStep("website")}>
-          Get your audit <span aria-hidden="true">↗</span>
+          onClick={() => changeStep("website")}>{tr("Get your audit")}<span aria-hidden="true">↗</span>
         </motion.button> : step === "done" ? <motion.div key="done" className="hero-form-success" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           onAnimationComplete={() => host.current?.querySelector<HTMLElement>(".hero-form-success p")?.focus({ preventScroll: true })}>
-          <p role="status" tabIndex={-1}>Your introduction is with us.</p>
-          <Link href={`/audit?website=${encodeURIComponent(website)}`}>Tell us what comes next ↗</Link>
+          <p role="status" tabIndex={-1}>{tr("Your introduction is with us.")}</p>
+          <Link href={`/audit?website=${encodeURIComponent(website)}`}>{tr("Tell us what comes next ↗")}</Link>
         </motion.div> : <motion.form key="fields" onSubmit={submit} noValidate aria-busy={loading} className="hero-capsule-form"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? 0 : 0.18 }}>
-          <label className="sr-only" htmlFor="hero-introduction">{step === "website" ? "Your website" : "Email or phone number"}</label>
+          <label className="sr-only" htmlFor="hero-introduction">{step === "website" ? tr("Your website") : tr("Email or phone number")}</label>
           <motion.input ref={input} key={step} id="hero-introduction" type="text" inputMode={step === "website" ? "url" : "text"}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: reduced ? 0 : 0.18 }}
             onAnimationComplete={() => input.current?.focus({ preventScroll: true })}
             autoComplete={step === "website" ? "url" : "off"} autoCapitalize="none" spellCheck={false}
             maxLength={step === "website" ? 2048 : 254} disabled={loading}
-            value={step === "website" ? website : contact} placeholder={step === "website" ? "Your website" : "Email or phone number"}
+            value={step === "website" ? website : contact} placeholder={step === "website" ? tr("Your website") : tr("Email or phone number")}
             onChange={event => { (step === "website" ? setWebsite : setContact)(event.target.value); setError(""); }}
             aria-invalid={!!error} aria-describedby={error ? "hero-intro-error" : undefined} />
-          <button type="submit" disabled={loading} aria-label={step === "website" ? "Continue to contact details" : "Send your introduction"}>{loading ? "…" : "→"}</button>
+          <button type="button" className="hero-capsule-dismiss" disabled={loading} onClick={close} aria-label={tr("Close")}>
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <path d="m6 6 12 12M18 6 6 18" />
+            </svg>
+          </button>
+          <button type="submit" disabled={loading} aria-label={step === "website" ? tr("Continue to contact details") : tr("Send your introduction")}>{loading ? "…" : "→"}</button>
         </motion.form>}
       </AnimatePresence>
     </div>
-    <div className="hero-capsule-meta">
-      {expanded && step !== "done" && <>
-        <button type="button" disabled={loading} onClick={() => { restoreFocus.current = step === "website"; changeStep(step === "contact" ? "website" : "closed"); }}>{step === "contact" ? "← Website" : "Close"}</button>
-      </>}
-    </div>
-    {error && <p id="hero-intro-error" role="alert" className="hero-form-error">{error} {step === "contact" && <a href={`mailto:${CONTACT_EMAIL}`}>Contact us ↗</a>}</p>}
-    <span role="status" className="sr-only">{loading ? "Sending your introduction" : ""}</span>
+    {step === "contact" && <div className="hero-capsule-meta">
+      <button type="button" disabled={loading} onClick={() => changeStep("website")}>{tr("← Website")}</button>
+    </div>}
+    {error && <p id="hero-intro-error" role="alert" className="hero-form-error">{error} {step === "contact" && <a href={`mailto:${CONTACT_EMAIL}`}>{tr("Contact us ↗")}</a>}</p>}
+    <span role="status" className="sr-only">{loading ? tr("Sending your introduction") : ""}</span>
   </div>;
 }

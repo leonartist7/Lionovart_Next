@@ -1,0 +1,20 @@
+.trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(.5rem,.7vw,1rem);
+  max-width: 100%;
+  margin: 0;
+  color: #b4b1b4;
+  font: inherit;
+  font-size: clamp(.8125rem,calc(.75rem + .2vw),1.25rem);
+  line-height: 1.45;
+  text-align: center;
+}
+.copy { min-width: 0; text-wrap: balance; }
+.laurel {
+  width: clamp(1.0625rem,1.3vw,1.75rem);
+  height: clamp(2.75rem,3.3vw,4.5rem);
+  object-fit: contain;
+  flex: 0 0 auto;
+}

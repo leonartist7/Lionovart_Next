@@ -1,7 +1,8 @@
 .section {
   position: relative;
-  background: var(--site-surface-dark, #0a0a0a);
-  color: var(--site-surface-light, #f7f4ef);
+  background: var(--site-surface-light, #f7f4ef);
+  color: #171412;
+  font-family: var(--font-clash-display), sans-serif;
   padding-block: clamp(1.5rem, 3vw, 3rem) clamp(2rem, 4vw, 4rem);
   scroll-margin-top: 6rem;
 }
@@ -22,7 +23,7 @@
 .primary {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
-  border-bottom: 1px solid rgb(240 201 23 / 42%);
+  border-bottom: 1px solid rgb(138 101 15 / 24%);
 }
 
 .secondary {
@@ -55,8 +56,8 @@
   order: -1;
   min-width: 0;
   margin: 0;
-  font-family: var(--font-playfair-display), Georgia, serif;
-  font-weight: 400;
+  font-family: var(--font-clash-display), sans-serif;
+  font-weight: 600;
   font-style: normal;
   line-height: 1;
   letter-spacing: -0.055em;
@@ -95,7 +96,7 @@
 
 .suffix {
   margin-left: 0.035em;
-  color: #f0c917;
+  color: #8a650f;
 }
 
 .prefix {

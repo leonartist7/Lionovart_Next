@@ -1,0 +1,185 @@
+.transition {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+  color: #171412;
+}
+.intro {
+  position: sticky;
+  z-index: 2;
+}
+.scene {
+  background: var(--site-surface-light, #f4f0e8);
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  margin-top: -100svh;
+  margin-bottom: -100svh;
+  overflow: clip;
+  isolation: isolate;
+  z-index: 1;
+}
+.runway { position: relative; height: 180svh; pointer-events: none; }
+.circle {
+  position: absolute;
+  left: 50%;
+  top: 53%;
+  width: 200vmax;
+  height: 200vmax;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  background: #f51b2c;
+  box-shadow: inset 0 0 0 .1875rem #e1b95c;
+  z-index: 3;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.logo { position: absolute; inset: 14%; }
+.logo img { object-fit: contain; }
+.heading {
+  position: absolute;
+  top: max(5rem, 9svh);
+  inset-inline: 1.5rem;
+  text-align: center;
+  z-index: 4;
+  pointer-events: none;
+}
+.heading h2 {
+  margin: 0;
+  font-family: var(--font-heading), sans-serif;
+  font-size: clamp(2.5rem, 1.5rem + 3vw, 5.5rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1.02;
+  letter-spacing: -.025em;
+}
+.heading p {
+  max-width: 42ch;
+  margin: 1rem auto 0;
+  font-family: var(--font-playfair-display), Georgia, serif;
+  font-size: clamp(1.25rem, 1.05rem + .45vw, 1.75rem);
+  font-weight: 400;
+  font-style: italic;
+  font-synthesis: none;
+  line-height: 1.4;
+  text-wrap: pretty;
+  color: #5b5146;
+}
+.streamViewport {
+  --stream-edge: clamp(1.5rem, 6vw, 8rem);
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  mask-image: linear-gradient(to right, transparent, #000 var(--stream-edge), #000 calc(100% - var(--stream-edge)), transparent);
+}
+.workStream { position: absolute; inset-inline: 0; height: 100%; z-index: 1; pointer-events: none; }
+.streamCanvas { height: 100%; width: 100%; overflow: visible; }
+.pause {
+  position: absolute;
+  bottom: clamp(3rem, 7svh, 5rem);
+  left: 1.25rem;
+  z-index: 5;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  border: .0625rem solid #ad99734d;
+  border-radius: 50%;
+  cursor: pointer;
+  background: #fffaf1;
+}
+.pause svg { width: 1rem; height: 1rem; }
+.pause:focus-visible { outline: .125rem solid #986c12; outline-offset: .25rem; }
+.servicesBackdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: var(--site-surface-light, #f4f0e8);
+  pointer-events: none;
+}
+.servicesSurface {
+  position: relative;
+  z-index: 3;
+  overflow: clip;
+}
+.staticGallery { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; max-width: 80rem; margin: 2rem auto 0; }
+.staticGallery > div { position: relative; aspect-ratio: 4/3; border-radius: .75rem; overflow: hidden; }
+.staticGallery img { object-fit: cover; }
+.transition[data-static=true] .intro { position: relative; }
+.transition[data-static=true] .scene { margin-top: 0; position: relative; height: auto; margin-bottom: 0; padding: 3rem 1.25rem; }
+.transition[data-static=true] .circle { position: relative; top: auto; left: auto; width: 6rem; height: 6rem; transform: none; margin: 1.25rem auto 0; }
+.transition[data-static=true] .heading { position: relative; top: auto; inset-inline: auto; }
+.transition[data-static=true] .runway { display: none; }
+@media (max-width: 767px) {
+  .runway { height: 155svh; }
+  .heading { top: max(5rem, 9svh); inset-inline: 1.25rem; }
+  .heading h2 { font-size: clamp(2.25rem, 1.75rem + 2vw, 3rem); }
+  .heading p { max-width: 29ch; margin-top: .75rem; }
+  .workStream { inset-inline: -65%; }
+  .staticGallery { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+}
+
+.servicesCue {
+  position: absolute;
+  bottom: clamp(3rem, 7svh, 5rem);
+  left: 50%;
+  z-index: 4;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  min-height: 2.75rem;
+  width: max-content;
+  max-width: calc(100% - 2.5rem);
+  padding: .5rem .75rem;
+  font-family: var(--font-heading), sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #302b26;
+  pointer-events: auto;
+}
+.servicesCue svg { width: 1rem; height: 1rem; }
+.servicesCue:focus-visible { outline: .125rem solid #986c12; outline-offset: .25rem; }
+
+.transition[data-static=true] .servicesCue { position: relative; top: auto; bottom: auto; left: auto; transform: none; display: flex; margin: 1.5rem auto 0; }
+
+.circle:focus-visible { outline: 2.5rem solid #986c12; outline-offset: 3rem; }
+.transition[data-static=true] .circle:focus-visible { outline-width: .125rem; outline-offset: .25rem; }
+/* In the test, the work stays in the upper half while the service copy scrolls below. */
+.transition[data-carousel-services-preview=true] .heading { top: max(4.5rem, 6svh); }
+.transition[data-carousel-services-preview=true] .heading h2 { font-size: clamp(2rem, 1.5rem + 2vw, 3.25rem); }
+.transition[data-carousel-services-preview=true] .heading p { margin-top: .5rem; font-size: clamp(1.125rem, 1rem + .3vw, 1.5rem); }
+.transition[data-carousel-services-preview=true] .streamViewport {
+  mask-image: linear-gradient(to right, transparent, #000 var(--stream-edge), #000 calc(100% - var(--stream-edge)), transparent),
+    linear-gradient(to bottom, #000 0%, #000 36%, transparent 48%);
+  mask-composite: intersect;
+}
+
+/* Keep the preview scene's full sticky boundary; overlap the runway instead.
+   Both the carousel and final service then leave with the section's bottom. */
+.transition[data-carousel-services-preview="true"] .scene {
+  margin-bottom: 0;
+}
+.transition[data-carousel-services-preview="true"] .runway {
+  margin-top: -100svh;
+}
+
+@media (width < 360px) and (height <= 650px) {
+  .transition[data-carousel-services-preview="true"] .streamViewport {
+    mask-image:
+      linear-gradient(to right, transparent, #000 var(--stream-edge), #000 calc(100% - var(--stream-edge)), transparent),
+      linear-gradient(to bottom, #000 0%, #000 28%, transparent 36%);
+  }
+}
+
+@media (width < 360px) and (height <= 650px) {
+  .transition[data-carousel-services-preview="true"] .heading { top: 3.5rem; }
+  .transition[data-carousel-services-preview="true"] .heading h2 { font-size: 1.75rem; }
+  .transition[data-carousel-services-preview="true"] .heading p { font-size: 1rem; }
+}

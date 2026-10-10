@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 /** Shared process band. Numbered steps, scroll-reveal. Reduced-motion safe. */
 
 import { motion, useReducedMotion } from "framer-motion";
@@ -18,6 +20,7 @@ const reveal = {
 };
 
 export default function ProcessBand({ heading, steps }: { heading: string; steps: ProcessStep[] }) {
+  const tr = usePublicCopy();
   const reduce = useReducedMotion();
   const mp = reduce ? {} : reveal;
   const cols = steps.length === 3 ? "md:grid-cols-3" : "md:grid-cols-4";
@@ -30,7 +33,7 @@ export default function ProcessBand({ heading, steps }: { heading: string; steps
           className="mb-16 font-clash font-semibold uppercase leading-[0.95] tracking-tight text-white"
           style={{ fontSize: "clamp(2.2rem, 6vw, 5rem)" }}
         >
-          {heading}
+          {tr(heading)}
         </motion.h2>
         <div className={`grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 ${cols}`}>
           {steps.map((step) => (
@@ -38,8 +41,8 @@ export default function ProcessBand({ heading, steps }: { heading: string; steps
               <span className="font-clash text-brand-red" style={{ fontSize: "clamp(1.4rem,3vw,2rem)" }}>
                 {step.n}
               </span>
-              <h3 className="mt-5 font-clash text-2xl font-semibold text-white">{step.t}</h3>
-              <p className="mt-3 max-w-[32ch] text-[15px] leading-relaxed text-white/55">{step.d}</p>
+              <h3 className="mt-5 font-clash text-2xl font-semibold text-white">{tr(step.t)}</h3>
+              <p className="mt-3 max-w-[32ch] text-[15px] leading-relaxed text-white/55">{tr(step.d)}</p>
             </motion.div>
           ))}
         </div>

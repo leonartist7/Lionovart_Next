@@ -1,3 +1,5 @@
+import { getLocale } from "next-intl/server";
+import { getPublicCopy } from "@/lib/i18n/public-copy";
 import styles from "./AboutPageContent.module.css";
 import AboutHashLanding from "./AboutHashLanding";
 
@@ -13,30 +15,32 @@ const topics = [
   { name: "Support", entries: ["Direct access to the creative lead", "An internal point of contact", "An account or project contact", "Contact each specialist directly", "Product support, not creative direction"] },
 ];
 
-export default function AboutComparison() {
+export default async function AboutComparison() {
+  const locale = await getLocale();
+  const tr = getPublicCopy(locale);
   return (
     <section id="approach" className={styles.approach} aria-labelledby="approach-heading">
       <AboutHashLanding />
       <div id="comparison" data-nova-section="comparison" className={`${styles.container} ${styles.comparisonDestination}`}>
         <div className={styles.comparisonHeader}>
-          <div><p className={styles.eyebrow}>Why work with LIONOVART</p><h2 id="approach-heading" className={styles.sectionTitle}>The difference is<br /><em>the connection.</em></h2></div>
-          <p className={styles.comparisonIntro}>One creative direction. A direct relationship. Connected expertise from the brief to the final expression. Here’s how that working model compares.</p>
+          <div><p className={styles.eyebrow}>{tr("Why work with LIONOVART")}</p><h2 id="approach-heading" className={styles.sectionTitle}>{tr("The difference is")}<br /><em>{tr("the connection.")}</em></h2></div>
+          <p className={styles.comparisonIntro}>{tr("One creative direction. A direct relationship. Connected expertise from the brief to the final expression. Here’s how that working model compares.")}</p>
         </div>
         <table className={styles.comparisonTable}>
-          <caption className="sr-only">Working-model comparison across seven topics and five options</caption>
-          <thead><tr><th scope="col">Working model</th>{providers.map((provider, index) => <th key={provider} scope="col" className={index === 0 ? styles.highlightColumn : undefined}>{provider}</th>)}</tr></thead>
-          <tbody>{topics.map((topic) => <tr key={topic.name}><th scope="row">{topic.name}</th>{topic.entries.map((entry, index) => <td key={providers[index]} className={index === 0 ? styles.highlightColumn : undefined}>{entry}</td>)}</tr>)}</tbody>
+          <caption className="sr-only">{tr("Working-model comparison across seven topics and five options")}</caption>
+          <thead><tr><th scope="col">{tr("Working model")}</th>{providers.map((provider, index) => <th key={tr(provider)} scope="col" className={index === 0 ? styles.highlightColumn : undefined}>{tr(provider)}</th>)}</tr></thead>
+          <tbody>{topics.map((topic) => <tr key={tr(topic.name)}><th scope="row">{tr(topic.name)}</th>{topic.entries.map((entry, index) => <td key={tr(providers[index])} className={index === 0 ? styles.highlightColumn : undefined}>{tr(entry)}</td>)}</tr>)}</tbody>
         </table>
         <div className={styles.mobileComparison}>
-          <p className={styles.comparisonHint}>Explore the comparison by topic <span aria-hidden="true">↓</span></p>
+          <p className={styles.comparisonHint}>{tr("Explore the comparison by topic")}<span aria-hidden="true">↓</span></p>
           {topics.map((topic, topicIndex) => (
-            <details key={topic.name} open={topicIndex === 0} className={styles.topic}>
-              <summary><span><small aria-hidden="true">0{topicIndex + 1}</small>{topic.name}</span><span className={styles.disclosureIcon} aria-hidden="true">+</span></summary>
-              <dl>{topic.entries.map((entry, index) => <div key={providers[index]} className={index === 0 ? styles.highlightEntry : undefined}><dt>{providers[index]}</dt><dd>{entry}</dd></div>)}</dl>
+            <details key={tr(topic.name)} open={topicIndex === 0} className={styles.topic}>
+              <summary><span><small aria-hidden="true">0{topicIndex + 1}</small>{tr(topic.name)}</span><span className={styles.disclosureIcon} aria-hidden="true">+</span></summary>
+              <dl>{topic.entries.map((entry, index) => <div key={tr(providers[index])} className={index === 0 ? styles.highlightEntry : undefined}><dt>{tr(providers[index])}</dt><dd>{tr(entry)}</dd></div>)}</dl>
             </details>
           ))}
         </div>
-        <p className={styles.comparisonFootnote}>Every model has its place. Team structure, timing, fees, and support depend on the scope agreed with your chosen provider.</p>
+        <p className={styles.comparisonFootnote}>{tr("Every model has its place. Team structure, timing, fees, and support depend on the scope agreed with your chosen provider.")}</p>
       </div>
     </section>
   );

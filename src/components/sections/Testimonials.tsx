@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -260,6 +262,7 @@ const PAGES: Review[][] = [
 const ALL: Review[] = PAGES.flat();
 
 function ReviewCardSurface({ card }: { card: Review }) {
+  const tr = usePublicCopy();
   const avatar = card.image ?? card.logo;
 
   return (
@@ -285,27 +288,25 @@ function ReviewCardSurface({ card }: { card: Review }) {
           <figcaption className="truncate font-clash text-[11px] font-bold uppercase tracking-[0.08em] text-white sm:text-xs lg:text-[13px]">
             {card.name}
           </figcaption>
-          <p className="truncate font-body text-[10px] text-white/50 sm:text-[11px] lg:text-xs">{card.role}</p>
+          <p className="truncate font-body text-[10px] text-white/50 sm:text-[11px] lg:text-xs">{tr(card.role)}</p>
         </div>
       </div>
 
       <blockquote className="mt-2 line-clamp-4 font-body text-xs leading-relaxed text-white/80 sm:mt-3 sm:text-[13px] lg:mt-4 lg:line-clamp-5 lg:text-[15px] lg:leading-[1.65]">
-        &ldquo;{card.quote}&rdquo;
+        &ldquo;{tr(card.quote)}&rdquo;
       </blockquote>
 
       {card.stat && (
         <div className="mt-3 lg:mt-4">
           {card.statKind === "estimated" && (
-            <span className="mb-1 block font-clash text-[8px] font-bold uppercase tracking-[0.18em] text-white/45 lg:text-[9px]">
-              Est. impact
-            </span>
+            <span className="mb-1 block font-clash text-[8px] font-bold uppercase tracking-[0.18em] text-white/45 lg:text-[9px]">{tr("Est. impact")}</span>
           )}
           <div className="flex items-baseline gap-1.5">
             <span className="bg-gradient-to-r from-[#f47721] via-[#f0c917] to-[#ffe49a] bg-clip-text font-clash text-base font-bold leading-none text-transparent drop-shadow-[0_1px_8px_rgba(240,201,23,0.25)] sm:text-lg lg:text-[22px]">
               {card.stat}
             </span>
             <span className="font-body text-[9px] uppercase tracking-[0.06em] text-white/55 sm:text-[10px] lg:text-[11px]">
-              {card.statLabel}
+              {tr(card.statLabel ?? "")}
             </span>
           </div>
         </div>

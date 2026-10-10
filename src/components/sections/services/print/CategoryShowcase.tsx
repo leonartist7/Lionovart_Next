@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 /**
  * Print capabilities showcase — what we can make, not a catalogue. Mobile-first
  * single-column stack that becomes a 2-col bento on md, where "Premium finishes"
@@ -49,18 +51,19 @@ const CATEGORIES: Category[] = [
 ];
 
 export default function CategoryShowcase() {
+  const tr = usePublicCopy();
   return (
     <section className="bg-bg-dark px-6 py-28 md:py-36">
       <div className="mx-auto max-w-[1400px]">
         <RevealOnScroll>
           <p className="mb-5 text-[11px] uppercase tracking-[0.3em] text-brand-red">
-            What we make
+            {tr("What we make")}
           </p>
           <h2
             className="max-w-[18ch] font-clash font-semibold uppercase leading-[0.95] text-white"
             style={{ fontSize: "clamp(2rem, 5vw, 3.8rem)", letterSpacing: "-0.03em" }}
           >
-            From the card to the whole physical brand.
+            {tr("From the card to the whole physical brand.")}
           </h2>
         </RevealOnScroll>
 
@@ -82,6 +85,7 @@ export default function CategoryShowcase() {
 }
 
 function Tile({ icon: Icon, title, blurb, feature }: Category) {
+  const tr = usePublicCopy();
   return (
     <article
       className={`group flex h-full cursor-default flex-col rounded-2xl border bg-[#161616] p-7 transition duration-200 hover:-translate-y-1 md:p-9 ${
@@ -109,7 +113,7 @@ function Tile({ icon: Icon, title, blurb, feature }: Category) {
       <div className={feature ? "md:max-w-[26ch]" : undefined}>
         {feature && (
           <p className="mb-3 text-[11px] uppercase tracking-[0.3em] text-brand-gold">
-            Premium
+            {tr("Premium")}
           </p>
         )}
         <h3
@@ -117,10 +121,10 @@ function Tile({ icon: Icon, title, blurb, feature }: Category) {
             feature ? "text-2xl md:text-3xl" : "text-xl md:text-2xl"
           }`}
         >
-          {title}
+          {tr(title)}
         </h3>
         <p className="mt-2 max-w-[46ch] text-[15px] leading-[1.6] text-white/70 md:text-[16px]">
-          {blurb}
+          {tr(blurb)}
         </p>
       </div>
     </article>

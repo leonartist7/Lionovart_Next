@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { getLocale } from "next-intl/server";
+import { getPublicCopy } from "@/lib/i18n/public-copy";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
 import ClosingCTA from "@/components/sections/ClosingCTA";
@@ -40,7 +42,8 @@ const OFFERS: Offer[] = [
   },
 ];
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const tr = getPublicCopy(await getLocale());
   return (
     <>
       <JsonLd
@@ -53,17 +56,15 @@ export default function PricingPage() {
         <Navbar />
 
         <section className="mx-auto max-w-[1400px] px-6 pt-40 pb-16 md:px-10 md:pt-48">
-          <p className="mb-5 text-[11px] uppercase tracking-[0.3em] text-white/50">Pricing</p>
+          <p className="mb-5 text-[11px] uppercase tracking-[0.3em] text-white/50">{tr("Pricing")}</p>
           <h1
             className="font-clash font-semibold uppercase leading-[0.92] tracking-tight text-white"
             style={{ fontSize: "clamp(2.8rem, 9vw, 7rem)" }}
           >
-            Real numbers. <span className="text-brand-red">No guessing.</span>
+            {tr("Real numbers.")} <span className="text-brand-red">{tr("No guessing.")}</span>
           </h1>
           <p className="mt-6 max-w-[56ch] text-[15px] leading-relaxed text-white/55 md:text-[17px]">
-            Every project starts with a 50% deposit and runs on a fixed sprint
-            timeline. Need something custom — a retainer, growth marketing, AI
-            systems? Book a call and we&rsquo;ll scope it together.
+            {tr("Every project starts with a 50% deposit and runs on a fixed sprint timeline. Need something custom — a retainer, growth marketing, AI systems? Book a call and we’ll scope it together.")}
           </p>
         </section>
 

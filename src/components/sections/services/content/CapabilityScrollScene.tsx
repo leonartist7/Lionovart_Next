@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 /**
  * Act 3 — Capability proof for /services/content-studio.
  * A pinned showreel with capability tags that reveal in scroll-synced zones,
@@ -30,6 +32,7 @@ const SCENE_CLIP =
   "https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto/v1779845634/Footage_07_o3rfbu.mp4";
 
 export default function CapabilityScrollScene() {
+  const tr = usePublicCopy();
   const reduce = useReducedMotion();
   const sectionRef = useRef<HTMLDivElement>(null);
   const progress = useMotionValue(0);
@@ -80,7 +83,7 @@ export default function CapabilityScrollScene() {
         {/* Capability list */}
         <div className="relative z-10 mx-auto w-full max-w-[1400px] px-6 md:px-12">
           <p className="mb-6 text-[11px] uppercase tracking-[0.3em] text-white/50">
-            What we make
+            {tr("What we make")}
           </p>
           <ul className="space-y-1 md:space-y-2">
             {CAPABILITIES.map((cap, i) => {
@@ -94,7 +97,7 @@ export default function CapabilityScrollScene() {
                       color: isActive ? "var(--color-brand-red)" : "rgba(255,255,255,0.28)",
                     }}
                   >
-                    {cap}
+                    {tr(cap)}
                   </span>
                 </li>
               );

@@ -61,9 +61,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function LocalizedPublicPage({ params, searchParams }: { params: Promise<{ locale: string; slug?: string[] }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const { locale, slug } = await params;
   if (!isLocale(locale)) notFound();
-  // The new story launches in English; translations are completed in phase four.
-  // Return to the English URL instead of publishing a mixed-language page.
-  if (pathFrom(slug) === "/about" && locale !== "en") redirect("/about");
+  // French About shares the composition with reviewed localized copy.
+  if (pathFrom(slug) === "/about" && locale !== "en" && locale !== "fr") redirect("/about");
   const PageComponent = pages[pathFrom(slug)];
   if (!PageComponent) notFound();
   return <PageComponent key={locale as Locale} searchParams={searchParams} />;

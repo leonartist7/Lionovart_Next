@@ -1,6 +1,12 @@
 "use client";
 
-import GoldThreads from "@/components/ui/GoldThreads";
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
+import ServicesCurves from "./ServicesCurves";
+import { ServicesArrivalLayer } from "./ServicesArrival";
+import { useServicesCarouselPreview } from "./ServicesPreview";
+import styles from "./ServicesCarouselPreview.module.css";
+import ServicesWorkNavigation from "./ServicesWorkNavigation";
 
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
@@ -127,7 +133,9 @@ function ServiceMediaCarousel({
   );
 }
 
-export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingClick?: () => void }) {
+export default function HomepageServicesChapter() {
+  const tr = usePublicCopy();
+  const carouselPreview = useServicesCarouselPreview();
   const { t } = useLanguage();
   const reduceMotion = useHydratedReducedMotion() ?? false;
   const chapterRef = useRef<HTMLDivElement>(null);
@@ -150,6 +158,7 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
   });
 
   useMotionValueEvent(scrollYProgress, "change", (value) => {
+    if (reduceMotion) return;
     const normalized = clamp(
       (value - SERVICE_START) / (SERVICE_END - SERVICE_START),
       0,
@@ -166,14 +175,19 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
     (index: number, behavior: ScrollBehavior = "smooth") => {
       const element = chapterRef.current;
       if (!element) return;
-      const next = clamp(index, 0, SERVICE_COUNT - 1);
+      const next = carouselPreview ? (index % SERVICE_COUNT + SERVICE_COUNT) % SERVICE_COUNT : clamp(index, 0, SERVICE_COUNT - 1);
+      if (reduceMotion) {
+        setActiveIndex(next);
+        element.querySelector<HTMLElement>(`[data-service-static="${SERVICE_META[next].id}"]`)?.scrollIntoView({ behavior, block: "center" });
+        return;
+      }
       const sectionTop = element.getBoundingClientRect().top + window.scrollY;
       const travel = Math.max(1, element.offsetHeight - window.innerHeight);
       const ratio = (next + 0.5) / SERVICE_COUNT;
       const targetProgress = SERVICE_START + ratio * (SERVICE_END - SERVICE_START);
       window.scrollTo({ top: sectionTop + travel * targetProgress, behavior });
     },
-    [],
+    [carouselPreview, reduceMotion],
   );
 
   const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
@@ -201,24 +215,16 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
     return (
       <section
         id="services"
-        data-art-directed="light"
+        aria-label={tr("Our services")}
+      data-art-directed="light"
         className="relative isolate overflow-hidden bg-bg-surface-light text-[#111111]"
       >
-        <GoldThreads />
-        <div className="mx-auto max-w-[1280px] px-5 py-20 text-center sm:px-8 lg:py-28">
-          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-brand-red">
-            {t.services.eyebrow}
-          </p>
-          <h2 className="mx-auto mt-4 max-w-[10ch] font-clash text-[clamp(3rem,9vw,7rem)] font-semibold uppercase leading-[0.84] tracking-[-0.055em]">
-            {onHeadingClick ? <button type="button" onClick={onHeadingClick} aria-pressed="false" className="cursor-pointer bg-transparent text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red">
-              {t.services.heading}{" "}<span className="text-brand-red">{t.services.headingAccent}</span>
-            </button> : <>{t.services.heading}{" "}<span className="text-brand-red">{t.services.headingAccent}</span></>}
-          </h2>
-        </div>
+        <ServicesCurves />
+        <h2 className="sr-only">{tr("Our services")}</h2>
 
-        <div className="mx-auto grid max-w-[1280px] gap-px bg-black/10 sm:grid-cols-2 lg:grid-cols-3">
+        <div ref={chapterRef} data-services-static className="mx-auto grid max-w-[1280px] gap-px bg-black/10 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((service) => (
-            <article key={service.id} className="bg-bg-surface-light p-7 text-center sm:p-9">
+            <article key={service.id} data-service-static={service.id} className="bg-bg-surface-light p-7 text-center sm:p-9">
               <span className="font-mono text-[10px] font-bold tracking-[0.22em] text-black/35">
                 {service.number}
               </span>
@@ -231,7 +237,7 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
             </article>
           ))}
         </div>
-
+        <ServicesWorkNavigation services={services} activeIndex={activeIndex} onSelect={goToService} />
       </section>
     );
   }
@@ -240,40 +246,30 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
     <section
       id="services"
       data-art-directed="light"
-      className="relative z-20 isolate overflow-clip bg-bg-surface-light text-[#111111]"
+      data-carousel-preview={carouselPreview}
+      className={`${styles.chapter} relative z-20 isolate overflow-clip text-[#111111]`}
     >
-      <GoldThreads single />
-      <header className="mx-auto flex min-h-[39svh] max-w-[1280px] flex-col justify-end px-5 pb-8 text-center sm:min-h-[40svh] sm:px-8 sm:pb-10 lg:min-h-[44vh] lg:pb-14">
-        <p className="font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-brand-red sm:text-[11px]">
-          {t.services.eyebrow}
-        </p>
-        <h2 className="mx-auto mt-4 max-w-[10ch] font-clash text-[clamp(3.2rem,10vw,7.4rem)] font-semibold uppercase leading-[0.82] tracking-[-0.06em]">
-          {onHeadingClick ? <button type="button" onClick={onHeadingClick} aria-pressed="false" className="cursor-pointer bg-transparent text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red">
-            {t.services.heading}{" "}<span className="text-brand-red">{t.services.headingAccent}</span>
-          </button> : <>{t.services.heading}{" "}<span className="text-brand-red">{t.services.headingAccent}</span></>}
-        </h2>
-      </header>
+      <h2 className="sr-only">{tr("Our services")}</h2>
 
-      <div ref={chapterRef} className="relative h-[330svh] sm:h-[310svh] lg:h-[340vh]">
+      <div ref={chapterRef} data-services-runway className="relative h-[330svh] sm:h-[310svh] lg:h-[340vh]">
       <div
-        className="sticky top-0 h-svh overflow-hidden bg-bg-surface-light outline-none"
+        className="sticky top-0 h-svh overflow-hidden outline-none"
         tabIndex={0}
         role="region"
-        aria-label="Explore Lionovart expertise"
+        aria-label={tr("Explore Lionovart expertise")}
         onWheel={handleWheel}
         onKeyDown={handleKeys}
         style={{ overscrollBehaviorX: "contain" }}
       >
-        <GoldThreads />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_76%,rgba(229,25,42,0.04),transparent_36%)]"
-        />
+        <ServicesArrivalLayer>
+          <ServicesCurves />
+        </ServicesArrivalLayer>
 
         <div className="absolute inset-0 z-40">
           <span className="sr-only" aria-live="polite">{activeService.title}</span>
 
-          <div className="absolute inset-x-0 bottom-[10.5svh] top-[4.5svh] mx-auto max-w-[1500px] px-4 sm:px-8 lg:bottom-[12vh] lg:top-[9vh] lg:px-12">
+          <div data-service-panel
+            className={`${styles.panel} absolute inset-x-0 bottom-[10.5svh] top-[4.5svh] mx-auto max-w-[1500px] px-4 sm:px-8 lg:bottom-[12vh] lg:top-[9vh] lg:px-12`}>
             <motion.div
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
@@ -287,23 +283,23 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
               style={{ touchAction: "pan-y" }}
               className="flex h-full flex-col items-center justify-center gap-7 sm:gap-9 lg:gap-[clamp(2.75rem,5.5svh,5rem)]"
             >
-              <div className="relative order-1 aspect-video w-[min(92vw,61svh)] overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:w-[min(70vw,64svh)] lg:rounded-[1.55rem]">
+              {!carouselPreview && <div data-service-media className="relative order-1 aspect-video w-[min(92vw,61svh)] overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:w-[min(70vw,64svh)] lg:rounded-[1.55rem]">
                 <ServiceMediaCarousel
                   key={activeService.id}
                   images={activeService.media}
                   alt={`${activeService.title} service visual`}
                 />
-              </div>
+              </div>}
 
               <div className="order-2 flex min-w-0 flex-col justify-center text-center">
                 <div>
-                    <h3 className="mx-auto max-w-[13ch] font-clash text-[clamp(2.15rem,8.6vw,3.75rem)] font-semibold uppercase leading-[0.86] tracking-[-0.052em] sm:text-[clamp(2.45rem,7.5vw,4.5rem)] lg:max-w-[11ch] lg:text-[clamp(3.2rem,5vw,6.2rem)]">
+                    <h3 data-service-title className="mx-auto max-w-[13ch] font-clash text-[clamp(2.15rem,8.6vw,3.75rem)] font-semibold uppercase leading-[0.86] tracking-[-0.052em] sm:text-[clamp(2.45rem,7.5vw,4.5rem)] lg:max-w-[11ch] lg:text-[clamp(3.2rem,5vw,6.2rem)]">
                       {activeService.title}
                     </h3>
-                    <p className="mx-auto mt-4 max-w-[36ch] font-body text-[13px] font-medium leading-[1.52] text-black/60 sm:mt-5 sm:text-[15px] lg:mt-6 lg:max-w-[38ch] lg:text-[18px] lg:leading-[1.62]">
+                    <p data-service-description className="mx-auto mt-4 max-w-[36ch] font-body text-[13px] font-medium leading-[1.52] text-black/60 sm:mt-5 sm:text-[15px] lg:mt-6 lg:max-w-[38ch] lg:text-[18px] lg:leading-[1.62]">
                       {activeService.description}
                     </p>
-                    <div className="mx-auto mt-5 flex max-h-[4.6rem] max-w-[38rem] flex-wrap justify-center gap-1.5 overflow-hidden sm:mt-6 sm:max-h-none sm:gap-2 lg:mt-7 lg:max-w-[40rem]">
+                    <div data-service-tags className="mx-auto mt-5 flex max-h-[4.6rem] max-w-[38rem] flex-wrap justify-center gap-1.5 overflow-hidden sm:mt-6 sm:max-h-none sm:gap-2 lg:mt-7 lg:max-w-[40rem]">
                       {activeService.deliverables.map((item) => (
                         <span
                           key={item}
@@ -320,42 +316,10 @@ export default function HomepageServicesChapter({ onHeadingClick }: { onHeadingC
           </div>
         </div>
 
-        <nav
-          aria-label="Services"
-          className="absolute bottom-[3.2svh] left-1/2 z-40 w-fit max-w-[calc(100vw-1rem)] -translate-x-1/2 sm:bottom-[4vh]"
-        >
-          <div className="relative flex items-center justify-center gap-0.5 overflow-hidden rounded-full border border-white/55 bg-white/[0.2] p-1 shadow-[0_16px_42px_-28px_rgba(20,20,20,0.42),inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(255,255,255,0.2)] backdrop-blur-[26px] backdrop-saturate-200 sm:gap-1 sm:p-1.5">
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/95 to-transparent"
-            />
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_-35%,rgba(255,255,255,0.72),transparent_42%),linear-gradient(145deg,rgba(255,255,255,0.16),rgba(255,255,255,0.04))]"
-            />
-            {services.map((service, index) => {
-              const selected = index === activeIndex;
-              return (
-                <button
-                  key={service.id}
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() => goToService(index)}
-                  className={`relative z-10 flex h-8 min-w-8 items-center justify-center rounded-full px-2 font-mono text-[7.5px] font-bold uppercase tracking-[0.09em] transition-[background-color,color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/35 sm:h-9 sm:min-w-9 sm:px-3 sm:text-[8.5px] ${
-                    selected
-                      ? "scale-[1.015] bg-white/70 text-black shadow-[0_7px_18px_-13px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.96)] ring-1 ring-white/80"
-                      : "text-black/46 hover:bg-white/24 hover:text-black/72"
-                  }`}
-                >
-                  <span className="hidden sm:inline">{service.short}</span>
-                  <span className="sm:hidden">{service.number}</span>
-                </button>
-              );
-            })}
-          </div>
-        </nav>
+
       </div>
       </div>
+      <ServicesWorkNavigation services={services} activeIndex={activeIndex} onSelect={goToService} />
     </section>
   );
 }

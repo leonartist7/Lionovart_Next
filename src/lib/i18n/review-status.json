@@ -1,8 +1,24 @@
 {
-  "en": { "status": "approved", "reviewedBy": "source", "reviewedAt": "2026-09-18" },
-  "fr": { "status": "review-required" },
-  "es": { "status": "review-required" },
-  "it": { "status": "review-required" },
-  "ja": { "status": "review-required" },
-  "ko": { "status": "review-required" }
+  "en": {
+    "status": "approved",
+    "reviewedBy": "source",
+    "reviewedAt": "2026-09-18"
+  },
+  "fr": {
+    "status": "approved",
+    "reviewedBy": "Codex: French copy synchronized and reviewed",
+    "reviewedAt": "2026-10-05"
+  },
+  "es": {
+    "status": "review-required"
+  },
+  "it": {
+    "status": "review-required"
+  },
+  "ja": {
+    "status": "review-required"
+  },
+  "ko": {
+    "status": "review-required"
+  }
 }

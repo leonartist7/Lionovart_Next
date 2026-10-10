@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 /**
  * Scenes 0–1. The H1 is the stable anchor (never parallaxes; only translates up
  * on scroll-out). Floating fragments enter on mount (fade + scale 1.3→1, expo-out,
@@ -44,6 +46,7 @@ const FRAGMENTS: Fragment[] = [
 ];
 
 function FragmentVisual({ f }: { f: Fragment }) {
+  const tr = usePublicCopy();
   if (f.kind === "swatch")
     return (
       <div
@@ -54,7 +57,7 @@ function FragmentVisual({ f }: { f: Fragment }) {
   if (f.kind === "type")
     return (
       <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-black/10 bg-white/70 font-clash text-3xl font-semibold text-text-dark-primary shadow-lg backdrop-blur-sm md:h-24 md:w-24 md:text-4xl">
-        {f.label}
+        {tr(f.label ?? "")}
       </div>
     );
   if (f.kind === "wave")
@@ -71,12 +74,13 @@ function FragmentVisual({ f }: { f: Fragment }) {
     );
   return (
     <div className="rounded-full border border-black/10 bg-white/70 px-4 py-2 font-body text-xs font-semibold uppercase tracking-[0.2em] text-text-dark-primary shadow-lg backdrop-blur-sm">
-      {f.label}
+      {tr(f.label ?? "")}
     </div>
   );
 }
 
 export default function HeroScatter() {
+  const tr = usePublicCopy();
   const reduce = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
@@ -173,19 +177,19 @@ export default function HeroScatter() {
         {/* Stable anchor — H1 does not move in Scene 0 */}
         <div className="relative z-10 px-6 text-center">
           <p ref={copyRef} className="mb-6 text-[12px] font-semibold uppercase tracking-[0.4em] text-brand-red">
-            Branding
+            {tr("Branding")}
           </p>
           <h1
             ref={h1Ref}
             className="font-clash font-semibold uppercase text-text-dark-primary"
             style={{ fontSize: "clamp(2.8rem, 9vw, 6rem)", letterSpacing: "-0.04em", lineHeight: 0.92 }}
           >
-            <span className="block">Making</span>
-            <span className="block">Brands</span>
-            <span className="block">Roar</span>
+            {tr("Making\nBrands\nRoar").split("\n").map((line) => (
+              <span className="block" key={line}>{line}</span>
+            ))}
           </h1>
           <p className="mx-auto mt-7 max-w-[46ch] font-body text-[16px] leading-[1.6] text-text-dark-primary/70 md:text-[19px]">
-            Identity, voice, and motion — crafted into one presence people remember.
+            {tr("Identity, voice, and motion — crafted into one presence people remember.")}
           </p>
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import * as React from "react";
+import { animate } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export type CorridorPath = {
@@ -17,6 +18,12 @@ export type CorridorPath = {
   turnBirth?: number;
   turnExit?: number;
   stops?: number;
+  /** Keep growing cards beneath their shared birth point. */
+  anchorTop?: boolean;
+  /** Projected endpoint curve; negative values lift the outer cards. */
+  descent?: number;
+  /** Start fading before the loop resets; 1 disables the exit fade. */
+  exitFade?: number;
 };
 
 const DEFAULT_PATH: Required<CorridorPath> = {
@@ -32,6 +39,9 @@ const DEFAULT_PATH: Required<CorridorPath> = {
   turnBirth: 6,
   turnExit: 28,
   stops: 24,
+  anchorTop: false,
+  descent: 0,
+  exitFade: 1,
 };
 
 function createKeyframes(
@@ -54,10 +64,22 @@ function createKeyframes(
     const turn =
       path.turnBirth + (path.turnExit - path.turnBirth) * progress;
 
+    // Compensate for perspective so the visible top edges form a gentle fan.
+    const projectedDrop =
+      (path.anchorTop ? (path.cardHeight * scale - path.birthHeight) / 2 : 0) +
+      path.descent * progress * progress;
+    const drop = projectedDrop / scale;
+
+    // Fade to zero before the animation wraps back behind the logo.
+    const fadeStart = Math.max(0, Math.min(1, path.exitFade));
+    const fade = fadeStart < 1 ? Math.max(0, (progress - fadeStart) / (1 - fadeStart)) : 0;
+    const opacity = 1 - fade * fade * (3 - 2 * fade);
+    const exitOpacity = fadeStart < 1 ? `opacity:${opacity.toFixed(4)};` : "";
+
     steps.push(
-      `${(progress * 100).toFixed(2)}%{transform:translate3d(${(
+      `${(progress * 100).toFixed(2)}%{${exitOpacity}transform:translate3d(${(
         direction * rail
-      ).toFixed(2)}cqw,0,${depth.toFixed(2)}cqw) rotateY(${(
+      ).toFixed(2)}cqw,${drop.toFixed(2)}cqw,${depth.toFixed(2)}cqw) rotateY(${(
         -direction * turn
       ).toFixed(2)}deg)}`,
     );
@@ -78,6 +100,8 @@ type ImageStreamHeroProps = React.ComponentProps<"div"> & {
   axis?: number;
   path?: CorridorPath;
   paused?: boolean;
+  /** Playback multiplier while a mouse hovers an image; 1 leaves hover unchanged. */
+  hoverSpeed?: number;
 };
 
 export function ImageStreamHero({
@@ -87,11 +111,14 @@ export function ImageStreamHero({
   axis = 52,
   path,
   paused = false,
+  hoverSpeed = 1,
   className,
   style,
   children,
   ...props
 }: ImageStreamHeroProps) {
+  const streamRef = React.useRef<HTMLDivElement>(null);
+  const [hovered, setHovered] = React.useState(false);
   const id = React.useId().replace(/[^a-zA-Z0-9]/g, "");
   const rightRail = `image-stream-right-${id}`;
   const leftRail = `image-stream-left-${id}`;
@@ -109,6 +136,21 @@ export function ImageStreamHero({
     [rightRail, leftRail, cardClass, geometry],
   );
 
+  React.useEffect(() => {
+    if (hoverSpeed === 1) return;
+    const cards = streamRef.current?.querySelectorAll<HTMLElement>("[data-image-stream-card]");
+    const animations = Array.from(cards ?? []).flatMap(card => card.getAnimations());
+    if (!animations.length) return;
+    // WAAPI changes playback rate while preserving each staggered card's phase.
+    const target = hovered ? Math.max(.1, Math.min(1, hoverSpeed)) : 1;
+    const ramp = animate(animations[0].playbackRate, target, {
+      duration: .3,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: rate => animations.forEach(animation => animation.updatePlaybackRate(rate)),
+    });
+    return () => ramp.stop();
+  }, [hovered, hoverSpeed]);
+
   if (!images.length) return null;
 
   return (
@@ -116,6 +158,8 @@ export function ImageStreamHero({
       className={cn("relative overflow-hidden", className)}
       style={{ containerType: "inline-size", ...style }}
       {...props}
+      ref={streamRef}
+      data-image-stream-hovered={hovered}
     >
       <style>{animationCss}</style>
 
@@ -136,6 +180,10 @@ export function ImageStreamHero({
                 <div
                   key={`${animationName}-${index}`}
                   data-image-stream-card
+                  onPointerEnter={event => {
+                    if (hoverSpeed < 1 && event.pointerType === "mouse" && matchMedia("(hover: hover) and (pointer: fine)").matches) setHovered(true);
+                  }}
+                  onPointerLeave={() => setHovered(false)}
                   className={cn(
                     cardClass,
                     "absolute overflow-hidden border border-white/55 bg-[#151515] shadow-[0_28px_55px_-28px_rgba(0,0,0,0.68)] [backface-visibility:hidden]",
@@ -151,6 +199,7 @@ export function ImageStreamHero({
                     animation: `${animationName} ${speed}s linear infinite`,
                     animationDelay: `${-(index * speed) / cards}s`,
                     animationPlayState: paused ? "paused" : "running",
+                    pointerEvents: hoverSpeed < 1 ? "auto" : "none",
                   }}
                 >
                   {image.src.includes("res.cloudinary.com/") ? (

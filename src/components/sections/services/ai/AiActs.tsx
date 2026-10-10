@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 /**
  * The commercial story for /services/ai.
  *
@@ -153,6 +155,7 @@ const SYSTEMS = [
 ] as const;
 
 export function AiSystems() {
+  const tr = usePublicCopy();
   const sectionRef = useRef<HTMLElement>(null);
   const [activeValue, setActiveValue] = useState<string>(SYSTEMS[0].number);
   const activeSystem = SYSTEMS.find((system) => system.number === activeValue) ?? SYSTEMS[0];
@@ -200,20 +203,20 @@ export function AiSystems() {
         >
           <div className="max-w-[58rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)]">
             <p className="text-[13px] font-medium uppercase tracking-[0.18em] text-white/68 md:text-[14px]">
-              Four high-return systems
+              {tr("Four high-return systems")}
             </p>
             <h2
               id="ai-systems-heading"
               className="mt-4 max-w-[24ch] font-light leading-[1.14] text-white/78"
               style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(1.45rem, 2.2vw, 2rem)" }}
             >
-              Start with the leak costing you most. Connect the rest as you grow.
+              {tr("Start with the leak costing you most. Connect the rest as you grow.")}
             </h2>
           </div>
 
           <LiquidGlass className="mt-10 p-4 md:mt-14 md:p-7 lg:p-9">
           <Tabs.List
-            aria-label="Choose an AI system"
+            aria-label={tr("Choose an AI system")}
             className="relative flex w-full snap-x snap-mandatory gap-1 overflow-x-auto border-b border-white/14 pb-px [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-4 md:overflow-visible"
           >
             {SYSTEMS.map((system) => (
@@ -226,7 +229,7 @@ export function AiSystems() {
                   {system.number}
                 </span>
                 <span className="mt-1.5 block text-[16px] font-medium leading-[1.3]">
-                  {system.eyebrow}
+                  {tr(system.eyebrow)}
                 </span>
               </Tabs.Tab>
             ))}
@@ -253,23 +256,23 @@ export function AiSystems() {
                         {system.number} / 04
                       </span>
                       <span aria-hidden className="h-px w-10 bg-[var(--ai-cyan)]/70" />
-                      <Eyebrow>{system.eyebrow}</Eyebrow>
+                      <Eyebrow>{tr(system.eyebrow)}</Eyebrow>
                     </div>
 
                     <h3
                       className="mt-6 max-w-[16ch] font-normal leading-[0.98] tracking-[-0.045em] text-white"
                       style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(2.65rem, 4.8vw, 4.9rem)" }}
                     >
-                      {system.title}
+                      {tr(system.title)}
                     </h3>
                     <p
                       className="mt-6 max-w-[34ch] font-normal leading-[1.25] text-white/88"
                       style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(1.2rem, 1.8vw, 1.55rem)" }}
                     >
-                      {system.lead}
+                      {tr(system.lead)}
                     </p>
                     <p className="mt-4 max-w-[52ch] text-[18px] font-light leading-[1.65] text-white/80 md:text-[20px]">
-                      {system.body}
+                      {tr(system.body)}
                     </p>
 
                     <ul className="mt-8 m-0 grid list-none border-t border-white/12 p-0 sm:grid-cols-2 md:mt-10">
@@ -279,13 +282,13 @@ export function AiSystems() {
                           className="border-b border-white/12 py-3.5 pr-5 text-[17px] font-light leading-[1.5] text-white/78 sm:odd:mr-6"
                         >
                           <span aria-hidden className="mr-2 text-[var(--ai-cyan)]">·</span>
-                          {capability}
+                          {tr(capability)}
                         </li>
                       ))}
                     </ul>
 
                     <p className="mt-6 text-[14px] leading-[1.5] text-white/62 md:text-[15px]">
-                      Strong fit · {system.fit}
+                      Strong fit · {tr(system.fit)}
                     </p>
                   </motion.article>
                 </Tabs.Panel>
@@ -300,6 +303,7 @@ export function AiSystems() {
 }
 
 export function AiFlow() {
+  const tr = usePublicCopy();
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
   // The connected orbit narrows into the vertical energy spine beside this
@@ -313,11 +317,10 @@ export function AiFlow() {
     <section id="process" ref={ref} data-ai-snap className={ACT}>
       <div className={SHELL}>
         <div className="[text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:ml-auto md:w-[60%]">
-          <Eyebrow>The Lionovart AI Operating System</Eyebrow>
-          <Heading>Four systems. One clear advantage.</Heading>
+          <Eyebrow>{tr("The Lionovart AI Operating System")}</Eyebrow>
+          <Heading>{tr("Four systems. One clear advantage.")}</Heading>
           <p className="mt-7 max-w-[50ch] text-[18px] font-light leading-[1.68] text-white/80 md:text-[20px]">
-            Not four disconnected products. One custom operating system that shares context across
-            conversations, decisions and recurring work—so every improvement makes the next one stronger.
+            {tr("Not four disconnected products. One custom operating system that shares context across conversations, decisions and recurring work—so every improvement makes the next one stronger.")}
           </p>
 
           <div className="relative mt-14 md:mt-18">
@@ -366,6 +369,7 @@ function FlowStep({
   progress: ReturnType<typeof useSpring>;
   reduce: boolean;
 }) {
+  const tr = usePublicCopy();
   const at = index / total;
   const lit = useTransform(progress, [at, at + 0.5 / total], [0, 1]);
   const opacity = useTransform(lit, (value) => (reduce ? 1 : 0.25 + value * 0.75));
@@ -394,10 +398,10 @@ function FlowStep({
           }`}
           style={{ fontFamily: "var(--font-ai-display)" }}
         >
-          {node.label}
+          {tr(node.label)}
         </span>
         <span className="max-w-[38ch] text-[17px] font-light leading-[1.55] text-white/72 md:ml-auto md:text-right">
-          {node.detail}
+          {tr(node.detail)}
         </span>
       </div>
     </motion.li>
@@ -426,6 +430,7 @@ const STEPS = [
 ];
 
 export function AiProcess() {
+  const tr = usePublicCopy();
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
   useParticleChapter(ref, 0.76, 1, 0.44);
@@ -434,11 +439,10 @@ export function AiProcess() {
     <section ref={ref} data-ai-snap className={ACT}>
       <div className={SHELL}>
         <div className="max-w-[51rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:w-[62%]">
-          <Eyebrow>One partner from strategy to scale</Eyebrow>
-          <Heading>You get the result. We run the complexity.</Heading>
+          <Eyebrow>{tr("One partner from strategy to scale")}</Eyebrow>
+          <Heading>{tr("You get the result. We run the complexity.")}</Heading>
           <p className="mt-7 max-w-[49ch] text-[18px] font-light leading-[1.68] text-white/80 md:text-[20px]">
-            No tool maze. No unfinished handoff. Lionovart stays responsible for strategy,
-            implementation, integration and continuous improvement—from the first blueprint onward.
+            {tr("No tool maze. No unfinished handoff. Lionovart stays responsible for strategy, implementation, integration and continuous improvement—from the first blueprint onward.")}
           </p>
 
           <LiquidGlass className="mt-14 px-5 md:mt-18 md:px-8">
@@ -459,14 +463,14 @@ export function AiProcess() {
                     className="text-[26px] font-normal tracking-[-0.025em] text-white md:text-[32px]"
                     style={{ fontFamily: "var(--font-ai-display)" }}
                   >
-                    {step.t}
+                    {tr(step.t)}
                   </h3>
                   <p className="mt-3 text-[13px] font-medium leading-[1.45] text-white/68 md:text-[14px]">
-                    {step.signal}
+                    {tr(step.signal)}
                   </p>
                 </div>
                 <p className="max-w-[40ch] text-[17px] font-light leading-[1.65] text-white/76 md:text-[18px]">
-                  {step.d}
+                  {tr(step.d)}
                 </p>
               </motion.article>
             ))}
@@ -503,6 +507,7 @@ const INDUSTRIES = [
 ];
 
 export function AiOffers() {
+  const tr = usePublicCopy();
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
   const openNova = useNovaStore((state) => state.openNova);
@@ -515,8 +520,8 @@ export function AiOffers() {
     <section id="partnership" ref={ref} data-ai-snap className="relative py-[120px] md:py-[180px] lg:py-[220px]">
       <div className={SHELL}>
         <div className="[text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:ml-auto md:w-[64%]">
-          <Eyebrow>A clear way in</Eyebrow>
-          <Heading wide>Start focused. Grow into something powerful.</Heading>
+          <Eyebrow>{tr("A clear way in")}</Eyebrow>
+          <Heading wide>{tr("Start focused. Grow into something powerful.")}</Heading>
 
           <div className="mt-14 space-y-14 md:mt-20 md:space-y-18">
             {OFFERS.map((offer, index) => (
@@ -530,16 +535,16 @@ export function AiOffers() {
               >
                 <div>
                   <span className="text-[13px] font-medium uppercase tracking-[0.17em] text-[var(--ai-cyan)] md:text-[14px]">
-                    {offer.kind}
+                    {tr(offer.kind)}
                   </span>
                   <h3
                     className="mt-5 max-w-[15ch] text-[32px] font-normal leading-[1.04] tracking-[-0.035em] text-white md:text-[42px]"
                     style={{ fontFamily: "var(--font-ai-display)" }}
                   >
-                    {offer.title}
+                    {tr(offer.title)}
                   </h3>
                   <p className="mt-5 max-w-[39ch] text-[18px] font-light leading-[1.65] text-white/78 md:text-[19px]">
-                    {offer.blurb}
+                    {tr(offer.blurb)}
                   </p>
                 </div>
 
@@ -548,7 +553,7 @@ export function AiOffers() {
                     {offer.items.map((item) => (
                       <li key={item} className="text-[17px] font-light leading-[1.5] text-white/78">
                         <span aria-hidden className="mr-2 text-[var(--ai-cyan)]">·</span>
-                        {item}
+                        {tr(item)}
                       </li>
                     ))}
                   </ul>
@@ -557,7 +562,7 @@ export function AiOffers() {
                     onClick={() => openNova("hero", true)}
                     className="mt-9 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[17px] font-semibold tracking-[-0.01em] text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
                   >
-                    {offer.cta}
+                    {tr(offer.cta)}
                   </button>
                 </div>
               </motion.article>
@@ -583,12 +588,10 @@ export function AiOffers() {
                   className="text-[24px] font-normal tracking-[-0.025em] text-white md:text-[31px]"
                   style={{ fontFamily: "var(--font-ai-display)" }}
                 >
-                  The 5-Hour-Back Guarantee
+                  {tr("The 5-Hour-Back Guarantee")}
                 </h3>
                 <p className="mt-4 max-w-[52ch] text-[17px] font-light leading-[1.68] text-white/78 md:text-[18px]">
-                  Reclaim at least five verified team hours every week within 60 days—or we continue
-                  optimizing without a management fee until the agreed target is reached. From there,
-                  we keep working toward 10+ hours returned and measurable business value.
+                  {tr("Reclaim at least five verified team hours every week within 60 days—or we continue optimizing without a management fee until the agreed target is reached. From there, we keep working toward 10+ hours returned and measurable business value.")}
                 </p>
               </div>
             </div>
@@ -596,7 +599,7 @@ export function AiOffers() {
 
           <div className="mt-16 md:mt-20">
             <p className="text-[13px] font-medium uppercase tracking-[0.16em] text-white/68 md:text-[14px]">
-              Built for businesses where every response matters
+              {tr("Built for businesses where every response matters")}
             </p>
             <div className="mt-6 grid border-t border-white/10 sm:grid-cols-2">
               {INDUSTRIES.map((industry) => (
@@ -604,7 +607,7 @@ export function AiOffers() {
                   key={industry}
                   className="border-b border-white/10 py-4 pr-5 text-[17px] font-light text-white/74 sm:odd:mr-6"
                 >
-                  {industry}
+                  {tr(industry)}
                 </p>
               ))}
             </div>

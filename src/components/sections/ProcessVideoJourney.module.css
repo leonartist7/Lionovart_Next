@@ -1,0 +1,84 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4rem);
+}
+.film {
+  width: min(100%, 32rem);
+  min-width: 0;
+  margin: 0;
+  justify-self: center;
+}
+.filmFrame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgb(199 168 106 / 20%);
+}
+.steps {
+  display: grid;
+  align-content: center;
+  gap: 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.step {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  align-items: start;
+  column-gap: clamp(.875rem, 2vw, 1.5rem);
+  padding-block: 1.25rem;
+  border-top: 1px solid rgb(199 168 106 / 22%);
+}
+.step:last-child { border-bottom: 1px solid rgb(199 168 106 / 22%); }
+.stepNumber {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+.ring { object-fit: contain; }
+.stepNumber span {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-clash-display), sans-serif;
+  font-size: 1.625rem;
+  font-weight: 500;
+  line-height: 1;
+  color: #f7f4ef;
+  font-variant-numeric: tabular-nums;
+}
+.stepCopy { min-width: 0; align-self: center; }
+.stepTitle {
+  margin: 0;
+  font-family: var(--font-clash-display), sans-serif;
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  line-height: 1.15;
+  letter-spacing: -.025em;
+}
+.stepDescription {
+  max-width: 42ch;
+  margin: .625rem 0 0;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: .875rem;
+  line-height: 1.6;
+  color: rgb(247 244 239 / 72%);
+}
+@media (min-width: 640px) {
+  .step { grid-template-columns: 4.75rem minmax(0, 1fr); padding-block: 1.5rem; }
+  .stepNumber span { font-size: 1.875rem; }
+  .stepDescription { font-size: .9375rem; }
+}
+@media (min-width: 1024px) {
+  .layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .film { width: 100%; max-width: 38rem; }
+}

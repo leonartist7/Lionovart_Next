@@ -38,7 +38,7 @@ export default function SplashScreen() {
     const timers = new Set<ReturnType<typeof setTimeout>>();
     const abort = new AbortController();
     // This CSS clock begins in the server HTML, before hydration or font downloads.
-    const clock = screen.getAnimations().find(a => (a as CSSAnimation).animationName.includes("intro-failsafe"));
+    const clock = screen.getAnimations().find(a => (a as CSSAnimation).animationName?.includes("intro-failsafe"));
     const elapsed = typeof clock?.currentTime === "number" ? clock.currentTime : 0;
     const started = performance.now() - elapsed;
     const after = (fn: () => void, ms: number) => {

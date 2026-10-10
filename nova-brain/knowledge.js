@@ -220,7 +220,7 @@ const NOVA_KNOWLEDGE = {
     { id: "process", label: "our process" },
     { id: "comparison", label: "us vs other agencies" },
     { id: "testimonials", label: "testimonials" },
-    { id: "faq", label: "frequently asked questions" },
+    { id: "closing-cta", label: "start your brand / project conversation" },
   ],
 };
 

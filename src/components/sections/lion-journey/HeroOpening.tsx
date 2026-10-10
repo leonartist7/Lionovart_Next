@@ -5,20 +5,24 @@ import { motion, useMotionValueEvent, useTransform } from "framer-motion";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import HeroTop from "../HeroTop";
 import WhatWeDo from "../WhatWeDo";
+import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { useLionJourney } from "./LionJourney";
 
 export default function HeroOpening() {
-  const { opening: openingRef, openingProgress } = useLionJourney()!;
+  const { opening: openingRef, openingProgress, arrivalProgress } = useLionJourney()!;
+  const reduced = useHydratedReducedMotion();
+  const [workInert, setWorkInert] = useState(false);
+  const workOpacity = useTransform(arrivalProgress, [0, .3, .9, 1], [1, 1, 0, 0]);
+  useMotionValueEvent(arrivalProgress, "change", p => setWorkInert(p >= .9));
   const [heroInert, setHeroInert] = useState(false);
   const heroOpacity = useTransform(openingProgress, [0, 0.03, 0.26], [1, 1, 0]);
-  useMotionValueEvent(openingProgress, "change", p => setHeroInert(p > 0.25));
+  useMotionValueEvent(openingProgress, "change", p => { setHeroInert(p > 0.25); });
 
   useEffect(() => {
     const opening = openingRef.current;
     const stage = opening?.querySelector<HTMLElement>(".hero-opening-stage");
     const hero = opening?.querySelector<HTMLElement>(".lion-hero");
     const roar = hero?.querySelector<HTMLElement>(".lion-roar-text");
-    const slot = hero?.querySelector<HTMLElement>("[data-lion-slot]");
     const nav = document.querySelector<HTMLElement>("[data-nav-state]");
     if (!stage || !hero) return;
     let frame = 0;
@@ -27,21 +31,6 @@ export default function HeroOpening() {
       frame = requestAnimationFrame(() => {
         const clearance = Math.max(64, (nav?.getBoundingClientRect().bottom ?? 100) - Math.max(0, stage.getBoundingClientRect().top));
         stage.style.setProperty("--hero-nav-clearance", `${clearance}px`);
-        if (roar && slot) {
-          const heroBounds = hero.getBoundingClientRect();
-          const wordBounds = roar.getBoundingClientRect();
-          const size = slot.offsetWidth;
-          const gap = innerWidth < 640 ? 16 : innerWidth < 1024 ? 26 : 22;
-          const left = Math.max(4 - heroBounds.left, wordBounds.left - heroBounds.left - size - gap);
-          const top = wordBounds.top - heroBounds.top + (wordBounds.height - slot.offsetHeight) / 2;
-          const previousLeft = Number.parseFloat(hero.style.getPropertyValue("--lion-slot-left"));
-          const previousTop = Number.parseFloat(hero.style.getPropertyValue("--lion-slot-top"));
-          if (!Number.isFinite(previousLeft) || Math.abs(previousLeft - left) > 1 || Math.abs(previousTop - top) > 1) {
-            hero.style.setProperty("--lion-slot-left", `${left}px`);
-            hero.style.setProperty("--lion-slot-top", `${top}px`);
-            window.dispatchEvent(new Event("resize"));
-          }
-        }
         // Let an unusually tall hero scroll into view before the shared film
         // and card stage pins. This keeps the CTA reachable at 200% zoom.
         const overflow = Math.max(0, hero.scrollHeight - innerHeight);
@@ -79,7 +68,9 @@ export default function HeroOpening() {
           style={{ opacity: heroOpacity }} inert={heroInert}>
           <HeroTop />
         </motion.div>
-        <WhatWeDo pinned />
+        <motion.div className="opening-work-layer" data-opening-cards-layer style={{ opacity: reduced ? 1 : workOpacity }} inert={!reduced && workInert}>
+          <WhatWeDo pinned />
+        </motion.div>
       </div>
     </div>
   );

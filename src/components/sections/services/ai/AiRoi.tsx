@@ -1,17 +1,22 @@
 "use client";
 
+import { useLanguage } from "@/contexts/LanguageContext";
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 import { useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useNovaStore } from "@/lib/stores/nova-store";
 import { LiquidGlass } from "./LiquidGlass";
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
 
 export default function AiRoi() {
+  const tr = usePublicCopy();
+  const { locale } = useLanguage();
+  const currency = new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  });
   const ref = useRef<HTMLElement>(null);
   const [hours, setHours] = useState(10);
   const [hourValue, setHourValue] = useState(55);
@@ -48,16 +53,16 @@ export default function AiRoi() {
             className="relative"
           >
             <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-brand-red md:text-[14px]">
-              The capacity already inside your business
+              {tr("The capacity already inside your business")}
             </p>
             <h2
               className="mt-6 max-w-[12ch] font-normal leading-[0.97] tracking-[-0.045em] text-[#111111]"
               style={{ fontFamily: "var(--font-ai-display)", fontSize: "clamp(2.8rem, 5.4vw, 5.5rem)" }}
             >
-              What would you do with the hours back?
+              {tr("What would you do with the hours back?")}
             </h2>
             <p className="mt-7 max-w-[43ch] text-[18px] font-normal leading-[1.68] text-black/68 md:text-[20px]">
-              Use a conservative value for repetitive work. This is a planning lens—not a revenue promise—and it excludes faster response, recovered leads and customer retention.
+              {tr("Use a conservative value for repetitive work. This is a planning lens—not a revenue promise—and it excludes faster response, recovered leads and customer retention.")}
             </p>
           </motion.div>
 
@@ -65,11 +70,11 @@ export default function AiRoi() {
             <div className="grid gap-9 sm:grid-cols-2">
               <label className="block">
                 <span className="flex items-baseline justify-between gap-4 text-[17px] text-black/68">
-                  Hours lost each week
+                  {tr("Hours lost each week")}
                   <strong className="text-[22px] font-semibold tabular-nums text-black">{hours}h</strong>
                 </span>
                 <input
-                  aria-label="Hours lost each week"
+                  aria-label={tr("Hours lost each week")}
                   type="range"
                   min="5"
                   max="40"
@@ -81,11 +86,11 @@ export default function AiRoi() {
               </label>
               <label className="block">
                 <span className="flex items-baseline justify-between gap-4 text-[17px] text-black/68">
-                  Blended hourly value
+                  {tr("Blended hourly value")}
                   <strong className="text-[22px] font-semibold tabular-nums text-black">{currency.format(hourValue)}</strong>
                 </span>
                 <input
-                  aria-label="Blended hourly value"
+                  aria-label={tr("Blended hourly value")}
                   type="range"
                   min="25"
                   max="200"
@@ -99,13 +104,13 @@ export default function AiRoi() {
 
             <div className="mt-10 grid gap-6 border-t border-black/12 pt-8 sm:grid-cols-2">
               <div>
-                <p className="text-[13px] uppercase tracking-[0.16em] text-black/52">Annual time returned</p>
+                <p className="text-[13px] uppercase tracking-[0.16em] text-black/52">{tr("Annual time returned")}</p>
                 <p className="mt-2 text-[clamp(2.3rem,5vw,4.2rem)] font-light leading-none tracking-[-0.055em] text-black">
-                  {result.yearlyHours.toLocaleString()}h
+                  {result.yearlyHours.toLocaleString(locale === "fr" ? "fr-FR" : "en-US")}h
                 </p>
               </div>
               <div>
-                <p className="text-[13px] uppercase tracking-[0.16em] text-black/52">Potential capacity value</p>
+                <p className="text-[13px] uppercase tracking-[0.16em] text-black/52">{tr("Potential capacity value")}</p>
                 <p className="mt-2 text-[clamp(2.3rem,5vw,4.2rem)] font-light leading-none tracking-[-0.055em] text-brand-red">
                   {currency.format(result.capacity)}
                 </p>
@@ -117,7 +122,7 @@ export default function AiRoi() {
               onClick={() => openNova("roi", true)}
               className="mt-9 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[17px] font-semibold text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
-              Find the first hours to recover
+              {tr("Find the first hours to recover")}
             </button>
           </LiquidGlass>
         </div>

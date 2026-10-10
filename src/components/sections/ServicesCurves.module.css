@@ -1,0 +1,30 @@
+.frame {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 100svh;
+  z-index: 1;
+  overflow: clip;
+  pointer-events: none;
+  user-select: none;
+}
+
+.rail {
+  position: absolute;
+  top: 50svh;
+  width: clamp(12rem, 23vw, 36rem);
+  height: 100svh;
+}
+
+/* The same contour continues across the seam, rather than restarting below. */
+.continuation { top: 0; bottom: auto; height: 50svh; }
+.continuation .rail { top: -50svh; }
+
+.left { left: -3%; }
+.right { right: -3%; transform: scaleX(-1); }
+
+@media (max-width: 999px) {
+  .rail { width: clamp(5rem, 18vw, 11rem); }
+  .left { left: -7%; }
+  .right { right: -7%; }
+}

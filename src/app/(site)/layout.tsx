@@ -10,7 +10,6 @@ import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { PostHogInit } from "@/components/PostHogInit";
 import { NovaPortalMount } from "@/components/ai-strategist/NovaPortalMount";
-import { StickyCTA } from "@/components/ai-strategist/StickyCTA";
 import CustomCursor from "@/components/ui/CustomCursor";
 import TubesCursor from "@/components/ui/TubesCursor";
 import BottomBlur from "@/components/ui/BottomBlur";
@@ -93,7 +92,6 @@ export default async function RootLayout({
             {children}
           </SmoothScrollProvider>
           <NovaPortalMount />
-          <StickyCTA />
           <TubesCursor />
           <CustomCursor />
           <BottomBlur />

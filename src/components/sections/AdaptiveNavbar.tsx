@@ -1,4 +1,6 @@
 "use client";
+
+import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
@@ -96,12 +98,13 @@ function LightweightMenuToggle({
   isOpen: boolean;
   onToggle: () => void;
 }) {
+  const tr = usePublicCopy();
   return (
     <button
       type="button"
       onClick={onToggle}
       aria-expanded={isOpen}
-      aria-label="Toggle menu"
+      aria-label={tr("Toggle menu")}
       className="relative z-[60] flex min-h-11 min-w-11 touch-manipulation items-center justify-center rounded-lg transition-transform duration-150 active:scale-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80 motion-reduce:transition-none"
     >
       {isOpen ? (
@@ -114,6 +117,7 @@ function LightweightMenuToggle({
 }
 
 export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallback = false }: NavbarProps) {
+  const tr = usePublicCopy();
   const router = useRouter();
   const { released } = useIntroLifecycle();
   const introHeader = useRef<HTMLDivElement>(null);
@@ -471,7 +475,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
                         <button
                           type="button"
                           onClick={() => setMobileExpertiseOpen((value) => !value)}
-                          aria-label="Toggle expertise list"
+                          aria-label={tr("Toggle expertise list")}
                           aria-expanded={mobileExpertiseOpen}
                           className="flex min-h-11 min-w-11 items-center justify-center text-black/60 transition-colors hover:text-black"
                         >

@@ -1,6 +1,8 @@
 "use client";
 
+import CompactWork from "./CompactWork";
 import GoldThreads from "@/components/ui/GoldThreads";
+import ServicesCurves from "./ServicesCurves";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import Image from "next/image";
@@ -9,7 +11,7 @@ import { Pause, Play } from "lucide-react";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SERVICE_GALLERY_PROJECTS } from "./services/galleryProjects";
-import { WORK_PROJECTS } from "./selected-work/projects";
+import { useWorkBrowse } from "./selected-work/WorkBrowse";
 import type { GlassRenderer } from "./selected-work/glassRenderer";
 import styles from "./SelectedWork.module.css";
 
@@ -19,11 +21,17 @@ type Selection = { index: number; manual: boolean };
 type GalleryMode = "work" | "services";
 type GalleryProject = { id: string; name: string; poster: string; color: string; video?: string; discipline?: string };
 
-export default function SelectedWork({ mode = "work", onHeadingClick, goldThreads = false }: { mode?: GalleryMode; onHeadingClick?: () => void; goldThreads?: boolean }) {
+type SelectedWorkProps = { compact?: boolean; mode?: GalleryMode; onHeadingClick?: () => void; goldThreads?: boolean; servicesCurves?: boolean };
+export default function SelectedWork(props: SelectedWorkProps) {
+  const browse = useWorkBrowse();
+  if (props.compact && props.mode !== "services") return <CompactWork servicesCurves={props.servicesCurves} />;
+  const projects = props.mode === "services" ? SERVICE_GALLERY_PROJECTS : browse.projects;
+  return <SelectedWorkGallery key={props.mode === "services" ? "services" : `${browse.industry}/${browse.style}`} {...props} projects={projects} />;
+}
+function SelectedWorkGallery({ mode = "work", onHeadingClick, goldThreads = false, servicesCurves = false, projects }: SelectedWorkProps & { projects: readonly GalleryProject[] }) {
   const t = useTranslations("selectedWork");
   const { t: siteT } = useLanguage();
   const isServices = mode === "services";
-  const projects: readonly GalleryProject[] = isServices ? SERVICE_GALLERY_PROJECTS : WORK_PROJECTS;
   const count = projects.length;
   const reduceMotion = useHydratedReducedMotion();
   const [theme, setTheme] = useState<"ivory" | "dark">("ivory");
@@ -239,10 +247,11 @@ export default function SelectedWork({ mode = "work", onHeadingClick, goldThread
     if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.25) select(activeRef.current + (dx < 0 ? 1 : -1));
   };
 
-  return <section ref={sectionRef} id={isServices ? "services" : "selected-work"} data-scroll-title-skip data-theme={theme} data-gallery={mode} data-art-directed={theme === "dark" ? "dark" : "light"} aria-labelledby={isServices ? "services-heading" : "selected-work-heading"} className={styles.section}
+  return <section ref={sectionRef} id={isServices ? "services" : "selected-work"} data-scroll-title-skip data-theme={theme} data-gallery={mode} data-floating-navigation={servicesCurves && !isServices} data-art-directed={theme === "dark" ? "dark" : "light"} aria-labelledby={isServices ? "services-heading" : "selected-work-heading"} className={styles.section}
     onFocusCapture={(event) => { if (event.target instanceof HTMLElement) setFocused(event.target.matches(":focus-visible")); }}
     onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
     {goldThreads && theme === "ivory" && <GoldThreads />}
+    {servicesCurves && theme === "ivory" && <ServicesCurves continuation />}
     <div className={styles.container}>
       <header className={styles.header}>
         {isServices ? <div className={styles.serviceHeader}>

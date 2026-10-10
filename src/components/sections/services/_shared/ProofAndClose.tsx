@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 /**
  * Shared proof slot + CTA close (peak-end beat). Single testimonial placeholder,
  * then the page's loudest moment which opens the Nova voice agent. No form.
@@ -27,6 +29,7 @@ export default function ProofAndClose({
   closingLine: string;
   closingAccent: string;
 }) {
+  const tr = usePublicCopy();
   const reduce = useReducedMotion();
   const openNova = useNovaStore((s) => s.openNova);
   const go = () => openNova("hero", true);
@@ -40,10 +43,10 @@ export default function ProofAndClose({
             className="font-clash font-medium leading-[1.15] text-white"
             style={{ fontSize: "clamp(1.6rem, 4vw, 3rem)" }}
           >
-            &ldquo;{quote}&rdquo;
+            &ldquo;{tr(quote)}&rdquo;
           </blockquote>
           <figcaption className="mt-8 text-[13px] uppercase tracking-[0.18em] text-white/45">
-            {attribution}
+            {tr(attribution)}
           </figcaption>
         </motion.figure>
       </section>
@@ -55,12 +58,12 @@ export default function ProofAndClose({
             className="font-clash font-semibold uppercase leading-[0.92] tracking-tight text-white"
             style={{ fontSize: "clamp(2.8rem, 9vw, 8rem)" }}
           >
-            {closingLine} <span className="text-brand-red">{closingAccent}</span>
+            {tr(closingLine)} <span className="text-brand-red">{tr(closingAccent)}</span>
           </motion.h2>
           <motion.div {...mp} className="mt-12 flex flex-col items-center gap-5">
-            <LiquidMetalButton label="Talk to Nova" width={200} onClick={go} />
+            <LiquidMetalButton label={tr("Talk to Nova")} width={200} onClick={go} />
             <p className="text-[12px] uppercase tracking-[0.2em] text-white/40">
-              Tell our voice agent what you need. She takes it from there.
+              {tr("Tell our voice agent what you need. She takes it from there.")}
             </p>
           </motion.div>
         </div>

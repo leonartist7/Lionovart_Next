@@ -1,5 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
+import styles from "./HeroClientProof.module.css";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const FACES = [
@@ -15,18 +16,18 @@ export default function HeroClientProof() {
   const { t } = useLanguage();
   const title = t.hero.badges.experience;
   return (
-    <a className="hero-client-proof" href="#client-experience" aria-label={title.join(" ")}>
-      <img className="hero-client-laurel" src={`${ASSETS}v1787020265/Laurel-L_vxtg55.webp`} alt="" width={52} height={130} />
-      <span className="hero-client-rating">
-        <span className="hero-client-stars" aria-hidden="true">
+    <a data-client-experience-rating className={styles.proof} href="#client-experience" aria-label={title.join(" ")}>
+      <img className={styles.laurel} src={`${ASSETS}v1787020265/Laurel-L_vxtg55.webp`} alt="" width={52} height={130} />
+      <span className={styles.rating}>
+        <span className={styles.stars} aria-hidden="true">
           {[0, 1, 2, 3, 4].map(i => <img key={i} src={`${ASSETS}v1787020126/Golden_Beveled_Star_Icon_wwcwek.webp`} alt="" width={27} height={27} />)}
         </span>
-        <span className="hero-client-faces" aria-hidden="true">
+        <span className={styles.faces} aria-hidden="true">
           {FACES.map(src => <img key={src} src={src} alt="" width={32} height={32} />)}
         </span>
-        <span className="hero-client-title">{title.map(line => <span key={line}>{line}</span>)}</span>
+        <span className={styles.title}>{title.map(line => <span key={line}>{line}</span>)}</span>
       </span>
-      <img className="hero-client-laurel" src={`${ASSETS}v1787020265/Laurel-R_kj7isz.webp`} alt="" width={52} height={130} />
+      <img className={styles.laurel} src={`${ASSETS}v1787020265/Laurel-R_kj7isz.webp`} alt="" width={52} height={130} />
     </a>
   );
 }

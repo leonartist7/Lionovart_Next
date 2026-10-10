@@ -1,0 +1,17 @@
+.proof { display: flex; align-items: center; justify-content: center; gap: 6px; color: #fff; text-decoration: none; }
+.laurel { width: 28px; height: 88px; object-fit: contain; flex-shrink: 0; }
+.rating { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.stars, .faces { display: flex; justify-content: center; }
+.stars img { width: 18px; height: 18px; object-fit: contain; }
+.faces img { width: 25px; height: 25px; object-fit: cover; border-radius: 50%; border: 1px solid #e5bd77; margin-left: -5px; }
+.faces img:first-child { margin-left: 0; }
+.title { display: flex; flex-direction: column; text-align: center; font-family: var(--font-heading); font-size: 14px; font-weight: 600; line-height: 1; letter-spacing: -.025em; text-transform: uppercase; }
+.proof:focus-visible { outline: 2px solid #e5bd77; outline-offset: 6px; border-radius: 4px; }
+@media(max-width:599px) {
+  .proof { gap: 2px; }
+  .laurel { width: 13px; height: 64px; }
+  .stars img { width: 12px; height: 12px; }
+  .faces img { width: 18px; height: 18px; margin-left: -5px; }
+  .title { font-size: 10px; }
+  .rating { gap: 4px; }
+}

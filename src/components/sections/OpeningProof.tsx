@@ -1,4 +1,7 @@
 "use client";
+
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+import HeroClientProof from "./HeroClientProof";
 import { useLionJourney } from "./lion-journey/LionJourney";
 
 const COUNTRIES = [["kr", "South Korea"], ["ca", "Canada"], ["it", "Italy"], ["ch", "Switzerland"], ["fr", "France"], ["es", "Spain"], ["gb", "United Kingdom"]];
@@ -13,13 +16,16 @@ function Laurel({ children }: { children: React.ReactNode }) {
   </div>;
 }
 export default function OpeningProof() {
+  const tr = usePublicCopy();
   const journey = useLionJourney();
-  return <div ref={journey?.proof} className="lion-proof opening-proof" aria-label="Our work across borders">
-    <Laurel>PROVEN<br />RESULTS</Laurel>
+  return <div ref={journey?.proof} className="lion-proof opening-proof" aria-label={tr("Our work across borders")}>
+    <Laurel>{tr("PROVEN")}<br />{tr("RESULTS")}</Laurel>
+    <HeroClientProof />
+    <Laurel>{tr("CREATIVE")}<br />{tr("EXCELLENCE")}</Laurel>
     <div className="opening-flags"><div>{COUNTRIES.map(([code, name]) =>
       // eslint-disable-next-line @next/next/no-img-element
-      <img key={code} src={`https://flagcdn.com/w40/${code}.png`} alt={name} width={24} height={17} loading="lazy" />
-    )}</div><p>Across borders. In good company.</p></div>
-    <Laurel>CREATIVE<br />EXCELLENCE</Laurel>
+      <img key={code} src={`https://flagcdn.com/w40/${code}.png`} alt={tr(name)} width={24} height={17} loading="lazy" />
+    )}</div><p>{tr("Across borders. In good company.")}</p></div>
+
   </div>;
 }

@@ -37,17 +37,18 @@ export function localizedPath(locale: Locale, pathname: string) {
 export function getLocalizedPageMetadata(locale: Locale, pathname: string): Metadata {
   const path = pathname || "/";
   if (path === "/about") {
-    const title = "About — The art of innovation";
-    const description = "Inside LIONOVART: an independent creative and digital agency connecting brand strategy, design, technology and real-world experiences under one creative direction.";
+    const title = locale === "fr" ? "À propos — L’art de l’innovation" : "About — The art of innovation";
+    const description = locale === "fr" ? "Découvrez LIONOVART : une agence créative et numérique indépendante qui unit stratégie de marque, design, technologie et expériences réelles sous une même direction créative." : "Inside LIONOVART: an independent creative and digital agency connecting brand strategy, design, technology and real-world experiences under one creative direction.";
+    const aboutPath = locale === "fr" ? "/fr/about" : "/about";
     return {
       title,
       description,
-      alternates: { canonical: "/about", languages: { en: "/about" } },
-      openGraph: { title: `${title} | ${SITE.name}`, description, url: `${SITE_URL}/about`, siteName: SITE.name, locale: "en_CA", type: "website", images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: SITE.name }] },
+      alternates: { canonical: aboutPath, languages: { en: "/about", fr: "/fr/about" } },
+      openGraph: { title: `${title} | ${SITE.name}`, description, url: `${SITE_URL}${aboutPath}`, siteName: SITE.name, locale: locale === "fr" ? "fr_FR" : "en_CA", type: "website", images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: SITE.name }] },
       twitter: { card: "summary_large_image", title: `${title} | ${SITE.name}`, description, images: [OG_IMAGE] },
     };
   }
-  const englishOnlyCareers = path.startsWith("/careers") && locale !== "en";
+  const englishOnlyCareers = path.startsWith("/careers") && locale !== "en" && locale !== "fr";
   const urlPath = localizedPath(locale, path);
   const canonicalPath = englishOnlyCareers ? path : urlPath;
   // The parent layout applies the site title template. Keeping this as the

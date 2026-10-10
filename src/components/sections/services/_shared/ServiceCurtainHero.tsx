@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 /**
  * Shared service-page curtain hook. A fixed showreel/mood card that lifts on
  * scroll (same entry language as the homepage), parameterized per page.
@@ -26,6 +28,7 @@ export default function ServiceCurtainHero({
   sub?: string;
   videoSrc?: string;
 }) {
+  const tr = usePublicCopy();
   const reduce = useReducedMotion();
   const scrollY = useMotionValue(0);
   const [vh, setVh] = useState(900);
@@ -70,7 +73,7 @@ export default function ServiceCurtainHero({
 
           <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center select-none -translate-y-[8%]">
             <p className="mb-6 text-[12px] md:text-[14px] uppercase tracking-[0.35em] text-white/70">
-              {eyebrow}
+              {tr(eyebrow)}
             </p>
             <h1
               className="font-normal leading-[1.02] tracking-tight text-white"
@@ -78,13 +81,13 @@ export default function ServiceCurtainHero({
             >
               {lines.map((l) => (
                 <span key={l.text} className={`block ${l.accent ? "font-semibold text-brand-red" : ""}`}>
-                  {l.text}
+                  {tr(l.text)}
                 </span>
               ))}
             </h1>
             {sub && (
               <p className="mt-7 text-[12px] md:text-[13px] uppercase tracking-[0.3em] text-white/55">
-                {sub}
+                {tr(sub)}
               </p>
             )}
 
@@ -94,7 +97,7 @@ export default function ServiceCurtainHero({
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 1 }}
             >
-              <span className="text-[10px] uppercase tracking-[0.3em] text-white/40">Scroll</span>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-white/40">{tr("Scroll")}</span>
               <motion.div
                 className="w-px bg-white/30"
                 style={{ height: 32 }}

@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 /**
  * ACT 1 — the hook.
  *
@@ -21,6 +23,7 @@ import { HERO_MORPH_END } from "./AiChaosBeat";
 gsap.registerPlugin(ScrollTrigger);
 
 export default function AiHeroCopy() {
+  const tr = usePublicCopy();
   const wrapRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
   const openNova = useNovaStore((state) => state.openNova);
@@ -69,34 +72,32 @@ export default function AiHeroCopy() {
             className="w-full max-w-[45rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:w-[55%]"
           >
             <p className="mb-6 text-[13px] font-medium uppercase tracking-[0.24em] text-[var(--ai-cyan)] md:text-[14px]">
-              AI Systems &amp; Consulting
+              {tr("AI Systems & Consulting")}
             </p>
             <h1
               className="max-w-[14ch] font-normal leading-[0.91] tracking-[-0.05em] text-white"
               style={{ fontSize: "clamp(3.15rem, 6.8vw, 7rem)", fontFamily: "var(--font-ai-display)" }}
             >
               Your business keeps growing.{" "}
-              <span className="text-[var(--ai-cyan)]">Even when you step away.</span>
+              <span className="text-[var(--ai-cyan)]">{tr("Even when you step away.")}</span>
             </h1>
             <p className="mt-8 max-w-[52ch] text-[18px] font-light leading-[1.62] text-white/82 md:text-[21px]">
-              One connected AI operating system answers, follows up, coordinates and
-              reports 24/7—while we build, maintain and improve it for you. Your team
-              gets the hours back. Every opportunity gets a next step.
+              {tr("One connected AI operating system answers, follows up, coordinates and reports 24/7—while we build, maintain and improve it for you. Your team gets the hours back. Every opportunity gets a next step.")}
             </p>
             <div className="mt-8 flex flex-wrap gap-x-7 gap-y-3 text-[14px] font-medium tracking-[-0.01em] text-white/72 md:text-[15px]">
-              <span>24/7 response</span>
-              <span>10+ hours weekly target</span>
-              <span>Continuously optimized</span>
+              <span>{tr("24/7 response")}</span>
+              <span>{tr("10+ hours weekly target")}</span>
+              <span>{tr("Continuously optimized")}</span>
             </div>
             <button
               type="button"
               onClick={() => openNova("hero", true)}
               className="mt-9 min-h-12 rounded-full bg-brand-red px-7 py-3.5 text-[17px] font-semibold tracking-[-0.01em] text-white transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
-              Find Your Highest-ROI System
+              {tr("Find Your Highest-ROI System")}
             </button>
             <p className="mt-4 max-w-[38ch] text-[17px] leading-[1.55] text-white/68">
-              Start with a focused audit. Leave with a clear automation roadmap.
+              {tr("Start with a focused audit. Leave with a clear automation roadmap.")}
             </p>
           </div>
         </div>

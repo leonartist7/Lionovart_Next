@@ -1,5 +1,7 @@
 "use client";
 
+import { usePublicCopy } from "@/hooks/usePublicCopy";
+
 /**
  * The missing bridge between the hero and the service story.
  *
@@ -40,6 +42,7 @@ const CHAPTERS = [
 ] as const;
 
 export default function AiChaosBeat() {
+  const tr = usePublicCopy();
   const wrapRef = useRef<HTMLDivElement>(null);
   const panelsRef = useRef<Array<HTMLDivElement | null>>([]);
 
@@ -121,7 +124,7 @@ export default function AiChaosBeat() {
             >
               <div className="w-full max-w-[44rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:w-[55%]">
                 <p className="text-[13px] font-medium uppercase tracking-[0.18em] text-[var(--ai-cyan)] md:text-[14px]">
-                  {String(index + 1).padStart(2, "0")} / {String(CHAPTERS.length).padStart(2, "0")} · {chapter.eyebrow}
+                  {String(index + 1).padStart(2, "0")} / {String(CHAPTERS.length).padStart(2, "0")} · {tr(chapter.eyebrow)}
                 </p>
                 <h2
                   className="mt-6 font-normal tracking-[-0.045em] text-white"
@@ -131,10 +134,10 @@ export default function AiChaosBeat() {
                     lineHeight: 0.96,
                   }}
                 >
-                  {chapter.title}
+                  {tr(chapter.title)}
                 </h2>
                 <p className="mt-8 max-w-[50ch] text-[18px] font-light leading-[1.62] text-white/82 md:text-[21px]">
-                  {chapter.body}
+                  {tr(chapter.body)}
                 </p>
               </div>
             </div>

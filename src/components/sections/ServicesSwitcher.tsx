@@ -1,13 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLenis } from "lenis/react";
 import HomepageServicesChapter from "./HomepageServicesChapter";
-import SelectedWork from "./SelectedWork";
 
-/** A quiet comparison switch: the heading itself changes the presentation. */
+/** Land direct services links after the opening scene has settled. */
 export default function ServicesSwitcher() {
-  const [view, setView] = useState<"chapter" | "glass">("chapter");
   const lenis = useLenis();
 
   useEffect(() => {
@@ -32,16 +30,5 @@ export default function ServicesSwitcher() {
       window.removeEventListener("lionovart:splash-complete", land);
     };
   }, [lenis]);
-  const toggle = () => {
-    setView((current) => current === "chapter" ? "glass" : "chapter");
-    requestAnimationFrame(() => {
-      const section = document.getElementById("services");
-      section?.scrollIntoView({ behavior: "instant", block: "start" });
-      section?.querySelector<HTMLButtonElement>("h2 button")?.focus({ preventScroll: true });
-    });
-  };
-
-  return view === "glass"
-    ? <SelectedWork goldThreads mode="services" onHeadingClick={toggle} />
-    : <HomepageServicesChapter onHeadingClick={toggle} />;
+  return <HomepageServicesChapter />;
 }
