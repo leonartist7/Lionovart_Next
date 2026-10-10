@@ -1,5 +1,6 @@
 "use client";
 
+import CompactWork from "./CompactWork";
 import GoldThreads from "@/components/ui/GoldThreads";
 import ServicesCurves from "./ServicesCurves";
 
@@ -20,9 +21,10 @@ type Selection = { index: number; manual: boolean };
 type GalleryMode = "work" | "services";
 type GalleryProject = { id: string; name: string; poster: string; color: string; video?: string; discipline?: string };
 
-type SelectedWorkProps = { mode?: GalleryMode; onHeadingClick?: () => void; goldThreads?: boolean; servicesCurves?: boolean };
+type SelectedWorkProps = { compact?: boolean; mode?: GalleryMode; onHeadingClick?: () => void; goldThreads?: boolean; servicesCurves?: boolean };
 export default function SelectedWork(props: SelectedWorkProps) {
   const browse = useWorkBrowse();
+  if (props.compact && props.mode !== "services") return <CompactWork servicesCurves={props.servicesCurves} />;
   const projects = props.mode === "services" ? SERVICE_GALLERY_PROJECTS : browse.projects;
   return <SelectedWorkGallery key={props.mode === "services" ? "services" : `${browse.industry}/${browse.style}`} {...props} projects={projects} />;
 }

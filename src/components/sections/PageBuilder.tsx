@@ -45,7 +45,7 @@ export function PageBuilder() {
         }>
           <NovaSection id="services"><ServicesSwitcher /></NovaSection>
         </WorkServicesTransition>
-        <SelectedWork servicesCurves />
+        <SelectedWork compact servicesCurves />
         </WorkBrowseProvider>
         <NovaSection id="about"><CompactIntroduction /></NovaSection>
 
