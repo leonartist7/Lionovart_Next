@@ -91,7 +91,7 @@ export const GALLERY_WORK: readonly GalleryWork[] = [
   {
     "slug": "op",
     "name": "OP",
-    "industry": "All industries",
+    "industry": "",
     "styles": [
       "High-tech"
     ],

@@ -68,6 +68,9 @@
 .popup {
   width: min(18rem, calc(100vw - 2rem));
   padding: .75rem;
+  max-height: min(32rem, calc(100dvh - 7rem));
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border-radius: 1rem;
   border: .0625rem solid #cbc3ba;
   background: #f7f4eff5;
