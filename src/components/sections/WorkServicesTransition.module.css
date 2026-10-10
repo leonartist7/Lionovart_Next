@@ -1,7 +1,7 @@
 .transition {
   position: relative;
   isolation: isolate;
-  background: var(--site-surface-light, #f4f0e8);
+  background: transparent;
   color: #171412;
 }
 .intro {
@@ -9,6 +9,7 @@
   z-index: 2;
 }
 .scene {
+  background: var(--site-surface-light, #f4f0e8);
   position: sticky;
   top: 0;
   height: 100svh;

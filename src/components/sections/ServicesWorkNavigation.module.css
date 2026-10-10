@@ -3,14 +3,14 @@
   z-index: 90;
   left: 50%;
   bottom: max(3.2svh, calc(env(safe-area-inset-bottom) + .75rem));
-  width: clamp(20rem, 36vw, 37.5rem);
+  width: clamp(34rem, 62vw, 48rem);
   max-width: calc(100vw - 2rem);
   transform: translateX(-50%);
   pointer-events: none;
 }
 .pill {
   position: relative;
-  height: 3.25rem;
+  height: 3.5rem;
   border-radius: 999rem;
   border: .0625rem solid #ffffffa8;
   background: #ffffff40;
@@ -31,7 +31,7 @@
   background: transparent;
   color: #171412a3;
   font-family: var(--font-clash-display), sans-serif;
-  font-size: clamp(.625rem, .6rem + .1vw, .8125rem);
+  font-size: clamp(.75rem, .6875rem + .15vw, .9375rem);
   font-weight: 700;
   line-height: 1;
   text-transform: uppercase;

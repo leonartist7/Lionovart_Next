@@ -110,6 +110,6 @@
 .withLion .stage { margin-top: clamp(1.25rem, 3svh, 2rem); padding-bottom: 0; }
 .withLion .action { gap: 1rem; }
 .lionDock {
-  margin-top: clamp(1.5rem, 4svh, 3rem);
-  padding-bottom: clamp(1.5rem, 4svh, 3rem);
+  margin-top: clamp(1rem, 2.5svh, 2rem);
+  padding-bottom: clamp(1rem, 2.5svh, 2rem);
 }
