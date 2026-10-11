@@ -13,27 +13,37 @@ const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 const ease = (t: number) => t * t * (3 - 2 * t);
 const phase = (p: number, start: number, end: number) => ease(clamp((p - start) / (end - start)));
 
-/** Pin, fade, center, descend, then reveal. Scrolling back reverses the same route. */
+/** Finish step four, center with the chapter title, descend, then reveal. */
 export function processLionPose(g: JourneyGeometry) {
   const progress = clamp(g.progress);
-  const center = phase(progress, .08, .4);
-  const descend = phase(progress, .4, .72);
-  const arrival = phase(progress, .08, .72);
-  const centerY = mix(g.originY, g.viewportHeight * .45, center);
+  const center = phase(progress, .16, .46);
+  const descend = phase(progress, .56, .82);
+  const arrival = phase(progress, .16, .82);
+  const centerY = mix(g.originY, g.viewportHeight * .52, center);
   const dockY = g.dockTop + g.dockSize / 2;
   return {
     progress,
     arrival,
     // White arrives during travel; the copy waits until the model is settled.
-    backgroundReveal: phase(progress, .22, .72),
-    reveal: phase(progress, .8, .96),
-    processOpacity: 1 - phase(progress, 0, .28),
+    backgroundReveal: phase(progress, .22, .46),
+    chapterOpacity: phase(progress, .38, .46) * (1 - phase(progress, .62, .72)),
+    reveal: phase(progress, .88, .99),
+    processOpacity: 1 - phase(progress, .16, .34),
     x: mix(g.originX, g.dockX, center),
     y: mix(centerY, dockY, descend),
     size: mix(g.railSize * .88, g.dockSize * .88, arrival),
-    turn: mix(.24, .08, arrival),
+    turn: mix(.65, 0, center),
     pitch: -.02,
   };
+}
+
+/** A ring turns into place, holds at the highlight, then resumes after passing. */
+export function stepRingRotation(numberY: number, lionY: number, rowHeight: number) {
+  const reach = Math.max(72, Math.min(180, rowHeight * .62));
+  const distance = numberY - lionY;
+  const hold = reach * .28;
+  if (Math.abs(distance) <= hold) return 0;
+  return -Math.sign(distance) * 28 * ease(clamp((Math.abs(distance) - hold) / (reach * 1.5)));
 }
 
 export function stepPassIntensity(numberY: number, lionY: number, rowHeight: number) {

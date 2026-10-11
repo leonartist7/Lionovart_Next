@@ -13,7 +13,7 @@
   isolation: isolate;
   overflow: clip;
   border-radius: 50% 50% 0 0 / clamp(1.75rem, 5vw, 5rem) clamp(1.75rem, 5vw, 5rem) 0 0;
-  background: #d41126;
+  background: linear-gradient(145deg, #c01020 0%, #7a0010 55%, #3d0008 100%);
 }
 .finaleInner {
   width: min(100%, 105rem);
@@ -27,6 +27,11 @@
   align-items: center;
 }
 .brandCopy { position: relative; z-index: 2; min-width: 0; }
+@media (min-width: 1024px) {
+  .brandCopy { display: flex; align-items: baseline; justify-content: space-between; gap: 2rem; }
+  .brandCopy .wordmark { font-size: clamp(4rem, 6.5vw, 7rem); }
+  .brandCopy .signature { margin: 0; max-width: 23ch; text-align: right; }
+}
 .wordmark {
   margin: 0;
   font-family: var(--font-clash-display), sans-serif;

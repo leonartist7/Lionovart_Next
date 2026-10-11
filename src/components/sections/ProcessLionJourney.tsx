@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import ClosingCTA from "./ClosingCTA";
 import { PROCESS_FILM_COPY } from "./process-video-copy";
-import { processLionPose, stepPassIntensity } from "./process-lion-motion";
+import { processLionPose, stepPassIntensity, stepRingRotation } from "./process-lion-motion";
 import type { LionEngine } from "./lion-journey/engine";
 import styles from "./ProcessLionJourney.module.css";
 
@@ -21,6 +22,7 @@ const subscribeShort = (notify: () => void) => {
 
 /** One mesh follows the process, then settles below the white project CTA. */
 export default function ProcessLionJourney() {
+  const tr = usePublicCopy();
   const { t, locale } = useLanguage();
   const stages = PROCESS_FILM_COPY[locale].stages;
   const reduced = useHydratedReducedMotion();
@@ -38,6 +40,7 @@ export default function ProcessLionJourney() {
   const veil = useRef<HTMLDivElement>(null);
   const ctaContent = useRef<HTMLDivElement>(null);
   const dock = useRef<HTMLDivElement>(null);
+  const chapter = useRef<HTMLParagraphElement>(null);
 
   // A short screen or unusually tall translation must stay readable in normal flow.
   useEffect(() => {
@@ -64,6 +67,7 @@ export default function ProcessLionJourney() {
     const rows = Array.from(root.querySelectorAll<HTMLElement>("[data-process-step]"));
     const numbers = rows.map(row => row.querySelector<HTMLElement>("[data-process-number]")!);
     const shines = rows.map(row => row.querySelector<HTMLElement>("[data-number-shine]")!);
+    const rings = rows.map(row => row.querySelector<HTMLImageElement>("[data-process-ring]")!);
     let engine: LionEngine | undefined;
     let disposed = false, loading = false, ready = false, failed = false, near = false, inView = false;
     let frame = 0, last = 0, time = 0, width = 1, height = 1, runway = 1, sceneHeight = 1, dirty = true;
@@ -75,12 +79,15 @@ export default function ProcessLionJourney() {
       root.dataset.motion = "false";
       root.style.removeProperty("--scene-top");
       root.style.removeProperty("--handoff-runway");
+      root.style.removeProperty("--process-tail");
       processSection.style.opacity = "";
       processSection.style.pointerEvents = "";
       closingSection.style.pointerEvents = "";
       if (veil.current) veil.current.style.opacity = "";
       if (ctaContent.current) ctaContent.current.style.opacity = "";
-      rows.forEach(row => { row.style.transform = ""; });
+      if (chapter.current) chapter.current.style.opacity = "";
+      rows.forEach(row => { row.style.transform = ""; row.style.removeProperty("--step-highlight"); delete row.dataset.highlighted; });
+      rings.forEach(ring => { ring.style.transform = ""; });
       shines.forEach(shine => { shine.style.opacity = ""; });
     };
     reset();
@@ -128,10 +135,14 @@ export default function ProcessLionJourney() {
       closingSection.style.pointerEvents = pose.reveal >= .95 ? "auto" : "none";
       if (veil.current) veil.current.style.opacity = String(1 - pose.backgroundReveal);
       if (ctaContent.current) ctaContent.current.style.opacity = String(pose.reveal);
+      if (chapter.current) chapter.current.style.opacity = String(pose.chapterOpacity);
       rows.forEach((row, index) => {
         const strength = stepPassIntensity(metrics[index].y, pose!.y, metrics[index].height) * pose!.processOpacity;
+        row.style.setProperty("--step-highlight", String(strength));
+        row.dataset.highlighted = String(strength >= .8);
         row.style.transform = `translate3d(${strength * (width < 640 ? 6 : 14)}px,0,0)`;
-        shines[index].style.opacity = String(strength * .8);
+        shines[index].style.opacity = String(strength);
+        rings[index].style.transform = `rotate(${stepRingRotation(metrics[index].y, pose!.y, metrics[index].height)}deg)`;
       });
       if (poster.current) {
         const size = pose.size * 1.35;
@@ -152,10 +163,10 @@ export default function ProcessLionJourney() {
       const damping = 1 - Math.exp(-dt / .15);
       pointerX += ((fine.matches ? targetX : 0) - pointerX) * damping;
       pointerY += ((fine.matches ? targetY : 0) - pointerY) * damping;
-      const interaction = 1 - pose.progress;
+      const interaction = pose.turn / .65;
       engine.render({
         x: pose.x, y: pose.y, size: pose.size,
-        turn: pose.turn + Math.sin(time * Math.PI / 5) * .035 + pointerX * .08 * interaction,
+        turn: pose.turn + (Math.sin(time * Math.PI / 5) * .035 + pointerX * .08) * interaction,
         pitch: pose.pitch - pointerY * .025 * interaction,
       }, 0, width < 800, true);
       if (!failed) { view.dataset.ready = "true"; frame = requestAnimationFrame(render); }
@@ -165,8 +176,12 @@ export default function ProcessLionJourney() {
     const resize = () => {
       width = Math.max(1, view.clientWidth);
       height = Math.max(1, view.clientHeight);
+      // Put the last number at the sticky lion's reading line before pinning.
+      // Extra space below the steps lets the complete fourth step stay in view.
+      const lastHeight = rows[rows.length - 1]?.offsetHeight ?? 0;
+      root.style.setProperty("--process-tail", `${Math.max(64, height * .44 - lastHeight / 2)}px`);
       sceneHeight = stickyScene.offsetHeight;
-      runway = height * 1.6;
+      runway = height * 2.2;
       // A tall process reads normally, then holds its final viewport for the handoff.
       root.style.setProperty("--scene-top", `${Math.min(0, height - sceneHeight)}px`);
       root.style.setProperty("--handoff-runway", `${runway}px`);
@@ -246,6 +261,7 @@ export default function ProcessLionJourney() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img ref={poster} className={styles.travellingPoster} src={LION_POSTER} alt="" width={900} height={900} loading="lazy" />
       <div ref={canvas} className={styles.canvas} />
+      <p ref={chapter} className={styles.chapter} data-process-chapter>{tr("Your next chapter, together")}</p>
     </div>
     <div ref={scene} className={styles.scene}>
     <section ref={process} id="process" data-nova-section="process" className={styles.process}
@@ -259,7 +275,7 @@ export default function ProcessLionJourney() {
           <ol className={styles.steps} role="list">
             {stages.map((stage, index) => <li key={stage} className={styles.step} data-process-step>
               <div className={styles.stepNumber} data-process-number aria-hidden="true">
-                <Image src={STEP_RING} alt="" fill sizes="(max-width: 639px) 48px, (max-width: 1023px) 64px, 80px" className={styles.ring} />
+                <Image src={STEP_RING} alt="" fill sizes="(max-width: 639px) 48px, (max-width: 1023px) 64px, 80px" className={styles.ring} data-process-ring />
                 <span>{index + 1}</span>
                 <div className={styles.numberShine} data-number-shine data-number={index + 1} />
               </div>
@@ -273,8 +289,9 @@ export default function ProcessLionJourney() {
       </div>
     </section>
     <div ref={closing} className={styles.closingSurface} data-nova-section="closing-cta">
+      {!staticMode && <p className="sr-only">{tr("Your next chapter, together")}</p>}
       <div ref={ctaContent} className={styles.ctaContent}>
-        <ClosingCTA workShowcase lionDock={
+        <ClosingCTA workShowcase chapterInJourney={!staticMode} lionDock={
           <div ref={dock} className={styles.dock} data-process-lion-dock aria-hidden="true">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className={styles.staticPoster} src={LION_POSTER} alt="" width={900} height={900} loading="lazy" />

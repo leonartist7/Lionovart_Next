@@ -44,7 +44,7 @@
 .journey :global(.hero-capsule) { position: relative; isolation: isolate; width: min(230px,100%); height: 48px; border-radius: 999px; transition: width 450ms cubic-bezier(.22,1,.36,1), height 250ms ease; background: linear-gradient(140deg,#f7f2e9,#667071 25%,#f8f4eb 49%,#647071 75%,#e3d4b8); box-shadow: inset 0 1px 0 #fff9, 0 6px 20px #0003; }
 .journey :global(.hero-capsule-open) { width: 100%; }
 .journey :global(.hero-capsule-metal) { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; }
-.journey :global(.hero-capsule-interior) { position: absolute; inset: 1.5px; border-radius: inherit; background: linear-gradient(#d51b2c,#830917); pointer-events: none; overflow: hidden; }
+.journey :global(.hero-capsule-interior) { position: absolute; inset: 1.5px; border-radius: inherit; background: linear-gradient(180deg, #c01020 0%, #7a0010 50%, #3d0008 100%); pointer-events: none; overflow: hidden; }
 .journey :global(.hero-capsule-interior::after) { content: ''; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(120deg,#39332de8,#151418f5 65%,#282626ed); opacity: 0; transition: opacity 450ms cubic-bezier(.22,1,.36,1); backdrop-filter: blur(18px); box-shadow: inset 0 1px 0 #fff2; }
 .journey :global(.hero-capsule-open .hero-capsule-interior::after) { opacity: 1; }
 .journey :global(.hero-capsule-trigger) { position: relative; width: 100%; height: 48px; display: flex; align-items: center; justify-content: center; gap: 14px; border-radius: inherit; color: #fff; font-size: 0.9375rem; font-weight: 600; cursor: pointer; }

@@ -27,7 +27,7 @@ const subscribeVisibility = (callback: () => void) => {
 const getHidden = () => document.hidden;
 const getServerHidden = () => true;
 
-function CompactClosing({ words, onStart, lionDock }: { words: Word[]; onStart: () => void; lionDock?: ReactNode }) {
+function CompactClosing({ words, onStart, lionDock, chapterInJourney }: { words: Word[]; onStart: () => void; lionDock?: ReactNode; chapterInJourney?: boolean }) {
   const tr = usePublicCopy();
   const { t, locale } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
@@ -39,9 +39,9 @@ function CompactClosing({ words, onStart, lionDock }: { words: Word[]; onStart: 
   return (
     <section id="closing-cta" ref={sectionRef} className={`${styles.section}${lionDock ? ` ${styles.withLion}` : ""}`} data-art-directed="light" data-scroll-title-skip>
       <div className={styles.copy} data-closing-copy>
-        <p className={`${styles.accent} ${locale === "ja" || locale === "ko" ? "font-body" : "editorial-accent"}`}>
+        {!chapterInJourney && <p className={`${styles.accent} ${locale === "ja" || locale === "ko" ? "font-body" : "editorial-accent"}`}>
           {tr("Your next chapter, together")}
-        </p>
+        </p>}
         <HeroCycling variant="closing" staticText={t.hero.staticText} words={words} staticColor="#171412" cyclingColor="#171412" paused={paused} />
       </div>
       <div className={styles.stage} data-closing-stage>
@@ -66,7 +66,7 @@ function CompactClosing({ words, onStart, lionDock }: { words: Word[]; onStart: 
  * Used once per page (the footer is now navigation/legal only), so pages never
  * double-close. `crest` adds the brand crest beside the button (branding page).
  */
-export default function ClosingCTA({ crest = false, workShowcase = false, lionDock }: { crest?: boolean; workShowcase?: boolean; lionDock?: ReactNode }) {
+export default function ClosingCTA({ crest = false, workShowcase = false, lionDock, chapterInJourney = false }: { crest?: boolean; workShowcase?: boolean; lionDock?: ReactNode; chapterInJourney?: boolean }) {
   const tr = usePublicCopy();
   const { t, locale } = useLanguage();
   const openNova = useNovaStore((s) => s.openNova);
@@ -88,7 +88,7 @@ export default function ClosingCTA({ crest = false, workShowcase = false, lionDo
           type: "text" as const,
         }));
 
-  if (workShowcase) return <CompactClosing words={words} onStart={() => openNova("offer", true)} lionDock={lionDock} />;
+  if (workShowcase) return <CompactClosing words={words} onStart={() => openNova("offer", true)} lionDock={lionDock} chapterInJourney={chapterInJourney} />;
 
   return (
     <section

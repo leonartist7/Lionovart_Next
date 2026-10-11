@@ -44,7 +44,7 @@
 .travellingPoster { position: absolute; top: 0; left: 0; width: 1px; height: 1px; object-fit: contain; }
 .lionViewport[data-ready="true"] .canvas { opacity: 1; }
 .lionViewport[data-ready="true"] .travellingPoster { visibility: hidden; }
-.process { position: relative; padding: clamp(4rem, 8svh, 7rem) var(--process-pad) 4rem; color: #f7f4ef; }
+.process { position: relative; padding: clamp(4rem, 8svh, 7rem) var(--process-pad) var(--process-tail, 4rem); color: #f7f4ef; }
 .inner { max-width: 90rem; margin-inline: auto; }
 .heading {
   max-width: 18ch;
@@ -59,10 +59,10 @@
 }
 .heading span { color: #c7a86a; }
 .processGrid { display: grid; grid-template-columns: var(--process-rail) minmax(0, 1fr); gap: var(--process-gap); }
-.rail { min-width: 0; }
+.rail { min-width: 0; margin-bottom: calc(var(--process-rail) / -2); }
 .origin {
   position: sticky;
-  top: calc(45svh - var(--process-rail) / 2);
+  top: calc(56svh - var(--process-rail) / 2);
   width: 100%;
   aspect-ratio: 1;
 }
@@ -80,6 +80,9 @@
 .step:last-child { border-bottom: 1px solid rgb(199 168 106 / 22%); }
 .stepNumber { position: relative; width: 100%; aspect-ratio: 1; display: grid; place-items: center; isolation: isolate; }
 .ring { object-fit: contain; }
+.journey[data-motion="true"] .ring { opacity: calc(.45 + var(--step-highlight, 0) * .55); }
+.journey[data-motion="true"] .stepNumber > span { opacity: calc(.24 + var(--step-highlight, 0) * .76); }
+.journey[data-motion="true"] .stepCopy h3 { opacity: calc(.6 + var(--step-highlight, 0) * .4); }
 .stepNumber > span, .numberShine::after {
   font-family: var(--font-clash-display), sans-serif;
   font-size: 1.375rem;
@@ -126,6 +129,23 @@
 }
 .closingSurface { position: relative; background: var(--site-surface-light, #f2ede3); }
 .ctaContent { position: relative; z-index: 1; }
+.chapter {
+  position: absolute;
+  top: clamp(4.5rem, 12svh, 8rem);
+  left: 0;
+  width: 100%;
+  margin: 0;
+  padding-inline: var(--process-pad);
+  font-family: var(--font-playfair-display), Georgia, serif;
+  font-size: clamp(2rem, 5.5vw, 5rem);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.15;
+  text-align: center;
+  text-wrap: balance;
+  color: #38241c;
+  opacity: 0;
+}
 .veil { position: absolute; inset: 0; z-index: 2; background: #08080a; opacity: 0; pointer-events: none; }
 .dock { position: relative; width: min(clamp(9rem, 28vw, 18rem), clamp(7.5rem, 22svh, 16rem)); aspect-ratio: 1; margin-inline: auto; }
 .staticPoster { position: absolute; top: -9.4%; left: -9.4%; width: 118.8%; height: 118.8%; object-fit: contain; transform: scaleX(-1); visibility: visible; }
