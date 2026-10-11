@@ -1,19 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import ClosingCTA from "./ClosingCTA";
 import { PROCESS_FILM_COPY } from "./process-video-copy";
-import { processLionPose, stepPassIntensity, stepRingRotation } from "./process-lion-motion";
+import { processLionPose, footerLionPose, stepPassIntensity, stepRingRotation } from "./process-lion-motion";
 import type { LionEngine } from "./lion-journey/engine";
 import styles from "./ProcessLionJourney.module.css";
 
 const STEP_RING = "https://res.cloudinary.com/dgio9uutc/image/upload/v1791549765/steps_1_urfdp7.avif";
 const LION_POSTER = "/models/lion/lion-poster.png?v=hid-20260914";
 const shortQuery = "(max-height: 480px)";
+const subscribeMounted = () => () => {};
 const subscribeShort = (notify: () => void) => {
   const media = matchMedia(shortQuery);
   media.addEventListener("change", notify);
@@ -24,6 +26,9 @@ const subscribeShort = (notify: () => void) => {
 export default function ProcessLionJourney() {
   const tr = usePublicCopy();
   const { t, locale } = useLanguage();
+  const mounted = useSyncExternalStore(subscribeMounted, () => true, () => false);
+  const chapterLines = tr("Your next chapter, together").split(/,\s*/);
+  const together = chapterLines[1] ?? "together";
   const stages = PROCESS_FILM_COPY[locale].stages;
   const reduced = useHydratedReducedMotion();
   const short = useSyncExternalStore(subscribeShort, () => matchMedia(shortQuery).matches, () => false);
@@ -57,7 +62,7 @@ export default function ProcessLionJourney() {
     window.addEventListener("resize", checkFit);
     checkFit();
     return () => { observer.disconnect(); window.removeEventListener("resize", checkFit); };
-  }, []);
+  }, [mounted]);
 
   useEffect(() => {
     const root = host.current, surface = canvas.current, view = viewport.current;
@@ -68,6 +73,8 @@ export default function ProcessLionJourney() {
     const numbers = rows.map(row => row.querySelector<HTMLElement>("[data-process-number]")!);
     const shines = rows.map(row => row.querySelector<HTMLElement>("[data-number-shine]")!);
     const rings = rows.map(row => row.querySelector<HTMLImageElement>("[data-process-ring]")!);
+    const footerDock = document.querySelector<HTMLElement>("[data-process-footer-dock]");
+    const footerSection = footerDock?.closest<HTMLElement>("#footer-compact");
     let engine: LionEngine | undefined;
     let disposed = false, loading = false, ready = false, failed = false, near = false, inView = false;
     let frame = 0, last = 0, time = 0, width = 1, height = 1, runway = 1, sceneHeight = 1, dirty = true;
@@ -77,6 +84,9 @@ export default function ProcessLionJourney() {
     const manual = staticMode || matchMedia("(prefers-reduced-motion: reduce)").matches || matchMedia(shortQuery).matches;
     const reset = () => {
       root.dataset.motion = "false";
+      view.dataset.motion = "false";
+      view.style.removeProperty("visibility");
+      if (footerDock) delete footerDock.dataset.journeyMotion;
       root.style.removeProperty("--scene-top");
       root.style.removeProperty("--handoff-runway");
       root.style.removeProperty("--process-tail");
@@ -94,6 +104,8 @@ export default function ProcessLionJourney() {
     view.dataset.ready = "false";
     if (manual) return reset;
     root.dataset.motion = "true";
+    view.dataset.motion = "true";
+    if (footerDock) footerDock.dataset.journeyMotion = "true";
 
     const fail = () => {
       if (disposed) return;
@@ -130,6 +142,22 @@ export default function ProcessLionJourney() {
         originX: start.left - viewBounds.left + start.width / 2,
         originY: start.top - viewBounds.top + start.height / 2, railSize: start.width,
       });
+      const footerBounds = footerSection?.getBoundingClientRect();
+      if (footerDock && footerBounds) {
+        const target = footerDock.getBoundingClientRect();
+        pose = footerLionPose(pose, {
+          progress: (height - footerBounds.top) / Math.max(1, footerBounds.height),
+          x: target.left - viewBounds.left + target.width / 2,
+          y: target.top - viewBounds.top + target.height / 2,
+          size: target.width,
+        });
+      }
+      // The fixed canvas spans both sections, but is invisible elsewhere on the page.
+      const visible = rootBounds.top < height && rootBounds.bottom > 0
+        || !!footerBounds && footerBounds.top < height && footerBounds.bottom > 0;
+      view.style.visibility = visible ? "visible" : "hidden";
+      view.dataset.footerProgress = String(pose.footerProgress);
+      view.dataset.lionTurn = String(pose.turn);
       processSection.style.opacity = String(pose.processOpacity);
       processSection.style.pointerEvents = pose.processOpacity > 0 ? "" : "none";
       closingSection.style.pointerEvents = pose.reveal >= .95 ? "auto" : "none";
@@ -148,7 +176,7 @@ export default function ProcessLionJourney() {
         const size = pose.size * 1.35;
         poster.current.style.width = `${size}px`;
         poster.current.style.height = `${size}px`;
-        poster.current.style.transform = `translate3d(${pose.x - size / 2}px,${pose.y - size / 2}px,0) scaleX(-1)`;
+        poster.current.style.transform = `translate3d(${pose.x - size / 2}px,${pose.y - size / 2}px,0) scaleX(${pose.footerProgress > .5 ? 1 : -1})`;
       }
       dirty = false;
     };
@@ -163,7 +191,7 @@ export default function ProcessLionJourney() {
       const damping = 1 - Math.exp(-dt / .15);
       pointerX += ((fine.matches ? targetX : 0) - pointerX) * damping;
       pointerY += ((fine.matches ? targetY : 0) - pointerY) * damping;
-      const interaction = pose.turn / .65;
+      const interaction = pose.processOpacity;
       engine.render({
         x: pose.x, y: pose.y, size: pose.size,
         turn: pose.turn + (Math.sin(time * Math.PI / 5) * .035 + pointerX * .08) * interaction,
@@ -181,7 +209,7 @@ export default function ProcessLionJourney() {
       const lastHeight = rows[rows.length - 1]?.offsetHeight ?? 0;
       root.style.setProperty("--process-tail", `${Math.max(64, height * .44 - lastHeight / 2)}px`);
       sceneHeight = stickyScene.offsetHeight;
-      runway = height * 2.2;
+      runway = height * 2;
       // A tall process reads normally, then holds its final viewport for the handoff.
       root.style.setProperty("--scene-top", `${Math.min(0, height - sceneHeight)}px`);
       root.style.setProperty("--handoff-runway", `${runway}px`);
@@ -216,16 +244,22 @@ export default function ProcessLionJourney() {
     };
     const neutral = () => { targetX = 0; targetY = 0; wake(); };
     const focus = () => { dirty = true; wake(); };
-    const proximity = new IntersectionObserver(([entry]) => {
-      near = entry.isIntersecting;
+    const observedProximity = new Map<Element, boolean>();
+    const proximity = new IntersectionObserver(entries => {
+      entries.forEach(entry => observedProximity.set(entry.target, entry.isIntersecting));
+      near = Array.from(observedProximity.values()).some(Boolean);
       if (near) void load();
     }, { rootMargin: "400px 0px" });
-    const intersection = new IntersectionObserver(([entry]) => {
-      inView = entry.isIntersecting;
+    const observedVisibility = new Map<Element, boolean>();
+    const intersection = new IntersectionObserver(entries => {
+      entries.forEach(entry => observedVisibility.set(entry.target, entry.isIntersecting));
+      inView = Array.from(observedVisibility.values()).some(Boolean);
       last = 0; dirty = true; wake();
     });
     const observer = new ResizeObserver(resize);
     [root, view, stickyScene, processSection, closingSection, destination, modelOrigin].forEach(node => observer.observe(node));
+    if (footerDock) observer.observe(footerDock);
+    if (footerSection) { observer.observe(footerSection); intersection.observe(footerSection); proximity.observe(footerSection); }
     rows.forEach(row => observer.observe(row));
     proximity.observe(root); intersection.observe(root);
     window.addEventListener("scroll", scroll, { passive: true });
@@ -254,15 +288,18 @@ export default function ProcessLionJourney() {
       view.dataset.ready = "false";
       reset();
     };
-  }, [staticMode]);
+  }, [staticMode, mounted]);
 
-  return <div ref={host} className={styles.journey} data-process-lion-journey data-static={staticMode}>
-    <div ref={viewport} className={styles.lionViewport} aria-hidden="true">
+  return <>
+    {mounted && createPortal(<div ref={viewport} className={styles.lionViewport} data-process-lion-viewport aria-hidden="true">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img ref={poster} className={styles.travellingPoster} src={LION_POSTER} alt="" width={900} height={900} loading="lazy" />
       <div ref={canvas} className={styles.canvas} />
-      <p ref={chapter} className={styles.chapter} data-process-chapter>{tr("Your next chapter, together")}</p>
-    </div>
+      <p ref={chapter} className={styles.chapter} data-process-chapter data-locale={locale}>
+        <span>{chapterLines[0]}</span><span>{together.charAt(0).toUpperCase() + together.slice(1)}</span>
+      </p>
+    </div>, document.body)}
+    <div ref={host} className={styles.journey} data-process-lion-journey data-static={staticMode}>
     <div ref={scene} className={styles.scene}>
     <section ref={process} id="process" data-nova-section="process" className={styles.process}
       aria-labelledby="process-heading" data-scroll-title-skip data-art-directed="dark">
@@ -302,5 +339,5 @@ export default function ProcessLionJourney() {
     </div>
     </div>
     <div className={styles.runway} aria-hidden="true" />
-  </div>;
+  </div></>;
 }

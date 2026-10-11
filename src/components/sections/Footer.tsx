@@ -10,10 +10,10 @@ import styles from "./Footer.module.css";
 
 export type FooterVariant = "standard" | "curtain" | "compact";
 
-function CompactFooter({ year }: { year: number }) {
+function CompactFooter({ year, lionJourney }: { year: number; lionJourney: boolean }) {
   const tr = usePublicCopy();
   const { t } = useLanguage();
-  return <footer id="footer-compact" className={styles.compact} data-art-directed="dark">
+  return <footer id="footer-compact" className={`${styles.compact}${lionJourney ? ` ${styles.withLion}` : ""}`} data-art-directed="dark">
     <section id="footer-finale" className={styles.finale} aria-label="LIONOVART">
       <div className={styles.finaleInner}>
         <div className={styles.brandRow}>
@@ -21,6 +21,10 @@ function CompactFooter({ year }: { year: number }) {
             <h2 className={styles.wordmark}>LIONOVART</h2>
             <p className={styles.signature}>{tr("The art of innovating brands")}</p>
           </div>
+          {lionJourney && <div className={styles.lionDock} data-process-footer-dock aria-hidden="true">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/models/lion/lion-poster.png?v=hid-20260914" alt="" width={900} height={900} loading="lazy" />
+          </div>}
         </div>
         <div className={styles.finaleUtility}>
           <a className={styles.contact} href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
@@ -37,17 +41,17 @@ function CompactFooter({ year }: { year: number }) {
 }
 
 /**
- * Compact is the homepage signature: wordmark and essential links; the lion closes the CTA above.
+ * Compact is the homepage signature: wordmark, essential links, and an optional lion landing.
  * Standard/curtain variants remain available for legacy/internal surfaces.
  */
-export default function Footer({ variant = "standard" }: { variant?: FooterVariant }) {
+export default function Footer({ variant = "standard", lionJourney = false }: { variant?: FooterVariant; lionJourney?: boolean }) {
   const tr = usePublicCopy();
   const { t } = useLanguage();
   const year = new Date().getFullYear();
   const isCurtain = variant === "curtain";
 
   if (variant === "compact") {
-    return <CompactFooter year={year} />;
+    return <CompactFooter year={year} lionJourney={lionJourney} />;
   }
 
   return (

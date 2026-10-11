@@ -27,10 +27,16 @@
   align-items: center;
 }
 .brandCopy { position: relative; z-index: 2; min-width: 0; }
+.withLion .brandRow { grid-template-columns: minmax(0, 1fr) clamp(6.5rem, 18vw, 16rem); }
+.lionDock { position: relative; width: 100%; aspect-ratio: 1; pointer-events: none; }
+.lionDock img { position: absolute; inset: -9.4%; width: 118.8%; height: 118.8%; object-fit: contain; }
+.lionDock[data-journey-motion="true"] img { visibility: hidden; }
 @media (min-width: 1024px) {
   .brandCopy { display: flex; align-items: baseline; justify-content: space-between; gap: 2rem; }
   .brandCopy .wordmark { font-size: clamp(4rem, 6.5vw, 7rem); }
   .brandCopy .signature { margin: 0; max-width: 23ch; text-align: right; }
+  .withLion .wordmark { font-size: clamp(3rem, 5.2vw, 6rem); }
+  .withLion .signature { font-size: clamp(1rem, 1.25vw, 1.5rem); }
 }
 .wordmark {
   margin: 0;
@@ -76,6 +82,8 @@
   .finaleInner { padding-inline: 1.125rem; }
   .brandRow { grid-template-columns: minmax(0, 1fr); gap: .5rem; }
   .wordmark { font-size: clamp(1.875rem, 7.8vw, 3rem); }
+  .withLion .wordmark { font-size: clamp(1.5rem, 5.8vw, 2.75rem); }
+  .withLion .signature { font-size: .875rem; }
   .signature { max-width: 23ch; }
   .finaleUtility { grid-template-columns: 1fr; gap: 0; }
   .legal { gap: .75rem; }

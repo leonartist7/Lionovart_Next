@@ -8,7 +8,7 @@
 }
 .runway { display: none; }
 .journey[data-motion="true"] .runway { display: block; height: var(--handoff-runway, 160svh); }
-.journey[data-motion="true"] .lionViewport { display: block; }
+.lionViewport[data-motion="true"] { display: block; }
 .journey[data-motion="true"] .staticPoster { visibility: hidden; }
 .scene { position: relative; }
 .journey[data-motion="true"] .scene {
@@ -29,13 +29,14 @@
 .journey[data-motion="true"] .ctaContent { opacity: 0; }
 .journey[data-motion="true"] .veil { opacity: 1; }
 .lionViewport {
+  --process-pad: clamp(1.25rem, 4vw, 3rem);
   display: none;
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
   width: 100%;
   height: 100svh;
-  margin-bottom: -100svh;
-  z-index: 4;
+  z-index: 20;
   overflow: clip;
   pointer-events: none;
 }
@@ -131,21 +132,25 @@
 .ctaContent { position: relative; z-index: 1; }
 .chapter {
   position: absolute;
-  top: clamp(4.5rem, 12svh, 8rem);
+  top: clamp(4.5rem, 10svh, 7rem);
   left: 0;
   width: 100%;
   margin: 0;
   padding-inline: var(--process-pad);
   font-family: var(--font-playfair-display), Georgia, serif;
-  font-size: clamp(2rem, 5.5vw, 5rem);
+  font-size: clamp(2.125rem, 10vw, 7.25rem);
   font-weight: 400;
   font-style: italic;
-  line-height: 1.15;
+  line-height: 1.04;
+  letter-spacing: -.04em;
   text-align: center;
   text-wrap: balance;
   color: #38241c;
   opacity: 0;
 }
+.chapter span { display: block; }
+.chapter span + span { margin-top: .08em; font-size: 1.1em; }
+.chapter[data-locale="fr"] { font-size: clamp(1.75rem, 7vw, 6.5rem); }
 .veil { position: absolute; inset: 0; z-index: 2; background: #08080a; opacity: 0; pointer-events: none; }
 .dock { position: relative; width: min(clamp(9rem, 28vw, 18rem), clamp(7.5rem, 22svh, 16rem)); aspect-ratio: 1; margin-inline: auto; }
 .staticPoster { position: absolute; top: -9.4%; left: -9.4%; width: 118.8%; height: 118.8%; object-fit: contain; transform: scaleX(-1); visibility: visible; }
@@ -176,7 +181,7 @@
   .journey .runway { display: none; }
   .journey .scene { display: block; position: relative; top: auto; min-height: 0; }
   .journey .closingSurface { display: block; }
-  .lionViewport { display: none; }
+  .lionViewport[data-motion="true"] { display: none; }
   .processGrid { grid-template-columns: minmax(0, 1fr); }
   .rail { display: none; }
   .step { min-height: 0; transform: none !important; }

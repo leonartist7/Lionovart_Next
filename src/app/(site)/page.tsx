@@ -13,7 +13,7 @@ export default function Home() {
         <Navbar />
         <PageBuilder />
       </main>
-      <Footer variant="compact" />
+      <Footer variant="compact" lionJourney />
     </>
   );
 }

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { processLionPose, stepPassIntensity, stepRingRotation } from '../src/components/sections/process-lion-motion.ts';
+import { processLionPose, footerLionPose, stepPassIntensity, stepRingRotation } from '../src/components/sections/process-lion-motion.ts';
 
 for (const [width, height] of [[390, 844], [768, 1024], [1440, 900]]) {
   const geometry = {
@@ -26,13 +26,33 @@ for (const [width, height] of [[390, 844], [768, 1024], [1440, 900]]) {
     const chapter = pose(.5);
     assert.equal(chapter.x, width / 2);
     assert.equal(chapter.turn, 0);
+    assert.equal(chapter.y, height * .68);
     assert.equal(chapter.chapterOpacity, 1);
     assert.equal(chapter.reveal, 0);
-    const docked = pose(.84);
+    const docked = pose(.72);
     assert.equal(docked.y, geometry.dockTop + geometry.dockSize / 2);
     assert.equal(docked.chapterOpacity, 0);
     assert.equal(docked.reveal, 0);
     assert.equal(pose(1).reveal, 1);
+    assert.equal(pose(1).turn, 0);
+  });
+
+  test(`${width}px: the lion moves into the footer right and turns left only after the CTA`, () => {
+    const cta = pose(1);
+    const footer = { progress: 0, x: width * .88, y: height * .78, size: 180 };
+    assert.deepEqual(footerLionPose(cta, footer), cta);
+    const last = footerLionPose(cta, { ...footer, progress: 1 });
+    assert.equal(last.x, footer.x);
+    assert.equal(last.y, footer.y);
+    assert.equal(last.turn, -.32);
+    assert.equal(last.reveal, 1);
+    let previous = cta;
+    for (let i = 1; i <= 1000; i++) {
+      const next = footerLionPose(cta, { ...footer, progress: i / 1000 });
+      assert.ok(next.x >= previous.x);
+      assert.ok(Math.hypot(next.x - previous.x, next.y - previous.y) < 8);
+      previous = next;
+    }
   });
 
   test(`${width}px: scroll route remains continuous and reversible`, () => {
