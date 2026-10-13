@@ -1,0 +1,77 @@
+{
+  "version": 2,
+  "settings": {
+    "width": 1,
+    "taper": 1,
+    "twist": 0.48,
+    "trim": 0.024,
+    "light": -0.45,
+    "softness": 1,
+    "depth": 6,
+    "texture": 0.08
+  },
+  "materials": {
+    "pearl": {
+      "base": [
+        "#8e7960",
+        "#e8d7bb",
+        "#fff7e7",
+        "#99836b",
+        "#e9d6b8",
+        "#fff9ef",
+        "#a28c70"
+      ],
+      "reflection": "#fffdf6",
+      "shade": "#695640",
+      "strength": 0.55
+    },
+    "dark": {
+      "base": [
+        "#090908",
+        "#302b23",
+        "#0b0c0b",
+        "#4a4031",
+        "#181714",
+        "#080907"
+      ],
+      "reflection": "#e5d4b6",
+      "shade": "#000000",
+      "strength": 0.17
+    },
+    "gold": {
+      "base": [
+        "#3f260d",
+        "#a66b26",
+        "#f4cb83",
+        "#fff4d4",
+        "#b7823f",
+        "#503012"
+      ],
+      "reflection": "#fff8df",
+      "shade": "#603814",
+      "strength": 0.35,
+      "edge": [
+        "#553310",
+        "#d7a052",
+        "#fff0bd",
+        "#a9702c",
+        "#5d3814",
+        "#e6b663",
+        "#fff9de",
+        "#b37630",
+        "#42280f"
+      ],
+      "bevel": [
+        "#c4a16b",
+        "#ffe6a5",
+        "#fffefa",
+        "#edd2a0",
+        "#ba9155",
+        "#fff5d7",
+        "#fffefa",
+        "#e5c18a",
+        "#a47b42"
+      ]
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "family": "Playfair Display",
+  "style": "Italic",
+  "weight": 500,
+  "advanceEm": 2.552,
+  "frameWidthEm": 2.672,
+  "lineCenterY": 0.4155,
+  "bounds": {
+    "min": [
+      -0.045675721019506454,
+      -0.02302544191479683,
+      -0.007978144101798534
+    ],
+    "max": [
+      2.5620203018188477,
+      0.7310076355934143,
+      0.0499856099486351
+    ]
+  },
+  "profiles": {
+    "desktop": {
+      "triangles": 14800,
+      "bytes": 912492,
+      "meshes": 2,
+      "counters": 4,
+      "sha256": "0fe5c0e877508e87268356c815b3f19870fdf83639fd955324b3e3bb6ed56641"
+    },
+    "mobile": {
+      "triangles": 5952,
+      "bytes": 338984,
+      "meshes": 2,
+      "counters": 4,
+      "sha256": "ce8743d8eacae43eea513ef5709cdc32e475574f3f39e397b847a2e9cce23560"
+    }
+  }
+}

@@ -91,7 +91,7 @@ export default function HeroSitePeek() {
         {step === "closed" ? <motion.button key="invitation" type="button" className="hero-capsule-trigger"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? 0 : 0.12 }}
           onAnimationComplete={() => { if (restoreFocus.current) host.current?.querySelector<HTMLButtonElement>(".hero-capsule-trigger")?.focus({ preventScroll: true }); restoreFocus.current = false; }}
-          onClick={() => changeStep("website")}>{tr("Get your audit")}<span aria-hidden="true">↗</span>
+          onClick={() => changeStep("website")}>{tr("Get your audit")}
         </motion.button> : step === "done" ? <motion.div key="done" className="hero-form-success" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           onAnimationComplete={() => host.current?.querySelector<HTMLElement>(".hero-form-success p")?.focus({ preventScroll: true })}>
           <p role="status" tabIndex={-1}>{tr("Your introduction is with us.")}</p>

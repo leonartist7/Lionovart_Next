@@ -4,6 +4,7 @@ import HeroSitePeek from "@/components/ui/HeroSitePeek";
 import HeroTrustLine from "./HeroTrustLine";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLionJourney } from "./lion-journey/LionJourney";
+import HeroRoar3D from "./hero-background/HeroRoar3D";
 
 export default function HeroTop() {
   const journey = useLionJourney();
@@ -19,7 +20,7 @@ export default function HeroTop() {
     <div className="lion-content">
     <div ref={journey?.copy} className="lion-copy">
       <h1 id="hero-heading" className={`lion-headline${locale === "en" ? "" : " lion-headline-localized"}`} data-scroll-title-skip>
-        {locale === "en" ? <><span className="lion-lets-make"><span>LET&apos;S</span>{" "}<span>MAKE</span></span><span className="lion-your-brand"><span>YOUR</span><span>BRAND</span></span><span className="lion-roar lion-roar-editorial"><span className="lion-roar-text">ROAR</span></span></> : <>{t.hero.staticText.map(line => <span key={line}>{line}</span>)}<span className="lion-roar"><span className="lion-roar-text">{t.hero.cyclingWords[0]}</span></span></>}
+        {locale === "en" ? <><span className="lion-lets-make"><span>LET&apos;S</span>{" "}<span>MAKE</span></span><span className="lion-your-brand"><span>YOUR</span><span>BRAND</span></span><span className="lion-roar lion-roar-editorial"><HeroRoar3D /></span></> : <>{t.hero.staticText.map(line => <span key={line}>{line}</span>)}<span className="lion-roar"><span className="lion-roar-text">{t.hero.cyclingWords[0]}</span></span></>}
       </h1>
     </div>
     <p className={`lion-description${locale === "ja" || locale === "ko" ? "" : " editorial-accent editorial-hero"}${locale === "en" || locale === "fr" ? " hero-positioning-copy" : ""}`}>{t.hero.subtitle}</p>

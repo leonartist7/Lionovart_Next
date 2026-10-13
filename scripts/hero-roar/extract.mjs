@@ -1,0 +1,21 @@
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+import {createRequire} from 'node:module';
+const require=createRequire(import.meta.url);
+const parse=require('next/dist/compiled/@next/font/dist/fontkit').default;
+const input=process.argv[2];
+if(!input)throw Error('Supply the Playfair Display Italic WOFF2 source path.');
+const bytes=fs.readFileSync(input),base=parse(bytes);
+const font=base.variationAxes?.wght ? base.getVariation({wght:500}) : base;
+if(font.familyName!=='Playfair Display'||!font.subfamilyName.includes('Italic'))throw Error('Expected Playfair Display Italic.');
+const run=font.layout('ROAR'),units=base.unitsPerEm,tracking=-.04*units;
+let advance=0;
+const glyphs=run.glyphs.map((glyph,index)=>{
+ const position=run.positions[index],x=advance+position.xOffset;
+ advance+=position.xAdvance+tracking;
+ return {letter:'ROAR'[index],x,y:position.yOffset,commands:glyph.path.commands};
+});
+const doc={version:1,text:'ROAR',family:base.familyName,style:'Italic',weight:500,sourceSha256:crypto.createHash('sha256').update(bytes).digest('hex'),units,trackingEm:-.04,advanceEm:advance/units,lineCenterY:(base.ascent+base.descent)/(2*units),glyphs};
+fs.mkdirSync('src/lib/hero-roar',{recursive:true});
+fs.writeFileSync('src/lib/hero-roar/outlines.json',JSON.stringify(doc,null,2)+'\n');
+console.log(`Extracted ${doc.family} ${doc.style} ${doc.weight}: four glyphs, ${doc.advanceEm.toFixed(3)}em advance.`);

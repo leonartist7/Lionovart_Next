@@ -1,0 +1,9 @@
+.ornament { position: absolute; inset: 0; pointer-events: none; user-select: none; }
+.ornament[data-formation="waiting"] { visibility: hidden; }
+.desktop, .tablet, .mobile { position: absolute; inset: 0; }
+.desktop svg, .tablet svg, .mobile svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.mobile, .tablet { display: none; }
+.ornament[data-formation="complete"] [data-ribbon] { clip-path: none; }
+@media (max-width: 767px) { .desktop { display: none; } .mobile { display: block; } }
+@media (min-width: 768px) and (max-aspect-ratio: 1/1) { .desktop { display: none; } .tablet { display: block; } }
+@media (prefers-reduced-motion: reduce) { .ornament[data-formation="waiting"] { visibility: visible; } }

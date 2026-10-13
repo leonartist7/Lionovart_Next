@@ -14,6 +14,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import BrandCrest from "@/components/sections/services/brand/branding/BrandCrest";
 import TrailAttractionTarget from "@/components/ui/TrailAttractionTarget";
 import { EN_WORD_ART } from "@/lib/word-art";
+import ClosingRibbonOrnament from "./ClosingRibbonOrnament";
 
 // Capped at 1080p (master is 4K) and q_auto:eco — this sits under a bg-black/70
 // scrim, so the extra quality was never visible.
@@ -38,6 +39,7 @@ function CompactClosing({ words, onStart, lionDock, chapterInJourney }: { words:
 
   return (
     <section id="closing-cta" ref={sectionRef} className={`${styles.section}${lionDock ? ` ${styles.withLion}` : ""}`} data-art-directed="light" data-scroll-title-skip>
+      <ClosingRibbonOrnament />
       <div className={styles.copy} data-closing-copy>
         {!chapterInJourney && <p className={`${styles.accent} ${locale === "ja" || locale === "ko" ? "font-body" : "editorial-accent"}`}>
           {tr("Your next chapter, together")}
@@ -45,17 +47,13 @@ function CompactClosing({ words, onStart, lionDock, chapterInJourney }: { words:
         <HeroCycling variant="closing" staticText={t.hero.staticText} words={words} staticColor="#171412" cyclingColor="#171412" paused={paused} />
       </div>
       <div className={styles.stage} data-closing-stage>
-        <div className={styles.media} aria-hidden="true" />
         <div className={styles.action} data-closing-action>
-          <p className={styles.description}>
-            {tr("Bring your ambition. We will shape the identity, experiences and systems to carry it forward.")}
-          </p>
           <TrailAttractionTarget>
             <LiquidMetalButton label={tr("Start your brand")} width={220} paused={paused} onClick={onStart} />
           </TrailAttractionTarget>
         </div>
       </div>
-      {lionDock && <div className={styles.lionDock}>{lionDock}</div>}
+      {lionDock && <div className={styles.lionDock} data-closing-lion>{lionDock}</div>}
     </section>
   );
 }
@@ -115,9 +113,6 @@ export default function ClosingCTA({ crest = false, workShowcase = false, lionDo
           />
         </div>
 
-        <p className={`max-w-[46ch] font-body text-[15px] leading-[1.6] md:text-[18px] ${workShowcase ? "text-black/65" : "text-white/70"}`}>
-          {tr("Bring your ambition. We will shape the identity, experiences and systems to carry it forward.")}
-        </p>
 
         <div className="mt-2 flex items-center gap-5">
           {crest && <BrandCrest className="h-12 w-auto md:h-14" />}

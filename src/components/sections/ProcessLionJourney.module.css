@@ -26,7 +26,11 @@
   flex-direction: column;
   justify-content: flex-end;
 }
-.journey[data-motion="true"] .ctaContent { opacity: 0; }
+.journey[data-motion="true"] .ctaContent { height: 100svh; }
+.journey[data-motion="true"] :global([data-closing-copy]),
+.journey[data-motion="true"] :global([data-closing-stage]) { opacity: var(--cta-copy-opacity, 0); }
+.journey[data-motion="true"] :global(#closing-cta) { height: 100%; padding-top: max(4.5rem, 8svh); }
+.journey[data-motion="true"] :global([data-closing-lion]) { position: absolute; top: 68%; left: 0; width: 100%; margin: 0; padding: 0; transform: translateY(-50%); }
 .journey[data-motion="true"] .veil { opacity: 1; }
 .lionViewport {
   --process-pad: clamp(1.25rem, 4vw, 3rem);
@@ -91,6 +95,8 @@
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
+.step[data-completed="true"] .ring, .step[data-completed="true"] .stepNumber > span { opacity: 1 !important; }
+.step[data-completed="true"] .stepNumber > span { color: #fff1b4; }
 .stepNumber > span { position: relative; z-index: 1; color: #f7f4ef; }
 .numberShine {
   position: absolute;
@@ -113,7 +119,7 @@
 .stepCopy h3 {
   margin: 0;
   font-family: var(--font-clash-display), sans-serif;
-  font-size: clamp(1.125rem, 2.6vw, 2.5rem);
+  font-size: clamp(1.3rem, 3vw, 2.875rem);
   font-weight: 600;
   text-transform: uppercase;
   line-height: 1.14;

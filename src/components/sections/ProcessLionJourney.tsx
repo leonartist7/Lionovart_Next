@@ -7,8 +7,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import ClosingCTA from "./ClosingCTA";
+import {useMotionValue} from "framer-motion";
+import {ClosingRevealContext} from "./ClosingRibbonOrnament";
 import { PROCESS_FILM_COPY } from "./process-video-copy";
-import { processLionPose, footerLionPose, stepPassIntensity, stepRingRotation } from "./process-lion-motion";
+import { processLionPose, stepPassIntensity, stepRingRotation, stepHasPassed } from "./process-lion-motion";
 import type { LionEngine } from "./lion-journey/engine";
 import styles from "./ProcessLionJourney.module.css";
 
@@ -46,6 +48,8 @@ export default function ProcessLionJourney() {
   const ctaContent = useRef<HTMLDivElement>(null);
   const dock = useRef<HTMLDivElement>(null);
   const chapter = useRef<HTMLParagraphElement>(null);
+  const completedSteps = useRef(new Set<number>());
+  const closingProgress = useMotionValue(0);
 
   // A short screen or unusually tall translation must stay readable in normal flow.
   useEffect(() => {
@@ -54,15 +58,23 @@ export default function ProcessLionJourney() {
     if (!section || !view) return;
     const checkFit = () => {
       const smallViewport = parseFloat(getComputedStyle(view).height) || window.innerHeight;
-      setOversizedCTA(section.offsetHeight + 32 > Math.min(smallViewport, window.innerHeight));
+      const copy=section.querySelector<HTMLElement>("[data-closing-copy]");
+      const action=section.querySelector<HTMLElement>("[data-closing-stage]");
+      const lion=section.querySelector<HTMLElement>("[data-process-lion-dock]");
+      const height=Math.min(smallViewport,window.innerHeight);
+      const actionGap=action ? parseFloat(getComputedStyle(action).marginTop)||0 : 0;
+      const actionBottom=Math.max(72,height*.08)+(copy?.offsetHeight??0)+actionGap+(action?.offsetHeight??0);
+      const lionTop=height*.68-(lion?.offsetHeight??0)/2;
+      setOversizedCTA(actionBottom+16>lionTop);
     };
     const observer = new ResizeObserver(checkFit);
     observer.observe(section);
     observer.observe(view);
+    section.querySelectorAll("[data-closing-copy], [data-closing-stage], [data-process-lion-dock]").forEach(node=>observer.observe(node));
     window.addEventListener("resize", checkFit);
     checkFit();
     return () => { observer.disconnect(); window.removeEventListener("resize", checkFit); };
-  }, [mounted]);
+  }, [mounted,locale]);
 
   useEffect(() => {
     const root = host.current, surface = canvas.current, view = viewport.current;
@@ -73,8 +85,6 @@ export default function ProcessLionJourney() {
     const numbers = rows.map(row => row.querySelector<HTMLElement>("[data-process-number]")!);
     const shines = rows.map(row => row.querySelector<HTMLElement>("[data-number-shine]")!);
     const rings = rows.map(row => row.querySelector<HTMLImageElement>("[data-process-ring]")!);
-    const footerDock = document.querySelector<HTMLElement>("[data-process-footer-dock]");
-    const footerSection = footerDock?.closest<HTMLElement>("#footer-compact");
     let engine: LionEngine | undefined;
     let disposed = false, loading = false, ready = false, failed = false, near = false, inView = false;
     let frame = 0, last = 0, time = 0, width = 1, height = 1, runway = 1, sceneHeight = 1, dirty = true;
@@ -86,7 +96,6 @@ export default function ProcessLionJourney() {
       root.dataset.motion = "false";
       view.dataset.motion = "false";
       view.style.removeProperty("visibility");
-      if (footerDock) delete footerDock.dataset.journeyMotion;
       root.style.removeProperty("--scene-top");
       root.style.removeProperty("--handoff-runway");
       root.style.removeProperty("--process-tail");
@@ -95,8 +104,9 @@ export default function ProcessLionJourney() {
       closingSection.style.pointerEvents = "";
       if (veil.current) veil.current.style.opacity = "";
       if (ctaContent.current) ctaContent.current.style.opacity = "";
+      ctaContent.current?.style.removeProperty("--cta-copy-opacity");
       if (chapter.current) chapter.current.style.opacity = "";
-      rows.forEach(row => { row.style.transform = ""; row.style.removeProperty("--step-highlight"); delete row.dataset.highlighted; });
+      rows.forEach((row,index) => { row.style.transform = ""; row.style.removeProperty("--step-highlight"); delete row.dataset.highlighted; row.dataset.completed=String(completedSteps.current.has(index)); });
       rings.forEach(ring => { ring.style.transform = ""; });
       shines.forEach(shine => { shine.style.opacity = ""; });
     };
@@ -105,7 +115,6 @@ export default function ProcessLionJourney() {
     if (manual) return reset;
     root.dataset.motion = "true";
     view.dataset.motion = "true";
-    if (footerDock) footerDock.dataset.journeyMotion = "true";
 
     const fail = () => {
       if (disposed) return;
@@ -142,19 +151,12 @@ export default function ProcessLionJourney() {
         originX: start.left - viewBounds.left + start.width / 2,
         originY: start.top - viewBounds.top + start.height / 2, railSize: start.width,
       });
-      const footerBounds = footerSection?.getBoundingClientRect();
-      if (footerDock && footerBounds) {
-        const target = footerDock.getBoundingClientRect();
-        pose = footerLionPose(pose, {
-          progress: (height - footerBounds.top) / Math.max(1, footerBounds.height),
-          x: target.left - viewBounds.left + target.width / 2,
-          y: target.top - viewBounds.top + target.height / 2,
-          size: target.width,
-        });
-      }
-      // The fixed canvas spans both sections, but is invisible elsewhere on the page.
-      const visible = rootBounds.top < height && rootBounds.bottom > 0
-        || !!footerBounds && footerBounds.top < height && footerBounds.bottom > 0;
+      // The fixed canvas follows only the process and CTA.
+      const visible = rootBounds.top < height && rootBounds.bottom > 0;
+      // Once the sticky scene releases, the settled emblem scrolls away with its dock.
+      if (pose.progress >= 1) pose.y = finish.top - viewBounds.top + finish.height / 2;
+      closingProgress.set(pose.progress);
+      root.dataset.handoffProgress=String(pose.progress);
       view.style.visibility = visible ? "visible" : "hidden";
       view.dataset.footerProgress = String(pose.footerProgress);
       view.dataset.lionTurn = String(pose.turn);
@@ -162,9 +164,12 @@ export default function ProcessLionJourney() {
       processSection.style.pointerEvents = pose.processOpacity > 0 ? "" : "none";
       closingSection.style.pointerEvents = pose.reveal >= .95 ? "auto" : "none";
       if (veil.current) veil.current.style.opacity = String(1 - pose.backgroundReveal);
-      if (ctaContent.current) ctaContent.current.style.opacity = String(pose.reveal);
+      ctaContent.current?.style.setProperty("--cta-copy-opacity",String(pose.reveal));
       if (chapter.current) chapter.current.style.opacity = String(pose.chapterOpacity);
       rows.forEach((row, index) => {
+        const passed=completedSteps.current.has(index) || stepHasPassed(metrics[index].y, pose!.y, metrics[index].height, pose!.progress);
+        if(passed) completedSteps.current.add(index);
+        row.dataset.completed=String(passed);
         const strength = stepPassIntensity(metrics[index].y, pose!.y, metrics[index].height) * pose!.processOpacity;
         row.style.setProperty("--step-highlight", String(strength));
         row.dataset.highlighted = String(strength >= .8);
@@ -197,7 +202,12 @@ export default function ProcessLionJourney() {
         turn: pose.turn + (Math.sin(time * Math.PI / 5) * .035 + pointerX * .08) * interaction,
         pitch: pose.pitch - pointerY * .025 * interaction,
       }, 0, width < 800, true);
-      if (!failed) { view.dataset.ready = "true"; frame = requestAnimationFrame(render); }
+      if (!failed) {
+        view.dataset.ready = "true";
+        // The centered emblem is still: repaint on scroll/resize, not at idle.
+        if (pose.processOpacity > 0) frame = requestAnimationFrame(render);
+        else last = 0;
+      }
     };
     const wake = () => { if (!disposed && !frame) frame = requestAnimationFrame(render); };
     const scroll = () => { dirty = true; wake(); };
@@ -209,7 +219,7 @@ export default function ProcessLionJourney() {
       const lastHeight = rows[rows.length - 1]?.offsetHeight ?? 0;
       root.style.setProperty("--process-tail", `${Math.max(64, height * .44 - lastHeight / 2)}px`);
       sceneHeight = stickyScene.offsetHeight;
-      runway = height * 2;
+      runway = height * 1.5;
       // A tall process reads normally, then holds its final viewport for the handoff.
       root.style.setProperty("--scene-top", `${Math.min(0, height - sceneHeight)}px`);
       root.style.setProperty("--handoff-runway", `${runway}px`);
@@ -258,8 +268,6 @@ export default function ProcessLionJourney() {
     });
     const observer = new ResizeObserver(resize);
     [root, view, stickyScene, processSection, closingSection, destination, modelOrigin].forEach(node => observer.observe(node));
-    if (footerDock) observer.observe(footerDock);
-    if (footerSection) { observer.observe(footerSection); intersection.observe(footerSection); proximity.observe(footerSection); }
     rows.forEach(row => observer.observe(row));
     proximity.observe(root); intersection.observe(root);
     window.addEventListener("scroll", scroll, { passive: true });
@@ -288,7 +296,7 @@ export default function ProcessLionJourney() {
       view.dataset.ready = "false";
       reset();
     };
-  }, [staticMode, mounted]);
+  }, [staticMode, mounted, closingProgress, locale]);
 
   return <>
     {mounted && createPortal(<div ref={viewport} className={styles.lionViewport} data-process-lion-viewport aria-hidden="true">
@@ -328,12 +336,14 @@ export default function ProcessLionJourney() {
     <div ref={closing} className={styles.closingSurface} data-nova-section="closing-cta">
       {!staticMode && <p className="sr-only">{tr("Your next chapter, together")}</p>}
       <div ref={ctaContent} className={styles.ctaContent}>
+        <ClosingRevealContext.Provider value={staticMode ? 1 : closingProgress}>
         <ClosingCTA workShowcase chapterInJourney={!staticMode} lionDock={
           <div ref={dock} className={styles.dock} data-process-lion-dock aria-hidden="true">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className={styles.staticPoster} src={LION_POSTER} alt="" width={900} height={900} loading="lazy" />
           </div>
         } />
+        </ClosingRevealContext.Provider>
       </div>
       <div ref={veil} className={styles.veil} aria-hidden="true" />
     </div>

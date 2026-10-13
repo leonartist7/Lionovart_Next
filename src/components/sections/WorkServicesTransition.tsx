@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { motion, useInView, useMotionValue, useMotionValueEvent, useTransform } from "framer-motion";
 import Image from "next/image";
 import { ArrowDown, Pause, Play } from "lucide-react";
@@ -11,6 +11,7 @@ import { SHOWCASE_IMAGES } from "./showcase-images";
 import styles from "./WorkServicesTransition.module.css";
 import { ServicesArrivalContext } from "./ServicesArrival";
 import { ServicesPreviewContext, useServicesPreviewToggle } from "./ServicesPreview";
+import recipe from "@/lib/pearl-gold/material-recipe.json";
 
 const LOGO_SCALE = .04875;
 const shortViewportQuery = "(max-height: 480px)";
@@ -38,6 +39,8 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
   const headingRef = useRef<HTMLElement>(null);
   const circleRef = useRef<HTMLButtonElement>(null);
   const originY = useMotionValue(0);
+  const circleDiameter = useMotionValue(2560);
+  const rimId = "circle-rim-"+useId().replace(/[^a-zA-Z0-9_-]/g, "");
   useEffect(() => {
     if (staticScene) return;
     const scene = sceneRef.current, heading = headingRef.current, circle = circleRef.current;
@@ -47,6 +50,7 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
       const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
       const gap = Math.min(2 * rem, Math.max(1.25 * rem, scene.clientHeight * .022));
       originY.set(heading.offsetTop + heading.offsetHeight + gap + circle.offsetWidth * LOGO_SCALE / 2);
+      circleDiameter.set(circle.offsetWidth);
     };
     const observer = new ResizeObserver(sync);
     observer.observe(scene);
@@ -56,7 +60,7 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
     void document.fonts.ready.then(sync);
     sync();
     return () => { observer.disconnect(); window.removeEventListener("resize", sync); };
-  }, [originY, staticScene]);
+  }, [originY, circleDiameter, staticScene]);
   const near = useInView(runwayRef, { margin: "160px" });
   const servicesNear = useInView(servicesSurfaceRef, { margin: "160px" });
   const [paused, setPaused] = useState(false);
@@ -103,7 +107,7 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
   const circleScale = useTransform(scrollYProgress, [0, .35, 1], [1, LOGO_SCALE, LOGO_SCALE]);
   const circleTransform = useTransform(circleScale, scale => `translate(-50%, -50%) scale(${scale})`);
   // Counter the scale so the gold rim stays legible at every diameter.
-  const circleOutline = useTransform(circleScale, scale => `inset 0 0 0 ${.1875 / scale}rem #e1b95c`);
+  const rimWidth = useTransform(()=>3000 / Math.max(1,circleDiameter.get()*circleScale.get()));
   const persistentWorkOpacity = useTransform(scrollYProgress, [0, .2, .38], [0, 0, 1]);
   const persistentCaptionOpacity = useTransform(scrollYProgress, [0, .2, .36], [0, 0, 1]);
   const persistentVisibility = useTransform(scrollYProgress, p => p <= .2 ? "hidden" : "visible");
@@ -157,7 +161,13 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
         aria-label={tr(preview ? "Return to the fading services transition" : "Preview services below the carousel")}
         title={tr(preview ? "Return to the fading services transition" : "Preview services below the carousel")}
         onClick={togglePreview}
-        style={staticScene ? { top: "auto", transform: "none", opacity: 1, pointerEvents: "auto" } : { top: originY, transform: circleTransform, boxShadow: circleOutline, opacity: carouselServices ? persistentCircleOpacity : circleOpacity, pointerEvents: logoPointerEvents }}>
+        style={staticScene ? { top: "auto", transform: "none", opacity: 1, pointerEvents: "auto" } : { top: originY, transform: circleTransform, opacity: carouselServices ? persistentCircleOpacity : circleOpacity, pointerEvents: logoPointerEvents }}>
+        <svg className={styles.metalRim} viewBox="0 0 1000 1000" aria-hidden="true" focusable="false">
+          <defs><linearGradient id={rimId} x1="0" y1="0" x2="1" y2="1">
+            {recipe.materials.gold.edge.map((color,index)=><stop key={index} offset={index/(recipe.materials.gold.edge.length-1)} stopColor={color} />)}
+          </linearGradient></defs>
+          <motion.circle cx="500" cy="500" r="500" fill="none" stroke={`url(#${rimId})`} strokeWidth={staticScene?31.25:rimWidth} />
+        </svg>
         <motion.div className={styles.logo} style={{ opacity: staticScene ? 1 : logoOpacity }}>
           <Image src="/images/lionovart-icon.svg" alt="" fill sizes="180px" />
         </motion.div>
