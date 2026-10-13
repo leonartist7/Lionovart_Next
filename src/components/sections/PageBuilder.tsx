@@ -7,7 +7,7 @@ import { WorkBrowseProvider } from "./selected-work/WorkBrowse";
 import CompactIntroduction from "@/components/sections/CompactIntroduction";
 import PawRevealStack from "@/components/sections/PawRevealStack";
 import ServicesSwitcher from "@/components/sections/ServicesSwitcher";
-import WorkServicesTransition from "@/components/sections/WorkServicesTransition";
+import WorkServicesTransition from "@/components/sections/FameEstateTransition";
 import SelectedWork from "@/components/sections/SelectedWork";
 import ProcessExperience from "@/components/sections/ProcessExperience";
 import Testimonials from "@/components/sections/Testimonials";
