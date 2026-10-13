@@ -46,12 +46,12 @@
 .transition[data-motion=true] .outroLeft { clip-path: polygon(0% 0%, 50% 0%, 50% 100%, 0% 100%); }
 .transition[data-motion=true] .outroRight { clip-path: polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%); }
 .transition[data-motion=true] .cue { position: absolute; bottom: max(2rem, 6svh); left: 50%; transform: translateX(-50%); margin: 0; pointer-events: auto; }
-.transition[data-motion=true] .runway { display: block; height: 440svh; pointer-events: none; }
+.transition[data-motion=true] .runway { display: block; height: 540svh; pointer-events: none; }
 .transition[data-motion=true] .services { margin-top: -100svh; }
 /* Let the real service section enter behind the opening red halves. */
 @media (max-width: 767px) {
   .images { grid-template-columns: 1fr; max-width: 34rem; gap: .75rem; }
-  .transition[data-motion=true] .runway { height: 340svh; }
+  .transition[data-motion=true] .runway { height: 440svh; }
   .transition[data-motion=true] .projectImage { object-fit: contain; }
   .heading { width: calc(100% - 2.5rem); }
   .heading h2, .title { font-size: clamp(2.75rem, 11vw, 5rem); }

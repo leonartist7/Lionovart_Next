@@ -65,7 +65,8 @@ export default function FameEstateTransition({ intro, children }: { intro: React
         scrollTrigger: {
           trigger: runway,
           start: "top top",
-          end: () => "+=" + runway.offsetHeight,
+          // End exactly when the real services reach the viewport top.
+          end: () => "+=" + Math.max(1, runway.offsetHeight - scene.offsetHeight),
           scrub: true,
           invalidateOnRefresh: true,
           onUpdate: self => updateAccess(self.progress),
