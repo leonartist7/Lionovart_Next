@@ -21,6 +21,7 @@ import { MenuBurgerLottie } from "@/components/ui/menu-burger-lottie";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import styles from "./AdaptiveNavbar.module.css";
+import { ExperienceSoundToggle } from "@/components/experience/ScrollExperience";
 
 const SCROLL_OFFSET = -88;
 const HERO_THRESHOLD_RATIO = 0.62;
@@ -87,6 +88,7 @@ const REDUCED_ITEM_VARIANTS = {
 };
 
 export type NavbarProps = {
+  withSound?: boolean;
   lightweightMenu?: boolean;
   sectionFallback?: boolean;
 };
@@ -116,7 +118,7 @@ function LightweightMenuToggle({
   );
 }
 
-export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallback = false }: NavbarProps) {
+export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallback = false, withSound = false }: NavbarProps) {
   const tr = usePublicCopy();
   const router = useRouter();
   const { released } = useIntroLifecycle();
@@ -392,6 +394,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
                 )}
               </AnimatePresence>
 
+              {withSound && <ExperienceSoundToggle />}
               {useLightweightMenu ? (
                 <LightweightMenuToggle
                   isOpen={isMobileOpen}

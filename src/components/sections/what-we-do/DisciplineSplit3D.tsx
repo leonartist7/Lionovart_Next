@@ -438,7 +438,7 @@ export default function DisciplineSplit3D({
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
   const scrollFlip = useTransform(scrollYProgress, [SPLIT_START, SPLIT_FINISH], [0, 1], { clamp: true });
   const openingProgress = journey?.openingProgress ?? scrollYProgress;
-  const openingFlip = useTransform(openingProgress, [SPLIT_START, SPLIT_FINISH], [0, 1], { clamp: true });
+  const openingFlip = useTransform(openingProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
   // The wash lives in the video layer, above the WebGL lion. Keep it off
   // until the opaque film has covered the mane; otherwise its translucent
   // footage tints the head and makes it appear see-through.
@@ -473,18 +473,22 @@ export default function DisciplineSplit3D({
     : isDesktop ? isTablet && viewportWidth < 1024 ? "51svh" : "61svh"
       : isTablet ? "61svh" : `${70 - phonePeekLift / viewportHeight * 100 - tallPhonePeekLift}svh`;
   const settledY = veryShort ? "-8svh" : shortScreen ? isDesktop ? "-5svh" : "-6svh" : isTablet ? "-2svh" : "2svh";
-  const entranceY = useTransform(openingProgress, [0, .46], [peekY, settledY]);
-  const entranceScale = useTransform(openingProgress, [0, .46], [.82, 1]);
+  // Settle early, then hold the complete film before any crop separates.
+  const entranceY = useTransform(openingProgress, [0, .30], [peekY, settledY]);
+  const entranceScale = useTransform(openingProgress, [0, .30], [.82, 1]);
   // The video-to-card handoff belongs to this section.  Keeping it local means
   // the cards always reveal as the visitor scrolls through WHAT WE BUILD.
 
   // Cursor rig arms only once the sequence has fully landed, and disarms
   // again the moment scrolling back pulls it out of the settled state.
   useEffect(() => {
-    const v = flip.get();
-    setEntranceDone(v > 0.98);
-    setFilmActive(v < FILM_FADE_END);
-    setJoinedFilmVisible(v <= HANDOFF_START);
+    const frame = requestAnimationFrame(() => {
+      const v = flip.get();
+      setEntranceDone(v > 0.98);
+      setFilmActive(v < FILM_FADE_END);
+      setJoinedFilmVisible(v <= HANDOFF_START);
+    });
+    return () => cancelAnimationFrame(frame);
   }, [flip]);
   useMotionValueEvent(flip, "change", (v) => {
     setEntranceDone(v > 0.98);
@@ -735,7 +739,7 @@ export default function DisciplineSplit3D({
     // against the true 3D geometry is exactly what leaves the outer edge of
     // the outer two cards dead to hover. The visual rectangle is the target.
     paneRectsRef.current = paneNodesRef.current.map((el) => el?.getBoundingClientRect() ?? null);
-  }, [stageRef]);
+  }, []);
 
   useEffect(() => {
     if (!armed) return;
