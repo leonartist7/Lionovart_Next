@@ -78,6 +78,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
     let direction = 0, gestureStart = scrollY, touching = false, touchX = 0, touchY = 0;
     let scenes: ScrollScene[] = [], stops: ScrollStop[] = [];
     let initialHashHandled = false;
+    let landingHash = ["#imagine", "#problems"].includes(location.hash) ? location.hash : "";
     const top = (el: Element) => el.getBoundingClientRect().top + scrollY;
     const measure = () => {
       scenes = []; stops = [];
@@ -144,7 +145,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
         partnership.stops.push(services); partnership.extent = Math.max(partnership.end, services.y);
       }
       points.current = stops;
-      if (!initialHashHandled) {
+      if (!initialHashHandled || landingHash && landingHash === location.hash) {
         initialHashHandled = true;
         if (["#imagine", "#problems"].includes(location.hash)) {
           const imagineStop = stops.find(s => s.id === "imagine");
@@ -204,6 +205,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
       else settle();
     };
     const input = (delta: number, target: EventTarget | null) => {
+      landingHash = "";
       if (ignoredTarget(target)) { cancel(); return; }
       if (Math.abs(delta) < 2) return;
       const now = performance.now(), sign = Math.sign(delta);
@@ -216,7 +218,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
       input(event.deltaY, event.target);
     };
     const touchStart = (event: TouchEvent) => {
-      cancel(); touching = true; gestureStart = scrollY; direction = 0;
+      landingHash = ""; cancel(); touching = true; gestureStart = scrollY; direction = 0;
       touchX = event.touches[0]?.clientX ?? 0; touchY = event.touches[0]?.clientY ?? 0;
     };
     const touchMove = (event: TouchEvent) => {
@@ -225,7 +227,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
       touchX = x; touchY = y;
     };
     const touchEnd = () => { touching = false; if (direction) lastInput = performance.now(); clearTimeout(timer); timer = setTimeout(settle, 150); };
-    const pause = () => { cancel(); };
+    const pause = () => { landingHash = ""; cancel(); };
     const key = (event: KeyboardEvent) => { if (["Escape", "Tab", "ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) pause(); };
     const click = (event: MouseEvent) => {
       pause();
@@ -247,9 +249,8 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
     const hashNavigation = () => {
       pause();
       if (!["#imagine", "#problems"].includes(location.hash)) return;
+      landingHash = location.hash;
       measure();
-      const stop = stops.find(s => s.id === "imagine");
-      if (stop) lenis.scrollTo(stop.y, { immediate: true, force: true, userData: { navigation: true } });
     };
     const resize = () => { cancel(); cancelAnimationFrame(frame); frame = requestAnimationFrame(() => { frame = 0; measure(); }); };
     const observer = new ResizeObserver(resize);
@@ -264,6 +265,8 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
     window.addEventListener("touchcancel", touchEnd, passive);
     lenis.on("scroll", onScroll);
     window.addEventListener("resize", resize);
+    window.addEventListener("load", resize);
+    window.addEventListener("pageshow", resize);
     window.addEventListener("keydown", key);
     window.addEventListener("pointerdown", pause);
     window.addEventListener("click", click, true);
@@ -280,6 +283,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
       window.removeEventListener("touchend", touchEnd, true);
       window.removeEventListener("touchcancel", touchEnd, true);
       lenis.off("scroll", onScroll); window.removeEventListener("resize", resize);
+      window.removeEventListener("load", resize); window.removeEventListener("pageshow", resize);
       window.removeEventListener("keydown", key); window.removeEventListener("pointerdown", pause);
       window.removeEventListener("click", click, true); window.removeEventListener("hashchange", hashNavigation);
       window.removeEventListener("pointerover", hover);
