@@ -159,7 +159,7 @@ function Pane({
 
   // The split-apart translate/tilt — driven straight off scroll, so it
   // scrubs forward and backward with the gesture instead of playing once.
-  const paneX = useTransform(splitP, (p) => (isDesktop && !reducedMotion ? `${dir * 1.8 * p}vw` : "0vw"));
+  const paneX = useTransform(splitP, (p) => (isDesktop && !reducedMotion ? `${dir * 1.4 * p}vw` : "0vw"));
   const paneY = useTransform(splitP, (p) => (isDesktop || reducedMotion ? "0vh" : `${dir * 1.8 * p}vh`));
   // One sculptural rhythm across the set: the two outer cards share a quiet
   // lean while the middle counters it. The effect gives depth without making

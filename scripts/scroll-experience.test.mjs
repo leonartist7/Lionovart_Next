@@ -121,10 +121,19 @@ for (const viewport of [600, 844, 936]) {
 }
 
 test('the centered partnership chapter exits to expertise on one fresh gesture',()=>{
- const viewport=844,span=viewport*1.2;
+ const viewport=844,span=viewport*1.8;
  const stops=[{id:'partnership',y:span*.42,kind:'partnership'},{id:'services',y:span-64,kind:'section'}];
  const context={mode:'settle',viewport,scenes:[{start:0,end:span,kind:'partnership',stops}],boundaries:[]};
  const from=stops[0].y;
  assert.equal(chooseScrollStop({...context,y:from+60,gestureStart:from,direction:1})?.id,'services');
  assert.equal(chooseScrollStop({...context,y:from,gestureStart:from,direction:1}),undefined);
+});
+
+test('Imagine leaves for the centered partnership with one gesture on desktop',()=>{
+ const viewport=936,span=viewport*3;
+ const stops=[{id:'film',y:span*.225,kind:'opening'},{id:'cards',y:span*.525,kind:'opening'},{id:'imagine',y:span*.9,kind:'opening'},{id:'partnership',y:span+viewport*.756,kind:'partnership'}];
+ const context={mode:'settle',viewport,scenes:[{start:0,end:span,kind:'opening',stops}],boundaries:[]};
+ const start=stops[2].y;
+ assert.equal(chooseScrollStop({...context,y:start+60,gestureStart:start,direction:1})?.id,'partnership');
+ assert.equal(chooseScrollStop({...context,y:start,gestureStart:start,direction:1}),undefined);
 });

@@ -66,6 +66,8 @@ export function chooseScrollStop({ mode, y, gestureStart, direction, viewport, s
       const next = scene.stops[scene.stops.indexOf(resting) + (direction > 0 ? 1 : -1)];
       if (next && direction * (next.y - y) > 8) return next;
     }
+    if (direction > 0 && p > .02 && p < .42) return scene.stops.find(s => s.id === "partnership");
+    if (direction < 0 && p > .02 && p < .42) return scene.stops.find(s => s.id === "imagine");
     const stop = scene.stops.find(s => direction * (s.y - y) > 8 && Math.abs(s.y - y) < span * .22);
     return stop;
   }
