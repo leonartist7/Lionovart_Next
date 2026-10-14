@@ -151,7 +151,8 @@ function Pane({
   const [benefitReady, setBenefitReady] = useState(false);
   useMotionValueEvent(benefitProgress, "change", p => { setBackVisible(!reducedMotion && p >= .5); setBenefitReady(p >= .98); });
   const showBack = !reducedMotion && backVisible;
-  const benefitRotation = useTransform(benefitProgress, p => reducedMotion ? 0 : p * 180);
+  const benefitRotation = useTransform(benefitProgress, p => reducedMotion || p >= .9995 ? 0 : p * 180);
+  const backTransform = useTransform(benefitProgress, p => p >= .9995 ? "none" : "rotateY(180deg)");
   const splitP = useLocalProgress(flip, HANDOFF_START, HANDOFF_END);
   const cardP = splitP;
   const contentP = splitP;
@@ -164,7 +165,7 @@ function Pane({
   // lean while the middle counters it. The effect gives depth without making
   // any card look like a separate panel sitting on top of another.
   const cardLean = i === 1 ? -8 : 8;
-  const paneRotateY = useTransform(splitP, (p) => (!reducedMotion ? cardLean * p : 0));
+  const paneRotateY = useTransform(() => reducedMotion ? 0 : cardLean * splitP.get() * (1 - benefitProgress.get()));
   const paneRotateX = useTransform(splitP, () => 0);
   const innerRadius = useTransform(splitP, (p) => 18 * p);
   const outerRadius = useTransform(splitP, (p) => 16 + 2 * p);
@@ -363,7 +364,7 @@ function Pane({
             <p className={styles.body}>{card.body}</p>
           </motion.div>
         </div>
-        <div className={styles.backFace} aria-hidden={!showBack} inert={!showBack || !benefitReady}>
+        <div className={styles.backFace} style={{ transform: backTransform }} aria-hidden={!showBack} inert={!showBack || !benefitReady}>
           <ImagineCardFace index={i} />
         </div>
       </motion.div>
@@ -781,8 +782,8 @@ export default function DisciplineSplit3D({
   const sx = useSpring(px, CURSOR_SPRING);
   const sy = useSpring(py, CURSOR_SPRING);
 
-  const rotateY = useTransform(sx, [-1, 1], reduce ? [0, 0] : [-TILT_Y, TILT_Y]);
-  const rotateX = useTransform(sy, [-1, 1], reduce ? [0, 0] : [TILT_X, -TILT_X]);
+  const rotateY = useTransform(() => reduce ? 0 : sx.get() * TILT_Y * (1 - benefitProgress.get()));
+  const rotateX = useTransform(() => reduce ? 0 : -sy.get() * TILT_X * (1 - benefitProgress.get()));
   const sheen = useTransform(sx, [-1, 0, 1], [0.55, 0.14, 0.55]);
   const handoffSheen = useTransform(flip, p => 0.14 * FRAME_EASE(cue(p, HANDOFF_START, HANDOFF_END)));
 
@@ -986,7 +987,7 @@ export default function DisciplineSplit3D({
                 isDesktop={isDesktop}
                 flip={flip}
                 benefitProgress={benefitProgress}
-                armed={armed}
+                armed={armed && !imagineVisible}
                 reducedMotion={!!reduce}
                 filmOpacity={filmOpacity}
                 poster={activePoster}
