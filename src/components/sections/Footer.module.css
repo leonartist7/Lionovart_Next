@@ -13,7 +13,7 @@
   isolation: isolate;
   overflow: clip;
   border-radius: 50% 50% 0 0 / clamp(1.75rem, 5vw, 5rem) clamp(1.75rem, 5vw, 5rem) 0 0;
-  background: linear-gradient(to bottom, #c01020 0%, #7a0010 55%, #3d0008 100%);
+  background: linear-gradient(to bottom, var(--brand-red-light) 0%, var(--brand-red-mid) 55%, var(--brand-red-dark) 100%);
 }
 .finaleInner {
   width: min(100%, 105rem);

@@ -30,7 +30,7 @@
   border: 0;
   padding: 0;
   cursor: pointer;
-  background: #f51b2c;
+  background: var(--brand-red-radial);
   box-shadow: none;
   z-index: 3;
   transform: translate(-50%, -50%);

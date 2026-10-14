@@ -74,7 +74,6 @@ const SECTION_HEIGHT_VH = 160;
 const HANDOFF_START = 0.06;
 const HANDOFF_END = 0.80;
 const FILM_FADE_END = 0.64;
-const CARD_SETTLE_END = HANDOFF_END;
 const FINAL_FRAME_SCALE = 0.95;
 const SPLIT_FINISH = Math.min(0.9, SPLIT_END + 0.08);
 const FRAME_EASE = cubicBezier(0.77, 0, 0.175, 1);
@@ -190,7 +189,7 @@ function Pane({
     >
       {/* Intrinsic card sizing: a square image plus a compact footer on
           desktop; square art beside the copy in the phone stack. */}
-      <div aria-hidden="true" className="opening-pane-sizing pointer-events-none w-full pb-52 pt-[100%] max-md:h-[var(--opening-art-size)] max-md:p-0" />
+      <div aria-hidden="true" className="opening-pane-sizing pointer-events-none w-full pb-52 pt-[100%] max-[919px]:h-[var(--opening-art-size)] max-[919px]:p-0" />
       {/* The glass body rises underneath the fading, unbroken film. */}
       <motion.div
         className="absolute inset-0 z-[1] rounded-[inherit]"
@@ -246,12 +245,12 @@ function Pane({
             <motion.img
               src={cardArtworkUrl(card.image, 960)}
               srcSet={[480, 800, 1200].map(width => `${cardArtworkUrl(card.image!, width)} ${width}w`).join(", ")}
-              sizes="(min-width: 1440px) 380px, (min-width: 768px) 30vw, 160px"
+              sizes="(min-width: 1440px) 380px, (min-width: 920px) 30vw, 160px"
               alt=""
               aria-hidden="true"
               loading="lazy"
               decoding="async"
-              className="pointer-events-none absolute left-0 top-0 h-[var(--opening-art-size)] w-[var(--opening-art-size)] object-contain object-center md:aspect-square md:h-auto md:w-full"
+              className="pointer-events-none absolute left-0 top-0 h-[var(--opening-art-size)] w-[var(--opening-art-size)] object-contain object-center min-[920px]:aspect-square min-[920px]:h-auto min-[920px]:w-full"
               style={{ opacity: backImageOpacity }}
               onError={event => {
                 const image = event.currentTarget;
@@ -332,7 +331,7 @@ function Pane({
               recognisable brand texture without becoming a second heading. */}
           <motion.span
             aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-4 z-[2] select-none font-clash text-[clamp(2rem,5vw,4.9rem)] font-bold uppercase leading-[0.78] tracking-[-0.07em] md:left-6 md:top-6"
+            className="pointer-events-none absolute left-4 top-4 z-[2] select-none font-clash text-[clamp(2rem,5vw,4.9rem)] font-bold uppercase leading-[0.78] tracking-[-0.07em] min-[920px]:left-6 min-[920px]:top-6"
             style={{
               opacity: markOpacity,
               color: "transparent",
@@ -344,7 +343,7 @@ function Pane({
           </motion.span>
 
           <motion.div
-            className={`opening-pane-copy ${styles.copy} absolute inset-x-0 bottom-0 z-10 flex h-52 flex-col justify-center bg-[#08080a]/95 p-4 text-left max-md:left-[var(--opening-art-size)] max-md:h-full max-md:p-3 md:p-5`}
+            className={`opening-pane-copy ${styles.copy} absolute inset-x-0 bottom-0 z-10 flex h-52 flex-col justify-center bg-[#08080a]/95 p-4 text-left max-[919px]:left-[var(--opening-art-size)] max-[919px]:h-full max-[919px]:p-3 min-[920px]:p-5`}
             style={{ opacity: contentP, y: contentY }}
           >
             <h3 className={styles.title}>{card.title}</h3>
@@ -415,8 +414,8 @@ export default function DisciplineSplit3D({
   }, []);
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 768px)");
-    const tablet = window.matchMedia("(min-width: 768px)");
+    const mq = window.matchMedia("(min-width: 920px)");
+    const tablet = window.matchMedia("(min-width: 920px)");
     const pointer = window.matchMedia("(hover: hover) and (pointer: fine)");
     const short = window.matchMedia("(max-height: 700px)");
     const veryShortScreen = window.matchMedia("(max-height: 500px)");
@@ -455,7 +454,8 @@ export default function DisciplineSplit3D({
     return `translateY(${geometry.glassOffset}px) scale(${geometry.glassX}, ${geometry.glassY})`;
   });
   // Opaque card bases prevent a dark dip beneath the fading film crops.
-  const proofPresence = useTransform(flip, [CARD_SETTLE_END, 0.94], [0, 1], { ease: FRAME_EASE });
+  // Trust enters with the parked film and is complete before the split.
+  const proofPresence = useTransform(openingProgress, [.23, .36, .48], [0, .8, 1], { ease: FRAME_EASE });
   const proofTransform = useTransform(flip, (p) => {
     if (!filmFrame) return "none";
     const geometry = handoffGeometry(filmFrame, p);
@@ -501,7 +501,7 @@ export default function DisciplineSplit3D({
   const measureFilm = useCallback(() => {
     const v = videoRef.current, stage = stageRef.current;
     if (!v || !stage || !stage.offsetHeight || !stage.offsetWidth) return;
-    const landscape = window.matchMedia("(min-width: 768px)").matches;
+    const landscape = window.matchMedia("(min-width: 920px)").matches;
     const sourceWidth = v.videoWidth || (landscape ? 16 : 9);
     const sourceHeight = v.videoHeight || (landscape ? 9 : 16);
     const opening = stage.closest<HTMLElement>(".hero-opening-stage");
@@ -528,7 +528,7 @@ export default function DisciplineSplit3D({
     // this removes the upward translation during the video-to-card handoff.
     const filmHeight = Math.max(1, 2 * Math.min(
       sharedCenter - safeTop - splitAllowance,
-      safeBottom - sharedCenter - splitAllowance,
+      safeBottom - sharedCenter - splitAllowance - proofReserve,
     ));
     const scale = Math.min(viewportWidth * 0.86 / sourceWidth,
       stageWidth * 1.14 / sourceWidth,
@@ -545,7 +545,7 @@ export default function DisciplineSplit3D({
   }, [pinned, settledY]);
 
   useEffect(() => {
-    const landscape = window.matchMedia("(min-width: 768px)");
+    const landscape = window.matchMedia("(min-width: 920px)");
     const selectSource = () => {
       videoRef.current?.pause();
       setVideoReady(false);
@@ -815,6 +815,7 @@ export default function DisciplineSplit3D({
       ref={(node) => { sectionRef.current = node; journey?.setVideoSection(node); }}
       data-cursor-behind
       data-opening-transition="square-art-split-v5"
+      data-opening-layout={isDesktop ? "horizontal" : "vertical"}
       id={pinned ? undefined : "what-we-build"}
       data-cards-armed={armed}
       data-film-active={filmActive}
@@ -827,7 +828,7 @@ export default function DisciplineSplit3D({
       <div
         className={pinned
           ? "opening-video-layout relative z-40 h-full overflow-hidden"
-          : "sticky top-0 z-40 flex min-h-screen flex-col items-center justify-center gap-[clamp(2.5rem,6vh,5rem)] overflow-hidden px-3 py-24 md:px-4"}
+          : "sticky top-0 z-40 flex min-h-screen flex-col items-center justify-center gap-[clamp(2.5rem,6vh,5rem)] overflow-hidden px-3 py-24 min-[920px]:px-4"}
         onPointerEnter={measure}
         onPointerMove={handleMove}
         onPointerLeave={handleLeave}
@@ -856,7 +857,7 @@ export default function DisciplineSplit3D({
         />
 
         <div ref={(node) => journey?.setVideo(node)}
-          className="opening-video-anchor relative z-40 w-[min(80vw,360px)] md:w-[min(82vw,1120px)]">
+          className="opening-video-anchor relative z-40 w-[min(80vw,360px)] min-[920px]:w-[min(82vw,1120px)]">
         <motion.div ref={stageRef} className="relative w-full"
           style={{ perspective: "1400px", y: pinned ? entranceY : 0, scale: pinned ? entranceScale : 1 }}>
           {/* Native playback hands its exact joined outline to the pane crops. */}
@@ -955,7 +956,7 @@ export default function DisciplineSplit3D({
             />
           </motion.div>
           </motion.div>
-          {pinned && <motion.div ref={proofRef} className="opening-proof-stage" style={{ opacity: proofPresence, transform: proofTransform }}>
+          {pinned && <motion.div ref={proofRef} className="opening-proof-stage" style={{ opacity: reduce ? 1 : proofPresence, transform: proofTransform }}>
             <OpeningProof />
           </motion.div>}
         </motion.div>

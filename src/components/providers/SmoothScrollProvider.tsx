@@ -20,7 +20,7 @@ const LenisProvider = ReactLenis as any;
 // subscriptions, inertia and every consumer's scene observers.
 const LENIS_OPTIONS: LenisOptions = {
   autoRaf: false,
-  lerp: .14,
+  lerp: .115,
   smoothWheel: true,
   wheelMultiplier: 1,
   touchMultiplier: 1,

@@ -14,12 +14,12 @@ selected public experience; other mode parameters are honored only in the compar
 The opening has three distinct beats: the hero, the intact film, and the readable
 LION/NOVA/ART cards. The film stops moving at 30% of the opening timeline and
 stays intact until 48%. The cards finish at 80%, leaving a reading hold before
-Imagine arrives. Mobile gets a longer runway, with its existing stacked card layout.
+Imagine arrives. Below 920px width, the film uses its portrait source and cards stack vertically.
+The benefit cards use the same 920px breakpoint. Height only tunes spacing and sizing.
 
 The guided option can then carry the visitor to Imagine, and from the partnership
 scene to services. Tall content and the existing service/work navigation keep
-their normal scrolling and interactions. A small Continue button offers the
-same shortcuts in all three treatments without requiring repeated scroll gestures.
+their normal scrolling and interactions. The public Continue button has been removed; scene shortcuts remain in the comparison panel only.
 
 ## Input rules
 
@@ -29,8 +29,11 @@ same shortcuts in all three treatments without requiring repeated scroll gesture
 - Touch keeps native scrolling (`syncTouch: false`); settling waits for release and momentum to stop.
 - Soft settle keeps the complete wheel delta. Only the older cinematic comparison has an opening speed cap.
 - A single release timer checks physical intent and Lenis inertia; scroll frames do not continually postpone the timer.
-- Automatic corrections take 0.3–0.7 seconds according to distance. Explicit Continue journeys take 0.45–1.15 seconds.
-- Section UI updates only when the current/next scene changes; pixel changes stay outside React state.
+- Automatic corrections take 0.42–0.95 seconds according to distance. Comparison-panel journeys take 0.45–1.15 seconds. Wheel damping is 0.115 for a slightly longer release.
+- No current/next section state or public floating navigation is updated on scroll.
+- Every release in the film/card split range completes to cards going down or the joined film going up; intact-film and complete-card reading holds remain free.
+- Trust badges and flags fade in with the settled film and are fully present before the split. Film sizing reserves their space.
+- Imagine and the shrinking circle use the footer red palette in a centered radial gradient; the arc and section body share gradient coordinates.
 - Service controls and anchor links use Lenis rather than a competing browser smooth-scroll animation.
 - Testimonial marquees pause offscreen and in hidden tabs, resuming their existing position on return.
 - No timer advances the story by itself, and no gesture is locked.
@@ -52,7 +55,7 @@ Hidden tabs suspend audio; disabling sound suspends the context immediately.
 
 `node scripts/scroll-experience.test.mjs` checks reading holds, forward/reverse
 intent, boundary proximity, bounded easing and the fresh-gesture requirement.
-Browser verification covers treatment switching, Continue and scene shortcuts,
+Browser verification covers treatment switching and comparison-panel scene shortcuts,
 the stationary film hold, complete cards, opt-in sound, phone layout, and reduced
 motion. Final feel should also be reviewed on a physical iPhone and Android,
 especially native flick momentum and media playback under low-power mode.

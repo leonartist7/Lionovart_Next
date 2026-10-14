@@ -3,11 +3,7 @@
 .sound:hover { background: #fffaf10d; }
 .sound[aria-pressed=true] { color: #e4c27a; }
 .sound:focus-visible { outline: .125rem solid #e4c27a; outline-offset: -.125rem; }
-.continueWrap { position: fixed; left: 50%; transform: translateX(-50%); bottom: max(1rem, calc(env(safe-area-inset-bottom) + .75rem)); z-index: 45; }
-.continue { display: flex; align-items: center; justify-content: center; gap: .75rem; min-height: 2.75rem; padding: .5rem 1.25rem; border: .0625rem solid #aa947961; border-radius: 999rem; background: #f7f4eff0; box-shadow: 0 .25rem .875rem #0000000d; color: #302921; font: 500 .75rem/1 var(--font-dm-sans), sans-serif; cursor: pointer; }
-.continue svg { width: .875rem; height: .875rem; transition: transform .25s ease; }
-.continue:hover svg { transform: translateY(.1875rem); }
-.continue:focus-visible, .review button:focus-visible { outline: .125rem solid #956b30; outline-offset: .1875rem; }
+.review button:focus-visible { outline: .125rem solid #956b30; outline-offset: .1875rem; }
 .review { position: fixed; z-index: 110; left: 1rem; bottom: max(1rem, calc(env(safe-area-inset-bottom) + .75rem)); font-family: var(--font-dm-sans), sans-serif; }
 .reviewToggle { display: flex; gap: .5rem; align-items: center; min-height: 2.75rem; border: .0625rem solid #a28d6d5c; border-radius: .375rem; background: #f7f4eff5; padding: .5rem .75rem; font-size: .6875rem; color: #302921; cursor: pointer; }
 .reviewToggle svg { width: 1rem; height: 1rem; }

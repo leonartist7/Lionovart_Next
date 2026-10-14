@@ -145,6 +145,8 @@ export default function PawRevealStack() {
       const rise = radius - Math.sqrt(Math.max(0, radius * radius - halfWidth * halfWidth));
       const value = rise.toFixed(3) + "px";
       if (chapter.style.getPropertyValue("--imagine-cap-rise") !== value) chapter.style.setProperty("--imagine-cap-rise", value);
+      const height = `${chapter.offsetHeight}px`;
+      if (chapter.style.getPropertyValue("--imagine-surface-height") !== height) chapter.style.setProperty("--imagine-surface-height", height);
     };
     const observer = new ResizeObserver(measure);
     observer.observe(chapter);

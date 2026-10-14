@@ -61,9 +61,25 @@ test('settling waits for a released gesture and the end of Lenis inertia', () =>
 });
 test('small corrections finish faster than full journeys, in either direction', () => {
   assert.ok(settleDuration(50) < settleDuration(500));
-  assert.ok(settleDuration(2000) <= .7);
-  assert.ok(settleDuration(50) >= .3);
+  assert.ok(settleDuration(2000) <= .95);
+  assert.ok(settleDuration(50) >= .42);
   assert.equal(settleDuration(500), settleDuration(-500));
   assert.ok(settleDuration(500, true) > settleDuration(500));
   assert.ok(settleDuration(10000, true) <= 1.15);
 });
+
+for (const viewport of [600, 844, 936, 1024]) {
+  test(`${viewport}px: every release through the film/card handoff finishes in either direction`, () => {
+    const span = viewport * 2.9;
+    const stops = [{ id: 'film', y: span * .36 }, { id: 'cards', y: span * .84 }];
+    const context = { mode: 'settle', viewport, scenes: [{ start: 0, end: span, kind: 'opening', stops }], boundaries: [] };
+    for (let p = .50; p < .84; p += .01) {
+      const y = span * p;
+      assert.equal(chooseScrollStop({ ...context, y, gestureStart: y - 5, direction: 1 })?.id, 'cards');
+      assert.equal(chooseScrollStop({ ...context, y, gestureStart: y + 5, direction: -1 })?.id, 'film');
+    }
+    assert.equal(chooseScrollStop({ ...context, y: span * .43, gestureStart: span * .40, direction: 1 }), undefined, 'intact film stays still');
+    assert.equal(chooseScrollStop({ ...context, y: span * .92, gestureStart: span * .88, direction: 1 }), undefined, 'complete cards stay still');
+    assert.equal(chooseScrollStop({ ...context, y: span * .6, gestureStart: span * .6, direction: 0 }), undefined, 'no move without physical intent');
+  });
+}

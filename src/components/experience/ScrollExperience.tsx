@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useLenis } from "lenis/react";
-import { ArrowDown, SlidersHorizontal, Volume2, VolumeX, X } from "lucide-react";
+import { SlidersHorizontal, Volume2, VolumeX, X } from "lucide-react";
 import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -31,13 +31,10 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
   const lenis = useLenis();
   const { released } = useIntroLifecycle();
   const reduced = useHydratedReducedMotion();
-  const { locale } = useLanguage();
   const [mode, setMode] = useState<ScrollMode>("settle");
   const [review, setReview] = useState(false);
   const [panel, setPanel] = useState(false);
   const [sound, setSound] = useState(false);
-  const [active, setActive] = useState("hero");
-  const [next, setNext] = useState<ScrollStop>();
   const sonic = useRef<SonicCues | null>(null);
   const points = useRef<ScrollStop[]>([]);
   const move = useRef<(stop: ScrollStop) => void>(() => {});
@@ -78,7 +75,6 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
     let timer: ReturnType<typeof setTimeout> | undefined;
     let frame = 0, disposed = false, moving = false, eligible = false, lastInput = -Infinity;
     let direction = 0, gestureStart = scrollY, touching = false, touchX = 0, touchY = 0;
-    let lastActive: string | undefined, lastNext: ScrollStop | undefined;
     let scenes: ScrollScene[] = [], stops: ScrollStop[] = [];
     const top = (el: Element) => el.getBoundingClientRect().top + scrollY;
     const measure = () => {
@@ -132,13 +128,6 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
         partnership.stops.push(services); partnership.extent = Math.max(partnership.end, services.y);
       }
       points.current = stops;
-      update();
-    };
-    const update = () => {
-      const current = [...stops].reverse().find(s => s.y <= scrollY + 24) ?? stops[0];
-      if (current && current.id !== lastActive) { lastActive = current.id; setActive(current.id); }
-      const following = stops.find(s => s.y > scrollY + 48);
-      if (lastNext?.id !== following?.id || lastNext?.y !== following?.y) { lastNext = following; setNext(following); }
     };
     const unavailable = () => disposed || document.hidden || reduced || innerHeight <= 480 || lenis.isStopped ||
       document.body.style.overflow === "hidden" || !!document.querySelector('[role="dialog"][aria-modal="true"]') ||
@@ -166,7 +155,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
         onComplete: () => {
           moving = false;
           document.documentElement.dataset.scrollSettling = "false";
-          sonic.current?.chapter(stop.id); update();
+          sonic.current?.chapter(stop.id);
         },
       });
     };
@@ -187,7 +176,6 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
       if (stop && Math.abs(stop.y - lenis.scroll) > 6) travel(stop);
     };
     const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(() => { frame = 0; update(); });
       if (lenis.userData?.navigation && lenis.isScrolling === "smooth") { eligible = false; clearTimeout(timer); }
       else settle();
     };
@@ -266,17 +254,10 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
     const url = new URL(location.href); url.searchParams.set("scrollMode", selected);
     history.replaceState(history.state, "", url);
   };
-  const continueLabel = locale === "fr" ? "Continuer" : locale === "es" ? "Continuar" : "Continue";
-  const showContinue = released && !panel && next && ["hero", "film", "cards", "imagine", "partnership"].includes(active);
   const soundContext = useMemo(() => ({ enabled: sound, toggle: toggleSound }), [sound, toggleSound]);
 
   return <SoundContext.Provider value={soundContext}>
     {children}
-    {showContinue && <div className={styles.continueWrap} data-scroll-experience-ui>
-      <button type="button" className={styles.continue} onClick={() => move.current(next)} aria-label={`${continueLabel}: ${next.label}`}>
-        <span>{continueLabel}</span><ArrowDown aria-hidden="true" />
-      </button>
-    </div>}
     {review && <aside className={styles.review} data-scroll-experience-ui data-lenis-prevent>
       <button type="button" className={styles.reviewToggle} aria-label="Compare scroll" aria-expanded={panel} aria-controls="scroll-study-panel" onClick={() => setPanel(v => !v)}>
         <SlidersHorizontal aria-hidden="true" /><span>Compare scroll</span>

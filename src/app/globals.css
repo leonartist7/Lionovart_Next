@@ -190,6 +190,10 @@
   /* Shared chapter surfaces for utility classes and motion layers. */
   --site-surface-dark: #0a0a0a;
   --site-surface-light: #f7f4ef;
+  --brand-red-light: #c01020;
+  --brand-red-mid: #7a0010;
+  --brand-red-dark: #3d0008;
+  --brand-red-radial: radial-gradient(ellipse at 50% 50%, var(--brand-red-light) 0%, var(--brand-red-mid) 55%, var(--brand-red-dark) 100%);
   /* Process lion circle (the "i" dot). */
   --lion-circle-d: clamp(272px, 64vmin, 600px);
   --background: #0d0d0d;
