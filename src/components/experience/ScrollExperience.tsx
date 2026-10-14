@@ -7,6 +7,7 @@ import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { chooseScrollStop, parseScrollMode, readyToSettle, SCROLL_MODES, scrollEase, settleDuration, type ScrollMode, type ScrollScene, type ScrollStop } from "./scroll-policy";
+import { openingDocumentTop } from "../sections/lion-journey/opening-layout";
 import { SonicCues } from "./sonic";
 import styles from "./ScrollExperience.module.css";
 
@@ -86,7 +87,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
         const imagine = document.querySelector<HTMLElement>("[data-imagine-chapter]");
         const overlap = imagine ? Math.max(0, -parseFloat(getComputedStyle(imagine).marginTop)) : 0;
         const overflow = parseFloat(opening.style.getPropertyValue("--hero-overflow")) || 0;
-        const start = top(opening) + overflow;
+        const start = openingDocumentTop(opening, scrollY) + overflow;
         const extra = parseFloat(opening.style.getPropertyValue("--opening-benefit-overflow")) || 0;
         const frontExtra = parseFloat(opening.style.getPropertyValue("--opening-front-overflow")) || 0;
         const span = Math.max(1, opening.offsetHeight - (stage?.offsetHeight ?? innerHeight) - overlap - extra - frontExtra);
@@ -96,7 +97,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
         const openingStops: ScrollStop[] = [
           { id: "hero", label: "Opening", y: start, kind: "opening" },
           { id: "film", label: "Studio film", y: start + span * .36 / timelineScale, kind: "opening" },
-          { id: "cards", label: "LION · NOVA · ART", y: start + span * .84 / timelineScale, kind: "opening" },
+          { id: "cards", label: "LION · NOVA · ART", y: inlineBenefits && reduced ? top(opening.querySelector(".opening-video-anchor") ?? opening) - 80 : start + span * .84 / timelineScale, kind: "opening" },
         ];
         if (integratedImagine) openingStops.push({ id: "imagine", label: "Imagine", y: start + span * .9 + frontExtra, kind: "opening" });
         scenes.push({ start, end: start + span + frontExtra, extent: start + span + frontExtra + extra, timelineSpan: span, inlineBenefits,
@@ -243,6 +244,13 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
       if (!control || control.hasAttribute("data-experience-sound") || (event.relatedTarget instanceof Node && control.contains(event.relatedTarget))) return;
       sonic.current?.hover();
     };
+    const hashNavigation = () => {
+      pause();
+      if (!["#imagine", "#problems"].includes(location.hash)) return;
+      measure();
+      const stop = stops.find(s => s.id === "imagine");
+      if (stop) lenis.scrollTo(stop.y, { immediate: true, force: true, userData: { navigation: true } });
+    };
     const resize = () => { cancel(); cancelAnimationFrame(frame); frame = requestAnimationFrame(() => { frame = 0; measure(); }); };
     const observer = new ResizeObserver(resize);
     for (const selector of [".hero-opening", "[data-imagine-chapter]", "[data-work-runway]", "#services", "#about", "#process"]) {
@@ -260,7 +268,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
     window.addEventListener("pointerdown", pause);
     window.addEventListener("click", click, true);
     window.addEventListener("pointerover", hover, { passive: true });
-    window.addEventListener("hashchange", pause);
+    window.addEventListener("hashchange", hashNavigation);
     document.addEventListener("visibilitychange", visibility);
     void document.fonts.ready.then(() => { if (!disposed) resize(); });
     measure();
@@ -273,7 +281,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
       window.removeEventListener("touchcancel", touchEnd, true);
       lenis.off("scroll", onScroll); window.removeEventListener("resize", resize);
       window.removeEventListener("keydown", key); window.removeEventListener("pointerdown", pause);
-      window.removeEventListener("click", click, true); window.removeEventListener("hashchange", pause);
+      window.removeEventListener("click", click, true); window.removeEventListener("hashchange", hashNavigation);
       window.removeEventListener("pointerover", hover);
       document.removeEventListener("visibilitychange", visibility);
       delete document.documentElement.dataset.scrollOpeningStart;

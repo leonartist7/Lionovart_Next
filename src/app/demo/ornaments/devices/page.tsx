@@ -9,6 +9,6 @@ export default function DeviceReview(){
    <label>Viewport height <select value={height} onChange={e=>setHeight(Number(e.target.value))}>{[682,844,900,936].map(h=><option key={h} value={h}>{h}px</option>)}</select></label>
    <label>Section <select value={view} onChange={e=>setView(e.target.value)}><option value="/#about">Introduction</option><option value="/">Hero</option><option value="/#imagine">Imagine cards</option><option value="/#services">Services</option><option value="/#footer-compact">Footer</option><option value="/demo/ornaments/roar?roarWebGL">WebGL2 word</option><option value="/demo/ornaments/roar?roarFail">Poster fallback</option></select></label>
   </nav>
-  <iframe title="Website preview" src={view} style={{display:"block",width,height,border:0,background:"#08080a",marginTop:12}} />
+  <iframe key={view} title="Website preview" src={view} style={{display:"block",width,height,border:0,background:"#08080a",marginTop:12}} />
  </main>;
 }

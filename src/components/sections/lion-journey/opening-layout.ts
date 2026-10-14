@@ -27,3 +27,11 @@ export function inlineBenefitReadingPose(travel: number, span: number, overflow 
   const offset = clamp(travel - span * .84, overflow);
   return { progress: clamp((travel - offset) / Math.max(1, span)), offset };
 }
+
+/** The parent intro is sticky too; use its stable runway origin for navigation. */
+export function openingDocumentTop(opening: HTMLElement, pageScroll: number) {
+  const intro = opening.closest<HTMLElement>("[data-work-intro]");
+  const transition = opening.closest<HTMLElement>("[data-work-services-transition]");
+  const y = opening.getBoundingClientRect().top;
+  return intro && transition ? transition.getBoundingClientRect().top + pageScroll + y - intro.getBoundingClientRect().top : y + pageScroll;
+}

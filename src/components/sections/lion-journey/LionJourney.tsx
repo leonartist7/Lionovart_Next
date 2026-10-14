@@ -3,7 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { useMotionValue, type MotionValue } from "framer-motion";
 import { useLenis } from "lenis/react";
 import { clamp } from "./motion";
-import { openingReadingPose, inlineBenefitReadingPose } from "./opening-layout";
+import { openingReadingPose, inlineBenefitReadingPose, openingDocumentTop } from "./opening-layout";
 import styles from "./LionJourney.module.css";
 
 type ElementRef = RefObject<HTMLDivElement | null>;
@@ -58,7 +58,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       const bounds = opening.current.getBoundingClientRect();
       const stage = opening.current.querySelector<HTMLElement>(".hero-opening-stage");
       const overflow = Number.parseFloat(opening.current.style.getPropertyValue("--hero-overflow")) || 0;
-      const pinStart = bounds.top + scrollY + overflow;
+      const pinStart = openingDocumentTop(opening.current, scrollY) + overflow;
       const stageHeight = stage?.offsetHeight ?? innerHeight;
       const pinned = opening.current.dataset.openingMode === "pinned";
       const overlap = reveal.current ? Math.max(0, -parseFloat(getComputedStyle(reveal.current).marginTop)) : 0;

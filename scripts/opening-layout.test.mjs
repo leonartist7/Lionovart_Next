@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {usesLandscapeFilm,openingReadingPose,openingFrameCenters,inlineBenefitReadingPose} from '../src/components/sections/lion-journey/opening-layout.ts';
+import {usesLandscapeFilm,openingReadingPose,openingFrameCenters,inlineBenefitReadingPose,openingDocumentTop} from '../src/components/sections/lion-journey/opening-layout.ts';
 import {chooseScrollStop} from '../src/components/experience/scroll-policy.ts';
 
 test('medium laptop/tablet and landscape phone get the horizontal film',()=>{
@@ -57,4 +57,11 @@ test('one card scene settles from film, protects reading, then leaves for partne
  assert.equal(choose(900,840,1,{end:1240,frontReading:{start:840,end:1080}}),undefined);
  assert.equal(choose(960,1080,-1,{end:1240,frontReading:{start:840,end:1080}}),undefined);
  assert.equal(choose(1180,1080,1,{end:1240,frontReading:{start:840,end:1080}})?.id,'partnership');
+});
+
+test('card anchors retain their document origin while the intro parent is sticky',()=>{
+ const node=(openingY,introY,transitionY)=>({getBoundingClientRect:()=>({top:openingY}),closest:s=>({getBoundingClientRect:()=>({top:s.includes('intro')?introY:transitionY})})});
+ assert.equal(openingDocumentTop(node(120,100,100),0),120);
+ assert.equal(openingDocumentTop(node(-980,-1000,-4900),5000),120);
+ assert.equal(openingDocumentTop({getBoundingClientRect:()=>({top:-80}),closest:()=>null},200),120);
 });
