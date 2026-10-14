@@ -71,10 +71,6 @@ try {
     await dismissExit();
     await page.waitForFunction(() => document.querySelectorAll('[data-closing-media-wall] img[data-loaded="true"]').length >= 3, {}, {timeout:30000});
     await page.screenshot({path:`verification-output/closing-cta/${config.width}-${config.motion}.png`});
-    if ((config.width===390 && config.motion==="reduce") || config.width===1440) {
-      const shot = await page.screenshot({type:"jpeg",quality:45});
-      console.log(`CTA_PREVIEW_${config.width}:${shot.toString("base64")}`);
-    }
     const button = page.locator("#closing-cta button").first();
     await button.focus();
     assert.ok(await button.evaluate(n => n === document.activeElement),"CTA accepts keyboard focus");

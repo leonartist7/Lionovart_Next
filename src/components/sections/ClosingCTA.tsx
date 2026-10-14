@@ -59,8 +59,9 @@ function CompactClosing({ words, onStart, lionDock, chapterInJourney }: { words:
 }
 
 /**
- * ClosingCTA — the single, canonical page close. Cinematic video backdrop +
- * the kinetic cycling-words headline + one liquid-metal button that opens Nova.
+ * ClosingCTA — the single, canonical page close. The homepage adds a curved
+ * portfolio media wall; service pages retain their cinematic video backdrop.
+ * The kinetic headline and liquid-metal button open Nova.
  * Used once per page (the footer is now navigation/legal only), so pages never
  * double-close. `crest` adds the brand crest beside the button (branding page).
  */

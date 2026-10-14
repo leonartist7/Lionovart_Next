@@ -16,3 +16,27 @@ Implementation: `ClosingMediaWall.tsx` and its CSS module. The gallery is decora
 - Offscreen / hidden tab / pre-reveal: no animation loop. Images load only when revealed.
 - Unmount: observers, motion subscription, listeners and animation frame are released.
 - CSS perspective also works without WebGL.
+
+## Framework adaptation
+
+The supplied standalone demo uses Three.js r128 and dat.GUI 0.7.9 as CDN globals, with Vite ^8.1.3 as a development dependency. Those globals and the demo's full-page canvas/overflow rules are not suitable for this section-scoped Next.js integration. The project already has Three.js ^0.185.1 for the lion; the gallery uses CSS perspective and existing React APIs, with no additional dependency or WebGL context.
+
+All runtime images are existing project Cloudinary showcase assets, requested at 480 px with automatic format and eco quality. The reference's unrelated MOV films and font names are not required by this adaptation.
+
+## Verification
+
+Production build/type checking and changed-component ESLint passed. Playwright passed at 320×740, 390×844, 768×1024, 1366×768 and 1440×900, including a separate 390×844 touch configuration. Verified image loading, the real keyboard-activated Nova CTA, desktop pointer perspective, responsive plane counts, zero horizontal overflow, no uncaught browser errors, offscreen pausing and static reduced motion.
+
+Full interaction run: https://github.com/leonartist7/Lionovart_Next/actions/runs/38636319490
+
+Unobstructed phone/laptop visual review: https://github.com/leonartist7/Lionovart_Next/actions/runs/38636978092
+
+The temporary branch-only CI workflow was removed after verification. To rerun the retained test with the application dependencies installed:
+
+```sh
+npm install --no-save --package-lock=false playwright@1.56.1
+npx playwright install chromium
+node scripts/verify-closing-cta.mjs
+```
+
+The test starts its own local development server on port 3000, closes the existing exit prompt through its real dismiss button, saves screenshots under verification-output/closing-cta, and stops the server and browser afterward.
