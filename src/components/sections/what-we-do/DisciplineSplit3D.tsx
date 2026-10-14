@@ -149,6 +149,7 @@ function Pane({
 }) {
   const [backVisible, setBackVisible] = useState(false);
   useMotionValueEvent(benefitProgress, "change", p => setBackVisible(!reducedMotion && p >= .5));
+  const showBack = !reducedMotion && backVisible;
   const benefitRotation = useTransform(benefitProgress, p => reducedMotion ? 0 : p * 180);
   const splitP = useLocalProgress(flip, HANDOFF_START, HANDOFF_END);
   const cardP = splitP;
@@ -176,7 +177,7 @@ function Pane({
   return (
     <motion.div
       ref={registerPane}
-      data-card-face={backVisible ? "imagine" : "discipline"}
+      data-card-face={showBack ? "imagine" : "discipline"}
       className="opening-glass-pane relative min-h-0 min-w-0 flex-1 [--opening-art-size:clamp(8.5rem,42vw,10rem)]"
       style={{
         x: paneX,
@@ -210,7 +211,7 @@ function Pane({
             rotating back-face entering the composition. */}
         <div
           className={`absolute inset-0 z-[1] overflow-hidden rounded-[inherit] ${styles.frontFace}`}
-          aria-hidden={backVisible} inert={backVisible}
+          aria-hidden={showBack} inert={showBack}
           style={{
             background: `linear-gradient(135deg, ${FACE_TINTS[i]}, rgba(4,4,6,0.94) 72%)`,
             boxShadow: `inset 0 1px 0 rgba(255,255,255,0.22), inset 0 0 34px ${EDGE_TINTS[i]}22, 0 24px 48px -28px rgba(0,0,0,0.95)`,
@@ -360,7 +361,7 @@ function Pane({
             <p className={styles.body}>{card.body}</p>
           </motion.div>
         </div>
-        <div className={styles.backFace} aria-hidden={!backVisible} inert={!backVisible}>
+        <div className={styles.backFace} aria-hidden={!showBack} inert={!showBack}>
           <ImagineCardFace index={i} />
         </div>
       </motion.div>
@@ -978,8 +979,8 @@ export default function DisciplineSplit3D({
           </motion.div>
           {pinned && <motion.div ref={proofRef} className="opening-proof-stage" style={{ opacity: reduce ? 1 : proofPresence, transform: proofTransform }}>
             <div className={styles.captionStack}>
-              <motion.div className={styles.captionLayer} style={{ opacity: badgeOpacity }} aria-hidden={imagineVisible} inert={imagineVisible}><OpeningProof /></motion.div>
-              <motion.header id="problems" data-nova-section="problems" className={`${styles.captionLayer} ${styles.imagineCaption}`} style={{ opacity: reduce ? 0 : captionOpacity }} aria-hidden={!imagineVisible} inert={!imagineVisible}>
+              <motion.div className={styles.captionLayer} style={{ opacity: reduce ? 1 : badgeOpacity }} aria-hidden={!reduce && imagineVisible} inert={!reduce && imagineVisible}><OpeningProof /></motion.div>
+              <motion.header id="problems" data-nova-section="problems" className={`${styles.captionLayer} ${styles.imagineCaption}`} style={{ opacity: reduce ? 0 : captionOpacity }} aria-hidden={reduce || !imagineVisible} inert={reduce || !imagineVisible}>
                 <span id="imagine" aria-hidden="true" />
                 <div id="imagine-heading"><ImagineHeading /></div>
               </motion.header>
