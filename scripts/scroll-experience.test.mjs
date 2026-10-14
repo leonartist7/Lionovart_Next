@@ -98,3 +98,11 @@ for (const viewport of [600, 844, 936, 1024]) {
     assert.equal(pick(.94, -1)?.id, 'imagine', 'reverse arrives at the complete back face first');
   });
 }
+
+test('the expanded mobile Imagine stack reads naturally in both directions',()=>{
+ const stops=[{id:'film',y:900,kind:'opening'},{id:'cards',y:2100,kind:'opening'},{id:'imagine',y:3600,kind:'opening'}];
+ const context={mode:'settle',viewport:844,scenes:[{start:0,end:4000,extent:4700,kind:'opening',stops}],boundaries:[]};
+ assert.equal(chooseScrollStop({...context,y:3800,gestureStart:3830,direction:-1}),undefined);
+ assert.equal(chooseScrollStop({...context,y:4250,gestureStart:4220,direction:1}),undefined);
+ assert.equal(chooseScrollStop({...context,y:3500,gestureStart:3540,direction:-1})?.id,'cards');
+});

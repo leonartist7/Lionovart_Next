@@ -9,6 +9,7 @@ type ElementRef = RefObject<HTMLDivElement | null>;
 interface JourneyContext {
   opening: ElementRef;
   openingProgress: MotionValue<number>;
+  benefitScroll: MotionValue<number>;
   arrivalProgress: MotionValue<number>;
   backdropOpacity: MotionValue<number>;
   hero: RefObject<HTMLElement | null>; cta: ElementRef; copy: ElementRef; video: ElementRef;
@@ -33,6 +34,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
   const coverage = useRef(0), update = useRef<() => void>(() => {});
   const opening = useRef<HTMLDivElement>(null);
   const openingProgress = useMotionValue(0);
+  const benefitScroll = useMotionValue(0);
   const arrivalProgress = useMotionValue(0);
   const backdropOpacity = useMotionValue(1);
   const progress = useMotionValue(0);
@@ -43,9 +45,9 @@ export default function LionJourney({ children }: { children: ReactNode }) {
   const setRevealSection = useCallback((node: HTMLElement | null) => { reveal.current = node; }, []);
   const setReveal = useCallback((value: number) => { coverage.current = value; update.current(); }, []);
   const setDialogOpen = useCallback((value: boolean) => { paused.set(value); }, [paused]);
-  const context = useMemo(() => ({ opening, openingProgress, arrivalProgress, backdropOpacity, hero, cta, copy, video, videoSection, proof, bridge, progress, paused,
+  const context = useMemo(() => ({ opening, openingProgress, benefitScroll, arrivalProgress, backdropOpacity, hero, cta, copy, video, videoSection, proof, bridge, progress, paused,
     setVideo, setVideoSection, setRevealSection, setReveal, setDialogOpen,
-  }), [progress, paused, openingProgress, arrivalProgress, backdropOpacity, setVideo, setVideoSection, setRevealSection, setReveal, setDialogOpen]);
+  }), [progress, paused, openingProgress, benefitScroll, arrivalProgress, backdropOpacity, setVideo, setVideoSection, setRevealSection, setReveal, setDialogOpen]);
   // The opening timeline drives the hero, rays and film independently of 3D.
   // Removing the lion must never freeze those transitions or mask the title.
   useEffect(() => {
@@ -60,7 +62,11 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       const pinned = opening.current.dataset.openingMode === "pinned";
       const overlap = reveal.current ? Math.max(0, -parseFloat(getComputedStyle(reveal.current).marginTop)) : 0;
       arrivalProgress.set(reveal.current ? clamp(1 - reveal.current.getBoundingClientRect().top / innerHeight) : 0);
-      const openingP = pinned ? clamp(((lenis?.scroll ?? scrollY) - pinStart) / Math.max(1, bounds.height - stageHeight - overlap)) : 0;
+      const extra = Number.parseFloat(opening.current.style.getPropertyValue("--opening-benefit-overflow")) || 0;
+      const span = Math.max(1, bounds.height - stageHeight - overlap - extra);
+      const travel = (lenis?.scroll ?? scrollY) - pinStart;
+      const openingP = pinned ? clamp(travel / span) : 0;
+      benefitScroll.set(Math.max(0, Math.min(extra, travel - span * .9)));
       openingProgress.set(openingP);
       progress.set(clamp(openingP * 1.6 / .49));
       // The dark opening ends at Imagine; its rounded cap has a clear surround.
@@ -95,7 +101,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       window.removeEventListener("pageshow", schedule);
       update.current = () => {};
     };
-  }, [progress, openingProgress, arrivalProgress, backdropOpacity, lenis]);
+  }, [progress, openingProgress, benefitScroll, arrivalProgress, backdropOpacity, lenis]);
   return <Context.Provider value={context}><div ref={host} className={styles.journey}
     data-lion-journey data-lion-enabled="false" data-lion-active={active}>{children}</div></Context.Provider>;
 }

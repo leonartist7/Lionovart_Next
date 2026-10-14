@@ -1,5 +1,7 @@
 /** Reviewed French public UI copy. Source phrases are gettext-style keys. */
 const french: Record<string, string> = {
+  "Tap to reveal": "Toucher pour découvrir",
+  "Tap to close": "Toucher pour refermer",
   "The art of brand innovation": "L’art de l’innovation de marque",
   "Credibility comments citing design": "Avis de crédibilité évoquant le design",
   "Potential revenue lift from consistency": "Revenus potentiels d’une marque cohérente",

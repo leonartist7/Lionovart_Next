@@ -2,7 +2,7 @@
 
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { IMAGINE_BENEFITS } from "./imagine-benefits";
-import BenefitSculpture from "./BenefitSculpture";
+import { BenefitCard } from "./PawRevealStack";
 import styles from "./what-we-do/DisciplineSplit3D.module.css";
 
 export function ImagineHeading() {
@@ -11,16 +11,10 @@ export function ImagineHeading() {
 }
 
 export default function ImagineCardFace({ index }: { index: number }) {
-  const tr = usePublicCopy();
   const item = IMAGINE_BENEFITS[index];
   if (!item) return null;
-  return <div className={styles.benefitContent} data-imagine-card={index}>
-    <header><h3>{tr(item.detail)}</h3><p>{tr(item.body)}</p></header>
-    <div className={styles.benefitArtwork} aria-hidden="true"><BenefitSculpture kind={index} /></div>
-    <div className={styles.benefitDetails}>
-      <ul>{item.points.map(point => <li key={point}>{tr(point)}</li>)}</ul>
-      <p className={styles.benefitMetric}><strong>{item.stat.qualifier && <small>{tr(item.stat.qualifier)}</small>}{tr(item.stat.value)}<span>{item.stat.unit}</span></strong><span>{tr(item.stat.label)}</span></p>
-    </div>
+  return <div className={styles.imagineCardWrapper} data-imagine-card={index}>
+    <BenefitCard item={item} index={index} />
   </div>;
 }
 

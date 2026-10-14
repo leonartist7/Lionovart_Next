@@ -18,7 +18,7 @@ export function processLionPose(g: JourneyGeometry) {
   const progress = clamp(g.progress);
   const center = phase(progress, .16, .46);
   const arrival = center;
-  const centerY = mix(g.originY, g.viewportHeight * .68, center);
+  const centerY = mix(g.originY, g.viewportHeight * .28, center);
   return {
     progress,
     arrival,
@@ -30,9 +30,10 @@ export function processLionPose(g: JourneyGeometry) {
     processOpacity: 1 - phase(progress, .16, .34),
     x: mix(g.originX, g.dockX, center),
     y: centerY,
-    size: mix(g.railSize * .88, g.dockSize * .88, arrival),
+    size: mix(g.railSize * 1.02, g.dockSize * .96, arrival),
     turn: mix(.65, 0, center),
-    pitch: -.02,
+    pitch: mix(-.02, -.14, center),
+    opacity: mix(.8, 1, center),
   };
 }
 

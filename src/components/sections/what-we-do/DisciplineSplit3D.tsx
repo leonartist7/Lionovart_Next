@@ -148,7 +148,8 @@ function Pane({
   benefitProgress: MotionValue<number>;
 }) {
   const [backVisible, setBackVisible] = useState(false);
-  useMotionValueEvent(benefitProgress, "change", p => setBackVisible(!reducedMotion && p >= .5));
+  const [benefitReady, setBenefitReady] = useState(false);
+  useMotionValueEvent(benefitProgress, "change", p => { setBackVisible(!reducedMotion && p >= .5); setBenefitReady(p >= .98); });
   const showBack = !reducedMotion && backVisible;
   const benefitRotation = useTransform(benefitProgress, p => reducedMotion ? 0 : p * 180);
   const splitP = useLocalProgress(flip, HANDOFF_START, HANDOFF_END);
@@ -163,8 +164,8 @@ function Pane({
   // lean while the middle counters it. The effect gives depth without making
   // any card look like a separate panel sitting on top of another.
   const cardLean = i === 1 ? -8 : 8;
-  const paneRotateY = useTransform(splitP, (p) => (isDesktop && !reducedMotion ? cardLean * p : 0));
-  const paneRotateX = useTransform(splitP, (p) => (isDesktop || reducedMotion ? 0 : cardLean * p));
+  const paneRotateY = useTransform(splitP, (p) => (!reducedMotion ? cardLean * p : 0));
+  const paneRotateX = useTransform(splitP, () => 0);
   const innerRadius = useTransform(splitP, (p) => 18 * p);
   const outerRadius = useTransform(splitP, (p) => 16 + 2 * p);
 
@@ -361,7 +362,7 @@ function Pane({
             <p className={styles.body}>{card.body}</p>
           </motion.div>
         </div>
-        <div className={styles.backFace} aria-hidden={!showBack} inert={!showBack}>
+        <div className={styles.backFace} aria-hidden={!showBack} inert={!showBack || !benefitReady}>
           <ImagineCardFace index={i} />
         </div>
       </motion.div>
@@ -449,6 +450,8 @@ export default function DisciplineSplit3D({
      is a direct useTransform of scrollYProgress, not a triggered timeline. --- */
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
   const scrollFlip = useTransform(scrollYProgress, [SPLIT_START, SPLIT_FINISH], [0, 1], { clamp: true });
+  const emptyBenefitScroll = useMotionValue(0);
+  const benefitScroll = journey?.benefitScroll ?? emptyBenefitScroll;
   const rawOpeningProgress = journey?.openingProgress ?? scrollYProgress;
   // Keep the original film choreography; reserve the final third for Imagine.
   const openingProgress = useTransform(rawOpeningProgress, p => Math.min(1, p * 1.6));
@@ -467,21 +470,23 @@ export default function DisciplineSplit3D({
   // Switch from the native film to matching pane crops while still joined.
   const joinedFilmOpacity = useTransform(flip, p => p <= HANDOFF_START ? 1 : 0);
   const filmTransform = "translateX(-50%)";
-  const cardTransform = useTransform(flip, (p) => {
+  const cardTransform = useTransform(() => {
+    const p = flip.get();
     if (!filmFrame) return "none";
     if (reduce) return `translateY(${filmFrame.centerOffset}px) scale(${FINAL_FRAME_SCALE})`;
     const geometry = handoffGeometry(filmFrame, p);
-    return `translateY(${geometry.glassOffset}px) scale(${geometry.glassX}, ${geometry.glassY})`;
+    return `translateY(${geometry.glassOffset - benefitScroll.get()}px) scale(${geometry.glassX}, ${geometry.glassY})`;
   });
   // Opaque card bases prevent a dark dip beneath the fading film crops.
   // Trust enters with the parked film and is complete before the split.
   const proofPresence = useTransform(openingProgress, [.23, .36, .48], [0, .8, 1], { ease: FRAME_EASE });
-  const proofTransform = useTransform(flip, (p) => {
+  const proofTransform = useTransform(() => {
+    const p = flip.get();
     if (!filmFrame) return "none";
     const geometry = handoffGeometry(filmFrame, p);
     const offset = geometry.glassOffset;
     const height = reduce ? filmFrame.stageHeight * FINAL_FRAME_SCALE : geometry.height;
-    return `translateY(${offset + (height - filmFrame.stageHeight) / 2}px)`;
+    return `translateY(${offset + (height - filmFrame.stageHeight) / 2 - benefitScroll.get()}px)`;
   });
   // Let taller phones show more of the film without crowding the invitation.
   // The settled card and proof assembly moves as one, with the short-screen
@@ -533,13 +538,17 @@ export default function DisciplineSplit3D({
     const navClearance = Number.parseFloat(openingStyles?.getPropertyValue("--hero-nav-clearance") || "") || 100;
     const safeTop = pinned ? navClearance + 16 : 24;
     const safeBottom = viewport - 24;
-    const stageWidth = stage.offsetWidth, stageHeight = stage.offsetHeight;
+    const stageWidth = stage.offsetWidth;
+    const frontHeight = Array.from(stage.querySelectorAll<HTMLElement>(".opening-pane-sizing")).reduce((total, el) => total + el.offsetHeight, 0);
+    const stageHeight = landscape ? stage.offsetHeight : Math.max(1, frontHeight);
+    const anchor = stage.closest<HTMLElement>(".opening-video-anchor");
+    anchor?.style.setProperty("--opening-front-height", `${stageHeight}px`);
     const centerPercent = work ? Number.parseFloat(getComputedStyle(work).getPropertyValue("--opening-video-center")) || 41 : 50;
     const stageCenter = pinned ? viewport * (centerPercent + Number.parseFloat(settledY)) / 100 : viewport / 2;
     const finalHeight = stageHeight * FINAL_FRAME_SCALE;
     const splitAllowance = landscape ? 12 : Math.min(28, viewport * 0.026);
     const proof = proofRef.current;
-    const proofGap = proof ? Number.parseFloat(getComputedStyle(proof).top) - stageHeight : 0;
+    const proofGap = proof ? Number.parseFloat(getComputedStyle(proof).top) - stage.offsetHeight : 0;
     const proofReserve = proof ? proof.offsetHeight + Math.max(0, proofGap) : 0;
     const minCenter = safeTop + splitAllowance + finalHeight / 2;
     const maxCenter = safeBottom - splitAllowance - proofReserve - finalHeight / 2;
@@ -580,6 +589,32 @@ export default function DisciplineSplit3D({
     landscape.addEventListener("change", selectSource);
     return () => landscape.removeEventListener("change", selectSource);
   }, [video, mobileVideo, videoFallback, mobileVideoFallback, poster, mobilePoster]);
+
+  useEffect(() => {
+    const opening = sectionRef.current?.closest<HTMLElement>(".hero-opening-pinned");
+    const stage = stageRef.current;
+    if (!opening || !stage || !pinned) return;
+    let frame = 0;
+    const measureBenefits = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const cards = Array.from(stage.querySelectorAll<HTMLElement>("[data-imagine-card]"));
+        const height = cards.reduce((total, card) => total + Math.max(352, card.offsetHeight), 0);
+        const extra = isDesktop || reduce ? 0 : Math.max(0, height + (proofRef.current?.offsetHeight ?? 148) + 140 - innerHeight);
+        const value = `${Math.ceil(extra)}px`;
+        if (opening.style.getPropertyValue("--opening-benefit-overflow") !== value) {
+          opening.style.setProperty("--opening-benefit-overflow", value);
+          window.dispatchEvent(new Event("resize"));
+        }
+      });
+    };
+    const observer = new ResizeObserver(measureBenefits);
+    stage.querySelectorAll<HTMLElement>("[data-imagine-card]").forEach(card => observer.observe(card));
+    if (proofRef.current) observer.observe(proofRef.current);
+    window.addEventListener("resize", measureBenefits);
+    measureBenefits();
+    return () => { observer.disconnect(); cancelAnimationFrame(frame); window.removeEventListener("resize", measureBenefits); };
+  }, [isDesktop, pinned, reduce]);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -838,6 +873,7 @@ export default function DisciplineSplit3D({
       data-opening-layout={isDesktop ? "horizontal" : "vertical"}
       id={pinned ? undefined : "what-we-build"}
       data-cards-armed={armed}
+      data-imagine-interactive={imagineVisible}
       data-film-active={filmActive}
       className={journey ? "relative lion-video-section" : "relative isolate"}
       style={{

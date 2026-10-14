@@ -40,7 +40,7 @@ export function chooseScrollStop({ mode, y, gestureStart, direction, viewport, s
         if (Math.abs(y - gestureStart) < 12) return;
         if (direction > 0 && p >= .27 / 1.6 && p < .36 / 1.6) return scene.stops.find(s => s.id === "film");
         if (direction < 0 && p > .36 / 1.6 && p <= .49 / 1.6) return scene.stops.find(s => s.id === "film");
-        if (direction < 0 && p >= .9 && p <= .96) return scene.stops.find(s => s.id === "imagine");
+        if (direction < 0 && p >= .9 && p <= .96 && (scene.extent ?? scene.end) <= scene.end) return scene.stops.find(s => s.id === "imagine");
         return;
       }
       // Every released gesture inside the split finishes in its direction.

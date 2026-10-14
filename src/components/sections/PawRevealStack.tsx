@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
 import Image from "next/image";
 import { Check, Minus, Plus } from "lucide-react";
@@ -18,7 +18,7 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 const PULL_EASE = [0.32, 0.72, 0, 1] as const;
 const PAW_TIMING = { enter: .45, pull: 1.2, return: 1.05, exit: .35 } as const;
 const BENEFITS = IMAGINE_BENEFITS;
-function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: number }) {
+export function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: number }) {
   const tr = usePublicCopy();
   const reduced = useHydratedReducedMotion();
   const [phase, setPhase] = useState<"closed" | "revealing" | "open" | "closing">("closed");
@@ -26,7 +26,8 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
   const trigger = useRef<HTMLButtonElement>(null);
   const cover = useAnimation();
   const paw = useAnimation();
-  const panelId = `imagine-result-${index}`;
+  const instanceId = useId();
+  const panelId = `imagine-result-${index}-${instanceId}`;
   const open = phase === "open";
   const showBenefit = phase === "revealing" || open;
   const busy = phase === "revealing" || phase === "closing";
@@ -99,6 +100,7 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
     <button ref={trigger} type="button" className={styles.cardToggle} aria-expanded={open || phase === "closing"} aria-controls={panelId}
       aria-label={`${tr(open ? "Hide benefit" : "Reveal benefit")}: ${tr(item.title)}`} disabled={busy}
       onClick={event => void toggle(event.detail === 0)}>
+      <span className={styles.tapLabel}>{tr(open ? "Tap to close" : "Tap to reveal")}</span>
       <span className={styles.toggleIcon}>{open ? <Minus aria-hidden="true" /> : <Plus aria-hidden="true" />}</span>
     </button>
   </article>;

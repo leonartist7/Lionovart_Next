@@ -87,7 +87,8 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
         const overlap = imagine ? Math.max(0, -parseFloat(getComputedStyle(imagine).marginTop)) : 0;
         const overflow = parseFloat(opening.style.getPropertyValue("--hero-overflow")) || 0;
         const start = top(opening) + overflow;
-        const span = Math.max(1, opening.offsetHeight - (stage?.offsetHeight ?? innerHeight) - overlap);
+        const extra = parseFloat(opening.style.getPropertyValue("--opening-benefit-overflow")) || 0;
+        const span = Math.max(1, opening.offsetHeight - (stage?.offsetHeight ?? innerHeight) - overlap - extra);
         const integratedImagine = opening.dataset.openingImagine === "true";
         const timelineScale = integratedImagine ? 1.6 : 1;
         const openingStops: ScrollStop[] = [
@@ -96,7 +97,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
           { id: "cards", label: "LION · NOVA · ART", y: start + span * .84 / timelineScale, kind: "opening" },
         ];
         if (integratedImagine) openingStops.push({ id: "imagine", label: "Imagine", y: start + span * .9, kind: "opening" });
-        scenes.push({ start, end: start + span, kind: "opening", stops: openingStops });
+        scenes.push({ start, end: start + span, extent: start + span + extra, kind: "opening", stops: openingStops });
         stops.push(...openingStops);
         document.documentElement.dataset.scrollOpeningStart = String(start);
         document.documentElement.dataset.scrollOpeningEnd = String(start + span);

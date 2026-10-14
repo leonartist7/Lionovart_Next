@@ -18,7 +18,7 @@
   top: var(--scene-top, 0px);
   min-height: 100svh;
 }
-.journey[data-motion="true"] .process { grid-area: 1 / 1; align-self: start; z-index: 3; }
+.journey[data-motion="true"] .process { grid-area: 1 / 1; align-self: start; z-index: 5; }
 .journey[data-motion="true"] .closingSurface {
   grid-area: 1 / 1;
   align-self: stretch;
@@ -29,8 +29,8 @@
 .journey[data-motion="true"] .ctaContent { height: 100svh; }
 .journey[data-motion="true"] :global([data-closing-copy]),
 .journey[data-motion="true"] :global([data-closing-stage]) { opacity: var(--cta-copy-opacity, 0); }
-.journey[data-motion="true"] :global(#closing-cta) { height: 100%; padding-top: max(4.5rem, 8svh); }
-.journey[data-motion="true"] :global([data-closing-lion]) { position: absolute; top: 68%; left: 0; width: 100%; margin: 0; padding: 0; transform: translateY(-50%); }
+.journey[data-motion="true"] :global(#closing-cta) { height: 100%; padding-top: 0; background: transparent; }
+.journey[data-motion="true"] :global([data-closing-lion]) { position: absolute; top: 28%; left: 0; width: 100%; margin: 0; padding: 0; transform: translateY(-50%); }
 .journey[data-motion="true"] .veil { opacity: 1; }
 .lionViewport {
   --process-pad: clamp(1.25rem, 4vw, 3rem);
@@ -40,14 +40,14 @@
   left: 0;
   width: 100%;
   height: 100svh;
-  z-index: 20;
+  z-index: 3;
   overflow: clip;
   pointer-events: none;
 }
 .canvas { position: absolute; inset: 0; opacity: 0; }
 .canvas canvas { display: block; width: 100%; height: 100%; }
-.travellingPoster { position: absolute; top: 0; left: 0; width: 1px; height: 1px; object-fit: contain; }
-.lionViewport[data-ready="true"] .canvas { opacity: 1; }
+.travellingPoster { position: absolute; top: 0; left: 0; width: 1px; height: 1px; object-fit: contain; opacity: var(--lion-opacity, .8); }
+.lionViewport[data-ready="true"] .canvas { opacity: var(--lion-opacity, .8); }
 .lionViewport[data-ready="true"] .travellingPoster { visibility: hidden; }
 .process { position: relative; padding: clamp(4rem, 8svh, 7rem) var(--process-pad) var(--process-tail, 4rem); color: #f7f4ef; }
 .inner { max-width: 90rem; margin-inline: auto; }
@@ -62,7 +62,7 @@
   letter-spacing: -.045em;
   text-wrap: balance;
 }
-.heading span { color: #c7a86a; }
+.heading span { color: #e5192a; font-family: var(--font-playfair-display), Georgia, serif; font-style: italic; font-weight: 400; text-transform: none; }
 .processGrid { display: grid; grid-template-columns: var(--process-rail) minmax(0, 1fr); gap: var(--process-gap); }
 .rail { min-width: 0; margin-bottom: calc(var(--process-rail) / -2); }
 .origin {
@@ -96,8 +96,8 @@
   font-variant-numeric: tabular-nums;
 }
 .step[data-completed="true"] .ring, .step[data-completed="true"] .stepNumber > span { opacity: 1 !important; }
-.step[data-completed="true"] .stepNumber > span { color: #fff1b4; }
-.stepNumber > span { position: relative; z-index: 1; color: #f7f4ef; }
+.step[data-completed="true"] .stepNumber > span { color: #e5192a; }
+.stepNumber > span { position: relative; z-index: 1; color: #f7f4ef; opacity: 1 !important; transition: color 220ms ease; }
 .numberShine {
   position: absolute;
   inset: 0;
@@ -135,10 +135,10 @@
   color: rgb(247 244 239 / 72%);
 }
 .closingSurface { position: relative; background: var(--site-surface-light, #f2ede3); }
-.ctaContent { position: relative; z-index: 1; }
+.ctaContent { position: relative; z-index: 4; }
 .chapter {
   position: absolute;
-  top: clamp(4.5rem, 10svh, 7rem);
+  top: 56svh;
   left: 0;
   width: 100%;
   margin: 0;
@@ -158,7 +158,7 @@
 .chapter span + span { margin-top: .08em; font-size: 1.1em; }
 .chapter[data-locale="fr"] { font-size: clamp(1.75rem, 7vw, 6.5rem); }
 .veil { position: absolute; inset: 0; z-index: 2; background: #08080a; opacity: 0; pointer-events: none; }
-.dock { position: relative; width: min(clamp(9rem, 28vw, 18rem), clamp(7.5rem, 22svh, 16rem)); aspect-ratio: 1; margin-inline: auto; }
+.dock { position: relative; width: min(clamp(12rem, 32vw, 22rem), clamp(10rem, 28svh, 20rem)); aspect-ratio: 1; margin-inline: auto; }
 .staticPoster { position: absolute; top: -9.4%; left: -9.4%; width: 118.8%; height: 118.8%; object-fit: contain; transform: scaleX(-1); visibility: visible; }
 .journey[data-static="true"] .runway { display: none; }
 .journey[data-static="true"] .scene { display: block; position: relative; top: auto; min-height: 0; }

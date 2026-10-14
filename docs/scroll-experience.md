@@ -65,3 +65,9 @@ especially native flick momentum and media playback under low-power mode.
 The opening stage now contains three reading stops: joined film at 22.5%, discipline cards at 52.5%, and Imagine backs at 90%. The original film/card timing is mapped into the first 62.5% of the longer stage. Between 68% and 86%, the same glass cards rotate to their benefit faces; the Imagine title and subtitle replace the proof badges beneath them. Release settling completes this second flip in either direction. The separate red Imagine chapter and review offer are removed from the homepage. Reduced motion exposes the benefits in a static list. The remaining partnership circle uses the original #f51b2c red.
 
 Process rows are approximately one third shorter; the measured fourth-step tail is retained and the lion/CTA runway is reduced from 150svh to 120svh.
+
+## Full reveal cards and top CTA composition
+
+Imagine reuses the original BenefitCard, including its gold seam, sculpture, paw animation, benefit/stat panel and visible Tap to reveal/close control. Mobile faces retain the Y-axis flip and expand to a readable 22rem minimum at the edge of the turn. A measured overflow runway then moves the same mounted stack and caption at one pixel per scroll pixel; reversing through this reading area does not skip cards. Extra height is excluded from the film/flip timeline so resizing the backs does not shift the earlier stops.
+
+Process completion derives from the current scroll position: passed digits become red, then return to white on reverse scroll. The process accent is red Playfair Display italic. The larger lion starts at 80% opacity, arrives above the copy at 28% viewport height at full opacity, and looks slightly upward. The lion is layered behind the lower chapter/CTA copy; cycling words occupy the middle and the action stays at the bottom.
