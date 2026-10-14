@@ -1,58 +1,39 @@
 "use client";
 
+import Image from "next/image";
+import { Link } from "@/i18n/navigation";
 import GoldThreads from "@/components/ui/GoldThreads";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePublicCopy } from "@/hooks/usePublicCopy";
 import styles from "./CompactIntroduction.module.css";
 
-// Preserve the current homepage's credibility figures; this layout change
-// does not establish their provenance or turn them into new client results.
 const STAT_VALUES = ["15+", "10+", "100%"];
 
 export default function CompactIntroduction() {
   const { t } = useLanguage();
+  const tr = usePublicCopy();
   const copy = t.compactComparison;
-
   return (
-    <section id="about" aria-labelledby="innovation-heading" className={styles.section} data-scroll-title-skip>
+    <section id="about" aria-labelledby="innovation-heading" className={styles.section} data-scroll-title-skip data-nav-surface="light">
       <GoldThreads />
       <div className={styles.grid}>
         <div className={styles.copy}>
           <h2 id="innovation-heading" className={styles.heading}>
             {copy.heading}<br /><span>{copy.headingAccent}</span>
           </h2>
-          <p className={styles.description}>{copy.description}</p>
+          <p className={styles.description}>{tr("I’m Leonardo, founder and creative director of LIONOVART. I work with you directly, from the first conversation to the final details.")}</p>
+          <p className={styles.description}>{tr("Brand identity, film and digital experiences come together around one clear direction. When your project needs specialist skills, I bring the right people into the work.")}</p>
+          <Link href="/about#founder" className={styles.link} data-sound-hover>
+            {tr("Get to know me")}<span aria-hidden="true">↗</span>
+          </Link>
           <dl className={styles.stats}>
-            {copy.stats.map((label, index) => (
-              <div key={label}>
-                <dt>{label}</dt>
-                <dd>{STAT_VALUES[index]}</dd>
-              </div>
-            ))}
+            {copy.stats.map((label, index) => <div key={label}><dt>{label}</dt><dd>{STAT_VALUES[index]}</dd></div>)}
           </dl>
         </div>
-
-        <div id="comparison" data-nova-section="comparison" className={styles.comparison}>
-          <table className={styles.table}>
-            <caption className={styles.srOnly}>{copy.caption}</caption>
-            <colgroup><col className={styles.brandColumn} /><col /></colgroup>
-            <thead><tr>
-              <th id="compact-lionovart" scope="col">LIONOVART</th>
-              <th id="compact-others" scope="col">{copy.others}</th>
-            </tr></thead>
-            {copy.rows.map((row, index) => (
-              <tbody key={row.topic}>
-                <tr><th id={`compact-topic-${index}`} scope="rowgroup" colSpan={2} className={styles.topic}><span>{row.topic}</span></th></tr>
-                <tr>
-                  <td headers={`compact-lionovart compact-topic-${index}`}>{row.lionovart}</td>
-                  <td headers={`compact-others compact-topic-${index}`}>{row.others}</td>
-                </tr>
-              </tbody>
-            ))}
-          </table>
-          <div className={styles.comparisonFooter}>
-            <p>{copy.scope}</p>
-          </div>
-        </div>
+        <figure className={styles.portrait}>
+          <Image src="/images/Leon-Studioshot.avif" alt={tr("Leonardo, founder and creative director of LIONOVART")} width={1024} height={1024} sizes="(max-width: 919px) 90vw, 42vw" className={styles.portraitImage} />
+          <figcaption>{tr("Leonardo / Founder & creative director")}</figcaption>
+        </figure>
       </div>
     </section>
   );

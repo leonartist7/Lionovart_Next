@@ -12,6 +12,7 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
+import Image from "next/image";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLenis } from "lenis/react";
 import { Menu, X } from "lucide-react";
@@ -269,20 +270,20 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
     let frame = 0;
     const sample = () => {
       frame = 0;
-      const stack = document.elementsFromPoint(Math.min(innerWidth - 20, innerWidth * .3), 38);
-      for (const element of stack) {
-        if (element.closest("[data-nav-tone]")) continue;
-        let node: Element | null = element;
-        while (node) {
-          const css = getComputedStyle(node);
-          const color = css.backgroundColor.match(/[\d.]+/g)?.map(Number);
-          if (Number(css.opacity) > .8 && color && (color.length === 3 || color[3] > .8)) {
-            setLightSurface(color[0] * .2126 + color[1] * .7152 + color[2] * .0722 > 155);
-            return;
-          }
-          node = node.parentElement;
-        }
-      }
+      // The opening stays white even when a cream card passes under the nav.
+      // Follow the section surface, rather than individual images and cards.
+      const surfaces = Array.from(document.querySelectorAll<HTMLElement>("[data-nav-surface]"));
+      const active = surfaces.reverse().find(node => {
+        const bounds = node.getBoundingClientRect();
+        return bounds.top <= 38 && bounds.bottom > 38 && getComputedStyle(node).visibility !== "hidden";
+      });
+      if (active) { setLightSurface(active.dataset.navSurface === "light"); return; }
+      // Other pages already declare their editorial surface.
+      const section = Array.from(document.querySelectorAll<HTMLElement>("[data-art-directed]")).reverse().find(node => {
+        const bounds = node.getBoundingClientRect();
+        return bounds.top <= 38 && bounds.bottom > 38;
+      });
+      if (section) { setLightSurface(section.dataset.artDirected === "light"); return; }
       setLightSurface(false);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sample); };
@@ -322,8 +323,9 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
           <div aria-hidden className={styles.glass} />
 
           <div className="relative mx-auto flex w-full items-center justify-between px-5 py-3 sm:px-8 xl:px-12 xl:py-4">
-            <Link href="/" aria-label="Lion of Art home" data-nav-logo className={styles.wordmark}>
-              Lion of Art
+            <Link href="/" aria-label="LIONOVART home" data-nav-logo className={styles.wordmark}>
+              <Image src="/images/Icon.avif" alt="" width={40} height={40} sizes="40px" priority className={styles.brandIcon} />
+              <span>LIONOVART</span>
             </Link>
 
             <AnimatePresence initial={false}>

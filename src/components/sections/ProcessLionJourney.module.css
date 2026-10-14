@@ -116,8 +116,10 @@
   text-shadow: 0 0 8px rgb(255 213 125 / 65%);
 }
 .stepCopy { min-width: 0; }
-.step[data-completed="true"] .stepCopy h3 { color: #e5192a; opacity: 1 !important; }
+.step[data-completed="true"] .stepCopy h3 { color: transparent; background: var(--proof-metal-gradient); background-clip: text; -webkit-background-clip: text; opacity: 1 !important; }
 .stepCopy h3 {
+  width: fit-content;
+  max-width: 100%;
   color: #f7f4ef;
   transition: color 240ms ease, opacity 240ms ease;
   margin: 0;

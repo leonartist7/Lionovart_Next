@@ -155,6 +155,7 @@ export default function ProcessLionJourney() {
       const visible = rootBounds.top < height && rootBounds.bottom > 0;
       // Once the sticky scene releases, the settled emblem scrolls away with its dock.
       if (pose.progress >= 1) pose.y = finish.top - viewBounds.top + finish.height / 2;
+      root.dataset.navSurface = pose.backgroundReveal >= .55 ? "light" : "dark";
       closingProgress.set(pose.progress);
       root.dataset.handoffProgress=String(pose.progress);
       view.style.visibility = visible ? "visible" : "hidden";
@@ -317,7 +318,7 @@ export default function ProcessLionJourney() {
   }, [staticMode, mounted, closingProgress, locale]);
 
   return <>
-    <div ref={host} className={styles.journey} data-process-lion-journey data-static={staticMode}>
+    <div ref={host} className={styles.journey} data-process-lion-journey data-nav-surface="dark" data-static={staticMode}>
     <div ref={viewport} className={styles.lionViewport} data-process-lion-viewport aria-hidden="true">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img ref={poster} className={styles.travellingPoster} src={LION_POSTER} alt="" width={900} height={900} loading="lazy" />
@@ -354,7 +355,7 @@ export default function ProcessLionJourney() {
         </div>
       </div>
     </section>
-    <div ref={closing} className={styles.closingSurface} data-nova-section="closing-cta">
+    <div ref={closing} className={styles.closingSurface} data-nav-surface={staticMode ? "light" : undefined} data-nova-section="closing-cta">
       {!staticMode && <p className="sr-only">{tr("Your next chapter, together")}</p>}
       <div ref={ctaContent} className={styles.ctaContent}>
         <ClosingRevealContext.Provider value={staticMode ? 1 : closingProgress}>

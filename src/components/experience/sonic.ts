@@ -3,6 +3,10 @@ export class SonicCues {
   private context: AudioContext | undefined;
   private lastChapter = -Infinity;
   private lastTap = -Infinity;
+  private lastHover = -Infinity;
+  private lastMovement = -Infinity;
+  private movement = 0;
+  private lastBreezeUpdate = 0;
   private heard = new Set<string>();
   private breeze: AudioBufferSourceNode | undefined;
   private breezeGain: GainNode | undefined;
@@ -30,7 +34,15 @@ export class SonicCues {
   tap() {
     if (performance.now() - this.lastTap < 180) return;
     this.lastTap = performance.now();
-    this.note(240, .07, .018);
+    this.note(240, .12, .012);
+  }
+
+  hover() {
+    const now = performance.now();
+    if (!this.enabled || now - this.lastHover < 1100 || now - this.lastMovement < 450) return;
+    this.lastHover = now;
+    this.note(392, .25, .006);
+    this.note(587.33, .32, .0025, .025);
   }
 
   chapter(id: string) {
@@ -44,7 +56,7 @@ export class SonicCues {
   private prepareBreeze() {
     const ctx = this.context;
     if (!ctx || this.breeze) return;
-    const buffer = ctx.createBuffer(2, Math.ceil(ctx.sampleRate * 3), ctx.sampleRate);
+    const buffer = ctx.createBuffer(2, Math.ceil(ctx.sampleRate * 8), ctx.sampleRate);
     for (let channel = 0; channel < 2; channel++) {
       const data = buffer.getChannelData(channel);
       let brown = 0;
@@ -57,7 +69,7 @@ export class SonicCues {
     }
     const source = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), gain = ctx.createGain();
     source.buffer = buffer; source.loop = true;
-    filter.type = "bandpass"; filter.frequency.value = 520; filter.Q.value = .45;
+    filter.type = "bandpass"; filter.frequency.value = 420; filter.Q.value = .35;
     gain.gain.value = 0;
     source.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
     source.start();
@@ -67,20 +79,39 @@ export class SonicCues {
   scroll(velocity: number) {
     const ctx = this.context, gain = this.breezeGain;
     if (!this.enabled || !ctx || !gain || ctx.state !== "running" || document.hidden) return;
-    const movement = Math.min(1, Math.abs(velocity) / 18);
-    gain.gain.cancelScheduledValues(ctx.currentTime);
-    gain.gain.setTargetAtTime(movement * .026, ctx.currentTime, .2);
-    this.breezeFilter?.frequency.setTargetAtTime(420 + movement * 280, ctx.currentTime, .35);
+    if (Math.abs(velocity) > 1) this.lastMovement = performance.now();
+    const elapsed = this.lastBreezeUpdate ? Math.min(.2, ctx.currentTime - this.lastBreezeUpdate) : .08;
+    if (elapsed < .055) return;
+    this.lastBreezeUpdate = ctx.currentTime;
+    this.movement += (Math.min(1, Math.abs(velocity) / 22) - this.movement) * (1 - Math.exp(-elapsed / .32));
+    // Hold the actual current gain before changing its target; cancelling an
+    // unfinished envelope can otherwise restart it from zero on every frame.
+    this.hold(gain.gain, ctx);
+    gain.gain.setTargetAtTime(this.movement * .02, ctx.currentTime, .32);
+    if (this.breezeFilter) {
+      this.hold(this.breezeFilter.frequency, ctx);
+      this.breezeFilter.frequency.setTargetAtTime(380 + this.movement * 160, ctx.currentTime, .55);
+    }
     clearTimeout(this.hush);
-    this.hush = setTimeout(() => this.quiet(), 120);
+    this.hush = setTimeout(() => this.quiet(), 240);
+  }
+
+  private hold(param: AudioParam, ctx: AudioContext) {
+    if (typeof param.cancelAndHoldAtTime === "function") param.cancelAndHoldAtTime(ctx.currentTime);
+    else {
+      const current = param.value;
+      param.cancelScheduledValues(ctx.currentTime);
+      param.setValueAtTime(current, ctx.currentTime);
+    }
   }
 
   private quiet() {
     clearTimeout(this.hush);
     const ctx = this.context, gain = this.breezeGain;
     if (!ctx || !gain) return;
-    gain.gain.cancelScheduledValues(ctx.currentTime);
-    gain.gain.setTargetAtTime(0, ctx.currentTime, .4);
+    this.hold(gain.gain, ctx);
+    gain.gain.setTargetAtTime(0, ctx.currentTime, .7);
+    this.movement = 0;
   }
 
   private note(frequency: number, duration: number, volume: number, delay = 0) {
@@ -94,7 +125,7 @@ export class SonicCues {
     filter.type = "lowpass";
     filter.frequency.value = 900;
     gain.gain.setValueAtTime(.0001, start);
-    gain.gain.exponentialRampToValueAtTime(volume, start + .012);
+    gain.gain.exponentialRampToValueAtTime(volume, start + .035);
     gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
     tone.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
     tone.start(start); tone.stop(start + duration + .02);

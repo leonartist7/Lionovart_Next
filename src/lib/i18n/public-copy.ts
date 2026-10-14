@@ -1,5 +1,10 @@
 /** Reviewed French public UI copy. Source phrases are gettext-style keys. */
 const french: Record<string, string> = {
+  "Results": "Résultats",
+  "Design your legacy": "Façonnez votre héritage",
+  "Get to know me": "Faisons connaissance",
+  "I’m Leonardo, founder and creative director of LIONOVART. I work with you directly, from the first conversation to the final details.": "Je suis Leonardo, fondateur et directeur créatif de LIONOVART. Je travaille directement avec vous, de notre premier échange aux derniers détails.",
+  "Brand identity, film and digital experiences come together around one clear direction. When your project needs specialist skills, I bring the right people into the work.": "Identité de marque, films et expériences numériques suivent une même direction. Quand votre projet nécessite des compétences spécialisées, je fais appel aux bonnes personnes.",
   "Tap to reveal": "Toucher pour découvrir",
   "Tap to close": "Toucher pour refermer",
   "The art of brand innovation": "L’art de l’innovation de marque",

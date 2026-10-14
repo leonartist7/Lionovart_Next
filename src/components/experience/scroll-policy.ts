@@ -3,9 +3,9 @@ export type ScrollStop = { id: string; label: string; y: number; kind: "opening"
 export type ScrollScene = { start: number; end: number; extent?: number; kind: "opening" | "partnership"; stops: ScrollStop[] };
 
 export const SCROLL_MODES = {
-  flow: { label: "Free flow", description: "Natural scrolling with longer film and card holds.", span: 300, mobileSpan: 340 },
-  settle: { label: "Soft settle", description: "Scroll freely, then let each transition finish gently when you release.", span: 360, mobileSpan: 400 },
-  cinema: { label: "Scene by scene", description: "A deliberate scroll gesture carries you to the next visual resting point.", span: 380, mobileSpan: 420 },
+  flow: { label: "Free flow", description: "Natural scrolling with longer film and card holds.", span: 270, mobileSpan: 310 },
+  settle: { label: "Soft settle", description: "Scroll freely, then let each transition finish gently when you release.", span: 300, mobileSpan: 340 },
+  cinema: { label: "Scene by scene", description: "A deliberate scroll gesture carries you to the next visual resting point.", span: 320, mobileSpan: 360 },
 } as const;
 
 export function parseScrollMode(value: string | null): ScrollMode {
@@ -61,6 +61,11 @@ export function chooseScrollStop({ mode, y, gestureStart, direction, viewport, s
       return;
     }
     if (Math.abs(y - gestureStart) < 12) return;
+    const resting = scene.stops.find(s => Math.abs(s.y - gestureStart) <= viewport * .14);
+    if (resting && Math.abs(y - gestureStart) >= 28) {
+      const next = scene.stops[scene.stops.indexOf(resting) + (direction > 0 ? 1 : -1)];
+      if (next && direction * (next.y - y) > 8) return next;
+    }
     const stop = scene.stops.find(s => direction * (s.y - y) > 8 && Math.abs(s.y - y) < span * .22);
     return stop;
   }

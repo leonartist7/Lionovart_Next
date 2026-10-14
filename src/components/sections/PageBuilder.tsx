@@ -49,7 +49,7 @@ export function PageBuilder() {
         </WorkBrowseProvider>
         <NovaSection id="about"><CompactIntroduction /></NovaSection>
 
-        {/* Compact introduction/comparison -> Brands Elevated/results -> Process. */}
+        {/* Personal introduction -> Brands Elevated/results -> Process. */}
         <div id="client-experience">
           <NovaSection id="testimonials"><Testimonials /></NovaSection>
         </div>

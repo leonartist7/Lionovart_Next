@@ -9,6 +9,7 @@ import {
   useReducedMotion,
   useScroll,
   useTransform,
+  useMotionValueEvent,
   type MotionValue,
 } from "framer-motion";
 import styles from "./BrandsElevatedScroll.module.css";
@@ -151,10 +152,12 @@ export default function BrandsElevatedScrollV2() {
      with equal visual weight on the off-white and black halves. */
   const black = useTransform(scrollYProgress, [0, 0.37, 0.47, 1], [0, 0, 1, 1]);
 
+  useMotionValueEvent(black, "change", value => { if (ref.current) ref.current.dataset.navSurface = value >= .55 ? "dark" : "light"; });
+
   return (
     <div
       ref={ref}
-      data-brands-scroll-scene
+      data-brands-scroll-scene data-nav-surface="light"
       className={`relative w-full ${reduced ? "min-h-[140svh]" : "h-[225svh] md:h-[245svh] lg:h-[250svh]"}`}
       style={{ background: "linear-gradient(to bottom, var(--site-surface-light) 0%, var(--site-surface-light) 45%, var(--site-surface-dark) 55%, var(--site-surface-dark) 100%)" }}
       aria-label={tr("Brands elevated — selected client results")}

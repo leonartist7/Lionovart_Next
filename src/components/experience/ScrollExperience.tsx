@@ -227,6 +227,12 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
       if (event.target instanceof Element && event.target.closest('[data-benefit-card] button, [data-sound-cue]')) sonic.current?.tap();
     };
     const visibility = () => { cancel(); if (document.hidden) sonic.current?.suspend(); else sonic.current?.resume(); };
+    const hover = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse" || ignoredTarget(event.target)) return;
+      const control = event.target instanceof Element ? event.target.closest('a[href], button:not([disabled]), [data-sound-hover]') : null;
+      if (!control || control.hasAttribute("data-experience-sound") || (event.relatedTarget instanceof Node && control.contains(event.relatedTarget))) return;
+      sonic.current?.hover();
+    };
     const resize = () => { cancel(); cancelAnimationFrame(frame); frame = requestAnimationFrame(() => { frame = 0; measure(); }); };
     const observer = new ResizeObserver(resize);
     for (const selector of [".hero-opening", "[data-imagine-chapter]", "[data-work-runway]", "#services", "#about", "#process"]) {
@@ -243,6 +249,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
     window.addEventListener("keydown", key);
     window.addEventListener("pointerdown", pause);
     window.addEventListener("click", click, true);
+    window.addEventListener("pointerover", hover, { passive: true });
     window.addEventListener("hashchange", pause);
     document.addEventListener("visibilitychange", visibility);
     void document.fonts.ready.then(() => { if (!disposed) resize(); });
@@ -257,6 +264,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
       lenis.off("scroll", onScroll); window.removeEventListener("resize", resize);
       window.removeEventListener("keydown", key); window.removeEventListener("pointerdown", pause);
       window.removeEventListener("click", click, true); window.removeEventListener("hashchange", pause);
+      window.removeEventListener("pointerover", hover);
       document.removeEventListener("visibilitychange", visibility);
       delete document.documentElement.dataset.scrollOpeningStart;
       delete document.documentElement.dataset.scrollOpeningEnd;

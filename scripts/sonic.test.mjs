@@ -1,15 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { SonicCues } from '../src/components/experience/sonic.ts';
-let contexts=0, sources=0;
-class Param { value=0; targets=[]; setValueAtTime() {} exponentialRampToValueAtTime() {} cancelScheduledValues() {} setTargetAtTime(value) {this.targets.push(value);} }
+let contexts=0, sources=0, tones=0;
+class Param { value=0; targets=[]; holds=0; cancelAndHoldAtTime() {this.holds++;} setValueAtTime() {} exponentialRampToValueAtTime() {} cancelScheduledValues() {} setTargetAtTime(value) {this.targets.push(value);} }
 class Node {gain=new Param();frequency=new Param();Q=new Param();connect(){} disconnect(){} start(){} stop(){} }
 class Audio {
  state='suspended';currentTime=0;sampleRate=1000;destination={};
  constructor(){contexts++;}
  async resume(){this.state='running';} async suspend(){this.state='suspended';} async close(){this.state='closed';}
  createBuffer(channels,length){return {getChannelData:()=>new Float32Array(length)};}
- createBufferSource(){sources++;return new Node();} createBiquadFilter(){return new Node();} createGain(){return new Node();} createOscillator(){return new Node();}
+ createBufferSource(){sources++;return new Node();} createBiquadFilter(){return new Node();} createGain(){return new Node();} createOscillator(){tones++;return new Node();}
 }
 globalThis.AudioContext=Audio;
 globalThis.document={hidden:false};
@@ -22,4 +22,15 @@ test('breeze is silent by default, reuses one graph and fades on suspension',asy
  assert.equal(await cues.toggle(),false);assert.equal(await cues.toggle(),true);assert.equal(sources,1);
  document.hidden=true;const count=cues.breezeGain.gain.targets.length;cues.scroll(20);assert.equal(cues.breezeGain.gain.targets.length,count);
  cues.dispose();document.hidden=false;
+});
+
+test('hover cues stay opt-in, quiet and rate-limited',async()=>{
+ const cues=new SonicCues();const before=tones;
+ cues.hover();assert.equal(tones,before);
+ await cues.toggle();const enabled=tones;
+ cues.hover();assert.equal(tones,enabled+2);
+ cues.hover();assert.equal(tones,enabled+2);
+ cues.lastHover=-Infinity;cues.scroll(10);cues.hover();assert.equal(tones,enabled+2,'scrolling suppresses incidental hover sounds');
+ assert.ok(cues.breezeGain.gain.holds>0,'breeze updates retain the current envelope');
+ cues.dispose();
 });

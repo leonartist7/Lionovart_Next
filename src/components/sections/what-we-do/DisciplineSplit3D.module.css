@@ -14,14 +14,14 @@
 /* Both faces share the original glass geometry and its fixed center. */
 .frontFace, .backFace { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .backFace { position: absolute; inset: 0; border-radius: inherit; transform: rotateY(180deg); background: #fffaf1; color: #302b26; overflow: hidden;  }
-.captionStack { display: grid; min-height: 9.25rem; }
+.captionStack { display: grid; min-height: 7rem; }
 .captionLayer { grid-area: 1 / 1; }
 .imagineCaption { display: flex; justify-content: center; align-items: center; padding-inline: 1.25rem; text-align: center; }
 .imagineCaption h2, .imagineFallback > header h2 { margin: 0; font: 600 clamp(1.625rem, 3.8vw, 3.75rem)/1.08 var(--font-heading), sans-serif; text-transform: uppercase; letter-spacing: -.025em; }
 .imagineCaption p, .imagineFallback > header p { margin: .625rem 0 0; font: italic 400 clamp(1rem, 1.65vw, 1.5rem)/1.4 var(--font-playfair-display), Georgia, serif; color: #e3d8c8; }
 .imagineFallback { display: none; }
 @media (width < 920px) {
-  .captionStack { min-height: 8.25rem; }
+  .captionStack { min-height: 6.5rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .imagineFallback { display: block; position: relative; padding: 3rem 1.25rem; background: #08080a; color: #fffaf1; }
@@ -32,8 +32,10 @@
 }
 @media (prefers-reduced-motion: reduce) and (width < 920px) { .imagineFallback > div { grid-template-columns: 1fr; } }
 
-.imagineCardWrapper { width: 100%; height: 100%; min-height: 22rem; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+.imagineCardWrapper { width: 100%; height: 100%; min-height: 24rem; display: grid; grid-template-rows: auto minmax(0, 1fr); }
 .imagineCardWrapper > article { border-radius: inherit; }
 .backFace { overflow: visible; }
 .backFace .imagineCardWrapper { border-radius: inherit; }
 @media (width < 920px) { .backFace .imagineCardWrapper { height: auto; } }
+
+@media (height <= 700px) { .captionStack { min-height: 5.5rem; } }

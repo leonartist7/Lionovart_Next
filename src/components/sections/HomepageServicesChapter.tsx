@@ -225,7 +225,7 @@ export default function HomepageServicesChapter() {
       <section
         id="services"
         aria-label={tr("Our services")}
-      data-art-directed="light"
+      data-art-directed="light" data-nav-surface="light"
         className="relative isolate overflow-hidden bg-bg-surface-light text-[#111111]"
       >
         <ServicesCurves />
@@ -254,7 +254,7 @@ export default function HomepageServicesChapter() {
   return (
     <section
       id="services"
-      data-art-directed="light"
+      data-art-directed="light" data-nav-surface="light"
       data-carousel-preview={carouselPreview}
       className={`${styles.chapter} relative z-20 isolate overflow-clip text-[#111111]`}
     >

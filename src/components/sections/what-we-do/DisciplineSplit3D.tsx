@@ -71,11 +71,11 @@ const TILT_X = 5;
 // SPLIT_END the scene is settled and the cursor rig can arm.
 const SECTION_HEIGHT_VH = 160;
 
-// One shared cue starts shrink, split, surface light and copy together.
+// One shared cue starts expansion, split, surface light and copy together.
 const HANDOFF_START = 0.06;
 const HANDOFF_END = 0.80;
 const FILM_FADE_END = 0.64;
-const FINAL_FRAME_SCALE = 0.95;
+const FINAL_FRAME_SCALE = 1.02;
 const SPLIT_FINISH = Math.min(0.9, SPLIT_END + 0.08);
 const FRAME_EASE = cubicBezier(0.77, 0, 0.175, 1);
 
@@ -83,7 +83,7 @@ function cue(progress: number, start: number, end: number) {
   return Math.max(0, Math.min(1, (progress - start) / (end - start)));
 }
 
-// Reshape the film crops into compact cards around one fixed center. Layout
+// Reshape the film crops into larger cards around one fixed center. Layout
 // is measured once; only transforms change while scrolling in either direction.
 function handoffGeometry(frame: FilmFrame, progress: number) {
   const p = FRAME_EASE(cue(progress, HANDOFF_START, HANDOFF_END));
@@ -538,8 +538,8 @@ export default function DisciplineSplit3D({
     const viewport = opening ? Math.max(1, opening.offsetHeight - overflow) : window.innerHeight;
     const viewportWidth = document.documentElement.clientWidth;
     const navClearance = Number.parseFloat(openingStyles?.getPropertyValue("--hero-nav-clearance") || "") || 100;
-    const safeTop = pinned ? navClearance + 16 : 24;
-    const safeBottom = viewport - 24;
+    const safeTop = pinned ? Math.min(navClearance, 80) + 8 : 24;
+    const safeBottom = viewport - 16;
     const stageWidth = stage.offsetWidth;
     const frontHeight = Array.from(stage.querySelectorAll<HTMLElement>(".opening-pane-sizing")).reduce((total, el) => total + el.offsetHeight, 0);
     const stageHeight = landscape ? stage.offsetHeight : Math.max(1, frontHeight);
@@ -548,9 +548,9 @@ export default function DisciplineSplit3D({
     const centerPercent = work ? Number.parseFloat(getComputedStyle(work).getPropertyValue("--opening-video-center")) || 41 : 50;
     const stageCenter = pinned ? viewport * (centerPercent + Number.parseFloat(settledY)) / 100 : viewport / 2;
     const finalHeight = stageHeight * FINAL_FRAME_SCALE;
-    const splitAllowance = landscape ? 12 : Math.min(28, viewport * 0.026);
+    const splitAllowance = landscape ? 8 : Math.min(28, viewport * 0.026);
     const proof = proofRef.current;
-    const proofReserve = proof ? proof.offsetHeight + 24 : 0;
+    const proofReserve = proof ? proof.offsetHeight + 18 : 0;
     stage.style.setProperty("--opening-proof-height", `${proof?.offsetHeight ?? 148}px`);
     const minCenter = safeTop + proofReserve + splitAllowance + finalHeight / 2;
     const maxCenter = safeBottom - splitAllowance - finalHeight / 2;
@@ -561,7 +561,7 @@ export default function DisciplineSplit3D({
       sharedCenter - safeTop - splitAllowance - proofReserve,
       safeBottom - sharedCenter - splitAllowance,
     ));
-    const scale = Math.min(viewportWidth * 0.86 / sourceWidth,
+    const scale = Math.min(viewportWidth * 0.96 / sourceWidth,
       stageWidth * 1.14 / sourceWidth,
       (landscape ? 1400 : 420) / sourceWidth,
       filmHeight / sourceHeight);
@@ -602,7 +602,7 @@ export default function DisciplineSplit3D({
       frame = requestAnimationFrame(() => {
         const cards = Array.from(stage.querySelectorAll<HTMLElement>("[data-imagine-card]"));
         const height = cards.reduce((total, card) => total + Math.max(352, card.offsetHeight), 0);
-        const extra = isDesktop || reduce ? 0 : Math.max(0, height + (proofRef.current?.offsetHeight ?? 148) + 140 - innerHeight);
+        const extra = isDesktop || reduce ? 0 : Math.max(0, height * FINAL_FRAME_SCALE + (proofRef.current?.offsetHeight ?? 112) + 140 - innerHeight);
         const value = `${Math.ceil(extra)}px`;
         if (opening.style.getPropertyValue("--opening-benefit-overflow") !== value) {
           opening.style.setProperty("--opening-benefit-overflow", value);

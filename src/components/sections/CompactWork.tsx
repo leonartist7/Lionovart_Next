@@ -80,7 +80,7 @@ function WorkGrid({ servicesCurves }: { servicesCurves: boolean }) {
   }, []);
 
   return <Dialog.Root open={Boolean(selected)} onOpenChange={open => { if (!open) setSelectedSlug(null); }}>
-    <section ref={section} id="selected-work" data-gallery="compact" data-art-directed="light"
+    <section ref={section} id="selected-work" data-gallery="compact" data-art-directed="light" data-nav-surface="light"
       data-scroll-title-skip aria-labelledby="selected-work-heading" className={styles.section}>
       {servicesCurves && <ServicesCurves continuation />}
       <div className={styles.container}>

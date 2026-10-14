@@ -1127,3 +1127,5 @@ body:has([data-intro]) main *::before,
 body:has([data-intro]) main *::after {
   animation-play-state: paused !important;
 }
+
+:root { --proof-metal-gradient: linear-gradient(90deg, #f47721, #f0c917 52%, #ffe49a); }

@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { GlobePulse } from "@/components/ui/cobe-globe-pulse";
 import { Marquee } from "@/components/ui/marquee";
-import { useLanguage } from "@/contexts/LanguageContext";
 import TestimonialsCarousel from "@/components/sections/TestimonialsCarousel";
 
 // Encode each path segment — folders contain spaces (some doubled) and & chars
@@ -381,35 +380,26 @@ export default function Testimonials(
     headingAccent?: string;
   } = {}
 ) {
-  const { t } = useLanguage();
+  const tr = usePublicCopy();
 
-  const eyebrow = props.eyebrow || t.testimonials.eyebrow;
-  const heading = props.heading || t.testimonials.heading;
+  const heading = props.heading || tr("Results");
   const headingAccent = props.headingAccent || "";
 
   const col1 = ALL.filter((_, index) => index % 2 === 0);
   const col2 = ALL.filter((_, index) => index % 2 === 1);
 
   return (
-    <section id="testimonials" className="overflow-hidden bg-bg-brand-black">
+    <section id="testimonials" data-nav-surface="dark" className="overflow-hidden bg-bg-brand-black">
       <div className="mx-auto max-w-[1440px] px-4 pb-[100px] pt-[80px] sm:px-5 md:px-8 md:pb-[120px] md:pt-[100px]">
         <TestimonialsCarousel />
 
         <div className="relative mt-14 grid items-start gap-9 sm:mt-16 md:gap-12 lg:mt-20 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-[clamp(2rem,5vw,5rem)]">
           <div className="relative z-10 min-w-0 text-left">
             <div className="flex flex-col items-start lg:max-w-[620px] lg:pt-12">
-              <motion.p
-                className="mb-4 text-[11px] font-bold uppercase tracking-[0.3em] text-brand-red md:text-[13px]"
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4 }}
-              >
-                {eyebrow}
-              </motion.p>
 
               <motion.h2
-                className="relative z-10 max-w-[10ch] text-[2.65rem] font-bold uppercase leading-[0.9] tracking-[-0.025em] text-white sm:text-[3.5rem] md:text-[4.5rem] lg:text-[clamp(3.4rem,4.8vw,5rem)]"
+                className="relative z-10 text-[3.5rem] leading-none tracking-[-0.025em] text-brand-red sm:text-[4.5rem] lg:text-[clamp(4rem,6vw,6rem)]"
+                style={{ fontFamily: "var(--font-playfair-display), Georgia, serif", fontStyle: "italic", fontWeight: 400 }}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
