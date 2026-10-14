@@ -165,7 +165,7 @@ export default function ProcessLionJourney() {
       ctaContent.current?.style.setProperty("--cta-copy-opacity",String(pose.reveal));
       if (chapter.current) chapter.current.style.opacity = String(pose.chapterOpacity);
       rows.forEach((row, index) => {
-        const passed=stepHasPassed(metrics[index].y, pose!.y, metrics[index].height, pose!.progress);
+        const passed=stepHasPassed(metrics[index].y, height * .56, metrics[index].height, pose!.progress);
         row.dataset.completed=String(passed);
         const strength = stepPassIntensity(metrics[index].y, pose!.y, metrics[index].height) * pose!.processOpacity;
         row.style.setProperty("--step-highlight", String(strength));
