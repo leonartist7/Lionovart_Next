@@ -1,0 +1,38 @@
+name: Closing CTA browser verification
+on:
+  push:
+    branches: [codex/cta-animation-20]
+permissions:
+  contents: read
+concurrency:
+  group: closing-cta-verification
+  cancel-in-progress: true
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_PUBLIC_FIREBASE_API_KEY: demo-key
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: lionovart-dev.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: lionovart-dev
+      NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:0000000000000000000000"
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Lint changed components
+        run: npx eslint src/components/sections/ClosingCTA.tsx src/components/sections/ClosingMediaWall.tsx
+      - name: Install browser verification tools
+        run: npm install --no-save --package-lock=false playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - name: Verify CTA interaction, responsive layout and reduced motion
+        run: node scripts/verify-closing-cta.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: closing-cta-browser
+          path: verification-output/closing-cta/
