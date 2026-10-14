@@ -116,10 +116,13 @@
   text-shadow: 0 0 8px rgb(255 213 125 / 65%);
 }
 .stepCopy { min-width: 0; }
+.step[data-completed="true"] .stepCopy h3 { color: #e5192a; opacity: 1 !important; }
 .stepCopy h3 {
+  color: #f7f4ef;
+  transition: color 240ms ease, opacity 240ms ease;
   margin: 0;
   font-family: var(--font-clash-display), sans-serif;
-  font-size: clamp(1.3rem, 3vw, 2.875rem);
+  font-size: clamp(1.625rem, 3.6vw, 3.375rem);
   font-weight: 600;
   text-transform: uppercase;
   line-height: 1.14;

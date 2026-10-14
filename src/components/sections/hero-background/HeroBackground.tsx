@@ -4,7 +4,6 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useHeroComposition } from "./HeroComposition";
 import HeroLightRays from "./HeroLightRays";
-import HeroRibbonOrnament from "./HeroRibbonOrnament";
 import styles from "./HeroBackground.module.css";
 
 const BackgroundEditor = dynamic(() => import("./BackgroundEditor"), { ssr: false });
@@ -41,7 +40,6 @@ export default function HeroBackground() {
   }, []);
   return <>
     <div ref={backdrop} className={styles.backdrop} aria-hidden="true" data-hero-background>
-      {!editing && <HeroRibbonOrnament />}
       {editing && composition.layers.map(layer => {
         if (!layer.desktop.visible && !layer.mobile.visible) return null;
         const variables: Record<string, string | number> = {};

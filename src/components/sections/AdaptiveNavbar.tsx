@@ -10,9 +10,7 @@ import {
   useMotionValueEvent,
   useReducedMotion,
   useScroll,
-  useTransform,
 } from "framer-motion";
-import Image from "next/image";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLenis } from "lenis/react";
 import { Menu, X } from "lucide-react";
@@ -22,13 +20,13 @@ import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import styles from "./AdaptiveNavbar.module.css";
 import { ExperienceSoundToggle } from "@/components/experience/ScrollExperience";
+import { navScrollIntent } from "./nav-scroll";
 import { scrollEase } from "@/components/experience/scroll-policy";
 
 const SCROLL_OFFSET = -88;
 const HERO_THRESHOLD_RATIO = 0.62;
 const GLASS_THRESHOLD = 2;
-const NAV_REVEAL_DELTA = 20;
-const NAV_HIDE_DELTA = 8;
+
 
 const CARD_VARIANTS = {
   hidden: {
@@ -111,9 +109,9 @@ function LightweightMenuToggle({
       className="relative z-[60] flex min-h-11 min-w-11 touch-manipulation items-center justify-center rounded-lg transition-transform duration-150 active:scale-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80 motion-reduce:transition-none"
     >
       {isOpen ? (
-        <X className="h-6 w-6 text-white" aria-hidden />
+        <X className="h-6 w-6 text-current" aria-hidden />
       ) : (
-        <Menu className="h-6 w-6 text-white" aria-hidden />
+        <Menu className="h-6 w-6 text-current" aria-hidden />
       )}
     </button>
   );
@@ -137,8 +135,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
   const [mobileExpertiseOpen, setMobileExpertiseOpen] = useState(false);
 
   const { scrollY } = useScroll();
-  const navTop = useTransform(scrollY, [0, 40], [40, 0]);
-  const navChromeOpacity = useTransform(scrollY, [GLASS_THRESHOLD, 96], [0, 1]);
+  const [lightSurface, setLightSurface] = useState(false);
   const motionPreference = useReducedMotion();
   const hydrated = useSyncExternalStore(() => () => {}, () => true, () => false);
   const reducedMotion = hydrated && Boolean(motionPreference);
@@ -164,7 +161,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
   const lastScrollRef = useRef(0);
   const directionStartRef = useRef(0);
   const isMobileOpenRef = useRef(false);
-  const navFocusedRef = useRef(false);
+  const directionRef = useRef(0);
 
   const setNavVisible = (nextVisible: boolean) => {
     if (isVisibleRef.current === nextVisible) return;
@@ -249,25 +246,48 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     const previous = lastScrollRef.current;
-    const delta = latest - previous;
     lastScrollRef.current = latest;
 
     syncThresholdState(latest);
 
-    if (latest <= 64 || isMobileOpenRef.current || navFocusedRef.current || expertiseOpen || mobileExpertiseOpen) {
+    if (latest <= 64 || isMobileOpenRef.current || (introHeader.current?.contains(document.activeElement) && document.activeElement?.matches(":focus-visible")) || expertiseOpen || mobileExpertiseOpen) {
       directionStartRef.current = latest;
       setNavVisible(true);
       return;
     }
 
-    // A fresh direction starts a new distance measurement. Small touchpad and
-    // touch-scroll oscillations cannot repeatedly flash the navigation.
-    if ((delta > 0 && directionStartRef.current > latest) || (delta < 0 && directionStartRef.current < latest)) {
-      directionStartRef.current = previous;
-    }
-    if (delta > 0 && latest - directionStartRef.current >= NAV_HIDE_DELTA) setNavVisible(false);
-    if (delta < 0 && directionStartRef.current - latest >= NAV_REVEAL_DELTA) setNavVisible(true);
+    const intent = navScrollIntent(previous, latest, directionRef.current, directionStartRef.current);
+    directionRef.current = intent.direction;
+    directionStartRef.current = intent.origin;
+    if (intent.visible !== undefined) setNavVisible(intent.visible);
   });
+
+  useEffect(() => {
+    let frame = 0;
+    const sample = () => {
+      frame = 0;
+      const stack = document.elementsFromPoint(Math.min(innerWidth - 20, innerWidth * .3), 38);
+      for (const element of stack) {
+        if (element.closest("[data-nav-tone]")) continue;
+        let node: Element | null = element;
+        while (node) {
+          const css = getComputedStyle(node);
+          const color = css.backgroundColor.match(/[\d.]+/g)?.map(Number);
+          if (Number(css.opacity) > .8 && color && (color.length === 3 || color[3] > .8)) {
+            setLightSurface(color[0] * .2126 + color[1] * .7152 + color[2] * .0722 > 155);
+            return;
+          }
+          node = node.parentElement;
+        }
+      }
+      setLightSurface(false);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(sample); };
+    const unsubscribe = scrollY.on("change", schedule);
+    window.addEventListener("resize", schedule);
+    schedule();
+    return () => { unsubscribe(); cancelAnimationFrame(frame); window.removeEventListener("resize", schedule); };
+  }, [scrollY]);
 
   const heroMode = !isPastHero;
   const cardVariants = reducedMotion ? REDUCED_CARD_VARIANTS : CARD_VARIANTS;
@@ -276,17 +296,15 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
 
   return (
     <motion.div
-      className="fixed left-0 right-0 z-50 flex justify-center px-3"
-      style={{ top: navTop }}
-      animate={{ y: isVisible ? 0 : "-120%" }}
+      className="fixed top-0 left-0 right-0 z-50 flex justify-center"
+      data-nav-visible={isVisible}
+      data-nav-tone={lightSurface || isMobileOpen ? "light" : "dark"}
+      animate={{ y: isVisible ? 0 : "-170%" }}
       transition={{ duration: reducedMotion ? 0 : 0.32, ease: [0.4, 0, 0.2, 1] }}
-      onFocusCapture={() => { navFocusedRef.current = true; setNavVisible(true); }}
-      onBlurCapture={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) navFocusedRef.current = false;
-      }}
+      onFocusCapture={() => setNavVisible(true)}
     >
       <div
-        className={`${styles.shell} ${heroMode ? styles.expanded : styles.compact}`}
+        className={styles.shell}
         ref={introHeader}
         data-nav-state={heroMode ? "expanded" : "compact"}
         data-nav-glass={isScrolled ? "active" : "inactive"}
@@ -297,47 +315,18 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
           transition={{ duration: reducedMotion ? 0 : 0.42, ease: "easeOut" }}
           className={`relative w-full ${styles.header}`}
         >
-          <motion.div
-            aria-hidden
-            className={styles.glass}
-            style={{
-              opacity: navChromeOpacity,
-              backdropFilter: isScrolled ? undefined : "none",
-              WebkitBackdropFilter: isScrolled ? undefined : "none",
-            }}
-          />
+          <div aria-hidden className={styles.glass} />
 
-          <div className="relative mx-auto flex w-full items-center justify-between px-3.5 py-1.5 sm:px-4 xl:px-6 xl:py-2">
-            <Link href="/" className="relative z-40 inline-flex shrink-0 items-center">
-              <Image
-                src="/images/Icon.avif"
-                alt="Lionovart home"
-                width={40}
-                height={40}
-                priority
-                sizes="40px"
-                className="h-[2rem] w-[2rem] rounded-full object-cover sm:h-[2.25rem] sm:w-[2.25rem] xl:h-[2.5rem] xl:w-[2.5rem]"
-              />
-            </Link>
-
-            <Link href="/" className="absolute left-1/2 z-40 -translate-x-1/2">
-              <Image
-                src="/images/LOGO.svg"
-                alt="LIONOVART"
-                width={480}
-                height={77}
-                priority
-                sizes="180px"
-                data-nav-logo
-                className="h-[1.375rem] w-auto sm:h-[1.5rem] xl:h-[1.625rem]"
-              />
+          <div className="relative mx-auto flex w-full items-center justify-between px-5 py-3 sm:px-8 xl:px-12 xl:py-4">
+            <Link href="/" aria-label="Lion of Art home" data-nav-logo className={styles.wordmark}>
+              Lion of Art
             </Link>
 
             <AnimatePresence initial={false}>
               {heroMode && (
                 <motion.div
                   key="desktop-links"
-                  className="hidden flex-1 items-center justify-start pl-[3.5rem] xl:flex"
+                  className="hidden flex-1 items-center justify-center px-8 xl:flex"
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0, transition: { duration: reducedMotion ? 0 : 0.18 } }}
                 >
@@ -353,7 +342,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
                           type="button"
                           onClick={() => scrollToTarget(link.target)}
                           aria-expanded={link.hasDropdown ? expertiseOpen : undefined}
-                          className="group relative flex items-center gap-1 text-[13px] font-semibold uppercase tracking-[0.15em] text-white/90 transition-colors hover:text-white"
+                          className="group relative flex items-center gap-1 text-[13px] font-semibold uppercase tracking-[0.15em] text-current transition-opacity hover:opacity-70"
                         >
                           {link.label}
                           {link.hasDropdown && (
@@ -372,7 +361,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
                               <path d="m6 9 6 6 6-6" />
                             </svg>
                           )}
-                          <span className="absolute -bottom-1.5 left-0 h-[2px] w-full origin-left scale-x-0 bg-white transition-transform duration-300 group-hover:scale-x-100 motion-reduce:transition-none" />
+                          <span className="absolute -bottom-1.5 left-0 h-[2px] w-full origin-left scale-x-0 bg-current transition-transform duration-300 group-hover:scale-x-100 motion-reduce:transition-none" />
                         </button>
                       </li>
                     ))}
@@ -393,7 +382,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
                     exit={{ opacity: 0 }}
                     transition={{ duration: reducedMotion ? 0 : 0.2 }}
                   >
-                    <LanguageSwitcher isHeroMode={true} />
+                    <LanguageSwitcher isHeroMode={!lightSurface && !isMobileOpen} />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -406,6 +395,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
                 />
               ) : (
                 <MenuBurgerLottie
+                  className={lightSurface || isMobileOpen ? styles.darkMenu : undefined}
                   isOpen={isMobileOpen}
                   onToggle={() => setIsMobileOpen((value) => !value)}
                 />

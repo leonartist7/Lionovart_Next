@@ -32,7 +32,7 @@ export function processLionPose(g: JourneyGeometry) {
     y: centerY,
     size: mix(g.railSize * 1.02, g.dockSize * .96, arrival),
     turn: mix(.65, 0, center),
-    pitch: mix(-.02, -.14, center),
+    pitch: mix(-.02, 0, center),
     opacity: mix(.8, 1, center),
   };
 }
@@ -55,4 +55,9 @@ export function stepPassIntensity(numberY: number, lionY: number, rowHeight: num
 export function stepHasPassed(numberY: number, lionY: number, rowHeight: number, progress: number) {
   const reach = Math.max(72, Math.min(180, rowHeight * .62));
   return progress >= .16 || numberY <= lionY + reach * .28;
+}
+
+/** At most five degrees of nod; the resting CTA always faces straight ahead. */
+export function scrollLionTilt(velocity: number) {
+  return Math.tanh(velocity / 900) * .085;
 }

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { processLionPose, stepPassIntensity, stepRingRotation, stepHasPassed } from '../src/components/sections/process-lion-motion.ts';
+import { processLionPose, stepPassIntensity, stepRingRotation, stepHasPassed, scrollLionTilt } from '../src/components/sections/process-lion-motion.ts';
 
 for (const [width, height] of [[390, 844], [768, 1024], [1440, 900]]) {
   const geometry = {
@@ -77,12 +77,21 @@ test('passed steps retract to white on reverse scroll',()=>{
  assert.equal(stepHasPassed(700,400,260,0),false);
  assert.equal(stepHasPassed(700,400,260,.16),true);
 });
-test('the lion becomes opaque and looks up as it settles above the copy',()=>{
+test('the lion becomes opaque and faces front as it settles above the copy',()=>{
  const g={viewportHeight:900,dockTop:126,dockSize:252,dockX:720,originX:200,originY:504,railSize:300};
  assert.equal(processLionPose({...g,progress:0}).opacity,.8);
  const settled=processLionPose({...g,progress:.5});
  assert.equal(settled.opacity,1);
  assert.ok(Math.abs(settled.y-252)<1e-8);
- assert.ok(settled.pitch<-.1);
+ assert.equal(settled.pitch,0);
  assert.equal(processLionPose({...g,progress:.8}).y,settled.y);
+});
+
+test('scroll nod is directional, bounded and neutral at rest', () => {
+ assert.equal(scrollLionTilt(0),0);
+ assert.ok(scrollLionTilt(-900)<0);
+ assert.ok(scrollLionTilt(900)>0);
+ assert.ok(Math.abs(scrollLionTilt(10000))<=.085);
+ assert.equal(scrollLionTilt(-700),-scrollLionTilt(700));
+ assert.equal(processLionPose({viewportHeight:900,progress:1,dockSize:180,dockX:700,originX:100,originY:500,railSize:300,dockTop:100}).pitch,0);
 });

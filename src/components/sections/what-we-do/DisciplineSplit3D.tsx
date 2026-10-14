@@ -488,7 +488,7 @@ export default function DisciplineSplit3D({
     const geometry = handoffGeometry(filmFrame, p);
     const offset = geometry.glassOffset;
     const height = reduce ? filmFrame.stageHeight * FINAL_FRAME_SCALE : geometry.height;
-    return `translateY(${offset + (height - filmFrame.stageHeight) / 2 - benefitScroll.get()}px)`;
+    return `translateY(${offset + (filmFrame.stageHeight - height) / 2 - benefitScroll.get()}px)`;
   });
   // Let taller phones show more of the film without crowding the invitation.
   // The settled card and proof assembly moves as one, with the short-screen
@@ -550,16 +550,16 @@ export default function DisciplineSplit3D({
     const finalHeight = stageHeight * FINAL_FRAME_SCALE;
     const splitAllowance = landscape ? 12 : Math.min(28, viewport * 0.026);
     const proof = proofRef.current;
-    const proofGap = proof ? Number.parseFloat(getComputedStyle(proof).top) - stage.offsetHeight : 0;
-    const proofReserve = proof ? proof.offsetHeight + Math.max(0, proofGap) : 0;
-    const minCenter = safeTop + splitAllowance + finalHeight / 2;
-    const maxCenter = safeBottom - splitAllowance - proofReserve - finalHeight / 2;
+    const proofReserve = proof ? proof.offsetHeight + 24 : 0;
+    stage.style.setProperty("--opening-proof-height", `${proof?.offsetHeight ?? 148}px`);
+    const minCenter = safeTop + proofReserve + splitAllowance + finalHeight / 2;
+    const maxCenter = safeBottom - splitAllowance - finalHeight / 2;
     const sharedCenter = Math.max(minCenter, Math.min(stageCenter, maxCenter));
     // Keep the whole source image inside the space around that same center;
     // this removes the upward translation during the video-to-card handoff.
     const filmHeight = Math.max(1, 2 * Math.min(
-      sharedCenter - safeTop - splitAllowance,
-      safeBottom - sharedCenter - splitAllowance - proofReserve,
+      sharedCenter - safeTop - splitAllowance - proofReserve,
+      safeBottom - sharedCenter - splitAllowance,
     ));
     const scale = Math.min(viewportWidth * 0.86 / sourceWidth,
       stageWidth * 1.14 / sourceWidth,

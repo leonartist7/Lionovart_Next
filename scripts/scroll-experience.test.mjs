@@ -61,11 +61,11 @@ test('settling waits for a released gesture and the end of Lenis inertia', () =>
 });
 test('small corrections finish faster than full journeys, in either direction', () => {
   assert.ok(settleDuration(50) < settleDuration(500));
-  assert.ok(settleDuration(2000) <= .95);
-  assert.ok(settleDuration(50) >= .42);
+  assert.ok(settleDuration(2000) <= 1.3);
+  assert.ok(settleDuration(50) >= .55);
   assert.equal(settleDuration(500), settleDuration(-500));
   assert.ok(settleDuration(500, true) > settleDuration(500));
-  assert.ok(settleDuration(10000, true) <= 1.15);
+  assert.ok(settleDuration(10000, true) <= 1.45);
 });
 
 for (const viewport of [600, 844, 936, 1024]) {
@@ -93,7 +93,7 @@ for (const viewport of [600, 844, 936, 1024]) {
     for (let p = .31; p < .525; p += .01) { assert.equal(pick(p, 1)?.id, 'cards'); assert.equal(pick(p, -1)?.id, 'film'); }
     for (let p = .69; p < .9; p += .01) { assert.equal(pick(p, 1)?.id, 'imagine'); assert.equal(pick(p, -1)?.id, 'cards'); }
     assert.equal(pick(.27, 1), undefined, 'film hold');
-    assert.equal(pick(.6, 1), undefined, 'discipline hold');
+    assert.equal(pick(.6, 1)?.id, 'imagine', 'a gesture finishes the next beat');
     assert.equal(pick(.94, 1), undefined, 'Imagine hold');
     assert.equal(pick(.94, -1)?.id, 'imagine', 'reverse arrives at the complete back face first');
   });
@@ -106,3 +106,16 @@ test('the expanded mobile Imagine stack reads naturally in both directions',()=>
  assert.equal(chooseScrollStop({...context,y:4250,gestureStart:4220,direction:1}),undefined);
  assert.equal(chooseScrollStop({...context,y:3500,gestureStart:3540,direction:-1})?.id,'cards');
 });
+
+for (const viewport of [600, 844, 936]) {
+ test(`${viewport}px: one fresh gesture leaves the film or cards, then stops for reading`, () => {
+  const span=viewport*3.6;
+  const stops=[{id:'film',y:span*.225,kind:'opening'},{id:'cards',y:span*.525,kind:'opening'},{id:'imagine',y:span*.9,kind:'opening'}];
+  const context={mode:'settle',viewport,scenes:[{start:0,end:span,kind:'opening',stops}],boundaries:[]};
+  for(const [index,direction,next] of [[0,1,'cards'],[1,1,'imagine'],[1,-1,'film'],[2,-1,'cards']]) {
+   const start=stops[index].y;
+   assert.equal(chooseScrollStop({...context,y:start+direction*60,gestureStart:start,direction})?.id,next);
+   assert.equal(chooseScrollStop({...context,y:start,gestureStart:start,direction}),undefined);
+  }
+ });
+}

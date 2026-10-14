@@ -35,8 +35,16 @@ export function chooseScrollStop({ mode, y, gestureStart, direction, viewport, s
     if (scene.kind === "opening") {
       if (scene.stops.some(s => s.id === "imagine" && s.kind === "opening")) {
         // One opening stage: intact film, discipline faces, then Imagine backs.
+        if (Math.abs(y - gestureStart) < .5) return;
+        // A fresh, deliberate gesture leaves a reading stop and finishes one beat.
+        const resting = scene.stops.find(s => s.id !== "hero" && Math.abs(s.y - gestureStart) <= viewport * .14);
+        if (resting && Math.abs(y - gestureStart) >= 28) {
+          const index = scene.stops.indexOf(resting);
+          const next = scene.stops[index + (direction > 0 ? 1 : -1)];
+          if (next && direction * (next.y - y) > 8) return next;
+        }
         if (p > .49 / 1.6 && p < .84 / 1.6) return scene.stops.find(s => s.id === (direction > 0 ? "cards" : "film"));
-        if (p > .68 && p < .9) return scene.stops.find(s => s.id === (direction > 0 ? "imagine" : "cards"));
+        if (p > .525 && p < .9) return scene.stops.find(s => s.id === (direction > 0 ? "imagine" : "cards"));
         if (Math.abs(y - gestureStart) < 12) return;
         if (direction > 0 && p >= .27 / 1.6 && p < .36 / 1.6) return scene.stops.find(s => s.id === "film");
         if (direction < 0 && p > .36 / 1.6 && p <= .49 / 1.6) return scene.stops.find(s => s.id === "film");
@@ -67,8 +75,8 @@ export const scrollEase = (t: number) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-
 /** A slightly longer release, scaled to the distance rather than a fixed delay. */
 export function settleDuration(distance: number, explicit = false) {
   const travel = Math.abs(distance);
-  return explicit ? Math.max(.45, Math.min(1.15, .45 + travel / 1600))
-    : Math.max(.42, Math.min(.95, .38 + travel / 1400));
+  return explicit ? Math.max(.55, Math.min(1.45, .55 + travel / 1500))
+    : Math.max(.55, Math.min(1.3, .5 + travel / 1500));
 }
 
 /** Physical gesture release and Lenis's remaining travel agree before settling. */

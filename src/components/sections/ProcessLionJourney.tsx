@@ -9,7 +9,7 @@ import ClosingCTA from "./ClosingCTA";
 import {useMotionValue} from "framer-motion";
 import {ClosingRevealContext} from "./ClosingRibbonOrnament";
 import { PROCESS_FILM_COPY } from "./process-video-copy";
-import { processLionPose, stepPassIntensity, stepRingRotation, stepHasPassed } from "./process-lion-motion";
+import { processLionPose, stepPassIntensity, stepRingRotation, stepHasPassed, scrollLionTilt } from "./process-lion-motion";
 import type { LionEngine } from "./lion-journey/engine";
 import styles from "./ProcessLionJourney.module.css";
 
@@ -86,6 +86,7 @@ export default function ProcessLionJourney() {
     let disposed = false, loading = false, ready = false, failed = false, near = false, inView = false;
     let frame = 0, last = 0, time = 0, width = 1, height = 1, runway = 1, sceneHeight = 1, dirty = true;
     let targetX = 0, targetY = 0, pointerX = 0, pointerY = 0;
+    let scrollVelocity = 0, scrollPitch = 0, lastScrollY = window.scrollY, lastScrollAt = performance.now();
     let pose: ReturnType<typeof processLionPose> | undefined;
     const fine = matchMedia("(hover: hover) and (pointer: fine)");
     const manual = staticMode || matchMedia("(prefers-reduced-motion: reduce)").matches || matchMedia(shortQuery).matches;
@@ -187,27 +188,35 @@ export default function ProcessLionJourney() {
       if (disposed) return;
       if (dirty) measure();
       if (document.hidden || !inView) { last = 0; engine?.pause(); return; }
-      if (!ready || !engine || !pose) return;
+      if (!pose) return;
       const dt = last ? Math.min((now - last) / 1000, 1 / 30) : 0;
       last = now; time += dt;
       const damping = 1 - Math.exp(-dt / .15);
       pointerX += ((fine.matches ? targetX : 0) - pointerX) * damping;
       pointerY += ((fine.matches ? targetY : 0) - pointerY) * damping;
+      // Velocity decays even when scrolling stops; no snap back to the rest pose.
+      scrollVelocity *= Math.exp(-dt / .18);
+      scrollPitch += (scrollLionTilt(scrollVelocity) - scrollPitch) * (1 - Math.exp(-dt / .24));
+      view.dataset.lionPitch = String(pose.pitch + scrollPitch);
       const interaction = pose.processOpacity;
-      engine.render({
+      if (ready && engine) engine.render({
         x: pose.x, y: pose.y, size: pose.size,
         turn: pose.turn + (Math.sin(time * Math.PI / 5) * .035 + pointerX * .08) * interaction,
-        pitch: pose.pitch - pointerY * .025 * interaction,
+        pitch: pose.pitch + scrollPitch - pointerY * .025 * interaction,
       }, 0, width < 800, true);
-      if (!failed) {
-        view.dataset.ready = "true";
-        // The centered emblem is still: repaint on scroll/resize, not at idle.
-        if (pose.processOpacity > 0) frame = requestAnimationFrame(render);
-        else last = 0;
-      }
+      view.dataset.ready = String(ready);
+      // Keep only the short nod tail alive after the centered lion settles.
+      if ((!failed && ready && pose.processOpacity > 0) || Math.abs(scrollPitch) > .0002 || Math.abs(scrollVelocity) > 1) frame = requestAnimationFrame(render);
+      else last = 0;
     };
     const wake = () => { if (!disposed && !frame) frame = requestAnimationFrame(render); };
-    const scroll = () => { dirty = true; wake(); };
+    const scroll = () => {
+      const now = performance.now(), y = window.scrollY;
+      const elapsed = Math.max(16, now - lastScrollAt);
+      scrollVelocity = Math.max(-2400, Math.min(2400, (y - lastScrollY) * 1000 / elapsed));
+      lastScrollY = y; lastScrollAt = now;
+      dirty = true; wake();
+    };
     const resize = () => {
       width = Math.max(1, view.clientWidth);
       height = Math.max(1, view.clientHeight);

@@ -188,6 +188,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
       if (stop && Math.abs(stop.y - lenis.scroll) > 6) travel(stop);
     };
     const onScroll = () => {
+      sonic.current?.scroll(lenis.velocity);
       if (lenis.userData?.navigation && lenis.isScrolling === "smooth") { eligible = false; clearTimeout(timer); }
       else settle();
     };

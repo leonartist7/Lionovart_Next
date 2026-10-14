@@ -66,7 +66,9 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       const span = Math.max(1, bounds.height - stageHeight - overlap - extra);
       const travel = (lenis?.scroll ?? scrollY) - pinStart;
       const openingP = pinned ? clamp(travel / span) : 0;
-      benefitScroll.set(Math.max(0, Math.min(extra, travel - span * .9)));
+      // Read the complete mobile stack after the flip hold. Its last pixel
+      // reaches the section handoff, rather than leaving a second empty hold.
+      benefitScroll.set(Math.max(0, Math.min(extra, travel - span)));
       openingProgress.set(openingP);
       progress.set(clamp(openingP * 1.6 / .49));
       // The dark opening ends at Imagine; its rounded cap has a clear surround.
