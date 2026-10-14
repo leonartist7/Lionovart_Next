@@ -83,3 +83,18 @@ for (const viewport of [600, 844, 936, 1024]) {
     assert.equal(chooseScrollStop({ ...context, y: span * .6, gestureStart: span * .6, direction: 0 }), undefined, 'no move without physical intent');
   });
 }
+
+for (const viewport of [600, 844, 936, 1024]) {
+  test(`${viewport}px: the new Imagine flip settles both ways and preserves reading holds`, () => {
+    const span = viewport * 3.6;
+    const stops = [{ id: 'film', y: span * .225, kind: 'opening' }, { id: 'cards', y: span * .525, kind: 'opening' }, { id: 'imagine', y: span * .9, kind: 'opening' }];
+    const context = { mode: 'settle', viewport, scenes: [{ start: 0, end: span, kind: 'opening', stops }], boundaries: [] };
+    const pick = (p, direction) => chooseScrollStop({ ...context, y: span * p, gestureStart: span * p - direction * 20, direction });
+    for (let p = .31; p < .525; p += .01) { assert.equal(pick(p, 1)?.id, 'cards'); assert.equal(pick(p, -1)?.id, 'film'); }
+    for (let p = .69; p < .9; p += .01) { assert.equal(pick(p, 1)?.id, 'imagine'); assert.equal(pick(p, -1)?.id, 'cards'); }
+    assert.equal(pick(.27, 1), undefined, 'film hold');
+    assert.equal(pick(.6, 1), undefined, 'discipline hold');
+    assert.equal(pick(.94, 1), undefined, 'Imagine hold');
+    assert.equal(pick(.94, -1)?.id, 'imagine', 'reverse arrives at the complete back face first');
+  });
+}

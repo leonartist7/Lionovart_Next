@@ -1,5 +1,6 @@
 /** Reviewed French public UI copy. Source phrases are gettext-style keys. */
 const french: Record<string, string> = {
+  "The art of brand innovation": "L’art de l’innovation de marque",
   "Credibility comments citing design": "Avis de crédibilité évoquant le design",
   "Potential revenue lift from consistency": "Revenus potentiels d’une marque cohérente",
   "Let your systems handle the routine.": "Vos outils gèrent la routine.",

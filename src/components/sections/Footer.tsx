@@ -19,7 +19,7 @@ function CompactFooter({ year }: { year: number }) {
         <div className={styles.brandRow}>
           <div className={styles.brandCopy}>
             <h2 className={styles.wordmark}>LIONOVART</h2>
-            <p className={styles.signature}>{tr("The art of innovating brands")}</p>
+            <p className={styles.signature}>{tr("The art of brand innovation")}</p>
           </div>
         </div>
         <div className={styles.finaleUtility}>

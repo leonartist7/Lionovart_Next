@@ -219,7 +219,7 @@ export default function ProcessLionJourney() {
       const lastHeight = rows[rows.length - 1]?.offsetHeight ?? 0;
       root.style.setProperty("--process-tail", `${Math.max(64, height * .44 - lastHeight / 2)}px`);
       sceneHeight = stickyScene.offsetHeight;
-      runway = height * 1.5;
+      runway = height * 1.2;
       // A tall process reads normally, then holds its final viewport for the handoff.
       root.style.setProperty("--scene-top", `${Math.min(0, height - sceneHeight)}px`);
       root.style.setProperty("--handoff-runway", `${runway}px`);

@@ -18,6 +18,7 @@ import {
 import { SPLIT_START, SPLIT_END } from "../lion-journey/motion";
 import { useLionJourney } from "../lion-journey/LionJourney";
 import OpeningProof from "../OpeningProof";
+import ImagineCardFace, { ImagineHeading } from "../ImagineCardFace";
 const FACE_TINTS = [
   "rgba(176, 112, 28, 0.16), rgba(7, 7, 10, 0.88)",
   "rgba(92, 54, 196, 0.16), rgba(7, 7, 10, 0.88)",
@@ -130,6 +131,7 @@ function Pane({
   filmOpacity,
   poster,
   canvasReady,
+  benefitProgress,
 }: {
   card: Card;
   dir: number;
@@ -143,7 +145,11 @@ function Pane({
   filmOpacity: MotionValue<number>;
   poster: string;
   canvasReady: boolean;
+  benefitProgress: MotionValue<number>;
 }) {
+  const [backVisible, setBackVisible] = useState(false);
+  useMotionValueEvent(benefitProgress, "change", p => setBackVisible(!reducedMotion && p >= .5));
+  const benefitRotation = useTransform(benefitProgress, p => reducedMotion ? 0 : p * 180);
   const splitP = useLocalProgress(flip, HANDOFF_START, HANDOFF_END);
   const cardP = splitP;
   const contentP = splitP;
@@ -170,6 +176,7 @@ function Pane({
   return (
     <motion.div
       ref={registerPane}
+      data-card-face={backVisible ? "imagine" : "discipline"}
       className="opening-glass-pane relative min-h-0 min-w-0 flex-1 [--opening-art-size:clamp(8.5rem,42vw,10rem)]"
       style={{
         x: paneX,
@@ -195,13 +202,15 @@ function Pane({
         className="absolute inset-0 z-[1] rounded-[inherit]"
         style={{
           z: cardZ,
+          rotateY: benefitRotation,
           transformStyle: "preserve-3d",
         }}
       >
         {/* Glass face -- this pane becomes the final card without a second
             rotating back-face entering the composition. */}
         <div
-          className="absolute inset-0 z-[1] overflow-hidden rounded-[inherit]"
+          className={`absolute inset-0 z-[1] overflow-hidden rounded-[inherit] ${styles.frontFace}`}
+          aria-hidden={backVisible} inert={backVisible}
           style={{
             background: `linear-gradient(135deg, ${FACE_TINTS[i]}, rgba(4,4,6,0.94) 72%)`,
             boxShadow: `inset 0 1px 0 rgba(255,255,255,0.22), inset 0 0 34px ${EDGE_TINTS[i]}22, 0 24px 48px -28px rgba(0,0,0,0.95)`,
@@ -351,6 +360,9 @@ function Pane({
             <p className={styles.body}>{card.body}</p>
           </motion.div>
         </div>
+        <div className={styles.backFace} aria-hidden={!backVisible} inert={!backVisible}>
+          <ImagineCardFace index={i} />
+        </div>
       </motion.div>
     </motion.div>
   );
@@ -436,7 +448,14 @@ export default function DisciplineSplit3D({
      is a direct useTransform of scrollYProgress, not a triggered timeline. --- */
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
   const scrollFlip = useTransform(scrollYProgress, [SPLIT_START, SPLIT_FINISH], [0, 1], { clamp: true });
-  const openingProgress = journey?.openingProgress ?? scrollYProgress;
+  const rawOpeningProgress = journey?.openingProgress ?? scrollYProgress;
+  // Keep the original film choreography; reserve the final third for Imagine.
+  const openingProgress = useTransform(rawOpeningProgress, p => Math.min(1, p * 1.6));
+  const benefitProgress = useTransform(rawOpeningProgress, [.68, .86], [0, 1], { ease: FRAME_EASE });
+  const badgeOpacity = useTransform(rawOpeningProgress, [.68, .78], [1, 0]);
+  const captionOpacity = useTransform(rawOpeningProgress, [.75, .86], [0, 1]);
+  const [imagineVisible, setImagineVisible] = useState(false);
+  useMotionValueEvent(rawOpeningProgress, "change", p => setImagineVisible(!reduce && p >= .77));
   const openingFlip = useTransform(openingProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
   // The wash lives in the video layer, above the WebGL lion. Keep it off
   // until the opaque film has covered the mane; otherwise its translucent
@@ -928,6 +947,7 @@ export default function DisciplineSplit3D({
                 i={i}
                 isDesktop={isDesktop}
                 flip={flip}
+                benefitProgress={benefitProgress}
                 armed={armed}
                 reducedMotion={!!reduce}
                 filmOpacity={filmOpacity}
@@ -957,7 +977,13 @@ export default function DisciplineSplit3D({
           </motion.div>
           </motion.div>
           {pinned && <motion.div ref={proofRef} className="opening-proof-stage" style={{ opacity: reduce ? 1 : proofPresence, transform: proofTransform }}>
-            <OpeningProof />
+            <div className={styles.captionStack}>
+              <motion.div className={styles.captionLayer} style={{ opacity: badgeOpacity }} aria-hidden={imagineVisible} inert={imagineVisible}><OpeningProof /></motion.div>
+              <motion.header id="problems" data-nova-section="problems" className={`${styles.captionLayer} ${styles.imagineCaption}`} style={{ opacity: reduce ? 0 : captionOpacity }} aria-hidden={!imagineVisible} inert={!imagineVisible}>
+                <span id="imagine" aria-hidden="true" />
+                <div id="imagine-heading"><ImagineHeading /></div>
+              </motion.header>
+            </div>
           </motion.div>}
         </motion.div>
         </div>

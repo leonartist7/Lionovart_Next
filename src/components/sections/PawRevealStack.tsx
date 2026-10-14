@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
 import Image from "next/image";
-import { ArrowUpRight, Check, Minus, Plus } from "lucide-react";
+import { Check, Minus, Plus } from "lucide-react";
 import { useLenis } from "lenis/react";
-import { Link } from "@/i18n/navigation";
+import { IMAGINE_BENEFITS } from "./imagine-benefits";
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { useLionJourney } from "./lion-journey/LionJourney";
@@ -17,29 +17,7 @@ const CARD_SEAM_IMAGE = "https://res.cloudinary.com/dgio9uutc/image/upload/f_web
 const EASE = [0.16, 1, 0.3, 1] as const;
 const PULL_EASE = [0.32, 0.72, 0, 1] as const;
 const PAW_TIMING = { enter: .45, pull: 1.2, return: 1.05, exit: .35 } as const;
-const BENEFITS = [
-  {
-    title: "Look as good as your work.",
-    body: "Let your image reflect the quality of your work.",
-    detail: "Trust, before a word.",
-    stat: { value: "46.1", unit: "%", label: "Credibility comments citing design", source: "https://credibility.stanford.edu/pdf/How_Do_People_Evaluate_a_Web_Site%27s_Credibility_v37.pdf", sourceLabel: "Study: Stanford / Consumer WebWatch", qualifier: null },
-    points: ["Clear positioning", "An identity that reflects your quality"],
-  },
-  {
-    title: "Less admin. More headspace.",
-    body: "Let your systems handle the routine.",
-    detail: "More time for what matters.",
-    stat: { value: "15", unit: "h+", label: "Weekly time-saving target", source: null, sourceLabel: null, qualifier: null },
-    points: ["Enquiries and follow-ups in one place", "Workflows built around your team"],
-  },
-  {
-    title: "Be the name they remember.",
-    body: "Bring your website, content and identity together.",
-    detail: "Unmistakably you. Everywhere.",
-    stat: { value: "33", unit: "%", label: "Potential revenue lift from consistency", source: "https://www.prnewswire.com/news-releases/study-finds-companies-with-consistent-branding-can-see-up-to-33-increase-in-revenue-300967219.html", sourceLabel: "Survey: Lucidpress (2019)", qualifier: "Up to" },
-    points: ["A recognisable voice", "A consistent world, everywhere"],
-  },
-];
+const BENEFITS = IMAGINE_BENEFITS;
 function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: number }) {
   const tr = usePublicCopy();
   const reduced = useHydratedReducedMotion();
@@ -217,10 +195,7 @@ export default function PawRevealStack() {
       <div ref={gridRef} className={styles.grid} data-imagine-content>
         {BENEFITS.map((item, index) => <BenefitCard key={item.title} item={item} index={index} />)}
       </div>
-      <div className={styles.reviewOffer}>
-        <p><span>{tr("Not sure where to start?")}</span>{tr("A personal review. Three priority fixes.")}</p>
-        <Link href="/audit" className={styles.reviewLink}>{tr("Review my brand")}<ArrowUpRight aria-hidden="true" /></Link>
-      </div>
+
     </div>
   </section>;
 }

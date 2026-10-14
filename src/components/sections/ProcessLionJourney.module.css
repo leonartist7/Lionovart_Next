@@ -74,12 +74,12 @@
 .steps { min-width: 0; display: grid; gap: 0; margin: 0; padding: 0 .5rem 0 0; list-style: none; }
 .step {
   min-width: 0;
-  min-height: clamp(12rem, 34svh, 20rem);
+  min-height: clamp(9rem, 23svh, 14rem);
   display: grid;
   grid-template-columns: 3rem minmax(0, 1fr);
   align-items: center;
   gap: clamp(.5rem, 1.4vw, 1.5rem);
-  padding-block: 1.5rem;
+  padding-block: 1rem;
   border-top: 1px solid rgb(199 168 106 / 22%);
 }
 .step:last-child { border-bottom: 1px solid rgb(199 168 106 / 22%); }
@@ -180,7 +180,7 @@
 }
 @media (min-width: 1024px) {
   .journey { --process-rail: clamp(13rem, 24vw, 22rem); --process-gap: clamp(2rem, 5vw, 5rem); }
-  .step { grid-template-columns: 5rem minmax(0, 1fr); min-height: clamp(13rem, 36svh, 23rem); }
+  .step { grid-template-columns: 5rem minmax(0, 1fr); min-height: clamp(10rem, 24svh, 15rem); }
   .stepNumber > span, .numberShine::after { font-size: 2.25rem; }
 }
 @media (prefers-reduced-motion: reduce), (max-height: 480px) {

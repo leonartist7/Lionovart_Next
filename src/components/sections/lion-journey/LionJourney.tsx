@@ -62,7 +62,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       arrivalProgress.set(reveal.current ? clamp(1 - reveal.current.getBoundingClientRect().top / innerHeight) : 0);
       const openingP = pinned ? clamp(((lenis?.scroll ?? scrollY) - pinStart) / Math.max(1, bounds.height - stageHeight - overlap)) : 0;
       openingProgress.set(openingP);
-      progress.set(clamp(openingP / .49));
+      progress.set(clamp(openingP * 1.6 / .49));
       // The dark opening ends at Imagine; its rounded cap has a clear surround.
       if (host.current && reveal.current) {
         const height = reveal.current.getBoundingClientRect().top - host.current.getBoundingClientRect().top;
@@ -72,7 +72,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       const complete = !!reveal.current && reveal.current.getBoundingClientRect().top <= 0 && coverage.current >= .999;
       backdropOpacity.set(reveal.current && reveal.current.getBoundingClientRect().top <= 0 ? 1 - clamp(coverage.current) : 1);
       setActive(current => current === !complete ? current : !complete);
-      if (host.current) host.current.dataset.lionProgress = clamp(openingP / .49).toFixed(3);
+      if (host.current) host.current.dataset.lionProgress = clamp(openingP * 1.6 / .49).toFixed(3);
     };
     const schedule = () => { if (!frame && !disposed) frame = requestAnimationFrame(() => { frame = 0; sync(); }); };
     update.current = schedule;

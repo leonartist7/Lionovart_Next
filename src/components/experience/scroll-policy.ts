@@ -3,9 +3,9 @@ export type ScrollStop = { id: string; label: string; y: number; kind: "opening"
 export type ScrollScene = { start: number; end: number; extent?: number; kind: "opening" | "partnership"; stops: ScrollStop[] };
 
 export const SCROLL_MODES = {
-  flow: { label: "Free flow", description: "Natural scrolling with longer film and card holds.", span: 210, mobileSpan: 240 },
-  settle: { label: "Soft settle", description: "Scroll freely, then let each transition finish gently when you release.", span: 260, mobileSpan: 290 },
-  cinema: { label: "Scene by scene", description: "A deliberate scroll gesture carries you to the next visual resting point.", span: 280, mobileSpan: 310 },
+  flow: { label: "Free flow", description: "Natural scrolling with longer film and card holds.", span: 300, mobileSpan: 340 },
+  settle: { label: "Soft settle", description: "Scroll freely, then let each transition finish gently when you release.", span: 360, mobileSpan: 400 },
+  cinema: { label: "Scene by scene", description: "A deliberate scroll gesture carries you to the next visual resting point.", span: 380, mobileSpan: 420 },
 } as const;
 
 export function parseScrollMode(value: string | null): ScrollMode {
@@ -33,6 +33,16 @@ export function chooseScrollStop({ mode, y, gestureStart, direction, viewport, s
     }
     const p = (y - scene.start) / span;
     if (scene.kind === "opening") {
+      if (scene.stops.some(s => s.id === "imagine" && s.kind === "opening")) {
+        // One opening stage: intact film, discipline faces, then Imagine backs.
+        if (p > .49 / 1.6 && p < .84 / 1.6) return scene.stops.find(s => s.id === (direction > 0 ? "cards" : "film"));
+        if (p > .68 && p < .9) return scene.stops.find(s => s.id === (direction > 0 ? "imagine" : "cards"));
+        if (Math.abs(y - gestureStart) < 12) return;
+        if (direction > 0 && p >= .27 / 1.6 && p < .36 / 1.6) return scene.stops.find(s => s.id === "film");
+        if (direction < 0 && p > .36 / 1.6 && p <= .49 / 1.6) return scene.stops.find(s => s.id === "film");
+        if (direction < 0 && p >= .9 && p <= .96) return scene.stops.find(s => s.id === "imagine");
+        return;
+      }
       // Every released gesture inside the split finishes in its direction.
       // Keep the intact-film and fully-open-card reading holds outside it.
       if (p > .49 && p < .84) return scene.stops.find(s => s.id === (direction > 0 ? "cards" : "film"));

@@ -59,3 +59,9 @@ Browser verification covers treatment switching and comparison-panel scene short
 the stationary film hold, complete cards, opt-in sound, phone layout, and reduced
 motion. Final feel should also be reviewed on a physical iPhone and Android,
 especially native flick momentum and media playback under low-power mode.
+
+## Integrated Imagine faces
+
+The opening stage now contains three reading stops: joined film at 22.5%, discipline cards at 52.5%, and Imagine backs at 90%. The original film/card timing is mapped into the first 62.5% of the longer stage. Between 68% and 86%, the same glass cards rotate to their benefit faces; the Imagine title and subtitle replace the proof badges beneath them. Release settling completes this second flip in either direction. The separate red Imagine chapter and review offer are removed from the homepage. Reduced motion exposes the benefits in a static list. The remaining partnership circle uses the original #f51b2c red.
+
+Process rows are approximately one third shorter; the measured fourth-step tail is retained and the lion/CTA runway is reduced from 150svh to 120svh.

@@ -15,8 +15,8 @@ export default function HeroOpening() {
   const workOpacity = useTransform(arrivalProgress, [0, .3, .9, 1], [1, 1, 0, 0]);
   useMotionValueEvent(arrivalProgress, "change", p => setWorkInert(p >= .9));
   const [heroInert, setHeroInert] = useState(false);
-  const heroOpacity = useTransform(openingProgress, [0, 0.03, 0.26], [1, 1, 0]);
-  useMotionValueEvent(openingProgress, "change", p => { setHeroInert(p > 0.25); });
+  const heroOpacity = useTransform(openingProgress, [0, 0.03 / 1.6, 0.26 / 1.6], [1, 1, 0]);
+  useMotionValueEvent(openingProgress, "change", p => { setHeroInert(p > 0.25 / 1.6); });
 
   useEffect(() => {
     const opening = openingRef.current;
@@ -61,7 +61,7 @@ export default function HeroOpening() {
   }, []);
 
   return (
-    <div ref={openingRef} className="hero-opening hero-opening-pinned" data-opening-mode="pinned">
+    <div ref={openingRef} className="hero-opening hero-opening-pinned" data-opening-mode="pinned" data-opening-imagine="true">
       <span id="what-we-build" className="opening-work-anchor" aria-hidden="true" />
       <div className="hero-opening-stage">
         <motion.div data-nova-section="hero" data-opening-hero className="opening-hero-layer"

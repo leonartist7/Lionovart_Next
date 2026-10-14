@@ -76,6 +76,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
     let frame = 0, disposed = false, moving = false, eligible = false, lastInput = -Infinity;
     let direction = 0, gestureStart = scrollY, touching = false, touchX = 0, touchY = 0;
     let scenes: ScrollScene[] = [], stops: ScrollStop[] = [];
+    let initialHashHandled = false;
     const top = (el: Element) => el.getBoundingClientRect().top + scrollY;
     const measure = () => {
       scenes = []; stops = [];
@@ -87,18 +88,21 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
         const overflow = parseFloat(opening.style.getPropertyValue("--hero-overflow")) || 0;
         const start = top(opening) + overflow;
         const span = Math.max(1, opening.offsetHeight - (stage?.offsetHeight ?? innerHeight) - overlap);
+        const integratedImagine = opening.dataset.openingImagine === "true";
+        const timelineScale = integratedImagine ? 1.6 : 1;
         const openingStops: ScrollStop[] = [
           { id: "hero", label: "Opening", y: start, kind: "opening" },
-          { id: "film", label: "Studio film", y: start + span * .36, kind: "opening" },
-          { id: "cards", label: "LION · NOVA · ART", y: start + span * .84, kind: "opening" },
+          { id: "film", label: "Studio film", y: start + span * .36 / timelineScale, kind: "opening" },
+          { id: "cards", label: "LION · NOVA · ART", y: start + span * .84 / timelineScale, kind: "opening" },
         ];
+        if (integratedImagine) openingStops.push({ id: "imagine", label: "Imagine", y: start + span * .9, kind: "opening" });
         scenes.push({ start, end: start + span, kind: "opening", stops: openingStops });
         stops.push(...openingStops);
         document.documentElement.dataset.scrollOpeningStart = String(start);
         document.documentElement.dataset.scrollOpeningEnd = String(start + span);
       }
       const imagineHeading = document.querySelector("#imagine-heading");
-      if (imagineHeading) {
+      if (imagineHeading && !stops.some(s => s.id === "imagine")) {
         const stop: ScrollStop = { id: "imagine", label: "Imagine", y: top(imagineHeading) - 88, kind: "section" };
         stops.push(stop);
         const openingScene = scenes.find(s => s.kind === "opening");
@@ -128,6 +132,13 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
         partnership.stops.push(services); partnership.extent = Math.max(partnership.end, services.y);
       }
       points.current = stops;
+      if (!initialHashHandled) {
+        initialHashHandled = true;
+        if (["#imagine", "#problems"].includes(location.hash)) {
+          const imagineStop = stops.find(s => s.id === "imagine");
+          if (imagineStop) lenis.scrollTo(imagineStop.y, { immediate: true, force: true, userData: { navigation: true } });
+        }
+      }
     };
     const unavailable = () => disposed || document.hidden || reduced || innerHeight <= 480 || lenis.isStopped ||
       document.body.style.overflow === "hidden" || !!document.querySelector('[role="dialog"][aria-modal="true"]') ||
@@ -205,6 +216,12 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
     const key = (event: KeyboardEvent) => { if (["Escape", "Tab", "ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) pause(); };
     const click = (event: MouseEvent) => {
       pause();
+      const anchor = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href="#imagine"], a[href="#problems"]') : null;
+      if (anchor) {
+        event.preventDefault();
+        const stop = stops.find(s => s.id === "imagine");
+        if (stop) move.current(stop);
+      }
       if (event.target instanceof Element && event.target.closest('[data-benefit-card] button, [data-sound-cue]')) sonic.current?.tap();
     };
     const visibility = () => { cancel(); if (document.hidden) sonic.current?.suspend(); else sonic.current?.resume(); };
