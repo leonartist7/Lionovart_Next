@@ -195,8 +195,8 @@ function Pane({
       // Lift on hover; `z` composes with the group tilt instead of fighting it.
       whileHover={armed ? { z: 46, transition: { duration: 0.4, ease: "easeOut" } } : undefined}
     >
-      {/* Intrinsic card sizing: a square image plus a compact footer on
-          desktop; square art beside the copy in the phone stack. */}
+      {/* Desktop contains the full artwork above the copy; shorter screens
+          reduce the art area's height while phones keep the side-by-side art. */}
       <div aria-hidden="true" className={`opening-pane-sizing ${styles.paneSizer} pointer-events-none w-full pb-52 pt-[100%] max-[920px]:h-[var(--opening-art-size)] max-[920px]:p-0`} />
       {/* The glass body rises underneath the fading, unbroken film. */}
       <motion.div
@@ -459,8 +459,9 @@ export default function DisciplineSplit3D({
   // Keep the original film choreography; reserve the final third for Imagine.
   const openingProgress = useTransform(rawOpeningProgress, p => Math.min(1, p * 1.6));
   const benefitProgress = useTransform(rawOpeningProgress, [.68, .86], [0, 1], { ease: FRAME_EASE });
-  const badgeOpacity = useTransform(rawOpeningProgress, [.68, .78], [1, 0]);
-  const captionOpacity = useTransform(rawOpeningProgress, [.75, .86], [0, 1]);
+  // Retire the trust copy before the Imagine title shares the same space.
+  const badgeOpacity = useTransform(rawOpeningProgress, [.68, .75], [1, 0]);
+  const captionOpacity = useTransform(rawOpeningProgress, [.76, .86], [0, 1]);
   const [imagineVisible, setImagineVisible] = useState(false);
   useMotionValueEvent(rawOpeningProgress, "change", p => setImagineVisible(!reduce && p >= .77));
   const openingFlip = useTransform(openingProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
