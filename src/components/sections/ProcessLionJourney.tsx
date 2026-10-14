@@ -15,6 +15,7 @@ import styles from "./ProcessLionJourney.module.css";
 
 const STEP_RING = "https://res.cloudinary.com/dgio9uutc/image/upload/v1791549765/steps_1_urfdp7.avif";
 const LION_POSTER = "/models/lion/lion-poster.png?v=hid-20260914";
+const LION_FRONT_POSTER = "/models/lion/desktop-review.png?v=hid-20260914";
 const shortQuery = "(max-height: 480px)";
 const subscribeMounted = () => () => {};
 const subscribeShort = (notify: () => void) => {
@@ -40,6 +41,7 @@ export default function ProcessLionJourney() {
   const scene = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLDivElement>(null);
   const poster = useRef<HTMLImageElement>(null);
+  const frontPoster = useRef<HTMLImageElement>(null);
   const origin = useRef<HTMLDivElement>(null);
   const process = useRef<HTMLElement>(null);
   const closing = useRef<HTMLDivElement>(null);
@@ -180,6 +182,12 @@ export default function ProcessLionJourney() {
         poster.current.style.width = `${size}px`;
         poster.current.style.height = `${size}px`;
         poster.current.style.transform = `translate3d(${pose.x - size / 2}px,${pose.y - size / 2}px,0) scaleX(${pose.footerProgress > .5 ? 1 : -1})`;
+        poster.current.style.opacity = String(pose.opacity * (1 - pose.arrival));
+        if (frontPoster.current) {
+          frontPoster.current.style.width = `${size}px`;
+          frontPoster.current.style.height = `${size}px`;
+          frontPoster.current.style.opacity = String(pose.opacity * pose.arrival);
+        }
       }
       dirty = false;
     };
@@ -198,6 +206,10 @@ export default function ProcessLionJourney() {
       scrollVelocity *= Math.exp(-dt / .18);
       scrollPitch += (scrollLionTilt(scrollVelocity) - scrollPitch) * (1 - Math.exp(-dt / .24));
       view.dataset.lionPitch = String(pose.pitch + scrollPitch);
+      if (!ready && frontPoster.current) {
+        const size = pose.size * 1.35;
+        frontPoster.current.style.transform = `translate3d(${pose.x - size / 2}px,${pose.y - size / 2}px,0) perspective(900px) rotateX(${pose.pitch + scrollPitch}rad)`;
+      }
       const interaction = pose.processOpacity;
       if (ready && engine) engine.render({
         x: pose.x, y: pose.y, size: pose.size,
@@ -309,6 +321,9 @@ export default function ProcessLionJourney() {
     <div ref={viewport} className={styles.lionViewport} data-process-lion-viewport aria-hidden="true">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img ref={poster} className={styles.travellingPoster} src={LION_POSTER} alt="" width={900} height={900} loading="lazy" />
+      {/* The supplied front render keeps the CTA pose on non-WebGL browsers. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img ref={frontPoster} className={styles.travellingPoster} src={LION_FRONT_POSTER} alt="" width={900} height={900} loading="lazy" style={{ opacity: 0 }} />
       <div ref={canvas} className={styles.canvas} />
       <p ref={chapter} className={styles.chapter} data-process-chapter data-locale={locale}>
         <span>{chapterLines[0]}</span><span>{together.charAt(0).toUpperCase() + together.slice(1)}</span>
@@ -346,7 +361,7 @@ export default function ProcessLionJourney() {
         <ClosingCTA workShowcase chapterInJourney={!staticMode} lionDock={
           <div ref={dock} className={styles.dock} data-process-lion-dock aria-hidden="true">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className={styles.staticPoster} src={LION_POSTER} alt="" width={900} height={900} loading="lazy" />
+            <img className={styles.staticPoster} src={LION_FRONT_POSTER} alt="" width={900} height={900} loading="lazy" />
           </div>
         } />
         </ClosingRevealContext.Provider>
