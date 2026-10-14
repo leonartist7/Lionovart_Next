@@ -56,6 +56,7 @@ test('one card scene settles from film, protects reading, then leaves for partne
  assert.equal(choose(900,840)?.id,'partnership');
  assert.equal(choose(900,840,1,{end:1240,frontReading:{start:840,end:1080}}),undefined);
  assert.equal(choose(960,1080,-1,{end:1240,frontReading:{start:840,end:1080}}),undefined);
+ assert.equal(choose(1180,900,1,{end:1240,frontReading:{start:840,end:1080}}),undefined,'a reading gesture cannot also skip to the next chapter');
  assert.equal(choose(1180,1080,1,{end:1240,frontReading:{start:840,end:1080}})?.id,'partnership');
 });
 

@@ -22,7 +22,8 @@ export function chooseScrollStop({ mode, y, gestureStart, direction, viewport, s
   if (scene) {
     const span = scene.timelineSpan ?? scene.end - scene.start;
     // Finish reading the actual cards before an automatic flip can begin.
-    if (scene.frontReading && y >= scene.frontReading.start && y < scene.frontReading.end) return;
+    if (scene.frontReading && (y >= scene.frontReading.start && y < scene.frontReading.end ||
+      gestureStart >= scene.frontReading.start && gestureStart < scene.frontReading.end)) return;
     if (mode === "cinema") {
       // One fresh gesture advances one beat. Never skip a film/card resting point.
       const previous = [...scene.stops].reverse().find(p => p.y <= gestureStart + 12);
