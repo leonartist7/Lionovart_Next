@@ -421,7 +421,8 @@ export default function DisciplineSplit3D({
   const [filmFrame, setFilmFrame] = useState<FilmFrame | null>(null);
   // The scroll handoff is reversible on every device; optional pointer tilt
   // is available only after settling, with a mouse and motion enabled.
-  const armed = !reduce && entranceDone && finePointer;
+  const [benefitTurning, setBenefitTurning] = useState(false);
+  const armed = !reduce && entranceDone && finePointer && !benefitTurning;
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "production") {
@@ -466,7 +467,10 @@ export default function DisciplineSplit3D({
   const badgeOpacity = useTransform(rawOpeningProgress, [.68, .75], [1, 0]);
   const captionOpacity = useTransform(rawOpeningProgress, [.76, .86], [0, 1]);
   const [imagineVisible, setImagineVisible] = useState(false);
-  useMotionValueEvent(rawOpeningProgress, "change", p => setImagineVisible(!reduce && p >= .77));
+  useMotionValueEvent(rawOpeningProgress, "change", p => {
+    setImagineVisible(!reduce && p >= .77);
+    setBenefitTurning(!reduce && p > .68);
+  });
   const openingFlip = useTransform(openingProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
   // The wash lives in the video layer, above the WebGL lion. Keep it off
   // until the opaque film has covered the mane; otherwise its translucent
