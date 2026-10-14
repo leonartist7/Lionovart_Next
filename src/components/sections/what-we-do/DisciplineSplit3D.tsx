@@ -189,7 +189,7 @@ function Pane({
     >
       {/* Intrinsic card sizing: a square image plus a compact footer on
           desktop; square art beside the copy in the phone stack. */}
-      <div aria-hidden="true" className="opening-pane-sizing pointer-events-none w-full pb-52 pt-[100%] max-[919px]:h-[var(--opening-art-size)] max-[919px]:p-0" />
+      <div aria-hidden="true" className="opening-pane-sizing pointer-events-none w-full pb-52 pt-[100%] max-[920px]:h-[var(--opening-art-size)] max-[920px]:p-0" />
       {/* The glass body rises underneath the fading, unbroken film. */}
       <motion.div
         className="absolute inset-0 z-[1] rounded-[inherit]"
@@ -343,7 +343,7 @@ function Pane({
           </motion.span>
 
           <motion.div
-            className={`opening-pane-copy ${styles.copy} absolute inset-x-0 bottom-0 z-10 flex h-52 flex-col justify-center bg-[#08080a]/95 p-4 text-left max-[919px]:left-[var(--opening-art-size)] max-[919px]:h-full max-[919px]:p-3 min-[920px]:p-5`}
+            className={`opening-pane-copy ${styles.copy} absolute inset-x-0 bottom-0 z-10 flex h-52 flex-col justify-center bg-[#08080a]/95 p-4 text-left max-[920px]:left-[var(--opening-art-size)] max-[920px]:h-full max-[920px]:p-3 min-[920px]:p-5`}
             style={{ opacity: contentP, y: contentY }}
           >
             <h3 className={styles.title}>{card.title}</h3>
