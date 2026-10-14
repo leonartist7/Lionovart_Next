@@ -91,6 +91,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
         const frontExtra = parseFloat(opening.style.getPropertyValue("--opening-front-overflow")) || 0;
         const span = Math.max(1, opening.offsetHeight - (stage?.offsetHeight ?? innerHeight) - overlap - extra - frontExtra);
         const integratedImagine = opening.dataset.openingImagine === "true";
+        const inlineBenefits = opening.dataset.openingImagine === "inline";
         const timelineScale = integratedImagine ? 1.6 : 1;
         const openingStops: ScrollStop[] = [
           { id: "hero", label: "Opening", y: start, kind: "opening" },
@@ -98,10 +99,11 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
           { id: "cards", label: "LION · NOVA · ART", y: start + span * .84 / timelineScale, kind: "opening" },
         ];
         if (integratedImagine) openingStops.push({ id: "imagine", label: "Imagine", y: start + span * .9 + frontExtra, kind: "opening" });
-        scenes.push({ start, end: start + span + frontExtra, extent: start + span + frontExtra + extra, timelineSpan: span,
-          frontReading: frontExtra ? { start: start + span * .525, end: start + span * .525 + frontExtra } : undefined,
+        scenes.push({ start, end: start + span + frontExtra, extent: start + span + frontExtra + extra, timelineSpan: span, inlineBenefits,
+          frontReading: frontExtra ? { start: start + span * (inlineBenefits ? .84 : .525), end: start + span * (inlineBenefits ? .84 : .525) + frontExtra } : undefined,
           kind: "opening", stops: openingStops });
         stops.push(...openingStops);
+        if (inlineBenefits) stops.push({ ...openingStops[2], id: "imagine", label: "Card benefits" });
         document.documentElement.dataset.scrollOpeningStart = String(start);
         document.documentElement.dataset.scrollOpeningEnd = String(start + span + frontExtra);
       }

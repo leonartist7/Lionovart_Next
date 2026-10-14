@@ -21,3 +21,9 @@ export function openingFrameCenters(stageCenter: number, finalHeight: number, sa
     Math.min(stageCenter, safeBottom - allowance - visibleHeight / 2));
   return { filmCenter, cardCenter: filmCenter + Math.max(0, finalHeight - available) / 2 };
 }
+
+/** A single card stack is read once, without rewinding it for another face. */
+export function inlineBenefitReadingPose(travel: number, span: number, overflow = 0) {
+  const offset = clamp(travel - span * .84, overflow);
+  return { progress: clamp((travel - offset) / Math.max(1, span)), offset };
+}

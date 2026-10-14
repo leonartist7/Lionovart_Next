@@ -52,3 +52,18 @@
 @media (prefers-reduced-motion: reduce) and (width < 920px) { .paneSizer { height: var(--opening-art-size); } }
 
 @media (height <= 700px) { .captionStack { min-height: 5.5rem; } }
+
+/* One bounded card replaces the discipline/back-face size negotiation. */
+.integratedFace { position: absolute; inset: 0; border-radius: inherit; }
+.integratedFace > article { border-radius: inherit; }
+@media (width >= 920px) {
+  .paneSizer { height: clamp(25rem, 50svh, 32rem); padding: 0; }
+}
+@media (width < 920px) {
+  .paneSizer { height: 16.5rem; padding: 0; }
+}
+@media (width < 360px) {
+  .paneSizer { height: 17.5rem; }
+}
+@media (prefers-reduced-motion: reduce) { .paneSizer { height: 28rem; } }
+@media (prefers-reduced-motion: reduce) and (width < 920px) { .paneSizer { height: 16.5rem; } }

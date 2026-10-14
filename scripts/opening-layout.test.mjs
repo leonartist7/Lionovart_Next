@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {usesLandscapeFilm,openingReadingPose,openingFrameCenters} from '../src/components/sections/lion-journey/opening-layout.ts';
+import {usesLandscapeFilm,openingReadingPose,openingFrameCenters,inlineBenefitReadingPose} from '../src/components/sections/lion-journey/opening-layout.ts';
 import {chooseScrollStop} from '../src/components/experience/scroll-policy.ts';
 
 test('medium laptop/tablet and landscape phone get the horizontal film',()=>{
@@ -37,4 +37,24 @@ test('auto settling reads the front stack before carrying it into Imagine',()=>{
  assert.equal(choose('settle',1010,925)?.id,'imagine');
  assert.equal(choose('cinema',1010,925)?.id,'imagine');
  assert.equal(choose('settle',1500,1300),undefined,'read back faces before the next chapter');
+});
+
+test('inline benefits read one compact stack without a reset or second pass',()=>{
+ assert.deepEqual(inlineBenefitReadingPose(840,1000,240),{progress:.84,offset:0});
+ assert.deepEqual(inlineBenefitReadingPose(960,1000,240),{progress:.84,offset:120});
+ assert.deepEqual(inlineBenefitReadingPose(1080,1000,240),{progress:.84,offset:240});
+ assert.deepEqual(inlineBenefitReadingPose(1240,1000,240),{progress:1,offset:240});
+ const points=[0,840,960,1080,1240];
+ assert.deepEqual(points.map(x=>inlineBenefitReadingPose(x,1000,240)).reverse(),points.reverse().map(x=>inlineBenefitReadingPose(x,1000,240)));
+});
+test('one card scene settles from film, protects reading, then leaves for partnership',()=>{
+ const stops=[['hero',0],['film',360],['cards',840],['partnership',1500]].map(([id,y])=>({id,y,label:id,kind:id==='partnership'?'partnership':'opening'}));
+ const scene={start:0,end:1000,timelineSpan:1000,kind:'opening',inlineBenefits:true,stops};
+ const choose=(y,gestureStart,direction=1,more={})=>chooseScrollStop({mode:'settle',y,gestureStart,direction,viewport:832,scenes:[{...scene,...more}],boundaries:stops});
+ assert.equal(choose(520,360)?.id,'cards');
+ assert.equal(choose(600,840,-1)?.id,'film');
+ assert.equal(choose(900,840)?.id,'partnership');
+ assert.equal(choose(900,840,1,{end:1240,frontReading:{start:840,end:1080}}),undefined);
+ assert.equal(choose(960,1080,-1,{end:1240,frontReading:{start:840,end:1080}}),undefined);
+ assert.equal(choose(1180,1080,1,{end:1240,frontReading:{start:840,end:1080}})?.id,'partnership');
 });

@@ -170,3 +170,45 @@
   .metricLabel { font-size: .8125rem; }
   .sculpture { width: min(50%, 8rem); }
 }
+
+/* Benefits live inside the original artwork cards; opening never resizes them. */
+.card[data-integrated=true] { --imagine-ink: #302b26; --benefit-inset: 1.125rem; display: grid; grid-template-rows: minmax(0, 1fr) 16.5rem; grid-row: auto; height: 100%; padding: 0; border-radius: inherit; background: #08080a; }
+.integratedArtwork { position: relative; min-height: 0; overflow: hidden; }
+.integratedArtwork img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; }
+.pillarCode { position: absolute; left: 1rem; top: 1rem; font: 700 clamp(2rem, 4vw, 4rem)/.8 var(--font-heading); color: transparent; -webkit-text-stroke: 1px #ffffff45; }
+.card[data-integrated=true] .detailShell { min-width: 0; clip-path: inset(-6rem 0 0); }
+.card[data-integrated=true] .detailWell { min-height: 0; border-radius: 0; }
+.card[data-integrated=true] .details { padding: 1.125rem var(--benefit-inset) 3rem; border: 0; }
+.integratedDetailTitle { margin: 0 0 .75rem; font: italic 400 clamp(1.25rem, 1rem + .5vw, 1.5rem)/1.18 var(--font-playfair-display), Georgia, serif; text-wrap: balance; }
+.card[data-integrated=true] .details li { font-size: .875rem; line-height: 1.35; gap: .5rem; }
+.card[data-integrated=true] .details ul { gap: .5rem; }
+.card[data-integrated=true] .metric { margin-top: .75rem; padding-top: .75rem; padding-inline-end: 0; gap: .625rem; }
+.card[data-integrated=true] .metricValue { font-size: 2rem; }
+.card[data-integrated=true] .metricValue small { font-size: .75rem; }
+.card[data-integrated=true] .metricLabel { font-size: .75rem; line-height: 1.35; }
+.card[data-integrated=true] .detailCover { background: #08080a; }
+.integratedCopy { padding: 1.625rem var(--benefit-inset) 3rem; color: #f7f4ef; }
+.serviceLabel { margin: 0 0 .75rem; font: 500 .75rem/1.3 var(--font-heading), sans-serif; color: #c5bfb8; }
+.integratedCopy h3 { margin: 0; font: 650 clamp(1.375rem, 1rem + .75vw, 1.875rem)/1.1 var(--font-heading), sans-serif; letter-spacing: -.025em; text-wrap: balance; }
+.integratedAccent { margin: .875rem 0 0; font: italic 400 1.0625rem/1.3 var(--font-playfair-display), Georgia, serif; color: #d2c4b2; }
+.card[data-integrated=true] .paw { width: min(65%, 10rem); }
+.card[data-integrated=true] .cardToggle { z-index: 6; }
+.card[data-integrated=true] .toggleIcon { bottom: .5rem; }
+.card[data-integrated=true] .tapLabel { left: var(--benefit-inset); bottom: .875rem; }
+@media (width < 920px) {
+  .card[data-integrated=true] { --benefit-inset: .875rem; grid-template-columns: 28% minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+  .card[data-integrated=true] .detailShell { border-left: 1px solid #e1b95c66; }
+  .card[data-integrated=true] .integratedArtwork img { object-fit: cover; }
+  .pillarCode { left: .5rem; top: .875rem; font-size: 1.75rem; }
+  .card[data-integrated=true] .details { padding: .875rem var(--benefit-inset) 2.75rem; }
+  .integratedDetailTitle { margin-bottom: .625rem; font-size: 1.25rem; }
+  .card[data-integrated=true] .details li { font-size: .8125rem; }
+  .card[data-integrated=true] .metric { margin-top: .625rem; padding-top: .625rem; }
+  .card[data-integrated=true] .metricValue { font-size: 1.875rem; }
+  .integratedCopy { padding: 1.625rem var(--benefit-inset) 3rem; }
+  .integratedCopy h3 { font-size: 1.375rem; }
+  .serviceLabel { font-size: .6875rem; margin-bottom: .625rem; }
+  .integratedAccent { font-size: .9375rem; margin-top: .75rem; }
+  .card[data-integrated=true] .cardToggle { left: 0; width: 100%; }
+  .card[data-integrated=true] .tapLabel { left: calc(28% + var(--benefit-inset)); }
+}

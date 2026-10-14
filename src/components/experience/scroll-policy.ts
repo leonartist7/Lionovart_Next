@@ -1,6 +1,6 @@
 export type ScrollMode = "flow" | "settle" | "cinema";
 export type ScrollStop = { id: string; label: string; y: number; kind: "opening" | "partnership" | "section" | "service" };
-export type ScrollScene = { start: number; end: number; extent?: number; timelineSpan?: number; frontReading?: { start: number; end: number }; kind: "opening" | "partnership"; stops: ScrollStop[] };
+export type ScrollScene = { start: number; end: number; extent?: number; timelineSpan?: number; frontReading?: { start: number; end: number }; inlineBenefits?: boolean; kind: "opening" | "partnership"; stops: ScrollStop[] };
 
 export const SCROLL_MODES = {
   flow: { label: "Free flow", description: "Natural scrolling with longer film and card holds.", span: 270, mobileSpan: 310 },
@@ -36,6 +36,15 @@ export function chooseScrollStop({ mode, y, gestureStart, direction, viewport, s
     const consumed = scene.frontReading ? Math.max(0, Math.min(scene.frontReading.end - scene.frontReading.start, y - scene.frontReading.start)) : 0;
     const p = (y - scene.start - consumed) / span;
     if (scene.kind === "opening") {
+      if (scene.inlineBenefits) {
+        if (Math.abs(y - gestureStart) < 12) return;
+        if (p > .49 && p < .84) return scene.stops.find(s => s.id === (direction > 0 ? "cards" : "film"));
+        if (direction > 0 && p >= .27 && p < .36) return scene.stops.find(s => s.id === "film");
+        if (direction < 0 && p > .36 && p <= .49) return scene.stops.find(s => s.id === "film");
+        if (p >= .84 && direction < 0) return scene.stops.find(s => s.id === "cards");
+        if (p >= .84 && direction > 0 && Math.abs(y - gestureStart) >= 28 && (scene.extent ?? scene.end) <= scene.end) return scene.stops.find(s => s.id === "partnership");
+        return;
+      }
       if (scene.stops.some(s => s.id === "imagine" && s.kind === "opening")) {
         // One opening stage: intact film, discipline faces, then Imagine backs.
         if (Math.abs(y - gestureStart) < .5) return;

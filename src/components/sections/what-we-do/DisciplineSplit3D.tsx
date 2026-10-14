@@ -18,7 +18,9 @@ import {
 import { SPLIT_START, SPLIT_END } from "../lion-journey/motion";
 import { useLionJourney } from "../lion-journey/LionJourney";
 import OpeningProof from "../OpeningProof";
-import ImagineCardFace, { ImagineHeading } from "../ImagineCardFace";
+import { ImagineHeading } from "../ImagineCardFace";
+import { BenefitCard } from "../PawRevealStack";
+import { IMAGINE_BENEFITS } from "../imagine-benefits";
 import { LANDSCAPE_FILM_QUERY, usesLandscapeFilm, openingFrameCenters } from "../lion-journey/opening-layout";
 const FACE_TINTS = [
   "rgba(176, 112, 28, 0.16), rgba(7, 7, 10, 0.88)",
@@ -114,12 +116,6 @@ const SPOT_STOPS: [core: string, mid: string, edge: string][] = [
   ["255,150,72", "237,72,40", "229,25,42"],
 ];
 
-// Resize without cropping the source; the existing face controls framing.
-function cardArtworkUrl(source: string, width: number) {
-  if (!source.startsWith("https://res.cloudinary.com/") || !source.includes("/image/upload/")) return source;
-  return source.replace("/image/upload/", `/image/upload/f_auto,q_auto,c_limit,w_${width}/`);
-}
-
 function Pane({
   card,
   dir,
@@ -133,7 +129,7 @@ function Pane({
   filmOpacity,
   poster,
   canvasReady,
-  benefitProgress,
+  interactive,
 }: {
   card: Card;
   dir: number;
@@ -147,17 +143,10 @@ function Pane({
   filmOpacity: MotionValue<number>;
   poster: string;
   canvasReady: boolean;
-  benefitProgress: MotionValue<number>;
+  interactive: boolean;
 }) {
-  const [backVisible, setBackVisible] = useState(false);
-  const [benefitReady, setBenefitReady] = useState(false);
-  useMotionValueEvent(benefitProgress, "change", p => { setBackVisible(!reducedMotion && p >= .5); setBenefitReady(p >= .98); });
-  const showBack = !reducedMotion && backVisible;
-  const benefitRotation = useTransform(benefitProgress, p => reducedMotion || p >= .9995 ? 0 : p * 180);
-  const backTransform = useTransform(benefitProgress, p => p >= .9995 ? "none" : "rotateY(180deg)");
   const splitP = useLocalProgress(flip, HANDOFF_START, HANDOFF_END);
   const cardP = splitP;
-  const contentP = splitP;
 
   // The split-apart translate/tilt — driven straight off scroll, so it
   // scrubs forward and backward with the gesture instead of playing once.
@@ -167,21 +156,18 @@ function Pane({
   // lean while the middle counters it. The effect gives depth without making
   // any card look like a separate panel sitting on top of another.
   const cardLean = i === 1 ? -8 : 8;
-  const paneRotateY = useTransform(() => reducedMotion ? 0 : cardLean * splitP.get() * (1 - benefitProgress.get()));
+  const paneRotateY = useTransform(() => reducedMotion ? 0 : cardLean * splitP.get());
   const paneRotateX = useTransform(splitP, () => 0);
   const innerRadius = useTransform(splitP, (p) => 18 * p);
   const outerRadius = useTransform(splitP, (p) => 16 + 2 * p);
 
   // The film lives on these same faces while they divide and light up.
   const cardZ = useTransform(cardP, [0, 1], reducedMotion ? [0, 0] : [0, 16]);
-  const backImageOpacity = useTransform(cardP, [0, 1], [0, 1]);
-  const contentY = useTransform(contentP, [0, 1], reducedMotion ? [0, 0] : [18, 0]);
-  const markOpacity = useTransform(contentP, [0, 1], [0, 0.24]);
 
   return (
     <motion.div
       ref={registerPane}
-      data-card-face={showBack ? "imagine" : "discipline"}
+      data-card-face="benefit"
       className={`opening-glass-pane ${styles.pane} relative min-h-0 min-w-0 flex-1 [--opening-art-size:clamp(8.5rem,42vw,10rem)]`}
       style={{
         x: paneX,
@@ -205,7 +191,6 @@ function Pane({
         className="absolute inset-0 z-[1] rounded-[inherit]"
         style={{
           z: cardZ,
-          rotateY: benefitRotation,
           transformStyle: "preserve-3d",
         }}
       >
@@ -213,14 +198,8 @@ function Pane({
             rotating back-face entering the composition. */}
         <div
           className={`absolute inset-0 z-[1] overflow-hidden rounded-[inherit] ${styles.frontFace}`}
-          aria-hidden={showBack} inert={showBack}
+          inert={!interactive}
           style={{
-            // Perspective makes each face cross edge-on at a different angle.
-            // Let backface culling handle the turn; hide the front only when
-            // the settled back has shed its equivalent 360-degree transform.
-            visibility: showBack && benefitReady ? "hidden" : "visible",
-            // Each rotating face owns its opaque base. The stationary wrapper
-            // must remain transparent when the flip reveals its surroundings.
             backgroundColor: "#08080a",
             backgroundImage: `linear-gradient(135deg, ${FACE_TINTS[i]}, rgba(4,4,6,0.94) 72%)`,
             boxShadow: `inset 0 1px 0 rgba(255,255,255,0.22), inset 0 0 34px ${EDGE_TINTS[i]}22, 0 24px 48px -28px rgba(0,0,0,0.95)`,
@@ -260,26 +239,12 @@ function Pane({
               mixBlendMode: "screen",
             }}
           />
-          {card.image ? (
-            <motion.img
-              src={cardArtworkUrl(card.image, 960)}
-              srcSet={[480, 800, 1200].map(width => `${cardArtworkUrl(card.image!, width)} ${width}w`).join(", ")}
-              sizes="(min-width: 1440px) 380px, (min-width: 920px) 30vw, 160px"
-              alt=""
-              aria-hidden="true"
-              loading="lazy"
-              decoding="async"
-              className={`${styles.artwork} pointer-events-none absolute left-0 top-0 h-[var(--opening-art-size)] w-[var(--opening-art-size)] object-contain object-center min-[920px]:aspect-square min-[920px]:h-auto min-[920px]:w-full`}
-              style={{ opacity: backImageOpacity }}
-              onError={event => {
-                const image = event.currentTarget;
-                image.removeAttribute("srcset");
-                if (card.image && image.src !== card.image) image.src = card.image;
-              }}
-            />
-          ) : null}
+          <motion.div className={styles.integratedFace} style={{ opacity: cardP }} data-imagine-card={i}>
+            <BenefitCard item={IMAGINE_BENEFITS[i]} index={i} artwork={card.image} code={card.code}
+              serviceTitle={card.title} accent={card.accent} enabled={interactive} />
+          </motion.div>
           <motion.div
-            className="absolute inset-0 z-[2]"
+            className="pointer-events-none absolute inset-0 z-[2]"
             style={{
               background:
                 "radial-gradient(120% 85% at 6% 0%, rgba(255,255,255,0.23) 0%, transparent 48%), linear-gradient(150deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.045) 52%, rgba(255,255,255,0.025) 100%)",
@@ -345,34 +310,7 @@ function Pane({
             </>
           ) : null}
 
-          {/* Quiet pillar signature. It belongs to the surface, not the
-              content block: outlined and deliberately faint so it adds a
-              recognisable brand texture without becoming a second heading. */}
-          <motion.span
-            aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-4 z-[2] select-none font-clash text-[clamp(2rem,5vw,4.9rem)] font-bold uppercase leading-[0.78] tracking-[-0.07em] min-[920px]:left-6 min-[920px]:top-6"
-            style={{
-              opacity: markOpacity,
-              color: "transparent",
-              WebkitTextStroke: "1px rgba(255,255,255,0.42)",
-              textShadow: `0 0 18px ${EDGE_TINTS[i]}30`,
-            }}
-          >
-            {card.code}
-          </motion.span>
-
-          <motion.div
-            className={`opening-pane-copy ${styles.copy} absolute inset-x-0 bottom-0 z-10 flex h-52 flex-col justify-center bg-[#08080a]/95 p-4 text-left max-[920px]:left-[var(--opening-art-size)] max-[920px]:h-full max-[920px]:p-3 min-[920px]:p-5`}
-            style={{ opacity: contentP, y: contentY }}
-          >
-            <h3 className={styles.title}>{card.title}</h3>
-            {card.accent && <p className={styles.accent}>{card.accent}</p>}
-            <p className={styles.body}>{card.body}</p>
-          </motion.div>
         </div>
-        <motion.div className={styles.backFace} style={{ transform: backTransform }} aria-hidden={!showBack} inert={!showBack || !benefitReady}>
-          <ImagineCardFace index={i} />
-        </motion.div>
       </motion.div>
     </motion.div>
   );
@@ -423,8 +361,7 @@ export default function DisciplineSplit3D({
   const [filmFrame, setFilmFrame] = useState<FilmFrame | null>(null);
   // The scroll handoff is reversible on every device; optional pointer tilt
   // is available only after settling, with a mouse and motion enabled.
-  const [benefitTurning, setBenefitTurning] = useState(false);
-  const armed = !reduce && entranceDone && finePointer && !benefitTurning;
+  const armed = !reduce && entranceDone && finePointer;
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "production") {
@@ -464,14 +401,12 @@ export default function DisciplineSplit3D({
   const rawOpeningProgress = journey?.openingProgress ?? scrollYProgress;
   // Keep the original film choreography; reserve the final third for Imagine.
   const openingProgress = useTransform(rawOpeningProgress, p => Math.min(1, p * 1.6));
-  const benefitProgress = useTransform(rawOpeningProgress, [.68, .86], [0, 1], { ease: FRAME_EASE });
   // Retire the trust copy before the Imagine title shares the same space.
-  const badgeOpacity = useTransform(rawOpeningProgress, [.68, .75], [1, 0]);
-  const captionOpacity = useTransform(rawOpeningProgress, [.76, .86], [0, 1]);
+  const badgeOpacity = useTransform(rawOpeningProgress, [.49 / 1.6, .68 / 1.6], [1, 0]);
+  const captionOpacity = useTransform(rawOpeningProgress, [.69 / 1.6, .84 / 1.6], [0, 1]);
   const [imagineVisible, setImagineVisible] = useState(false);
   useMotionValueEvent(rawOpeningProgress, "change", p => {
-    setImagineVisible(!reduce && p >= .77);
-    setBenefitTurning(!reduce && p > .68);
+    setImagineVisible(!reduce && p >= .69 / 1.6);
   });
   const openingFlip = useTransform(openingProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
   // The wash lives in the video layer, above the WebGL lion. Keep it off
@@ -612,12 +547,12 @@ export default function DisciplineSplit3D({
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         const cards = Array.from(stage.querySelectorAll<HTMLElement>("[data-imagine-card]"));
-        const heights = cards.map(card => Math.max(352, card.offsetHeight));
+        const heights = cards.map(card => card.offsetHeight);
         const height = isDesktop ? Math.max(0, ...heights) : heights.reduce((total, h) => total + h, 0);
         const extra = reduce ? 0 : Math.max(0, height * FINAL_FRAME_SCALE + (proofRef.current?.offsetHeight ?? 112) + (isDesktop ? 140 : 160) - innerHeight);
         const value = `${Math.ceil(extra)}px`;
-        if (opening.style.getPropertyValue("--opening-benefit-overflow") !== value || opening.style.getPropertyValue("--opening-front-overflow") !== value) {
-          opening.style.setProperty("--opening-benefit-overflow", value);
+        if (opening.style.getPropertyValue("--opening-front-overflow") !== value) {
+          opening.style.setProperty("--opening-benefit-overflow", "0px");
           opening.style.setProperty("--opening-front-overflow", value);
           window.dispatchEvent(new Event("resize"));
         }
@@ -795,8 +730,8 @@ export default function DisciplineSplit3D({
   const sx = useSpring(px, CURSOR_SPRING);
   const sy = useSpring(py, CURSOR_SPRING);
 
-  const rotateY = useTransform(() => reduce ? 0 : sx.get() * TILT_Y * (1 - benefitProgress.get()));
-  const rotateX = useTransform(() => reduce ? 0 : -sy.get() * TILT_X * (1 - benefitProgress.get()));
+  const rotateY = useTransform(() => reduce ? 0 : sx.get() * TILT_Y);
+  const rotateX = useTransform(() => reduce ? 0 : -sy.get() * TILT_X);
   const sheen = useTransform(sx, [-1, 0, 1], [0.55, 0.14, 0.55]);
   const handoffSheen = useTransform(flip, p => 0.14 * FRAME_EASE(cue(p, HANDOFF_START, HANDOFF_END)));
 
@@ -888,7 +823,7 @@ export default function DisciplineSplit3D({
       data-opening-layout={isDesktop ? "horizontal" : "vertical"}
       id={pinned ? undefined : "what-we-build"}
       data-cards-armed={armed}
-      data-imagine-interactive={imagineVisible}
+      data-imagine-interactive={entranceDone || !!reduce}
       data-film-active={filmActive}
       className={journey ? "relative lion-video-section" : "relative isolate"}
       style={{
@@ -999,8 +934,8 @@ export default function DisciplineSplit3D({
                 i={i}
                 isDesktop={isDesktop}
                 flip={flip}
-                benefitProgress={benefitProgress}
-                armed={armed && !imagineVisible}
+                interactive={entranceDone || !!reduce}
+                armed={armed}
                 reducedMotion={!!reduce}
                 filmOpacity={filmOpacity}
                 poster={activePoster}

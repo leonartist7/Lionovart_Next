@@ -243,3 +243,10 @@
 
 @media (width < 920px) { .journey :global(.opening-work-pinned) { --opening-video-center: 60svh; } }
 .journey :global(.opening-work-pinned .opening-flags) { gap: 8px; }
+
+/* Inline benefits remove the second flip runway and its repeated reading pass. */
+.journey :global(.hero-opening-pinned[data-opening-imagine="inline"]) { height: calc(100svh + var(--opening-scroll-span, 300svh) * .625 + var(--hero-overflow, 0px) + var(--opening-front-overflow, 0px)); }
+.journey :global([data-opening-imagine="inline"] .opening-imagine-anchor) { top: calc(var(--hero-overflow, 0px) + (100% - 100svh - var(--hero-overflow, 0px) - var(--opening-front-overflow, 0px)) * .84); }
+.journey :global([data-opening-imagine="inline"] .opening-video-anchor) { width: min(84vw, 22.5rem); }
+@media (width >= 920px) { .journey :global([data-opening-imagine="inline"] .opening-video-anchor) { width: min(72vw, 68rem); } }
+@media (width < 920px), (height <= 700px) { .journey :global(.hero-opening-pinned[data-opening-imagine="inline"]) { height: calc(100svh + var(--opening-scroll-span-mobile, 340svh) * .625 + var(--hero-overflow, 0px) + var(--opening-front-overflow, 0px)); } }

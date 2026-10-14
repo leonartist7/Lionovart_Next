@@ -5,7 +5,6 @@ import LionJourney from "@/components/sections/lion-journey/LionJourney";
 import { WorkBrowseProvider } from "./selected-work/WorkBrowse";
 
 import CompactIntroduction from "@/components/sections/CompactIntroduction";
-import { ImagineMotionFallback } from "@/components/sections/ImagineCardFace";
 import ServicesSwitcher from "@/components/sections/ServicesSwitcher";
 import WorkServicesTransition from "@/components/sections/WorkServicesTransition";
 import SelectedWork from "@/components/sections/SelectedWork";
@@ -40,7 +39,6 @@ export function PageBuilder() {
             <HeroBackground />
             <HeroOpening />
             <span data-voice-reveal-boundary aria-hidden="true" />
-            <ImagineMotionFallback />
           </LionJourney></HeroCompositionProvider>
         }>
           <NovaSection id="services"><ServicesSwitcher /></NovaSection>

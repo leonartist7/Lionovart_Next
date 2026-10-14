@@ -3,7 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { useMotionValue, type MotionValue } from "framer-motion";
 import { useLenis } from "lenis/react";
 import { clamp } from "./motion";
-import { openingReadingPose } from "./opening-layout";
+import { openingReadingPose, inlineBenefitReadingPose } from "./opening-layout";
 import styles from "./LionJourney.module.css";
 
 type ElementRef = RefObject<HTMLDivElement | null>;
@@ -67,8 +67,9 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       const frontExtra = Number.parseFloat(opening.current.style.getPropertyValue("--opening-front-overflow")) || 0;
       const span = Math.max(1, bounds.height - stageHeight - overlap - extra - frontExtra);
       const travel = (lenis?.scroll ?? scrollY) - pinStart;
-      const reading = openingReadingPose(travel, span, frontExtra, extra);
-      const openingP = pinned ? reading.progress : 0;
+      const inline = opening.current.dataset.openingImagine === "inline";
+      const reading = inline ? inlineBenefitReadingPose(travel, span, frontExtra) : openingReadingPose(travel, span, frontExtra, extra);
+      const openingP = pinned ? reading.progress / (inline ? 1.6 : 1) : 0;
       // Read the complete mobile stack after the flip hold. Its last pixel
       // reaches the section handoff, rather than leaving a second empty hold.
       benefitScroll.set(reading.offset);

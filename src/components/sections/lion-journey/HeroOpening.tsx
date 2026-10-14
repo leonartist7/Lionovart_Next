@@ -61,7 +61,7 @@ export default function HeroOpening() {
   }, []);
 
   return (
-    <div ref={openingRef} className="hero-opening hero-opening-pinned" data-opening-mode="pinned" data-opening-imagine="true" data-nav-surface="dark">
+    <div ref={openingRef} className="hero-opening hero-opening-pinned" data-opening-mode="pinned" data-opening-imagine="inline" data-nav-surface="dark">
       <span id="what-we-build" className="opening-work-anchor" aria-hidden="true" />
       <span id="imagine" className="opening-imagine-anchor" aria-hidden="true" />
       <span id="problems" className="opening-imagine-anchor" aria-hidden="true" />

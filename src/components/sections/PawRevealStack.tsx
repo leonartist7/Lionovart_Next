@@ -17,7 +17,14 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 const PULL_EASE = [0.32, 0.72, 0, 1] as const;
 const PAW_TIMING = { enter: .45, pull: 1.2, return: 1.05, exit: .35 } as const;
 const BENEFITS = IMAGINE_BENEFITS;
-export function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: number }) {
+function artworkSource(source: string, width: number) {
+  return source.includes("res.cloudinary.com/") ? source.replace("/image/upload/", `/image/upload/f_auto,q_auto,c_limit,w_${width}/`) : source;
+}
+export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, enabled = true }: {
+  item: typeof BENEFITS[number]; index: number; artwork?: string; code?: string;
+  serviceTitle?: string; accent?: string; enabled?: boolean;
+}) {
+  const integrated = !!artwork;
   const tr = usePublicCopy();
   const reduced = useHydratedReducedMotion();
   const [phase, setPhase] = useState<"closed" | "revealing" | "open" | "closing">("closed");
@@ -65,19 +72,27 @@ export function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; in
     }
   };
 
-  return <article className={styles.card} data-benefit-card data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
-    <div className={styles.cardTop}>
+  return <article className={styles.card} data-benefit-card data-integrated={integrated} data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
+    {integrated && <div className={styles.integratedArtwork} aria-hidden="true">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={artworkSource(artwork!, 800)} alt="" loading="lazy" decoding="async"
+        srcSet={[240, 480, 800].map(width => `${artworkSource(artwork!, width)} ${width}w`).join(", ")}
+        sizes="(min-width: 920px) 26vw, 100px" />
+      <span className={styles.pillarCode}>{code}</span>
+    </div>}
+    {!integrated && <div className={styles.cardTop}>
       <div className={styles.cardCopy}>
         <p className={styles.cardBody} data-benefit-measure="copy" aria-hidden={showBenefit}>{tr(item.body)}</p>
         <h3 id={panelId + "-title"} className={styles.cardHeadline} data-benefit-measure="copy" aria-hidden={!showBenefit}>{tr(item.detail)}</h3>
       </div>
-    </div>
+    </div>}
     <div className={styles.detailShell}>
-      <div className={styles.sculpture} data-sculpture={index} data-leaving={phase !== "closed"} aria-hidden="true">
+      {!integrated && <div className={styles.sculpture} data-sculpture={index} data-leaving={phase !== "closed"} aria-hidden="true">
         <Image src={item.artwork} alt="" width={500} height={500} sizes="(max-width: 919px) 176px, (max-width: 1600px) 16vw, 256px" />
-      </div>
+      </div>}
       <div className={styles.detailWell}>
         <div id={panelId} role="region" aria-labelledby={panelId + "-title"} aria-hidden={!open} className={styles.details}>
+          {integrated && <h3 id={panelId + "-title"} className={styles.integratedDetailTitle}>{tr(item.detail)}</h3>}
           <div className={styles.detailContent} data-benefit-measure="detail">
             <ul>{item.points.map(point => <li key={point}><Check aria-hidden="true" />{tr(point)}</li>)}</ul>
           {item.stat && <div className={styles.metric} data-benefit-stat>
@@ -87,7 +102,11 @@ export function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; in
           </div>
         </div>
         <motion.div ref={coverRef} className={styles.detailCover} animate={cover} aria-hidden="true">
-
+          {integrated && <div className={styles.integratedCopy}>
+            <p className={styles.serviceLabel}>{serviceTitle}</p>
+            <h3>{tr(item.title)}</h3>
+            {accent && <p className={styles.integratedAccent}>{accent}</p>}
+          </div>}
         </motion.div>
         <motion.div ref={pawRef} className={styles.paw} aria-hidden="true" initial={{ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)" }} animate={paw}>
           <Image src={PAW_IMAGE} alt="" fill sizes="(max-width: 767px) 144px, (max-width: 2000px) 12vw, 240px" className={styles.pawImage} />
@@ -100,7 +119,7 @@ export function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; in
       </motion.div>
     </div>
     <button ref={trigger} type="button" className={styles.cardToggle} aria-expanded={open || phase === "closing"} aria-controls={panelId}
-      aria-label={`${tr(open ? "Hide benefit" : "Reveal benefit")}: ${tr(item.title)}`} disabled={busy}
+      aria-label={`${tr(open ? "Hide benefit" : "Reveal benefit")}: ${tr(item.title)}`} disabled={busy || !enabled}
       onClick={event => void toggle(event.detail === 0)}>
       <span className={styles.tapLabel}>{tr(open ? "Tap to close" : "Tap to reveal")}</span>
       <span className={styles.toggleIcon}>{open ? <Minus aria-hidden="true" /> : <Plus aria-hidden="true" />}</span>
