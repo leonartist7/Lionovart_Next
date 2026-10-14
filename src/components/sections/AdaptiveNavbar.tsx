@@ -22,6 +22,7 @@ import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import styles from "./AdaptiveNavbar.module.css";
 import { ExperienceSoundToggle } from "@/components/experience/ScrollExperience";
+import { scrollEase } from "@/components/experience/scroll-policy";
 
 const SCROLL_OFFSET = -88;
 const HERO_THRESHOLD_RATIO = 0.62;
@@ -191,7 +192,10 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
     if (!element && !sectionFallback) return;
 
     if (!element) router.push(`/#${target === "work" ? "selected-work" : target}`);
-    else if (lenis?.scrollTo) lenis.scrollTo(element, { offset: SCROLL_OFFSET });
+    else if (lenis?.scrollTo) lenis.scrollTo(element, {
+      offset: SCROLL_OFFSET, duration: .75, lerp: 0, easing: scrollEase,
+      userData: { navigation: true },
+    });
     else element.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
 
     setIsMobileOpen(false);
