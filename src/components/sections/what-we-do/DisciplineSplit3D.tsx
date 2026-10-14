@@ -884,7 +884,7 @@ export default function DisciplineSplit3D({
     >
       <div
         className={pinned
-          ? "opening-video-layout relative z-40 h-full overflow-hidden"
+          ? "opening-video-layout relative z-40 h-full overflow-clip"
           : "sticky top-0 z-40 flex min-h-screen flex-col items-center justify-center gap-[clamp(2.5rem,6vh,5rem)] overflow-hidden px-3 py-24 min-[920px]:px-4"}
         onPointerEnter={measure}
         onPointerMove={handleMove}

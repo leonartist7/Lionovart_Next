@@ -98,7 +98,7 @@
 .journey :global(.hero-opening) { position: relative; z-index: 2; }
 .journey :global(.hero-opening-stage) { position: relative; }
 .journey :global(.hero-opening-pinned) { height: calc(100svh + var(--opening-scroll-span, 360svh) + var(--hero-overflow, 0px) + var(--opening-overlap) + var(--opening-benefit-overflow, 0px)); }
-.journey :global(.hero-opening-pinned .hero-opening-stage) { position: sticky; top: calc(-1 * var(--hero-overflow, 0px)); height: calc(100svh + var(--hero-overflow, 0px)); overflow: hidden; }
+.journey :global(.hero-opening-pinned .hero-opening-stage) { position: sticky; top: calc(-1 * var(--hero-overflow, 0px)); height: calc(100svh + var(--hero-overflow, 0px)); overflow: clip; }
 .journey :global(.hero-opening-pinned .opening-hero-layer) { position: absolute; inset: 0; }
 .journey :global(.hero-opening-pinned .opening-hero-layer) { z-index: 2; }
 .journey :global(.opening-work-anchor) { position: absolute; top: 62svh; left: 0; width: 1px; height: 1px; pointer-events: none; }
