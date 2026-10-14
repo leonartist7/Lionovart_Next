@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
+      CTA_VISUAL_ONLY: "1"
       NEXT_TELEMETRY_DISABLED: "1"
       NEXT_PUBLIC_FIREBASE_API_KEY: demo-key
       NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: lionovart-dev.firebaseapp.com

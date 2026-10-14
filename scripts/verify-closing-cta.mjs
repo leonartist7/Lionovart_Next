@@ -21,7 +21,7 @@ try {
     {width:320,height:740,motion:"reduce"}, {width:390,height:844,motion:"reduce"},
     {width:768,height:1024,motion:"reduce"}, {width:1366,height:768,motion:"reduce"},
     {width:1440,height:900,motion:"no-preference"}, {width:390,height:844,motion:"no-preference",touch:true},
-  ]) {
+  ].filter(config => !process.env.CTA_VISUAL_ONLY || (config.width === 390 && config.motion === "reduce") || config.width === 1440)) {
     const context = await browser.newContext({
       viewport: {width:config.width,height:config.height}, reducedMotion:config.motion,
       hasTouch:!!config.touch, isMobile:!!config.touch,
@@ -30,6 +30,13 @@ try {
     const errors = [];
     page.on("pageerror", e => errors.push(e.message));
     await page.goto(base + "/#closing-cta", { waitUntil:"domcontentloaded", timeout:120000 });
+    const dismissExit = async () => {
+      const prompt = page.getByRole("dialog",{name:"Get a free brand audit",exact:true});
+      if (await prompt.isVisible()) {
+        await prompt.getByRole("button",{name:"Close",exact:true}).click();
+        await prompt.waitFor({state:"hidden"});
+      }
+    };
     const wall = page.locator("[data-closing-media-wall]");
     await wall.waitFor({timeout:90000});
     await page.waitForTimeout(7000);
@@ -43,6 +50,7 @@ try {
     await page.waitForTimeout(2500);
     await page.locator("#closing-cta").scrollIntoViewIfNeeded();
     await page.waitForTimeout(2000);
+    await dismissExit();
     const active = config.motion === "reduce" ? "false" : "true";
     await page.waitForFunction(expected => document.querySelector("[data-closing-media-wall]")?.dataset.animationActive === expected, active, {timeout:15000});
     const count = await wall.locator("[data-media-wall-plane] > div").evaluateAll(nodes => nodes.filter(n => getComputedStyle(n).display !== "none").length);
@@ -60,6 +68,7 @@ try {
       await page.waitForTimeout(800);
       assert.notEqual(await wall.locator("[data-media-wall-plane]").evaluate(n => getComputedStyle(n).transform),before,"Pointer changes perspective");
     }
+    await dismissExit();
     await page.waitForFunction(() => document.querySelectorAll('[data-closing-media-wall] img[data-loaded="true"]').length >= 3, {}, {timeout:30000});
     await page.screenshot({path:`verification-output/closing-cta/${config.width}-${config.motion}.png`});
     if ((config.width===390 && config.motion==="reduce") || config.width===1440) {
