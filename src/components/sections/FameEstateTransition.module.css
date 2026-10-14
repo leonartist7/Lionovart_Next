@@ -81,3 +81,6 @@
   .transition[data-motion=true] .runway { display: none; }
   .transition[data-motion=true] .services { margin-top: 0; transform: none !important; }
 }
+
+/* The viewport navigation is portaled to body; retire it until the aperture is open. */
+:global(body):has(.transition[data-motion=true][data-services-revealed=false]) :global([data-services-work-navigation]) { visibility: hidden !important; opacity: 0 !important; pointer-events: none; }

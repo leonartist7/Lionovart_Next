@@ -67,6 +67,7 @@ export default function FameEstateTransition({ intro, children }: { intro: React
         services.inert = p < PORTAL_START;
         services.setAttribute("aria-hidden", String(p < PORTAL_START));
         cue.tabIndex = p >= .75 && p < .8 ? 0 : -1;
+        root.dataset.servicesRevealed = String(p >= .999);
         root.dataset.phase = p < .14 ? "imagine" : p < .32 ? "wipe" : p < .62 ? "projects" : p < PORTAL_START ? "partnership" : "services";
       };
       const timeline = gsap.timeline({
@@ -113,6 +114,7 @@ export default function FameEstateTransition({ intro, children }: { intro: React
         observer.disconnect();
         delete root.dataset.motion;
         delete root.dataset.phase;
+        delete root.dataset.servicesRevealed;
         root.style.removeProperty("--fameestate-intro-top");
         root.style.removeProperty("--fameestate-diameter");
         intro.inert = false; intro.removeAttribute("aria-hidden");
