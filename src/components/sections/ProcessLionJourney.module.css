@@ -96,7 +96,7 @@
   font-variant-numeric: tabular-nums;
 }
 .step[data-completed="true"] .ring, .step[data-completed="true"] .stepNumber > span { opacity: 1 !important; }
-.step[data-completed="true"] .stepNumber > span { color: #e5192a; }
+.step[data-completed="true"] .stepNumber > span { color: transparent; background: var(--proof-metal-gradient); background-clip: text; -webkit-background-clip: text; }
 .stepNumber > span { position: relative; z-index: 1; color: #f7f4ef; opacity: 1 !important; transition: color 220ms ease; }
 .numberShine {
   position: absolute;

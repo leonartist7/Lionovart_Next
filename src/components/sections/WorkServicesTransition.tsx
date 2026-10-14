@@ -69,7 +69,7 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
       style={staticScene ? undefined : { top: introTop, opacity: introOpacity }}>
       {intro}
     </motion.div>
-    <div ref={sceneRef} className={styles.scene} data-work-scene data-nav-surface="dark" data-scroll-title-skip>
+    <div ref={sceneRef} className={styles.scene} data-work-scene data-nav-surface={staticScene || retired ? "light" : "dark"} data-scroll-title-skip>
       <motion.header className={styles.heading} data-work-heading style={{ opacity: staticScene ? 1 : chapterOpacity }}>
         <h2>{tr("One partnership")}</h2>
         <p>{tr("Design your legacy")}</p>

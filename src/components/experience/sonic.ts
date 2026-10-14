@@ -83,17 +83,17 @@ export class SonicCues {
     const elapsed = this.lastBreezeUpdate ? Math.min(.2, ctx.currentTime - this.lastBreezeUpdate) : .08;
     if (elapsed < .055) return;
     this.lastBreezeUpdate = ctx.currentTime;
-    this.movement += (Math.min(1, Math.abs(velocity) / 22) - this.movement) * (1 - Math.exp(-elapsed / .32));
+    this.movement += (Math.min(1, Math.abs(velocity) / 22) - this.movement) * (1 - Math.exp(-elapsed / .42));
     // Hold the actual current gain before changing its target; cancelling an
     // unfinished envelope can otherwise restart it from zero on every frame.
     this.hold(gain.gain, ctx);
-    gain.gain.setTargetAtTime(this.movement * .02, ctx.currentTime, .32);
+    gain.gain.setTargetAtTime(this.movement * .018, ctx.currentTime, .45);
     if (this.breezeFilter) {
       this.hold(this.breezeFilter.frequency, ctx);
-      this.breezeFilter.frequency.setTargetAtTime(380 + this.movement * 160, ctx.currentTime, .55);
+      this.breezeFilter.frequency.setTargetAtTime(380 + this.movement * 140, ctx.currentTime, .7);
     }
     clearTimeout(this.hush);
-    this.hush = setTimeout(() => this.quiet(), 240);
+    this.hush = setTimeout(() => this.quiet(), 300);
   }
 
   private hold(param: AudioParam, ctx: AudioContext) {
@@ -110,7 +110,7 @@ export class SonicCues {
     const ctx = this.context, gain = this.breezeGain;
     if (!ctx || !gain) return;
     this.hold(gain.gain, ctx);
-    gain.gain.setTargetAtTime(0, ctx.currentTime, .7);
+    gain.gain.setTargetAtTime(0, ctx.currentTime, .95);
     this.movement = 0;
   }
 

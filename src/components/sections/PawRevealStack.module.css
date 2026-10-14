@@ -110,11 +110,10 @@
   .cardCopy > * { transition: none; }
 }
 
-/* Each object straddles the ivory/black seam; copy keeps its own clear area. */
-.sculpture { position: absolute; width: min(65%, clamp(8rem, 12vw, 12rem)); aspect-ratio: 1; left: 50%; top: 50%; z-index: 4; pointer-events: none; transform: translate(-50%, -45%) rotate(-9deg); transition: transform 220ms cubic-bezier(.16,1,.3,1), opacity 220ms ease; }
-.sculpture svg { display: block; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 1rem .7rem #0007); }
-.sculpture[data-sculpture="1"] { transform: translate(-50%, -45%) rotate(10deg); }
-.sculpture[data-sculpture="2"] { transform: translate(-50%, -45%) rotate(-13deg); }
+/* The supplied objects already carry their own perspective and lighting. */
+.sculpture { position: absolute; width: min(78%, clamp(9rem, 16vw, 16rem)); aspect-ratio: 1; left: 50%; top: 50%; z-index: 4; pointer-events: none; transform: translate(-50%, -45%); transition: transform 220ms cubic-bezier(.16,1,.3,1), opacity 220ms ease; }
+.sculpture img { display: block; width: 100%; height: 100%; object-fit: contain; }
+@media (width < 920px) { .sculpture { width: min(65%, 11rem); } }
 .sculpture[data-leaving="true"] { opacity: 0; transform: translate(-50%, -35%) rotate(0deg) scale(.94); }
 @media (prefers-reduced-motion: reduce) { .sculpture { transition: none; } }
 
