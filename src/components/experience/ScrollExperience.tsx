@@ -23,7 +23,7 @@ export function ExperienceSoundToggle() {
 }
 
 const ignoredTarget = (target: EventTarget | null) => target instanceof Element && !!target.closest(
-  '[data-lenis-prevent], [data-scroll-experience-ui], [role="dialog"], [data-service-panel], input, textarea, select, [contenteditable="true"]',
+  '[data-lenis-prevent], [data-scroll-experience-ui], [role="dialog"], input, textarea, select, [contenteditable="true"]',
 );
 
 /** Coordinates existing scenes; their visual timelines remain the source of truth. */
