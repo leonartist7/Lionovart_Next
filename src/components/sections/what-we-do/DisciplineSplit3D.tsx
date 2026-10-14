@@ -1018,8 +1018,7 @@ export default function DisciplineSplit3D({
           {pinned && <motion.div ref={proofRef} className="opening-proof-stage" style={{ opacity: reduce ? 1 : proofPresence, transform: proofTransform }}>
             <div className={styles.captionStack}>
               <motion.div className={styles.captionLayer} style={{ opacity: reduce ? 1 : badgeOpacity }} aria-hidden={!reduce && imagineVisible} inert={!reduce && imagineVisible}><OpeningProof /></motion.div>
-              <motion.header id="problems" data-nova-section="problems" className={`${styles.captionLayer} ${styles.imagineCaption}`} style={{ opacity: reduce ? 0 : captionOpacity }} aria-hidden={reduce || !imagineVisible} inert={reduce || !imagineVisible}>
-                <span id="imagine" aria-hidden="true" />
+              <motion.header data-nova-section="problems" className={`${styles.captionLayer} ${styles.imagineCaption}`} style={{ opacity: reduce ? 0 : captionOpacity }} aria-hidden={reduce || !imagineVisible} inert={reduce || !imagineVisible}>
                 <div id="imagine-heading"><ImagineHeading /></div>
               </motion.header>
             </div>

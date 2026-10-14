@@ -102,6 +102,8 @@
 .journey :global(.hero-opening-pinned .opening-hero-layer) { position: absolute; inset: 0; }
 .journey :global(.hero-opening-pinned .opening-hero-layer) { z-index: 2; }
 .journey :global(.opening-work-anchor) { position: absolute; top: 62svh; left: 0; width: 1px; height: 1px; pointer-events: none; }
+/* Hash targets belong to the document timeline, never the moving card faces. */
+.journey :global(.opening-imagine-anchor) { position: absolute; top: calc(var(--hero-overflow, 0px) + (100% - 100svh - var(--hero-overflow, 0px) - var(--opening-overlap, 0px) - var(--opening-benefit-overflow, 0px)) * .9); left: 0; width: 1px; height: 1px; pointer-events: none; }
 .journey :global(.opening-work-pinned) { --opening-video-center: 63svh; position: absolute; inset: 0; z-index: 3; pointer-events: none; }
 .journey :global(.opening-work-pinned .lion-video-section:is([data-cards-armed="true"], [data-imagine-interactive="true"])) { pointer-events: auto; }
 .journey :global(.opening-work-pinned .opening-video-anchor) { position: absolute; left: 50%; top: calc(var(--hero-overflow, 0px) + var(--opening-video-center) - var(--opening-front-height, 420px) / 2); translate: -50% 0; width: min(92vw,420px); }
