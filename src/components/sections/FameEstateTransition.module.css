@@ -2,69 +2,82 @@
   position: relative;
   isolation: isolate;
   --fameestate-red: #f51b2c;
+  --fameestate-dark: #08080a;
   --fameestate-white: var(--site-surface-light, #f7f4ef);
 }
 .intro { position: relative; z-index: 4; }
-.scene { position: relative; padding: 3rem 1.25rem; color: #fffaf1; background: var(--fameestate-red); overflow: clip; }
-.background { display: none; }
-.revealer { display: none; }
+.scene { position: relative; padding: 3rem 1.25rem; color: #fffaf1; background: var(--fameestate-dark); overflow: clip; }
+.revealer, .circle { display: none; }
 .images { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; max-width: 90rem; margin: 0 auto 3rem; }
 .image { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: #171412; }
 .projectImage { object-fit: cover; }
-.heading { text-align: center; width: min(88%, 90rem); margin: auto; }
-.heading h2, .title { display: block; font-family: var(--font-heading), sans-serif; font-size: clamp(3rem, 7.5vw, 9rem); font-weight: 700; line-height: .98; letter-spacing: -.025em; text-transform: uppercase; text-wrap: balance; }
+.partnership { position: relative; display: grid; place-items: center; width: min(90vw, 75rem); aspect-ratio: 1; margin: auto; border-radius: 50%; background: var(--fameestate-red); }
+.heading { position: relative; z-index: 1; text-align: center; width: 88%; margin: auto; }
+.heading h2 { font-family: var(--font-heading), sans-serif; font-size: clamp(2.75rem, 7.5vw, 9rem); font-weight: 700; line-height: .98; letter-spacing: -.025em; text-transform: uppercase; text-wrap: balance; margin: 0; }
 .heading p { margin: 1.5rem auto 0; font-family: var(--font-playfair-display), Georgia, serif; font-style: italic; font-size: clamp(1.5rem, 2.5vw, 3rem); line-height: 1.3; text-wrap: balance; }
-.outroRight { display: none; }
 .cue { display: flex; justify-content: center; gap: .75rem; width: fit-content; margin: 2rem auto 0; padding: .75rem; min-height: 2.75rem; font-size: 1rem; text-transform: uppercase; letter-spacing: .08em; color: #fffaf1; }
 .cue:focus-visible { outline: 2px solid #fffaf1; outline-offset: .25rem; }
 .runway { display: none; }
 .services { position: relative; z-index: 1; background: var(--fameestate-white); }
-/* Replace the circular cap only inside this preview. Existing card interactions stay intact. */
-.transition :global([data-imagine-chapter]) { padding-top: clamp(4rem, 8svh, 7rem); background: var(--fameestate-red); }
+/* Match the dark, centred 3D-card stage; the real benefit cards remain interactive. */
+.transition :global([data-imagine-chapter]) {
+  display: flex; flex-direction: column; justify-content: center;
+  min-height: 100svh; padding-top: clamp(5rem, 9svh, 7rem); padding-bottom: 2rem;
+  background: var(--fameestate-dark);
+}
+.transition :global([data-imagine-chapter] > div) { width: 100%; }
+.transition :global([data-imagine-chapter] h2) { font-size: clamp(2.75rem, 4.5vw, 5.5rem); }
+.transition :global([data-imagine-chapter] > div > header > p) { font-size: clamp(1.375rem, 1.7vw, 2rem); }
 .transition :global([data-imagine-chapter]::before) { display: none; width: 0; height: 0; box-shadow: none; }
 .transition :global([data-imagine-chapter]::after) { display: none; }
 .transition[data-motion=true] .intro { position: sticky; top: var(--fameestate-intro-top, 0px); }
 .transition[data-motion=true] .scene {
-  position: sticky;
-  top: 0;
-  height: 100svh;
-  margin-top: -100svh;
-  margin-bottom: -100svh;
-  padding: 0;
-  background: transparent;
-  z-index: 3;
-  pointer-events: none;
+  position: sticky; top: 0; height: 100svh;
+  margin-top: -100svh; margin-bottom: -100svh;
+  padding: 0; background: transparent; z-index: 5; pointer-events: none;
 }
-.transition[data-motion=true] .background,
 .transition[data-motion=true] .revealer,
 .transition[data-motion=true] .images { display: block; position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; max-width: none; }
-.transition[data-motion=true] .background { background: #171412; will-change: transform; }
 .transition[data-motion=true] .revealer { background: var(--fameestate-red); }
 .transition[data-motion=true] .image { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; transform-origin: center; will-change: transform, clip-path; }
-.transition[data-motion=true] .outroLeft,
-.transition[data-motion=true] .outroRight { display: grid; position: absolute; inset: 0; place-items: center; width: 100%; height: 100%; background: var(--fameestate-red); transform-origin: center; will-change: transform; }
-.transition[data-motion=true] .outroLeft { clip-path: polygon(0% 0%, 50% 0%, 50% 100%, 0% 100%); }
-.transition[data-motion=true] .outroRight { clip-path: polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%); }
+.transition[data-motion=true] .partnership {
+  --fameestate-hole: 0px;
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  aspect-ratio: auto; margin: 0; border-radius: 0; background: transparent;
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent calc(var(--fameestate-hole) - 1px), #000 var(--fameestate-hole));
+  mask-image: radial-gradient(circle at 50% 50%, transparent calc(var(--fameestate-hole) - 1px), #000 var(--fameestate-hole));
+}
+.transition[data-motion=true] .circle {
+  display: block; position: absolute; left: 50%; top: 50%;
+  width: var(--fameestate-diameter); height: var(--fameestate-diameter);
+  border-radius: 50%; background: var(--fameestate-red);
+  transform: translate(-50%, -50%); transform-origin: center; will-change: transform;
+}
+.transition[data-motion=true] .heading {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  justify-content: center; align-items: center; width: min(88%, 90rem); height: 100%; margin: auto;
+}
 .transition[data-motion=true] .cue { position: absolute; bottom: max(2rem, 6svh); left: 50%; transform: translateX(-50%); margin: 0; pointer-events: auto; }
-.transition[data-motion=true] .runway { display: block; height: 540svh; pointer-events: none; }
-.transition[data-motion=true] .services { margin-top: -100svh; }
-/* Let the real service section enter behind the opening red halves. */
+.transition[data-motion=true] .runway { display: block; height: 500svh; pointer-events: none; }
+.transition[data-motion=true] .services { margin-top: -100svh; will-change: transform; }
+/* Only the service arrival is compensated; its native scroll travel is unchanged. */
 @media (max-width: 767px) {
   .images { grid-template-columns: 1fr; max-width: 34rem; gap: .75rem; }
-  .transition[data-motion=true] .runway { height: 440svh; }
+  .transition[data-motion=true] .runway { height: 400svh; }
   .transition[data-motion=true] .projectImage { object-fit: contain; }
   .heading { width: calc(100% - 2.5rem); }
-  .heading h2, .title { font-size: clamp(2.75rem, 11vw, 5rem); }
-  .heading p { font-size: clamp(1.375rem, 5vw, 2rem); margin-top: 1.25rem; }
+  .heading h2 { font-size: clamp(2.5rem, 10vw, 5rem); }
+  .heading p { font-size: clamp(1.25rem, 4.6vw, 2rem); margin-top: 1.25rem; }
 }
 @media (prefers-reduced-motion: reduce), (max-height: 480px) {
   .transition[data-motion=true] .intro { position: relative; top: auto; opacity: 1 !important; visibility: visible !important; }
-  .transition[data-motion=true] .scene { position: relative; height: auto; margin: 0; padding: 3rem 1.25rem; background: var(--fameestate-red); pointer-events: auto; }
-  .transition[data-motion=true] .background, .transition[data-motion=true] .revealer, .transition[data-motion=true] .outroRight { display: none; }
+  .transition[data-motion=true] .scene { position: relative; height: auto; margin: 0; padding: 3rem 1.25rem; background: var(--fameestate-dark); pointer-events: auto; }
+  .transition[data-motion=true] .revealer, .transition[data-motion=true] .circle { display: none; }
   .transition[data-motion=true] .images { position: relative; display: grid; height: auto; gap: 1rem; margin-bottom: 3rem; }
-  .transition[data-motion=true] .image { position: relative; aspect-ratio: 4/3; height: auto; transform: none !important; clip-path: none !important; }
-  .transition[data-motion=true] .outroLeft { position: relative; transform: none !important; clip-path: none; }
+  .transition[data-motion=true] .image { position: relative; aspect-ratio: 4/3; height: auto; transform: none !important; clip-path: none !important; visibility: visible !important; opacity: 1 !important; }
+  .transition[data-motion=true] .partnership { position: relative; inset: auto; width: min(90vw, 75rem); height: auto; aspect-ratio: 1; margin: auto; border-radius: 50%; background: var(--fameestate-red); -webkit-mask-image: none; mask-image: none; }
+  .transition[data-motion=true] .heading { position: relative; height: auto; opacity: 1 !important; visibility: visible !important; }
   .transition[data-motion=true] .cue { position: relative; left: auto; bottom: auto; transform: none; margin: 2rem auto 0; opacity: 1 !important; visibility: visible !important; }
   .transition[data-motion=true] .runway { display: none; }
-  .transition[data-motion=true] .services { margin-top: 0; }
+  .transition[data-motion=true] .services { margin-top: 0; transform: none !important; }
 }
