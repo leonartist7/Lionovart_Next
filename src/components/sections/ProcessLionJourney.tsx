@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
+import { emitExperienceCue } from "../experience/experience-cues";
 import ClosingCTA from "./ClosingCTA";
 import {useMotionValue} from "framer-motion";
 import {ClosingRevealContext} from "./ClosingRibbonOrnament";
@@ -173,7 +174,9 @@ export default function ProcessLionJourney() {
         row.dataset.completed=String(passed);
         const strength = stepPassIntensity(metrics[index].y, pose!.y, metrics[index].height) * pose!.processOpacity;
         row.style.setProperty("--step-highlight", String(strength));
-        row.dataset.highlighted = String(strength >= .8);
+        const highlighted = strength >= .8;
+        if (highlighted && row.dataset.highlighted !== "true" && visible && pose!.processOpacity > .9) emitExperienceCue("process", String(index), index);
+        row.dataset.highlighted = String(highlighted);
         row.style.transform = `translate3d(${strength * (width < 640 ? 6 : 14)}px,0,0)`;
         shines[index].style.opacity = "0";
         rings[index].style.transform = `rotate(${stepRingRotation(metrics[index].y, pose!.y, metrics[index].height)}deg)`;
@@ -238,7 +241,7 @@ export default function ProcessLionJourney() {
       const lastHeight = rows[rows.length - 1]?.offsetHeight ?? 0;
       root.style.setProperty("--process-tail", `${Math.max(64, height * .44 - lastHeight / 2)}px`);
       sceneHeight = stickyScene.offsetHeight;
-      runway = height * 1.2;
+      runway = height * .95;
       // A tall process reads normally, then holds its final viewport for the handoff.
       root.style.setProperty("--scene-top", `${Math.min(0, height - sceneHeight)}px`);
       root.style.setProperty("--handoff-runway", `${runway}px`);

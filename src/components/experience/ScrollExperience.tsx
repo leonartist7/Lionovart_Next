@@ -237,7 +237,11 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
         const stop = stops.find(s => s.id === "imagine");
         if (stop) move.current(stop);
       }
-      if (event.target instanceof Element && event.target.closest('[data-benefit-card] button, [data-sound-cue]')) sonic.current?.tap();
+      if (event.target instanceof Element && event.target.closest('a[href], button:not([disabled]), [data-sound-cue]') && !event.target.closest("[data-experience-sound]")) sonic.current?.tap();
+    };
+    const cue = (event: Event) => {
+      const detail = (event as CustomEvent<{ kind: "service" | "process"; id: string; index: number }>).detail;
+      if (detail && ["service", "process"].includes(detail.kind)) sonic.current?.change(detail.kind, detail.id, detail.index);
     };
     const visibility = () => { cancel(); if (document.hidden) sonic.current?.suspend(); else sonic.current?.resume(); };
     const hover = (event: PointerEvent) => {
@@ -271,6 +275,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
     window.addEventListener("pointerdown", pause);
     window.addEventListener("click", click, true);
     window.addEventListener("pointerover", hover, { passive: true });
+    window.addEventListener("lionovart:sound-cue", cue);
     window.addEventListener("hashchange", hashNavigation);
     document.addEventListener("visibilitychange", visibility);
     void document.fonts.ready.then(() => { if (!disposed) resize(); });
@@ -287,6 +292,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
       window.removeEventListener("keydown", key); window.removeEventListener("pointerdown", pause);
       window.removeEventListener("click", click, true); window.removeEventListener("hashchange", hashNavigation);
       window.removeEventListener("pointerover", hover);
+      window.removeEventListener("lionovart:sound-cue", cue);
       document.removeEventListener("visibilitychange", visibility);
       delete document.documentElement.dataset.scrollOpeningStart;
       delete document.documentElement.dataset.scrollOpeningEnd;

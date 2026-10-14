@@ -44,7 +44,7 @@ test('auto quality uses lighter geometry on narrow or coarse-pointer devices',()
  assert.equal(roarProfile('auto',1440,true),'desktop');assert.equal(roarProfile('auto',390,true),'mobile');assert.equal(roarProfile('auto',1440,false),'mobile');assert.equal(roarProfile('mobile',1440,true),'mobile');
 });
 test('pointer motion stays bounded, approaches without overshoot and returns to neutral',()=>{
- const target=pointerTilt(99,-99);assert.ok(Math.abs(target.x-3*Math.PI/180)<1e-12);assert.ok(Math.abs(target.y-4*Math.PI/180)<1e-12);
+ const target=pointerTilt(99,-99);assert.ok(Math.abs(target.x-7*Math.PI/180)<1e-12);assert.ok(Math.abs(target.y-12*Math.PI/180)<1e-12);
  let pose={x:0,y:0};for(let i=0;i<180;i++){const next=dampTilt(pose,target,1/60);assert.ok(next.x>=pose.x&&next.x<=target.x);assert.ok(next.y>=pose.y&&next.y<=target.y);pose=next;}
  assert.ok(settledTilt(pose,target));for(let i=0;i<180;i++)pose=dampTilt(pose,{x:0,y:0},1/60);assert.ok(settledTilt(pose,{x:0,y:0}));
 });

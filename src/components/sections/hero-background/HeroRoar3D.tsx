@@ -7,7 +7,7 @@ import type {RoarEngine} from "@/lib/hero-roar/engine";
 import styles from "./HeroRoar3D.module.css";
 
 type Props={quality?:"auto"|"desktop"|"mobile";maxTiltX?:number;maxTiltY?:number;responseMs?:number;/** Inspection only: export the neutral transparent frame. */exportRequest?:number;onPoster?:(blob:Blob)=>void};
-export default function HeroRoar3D({quality="auto",maxTiltX=3,maxTiltY=4,responseMs=180,exportRequest=0,onPoster}:Props){
+export default function HeroRoar3D({quality="auto",maxTiltX=7,maxTiltY=12,responseMs=240,exportRequest=0,onPoster}:Props){
  const root=useRef<HTMLSpanElement>(null),surface=useRef<HTMLSpanElement>(null),engineRef=useRef<RoarEngine|undefined>(undefined);
  const exported=useRef(0);const {released}=useIntroLifecycle();
  useEffect(()=>{

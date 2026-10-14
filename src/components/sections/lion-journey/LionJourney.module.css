@@ -169,7 +169,7 @@
 /* Hero starts beneath the measured navigation; gaps scale with the viewport. */
 .journey :global(.lion-hero) { position:relative; display:grid; grid-template-columns:minmax(0,1fr); align-items:center; align-content:center; width:90%; max-width:150rem; margin-inline:auto; padding:calc(var(--hero-nav-clearance,6.25rem) + clamp(1rem,2svh,2.5rem)) 0 clamp(2rem,4svh,4rem); min-height:100svh; }
 .journey :global(.lion-content) { grid-column:1; display:flex; flex-direction:column; align-items:center; text-align:center; justify-self:center; width:100%; max-width:clamp(57.5rem,65vw,96rem); gap:clamp(1.5rem,2.5svh,3rem); min-width:0; position:relative; z-index:2; container-type:inline-size; }
-.journey :global(.lion-copy) { width:100%; margin:0; text-shadow:0 2px 22px #08080a; }
+.journey :global(.lion-copy) { width:100%; margin:0; text-shadow:none; }
 .journey :global(.lion-headline) { margin:0; color:#f7f4ef; font-family:var(--font-heading); font-size: clamp(3.25rem,10.8cqw,12rem); line-height:.98; font-weight:700; letter-spacing:-.045em; }
 .journey :global(.lion-headline > span) { display:block; white-space:nowrap; }
 .journey :global(.lion-headline .lion-lets-make) { display:flex; justify-content:center; gap:.3em; font-size: .88em; }

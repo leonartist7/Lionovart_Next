@@ -118,7 +118,7 @@
 }
 
 /* The lion sits behind the upper plane; copy and action occupy their own rows. */
-.withLion { min-height: 100svh; padding-top: 0; }
+.withLion { min-height: max(36rem, 80svh); padding-top: 0; }
 .withLion .copy { position: absolute; top: 63%; left: 0; width: 100%; max-width: none; transform: translateY(-50%); z-index: 4; }
 .withLion .stage { position: absolute; bottom: max(2rem, 6svh); left: 0; width: 100%; max-width: none; margin: 0; padding-block: 0; z-index: 4; }
 .withLion .lionDock { position: absolute; top: 28%; left: 0; width: 100%; margin: 0; padding: 0; transform: translateY(-50%); z-index: 1; }

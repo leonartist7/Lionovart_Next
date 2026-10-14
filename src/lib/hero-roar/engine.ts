@@ -47,17 +47,18 @@ export class RoarEngine {
    const source=object.material as THREE.MeshStandardMaterial;
    const gold=source.name==="Gold";
    const material=new THREE.MeshPhysicalNodeMaterial({
-    name:source.name,color:gold?0xb47b1b:0xf0bd35,
-    metalness:gold?1:.8,roughness:gold?.26:.34,
+    name:source.name,color:gold?0x98703b:0xc8a365,
+    metalness:1,roughness:gold?.28:.32,
     sheen:0,sheenRoughness:.7,
     clearcoat:gold?.1:.05,clearcoatRoughness:.35,ior:1.45,
    });
    const height=positionLocal.y.sub(model.bounds.min[1]).div(model.bounds.max[1]-model.bounds.min[1]).clamp(0,1);
-   const base=mix(color(gold?"#87540d":"#b17a12"),color("#f1c33f"),smoothstep(0,.55,height));
-   material.colorNode=mix(base,color(gold?"#efd789":"#ffe991"),smoothstep(.55,1,height));
+   const base=mix(color(gold?"#7d5b28":"#aa8147"),color("#cda85c"),smoothstep(0,.55,height));
+   material.colorNode=mix(base,color(gold?"#dec493":"#f1deb0"),smoothstep(.55,1,height));
    object.material=material;
    source.dispose();
   });
+  gltf.scene.scale.z = 1.65;
   const bounds=new THREE.Box3().setFromObject(gltf.scene),center=bounds.getCenter(new THREE.Vector3());
   gltf.scene.position.copy(center).multiplyScalar(-1);this.word.add(gltf.scene);
   const cx=model.advanceEm/2-center.x,cy=model.lineCenterY-center.y;
@@ -75,7 +76,7 @@ export class RoarEngine {
  }
  render(x:number,y:number){
   if(!this.renderer||this.disposed)return;
-  this.word.rotation.set(x,y,0);
+  this.word.rotation.set(x - 3 * Math.PI / 180,y - 8 * Math.PI / 180,0);
   try{this.renderer.render(this.scene,this.camera);}
   catch{this.onError();}
   this.host.dataset.drawCalls=String(this.renderer.info.render.drawCalls);

@@ -27,6 +27,11 @@ const FACE_TINTS = [
   "rgba(92, 54, 196, 0.16), rgba(7, 7, 10, 0.88)",
   "rgba(170, 24, 42, 0.16), rgba(7, 7, 10, 0.88)",
 ] as const;
+const FLOATING_ART = [
+  "https://res.cloudinary.com/dgio9uutc/image/upload/v1791997395/lion-branding-320.avif",
+  "https://res.cloudinary.com/dgio9uutc/image/upload/v1791997928/nova-voice-agent-256.avif",
+  "https://res.cloudinary.com/dgio9uutc/image/upload/v1791998348/art-creative-256.avif",
+];
 const EDGE_TINTS = ["#e8a020", "#7b3ff2", "#e5192a"] as const;
 
 // Locked tag style (flip to red here if preferred).
@@ -130,6 +135,7 @@ function Pane({
   poster,
   canvasReady,
   interactive,
+  pointerX, pointerY,
 }: {
   card: Card;
   dir: number;
@@ -144,6 +150,7 @@ function Pane({
   poster: string;
   canvasReady: boolean;
   interactive: boolean;
+  pointerX: MotionValue<number>; pointerY: MotionValue<number>;
 }) {
   const splitP = useLocalProgress(flip, HANDOFF_START, HANDOFF_END);
   const cardP = splitP;
@@ -163,6 +170,11 @@ function Pane({
 
   // The film lives on these same faces while they divide and light up.
   const cardZ = useTransform(cardP, [0, 1], reducedMotion ? [0, 0] : [0, 16]);
+  const objectOpacity = useTransform(cardP, [.55, .9], [0, 1]);
+  const objectScale = useTransform(cardP, [.55, 1], reducedMotion ? [1, 1] : [.82, 1], { ease: FRAME_EASE });
+  const objectX = useTransform(pointerX, p => reducedMotion || !armed ? 0 : p * 14);
+  const objectY = useTransform(() => reducedMotion ? 0 : (1 - cardP.get()) * 18 + (armed ? pointerY.get() * 10 : 0));
+  const objectTurn = useTransform(pointerX, p => reducedMotion || !armed ? 0 : p * -5);
 
   return (
     <motion.div
@@ -311,6 +323,11 @@ function Pane({
           ) : null}
 
         </div>
+      </motion.div>
+      <motion.div className={styles.floatingObject} data-floating-card-object={card.code} aria-hidden="true"
+        style={{ opacity: reducedMotion ? 1 : objectOpacity, scale: objectScale, x: objectX, y: objectY, rotateY: objectTurn, z: reducedMotion ? 0 : 72 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={FLOATING_ART[i]} width={320} height={320} alt="" loading="lazy" decoding="async" />
       </motion.div>
     </motion.div>
   );
@@ -935,6 +952,7 @@ export default function DisciplineSplit3D({
                 isDesktop={isDesktop}
                 flip={flip}
                 interactive={entranceDone || !!reduce}
+                pointerX={sx} pointerY={sy}
                 armed={armed}
                 reducedMotion={!!reduce}
                 filmOpacity={filmOpacity}

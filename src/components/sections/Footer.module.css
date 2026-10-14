@@ -92,3 +92,16 @@
 @media (prefers-reduced-motion: reduce) {
   .contact, .legal a { transition: none; }
 }
+
+/* Brand left, contact above legal links right, copyright along the bottom. */
+.finaleInner { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1rem clamp(1rem, 4vw, 4rem); }
+.brandRow { grid-column: 1; }
+.brandCopy { display: block; text-align: left; }
+.brandCopy .signature { text-align: left; margin: .625rem 0 0; max-width: 26ch; }
+.brandCopy .wordmark { font-size: clamp(1.5rem, 5vw, 5.5rem); }
+.finaleUtility { grid-column: 2; display: flex; flex-direction: column; align-items: flex-end; gap: .25rem; margin: 0; padding: 0; border: 0; }
+.contact { justify-self: auto; min-height: 2.5rem; font-size: clamp(.75rem, 1vw, 1rem); }
+.legal { gap: clamp(.625rem, 1.5vw, 1.5rem); }
+.copyright { grid-column: 1 / -1; grid-row: auto; padding-top: .875rem; border-top: 1px solid #fffaf133; text-align: right; font: 400 clamp(.625rem, .6rem + .15vw, .8125rem)/1.5 var(--font-dm-sans), sans-serif; }
+@media (width < 600px) { .finaleInner { column-gap: .875rem; padding-top: 1.75rem; } .brandCopy .signature { font-size: .875rem; max-width: 18ch; } .finaleUtility { font-size: .6875rem; } .legal { gap: .5rem; } }
+@media (width < 360px) { .finaleInner { grid-template-columns: 1fr; } .finaleUtility { grid-column: 1; align-items: flex-start; } .copyright { text-align: left; } }

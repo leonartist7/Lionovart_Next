@@ -1,5 +1,7 @@
 "use client";
 
+import { emitExperienceCue } from "../experience/experience-cues";
+
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useLenis } from "lenis/react";
 import { scrollEase } from "@/components/experience/scroll-policy";
@@ -22,6 +24,7 @@ import {
 } from "framer-motion";
 import {
   useCallback,
+  useEffect,
   useRef,
   useState,
   type KeyboardEvent,
@@ -153,6 +156,14 @@ export default function HomepageServicesChapter() {
       (t.services.items[index]?.deliverables as readonly string[] | undefined) ?? [],
     media: SERVICE_MEDIA[meta.id],
   }));
+
+  const lastCueIndex = useRef(0);
+  useEffect(() => {
+    if (lastCueIndex.current === activeIndex) return;
+    lastCueIndex.current = activeIndex;
+    const bounds = chapterRef.current?.getBoundingClientRect();
+    if (bounds && bounds.top < innerHeight && bounds.bottom > 0) emitExperienceCue("service", SERVICE_META[activeIndex].id, activeIndex);
+  }, [activeIndex]);
 
   const activeService = services[activeIndex] ?? services[0];
   const { scrollYProgress } = useScroll({

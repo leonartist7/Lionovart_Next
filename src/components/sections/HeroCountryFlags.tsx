@@ -2,7 +2,7 @@
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import styles from "./HeroTrustLine.module.css";
 
-const COUNTRIES = [["kr", "South Korea"], ["ca", "Canada"], ["it", "Italy"], ["ch", "Switzerland"], ["fr", "France"], ["es", "Spain"], ["gb", "United Kingdom"]];
+const COUNTRIES = [["kr", "South Korea"], ["ca", "Canada"], ["it", "Italy"], ["ch", "Switzerland"], ["fr", "France"], ["es", "Spain"], ["gb", "United Kingdom"], ["nl", "Netherlands"], ["se", "Sweden"]];
 export default function HeroCountryFlags() {
   const tr = usePublicCopy();
   return <div className={styles.flags} data-hero-country-flags>

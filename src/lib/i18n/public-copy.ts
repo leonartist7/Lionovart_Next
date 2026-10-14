@@ -183,6 +183,8 @@ const french: Record<string, string> = {
   "EXCELLENCE": "CRÉATIVE",
   "Across borders. In good company.": "Sans frontières. Bien entourés.",
   "South Korea": "Corée du Sud",
+  "Netherlands": "Pays-Bas",
+  "Sweden": "Suède",
   "Italy": "Italie",
   "Switzerland": "Suisse",
   "Spain": "Espagne",
