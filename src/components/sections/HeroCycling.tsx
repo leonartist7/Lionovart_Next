@@ -246,24 +246,18 @@ export default function HeroCycling({
           {words.filter(word => word.type === "text").map((word, index) => (
             <span key={index} className={`${styles.word} ${styles.reserve}`}>{word.content}</span>
           ))}
-          {visibleWord && <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={visibleWord.content}
-              className={styles.word}
-              style={{ color: cyclingColor }}
-              variants={wordVariants}
-              initial={showStatic || paused ? false : "initial"}
-              animate="animate"
-              exit={showStatic || paused ? undefined : "exit"}
-              data-closing-word={visibleWord.alt ?? visibleWord.content}
-            >
-              {visibleWord.type === "image" ? (
-                <div className={styles.art}>
-                  <Image src={visibleWord.content} alt="" fill sizes="(max-width: 639px) 85vw, 520px" style={{ objectFit: "contain" }} />
-                </div>
-              ) : visibleWord.content}
-            </motion.div>
-          </AnimatePresence>}
+          {visibleWord && <div
+            key={visibleWord.content}
+            className={`${styles.word} ${showStatic || paused ? "" : styles.enter}`}
+            style={{ color: cyclingColor }}
+            data-closing-word={visibleWord.alt ?? visibleWord.content}
+          >
+            {visibleWord.type === "image" ? (
+              <div className={styles.art}>
+                <Image src={visibleWord.content} alt="" fill sizes="(max-width: 639px) 85vw, 520px" style={{ objectFit: "contain" }} />
+              </div>
+            ) : visibleWord.content}
+          </div>}
         </div>
       </div>
     );

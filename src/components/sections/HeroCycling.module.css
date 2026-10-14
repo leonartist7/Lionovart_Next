@@ -39,3 +39,8 @@
 
 .reserve { visibility: hidden; pointer-events: none; }
 .art { position: relative; width: 100%; max-width: 30rem; height: var(--closing-art); margin-inline: auto; }
+
+/* One entering layer avoids a paused presence exit keeping the word invisible. */
+.enter { animation: wordArrive 650ms cubic-bezier(.22,1,.36,1) both; }
+@keyframes wordArrive { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .enter { animation: none; } }
