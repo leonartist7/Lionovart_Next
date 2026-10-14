@@ -14,6 +14,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import BrandCrest from "@/components/sections/services/brand/branding/BrandCrest";
 import TrailAttractionTarget from "@/components/ui/TrailAttractionTarget";
 import { EN_WORD_ART } from "@/lib/word-art";
+import ClosingMediaWall from "./ClosingMediaWall";
 
 // Capped at 1080p (master is 4K) and q_auto:eco — this sits under a bg-black/70
 // scrim, so the extra quality was never visible.
@@ -38,6 +39,7 @@ function CompactClosing({ words, onStart, lionDock, chapterInJourney }: { words:
 
   return (
     <section id="closing-cta" ref={sectionRef} className={`${styles.section}${lionDock ? ` ${styles.withLion}` : ""}`} data-art-directed="light" data-scroll-title-skip>
+      <ClosingMediaWall />
       <div className={styles.copy} data-closing-copy>
         {!chapterInJourney && <p className={`${styles.accent} ${locale === "ja" || locale === "ko" ? "font-body" : "editorial-accent"}`}>
           {tr("Your next chapter, together")}
