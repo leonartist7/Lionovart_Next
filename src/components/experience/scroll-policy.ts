@@ -3,9 +3,9 @@ export type ScrollStop = { id: string; label: string; y: number; kind: "opening"
 export type ScrollScene = { start: number; end: number; extent?: number; kind: "opening" | "partnership"; stops: ScrollStop[] };
 
 export const SCROLL_MODES = {
-  flow: { label: "Free flow", description: "Natural scrolling. Longer film and card holds, with optional Continue.", span: 210, mobileSpan: 240, lerp: .16 },
-  settle: { label: "Soft settle", description: "Scroll freely, then let each transition finish gently when you release.", span: 260, mobileSpan: 290, lerp: .11 },
-  cinema: { label: "Scene by scene", description: "A deliberate scroll gesture carries you to the next visual resting point.", span: 280, mobileSpan: 310, lerp: .09 },
+  flow: { label: "Free flow", description: "Natural scrolling. Longer film and card holds, with optional Continue.", span: 210, mobileSpan: 240 },
+  settle: { label: "Soft settle", description: "Scroll freely, then let each transition finish gently when you release.", span: 260, mobileSpan: 290 },
+  cinema: { label: "Scene by scene", description: "A deliberate scroll gesture carries you to the next visual resting point.", span: 280, mobileSpan: 310 },
 } as const;
 
 export function parseScrollMode(value: string | null): ScrollMode {
@@ -49,3 +49,17 @@ export function chooseScrollStop({ mode, y, gestureStart, direction, viewport, s
 }
 
 export const scrollEase = (t: number) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+/** Short corrections shouldn't feel like a full section journey. */
+export function settleDuration(distance: number, explicit = false) {
+  const travel = Math.abs(distance);
+  return explicit ? Math.max(.45, Math.min(1.15, .45 + travel / 1600))
+    : Math.max(.3, Math.min(.7, .26 + travel / 1500));
+}
+
+/** Physical gesture release and Lenis's remaining travel agree before settling. */
+export function readyToSettle({ touching, quietFor, velocity, remaining }: {
+  touching: boolean; quietFor: number; velocity: number; remaining: number;
+}) {
+  return !touching && quietFor >= 140 && Math.abs(velocity) <= 1.2 && Math.abs(remaining) <= 12;
+}

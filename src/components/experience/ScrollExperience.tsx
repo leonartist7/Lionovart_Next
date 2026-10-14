@@ -1,12 +1,12 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useLenis } from "lenis/react";
 import { ArrowDown, SlidersHorizontal, Volume2, VolumeX, X } from "lucide-react";
 import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { chooseScrollStop, parseScrollMode, SCROLL_MODES, scrollEase, type ScrollMode, type ScrollScene, type ScrollStop } from "./scroll-policy";
+import { chooseScrollStop, parseScrollMode, readyToSettle, SCROLL_MODES, scrollEase, settleDuration, type ScrollMode, type ScrollScene, type ScrollStop } from "./scroll-policy";
 import { SonicCues } from "./sonic";
 import styles from "./ScrollExperience.module.css";
 
@@ -44,7 +44,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const selected = parseScrollMode(params.get("scrollMode"));
+    const selected = params.get("scrollPreview") === "1" ? parseScrollMode(params.get("scrollMode")) : "settle";
     // This initialization runs after hydration; no browser state enters server markup.
     const frame = requestAnimationFrame(() => {
       setMode(selected);
@@ -64,22 +64,21 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
     html.dataset.scrollExperience = mode;
     html.style.setProperty("--opening-scroll-span", `${profile.span}svh`);
     html.style.setProperty("--opening-scroll-span-mobile", `${profile.mobileSpan}svh`);
-    window.dispatchEvent(new Event("lionovart:scroll-profile"));
     const frame = requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
     return () => {
       cancelAnimationFrame(frame);
       delete html.dataset.scrollExperience;
       html.style.removeProperty("--opening-scroll-span");
       html.style.removeProperty("--opening-scroll-span-mobile");
-      window.dispatchEvent(new Event("lionovart:scroll-profile"));
     };
   }, [mode]);
 
   useEffect(() => {
     if (!lenis || !released) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
-    let frame = 0, disposed = false, moving = false, lastInput = -Infinity, blockedUntil = 0;
+    let frame = 0, disposed = false, moving = false, eligible = false, lastInput = -Infinity;
     let direction = 0, gestureStart = scrollY, touching = false, touchX = 0, touchY = 0;
+    let lastActive: string | undefined, lastNext: ScrollStop | undefined;
     let scenes: ScrollScene[] = [], stops: ScrollStop[] = [];
     const top = (el: Element) => el.getBoundingClientRect().top + scrollY;
     const measure = () => {
@@ -137,9 +136,9 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
     };
     const update = () => {
       const current = [...stops].reverse().find(s => s.y <= scrollY + 24) ?? stops[0];
-      setActive(previous => current?.id ?? previous);
+      if (current && current.id !== lastActive) { lastActive = current.id; setActive(current.id); }
       const following = stops.find(s => s.y > scrollY + 48);
-      setNext(previous => previous?.id === following?.id && previous?.y === following?.y ? previous : following);
+      if (lastNext?.id !== following?.id || lastNext?.y !== following?.y) { lastNext = following; setNext(following); }
     };
     const unavailable = () => disposed || document.hidden || reduced || innerHeight <= 480 || lenis.isStopped ||
       document.body.style.overflow === "hidden" || !!document.querySelector('[role="dialog"][aria-modal="true"]') ||
@@ -147,48 +146,58 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
       !!document.activeElement?.closest('input, textarea, select, [contenteditable="true"]') || !!window.getSelection()?.toString();
     const cancel = () => {
       clearTimeout(timer);
+      eligible = false;
       // scrollTo(current) can return early during a programmatic animation.
       // Reset in the same input task, then immediately release the new gesture.
       if (moving && !lenis.isStopped) { lenis.stop(); lenis.start(); }
       moving = false;
       document.documentElement.dataset.scrollSettling = "false";
     };
-    const travel = (stop: ScrollStop) => {
+    const travel = (stop: ScrollStop, explicit = false) => {
       if (unavailable()) return;
       cancel(); moving = true;
+      const duration = mode === "cinema" ? 1.35 : settleDuration(stop.y - lenis.scroll, explicit);
       document.documentElement.dataset.scrollSettling = "true";
+      document.documentElement.dataset.scrollSettleDuration = String(duration);
+      document.documentElement.dataset.scrollSettleSource = explicit ? "continue" : "auto";
+      document.documentElement.dataset.scrollStop = stop.id;
       lenis.scrollTo(stop.y, {
-        duration: mode === "cinema" ? 1.35 : .95, lerp: 0, easing: scrollEase, lock: false,
+        duration, lerp: 0, easing: scrollEase, lock: false, userData: { experience: true },
         onComplete: () => {
-          moving = false; blockedUntil = performance.now() + 500;
+          moving = false;
           document.documentElement.dataset.scrollSettling = "false";
           sonic.current?.chapter(stop.id); update();
         },
       });
     };
     move.current = stop => {
-      if (reduced || innerHeight <= 480) lenis.scrollTo(stop.y, { immediate: true });
-      else travel(stop);
+      if (reduced || innerHeight <= 480) { cancel(); lenis.scrollTo(stop.y, { immediate: true, userData: { navigation: true } }); }
+      else travel(stop, true);
     };
     const settle = () => {
-      clearTimeout(timer);
-      if (touching || moving || unavailable() || performance.now() < blockedUntil || performance.now() - lastInput > 3000) return;
-      if (Math.abs(lenis.velocity) > .7) { timer = setTimeout(settle, 100); return; }
+      if (!eligible || moving || performance.now() - lastInput > 3000) return;
+      if (!readyToSettle({ touching, quietFor: performance.now() - lastInput, velocity: lenis.velocity, remaining: lenis.targetScroll - lenis.scroll })) return;
+      // One attempt per physical gesture. No timer is rearmed by every
+      // interpolated scroll frame, and reading holds cannot advance by themselves.
+      eligible = false; clearTimeout(timer);
+      if (unavailable()) return;
       const rested = stops.find(p => ["film", "cards", "imagine", "partnership"].includes(p.id) && Math.abs(p.y - scrollY) < 40);
       if (rested) sonic.current?.chapter(rested.id);
       const stop = chooseScrollStop({ mode, y: scrollY, gestureStart, direction, viewport: innerHeight, scenes, boundaries: stops });
-      if (stop) travel(stop);
+      if (stop && Math.abs(stop.y - lenis.scroll) > 6) travel(stop);
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(() => { frame = 0; update(); });
-      if (!moving && performance.now() - lastInput < 3000) { clearTimeout(timer); timer = setTimeout(settle, 240); }
+      if (lenis.userData?.navigation && lenis.isScrolling === "smooth") { eligible = false; clearTimeout(timer); }
+      else settle();
     };
     const input = (delta: number, target: EventTarget | null) => {
-      if (ignoredTarget(target)) { blockedUntil = performance.now() + 1500; return; }
+      if (ignoredTarget(target)) { cancel(); return; }
       if (Math.abs(delta) < 2) return;
       const now = performance.now(), sign = Math.sign(delta);
       if (moving || !touching && (now - lastInput > 250 || sign !== direction)) { cancel(); gestureStart = scrollY; }
-      direction = sign; lastInput = now; blockedUntil = 0;
+      direction = sign; lastInput = now; eligible = true;
+      clearTimeout(timer); timer = setTimeout(settle, 150);
     };
     const wheel = (event: WheelEvent) => {
       if (event.ctrlKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
@@ -203,8 +212,8 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
       if (Math.abs(touchY - y) > Math.abs(touchX - x) * 1.2) input(touchY - y, event.target);
       touchX = x; touchY = y;
     };
-    const touchEnd = () => { touching = false; if (direction) lastInput = performance.now(); clearTimeout(timer); timer = setTimeout(settle, 400); };
-    const pause = () => { cancel(); blockedUntil = performance.now() + 1800; };
+    const touchEnd = () => { touching = false; if (direction) lastInput = performance.now(); clearTimeout(timer); timer = setTimeout(settle, 150); };
+    const pause = () => { cancel(); };
     const key = (event: KeyboardEvent) => { if (["Escape", "Tab", "ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) pause(); };
     const click = (event: MouseEvent) => {
       pause();
@@ -222,7 +231,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
     window.addEventListener("touchmove", touchMove, passive);
     window.addEventListener("touchend", touchEnd, passive);
     window.addEventListener("touchcancel", touchEnd, passive);
-    window.addEventListener("scroll", onScroll, { passive: true });
+    lenis.on("scroll", onScroll);
     window.addEventListener("resize", resize);
     window.addEventListener("keydown", key);
     window.addEventListener("pointerdown", pause);
@@ -238,13 +247,16 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
       window.removeEventListener("touchmove", touchMove, true);
       window.removeEventListener("touchend", touchEnd, true);
       window.removeEventListener("touchcancel", touchEnd, true);
-      window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", resize);
+      lenis.off("scroll", onScroll); window.removeEventListener("resize", resize);
       window.removeEventListener("keydown", key); window.removeEventListener("pointerdown", pause);
       window.removeEventListener("click", click, true); window.removeEventListener("hashchange", pause);
       document.removeEventListener("visibilitychange", visibility);
       delete document.documentElement.dataset.scrollOpeningStart;
       delete document.documentElement.dataset.scrollOpeningEnd;
       delete document.documentElement.dataset.scrollSettling;
+      delete document.documentElement.dataset.scrollSettleDuration;
+      delete document.documentElement.dataset.scrollSettleSource;
+      delete document.documentElement.dataset.scrollStop;
       move.current = () => {};
     };
   }, [lenis, mode, reduced, released]);
@@ -256,8 +268,9 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
   };
   const continueLabel = locale === "fr" ? "Continuer" : locale === "es" ? "Continuar" : "Continue";
   const showContinue = released && !panel && next && ["hero", "film", "cards", "imagine", "partnership"].includes(active);
+  const soundContext = useMemo(() => ({ enabled: sound, toggle: toggleSound }), [sound, toggleSound]);
 
-  return <SoundContext.Provider value={{ enabled: sound, toggle: toggleSound }}>
+  return <SoundContext.Provider value={soundContext}>
     {children}
     {showContinue && <div className={styles.continueWrap} data-scroll-experience-ui>
       <button type="button" className={styles.continue} onClick={() => move.current(next)} aria-label={`${continueLabel}: ${next.label}`}>

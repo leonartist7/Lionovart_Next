@@ -1,6 +1,7 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useMotionValue, type MotionValue } from "framer-motion";
+import { useLenis } from "lenis/react";
 import { clamp } from "./motion";
 import styles from "./LionJourney.module.css";
 
@@ -23,6 +24,7 @@ interface JourneyContext {
 const Context = createContext<JourneyContext | null>(null);
 export const useLionJourney = () => useContext(Context);
 export default function LionJourney({ children }: { children: ReactNode }) {
+  const lenis = useLenis();
   const hero = useRef<HTMLElement>(null), copy = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLDivElement>(null), videoSection = useRef<HTMLElement>(null);
   const cta = useRef<HTMLDivElement>(null);
@@ -49,7 +51,6 @@ export default function LionJourney({ children }: { children: ReactNode }) {
   useEffect(() => {
     let frame = 0, disposed = false;
     const sync = () => {
-      frame = 0;
       if (disposed || !opening.current) return;
       const bounds = opening.current.getBoundingClientRect();
       const stage = opening.current.querySelector<HTMLElement>(".hero-opening-stage");
@@ -59,7 +60,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       const pinned = opening.current.dataset.openingMode === "pinned";
       const overlap = reveal.current ? Math.max(0, -parseFloat(getComputedStyle(reveal.current).marginTop)) : 0;
       arrivalProgress.set(reveal.current ? clamp(1 - reveal.current.getBoundingClientRect().top / innerHeight) : 0);
-      const openingP = pinned ? clamp((scrollY - pinStart) / Math.max(1, bounds.height - stageHeight - overlap)) : 0;
+      const openingP = pinned ? clamp(((lenis?.scroll ?? scrollY) - pinStart) / Math.max(1, bounds.height - stageHeight - overlap)) : 0;
       openingProgress.set(openingP);
       progress.set(clamp(openingP / .49));
       // The dark opening ends at Imagine; its rounded cap has a clear surround.
@@ -73,11 +74,13 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       setActive(current => current === !complete ? current : !complete);
       if (host.current) host.current.dataset.lionProgress = clamp(openingP / .49).toFixed(3);
     };
-    const schedule = () => { if (!frame && !disposed) frame = requestAnimationFrame(sync); };
+    const schedule = () => { if (!frame && !disposed) frame = requestAnimationFrame(() => { frame = 0; sync(); }); };
     update.current = schedule;
     const observer = new ResizeObserver(schedule);
     [host.current, opening.current, hero.current, bridge.current, reveal.current].forEach(node => { if (node) observer.observe(node); });
-    window.addEventListener("scroll", schedule, { passive: true });
+    // The film and cards follow the same Lenis tick, without another RAF of lag.
+    if (lenis) lenis.on("scroll", sync);
+    else window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
     window.addEventListener("pageshow", schedule);
     void document.fonts.ready.then(schedule);
@@ -86,12 +89,13 @@ export default function LionJourney({ children }: { children: ReactNode }) {
       disposed = true;
       cancelAnimationFrame(frame);
       observer.disconnect();
-      window.removeEventListener("scroll", schedule);
+      if (lenis) lenis.off("scroll", sync);
+      else window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
       window.removeEventListener("pageshow", schedule);
       update.current = () => {};
     };
-  }, [progress, openingProgress, arrivalProgress, backdropOpacity]);
+  }, [progress, openingProgress, arrivalProgress, backdropOpacity, lenis]);
   return <Context.Provider value={context}><div ref={host} className={styles.journey}
     data-lion-journey data-lion-enabled="false" data-lion-active={active}>{children}</div></Context.Provider>;
 }

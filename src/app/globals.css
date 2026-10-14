@@ -411,6 +411,10 @@
 }
 .animate-marquee          { animation: marquee var(--duration) linear infinite; }
 .animate-marquee-vertical { animation: marquee-vertical var(--duration) linear infinite; }
+[data-marquee-active="false"] > .animate-marquee,
+[data-marquee-active="false"] > .animate-marquee-vertical {
+  animation-play-state: paused !important;
+}
 
 .marquee-pause-on-hover:hover > .animate-marquee,
 .marquee-pause-on-hover:hover > .animate-marquee-vertical {

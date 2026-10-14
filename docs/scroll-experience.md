@@ -2,7 +2,8 @@
 
 Three treatments use the same current homepage, imagery, video and 3D scenes.
 Open the homepage with `?scrollPreview=1&scrollMode=flow`, `settle`, or `cinema`.
-The comparison panel is available only with `scrollPreview=1`. Soft settle is the default.
+The comparison panel is available only with `scrollPreview=1`. Soft settle is the
+selected public experience; other mode parameters are honored only in the comparison preview.
 
 | Treatment | Interaction | Best fit |
 | --- | --- | --- |
@@ -22,9 +23,16 @@ same shortcuts in all three treatments without requiring repeated scroll gesture
 
 ## Input rules
 
-- One Lenis instance and its existing GSAP bridge drive the page.
+- One stable Lenis instance and one GSAP ticker drive the page, with GSAP lag smoothing disabled as recommended by Lenis.
+- Profile and reduced-motion changes do not recreate Lenis. The library handles live reduced-motion preferences internally.
+- The opening film/cards and partnership timelines consume the Lenis scroll event directly; they do not add another scroll RAF.
 - Touch keeps native scrolling (`syncTouch: false`); settling waits for release and momentum to stop.
-- Wheel speed is capped only inside the opening, in the two assisted treatments.
+- Soft settle keeps the complete wheel delta. Only the older cinematic comparison has an opening speed cap.
+- A single release timer checks physical intent and Lenis inertia; scroll frames do not continually postpone the timer.
+- Automatic corrections take 0.3–0.7 seconds according to distance. Explicit Continue journeys take 0.45–1.15 seconds.
+- Section UI updates only when the current/next scene changes; pixel changes stay outside React state.
+- Service controls and anchor links use Lenis rather than a competing browser smooth-scroll animation.
+- Testimonial marquees pause offscreen and in hidden tabs, resuming their existing position on return.
 - No timer advances the story by itself, and no gesture is locked.
 - New wheel, touch, keyboard, pointer or navigation input cancels an automatic move.
 - Dialogs, the open navigation menu, selected text and focused form inputs suppress settling.

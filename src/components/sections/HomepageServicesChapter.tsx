@@ -1,6 +1,8 @@
 "use client";
 
 import { usePublicCopy } from "@/hooks/usePublicCopy";
+import { useLenis } from "lenis/react";
+import { scrollEase } from "@/components/experience/scroll-policy";
 
 import ServicesCurves from "./ServicesCurves";
 import { ServicesArrivalLayer } from "./ServicesArrival";
@@ -134,6 +136,7 @@ function ServiceMediaCarousel({
 }
 
 export default function HomepageServicesChapter() {
+  const lenis = useLenis();
   const tr = usePublicCopy();
   const carouselPreview = useServicesCarouselPreview();
   const { t } = useLanguage();
@@ -178,16 +181,22 @@ export default function HomepageServicesChapter() {
       const next = carouselPreview ? (index % SERVICE_COUNT + SERVICE_COUNT) % SERVICE_COUNT : clamp(index, 0, SERVICE_COUNT - 1);
       if (reduceMotion) {
         setActiveIndex(next);
-        element.querySelector<HTMLElement>(`[data-service-static="${SERVICE_META[next].id}"]`)?.scrollIntoView({ behavior, block: "center" });
+        const card = element.querySelector<HTMLElement>(`[data-service-static="${SERVICE_META[next].id}"]`);
+        if (card) {
+          if (lenis) lenis.scrollTo(card, { immediate: true, userData: { navigation: true } });
+          else card.scrollIntoView({ behavior: "instant", block: "center" });
+        }
         return;
       }
       const sectionTop = element.getBoundingClientRect().top + window.scrollY;
       const travel = Math.max(1, element.offsetHeight - window.innerHeight);
       const ratio = (next + 0.5) / SERVICE_COUNT;
       const targetProgress = SERVICE_START + ratio * (SERVICE_END - SERVICE_START);
-      window.scrollTo({ top: sectionTop + travel * targetProgress, behavior });
+      const target = sectionTop + travel * targetProgress;
+      if (lenis) lenis.scrollTo(target, { duration: .6, lerp: 0, easing: scrollEase, immediate: behavior !== "smooth", userData: { navigation: true } });
+      else window.scrollTo({ top: target, behavior });
     },
-    [carouselPreview, reduceMotion],
+    [carouselPreview, reduceMotion, lenis],
   );
 
   const handleWheel = (event: WheelEvent<HTMLDivElement>) => {

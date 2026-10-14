@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { chooseScrollStop, parseScrollMode, SCROLL_MODES, scrollEase } from '../src/components/experience/scroll-policy.ts';
+import { chooseScrollStop, parseScrollMode, readyToSettle, SCROLL_MODES, scrollEase, settleDuration } from '../src/components/experience/scroll-policy.ts';
 
 for (const viewport of [844, 900, 1024]) {
   const start = 50, span = viewport * 2.6;
@@ -49,4 +49,21 @@ test('guided exit needs a fresh gesture after the card resting point', () => {
   assert.equal(chooseScrollStop({ ...context, y: 2264, gestureStart: 2184, direction: 1 })?.id, 'imagine');
   assert.equal(chooseScrollStop({ ...context, y: 2184, gestureStart: 2184, direction: 1 }), undefined);
   assert.equal(chooseScrollStop({ ...context, y: 3450, gestureStart: 3600, direction: -1 })?.id, 'cards');
+});
+test('settling waits for a released gesture and the end of Lenis inertia', () => {
+  const ready = { touching: false, quietFor: 160, velocity: .5, remaining: 5 };
+  assert.equal(readyToSettle(ready), true);
+  assert.equal(readyToSettle({ ...ready, touching: true }), false);
+  assert.equal(readyToSettle({ ...ready, quietFor: 80 }), false);
+  assert.equal(readyToSettle({ ...ready, velocity: 6 }), false);
+  assert.equal(readyToSettle({ ...ready, remaining: 80 }), false);
+  assert.equal(readyToSettle({ ...ready, velocity: -.5, remaining: -5 }), true);
+});
+test('small corrections finish faster than full journeys, in either direction', () => {
+  assert.ok(settleDuration(50) < settleDuration(500));
+  assert.ok(settleDuration(2000) <= .7);
+  assert.ok(settleDuration(50) >= .3);
+  assert.equal(settleDuration(500), settleDuration(-500));
+  assert.ok(settleDuration(500, true) > settleDuration(500));
+  assert.ok(settleDuration(10000, true) <= 1.15);
 });

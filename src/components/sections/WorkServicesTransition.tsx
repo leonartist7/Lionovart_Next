@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { motion, useInView, useMotionValue, useMotionValueEvent, useTransform } from "framer-motion";
+import { useLenis } from "lenis/react";
 import Image from "next/image";
 import { ArrowDown, Pause, Play } from "lucide-react";
 import { ImageStreamHero } from "@/components/ui/image-stream-hero";
@@ -23,6 +24,7 @@ const subscribeShortViewport = (notify: () => void) => {
 
 /** Work and services share one reversible scroll transition. */
 export default function WorkServicesTransition({ intro, children }: { intro: ReactNode; children: ReactNode }) {
+  const lenis = useLenis();
   const tr = usePublicCopy();
   const reduced = useHydratedReducedMotion();
   const shortViewport = useSyncExternalStore(subscribeShortViewport, () => matchMedia(shortViewportQuery).matches, () => false);
@@ -86,7 +88,8 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
         servicesOpacity.set(fade * fade * (3 - 2 * fade));
       }
     };
-    window.addEventListener("scroll", sync, { passive: true });
+    if (lenis) lenis.on("scroll", sync);
+    else window.addEventListener("scroll", sync, { passive: true });
     const observer = new ResizeObserver(sync);
     observer.observe(runway);
     if (introRef.current) observer.observe(introRef.current);
@@ -96,12 +99,13 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
     window.addEventListener("pageshow", sync);
     sync();
     return () => {
-      window.removeEventListener("scroll", sync);
+      if (lenis) lenis.off("scroll", sync);
+      else window.removeEventListener("scroll", sync);
       observer.disconnect();
       window.removeEventListener("resize", sync);
       window.removeEventListener("pageshow", sync);
     };
-  }, [introTop, scrollYProgress, servicesOpacity, staticScene]);
+  }, [introTop, scrollYProgress, servicesOpacity, staticScene, lenis]);
   const introOpacity = useTransform(scrollYProgress, [0, .14], [1, 0]);
   const introPointerEvents = useTransform(scrollYProgress, p => p >= .14 ? "none" : "auto");
   const circleScale = useTransform(scrollYProgress, [0, .35, 1], [1, LOGO_SCALE, LOGO_SCALE]);

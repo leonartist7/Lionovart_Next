@@ -26,6 +26,25 @@ export function Marquee({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+    let visible = false;
+    const sync = () => { container.dataset.marqueeActive = String(visible && !document.hidden && !reduced.matches); };
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting; sync();
+    }, { threshold: .01 });
+    observer.observe(container);
+    reduced.addEventListener("change", sync);
+    document.addEventListener("visibilitychange", sync);
+    return () => {
+      observer.disconnect();
+      reduced.removeEventListener("change", sync);
+      document.removeEventListener("visibilitychange", sync);
+    };
+  }, []);
+
+  useEffect(() => {
     if (playbackRate === 1) return;
 
     const container = containerRef.current;
@@ -55,6 +74,7 @@ export function Marquee({
     <div
       ref={containerRef}
       {...props}
+      data-marquee-active="false"
       className={cn(
         "group flex overflow-visible [--duration:40s] [--gap:1rem] [gap:var(--gap)]",
         vertical ? "flex-col" : "flex-row",
