@@ -214,6 +214,7 @@ function Pane({
           className={`absolute inset-0 z-[1] overflow-hidden rounded-[inherit] ${styles.frontFace}`}
           aria-hidden={showBack} inert={showBack}
           style={{
+            visibility: showBack ? "hidden" : "visible",
             background: `linear-gradient(135deg, ${FACE_TINTS[i]}, rgba(4,4,6,0.94) 72%)`,
             boxShadow: `inset 0 1px 0 rgba(255,255,255,0.22), inset 0 0 34px ${EDGE_TINTS[i]}22, 0 24px 48px -28px rgba(0,0,0,0.95)`,
           }}

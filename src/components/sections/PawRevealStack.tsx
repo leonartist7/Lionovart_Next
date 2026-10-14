@@ -26,6 +26,8 @@ export function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; in
   const trigger = useRef<HTMLButtonElement>(null);
   const cover = useAnimation();
   const paw = useAnimation();
+  const coverRef = useRef<HTMLDivElement>(null);
+  const pawRef = useRef<HTMLDivElement>(null);
   const instanceId = useId();
   const panelId = `imagine-result-${index}-${instanceId}`;
   const open = phase === "open";
@@ -36,6 +38,7 @@ export function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; in
     if (lock.current) return;
     lock.current = true;
     const opening = phase === "closed";
+    const pull = `translate(8%, ${Math.max(170, (coverRef.current?.offsetHeight ?? 200) / Math.max(1, pawRef.current?.offsetHeight ?? 120) * 105)}%) rotate(5deg)`;
     setPhase(opening ? "revealing" : "closing");
     try {
       if (reduced || keyboard) {
@@ -45,11 +48,11 @@ export function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; in
         await paw.start({ opacity: 1, transform: "translate(0, 0) rotate(0deg)", transition: { duration: PAW_TIMING.enter, ease: EASE } });
         await Promise.all([
           cover.start({ transform: "translateY(105%)", transition: { duration: PAW_TIMING.pull, ease: PULL_EASE } }),
-          paw.start({ transform: "translate(8%, 170%) rotate(5deg)", transition: { duration: PAW_TIMING.pull, ease: PULL_EASE } }),
+          paw.start({ transform: pull, transition: { duration: PAW_TIMING.pull, ease: PULL_EASE } }),
         ]);
         paw.set({ opacity: 0 });
       } else {
-        paw.set({ opacity: 1, transform: "translate(8%, 170%) rotate(5deg)" });
+        paw.set({ opacity: 1, transform: pull });
         await Promise.all([
           cover.start({ transform: "translateY(0%)", transition: { duration: PAW_TIMING.return, ease: PULL_EASE } }),
           paw.start({ transform: "translate(0, 0) rotate(0deg)", transition: { duration: PAW_TIMING.return, ease: PULL_EASE } }),
@@ -84,10 +87,10 @@ export function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; in
           </div>}
           </div>
         </div>
-        <motion.div className={styles.detailCover} animate={cover} aria-hidden="true">
+        <motion.div ref={coverRef} className={styles.detailCover} animate={cover} aria-hidden="true">
 
         </motion.div>
-        <motion.div className={styles.paw} aria-hidden="true" initial={{ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)" }} animate={paw}>
+        <motion.div ref={pawRef} className={styles.paw} aria-hidden="true" initial={{ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)" }} animate={paw}>
           <Image src={PAW_IMAGE} alt="" fill sizes="(max-width: 767px) 144px, (max-width: 2000px) 12vw, 240px" className={styles.pawImage} />
         </motion.div>
       </div>
