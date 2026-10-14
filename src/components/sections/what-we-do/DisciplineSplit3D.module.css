@@ -68,7 +68,7 @@
 @media (prefers-reduced-motion: reduce) { .paneSizer { height: 28rem; } }
 @media (prefers-reduced-motion: reduce) and (width < 920px) { .paneSizer { height: 16.5rem; } }
 
-.floatingObject { position: absolute; top: -1.5rem; right: -1.125rem; z-index: 30; width: clamp(6rem, 10vw, 9.5rem); aspect-ratio: 1; pointer-events: none; transform-style: preserve-3d; }
+.floatingObject { position: absolute; top: -.75rem; right: -1.125rem; z-index: 30; width: clamp(6rem, 10vw, 9.5rem); aspect-ratio: 1; pointer-events: none; transform-style: preserve-3d; }
 .floatingObject img { display: block; width: 100%; height: 100%; object-fit: contain; }
-@media (width < 920px) { .floatingObject { top: -1rem; right: auto; left: -.5rem; width: 4.5rem; } }
+@media (width < 920px) { .floatingObject { top: .5rem; right: auto; left: -.5rem; width: 4.5rem; } }
 @media (prefers-reduced-motion: reduce) { .floatingObject { transform: none; } }
