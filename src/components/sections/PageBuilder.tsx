@@ -40,7 +40,7 @@ export function PageBuilder() {
             <HeroBackground />
             <HeroOpening />
             <span data-voice-reveal-boundary aria-hidden="true" />
-            <NovaSection id="problems"><PawRevealStack /></NovaSection>
+            <NovaSection id="problems"><PawRevealStack blendEntrance /></NovaSection>
           </LionJourney></HeroCompositionProvider>
         }>
           <NovaSection id="services"><ServicesSwitcher /></NovaSection>

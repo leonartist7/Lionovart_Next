@@ -12,8 +12,11 @@ export default function HeroOpening() {
   const { opening: openingRef, openingProgress, arrivalProgress } = useLionJourney()!;
   const reduced = useHydratedReducedMotion();
   const [workInert, setWorkInert] = useState(false);
-  const workOpacity = useTransform(arrivalProgress, [0, .3, .9, 1], [1, 1, 0, 0]);
-  useMotionValueEvent(arrivalProgress, "change", p => setWorkInert(p >= .9));
+  const workOpacity = useTransform(arrivalProgress, value => {
+    const p = Math.min(1, Math.max(0, (value - .1) / .6));
+    return 1 - p * p * (3 - 2 * p);
+  });
+  useMotionValueEvent(arrivalProgress, "change", p => setWorkInert(p >= .7));
   const [heroInert, setHeroInert] = useState(false);
   const heroOpacity = useTransform(openingProgress, [0, 0.03, 0.26], [1, 1, 0]);
   useMotionValueEvent(openingProgress, "change", p => { setHeroInert(p > 0.25); });

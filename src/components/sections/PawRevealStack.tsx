@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useAnimation } from "framer-motion";
+import { motion, useAnimation, useMotionValue, useMotionValueEvent, useTransform } from "framer-motion";
 import Image from "next/image";
-import { ArrowUpRight, Check, Minus, Plus } from "lucide-react";
+import { Check, Minus, Plus } from "lucide-react";
 import { useLenis } from "lenis/react";
-import { Link } from "@/i18n/navigation";
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { useLionJourney } from "./lion-journey/LionJourney";
@@ -126,7 +125,7 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
   </article>;
 }
 
-export default function PawRevealStack() {
+export default function PawRevealStack({ blendEntrance = false }: { blendEntrance?: boolean }) {
   const tr = usePublicCopy();
   const chapterRef = useRef<HTMLElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -134,6 +133,33 @@ export default function PawRevealStack() {
   const setRevealSection = journey?.setRevealSection;
   const setReveal = journey?.setReveal;
   const lenis = useLenis();
+  const reduced = useHydratedReducedMotion();
+  const fallbackArrival = useMotionValue(1);
+  const arrival = journey?.arrivalProgress ?? fallbackArrival;
+  const viewportHeight = useMotionValue(0);
+  const [blendReady, setBlendReady] = useState(false);
+  const [arrived, setArrived] = useState(false);
+  const blendActive = blendEntrance && blendReady && !reduced;
+  const arrivalOpacity = useTransform(arrival, value => {
+    const p = Math.min(1, Math.max(0, (value - .3) / .6));
+    return p * p * (3 - 2 * p);
+  });
+  // Counter the section's approach so the incoming row stays in the same
+  // viewport as the retiring 3D cards, rather than scrolling over them.
+  const arrivalY = useTransform(() => -(1 - arrival.get()) * viewportHeight.get());
+  const arrivalScale = useTransform(arrivalOpacity, [0, 1], [.98, 1]);
+  useMotionValueEvent(arrival, "change", value => {
+    if (blendEntrance) setArrived(current => current === (value >= .7) ? current : value >= .7);
+  });
+  useEffect(() => {
+    if (!blendEntrance) return;
+    const measure = () => viewportHeight.set(window.innerHeight);
+    measure();
+    setArrived(arrival.get() >= .7);
+    setBlendReady(true);
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [blendEntrance, arrival, viewportHeight]);
 
   // The entrance and the shrinking logo use the same 200vmax circle.
   useEffect(() => {
@@ -207,18 +233,17 @@ export default function PawRevealStack() {
 
   return <section ref={chapterRef} id="problems" aria-labelledby="imagine-heading" className={styles.chapter} data-imagine-chapter data-scroll-title-skip>
     <span id="imagine" className={styles.anchor} aria-hidden="true" />
-    <div className={styles.redChapter}>
+    <motion.div className={styles.redChapter} data-imagine-body
+      style={blendActive ? { opacity: arrivalOpacity, y: arrivalY, scale: arrivalScale } : undefined}
+      inert={blendActive && !arrived} aria-hidden={blendActive && !arrived}>
       <header className={styles.intro}>
         <h2 id="imagine-heading"><span>{tr("Your image speaks first.")}</span></h2>
         <p className={styles.introBody}>{tr("Let it speak well of the work behind it.")}</p>
       </header>
-      <div ref={gridRef} className={styles.grid} data-imagine-content>
+      <div ref={gridRef} className={styles.grid} data-imagine-content data-lenis-prevent-horizontal tabIndex={0}
+        role="group" aria-label={tr("Explore the benefits")}>
         {BENEFITS.map((item, index) => <BenefitCard key={item.title} item={item} index={index} />)}
       </div>
-      <div className={styles.reviewOffer}>
-        <p><span>{tr("Not sure where to start?")}</span>{tr("A personal review. Three priority fixes.")}</p>
-        <Link href="/audit" className={styles.reviewLink}>{tr("Review my brand")}<ArrowUpRight aria-hidden="true" /></Link>
-      </div>
-    </div>
+    </motion.div>
   </section>;
 }
