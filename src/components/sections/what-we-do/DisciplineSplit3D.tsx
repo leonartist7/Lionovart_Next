@@ -213,7 +213,10 @@ function Pane({
           className={`absolute inset-0 z-[1] overflow-hidden rounded-[inherit] ${styles.frontFace}`}
           aria-hidden={showBack} inert={showBack}
           style={{
-            visibility: showBack ? "hidden" : "visible",
+            // Perspective makes each face cross edge-on at a different angle.
+            // Let backface culling handle the turn; hide the front only when
+            // the settled back has shed its equivalent 360-degree transform.
+            visibility: showBack && benefitReady ? "hidden" : "visible",
             // Each rotating face owns its opaque base. The stationary wrapper
             // must remain transparent when the flip reveals its surroundings.
             backgroundColor: "#08080a",
