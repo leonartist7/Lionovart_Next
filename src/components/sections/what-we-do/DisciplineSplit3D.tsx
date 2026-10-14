@@ -364,9 +364,9 @@ function Pane({
             <p className={styles.body}>{card.body}</p>
           </motion.div>
         </div>
-        <div className={styles.backFace} style={{ transform: backTransform }} aria-hidden={!showBack} inert={!showBack || !benefitReady}>
+        <motion.div className={styles.backFace} style={{ transform: backTransform }} aria-hidden={!showBack} inert={!showBack || !benefitReady}>
           <ImagineCardFace index={i} />
-        </div>
+        </motion.div>
       </motion.div>
     </motion.div>
   );
