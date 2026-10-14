@@ -19,6 +19,7 @@ import { SPLIT_START, SPLIT_END } from "../lion-journey/motion";
 import { useLionJourney } from "../lion-journey/LionJourney";
 import OpeningProof from "../OpeningProof";
 import ImagineCardFace, { ImagineHeading } from "../ImagineCardFace";
+import { LANDSCAPE_FILM_QUERY, usesLandscapeFilm, openingFrameCenters } from "../lion-journey/opening-layout";
 const FACE_TINTS = [
   "rgba(176, 112, 28, 0.16), rgba(7, 7, 10, 0.88)",
   "rgba(92, 54, 196, 0.16), rgba(7, 7, 10, 0.88)",
@@ -53,6 +54,7 @@ interface FilmFrame {
   stageWidth: number;
   stageHeight: number;
   centerOffset: number;
+  filmOffset: number;
 }
 
 /* â”€â”€â”€ Motion tuning â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -75,7 +77,7 @@ const SECTION_HEIGHT_VH = 160;
 const HANDOFF_START = 0.06;
 const HANDOFF_END = 0.80;
 const FILM_FADE_END = 0.64;
-const FINAL_FRAME_SCALE = 1.02;
+const FINAL_FRAME_SCALE = 1;
 const SPLIT_FINISH = Math.min(0.9, SPLIT_END + 0.08);
 const FRAME_EASE = cubicBezier(0.77, 0, 0.175, 1);
 
@@ -93,7 +95,7 @@ function handoffGeometry(frame: FilmFrame, progress: number) {
     height,
     glassX: width / frame.stageWidth,
     glassY: height / frame.stageHeight,
-    glassOffset: frame.centerOffset,
+    glassOffset: frame.filmOffset + (frame.centerOffset - frame.filmOffset) * p,
   };
 }
 
@@ -538,8 +540,9 @@ export default function DisciplineSplit3D({
     const v = videoRef.current, stage = stageRef.current;
     if (!v || !stage || !stage.offsetHeight || !stage.offsetWidth) return;
     const landscape = window.matchMedia("(min-width: 920px)").matches;
-    const sourceWidth = v.videoWidth || (landscape ? 16 : 9);
-    const sourceHeight = v.videoHeight || (landscape ? 9 : 16);
+    const wideFilm = usesLandscapeFilm(window.innerWidth, window.innerHeight);
+    const sourceWidth = v.videoWidth || (wideFilm ? 16 : 9);
+    const sourceHeight = v.videoHeight || (wideFilm ? 9 : 16);
     const opening = stage.closest<HTMLElement>(".hero-opening-stage");
     const work = stage.closest<HTMLElement>(".opening-work-pinned");
     const openingStyles = opening ? getComputedStyle(opening) : null;
@@ -561,9 +564,7 @@ export default function DisciplineSplit3D({
     const proof = proofRef.current;
     const proofReserve = proof ? proof.offsetHeight + 18 : 0;
     stage.style.setProperty("--opening-proof-height", `${proof?.offsetHeight ?? 148}px`);
-    const minCenter = safeTop + proofReserve + splitAllowance + finalHeight / 2;
-    const maxCenter = safeBottom - splitAllowance - finalHeight / 2;
-    const sharedCenter = Math.max(minCenter, Math.min(stageCenter, maxCenter));
+    const { filmCenter: sharedCenter, cardCenter } = openingFrameCenters(stageCenter, finalHeight, safeTop, safeBottom, proofReserve, splitAllowance);
     // Keep the whole source image inside the space around that same center;
     // this removes the upward translation during the video-to-card handoff.
     const filmHeight = Math.max(1, 2 * Math.min(
@@ -572,20 +573,21 @@ export default function DisciplineSplit3D({
     ));
     const scale = Math.min(viewportWidth * 0.96 / sourceWidth,
       stageWidth * 1.14 / sourceWidth,
-      (landscape ? 1400 : 420) / sourceWidth,
+      (wideFilm ? 1400 : 420) / sourceWidth,
       filmHeight / sourceHeight);
     const width = sourceWidth * scale, height = sourceHeight * scale;
-    const centerOffset = sharedCenter - stageCenter;
+    const centerOffset = cardCenter - stageCenter;
+    const filmOffset = sharedCenter - stageCenter;
     const nextFrame: FilmFrame = { width, height,
-      top: stageHeight / 2 + centerOffset - height / 2,
-      stageWidth, stageHeight, centerOffset };
+      top: stageHeight / 2 + filmOffset - height / 2,
+      stageWidth, stageHeight, centerOffset, filmOffset };
     setFilmFrame(previous => previous
       && (Object.keys(nextFrame) as (keyof FilmFrame)[]).every(key => Math.abs(previous[key] - nextFrame[key]) < 0.1)
       ? previous : nextFrame);
   }, [pinned, settledY]);
 
   useEffect(() => {
-    const landscape = window.matchMedia("(min-width: 920px)");
+    const landscape = window.matchMedia(LANDSCAPE_FILM_QUERY);
     const selectSource = () => {
       videoRef.current?.pause();
       setVideoReady(false);
@@ -612,10 +614,11 @@ export default function DisciplineSplit3D({
         const cards = Array.from(stage.querySelectorAll<HTMLElement>("[data-imagine-card]"));
         const heights = cards.map(card => Math.max(352, card.offsetHeight));
         const height = isDesktop ? Math.max(0, ...heights) : heights.reduce((total, h) => total + h, 0);
-        const extra = reduce ? 0 : Math.max(0, height * FINAL_FRAME_SCALE + (proofRef.current?.offsetHeight ?? 112) + 140 - innerHeight);
+        const extra = reduce ? 0 : Math.max(0, height * FINAL_FRAME_SCALE + (proofRef.current?.offsetHeight ?? 112) + (isDesktop ? 140 : 160) - innerHeight);
         const value = `${Math.ceil(extra)}px`;
-        if (opening.style.getPropertyValue("--opening-benefit-overflow") !== value) {
+        if (opening.style.getPropertyValue("--opening-benefit-overflow") !== value || opening.style.getPropertyValue("--opening-front-overflow") !== value) {
           opening.style.setProperty("--opening-benefit-overflow", value);
+          opening.style.setProperty("--opening-front-overflow", value);
           window.dispatchEvent(new Event("resize"));
         }
       });
@@ -967,7 +970,7 @@ export default function DisciplineSplit3D({
                 }}>{tr("Play video")}</button>
             )}
             {videoFailed && joinedFilmVisible && (
-              <a href={`https://player.cloudinary.com/embed/?cloud_name=dgio9uutc&public_id=${isTablet ? "Demo_hero" : "hero_demo_mobile"}`}
+              <a href={`https://player.cloudinary.com/embed/?cloud_name=dgio9uutc&public_id=${usesLandscapeFilm(viewportWidth, viewportHeight) ? "Demo_hero" : "hero_demo_mobile"}`}
                 target="_blank" rel="noopener noreferrer"
                 className="absolute bottom-4 left-1/2 z-50 min-h-11 -translate-x-1/2 rounded-full bg-black/80 px-5 py-3 text-sm text-white focus-visible:outline-2 focus-visible:outline-white">{tr("Watch video")}</a>
             )}

@@ -398,14 +398,14 @@ export default function Testimonials(
             <div className="flex flex-col items-start lg:max-w-[620px] lg:pt-12">
 
               <motion.h2
-                className="relative z-10 text-[3.5rem] leading-none tracking-[-0.025em] text-brand-red sm:text-[4.5rem] lg:text-[clamp(4rem,6vw,6rem)]"
-                style={{ fontFamily: "var(--font-playfair-display), Georgia, serif", fontStyle: "italic", fontWeight: 400 }}
+                className="relative z-10 text-[clamp(2.75rem,4.7vw,4.75rem)] leading-[.98] tracking-[-0.025em]"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
-                {heading}
+                <span className="block font-clash font-semibold text-white">{tr("More Successful")}</span>
+                <span className="mt-2 block text-brand-red" style={{ fontFamily: "var(--font-playfair-display), Georgia, serif", fontStyle: "italic", fontWeight: 400 }}>{heading}</span>
                 {headingAccent && (
                   <>
                     {" "}

@@ -2,7 +2,7 @@ import * as THREE from "three/webgpu";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader.js";
 import {RoomEnvironment} from "three/examples/jsm/environments/RoomEnvironment.js";
 import model from "./model.json";
-import recipe from "../pearl-gold/material-recipe.json";
+import { color, mix, positionLocal, smoothstep } from "three/tsl";
 
 export type RoarQuality="desktop"|"mobile";
 export class RoarEngine {
@@ -46,12 +46,16 @@ export class RoarEngine {
    if(!(object instanceof THREE.Mesh))return;
    const source=object.material as THREE.MeshStandardMaterial;
    const gold=source.name==="Gold";
-   object.material=new THREE.MeshPhysicalNodeMaterial({
-    name:source.name,color:gold?recipe.materials.gold.base[4]:recipe.materials.pearl.base[1],
-    metalness:gold?1:.025,roughness:gold?.24:.43,
-    sheen:gold?0:.5,sheenColor:0xfff7e7,sheenRoughness:.7,
+   const material=new THREE.MeshPhysicalNodeMaterial({
+    name:source.name,color:gold?0xb47b1b:0xf0bd35,
+    metalness:gold?1:.8,roughness:gold?.26:.34,
+    sheen:0,sheenRoughness:.7,
     clearcoat:gold?.1:.05,clearcoatRoughness:.35,ior:1.45,
    });
+   const height=positionLocal.y.sub(model.bounds.min[1]).div(model.bounds.max[1]-model.bounds.min[1]).clamp(0,1);
+   const base=mix(color(gold?"#87540d":"#b17a12"),color("#f1c33f"),smoothstep(0,.55,height));
+   material.colorNode=mix(base,color(gold?"#efd789":"#ffe991"),smoothstep(.55,1,height));
+   object.material=material;
    source.dispose();
   });
   const bounds=new THREE.Box3().setFromObject(gltf.scene),center=bounds.getCenter(new THREE.Vector3());
@@ -60,7 +64,6 @@ export class RoarEngine {
   this.camera.position.set(cx+.12,cy+.06,5);this.camera.lookAt(cx,cy,0);
   this.resize(this.host.clientWidth,this.host.clientHeight);
   await renderer.compileAsync(this.scene,this.camera);
-  if(!this.disposed)this.render(0,0);
  }
  resize(width:number,height:number){
   if(!this.renderer||this.disposed)return;

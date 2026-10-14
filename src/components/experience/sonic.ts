@@ -9,6 +9,8 @@ export class SonicCues {
   private lastBreezeUpdate = 0;
   private heard = new Set<string>();
   private breeze: AudioBufferSourceNode | undefined;
+  private breezeBuffer: AudioBuffer | undefined;
+  private hoverCleanup = new Set<() => void>();
   private breezeGain: GainNode | undefined;
   private breezeFilter: BiquadFilterNode | undefined;
   private hush: ReturnType<typeof setTimeout> | undefined;
@@ -39,10 +41,22 @@ export class SonicCues {
 
   hover() {
     const now = performance.now();
-    if (!this.enabled || now - this.lastHover < 1100 || now - this.lastMovement < 450) return;
+    const ctx = this.context, buffer = this.breezeBuffer;
+    if (!this.enabled || !ctx || !buffer || ctx.state !== "running" || document.hidden || now - this.lastHover < 1400 || now - this.lastMovement < 600) return;
     this.lastHover = now;
-    this.note(392, .25, .006);
-    this.note(587.33, .32, .0025, .025);
+    // A brief, muted air brush uses the existing noise buffer, with no chime.
+    const source = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), gain = ctx.createGain();
+    source.buffer = buffer;
+    filter.type = "lowpass"; filter.frequency.value = 640; filter.Q.value = .4;
+    gain.gain.setValueAtTime(.0001, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(.0018, ctx.currentTime + .065);
+    gain.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + .28);
+    source.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+    source.start(ctx.currentTime, 2); source.stop(ctx.currentTime + .3);
+    const cleanup = () => { source.onended = null; source.disconnect(); filter.disconnect(); gain.disconnect(); this.hoverCleanup.delete(dispose); };
+    const dispose = () => { source.stop(); cleanup(); };
+    this.hoverCleanup.add(dispose);
+    source.onended = cleanup;
   }
 
   chapter(id: string) {
@@ -68,6 +82,7 @@ export class SonicCues {
       }
     }
     const source = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), gain = ctx.createGain();
+    this.breezeBuffer = buffer;
     source.buffer = buffer; source.loop = true;
     filter.type = "bandpass"; filter.frequency.value = 420; filter.Q.value = .35;
     gain.gain.value = 0;
@@ -136,6 +151,7 @@ export class SonicCues {
   resume() { if (this.enabled) void this.context?.resume(); }
   dispose() {
     this.enabled = false; clearTimeout(this.hush);
+    this.hoverCleanup.forEach(cleanup => cleanup());
     this.breeze?.stop(); this.breeze?.disconnect(); this.breezeFilter?.disconnect(); this.breezeGain?.disconnect();
     void this.context?.close();
   }

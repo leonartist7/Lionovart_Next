@@ -1,6 +1,6 @@
 export type ScrollMode = "flow" | "settle" | "cinema";
 export type ScrollStop = { id: string; label: string; y: number; kind: "opening" | "partnership" | "section" | "service" };
-export type ScrollScene = { start: number; end: number; extent?: number; kind: "opening" | "partnership"; stops: ScrollStop[] };
+export type ScrollScene = { start: number; end: number; extent?: number; timelineSpan?: number; frontReading?: { start: number; end: number }; kind: "opening" | "partnership"; stops: ScrollStop[] };
 
 export const SCROLL_MODES = {
   flow: { label: "Free flow", description: "Natural scrolling with longer film and card holds.", span: 270, mobileSpan: 310 },
@@ -20,7 +20,9 @@ export function chooseScrollStop({ mode, y, gestureStart, direction, viewport, s
   if (mode === "flow" || !direction) return;
   const scene = scenes.find(s => y >= s.start && y <= (s.extent ?? s.end));
   if (scene) {
-    const span = scene.end - scene.start;
+    const span = scene.timelineSpan ?? scene.end - scene.start;
+    // Finish reading the actual cards before an automatic flip can begin.
+    if (scene.frontReading && y >= scene.frontReading.start && y < scene.frontReading.end) return;
     if (mode === "cinema") {
       // One fresh gesture advances one beat. Never skip a film/card resting point.
       const previous = [...scene.stops].reverse().find(p => p.y <= gestureStart + 12);
@@ -31,7 +33,8 @@ export function chooseScrollStop({ mode, y, gestureStart, direction, viewport, s
       if (stop && direction * (stop.y - y) > 8 && Math.abs(y - gestureStart) >= Math.min(72, viewport * .09)) return stop;
       return;
     }
-    const p = (y - scene.start) / span;
+    const consumed = scene.frontReading ? Math.max(0, Math.min(scene.frontReading.end - scene.frontReading.start, y - scene.frontReading.start)) : 0;
+    const p = (y - scene.start - consumed) / span;
     if (scene.kind === "opening") {
       if (scene.stops.some(s => s.id === "imagine" && s.kind === "opening")) {
         // One opening stage: intact film, discipline faces, then Imagine backs.

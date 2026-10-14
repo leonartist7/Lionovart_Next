@@ -54,3 +54,17 @@
   .chapter[data-carousel-preview=true] [data-service-tags] { margin-top: .625rem; gap: .25rem; }
   .chapter[data-carousel-preview=true] [data-service-tags] span { padding: .25rem .375rem; }
 }
+
+/* Larger service imagery above a lower, centered reading area. */
+@media (width >= 768px) {
+  .chapter:not([data-carousel-preview=true]) .panel { top: 8svh; bottom: calc(3.2svh + 4.5rem); }
+  .chapter:not([data-carousel-preview=true]) .panel > div { justify-content: space-between; gap: clamp(1rem, 2.5svh, 2rem); }
+  .chapter:not([data-carousel-preview=true]) [data-service-media] { width: min(76vw, calc((100svh - 30rem) * 16 / 9), 72rem); }
+  .chapter:not([data-carousel-preview=true]) [data-service-title] { max-width: 14ch; font-size: clamp(3rem, 4.4vw, 5.25rem); }
+  .chapter:not([data-carousel-preview=true]) [data-service-description] { max-width: 42ch; margin-top: clamp(.75rem, 1.5svh, 1.25rem); }
+  .chapter:not([data-carousel-preview=true]) [data-service-tags] { margin-top: clamp(.75rem, 1.5svh, 1.25rem); }
+}
+@media (width >= 768px) and (480px < height <= 800px) {
+  .chapter:not([data-carousel-preview=true]) [data-service-media] { width: min(80vw, calc((100svh - 24rem) * 16 / 9), 64rem); }
+  .chapter:not([data-carousel-preview=true]) [data-service-title] { font-size: clamp(2.125rem, 4.5vw, 3.5rem); }
+}

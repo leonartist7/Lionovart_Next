@@ -97,13 +97,13 @@
 /* One pinned stage owns the hero, film, cards, and proof. */
 .journey :global(.hero-opening) { position: relative; z-index: 2; }
 .journey :global(.hero-opening-stage) { position: relative; }
-.journey :global(.hero-opening-pinned) { height: calc(100svh + var(--opening-scroll-span, 300svh) + var(--hero-overflow, 0px) + var(--opening-overlap) + var(--opening-benefit-overflow, 0px)); }
+.journey :global(.hero-opening-pinned) { height: calc(100svh + var(--opening-scroll-span, 300svh) + var(--hero-overflow, 0px) + var(--opening-overlap) + var(--opening-benefit-overflow, 0px) + var(--opening-front-overflow, 0px)); }
 .journey :global(.hero-opening-pinned .hero-opening-stage) { position: sticky; top: calc(-1 * var(--hero-overflow, 0px)); height: calc(100svh + var(--hero-overflow, 0px)); overflow: clip; }
 .journey :global(.hero-opening-pinned .opening-hero-layer) { position: absolute; inset: 0; }
 .journey :global(.hero-opening-pinned .opening-hero-layer) { z-index: 2; }
 .journey :global(.opening-work-anchor) { position: absolute; top: 62svh; left: 0; width: 1px; height: 1px; pointer-events: none; }
 /* Hash targets belong to the document timeline, never the moving card faces. */
-.journey :global(.opening-imagine-anchor) { position: absolute; top: calc(var(--hero-overflow, 0px) + (100% - 100svh - var(--hero-overflow, 0px) - var(--opening-overlap, 0px) - var(--opening-benefit-overflow, 0px)) * .9); left: 0; width: 1px; height: 1px; pointer-events: none; }
+.journey :global(.opening-imagine-anchor) { position: absolute; top: calc(var(--hero-overflow, 0px) + var(--opening-front-overflow, 0px) + (100% - 100svh - var(--hero-overflow, 0px) - var(--opening-overlap, 0px) - var(--opening-benefit-overflow, 0px) - var(--opening-front-overflow, 0px)) * .9); left: 0; width: 1px; height: 1px; pointer-events: none; }
 .journey :global(.opening-work-pinned) { --opening-video-center: 63svh; position: absolute; inset: 0; z-index: 3; pointer-events: none; }
 .journey :global(.opening-work-pinned .lion-video-section:is([data-cards-armed="true"], [data-imagine-interactive="true"])) { pointer-events: auto; }
 .journey :global(.opening-work-pinned .opening-video-anchor) { position: absolute; left: 50%; top: calc(var(--hero-overflow, 0px) + var(--opening-video-center) - var(--opening-front-height, 420px) / 2); translate: -50% 0; width: min(92vw,420px); }
@@ -112,8 +112,8 @@
 .journey :global(.opening-work-pinned .opening-proof) { padding: 0 16px; gap: clamp(16px,3vw,42px); }
 .journey :global(.opening-work-pinned .opening-laurel img) { height: clamp(42px,6vh,60px); }
 @media (min-width: 920px) {
- /* The 1.02 face scale and outer separation bring 80vw to about 85vw. */
- .journey :global(.opening-work-pinned .opening-video-anchor) { width: 80vw; }
+ /* A measured middle ground for both faces, including their separation. */
+ .journey :global(.opening-work-pinned .opening-video-anchor) { width: 72vw; }
 }
 @media (width < 920px) {
  .journey :global(.opening-work-pinned) { --opening-video-center: 63svh; }
@@ -122,12 +122,12 @@
  .journey :global(.opening-work-pinned) { --opening-video-center: 63svh; }
 }
 @media (width < 920px) {
- .journey :global(.hero-opening-pinned) { height: calc(100svh + var(--opening-scroll-span-mobile, 340svh) + var(--hero-overflow, 0px) + var(--opening-overlap) + var(--opening-benefit-overflow, 0px)); }
+ .journey :global(.hero-opening-pinned) { height: calc(100svh + var(--opening-scroll-span-mobile, 340svh) + var(--hero-overflow, 0px) + var(--opening-overlap) + var(--opening-benefit-overflow, 0px) + var(--opening-front-overflow, 0px)); }
  .journey :global(.opening-work-pinned .opening-proof) { padding: 0 10px; gap: 8px 14px; }
  .journey :global(.opening-work-pinned .opening-laurel img) { height: clamp(38px, 7svh, 58px); }
 }
 @media (max-height: 700px) {
- .journey :global(.hero-opening-pinned) { height: calc(100svh + var(--opening-scroll-span-mobile, 340svh) + var(--hero-overflow, 0px) + var(--opening-overlap) + var(--opening-benefit-overflow, 0px)); }
+ .journey :global(.hero-opening-pinned) { height: calc(100svh + var(--opening-scroll-span-mobile, 340svh) + var(--hero-overflow, 0px) + var(--opening-overlap) + var(--opening-benefit-overflow, 0px) + var(--opening-front-overflow, 0px)); }
  .journey :global(.opening-work-pinned) { --opening-video-center: 63svh; }
  .journey :global(.opening-work-pinned .opening-proof) { padding: 0 10px; gap: 6px 12px; }
  .journey :global(.opening-work-pinned .opening-laurel img) { height: 38px; }
@@ -167,7 +167,7 @@
 }
 
 /* Hero starts beneath the measured navigation; gaps scale with the viewport. */
-.journey :global(.lion-hero) { position:relative; display:grid; grid-template-columns:minmax(0,1fr); align-items:start; align-content:start; width:90%; max-width:150rem; margin-inline:auto; padding:calc(var(--hero-nav-clearance,6.25rem) + clamp(1rem,2svh,2.5rem)) 0 clamp(2rem,4svh,4rem); min-height:100svh; }
+.journey :global(.lion-hero) { position:relative; display:grid; grid-template-columns:minmax(0,1fr); align-items:center; align-content:center; width:90%; max-width:150rem; margin-inline:auto; padding:calc(var(--hero-nav-clearance,6.25rem) + clamp(1rem,2svh,2.5rem)) 0 clamp(2rem,4svh,4rem); min-height:100svh; }
 .journey :global(.lion-content) { grid-column:1; display:flex; flex-direction:column; align-items:center; text-align:center; justify-self:center; width:100%; max-width:clamp(57.5rem,65vw,96rem); gap:clamp(1.5rem,2.5svh,3rem); min-width:0; position:relative; z-index:2; container-type:inline-size; }
 .journey :global(.lion-copy) { width:100%; margin:0; text-shadow:0 2px 22px #08080a; }
 .journey :global(.lion-headline) { margin:0; color:#f7f4ef; font-family:var(--font-heading); font-size: clamp(3.25rem,10.8cqw,12rem); line-height:.98; font-weight:700; letter-spacing:-.045em; }
@@ -239,7 +239,6 @@
 /* A mobile back face stays legible; scroll the same stack through its overflow. */
 @media (width < 920px) {
  .journey :global(.opening-work-pinned .opening-video-anchor) { translate: -50% 0; top: calc(var(--hero-overflow, 0px) + var(--opening-video-center) - var(--opening-front-height, 420px) / 2); }
- .journey :global(.opening-glass-pane[data-card-face="imagine"]) { min-height: 24rem; }
 }
 
 @media (width < 920px) { .journey :global(.opening-work-pinned) { --opening-video-center: 60svh; } }

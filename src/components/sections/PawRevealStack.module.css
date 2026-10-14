@@ -146,3 +146,27 @@
 
 .tapLabel { position: absolute; left: 1.25rem; bottom: .875rem; font: 500 .8125rem/1.3 var(--font-dm-sans), sans-serif; letter-spacing: .015em; }
 .details { padding-bottom: 3.5rem; }
+
+/* Compact shared faces keep the same proportions through the flip. */
+.cardTop { min-height: calc(var(--benefit-copy-height, 3rem) + 1.5rem); }
+.cardBody { font-size: clamp(1rem, .9rem + .3vw, 1.3rem); }
+.cardHeadline { font-size: clamp(1.5rem, 1.35rem + .35vw, 2rem); }
+.detailShell, .detailWell { min-height: 0; }
+.details li { font-size: clamp(.875rem, .8rem + .2vw, 1.0625rem); }
+.metricValue { font-size: clamp(2.25rem, 2rem + .4vw, 3rem); }
+.metricLabel { font-size: clamp(.8125rem, .75rem + .15vw, 1rem); }
+.sculpture { width: min(65%, clamp(8rem, 12vw, 12rem)); }
+@media (width < 920px) {
+  .card { --benefit-inset: .875rem; }
+  .cardTop { min-height: 5rem; padding-block: .625rem; }
+  .cardBody { font-size: 1rem; line-height: 1.35; }
+  .cardHeadline { font-size: 1.5rem; }
+  .details { padding: .625rem var(--benefit-inset) 2.75rem; }
+  .details ul { gap: .5rem; }
+  .details li { font-size: .875rem; line-height: 1.35; }
+  .metric { margin-top: .625rem; padding-top: .625rem; }
+  .metricValue { font-size: 2.25rem; }
+  .metricValue small { font-size: .8125rem; }
+  .metricLabel { font-size: .8125rem; }
+  .sculpture { width: min(50%, 8rem); }
+}

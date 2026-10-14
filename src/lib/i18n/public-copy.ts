@@ -1,5 +1,6 @@
 /** Reviewed French public UI copy. Source phrases are gettext-style keys. */
 const french: Record<string, string> = {
+  "More Successful": "De meilleurs",
   "Results": "Résultats",
   "Design your legacy": "Façonnez votre héritage",
   "Get to know me": "Faisons connaissance",
