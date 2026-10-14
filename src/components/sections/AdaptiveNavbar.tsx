@@ -10,6 +10,7 @@ import {
   useMotionValueEvent,
   useReducedMotion,
   useScroll,
+  useTransform,
 } from "framer-motion";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLenis } from "lenis/react";
@@ -135,6 +136,8 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
   const [mobileExpertiseOpen, setMobileExpertiseOpen] = useState(false);
 
   const { scrollY } = useScroll();
+  // The announcement occupies the first 40px, then scrolls out naturally.
+  const navTop = useTransform(scrollY, [0, 40], [40, 0]);
   const [lightSurface, setLightSurface] = useState(false);
   const motionPreference = useReducedMotion();
   const hydrated = useSyncExternalStore(() => () => {}, () => true, () => false);
@@ -297,6 +300,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
   return (
     <motion.div
       className="fixed top-0 left-0 right-0 z-50 flex justify-center"
+      style={{ top: navTop }}
       data-nav-visible={isVisible}
       data-nav-tone={lightSurface || isMobileOpen ? "light" : "dark"}
       animate={{ y: isVisible ? 0 : "-170%" }}
