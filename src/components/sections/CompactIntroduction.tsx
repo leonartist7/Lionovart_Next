@@ -22,7 +22,7 @@ export default function CompactIntroduction() {
             {copy.heading}<br /><span>{copy.headingAccent}</span>
           </h2>
           <p className={styles.description}>{tr("I’m Leonardo, founder and creative director of LIONOVART. I work with you directly, from the first conversation to the final details.")}</p>
-          <p className={styles.description}>{tr("Brand identity, film and digital experiences come together around one clear direction. When your project needs specialist skills, I bring the right people into the work.")}</p>
+          <p className={styles.description}>{tr("Before we talk about design, I take the time to understand what you’ve built, what matters to you and where you want to go. You deserve a brand that feels like you.")}</p>
           <Link href="/about#founder" className={styles.link} data-sound-hover>
             {tr("Get to know me")}<span aria-hidden="true">↗</span>
           </Link>
