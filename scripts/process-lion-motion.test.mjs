@@ -4,7 +4,7 @@ import { processLionPose, stepPassIntensity, stepRingRotation, stepHasPassed, sc
 
 for (const [width, height] of [[390, 844], [768, 1024], [1440, 900]]) {
   const geometry = {
-    viewportHeight: height, progress: 0, dockTop: height * .75,
+    viewportHeight: height, progress: 0, dockTop: height * .28 - 90,
     dockSize: 180, dockX: width / 2, originX: width * .15,
     originY: height * .56, railSize: width < 640 ? 78 : 300,
   };
@@ -94,4 +94,11 @@ test('scroll nod is directional, bounded and neutral at rest', () => {
  assert.ok(Math.abs(scrollLionTilt(10000))<=.085);
  assert.equal(scrollLionTilt(-700),-scrollLionTilt(700));
  assert.equal(processLionPose({viewportHeight:900,progress:1,dockSize:180,dockX:700,originX:100,originY:500,railSize:300,dockTop:100}).pitch,0);
+});
+
+test('a shortened CTA lands on its measured upper dock without a release jump',()=>{
+ const geometry={viewportHeight:832,progress:.5,dockTop:260,dockSize:180,dockX:187,originX:50,originY:465,railSize:78};
+ const settled=processLionPose(geometry);
+ assert.equal(settled.y,350);
+ for(const progress of [.64,.76,.95,1]) assert.equal(processLionPose({...geometry,progress}).y,settled.y);
 });
