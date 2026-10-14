@@ -60,13 +60,20 @@ try {
       await page.waitForTimeout(800);
       assert.notEqual(await wall.locator("[data-media-wall-plane]").evaluate(n => getComputedStyle(n).transform),before,"Pointer changes perspective");
     }
+    await page.waitForFunction(() => document.querySelectorAll('[data-closing-media-wall] img[data-loaded="true"]').length >= 3, {}, {timeout:30000});
     await page.screenshot({path:`verification-output/closing-cta/${config.width}-${config.motion}.png`});
+    if ((config.width===390 && config.motion==="reduce") || config.width===1440) {
+      const shot = await page.screenshot({type:"jpeg",quality:45});
+      console.log(`CTA_PREVIEW_${config.width}:${shot.toString("base64")}`);
+    }
     const button = page.locator("#closing-cta button").first();
     await button.focus();
     assert.ok(await button.evaluate(n => n === document.activeElement),"CTA accepts keyboard focus");
     await page.keyboard.press("Enter");
-    await page.waitForTimeout(750);
-    const opened = await page.evaluate(() => !!document.querySelector('[role="dialog"],[data-nova-open="true"]'));
+    const dialog = page.getByRole("dialog",{name:"Nova — LIONOVART AI Strategist",exact:true});
+    await dialog.waitFor({state:"visible",timeout:30000});
+    const opened = true;
+    await page.keyboard.press("Escape");
     results.push({...config,planes:count,active,buttonOpenedDialog:opened,errors});
     // The animation must stop after the CTA leaves the viewport.
     await page.evaluate(() => window.scrollTo({top:0,behavior:"instant"}));
