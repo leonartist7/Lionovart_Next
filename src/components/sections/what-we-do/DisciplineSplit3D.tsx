@@ -180,14 +180,12 @@ function Pane({
     <motion.div
       ref={registerPane}
       data-card-face={showBack ? "imagine" : "discipline"}
-      className="opening-glass-pane relative min-h-0 min-w-0 flex-1 [--opening-art-size:clamp(8.5rem,42vw,10rem)]"
+      className={`opening-glass-pane ${styles.pane} relative min-h-0 min-w-0 flex-1 [--opening-art-size:clamp(8.5rem,42vw,10rem)]`}
       style={{
         x: paneX,
         y: paneY,
         rotateX: paneRotateX,
         rotateY: paneRotateY,
-        // The complete glass face has an opaque base before it separates.
-        backgroundColor: "#08080a",
         borderTopLeftRadius: i === 0 ? outerRadius : innerRadius,
         borderTopRightRadius: (isDesktop ? i === 2 : i === 0) ? outerRadius : innerRadius,
         borderBottomLeftRadius: (isDesktop ? i === 0 : i === 2) ? outerRadius : innerRadius,
@@ -199,7 +197,7 @@ function Pane({
     >
       {/* Intrinsic card sizing: a square image plus a compact footer on
           desktop; square art beside the copy in the phone stack. */}
-      <div aria-hidden="true" className="opening-pane-sizing pointer-events-none w-full pb-52 pt-[100%] max-[920px]:h-[var(--opening-art-size)] max-[920px]:p-0" />
+      <div aria-hidden="true" className={`opening-pane-sizing ${styles.paneSizer} pointer-events-none w-full pb-52 pt-[100%] max-[920px]:h-[var(--opening-art-size)] max-[920px]:p-0`} />
       {/* The glass body rises underneath the fading, unbroken film. */}
       <motion.div
         className="absolute inset-0 z-[1] rounded-[inherit]"
@@ -216,7 +214,10 @@ function Pane({
           aria-hidden={showBack} inert={showBack}
           style={{
             visibility: showBack ? "hidden" : "visible",
-            background: `linear-gradient(135deg, ${FACE_TINTS[i]}, rgba(4,4,6,0.94) 72%)`,
+            // Each rotating face owns its opaque base. The stationary wrapper
+            // must remain transparent when the flip reveals its surroundings.
+            backgroundColor: "#08080a",
+            backgroundImage: `linear-gradient(135deg, ${FACE_TINTS[i]}, rgba(4,4,6,0.94) 72%)`,
             boxShadow: `inset 0 1px 0 rgba(255,255,255,0.22), inset 0 0 34px ${EDGE_TINTS[i]}22, 0 24px 48px -28px rgba(0,0,0,0.95)`,
           }}
         >
@@ -263,7 +264,7 @@ function Pane({
               aria-hidden="true"
               loading="lazy"
               decoding="async"
-              className="pointer-events-none absolute left-0 top-0 h-[var(--opening-art-size)] w-[var(--opening-art-size)] object-contain object-center min-[920px]:aspect-square min-[920px]:h-auto min-[920px]:w-full"
+              className={`${styles.artwork} pointer-events-none absolute left-0 top-0 h-[var(--opening-art-size)] w-[var(--opening-art-size)] object-contain object-center min-[920px]:aspect-square min-[920px]:h-auto min-[920px]:w-full`}
               style={{ opacity: backImageOpacity }}
               onError={event => {
                 const image = event.currentTarget;
@@ -601,8 +602,9 @@ export default function DisciplineSplit3D({
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         const cards = Array.from(stage.querySelectorAll<HTMLElement>("[data-imagine-card]"));
-        const height = cards.reduce((total, card) => total + Math.max(352, card.offsetHeight), 0);
-        const extra = isDesktop || reduce ? 0 : Math.max(0, height * FINAL_FRAME_SCALE + (proofRef.current?.offsetHeight ?? 112) + 140 - innerHeight);
+        const heights = cards.map(card => Math.max(352, card.offsetHeight));
+        const height = isDesktop ? Math.max(0, ...heights) : heights.reduce((total, h) => total + h, 0);
+        const extra = reduce ? 0 : Math.max(0, height * FINAL_FRAME_SCALE + (proofRef.current?.offsetHeight ?? 112) + 140 - innerHeight);
         const value = `${Math.ceil(extra)}px`;
         if (opening.style.getPropertyValue("--opening-benefit-overflow") !== value) {
           opening.style.setProperty("--opening-benefit-overflow", value);

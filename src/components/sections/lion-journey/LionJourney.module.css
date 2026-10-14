@@ -112,7 +112,8 @@
 .journey :global(.opening-work-pinned .opening-proof) { padding: 0 16px; gap: clamp(16px,3vw,42px); }
 .journey :global(.opening-work-pinned .opening-laurel img) { height: clamp(42px,6vh,60px); }
 @media (min-width: 920px) {
- .journey :global(.opening-work-pinned .opening-video-anchor) { width: min(90vw,1440px,calc((100svh - 15rem) * 3 - 39rem)); }
+ /* The 1.02 face scale and outer separation bring 80vw to about 85vw. */
+ .journey :global(.opening-work-pinned .opening-video-anchor) { width: 80vw; }
 }
 @media (width < 920px) {
  .journey :global(.opening-work-pinned) { --opening-video-center: 63svh; }
@@ -155,7 +156,6 @@
 
 /* Compact landscape screens still leave room for the proof below the cards. */
 @media (min-width: 920px) and (max-height: 700px) {
- .journey :global(.opening-work-pinned .opening-video-anchor) { width: min(82vw,1120px,calc((100svh - var(--hero-nav-clearance,100px) - 180px) * 1.5)); }
  .journey :global(.opening-pane-copy) { padding: 14px; }
  .journey :global(.opening-pane-copy h3) { font-size: clamp(.9375rem,1.75vw,1.25rem); }
  .journey :global(.opening-pane-copy p) { font-size: .75rem; line-height: 1.4; min-height: 3rem; }
@@ -241,8 +241,6 @@
  .journey :global(.opening-work-pinned .opening-video-anchor) { translate: -50% 0; top: calc(var(--hero-overflow, 0px) + var(--opening-video-center) - var(--opening-front-height, 420px) / 2); }
  .journey :global(.opening-glass-pane[data-card-face="imagine"]) { min-height: 24rem; }
 }
-
-.journey :global(.opening-glass-pane[data-card-face="imagine"]) { background-color: transparent !important; }
 
 @media (width < 920px) { .journey :global(.opening-work-pinned) { --opening-video-center: 60svh; } }
 .journey :global(.opening-work-pinned .opening-flags) { gap: 8px; }
