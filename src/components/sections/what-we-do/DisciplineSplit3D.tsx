@@ -207,7 +207,7 @@ function Pane({
         >
           {/* Three crops from one decoder preserve the complete image at the
               join, then travel with their card instead of fading above it. */}
-          <motion.div aria-hidden="true"
+          <motion.div aria-hidden="true" data-opening-crop
             className="pointer-events-none absolute inset-0 z-[1] overflow-hidden rounded-[inherit]"
             style={{ opacity: filmOpacity,
               backgroundImage: poster ? `url("${poster}")` : undefined,
@@ -239,7 +239,7 @@ function Pane({
               mixBlendMode: "screen",
             }}
           />
-          <motion.div className={styles.integratedFace} style={{ opacity: cardP }} data-imagine-card={i}>
+          <motion.div className={styles.integratedFace} style={{ opacity: reducedMotion ? 1 : cardP }} data-imagine-card={i}>
             <BenefitCard item={IMAGINE_BENEFITS[i]} index={i} artwork={card.image} code={card.code}
               serviceTitle={card.title} accent={card.accent} enabled={interactive} />
           </motion.div>
@@ -421,7 +421,7 @@ export default function DisciplineSplit3D({
   const cardTransform = useTransform(() => {
     const p = flip.get();
     if (!filmFrame) return "none";
-    if (reduce) return `translateY(${filmFrame.centerOffset}px) scale(${FINAL_FRAME_SCALE})`;
+    if (reduce) return "none";
     const geometry = handoffGeometry(filmFrame, p);
     return `translateY(${geometry.glassOffset - benefitScroll.get()}px) scale(${geometry.glassX}, ${geometry.glassY})`;
   });
@@ -865,7 +865,7 @@ export default function DisciplineSplit3D({
         <div ref={(node) => journey?.setVideo(node)}
           className="opening-video-anchor relative z-40 w-[min(80vw,360px)] min-[920px]:w-[min(82vw,1120px)]">
         <motion.div ref={stageRef} className="relative w-full"
-          style={{ perspective: "1400px", y: pinned ? entranceY : 0, scale: pinned ? entranceScale : 1 }}>
+          style={{ perspective: "1400px", y: pinned && !reduce ? entranceY : 0, scale: pinned && !reduce ? entranceScale : 1 }}>
           {/* Native playback hands its exact joined outline to the pane crops. */}
           <motion.div data-opening-film
             className="opening-joined-film absolute z-[2] overflow-hidden rounded-[16px] bg-[#08080a]"
@@ -913,7 +913,7 @@ export default function DisciplineSplit3D({
 
           {/* The outline reshapes around a fixed center as its faces split. */}
           <motion.div ref={cardGroupRef} className="opening-card-morph relative"
-            style={{ transform: cardTransform, opacity: filmFrame ? 1 : 0,
+            style={{ transform: cardTransform, opacity: reduce || filmFrame ? 1 : 0,
               transformStyle: "preserve-3d" }}>
           {/* Glass plane â€” tilts as one sheet so the three panes stay a single
               object. Individual feedback lives on the panes' hover lift. */}

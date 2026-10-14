@@ -67,7 +67,7 @@ export default function HeroOpening() {
       <span id="problems" className="opening-imagine-anchor" aria-hidden="true" />
       <div className="hero-opening-stage">
         <motion.div data-nova-section="hero" data-opening-hero className="opening-hero-layer"
-          style={{ opacity: heroOpacity }} inert={heroInert}>
+          style={{ opacity: reduced ? 1 : heroOpacity }} inert={!reduced && heroInert}>
           <HeroTop />
         </motion.div>
         <motion.div className="opening-work-layer" data-opening-cards-layer style={{ opacity: reduced ? 1 : workOpacity }} inert={!reduced && workInert}>
