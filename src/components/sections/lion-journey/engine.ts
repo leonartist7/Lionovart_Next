@@ -23,7 +23,7 @@ export class LionEngine {
 
   constructor(private host: HTMLDivElement, private onError: () => void) {}
 
-  async init(mobile: boolean) {
+  async init(mobile: boolean, mobileDpr = 1.25) {
     // Use a fresh canvas per backend: a failed GPU context must not poison WebGL.
     const forceFallback = process.env.NODE_ENV !== "production" && new URLSearchParams(location.search).has("lionWebGL");
     for (const forceWebGL of forceFallback ? [true] : [false, true]) {
@@ -46,8 +46,9 @@ export class LionEngine {
     }
     const renderer = this.renderer;
     if (!renderer || this.disposed) return;
-    this.dpr = Math.min(devicePixelRatio || 1, mobile ? 1.25 : 1.5);
+    this.dpr = Math.min(devicePixelRatio || 1, mobile ? mobileDpr : 1.5);
     renderer.setPixelRatio(this.dpr);
+    this.host.dataset.renderDpr = String(this.dpr);
     renderer.setClearColor(0x000000, 0);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;
@@ -133,6 +134,7 @@ export class LionEngine {
     this.lion.rotation.y = lion.turn * 1.25;
     this.lion.rotation.x = lion.pitch ?? 0;
 
+    if (this.host.dataset.animationActive !== "true") this.host.dataset.animationActive = "true";
     try { this.renderer.render(this.scene, this.camera); }
     catch { this.onError(); return; }
     const now = performance.now();
@@ -151,7 +153,7 @@ export class LionEngine {
     }
   }
 
-  pause() { this.lastFrame = 0; this.samples = []; }
+  pause() { this.lastFrame = 0; this.samples = []; this.host.dataset.animationActive = "false"; }
 
   private disposeObject(root: THREE.Object3D) {
     const materials = new Set<THREE.Material>(), textures = new Set<THREE.Texture>(), geometries = new Set<THREE.BufferGeometry>();
@@ -169,6 +171,7 @@ export class LionEngine {
   dispose() {
     if (this.disposed) return;
     this.disposed = true;
+    this.pause();
     if (this.lost) this.renderer?.domElement.removeEventListener("webglcontextlost", this.lost);
     this.disposeObject(this.scene); this.environment?.dispose(); this.loader.dispose();
     this.renderer?.dispose(); this.host.replaceChildren();

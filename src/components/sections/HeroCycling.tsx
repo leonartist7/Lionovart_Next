@@ -125,27 +125,37 @@ export default function HeroCycling({
 
   // ── Warm image words so a swap never fades in a half-loaded frame ────────
   useEffect(() => {
+    if (variant === "closing") return; // Closing preloads just the next visible beat below.
     words.forEach((w) => {
       if (w.type === "image") {
         const img = new window.Image();
         img.src = w.content;
       }
     });
-  }, [words]);
+  }, [variant, words]);
 
   // ── Cycling timer ────────────────────────────────────────────────────────
   useEffect(() => {
     if (!hasMounted || (prefersReduced && !forceAnimate) || isPaused || paused || words.length <= 1) return;
 
+    let cancelled = false;
+    const nextIndex = (currentIndex + 1) % words.length;
+    const nextWord = words[nextIndex];
+    // Decode during the hold, then commit only while this timer is still active.
+    // This uses the exact rendered URL, not an extra full-resolution download.
+    const nextImage = variant === "closing" && nextWord.type === "image" ? new window.Image() : null;
+    if (nextImage) { nextImage.decoding = "async"; nextImage.src = nextWord.content; }
+    const decoded = nextImage ? nextImage.decode().then(() => true, () => false) : Promise.resolve(true);
     const holdMs = words[currentIndex]?.holdMs ?? DEFAULT_HOLD_MS;
-    timerRef.current = setTimeout(() => {
-      setCurrentIndex((i) => (i + 1) % words.length);
+    timerRef.current = setTimeout(async () => {
+      if (await decoded && !cancelled) setCurrentIndex(nextIndex);
     }, holdMs);
 
     return () => {
+      cancelled = true;
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [currentIndex, forceAnimate, hasMounted, isPaused, paused, prefersReduced, words]);
+  }, [currentIndex, forceAnimate, hasMounted, isPaused, paused, prefersReduced, variant, words]);
 
   // ── Pause when tab is hidden ─────────────────────────────────────────────
   useEffect(() => {

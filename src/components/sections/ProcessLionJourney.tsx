@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePublicCopy } from "@/hooks/usePublicCopy";
+import { useSaveData, dataConnection } from "@/hooks/useSaveData";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { emitExperienceCue } from "../experience/experience-cues";
 import ClosingCTA from "./ClosingCTA";
@@ -36,7 +37,8 @@ export default function ProcessLionJourney() {
   const reduced = useHydratedReducedMotion();
   const short = useSyncExternalStore(subscribeShort, () => matchMedia(shortQuery).matches, () => false);
   const [oversizedCTA, setOversizedCTA] = useState(false);
-  const staticMode = reduced || short || oversizedCTA;
+  const saveData = useSaveData();
+  const staticMode = reduced || saveData || short || oversizedCTA;
   const host = useRef<HTMLDivElement>(null);
   const viewport = useRef<HTMLDivElement>(null);
   const scene = useRef<HTMLDivElement>(null);
@@ -92,7 +94,7 @@ export default function ProcessLionJourney() {
     let scrollVelocity = 0, scrollPitch = 0, lastScrollY = window.scrollY, lastScrollAt = performance.now();
     let pose: ReturnType<typeof processLionPose> | undefined;
     const fine = matchMedia("(hover: hover) and (pointer: fine)");
-    const manual = staticMode || matchMedia("(prefers-reduced-motion: reduce)").matches || matchMedia(shortQuery).matches;
+    const manual = staticMode || dataConnection()?.saveData || matchMedia("(prefers-reduced-motion: reduce)").matches || matchMedia(shortQuery).matches;
     const reset = () => {
       root.dataset.motion = "false";
       view.dataset.motion = "false";
@@ -223,7 +225,7 @@ export default function ProcessLionJourney() {
       view.dataset.ready = String(ready);
       // Keep only the short nod tail alive after the centered lion settles.
       if ((!failed && ready && pose.processOpacity > 0) || Math.abs(scrollPitch) > .0002 || Math.abs(scrollVelocity) > 1) frame = requestAnimationFrame(render);
-      else last = 0;
+      else { last = 0; engine?.pause(); }
     };
     const wake = () => { if (!disposed && !frame) frame = requestAnimationFrame(render); };
     const scroll = () => {
@@ -256,7 +258,9 @@ export default function ProcessLionJourney() {
         if (disposed) return;
         const next = new LionEngine(surface!, fail);
         engine = next;
-        await next.init(width < 800);
+        // Native CSS-pixel density cuts the mobile color buffer by 36% versus 1.25 DPR.
+        // Keep antialiasing, the 55k mobile mesh and its gold materials intact.
+        await next.init(width < 800, 1);
         if (disposed || failed) { next.dispose(); return; }
         ready = true;
         resize();
@@ -264,6 +268,7 @@ export default function ProcessLionJourney() {
     }
     const visibility = () => {
       last = 0;
+      if (document.hidden) { cancelAnimationFrame(frame); frame = 0; engine?.pause(); return; }
       if (!document.hidden && near && !ready) void load();
       dirty = true; wake();
     };

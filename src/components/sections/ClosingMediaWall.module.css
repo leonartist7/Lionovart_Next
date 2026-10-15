@@ -47,13 +47,29 @@
 }
 @media (width < 640px) {
   .root {
-    perspective: 650px;
-    mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 90%, transparent), radial-gradient(ellipse 57% 50% at 50% 49%, transparent 63%, #000 100%);
+    perspective: 700px;
+    mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 90%, transparent), radial-gradient(ellipse 43% 48% at 50% 61%, transparent 50%, #000 92%);
   }
-  .tile { left: var(--mx); top: var(--my); width: clamp(5.25rem, 24vw, 8rem); }
+  .tile { left: var(--mx); top: var(--my); width: clamp(5.75rem, 29vw, 9.25rem); transform: translate(-50%, -50%) translateZ(18px) rotateY(var(--yaw)) rotateZ(var(--roll)); }
   .tile[data-desktop-only] { display: none; }
-  .tile img[data-loaded="true"] { opacity: .8; }
+  .tile img[data-loaded="true"] { opacity: .9; }
 }
 @media (prefers-reduced-motion: reduce) {
   .root .wall { transform: none !important; will-change: auto !important; }
+}
+
+/* Animate only the parent transform, never tile positions, masks or shadows.
+   Keep the animation attached while paused so returning does not restart it. */
+.root[data-motion="ambient"] .wall {
+  animation: wallFloat 24s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+.root[data-motion="ambient"][data-animation-active="true"] .wall { animation-play-state: running; }
+.root[data-motion="static"] .wall { transform: none; }
+@keyframes wallFloat {
+  from { transform: translate3d(-7px, -5px, -18px) rotateY(-1.2deg) rotateX(.5deg); }
+  to { transform: translate3d(7px, 7px, -18px) rotateY(1.2deg) rotateX(-.5deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .root .wall { animation: none !important; }
 }

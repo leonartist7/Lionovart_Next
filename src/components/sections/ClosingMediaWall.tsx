@@ -9,18 +9,20 @@ import { SHOWCASE_IMAGES } from "./showcase-images";
 // See docs/references/3d-animation-20 for original reference and attribution.
 // CSS 3D preserves curved media planes without a second WebGL context or 49 video decoders.
 const ART = SHOWCASE_IMAGES.map(src => src.replace("q_auto:best,w_1600", "q_auto:eco,w_480"));
+const MOBILE_ART = ART.map(src => src.replace("w_480", "w_320"));
 const PLANES = [
   [-4,8,-12],[22,2,6],[48,-4,-5],[75,3,9],[103,9,-9],
   [4,32,5],[21,29,-8],[80,27,7],[103,35,-4],
   [-5,57,-8],[15,65,9],[86,63,-7],[106,58,6],
   [1,89,8],[25,97,-5],[51,103,6],[77,95,-8],[102,88,5],
 ] as const;
+// Eight closer planes leave the lion and reading/action lane unobstructed.
 const MOBILE = [
-  [-7,8],[36,1],[70,-8],[99,9],[116,24],
-  [-8,31],[13,38],[91,36],[111,47],[-17,60],[0,70],[102,68],[119,79],
-  [-3,94],[30,103],[63,105],[100,95],[118,105],
+  [16,13],[0,0],[0,0],[84,13],[0,0],
+  [10,35],[0,0],[90,35],[0,0],[0,0],[5,70],[95,70],[0,0],
+  [24,91],[0,0],[0,0],[76,91],[0,0],
 ] as const;
-const DESKTOP_ONLY = new Set([2,4,8,9,12,17]);
+const DESKTOP_ONLY = new Set([1,2,4,6,8,9,12,14,15,17]);
 
 /** Section-scoped decorative gallery; the accessible CTA remains in the DOM. */
 export default function ClosingMediaWall() {
@@ -35,8 +37,8 @@ export default function ClosingMediaWall() {
     const reduced = matchMedia("(prefers-reduced-motion: reduce)");
     const fine = matchMedia("(hover: hover) and (pointer: fine)");
     const compact = matchMedia("(max-width: 639px)");
-    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
-    let visible = false, loaded = false, frame = 0, previous = 0, elapsed = 0;
+    const connection = (navigator as Navigator & { connection?: EventTarget & { saveData?: boolean } }).connection;
+    let visible = false, frame = 0, previous = 0, elapsed = 0;
     let x = 0, y = 0, targetX = 0, targetY = 0;
     let bounds = section.getBoundingClientRect();
     const read = () => typeof progress === "number" ? progress : progress.get();
@@ -49,16 +51,15 @@ export default function ClosingMediaWall() {
       root.dataset.animationActive = "false";
     };
     const load = () => {
-      if (loaded) return;
-      loaded = true;
       root.querySelectorAll<HTMLImageElement>("img[data-src]").forEach(image => {
         if (compact.matches && image.closest("[data-desktop-only]")) return;
-        image.src = image.dataset.src!;
+        const source = compact.matches ? image.dataset.mobileSrc! : image.dataset.src!;
+        if (image.getAttribute("src") !== source) image.src = source;
       });
     };
     const render = (now: number) => {
       frame = 0;
-      if (!enabled() || reduced.matches || connection?.saveData) { stop(); return; }
+      if (!enabled() || compact.matches || !fine.matches || reduced.matches || connection?.saveData) { stop(); return; }
       const delta = previous ? Math.min(64, now - previous) : 32;
       if (previous && delta < 32) { frame = requestAnimationFrame(render); return; }
       previous = now;
@@ -73,12 +74,19 @@ export default function ClosingMediaWall() {
     };
     const update = () => {
       root.style.setProperty("--wall-reveal", String(reveal()));
-      root.dataset.motion = reduced.matches || connection?.saveData ? "static" : "interactive";
+      const staticMotion = reduced.matches || connection?.saveData;
+      const ambient = compact.matches || !fine.matches;
+      root.dataset.motion = staticMotion ? "static" : ambient ? "ambient" : "interactive";
       if (!enabled()) { stop(); return; }
       load();
       if (reduced.matches || connection?.saveData) {
         stop();
         wall.style.transform = "none";
+      } else if (ambient) {
+        // One compositor animation for all phone tiles: zero gallery RAF callbacks.
+        stop();
+        wall.style.removeProperty("transform");
+        root.dataset.animationActive = "true";
       } else if (!frame) {
         root.dataset.animationActive = "true";
         frame = requestAnimationFrame(render);
@@ -92,9 +100,7 @@ export default function ClosingMediaWall() {
     const reset = () => { targetX = 0; targetY = 0; };
     const resize = () => {
       bounds = section.getBoundingClientRect();
-      if (loaded && !compact.matches) root.querySelectorAll<HTMLImageElement>("img[data-src]").forEach(image => {
-        if (!image.getAttribute("src")) image.src = image.dataset.src!;
-      });
+      update();
     };
     const observer = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
@@ -109,7 +115,8 @@ export default function ClosingMediaWall() {
     section.addEventListener("pointerenter", resize, { passive: true });
     section.addEventListener("pointerleave", reset);
     reduced.addEventListener("change", update);
-    fine.addEventListener("change", reset);
+    fine.addEventListener("change", update);
+    connection?.addEventListener("change", update);
     compact.addEventListener("change", resize);
     document.addEventListener("visibilitychange", update);
     update();
@@ -122,7 +129,8 @@ export default function ClosingMediaWall() {
       section.removeEventListener("pointerenter", resize);
       section.removeEventListener("pointerleave", reset);
       reduced.removeEventListener("change", update);
-      fine.removeEventListener("change", reset);
+      fine.removeEventListener("change", update);
+      connection?.removeEventListener("change", update);
       compact.removeEventListener("change", resize);
       document.removeEventListener("visibilitychange", update);
     };
@@ -140,7 +148,7 @@ export default function ClosingMediaWall() {
         return <div key={i} className={styles.tile} style={style} data-desktop-only={DESKTOP_ONLY.has(i) ? "" : undefined}>
           {/* Decorative thumbnails are requested only when the CTA is revealed. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img data-src={ART[i % ART.length]} alt="" width={480} height={300} decoding="async" loading="lazy"
+          <img data-src={ART[i % ART.length]} data-mobile-src={MOBILE_ART[i % ART.length]} alt="" width={480} height={300} decoding="async" loading="lazy"
             onLoad={event => { event.currentTarget.dataset.loaded = "true"; }}
             onError={event => { event.currentTarget.style.visibility = "hidden"; }} />
           <span />
