@@ -17,6 +17,7 @@ export class LionEngine {
   private width = 1;
   private height = 1;
   private dpr = 1;
+  private mobileDpr = 1.25;
   private samples: number[] = [];
   private lastFrame = 0;
   private lost?: () => void;
@@ -24,6 +25,7 @@ export class LionEngine {
   constructor(private host: HTMLDivElement, private onError: () => void) {}
 
   async init(mobile: boolean, mobileDpr = 1.25) {
+    this.mobileDpr = Math.max(.75, Math.min(1.25, mobileDpr));
     // Use a fresh canvas per backend: a failed GPU context must not poison WebGL.
     const forceFallback = process.env.NODE_ENV !== "production" && new URLSearchParams(location.search).has("lionWebGL");
     for (const forceWebGL of forceFallback ? [true] : [false, true]) {
@@ -46,7 +48,7 @@ export class LionEngine {
     }
     const renderer = this.renderer;
     if (!renderer || this.disposed) return;
-    this.dpr = Math.min(devicePixelRatio || 1, mobile ? mobileDpr : 1.5);
+    this.dpr = Math.min(devicePixelRatio || 1, mobile ? this.mobileDpr : 1.5);
     renderer.setPixelRatio(this.dpr);
     this.host.dataset.renderDpr = String(this.dpr);
     renderer.setClearColor(0x000000, 0);
@@ -119,8 +121,9 @@ export class LionEngine {
 
   render(lion: Pose, scroll: number, mobile: boolean, lionVisible: boolean) {
     if (!this.renderer || this.disposed) return;
-    if (mobile && this.dpr > 1.25) {
-      this.dpr = 1.25;
+    if (mobile && this.dpr > this.mobileDpr) {
+      this.dpr = this.mobileDpr;
+      this.host.dataset.renderDpr = String(this.dpr);
       this.renderer.setPixelRatio(this.dpr);
       this.renderer.setSize(this.width, this.height);
     }
@@ -146,6 +149,7 @@ export class LionEngine {
       this.host.dataset.frameP95 = sorted[114].toFixed(1);
       if (sorted[60] > (mobile ? 32 : 22) && this.dpr > 1) {
         this.dpr = Math.max(1, this.dpr - 0.25);
+        this.host.dataset.renderDpr = String(this.dpr);
         this.renderer.setPixelRatio(this.dpr);
         this.renderer.setSize(this.width, this.height);
       }

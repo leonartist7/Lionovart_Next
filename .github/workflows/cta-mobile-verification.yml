@@ -22,8 +22,10 @@ jobs:
       - run: npm install --no-save --package-lock=false playwright@1.51.1
       - run: npx playwright install --with-deps ${{ matrix.engine }}
       - run: npx eslint src/hooks/useSaveData.ts src/components/sections/ClosingMediaWall.tsx src/components/sections/ClosingCTA.tsx src/components/sections/HeroCycling.tsx src/components/ui/liquid-metal-button.tsx src/components/sections/ProcessLionJourney.tsx src/components/sections/lion-journey/engine.ts
+      - run: npm run build
       - run: node scripts/verify-closing-cta.mjs
         env:
+          CTA_PRODUCTION: "1"
           CTA_WEBKIT: ${{ matrix.engine == 'webkit' && '1' || '' }}
       - uses: actions/upload-artifact@v4
         if: always()

@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import assert from "node:assert/strict";
 import { chromium, webkit } from "playwright";
 const base = process.env.CTA_BASE_URL || "http://127.0.0.1:3000";
-const server = process.env.CTA_BASE_URL ? null : spawn(process.execPath, ["node_modules/next/dist/bin/next", "dev", "--webpack", "-H", "127.0.0.1"], { stdio: "inherit" });
+const server = process.env.CTA_BASE_URL ? null : spawn(process.execPath, ["node_modules/next/dist/bin/next", ...(process.env.CTA_PRODUCTION ? ["start"] : ["dev", "--webpack"]), "-H", "127.0.0.1"], { stdio: "inherit" });
 let browser;
 const results = [];
 try {
@@ -104,7 +104,7 @@ try {
     if (config.saveData) assert.equal(model.size,null,"Data saving avoids the 3D download and context");
     await dismissExit();
     await page.waitForFunction(() => document.querySelectorAll('[data-closing-media-wall] img[data-loaded="true"]').length >= 3, {}, {timeout:30000});
-    await page.screenshot({path:`verification-output/closing-cta/${config.width}-${config.motion}.png`});
+    await page.screenshot({path:`verification-output/closing-cta/${config.width}-${config.motion}${config.saveData?"-save":""}.png`});
     const button = page.locator("#closing-cta button").first();
     await button.focus();
     assert.ok(await button.evaluate(n => n === document.activeElement),"CTA accepts keyboard focus");
@@ -121,6 +121,31 @@ try {
     const pausedWord = await page.locator("[data-closing-word]").getAttribute("data-closing-word");
     await page.waitForTimeout(4600);
     assert.equal(await page.locator("[data-closing-word]").getAttribute("data-closing-word"),pausedWord,"Offscreen words stop cycling");
+    if (config.width === 390 && config.touch && !config.saveData) {
+      // Re-enter, rotate to a short viewport and back, then change the OS preference live.
+      const returnToCTA = async () => {
+        await page.evaluate(() => {
+          const e=document.querySelector("[data-process-lion-journey]");
+          window.scrollTo({top:scrollY+e.getBoundingClientRect().bottom-innerHeight,behavior:"instant"});
+        });
+        await page.locator("#closing-cta").scrollIntoViewIfNeeded();
+      };
+      await returnToCTA();
+      await page.waitForFunction(()=>document.querySelector("[data-closing-media-wall]")?.dataset.animationActive==="true");
+      await page.setViewportSize({width:844,height:390});
+      await page.waitForFunction(()=>document.querySelector("[data-process-lion-journey]")?.dataset.static==="true");
+      await returnToCTA();
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2),false,"Landscape has no horizontal overflow");
+      await page.setViewportSize({width:390,height:844});
+      await page.waitForTimeout(500);
+      await returnToCTA();
+      await page.emulateMedia({reducedMotion:"reduce"});
+      await page.waitForFunction(()=>document.querySelector("[data-closing-media-wall]")?.dataset.motion==="static");
+      assert.equal(await page.locator("#closing-cta canvas").count(),0,"Live reduced motion has no CTA shader");
+      await page.emulateMedia({reducedMotion:"no-preference"});
+      await returnToCTA();
+      await page.waitForFunction(()=>document.querySelector("[data-closing-media-wall]")?.dataset.animationActive==="true");
+    }
     assert.deepEqual(errors,[],"No uncaught browser errors");
     await context.close();
     console.log("PASS",JSON.stringify(results.at(-1)));
