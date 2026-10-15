@@ -27,7 +27,7 @@ try {
     {width:430,height:932,motion:"no-preference",touch:true},
     {width:844,height:390,motion:"no-preference",touch:true},
     {width:390,height:844,motion:"no-preference",touch:true,saveData:true},
-  ].filter(config => !process.env.CTA_WEBKIT || (config.width===390 && !config.saveData)).filter(config => !process.env.CTA_VISUAL_ONLY || (config.width === 390 && config.motion === "reduce") || config.width === 1440)) {
+  ].filter(config => !process.env.CTA_WEBKIT || (config.width===390 && !config.saveData)).filter(config => !process.env.CTA_VISUAL_ONLY || config.width === 390 || (config.width === 320 && config.motion === "reduce") || config.width === 1440)) {
     const context = await browser.newContext({
       viewport: {width:config.width,height:config.height}, reducedMotion:config.motion,
       hasTouch:!!config.touch, isMobile:!!config.touch,
@@ -104,7 +104,9 @@ try {
     if (config.saveData) assert.equal(model.size,null,"Data saving avoids the 3D download and context");
     await dismissExit();
     await page.waitForFunction(() => document.querySelectorAll('[data-closing-media-wall] img[data-loaded="true"]').length >= 3, {}, {timeout:30000});
-    await page.screenshot({path:`verification-output/closing-cta/${config.width}-${config.motion}${config.saveData?"-save":""}.png`});
+    // Linux WebKit crashes during screenshot compositing on this long existing page.
+    // Keep its behavioral checks; Chromium owns the visual captures.
+    if (!process.env.CTA_WEBKIT) await page.screenshot({path:`verification-output/closing-cta/${config.width}-${config.motion}${config.saveData?"-save":""}.png`});
     const button = page.locator("#closing-cta button").first();
     await button.focus();
     assert.ok(await button.evaluate(n => n === document.activeElement),"CTA accepts keyboard focus");

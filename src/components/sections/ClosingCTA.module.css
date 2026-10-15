@@ -125,3 +125,16 @@
 :global([data-static="true"]) .withLion { display: flex; flex-direction: column; padding: 2rem 0 3rem; gap: 2rem; }
 :global([data-static="true"]) .withLion .lionDock { order: -1; }
 :global([data-static="true"]) .withLion :is(.copy, .stage, .lionDock) { position: relative; top: auto; left: auto; bottom: auto; transform: none; }
+
+@media (width < 640px) {
+  /* Closer panels frame the scene; a quiet reading lane protects every locale
+     and the wide gold word art throughout the drift, including static flow. */
+  .withLion .copy::before {
+    content: "";
+    position: absolute;
+    inset: -.75rem 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, var(--closing-surface) 8%, var(--closing-surface) 92%, transparent);
+  }
+}

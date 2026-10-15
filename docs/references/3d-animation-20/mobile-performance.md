@@ -19,7 +19,7 @@ The scene contains three requested visual layers and a fourth GPU effect in its 
 
 ## Visual and lifecycle decisions
 
-The eight phone panels frame the lion and the reading lane; their small shared movement is deliberately slower than the word cadence. Perspective, angled planes, shadows and gold rules preserve the reference character. Animate the parent transform only, not layout coordinates, masks, shadows or eight independent timelines. Keep the central mask to protect copy and the tap target at every phase.
+The eight phone panels frame the lion and the reading lane; their small shared movement is deliberately slower than the word cadence. Perspective, angled planes, shadows and gold rules preserve the reference character. Animate the parent transform only, not layout coordinates, masks, shadows or eight independent timelines. Keep the central mask and a soft mobile copy backdrop to protect text and word art at every phase.
 
 The lion should not rotate continuously while the user reads. Its journey and short scroll nod remain interactive, then the renderer sleeps. Further geometry reduction would require an additional authored/validated LOD and visual comparison; the supplied mobile asset already has 62% fewer triangles than desktop. No unverified decimation or new 3D dependency was introduced.
 
