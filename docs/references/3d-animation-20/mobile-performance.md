@@ -32,3 +32,21 @@ Gallery visibility, tab visibility, reveal, media-query changes, and connection 
 Target checks: 320, 360, 390 and 430px phones; 844×390 landscape; tablet/laptop layouts; Chromium and WebKit; reduced motion; explicit data saving; word changes; slow touch drift; zero per-frame gallery style writes on touch; zero CTA button canvases in constrained modes; offscreen pausing; settled lion inactivity when WebGL is available; and keyboard activation of the actual Nova dialog.
 
 Source counts and drawing-buffer budgets are deterministic. Browser emulation verifies behavior and layout, not a physical iPhone's thermal, battery or GPU performance. Do not turn headless/software-renderer timings into real-device FPS claims. Actual image transfer sizes also vary with Cloudinary format negotiation and caching. Build and browser results are recorded after verification below.
+
+
+### Recorded results — 15 October 2026
+
+Production build/type checking and targeted ESLint passed. [Full production browser run](https://github.com/leonartist7/Lionovart_Next/actions/runs/38771253386) passed 11 Chromium configurations and two WebKit configurations. Chromium tested 320×568, 360×640, 390×844, 430×932, 768×1024, 844×390, 1366×768 and 1440×900, with separate reduced-motion and Save-Data runs. WebKit tested 390×844 with both motion preferences.
+
+- Eight visible phone planes and 18 larger-screen planes; no horizontal overflow.
+- Slow touch drift changes the computed transform with zero wall style mutations during the timed sample.
+- The actual mobile GLB loaded at DPR 1 in animated phone configurations in both engines; the settled renderer reported inactive. Reduced-motion and Save-Data runs created no journey model canvas.
+- No closing-button shader canvas in constrained configurations.
+- Word changes while visible, static preferences honored, offscreen word/gallery pause, and successful resume.
+- Rotation to landscape and back, followed by live reduced-motion changes, passed in Chromium and WebKit.
+- Keyboard activation opened the exact Nova dialog in every configuration; no uncaught browser errors.
+- Production phone and laptop screenshots were inspected. The 320px copy lane remains clear of the drifting images.
+
+The initial development WebKit run failed loading a development chunk. Production removed that failure. Linux WebKit then crashed during screenshot compositing; its behavioral suite passes with screenshot capture omitted. Chromium supplies the visual captures. This is not a claim of physical iPhone visual/performance certification. The test versions were Playwright 1.51.1, Chromium 134 and WebKit 18.4.
+
+[Final focused production run](https://github.com/leonartist7/Lionovart_Next/actions/runs/38771945281) passed five additional Chromium configurations after restoring exact shared hero word URLs: 320px reduced motion; 390px reduced motion, animated touch, and Save-Data; and 1440px animated desktop. No further application changes followed this run. Temporary branch-only CI is removed after verification; the reusable test script remains.
