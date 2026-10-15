@@ -16,7 +16,9 @@
   grid-template-columns: minmax(0, 1fr);
   position: sticky;
   top: var(--scene-top, 0px);
-  min-height: 100svh;
+  /* The pin must fill the visible viewport when mobile browser chrome retracts.
+     svh leaves the unused part of the dark runway visible below the CTA. */
+  min-height: 100dvh;
 }
 .journey[data-motion="true"] .process { grid-area: 1 / 1; align-self: start; z-index: 5; }
 .journey[data-motion="true"] .closingSurface {
@@ -39,7 +41,8 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 100svh;
+  /* resize() measures this box for both the canvas and the sticky release point. */
+  height: 100dvh;
   z-index: 3;
   overflow: clip;
   pointer-events: none;
