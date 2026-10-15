@@ -23,7 +23,7 @@ try {
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
   assert.ok(ready, "Application responds");
-  browser = await (isWebkit ? webkit : chromium).launch();
+  browser = await (isWebkit ? webkit : chromium).launch(isWebkit ? {} : { channel: "chromium" });
   const configs = baseline ? [{ width: 390, height: 844, difference: 96 }] : isWebkit ? [
     { width: 390, height: 844 }, { width: 390, height: 844, reduce: true },
   ] : [
@@ -35,7 +35,7 @@ try {
     { width: 844, height: 390 }, { width: 1440, height: 900 },
   ];
   for (const config of configs) {
-    const context = await browser.newContext({ viewport: config, hasTouch: config.width < 900,
+    const context = await browser.newContext({ viewport: { width: config.width, height: config.height }, hasTouch: config.width < 900,
       isMobile: config.width < 900, reducedMotion: config.reduce ? "reduce" : "no-preference" });
     await context.addInitScript(() => sessionStorage.setItem("lionovart:exit-intent-shown", "1"));
     const page = await context.newPage();
@@ -44,11 +44,15 @@ try {
     let cdp;
     if (config.difference) {
       cdp = await context.newCDPSession(page);
-      await cdp.send("Emulation.setSmallViewportHeightDifferenceOverride", { difference: config.difference });
     }
     await page.goto(base, { waitUntil: "domcontentloaded", timeout: 120000 });
     await page.locator("[data-process-lion-journey]").waitFor({ timeout: 60000 });
     await page.waitForTimeout(6500);
+    if (cdp) {
+      await cdp.send("Emulation.setSmallViewportHeightDifferenceOverride", { difference: config.difference });
+      await cdp.send("Input.synthesizeScrollGesture", { x: 150, y: 400, yDistance: -600, speed: 1000, gestureSourceType: "touch" });
+      await page.waitForTimeout(500);
+    }
     const units = await page.evaluate(() => {
       const probe = document.createElement("div");
       probe.style.cssText = "position:fixed;pointer-events:none;height:100svh";
@@ -56,9 +60,12 @@ try {
       const small = probe.clientHeight;
       probe.style.height = "100dvh";
       const dynamic = probe.clientHeight;
+      probe.style.height = "100lvh";
+      const large = probe.clientHeight;
       probe.remove();
-      return { small, dynamic };
+      return { small, dynamic, large, viewport: innerHeight };
     });
+    console.log("VIEWPORT", JSON.stringify({ config, units }));
     if (config.difference) assert.equal(units.dynamic - units.small, config.difference, "Real svh/dvh difference emulated");
     const scan = async label => {
       const samples = [];

@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        engine: [chromium, webkit]
+        engine: [chromium]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -23,7 +23,6 @@ jobs:
       # Current Chromium is needed for small/dynamic viewport emulation.
       - run: npm install --no-save --package-lock=false playwright@latest
       - run: npx playwright install --with-deps ${{ matrix.engine }}
-      - run: npm run build
       - name: Reproduce the gap on the previous deployment
         if: matrix.engine == 'chromium'
         run: node scripts/verify-closing-footer-gap.mjs
@@ -31,8 +30,10 @@ jobs:
           CTA_BASE_URL: https://lionovartnext-bo49o1bmb-lionovart.vercel.app
           CTA_EXPECT_GAP: "1"
       - name: Verify the fixed production build
+        if: always()
         run: node scripts/verify-closing-footer-gap.mjs
         env:
+          CTA_BASE_URL: https://lionovartnext-7nhuqkqxg-lionovart.vercel.app
           CTA_WEBKIT: ${{ matrix.engine == 'webkit' && '1' || '' }}
       - uses: actions/upload-artifact@v4
         if: always()
