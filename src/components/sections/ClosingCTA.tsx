@@ -23,10 +23,10 @@ import { ClosingRevealContext } from "./ClosingRibbonOrnament";
 const FOOTER_CLIP =
   "https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto:eco/v1779845599/Footage_02_chsoa3.mp4";
 
-// next/image is unoptimized in this project, so Cloudinary owns the pixel budget.
+// Share the hero's cached AVIF resources; a separate resized URL would download
+// the same word twice on the homepage. Only the closing cadence changes.
 const CLOSING_WORD_ART: Word[] = EN_WORD_ART.map(word => ({
   ...word,
-  content: word.content.replace("/upload/e_trim/", "/upload/e_trim/w_800,c_limit,q_auto:good/"),
   holdMs: 4200,
 }));
 
