@@ -1,4 +1,4 @@
-export const PARTNERSHIP_REST = 0.80;
+export const PARTNERSHIP_REST = 0.64;
 
 const clamp = (n: number) => Math.max(0, Math.min(1, n));
 const phase = (p: number, a: number, b: number) => {
@@ -10,7 +10,7 @@ const phase = (p: number, a: number, b: number) => {
 export function partnershipPose(progress: number) {
   return {
     introOpacity: 1 - phase(progress, 0, .27),
-    chapterOpacity: phase(progress, .13, .34) * (1 - phase(progress, .86, .99)),
+    chapterOpacity: phase(progress, .13, .34) * (1 - phase(progress, .76, .98)),
     introInteractive: progress < .27,
   };
 }

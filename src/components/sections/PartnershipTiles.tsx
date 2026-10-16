@@ -22,7 +22,7 @@ function ProjectLoop({ src, progress, paused, onPlaying }: {
     let visible = false, pending = false, disposed = false, failed = false;
     const active = () => !disposed && !paused && !failed && visible && !document.hidden
       && media.matches && !connection?.saveData && !/^(slow-)?2g$/.test(connection?.effectiveType ?? "")
-      && progress.get() > 0.1 && progress.get() < 0.75;
+      && progress.get() > 0.1 && progress.get() < 0.60;
     const sync = () => {
       if (!active()) { video.pause(); delete video.dataset.playing; return; }
       if (!video.getAttribute("src")) video.src = src;
@@ -87,8 +87,8 @@ export default function PartnershipTiles({ progress, staticScene }: {
     let frame = 0, previous = 0, current = progress.get(), target = current;
     let stage: TileStage = { width: 1, height: 1, gridWidth: 1, gap: 1 };
     const draw = () => {
-      root.dataset.moving = String(current > 0.04 && current < 0.78);
-      root.dataset.videoWindow = String(current > 0.13 && current < 0.75);
+      root.dataset.moving = String(current > 0.04 && current < 0.62);
+      root.dataset.videoWindow = String(current > 0.13 && current < 0.60);
       tiles.current.forEach((tile, index) => {
         if (!tile) return;
         const pose = partnershipTilePose(current, index, stage);

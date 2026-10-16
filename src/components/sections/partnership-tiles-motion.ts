@@ -17,8 +17,8 @@ export function partnershipTilePose(progress: number, index: number, stage: Tile
   const start = 0.075 + order * settings.stagger * flight + column * 0.008;
   const enter = phase(progress, start, start + flight);
   const zoomStart = 0.385 - settings.overlap * flight;
-  const scale = 1 + (settings.zoom - 1) * smooth(phase(progress, zoomStart, 0.61));
-  const exit = smooth(phase(progress, 0.43 + row * 0.012, 0.72 + row * 0.012));
+  const scale = 1 + (settings.zoom - 1) * smooth(phase(progress, zoomStart, 0.49));
+  const exit = smooth(phase(progress, 0.40 + row * 0.008, 0.57 + row * 0.008));
   const baseX = (column - 1) * (width + stage.gap);
   const baseY = (row - 1) * (height + stage.gap);
   const horizontal = column - 1;
@@ -29,6 +29,6 @@ export function partnershipTilePose(progress: number, index: number, stage: Tile
   const x = baseX * (scale - 1) + horizontal * pushX * exit;
   const y = baseY * (scale - 1) + vertical * pushY * exit
     + (column % 2 ? 1 : -1) * (stage.height + height) * Math.pow(1 - enter, 3);
-  const opacity = smooth(phase(enter, 0, 0.2)) * (1 - phase(progress, 0.75, 0.78));
+  const opacity = smooth(phase(enter, 0, 0.2)) * (1 - phase(progress, 0.60, 0.62));
   return { x, y, scale, opacity, width, height, baseX, baseY };
 }
