@@ -57,10 +57,10 @@
   inset-block: 0;
   display: block;
   height: 100%;
-  aspect-ratio: 700 / 800;
+  aspect-ratio: 760 / 800;
 }
-.ornament > div[data-side="left"] { left: 0; transform: translateY(var(--ribbon-drift, 0px)); }
-.ornament > div[data-side="right"] { right: 0; transform: translateY(var(--ribbon-drift, 0px)) scaleX(-1); }
+.ornament > div[data-side="left"] { left: 0; transform: translate(-8%, var(--ribbon-drift, 0px)); }
+.ornament > div[data-side="right"] { right: 0; transform: translate(8%, var(--ribbon-drift, 0px)) scaleX(-1); }
 .ornament svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .ornament > div[data-profile="mobile"] { display: none; }
 @media (width < 640px) {
@@ -115,4 +115,26 @@
   z-index: 1;
   margin-top: clamp(1rem, 2.5svh, 2rem);
   padding-bottom: clamp(1rem, 2.5svh, 2rem);
+}
+
+/* The lion sits behind the upper plane; copy and action occupy their own rows. */
+.withLion { min-height: max(36rem, 80svh); padding-top: 0; }
+.withLion .copy { position: absolute; top: 63%; left: 0; width: 100%; max-width: none; transform: translateY(-50%); z-index: 4; }
+.withLion .stage { position: absolute; bottom: max(2rem, 6svh); left: 0; width: 100%; max-width: none; margin: 0; padding-block: 0; z-index: 4; }
+.withLion .lionDock { position: absolute; top: 28%; left: 0; width: 100%; margin: 0; padding: 0; transform: translateY(-50%); z-index: 1; }
+:global([data-static="true"]) .withLion { display: flex; flex-direction: column; padding: 2rem 0 3rem; gap: 2rem; }
+:global([data-static="true"]) .withLion .lionDock { order: -1; }
+:global([data-static="true"]) .withLion :is(.copy, .stage, .lionDock) { position: relative; top: auto; left: auto; bottom: auto; transform: none; }
+
+@media (width < 640px) {
+  /* Closer panels frame the scene; a quiet reading lane protects every locale
+     and the wide gold word art throughout the drift, including static flow. */
+  .withLion .copy::before {
+    content: "";
+    position: absolute;
+    inset: -.75rem 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, var(--closing-surface) 8%, var(--closing-surface) 92%, transparent);
+  }
 }

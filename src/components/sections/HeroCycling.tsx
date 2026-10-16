@@ -125,27 +125,37 @@ export default function HeroCycling({
 
   // ── Warm image words so a swap never fades in a half-loaded frame ────────
   useEffect(() => {
+    if (variant === "closing") return; // Closing preloads just the next visible beat below.
     words.forEach((w) => {
       if (w.type === "image") {
         const img = new window.Image();
         img.src = w.content;
       }
     });
-  }, [words]);
+  }, [variant, words]);
 
   // ── Cycling timer ────────────────────────────────────────────────────────
   useEffect(() => {
     if (!hasMounted || (prefersReduced && !forceAnimate) || isPaused || paused || words.length <= 1) return;
 
+    let cancelled = false;
+    const nextIndex = (currentIndex + 1) % words.length;
+    const nextWord = words[nextIndex];
+    // Decode during the hold, then commit only while this timer is still active.
+    // This uses the exact rendered URL, not an extra full-resolution download.
+    const nextImage = variant === "closing" && nextWord.type === "image" ? new window.Image() : null;
+    if (nextImage) { nextImage.decoding = "async"; nextImage.src = nextWord.content; }
+    const decoded = nextImage ? nextImage.decode().then(() => true, () => false) : Promise.resolve(true);
     const holdMs = words[currentIndex]?.holdMs ?? DEFAULT_HOLD_MS;
-    timerRef.current = setTimeout(() => {
-      setCurrentIndex((i) => (i + 1) % words.length);
+    timerRef.current = setTimeout(async () => {
+      if (await decoded && !cancelled) setCurrentIndex(nextIndex);
     }, holdMs);
 
     return () => {
+      cancelled = true;
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [currentIndex, forceAnimate, hasMounted, isPaused, paused, prefersReduced, words]);
+  }, [currentIndex, forceAnimate, hasMounted, isPaused, paused, prefersReduced, variant, words]);
 
   // ── Pause when tab is hidden ─────────────────────────────────────────────
   useEffect(() => {
@@ -246,24 +256,18 @@ export default function HeroCycling({
           {words.filter(word => word.type === "text").map((word, index) => (
             <span key={index} className={`${styles.word} ${styles.reserve}`}>{word.content}</span>
           ))}
-          {visibleWord && <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={visibleWord.content}
-              className={styles.word}
-              style={{ color: cyclingColor }}
-              variants={wordVariants}
-              initial={showStatic || paused ? false : "initial"}
-              animate="animate"
-              exit={showStatic || paused ? undefined : "exit"}
-              data-closing-word={visibleWord.alt ?? visibleWord.content}
-            >
-              {visibleWord.type === "image" ? (
-                <div className={styles.art}>
-                  <Image src={visibleWord.content} alt="" fill sizes="(max-width: 639px) 85vw, 520px" style={{ objectFit: "contain" }} />
-                </div>
-              ) : visibleWord.content}
-            </motion.div>
-          </AnimatePresence>}
+          {visibleWord && <div
+            key={visibleWord.content}
+            className={`${styles.word} ${showStatic || paused ? "" : styles.enter}`}
+            style={{ color: cyclingColor }}
+            data-closing-word={visibleWord.alt ?? visibleWord.content}
+          >
+            {visibleWord.type === "image" ? (
+              <div className={styles.art}>
+                <Image src={visibleWord.content} alt="" fill sizes="(max-width: 639px) 85vw, 520px" style={{ objectFit: "contain" }} />
+              </div>
+            ) : visibleWord.content}
+          </div>}
         </div>
       </div>
     );

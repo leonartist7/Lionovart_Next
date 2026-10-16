@@ -1,5 +1,6 @@
 "use client";
 
+import { emitExperienceCue } from "../experience/experience-cues";
 import CompactWork from "./CompactWork";
 import GoldThreads from "@/components/ui/GoldThreads";
 import ServicesCurves from "./ServicesCurves";
@@ -161,6 +162,7 @@ function SelectedWorkGallery({ mode = "work", onHeadingClick, goldThreads = fals
     elapsedRef.current = 0;
     setProgress(0);
     setActiveIndex(target);
+    if (isServices && inView) emitExperienceCue("service", projects[target].id, target);
     setVideoFailed(false);
     setVideoPaused(false);
     if (selection.manual) setAnnouncement(`${isServices ? (siteT.services.items[target]?.title ?? projects[target].name) : projects[target].name}, ${target + 1} / ${count}`);

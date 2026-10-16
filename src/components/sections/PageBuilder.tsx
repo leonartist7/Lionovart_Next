@@ -5,7 +5,6 @@ import LionJourney from "@/components/sections/lion-journey/LionJourney";
 import { WorkBrowseProvider } from "./selected-work/WorkBrowse";
 
 import CompactIntroduction from "@/components/sections/CompactIntroduction";
-import PawRevealStack from "@/components/sections/PawRevealStack";
 import ServicesSwitcher from "@/components/sections/ServicesSwitcher";
 import WorkServicesTransition from "@/components/sections/WorkServicesTransition";
 import SelectedWork from "@/components/sections/SelectedWork";
@@ -40,7 +39,6 @@ export function PageBuilder() {
             <HeroBackground />
             <HeroOpening />
             <span data-voice-reveal-boundary aria-hidden="true" />
-            <NovaSection id="problems"><PawRevealStack /></NovaSection>
           </LionJourney></HeroCompositionProvider>
         }>
           <NovaSection id="services"><ServicesSwitcher /></NovaSection>
@@ -49,7 +47,7 @@ export function PageBuilder() {
         </WorkBrowseProvider>
         <NovaSection id="about"><CompactIntroduction /></NovaSection>
 
-        {/* Compact introduction/comparison -> Brands Elevated/results -> Process. */}
+        {/* Personal introduction -> Brands Elevated/results -> Process. */}
         <div id="client-experience">
           <NovaSection id="testimonials"><Testimonials /></NovaSection>
         </div>

@@ -21,12 +21,14 @@ import { MenuBurgerLottie } from "@/components/ui/menu-burger-lottie";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import styles from "./AdaptiveNavbar.module.css";
+import { ExperienceSoundToggle } from "@/components/experience/ScrollExperience";
+import { navScrollIntent } from "./nav-scroll";
+import { scrollEase } from "@/components/experience/scroll-policy";
 
 const SCROLL_OFFSET = -88;
 const HERO_THRESHOLD_RATIO = 0.62;
 const GLASS_THRESHOLD = 2;
-const NAV_REVEAL_DELTA = 20;
-const NAV_HIDE_DELTA = 8;
+
 
 const CARD_VARIANTS = {
   hidden: {
@@ -87,6 +89,7 @@ const REDUCED_ITEM_VARIANTS = {
 };
 
 export type NavbarProps = {
+  withSound?: boolean;
   lightweightMenu?: boolean;
   sectionFallback?: boolean;
 };
@@ -108,15 +111,15 @@ function LightweightMenuToggle({
       className="relative z-[60] flex min-h-11 min-w-11 touch-manipulation items-center justify-center rounded-lg transition-transform duration-150 active:scale-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80 motion-reduce:transition-none"
     >
       {isOpen ? (
-        <X className="h-6 w-6 text-white" aria-hidden />
+        <X className="h-6 w-6 text-current" aria-hidden />
       ) : (
-        <Menu className="h-6 w-6 text-white" aria-hidden />
+        <Menu className="h-6 w-6 text-current" aria-hidden />
       )}
     </button>
   );
 }
 
-export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallback = false }: NavbarProps) {
+export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallback = false, withSound = false }: NavbarProps) {
   const tr = usePublicCopy();
   const router = useRouter();
   const { released } = useIntroLifecycle();
@@ -134,8 +137,9 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
   const [mobileExpertiseOpen, setMobileExpertiseOpen] = useState(false);
 
   const { scrollY } = useScroll();
+  // The announcement occupies the first 40px, then scrolls out naturally.
   const navTop = useTransform(scrollY, [0, 40], [40, 0]);
-  const navChromeOpacity = useTransform(scrollY, [GLASS_THRESHOLD, 96], [0, 1]);
+  const [lightSurface, setLightSurface] = useState(false);
   const motionPreference = useReducedMotion();
   const hydrated = useSyncExternalStore(() => () => {}, () => true, () => false);
   const reducedMotion = hydrated && Boolean(motionPreference);
@@ -161,7 +165,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
   const lastScrollRef = useRef(0);
   const directionStartRef = useRef(0);
   const isMobileOpenRef = useRef(false);
-  const navFocusedRef = useRef(false);
+  const directionRef = useRef(0);
 
   const setNavVisible = (nextVisible: boolean) => {
     if (isVisibleRef.current === nextVisible) return;
@@ -189,7 +193,10 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
     if (!element && !sectionFallback) return;
 
     if (!element) router.push(`/#${target === "work" ? "selected-work" : target}`);
-    else if (lenis?.scrollTo) lenis.scrollTo(element, { offset: SCROLL_OFFSET });
+    else if (lenis?.scrollTo) lenis.scrollTo(element, {
+      offset: SCROLL_OFFSET, duration: .75, lerp: 0, easing: scrollEase,
+      userData: { navigation: true },
+    });
     else element.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
 
     setIsMobileOpen(false);
@@ -243,25 +250,48 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     const previous = lastScrollRef.current;
-    const delta = latest - previous;
     lastScrollRef.current = latest;
 
     syncThresholdState(latest);
 
-    if (latest <= 64 || isMobileOpenRef.current || navFocusedRef.current || expertiseOpen || mobileExpertiseOpen) {
+    if (latest <= 64 || isMobileOpenRef.current || (introHeader.current?.contains(document.activeElement) && document.activeElement?.matches(":focus-visible")) || expertiseOpen || mobileExpertiseOpen) {
       directionStartRef.current = latest;
       setNavVisible(true);
       return;
     }
 
-    // A fresh direction starts a new distance measurement. Small touchpad and
-    // touch-scroll oscillations cannot repeatedly flash the navigation.
-    if ((delta > 0 && directionStartRef.current > latest) || (delta < 0 && directionStartRef.current < latest)) {
-      directionStartRef.current = previous;
-    }
-    if (delta > 0 && latest - directionStartRef.current >= NAV_HIDE_DELTA) setNavVisible(false);
-    if (delta < 0 && directionStartRef.current - latest >= NAV_REVEAL_DELTA) setNavVisible(true);
+    const intent = navScrollIntent(previous, latest, directionRef.current, directionStartRef.current);
+    directionRef.current = intent.direction;
+    directionStartRef.current = intent.origin;
+    if (intent.visible !== undefined) setNavVisible(intent.visible);
   });
+
+  useEffect(() => {
+    let frame = 0;
+    const sample = () => {
+      frame = 0;
+      // The opening stays white even when a cream card passes under the nav.
+      // Follow the section surface, rather than individual images and cards.
+      const surfaces = Array.from(document.querySelectorAll<HTMLElement>("[data-nav-surface]"));
+      const active = surfaces.reverse().find(node => {
+        const bounds = node.getBoundingClientRect();
+        return bounds.top <= 38 && bounds.bottom > 38 && getComputedStyle(node).visibility !== "hidden";
+      });
+      if (active) { setLightSurface(active.dataset.navSurface === "light"); return; }
+      // Other pages already declare their editorial surface.
+      const section = Array.from(document.querySelectorAll<HTMLElement>("[data-art-directed]")).reverse().find(node => {
+        const bounds = node.getBoundingClientRect();
+        return bounds.top <= 38 && bounds.bottom > 38;
+      });
+      if (section) { setLightSurface(section.dataset.artDirected === "light"); return; }
+      setLightSurface(false);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(sample); };
+    const unsubscribe = scrollY.on("change", schedule);
+    window.addEventListener("resize", schedule);
+    schedule();
+    return () => { unsubscribe(); cancelAnimationFrame(frame); window.removeEventListener("resize", schedule); };
+  }, [scrollY]);
 
   const heroMode = !isPastHero;
   const cardVariants = reducedMotion ? REDUCED_CARD_VARIANTS : CARD_VARIANTS;
@@ -270,17 +300,16 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
 
   return (
     <motion.div
-      className="fixed left-0 right-0 z-50 flex justify-center px-3"
+      className="fixed top-0 left-0 right-0 z-50 flex justify-center"
       style={{ top: navTop }}
-      animate={{ y: isVisible ? 0 : "-120%" }}
+      data-nav-visible={isVisible}
+      data-nav-tone={lightSurface || isMobileOpen ? "light" : "dark"}
+      animate={{ y: isVisible ? 0 : "-170%" }}
       transition={{ duration: reducedMotion ? 0 : 0.32, ease: [0.4, 0, 0.2, 1] }}
-      onFocusCapture={() => { navFocusedRef.current = true; setNavVisible(true); }}
-      onBlurCapture={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) navFocusedRef.current = false;
-      }}
+      onFocusCapture={() => setNavVisible(true)}
     >
       <div
-        className={`${styles.shell} ${heroMode ? styles.expanded : styles.compact}`}
+        className={styles.shell}
         ref={introHeader}
         data-nav-state={heroMode ? "expanded" : "compact"}
         data-nav-glass={isScrolled ? "active" : "inactive"}
@@ -291,47 +320,19 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
           transition={{ duration: reducedMotion ? 0 : 0.42, ease: "easeOut" }}
           className={`relative w-full ${styles.header}`}
         >
-          <motion.div
-            aria-hidden
-            className={styles.glass}
-            style={{
-              opacity: navChromeOpacity,
-              backdropFilter: isScrolled ? undefined : "none",
-              WebkitBackdropFilter: isScrolled ? undefined : "none",
-            }}
-          />
+          <div aria-hidden className={styles.glass} />
 
-          <div className="relative mx-auto flex w-full items-center justify-between px-3.5 py-1.5 sm:px-4 xl:px-6 xl:py-2">
-            <Link href="/" className="relative z-40 inline-flex shrink-0 items-center">
-              <Image
-                src="/images/Icon.avif"
-                alt="Lionovart home"
-                width={40}
-                height={40}
-                priority
-                sizes="40px"
-                className="h-[2rem] w-[2rem] rounded-full object-cover sm:h-[2.25rem] sm:w-[2.25rem] xl:h-[2.5rem] xl:w-[2.5rem]"
-              />
-            </Link>
-
-            <Link href="/" className="absolute left-1/2 z-40 -translate-x-1/2">
-              <Image
-                src="/images/LOGO.svg"
-                alt="LIONOVART"
-                width={480}
-                height={77}
-                priority
-                sizes="180px"
-                data-nav-logo
-                className="h-[1.375rem] w-auto sm:h-[1.5rem] xl:h-[1.625rem]"
-              />
+          <div className="relative mx-auto flex w-full items-center justify-between px-5 py-3 sm:px-8 xl:px-12 xl:py-4">
+            <Link href="/" aria-label="LIONOVART home" data-nav-logo className={styles.wordmark}>
+              <Image src="/images/Icon.avif" alt="" width={40} height={40} sizes="40px" priority className={styles.brandIcon} />
+              <span>LIONOVART</span>
             </Link>
 
             <AnimatePresence initial={false}>
               {heroMode && (
                 <motion.div
                   key="desktop-links"
-                  className="hidden flex-1 items-center justify-start pl-[3.5rem] xl:flex"
+                  className="hidden flex-1 items-center justify-center px-8 xl:flex"
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0, transition: { duration: reducedMotion ? 0 : 0.18 } }}
                 >
@@ -347,7 +348,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
                           type="button"
                           onClick={() => scrollToTarget(link.target)}
                           aria-expanded={link.hasDropdown ? expertiseOpen : undefined}
-                          className="group relative flex items-center gap-1 text-[13px] font-semibold uppercase tracking-[0.15em] text-white/90 transition-colors hover:text-white"
+                          className="group relative flex items-center gap-1 text-[13px] font-semibold uppercase tracking-[0.15em] text-current transition-opacity hover:opacity-70"
                         >
                           {link.label}
                           {link.hasDropdown && (
@@ -366,7 +367,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
                               <path d="m6 9 6 6 6-6" />
                             </svg>
                           )}
-                          <span className="absolute -bottom-1.5 left-0 h-[2px] w-full origin-left scale-x-0 bg-white transition-transform duration-300 group-hover:scale-x-100 motion-reduce:transition-none" />
+                          <span className="absolute -bottom-1.5 left-0 h-[2px] w-full origin-left scale-x-0 bg-current transition-transform duration-300 group-hover:scale-x-100 motion-reduce:transition-none" />
                         </button>
                       </li>
                     ))}
@@ -387,11 +388,12 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
                     exit={{ opacity: 0 }}
                     transition={{ duration: reducedMotion ? 0 : 0.2 }}
                   >
-                    <LanguageSwitcher isHeroMode={true} />
+                    <LanguageSwitcher isHeroMode={!lightSurface && !isMobileOpen} />
                   </motion.div>
                 )}
               </AnimatePresence>
 
+              {withSound && <ExperienceSoundToggle />}
               {useLightweightMenu ? (
                 <LightweightMenuToggle
                   isOpen={isMobileOpen}
@@ -399,6 +401,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
                 />
               ) : (
                 <MenuBurgerLottie
+                  className={lightSurface || isMobileOpen ? styles.darkMenu : undefined}
                   isOpen={isMobileOpen}
                   onToggle={() => setIsMobileOpen((value) => !value)}
                 />

@@ -2,6 +2,7 @@ import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
 import { PageBuilder } from "@/components/sections/PageBuilder";
 import FounderOfferBanner from "@/components/sections/FounderOfferBanner";
+import ScrollExperience from "@/components/experience/ScrollExperience";
 
 export default function Home() {
 
@@ -10,8 +11,10 @@ export default function Home() {
       {/* z-10 stacking context: dark bg covers the sticky marquee below while scrolling */}
       <main className="bg-bg-dark min-h-screen relative z-10">
         <FounderOfferBanner />
-        <Navbar />
-        <PageBuilder />
+        <ScrollExperience>
+          <Navbar withSound />
+          <PageBuilder />
+        </ScrollExperience>
       </main>
       <Footer variant="compact" />
     </>

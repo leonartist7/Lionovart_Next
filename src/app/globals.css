@@ -190,6 +190,10 @@
   /* Shared chapter surfaces for utility classes and motion layers. */
   --site-surface-dark: #0a0a0a;
   --site-surface-light: #f7f4ef;
+  --brand-red-light: #c01020;
+  --brand-red-mid: #7a0010;
+  --brand-red-dark: #3d0008;
+  --brand-red-radial: radial-gradient(ellipse at 50% 50%, var(--brand-red-light) 0%, var(--brand-red-mid) 55%, var(--brand-red-dark) 100%);
   /* Process lion circle (the "i" dot). */
   --lion-circle-d: clamp(272px, 64vmin, 600px);
   --background: #0d0d0d;
@@ -411,6 +415,10 @@
 }
 .animate-marquee          { animation: marquee var(--duration) linear infinite; }
 .animate-marquee-vertical { animation: marquee-vertical var(--duration) linear infinite; }
+[data-marquee-active="false"] > .animate-marquee,
+[data-marquee-active="false"] > .animate-marquee-vertical {
+  animation-play-state: paused !important;
+}
 
 .marquee-pause-on-hover:hover > .animate-marquee,
 .marquee-pause-on-hover:hover > .animate-marquee-vertical {
@@ -1119,3 +1127,5 @@ body:has([data-intro]) main *::before,
 body:has([data-intro]) main *::after {
   animation-play-state: paused !important;
 }
+
+:root { --proof-metal-gradient: linear-gradient(90deg, #f47721, #f0c917 52%, #ffe49a); }

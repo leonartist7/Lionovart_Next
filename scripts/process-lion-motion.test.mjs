@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { processLionPose, stepPassIntensity, stepRingRotation, stepHasPassed } from '../src/components/sections/process-lion-motion.ts';
+import { processLionPose, stepPassIntensity, stepRingRotation, stepHasPassed, scrollLionTilt } from '../src/components/sections/process-lion-motion.ts';
 
 for (const [width, height] of [[390, 844], [768, 1024], [1440, 900]]) {
   const geometry = {
-    viewportHeight: height, progress: 0, dockTop: height * .75,
+    viewportHeight: height, progress: 0, dockTop: height * .28 - 90,
     dockSize: 180, dockX: width / 2, originX: width * .15,
     originY: height * .56, railSize: width < 640 ? 78 : 300,
   };
@@ -26,7 +26,7 @@ for (const [width, height] of [[390, 844], [768, 1024], [1440, 900]]) {
     const chapter = pose(.5);
     assert.equal(chapter.x, width / 2);
     assert.equal(chapter.turn, 0);
-    assert.equal(chapter.y, height * .68);
+    assert.equal(chapter.y, height * .28);
     assert.equal(chapter.chapterOpacity, 1);
     assert.equal(chapter.reveal, 0);
     const docked = pose(.72);
@@ -70,14 +70,35 @@ test('rings rotate on approach and departure but hold during the strong highligh
   }
 });
 
-test('passed steps stay complete when revisited, without retaining passing movement',()=>{
- const completed=new Set();
- const visit=(y,progress=0)=>{
-  if(stepHasPassed(y,400,260,progress))completed.add(0);
-  return {complete:completed.has(0),passing:stepPassIntensity(y,400,260)};
- };
- assert.equal(visit(700).complete,false);
- assert.equal(visit(400).complete,true);
- assert.deepEqual(visit(700),{complete:true,passing:0});
+test('passed steps retract to white on reverse scroll',()=>{
+ assert.equal(stepHasPassed(700,400,260,0),false);
+ assert.equal(stepHasPassed(400,400,260,0),true);
+ assert.equal(stepHasPassed(200,400,260,0),true);
+ assert.equal(stepHasPassed(700,400,260,0),false);
  assert.equal(stepHasPassed(700,400,260,.16),true);
+});
+test('the lion becomes opaque and faces front as it settles above the copy',()=>{
+ const g={viewportHeight:900,dockTop:126,dockSize:252,dockX:720,originX:200,originY:504,railSize:300};
+ assert.equal(processLionPose({...g,progress:0}).opacity,.8);
+ const settled=processLionPose({...g,progress:.5});
+ assert.equal(settled.opacity,1);
+ assert.ok(Math.abs(settled.y-252)<1e-8);
+ assert.equal(settled.pitch,0);
+ assert.equal(processLionPose({...g,progress:.8}).y,settled.y);
+});
+
+test('scroll nod is directional, bounded and neutral at rest', () => {
+ assert.equal(scrollLionTilt(0),0);
+ assert.ok(scrollLionTilt(-900)<0);
+ assert.ok(scrollLionTilt(900)>0);
+ assert.ok(Math.abs(scrollLionTilt(10000))<=.085);
+ assert.equal(scrollLionTilt(-700),-scrollLionTilt(700));
+ assert.equal(processLionPose({viewportHeight:900,progress:1,dockSize:180,dockX:700,originX:100,originY:500,railSize:300,dockTop:100}).pitch,0);
+});
+
+test('a shortened CTA lands on its measured upper dock without a release jump',()=>{
+ const geometry={viewportHeight:832,progress:.5,dockTop:260,dockSize:180,dockX:187,originX:50,originY:465,railSize:78};
+ const settled=processLionPose(geometry);
+ assert.equal(settled.y,350);
+ for(const progress of [.64,.76,.95,1]) assert.equal(processLionPose({...geometry,progress}).y,settled.y);
 });

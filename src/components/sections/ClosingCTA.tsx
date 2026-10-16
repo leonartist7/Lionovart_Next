@@ -2,7 +2,7 @@
 
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 
-import { useRef, useSyncExternalStore, type ReactNode } from "react";
+import { useContext, useMemo, useRef, useSyncExternalStore, type ReactNode } from "react";
 import { useInView } from "framer-motion";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import styles from "./ClosingCTA.module.css";
@@ -14,12 +14,21 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import BrandCrest from "@/components/sections/services/brand/branding/BrandCrest";
 import TrailAttractionTarget from "@/components/ui/TrailAttractionTarget";
 import { EN_WORD_ART } from "@/lib/word-art";
-import ClosingRibbonOrnament from "./ClosingRibbonOrnament";
+import ClosingMediaWall from "./ClosingMediaWall";
+import { useSaveData } from "@/hooks/useSaveData";
+import { ClosingRevealContext } from "./ClosingRibbonOrnament";
 
 // Capped at 1080p (master is 4K) and q_auto:eco — this sits under a bg-black/70
 // scrim, so the extra quality was never visible.
 const FOOTER_CLIP =
   "https://res.cloudinary.com/dgio9uutc/video/upload/w_1920,c_limit,f_auto,q_auto:eco/v1779845599/Footage_02_chsoa3.mp4";
+
+// Share the hero's cached AVIF resources; a separate resized URL would download
+// the same word twice on the homepage. Only the closing cadence changes.
+const CLOSING_WORD_ART: Word[] = EN_WORD_ART.map(word => ({
+  ...word,
+  holdMs: 4200,
+}));
 
 const subscribeVisibility = (callback: () => void) => {
   document.addEventListener("visibilitychange", callback);
@@ -28,6 +37,16 @@ const subscribeVisibility = (callback: () => void) => {
 const getHidden = () => document.hidden;
 const getServerHidden = () => true;
 
+const compactQuery = "(max-width: 639px), (pointer: coarse)";
+const subscribeBudget = (notify: () => void) => {
+  const media = matchMedia(compactQuery);
+  media.addEventListener("change", notify);
+  return () => media.removeEventListener("change", notify);
+};
+const getCompact = () => matchMedia(compactQuery).matches;
+const getFalse = () => false;
+const getTrue = () => true;
+
 function CompactClosing({ words, onStart, lionDock, chapterInJourney }: { words: Word[]; onStart: () => void; lionDock?: ReactNode; chapterInJourney?: boolean }) {
   const tr = usePublicCopy();
   const { t, locale } = useLanguage();
@@ -35,11 +54,19 @@ function CompactClosing({ words, onStart, lionDock, chapterInJourney }: { words:
   const inView = useInView(sectionRef);
   const reducedMotion = useHydratedReducedMotion();
   const hidden = useSyncExternalStore(subscribeVisibility, getHidden, getServerHidden);
-  const paused = reducedMotion || hidden || !inView;
+  const progress = useContext(ClosingRevealContext);
+  const revealStore = useMemo(() => ({
+    subscribe: (notify: () => void) => typeof progress === "number" ? () => {} : progress.on("change", notify),
+    getSnapshot: () => (typeof progress === "number" ? progress : progress.get()) >= .78,
+  }), [progress]);
+  const revealed = useSyncExternalStore(revealStore.subscribe, revealStore.getSnapshot, getFalse);
+  const compact = useSyncExternalStore(subscribeBudget, getCompact, getTrue);
+  const saveData = useSaveData();
+  const paused = reducedMotion || saveData || hidden || !inView || !revealed;
 
   return (
     <section id="closing-cta" ref={sectionRef} className={`${styles.section}${lionDock ? ` ${styles.withLion}` : ""}`} data-art-directed="light" data-scroll-title-skip>
-      <ClosingRibbonOrnament />
+      <ClosingMediaWall />
       <div className={styles.copy} data-closing-copy>
         {!chapterInJourney && <p className={`${styles.accent} ${locale === "ja" || locale === "ko" ? "font-body" : "editorial-accent"}`}>
           {tr("Your next chapter, together")}
@@ -49,7 +76,7 @@ function CompactClosing({ words, onStart, lionDock, chapterInJourney }: { words:
       <div className={styles.stage} data-closing-stage>
         <div className={styles.action} data-closing-action>
           <TrailAttractionTarget>
-            <LiquidMetalButton label={tr("Start your brand")} width={220} paused={paused} onClick={onStart} />
+            <LiquidMetalButton label={tr("Start your brand")} width={220} paused={paused} shaderEnabled={!compact && !saveData && !reducedMotion && inView && revealed} onClick={onStart} />
           </TrailAttractionTarget>
         </div>
       </div>
@@ -59,8 +86,9 @@ function CompactClosing({ words, onStart, lionDock, chapterInJourney }: { words:
 }
 
 /**
- * ClosingCTA — the single, canonical page close. Cinematic video backdrop +
- * the kinetic cycling-words headline + one liquid-metal button that opens Nova.
+ * ClosingCTA — the single, canonical page close. The homepage adds a curved
+ * portfolio media wall; service pages retain their cinematic video backdrop.
+ * The kinetic headline and liquid-metal button open Nova.
  * Used once per page (the footer is now navigation/legal only), so pages never
  * double-close. `crest` adds the brand crest beside the button (branding page).
  */
@@ -80,7 +108,7 @@ export default function ClosingCTA({ crest = false, workShowcase = false, lionDo
   ].filter(Boolean) as string[];
   const words: Word[] =
     locale === "en"
-      ? EN_WORD_ART
+      ? (workShowcase ? CLOSING_WORD_ART : EN_WORD_ART)
       : closingWordStrings.map((content) => ({
           content,
           type: "text" as const,

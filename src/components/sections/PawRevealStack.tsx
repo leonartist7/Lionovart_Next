@@ -1,46 +1,30 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
 import Image from "next/image";
-import { ArrowUpRight, Check, Minus, Plus } from "lucide-react";
+import { Check, Minus, Plus } from "lucide-react";
 import { useLenis } from "lenis/react";
-import { Link } from "@/i18n/navigation";
+import { IMAGINE_BENEFITS } from "./imagine-benefits";
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { useLionJourney } from "./lion-journey/LionJourney";
 import styles from "./PawRevealStack.module.css";
-import BenefitSculpture from "./BenefitSculpture";
 
 const PAW_IMAGE = "https://res.cloudinary.com/dgio9uutc/image/upload/f_auto,q_auto,w_320/v1775085187/Untitled_design_4_muu53f.png";
 const CARD_SEAM_IMAGE = "https://res.cloudinary.com/dgio9uutc/image/upload/f_webp,q_auto,w_1200/v1791532132/sepW_1_put7gh.avif";
 const EASE = [0.16, 1, 0.3, 1] as const;
 const PULL_EASE = [0.32, 0.72, 0, 1] as const;
 const PAW_TIMING = { enter: .45, pull: 1.2, return: 1.05, exit: .35 } as const;
-const BENEFITS = [
-  {
-    title: "Look as good as your work.",
-    body: "Let your image reflect the quality of your work.",
-    detail: "Trust, before a word.",
-    stat: { value: "46.1", unit: "%", label: "Credibility comments citing design", source: "https://credibility.stanford.edu/pdf/How_Do_People_Evaluate_a_Web_Site%27s_Credibility_v37.pdf", sourceLabel: "Study: Stanford / Consumer WebWatch", qualifier: null },
-    points: ["Clear positioning", "An identity that reflects your quality"],
-  },
-  {
-    title: "Less admin. More headspace.",
-    body: "Let your systems handle the routine.",
-    detail: "More time for what matters.",
-    stat: { value: "15", unit: "h+", label: "Weekly time-saving target", source: null, sourceLabel: null, qualifier: null },
-    points: ["Enquiries and follow-ups in one place", "Workflows built around your team"],
-  },
-  {
-    title: "Be the name they remember.",
-    body: "Bring your website, content and identity together.",
-    detail: "Unmistakably you. Everywhere.",
-    stat: { value: "33", unit: "%", label: "Potential revenue lift from consistency", source: "https://www.prnewswire.com/news-releases/study-finds-companies-with-consistent-branding-can-see-up-to-33-increase-in-revenue-300967219.html", sourceLabel: "Survey: Lucidpress (2019)", qualifier: "Up to" },
-    points: ["A recognisable voice", "A consistent world, everywhere"],
-  },
-];
-function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: number }) {
+const BENEFITS = IMAGINE_BENEFITS;
+function artworkSource(source: string, width: number) {
+  return source.includes("res.cloudinary.com/") ? source.replace("/image/upload/", `/image/upload/f_auto,q_auto,c_limit,w_${width}/`) : source;
+}
+export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, enabled = true }: {
+  item: typeof BENEFITS[number]; index: number; artwork?: string; code?: string;
+  serviceTitle?: string; accent?: string; enabled?: boolean;
+}) {
+  const integrated = !!artwork;
   const tr = usePublicCopy();
   const reduced = useHydratedReducedMotion();
   const [phase, setPhase] = useState<"closed" | "revealing" | "open" | "closing">("closed");
@@ -48,7 +32,10 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
   const trigger = useRef<HTMLButtonElement>(null);
   const cover = useAnimation();
   const paw = useAnimation();
-  const panelId = `imagine-result-${index}`;
+  const coverRef = useRef<HTMLDivElement>(null);
+  const pawRef = useRef<HTMLDivElement>(null);
+  const instanceId = useId();
+  const panelId = `imagine-result-${index}-${instanceId}`;
   const open = phase === "open";
   const showBenefit = phase === "revealing" || open;
   const busy = phase === "revealing" || phase === "closing";
@@ -57,6 +44,7 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
     if (lock.current) return;
     lock.current = true;
     const opening = phase === "closed";
+    const pull = `translate(8%, ${Math.max(170, (coverRef.current?.offsetHeight ?? 200) / Math.max(1, pawRef.current?.offsetHeight ?? 120) * 105)}%) rotate(5deg)`;
     setPhase(opening ? "revealing" : "closing");
     try {
       if (reduced || keyboard) {
@@ -66,11 +54,11 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
         await paw.start({ opacity: 1, transform: "translate(0, 0) rotate(0deg)", transition: { duration: PAW_TIMING.enter, ease: EASE } });
         await Promise.all([
           cover.start({ transform: "translateY(105%)", transition: { duration: PAW_TIMING.pull, ease: PULL_EASE } }),
-          paw.start({ transform: "translate(8%, 170%) rotate(5deg)", transition: { duration: PAW_TIMING.pull, ease: PULL_EASE } }),
+          paw.start({ transform: pull, transition: { duration: PAW_TIMING.pull, ease: PULL_EASE } }),
         ]);
         paw.set({ opacity: 0 });
       } else {
-        paw.set({ opacity: 1, transform: "translate(8%, 170%) rotate(5deg)" });
+        paw.set({ opacity: 1, transform: pull });
         await Promise.all([
           cover.start({ transform: "translateY(0%)", transition: { duration: PAW_TIMING.return, ease: PULL_EASE } }),
           paw.start({ transform: "translate(0, 0) rotate(0deg)", transition: { duration: PAW_TIMING.return, ease: PULL_EASE } }),
@@ -84,19 +72,27 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
     }
   };
 
-  return <article className={styles.card} data-benefit-card data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
-    <div className={styles.cardTop}>
+  return <article className={styles.card} data-benefit-card data-integrated={integrated} data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
+    {integrated && <div className={styles.integratedArtwork} aria-hidden="true">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={artworkSource(artwork!, 800)} alt="" loading="lazy" decoding="async"
+        srcSet={[240, 480, 800].map(width => `${artworkSource(artwork!, width)} ${width}w`).join(", ")}
+        sizes="(min-width: 920px) 26vw, 100px" />
+      <span className={styles.pillarCode}>{code}</span>
+    </div>}
+    {!integrated && <div className={styles.cardTop}>
       <div className={styles.cardCopy}>
         <p className={styles.cardBody} data-benefit-measure="copy" aria-hidden={showBenefit}>{tr(item.body)}</p>
         <h3 id={panelId + "-title"} className={styles.cardHeadline} data-benefit-measure="copy" aria-hidden={!showBenefit}>{tr(item.detail)}</h3>
       </div>
-    </div>
+    </div>}
     <div className={styles.detailShell}>
-      <div className={styles.sculpture} data-sculpture={index} data-leaving={phase !== "closed"} aria-hidden="true">
-        <BenefitSculpture kind={index} />
-      </div>
+      {!integrated && <div className={styles.sculpture} data-sculpture={index} data-leaving={phase !== "closed"} aria-hidden="true">
+        <Image src={item.artwork} alt="" width={500} height={500} sizes="(max-width: 919px) 176px, (max-width: 1600px) 16vw, 256px" />
+      </div>}
       <div className={styles.detailWell}>
         <div id={panelId} role="region" aria-labelledby={panelId + "-title"} aria-hidden={!open} className={styles.details}>
+          {integrated && <h3 id={panelId + "-title"} className={styles.integratedDetailTitle}>{tr(item.detail)}</h3>}
           <div className={styles.detailContent} data-benefit-measure="detail">
             <ul>{item.points.map(point => <li key={point}><Check aria-hidden="true" />{tr(point)}</li>)}</ul>
           {item.stat && <div className={styles.metric} data-benefit-stat>
@@ -105,10 +101,14 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
           </div>}
           </div>
         </div>
-        <motion.div className={styles.detailCover} animate={cover} aria-hidden="true">
-
+        <motion.div ref={coverRef} className={styles.detailCover} animate={cover} aria-hidden={integrated ? showBenefit : true}>
+          {integrated && <div className={styles.integratedCopy}>
+            <p className={styles.serviceLabel}>{serviceTitle}</p>
+            <h3>{tr(item.title)}</h3>
+            {accent && <p className={styles.integratedAccent}>{accent}</p>}
+          </div>}
         </motion.div>
-        <motion.div className={styles.paw} aria-hidden="true" initial={{ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)" }} animate={paw}>
+        <motion.div ref={pawRef} className={styles.paw} aria-hidden="true" initial={{ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)" }} animate={paw}>
           <Image src={PAW_IMAGE} alt="" fill sizes="(max-width: 767px) 144px, (max-width: 2000px) 12vw, 240px" className={styles.pawImage} />
         </motion.div>
       </div>
@@ -119,8 +119,9 @@ function BenefitCard({ item, index }: { item: typeof BENEFITS[number]; index: nu
       </motion.div>
     </div>
     <button ref={trigger} type="button" className={styles.cardToggle} aria-expanded={open || phase === "closing"} aria-controls={panelId}
-      aria-label={`${tr(open ? "Hide benefit" : "Reveal benefit")}: ${tr(item.title)}`} disabled={busy}
+      aria-label={`${tr(open ? "Hide benefit" : "Reveal benefit")}: ${tr(item.title)}`} disabled={busy || !enabled}
       onClick={event => void toggle(event.detail === 0)}>
+      <span className={styles.tapLabel}>{tr(open ? "Tap to close" : "Tap to reveal")}</span>
       <span className={styles.toggleIcon}>{open ? <Minus aria-hidden="true" /> : <Plus aria-hidden="true" />}</span>
     </button>
   </article>;
@@ -145,6 +146,8 @@ export default function PawRevealStack() {
       const rise = radius - Math.sqrt(Math.max(0, radius * radius - halfWidth * halfWidth));
       const value = rise.toFixed(3) + "px";
       if (chapter.style.getPropertyValue("--imagine-cap-rise") !== value) chapter.style.setProperty("--imagine-cap-rise", value);
+      const height = `${chapter.offsetHeight}px`;
+      if (chapter.style.getPropertyValue("--imagine-surface-height") !== height) chapter.style.setProperty("--imagine-surface-height", height);
     };
     const observer = new ResizeObserver(measure);
     observer.observe(chapter);
@@ -215,10 +218,7 @@ export default function PawRevealStack() {
       <div ref={gridRef} className={styles.grid} data-imagine-content>
         {BENEFITS.map((item, index) => <BenefitCard key={item.title} item={item} index={index} />)}
       </div>
-      <div className={styles.reviewOffer}>
-        <p><span>{tr("Not sure where to start?")}</span>{tr("A personal review. Three priority fixes.")}</p>
-        <Link href="/audit" className={styles.reviewLink}>{tr("Review my brand")}<ArrowUpRight aria-hidden="true" /></Link>
-      </div>
+
     </div>
   </section>;
 }

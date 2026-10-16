@@ -19,11 +19,10 @@ function CompactFooter({ year }: { year: number }) {
         <div className={styles.brandRow}>
           <div className={styles.brandCopy}>
             <h2 className={styles.wordmark}>LIONOVART</h2>
-            <p className={styles.signature}>{tr("The art of innovating brands")}</p>
+            <p className={styles.signature}>{tr("The art of brand innovation")}</p>
           </div>
         </div>
         <div className={styles.finaleUtility}>
-          <p className={styles.copyright}>&copy; {year} LIONOVART. {t.footer.copyright}</p>
           <a className={styles.contact} href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
           <nav aria-label={tr("Footer")} className={styles.legal}>
             <Link href="/careers">{tr("Careers")}</Link>
@@ -31,6 +30,7 @@ function CompactFooter({ year }: { year: number }) {
             <Link href="/terms">{t.footer.terms}</Link>
           </nav>
         </div>
+        <p className={styles.copyright}>&copy; {year} LIONOVART. {t.footer.copyright}</p>
       </div>
     </section>
   </footer>;

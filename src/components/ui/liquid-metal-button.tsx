@@ -19,6 +19,8 @@ interface LiquidMetalButtonProps {
   height?: number;
   /** Pause the shader and decorative click/hover animation. */
   paused?: boolean;
+  /** Use the CSS metal edge without creating a GPU context on constrained surfaces. */
+  shaderEnabled?: boolean;
   /** "red" = dark-red interior + white text (default). "white" = white interior + red text. */
   variant?: "red" | "white";
   /** Tint the exposed liquid-metal edge. */
@@ -39,6 +41,7 @@ export function LiquidMetalButton({
   width = 160,
   height = 46,
   paused = false,
+  shaderEnabled = true,
   variant = "red",
   metalTone = "silver",
   textColor,
@@ -89,7 +92,7 @@ export function LiquidMetalButton({
     const isInView = useInView(shaderRef, { margin: "200px" });
 
   useEffect(() => {
-    if (!released) return;
+    if (!released || !shaderEnabled) return;
     const shaderElement = shaderRef.current;
     const loadShader = async () => {
       try {
@@ -121,7 +124,7 @@ export function LiquidMetalButton({
         shaderMount.current = null;
       }
     };
-  }, [released]);
+  }, [released, shaderEnabled]);
 
   // Most shader buttons pause off-screen. Persistent controls, such as Nova,
   // can opt out so their surface remains alive whenever the tab is active.
@@ -135,7 +138,7 @@ export function LiquidMetalButton({
       }
     }
     return () => { if (clickTimer.current) clearTimeout(clickTimer.current); };
-  }, [alwaysAnimate, isInView, isHovered, paused, released]);
+  }, [alwaysAnimate, isInView, isHovered, paused, released, shaderEnabled]);
 
   const handleMouseEnter = () => {
     if (typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches) {
@@ -320,6 +323,7 @@ export function LiquidMetalButton({
               <div
                 ref={shaderRef}
                 className="shader-container-exploded"
+                data-shader-enabled={shaderEnabled}
                 style={{
                   borderRadius: "100px",
                   overflow: "hidden",
@@ -328,6 +332,7 @@ export function LiquidMetalButton({
                   maxWidth: dimensions.shaderWidth,
                   height: dimensions.shaderHeight,
                   filter: metalFilter,
+                  background: "linear-gradient(125deg, #70797c, #edf1ee 22%, #9aa3a4 44%, #fff9e9 64%, #7b8588)",
                   transition: "width 0.4s ease, height 0.4s ease",
                 }}
               />

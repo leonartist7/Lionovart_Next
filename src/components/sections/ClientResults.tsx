@@ -20,7 +20,7 @@ export default function ClientResults() {
 
   return (
     <section
-      id="client-results"
+      id="client-results" data-nav-surface="light"
       aria-labelledby="client-results-title"
       data-results-kind="illustrative"
       className={styles.section}

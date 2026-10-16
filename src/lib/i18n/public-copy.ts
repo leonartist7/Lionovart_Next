@@ -1,5 +1,14 @@
 /** Reviewed French public UI copy. Source phrases are gettext-style keys. */
 const french: Record<string, string> = {
+  "More Successful": "De meilleurs",
+  "Results": "Résultats",
+  "Design your legacy": "Façonnez votre héritage",
+  "Get to know me": "Faisons connaissance",
+  "I’m Leonardo, founder and creative director of LIONOVART. I work with you directly, from the first conversation to the final details.": "Je suis Leonardo, fondateur et directeur créatif de LIONOVART. Je travaille directement avec vous, de notre premier échange aux derniers détails.",
+  "Before we talk about design, I take the time to understand what you’ve built, what matters to you and where you want to go. You deserve a brand that feels like you.": "Avant de parler de design, je prends le temps de comprendre ce que vous avez construit, ce qui compte pour vous et où vous voulez aller. Vous méritez une marque qui vous ressemble.",
+  "Tap to reveal": "Toucher pour découvrir",
+  "Tap to close": "Toucher pour refermer",
+  "The art of brand innovation": "L’art de l’innovation de marque",
   "Credibility comments citing design": "Avis de crédibilité évoquant le design",
   "Potential revenue lift from consistency": "Revenus potentiels d’une marque cohérente",
   "Let your systems handle the routine.": "Vos outils gèrent la routine.",
@@ -174,6 +183,8 @@ const french: Record<string, string> = {
   "EXCELLENCE": "CRÉATIVE",
   "Across borders. In good company.": "Sans frontières. Bien entourés.",
   "South Korea": "Corée du Sud",
+  "Netherlands": "Pays-Bas",
+  "Sweden": "Suède",
   "Italy": "Italie",
   "Switzerland": "Suisse",
   "Spain": "Espagne",
