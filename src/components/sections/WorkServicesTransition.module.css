@@ -1,12 +1,12 @@
 .transition { position: relative; isolation: isolate; background: var(--site-surface-light, #f7f4ef); color: #08080a; }
 .intro { position: sticky; z-index: 2; }
 .scene { position: sticky; top: 0; height: 100svh; margin-top: -100svh; margin-bottom: -100svh; overflow: clip; background: var(--site-surface-light, #f7f4ef); z-index: 1; }
-.runway { position: relative; height: 180svh; pointer-events: none; }
-.heading { position: absolute; top: 50%; left: 0; width: 100%; padding: 0 clamp(1.25rem, 5vw, 5rem); transform: translateY(-50%); text-align: center; }
+.runway { position: relative; height: 300svh; pointer-events: none; }
+.heading { position: absolute; z-index: 3; pointer-events: none; color: white; mix-blend-mode: difference; top: 50%; left: 0; width: 100%; padding: 0 clamp(1.25rem, 5vw, 5rem); transform: translateY(-50%); text-align: center; }
 .heading h2 { margin: 0; font: 600 clamp(2.75rem, 7vw, 6.25rem)/.98 var(--font-clash-display), sans-serif; text-transform: uppercase; letter-spacing: -.035em; text-wrap: balance; }
 .heading p { margin: 1.125rem 0 0; font: italic 400 clamp(2rem, 4.5vw, 4.5rem)/1.08 var(--font-playfair-display), Georgia, serif; letter-spacing: -.02em; text-wrap: balance; }
 .servicesSurface { position: relative; z-index: 3; overflow: clip; background: var(--site-surface-light, #f7f4ef); }
 .transition[data-static="true"] .intro { position: relative; }
-.transition[data-static="true"] .scene { position: relative; height: auto; min-height: 65svh; margin: 0; display: grid; place-items: center; padding: 4rem 0; }
-.transition[data-static="true"] .heading { position: relative; top: auto; transform: none; }
+.transition[data-static="true"] .scene { position: relative; height: auto; min-height: 65svh; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 0; }
+.transition[data-static="true"] .heading { color: #08080a; mix-blend-mode: normal; position: relative; top: auto; transform: none; }
 .transition[data-static="true"] .runway { display: none; }

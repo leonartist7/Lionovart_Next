@@ -8,6 +8,7 @@ import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { ServicesArrivalContext } from "./ServicesArrival";
 import { ServicesPreviewContext } from "./ServicesPreview";
 import { partnershipPose } from "./partnership-motion";
+import PartnershipTiles from "./PartnershipTiles";
 import styles from "./WorkServicesTransition.module.css";
 
 const shortQuery = "(max-height: 480px)";
@@ -70,6 +71,7 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
       {intro}
     </motion.div>
     <div ref={sceneRef} className={styles.scene} data-work-scene data-nav-surface={staticScene || retired ? "light" : "dark"} data-scroll-title-skip>
+      <PartnershipTiles progress={progress} staticScene={staticScene} />
       <motion.header className={styles.heading} data-work-heading style={{ opacity: staticScene ? 1 : chapterOpacity }}>
         <h2>{tr("One partnership")}</h2>
         <p>{tr("Design your legacy")}</p>

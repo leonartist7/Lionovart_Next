@@ -9,6 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { chooseScrollStop, parseScrollMode, readyToSettle, SCROLL_MODES, scrollEase, settleDuration, type ScrollMode, type ScrollScene, type ScrollStop } from "./scroll-policy";
 import { openingDocumentTop } from "../sections/lion-journey/opening-layout";
 import { SonicCues } from "./sonic";
+import { PARTNERSHIP_REST } from "../sections/partnership-motion";
 import styles from "./ScrollExperience.module.css";
 
 const SoundContext = createContext({ enabled: false, toggle: () => {} });
@@ -122,7 +123,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
       const work = document.querySelector<HTMLElement>("[data-work-services-transition]");
       if (runway && work?.dataset.static !== "true") {
         const start = top(runway), span = runway.offsetHeight;
-        const stop: ScrollStop = { id: "partnership", label: "One partnership", y: start + span * .42, kind: "partnership" };
+        const stop: ScrollStop = { id: "partnership", label: "One partnership", y: start + span * PARTNERSHIP_REST, kind: "partnership" };
         const imagineStop = stops.find(s => s.id === "imagine");
         scenes.push({ start, end: start + span, kind: "partnership", stops: imagineStop ? [imagineStop, stop] : [stop] });
         const openingScene = scenes.find(s => s.kind === "opening");
