@@ -20,6 +20,7 @@ const PROMPTS = {
 };
 
 function getSystemPrompt(locale) {
+  if (locale === "ja") return PROMPTS.en + "\n\nLANGUAGE: Conduct the conversation in natural, polite Japanese, including your opening greeting. Translate Stage 0's intent rather than reading its English examples. Keep brand names and tool identifiers unchanged. Switch language only when the visitor requests it.";
   return PROMPTS[locale] || PROMPTS.en;
 }
 

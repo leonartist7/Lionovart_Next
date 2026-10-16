@@ -68,10 +68,11 @@ function getAdminDb() {
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
   const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, "\n");
-  if (!projectId || !clientEmail || !privateKey) return null;
+  const emulator = process.env.FIRESTORE_EMULATOR_HOST || process.env.FIREBASE_AUTH_EMULATOR_HOST;
+  if (!projectId || (!emulator && (!clientEmail || !privateKey))) return null;
 
   try {
-    const app = admin.apps.length > 0 ? admin.apps[0] : admin.initializeApp({
+    const app = admin.apps.length > 0 ? admin.apps[0] : admin.initializeApp(emulator ? { projectId } : {
       credential: admin.credential.cert({ projectId, clientEmail, privateKey }),
     });
     adminDb = admin.firestore(app);

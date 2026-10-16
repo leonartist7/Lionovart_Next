@@ -6,7 +6,7 @@
  * keep working unchanged. This file otherwise keeps the shared UI/session
  * types that never belonged in the prompt/tools module.
  */
-export type NovaLocale = "en" | "es" | "fr" | "it" | "ko";
+export type NovaLocale = "en" | "es" | "fr" | "it" | "ja" | "ko";
 export { getSystemPrompt, STRATEGIST_TOOLS } from "@root/nova-brain";
 
 /* ─── Types shared across modules ───────────────────────────── */

@@ -1,3 +1,4 @@
+import { requireNovaConversation } from "@/lib/nova-session-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
@@ -30,6 +31,8 @@ export async function POST(req: NextRequest) {
   }
 
   const { transcript, contact, session_started_at, source, lead_doc_id, user_agent, conversation_id } = body;
+  const denied = requireNovaConversation(req, conversation_id);
+  if (denied) return denied;
 
   if (!Array.isArray(transcript) || transcript.length === 0) {
     return NextResponse.json({ saved: false, reason: "Empty transcript" }, { status: 200 });

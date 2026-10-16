@@ -1,47 +1,36 @@
-// public/audio-processor.js
-// Dedicated exclusively to capturing microphone input and safely downsampling 
-// to Gemini's strict 16kHz 16-bit PCM requirement, bypassing iOS/Safari hardware locks.
-
+// Continuous resampling preserves fractional position across worklet blocks.
+// Send 20 ms packets instead of a WebSocket message for every render quantum.
 class AudioProcessor extends AudioWorkletProcessor {
   constructor(options) {
     super();
-    // Grab the hardware sample rate from the main thread, default to 16k if missing
-    this.inSampleRate = options.processorOptions?.sampleRate || 16000;
+    this.ratio = (options.processorOptions?.sampleRate || sampleRate) / 16000;
+    this.position = 0;
+    this.samples = [];
+    this.packet = new Int16Array(320);
+    this.packetIndex = 0;
   }
 
-  process(inputs, outputs, parameters) {
-    const input = inputs[0];
-    if (input && input[0]) {
-      const channelData = input[0];
-      
-      // Calculate how many samples to drop/interpolate to reach exactly 16000Hz
-      const ratio = this.inSampleRate / 16000;
-      const newLength = Math.max(1, Math.round(channelData.length / ratio));
-      const pcm16 = new Int16Array(newLength);
-      
-      for (let i = 0; i < newLength; i++) {
-        const originalIndex = i * ratio;
-        const index = Math.floor(originalIndex);
-        const t = originalIndex - index;
-        
-        // Linear interpolation for smooth downsampling without metallic artifacts
-        const val1 = channelData[index] || 0;
-        const val2 = channelData[index + 1] || val1;
-        const sample = val1 + t * (val2 - val1);
-        
-        // Convert Float32 (-1.0 to 1.0) to Int16 (-32768 to 32767)
-        let s = Math.max(-1, Math.min(1, sample));
-        pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+  process(inputs) {
+    const input = inputs[0]?.[0];
+    if (!input) return true;
+    for (let i = 0; i < input.length; i++) this.samples.push(input[i]);
+    while (this.position + 1 < this.samples.length) {
+      const index = Math.floor(this.position);
+      const fraction = this.position - index;
+      const value = this.samples[index] + fraction * (this.samples[index + 1] - this.samples[index]);
+      const clamped = Math.max(-1, Math.min(1, value));
+      this.packet[this.packetIndex++] = clamped < 0 ? clamped * 32768 : clamped * 32767;
+      this.position += this.ratio;
+      if (this.packetIndex === this.packet.length) {
+        this.port.postMessage({ type: "audio", pcm: this.packet }, [this.packet.buffer]);
+        this.packet = new Int16Array(320);
+        this.packetIndex = 0;
       }
-      
-      // Send the perfectly formatted 16kHz chunk to the main thread
-      this.port.postMessage({ type: "audio", pcm: pcm16 });
     }
-    
-    // We intentionally do not handle playback here anymore.
-    // Main thread uses AudioBufferSourceNode for flawless 24kHz native playback.
+    const consumed = Math.min(Math.floor(this.position), this.samples.length - 1);
+    this.samples.splice(0, consumed);
+    this.position -= consumed;
     return true;
   }
 }
-
 registerProcessor("audio-processor", AudioProcessor);

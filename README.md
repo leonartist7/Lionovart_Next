@@ -29,4 +29,10 @@ To learn more about Next.js, take a look at the following resources:
 
 ## Deployment
 
-This app is deployed to Google Cloud (Cloud Run). See `next.config.ts` for the Cloud Run-specific image settings.
+Vercel runs the Next.js application and NOVA's session broker. The browser streams
+voice directly to Gemini using a constrained, short-lived credential; no WebSocket
+server is required on Vercel. See [NOVA on Vercel](docs/NOVA_VERCEL_MIGRATION.md) for
+required environment variables, Firebase settings, tests, and deployment checks.
+
+`npm start` serves a local production Next.js build. The existing Cloud Run server
+remains available through `npm run start:cloud-run` for the legacy container path.

@@ -15,8 +15,8 @@ export function PrivacyGate({ onAccept, onDismiss }: { onAccept: () => void; onD
       className="flex flex-col items-center gap-2.5 px-4 py-3 rounded-2xl bg-black/70 border border-white/[0.1] backdrop-blur-md max-w-[260px] text-center"
     >
       <p className="text-[11px] text-white/70 leading-relaxed">
-        Nova listens through your microphone to have a real conversation. Saved so
-        Leon can follow up — never sold, never shared.
+        Nova uses your microphone, with audio processed by Google Gemini. Your
+        transcript and the details you share can be saved so Leonardo can follow up.
       </p>
       <div className="flex items-center gap-4">
         <button

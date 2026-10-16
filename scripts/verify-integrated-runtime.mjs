@@ -2,7 +2,6 @@ import { spawn } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
 import assert from "node:assert/strict";
 import { chromium } from "playwright";
-import WebSocket from "ws";
 
 const base = process.env.PORTAL_BASE ?? "http://localhost:3000";
 const server = spawn(process.execPath, ["server.js"], { stdio: "inherit", env: { ...process.env, NODE_ENV: "production" } });
@@ -23,19 +22,12 @@ try {
   assert.ok(ready, "Production server becomes ready");
   await run(["scripts/portal-verify/verify.mjs"]);
   const tokenResponse = await fetch(base + "/api/strategist/session-token", {
-    method: "POST", headers: { "Content-Type": "application/json", "x-forwarded-for": "127.0.0.1" },
-    body: JSON.stringify({ conversationId: "ci-voice-upgrade" }),
+    method: "POST", headers: { "Content-Type": "application/json", Origin: base },
+    body: JSON.stringify({ locale: "en" }),
   });
-  const { token } = await tokenResponse.json();
-  assert.ok(token, "NOVA mints an authenticated upgrade token");
-  await new Promise((resolve, reject) => {
-    const socket = new WebSocket(base.replace(/^http/, "ws") + "/api/strategist/live?t=" + encodeURIComponent(token), {
-      origin: "https://lionovart.com", headers: { "x-forwarded-for": "127.0.0.1" }, handshakeTimeout: 10000,
-    });
-    socket.once("error", reject);
-    socket.once("open", () => { socket.close(); resolve(); });
-  });
-  console.log("PASS: NOVA authenticated WebSocket upgrade (no model session or external API call)");
+  assert.equal(tokenResponse.status, 503, "NOVA fails closed with CI's absent Gemini credential");
+  assert.equal((await tokenResponse.json()).error, "voice_not_configured");
+  console.log("PASS: NOVA broker fails closed without credentials (no external model call)");
   await mkdir("verification-output", { recursive: true });
   browser = await chromium.launch({ headless: true });
   const results = [];

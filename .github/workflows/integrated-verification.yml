@@ -55,6 +55,8 @@ jobs:
         run: node scripts/verify-dependency-advisories.mjs
       - name: Motion and intro regression tests
         run: node --test scripts/intro-readiness.test.mjs scripts/intro-scene.test.mjs scripts/lion-motion.test.mjs
+      - name: NOVA live-session regression tests
+        run: node --test scripts/nova-live.test.mjs
       - name: Production build and type checking
         run: npm run build
       - name: Install verification tools without changing the lockfile

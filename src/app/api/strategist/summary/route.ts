@@ -1,3 +1,4 @@
+import { requireNovaConversation } from "@/lib/nova-session-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { adminDb } from "@/lib/firebase-admin";
@@ -24,6 +25,8 @@ export async function POST(req: NextRequest) {
   }
 
   const { conversation_id, email, name } = body;
+  const denied = requireNovaConversation(req, conversation_id);
+  if (denied) return denied;
   if (!conversation_id || !email) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
@@ -35,6 +38,9 @@ export async function POST(req: NextRequest) {
       const doc = await adminDb.collection("conversations").doc(conversation_id).get();
       if (doc.exists) {
         const data = doc.data();
+        if (data?.contact?.email !== email) {
+          return NextResponse.json({ error: "contact_mismatch" }, { status: 403 });
+        }
         const entries: Array<{ role: string; text: string }> = data?.transcript ?? [];
         transcriptText = entries
           .map((e) => `${e.role === "user" ? "User" : "Nova"}: ${e.text}`)
@@ -123,3 +129,6 @@ ${transcriptText.slice(0, 8000)}`,
 
   return NextResponse.json({ ok: true });
 }
+
+export const runtime = "nodejs";
+export const maxDuration = 60;

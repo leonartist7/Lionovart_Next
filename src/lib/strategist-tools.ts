@@ -1,4 +1,5 @@
 import "server-only";
+import { after } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
 import { NOVA_KNOWLEDGE } from "@/lib/nova-knowledge";
 import { scrapeWebsite } from "@/lib/scrape-website";
@@ -155,10 +156,10 @@ const handlers: Record<string, ToolHandler> = {
       }
 
       if (handoff_offered) {
-        void notifyLeadCaptured(
+        after(() => notifyLeadCaptured(
           { name: leadName, phone, email, niche, vision },
           ctx.conversationId ?? null,
-        );
+        ));
       }
 
       return { body: { saved: true } };
@@ -248,34 +249,34 @@ const handlers: Record<string, ToolHandler> = {
 
     const cached = scrapeCache.get(urlHash);
     if (cached) {
-      void trackNovaServerEvent("nova.scrape_succeeded", analyticsId, {
+      after(() => trackNovaServerEvent("nova.scrape_succeeded", analyticsId, {
         url_hash: urlHash,
         cached: true,
         conversation_id: ctx.conversationId,
-      });
+      }));
       return { body: cached };
     }
 
     const scrapeStart = Date.now();
-    void trackNovaServerEvent("nova.scrape_fired", analyticsId, { url_hash: urlHash, conversation_id: ctx.conversationId });
+    after(() => trackNovaServerEvent("nova.scrape_fired", analyticsId, { url_hash: urlHash, conversation_id: ctx.conversationId }));
     try {
       const result = await scrapeWebsite(url);
       const durationMs = Date.now() - scrapeStart;
       scrapeCache.set(urlHash, result as unknown as Record<string, unknown>);
-      void trackNovaServerEvent("nova.scrape_succeeded", analyticsId, {
+      after(() => trackNovaServerEvent("nova.scrape_succeeded", analyticsId, {
         url_hash: urlHash,
         duration_ms: durationMs,
         services_detected_count: result.services_detected?.length ?? 0,
         conversation_id: ctx.conversationId,
-      });
+      }));
       return { body: result as unknown as Record<string, unknown> };
     } catch (err) {
       console.error("scrape_website error:", err);
-      void trackNovaServerEvent("nova.scrape_failed", analyticsId, {
+      after(() => trackNovaServerEvent("nova.scrape_failed", analyticsId, {
         url_hash: urlHash,
         reason: err instanceof Error ? err.message : String(err),
         conversation_id: ctx.conversationId,
-      });
+      }));
       return {
         body: {
           summary: `Couldn't read the site clearly from here — tell me about it in your own words.`,
@@ -319,7 +320,7 @@ const handlers: Record<string, ToolHandler> = {
 
     const result = await createBooking({ start, name: leadName, email, phone, notes, timeZone: timezone });
     if (result.booked) {
-      void updateLeadByContact(email || phone || "", {
+      await updateLeadByContact(email || phone || "", {
         booking: { uid: result.uid, start: result.start, confirmed: true },
         conversation_id: ctx.conversationId ?? null,
       });
@@ -337,7 +338,7 @@ const handlers: Record<string, ToolHandler> = {
 
     try {
       const sent = await sendSessionSummaryEmail({ toEmail: email, toName: leadName, summary, conversationId: ctx.conversationId ?? null });
-      if (sent) void updateLeadByContact(email, { email_consent: true });
+      if (sent) await updateLeadByContact(email, { email_consent: true });
       return { body: { sent } };
     } catch (err) {
       console.error("send_follow_up_email error:", err);

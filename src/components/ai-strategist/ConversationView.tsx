@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, type RefObject } from "react";
+import { useState, useEffect, useCallback, useRef, type RefObject } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Mic, MicOff, PhoneOff, Check } from "lucide-react";
 import type { HandoffData, SessionState, LeadFieldKey } from "@/lib/strategist-config";
@@ -11,6 +11,7 @@ import { PrivacyGate } from "./PrivacyGate";
 import { useAudioAmplitude } from "./useAudioAmplitude";
 
 export interface ConversationViewProps {
+  autoStart?: boolean;
   isSessionActive: boolean;
   state: SessionState;
   leadData: LeadData;
@@ -40,6 +41,7 @@ const FIELD_LABELS: Record<LeadFieldKey, string> = {
 const FIELD_ORDER: LeadFieldKey[] = ["name", "business_type", "website", "phone", "email"];
 
 export default function ConversationView({
+  autoStart = false,
   isSessionActive,
   state,
   leadData,
@@ -64,11 +66,21 @@ export default function ConversationView({
 
   const [privacyAccepted, setPrivacyAccepted] = useState(() => {
     if (typeof window !== "undefined") {
-      return sessionStorage.getItem("nova_privacy_accepted") === "1";
+      try { return sessionStorage.getItem("nova_privacy_accepted") === "1"; } catch { return false; }
     }
     return false;
   });
   const [showPrivacyPrompt, setShowPrivacyPrompt] = useState(false);
+  const autoStartHandled = useRef(false);
+  useEffect(() => {
+    if (!autoStart || autoStartHandled.current) return;
+    const timer = setTimeout(() => {
+      autoStartHandled.current = true;
+      if (privacyAccepted) onStartSession();
+      else setShowPrivacyPrompt(true);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [autoStart, privacyAccepted, onStartSession]);
 
   const handleBlobClick = () => {
     if (isSessionActive) return;
@@ -80,7 +92,7 @@ export default function ConversationView({
   };
 
   const handlePrivacyAccept = () => {
-    sessionStorage.setItem("nova_privacy_accepted", "1");
+    try { sessionStorage.setItem("nova_privacy_accepted", "1"); } catch { /* storage unavailable */ }
     setPrivacyAccepted(true);
     setShowPrivacyPrompt(false);
     onStartSession();
@@ -271,6 +283,7 @@ function NoticePill({
       role="status"
       aria-live="polite"
     >
+      <span className="text-[12px] font-semibold text-white">{notice.title}</span>
       <span className={`text-[11px] font-medium ${color}`}>{notice.message}</span>
       <div className="flex items-center gap-3">
         {notice.canRestart && (

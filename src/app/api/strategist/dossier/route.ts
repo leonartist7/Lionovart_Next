@@ -1,3 +1,4 @@
+import { requireNovaConversation } from "@/lib/nova-session-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
 import { generateDossier, dossierToMarkdown, saveDossier } from "@/lib/dossier";
@@ -32,6 +33,8 @@ export async function POST(req: NextRequest) {
   }
 
   const { conversation_id, contact } = body;
+  const denied = requireNovaConversation(req, conversation_id);
+  if (denied) return denied;
   if (!contact) {
     return NextResponse.json({ generated: false, reason: "Missing contact" }, { status: 200 });
   }
@@ -44,6 +47,9 @@ export async function POST(req: NextRequest) {
     const leadDoc = snap.docs[0];
     const leadId = leadDoc.id;
     const lead = leadDoc.data();
+    if (lead.conversation_id !== conversation_id) {
+      return NextResponse.json({ error: "conversation_mismatch" }, { status: 403 });
+    }
 
     const dossier = await generateDossier(leadId, conversation_id ?? lead.conversation_id ?? null);
     if (!dossier) {
@@ -53,7 +59,7 @@ export async function POST(req: NextRequest) {
     const markdown = dossierToMarkdown(dossier, lead, leadId);
     const dossierId = await saveDossier(leadId, dossier, markdown);
 
-    void sendDossierEmail({
+    await sendDossierEmail({
       leadName: lead.name || "Unnamed lead",
       qualificationScore: dossier.qualification_score,
       businessSnapshot: dossier.business_snapshot,
@@ -69,3 +75,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ generated: false, error: "Internal error" }, { status: 200 });
   }
 }
+
+export const runtime = "nodejs";
+export const maxDuration = 60;

@@ -31,7 +31,7 @@ const widgetVariants = {
 
 export default function StrategistPanel({ isOpen, onClose, autoStart = false }: StrategistPanelProps) {
   const [mounted, setMounted] = useState(false);
-  const session = useStrategistSession({ onClose });
+  const session = useStrategistSession();
 
   // Page-section tracking — only active while session is live
   usePageSectionTracker({
@@ -44,15 +44,6 @@ export default function StrategistPanel({ isOpen, onClose, autoStart = false }: 
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
-
-  useEffect(() => {
-    if (isOpen && autoStart && !session.isSessionActive) {
-      const t = setTimeout(() => {
-        session.startSession();
-      }, 300);
-      return () => clearTimeout(t);
-    }
-  }, [isOpen, autoStart, session.isSessionActive, session.startSession]);
 
   // Ending the call closes the widget too — there's no separate hidden-but-live state.
   const handleEnd = useCallback(() => {
@@ -90,6 +81,7 @@ export default function StrategistPanel({ isOpen, onClose, autoStart = false }: 
           className="fixed z-[9999] bottom-[calc(1rem+20vh)] right-4 sm:bottom-[calc(1.5rem+20vh)] sm:right-6 md:bottom-[calc(2rem+20vh)] md:right-8"
         >
           <ConversationView
+            autoStart={autoStart}
             isSessionActive={session.isSessionActive}
             state={session.state}
             leadData={session.leadData}
