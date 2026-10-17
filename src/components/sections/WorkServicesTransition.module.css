@@ -1,7 +1,7 @@
 .transition { position: relative; isolation: isolate; background: var(--site-surface-light, #f7f4ef); color: #08080a; }
 .intro { position: sticky; z-index: 2; }
 .scene { position: sticky; top: 0; height: 100svh; margin-top: -100svh; margin-bottom: -100svh; overflow: clip; background: var(--site-surface-light, #f7f4ef); z-index: 1; }
-.runway { position: relative; height: 300svh; pointer-events: none; }
+.runway { position: relative; pointer-events: none; }
 .heading { position: absolute; z-index: 3; pointer-events: none; color: white; mix-blend-mode: difference; top: 50%; left: 0; width: 100%; padding: 0 clamp(1.25rem, 5vw, 5rem); transform: translateY(-50%); text-align: center; }
 .heading h2 { margin: 0; font: 600 clamp(2.75rem, 7vw, 6.25rem)/.98 var(--font-clash-display), sans-serif; text-transform: uppercase; letter-spacing: -.035em; text-wrap: balance; }
 .heading p { margin: 1.125rem 0 0; font: italic 400 clamp(2rem, 4.5vw, 4.5rem)/1.08 var(--font-playfair-display), Georgia, serif; letter-spacing: -.02em; text-wrap: balance; }

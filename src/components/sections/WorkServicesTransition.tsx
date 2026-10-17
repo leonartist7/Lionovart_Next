@@ -7,7 +7,7 @@ import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { ServicesArrivalContext } from "./ServicesArrival";
 import { ServicesPreviewContext } from "./ServicesPreview";
-import { partnershipPose } from "./partnership-motion";
+import { partnershipPose, PARTNERSHIP_SCROLL_LENGTH, PARTNERSHIP_TIMING } from "./partnership-motion";
 import PartnershipTiles from "./PartnershipTiles";
 import styles from "./WorkServicesTransition.module.css";
 
@@ -36,7 +36,7 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
   const introOpacity = useTransform(() => pose.get().introOpacity);
   const chapterOpacity = useTransform(() => pose.get().chapterOpacity);
   const [retired, setRetired] = useState(false);
-  useMotionValueEvent(progress, "change", p => setRetired(p >= .27));
+  useMotionValueEvent(progress, "change", p => setRetired(p >= PARTNERSHIP_TIMING.introEnd));
 
   useEffect(() => {
     const intro = introRef.current, scene = sceneRef.current, runway = runwayRef.current, services = servicesRef.current;
@@ -65,7 +65,7 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
     };
   }, [lenis, staticScene, introTop, progress, servicesOpacity]);
 
-  return <div className={styles.transition} data-work-services-transition data-static={staticScene}>
+  return <div className={styles.transition} data-work-services-transition data-scroll-manual data-static={staticScene}>
     <motion.div ref={introRef} className={styles.intro} data-work-intro inert={!staticScene && retired}
       style={staticScene ? undefined : { top: introTop, opacity: introOpacity }}>
       {intro}
@@ -74,10 +74,11 @@ export default function WorkServicesTransition({ intro, children }: { intro: Rea
       <PartnershipTiles progress={progress} staticScene={staticScene} />
       <motion.header className={styles.heading} data-work-heading style={{ opacity: staticScene ? 1 : chapterOpacity }}>
         <h2>{tr("One partnership")}</h2>
-        <p>{tr("Design your legacy")}</p>
+        <p>{tr("Designing your legacy")}</p>
       </motion.header>
     </div>
-    <div ref={runwayRef} className={styles.runway} data-work-runway aria-hidden="true" />
+    <div ref={runwayRef} className={styles.runway} data-work-runway aria-hidden="true"
+      style={{ height: `${PARTNERSHIP_SCROLL_LENGTH * 100}svh` }} />
     <ServicesArrivalContext.Provider value={staticScene ? 1 : servicesOpacity}>
       <ServicesPreviewContext.Provider value={false}>
         <div ref={servicesRef} className={styles.servicesSurface} data-services-surface>{children}</div>

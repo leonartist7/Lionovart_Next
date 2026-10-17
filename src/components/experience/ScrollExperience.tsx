@@ -126,10 +126,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
         const stop: ScrollStop = { id: "partnership", label: "One partnership", y: start + span * PARTNERSHIP_REST, kind: "partnership" };
         const imagineStop = stops.find(s => s.id === "imagine");
         scenes.push({ start, end: start + span, kind: "partnership", stops: imagineStop ? [imagineStop, stop] : [stop] });
-        const openingScene = scenes.find(s => s.kind === "opening");
-        // Desktop leaves the complete Imagine faces with one fresh gesture.
-        // Phones first read the full stack, then settle the chapter on release.
-        if (openingScene && (openingScene.extent ?? openingScene.end) <= openingScene.end) openingScene.stops.push(stop);
+        // Keep this stop for explicit navigation only. Never auto-skip the tile sequence.
         stops.push(stop);
       }
       for (const [selector, id, label] of [

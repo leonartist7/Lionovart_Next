@@ -1,5 +1,3 @@
-import { PARTNERSHIP_REST } from "../sections/partnership-motion";
-
 export type ScrollMode = "flow" | "settle" | "cinema";
 export type ScrollStop = { id: string; label: string; y: number; kind: "opening" | "partnership" | "section" | "service" };
 export type ScrollScene = { start: number; end: number; extent?: number; timelineSpan?: number; frontReading?: { start: number; end: number }; inlineBenefits?: boolean; kind: "opening" | "partnership"; stops: ScrollStop[] };
@@ -14,11 +12,24 @@ export function parseScrollMode(value: string | null): ScrollMode {
   return value === "flow" || value === "cinema" ? value : "settle";
 }
 
-/** Pure policy: only finish a user-initiated beat; never run a timed slideshow. */
-export function chooseScrollStop({ mode, y, gestureStart, direction, viewport, scenes, boundaries }: {
+type ScrollIntent = {
   mode: ScrollMode; y: number; gestureStart: number; direction: number; viewport: number;
   scenes: ScrollScene[]; boundaries: ScrollStop[];
-}): ScrollStop | undefined {
+};
+
+/** The partnership is always manual, including when another scene could skip into it. */
+export function chooseScrollStop(intent: ScrollIntent): ScrollStop | undefined {
+  const manualScenes = intent.scenes.filter(scene => scene.kind === "partnership");
+  if (manualScenes.some(scene => intent.y >= scene.start && intent.y <= (scene.extent ?? scene.end))) return;
+  const stop = chooseGuidedStop(intent);
+  if (!stop || stop.kind === "partnership") return;
+  const from = Math.min(intent.y, stop.y), to = Math.max(intent.y, stop.y);
+  if (manualScenes.some(scene => to >= scene.start && from <= (scene.extent ?? scene.end))) return;
+  return stop;
+}
+
+/** Other scenes can still finish a user-initiated beat. */
+function chooseGuidedStop({ mode, y, gestureStart, direction, viewport, scenes, boundaries }: ScrollIntent): ScrollStop | undefined {
   if (mode === "flow" || !direction) return;
   const scene = scenes.find(s => y >= s.start && y <= (s.extent ?? s.end));
   if (scene) {
@@ -75,16 +86,7 @@ export function chooseScrollStop({ mode, y, gestureStart, direction, viewport, s
       if (direction < 0 && p > .84 && p <= .96) return scene.stops.find(s => s.id === "cards");
       return;
     }
-    if (Math.abs(y - gestureStart) < 12) return;
-    const resting = scene.stops.find(s => Math.abs(s.y - gestureStart) <= viewport * .14);
-    if (resting && Math.abs(y - gestureStart) >= 28) {
-      const next = scene.stops[scene.stops.indexOf(resting) + (direction > 0 ? 1 : -1)];
-      if (next && direction * (next.y - y) > 8) return next;
-    }
-    if (direction > 0 && p > .02 && p < PARTNERSHIP_REST) return scene.stops.find(s => s.id === "partnership");
-    if (direction < 0 && p > .02 && p < PARTNERSHIP_REST) return scene.stops.find(s => s.id === "imagine");
-    const stop = scene.stops.find(s => direction * (s.y - y) > 8 && Math.abs(s.y - y) < span * .22);
-    return stop;
+    return;
   }
   if (Math.abs(y - gestureStart) < 12) return;
   // Read long content normally. Only tidy up an approaching boundary.

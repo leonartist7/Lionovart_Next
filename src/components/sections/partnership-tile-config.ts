@@ -1,10 +1,11 @@
 import { GALLERY_WORK } from "./selected-work/gallery";
+import { PARTNERSHIP_SCROLL_LENGTH } from "./partnership-motion";
 
 // Reference settings for LIONOVART's original, dependency-free tile choreography.
 export const PARTNERSHIP_TILE_SETTINGS = {
   columns: 3, gap: 35, gridWidth: 900, tileAspect: 1.5, tileRadius: 10,
   direction: "alternate" as const, stagger: 0.16, overlap: 0.3,
-  zoom: 1.95, spread: 0.3, scrollLength: 3, scrub: 0.31, grayscale: false,
+  zoom: 1.95, spread: 0.3, scrollLength: PARTNERSHIP_SCROLL_LENGTH, scrub: 0.31, grayscale: false,
 };
 
 const SLUGS = [
