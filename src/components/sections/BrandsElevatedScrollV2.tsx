@@ -3,7 +3,7 @@
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 
 import { useRef } from "react";
-import Image from "next/image";
+import Image from "@/components/ui/ResponsiveImage";
 import {
   motion,
   useReducedMotion,

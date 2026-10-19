@@ -107,7 +107,7 @@ export default function FooterLion() {
   }, []);
   return <div ref={host} className={styles.stage} data-footer-lion aria-hidden="true">
     {/* eslint-disable-next-line @next/next/no-img-element */}
-    <img className={styles.poster} src="/models/lion/lion-poster.png?v=hid-20260914"
+    <img className={styles.poster} src="/models/lion/lion-poster.805b866b194de270.webp"
       alt="" width={900} height={900} loading="lazy" />
     <div ref={canvas} className={styles.canvas} />
   </div>;

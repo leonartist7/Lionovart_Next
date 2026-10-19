@@ -3,7 +3,7 @@
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 
 import { useState, useEffect, useRef, useSyncExternalStore } from "react";
-import Image from "next/image";
+import Image from "@/components/ui/ResponsiveImage";
 import { AnimatePresence, motion } from "framer-motion";
 import styles from "./HeroCycling.module.css";
 
@@ -363,3 +363,4 @@ export default function HeroCycling({
     </div>
   );
 }
+

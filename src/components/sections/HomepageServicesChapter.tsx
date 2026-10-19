@@ -14,7 +14,7 @@ import ServicesWorkNavigation from "./ServicesWorkNavigation";
 
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
-import Image from "next/image";
+import Image from "@/components/ui/ResponsiveImage";
 import {
   AnimatePresence,
   motion,

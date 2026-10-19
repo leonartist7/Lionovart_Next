@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/ui/ResponsiveImage";
 import { Link } from "@/i18n/navigation";
 import GoldThreads from "@/components/ui/GoldThreads";
 import { useLanguage } from "@/contexts/LanguageContext";

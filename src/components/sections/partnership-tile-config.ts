@@ -23,8 +23,7 @@ export const PARTNERSHIP_TILE_MEDIA = SLUGS.flatMap(slug => {
   if (!work) return [];
   return [{
     id: work.slug,
-    poster: cloudinaryTransform(work.poster, "w_1000,c_limit,f_auto,q_auto"),
-    srcSet: [320, 640, 1000].map(width => `${cloudinaryTransform(work.poster, `w_${width},c_limit,f_auto,q_auto`)} ${width}w`).join(", "),
+    poster: work.poster,
     // Only two silent six-second loops, gated by visibility and connection.
     video: work.video && ["rakbank", "fundonion"].includes(work.slug)
       ? cloudinaryTransform(work.video, "w_720,c_limit,f_mp4,q_auto:good,ac_none,so_0,du_6,fr_24")
@@ -33,3 +32,4 @@ export const PARTNERSHIP_TILE_MEDIA = SLUGS.flatMap(slug => {
 });
 
 export const PARTNERSHIP_TILE_IMAGES = PARTNERSHIP_TILE_MEDIA.map(item => item.poster);
+

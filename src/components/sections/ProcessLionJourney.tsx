@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import Image from "next/image";
+import Image from "@/components/ui/ResponsiveImage";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useSaveData, dataConnection } from "@/hooks/useSaveData";
@@ -16,8 +16,8 @@ import type { LionEngine } from "./lion-journey/engine";
 import styles from "./ProcessLionJourney.module.css";
 
 const STEP_RING = "https://res.cloudinary.com/dgio9uutc/image/upload/v1791549765/steps_1_urfdp7.avif";
-const LION_POSTER = "/models/lion/lion-poster.png?v=hid-20260914";
-const LION_FRONT_POSTER = "/models/lion/desktop-review.png?v=hid-20260914";
+const LION_POSTER = "/models/lion/lion-poster.805b866b194de270.webp";
+const LION_FRONT_POSTER = "/models/lion/desktop-review.815a8aa69b894535.webp";
 const shortQuery = "(max-height: 480px)";
 const subscribeMounted = () => () => {};
 const subscribeShort = (notify: () => void) => {
@@ -350,7 +350,7 @@ export default function ProcessLionJourney() {
           <ol className={styles.steps} role="list">
             {stages.map((stage, index) => <li key={stage} className={styles.step} data-process-step>
               <div className={styles.stepNumber} data-process-number aria-hidden="true">
-                <Image src={STEP_RING} alt="" fill sizes="(max-width: 639px) 48px, (max-width: 1023px) 64px, 80px" className={styles.ring} data-process-ring />
+                <Image src={STEP_RING} preserveAlpha alt="" fill sizes="(max-width: 639px) 48px, (max-width: 1023px) 64px, 80px" className={styles.ring} data-process-ring />
                 <span>{index + 1}</span>
                 <div className={styles.numberShine} data-number-shine data-number={index + 1} />
               </div>
@@ -381,3 +381,4 @@ export default function ProcessLionJourney() {
     <div className={styles.runway} aria-hidden="true" />
   </div></>;
 }
+

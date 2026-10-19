@@ -1,1 +1,1658 @@
-{}
+{
+  "/images/LION-CIRCLE.avif": {
+    "width": 2048,
+    "height": 2048,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/d1adb0da6eb90c39-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/fcbf80055de7c997-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/e10c929cc09bb0a1-160.avif"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/ba064acde3328260-320.avif"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/dbff8cefc28f2ab1-640.avif"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/3696bdfeaae2c731-1024.avif"
+      },
+      {
+        "width": 1600,
+        "src": "/images/optimized/04987c2297c452d8-1600.avif"
+      },
+      {
+        "width": 1920,
+        "src": "/images/optimized/466299829475956f-1920.avif"
+      },
+      {
+        "width": 2048,
+        "src": "/images/optimized/4014a1307babb8f1-2048.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/4db2c994428a32a8-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/eff9b2b7d17176be-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/662d8d899b5d3697-160.webp"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/483313d33ab09bd6-320.webp"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/e76e2e72fbe27885-640.webp"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/aceda86587af8e15-1024.webp"
+      },
+      {
+        "width": 1600,
+        "src": "/images/optimized/edd3b86dd0290f0b-1600.webp"
+      },
+      {
+        "width": 1920,
+        "src": "/images/optimized/4f510d0cb7c7f58a-1920.webp"
+      },
+      {
+        "width": 2048,
+        "src": "/images/optimized/2e6e545f9ac7556e-2048.webp"
+      }
+    ]
+  },
+  "/images/Leon-Studioshot.avif": {
+    "width": 1024,
+    "height": 1024,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/5ceb9f9fda0ec440-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/7dca49b332c93b23-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/8e2c4694e2b05271-160.avif"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/2b659aa5422c5a5f-320.avif"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/ab78a00ceb6124c8-640.avif"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/5310dc7563c64df0-1024.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/3b463dc7f03fef12-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/1cb3c66b3189cc51-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/2fd35d2a88db0d0b-160.webp"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/0cc7ec4339894e1e-320.webp"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/6e2547ae2c5c91de-640.webp"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/43fed24aded76150-1024.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/CocoRocco  - Resto/Rocco-Profile.avif": {
+    "width": 356,
+    "height": 398,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/22fe9c94738e06e8-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/25e1cac3e6a66a4a-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/3aa0470b5de4fc1b-160.avif"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/d06469f4853afbe5-320.avif"
+      },
+      {
+        "width": 356,
+        "src": "/images/optimized/372d9bdeb8343e56-356.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/789b71521d2e48d2-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/4705764f6293ff3a-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/664dda8355dd1857-160.webp"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/3dff3f4f45ba7fc3-320.webp"
+      },
+      {
+        "width": 356,
+        "src": "/images/optimized/3d6d0d10af277d02-356.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Forty Seven - Hotel/Fortyseven-back.png": {
+    "width": 1812,
+    "height": 1206,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/a992f03176903d60-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/a9b921626a1c5d45-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/c9bf6d0506f00cae-160.avif"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/1dad16605f0efab0-320.avif"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/17f106060aaf235a-640.avif"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/743c05c194859cbf-1024.avif"
+      },
+      {
+        "width": 1600,
+        "src": "/images/optimized/76f8146c6c7471ac-1600.avif"
+      },
+      {
+        "width": 1812,
+        "src": "/images/optimized/58246109a7355fb1-1812.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/a25b83f58e7108ef-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/fa92f7ed8044c719-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/758602c41146fdd0-160.webp"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/0fdfdefadd8be08e-320.webp"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/0a9c2826c5449911-640.webp"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/e4cc626157b737d1-1024.webp"
+      },
+      {
+        "width": 1600,
+        "src": "/images/optimized/33628fbbb5d0a6c0-1600.webp"
+      },
+      {
+        "width": 1812,
+        "src": "/images/optimized/1444a271323ff74a-1812.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Forty Seven - Hotel/logo.webp": {
+    "width": 998,
+    "height": 129,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/20c26b068709f837-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/5fd6efdbc0ecf36c-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/68a34f285006753d-160.avif"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/efad31a4f8fcc502-320.avif"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/b9db370e344a616f-640.avif"
+      },
+      {
+        "width": 998,
+        "src": "/images/optimized/682c06dec7e51f78-998.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/c5a7c3fae265f3ed-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/22792f2833f76350-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/3f629b7eae8396dc-160.webp"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/bd79d390d4a0e6d8-320.webp"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/38a60a7b8484616d-640.webp"
+      },
+      {
+        "width": 998,
+        "src": "/images/optimized/d6cce1a47c986b00-998.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/France/BC/BC-logo.avif": {
+    "width": 375,
+    "height": 328,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/cc4d56f2dbc1660a-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/1abcca4232d13d38-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/7007799e23e2e452-160.avif"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/ef6f900421fc4e0b-320.avif"
+      },
+      {
+        "width": 375,
+        "src": "/images/optimized/e55f7abf75d36b51-375.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/ce99b2df63b6ccc6-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/2a9de4342b21728f-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/b708e64abc78d2fa-160.webp"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/3987e8f29d7df59e-320.webp"
+      },
+      {
+        "width": 375,
+        "src": "/images/optimized/4ecd0c112fca0ef7-375.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/France/ODACE/ODACE_-background.webp": {
+    "width": 1080,
+    "height": 1080,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/1d4aeb2908b7b961-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/d9a56f8c138ca1e3-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/c37ff447c5b40357-160.avif"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/cf395be1795504c3-320.avif"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/afecc88b9cd52f0c-640.avif"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/8c65b469ad022e2b-1024.avif"
+      },
+      {
+        "width": 1080,
+        "src": "/images/optimized/7d79ca8bb953b090-1080.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/f46892ae1efca1d1-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/fe6ec8c39e799e49-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/83e6f1bdc24fb09f-160.webp"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/093adad48e8a22bd-320.webp"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/94a1e8e61eb69bd9-640.webp"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/06e161b3f0a148da-1024.webp"
+      },
+      {
+        "width": 1080,
+        "src": "/images/optimized/1a88fbbb204a0a94-1080.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/France/ODACE/logo-odace.avif": {
+    "width": 240,
+    "height": 80,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/b71ae74469203966-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/90a2688a6cf82580-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/804811374736fe2e-160.avif"
+      },
+      {
+        "width": 240,
+        "src": "/images/optimized/c78072bd3979cb63-240.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/93533488b95d2da4-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/5504a0f81e3a3fbc-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/d11caaf83cc7ecad-160.webp"
+      },
+      {
+        "width": 240,
+        "src": "/images/optimized/16ddea3b97ffb092-240.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Italy/Lumura/lumura-logo.webp": {
+    "width": 503,
+    "height": 164,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/2c1a5799c44fec38-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/cd2f502f7e8e69ad-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/396cb04225316dbb-160.avif"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/eeb56bb6c66c7f69-320.avif"
+      },
+      {
+        "width": 503,
+        "src": "/images/optimized/8e37f09981af9cbf-503.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/4ea55b01a314771c-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/fb29a05677340b7f-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/c2ac822ff5bbbc5a-160.webp"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/9836b0622de77584-320.webp"
+      },
+      {
+        "width": 503,
+        "src": "/images/optimized/c4ec945a2ca70313-503.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Lahaut  - Resto/Lahaut-back.avif": {
+    "width": 1411,
+    "height": 875,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/15de0d2dcaf00652-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/97f667a67fdb6f10-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/2fad4fcae196d1b0-160.avif"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/bc782816ba765fd3-320.avif"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/024ea5e0ddb3c438-640.avif"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/5bdc8cbfe11e34a7-1024.avif"
+      },
+      {
+        "width": 1411,
+        "src": "/images/optimized/2bf31dcac1c336e0-1411.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/0b4a122ca8549446-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/409c4b72a01c0fb2-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/3bf308d4afbc029b-160.webp"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/b312153e449d65fc-320.webp"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/2e461d6b1d0c01ea-640.webp"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/03aec5eadf4bae7a-1024.webp"
+      },
+      {
+        "width": 1411,
+        "src": "/images/optimized/ad2903416c95f505-1411.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Miller&Carter - Resto/MC-back.avif": {
+    "width": 1957,
+    "height": 1018,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/de93f1b12f0759ef-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/afa03262551fa780-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/678b4fb2b7821115-160.avif"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/43316addd35f00e2-320.avif"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/d2167ca17d3ee3f5-640.avif"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/0c46b0dbcd230c30-1024.avif"
+      },
+      {
+        "width": 1600,
+        "src": "/images/optimized/96aeb2d0a2e72888-1600.avif"
+      },
+      {
+        "width": 1920,
+        "src": "/images/optimized/4fb8087606c7a80a-1920.avif"
+      },
+      {
+        "width": 1957,
+        "src": "/images/optimized/65a2137134c52c7a-1957.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/fecb8cb6decaa6f8-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/0d210a5abb6fe042-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/759ba469f1f4919d-160.webp"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/82d2f180d915ff0d-320.webp"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/eff07ab8c622a09b-640.webp"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/e594836d4466fa3b-1024.webp"
+      },
+      {
+        "width": 1600,
+        "src": "/images/optimized/e7eca44df5f0107f-1600.webp"
+      },
+      {
+        "width": 1920,
+        "src": "/images/optimized/872bbe8eef552b2f-1920.webp"
+      },
+      {
+        "width": 1957,
+        "src": "/images/optimized/e3e924d1bd011f6f-1957.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Miller&Carter - Resto/mc-logo.avif": {
+    "width": 213,
+    "height": 59,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/2b50d7185f093fd4-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/0ddbceb5e487ec06-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/b918836f8a4ce864-160.avif"
+      },
+      {
+        "width": 213,
+        "src": "/images/optimized/b985c212622b2a9e-213.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/738e7bb6cd45d7e3-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/466cd1068b2230d5-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/96cfc3f530b40074-160.webp"
+      },
+      {
+        "width": 213,
+        "src": "/images/optimized/3d21211c71d8a919-213.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Northlinemotors/Marc-Cardealer-M.jpg": {
+    "width": 2492,
+    "height": 2492,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/1bf14b94cbeda1d2-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/15842752c0fa52d6-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/cb9cf8a9f3f9666b-160.avif"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/4e9be4329ce439b0-320.avif"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/bc97b99ea577fd9d-640.avif"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/9576a0e41aaec3cd-1024.avif"
+      },
+      {
+        "width": 1600,
+        "src": "/images/optimized/51cf14db25a38520-1600.avif"
+      },
+      {
+        "width": 1920,
+        "src": "/images/optimized/2a1b8f366ecfadd8-1920.avif"
+      },
+      {
+        "width": 2492,
+        "src": "/images/optimized/1d479d774ef52695-2492.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/bcd970b4fc5294b3-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/052551cab3ed4eb7-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/cc3e4957a8ae9821-160.webp"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/250131d12223d2de-320.webp"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/10309cfafbeef1dd-640.webp"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/1a8a4232f58f71a0-1024.webp"
+      },
+      {
+        "width": 1600,
+        "src": "/images/optimized/8d1130d6fd5d0442-1600.webp"
+      },
+      {
+        "width": 1920,
+        "src": "/images/optimized/dbafca86c5faefb8-1920.webp"
+      },
+      {
+        "width": 2492,
+        "src": "/images/optimized/0016787db420c5e7-2492.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Northlinemotors/Northlinemotors-logo.webp": {
+    "width": 235,
+    "height": 118,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/1f796628792af7c7-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/bdfdeded11c36343-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/c48914c61cd550e4-160.avif"
+      },
+      {
+        "width": 235,
+        "src": "/images/optimized/e6e2f20fafaab8be-235.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/9bf3676963400bd0-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/c1b669c903fa0a4f-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/daa590c511a7a081-160.webp"
+      },
+      {
+        "width": 235,
+        "src": "/images/optimized/d8d4dd97bd62e3a1-235.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Podium  - Resto/Podium-back.avif": {
+    "width": 1464,
+    "height": 1239,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/2ee12c2b584ba499-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/c8f5b9f5949e72f2-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/4d3fa586214ff2d8-160.avif"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/8bf7456c40fc194c-320.avif"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/f7e583cd699057f9-640.avif"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/df3fc542c0cdce75-1024.avif"
+      },
+      {
+        "width": 1464,
+        "src": "/images/optimized/c564ab5c96a87946-1464.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/5c48b879f9005ee3-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/72ef2998a6975d4d-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/f29660aae6e85200-160.webp"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/11d1ef61ef118456-320.webp"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/461d36d0f4eac585-640.webp"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/3ccf0d35343ee340-1024.webp"
+      },
+      {
+        "width": 1464,
+        "src": "/images/optimized/afb17b63bef43280-1464.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Spain/Sergio-photographer-M.avif": {
+    "width": 300,
+    "height": 300,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/a3d539a496098e3a-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/1cff316f48a96e50-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/5dcaf2cd0115fa9c-160.avif"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/bb6ac78ad1e197c9-300.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/b085f565708535ea-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/c479cc0cf8e37edf-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/16f6cb4137a8b754-160.webp"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/87065291d8574393-300.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/UK/Ben-Saasfounder.avif": {
+    "width": 300,
+    "height": 300,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/b2f1cdcc4376c9f7-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/38e1aac04018eecb-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/fc614eae5512837c-160.avif"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/c49d97d7f2694c65-300.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/11147260204a96bc-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/ba57363e72425423-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/62f0eca6f510ca57-160.webp"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/d15773a647f57012-300.webp"
+      }
+    ]
+  },
+  "/images/services-gallery/brand.webp": {
+    "width": 1672,
+    "height": 941,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/1ed67363dc53b75f-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/c84f1b20ff786b25-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/74398a3a9a6ad2ae-160.avif"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/c3da79768d7d3242-320.avif"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/786ee85a342d524e-640.avif"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/faf80b9213861796-1024.avif"
+      },
+      {
+        "width": 1600,
+        "src": "/images/optimized/73c299849dfc7a34-1600.avif"
+      },
+      {
+        "width": 1672,
+        "src": "/images/optimized/b0ed29299480a4fb-1672.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/5f3e5bd1100a0943-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/718dc8fd22e68ef2-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/762399fc86f4e850-160.webp"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/eee9c342174790ba-320.webp"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/7fe27dcc55db5a84-640.webp"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/1634450029bb9aa0-1024.webp"
+      },
+      {
+        "width": 1600,
+        "src": "/images/optimized/6924cfd09b67d137-1600.webp"
+      },
+      {
+        "width": 1672,
+        "src": "/images/optimized/7ebe0f6e7cd55b89-1672.webp"
+      }
+    ]
+  },
+  "/images/services-gallery/web.webp": {
+    "width": 1672,
+    "height": 941,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/c92718f5d984db86-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/d7a6162189c5df06-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/281c12492a0609d3-160.avif"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/d423cd903325a119-320.avif"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/07d71dd64597fbcd-640.avif"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/e8fe31dc8220f202-1024.avif"
+      },
+      {
+        "width": 1600,
+        "src": "/images/optimized/2f811a067b9509ae-1600.avif"
+      },
+      {
+        "width": 1672,
+        "src": "/images/optimized/6de287df42daa7c4-1672.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/8cf0da2d24abf528-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/70ee98b2315d577f-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/5a24764e28a53c80-160.webp"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/6a6eaea6ef691e02-320.webp"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/4ad2a572baf012de-640.webp"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/6bb83561c6955500-1024.webp"
+      },
+      {
+        "width": 1600,
+        "src": "/images/optimized/fa6b3ddd441e0bec-1600.webp"
+      },
+      {
+        "width": 1672,
+        "src": "/images/optimized/2b99158529b54976-1672.webp"
+      }
+    ]
+  },
+  "/images/Icon.avif": {
+    "width": 512,
+    "height": 512,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/d366c48c2358f1e7-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/9857e9e34505b2f7-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/3d904cd7f1f3d0ad-160.avif"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/0948d165a96cb13f-320.avif"
+      },
+      {
+        "width": 512,
+        "src": "/images/optimized/c706813c5e02a9f8-512.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/994dc3cb19991b4c-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/87656a35f15f44cb-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/674f87d50b2ab5a5-160.webp"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/c350d755b2b52467-320.webp"
+      },
+      {
+        "width": 512,
+        "src": "/images/optimized/f218f8dc9535392d-512.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Canada/Mateo-Ecommerce-M.avif": {
+    "width": 300,
+    "height": 300,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/ceee852809bf95a7-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/72740f38d46cbe95-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/4ef0c4543eaee559-160.avif"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/ad2863be70ac74da-300.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/ee09a60c21940c15-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/6969d16214cac2e7-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/7b0a97a423d3d40c-160.webp"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/e964e02b301b19f3-300.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Canada/Matt-Clinic.avif": {
+    "width": 300,
+    "height": 300,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/b0a82475f9584a8e-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/aa609c6cac77389d-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/08f41b20e75ccbe1-160.avif"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/b687fd3836e3e4bc-300.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/d4db86cb6ec95a8a-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/d559e70f44285930-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/4ca7d2b61fc52976-160.webp"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/1d340feb8335ed56-300.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Canada/Maya-Flowerstore-W.avif": {
+    "width": 300,
+    "height": 300,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/9244769e498cf861-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/2a782f74e082419a-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/6e2e44a092ee45f8-160.avif"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/bb54b3282e09bd4c-300.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/d1c756601fc367c3-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/4512ed2301a8e7f8-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/6c00ec6efbf1dd7a-160.webp"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/3b4182c4c7011121-300.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Italy/Lumura/Team2025.avif": {
+    "width": 1114,
+    "height": 1114,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/334749f02e08ddbb-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/f92e8b440bd9e66e-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/527c844031ecfa26-160.avif"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/11a467ca0e1d8e74-320.avif"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/5d499ed8cce4c3ee-640.avif"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/9b32a3351b3e5e0f-1024.avif"
+      },
+      {
+        "width": 1114,
+        "src": "/images/optimized/bf9b95b4f59617e2-1114.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/4034969d5f1ad1f0-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/393a967574761f98-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/4de30e7f15542a92-160.webp"
+      },
+      {
+        "width": 320,
+        "src": "/images/optimized/9cae2479dbb8494a-320.webp"
+      },
+      {
+        "width": 640,
+        "src": "/images/optimized/16e88fefb989a600-640.webp"
+      },
+      {
+        "width": 1024,
+        "src": "/images/optimized/cfeddd4c24c91e69-1024.webp"
+      },
+      {
+        "width": 1114,
+        "src": "/images/optimized/021c6d53668f408c-1114.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Korea/Ha-eun-Store.avif": {
+    "width": 300,
+    "height": 300,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/08b294c7675ba3c8-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/c9b52a62e7f82b89-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/32ee26a8fdf7149d-160.avif"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/3003200226618190-300.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/aaf85ae9e912268c-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/b220fa050f817b20-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/a1584f84741b0cae-160.webp"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/df07056135c95393-300.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Korea/Jae-Motodeal.avif": {
+    "width": 300,
+    "height": 300,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/ebd3c900f03855dc-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/553aac1060473ccd-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/64f96c1be75d6595-160.avif"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/076df9a4d00b6bdc-300.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/959aa62f63bcdfce-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/951e7d22a819f8cd-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/301ae9fc5bf463ac-160.webp"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/912a8b47dea839a6-300.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Korea/Jim-JapaneseTour.avif": {
+    "width": 300,
+    "height": 300,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/5477e1efc85cb610-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/8108c734b4151ee9-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/1b189143251b6c3b-160.avif"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/0e46fc33bae456ba-300.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/32c1affbb69f3a28-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/17e6ad2dbd41948b-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/82778dd5de455b39-160.webp"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/94922f1673d3b15a-300.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Korea/Min-Ji-Clothingstore.avif": {
+    "width": 300,
+    "height": 300,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/103f728a6798e1c4-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/acd50781452d1e80-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/a105c449c7e6123e-160.avif"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/1e2c72db07f20896-300.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/7dcae4abc7d88dcf-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/8ca9cfb865f6edcc-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/95281f1aaed9c5f4-160.webp"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/d547042aa9380b30-300.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Korea/Seo-yeon-coffee.avif": {
+    "width": 300,
+    "height": 300,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/b9ff8e71cc19f033-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/4054a60847899a96-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/b3757e5a18575f1f-160.avif"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/86a0a1d028618326-300.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/740117bf69ad8499-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/fca3c70141fc4e94-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/22c073053c77bf19-160.webp"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/73b24254dda30a6a-300.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/Spain/Pablo-hotel-M.avif": {
+    "width": 300,
+    "height": 300,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/cf84ca78820fcc44-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/3adc46e1af925c42-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/6daa7b32f0647d85-160.avif"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/2f42edb8d245aec8-300.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/c02946d7eb20f29d-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/0f6bf065f3af40a5-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/59b192c5cf9f4915-160.webp"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/348bb0b96219bdc2-300.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/UK/Dan-Clinic-M.avif": {
+    "width": 300,
+    "height": 300,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/e2dfa1010afc466a-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/935546b6306e2974-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/169b95d04a9a56c8-160.avif"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/495394eeaf983074-300.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/046b8eeb1f0ee168-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/dba643edbc0c4b9f-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/2c744e9631fc2650-160.webp"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/c44bb0afdca68cca-300.webp"
+      }
+    ]
+  },
+  "/images/Testimonials/UK/Jess-Beautysalon-W.avif": {
+    "width": 300,
+    "height": 300,
+    "avif": [
+      {
+        "width": 64,
+        "src": "/images/optimized/bb7359743722b9d6-64.avif"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/15342c8e73756bac-96.avif"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/078c629da2e4ecd4-160.avif"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/0fab2c3348947e9e-300.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 64,
+        "src": "/images/optimized/a0efa1226a10fdd6-64.webp"
+      },
+      {
+        "width": 96,
+        "src": "/images/optimized/7f79193c2e7276eb-96.webp"
+      },
+      {
+        "width": 160,
+        "src": "/images/optimized/315c12f71f5efa26-160.webp"
+      },
+      {
+        "width": 300,
+        "src": "/images/optimized/9585bb520539f707-300.webp"
+      }
+    ]
+  }
+}

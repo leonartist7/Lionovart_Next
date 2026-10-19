@@ -1,4 +1,5 @@
 "use client";
+import ResponsiveImage from "@/components/ui/ResponsiveImage";
 
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 
@@ -271,8 +272,9 @@ function ReviewCardSurface({ card }: { card: Review }) {
     >
       <div className="flex items-center gap-2 sm:gap-3">
         {avatar && (
-          <img
+          <ResponsiveImage
             src={imgUrl(avatar)}
+            sizes="(max-width: 639px) 28px, (max-width: 1023px) 36px, 44px"
             alt={card.name}
             loading="lazy"
             decoding="async"

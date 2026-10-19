@@ -1,4 +1,5 @@
 "use client";
+import ResponsiveImage from "@/components/ui/ResponsiveImage";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { MotionValue } from "framer-motion";
@@ -135,8 +136,7 @@ export default function PartnershipTiles({ progress, staticScene }: {
         ref={node => { tiles.current[index] = node; }} data-partnership-tile={item.id}>
         {ready && <>
           {/* Already-sized Cloudinary derivatives; decorative portfolio imagery. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={item.poster} srcSet={item.srcSet}
+          <ResponsiveImage src={item.poster}
             sizes="(max-width: 767px) 60vw, 550px" alt="" loading="eager" decoding="async" fetchPriority="low" />
           {!staticScene && item.video && <ProjectLoop src={item.video} progress={progress} paused={paused} onPlaying={markPlaying} />}
         </>}
@@ -149,3 +149,4 @@ export default function PartnershipTiles({ progress, staticScene }: {
     </button>}
   </div>;
 }
+

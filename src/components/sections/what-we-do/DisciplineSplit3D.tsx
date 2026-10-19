@@ -1,4 +1,5 @@
 "use client";
+import ResponsiveImage from "@/components/ui/ResponsiveImage";
 
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import styles from "./DisciplineSplit3D.module.css";
@@ -326,8 +327,7 @@ function Pane({
       </motion.div>
       <motion.div className={styles.floatingObject} data-floating-card-object={card.code} aria-hidden="true"
         style={{ opacity: reducedMotion ? 1 : objectOpacity, scale: objectScale, x: objectX, y: objectY, rotateY: objectTurn, z: reducedMotion ? 0 : 72 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={FLOATING_ART[i]} width={320} height={320} alt="" loading="lazy" decoding="async" />
+        <ResponsiveImage src={FLOATING_ART[i]} preserveAlpha sizes="(max-width: 919px) 72px, (max-width: 1520px) 10vw, 152px" width={320} height={320} alt="" loading="lazy" decoding="async" />
       </motion.div>
     </motion.div>
   );
@@ -889,8 +889,7 @@ export default function DisciplineSplit3D({
             style={{ ...joinedFilmStyle, opacity: filmFrame ? joinedFilmOpacity : 0,
               transform: filmTransform, pointerEvents: joinedFilmVisible ? "auto" : "none" }}
             inert={!joinedFilmVisible}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={activePoster || undefined} alt="" aria-hidden="true"
+            <ResponsiveImage src={activePoster || undefined} alt="" aria-hidden="true" loading="eager"
               className="pointer-events-none absolute inset-0 h-full w-full object-contain"
               style={{ opacity: videoFailed || !videoReady ? 1 : 0 }} />
             <video

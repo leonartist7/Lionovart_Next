@@ -1,4 +1,6 @@
 "use client";
+import ResponsiveImage from "@/components/ui/ResponsiveImage";
+import { activateResponsiveImage } from "@/lib/responsive-images";
 
 import { useContext, useEffect, useRef, type CSSProperties } from "react";
 import { ClosingRevealContext } from "./ClosingRibbonOrnament";
@@ -8,8 +10,7 @@ import { SHOWCASE_IMAGES } from "./showcase-images";
 // Awwwards Pack — 3D Animation 20. Original demo declares ISC.
 // See docs/references/3d-animation-20 for original reference and attribution.
 // CSS 3D preserves curved media planes without a second WebGL context or 49 video decoders.
-const ART = SHOWCASE_IMAGES.map(src => src.replace("q_auto:best,w_1600", "q_auto:eco,w_480"));
-const MOBILE_ART = ART.map(src => src.replace("w_480", "w_320"));
+const ART = SHOWCASE_IMAGES;
 const PLANES = [
   [-4,8,-12],[22,2,6],[48,-4,-5],[75,3,9],[103,9,-9],
   [4,32,5],[21,29,-8],[80,27,7],[103,35,-4],
@@ -53,8 +54,7 @@ export default function ClosingMediaWall() {
     const load = () => {
       root.querySelectorAll<HTMLImageElement>("img[data-src]").forEach(image => {
         if (compact.matches && image.closest("[data-desktop-only]")) return;
-        const source = compact.matches ? image.dataset.mobileSrc! : image.dataset.src!;
-        if (image.getAttribute("src") !== source) image.src = source;
+        activateResponsiveImage(image);
       });
     };
     const render = (now: number) => {
@@ -147,8 +147,7 @@ export default function ClosingMediaWall() {
         } as CSSProperties;
         return <div key={i} className={styles.tile} style={style} data-desktop-only={DESKTOP_ONLY.has(i) ? "" : undefined}>
           {/* Decorative thumbnails are requested only when the CTA is revealed. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img data-src={ART[i % ART.length]} data-mobile-src={MOBILE_ART[i % ART.length]} alt="" width={480} height={300} decoding="async" loading="lazy"
+          <ResponsiveImage deferred src={ART[i % ART.length]} sizes="(max-width: 639px) 29vw, (max-width: 1493px) 15vw, 224px" alt="" width={480} height={300} decoding="async" loading="lazy"
             onLoad={event => { event.currentTarget.dataset.loaded = "true"; }}
             onError={event => { event.currentTarget.style.visibility = "hidden"; }} />
           <span />
@@ -157,3 +156,4 @@ export default function ClosingMediaWall() {
     </div>
   </div>;
 }
+

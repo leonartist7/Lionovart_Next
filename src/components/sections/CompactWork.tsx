@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import Image from "next/image";
+import Image from "@/components/ui/ResponsiveImage";
 import { Dialog } from "@base-ui/react/dialog";
 import { ArrowLeft, ArrowRight, Play, Pause, X } from "lucide-react";
 import { useTranslations } from "next-intl";

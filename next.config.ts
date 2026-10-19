@@ -28,6 +28,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      { source: "/images/optimized/:file", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+      { source: "/models/lion/:file([a-z-]+\\.[a-f0-9]+\\.webp)", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

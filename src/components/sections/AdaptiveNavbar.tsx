@@ -12,7 +12,7 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/ResponsiveImage";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLenis } from "lenis/react";
 import { Menu, X } from "lucide-react";

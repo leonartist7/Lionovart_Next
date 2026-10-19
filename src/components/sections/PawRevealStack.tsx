@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/ResponsiveImage";
 import { Check, Minus, Plus } from "lucide-react";
 import { useLenis } from "lenis/react";
 import { IMAGINE_BENEFITS } from "./imagine-benefits";
@@ -17,9 +17,6 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 const PULL_EASE = [0.32, 0.72, 0, 1] as const;
 const PAW_TIMING = { enter: .45, pull: 1.2, return: 1.05, exit: .35 } as const;
 const BENEFITS = IMAGINE_BENEFITS;
-function artworkSource(source: string, width: number) {
-  return source.includes("res.cloudinary.com/") ? source.replace("/image/upload/", `/image/upload/f_auto,q_auto,c_limit,w_${width}/`) : source;
-}
 export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, enabled = true }: {
   item: typeof BENEFITS[number]; index: number; artwork?: string; code?: string;
   serviceTitle?: string; accent?: string; enabled?: boolean;
@@ -74,9 +71,7 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
 
   return <article className={styles.card} data-benefit-card data-integrated={integrated} data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
     {integrated && <div className={styles.integratedArtwork} aria-hidden="true">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={artworkSource(artwork!, 800)} alt="" loading="lazy" decoding="async"
-        srcSet={[240, 480, 800].map(width => `${artworkSource(artwork!, width)} ${width}w`).join(", ")}
+      <Image src={artwork!} preserveAlpha alt="" loading="lazy" decoding="async"
         sizes="(min-width: 920px) 26vw, 100px" />
       <span className={styles.pillarCode}>{code}</span>
     </div>}
@@ -88,7 +83,7 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
     </div>}
     <div className={styles.detailShell}>
       {!integrated && <div className={styles.sculpture} data-sculpture={index} data-leaving={phase !== "closed"} aria-hidden="true">
-        <Image src={item.artwork} alt="" width={500} height={500} sizes="(max-width: 919px) 176px, (max-width: 1600px) 16vw, 256px" />
+        <Image src={item.artwork} preserveAlpha alt="" width={500} height={500} sizes="(max-width: 919px) 176px, (max-width: 1600px) 16vw, 256px" />
       </div>}
       <div className={styles.detailWell}>
         <div id={panelId} role="region" aria-labelledby={panelId + "-title"} aria-hidden={!open} className={styles.details}>
@@ -114,7 +109,7 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
       </div>
       <motion.div className={styles.seamCarrier} animate={cover} aria-hidden="true">
         <div className={styles.cardSeam} data-card-seam>
-          <Image src={CARD_SEAM_IMAGE} alt="" fill sizes="(max-width: 999px) 90vw, (max-width: 2000px) 30vw, 560px" />
+          <Image src={CARD_SEAM_IMAGE} preserveAlpha alt="" fill sizes="(max-width: 999px) 90vw, (max-width: 2000px) 30vw, 560px" />
         </div>
       </motion.div>
     </div>
