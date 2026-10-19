@@ -39,8 +39,6 @@ export default function ServicesWorldReview() {
   };
   const scale = Math.min(1, available / size[0]);
   return <main style={{ background: '#ddd7cc', minHeight: '100vh', padding: 16, color: '#211e18', fontFamily: 'sans-serif' }}>
-    <title>Services world — device review</title>
-    <meta name="robots" content="noindex,nofollow" />
     <header style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 12 }}>
       <strong style={{ marginRight: 16 }}>Phase 3 / device review</strong>
       {([['Small phone', 320, 568], ['Phone', 390, 844], ['Tablet', 768, 1024], ['Desktop', 1440, 900], ['Landscape', 844, 390]] as const).map(([label, w, h]) =>

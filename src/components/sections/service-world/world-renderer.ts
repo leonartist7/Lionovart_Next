@@ -12,9 +12,14 @@ const FILM = 'https://res.cloudinary.com/dgio9uutc/video/upload/c_limit,w_720,f_
 
 /** A single room and renderer persist from the partnership threshold to the work gallery. */
 export async function createWorld(canvas: HTMLCanvasElement, forceWebGL: boolean, onFailure: (reason: string) => void, onReady: () => void, onStageReady: (key: string | null) => void): Promise<WorldEngine> {
-  // Avoid Three's asynchronous backend failure when this environment has no GPU contexts.
-  if (!('gpu' in navigator) || forceWebGL) {
-    if (!canvas.getContext('webgl2')) throw new Error('No GPU context; use the interactive poster.');
+  // API presence does not guarantee an adapter (remote browsers and disabled GPUs expose navigator.gpu too).
+  if (!forceWebGL) {
+    const gpu = (navigator as Navigator & { gpu?: { requestAdapter: () => Promise<unknown | null> } }).gpu;
+    try { forceWebGL = !gpu || !(await gpu.requestAdapter()); }
+    catch { forceWebGL = true; }
+  }
+  if (forceWebGL && !canvas.getContext('webgl2', { antialias: true, alpha: false })) {
+    throw new Error('No WebGPU adapter or WebGL 2 context; interactive fallback active.');
   }
   const renderer = new T.WebGPURenderer({ canvas, antialias: true, alpha: false, forceWebGL });
   try { await renderer.init(); } catch (error) { renderer.dispose(); throw error; }

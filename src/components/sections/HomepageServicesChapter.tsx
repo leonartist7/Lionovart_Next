@@ -163,7 +163,10 @@ export default function HomepageServicesChapter() {
   const chapterRef = useRef<HTMLDivElement>(null);
   const wheelLockRef = useRef(0);
   const initialLanding = useRef(false);
+  const restoringViewport = useRef(false);
+  const activeIndexRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
+  useEffect(() => { activeIndexRef.current = activeIndex; }, [activeIndex]);
 
   const services = SERVICE_META.map((meta, index) => ({
     ...meta,
@@ -195,7 +198,7 @@ export default function HomepageServicesChapter() {
   });
 
   useMotionValueEvent(scrollYProgress, "change", (value) => {
-    if (staticLayout) return;
+    if (staticLayout || restoringViewport.current) return;
     const normalized = clamp(
       (value - SERVICE_START) / (SERVICE_END - SERVICE_START),
       0,
@@ -213,7 +216,15 @@ export default function HomepageServicesChapter() {
       const element = chapterRef.current;
       if (!element) return;
       const next = carouselPreview ? (index % SERVICE_COUNT + SERVICE_COUNT) % SERVICE_COUNT : clamp(index, 0, SERVICE_COUNT - 1);
-      if (staticLayout) { setActiveIndex(next); return; }
+      if (staticLayout) {
+        setActiveIndex(next);
+        if (behavior === 'instant') {
+          const top = element.getBoundingClientRect().top + window.scrollY;
+          if (lenis) lenis.scrollTo(top, { immediate: true, userData: { navigation: true } });
+          else window.scrollTo({ top, behavior: 'instant' });
+        }
+        return;
+      }
       const sectionTop = element.getBoundingClientRect().top + window.scrollY;
       const travel = Math.max(1, element.offsetHeight - window.innerHeight);
       const ratio = (next + 0.5) / SERVICE_COUNT;
@@ -224,6 +235,36 @@ export default function HomepageServicesChapter() {
     },
     [carouselPreview, staticLayout, lenis],
   );
+
+  // Preserve the authored chapter across orientation/layout changes, without moving readers elsewhere on the page.
+  const navigateRef = useRef(goToService);
+  useEffect(() => { navigateRef.current = goToService; }, [goToService]);
+  useEffect(() => {
+    let width = innerWidth, short = innerHeight <= 560, inside = false, frame = 0;
+    const measure = () => {
+      if (restoringViewport.current) return;
+      const bounds = chapterRef.current?.getBoundingClientRect();
+      inside = !!bounds && bounds.top < innerHeight * .5 && bounds.bottom > innerHeight * .5;
+    };
+    const resize = () => {
+      const changed = width !== innerWidth || short !== (innerHeight <= 560);
+      width = innerWidth; short = innerHeight <= 560;
+      if (!changed || !inside) return;
+      const selected = activeIndexRef.current;
+      restoringViewport.current = true;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => { frame = requestAnimationFrame(() => {
+        navigateRef.current(selected, 'instant');
+        frame = requestAnimationFrame(() => { restoringViewport.current = false; measure(); });
+      }); });
+    };
+    measure(); window.addEventListener('scroll', measure, { passive: true });
+    window.addEventListener('resize', resize);
+    return () => {
+      cancelAnimationFrame(frame); restoringViewport.current = false;
+      window.removeEventListener('scroll', measure); window.removeEventListener('resize', resize);
+    };
+  }, []);
 
   // Land direct service links inside the sticky chapter, beyond the global header offset.
   useEffect(() => {
@@ -287,7 +328,7 @@ export default function HomepageServicesChapter() {
           <ServicesCurves />
         </ServicesArrivalLayer>
 
-        <div className="absolute inset-0 z-40">
+        <div data-service-content className="absolute inset-0 z-40">
           <span className="sr-only" aria-live="polite">{activeService.title}</span>
 
           <div data-service-panel
