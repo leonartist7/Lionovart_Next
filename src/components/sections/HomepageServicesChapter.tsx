@@ -6,6 +6,8 @@ import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useLenis } from "lenis/react";
 import { scrollEase } from "@/components/experience/scroll-policy";
 
+import { useServiceWorld, WorldStageControls } from "./service-world/ServiceWorld";
+
 import ServicesCurves from "./ServicesCurves";
 import { ServicesArrivalLayer } from "./ServicesArrival";
 import { useServicesCarouselPreview } from "./ServicesPreview";
@@ -144,6 +146,17 @@ export default function HomepageServicesChapter() {
   const carouselPreview = useServicesCarouselPreview();
   const { t } = useLanguage();
   const reduceMotion = useHydratedReducedMotion() ?? false;
+  const world = useServiceWorld();
+  const [shortScreen, setShortScreen] = useState(false);
+  const staticLayout = reduceMotion || shortScreen;
+  const [variants, setVariants] = useState<Record<string, number>>({});
+  const [ledEnabled, setLedEnabled] = useState(true);
+  const [scenePaused, setScenePaused] = useState(false);
+  useEffect(() => {
+    const mq = matchMedia('(max-height: 560px)');
+    const sync = () => setShortScreen(mq.matches); sync();
+    mq.addEventListener('change', sync); return () => mq.removeEventListener('change', sync);
+  }, []);
   const chapterRef = useRef<HTMLDivElement>(null);
   const wheelLockRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -166,13 +179,18 @@ export default function HomepageServicesChapter() {
   }, [activeIndex]);
 
   const activeService = services[activeIndex] ?? services[0];
+  const variant = variants[activeService.id] ?? 0;
+  const interactive = activeService.id === 'content-studio' || activeService.id === 'led';
+  useEffect(() => {
+    world?.select({ service: activeService.id, variant, enabled: ledEnabled, paused: scenePaused });
+  }, [world?.select, activeService.id, variant, ledEnabled, scenePaused]);
   const { scrollYProgress } = useScroll({
-    target: reduceMotion ? undefined : chapterRef,
+    target: staticLayout ? undefined : chapterRef,
     offset: ["start start", "end end"],
   });
 
   useMotionValueEvent(scrollYProgress, "change", (value) => {
-    if (reduceMotion) return;
+    if (staticLayout) return;
     const normalized = clamp(
       (value - SERVICE_START) / (SERVICE_END - SERVICE_START),
       0,
@@ -190,15 +208,7 @@ export default function HomepageServicesChapter() {
       const element = chapterRef.current;
       if (!element) return;
       const next = carouselPreview ? (index % SERVICE_COUNT + SERVICE_COUNT) % SERVICE_COUNT : clamp(index, 0, SERVICE_COUNT - 1);
-      if (reduceMotion) {
-        setActiveIndex(next);
-        const card = element.querySelector<HTMLElement>(`[data-service-static="${SERVICE_META[next].id}"]`);
-        if (card) {
-          if (lenis) lenis.scrollTo(card, { immediate: true, userData: { navigation: true } });
-          else card.scrollIntoView({ behavior: "instant", block: "center" });
-        }
-        return;
-      }
+      if (staticLayout) { setActiveIndex(next); return; }
       const sectionTop = element.getBoundingClientRect().top + window.scrollY;
       const travel = Math.max(1, element.offsetHeight - window.innerHeight);
       const ratio = (next + 0.5) / SERVICE_COUNT;
@@ -207,7 +217,7 @@ export default function HomepageServicesChapter() {
       if (lenis) lenis.scrollTo(target, { duration: .6, lerp: 0, easing: scrollEase, immediate: behavior !== "smooth", userData: { navigation: true } });
       else window.scrollTo({ top: target, behavior });
     },
-    [carouselPreview, reduceMotion, lenis],
+    [carouselPreview, staticLayout, lenis],
   );
 
   const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
@@ -231,36 +241,6 @@ export default function HomepageServicesChapter() {
     }
   };
 
-  if (reduceMotion) {
-    return (
-      <section
-        id="services"
-        aria-label={tr("Our services")}
-      data-art-directed="light" data-nav-surface="light"
-        className="relative isolate overflow-hidden bg-bg-surface-light text-[#111111]"
-      >
-        <ServicesCurves />
-        <h2 className="sr-only">{tr("Our services")}</h2>
-
-        <div ref={chapterRef} data-services-static className="mx-auto grid max-w-[1280px] gap-px bg-black/10 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map((service) => (
-            <article key={service.id} data-service-static={service.id} className="bg-bg-surface-light p-7 text-center sm:p-9">
-              <span className="font-mono text-[10px] font-bold tracking-[0.22em] text-black/35">
-                {service.number}
-              </span>
-              <h3 className="mx-auto mt-5 max-w-[13ch] font-clash text-[2.25rem] font-semibold uppercase leading-[0.9] tracking-[-0.04em]">
-                {service.title}
-              </h3>
-              <p className="mx-auto mt-4 max-w-[36ch] font-body text-[15px] leading-[1.65] text-black/58">
-                {service.description}
-              </p>
-            </article>
-          ))}
-        </div>
-        <ServicesWorkNavigation services={services} activeIndex={activeIndex} onSelect={goToService} />
-      </section>
-    );
-  }
 
   return (
     <section
@@ -273,12 +253,13 @@ export default function HomepageServicesChapter() {
 
       <div ref={chapterRef} data-services-runway className="relative h-[330svh] sm:h-[310svh] lg:h-[340vh]">
       <div
+        data-services-stage
         className="sticky top-0 h-svh overflow-hidden outline-none"
         tabIndex={0}
         role="region"
         aria-label={tr("Explore Lionovart expertise")}
         onWheel={handleWheel}
-        onKeyDown={handleKeys}
+        onKeyDown={event => { if (event.target === event.currentTarget) handleKeys(event); }}
         style={{ overscrollBehaviorX: "contain" }}
       >
         <ServicesArrivalLayer>
@@ -303,12 +284,14 @@ export default function HomepageServicesChapter() {
               style={{ touchAction: "pan-y" }}
               className="flex h-full flex-col items-center justify-center gap-7 sm:gap-9 lg:gap-[clamp(2.75rem,5.5svh,5rem)]"
             >
-              {!carouselPreview && <div data-service-media className="relative order-1 aspect-video w-[min(92vw,61svh)] overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:w-[min(70vw,64svh)] lg:rounded-[1.55rem]">
+              {!carouselPreview && <div data-service-media data-world-service={interactive ? activeService.id : undefined} className="relative order-1 aspect-video w-[min(92vw,61svh)] overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:w-[min(70vw,64svh)] lg:rounded-[1.55rem]">
+                <div data-world-poster className="h-full w-full">
                 <ServiceMediaCarousel
                   key={activeService.id}
                   images={activeService.media}
                   alt={`${activeService.title} service visual`}
                 />
+                </div>
               </div>}
 
               <div className="order-2 flex min-w-0 flex-col justify-center text-center">
@@ -319,7 +302,11 @@ export default function HomepageServicesChapter() {
                     <p data-service-description className="mx-auto mt-4 max-w-[36ch] font-body text-[13px] font-medium leading-[1.52] text-black/60 sm:mt-5 sm:text-[15px] lg:mt-6 lg:max-w-[38ch] lg:text-[18px] lg:leading-[1.62]">
                       {activeService.description}
                     </p>
-                    <div data-service-tags className="mx-auto mt-5 flex max-h-[4.6rem] max-w-[38rem] flex-wrap justify-center gap-1.5 overflow-hidden sm:mt-6 sm:max-h-none sm:gap-2 lg:mt-7 lg:max-w-[40rem]">
+                    {interactive ? <WorldStageControls service={activeService.id} variant={variant}
+                      labels={activeService.deliverables}
+                      onVariant={value => setVariants(previous => ({ ...previous, [activeService.id]: value }))}
+                      enabled={ledEnabled} onEnabled={() => setLedEnabled(value => !value)}
+                      paused={scenePaused} onPaused={() => setScenePaused(value => !value)} /> : <div data-service-tags className="mx-auto mt-5 flex max-h-[4.6rem] max-w-[38rem] flex-wrap justify-center gap-1.5 overflow-hidden sm:mt-6 sm:max-h-none sm:gap-2 lg:mt-7 lg:max-w-[40rem]">
                       {activeService.deliverables.map((item) => (
                         <span
                           key={item}
@@ -328,7 +315,7 @@ export default function HomepageServicesChapter() {
                           {item}
                         </span>
                       ))}
-                    </div>
+                    </div>}
                 </div>
               </div>
 

@@ -10,6 +10,7 @@ import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import ServicesCurves from "./ServicesCurves";
 import { useWorkBrowse } from "./selected-work/WorkBrowse";
 import { GALLERY_SERVICE_LABELS, type GalleryWork } from "./selected-work/gallery";
+import worldStyles from "./service-world/ServiceWorld.module.css";
 import styles from "./CompactWork.module.css";
 
 const subscribeSize = (notify: () => void) => {
@@ -113,6 +114,17 @@ function WorkGrid({ servicesCurves }: { servicesCurves: boolean }) {
             <span className={styles.total}>{String(projects.length).padStart(2, "0")}</span>
           </div>
         </header>
+        {currentPage === 0 && projects[0]?.slug === "rakbank" && <figure className={worldStyles.feature}>
+          <div className={worldStyles.featureStage} data-world-work>
+            <Image src={projects[0].poster} alt={projects[0].name} fill sizes="(max-width: 767px) 92vw, 900px" loading="lazy" />
+          </div>
+          <figcaption>
+            <p className={worldStyles.featureLabel}>{t("eyebrow")}</p>
+            <Dialog.Trigger className={worldStyles.featureButton} onClick={() => setSelectedSlug(projects[0].slug)}>
+              {projects[0].name}<span aria-hidden="true">↗</span>
+            </Dialog.Trigger>
+          </figcaption>
+        </figure>}
         <div className={styles.grid} data-work-preview-grid>
           {visible.map(work => <article key={work.assetId} className={styles.card} data-work-card data-work-slug={work.slug}>
             <Dialog.Trigger className={styles.cardButton} onClick={() => setSelectedSlug(work.slug)}
