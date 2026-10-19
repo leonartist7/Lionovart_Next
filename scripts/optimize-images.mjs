@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import sharp from 'sharp';
+import { avifInput } from './avif-input.mjs';
 
 sharp.concurrency(2);
 const root = process.cwd();
@@ -16,16 +17,20 @@ for (const name of components) {
 const widths = [64, 96, 160, 320, 640, 1024, 1600, 1920];
 const output = path.join(root, 'public/images/optimized');
 await fs.mkdir(output, { recursive: true });
-const manifest = {};
+const manifest = JSON.parse(await fs.readFile('src/lib/responsive-images.json', 'utf8'));
 let count = 0;
 const hash = bytes => createHash('sha256').update(bytes).digest('hex').slice(0, 16);
 for (const source of [...originals].sort()) {
-  const input = await fs.readFile(path.join(root, 'public', source));
+  if (process.argv.includes('--resume') && manifest[source]) { count += manifest[source].avif.length + manifest[source].webp.length; continue; }
+  const original = await fs.readFile(path.join(root, 'public', source));
+  const input = avifInput(original);
+  if (input !== original) console.log(`Normalized invalid empty aperture in memory: ${source}`);
   let meta;
   try { meta = await sharp(input, { animated: true }).metadata(); }
   catch (error) { console.warn(`Retained original (decoder rejected metadata): ${source}: ${error.message}`); continue; }
   if ((meta.pages ?? 1) > 1) continue;
   const lossless = meta.hasAlpha || /logo|icon|laurel/i.test(source);
+  const hasTransparency = meta.hasAlpha && !(await sharp(input).stats()).isOpaque;
   const sizes = [...new Set([...widths.filter(width => width < meta.width), meta.width])];
   const entry = { width: meta.width, height: meta.height, avif: [], webp: [] };
   for (const width of sizes) {
@@ -40,7 +45,7 @@ for (const source of [...originals].sort()) {
       const decoded = await sharp(encoded).metadata();
       if (decoded.width !== width || decoded.height !== Math.round(meta.height * width / meta.width)) throw Error(`Dimensions: ${source}`);
       if (meta.icc && !Buffer.from(decoded.icc ?? []).equals(meta.icc)) throw Error(`ICC changed: ${source}`);
-      if (meta.hasAlpha && !decoded.hasAlpha) throw Error(`Alpha lost: ${source}`);
+      if (hasTransparency && !decoded.hasAlpha) throw Error(`Alpha lost: ${source}`);
       if (format === 'webp' && lossless) {
         const before = await pipeline.clone().ensureAlpha().raw().toBuffer();
         const after = await sharp(encoded).ensureAlpha().raw().toBuffer();
@@ -51,6 +56,7 @@ for (const source of [...originals].sort()) {
     }
   }
   manifest[source] = entry;
+  await fs.writeFile('src/lib/responsive-images.json', JSON.stringify(manifest, null, 2) + '\n');
   console.log(`${Object.keys(manifest).length}/${originals.size} ${source}`);
 }
 await fs.writeFile('src/lib/responsive-images.json', JSON.stringify(manifest, null, 2) + '\n');

@@ -1,13 +1,13 @@
 import type { ComponentProps, CSSProperties } from "react";
 import { responsiveImage } from "../../lib/responsive-images";
 
-type Props = ComponentProps<"img"> & { fill?: boolean; priority?: boolean; deferred?: boolean };
+type Props = Omit<ComponentProps<"img">, "src"> & { src?: string; fill?: boolean; priority?: boolean; deferred?: boolean; preserveAlpha?: boolean };
 
 /** Keep styling, event handlers and animation refs on the actual image. The
  * picture has no layout box, so flex/grid/absolute image ownership is retained. */
-export default function ResponsiveImage({ src, srcSet, sizes, fill, priority, deferred = false,
+export default function ResponsiveImage({ src, srcSet, sizes, fill, priority, deferred = false, preserveAlpha = false,
   loading, decoding = "async", fetchPriority, style, alt = "", ...props }: Props) {
-  const image = responsiveImage(src);
+  const image = responsiveImage(src, preserveAlpha);
   const resolvedSizes = sizes ?? (props.width ? `${props.width}px` : "100vw");
   const imageStyle: CSSProperties | undefined = fill
     ? { position: "absolute", height: "100%", width: "100%", inset: 0, color: "transparent", ...style }
@@ -23,7 +23,7 @@ export default function ResponsiveImage({ src, srcSet, sizes, fill, priority, de
   };
   // A plain image is intentional for unsupported/signed/SVG/animated sources.
   // eslint-disable-next-line @next/next/no-img-element
-  const element = <img {...attributes} />;
+  const element = <img {...attributes} alt={alt} />;
   if (!image) return element;
   return <picture style={{ display: "contents" }}>
     <source type="image/avif" sizes={resolvedSizes} srcSet={deferred ? undefined : image.avif} data-srcset={deferred ? image.avif : undefined} />

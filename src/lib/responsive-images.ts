@@ -8,7 +8,7 @@ const srcset = (items: Variant[]) => items.map(item => `${item.src} ${item.width
 
 /** Only versioned, unsigned Cloudinary raster deliveries are rewritten. Geometry
  * and video frame selection stay in their original chain, before final sizing. */
-export function cloudinaryImage(source: string, width: number, format: "avif" | "webp") {
+export function cloudinaryImage(source: string, width: number, format: "avif" | "webp", preserveAlpha = false) {
   let url: URL;
   try { url = new URL(source); } catch { return undefined; }
   if (url.protocol !== "https:" || url.hostname !== "res.cloudinary.com" || url.search || url.hash) return undefined;
@@ -17,14 +17,14 @@ export function cloudinaryImage(source: string, width: number, format: "avif" | 
   // Remove encoding decisions, never crop, gravity, aspect ratio or so_ frame.
   const chain = match[3].split("/").filter(Boolean).map(part => part.split(",")
     .filter(param => !/^(?:f_|q_)/.test(param)).join(",")).filter(Boolean);
-  const transparent = /\.(?:png|webp)$/i.test(match[4]);
+  const transparent = preserveAlpha || /\.(?:png|webp)$/i.test(match[4]);
   const quality = transparent ? "100" : format === "avif" ? "95:444" : "95";
   chain.push(`c_limit,w_${width},f_${format},q_${quality}`);
   url.pathname = match[1] + chain.join("/") + "/" + match[4];
   return url.href;
 }
 
-export function responsiveImage(source: string | undefined) {
+export function responsiveImage(source: string | undefined, preserveAlpha = false) {
   if (!source) return undefined;
   let key: string;
   try { key = decodeURIComponent(source.split(/[?#]/)[0]); } catch { return undefined; }
@@ -36,8 +36,8 @@ export function responsiveImage(source: string | undefined) {
   const caps = [...source.matchAll(/(?:[,/])w_(\d+)(?=[,/])/g)].map(match => Number(match[1]));
   const cap = caps.length ? Math.min(...caps) : 1920;
   const widths = [...new Set([...IMAGE_WIDTHS.filter(width => width < cap), cap])];
-  const variants = (format: "avif" | "webp") => widths.map(width => ({ width, src: cloudinaryImage(source, width, format)! }));
-  return { src: cloudinaryImage(source, cap, "webp")!, avif: srcset(variants("avif")), webp: srcset(variants("webp")) };
+  const variants = (format: "avif" | "webp") => widths.map(width => ({ width, src: cloudinaryImage(source, width, format, preserveAlpha)! }));
+  return { src: cloudinaryImage(source, cap, "webp", preserveAlpha)!, avif: srcset(variants("avif")), webp: srcset(variants("webp")) };
 }
 
 /** Called only by the gallery's existing visibility/reveal gate. Sources must
