@@ -140,7 +140,8 @@ export async function createWorld(canvas: HTMLCanvasElement, forceWebGL: boolean
   const workFrame = screen(work, 0, 2.5, 0, 6.6, 3.71, workArt, gold);
   const workSides = [-1, 1].map(side => {
     const item = screen(work, side * 3.65, 1.8, -.7, 1.1, 2.5, workArt, gold);
-    item.group.rotation.y = side * -.35; return item;
+    item.group.rotation.y = side * -.35;
+    item.face.geometry = faceGeometry.clone(); geometry.add(item.face.geometry); return item;
   });
   const workCache = new Map<string, T.Texture>();
   let workRequest = '', workReady = '', stageKey = '', workGeneration = 0;
@@ -149,7 +150,14 @@ export async function createWorld(canvas: HTMLCanvasElement, forceWebGL: boolean
     const image = texture.image as { width: number; height: number };
     const aspect = image.width / image.height;
     const [fw, fh] = fitArtwork(aspect); workFrame.face.scale.set(fw, fh, 1);
-    workSides.forEach(item => { const [sw, sh] = fitArtwork(aspect, 1.1, 2.5); item.face.scale.set(sw, sh, 1); });
+    workSides.forEach((item, side) => {
+      const uv = item.face.geometry.getAttribute('uv');
+      const cropX = Math.min(1, (1.1 / 2.5) / aspect), cropY = Math.min(1, aspect / (1.1 / 2.5));
+      const center = side === 0 ? cropX / 2 : 1 - cropX / 2;
+      // Supporting panels show left/right details; the main frame contains the entire image.
+      for (let i = 0; i < uv.count; i++) uv.setXY(i, center + (faceGeometry.getAttribute('uv').getX(i) - .5) * cropX, .5 + (faceGeometry.getAttribute('uv').getY(i) - .5) * cropY);
+      uv.needsUpdate = true;
+    });
     schedule();
   }
   function requestWork(id: string, url: string) {

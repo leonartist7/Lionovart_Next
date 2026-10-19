@@ -224,6 +224,21 @@ export default function HomepageServicesChapter() {
     [carouselPreview, staticLayout, lenis],
   );
 
+  // Land direct service links inside the sticky chapter, beyond the global header offset.
+  useEffect(() => {
+    if (carouselPreview) return;
+    let frame = 0;
+    const land = () => {
+      if (window.location.hash !== '#services') return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => { frame = requestAnimationFrame(() => goToService(0, 'instant')); });
+    };
+    if (document.documentElement.dataset.splashComplete === 'true') land();
+    else window.addEventListener('lionovart:splash-complete', land, { once: true });
+    window.addEventListener('hashchange', land);
+    return () => { cancelAnimationFrame(frame); window.removeEventListener('hashchange', land); window.removeEventListener('lionovart:splash-complete', land); };
+  }, [carouselPreview, goToService]);
+
   const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
     const horizontalIntent = Math.abs(event.deltaX) > Math.abs(event.deltaY) * 1.08;
     if (!horizontalIntent || Math.abs(event.deltaX) < 10) return;

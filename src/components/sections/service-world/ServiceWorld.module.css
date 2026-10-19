@@ -72,3 +72,5 @@
 .projectChoices button[aria-pressed=true] { background: #e9d9b5; border-color: #b49559; color: #282216; }
 .projectChoices button:focus-visible { outline: 2px solid #ac7930; outline-offset: 3px; }
 @media(max-width:767px) { .galleryMain { border-width: 3px; inset: 12% 13% 16%; }.gallerySide { width: 9%; border-width: 2px; }.projectChoices button { padding: .5rem .75rem; } }
+.gallerySide img { object-fit: cover; object-position: left center; }
+.gallerySide:last-child img { object-position: right center; }

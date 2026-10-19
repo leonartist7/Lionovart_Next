@@ -22,3 +22,16 @@ A WebGL context preflight avoids the Three.js backend initialization error in un
 
 ## Remaining phases
 Phase 2: the other four service exhibits, richer assets and full gallery staging. Phase 3: supported GPU/browser profiling, physical devices, orientation/restoration, context loss and end-to-end polish. Production remains unchanged; the Phase 1 branch is for review.
+
+# Phase 2 review — 20 October 2026 (Europe/Paris)
+
+Initial Phase 2 runtime: 10d8f913507d542be5738ddf72a9a2714594c6ab, Vercel lionovartnext-bdt0ngq92-lionovart.vercel.app. Four new service exhibits and the dynamic gallery feature were exercised in the live browser.
+
+- Local production build, TypeScript and scoped ESLint passed. 48 deterministic camera, image-containment, navigation and scroll tests passed.
+- Desktop fallback compositions reviewed for Brand, Digital, Spaces and Systems. Brand Packaging selected variant 2; Digital Apps selected variant 1; Spaces Retail selected variant 2; Systems AI Workflows selected variant 2 and Pause set data-paused=true.
+- 390×844 phone layout visually reviewed for Systems. At 320×568, Systems had document width 305px (including a 15px browser scrollbar in the 320px viewport), no horizontal overflow, five 44px controls, final control bottom 483px within the 568px viewport.
+- Gallery selection changed data-project-id from rakbank to blastup. The feature opened the Blastup dialog at position 2/40. Next page showed 4–6/40 and the feature changed to Rise.
+- Follow-up corrections from visual review: direct #services landing must settle inside the sticky chapter, fallback interfaces use contained artwork to avoid clipping, the decorative arch uses a relative SVG arc, system connections sit behind the dashboard, and portfolio side panels show left/right details while the main frame preserves the complete image.
+- Runtime remained in fallback mode (data-world-ready=false). Captured error-log sample contained browser-extension metadata errors, not app errors; this is not a claim that the entire site's console is clean.
+
+GPU appearance, backend compatibility, frame-time/memory profiling and physical-device touch/orientation testing are still Phase 3 gates. Viewport harness screenshots represent CSS perspective fallbacks, not live GPU renders.

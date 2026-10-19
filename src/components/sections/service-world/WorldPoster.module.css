@@ -90,3 +90,9 @@
 .poster[data-paused=true] .signal,.poster[data-active=false] .signal { animation-play-state: paused; }
 @media(max-width:600px) { .laptop > div { border-width: 4px; }.tablet,.appPhone { border-width: 3px; }.portal { border-width: 8px; }.systemHub { border-width: 2px; }.systemNode { border-radius: 6px; }.brandBoard { border-width: 2px; }.brandBox { border-right-width: 7px; }.sign { border-width: 2px; }.printPanel { border-width: 4px; } }
 @media(prefers-reduced-motion:reduce) { .connections .signal { animation: none; }.brandBoard { transition: none; } }
+
+/* Preserve complete interface artwork across differently proportioned fallback stages. */
+.laptop > div,.tablet,.interfaceCard { background-size: contain; background-repeat: no-repeat; background-color: #eef1f9; }
+.systemHub { background-size: contain; background-repeat: no-repeat; background-color: #f3f5ef; }
+.spaceWall { background-size: contain; background-repeat: no-repeat; background-color: #a34831; }
+.connections { transform: translateZ(-60px); }

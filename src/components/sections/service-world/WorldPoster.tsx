@@ -19,6 +19,7 @@ function Artwork({ variant }: { variant: number }) {
 export default function WorldPoster({ service, variant, enabled, paused, active }: { service: string; variant: number; enabled: boolean; paused: boolean; active: boolean }) {
   const reduced = useHydratedReducedMotion();
   const video = useRef<HTMLVideoElement>(null), root = useRef<HTMLDivElement>(null);
+  const [pageVisible, setPageVisible] = useState(true);
   const [visible, setVisible] = useState(false), [playing, setPlaying] = useState(false);
   const motion = service === 'content-studio' && variant === 2 && active && visible && !paused && !reduced;
   useEffect(() => {
@@ -29,13 +30,14 @@ export default function WorldPoster({ service, variant, enabled, paused, active 
   useEffect(() => {
     const element = video.current;
     const sync = () => {
+      setPageVisible(!document.hidden);
       if (motion && !document.hidden) void element?.play().catch(() => setPlaying(false));
       else element?.pause();
     };
     sync(); document.addEventListener('visibilitychange', sync);
     return () => { element?.pause(); document.removeEventListener('visibilitychange', sync); };
   }, [motion]);
-  return <div ref={root} className={styles.poster} data-mode={service} data-variant={variant} data-led-enabled={enabled} data-paused={paused || !!reduced} data-active={active && visible} aria-hidden="true">
+  return <div ref={root} className={styles.poster} data-mode={service} data-variant={variant} data-led-enabled={enabled} data-paused={paused || !!reduced} data-active={active && visible && pageVisible} aria-hidden="true">
     <div className={styles.room}><i /><i /><i /></div>
     <div className={styles.stage}>
       <div className={styles.podium} />
