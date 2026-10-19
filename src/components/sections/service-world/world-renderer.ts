@@ -7,7 +7,7 @@ const IVORY = '#f7f4ef';
 const FILM = 'https://res.cloudinary.com/dgio9uutc/video/upload/c_limit,w_720,f_mp4,vc_h264,q_auto/Demo_hero.mp4';
 
 /** A single room and renderer persist from the partnership threshold to the work gallery. */
-export async function createWorld(canvas: HTMLCanvasElement, poster: string, forceWebGL: boolean, onFailure: () => void): Promise<WorldEngine> {
+export async function createWorld(canvas: HTMLCanvasElement, poster: string, forceWebGL: boolean, onFailure: () => void, onReady: () => void): Promise<WorldEngine> {
   // Avoid Three's asynchronous backend failure when this environment has no GPU contexts.
   if (!('gpu' in navigator) || forceWebGL) {
     if (!canvas.getContext('webgl2')) throw new Error('No GPU context; use the interactive poster.');
@@ -146,7 +146,7 @@ export async function createWorld(canvas: HTMLCanvasElement, poster: string, for
   let width = 0, height = 0, ratio = 0, downgraded = false;
   let current = 'arrival', previousVariant = -1, settle = 0;
   const position = new T.Vector3(), target = new T.Vector3(), look = new T.Vector3(0, 1.8, 0);
-  const dark = new T.Color('#08080a'), light = new T.Color(IVORY);
+  let firstFrame = true;
   const tick = (now: number) => {
     raf = 0;
     if (disposed || !input?.visible) { video.pause(); return; }
@@ -158,7 +158,7 @@ export async function createWorld(canvas: HTMLCanvasElement, poster: string, for
       if (w !== width || h !== height || dpr !== ratio) { width = w; height = h; ratio = dpr; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
       if (++warmup > 90 && !input.reduced && frameTime > 29) slow++; else slow = Math.max(0, slow - 1);
       if (slow > 100) downgraded = true;
-      background.copy(dark).lerp(light, input.light);
+      background.setRGB((8 + 239 * input.light) / 255, (8 + 236 * input.light) / 255, (10 + 229 * input.light) / 255, T.SRGBColorSpace);
       (scene.fog as T.Fog).color.copy(background);
       hemi.intensity = .35 + input.light * 2.65; key.intensity = 1.2 + input.light * 3;
       room.visible = input.light > .05; dais.visible = input.exhibit !== 'arrival' && input.exhibit !== 'empty';
@@ -203,6 +203,7 @@ export async function createWorld(canvas: HTMLCanvasElement, poster: string, for
       const blend = input.reduced || !last || settle < .05 ? 1 : 1 - Math.exp(-dt * 8);
       camera.position.lerp(position, blend); target.copy(look); camera.lookAt(target);
       renderer.render(scene, camera);
+      if (firstFrame) { firstFrame = false; onReady(); }
       canvas.dataset.backend = renderer.backend.constructor.name;
       canvas.dataset.exhibit = input.exhibit;
       canvas.dataset.variant = String(input.variant);

@@ -45,6 +45,7 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
       const visible = !!entry && entry.top < h && end.bottom > 0 && !document.hidden;
       const light = entry ? worldLight(entry.top, entry.height) : 1;
       root.style.setProperty('--world-light', String(light));
+      root.style.setProperty('--world-ink', light > .46 ? '#171412' : '#fffaf1');
       const serviceBounds = services?.getBoundingClientRect();
       const workBounds = root.querySelector<HTMLElement>('[data-world-work]')?.getBoundingClientRect();
       const stage = root.querySelector<HTMLElement>('[data-world-service]');
@@ -62,10 +63,11 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
       else if (visible && !loading && !fallbackOnly) {
         loading = true;
         void import('./world-renderer').then(async ({ createWorld }) => {
-          const created = await createWorld(surface, GALLERY_WORK[0].poster, query.get('world') === 'webgl', fail);
+          const created = await createWorld(surface, GALLERY_WORK[0].poster, query.get('world') === 'webgl', fail, () => {
+            if (!disposed) { setReady(true); root.dataset.worldReady = 'true'; }
+          });
           if (disposed) { created.dispose(); return; }
           engine.current = created;
-          setReady(true); root.dataset.worldReady = 'true';
           sync();
         }).catch(fail);
       }
