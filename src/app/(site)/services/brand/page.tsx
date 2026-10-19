@@ -6,7 +6,7 @@ import { JsonLd } from "@/lib/seo/JsonLd";
 import { serviceSchema, breadcrumbSchema } from "@/lib/seo/schema";
 
 export const metadata: Metadata = {
-  title: "Brand Identity & Logo Design",
+  title: "Brand Identity & Graphic Design",
   description:
     "Brand strategy, visual identity, logo systems, voice and guidelines. Build a coherent presence that people recognize, remember and trust.",
   alternates: { canonical: "/services/brand" },

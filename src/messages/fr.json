@@ -612,63 +612,63 @@
     "headingAccent": "expertise",
     "items": [
       {
-        "title": "Identité & stratégie de marque",
-        "description": "Des identités fondées sur une stratégie claire, distinctives, cohérentes et mémorables.",
+        "title": "Identité & design graphique",
+        "description": "Une image à la hauteur de votre entreprise, de votre identité aux détails de vos supports imprimés et numériques.",
         "deliverables": [
-          "Stratégie de marque",
-          "Logo & identité visuelle",
-          "Charte de marque",
-          "Création de noms"
+          "Identité de marque",
+          "Design graphique",
+          "Packaging",
+          "Charte graphique"
         ]
       },
       {
-        "title": "Sites web & applications",
-        "description": "Des sites et applications immersifs, rapides et conçus pour transformer vos visiteurs en clients.",
+        "title": "Expériences digitales",
+        "description": "Des sites, applications et plateformes clients qui font vivre votre marque et facilitent chaque interaction.",
         "deliverables": [
-          "Design UI/UX",
-          "Développement web",
-          "Applications web & mobiles",
-          "Commerce en ligne"
+          "Sites web",
+          "Apps & plateformes",
+          "Commerce en ligne",
+          "Design UI/UX"
         ]
       },
       {
-        "title": "Studio de contenu",
-        "description": "Des films de marque et une stratégie de contenu qui font vivre votre histoire, mois après mois.",
+        "title": "Contenus & campagnes",
+        "description": "Des contenus saisonniers, promotionnels et réguliers qui donnent envie de vous découvrir et de passer à l’action.",
         "deliverables": [
-          "Films de marque",
-          "Contenu pour les réseaux",
-          "Animation graphique",
-          "Stratégie de contenu"
+          "Campagnes saisonnières",
+          "Contenus promotionnels",
+          "Vidéo & animation",
+          "Calendriers éditoriaux"
         ]
       },
       {
-        "title": "Impression & univers physiques",
-        "description": "Votre marque au-delà de l’écran : supports imprimés, emballages et expériences qui marquent les esprits.",
+        "title": "Espaces & événements",
+        "description": "Faites vivre votre marque dans le monde réel : événements, signalétique, vitrines et expériences physiques mémorables.",
         "deliverables": [
-          "Design d’emballages",
-          "Papeterie & impression",
+          "Design événementiel",
           "Signalétique & affichage",
-          "Identité événementielle"
+          "Expériences en boutique",
+          "Supports imprimés"
         ]
       },
       {
-        "title": "Systèmes intelligents & IA",
-        "description": "Des automatisations intelligentes pour une entreprise réactive qui transforme ses opportunités, de jour comme de nuit.",
+        "title": "Systèmes métier intelligents",
+        "description": "Des plateformes métier sur mesure, enrichies par l’IA, pour connecter vos outils, simplifier le quotidien et libérer du temps.",
         "deliverables": [
-          "Agents vocaux IA",
-          "Automatisation des prospects",
-          "Assistants conversationnels IA",
-          "Intégration des processus"
+          "Plateformes AOS",
+          "Portails clients",
+          "Processus avec IA",
+          "Tableaux de bord"
         ]
       },
       {
-        "title": "Marketing de croissance",
-        "description": "Référencement, publicité et stratégie pour rendre votre marque visible auprès des bonnes personnes, durablement.",
+        "title": "Expériences LED transparentes",
+        "description": "Transformez vos vitrines en une expérience de marque animée grâce aux écrans LED transparents et à des contenus sur mesure.",
         "deliverables": [
-          "SEO & recherche locale",
-          "Publicité en ligne",
-          "Conseil aux entreprises",
-          "Analyse & rapports"
+          "Écrans transparents",
+          "Animation sur mesure",
+          "Campagnes en vitrine",
+          "Étude du lieu"
         ]
       }
     ]

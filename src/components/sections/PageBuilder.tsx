@@ -5,6 +5,7 @@ import LionJourney from "@/components/sections/lion-journey/LionJourney";
 import { WorkBrowseProvider } from "./selected-work/WorkBrowse";
 
 import CompactIntroduction from "@/components/sections/CompactIntroduction";
+import SeasonalCampaigns from "./services/SeasonalCampaigns";
 import ServicesSwitcher from "@/components/sections/ServicesSwitcher";
 import WorkServicesTransition from "@/components/sections/WorkServicesTransition";
 import SelectedWork from "@/components/sections/SelectedWork";
@@ -45,6 +46,7 @@ export function PageBuilder() {
         </WorkServicesTransition>
         <SelectedWork compact servicesCurves />
         </WorkBrowseProvider>
+        <SeasonalCampaigns compact />
         <NovaSection id="about"><CompactIntroduction /></NovaSection>
 
         {/* Personal introduction -> Brands Elevated/results -> Process. */}

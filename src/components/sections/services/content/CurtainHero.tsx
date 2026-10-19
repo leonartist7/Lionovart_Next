@@ -64,7 +64,7 @@ export default function CurtainHero() {
 
           <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center select-none -translate-y-[8%]">
             <p className="mb-6 text-[12px] md:text-[14px] uppercase tracking-[0.35em] text-white/70">
-              {tr("Content Studio")}
+              {tr("Content & Campaigns")}
             </p>
 
             <h1
@@ -76,7 +76,7 @@ export default function CurtainHero() {
             </h1>
 
             <p className="mt-7 text-[12px] md:text-[13px] uppercase tracking-[0.3em] text-white/55">
-              {tr("Creative content & film")}
+              {tr("Seasonal · Promotional · Ongoing")}
             </p>
 
             <motion.div

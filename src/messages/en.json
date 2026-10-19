@@ -608,63 +608,63 @@
     "headingAccent": "Expertise",
     "items": [
       {
-        "title": "Brand Identity & Strategy",
-        "description": "Identity systems built on strategy, not guesswork: distinct, consistent, and built to be remembered.",
+        "title": "Brand & Graphic Design",
+        "description": "Make your image reflect the quality of your business, from your identity to every printed and digital detail.",
         "deliverables": [
-          "Brand Strategy",
-          "Logo & Identity Systems",
-          "Brand Guidelines",
-          "Naming"
+          "Brand Identity",
+          "Graphic Design",
+          "Packaging",
+          "Brand Guidelines"
         ]
       },
       {
-        "title": "Web & App Development",
-        "description": "Cinematic, high-performance websites and apps, engineered to turn visitors into clients.",
+        "title": "Digital Experiences",
+        "description": "Websites, apps and customer platforms that bring your brand to life and make the next step feel natural.",
         "deliverables": [
-          "UI/UX Design",
-          "Web Development",
-          "Web & Mobile Apps",
-          "E-Commerce"
+          "Websites",
+          "Apps & Platforms",
+          "E-Commerce",
+          "UI/UX Design"
         ]
       },
       {
-        "title": "Content Studio",
-        "description": "Brand films and content systems that keep your story moving, month after month.",
+        "title": "Content & Campaigns",
+        "description": "Seasonal, promotional and ongoing content that gives people a reason to notice you and take action.",
         "deliverables": [
-          "Brand Films",
-          "Social Content",
-          "Motion Design",
-          "Content Strategy"
+          "Seasonal Campaigns",
+          "Promotional Content",
+          "Video & Motion",
+          "Content Calendars"
         ]
       },
       {
-        "title": "Print & Physical Branding",
-        "description": "Brand presence beyond the screen: print, packaging, and physical experiences built to be remembered.",
+        "title": "Spaces & Events",
+        "description": "Bring your brand into the real world through events, signage, retail displays and memorable physical experiences.",
         "deliverables": [
-          "Packaging Design",
-          "Stationery & Print",
-          "Signage & Display",
-          "Event Branding"
+          "Event Design",
+          "Signage & Displays",
+          "Retail Experiences",
+          "Print Artwork"
         ]
       },
       {
-        "title": "Smart Systems & AI",
-        "description": "Intelligent automation that keeps your business responsive and converting, day and night.",
+        "title": "Smart Business Systems",
+        "description": "Custom AI-powered operating platforms that connect your tools, simplify daily work and give your team time back.",
         "deliverables": [
-          "AI Voice Agents",
-          "Lead Automation",
-          "AI Chatbots",
-          "Workflow Integration"
+          "Custom AOS",
+          "Client Portals",
+          "AI Workflows",
+          "Dashboards"
         ]
       },
       {
-        "title": "Growth Marketing",
-        "description": "SEO, paid media, and strategy that put your brand in front of the right people, consistently.",
+        "title": "Transparent LED Experiences",
+        "description": "Turn your windows into a moving brand experience with transparent LED displays and bespoke creative content.",
         "deliverables": [
-          "SEO & Local Search",
-          "Paid Ads",
-          "Business Consulting",
-          "Analytics & Reporting"
+          "Transparent Displays",
+          "Custom Motion",
+          "Window Campaigns",
+          "Site Assessment"
         ]
       }
     ]

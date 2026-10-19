@@ -11,7 +11,7 @@ import { JsonLd } from "@/lib/seo/JsonLd";
 import { serviceSchema, breadcrumbSchema } from "@/lib/seo/schema";
 
 export const metadata: Metadata = {
-  title: "Web Design & App Development",
+  title: "Websites & Digital Experiences",
   description:
     "Custom websites and apps built for speed, usability and conversion. Web design, UI/UX, e-commerce, CMS and SEO aligned with your business goals.",
   alternates: { canonical: "/services/web" },
@@ -34,9 +34,9 @@ export default function WebServicePage() {
       <main className="bg-bg-dark min-h-screen relative z-10">
         <Navbar />
         <ServiceCurtainHero
-          eyebrow="Web & Apps"
-          lines={[{ text: "A site that" }, { text: "books the call", accent: true }]}
-          sub="Sites · Apps · UI/UX · SEO"
+          eyebrow="Digital Experiences"
+          lines={[{ text: "Your brand." }, { text: "A digital experience.", accent: true }]}
+          sub="Websites · Apps · Customer Platforms"
         />
         <StatementRelay
           beats={[

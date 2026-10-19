@@ -39,86 +39,75 @@ const NOVA_KNOWLEDGE = {
       "We talk in investment, never price. The shape depends on your stage, your goal, and what unlocks the highest-leverage move first. That's what the call with Leon is for.",
   },
 
-  // Lifted from src/lib/i18n/locales/en.ts — keep in sync.
+  // Public service catalog: synchronized with src/messages/en.json.
   services: [
     {
-      id: "branding",
-      title: "Brand Identity & Strategy",
-      summary:
-        "Identity systems that command instant authority across every touchpoint — turning recognition into revenue.",
-      deliverables: ["Logo System", "Brand Guidelines", "Typography & Color", "Brand Voice", "Sonic Identity"],
+        "id": "branding",
+        "title": "Brand & Graphic Design",
+        "summary": "Make your image reflect the quality of your business, from your identity to every printed and digital detail.",
+        "deliverables": [
+            "Brand Identity",
+            "Graphic Design",
+            "Packaging",
+            "Brand Guidelines"
+        ]
     },
     {
-      id: "web",
-      title: "Web & App Development",
-      summary:
-        "Fast, conversion-focused sites and apps that turn visitors into booked calls. Measurable from day one.",
-      deliverables: [
-        "UI/UX Design",
-        "Web Development",
-        "Web & Mobile Apps",
-        "CMS Integration",
-        "E-Commerce",
-        "SEO Setup",
-      ],
+        "id": "web",
+        "title": "Digital Experiences",
+        "summary": "Websites, apps and customer platforms that bring your brand to life and make the next step feel natural.",
+        "deliverables": [
+            "Websites",
+            "Apps & Platforms",
+            "E-Commerce",
+            "UI/UX Design"
+        ]
     },
     {
-      id: "content-studio",
-      title: "Content Studio",
-      summary:
-        "Brand films, reels, and full social content, made and run end to end, so a business stays impossible to ignore every month.",
-      deliverables: [
-        "Brand Films",
-        "Social Reels",
-        "Motion Design",
-        "Content Strategy",
-        "Monthly Calendar",
-        "Sound Design",
-      ],
+        "id": "content-studio",
+        "title": "Content & Campaigns",
+        "summary": "Seasonal, promotional and ongoing content that gives people a reason to notice you and take action.",
+        "deliverables": [
+            "Seasonal Campaigns",
+            "Promotional Content",
+            "Video & Motion",
+            "Content Calendars"
+        ]
     },
     {
-      id: "print",
-      title: "Print & Physical Branding",
-      summary:
-        "Print, packaging, and physical brand experiences that make a company impossible to overlook in the real world.",
-      deliverables: [
-        "Business Cards & Stationery",
-        "Packaging Design",
-        "Commercial Printing",
-        "Apparel Design",
-        "Signage & Display",
-        "Event Branding",
-      ],
+        "id": "print",
+        "title": "Spaces & Events",
+        "summary": "Bring your brand into the real world through events, signage, retail displays and memorable physical experiences.",
+        "deliverables": [
+            "Event Design",
+            "Signage & Displays",
+            "Retail Experiences",
+            "Print Artwork"
+        ]
     },
     {
-      id: "smart-systems",
-      title: "Smart Systems & AI",
-      summary:
-        "AI voice agents, lead automation, and smart workflows that keep the business running 24/7 — without adding headcount.",
-      deliverables: [
-        "AI Voice Agents",
-        "Virtual Receptionists",
-        "Lead Automation",
-        "AI Chatbots",
-        "Workflow Integration",
-        "CRM & Email Automation",
-      ],
+        "id": "smart-systems",
+        "title": "Smart Business Systems",
+        "summary": "Custom AI-powered operating platforms that connect your tools, simplify daily work and give your team time back.",
+        "deliverables": [
+            "Custom AOS",
+            "Client Portals",
+            "AI Workflows",
+            "Dashboards"
+        ]
     },
     {
-      id: "growth",
-      title: "Growth Marketing",
-      summary:
-        "SEO, local search, paid ads, and strategic consulting that bring buyers in when they're already searching.",
-      deliverables: [
-        "SEO & AEO Optimization",
-        "Google Business Management",
-        "Local Search Domination",
-        "Paid Ads & Google Ads",
-        "Business Consulting",
-        "Analytics & Reporting",
-      ],
-    },
-  ],
+        "id": "led",
+        "title": "Transparent LED Experiences",
+        "summary": "Turn your windows into a moving brand experience with transparent LED displays and bespoke creative content.",
+        "deliverables": [
+            "Transparent Displays",
+            "Custom Motion",
+            "Window Campaigns",
+            "Site Assessment"
+        ]
+    }
+],
 
   // Quick niche-specific framing Nova can drop after a user names their business.
   // Keys are lowercase niche words; matching is `niche.includes(key)`.

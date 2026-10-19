@@ -34,7 +34,7 @@ const display = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "AI Systems & Consulting",
+  title: "Smart Business Systems & Custom AI Platforms",
   description:
     "Custom AI operating systems that answer customers, convert opportunities, coordinate operations, and give growing teams their time back.",
 };

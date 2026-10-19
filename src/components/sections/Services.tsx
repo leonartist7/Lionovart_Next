@@ -9,7 +9,7 @@ const SERVICES_STATIC = [
   { id: "content-studio", number: "03" },
   { id: "print", number: "04" },
   { id: "smart-systems", number: "05" },
-  { id: "growth", number: "06" },
+  { id: "led", number: "06" },
 ];
 
 export default function Services(props: any) {

@@ -12,6 +12,7 @@ import PricingPage from "../../(site)/pricing/page";
 import PrivacyPage from "../../(site)/privacy/page";
 import TermsPage from "../../(site)/terms/page";
 import ServicesIndexPage from "../../(site)/services/page";
+import LedServicePage from "../../(site)/services/led/page";
 import AiServicePage from "../../(site)/services/ai/page";
 import BrandServicePage from "../../(site)/services/brand/page";
 import ContentStudioPage from "../../(site)/services/content-studio/page";
@@ -37,6 +38,7 @@ const pages: Record<string, Page> = {
   "/terms": TermsPage,
   "/services": ServicesIndexPage,
   "/services/ai": AiServicePage,
+  "/services/led": LedServicePage,
   "/services/brand": BrandServicePage,
   "/services/content-studio": ContentStudioPage,
   "/services/print": PrintServicePage,

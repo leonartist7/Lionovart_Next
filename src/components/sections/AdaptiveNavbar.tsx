@@ -22,6 +22,7 @@ import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import styles from "./AdaptiveNavbar.module.css";
 import { ExperienceSoundToggle } from "@/components/experience/ScrollExperience";
+import { hrefForTitle } from "@/lib/service-routes";
 import { navScrollIntent } from "./nav-scroll";
 import { scrollEase } from "@/components/experience/scroll-policy";
 
@@ -204,7 +205,14 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
     setExpertiseOpen(false);
   };
 
-  const goToService = () => scrollToTarget("services");
+  const goToService = (title: string) => {
+    const href = hrefForTitle(title);
+    if (!href) return scrollToTarget("services");
+    setIsMobileOpen(false);
+    setMobileExpertiseOpen(false);
+    setExpertiseOpen(false);
+    router.push(href);
+  };
 
   const openNavCta = () => {
     setIsMobileOpen(false);
@@ -431,7 +439,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
                     key={title}
                     variants={itemVariants}
                     type="button"
-                    onClick={goToService}
+                    onClick={() => goToService(title)}
                     className="rounded-xl px-5 py-4 text-left text-[17px] font-semibold tracking-wide text-black/75 transition-colors hover:bg-black/[0.05] hover:text-black"
                   >
                     {title}
@@ -514,7 +522,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
                               key={title}
                               variants={itemVariants}
                               type="button"
-                              onClick={goToService}
+                              onClick={() => goToService(title)}
                               className="min-h-11 px-2 text-[15px] font-semibold tracking-wide text-black/65 transition-colors hover:text-black"
                             >
                               {title}

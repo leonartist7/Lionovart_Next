@@ -81,41 +81,71 @@ export type ServiceDef = {
 
 export const SERVICES: ServiceDef[] = [
   {
-    slug: "brand",
-    name: "Brand Identity & Strategy",
-    short:
-      "Logo systems, visual identity, typography, brand voice, and guidelines for businesses that want to look like the obvious premium choice.",
-    keywords: [
-      "brand identity",
-      "logo design",
-      "brand designer",
-      "rebranding agency",
-    ],
+    "slug": "brand",
+    "name": "Brand & Graphic Design",
+    "short": "Make your image reflect the quality of your business, from your identity to every printed and digital detail.",
+    "keywords": [
+      "Brand Identity",
+      "Graphic Design",
+      "Packaging",
+      "Brand Guidelines"
+    ]
   },
   {
-    slug: "web",
-    name: "Web & App Design & Development",
-    short:
-      "Custom websites, web apps, UI/UX, e-commerce, and CMS builds engineered for performance, conversion, and search visibility.",
-    keywords: [
-      "web design",
-      "website developer",
-      "small business website",
-      "ecommerce website",
-    ],
+    "slug": "web",
+    "name": "Digital Experiences",
+    "short": "Websites, apps and customer platforms that bring your brand to life and make the next step feel natural.",
+    "keywords": [
+      "Websites",
+      "Apps & Platforms",
+      "E-Commerce",
+      "UI/UX Design"
+    ]
   },
   {
-    slug: "content-studio",
-    name: "Content Studio — Video & Social",
-    short:
-      "Brand films, social reels, motion design, and full content management — strategy, copy, and a monthly content calendar.",
-    keywords: [
-      "video production",
-      "social media management",
-      "content creation agency",
-      "reels editor",
-    ],
+    "slug": "content-studio",
+    "name": "Content & Campaigns",
+    "short": "Seasonal, promotional and ongoing content that gives people a reason to notice you and take action.",
+    "keywords": [
+      "Seasonal Campaigns",
+      "Promotional Content",
+      "Video & Motion",
+      "Content Calendars"
+    ]
   },
+  {
+    "slug": "print",
+    "name": "Spaces & Events",
+    "short": "Bring your brand into the real world through events, signage, retail displays and memorable physical experiences.",
+    "keywords": [
+      "Event Design",
+      "Signage & Displays",
+      "Retail Experiences",
+      "Print Artwork"
+    ]
+  },
+  {
+    "slug": "ai",
+    "name": "Smart Business Systems",
+    "short": "Custom AI-powered operating platforms that connect your tools, simplify daily work and give your team time back.",
+    "keywords": [
+      "Custom AOS",
+      "Client Portals",
+      "AI Workflows",
+      "Dashboards"
+    ]
+  },
+  {
+    "slug": "led",
+    "name": "Transparent LED Experiences",
+    "short": "Turn your windows into a moving brand experience with transparent LED displays and bespoke creative content.",
+    "keywords": [
+      "Transparent Displays",
+      "Custom Motion",
+      "Window Campaigns",
+      "Site Assessment"
+    ]
+  }
 ];
 
 /** Static, indexable routes for the sitemap. Service slugs are appended. */

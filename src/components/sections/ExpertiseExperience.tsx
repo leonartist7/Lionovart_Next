@@ -54,18 +54,18 @@ const SERVICE_MEDIA = {
     "https://res.cloudinary.com/dgio9uutc/image/upload/v1788597999/file_000000002cdc81fbad91bd28dfba9b26_izxq37.png",
     "https://res.cloudinary.com/dgio9uutc/image/upload/v1788597999/file_00000000dc1481fb842d017383dbdf50_r7nbvn.png",
   ],
-  growth: [
-    "https://res.cloudinary.com/dgio9uutc/image/upload/v1788597998/file_00000000a83881fb9a5978fa38c01c44_joinmm.png",
+  led: [
+    "/images/transparent-led-concept.svg",
   ],
 } as const;
 
 const SERVICE_META = [
   { id: "branding", number: "01", short: "Brand" },
-  { id: "web", number: "02", short: "Web" },
+  { id: "web", number: "02", short: "Digital" },
   { id: "content-studio", number: "03", short: "Content" },
-  { id: "print", number: "04", short: "Print" },
+  { id: "print", number: "04", short: "Spaces" },
   { id: "smart-systems", number: "05", short: "Systems" },
-  { id: "growth", number: "06", short: "Growth" },
+  { id: "led", number: "06", short: "LED" },
 ] as const;
 
 const EASE = [0.16, 1, 0.3, 1] as const;

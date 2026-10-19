@@ -5,6 +5,7 @@ import CurtainHero from "@/components/sections/services/content/CurtainHero";
 import StickyStatementRelay from "@/components/sections/services/content/StickyStatementRelay";
 import CapabilityScrollScene from "@/components/sections/services/content/CapabilityScrollScene";
 import SocialScene from "@/components/sections/services/content/SocialScene";
+import SeasonalCampaigns from "@/components/sections/services/SeasonalCampaigns";
 import OffersAndClose from "@/components/sections/services/content/OffersAndClose";
 import { JsonLd } from "@/lib/seo/JsonLd";
 import { serviceSchema, breadcrumbSchema } from "@/lib/seo/schema";
@@ -12,9 +13,9 @@ import { serviceSchema, breadcrumbSchema } from "@/lib/seo/schema";
 // Brand-facing name is "Content Studio"; the title/description carry the terms
 // people actually search (video production, social media, brand films, content).
 export const metadata: Metadata = {
-  title: "Video Production & Social Media Content",
+  title: "Content Creation & Seasonal Campaigns",
   description:
-    "Brand films, social reels, motion design and social media management. Creative content that gives your brand a recognizable voice and visual presence.",
+    "Seasonal campaigns, promotional content, short videos, motion graphics and monthly content calendars for your next launch or ongoing brand presence.",
   alternates: { canonical: "/services/content-studio" },
 };
 
@@ -43,6 +44,7 @@ export default function ContentStudioPage() {
         <StickyStatementRelay />
         <CapabilityScrollScene />
         <SocialScene />
+        <SeasonalCampaigns />
         <OffersAndClose />
         <Footer />
       </main>
