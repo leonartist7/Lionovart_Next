@@ -25,7 +25,7 @@ export default function ServicesWorldReview() {
       <span>{size[0]} × {size[1]} CSS px</span>
     </header>
     <div style={{ width: size[0] * scale, height: size[1] * scale, margin: '0 auto', overflow: 'hidden', boxShadow: '0 10px 60px #0002' }}>
-      <iframe key={backend} title="Homepage viewport preview" src={`/?world=${backend}#services`} width={size[0]} height={size[1]}
+      <iframe key={backend + size.join('x')} title="Homepage viewport preview" src={`/?world=${backend}#services`} width={size[0]} height={size[1]}
         style={{ width: size[0], height: size[1], border: 0, transform: `scale(${scale})`, transformOrigin: 'top left', background: '#f7f4ef' }} />
     </div>
   </main>;

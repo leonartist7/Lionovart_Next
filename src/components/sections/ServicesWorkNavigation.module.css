@@ -104,7 +104,13 @@
   .filterOption:hover { background: #fff; }
 }
 @media (width >= 640px) { .frame { bottom: max(4svh, calc(env(safe-area-inset-bottom) + .75rem)); } }
-@media (width < 640px) { .serviceLabel { display: none; } .serviceNumber { display: inline; } }
+@media (width < 640px) {
+  .serviceControls { justify-content: flex-start; overflow-x: auto; scrollbar-width: none; }
+  .serviceControls::-webkit-scrollbar { display: none; }
+  .serviceButton { flex: 0 0 auto; min-width: 3.75rem; font-size: .625rem; letter-spacing: .025em; padding-inline: .65rem; }
+  .serviceLabel { display: inline; }
+  .serviceNumber { display: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   .popup { transition: none; }
   .popup[data-starting-style], .popup[data-ending-style] { transform: none; }
