@@ -39,3 +39,22 @@ test('invalid image dimensions have a finite widescreen fallback', () => {
     assert.ok(Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0);
   }
 });
+
+const { FrameBudget } = await import('../src/components/sections/service-world/frame-budget.ts');
+test('demand rendering and invalid samples cannot trigger a quality downgrade', () => {
+  const budget = new FrameBudget();
+  for (let i = 0; i < 500; i++) { budget.record(null); budget.record(NaN); budget.record(0); }
+  assert.equal(budget.downgraded, false);
+  assert.deepEqual(budget.summary(), { samples: 0, p50: null, p95: null });
+});
+test('sustained slow animation lowers quality, but startup and isolated stalls do not', () => {
+  const budget = new FrameBudget();
+  for (let i = 0; i < 90; i++) budget.record(50);
+  assert.equal(budget.downgraded, false);
+  for (let i = 0; i < 120; i++) { budget.record(40); budget.record(16); }
+  assert.equal(budget.downgraded, false);
+  for (let i = 0; i < 101; i++) budget.record(40);
+  assert.equal(budget.downgraded, true);
+  assert.equal(budget.summary().samples, 180);
+  assert.equal(budget.summary().p95, 40);
+});

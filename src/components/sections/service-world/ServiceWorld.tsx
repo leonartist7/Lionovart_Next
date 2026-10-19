@@ -20,6 +20,7 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
   const syncRef = useRef<() => void>(() => {});
   const reduced = useHydratedReducedMotion();
   const [ready, setReady] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const [stageReady, setStageReady] = useState<string | null>(null);
   const select = useCallback((value: Selection) => { selection.current = value; syncRef.current(); }, []);
   const context = useMemo(() => ({ ready, stageReady, select }), [ready, stageReady, select]);
@@ -27,13 +28,22 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
   useEffect(() => {
     const root = host.current, surface = canvas.current;
     if (!root || !surface || reduced === null) return;
-    let disposed = false, loading = false, frame = 0;
+    let disposed = false, loading = false, failed = false, frame = 0;
+    let latest: WorldInput | null = null, lastLight = -1;
     let pointer: [number, number] = [0, 0];
     const runway = root.querySelector<HTMLElement>('[data-work-runway]');
     const services = root.querySelector<HTMLElement>('[data-services-runway]');
     const query = new URLSearchParams(location.search);
     const fallbackOnly = query.get('world') === 'poster';
-    const fail = () => {
+    const review = query.get('worldReview') === '1';
+    root.dataset.worldStatus = fallbackOnly ? 'poster' : 'waiting';
+    root.dataset.worldError = fallbackOnly ? 'Poster selected in review' : '';
+    setReady(false); setStageReady(null);
+    const fail = (reason: unknown) => {
+      if (disposed) return;
+      failed = true;
+      root.dataset.worldStatus = 'fallback';
+      root.dataset.worldError = reason instanceof Error ? reason.message : typeof reason === 'string' ? reason : 'Graphics initialization failed';
       setReady(false); setStageReady(null); root.dataset.worldReady = 'false';
       surface.style.opacity = '0'; engine.current?.dispose(); engine.current = null;
     };
@@ -45,8 +55,11 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
       const end = root.getBoundingClientRect();
       const visible = !!entry && entry.top < h && end.bottom > 0 && !document.hidden;
       const light = entry ? worldLight(entry.top, entry.height) : 1;
-      root.style.setProperty('--world-light', String(light));
-      root.style.setProperty('--world-ink', light > .46 ? '#171412' : '#fffaf1');
+      if (light !== lastLight) {
+        lastLight = light;
+        root.style.setProperty('--world-light', String(light));
+        root.style.setProperty('--world-ink', light > .46 ? '#171412' : '#fffaf1');
+      }
       const serviceBounds = services?.getBoundingClientRect();
       const workStage = root.querySelector<HTMLElement>('[data-world-work]');
       const workBounds = workStage?.getBoundingClientRect();
@@ -61,26 +74,38 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
         variant: s.variant, enabled: s.enabled, paused: s.paused, light,
         visible, reduced: !!reduced, rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height }, pointer,
       };
-      surface.style.opacity = visible ? '1' : '0';
+      latest = input;
+      root.dataset.worldVisible = String(visible);
+      root.dataset.worldMotion = reduced ? 'reduced' : s.paused ? 'paused' : 'active';
+      surface.style.opacity = visible && !failed ? '1' : '0';
       if (engine.current) engine.current.update(input);
-      else if (visible && !loading && !fallbackOnly) {
-        loading = true;
+      else if (visible && !loading && !failed && !fallbackOnly) {
+        loading = true; root.dataset.worldStatus = 'loading';
         void import('./world-renderer').then(async ({ createWorld }) => {
+          if (disposed || failed) return;
           const created = await createWorld(surface, query.get('world') === 'webgl', fail, () => {
-            if (!disposed) { setReady(true); root.dataset.worldReady = 'true'; }
-          }, key => { if (!disposed) setStageReady(key); });
-          if (disposed) { created.dispose(); return; }
+            if (!disposed && !failed) { setReady(true); root.dataset.worldReady = 'true'; root.dataset.worldStatus = 'ready'; }
+          }, key => { if (!disposed && !failed) setStageReady(key); });
+          if (disposed || failed) { created.dispose(); return; }
           engine.current = created;
           sync();
         }).catch(fail);
       }
     };
-    const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
+    const schedule = () => { if (!disposed && !frame) frame = requestAnimationFrame(sync); };
     syncRef.current = schedule;
     const move = (event: PointerEvent) => {
-      if (event.pointerType !== 'mouse' || reduced) return;
-      pointer = [event.clientX / innerWidth - .5, event.clientY / innerHeight - .5]; schedule();
+      if (event.pointerType !== 'mouse' || reduced || !latest?.visible || latest.paused) return;
+      pointer = [event.clientX / innerWidth - .5, event.clientY / innerHeight - .5];
+      // Reuse the last scroll/resize measurement. Pointer movement never forces layout.
+      engine.current?.update({ ...latest, pointer });
     };
+    const retry = () => setAttempt(value => value + 1);
+    const simulateFailure = () => fail('Simulated failure from review controls');
+    if (review) {
+      window.addEventListener('lionovart:world-retry', retry);
+      window.addEventListener('lionovart:world-fail', simulateFailure);
+    }
     const observer = new ResizeObserver(schedule);
     observer.observe(root);
     if (services) observer.observe(services);
@@ -95,15 +120,16 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
     sync();
     return () => {
       disposed = true; cancelAnimationFrame(frame); observer.disconnect(); mutation.disconnect();
+      window.removeEventListener('lionovart:world-retry', retry); window.removeEventListener('lionovart:world-fail', simulateFailure);
       window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule);
       window.removeEventListener('pageshow', schedule); window.removeEventListener('pointermove', move);
       document.removeEventListener('visibilitychange', schedule);
       engine.current?.dispose(); engine.current = null; syncRef.current = () => {};
     };
-  }, [reduced]);
+  }, [reduced, attempt]);
 
   return <WorldContext.Provider value={context}><div ref={host} className={styles.world} data-service-world data-world-ready={ready}>
-    <canvas ref={canvas} className={styles.canvas} aria-hidden="true" />
+    <canvas key={`${attempt}-${reduced}`} ref={canvas} className={styles.canvas} aria-hidden="true" />
     <div className={styles.story}>{children}</div>
   </div></WorldContext.Provider>;
 }

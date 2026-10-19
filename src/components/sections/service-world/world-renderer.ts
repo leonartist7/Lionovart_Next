@@ -1,4 +1,5 @@
 import * as T from 'three/webgpu';
+import { FrameBudget } from './frame-budget';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { fitArtwork, fitDistance, type WorldInput } from './world-state';
 
@@ -10,14 +11,14 @@ const IVORY = '#f7f4ef';
 const FILM = 'https://res.cloudinary.com/dgio9uutc/video/upload/c_limit,w_720,f_mp4,vc_h264,q_auto/Demo_hero.mp4';
 
 /** A single room and renderer persist from the partnership threshold to the work gallery. */
-export async function createWorld(canvas: HTMLCanvasElement, forceWebGL: boolean, onFailure: () => void, onReady: () => void, onStageReady: (key: string | null) => void): Promise<WorldEngine> {
+export async function createWorld(canvas: HTMLCanvasElement, forceWebGL: boolean, onFailure: (reason: string) => void, onReady: () => void, onStageReady: (key: string | null) => void): Promise<WorldEngine> {
   // Avoid Three's asynchronous backend failure when this environment has no GPU contexts.
   if (!('gpu' in navigator) || forceWebGL) {
     if (!canvas.getContext('webgl2')) throw new Error('No GPU context; use the interactive poster.');
   }
   const renderer = new T.WebGPURenderer({ canvas, antialias: true, alpha: false, forceWebGL });
   try { await renderer.init(); } catch (error) { renderer.dispose(); throw error; }
-  renderer.onDeviceLost = () => onFailure();
+  renderer.onDeviceLost = () => onFailure('Graphics device lost');
   renderer.outputColorSpace = T.SRGBColorSpace;
   renderer.toneMapping = T.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.1;
@@ -182,22 +183,25 @@ export async function createWorld(canvas: HTMLCanvasElement, forceWebGL: boolean
   video.addEventListener('error', () => { videoFailed = true; });
   const studio = createStudioExhibits({ scene, box, screen, mesh, ivory, chalk, gold, ink, geometry, materials, textures, schedule, disposed: () => disposed });
   const groups = { content, led, work, ...studio.groups };
-  let input: WorldInput | null = null, disposed = false, raf = 0, last = 0, elapsed = 0, lastLED = -1, slow = 0, warmup = 0;
-  let width = 0, height = 0, ratio = 0, downgraded = false;
+  let input: WorldInput | null = null, disposed = false, raf = 0, last = 0, elapsed = 0, lastLED = -1;
+  let width = 0, height = 0, ratio = 0;
+  const budget = new FrameBudget();
+  const review = new URLSearchParams(location.search).get('worldReview') === '1';
+  let lastReport = -Infinity;
   let current = 'arrival', previousVariant = -1, settle = 0;
   const position = new T.Vector3(), target = new T.Vector3(), look = new T.Vector3(0, 1.8, 0);
   let firstFrame = true;
   const tick = (now: number) => {
     raf = 0;
-    if (disposed || !input?.visible) { video.pause(); return; }
+    if (disposed || !input?.visible) { video.pause(); videoWanted = false; last = 0; return; }
     try {
-      const dt = Math.min((now - (last || now)) / 1000, .033); const frameTime = last ? now - last : 16; last = now;
+      const frameTime = last ? now - last : null;
+      const dt = Math.min((frameTime ?? 16.67) / 1000, .033); last = now;
       if (!input.paused && !input.reduced) elapsed += dt;
       const w = innerWidth, h = innerHeight;
-      const dpr = Math.min(devicePixelRatio, downgraded ? 1 : w < 768 ? 1.25 : 1.5);
+      const dpr = Math.min(devicePixelRatio, budget.downgraded ? 1 : w < 768 ? 1.25 : 1.5);
       if (w !== width || h !== height || dpr !== ratio) { width = w; height = h; ratio = dpr; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
-      if (++warmup > 90 && !input.reduced && frameTime > 29) slow++; else slow = Math.max(0, slow - 1);
-      if (slow > 100) downgraded = true;
+      if (!input.reduced && !input.paused) budget.record(frameTime);
       background.setRGB((8 + 239 * input.light) / 255, (8 + 236 * input.light) / 255, (10 + 229 * input.light) / 255, T.SRGBColorSpace);
       (scene.fog as T.Fog).color.copy(background);
       hemi.intensity = .35 + input.light * 2.65; key.intensity = 1.2 + input.light * 3;
@@ -248,23 +252,31 @@ export async function createWorld(canvas: HTMLCanvasElement, forceWebGL: boolean
       camera.setViewOffset(w, h, w / 2 - (input.rect.left + input.rect.width / 2), h / 2 - centerY, w, h);
       const parallax = input.reduced ? 0 : .22;
       position.set(input.pointer[0] * parallax, 1.8 + distance * .16, distance);
-      const blend = input.reduced || !last || settle < .05 ? 1 : 1 - Math.exp(-dt * 8);
+      const blend = input.reduced || firstFrame || settle < .05 ? 1 : 1 - Math.exp(-dt * 8);
       camera.position.lerp(position, blend); target.copy(look); camera.lookAt(target);
+      const renderStart = review ? performance.now() : 0;
       renderer.render(scene, camera);
       if (nextStageKey !== stageKey) { stageKey = nextStageKey; onStageReady(stageKey || null); }
       if (firstFrame) { firstFrame = false; onReady(); }
-      canvas.dataset.backend = renderer.backend.constructor.name;
-      canvas.dataset.exhibit = input.exhibit;
-      canvas.dataset.variant = String(input.variant);
-      canvas.dataset.dpr = String(ratio);
-      // Readable diagnostics allow QA without coupling UI to private renderer state.
-      canvas.dataset.calls = String(renderer.info.render.calls);
-      canvas.dataset.triangles = String(renderer.info.render.triangles);
+      if (review && (now - lastReport > 500 || nextStageKey !== canvas.dataset.stage)) {
+        lastReport = now;
+        const stats = budget.summary();
+        Object.assign(canvas.dataset, {
+          backend: renderer.backend.constructor.name, stage: nextStageKey,
+          exhibit: input.exhibit, variant: String(input.variant), dpr: String(ratio),
+          calls: String(renderer.info.render.calls), triangles: String(renderer.info.render.triangles),
+          textures: String(renderer.info.memory.textures), samples: String(stats.samples),
+          p50: stats.p50?.toFixed(1) ?? 'unavailable', p95: stats.p95?.toFixed(1) ?? 'unavailable',
+          cpuSubmitMs: (performance.now() - renderStart).toFixed(1),
+          quality: budget.downgraded ? 'economy' : 'standard',
+        });
+      }
       if (!input.reduced && ((!input.paused && (input.exhibit === 'content' || input.exhibit === 'led' || input.exhibit === 'systems')) || settle < 1 || camera.position.distanceTo(position) > .01)) raf = requestAnimationFrame(tick);
-    } catch { onFailure(); }
+      else last = 0;
+    } catch (error) { onFailure(error instanceof Error ? error.message : 'Graphics rendering failed'); }
   };
   function schedule() { if (!raf && !disposed && input?.visible) raf = requestAnimationFrame(tick); }
-  const lost = (event: Event) => { event.preventDefault(); onFailure(); };
+  const lost = (event: Event) => { event.preventDefault(); onFailure('WebGL context lost'); };
   canvas.addEventListener('webglcontextlost', lost);
   return {
     update(next) {
