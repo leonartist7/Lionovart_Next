@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "../globals.css";
 import { fontVariables } from "@/lib/fonts";
 import { PORTAL_THEME_COOKIE, resolveThemeChoice } from "@/lib/portal/theme";
@@ -55,6 +56,7 @@ export default async function AppLayout({
     >
       <body className="font-body bg-background text-foreground min-h-full antialiased">
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
