@@ -6,6 +6,7 @@ import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useLenis } from "lenis/react";
 import { scrollEase } from "@/components/experience/scroll-policy";
 
+import { serviceExhibit } from "./service-world/scene-art";
 import WorldPoster from "./service-world/WorldPoster";
 import { useServiceWorld, WorldStageControls } from "./service-world/ServiceWorld";
 
@@ -148,6 +149,7 @@ export default function HomepageServicesChapter() {
   const { t } = useLanguage();
   const reduceMotion = useHydratedReducedMotion() ?? false;
   const world = useServiceWorld();
+  const selectWorld = world?.select;
   const [shortScreen, setShortScreen] = useState(false);
   const staticLayout = reduceMotion || shortScreen;
   const [variants, setVariants] = useState<Record<string, number>>({});
@@ -181,10 +183,11 @@ export default function HomepageServicesChapter() {
 
   const activeService = services[activeIndex] ?? services[0];
   const variant = variants[activeService.id] ?? 0;
-  const interactive = activeService.id === 'content-studio' || activeService.id === 'led';
+  const interactive = !!world;
+  const sceneReady = !!world?.ready && world.stageReady === `${serviceExhibit(activeService.id)}:${variant}`;
   useEffect(() => {
-    world?.select({ service: activeService.id, variant, enabled: ledEnabled, paused: scenePaused });
-  }, [world?.select, activeService.id, variant, ledEnabled, scenePaused]);
+    selectWorld?.({ service: activeService.id, variant, enabled: ledEnabled, paused: scenePaused });
+  }, [selectWorld, activeService.id, variant, ledEnabled, scenePaused]);
   const { scrollYProgress } = useScroll({
     target: staticLayout ? undefined : chapterRef,
     offset: ["start start", "end end"],
@@ -285,9 +288,9 @@ export default function HomepageServicesChapter() {
               style={{ touchAction: "pan-y" }}
               className="flex h-full flex-col items-center justify-center gap-7 sm:gap-9 lg:gap-[clamp(2.75rem,5.5svh,5rem)]"
             >
-              {!carouselPreview && <div data-service-media data-world-service={interactive ? activeService.id : undefined} className="relative order-1 aspect-video w-[min(92vw,61svh)] overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:w-[min(70vw,64svh)] lg:rounded-[1.55rem]">
+              {!carouselPreview && <div data-service-media data-world-service={interactive ? activeService.id : undefined} data-world-rendered={sceneReady} className="relative order-1 aspect-video w-[min(92vw,61svh)] overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:w-[min(70vw,64svh)] lg:rounded-[1.55rem]">
                 <div data-world-poster className="h-full w-full">
-                {interactive ? <WorldPoster service={activeService.id} variant={variant} enabled={ledEnabled} paused={scenePaused} active={!world?.ready} /> : <ServiceMediaCarousel
+                {interactive ? <WorldPoster service={activeService.id} variant={variant} enabled={ledEnabled} paused={scenePaused} active={!sceneReady} /> : <ServiceMediaCarousel
                   key={activeService.id}
                   images={activeService.media}
                   alt={`${activeService.title} service visual`}

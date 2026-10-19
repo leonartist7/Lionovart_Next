@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import styles from './WorldPoster.module.css';
+import StudioPoster from './StudioPoster';
 import { useHydratedReducedMotion } from '@/hooks/useHydratedReducedMotion';
 
 const titles = [['THE NEXT', 'CHAPTER.'], ['MAKE IT', 'MATTER.'], ['IN', 'MOTION.'], ['EVERY', 'MOMENT.']];
@@ -34,7 +35,7 @@ export default function WorldPoster({ service, variant, enabled, paused, active 
     sync(); document.addEventListener('visibilitychange', sync);
     return () => { element?.pause(); document.removeEventListener('visibilitychange', sync); };
   }, [motion]);
-  return <div ref={root} className={styles.poster} data-mode={service} data-variant={variant} data-led-enabled={enabled} aria-hidden="true">
+  return <div ref={root} className={styles.poster} data-mode={service} data-variant={variant} data-led-enabled={enabled} data-paused={paused || !!reduced} data-active={active && visible} aria-hidden="true">
     <div className={styles.room}><i /><i /><i /></div>
     <div className={styles.stage}>
       <div className={styles.podium} />
@@ -48,7 +49,7 @@ export default function WorldPoster({ service, variant, enabled, paused, active 
           <div className={styles.product}><div /><span>L / A</span></div>
           <div className={styles.block} />
         </>}
-      </> : <div className={styles.store}>
+      </> : service !== 'led' ? <StudioPoster service={service} variant={variant} /> : <div className={styles.store}>
         <div className={styles.interior}><i /><i /><div className={styles.desk} /><span>LIONOVART</span></div>
         <div className={styles.glass}><div className={styles.pixels} /><div className={styles.ledRings}><i /><i /><i /></div></div>
         <div className={styles.mullion} />

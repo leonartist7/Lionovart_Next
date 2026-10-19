@@ -1,13 +1,16 @@
 import * as T from 'three/webgpu';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { fitDistance, type WorldInput } from './world-state';
+import { fitArtwork, fitDistance, type WorldInput } from './world-state';
 
 export type WorldEngine = { update: (input: WorldInput) => void; dispose: () => void };
+import { createStudioExhibits } from './studio-exhibits';
+import { boundedVariant, type StudioExhibit } from './scene-art';
+
 const IVORY = '#f7f4ef';
 const FILM = 'https://res.cloudinary.com/dgio9uutc/video/upload/c_limit,w_720,f_mp4,vc_h264,q_auto/Demo_hero.mp4';
 
 /** A single room and renderer persist from the partnership threshold to the work gallery. */
-export async function createWorld(canvas: HTMLCanvasElement, poster: string, forceWebGL: boolean, onFailure: () => void, onReady: () => void): Promise<WorldEngine> {
+export async function createWorld(canvas: HTMLCanvasElement, forceWebGL: boolean, onFailure: () => void, onReady: () => void, onStageReady: (key: string | null) => void): Promise<WorldEngine> {
   // Avoid Three's asynchronous backend failure when this environment has no GPU contexts.
   if (!('gpu' in navigator) || forceWebGL) {
     if (!canvas.getContext('webgl2')) throw new Error('No GPU context; use the interactive poster.');
@@ -134,14 +137,43 @@ export async function createWorld(canvas: HTMLCanvasElement, poster: string, for
   const work = new T.Group(); scene.add(work);
   box(work, 0, .4, 0, 7.1, .6, 1.5, ivory);
   const workArt = new T.MeshBasicMaterial({ map: artwork[0], toneMapped: false }); materials.add(workArt);
-  screen(work, 0, 2.5, 0, 6.6, 3.71, workArt, gold);
-  let workLoaded = false;
+  const workFrame = screen(work, 0, 2.5, 0, 6.6, 3.71, workArt, gold);
+  const workSides = [-1, 1].map(side => {
+    const item = screen(work, side * 3.65, 1.8, -.7, 1.1, 2.5, workArt, gold);
+    item.group.rotation.y = side * -.35; return item;
+  });
+  const workCache = new Map<string, T.Texture>();
+  let workRequest = '', workReady = '', stageKey = '', workGeneration = 0;
+  function applyWork(id: string, texture: T.Texture) {
+    workReady = id; workArt.map = texture; workArt.needsUpdate = true;
+    const image = texture.image as { width: number; height: number };
+    const aspect = image.width / image.height;
+    const [fw, fh] = fitArtwork(aspect); workFrame.face.scale.set(fw, fh, 1);
+    workSides.forEach(item => { const [sw, sh] = fitArtwork(aspect, 1.1, 2.5); item.face.scale.set(sw, sh, 1); });
+    schedule();
+  }
+  function requestWork(id: string, url: string) {
+    if (workRequest === id) return;
+    workRequest = id; workReady = ''; const generation = ++workGeneration;
+    const cached = workCache.get(id);
+    if (cached) { workCache.delete(id); workCache.set(id, cached); applyWork(id, cached); return; }
+    new T.TextureLoader().load(url, texture => {
+      if (disposed || workGeneration !== generation) { texture.dispose(); return; }
+      texture.colorSpace = T.SRGBColorSpace; textures.add(texture); workCache.set(id, texture);
+      applyWork(id, texture);
+      while (workCache.size > 3) {
+        const oldest = workCache.keys().next().value!; const retired = workCache.get(oldest)!;
+        workCache.delete(oldest); textures.delete(retired); retired.dispose();
+      }
+    }, undefined, () => { /* Keep the correct DOM poster on a texture failure. */ });
+  }
   const video = document.createElement('video'); video.muted = true; video.loop = true; video.playsInline = true; video.crossOrigin = 'anonymous'; video.preload = 'none';
   const videoTexture = new T.VideoTexture(video); videoTexture.colorSpace = T.SRGBColorSpace; textures.add(videoTexture);
   const videoMaterial = new T.MeshBasicMaterial({ map: videoTexture, toneMapped: false }); materials.add(videoMaterial);
   let videoWanted = false, videoFailed = false;
   video.addEventListener('error', () => { videoFailed = true; });
-  const groups = { content, led, work };
+  const studio = createStudioExhibits({ scene, box, screen, mesh, ivory, chalk, gold, ink, geometry, materials, textures, schedule, disposed: () => disposed });
+  const groups = { content, led, work, ...studio.groups };
   let input: WorldInput | null = null, disposed = false, raf = 0, last = 0, elapsed = 0, lastLED = -1, slow = 0, warmup = 0;
   let width = 0, height = 0, ratio = 0, downgraded = false;
   let current = 'arrival', previousVariant = -1, settle = 0;
@@ -166,6 +198,11 @@ export async function createWorld(canvas: HTMLCanvasElement, poster: string, for
       settle = input.reduced ? 1 : Math.min(1, settle + dt * 2.3);
       const eased = 1 - Math.pow(1 - settle, 3);
       Object.entries(groups).forEach(([name, group]) => { group.visible = input!.exhibit === name; group.position.y = -.65 * (1 - eased); group.scale.setScalar(.94 + .06 * eased); });
+      const studioName = input.exhibit as StudioExhibit;
+      if (studioName in studio.groups) {
+        studio.update(studioName, input.variant, elapsed, input.reduced);
+        studio.groups[studioName].visible = studio.ready(studioName, input.variant);
+      }
       content.rotation.y = (input.variant - 1.5) * .045;
       billboard.face.material = input.variant === 2 && video.readyState >= 2 && !videoFailed ? videoMaterial : artMaterials[input.variant];
       phone.face.material = artMaterials[input.variant];
@@ -191,10 +228,13 @@ export async function createWorld(canvas: HTMLCanvasElement, poster: string, for
         if (wantsVideo && !videoFailed) { if (!video.src) video.src = FILM; void video.play().catch(() => { videoFailed = true; }); }
         else video.pause();
       }
-      if (input.exhibit === 'work' && !workLoaded) {
-        workLoaded = true;
-        new T.TextureLoader().load(poster, texture => { if (disposed) { texture.dispose(); return; } texture.colorSpace = T.SRGBColorSpace; textures.add(texture); workArt.map = texture; workArt.needsUpdate = true; schedule(); }, undefined, () => {});
-      }
+      if (input.exhibit === 'work' && input.work) requestWork(input.work.id, input.work.poster);
+      work.visible = input.exhibit === 'work' && !!input.work && workReady === input.work.id;
+      const nextStageKey = input.exhibit === 'work'
+        ? (work.visible ? `work:${workReady}` : '')
+        : studioName in studio.groups
+          ? (studio.ready(studioName, input.variant) ? `${studioName}:${input.variant}` : '')
+          : `${input.exhibit}:${input.variant}`;
       const distance = input.exhibit === 'arrival' ? 24 : fitDistance(input.rect.width, input.rect.height, w, h);
       const centerY = input.exhibit === 'arrival' ? h * .48 : input.rect.top + input.rect.height * .51;
       camera.setViewOffset(w, h, w / 2 - (input.rect.left + input.rect.width / 2), h / 2 - centerY, w, h);
@@ -203,6 +243,7 @@ export async function createWorld(canvas: HTMLCanvasElement, poster: string, for
       const blend = input.reduced || !last || settle < .05 ? 1 : 1 - Math.exp(-dt * 8);
       camera.position.lerp(position, blend); target.copy(look); camera.lookAt(target);
       renderer.render(scene, camera);
+      if (nextStageKey !== stageKey) { stageKey = nextStageKey; onStageReady(stageKey || null); }
       if (firstFrame) { firstFrame = false; onReady(); }
       canvas.dataset.backend = renderer.backend.constructor.name;
       canvas.dataset.exhibit = input.exhibit;
@@ -211,7 +252,7 @@ export async function createWorld(canvas: HTMLCanvasElement, poster: string, for
       // Readable diagnostics allow QA without coupling UI to private renderer state.
       canvas.dataset.calls = String(renderer.info.render.calls);
       canvas.dataset.triangles = String(renderer.info.render.triangles);
-      if (!input.reduced && ((!input.paused && (input.exhibit === 'content' || input.exhibit === 'led')) || settle < 1 || camera.position.distanceTo(position) > .01)) raf = requestAnimationFrame(tick);
+      if (!input.reduced && ((!input.paused && (input.exhibit === 'content' || input.exhibit === 'led' || input.exhibit === 'systems')) || settle < 1 || camera.position.distanceTo(position) > .01)) raf = requestAnimationFrame(tick);
     } catch { onFailure(); }
   };
   function schedule() { if (!raf && !disposed && input?.visible) raf = requestAnimationFrame(tick); }
@@ -219,7 +260,7 @@ export async function createWorld(canvas: HTMLCanvasElement, poster: string, for
   canvas.addEventListener('webglcontextlost', lost);
   return {
     update(next) {
-      input = next;
+      input = { ...next, variant: boundedVariant(next.variant) };
       if (!next.visible) { cancelAnimationFrame(raf); raf = 0; last = 0; video.pause(); videoWanted = false; }
       else schedule();
     },

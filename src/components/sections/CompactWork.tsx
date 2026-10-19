@@ -10,6 +10,7 @@ import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import ServicesCurves from "./ServicesCurves";
 import { useWorkBrowse } from "./selected-work/WorkBrowse";
 import { GALLERY_SERVICE_LABELS, type GalleryWork } from "./selected-work/gallery";
+import { useServiceWorld } from "./service-world/ServiceWorld";
 import worldStyles from "./service-world/ServiceWorld.module.css";
 import styles from "./CompactWork.module.css";
 
@@ -68,6 +69,8 @@ function WorkGrid({ servicesCurves }: { servicesCurves: boolean }) {
   const [page, setPage] = useState(0);
   const [paused, setPaused] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
+  const world = useServiceWorld();
+  const [featureSlug, setFeatureSlug] = useState<string | null>(null);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const section = useRef<HTMLElement>(null);
   const projects = browse.galleryProjects;
@@ -76,6 +79,7 @@ function WorkGrid({ servicesCurves }: { servicesCurves: boolean }) {
   const currentPage = Math.min(page, pages - 1);
   const first = currentPage * size;
   const visible = projects.slice(first, first + size);
+  const feature = visible.find(work => work.slug === featureSlug) ?? visible[0];
   const selectedIndex = projects.findIndex(work => work.slug === selectedSlug);
   const selected = projects[selectedIndex];
   const movePreview = (direction: number) => {
@@ -114,14 +118,24 @@ function WorkGrid({ servicesCurves }: { servicesCurves: boolean }) {
             <span className={styles.total}>{String(projects.length).padStart(2, "0")}</span>
           </div>
         </header>
-        {currentPage === 0 && projects[0]?.slug === "rakbank" && <figure className={worldStyles.feature}>
-          <div className={worldStyles.featureStage} data-world-work>
-            <Image src={projects[0].poster} alt={projects[0].name} fill sizes="(max-width: 767px) 92vw, 900px" loading="lazy" />
+        {world && feature && <figure className={worldStyles.feature}>
+          <div className={worldStyles.featureStage} data-world-work data-project-id={feature.slug} data-project-poster={feature.poster}
+            data-world-rendered={world.ready && world.stageReady === `work:${feature.slug}`}>
+            <div className={worldStyles.galleryPoster} data-work-poster>
+              <div className={worldStyles.galleryPodium} />
+              <div className={worldStyles.gallerySide}><Image src={feature.poster} alt="" fill sizes="120px" loading="lazy" /></div>
+              <div className={worldStyles.galleryMain}><Image key={feature.slug} src={feature.poster} alt={feature.name} fill sizes="(max-width: 767px) 72vw, 750px" loading="lazy" /></div>
+              <div className={worldStyles.gallerySide}><Image src={feature.poster} alt="" fill sizes="120px" loading="lazy" /></div>
+            </div>
           </div>
           <figcaption>
-            <p className={worldStyles.featureLabel}>{t("eyebrow")}</p>
-            <Dialog.Trigger className={worldStyles.featureButton} onClick={() => setSelectedSlug(projects[0].slug)}>
-              {projects[0].name}<span aria-hidden="true">↗</span>
+            <div className={worldStyles.projectChoices} role="group" aria-label={tr("Selected work")}>
+              {visible.map(work => <button type="button" key={work.slug} aria-pressed={feature.slug === work.slug}
+                onClick={() => setFeatureSlug(work.slug)}>{work.name}</button>)}
+            </div>
+            <p className={worldStyles.featureLabel}>{tr(feature.industry)} · {feature.services.slice(0, 2).map(id => tr(GALLERY_SERVICE_LABELS[id] ?? id)).join(" / ")}</p>
+            <Dialog.Trigger className={worldStyles.featureButton} onClick={() => setSelectedSlug(feature.slug)} aria-label={tr("View work") + ": " + feature.name}>
+              {feature.name}<span aria-hidden="true">↗</span>
             </Dialog.Trigger>
           </figcaption>
         </figure>}

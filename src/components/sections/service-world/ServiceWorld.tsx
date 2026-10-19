@@ -3,13 +3,13 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useHydratedReducedMotion } from '@/hooks/useHydratedReducedMotion';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { GALLERY_WORK } from '../selected-work/gallery';
+import { serviceExhibit } from './scene-art';
 import type { WorldEngine } from './world-renderer';
 import { worldLight, type WorldInput } from './world-state';
 import styles from './ServiceWorld.module.css';
 
 type Selection = { service: string; variant: number; enabled: boolean; paused: boolean };
-const WorldContext = createContext<{ ready: boolean; select: (selection: Selection) => void } | null>(null);
+const WorldContext = createContext<{ ready: boolean; stageReady: string | null; select: (selection: Selection) => void } | null>(null);
 export const useServiceWorld = () => useContext(WorldContext);
 
 export default function ServiceWorld({ children }: { children: ReactNode }) {
@@ -20,8 +20,9 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
   const syncRef = useRef<() => void>(() => {});
   const reduced = useHydratedReducedMotion();
   const [ready, setReady] = useState(false);
+  const [stageReady, setStageReady] = useState<string | null>(null);
   const select = useCallback((value: Selection) => { selection.current = value; syncRef.current(); }, []);
-  const context = useMemo(() => ({ ready, select }), [ready, select]);
+  const context = useMemo(() => ({ ready, stageReady, select }), [ready, stageReady, select]);
 
   useEffect(() => {
     const root = host.current, surface = canvas.current;
@@ -33,7 +34,7 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
     const query = new URLSearchParams(location.search);
     const fallbackOnly = query.get('world') === 'poster';
     const fail = () => {
-      setReady(false); root.dataset.worldReady = 'false';
+      setReady(false); setStageReady(null); root.dataset.worldReady = 'false';
       surface.style.opacity = '0'; engine.current?.dispose(); engine.current = null;
     };
     const sync = () => {
@@ -47,14 +48,16 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
       root.style.setProperty('--world-light', String(light));
       root.style.setProperty('--world-ink', light > .46 ? '#171412' : '#fffaf1');
       const serviceBounds = services?.getBoundingClientRect();
-      const workBounds = root.querySelector<HTMLElement>('[data-world-work]')?.getBoundingClientRect();
+      const workStage = root.querySelector<HTMLElement>('[data-world-work]');
+      const workBounds = workStage?.getBoundingClientRect();
       const stage = root.querySelector<HTMLElement>('[data-world-service]');
       const s = selection.current;
       const atWork = !!workBounds && workBounds.top < h * .8 && workBounds.bottom > h * .15;
       const atServices = !!serviceBounds && serviceBounds.top < h * .6 && serviceBounds.bottom > h * .4;
       const rect = atWork ? workBounds! : atServices && stage ? stage.getBoundingClientRect() : { left: 0, top: h * .12, width: w, height: h * .65 };
       const input: WorldInput = {
-        exhibit: atWork ? 'work' : atServices ? s.service === 'content-studio' ? 'content' : s.service === 'led' ? 'led' : 'empty' : 'arrival',
+        exhibit: atWork ? 'work' : atServices ? serviceExhibit(s.service) : 'arrival',
+        work: workStage?.dataset.projectId && workStage.dataset.projectPoster ? { id: workStage.dataset.projectId, poster: workStage.dataset.projectPoster } : null,
         variant: s.variant, enabled: s.enabled, paused: s.paused, light,
         visible, reduced: !!reduced, rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height }, pointer,
       };
@@ -63,9 +66,9 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
       else if (visible && !loading && !fallbackOnly) {
         loading = true;
         void import('./world-renderer').then(async ({ createWorld }) => {
-          const created = await createWorld(surface, GALLERY_WORK[0].poster, query.get('world') === 'webgl', fail, () => {
+          const created = await createWorld(surface, query.get('world') === 'webgl', fail, () => {
             if (!disposed) { setReady(true); root.dataset.worldReady = 'true'; }
-          });
+          }, key => { if (!disposed) setStageReady(key); });
           if (disposed) { created.dispose(); return; }
           engine.current = created;
           sync();
@@ -82,7 +85,7 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
     observer.observe(root);
     if (services) observer.observe(services);
     const mutation = new MutationObserver(schedule);
-    mutation.observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-world-service'] });
+    mutation.observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-world-service', 'data-project-id', 'data-project-poster'] });
     window.addEventListener('scroll', schedule, { passive: true });
     window.addEventListener('resize', schedule);
     window.addEventListener('pageshow', schedule);

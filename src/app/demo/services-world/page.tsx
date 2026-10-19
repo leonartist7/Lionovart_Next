@@ -16,7 +16,7 @@ export default function ServicesWorldReview() {
     <title>Services world — viewport review</title>
     <meta name="robots" content="noindex,nofollow" />
     <header style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 16 }}>
-      <strong style={{ marginRight: 16 }}>Phase 1 / viewport review</strong>
+      <strong style={{ marginRight: 16 }}>Phase 2 / viewport review</strong>
       {([['Small phone', 320, 568], ['Phone', 390, 844], ['Tablet', 768, 1024], ['Desktop', 1440, 900], ['Landscape', 844, 390]] as const).map(([label, w, h]) =>
         <button key={label} onClick={() => setSize([w, h])} aria-pressed={size[0] === w} style={{ minHeight: 44, padding: '8px 12px', background: size[0] === w ? '#d3b779' : '#fff8', border: '1px solid #aa9b82', borderRadius: 6 }}>{label}</button>)}
       <select aria-label="Renderer" value={backend} onChange={e => setBackend(e.target.value)} style={{ minHeight: 44 }}>

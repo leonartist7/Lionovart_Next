@@ -20,3 +20,22 @@ for (const [w,h] of [[320,568],[390,844],[768,1024],[1440,900],[2560,1080],[844,
     assert.ok(Number.isFinite(d) && d > .1 && d < 150);
   });
 }
+
+// Project images can be portrait, square, ultra-wide or invalid; never crop or stretch them.
+const { fitArtwork } = await import('../src/components/sections/service-world/world-state.ts');
+for (const aspect of [.25, .5, 1, 1.5, 16 / 9, 3, 5]) {
+  test(`gallery contains ${aspect.toFixed(2)} aspect art at full scale without distortion`, () => {
+    for (const [width, height] of [[6.6, 3.71], [1.1, 2.5]]) {
+      const [w, h] = fitArtwork(aspect, width, height);
+      assert.ok(w <= width + 1e-9 && h <= height + 1e-9);
+      assert.ok(Math.abs(w / h - aspect) < 1e-9);
+      assert.ok(Math.abs(w - width) < 1e-9 || Math.abs(h - height) < 1e-9);
+    }
+  });
+}
+test('invalid image dimensions have a finite widescreen fallback', () => {
+  for (const aspect of [NaN, Infinity, 0, -1]) {
+    const [w, h] = fitArtwork(aspect);
+    assert.ok(Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0);
+  }
+});
