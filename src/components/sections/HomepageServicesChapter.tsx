@@ -162,6 +162,7 @@ export default function HomepageServicesChapter() {
   }, []);
   const chapterRef = useRef<HTMLDivElement>(null);
   const wheelLockRef = useRef(0);
+  const initialLanding = useRef(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const services = SERVICE_META.map((meta, index) => ({
@@ -228,10 +229,11 @@ export default function HomepageServicesChapter() {
   useEffect(() => {
     if (carouselPreview) return;
     let frame = 0;
-    const land = () => {
-      if (window.location.hash !== '#services') return;
+    const land = (event?: Event) => {
+      if (event?.type === 'hashchange') initialLanding.current = false;
+      if (window.location.hash !== '#services' || initialLanding.current) return;
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => { frame = requestAnimationFrame(() => goToService(0, 'instant')); });
+      frame = requestAnimationFrame(() => { frame = requestAnimationFrame(() => { initialLanding.current = true; goToService(0, 'instant'); }); });
     };
     if (document.documentElement.dataset.splashComplete === 'true') land();
     else window.addEventListener('lionovart:splash-complete', land, { once: true });

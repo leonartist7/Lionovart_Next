@@ -95,4 +95,6 @@
 .laptop > div,.tablet,.interfaceCard { background-size: contain; background-repeat: no-repeat; background-color: #eef1f9; }
 .systemHub { background-size: contain; background-repeat: no-repeat; background-color: #f3f5ef; }
 .spaceWall { background-size: contain; background-repeat: no-repeat; background-color: #a34831; }
-.connections { transform: translateZ(-60px); }
+.connections { transform: translateZ(1px); }
+.systemHub { transform: translateZ(60px) rotateY(-7deg); }
+.systemNode { translate: 0 0 30px; }

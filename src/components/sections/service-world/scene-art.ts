@@ -55,6 +55,7 @@ export function sceneArtwork(exhibit: StudioExhibit, rawVariant: number, detail 
     const c = detail ? ink : paper;
     art += text(55, 65, 'ATELIER / LIVE', 24, c) + text(55, 240, ['COME', 'FIND YOUR', 'STEP', 'MAKE A'][v], 100, c, 700) + text(55, 350, ['TOGETHER.', 'WAY.', 'INSIDE.', 'MARK.'][v], 100, c, 700);
     art += `<path d="M680 550 V470 a130 130 0 0 1 260 0 V640 H680Z" fill="${accent}"/>` + text(55, 575, ['EXPERIENCES THAT STAY WITH YOU', 'A CLEAR SENSE OF PLACE', 'A NEW WAY TO MEET YOUR BRAND', 'DESIGNED TO BE HELD'][v], 18, c);
+    if (detail) art = rect(0, 0, 960, 640, paper) + `<path d="M400 280H560 M495 215L560 280L495 345" stroke="${ink}" stroke-width="16" fill="none"/>` + text(403, 445, 'LIVE', 65, ink, 700);
   } else {
     art = rect(0, 0, 960, 640, '#f3f5ef');
     art += rect(0, 0, 190, 640, ink) + text(28, 60, 'AOS / ONE', 25, paper, 700);

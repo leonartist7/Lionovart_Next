@@ -35,3 +35,6 @@ Initial Phase 2 runtime: 10d8f913507d542be5738ddf72a9a2714594c6ab, Vercel lionov
 - Runtime remained in fallback mode (data-world-ready=false). Captured error-log sample contained browser-extension metadata errors, not app errors; this is not a claim that the entire site's console is clean.
 
 GPU appearance, backend compatibility, frame-time/memory profiling and physical-device touch/orientation testing are still Phase 3 gates. Viewport harness screenshots represent CSS perspective fallbacks, not live GPU renders.
+
+## Refined preview evidence
+Runtime 837d03f43d21c12dd2fb5c2e585495d9b76b2f1e (lionovartnext-fn4ex1vrb-lionovart.vercel.app) confirmed direct #services landing at stage top=0. Screenshots saved here are its CSS fallback: phase2-digital-desktop.jpg, phase2-systems-phone.jpg (390×844 iframe), and phase2-spaces-tablet.jpg (768×1024 iframe, browser screenshot shows the visible portion). Final follow-up keeps initial service landing from repeating on orientation changes, makes the signage specimen legible in a portrait frame, and places workflow connections between the room and dashboard depth layers. These small source corrections retain the same scene compositions; GPU validation remains outstanding.
