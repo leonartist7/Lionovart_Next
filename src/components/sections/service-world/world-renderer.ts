@@ -8,6 +8,10 @@ const FILM = 'https://res.cloudinary.com/dgio9uutc/video/upload/c_limit,w_720,f_
 
 /** A single room and renderer persist from the partnership threshold to the work gallery. */
 export async function createWorld(canvas: HTMLCanvasElement, poster: string, forceWebGL: boolean, onFailure: () => void): Promise<WorldEngine> {
+  // Avoid Three's asynchronous backend failure when this environment has no GPU contexts.
+  if (!('gpu' in navigator) || forceWebGL) {
+    if (!canvas.getContext('webgl2')) throw new Error('No GPU context; use the interactive poster.');
+  }
   const renderer = new T.WebGPURenderer({ canvas, antialias: true, alpha: false, forceWebGL });
   try { await renderer.init(); } catch (error) { renderer.dispose(); throw error; }
   renderer.onDeviceLost = () => onFailure();

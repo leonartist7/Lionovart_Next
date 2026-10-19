@@ -6,6 +6,7 @@ import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useLenis } from "lenis/react";
 import { scrollEase } from "@/components/experience/scroll-policy";
 
+import WorldPoster from "./service-world/WorldPoster";
 import { useServiceWorld, WorldStageControls } from "./service-world/ServiceWorld";
 
 import ServicesCurves from "./ServicesCurves";
@@ -286,11 +287,11 @@ export default function HomepageServicesChapter() {
             >
               {!carouselPreview && <div data-service-media data-world-service={interactive ? activeService.id : undefined} className="relative order-1 aspect-video w-[min(92vw,61svh)] overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:w-[min(70vw,64svh)] lg:rounded-[1.55rem]">
                 <div data-world-poster className="h-full w-full">
-                <ServiceMediaCarousel
+                {interactive ? <WorldPoster service={activeService.id} variant={variant} enabled={ledEnabled} paused={scenePaused} active={!world?.ready} /> : <ServiceMediaCarousel
                   key={activeService.id}
                   images={activeService.media}
                   alt={`${activeService.title} service visual`}
-                />
+                />}
                 </div>
               </div>}
 
