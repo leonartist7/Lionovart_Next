@@ -38,3 +38,22 @@ GPU appearance, backend compatibility, frame-time/memory profiling and physical-
 
 ## Refined preview evidence
 Runtime 837d03f43d21c12dd2fb5c2e585495d9b76b2f1e (lionovartnext-fn4ex1vrb-lionovart.vercel.app) confirmed direct #services landing at stage top=0. Screenshots saved here are its CSS fallback: phase2-digital-desktop.jpg, phase2-systems-phone.jpg (390×844 iframe), and phase2-spaces-tablet.jpg (768×1024 iframe, browser screenshot shows the visible portion). Final follow-up keeps initial service landing from repeating on orientation changes, makes the signage specimen legible in a portrait frame, and places workflow connections between the room and dashboard depth layers. These small source corrections retain the same scene compositions; GPU validation remains outstanding.
+
+# Phase 3 review — 19 October 2026
+
+Runtime reviewed: d52a7b00b58e540347db9bd6f244d44a03cf532b, READY preview https://lionovartnext-jd0546zbe-lionovart.vercel.app/#services. The final evidence-only commit does not alter this runtime.
+
+## Verified in this pass
+- Production build, TypeScript and scoped ESLint passed; 50 targeted tests passed. Added behavioral coverage for startup warmup, isolated stalls, sustained slow animation and idle/invalid frame samples.
+- Live diagnosis confirmed an exposed WebGPU API without a usable adapter or WebGL 2 context. Automatic and forced-WebGL modes now report the explicit capability reason and retain usable service content. Explicit poster mode reports `poster`; it does not fabricate GPU measurements.
+- Reproduced the previous orientation jump out of Services, then verified the correction. Selected Systems → AI Workflows (variant 2), resized 390×844 → 844×390 → 390×844 → 320×568 → 768×1024 → 1440×900 without remounting the iframe. The selected service/variant remained. Returning to portrait and tablet placed the service stage at top=0.
+- Landscape normal-flow stage measured 744px tall inside a 390px viewport. Native scrolling exposed the title, four example controls and pause control, then continued into Selected Work without clipping the section.
+- At 320×568: document width 305px (15px scrollbar); all five Systems controls were 44px high; final control bottom 483px. No horizontal overflow. Saved `phase3-small-phone.jpg`.
+- Keyboard Enter selected Dashboards and set aria-pressed=true. Keyboard Enter on Pause set data-paused=true. Resizing to desktop retained the chosen variant.
+- Review failure simulation produced the explicit simulated reason and kept Systems/AI Workflows selected and usable. Retry mounted a new canvas and returned to the actual unsupported-GPU reason, with variant 2 preserved. Saved `phase3-landscape-recovery.jpg`. This is fallback simulation, not actual GPU context-loss proof.
+- Main homepage LED switch set data-led-enabled=false and returned to ON. Window Campaigns selected variant 2. Saved `phase3-led-desktop.jpg` at the cloud browser's desktop viewport (1363×936).
+- Reverse scroll from Services showed ivory, an intermediate light value 0.3217 with light text, then black (0) around the original video/card chapter. Native keyboard End reached the footer (top 725.8, bottom 936.3 in the 936px viewport). These journey checks used the initial Phase 3 c47846d runtime; the later correction changes viewport restoration and the GPU capability check, not the light choreography.
+- Sampled final browser error logs contained extension metadata errors. This does not certify the entire site's console as error-free.
+
+## Release gate still open
+All saved screenshots are the interactive CSS perspective fallback. No supported GPU exists in this test browser, so live Three.js visuals, hardware frame times, real context-loss/recovery, GPU memory trends, shader compilation, transfer profiling, physical touch, OS reduced-motion changes and cross-browser hardware results remain unverified. Review diagnostics make supported-device measurement available. Keep the PR in draft and do not promote to production on the basis of these viewport checks.
