@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { preload } from "react-dom";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "../globals.css";
 // Required Lenis stylesheet — missing this causes native scroll to fight Lenis every frame.
 import "lenis/dist/lenis.css";
@@ -98,6 +99,7 @@ export default async function RootLayout({
         </IntroProvider>
         </LanguageProvider>
         </NextIntlClientProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
