@@ -9,7 +9,7 @@ import ProofAndClose from "@/components/sections/services/_shared/ProofAndClose"
 import CategoryShowcase from "@/components/sections/services/print/CategoryShowcase";
 
 export const metadata: Metadata = {
-  title: "Print & Physical Branding",
+  title: "Spaces, Events & Physical Experiences",
   description:
     "Business cards, packaging, signage, merch, and premium finishes. A capabilities studio for the tangible side of your brand — quote on request.",
 };
@@ -21,9 +21,9 @@ export default function PrintServicePage() {
       <main className="bg-bg-dark min-h-screen relative z-10">
         <Navbar />
         <ServiceCurtainHero
-          eyebrow="Print & Physical"
+          eyebrow="Spaces & Events"
           lines={[{ text: "Presence beyond" }, { text: "the screen", accent: true }]}
-          sub="Cards · Packaging · Signage · Merch"
+          sub="Events · Signage · Retail · Print"
         />
         <StatementRelay
           beats={[

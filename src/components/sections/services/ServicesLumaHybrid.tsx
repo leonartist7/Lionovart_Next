@@ -37,7 +37,7 @@ function shortLabelFor(item: LumaHybridServiceItem) {
     "content-studio": "CONTENT",
     print: "PRINT",
     "smart-systems": "AI",
-    growth: "GROWTH",
+    led: "LED",
   };
   return map[item.id] ?? item.title.split(/\s+/)[0]?.toUpperCase() ?? item.number;
 }
@@ -235,7 +235,7 @@ function StaticMobile({ eyebrow, heading, headingAccent, items }: ServicesLumaHy
     shortLabel: "ALL",
     title: "One system",
     description:
-      "Strategy, identity, digital, content, intelligent systems and growth — designed to work as one connected brand engine.",
+      "Strategy, identity, digital, content, intelligent systems and transparent displays — designed to work as one connected brand engine.",
     deliverables: [],
     isOverview: true,
   };
@@ -322,7 +322,7 @@ export default function ServicesLumaHybrid({ eyebrow, heading, headingAccent, it
       shortLabel: "ALL",
       title: "One system",
       description:
-        "Strategy, identity, digital, content, intelligent systems and growth — designed to work as one connected brand engine.",
+        "Strategy, identity, digital, content, intelligent systems and transparent displays — designed to work as one connected brand engine.",
       deliverables: [],
       isOverview: true,
     };

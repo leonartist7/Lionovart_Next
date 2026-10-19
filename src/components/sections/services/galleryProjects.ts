@@ -6,5 +6,5 @@ export const SERVICE_GALLERY_PROJECTS = [
   { id: "content", name: "Content Studio", poster: "/images/services-gallery/content.webp", color: "#573c3a" },
   { id: "print", name: "Print & Physical Branding", poster: "/images/services-gallery/print.webp", color: "#c9b7a6" },
   { id: "systems", name: "Smart Systems & AI", poster: "/images/services-gallery/systems.webp", color: "#302f3c" },
-  { id: "growth", name: "Growth Marketing", poster: "/images/services-gallery/growth.webp", color: "#6b4a44" },
+  { id: "led", name: "Transparent LED Experiences", poster: "/images/transparent-led-concept.svg", color: "#6b4a44" },
 ] as const;

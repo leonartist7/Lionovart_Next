@@ -1,5 +1,16 @@
 /** Reviewed French public UI copy. Source phrases are gettext-style keys. */
 const french: Record<string, string> = {
+  "Smart Business Systems": "Systèmes métier intelligents",
+  "Content & Campaigns": "Contenus & campagnes",
+  "Seasonal · Promotional · Ongoing": "Saisonnier · Promotionnel · Régulier",
+  "Digital Experiences": "Expériences digitales",
+  "Your brand.": "Votre marque.",
+  "A digital experience.": "Une expérience digitale.",
+  "Websites · Apps · Customer Platforms": "Sites web · Applications · Plateformes clients",
+  "Spaces & Events": "Espaces & événements",
+  "Events · Signage · Retail · Print": "Événements · Signalétique · Boutiques · Impression",
+  "Spaces": "Espaces",
+
   "More Successful": "De meilleurs",
   "Results": "Résultats",
   "Design your legacy": "Façonnez votre héritage",

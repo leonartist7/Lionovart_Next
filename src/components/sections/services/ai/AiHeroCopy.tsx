@@ -72,7 +72,7 @@ export default function AiHeroCopy() {
             className="w-full max-w-[45rem] [text-shadow:0_3px_24px_rgba(0,0,0,0.92)] md:w-[55%]"
           >
             <p className="mb-6 text-[13px] font-medium uppercase tracking-[0.24em] text-[var(--ai-cyan)] md:text-[14px]">
-              {tr("AI Systems & Consulting")}
+              {tr("Smart Business Systems")}
             </p>
             <h1
               className="max-w-[14ch] font-normal leading-[0.91] tracking-[-0.05em] text-white"

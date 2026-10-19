@@ -5,13 +5,15 @@ import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
+import SeasonalCampaigns from "@/components/sections/services/SeasonalCampaigns";
+import CampaignPackages from "@/components/sections/services/CampaignPackages";
 import ClosingCTA from "@/components/sections/ClosingCTA";
 import { SERVICE_ROUTES } from "@/lib/service-routes";
 
 export const metadata: Metadata = {
   title: "Creative & Digital Services",
   description:
-    "Brand identity, websites, apps, films, content, print, AI systems and growth marketing. One creative studio for businesses across Europe and North America.",
+    "Brand and graphic design, content campaigns, digital experiences, spaces and events, custom AI platforms and transparent LED displays.",
   alternates: { canonical: "/services" },
 };
 
@@ -34,6 +36,7 @@ export default async function ServicesIndexPage() {
           </h1>
         </section>
 
+        <SeasonalCampaigns />
         <section className="mx-auto max-w-[1400px] px-6 pb-32 md:px-10">
           <ul className="border-t border-white/10">
             {SERVICE_ROUTES.map((s, i) => {
@@ -78,6 +81,7 @@ export default async function ServicesIndexPage() {
           </ul>
         </section>
 
+        <CampaignPackages />
         <ClosingCTA />
         <Footer />
       </main>

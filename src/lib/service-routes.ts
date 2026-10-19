@@ -1,80 +1,89 @@
-/**
- * Single source of truth for service-page routes. Used by the homepage Services
- * section, the Navbar expertise menu, and the /services overview. Localized
- * titles let the nav resolve a route in any language. `ready` gates linking so
- * we never link to a page that isn't built yet (others fall back to in-page scroll).
- */
-
+/** Canonical service URLs. Keep established paths when positioning changes. */
 export interface ServiceRoute {
   id: string;
   href: string;
-  name: string; // English display name
-  titles: string[]; // localized titles (en/es/fr) for nav lookup
+  name: string;
+  titles: string[];
   blurb: string;
-  signature: string; // one line describing the page's idea (for the overview)
-  ready: boolean; // is the page built?
+  signature: string;
+  ready: boolean;
 }
-
 export const SERVICE_ROUTES: ServiceRoute[] = [
   {
-    id: "brand",
-    href: "/services/brand",
-    name: "Brand Identity & Strategy",
-    titles: ["Brand Identity & Strategy", "Identidad de Marca y Estrategia", "Image de Marque & Identité"],
-    blurb: "Logo systems, strategy, type, color, and voice that make you the obvious premium choice.",
-    signature: "A mark that builds itself.",
-    ready: true,
+    "id": "brand",
+    "href": "/services/brand",
+    "name": "Brand & Graphic Design",
+    "titles": [
+      "Brand & Graphic Design",
+      "Identité & design graphique"
+    ],
+    "blurb": "Make your image reflect the quality of your business, from your identity to every printed and digital detail.",
+    "signature": "An image that reflects your quality.",
+    "ready": true
   },
   {
-    id: "web",
-    href: "/services/web",
-    name: "Web & App Development",
-    titles: ["Web & App Development", "Desarrollo Web y de Apps", "Développement Web & App"],
-    blurb: "Fast, conversion-focused sites and apps that turn visitors into booked calls.",
-    signature: "A site that builds itself.",
-    ready: true,
+    "id": "web",
+    "href": "/services/web",
+    "name": "Digital Experiences",
+    "titles": [
+      "Digital Experiences",
+      "Expériences digitales"
+    ],
+    "blurb": "Websites, apps and customer platforms that bring your brand to life and make the next step feel natural.",
+    "signature": "Your brand, brought to life online.",
+    "ready": true
   },
   {
-    id: "content-studio",
-    href: "/services/content-studio",
-    name: "Content Studio",
-    titles: ["Content Studio", "Estudio de Contenido", "Studio de Contenu"],
-    blurb: "Brand films, reels, and social content, made and run end to end.",
-    signature: "Content that won't be ignored.",
-    ready: true,
+    "id": "content-studio",
+    "href": "/services/content-studio",
+    "name": "Content & Campaigns",
+    "titles": [
+      "Content & Campaigns",
+      "Contenus & campagnes"
+    ],
+    "blurb": "Seasonal, promotional and ongoing content that gives people a reason to notice you and take action.",
+    "signature": "Creative for your next big moment.",
+    "ready": true
   },
   {
-    id: "print",
-    href: "/services/print",
-    name: "Print & Physical Branding",
-    titles: ["Print & Physical Branding", "Branding Físico e Impresión", "Impression & Marque Physique"],
-    blurb: "Cards, packaging, signage, and physical brand experiences.",
-    signature: "Presence beyond the screen.",
-    ready: true,
+    "id": "print",
+    "href": "/services/print",
+    "name": "Spaces & Events",
+    "titles": [
+      "Spaces & Events",
+      "Espaces & événements"
+    ],
+    "blurb": "Bring your brand into the real world through events, signage, retail displays and memorable physical experiences.",
+    "signature": "Presence beyond the screen.",
+    "ready": true
   },
   {
-    id: "ai",
-    href: "/services/ai",
-    name: "Smart Systems & AI",
-    titles: ["Smart Systems & AI", "Sistemas Inteligentes e IA", "Systèmes Intelligents & IA"],
-    blurb: "Voice agents, automation, and workflows that run and convert 24/7.",
-    signature: "Your business, always on.",
-    ready: true,
+    "id": "ai",
+    "href": "/services/ai",
+    "name": "Smart Business Systems",
+    "titles": [
+      "Smart Business Systems",
+      "Systèmes métier intelligents"
+    ],
+    "blurb": "Custom AI-powered operating platforms that connect your tools, simplify daily work and give your team time back.",
+    "signature": "More time for the work that matters.",
+    "ready": true
   },
   {
-    id: "growth",
-    href: "/services/growth",
-    name: "Growth Marketing",
-    titles: ["Growth Marketing", "Marketing de Crecimiento", "Marketing de Croissance"],
-    blurb: "SEO, local search, ads, and analytics that put you where buyers look.",
-    signature: "Found first, chosen first.",
-    ready: false,
-  },
+    "id": "led",
+    "href": "/services/led",
+    "name": "Transparent LED Experiences",
+    "titles": [
+      "Transparent LED Experiences",
+      "Expériences LED transparentes"
+    ],
+    "blurb": "Turn your windows into a moving brand experience with transparent LED displays and bespoke creative content.",
+    "signature": "A new stage for your brand.",
+    "ready": true
+  }
 ];
-
-/** Resolve a route href from a (possibly localized) service title. Ready pages only. */
 export function hrefForTitle(title: string): string | null {
   const t = title.trim().toLowerCase();
-  const match = SERVICE_ROUTES.find((s) => s.titles.some((x) => x.toLowerCase() === t));
-  return match && match.ready ? match.href : null;
+  const match = SERVICE_ROUTES.find(s => s.titles.some(x => x.toLowerCase() === t));
+  return match?.ready ? match.href : null;
 }
