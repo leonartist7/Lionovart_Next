@@ -8,7 +8,8 @@ export type WorldInput = {
 export const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 export const smooth = (n: number) => { const t = clamp01(n); return t * t * (3 - 2 * t); };
 export function worldLight(top: number, height: number) {
-  return smooth((-top / Math.max(1, height)) / .22);
+  // Finish the card dissolve before opening the same dark room into daylight.
+  return smooth((-top / Math.max(1, height) - .12) / .20);
 }
 export function fitDistance(width: number, height: number, viewportWidth: number, viewportHeight: number) {
   const vertical = 5.6 * viewportHeight / Math.max(100, height);

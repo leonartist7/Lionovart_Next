@@ -5,7 +5,8 @@ import { worldLight, fitDistance } from '../src/components/sections/service-worl
 test('the room remains black before the card exit and reaches ivory within the partnership runway', () => {
   assert.equal(worldLight(100, 6000), 0);
   assert.equal(worldLight(0, 6000), 0);
-  assert.equal(worldLight(-1320, 6000), 1);
+  assert.equal(worldLight(-720, 6000), 0);
+  assert.equal(worldLight(-1920, 6000), 1);
   const forward = Array.from({length: 101}, (_, i) => worldLight(-i * 60, 6000));
   assert.deepEqual(forward.slice().reverse(), Array.from({length: 101}, (_, i) => worldLight(-(100-i)*60, 6000)));
   assert.ok(forward.every((v, i) => v >= 0 && v <= 1 && (i === 0 || v >= forward[i-1])));
