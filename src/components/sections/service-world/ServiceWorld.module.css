@@ -109,7 +109,7 @@
 .world[data-world-mode=media] :global([data-service-panel]) { top: 7svh; bottom: 8rem; }
 .world[data-world-mode=media] :global([data-service-panel] > div) { justify-content: space-between; gap: clamp(1.5rem,4svh,3rem); }
 .controls[data-exhibit-controls=true] { position: relative; isolation: isolate; margin-top: clamp(1.75rem,4svh,3rem); }
-.controls[data-exhibit-controls=true] .hint { margin-bottom: 1.1rem; }
+.controls[data-exhibit-controls=true] .hint { margin-bottom: 2rem; }
 .controls[data-exhibit-controls=true] .tags { isolation: isolate; }
 .controls[data-exhibit-controls=true] .utilities { margin-top: 1.2rem; }
 @media(max-width:767px) {
@@ -120,12 +120,13 @@
   .world[data-world-mode=media] :global([data-service-panel]) { top: 9svh; bottom: 7rem; }
   .world[data-world-mode=media] :global([data-service-panel] > div) { justify-content: center; gap: clamp(1.25rem,3svh,2rem); }
   .controls[data-exhibit-controls=true] { margin-top: clamp(1.6rem,4svh,2.4rem); }
+  .controls[data-exhibit-controls=true] .hint { margin-bottom: 1.5rem; }
 }
 @media(max-height:740px) and (min-height:561px) {
   .world[data-world-mode=media] :global([data-service-panel]) { top: 6svh; bottom: 6.5rem; }
   .world[data-world-mode=media] :global([data-service-panel] > div) { gap: .9rem; }
   .controls[data-exhibit-controls=true] { margin-top: 1.25rem; }
-  .controls[data-exhibit-controls=true] .hint { margin-bottom: .85rem; }
+  .controls[data-exhibit-controls=true] .hint { margin-bottom: 1.5rem; }
   .controls[data-exhibit-controls=true] .utilities { margin-top: .8rem; }
 }
 @media(max-height:560px), (prefers-reduced-motion:reduce) {
