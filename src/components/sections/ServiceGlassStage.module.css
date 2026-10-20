@@ -1,8 +1,8 @@
-.stage { position: relative; left: 50%; transform: translateX(-50%); width: min(94vw, 1280px); height: clamp(14rem, 43svh, 36rem); margin: 0; perspective: 1400px; isolation: isolate; }
+.stage { position: relative; left: 50%; transform: translateX(-50%); width: min(94vw, 1280px); height: clamp(14rem, 38svh, 32rem); margin: 0; perspective: 1400px; isolation: isolate; }
 .atmosphere { position: absolute; inset: -28svh -20vw -22svh; pointer-events: none; z-index: -1; }
 .colorSpill, .reflectedLight { position: absolute; inset: 0; opacity: 0; transition: opacity 900ms ease; pointer-events: none; }
 .colorSpill[data-selected=true], .reflectedLight[data-selected=true] { opacity: 1; }
-.podium { position: absolute; width: 78%; height: 24%; left: 11%; bottom: -5%; border-radius: 50%; background: linear-gradient(174deg,#fffdf8 12%,#e5dfd4 58%,#bfb4a0 100%); box-shadow: 0 14px 0 -6px #d3c7af, 0 20px 22px -11px #75665045, inset 0 1px 0 #fff; }
+.podium { position: absolute; width: min(90vw,64rem); height: clamp(5.25rem,11svh,7rem); left: 50%; top: 44%; transform: translate(-50%,-50%); z-index: -1; pointer-events: none; border-radius: 50%; background: linear-gradient(174deg,#fffdf8 12%,#e5dfd4 58%,#bfb4a0 100%); box-shadow: 0 11px 0 -6px #d3c7af, 0 22px 25px -15px #75665045, inset 0 1px 0 #fff; }
 .reflectedLight { border-radius: inherit; }
 .rim { position: absolute; inset: 0; border-radius: inherit; border: 1px solid #b2955d8c; box-shadow: inset 0 2px 2px #fff9; }
 .innerRim { position: absolute; inset: 9% 4%; border-radius: 50%; border: 1px solid #c1a8754d; }
@@ -19,14 +19,14 @@
 .card[data-position=center] .selectCard { pointer-events: none; }
 .selectCard:focus-visible { outline: 2px solid #a67d38; outline-offset: 5px; }
 @media(hover:hover) and (pointer:fine) { .card:has(.selectCard:hover) { opacity: 1; } }
-.stage[data-paused=true] .lightTrace { animation-play-state: paused; }
+:global([data-exhibit-controls][data-paused=true]) .lightTrace { animation-play-state: paused; }
 @media(max-width:767px) {
-  .stage { width: 98vw; height: clamp(13.5rem,32svh,22rem); perspective: 1000px; }
+  .stage { width: 98vw; height: clamp(12rem,29svh,21rem); perspective: 1000px; }
   .card { width: 68%; left: 16%; padding: 7px 7px 1.9rem; border-radius: 10px; }
   .card[data-position=left] { transform: translate3d(-60%,2%,-210px) rotateY(30deg); }
   .card[data-position=right] { transform: translate3d(60%,2%,-210px) rotateY(-30deg); }
   .cardLabel { font-size: .5rem; letter-spacing: .07em; bottom: .6rem; left: .4rem; right: .4rem; }
-  .podium { width: 88%; left: 6%; height: 20%; }
+  .podium { width: 96vw; height: 5.5rem; }
 }
 @media(max-height:740px) and (min-height:561px) { .stage { height: 29svh; min-height: 10rem; } }
 @media(max-height:560px) { .stage { height: 19rem; } }

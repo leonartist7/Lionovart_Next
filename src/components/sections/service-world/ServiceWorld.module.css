@@ -100,3 +100,35 @@
 .tags[data-triptych-tags=true] button[data-position=right] { transform: translateX(106.25%); }
 @media(prefers-reduced-motion:reduce) { .tags[data-triptych-tags=true] button { transition: background 150ms ease; } }
 @media(max-height:740px) and (min-height:561px) { .world[data-world-mode=media] :global([data-service-media]) { max-height: 29svh; } .world[data-world-mode=media] :global([data-service-media] > div) { height: 29svh; min-height: 0; } }
+
+/* Horizontal room frames and a grounded control deck leave air around the film. */
+.world[data-world-mode=media] .architecture i { inset: 12% -8% 28%; }
+.world[data-world-mode=media] .architecture i:nth-child(2) { inset: 17% -1% 33%; }
+.world[data-world-mode=media] .architecture i:nth-child(3) { inset: 22% 6% 38%; }
+.world[data-world-mode=media] .architecture i:nth-child(4) { inset: 27% 13% 43%; }
+.world[data-world-mode=media] :global([data-service-panel]) { top: 7svh; bottom: 8rem; }
+.world[data-world-mode=media] :global([data-service-panel] > div) { justify-content: space-between; gap: clamp(1.5rem,4svh,3rem); }
+.controls[data-exhibit-controls=true] { position: relative; isolation: isolate; margin-top: clamp(1.75rem,4svh,3rem); }
+.controls[data-exhibit-controls=true] .hint { margin-bottom: 1.1rem; }
+.controls[data-exhibit-controls=true] .tags { isolation: isolate; }
+.controls[data-exhibit-controls=true] .utilities { margin-top: 1.2rem; }
+@media(max-width:767px) {
+  .world[data-world-mode=media] .architecture i { inset: 14% -40% 40%; }
+  .world[data-world-mode=media] .architecture i:nth-child(2) { inset: 19% -30% 45%; }
+  .world[data-world-mode=media] .architecture i:nth-child(3) { inset: 24% -20% 50%; }
+  .world[data-world-mode=media] .architecture i:nth-child(4) { inset: 29% -10% 55%; }
+  .world[data-world-mode=media] :global([data-service-panel]) { top: 9svh; bottom: 7rem; }
+  .world[data-world-mode=media] :global([data-service-panel] > div) { justify-content: center; gap: clamp(1.25rem,3svh,2rem); }
+  .controls[data-exhibit-controls=true] { margin-top: clamp(1.6rem,4svh,2.4rem); }
+}
+@media(max-height:740px) and (min-height:561px) {
+  .world[data-world-mode=media] :global([data-service-panel]) { top: 6svh; bottom: 6.5rem; }
+  .world[data-world-mode=media] :global([data-service-panel] > div) { gap: .9rem; }
+  .controls[data-exhibit-controls=true] { margin-top: 1.25rem; }
+  .controls[data-exhibit-controls=true] .hint { margin-bottom: .85rem; }
+  .controls[data-exhibit-controls=true] .utilities { margin-top: .8rem; }
+}
+@media(max-height:560px), (prefers-reduced-motion:reduce) {
+  .world[data-world-mode=media] :global([data-service-panel]) { top: auto; bottom: auto; }
+  .world[data-world-mode=media] :global([data-service-panel] > div) { gap: 2rem; }
+}

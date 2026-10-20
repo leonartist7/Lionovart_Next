@@ -50,12 +50,6 @@ export function ServiceScreen({ service, variant, active, paused, onVariant }: {
       {exhibits.map((exhibit, index) => <div key={index} className={glass.colorSpill} data-selected={index === variant}
         style={{ background: `radial-gradient(ellipse closest-side at 50% 50%, ${exhibit.tint}55, transparent 100%)` }} />)}
     </div>
-    <div className={glass.podium} aria-hidden="true">
-      {exhibits.map((exhibit, index) => <div key={index} className={glass.reflectedLight} data-selected={index === variant}
-        style={{ background: `radial-gradient(ellipse at center, ${exhibit.tint}80, transparent 68%)` }} />)}
-      <div className={glass.rim} /><div className={glass.innerRim} />
-      <div key={`${service}-${variant}`} className={glass.lightTrace} />
-    </div>
     {exhibits.map((exhibit, index) => {
       const asset: ScreeningAsset = GALLERY_WORK.find(work => work.slug === exhibit.slug) ?? {
         poster: '/images/transparent-led-concept.svg', name: locale === 'fr' ? 'LED transparent · concept' : 'Transparent LED · display concept',
