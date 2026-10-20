@@ -237,8 +237,8 @@
  .card[data-integrated=true] .integratedCopy { display: flex; align-items: center; height: 100%; padding-block: .5rem 2.25rem; }
 }
 
-/* A revealed benefit uses the whole existing panel, rather than scrolling a
-   small lower well. The film outline and the three panel sizes never change. */
+/* Keep the original paw/cover reveal. Compact benefit content fits the
+   existing well without scrollbars; the film and panel outlines never change. */
 .card[data-integrated=true] { container: benefit-card / size; overflow: clip; }
 .card[data-integrated=true] .detailWell { container: benefit-detail / size; }
 .card[data-integrated=true] .integratedDetails {
