@@ -6,7 +6,7 @@ import styles from './ScreeningRoom.module.css';
 
 export type ScreeningAsset = { poster: string; video?: string; name: string };
 export function previewVideo(source: string, width: number) {
-  return source.replace(/\/upload\/(?:[^/]+\/)?(?=v\d+\/)/, `/upload/w_${width},c_limit,f_mp4,vc_h264,q_auto:good,ac_none,fr_24/`);
+  return source.replace(/\/upload\/(?:[^/]+\/)?(?=v\d+\/)/, `/upload/w_${width},c_limit,f_mp4,vc_h264,q_auto:good,ac_none/`);
 }
 
 /** One silent decoder per active stage. A real poster survives blocked/failed video. */
@@ -23,8 +23,9 @@ export function ScreeningMedia({ asset, active, paused = false, label = true }: 
       if (allowed && asset.video && node) {
         const source = previewVideo(asset.video, innerWidth < 768 ? 640 : 1280);
         if (node.getAttribute('src') !== source) { node.src = source; node.load(); }
-        void node.play().catch(() => { if (!disposed) setPlaying(false); });
-      } else { node?.pause(); setPlaying(false); }
+        node.dataset.playback = 'loading';
+        void node.play().catch((error: DOMException) => { if (!disposed) { node.dataset.playback = error.name; setPlaying(false); } });
+      } else { if (node) { node.pause(); node.dataset.playback = 'paused'; } setPlaying(false); }
     };
     sync(); document.addEventListener('visibilitychange', sync); media.addEventListener('change', sync);
     return () => { disposed = true; node?.pause(); document.removeEventListener('visibilitychange', sync); media.removeEventListener('change', sync); };
@@ -32,7 +33,7 @@ export function ScreeningMedia({ asset, active, paused = false, label = true }: 
   return <div className={styles.media} data-screening-media>
     <Image src={asset.poster} alt={asset.name} fill sizes="(max-width: 767px) 90vw, 1100px" loading="lazy" />
     {asset.video && <video ref={video} poster={asset.poster} muted playsInline loop preload="none"
-      onPlaying={() => setPlaying(true)} onPause={() => setPlaying(false)} onError={() => setPlaying(false)} data-playing={playing} aria-hidden="true" />}
+      onPlaying={event => { event.currentTarget.dataset.playback = 'playing'; setPlaying(true); }} onPause={() => setPlaying(false)} onError={event => { event.currentTarget.dataset.playback = `media-error-${event.currentTarget.error?.code}`; setPlaying(false); }} data-playing={playing} aria-hidden="true" />}
     {label && <span className={styles.mediaLabel}>{asset.name}</span>}
   </div>;
 }
