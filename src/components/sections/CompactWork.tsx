@@ -141,12 +141,12 @@ function WorkGrid({ servicesCurves }: { servicesCurves: boolean }) {
             </button>}
           </div>
           <figcaption>
-            <div className={worldStyles.projectChoices} role="group" aria-label={tr("Selected work")}>
+            <div className={worldStyles.projectChoices} data-project-choices role="group" aria-label={tr("Selected work")}>
               {visible.map(work => <button type="button" key={work.slug} aria-pressed={feature.slug === work.slug}
                 onClick={() => setFeatureSlug(work.slug)}>{work.name}</button>)}
             </div>
-            <p className={worldStyles.featureLabel}>{tr(feature.industry)} · {feature.services.slice(0, 2).map(id => tr(GALLERY_SERVICE_LABELS[id] ?? id)).join(" / ")}</p>
-            <Dialog.Trigger className={worldStyles.featureButton} onClick={() => setSelectedSlug(feature.slug)} aria-label={tr("View work") + ": " + feature.name}>
+            <p className={worldStyles.featureLabel} data-project-caption>{tr(feature.industry)} · {feature.services.slice(0, 2).map(id => tr(GALLERY_SERVICE_LABELS[id] ?? id)).join(" / ")}</p>
+            <Dialog.Trigger data-project-open className={worldStyles.featureButton} onClick={() => setSelectedSlug(feature.slug)} aria-label={tr("View work") + ": " + feature.name}>
               {feature.name}<span aria-hidden="true">↗</span>
             </Dialog.Trigger>
           </figcaption>

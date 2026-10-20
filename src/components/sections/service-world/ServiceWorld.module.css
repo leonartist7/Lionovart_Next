@@ -148,3 +148,12 @@
 .world :global([data-scene-runways][data-pinned=true] [data-gallery=compact] > div) { max-width: none; }
 .world :global([data-scene-layers] [data-gallery-stage]) { color: #171412; }
 .world :global([data-scene-layers] [data-about-content]) { background: transparent; }
+@media(max-height:650px) and (min-height:561px) {
+  .world[data-world-mode=media] :global([data-service-panel]) { top: 4.5rem; bottom: 6rem; }
+  .world[data-world-mode=media] :global([data-service-media]),
+  .world[data-world-mode=media] :global([data-service-media] > div) { height: 22svh; max-height: 22svh; min-height: 0; }
+  .controls[data-exhibit-controls=true] { margin-top: 1rem; }
+  .controls[data-exhibit-controls=true] .hint { margin-bottom: .75rem; }
+  .controls[data-exhibit-controls=true] .utilities { margin-top: .25rem; }
+  .world :global([data-service-podium]) { opacity: .35; }
+}

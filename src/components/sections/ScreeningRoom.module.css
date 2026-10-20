@@ -88,3 +88,15 @@
   .aboutRunway { height: auto; }
   .aboutStage { position: relative; height: auto; padding: 0; overflow: visible; }
 }
+@media(max-height:740px) and (min-height:561px) {
+  .galleryStage { padding: 4.5rem 1rem 6rem; }
+  .galleryHeader { margin-bottom: 1rem; }
+  .galleryHeader h2 { font-size: 1.6rem; }
+  .corridor { height: 20svh; min-height: 0; }
+  .galleryStage :global([data-project-choices]) { gap: .75rem; margin: .5rem auto 0; }
+  .galleryStage :global([data-project-choices]) button { font-size: .625rem; min-height: 44px; }
+  .galleryStage :global([data-project-caption]) { margin: .25rem 0; font-size: .5rem; }
+  .galleryStage :global([data-project-open]) { min-height: 44px; font-size: 1.25rem; }
+  .galleryStage > div:last-child { margin-top: .625rem; padding-top: .5rem; }
+  .galleryStage > div:last-child p, .galleryStage > div:last-child button { font-size: .75rem; }
+}
