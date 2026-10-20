@@ -212,3 +212,23 @@
   .card[data-integrated=true] .cardToggle { left: 0; width: 100%; }
   .card[data-integrated=true] .tapLabel { left: calc(28% + var(--benefit-inset)); }
 }
+
+/* Opening panels retain the video crop's size; no blank lower well. */
+.card[data-integrated=true] { grid-template-rows: minmax(0,1fr) minmax(12rem,55%); }
+.card[data-integrated=true] .integratedCopy { padding: 1rem var(--benefit-inset) 2.5rem; }
+.card[data-integrated=true] .integratedCopy h3 { font-size: clamp(1.125rem,1.35vw,1.5rem); font-weight: 500; }
+.card[data-integrated=true] .integratedAccent { margin-top: .6rem; font-size: .9375rem; }
+.card[data-integrated=true] .details { overflow-y: auto; overscroll-behavior: contain; }
+@media(width < 920px) {
+ .card[data-integrated=true] { grid-template-rows: minmax(0,1fr); grid-template-columns: 24% minmax(0,1fr); }
+ .card[data-integrated=true] .integratedCopy { padding: .875rem var(--benefit-inset) 2.5rem; }
+ .card[data-integrated=true] .integratedCopy h3 { font-size: 1.125rem; }
+ .card[data-integrated=true] .integratedAccent { font-size: .8125rem; margin-top: .45rem; }
+ .card[data-integrated=true] .tapLabel { left: calc(24% + var(--benefit-inset)); font-size: .6875rem; bottom: .65rem; }
+ .card[data-integrated=true] .serviceLabel { margin-bottom: .4rem; font-size: .625rem; }
+}
+
+@media(min-width:768px), (min-width:600px) and (min-aspect-ratio:6/5) {
+ .card[data-integrated=true] { grid-template-columns: minmax(0,1fr); grid-template-rows: minmax(0,1fr) minmax(12rem,55%); }
+ .card[data-integrated=true] .tapLabel { left: var(--benefit-inset); }
+}

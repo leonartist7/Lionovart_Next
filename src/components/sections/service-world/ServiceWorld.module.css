@@ -90,9 +90,9 @@
 .world[data-world-mode=media] .canvas { display: none; }
 .atelierLight { position: absolute; inset: 0; opacity: 0; transition: opacity 900ms ease; pointer-events: none; }
 .atelierLight[data-light-state=ready] { opacity: var(--world-light); }
-.world[data-world-mode=media] .architecture { background: radial-gradient(ellipse at 50% 0%,#fffdfaaa,transparent 64%),linear-gradient(180deg,transparent 55%,#bbae9320); transform: scale(calc(1 + var(--gallery-travel,0) * .04)); transform-origin: 50% 42%; }
-.world[data-world-mode=media] .architecture i { inset: 15% -8% 31%; border: 1px solid #aa987117; border-top-color: #ffffff91; box-shadow: 0 -16px 42px #ffffff24,inset 0 1px 0 #fff9; }
-.world[data-world-mode=media] .architecture i:nth-child(2) { inset: 21% 5% 37%; opacity: .6; }
+.world[data-world-mode=media] .architecture { background: radial-gradient(ellipse at 50% 0%,#fffdfaaa,transparent 64%),linear-gradient(180deg,transparent 55%,#bbae9320);  }
+.world[data-world-mode=media] .architecture i { inset: 9% -8% 37%; border: 1px solid #aa987117; border-top-color: #ffffff91; box-shadow: 0 -16px 42px #ffffff24,inset 0 1px 0 #fff9; }
+.world[data-world-mode=media] .architecture i:nth-child(2) { inset: 15% 5% 43%; opacity: .6; }
 .world[data-world-mode=media] .architecture i:nth-child(n+3) { display: none; }
 .world[data-world-mode=media] :global([data-service-panel]) { top: 8svh; bottom: 8rem; }
 .world[data-world-mode=media] :global([data-service-panel] > div) { justify-content: space-between; gap: clamp(1.5rem,4svh,3rem); }
@@ -118,8 +118,8 @@
 .featureButton span { display: inline-grid; place-items: center; width: 2.5rem; height: 2.5rem; border: 1px solid #ab987340; border-radius: 50%; margin-left: 1rem; padding: 0; font-size: 1rem; vertical-align: middle; }
 @media(hover:hover) and (pointer:fine) { .tags[data-triptych-tags=true] button:hover,.projectChoices button:hover { color: #211e18; } }
 @media(max-width:767px) {
-  .world[data-world-mode=media] .architecture i { inset: 17% -40% 43%; }
-  .world[data-world-mode=media] .architecture i:nth-child(2) { inset: 24% -20% 50%; }
+  .world[data-world-mode=media] .architecture i { inset: 11% -40% 49%; }
+  .world[data-world-mode=media] .architecture i:nth-child(2) { inset: 18% -20% 56%; }
   .world[data-world-mode=media] :global([data-service-panel]) { top: 9svh; bottom: 7rem; }
   .world[data-world-mode=media] :global([data-service-panel] > div) { justify-content: center; gap: clamp(1.4rem,3.5svh,2.4rem); }
   .world[data-world-mode=media] :global([data-service-panel] [data-service-title]) { max-width: 20ch; font-size: clamp(1.65rem,7vw,2.25rem); }

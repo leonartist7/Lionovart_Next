@@ -46,8 +46,8 @@ export function PageBuilder() {
           </LionJourney></HeroCompositionProvider>
         </CardsServicesTransition>
         <NovaSection id="services"><ServicesSwitcher /></NovaSection>
-        <WorkServicesTransition />
         <SelectedWork compact servicesCurves />
+        <WorkServicesTransition />
         </ServiceWorld>
         </WorkBrowseProvider>
         <SeasonalCampaigns compact />

@@ -37,6 +37,14 @@ export default function ServicesWorldReview() {
   const command = (name: 'retry' | 'fail') => {
     iframe.current?.contentWindow?.dispatchEvent(new Event(`lionovart:world-${name}`));
   };
+  const seek = (selector: string, progress?: number) => {
+    const view = iframe.current?.contentWindow, doc = iframe.current?.contentDocument;
+    const element = doc?.querySelector(selector);
+    if (!view || !element) return;
+    const rect = element.getBoundingClientRect();
+    const y = view.scrollY + rect.top + (progress === undefined ? 0 : -view.innerHeight + rect.height * progress);
+    view.scrollTo({ top: Math.max(0, y), behavior: 'instant' });
+  };
   const scale = Math.min(1, available / size[0]);
   return <main style={{ background: '#ddd7cc', minHeight: '100vh', padding: 16, color: '#211e18', fontFamily: 'sans-serif' }}>
     <header style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 12 }}>
@@ -49,6 +57,11 @@ export default function ServicesWorldReview() {
       <button style={button} onClick={() => setRevision(value => value + 1)}>Reload homepage</button>
       <span>{size[0]} × {size[1]} CSS px</span>
     </header>
+    <nav aria-label="Journey review" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+      <button style={button} onClick={() => seek('#imagine')}>Split cards</button>
+      {[0, .35, .65, .85].map(p => <button key={p} style={button} onClick={() => seek('[data-card-exit]', p)}>Handoff {Math.round(p * 100)}%</button>)}
+      {([['Services','[data-services-runway]'],['Selected work','[data-gallery]'],['Partnership','#partnership'],['About','#about']] as const).map(([label,selector]) => <button key={label} style={button} onClick={() => seek(selector)}>{label}</button>)}
+    </nav>
     <details style={{ marginBottom: 12, maxWidth: 1440, fontSize: 13 }} open>
       <summary>Renderer diagnostics · resizing keeps the current selection</summary>
       <p style={{ margin: '8px 0' }}>Status: <strong>{diagnostics.status}</strong>{diagnostics.reason && ` — ${diagnostics.reason}`} · Motion: {diagnostics.motion || 'waiting'} · World visible: {diagnostics.visible || 'waiting'}</p>

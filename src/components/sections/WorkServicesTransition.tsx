@@ -7,7 +7,7 @@ import { PARTNERSHIP_SCROLL_LENGTH } from './partnership-motion';
 import PartnershipTiles from './PartnershipTiles';
 import styles from './ScreeningRoom.module.css';
 
-/** The partnership now follows Services and opens into the project corridor. */
+/** The partnership now follows Selected Work and opens into the project corridor. */
 export default function WorkServicesTransition() {
   const tr = usePublicCopy();
   const { runway, stage } = useDissolveStage();

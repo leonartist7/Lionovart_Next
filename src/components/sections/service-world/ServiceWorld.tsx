@@ -1,11 +1,12 @@
 'use client';
+import { cardHandoff } from '../card-handoff';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useHydratedReducedMotion } from '@/hooks/useHydratedReducedMotion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { serviceExhibit } from './scene-art';
 import type { WorldEngine } from './world-renderer';
-import { worldLight, smooth, type WorldInput } from './world-state';
+import { worldLight, type WorldInput } from './world-state';
 import styles from './ServiceWorld.module.css';
 import { exhibitPosition, serviceExhibits } from '../service-triptych';
 import glass from '../ServiceGlassStage.module.css';
@@ -60,7 +61,7 @@ export default function ServiceWorld({ children, mediaFirst = false }: { childre
       const visible = end.top < h && end.bottom > 0 && !document.hidden;
       const staticEntry = root.querySelector('[data-work-services-transition]')?.getAttribute('data-static') === 'true';
       const staticCards = matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)').matches;
-      const light = cardExit ? (staticCards ? 1 : smooth((-entry!.top / Math.max(1, entry!.height) - .45) / .45)) : entry && !staticEntry ? worldLight(entry.top, entry.height) : 1;
+      const light = cardExit ? (staticCards ? 1 : cardHandoff(entry!.top, entry!.height, h).light) : entry && !staticEntry ? worldLight(entry.top, entry.height) : 1;
       const galleryBounds = root.querySelector('[data-gallery]')?.getBoundingClientRect();
       root.style.setProperty('--gallery-travel', String(galleryBounds ? Math.min(1, Math.max(0, 1 - galleryBounds.top / h)) : 0));
       if (light !== lastLight) {

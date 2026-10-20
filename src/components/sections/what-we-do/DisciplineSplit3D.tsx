@@ -70,8 +70,8 @@ interface FilmFrame {
 const CURSOR_SPRING = { stiffness: 140, damping: 22, mass: 0.6 } as const;
 
 // Max tilt of the whole glass plane, in degrees.
-const TILT_Y = 7;
-const TILT_X = 5;
+const TILT_Y = 0;
+const TILT_X = 0;
 
 // How far into the section's scroll runway the split+flip choreography is
 // scrubbed. Below SPLIT_START the video plays joined; between the two, the
@@ -92,17 +92,14 @@ function cue(progress: number, start: number, end: number) {
   return Math.max(0, Math.min(1, (progress - start) / (end - start)));
 }
 
-// Reshape the film crops into larger cards around one fixed center. Layout
-// is measured once; only transforms change while scrolling in either direction.
-function handoffGeometry(frame: FilmFrame, progress: number) {
-  const p = FRAME_EASE(cue(progress, HANDOFF_START, HANDOFF_END));
-  const width = frame.width + (frame.stageWidth * FINAL_FRAME_SCALE - frame.width) * p;
-  const height = frame.height + (frame.stageHeight * FINAL_FRAME_SCALE - frame.height) * p;
+// Film and divided panels keep one fixed outline. No animated width/height
+// negotiation: only the seams separate and the surface content dissolves.
+function handoffGeometry(frame: FilmFrame) {
   return {
-    height,
-    glassX: width / frame.stageWidth,
-    glassY: height / frame.stageHeight,
-    glassOffset: frame.filmOffset + (frame.centerOffset - frame.filmOffset) * p,
+    height: frame.height,
+    glassX: frame.width / frame.stageWidth,
+    glassY: frame.height / frame.stageHeight,
+    glassOffset: frame.filmOffset,
   };
 }
 
@@ -162,19 +159,19 @@ function Pane({
   // One sculptural rhythm across the set: the two outer cards share a quiet
   // lean while the middle counters it. The effect gives depth without making
   // any card look like a separate panel sitting on top of another.
-  const cardLean = i === 1 ? -8 : 8;
+  const cardLean = 0;
   const paneRotateY = useTransform(() => reducedMotion ? 0 : cardLean * splitP.get());
   const paneRotateX = useTransform(splitP, () => 0);
   const innerRadius = useTransform(splitP, (p) => 18 * p);
   const outerRadius = useTransform(splitP, (p) => 16 + 2 * p);
 
   // The film lives on these same faces while they divide and light up.
-  const cardZ = useTransform(cardP, [0, 1], reducedMotion ? [0, 0] : [0, 16]);
+  const cardZ = useTransform(cardP, [0, 1], [0, 0]);
   const objectOpacity = useTransform(cardP, [.55, .9], [0, 1]);
   const objectScale = useTransform(cardP, [.55, 1], reducedMotion ? [1, 1] : [.82, 1], { ease: FRAME_EASE });
   const objectX = useTransform(pointerX, p => reducedMotion || !armed ? 0 : p * 14);
   const objectY = useTransform(() => reducedMotion ? 0 : (1 - cardP.get()) * 18 + (armed ? pointerY.get() * 10 : 0));
-  const objectTurn = useTransform(pointerX, p => reducedMotion || !armed ? 0 : p * -5);
+  const objectTurn = useTransform(pointerX, () => 0);
 
   return (
     <motion.div
@@ -192,8 +189,6 @@ function Pane({
         borderBottomRightRadius: i === 2 ? outerRadius : innerRadius,
         transformStyle: "preserve-3d",
       }}
-      // Lift on hover; `z` composes with the group tilt instead of fighting it.
-      whileHover={armed ? { z: 46, transition: { duration: 0.4, ease: "easeOut" } } : undefined}
     >
       {/* Desktop contains the full artwork above the copy; shorter screens
           reduce the art area's height while phones keep the side-by-side art. */}
@@ -391,8 +386,8 @@ export default function DisciplineSplit3D({
   }, []);
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 920px)");
-    const tablet = window.matchMedia("(min-width: 920px)");
+    const mq = window.matchMedia(LANDSCAPE_FILM_QUERY);
+    const tablet = window.matchMedia(LANDSCAPE_FILM_QUERY);
     const pointer = window.matchMedia("(hover: hover) and (pointer: fine)");
     const short = window.matchMedia("(max-height: 700px)");
     const veryShortScreen = window.matchMedia("(max-height: 500px)");
@@ -436,21 +431,19 @@ export default function DisciplineSplit3D({
   const joinedFilmOpacity = useTransform(flip, p => p <= HANDOFF_START ? 1 : 0);
   const filmTransform = "translateX(-50%)";
   const cardTransform = useTransform(() => {
-    const p = flip.get();
     if (!filmFrame) return "none";
     if (reduce) return "none";
-    const geometry = handoffGeometry(filmFrame, p);
+    const geometry = handoffGeometry(filmFrame);
     return `translateY(${geometry.glassOffset - benefitScroll.get()}px) scale(${geometry.glassX}, ${geometry.glassY})`;
   });
   // Opaque card bases prevent a dark dip beneath the fading film crops.
   // Trust enters with the parked film and is complete before the split.
   const proofPresence = useTransform(openingProgress, [.23, .36, .48], [0, .8, 1], { ease: FRAME_EASE });
   const proofTransform = useTransform(() => {
-    const p = flip.get();
     if (!filmFrame) return "none";
-    const geometry = handoffGeometry(filmFrame, p);
+    const geometry = handoffGeometry(filmFrame);
     const offset = geometry.glassOffset;
-    const height = reduce ? filmFrame.stageHeight * FINAL_FRAME_SCALE : geometry.height;
+    const height = reduce ? filmFrame.stageHeight : geometry.height;
     return `translateY(${offset + (filmFrame.stageHeight - height) / 2 - benefitScroll.get()}px)`;
   });
   // Let taller phones show more of the film without crowding the invitation.
@@ -491,7 +484,7 @@ export default function DisciplineSplit3D({
   const measureFilm = useCallback(() => {
     const v = videoRef.current, stage = stageRef.current;
     if (!v || !stage || !stage.offsetHeight || !stage.offsetWidth) return;
-    const landscape = window.matchMedia("(min-width: 920px)").matches;
+    const landscape = window.matchMedia(LANDSCAPE_FILM_QUERY).matches;
     const wideFilm = usesLandscapeFilm(window.innerWidth, window.innerHeight);
     const sourceWidth = v.videoWidth || (wideFilm ? 16 : 9);
     const sourceHeight = v.videoHeight || (wideFilm ? 9 : 16);
@@ -836,7 +829,7 @@ export default function DisciplineSplit3D({
     <section
       ref={(node) => { sectionRef.current = node; journey?.setVideoSection(node); }}
       data-cursor-behind
-      data-opening-transition="square-art-split-v5"
+      data-opening-transition="fixed-panel-split-v6"
       data-opening-layout={isDesktop ? "horizontal" : "vertical"}
       id={pinned ? undefined : "what-we-build"}
       data-cards-armed={armed}
@@ -880,7 +873,8 @@ export default function DisciplineSplit3D({
         />
 
         <div ref={(node) => journey?.setVideo(node)}
-          className="opening-video-anchor relative z-40 w-[min(80vw,360px)] min-[920px]:w-[min(82vw,1120px)]">
+          className="opening-video-anchor relative z-40 w-[min(80vw,360px)] min-[920px]:w-[min(82vw,1120px)]"
+          style={{ '--panel-height': isDesktop ? 'calc(var(--opening-film-width) * 9 / 16)' : 'calc(var(--opening-film-width) * 16 / 27)' } as React.CSSProperties}>
         <motion.div ref={stageRef} className="relative w-full"
           style={{ perspective: "1400px", y: pinned && !reduce ? entranceY : 0, scale: pinned && !reduce ? entranceScale : 1 }}>
           {/* Native playback hands its exact joined outline to the pane crops. */}
@@ -928,7 +922,7 @@ export default function DisciplineSplit3D({
             )}
           </motion.div>
 
-          {/* The outline reshapes around a fixed center as its faces split. */}
+          {/* The original outline separates into three straight, fixed-size panels. */}
           <motion.div ref={cardGroupRef} className="opening-card-morph relative"
             style={{ transform: cardTransform, opacity: reduce || filmFrame ? 1 : 0,
               transformStyle: "preserve-3d" }}>
