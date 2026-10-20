@@ -1,0 +1,24 @@
+name: Phase 3 visual evidence
+on:
+  push:
+    branches: [review/mobile-image-optimization]
+    paths: [.github/workflows/phase3-visual-evidence.yml]
+permissions:
+  contents: read
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PERF_VERIFY_URL: https://lionovartnext-7lnmn75xd-lionovart.vercel.app/
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - run: npm ci --prefix scripts/performance --ignore-scripts --no-audit --no-fund
+      - name: Capture review screenshots
+        working-directory: scripts/performance
+        run: node visual-evidence.mjs
