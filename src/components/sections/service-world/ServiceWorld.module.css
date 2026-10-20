@@ -1,9 +1,9 @@
 .world { position: relative; isolation: isolate; background: #08080a; clip-path: inset(0); --world-light: 0; }
-.canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0; }
+.canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0; }
 .story { position: relative; z-index: 1; }
 /* One viewport backdrop, clipped only at the outer journey boundaries. Section
    surfaces never cover it, including loading and graphics-failure states. */
-.environment { position: fixed; inset: 0; pointer-events: none; z-index: 0; background: color-mix(in srgb, #f7f4ef calc(var(--world-light) * 100%), #08080a); }
+.environment { position: absolute; inset: 0; pointer-events: none; z-index: 0; background: color-mix(in srgb, #f7f4ef calc(var(--world-light) * 100%), #08080a); }
 .architecture { position: absolute; inset: 0; opacity: var(--world-light); background: radial-gradient(ellipse at 50% 18%, #fffdf7 0%, transparent 62%), linear-gradient(180deg, #eee8dc 0%, #f7f4ef 64%, #e5dccb 100%); }
 .architecture i { position: absolute; inset: 5% 4% -25%; border: 1px solid #ac916742; border-top: 5px solid #fffdf5; box-shadow: 0 0 30px #77623b0a, inset 0 0 20px #fff8; }
 .architecture i:nth-child(2) { inset: 11% 13% -16%; }
@@ -143,3 +143,8 @@
   .world[data-world-mode=media] :global([data-service-panel] > div) { gap: 2rem; }
 }
 @media(prefers-reduced-motion:reduce) { .tags[data-triptych-tags=true] button,.tags[data-triptych-tags=true] button::after { transition: opacity 150ms ease; }.atelierLight { display: none; } }
+
+.world :global([data-scene-runways][data-pinned=true] [data-gallery=compact]) { padding: 0; }
+.world :global([data-scene-runways][data-pinned=true] [data-gallery=compact] > div) { max-width: none; }
+.world :global([data-scene-layers] [data-gallery-stage]) { color: #171412; }
+.world :global([data-scene-layers] [data-about-content]) { background: transparent; }

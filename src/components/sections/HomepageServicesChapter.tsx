@@ -8,6 +8,7 @@ import { scrollEase } from "@/components/experience/scroll-policy";
 
 import { ServiceScreen } from "./ScreeningMedia";
 import { exhibitLabel, serviceExhibits } from "./service-triptych";
+import { ScenePortal } from './service-world/PinnedScene';
 import { useDissolveStage } from "@/hooks/useDissolveStage";
 import { useServiceWorld, WorldStageControls } from "./service-world/ServiceWorld";
 
@@ -317,9 +318,9 @@ export default function HomepageServicesChapter() {
       <h2 className="sr-only">{tr("Our services")}</h2>
 
       <div ref={chapterRef} data-services-runway className="relative h-[330svh] sm:h-[310svh] lg:h-[340vh]">
-      <div
+      <ScenePortal><div
         ref={stageRef}
-        data-services-stage data-dissolve-stage
+        data-services-stage data-dissolve-stage data-scene-chapter="services"
         className="sticky top-0 h-svh overflow-hidden outline-none"
         tabIndex={0}
         role="region"
@@ -386,7 +387,7 @@ export default function HomepageServicesChapter() {
         </div>
 
 
-      </div>
+      </div></ScenePortal>
       </div>
       <ServicesWorkNavigation services={services} activeIndex={activeIndex} onSelect={goToService} />
     </section>

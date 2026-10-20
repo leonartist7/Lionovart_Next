@@ -1,5 +1,5 @@
 .cardTransition { position: relative; z-index: 3; }
-.cardIntro { position: sticky; }
+.cardIntro { position: relative; }
 .cardExit { height: 160svh; pointer-events: none; }
 .partnership { position: relative; z-index: 25; }
 .partnershipStage { position: sticky; top: 0; height: 100svh; overflow: hidden; }
@@ -68,3 +68,23 @@
 .cardIntro :global([data-imagine-card]) { filter: opacity(var(--handoff-content,1)); }
 @media(max-width:767px) { .shapingMessage { padding-top: 54svh; }.shapingMessage h2 { max-width: 16ch; }.shapingMessage p { font-size: .5625rem; margin-bottom: 1rem; } }
 @media(max-height:560px), (prefers-reduced-motion:reduce) { .shapingMessage { display: none; }.cardIntro { translate: none !important; } }
+
+/* About is an accessible final exhibit. Overflow is local only when text zoom requires it. */
+.aboutRunway { height: 190svh; }
+.aboutStage { position: sticky; top: 0; height: 100svh; overflow-y: auto; scrollbar-width: thin; padding: 5rem 0 3rem; color: #171412; }
+.aboutStage :global([data-about-content]) { min-height: 100%; display: grid; align-items: center; }
+.galleryStage > div:last-child { width: min(100%,76rem); margin-inline: auto; margin-top: 1.25rem; }
+@media(max-width:919px) {
+  .aboutStage :global([data-about-content]) { padding: 1.5rem; }
+  .aboutStage :global([data-about-content]) > div { gap: 1.5rem; }
+  .aboutStage :global([data-about-content]) figure { grid-row: 1; width: 7.5rem; justify-self: start; }
+  .aboutStage :global([data-about-content]) figure img { border-radius: .5rem; }
+  .aboutStage :global([data-about-content]) figcaption { display: none; }
+  .aboutStage :global([data-about-content]) h2 { font-size: clamp(1.75rem,7vw,2.5rem); }
+  .aboutStage :global([data-about-content]) p { font-size: .875rem; margin-top: .875rem; line-height: 1.5; }
+  .aboutStage :global([data-about-content]) dl { margin-top: 1.25rem; }
+}
+@media(max-height:560px), (prefers-reduced-motion:reduce) {
+  .aboutRunway { height: auto; }
+  .aboutStage { position: relative; height: auto; padding: 0; overflow: visible; }
+}

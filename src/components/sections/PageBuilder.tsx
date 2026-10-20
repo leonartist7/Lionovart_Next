@@ -6,7 +6,7 @@ import HeroOpening from "@/components/sections/lion-journey/HeroOpening";
 import LionJourney from "@/components/sections/lion-journey/LionJourney";
 import { WorkBrowseProvider } from "./selected-work/WorkBrowse";
 
-import CompactIntroduction from "@/components/sections/CompactIntroduction";
+import AboutScene from "./AboutScene";
 import SeasonalCampaigns from "./services/SeasonalCampaigns";
 import ServicesSwitcher from "@/components/sections/ServicesSwitcher";
 import WorkServicesTransition from "@/components/sections/WorkServicesTransition";
@@ -48,10 +48,11 @@ export function PageBuilder() {
         <NovaSection id="services"><ServicesSwitcher /></NovaSection>
         <SelectedWork compact servicesCurves />
         <WorkServicesTransition />
+        <AboutScene />
         </ServiceWorld>
         </WorkBrowseProvider>
         <SeasonalCampaigns compact />
-        <NovaSection id="about"><CompactIntroduction /></NovaSection>
+
 
         {/* Personal introduction -> Brands Elevated/results -> Process. */}
         <div id="client-experience">

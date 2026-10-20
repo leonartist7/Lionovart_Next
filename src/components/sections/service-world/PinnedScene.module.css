@@ -1,0 +1,20 @@
+.viewport { position: sticky; top: 0; height: 100svh; margin-bottom: -100svh; z-index: 2; pointer-events: none; isolation: isolate; transform: translateZ(0); overflow: clip; }
+.layers { position: absolute; inset: 0; }
+.layers > * { pointer-events: auto; }
+.runways { position: relative; z-index: 1; }
+.runways[data-pinned=true] { pointer-events: none; }
+.runways[data-pinned=true] :global([data-lion-journey]) { background: transparent; }
+.viewport[data-pinned=false] { position: absolute; inset: 0; height: 100%; margin: 0; z-index: 0; transform: none; }
+/* Every chapter is absolute inside this one sticky viewport. No chapter pins itself. */
+.layers :global([data-dissolve-stage]),
+.layers :global([data-scene-opening]) { position: absolute !important; inset: 0; width: 100%; height: 100%; margin: 0; }
+.layers :global([data-scene-opening]) { background: transparent; z-index: 3; }
+.layers :global([data-scene-opening] .hero-opening-stage) { position: absolute; inset: 0; height: 100%; overflow: visible; }
+.layers :global([data-scene-opening] .opening-hero-layer) { position: absolute; inset: 0; z-index: 2; }
+.layers :global([data-scene-opening] .opening-proof-stage) { opacity: var(--handoff-proof,1); }
+.layers :global([data-scene-opening] [data-imagine-card]) { opacity: var(--handoff-content,1); }
+.layers :global([data-services-stage]) { z-index: 4; }
+.layers :global([data-gallery-stage]) { z-index: 5; }
+.layers :global([data-work-scene]) { z-index: 6; }
+.layers :global([data-about-stage]) { z-index: 7; }
+.layers :global([data-shaping-message]) { position: absolute; }

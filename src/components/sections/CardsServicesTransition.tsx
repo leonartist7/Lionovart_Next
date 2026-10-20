@@ -1,15 +1,17 @@
 'use client';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ScenePortal, usePinnedScene } from './service-world/PinnedScene';
 import { cardHandoff } from './card-handoff';
 import styles from './ScreeningRoom.module.css';
 
 export default function CardsServicesTransition({ children }: { children: ReactNode }) {
+  const scene = usePinnedScene();
   const intro = useRef<HTMLDivElement>(null), exit = useRef<HTMLDivElement>(null);
   const message = useRef<HTMLDivElement>(null);
   const { locale } = useLanguage();
   useEffect(() => {
-    const node = intro.current, runway = exit.current, copy = message.current;
+    const node = (scene?.target?.querySelector('[data-scene-opening]') ?? intro.current) as HTMLElement | null, runway = exit.current, copy = message.current;
     if (!node || !runway || !copy) return;
     const world = node.closest('[data-service-world]');
     const media = matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)');
@@ -21,9 +23,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       const pose = cardHandoff(bounds.top, bounds.height, innerHeight);
       const panels = Array.from(node.querySelectorAll<HTMLElement>('.opening-glass-pane'));
       const targets = Array.from(world?.querySelectorAll<HTMLElement>('[data-service-triptych] [data-exhibit-index]') ?? []);
-      node.style.top = `${innerHeight - node.offsetHeight}px`;
-      // Compensate the sticky parent's end constraint until the crossfade ends.
-      node.style.translate = media.matches ? '' : `0 ${Math.max(0, innerHeight - bounds.bottom)}px`;
+
       node.style.opacity = media.matches ? '1' : String(pose.intro);
       node.style.setProperty('--handoff-content', String(media.matches ? 1 : pose.content));
       node.style.setProperty('--handoff-proof', String(media.matches ? 1 : pose.proof));
@@ -64,13 +64,13 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     window.addEventListener('scroll', schedule, { passive: true }); window.addEventListener('resize', resize);
     media.addEventListener('change', resize); void document.fonts.ready.then(resize); sync();
     return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', resize); media.removeEventListener('change', resize); };
-  }, []);
+  }, [scene?.target]);
   return <div className={styles.cardTransition} data-card-transition data-scroll-manual>
     <div ref={intro} className={styles.cardIntro}>{children}</div>
-    <div ref={message} className={styles.shapingMessage} data-shaping-message data-scroll-title-skip>
+    <ScenePortal><div ref={message} className={styles.shapingMessage} data-shaping-message data-scroll-title-skip>
       <h2>{locale === 'fr' ? 'Façonner l’avenir de votre entreprise.' : 'Shaping what comes next for your business.'}</h2>
       <span>{locale === 'fr' ? 'Par la stratégie, le design et les expériences.' : 'Through strategy, design and experiences.'}</span>
-    </div>
+    </div></ScenePortal>
     <div ref={exit} className={styles.cardExit} data-card-exit aria-hidden="true" />
   </div>;
 }

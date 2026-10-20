@@ -9,12 +9,12 @@ import styles from "./CompactIntroduction.module.css";
 
 const STAT_VALUES = ["15+", "10+", "100%"];
 
-export default function CompactIntroduction() {
+export default function CompactIntroduction({ embedded = false }: { embedded?: boolean }) {
   const { t } = useLanguage();
   const tr = usePublicCopy();
   const copy = t.compactComparison;
   return (
-    <section id="about" aria-labelledby="innovation-heading" className={styles.section} data-scroll-title-skip data-nav-surface="light">
+    <section id={embedded ? undefined : "about"} data-about-content={embedded} aria-labelledby="innovation-heading" className={styles.section} data-scroll-title-skip data-nav-surface="light">
       <GoldThreads />
       <div className={styles.grid}>
         <div className={styles.copy}>

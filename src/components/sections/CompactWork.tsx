@@ -10,6 +10,7 @@ import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import ServicesCurves from "./ServicesCurves";
 import { useWorkBrowse } from "./selected-work/WorkBrowse";
 import { GALLERY_SERVICE_LABELS, type GalleryWork } from "./selected-work/gallery";
+import { ScenePortal, usePinnedScene } from './service-world/PinnedScene';
 import { useDissolveStage } from "@/hooks/useDissolveStage";
 import { ScreeningMedia } from "./ScreeningMedia";
 import roomStyles from "./ScreeningRoom.module.css";
@@ -63,6 +64,7 @@ export default function CompactWork({ servicesCurves = false }: { servicesCurves
 }
 
 function WorkGrid({ servicesCurves }: { servicesCurves: boolean }) {
+  const scene = usePinnedScene();
   const tr = usePublicCopy();
   const reduced = useHydratedReducedMotion();
   const t = useTranslations("selectedWork");
@@ -90,7 +92,7 @@ function WorkGrid({ servicesCurves }: { servicesCurves: boolean }) {
   };
   const movePage = (direction: number) => {
     setPage(Math.min(pages - 1, Math.max(0, currentPage + direction)));
-    section.current?.scrollIntoView({ behavior: reduced ? "instant" : "smooth", block: "start" });
+    if (!scene?.target) section.current?.scrollIntoView({ behavior: reduced ? "instant" : "smooth", block: "start" });
   };
 
   useEffect(() => {
@@ -114,7 +116,7 @@ function WorkGrid({ servicesCurves }: { servicesCurves: boolean }) {
       {servicesCurves && <ServicesCurves continuation />}
       <div className={styles.container}>
         <div ref={landing} className={roomStyles.galleryRunway} data-gallery-runway>
-        <div ref={landingStage} className={roomStyles.galleryStage} data-dissolve-stage data-gallery-stage>
+        <ScenePortal><div ref={landingStage} className={roomStyles.galleryStage} data-dissolve-stage data-gallery-stage data-scene-chapter="work">
         <header className={roomStyles.galleryHeader}>
           <h2 id="selected-work-heading">{t("eyebrow")}</h2>
           <div className={styles.previewControls}>
@@ -149,8 +151,17 @@ function WorkGrid({ servicesCurves }: { servicesCurves: boolean }) {
             </Dialog.Trigger>
           </figcaption>
         </figure>}
-        </div></div>
-        <div className={styles.grid} data-work-preview-grid>
+        <div className={styles.footer}>
+          <p role="status" aria-live="polite">{first + 1}–{Math.min(first + size, projects.length)} <span>/ {projects.length}</span></p>
+          <div className={styles.pager}>
+            <button type="button" disabled={currentPage === 0} aria-label={tr("Previous works")}
+              onClick={() => movePage(-1)}><ArrowLeft aria-hidden="true" /></button>
+            <button type="button" disabled={currentPage === pages - 1} aria-label={tr("Next works")}
+              onClick={() => movePage(1)}><span>{tr("More work")}</span><ArrowRight aria-hidden="true" /></button>
+          </div>
+        </div>
+        </div></ScenePortal></div>
+        {!scene?.target && <div className={styles.grid} data-work-preview-grid>
           {visible.map(work => <article key={work.assetId} className={styles.card} data-work-card data-work-slug={work.slug}>
             <Dialog.Trigger className={styles.cardButton} onClick={() => setSelectedSlug(work.slug)}
               aria-label={tr("View work") + ": " + work.name}>
@@ -161,16 +172,8 @@ function WorkGrid({ servicesCurves }: { servicesCurves: boolean }) {
               </span>
             </Dialog.Trigger>
           </article>)}
-        </div>
-        <div className={styles.footer}>
-          <p role="status" aria-live="polite">{first + 1}–{Math.min(first + size, projects.length)} <span>/ {projects.length}</span></p>
-          <div className={styles.pager}>
-            <button type="button" disabled={currentPage === 0} aria-label={tr("Previous works")}
-              onClick={() => movePage(-1)}><ArrowLeft aria-hidden="true" /></button>
-            <button type="button" disabled={currentPage === pages - 1} aria-label={tr("Next works")}
-              onClick={() => movePage(1)}><span>{tr("More work")}</span><ArrowRight aria-hidden="true" /></button>
-          </div>
-        </div>
+        </div>}
+
       </div>
     </section>
     <Dialog.Portal>

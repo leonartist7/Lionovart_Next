@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { usePublicCopy } from '@/hooks/usePublicCopy';
+import { ScenePortal } from './service-world/PinnedScene';
 import { useDissolveStage } from '@/hooks/useDissolveStage';
 import { PARTNERSHIP_SCROLL_LENGTH } from './partnership-motion';
 import PartnershipTiles from './PartnershipTiles';
@@ -31,12 +32,12 @@ export default function WorkServicesTransition() {
   }, [progress, runway]);
   return <section id="partnership" data-work-services-transition data-scroll-manual data-static={staticScene} data-nav-surface="light" className={styles.partnership}>
     <div ref={runway} data-work-runway className={styles.partnershipRunway} style={{ height: `${PARTNERSHIP_SCROLL_LENGTH * 100}svh` }}>
-      <div ref={stage} data-work-scene data-dissolve-stage className={styles.partnershipStage}>
+      <ScenePortal><div ref={stage} data-work-scene data-dissolve-stage data-scene-chapter="partnership" className={styles.partnershipStage}>
         <PartnershipTiles progress={progress} staticScene={staticScene} />
         <motion.header className={styles.partnershipHeading} data-work-heading style={{ opacity: staticScene ? 1 : headingOpacity }}>
           <h2>{tr('One partnership')}</h2><p>{tr('Designing your legacy')}</p>
         </motion.header>
-      </div>
+      </div></ScenePortal>
     </div>
   </section>;
 }

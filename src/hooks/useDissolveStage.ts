@@ -1,14 +1,20 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
+import { usePinnedScene } from '@/components/sections/service-world/PinnedScene';
 import { chapterOpacity } from '@/components/sections/chapter-dissolve';
 
 /** Fixed visual stage, ordinary document runway, complete static accessibility fallback. */
 export function useDissolveStage() {
+  const scene = usePinnedScene();
   const runway = useRef<HTMLDivElement>(null), stage = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(false);
   useEffect(() => {
     const anchor = runway.current, surface = stage.current;
     if (!anchor || !surface) return;
+    if (scene?.target) {
+      surface.dataset.dissolvePinned = 'false';
+      return scene.register({ anchor, surface, onActive: setActive });
+    }
     const media = matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)');
     let frame = 0, wasActive = false;
     const sync = () => {
@@ -38,6 +44,6 @@ export function useDissolveStage() {
       surface.style.removeProperty('opacity'); surface.style.removeProperty('visibility'); surface.style.removeProperty('pointer-events');
       surface.inert = false; delete surface.dataset.dissolvePinned;
     };
-  }, [runway, stage]);
+  }, [runway, stage, scene]);
   return { runway, stage, active };
 }

@@ -43,7 +43,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const selected = params.get("scrollPreview") === "1" ? parseScrollMode(params.get("scrollMode")) : "settle";
+    const selected = params.get("scrollPreview") === "1" ? parseScrollMode(params.get("scrollMode")) : "flow";
     // This initialization runs after hydration; no browser state enters server markup.
     const frame = requestAnimationFrame(() => {
       setMode(selected);

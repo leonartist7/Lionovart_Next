@@ -8,7 +8,7 @@ export function cardHandoff(top: number, height: number, viewport: number) {
     move: smooth((progress - .04) / .34),
     copy: smooth((progress - .28) / .16) * (1 - smooth((progress - .56) / .22)),
     content: 1 - smooth((progress - .4) / .35),
-    intro: 1 - smooth((viewport * .65 - (top + height)) / Math.max(1, viewport * .6)),
+    intro: 1 - smooth((viewport * .75 - (top + height)) / Math.max(1, viewport * .5)),
     light: smooth((progress - .56) / .38),
     proof: 1 - smooth(progress / .16),
   };

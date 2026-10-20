@@ -11,6 +11,7 @@ import styles from './ServiceWorld.module.css';
 import { exhibitPosition, serviceExhibits } from '../service-triptych';
 import glass from '../ServiceGlassStage.module.css';
 import AtelierLight from './AtelierLight';
+import PinnedScene from './PinnedScene';
 
 type Selection = { service: string; variant: number; enabled: boolean; paused: boolean };
 const WorldContext = createContext<{ ready: boolean; stageReady: string | null; select: (selection: Selection) => void } | null>(null);
@@ -139,9 +140,10 @@ export default function ServiceWorld({ children, mediaFirst = false }: { childre
   }, [reduced, attempt, mediaFirst]);
 
   return <WorldContext.Provider value={context}><div ref={host} className={styles.world} data-service-world data-world-ready={ready} data-world-mode={mediaFirst ? "media" : "models"}>
-    <div className={styles.environment} data-world-environment aria-hidden="true">{mediaFirst && <AtelierLight />}<div className={styles.architecture}><i /><i /><i /><i /></div></div>
-    <canvas key={`${attempt}-${reduced}`} ref={canvas} className={styles.canvas} aria-hidden="true" />
-    <div className={styles.story}>{children}</div>
+    <PinnedScene environment={<><div className={styles.environment} data-world-environment aria-hidden="true">{mediaFirst && <AtelierLight />}<div className={styles.architecture}><i /><i /><i /><i /></div></div>
+    <canvas key={`${attempt}-${reduced}`} ref={canvas} className={styles.canvas} aria-hidden="true" /></>}>
+    {children}
+    </PinnedScene>
   </div></WorldContext.Provider>;
 }
 
