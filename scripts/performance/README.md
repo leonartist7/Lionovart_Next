@@ -55,6 +55,10 @@ The matrix checks homepage, About and services at 390px/DPR 2,
 `Emulation.setDisabledImageTypes` AVIF override. This tests actual WebP
 source selection, rather than just opening a WebP file. It records image
 sources, decode failures, overflow, gallery state, videos and page errors.
+It also records cumulative long tasks and sampled animation ownership/visibility
+while visiting the opening film, partnership, work, process and closing gallery.
+These snapshots scope further profiling; they do not measure scrolling FPS or
+prove that every offscreen requestAnimationFrame loop has stopped.
 Set `PERF_EXPECT_DEFERRED_FILM=1` for previews with the film-request gate.
 Screenshots and JSON are saved to `PERF_VERIFY_OUTPUT` or the local reports
 directory. These are device emulations, not Safari or real-device evidence.

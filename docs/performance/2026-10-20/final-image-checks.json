@@ -1,0 +1,341 @@
+{
+  "deploymentCommit": "4776d8563aa91180ea10aa4ee172a8a1c2f59b27",
+  "checks": [
+    {
+      "route": "/",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 2,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "webpOnly": false,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": true,
+      "closing": {
+        "partnership": 9,
+        "closingActive": 8,
+        "closingDecoded": 8,
+        "closingVisibleTiles": 8
+      }
+    },
+    {
+      "route": "/about",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 2,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "webpOnly": false,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": null,
+      "closing": null
+    },
+    {
+      "route": "/services",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 2,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "webpOnly": false,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": null,
+      "closing": null
+    },
+    {
+      "route": "/",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 2,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "webpOnly": true,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": true,
+      "closing": {
+        "partnership": 9,
+        "closingActive": 8,
+        "closingDecoded": 8,
+        "closingVisibleTiles": 8
+      }
+    },
+    {
+      "route": "/about",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 2,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "webpOnly": true,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": null,
+      "closing": null
+    },
+    {
+      "route": "/services",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 2,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "webpOnly": true,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": null,
+      "closing": null
+    },
+    {
+      "route": "/",
+      "viewport": {
+        "width": 768,
+        "height": 1024,
+        "deviceScaleFactor": 2,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "webpOnly": false,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": true,
+      "closing": {
+        "partnership": 9,
+        "closingActive": 18,
+        "closingDecoded": 15,
+        "closingVisibleTiles": 18
+      }
+    },
+    {
+      "route": "/about",
+      "viewport": {
+        "width": 768,
+        "height": 1024,
+        "deviceScaleFactor": 2,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "webpOnly": false,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": null,
+      "closing": null
+    },
+    {
+      "route": "/services",
+      "viewport": {
+        "width": 768,
+        "height": 1024,
+        "deviceScaleFactor": 2,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "webpOnly": false,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": null,
+      "closing": null
+    },
+    {
+      "route": "/",
+      "viewport": {
+        "width": 768,
+        "height": 1024,
+        "deviceScaleFactor": 2,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "webpOnly": true,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": true,
+      "closing": {
+        "partnership": 9,
+        "closingActive": 18,
+        "closingDecoded": 15,
+        "closingVisibleTiles": 18
+      }
+    },
+    {
+      "route": "/about",
+      "viewport": {
+        "width": 768,
+        "height": 1024,
+        "deviceScaleFactor": 2,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "webpOnly": true,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": null,
+      "closing": null
+    },
+    {
+      "route": "/services",
+      "viewport": {
+        "width": 768,
+        "height": 1024,
+        "deviceScaleFactor": 2,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "webpOnly": true,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": null,
+      "closing": null
+    },
+    {
+      "route": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "isMobile": false,
+        "hasTouch": false
+      },
+      "webpOnly": false,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": true,
+      "closing": {
+        "partnership": 9,
+        "closingActive": 18,
+        "closingDecoded": 16,
+        "closingVisibleTiles": 18
+      }
+    },
+    {
+      "route": "/about",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "isMobile": false,
+        "hasTouch": false
+      },
+      "webpOnly": false,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": null,
+      "closing": null
+    },
+    {
+      "route": "/services",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "isMobile": false,
+        "hasTouch": false
+      },
+      "webpOnly": false,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": null,
+      "closing": null
+    },
+    {
+      "route": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "isMobile": false,
+        "hasTouch": false
+      },
+      "webpOnly": true,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": true,
+      "closing": {
+        "partnership": 9,
+        "closingActive": 18,
+        "closingDecoded": 16,
+        "closingVisibleTiles": 18
+      }
+    },
+    {
+      "route": "/about",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "isMobile": false,
+        "hasTouch": false
+      },
+      "webpOnly": true,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": null,
+      "closing": null
+    },
+    {
+      "route": "/services",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "isMobile": false,
+        "hasTouch": false
+      },
+      "webpOnly": true,
+      "passed": true,
+      "wrongFormat": [],
+      "errors": [],
+      "brokenCount": 0,
+      "filmGatePassed": null,
+      "closing": null
+    }
+  ]
+}

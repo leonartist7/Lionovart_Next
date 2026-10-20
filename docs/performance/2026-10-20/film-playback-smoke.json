@@ -1,0 +1,22 @@
+{
+  "deploymentCommit": "4776d8563aa91180ea10aa4ee172a8a1c2f59b27",
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "dpr": 2
+  },
+  "initial": {
+    "src": "",
+    "readyState": 0,
+    "h264Support": "probably"
+  },
+  "afterOpeningScroll": {
+    "played": true,
+    "src": "https://res.cloudinary.com/dgio9uutc/video/upload/c_limit,w_720,f_mp4,vc_h264,q_auto/hero_demo_mobile.mp4",
+    "readyState": 4,
+    "currentTime": 1.696749,
+    "paused": false,
+    "error": null
+  },
+  "note": "Recorded separate playback smoke test; waited for readyState >= 2, currentTime > .05 and !paused within a 30 second limit. Not a buffering latency benchmark."
+}

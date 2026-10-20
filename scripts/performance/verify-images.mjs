@@ -32,6 +32,13 @@ const imageState = () => {
     videos: [...document.querySelectorAll('video')].map(video => ({ src: video.currentSrc, paused: video.paused, time: video.currentTime,
       top: video.getBoundingClientRect().top, height: video.getBoundingClientRect().height, preload: video.preload })),
     canvases: document.querySelectorAll('canvas').length,
+    longTasks: window.__lionovartAuditTasks ? { count: window.__lionovartAuditTasks.length,
+      totalMs: window.__lionovartAuditTasks.reduce((sum,duration)=>sum+duration,0),
+      maxMs: Math.max(0,...window.__lionovartAuditTasks) } : null,
+    animationOwners: [...document.querySelectorAll('[data-animation-active],[data-lion-active]')].map(element=>({
+      section:element.closest('section')?.id||null,
+      active:element.getAttribute('data-animation-active')||element.getAttribute('data-lion-active'),
+    })),
     filmRequested: document.querySelector('[data-opening-transition]')?.getAttribute('data-film-requested'),
     animations: document.getAnimations().map(animation => {
       const target=animation.effect?.target;
@@ -51,6 +58,12 @@ try {
       const context = await browser.createBrowserContext();
       const page = await context.newPage();
       await page.setViewport(viewport);
+      await page.evaluateOnNewDocument(()=>{
+        window.__lionovartAuditTasks=[];
+        try { new PerformanceObserver(list=>{
+          for(const entry of list.getEntries())window.__lionovartAuditTasks.push(entry.duration);
+        }).observe({type:'longtask',buffered:true}); } catch { window.__lionovartAuditTasks=null; }
+      });
       const client = await page.createCDPSession();
       if (webpOnly) await client.send('Emulation.setDisabledImageTypes', { imageTypes: ['avif'] });
       const errors = [];
