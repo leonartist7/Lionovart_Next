@@ -92,4 +92,5 @@
 .world[data-world-mode=media] :global([data-service-panel] > div) { gap: clamp(.7rem,2svh,1.5rem); }
 .world[data-world-mode=media] :global([data-service-title]) { font-size: clamp(1.75rem,3.4vw,3.25rem); }
 .world[data-world-mode=media] :global([data-service-panel]) { top: 7svh; bottom: 6.5rem; }
+.world[data-world-mode=media] :global([data-service-content] [data-service-media]) { width: 100%; }
 @media(max-height:740px) and (min-height:561px) { .world[data-world-mode=media] :global([data-service-media]) { max-height: 29svh; } .world[data-world-mode=media] :global([data-service-media] > div) { height: 29svh; min-height: 0; } }
