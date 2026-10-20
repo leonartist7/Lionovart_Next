@@ -39,16 +39,10 @@ const state = () => {
 };
 async function ready(page) {
   await page.locator('body').waitFor();
-  const skip = page.getByRole('button', { name: 'Skip intro', exact: true });
-  const dismiss = async () => {
-    if (!await skip.isVisible().catch(() => false)) return;
-    try { await skip.click({ timeout: 2000 }); }
-    catch (error) { if (await skip.isVisible().catch(() => false)) throw error; }
-  };
-  await dismiss();
   await page.waitForFunction(() => [...document.images].filter(i => i.getBoundingClientRect().top < innerHeight && i.getBoundingClientRect().bottom > 0 && i.currentSrc).every(i => i.complete), null, { timeout: 45000 }).catch(() => {});
   await sleep(new URL(page.url()).pathname === '/' ? 5000 : 1800);
-  await dismiss();
+  // Let the real intro finish; optional Skip controls can disappear mid-click.
+  await page.getByRole('button', { name: 'Skip intro', exact: true }).waitFor({ state: 'hidden', timeout: 30000 });
 }
 async function save(record) {
   results.push(record);

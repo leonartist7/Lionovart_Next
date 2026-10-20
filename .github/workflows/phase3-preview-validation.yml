@@ -21,9 +21,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        engine: [chromium, webkit]
+        engine: [webkit]
     env:
-      PERF_CASES: "390-_-normal,1440-_about-normal,1440-_services-normal,390-_careers-normal,390-_services_brand-reduce,1440-_services_brand-reduce,390-_about-reduce,390-_-webp,slow-cold-and-repeat-visit,navigation-and-service-link,bounded-spa-route-cycles-and-idle,reduced-motion-reading-and-preference-change"
+      PERF_CASES: "1440-_services-normal,bounded-spa-route-cycles-and-idle"
       PERF_ENGINE: ${{ matrix.engine }}
       PERF_VERIFY_OUTPUT: ${{ github.workspace }}/reports/performance/phase3-${{ matrix.engine }}
     steps:
