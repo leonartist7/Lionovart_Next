@@ -32,4 +32,3 @@ export const PARTNERSHIP_TILE_MEDIA = SLUGS.flatMap(slug => {
 });
 
 export const PARTNERSHIP_TILE_IMAGES = PARTNERSHIP_TILE_MEDIA.map(item => item.poster);
-

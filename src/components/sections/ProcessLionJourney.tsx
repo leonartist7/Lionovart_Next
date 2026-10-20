@@ -381,4 +381,3 @@ export default function ProcessLionJourney() {
     <div className={styles.runway} aria-hidden="true" />
   </div></>;
 }
-

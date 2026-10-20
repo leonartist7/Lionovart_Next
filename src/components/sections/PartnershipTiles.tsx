@@ -149,4 +149,3 @@ export default function PartnershipTiles({ progress, staticScene }: {
     </button>}
   </div>;
 }
-
