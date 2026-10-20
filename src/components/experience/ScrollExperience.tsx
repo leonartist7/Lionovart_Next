@@ -124,8 +124,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
       if (runway && work?.dataset.static !== "true") {
         const start = top(runway), span = runway.offsetHeight;
         const stop: ScrollStop = { id: "partnership", label: "One partnership", y: start + span * PARTNERSHIP_REST, kind: "partnership" };
-        const imagineStop = stops.find(s => s.id === "imagine");
-        scenes.push({ start, end: start + span, kind: "partnership", stops: imagineStop ? [imagineStop, stop] : [stop] });
+        scenes.push({ start, end: start + span, kind: "partnership", stops: [stop] });
         // Keep this stop for explicit navigation only. Never auto-skip the tile sequence.
         stops.push(stop);
       }

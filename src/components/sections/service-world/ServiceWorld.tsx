@@ -5,14 +5,14 @@ import { useHydratedReducedMotion } from '@/hooks/useHydratedReducedMotion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { serviceExhibit } from './scene-art';
 import type { WorldEngine } from './world-renderer';
-import { worldLight, type WorldInput } from './world-state';
+import { worldLight, smooth, type WorldInput } from './world-state';
 import styles from './ServiceWorld.module.css';
 
 type Selection = { service: string; variant: number; enabled: boolean; paused: boolean };
 const WorldContext = createContext<{ ready: boolean; stageReady: string | null; select: (selection: Selection) => void } | null>(null);
 export const useServiceWorld = () => useContext(WorldContext);
 
-export default function ServiceWorld({ children }: { children: ReactNode }) {
+export default function ServiceWorld({ children, mediaFirst = false }: { children: ReactNode; mediaFirst?: boolean }) {
   const host = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const engine = useRef<WorldEngine | null>(null);
@@ -31,13 +31,14 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
     let disposed = false, loading = false, failed = false, frame = 0;
     let latest: WorldInput | null = null, lastLight = -1;
     let pointer: [number, number] = [0, 0];
-    const runway = root.querySelector<HTMLElement>('[data-work-runway]');
+    const cardExit = root.querySelector<HTMLElement>('[data-card-exit]');
+    const runway = cardExit ?? root.querySelector<HTMLElement>('[data-work-runway]');
     const services = root.querySelector<HTMLElement>('[data-services-runway]');
     const query = new URLSearchParams(location.search);
-    const fallbackOnly = query.get('world') === 'poster';
+    const fallbackOnly = mediaFirst || query.get('world') === 'poster';
     const review = query.get('worldReview') === '1';
-    root.dataset.worldStatus = fallbackOnly ? 'poster' : 'waiting';
-    root.dataset.worldError = fallbackOnly ? 'Poster selected in review' : '';
+    root.dataset.worldStatus = mediaFirst ? 'media' : fallbackOnly ? 'poster' : 'waiting';
+    root.dataset.worldError = !mediaFirst && fallbackOnly ? 'Poster selected in review' : '';
     setReady(false); setStageReady(null);
     const fail = (reason: unknown) => {
       if (disposed) return;
@@ -55,7 +56,10 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
       const end = root.getBoundingClientRect();
       const visible = end.top < h && end.bottom > 0 && !document.hidden;
       const staticEntry = root.querySelector('[data-work-services-transition]')?.getAttribute('data-static') === 'true';
-      const light = entry && !staticEntry ? worldLight(entry.top, entry.height) : 1;
+      const staticCards = matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)').matches;
+      const light = cardExit ? (staticCards ? 1 : smooth((-entry!.top / Math.max(1, entry!.height) - .45) / .45)) : entry && !staticEntry ? worldLight(entry.top, entry.height) : 1;
+      const galleryBounds = root.querySelector('[data-gallery]')?.getBoundingClientRect();
+      root.style.setProperty('--gallery-travel', String(galleryBounds ? Math.min(1, Math.max(0, 1 - galleryBounds.top / h)) : 0));
       if (light !== lastLight) {
         lastLight = light;
         root.style.setProperty('--world-light', String(light));
@@ -128,17 +132,17 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
       document.removeEventListener('visibilitychange', schedule);
       engine.current?.dispose(); engine.current = null; syncRef.current = () => {};
     };
-  }, [reduced, attempt]);
+  }, [reduced, attempt, mediaFirst]);
 
-  return <WorldContext.Provider value={context}><div ref={host} className={styles.world} data-service-world data-world-ready={ready}>
+  return <WorldContext.Provider value={context}><div ref={host} className={styles.world} data-service-world data-world-ready={ready} data-world-mode={mediaFirst ? "media" : "models"}>
     <div className={styles.environment} data-world-environment aria-hidden="true"><div className={styles.architecture}><i /><i /><i /><i /></div></div>
     <canvas key={`${attempt}-${reduced}`} ref={canvas} className={styles.canvas} aria-hidden="true" />
     <div className={styles.story}>{children}</div>
   </div></WorldContext.Provider>;
 }
 
-export function WorldStageControls({ service, variant, onVariant, labels, enabled, onEnabled, paused, onPaused }: {
-  service: string; variant: number; onVariant: (n: number) => void; labels: readonly string[];
+export function WorldStageControls({ service, variant, onVariant, labels, enabled, onEnabled, paused, onPaused, mediaFirst = false }: {
+  mediaFirst?: boolean; service: string; variant: number; onVariant: (n: number) => void; labels: readonly string[];
   enabled: boolean; onEnabled: () => void; paused: boolean; onPaused: () => void;
 }) {
   const { locale } = useLanguage(); const fr = locale === 'fr';
@@ -148,9 +152,9 @@ export function WorldStageControls({ service, variant, onVariant, labels, enable
       {labels.map((label, index) => <button type="button" key={label} aria-pressed={variant === index} onClick={() => onVariant(index)}>{label}</button>)}
     </div>
     <div className={styles.utilities}>
-      {service === 'led' && <button type="button" role="switch" aria-checked={enabled} onClick={onEnabled}>{fr ? 'Écran LED' : 'LED display'} <span>{enabled ? 'ON' : 'OFF'}</span></button>}
-      <button type="button" aria-pressed={paused} onClick={onPaused}>{paused ? (fr ? 'Animer la scène' : 'Play scene') : (fr ? 'Mettre en pause' : 'Pause scene')}</button>
-      <span>{fr ? 'Concept illustratif' : 'Illustrative concept'}</span>
+      {service === 'led' && !mediaFirst && <button type="button" role="switch" aria-checked={enabled} onClick={onEnabled}>{fr ? 'Écran LED' : 'LED display'} <span>{enabled ? 'ON' : 'OFF'}</span></button>}
+      <button type="button" aria-pressed={paused} onClick={onPaused}>{paused ? (fr ? 'Lire les aperçus' : 'Play previews') : (fr ? 'Mettre en pause' : 'Pause previews')}</button>
+      {!mediaFirst && <span>{fr ? 'Concept illustratif' : 'Illustrative concept'}</span>}
     </div>
   </div>;
 }

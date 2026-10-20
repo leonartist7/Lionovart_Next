@@ -1,3 +1,4 @@
+import CardsServicesTransition from "./CardsServicesTransition";
 import ServiceWorld from "./service-world/ServiceWorld";
 import { HeroCompositionProvider } from "./hero-background/HeroComposition";
 import HeroBackground from "@/components/sections/hero-background/HeroBackground";
@@ -36,16 +37,16 @@ export function PageBuilder() {
       {/* One shared runway joins the benefit cards, work and services. */}
       <div className="relative z-[2]">
         <WorkBrowseProvider>
-        <ServiceWorld>
-        <WorkServicesTransition intro={
+        <ServiceWorld mediaFirst>
+        <CardsServicesTransition>
           <HeroCompositionProvider><LionJourney>
             <HeroBackground />
             <HeroOpening />
             <span data-voice-reveal-boundary aria-hidden="true" />
           </LionJourney></HeroCompositionProvider>
-        }>
-          <NovaSection id="services"><ServicesSwitcher /></NovaSection>
-        </WorkServicesTransition>
+        </CardsServicesTransition>
+        <NovaSection id="services"><ServicesSwitcher /></NovaSection>
+        <WorkServicesTransition />
         <SelectedWork compact servicesCurves />
         </ServiceWorld>
         </WorkBrowseProvider>

@@ -1,0 +1,55 @@
+.cardTransition { position: relative; z-index: 3; }
+.cardIntro { position: sticky; }
+.cardExit { height: 90svh; pointer-events: none; }
+.partnership { position: relative; z-index: 25; }
+.partnershipStage { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+.partnershipStage[data-dissolve-pinned=true], .galleryStage[data-dissolve-pinned=true] { position: fixed; inset: 0; height: 100svh; }
+.partnershipHeading { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.25rem; text-align: center; pointer-events: none; }
+.partnershipHeading h2 { margin: 0; font: 600 clamp(2.5rem,7vw,6.25rem)/.98 var(--font-clash-display),sans-serif; text-transform: uppercase; letter-spacing: -.035em; }
+.partnershipHeading p { margin: 1.125rem 0 0; font: italic 400 clamp(1.8rem,4.5vw,4.5rem)/1.08 var(--font-playfair-display),serif; }
+.galleryRunway { height: 180svh; }
+.galleryStage { position: sticky; top: 0; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; padding: clamp(4.5rem,8svh,6rem) clamp(1rem,4vw,4rem) 6.5rem; }
+.galleryHeader { display: flex; justify-content: space-between; align-items: center; margin: 0 auto 1rem; width: min(100%,90rem); }
+.galleryHeader h2 { margin: 0; font: 600 clamp(2rem,4vw,4rem)/1 var(--font-clash-display),sans-serif; letter-spacing: -.04em; }
+.corridor { position: relative; width: 100%; height: clamp(14rem,45svh,40rem); perspective: 1200px; transform-style: preserve-3d; }
+.screenMain { position: absolute; width: 65%; height: 100%; left: 17.5%; top: 0; background: #101010; border: 1px solid #ac91676b; box-shadow: 0 24px 65px -35px #30251580; overflow: hidden; }
+.screenSide { position: absolute; width: 23%; height: 73%; top: 13.5%; left: -4%; border: 1px solid #ac91674d; background: #151515; transform: rotateY(42deg) translateZ(-70px); overflow: hidden; cursor: pointer; opacity: .65; transition: opacity .3s; }
+.screenSide:last-child { left: auto; right: -4%; transform: rotateY(-42deg) translateZ(-70px); }
+.screenSide:hover { opacity: 1; }
+.screenSide img { object-fit: cover; }
+.screenSide:focus-visible { outline: 2px solid #bd1725; outline-offset: 5px; opacity: 1; }
+.media { position: absolute; inset: 0; background: #121212; }
+.media img, .media video { width: 100%; height: 100%; object-fit: contain; }
+.media video { position: absolute; inset: 0; opacity: 0; transition: opacity .65s ease; }
+.media video[data-playing=true] { opacity: 1; }
+.mediaLabel { position: absolute; bottom: .6rem; left: .75rem; max-width: calc(100% - 1.5rem); padding: .3rem .6rem; border-radius: 2px; background: #111c; color: #fff; font: 500 .625rem/1.4 var(--font-dm-sans),sans-serif; letter-spacing: .07em; }
+.serviceScreen { position: relative; width: min(82vw,1000px); height: clamp(12rem,42svh,34rem); margin: 0 auto; }
+.serviceScreen .screenMain { width: 100%; left: 0; border-radius: .25rem; }
+.serviceScreen[data-layout=portrait] .screenMain { width: 72%; left: 14%; }
+.serviceScreen .sideStill { position: absolute; width: 15%; height: 75%; top: 12.5%; overflow: hidden; background: #151515; box-shadow: 0 10px 25px #0002; border: 1px solid #b9a06c55; }
+.sideStill:first-child { left: -3%; transform: perspective(900px) rotateY(12deg); }
+.sideStill:last-child { right: -3%; transform: perspective(900px) rotateY(-12deg); }
+.sideStill img { object-fit: cover; }
+.caption { margin: .9rem auto 0; text-align: center; color: #554b3e; font: 500 .7rem/1.5 var(--font-dm-sans),sans-serif; }
+@media(max-width:767px) {
+  .corridor { height: 34svh; min-height: 12rem; }
+  .screenMain { width: 82%; left: 9%; }
+  .screenSide { width: 18%; left: -10%; }.screenSide:last-child { right: -10%; }
+  .serviceScreen { width: 90vw; height: 30svh; min-height: 12rem; }
+  .galleryStage { padding: 4rem 1rem 6.5rem; }
+  .galleryRunway { height: 160svh; }
+}
+@media(max-height:560px), (prefers-reduced-motion:reduce) {
+  .cardIntro { position: relative; top: auto !important; opacity: 1 !important; }
+  .cardExit { height: 0; }
+  .partnershipRunway, .galleryRunway { height: auto !important; }
+  .partnershipStage { position: relative; min-height: 65svh; height: auto; }
+  .partnershipHeading { position: relative; padding: 4rem 1.25rem; }
+  .galleryStage { position: relative; min-height: auto; }
+  .serviceScreen, .corridor { height: 17rem; }
+}
+@media(prefers-reduced-motion:reduce) { .media video, .screenSide { transition: none; } }
+
+.media { animation: screen-dissolve .65s ease both; }
+@keyframes screen-dissolve { from { opacity: 0; } to { opacity: 1; } }
+@media(prefers-reduced-motion:reduce) { .media { animation: none; } }

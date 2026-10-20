@@ -1,88 +1,42 @@
-"use client";
+'use client';
+import { useEffect, useState } from 'react';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { usePublicCopy } from '@/hooks/usePublicCopy';
+import { useDissolveStage } from '@/hooks/useDissolveStage';
+import { partnershipPose, PARTNERSHIP_SCROLL_LENGTH } from './partnership-motion';
+import PartnershipTiles from './PartnershipTiles';
+import styles from './ScreeningRoom.module.css';
 
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
-import { motion, useMotionValue, useMotionValueEvent, useTransform } from "framer-motion";
-import { useLenis } from "lenis/react";
-import { usePublicCopy } from "@/hooks/usePublicCopy";
-import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
-import { ServicesArrivalContext } from "./ServicesArrival";
-import { ServicesPreviewContext } from "./ServicesPreview";
-import { partnershipPose, PARTNERSHIP_SCROLL_LENGTH, PARTNERSHIP_TIMING } from "./partnership-motion";
-import PartnershipTiles from "./PartnershipTiles";
-import styles from "./WorkServicesTransition.module.css";
-
-const shortQuery = "(max-height: 480px)";
-const subscribeShort = (notify: () => void) => {
-  const media = matchMedia(shortQuery);
-  media.addEventListener("change", notify);
-  return () => media.removeEventListener("change", notify);
-};
-
-/** The last Imagine viewport dissolves into a centered chapter before services. */
-export default function WorkServicesTransition({ intro, children }: { intro: ReactNode; children: ReactNode }) {
-  const lenis = useLenis();
+/** The partnership now follows Services and opens into the project corridor. */
+export default function WorkServicesTransition() {
   const tr = usePublicCopy();
-  const reduced = useHydratedReducedMotion();
-  const short = useSyncExternalStore(subscribeShort, () => matchMedia(shortQuery).matches, () => false);
-  const staticScene = reduced || short;
-  const introRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef<HTMLDivElement>(null);
-  const runwayRef = useRef<HTMLDivElement>(null);
-  const servicesRef = useRef<HTMLDivElement>(null);
-  const introTop = useMotionValue<number | string>("auto");
+  const { runway, stage } = useDissolveStage();
   const progress = useMotionValue(0);
-  const servicesOpacity = useMotionValue(0);
-  const pose = useTransform(progress, partnershipPose);
-  const introOpacity = useTransform(() => pose.get().introOpacity);
-  const chapterOpacity = useTransform(() => pose.get().chapterOpacity);
-  const [retired, setRetired] = useState(false);
-  useMotionValueEvent(progress, "change", p => setRetired(p >= PARTNERSHIP_TIMING.introEnd));
-
+  const [staticScene, setStaticScene] = useState(false);
+  const headingOpacity = useTransform(progress, p => partnershipPose(p).chapterOpacity);
   useEffect(() => {
-    const intro = introRef.current, scene = sceneRef.current, runway = runwayRef.current, services = servicesRef.current;
-    if (!intro || !scene || !runway || !services || staticScene) return;
+    const node = runway.current; if (!node) return;
+    const media = matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)');
+    let frame = 0;
     const sync = () => {
-      introTop.set(scene.clientHeight - intro.offsetHeight);
-      const bounds = runway.getBoundingClientRect();
-      progress.set(Math.min(1, Math.max(0, -bounds.top / Math.max(1, bounds.height))));
-      const arrival = Math.min(1, Math.max(0, 1 - 2 * services.getBoundingClientRect().top / Math.max(1, scene.clientHeight)));
-      servicesOpacity.set(arrival * arrival * (3 - 2 * arrival));
+      frame = 0; setStaticScene(media.matches);
+      const rect = node.getBoundingClientRect();
+      progress.set(Math.max(0, Math.min(1, -rect.top / Math.max(1, rect.height))));
     };
-    if (lenis) lenis.on("scroll", sync);
-    else window.addEventListener("scroll", sync, { passive: true });
-    const observer = new ResizeObserver(sync);
-    [intro, scene, runway, services].forEach(node => observer.observe(node));
-    window.addEventListener("resize", sync);
-    window.addEventListener("pageshow", sync);
-    void document.fonts.ready.then(sync);
-    sync();
-    return () => {
-      if (lenis) lenis.off("scroll", sync);
-      else window.removeEventListener("scroll", sync);
-      observer.disconnect();
-      window.removeEventListener("resize", sync);
-      window.removeEventListener("pageshow", sync);
-    };
-  }, [lenis, staticScene, introTop, progress, servicesOpacity]);
-
-  return <div className={styles.transition} data-work-services-transition data-scroll-manual data-static={staticScene}>
-    <motion.div ref={introRef} className={styles.intro} data-work-intro inert={!staticScene && retired}
-      style={staticScene ? undefined : { top: introTop, opacity: introOpacity }}>
-      {intro}
-    </motion.div>
-    <div ref={sceneRef} className={styles.scene} data-work-scene data-nav-surface={staticScene || retired ? "light" : "dark"} data-scroll-title-skip>
-      <PartnershipTiles progress={progress} staticScene={staticScene} />
-      <motion.header className={styles.heading} data-work-heading style={{ opacity: staticScene ? 1 : chapterOpacity }}>
-        <h2>{tr("One partnership")}</h2>
-        <p>{tr("Designing your legacy")}</p>
-      </motion.header>
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
+    const observer = new ResizeObserver(schedule); observer.observe(node);
+    window.addEventListener('scroll', schedule, { passive: true }); window.addEventListener('resize', schedule);
+    media.addEventListener('change', schedule); sync();
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); media.removeEventListener('change', schedule); };
+  }, [progress, runway]);
+  return <section id="partnership" data-work-services-transition data-scroll-manual data-static={staticScene} data-nav-surface="light" className={styles.partnership}>
+    <div ref={runway} data-work-runway className={styles.partnershipRunway} style={{ height: `${PARTNERSHIP_SCROLL_LENGTH * 100}svh` }}>
+      <div ref={stage} data-work-scene data-dissolve-stage className={styles.partnershipStage}>
+        <PartnershipTiles progress={progress} staticScene={staticScene} />
+        <motion.header className={styles.partnershipHeading} data-work-heading style={{ opacity: staticScene ? 1 : headingOpacity }}>
+          <h2>{tr('One partnership')}</h2><p>{tr('Designing your legacy')}</p>
+        </motion.header>
+      </div>
     </div>
-    <div ref={runwayRef} className={styles.runway} data-work-runway aria-hidden="true"
-      style={{ height: `${PARTNERSHIP_SCROLL_LENGTH * 100}svh` }} />
-    <ServicesArrivalContext.Provider value={staticScene ? 1 : servicesOpacity}>
-      <ServicesPreviewContext.Provider value={false}>
-        <div ref={servicesRef} className={styles.servicesSurface} data-services-surface>{children}</div>
-      </ServicesPreviewContext.Provider>
-    </ServicesArrivalContext.Provider>
-  </div>;
+  </section>;
 }

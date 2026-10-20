@@ -6,8 +6,8 @@ import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useLenis } from "lenis/react";
 import { scrollEase } from "@/components/experience/scroll-policy";
 
-import { serviceExhibit } from "./service-world/scene-art";
-import WorldPoster from "./service-world/WorldPoster";
+import { ServiceScreen } from "./ScreeningMedia";
+import { useDissolveStage } from "@/hooks/useDissolveStage";
 import { useServiceWorld, WorldStageControls } from "./service-world/ServiceWorld";
 
 import ServicesCurves from "./ServicesCurves";
@@ -160,7 +160,7 @@ export default function HomepageServicesChapter() {
     const sync = () => setShortScreen(mq.matches); sync();
     mq.addEventListener('change', sync); return () => mq.removeEventListener('change', sync);
   }, []);
-  const chapterRef = useRef<HTMLDivElement>(null);
+  const { runway: chapterRef, stage: stageRef, active: stageActive } = useDissolveStage();
   const wheelLockRef = useRef(0);
   const initialLanding = useRef(false);
   const restoringViewport = useRef(false);
@@ -183,12 +183,12 @@ export default function HomepageServicesChapter() {
     lastCueIndex.current = activeIndex;
     const bounds = chapterRef.current?.getBoundingClientRect();
     if (bounds && bounds.top < innerHeight && bounds.bottom > 0) emitExperienceCue("service", SERVICE_META[activeIndex].id, activeIndex);
-  }, [activeIndex]);
+  }, [activeIndex, chapterRef]);
 
   const activeService = services[activeIndex] ?? services[0];
   const variant = variants[activeService.id] ?? 0;
   const interactive = !!world;
-  const sceneReady = !!world?.ready && world.stageReady === `${serviceExhibit(activeService.id)}:${variant}`;
+
   useEffect(() => {
     selectWorld?.({ service: activeService.id, variant, enabled: ledEnabled, paused: scenePaused });
   }, [selectWorld, activeService.id, variant, ledEnabled, scenePaused]);
@@ -233,7 +233,7 @@ export default function HomepageServicesChapter() {
       if (lenis) lenis.scrollTo(target, { duration: .6, lerp: 0, easing: scrollEase, immediate: behavior !== "smooth", userData: { navigation: true } });
       else window.scrollTo({ top: target, behavior });
     },
-    [carouselPreview, staticLayout, lenis],
+    [carouselPreview, staticLayout, lenis, chapterRef],
   );
 
   // Preserve the authored chapter across orientation/layout changes, without moving readers elsewhere on the page.
@@ -264,7 +264,7 @@ export default function HomepageServicesChapter() {
       cancelAnimationFrame(frame); restoringViewport.current = false;
       window.removeEventListener('scroll', measure); window.removeEventListener('resize', resize);
     };
-  }, []);
+  }, [chapterRef]);
 
   // Land direct service links inside the sticky chapter, beyond the global header offset.
   useEffect(() => {
@@ -315,7 +315,8 @@ export default function HomepageServicesChapter() {
 
       <div ref={chapterRef} data-services-runway className="relative h-[330svh] sm:h-[310svh] lg:h-[340vh]">
       <div
-        data-services-stage
+        ref={stageRef}
+        data-services-stage data-dissolve-stage
         className="sticky top-0 h-svh overflow-hidden outline-none"
         tabIndex={0}
         role="region"
@@ -346,14 +347,10 @@ export default function HomepageServicesChapter() {
               style={{ touchAction: "pan-y" }}
               className="flex h-full flex-col items-center justify-center gap-7 sm:gap-9 lg:gap-[clamp(2.75rem,5.5svh,5rem)]"
             >
-              {!carouselPreview && <div data-service-media data-world-service={interactive ? activeService.id : undefined} data-world-rendered={sceneReady} className="relative order-1 aspect-video w-[min(92vw,61svh)] overflow-hidden rounded-[1.15rem] border border-black/[0.07] bg-black/[0.04] shadow-[0_24px_62px_-42px_rgba(0,0,0,0.34)] lg:w-[min(70vw,64svh)] lg:rounded-[1.55rem]">
-                <div data-world-poster className="h-full w-full">
-                {interactive ? <WorldPoster service={activeService.id} variant={variant} enabled={ledEnabled} paused={scenePaused} active={!sceneReady} /> : <ServiceMediaCarousel
-                  key={activeService.id}
-                  images={activeService.media}
-                  alt={`${activeService.title} service visual`}
-                />}
-                </div>
+              {!carouselPreview && <div data-service-media className="relative order-1 shrink-0">
+                {interactive ? <ServiceScreen service={activeService.id} variant={variant} active={stageActive} paused={scenePaused} /> : <div className="h-[40svh] w-[80vw]">
+                  <ServiceMediaCarousel key={activeService.id} images={activeService.media} alt={`${activeService.title} service visual`} />
+                </div>}
               </div>}
 
               <div className="order-2 flex min-w-0 flex-col justify-center text-center">
@@ -365,7 +362,7 @@ export default function HomepageServicesChapter() {
                       {activeService.description}
                     </p>
                     {interactive ? <WorldStageControls service={activeService.id} variant={variant}
-                      labels={activeService.deliverables}
+                      labels={activeService.deliverables} mediaFirst
                       onVariant={value => setVariants(previous => ({ ...previous, [activeService.id]: value }))}
                       enabled={ledEnabled} onEnabled={() => setLedEnabled(value => !value)}
                       paused={scenePaused} onPaused={() => setScenePaused(value => !value)} /> : <div data-service-tags className="mx-auto mt-5 flex max-h-[4.6rem] max-w-[38rem] flex-wrap justify-center gap-1.5 overflow-hidden sm:mt-6 sm:max-h-none sm:gap-2 lg:mt-7 lg:max-w-[40rem]">

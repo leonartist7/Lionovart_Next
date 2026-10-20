@@ -84,3 +84,12 @@
 @media(max-width:767px) { .galleryMain { border-width: 3px; inset: 12% 13% 16%; }.gallerySide { width: 9%; border-width: 2px; }.projectChoices button { padding: .5rem .75rem; } }
 .gallerySide img { object-fit: cover; object-position: left center; }
 .gallerySide:last-child img { object-position: right center; }
+
+/* Media-led homepage: the world is architectural framing, not a prop selector. */
+.world :global([data-services-stage][data-dissolve-pinned=true]) { position: fixed; inset: 0; height: 100svh; }
+.world[data-world-mode=media] .canvas { display: none; }
+.world[data-world-mode=media] .architecture { transform: scale(calc(1 + var(--gallery-travel, 0) * .08)); transform-origin: 50% 42%; }
+.world[data-world-mode=media] :global([data-service-panel] > div) { gap: clamp(.7rem,2svh,1.5rem); }
+.world[data-world-mode=media] :global([data-service-title]) { font-size: clamp(1.75rem,3.4vw,3.25rem); }
+.world[data-world-mode=media] :global([data-service-panel]) { top: 7svh; bottom: 6.5rem; }
+@media(max-height:740px) and (min-height:561px) { .world[data-world-mode=media] :global([data-service-media]) { max-height: 29svh; } .world[data-world-mode=media] :global([data-service-media] > div) { height: 29svh; min-height: 0; } }

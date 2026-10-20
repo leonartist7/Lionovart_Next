@@ -10,7 +10,9 @@ import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import ServicesCurves from "./ServicesCurves";
 import { useWorkBrowse } from "./selected-work/WorkBrowse";
 import { GALLERY_SERVICE_LABELS, type GalleryWork } from "./selected-work/gallery";
-import { useServiceWorld } from "./service-world/ServiceWorld";
+import { useDissolveStage } from "@/hooks/useDissolveStage";
+import { ScreeningMedia } from "./ScreeningMedia";
+import roomStyles from "./ScreeningRoom.module.css";
 import worldStyles from "./service-world/ServiceWorld.module.css";
 import styles from "./CompactWork.module.css";
 
@@ -69,7 +71,7 @@ function WorkGrid({ servicesCurves }: { servicesCurves: boolean }) {
   const [page, setPage] = useState(0);
   const [paused, setPaused] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
-  const world = useServiceWorld();
+  const { runway: landing, stage: landingStage, active: landingActive } = useDissolveStage();
   const [featureSlug, setFeatureSlug] = useState<string | null>(null);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const section = useRef<HTMLElement>(null);
@@ -111,22 +113,30 @@ function WorkGrid({ servicesCurves }: { servicesCurves: boolean }) {
       data-scroll-title-skip aria-labelledby="selected-work-heading" className={styles.section}>
       {servicesCurves && <ServicesCurves continuation />}
       <div className={styles.container}>
-        <header className={styles.header}>
+        <div ref={landing} className={roomStyles.galleryRunway} data-gallery-runway>
+        <div ref={landingStage} className={roomStyles.galleryStage} data-dissolve-stage data-gallery-stage>
+        <header className={roomStyles.galleryHeader}>
           <h2 id="selected-work-heading">{t("eyebrow")}</h2>
           <div className={styles.previewControls}>
             {!reduced && <button type="button" className={styles.iconButton} aria-label={tr(paused ? "Play previews" : "Pause previews")} aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}</button>}
             <span className={styles.total}>{String(projects.length).padStart(2, "0")}</span>
           </div>
         </header>
-        {world && feature && <figure className={worldStyles.feature}>
-          <div className={worldStyles.featureStage} data-world-work data-project-id={feature.slug} data-project-poster={feature.poster}
-            data-world-rendered={world.ready && world.stageReady === `work:${feature.slug}`}>
-            <div className={worldStyles.galleryPoster} data-work-poster>
-              <div className={worldStyles.galleryPodium} />
-              <div className={worldStyles.gallerySide}><Image src={feature.poster} alt="" fill sizes="120px" loading="lazy" /></div>
-              <div className={worldStyles.galleryMain}><Image key={feature.slug} src={feature.poster} alt={feature.name} fill sizes="(max-width: 767px) 72vw, 750px" loading="lazy" /></div>
-              <div className={worldStyles.gallerySide}><Image src={feature.poster} alt="" fill sizes="120px" loading="lazy" /></div>
+        {feature && <figure className="m-0">
+          <div className={roomStyles.corridor} data-project-corridor>
+            {visible.length > 1 && <button type="button" className={roomStyles.screenSide}
+              aria-label={tr("View work") + ": " + visible[(visible.indexOf(feature) + visible.length - 1) % visible.length].name}
+              onClick={() => setFeatureSlug(visible[(visible.indexOf(feature) + visible.length - 1) % visible.length].slug)}>
+              <Image src={visible[(visible.indexOf(feature) + visible.length - 1) % visible.length].poster} alt="" fill sizes="250px" loading="lazy" />
+            </button>}
+            <div className={roomStyles.screenMain}>
+              <ScreeningMedia key={feature.slug} asset={feature} active={landingActive && !selected} paused={paused} label={false} />
             </div>
+            {visible.length > 1 && <button type="button" className={roomStyles.screenSide}
+              aria-label={tr("View work") + ": " + visible[(visible.indexOf(feature) + 1) % visible.length].name}
+              onClick={() => setFeatureSlug(visible[(visible.indexOf(feature) + 1) % visible.length].slug)}>
+              <Image src={visible[(visible.indexOf(feature) + 1) % visible.length].poster} alt="" fill sizes="250px" loading="lazy" />
+            </button>}
           </div>
           <figcaption>
             <div className={worldStyles.projectChoices} role="group" aria-label={tr("Selected work")}>
@@ -139,6 +149,7 @@ function WorkGrid({ servicesCurves }: { servicesCurves: boolean }) {
             </Dialog.Trigger>
           </figcaption>
         </figure>}
+        </div></div>
         <div className={styles.grid} data-work-preview-grid>
           {visible.map(work => <article key={work.assetId} className={styles.card} data-work-card data-work-slug={work.slug}>
             <Dialog.Trigger className={styles.cardButton} onClick={() => setSelectedSlug(work.slug)}

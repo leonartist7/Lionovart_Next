@@ -78,8 +78,9 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
       const h = window.innerHeight;
       const rect = services.getBoundingClientRect();
       const workRect = work?.getBoundingClientRect();
-      visibility.set(clamp(1 - rect.top / (h * .2)) *
-        clamp(((workRect?.bottom ?? rect.bottom) - h * .12) / (h * .15)));
+      const serviceVisibility = clamp(1 - rect.top / (h * .2)) * clamp((rect.bottom - h * .4) / (h * .5));
+      const workVisibility = workRect ? clamp((h * .5 - workRect.top) / (h * .3)) * clamp((workRect.bottom - h * .12) / (h * .15)) : 0;
+      visibility.set(Math.max(serviceVisibility, workVisibility));
       handoff.set(workRect ? clamp((h * .75 - workRect.top) / (h * .45)) : 0);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
