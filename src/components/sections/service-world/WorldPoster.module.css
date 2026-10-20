@@ -1,8 +1,4 @@
-.poster { position: absolute; inset: 0; overflow: hidden; container-type: size; background: radial-gradient(ellipse at 50% 45%, #fffefa, #f7f4ef 70%); }
-.room { position: absolute; inset: 0; perspective: 800px; opacity: .4; }
-.room i { position: absolute; width: 82%; height: 120%; left: 9%; top: -15%; border: 1px solid #c4b18c; transform: rotateX(-10deg); }
-.room i:nth-child(2) { transform: translateZ(-180px) rotateX(-10deg); }
-.room i:nth-child(3) { transform: translateZ(-360px) rotateX(-10deg); }
+.poster { position: absolute; inset: 0; overflow: hidden; container-type: size; background: transparent; }
 .stage { position: absolute; inset: 6% 10% 8%; perspective: 1200px; transform-style: preserve-3d; }
 .podium { position: absolute; width: 86%; height: 33%; left: 7%; bottom: -6%; border-radius: 50%; background: linear-gradient(#faf7f0 0 75%, #c7ae78 76% 80%, #e4dcd0 83%); box-shadow: 0 12px 22px #4d39231a; transform: rotateX(48deg); }
 .screen { position: absolute; width: 42%; height: 91%; left: 28%; bottom: 6%; border: 3px solid #b39b6d; border-right-width: 7px; background: #aa2037; border-radius: 3px; transform: rotateY(-10deg); box-shadow: -10px 15px 25px #4d392319; overflow: hidden; }

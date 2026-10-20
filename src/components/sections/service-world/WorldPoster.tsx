@@ -38,7 +38,6 @@ export default function WorldPoster({ service, variant, enabled, paused, active 
     return () => { element?.pause(); document.removeEventListener('visibilitychange', sync); };
   }, [motion]);
   return <div ref={root} className={styles.poster} data-mode={service} data-variant={variant} data-led-enabled={enabled} data-paused={paused || !!reduced} data-active={active && visible && pageVisible} aria-hidden="true">
-    <div className={styles.room}><i /><i /><i /></div>
     <div className={styles.stage}>
       <div className={styles.podium} />
       {service === 'content-studio' ? <>

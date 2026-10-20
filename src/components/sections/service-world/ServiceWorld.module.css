@@ -16,7 +16,7 @@
 .world :global([data-gallery=compact]),
 .world :global([data-work-services-transition]) { background: transparent !important; }
 .world :global([data-services-curves]) { opacity: 0 !important; }
-.world :global([data-world-service]) { position: relative; width: min(92vw, 64rem) !important; height: clamp(13rem, 40svh, 32rem); flex-shrink: 0; border: 0; background: transparent; box-shadow: none; overflow: hidden; }
+.world :global([data-world-service]) { position: relative; width: min(92vw, 64rem) !important; height: clamp(13rem, 40svh, 32rem); flex-shrink: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: hidden; }
 .world :global([data-world-service] > [data-world-poster]) { position: absolute; inset: 0; transition: opacity .4s ease; }
 .world[data-world-ready=true] :global([data-world-service][data-world-rendered=true] > [data-world-poster]),
 .world[data-world-ready=true] :global([data-world-work][data-world-rendered=true] > [data-work-poster]) { opacity: 0; pointer-events: none; }
