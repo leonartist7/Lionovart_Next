@@ -1,0 +1,90 @@
+name: Phase 3 immutable preview validation
+
+on:
+  push:
+    branches: [review/mobile-image-optimization]
+    paths:
+      - .github/workflows/phase3-preview-validation.yml
+
+permissions:
+  contents: read
+
+env:
+  PERF_COMMIT: 196bbcef23a1762d2863eb708ffc6d7c06a84de1
+  PERF_VERIFY_URL: https://lionovartnext-7lnmn75xd-lionovart.vercel.app/
+  PERF_URLS: https://lionovartnext-7lnmn75xd-lionovart.vercel.app/
+
+jobs:
+  browsers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+    env:
+      PERF_ENGINE: ${{ matrix.engine }}
+      PERF_VERIFY_OUTPUT: ${{ github.workspace }}/reports/performance/phase3-${{ matrix.engine }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Require the exact deployed runtime source
+        run: git diff --exit-code "$PERF_COMMIT" HEAD -- src public next.config.ts package.json package-lock.json
+      - run: npm ci --prefix scripts/performance --ignore-scripts --no-audit --no-fund
+      - name: Install pinned browser
+        working-directory: scripts/performance
+        run: npx playwright install --with-deps "$PERF_ENGINE"
+      - name: Validate preview
+        working-directory: scripts/performance
+        run: node validate.mjs
+      - name: Print compact durable evidence
+        if: always()
+        run: node scripts/performance/print-evidence.mjs "$PERF_VERIFY_OUTPUT/results.json"
+      - name: Retain full results and screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase3-${{ matrix.engine }}
+          path: reports/performance/
+          retention-days: 90
+
+  lighthouse:
+    needs: browsers
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PERF_OUTPUT: ${{ github.workspace }}/reports/performance/phase3-lighthouse
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - run: npm ci --prefix scripts/performance --ignore-scripts --no-audit --no-fund
+      - name: Three mobile Lighthouse runs and delivery budgets
+        working-directory: scripts/performance
+        run: |
+          node collect.mjs
+          node summarize.mjs "$PERF_OUTPUT"
+          node assert-budgets.mjs "$PERF_OUTPUT/summary.json"
+      - name: Print metrics
+        if: always()
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const data=JSON.parse(fs.readFileSync(process.env.PERF_OUTPUT+'/summary.json','utf8'));
+          console.log('PHASE3_LIGHTHOUSE_JSON '+JSON.stringify(data));
+          NODE
+      - name: Retain original Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase3-lighthouse
+          path: reports/performance/
+          retention-days: 90

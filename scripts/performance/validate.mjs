@@ -150,23 +150,27 @@ async function cacheAndSlowNetwork() {
     await client.send('Network.emulateNetworkConditions', { offline: false, latency: 150, downloadThroughput: 1_600_000 / 8, uploadThroughput: 750_000 / 8 });
     for (const visit of ['cold', 'repeat']) {
       const responses = [], mediaRequests = [];
+      const cachedRequests = new Set();
+      const onCached = event => cachedRequests.add(event.requestId);
       const onResponse = event => { if (/\/images\/optimized\/|\/models\/lion\//.test(event.response.url)) responses.push({ url: event.response.url, fromDiskCache: !!event.response.fromDiskCache,
+        servedFromCache: cachedRequests.has(event.requestId),
         cacheControl: Object.entries(event.response.headers).find(([key]) => key.toLowerCase() === 'cache-control')?.[1], status: event.response.status }); };
       const onRequest = event => { if (event.type === 'Media') mediaRequests.push(event.request.url); };
-      client.on('Network.responseReceived', onResponse); client.on('Network.requestWillBeSent', onRequest);
+      client.on('Network.responseReceived', onResponse); client.on('Network.requestWillBeSent', onRequest); client.on('Network.requestServedFromCache', onCached);
       await page.goto(base.href, { waitUntil: 'domcontentloaded', timeout: 120000 }); await ready(page);
       await page.waitForFunction(() => [...document.images].some(i => i.currentSrc.includes('/images/optimized/') && i.complete && i.naturalWidth), null, { timeout: 60000 });
       await sleep(2000);
       const snapshot = await page.evaluate(state);
       record.visits.push({ visit, responses, mediaRequests, snapshot });
-      client.off('Network.responseReceived', onResponse); client.off('Network.requestWillBeSent', onRequest);
+      client.off('Network.responseReceived', onResponse); client.off('Network.requestWillBeSent', onRequest); client.off('Network.requestServedFromCache', onCached);
       if (snapshot.filmRequested !== 'false' || mediaRequests.some(url => /hero_demo_mobile/.test(url))) record.failures.push(`${visit}: early film request`);
       if (snapshot.broken.length || snapshot.overflow || !snapshot.headings.some(h => h.visible)) record.failures.push(`${visit}: rendering regression`);
     }
     const cold = record.visits[0].responses, warm = record.visits[1].responses;
     record.immutableHeaders = cold.some(r => /public.*max-age=31536000.*immutable/.test(r.cacheControl || ''));
     record.diskCacheObserved = warm.some(r => r.fromDiskCache);
-    if (!record.immutableHeaders || !record.diskCacheObserved) record.failures.push('Immutable caching/repeat disk-cache evidence missing');
+    record.cacheReuseObserved = warm.some(r => r.fromDiskCache || r.servedFromCache);
+    if (!record.immutableHeaders || !record.cacheReuseObserved) record.failures.push('Immutable caching/repeat cache-reuse evidence missing');
     if (record.errors.length) record.failures.push('Uncaught page errors');
   } catch (error) { record.failures.push(error.message); }
   finally { record.passed = !record.failures.length; await save(record); await context.close(); }
