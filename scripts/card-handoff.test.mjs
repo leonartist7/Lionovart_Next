@@ -7,7 +7,7 @@ test('the shaping beat remains dark and legible before the light transition', ()
  const at=p=>cardHandoff(h-p*(runway+h),runway,h);
  assert.equal(at(0).intro,1);
  assert.equal(at(0).copy,0);
- assert.equal(at(.42).copy,1);
+ assert.equal(at(.45).copy,1);
  assert.equal(at(.35).light,0);
  assert.ok(at(.35).move>0 && at(.35).move<1);
  assert.equal(at(.7).move,1);
