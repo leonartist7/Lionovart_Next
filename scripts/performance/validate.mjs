@@ -61,7 +61,7 @@ async function inspect(config) {
   if (only.size && !only.has(id)) return;
   const context = await browser.newContext({ viewport: { width: config.width, height: config.width < 768 ? 844 : 900 }, deviceScaleFactor: config.width < 1024 ? 2 : 1,
     isMobile: config.width < 768, hasTouch: config.width < 1024, reducedMotion: config.reduce ? 'reduce' : 'no-preference' });
-  const page = await context.newPage();
+  const page = await context.newPage(); page.setDefaultTimeout(15000);
   const record = { id, ...config, failures: [], errors: [], snapshots: [] };
   page.on('pageerror', error => record.errors.push(error.message));
   try {
@@ -103,13 +103,14 @@ async function inspect(config) {
     if (config.webp && record.snapshots.some(s => s.images.some(i => i.picture && i.decoded && !(/f_webp|\.webp(?:$|[?#])/.test(i.src))))) record.failures.push('Wrong fallback format');
     if (config.reduce && !record.snapshots[0].reducedMotion) record.failures.push('Reduced-motion emulation not applied');
     if (config.route === '/' && !config.reduce && record.snapshots[0].filmRequested !== 'false') record.failures.push('Film gate opened before scroll');
-    await page.screenshot({ path: path.join(output, `${record.id}.png`) });
+    try { await page.screenshot({ path: path.join(output, `${record.id}.png`), timeout: 15000 }); }
+    catch (error) { record.captureWarning = error.message; }
   } catch (error) { record.failures.push(error.message); }
   finally { record.passed = !record.failures.length; await save(record); await context.close(); }
 }
 async function interactions() {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
-  const page = await context.newPage();
+  const page = await context.newPage(); page.setDefaultTimeout(15000);
   const record = { id: 'navigation-and-service-link', failures: [], errors: [] };
   page.on('pageerror', error => record.errors.push(error.message));
   try {
@@ -142,7 +143,7 @@ async function interactions() {
 }
 async function cacheAndSlowNetwork() {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
-  const page = await context.newPage(); const client = await context.newCDPSession(page);
+  const page = await context.newPage(); page.setDefaultTimeout(15000); const client = await context.newCDPSession(page);
   const record = { id: 'slow-cold-and-repeat-visit', failures: [], visits: [], errors: [] };
   page.on('pageerror', error => record.errors.push(error.message));
   try {
@@ -177,7 +178,7 @@ async function cacheAndSlowNetwork() {
 }
 async function routeCycles() {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
-  const page = await context.newPage();
+  const page = await context.newPage(); page.setDefaultTimeout(15000);
   const record = { id: 'bounded-spa-route-cycles-and-idle', failures: [], errors: [], cycles: [] };
   page.on('pageerror', error => record.errors.push(error.message));
   try {
@@ -200,6 +201,33 @@ async function routeCycles() {
   } catch (error) { record.failures.push(error.message); }
   finally { record.passed = !record.failures.length; await save(record); await context.close(); }
 }
+
+async function reducedReading() {
+  const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true,reducedMotion:'reduce'});
+  const page=await context.newPage();page.setDefaultTimeout(15000);
+  const record={id:'reduced-motion-reading-and-preference-change',failures:[],errors:[],readings:[]};
+  page.on('pageerror',error=>record.errors.push(error.message));
+  const check=async text=>{
+    await page.evaluate(text=>{const el=[...document.querySelectorAll('h2,h3,span')].find(e=>e.textContent.trim()===text);if(!el)throw Error('Missing reading sample '+text);el.scrollIntoView({block:'center',behavior:'instant'});},text);
+    await sleep(1000);
+    return page.evaluate(text=>{
+      const el=[...document.querySelectorAll('h2,h3,span')].find(e=>e.textContent.trim()===text),hidden=[];
+      for(let node=el;node;node=node.parentElement){const css=getComputedStyle(node);if(Number(css.opacity)<.01||css.visibility==='hidden'||css.display==='none')hidden.push({tag:node.tagName,opacity:css.opacity,visibility:css.visibility});}
+      return {text,hidden,top:el.getBoundingClientRect().top};
+    },text);
+  };
+  try{
+    await page.goto(new URL('/services/brand',base).href,{waitUntil:'domcontentloaded',timeout:90000});await ready(page);
+    for(const text of ["The look they'll recognize anywhere.","The words that sound like no one else.","Your vision, our craft","Logo suite"])record.readings.push(await check(text));
+    await page.emulateMedia({reducedMotion:'no-preference'});await sleep(1000);
+    await page.emulateMedia({reducedMotion:'reduce'});await sleep(1000);
+    record.afterPreferenceChange=await check('Logo suite');
+    if(record.readings.some(r=>r.hidden.length)||record.afterPreferenceChange.hidden.length)record.failures.push('Reduced-motion reading content is transparent or hidden');
+    if(record.errors.length)record.failures.push('Uncaught page errors');
+  }catch(error){record.failures.push(error.message);}
+  finally{record.passed=!record.failures.length;await save(record);await context.close();}
+}
+
 try {
   // Stop immediately for a runner/network failure; do not label an empty matrix
   // as a collection of website regressions.
@@ -216,6 +244,7 @@ try {
   }
   if (!only.size || only.has('navigation-and-service-link')) await interactions();
   if (!only.size || only.has('bounded-spa-route-cycles-and-idle')) await routeCycles();
+  if (!only.size || only.has('reduced-motion-reading-and-preference-change')) await reducedReading();
 } finally { await browser.close(); }
 if (!results.length) throw new Error('No validation cases selected');
 if (results.some(result => !result.passed)) process.exitCode = 1;

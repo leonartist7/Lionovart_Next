@@ -17,7 +17,7 @@ try{
     await page.evaluate(()=>[...document.querySelectorAll('button')].find(b=>b.getAttribute('aria-label')==='Skip intro')?.click());
     await new Promise(resolve=>setTimeout(resolve,1000));
     const image=Buffer.from(await page.screenshot({type:'jpeg',quality:75})).toString('base64');
-    console.log('PHASE3_IMAGE_JSON '+JSON.stringify({id:config.id,errors,image:'data:image/jpeg;base64,'+image}));
+    console.log('PHASE3_IMAGE_JSON '+JSON.stringify({id:config.id,deployment:process.env.PERF_VERIFY_URL,errors,image:'data:image/jpeg;base64,'+image}));
     await page.close();
   }
 

@@ -10,9 +10,9 @@ permissions:
   contents: read
 
 env:
-  PERF_COMMIT: 196bbcef23a1762d2863eb708ffc6d7c06a84de1
-  PERF_VERIFY_URL: https://lionovartnext-7lnmn75xd-lionovart.vercel.app/
-  PERF_URLS: https://lionovartnext-7lnmn75xd-lionovart.vercel.app/
+  PERF_COMMIT: 6b9303089f2b742e0501feb4fe15a4db5c54d532
+  PERF_VERIFY_URL: https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/
+  PERF_URLS: https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/
 
 jobs:
   browsers:
@@ -23,6 +23,7 @@ jobs:
       matrix:
         engine: [chromium, webkit]
     env:
+      PERF_CASES: "390-_-normal,1440-_about-normal,1440-_services-normal,390-_careers-normal,390-_services_brand-reduce,1440-_services_brand-reduce,390-_about-reduce,390-_-webp,slow-cold-and-repeat-visit,navigation-and-service-link,bounded-spa-route-cycles-and-idle,reduced-motion-reading-and-preference-change"
       PERF_ENGINE: ${{ matrix.engine }}
       PERF_VERIFY_OUTPUT: ${{ github.workspace }}/reports/performance/phase3-${{ matrix.engine }}
     steps:
@@ -34,7 +35,9 @@ jobs:
         with:
           node-version: '24'
       - name: Require the exact deployed runtime source
-        run: git diff --exit-code "$PERF_COMMIT" HEAD -- src public next.config.ts package.json package-lock.json
+        run: |
+          git fetch --depth=1 origin "$PERF_COMMIT"
+          git diff --exit-code "$PERF_COMMIT" HEAD -- src public next.config.ts package.json package-lock.json
       - run: npm ci --prefix scripts/performance --ignore-scripts --no-audit --no-fund
       - name: Install pinned browser
         working-directory: scripts/performance
@@ -88,3 +91,17 @@ jobs:
           name: phase3-lighthouse
           path: reports/performance/
           retention-days: 90
+
+  source-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - run: npm ci --no-audit --no-fund
+      - name: Lint changed components and verification tools
+        run: node node_modules/eslint/bin/eslint.js src/components/sections/AdaptiveNavbar.tsx src/components/careers/CareersExperience.tsx src/components/ui/TubesCursor.tsx src/components/sections/services/brand/branding/BrandCrest.tsx src/components/sections/services/brand/branding/HeroScatter.tsx src/components/sections/services/brand/branding/LateralFeature.tsx src/components/sections/services/brand/branding/EmblemStatement.tsx src/components/sections/services/brand/branding/RevealOnScroll.tsx next.config.ts scripts/performance/*.mjs

@@ -88,7 +88,7 @@ navigation, three bounded SPA route cycles and a ten-second idle sample.
 WebKit covers mobile/desktop, the same detail routes and reduced motion.
 Chromium also checks a cold and repeat visit with 150 ms latency, 1.6 Mbps
 download and 750 Kbps upload; this is browser network emulation, not a phone.
-It verifies immutable headers and observed disk-cache reuse. `PERF_CASES`
+It verifies immutable headers and observed browser-cache reuse. `PERF_CASES`
 accepts comma-separated case IDs for a targeted rerun. `PERF_VERIFY_OUTPUT`
 selects the evidence directory. Host-configured credential-free HTTP proxies
 are used without disabling TLS validation. No booking or chat is submitted.
@@ -109,3 +109,5 @@ its visual code. Two `typeof VideoFrame` guards fix unsupported-browser errors.
 `cursor-compatibility.test.mjs` reverses those exact changes and verifies the
 original published source hash. Source metadata and licenses are under
 `public/vendor/`; only the content-hashed module receives immutable caching.
+
+The Phase 3 runner also verifies branding copy visibility through reduced-motion hydration and a live motion-preference toggle. Screenshot capture timeouts are retained as capture warnings; functional page/image failures still fail validation. The dedicated visual-evidence job captures bounded review screenshots independently. One-off Phase 3 workflows pin an immutable deployment and assert its runtime source; their URL/SHA must be updated together for a new candidate. The generic manual regression workflow accepts an exact preview URL once registered by GitHub.
