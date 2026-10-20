@@ -20,3 +20,13 @@ Use authored media collections: website walkthroughs, identity films, campaign l
 
 ## Validation
 Native-scroll dissolve tests cover 568/844/900/1024px viewport heights, invisible boundaries, readable holds and reverse determinism. Full targeted suite: 55 tests. Browser observations and build status are recorded in the delivery notes.
+
+## Delivery verification
+- Runtime commit `d7cfc2e126904dc0f320eefa77fe37933029b24f`; Vercel preview `https://lionovartnext-lsg1vnn8d-lionovart.vercel.app/#services` reached READY.
+- TypeScript, scoped ESLint and the 55 targeted tests passed; production build succeeded.
+- Browser checked desktop, 390 × 844 portrait and 844 × 390 landscape. Corrected a legacy image-width rule that offset the new media screen, including a zero-width landscape wrapper.
+- Services and Selected Work stages measured top = 0 while their opacity changed. DOM order is Services → Partnership → Selected Work. The room remained visible through the handoffs.
+- Confirmed actual playing events for branding and website films, pause control state, and a playing gallery film after the service player unmounted. Project buttons change the central film and caption.
+- Cloudinary rejected the original frame-rate parameter. Removed it and verified HTTP 200 video/mp4 and browser playback, retaining responsive H.264 delivery.
+- `screening-gallery.jpg` is a screenshot of the deployed gallery with Blastup selected, not a generated concept image.
+- Physical-device performance and a full operating-system reduced-motion pass were not measured. Reduced-motion/static paths remain implemented; seasonal-specific and actual LED installation footage still need curation.
