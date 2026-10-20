@@ -9,16 +9,22 @@
 .partnershipHeading p { margin: 1.125rem 0 0; font: italic 400 clamp(1.8rem,4.5vw,4.5rem)/1.08 var(--font-playfair-display),serif; }
 .galleryRunway { height: 180svh; }
 .galleryStage { position: sticky; top: 0; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; padding: clamp(4.5rem,8svh,6rem) clamp(1rem,4vw,4rem) 6.5rem; }
-.galleryHeader { display: flex; justify-content: space-between; align-items: center; margin: 0 auto 1rem; width: min(100%,90rem); }
-.galleryHeader h2 { margin: 0; font: 600 clamp(2rem,4vw,4rem)/1 var(--font-clash-display),sans-serif; letter-spacing: -.04em; }
+.galleryHeader { display: flex; justify-content: space-between; align-items: center; margin: 0 auto 2rem; width: min(100%,76rem); }
+.galleryHeader h2 { margin: 0; font: 400 clamp(2rem,4vw,4rem)/1 var(--font-clash-display),sans-serif; letter-spacing: -.04em; }
 .corridor { position: relative; width: 100%; height: clamp(14rem,45svh,40rem); perspective: 1200px; transform-style: preserve-3d; }
-.screenMain { position: absolute; width: 65%; height: 100%; left: 17.5%; top: 0; background: #101010; border: 1px solid #ac91676b; box-shadow: 0 24px 65px -35px #30251580; overflow: hidden; }
-.screenSide { position: absolute; width: 23%; height: 73%; top: 13.5%; left: -4%; border: 1px solid #ac91674d; background: #151515; transform: rotateY(42deg) translateZ(-70px); overflow: hidden; cursor: pointer; opacity: .65; transition: opacity .3s; }
+.screenMain { container-type: size; position: absolute; width: 65%; height: 100%; left: 17.5%; top: 0; background: transparent; border: 0; box-shadow: none; overflow: hidden; }
+.screenSide { position: absolute; width: 23%; height: 73%; top: 13.5%; left: -4%; border: 0; border-radius: 3px; background: transparent; transform: rotateY(42deg) translateZ(-70px); overflow: hidden; cursor: pointer; opacity: .65; transition: opacity .3s; }
 .screenSide:last-child { left: auto; right: -4%; transform: rotateY(-42deg) translateZ(-70px); }
-.screenSide:hover { opacity: 1; }
+@media(hover:hover) and (pointer:fine) { .screenSide:hover { opacity: 1; } }
 .screenSide img { object-fit: cover; }
 .screenSide:focus-visible { outline: 2px solid #bd1725; outline-offset: 5px; opacity: 1; }
-.media { position: absolute; inset: 0; background: #121212; }
+/* The frame follows the asset ratio: no mattes, forced crop or painted backing. */
+.media { position: absolute; inset: 50% auto auto 50%; width: min(100cqw,calc(100cqh * var(--screen-ratio,1.6))); height: min(100cqh,calc(100cqw / var(--screen-ratio,1.6))); transform: translate(-50%,-50%); background: transparent; border-radius: 3px; isolation: isolate; }
+.media[data-aspect-ready=true] { box-shadow: 0 16px 40px -24px #57463045; }
+.media::after { content: ''; position: absolute; inset: -4px; border: 1px solid #fffdf3b3; border-radius: 6px; box-shadow: inset 0 1px 0 #fff9,0 1px 0 #91806924; pointer-events: none; opacity: 0; }
+.media[data-aspect-ready=true]::after { opacity: 1; }
+.media img, .media video { border-radius: inherit; background: transparent; }
+@supports not (width: 1cqw) { .media { width: 100%; height: 100%; box-shadow: none; }.media::after { display: none; } }
 .media img, .media video { width: 100%; height: 100%; object-fit: contain; }
 .media video { position: absolute; inset: 0; opacity: 0; transition: opacity .65s ease; }
 .media video[data-playing=true] { opacity: 1; }
@@ -26,7 +32,7 @@
 .serviceScreen { position: relative; width: min(82vw,1000px); height: clamp(12rem,42svh,34rem); margin: 0 auto; }
 .serviceScreen .screenMain { width: 100%; left: 0; border-radius: .25rem; }
 .serviceScreen[data-layout=portrait] .screenMain { width: 72%; left: 14%; }
-.serviceScreen .sideStill { position: absolute; width: 15%; height: 75%; top: 12.5%; overflow: hidden; background: #151515; box-shadow: 0 10px 25px #0002; border: 1px solid #b9a06c55; }
+.serviceScreen .sideStill { position: absolute; width: 15%; height: 75%; top: 12.5%; overflow: hidden; background: transparent; box-shadow: 0 10px 25px #0002; border: 1px solid #b9a06c55; }
 .sideStill:first-child { left: -3%; transform: perspective(900px) rotateY(12deg); }
 .sideStill:last-child { right: -3%; transform: perspective(900px) rotateY(-12deg); }
 .sideStill img { object-fit: cover; }

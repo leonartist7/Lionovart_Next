@@ -1,6 +1,6 @@
 'use client';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { GALLERY_WORK } from './selected-work/gallery';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { exhibitLabel, exhibitPosition, serviceExhibits } from './service-triptych';
@@ -16,6 +16,7 @@ export function previewVideo(source: string, width: number) {
 export function ScreeningMedia({ asset, active, paused = false, label = true }: { asset: ScreeningAsset; active: boolean; paused?: boolean; label?: boolean }) {
   const video = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
+  const [ratio, setRatio] = useState<number | null>(null);
   useEffect(() => {
     const node = video.current;
     const media = matchMedia('(prefers-reduced-motion: reduce)');
@@ -33,9 +34,12 @@ export function ScreeningMedia({ asset, active, paused = false, label = true }: 
     sync(); document.addEventListener('visibilitychange', sync); media.addEventListener('change', sync);
     return () => { disposed = true; node?.pause(); document.removeEventListener('visibilitychange', sync); media.removeEventListener('change', sync); };
   }, [active, paused, asset.video]);
-  return <div className={styles.media} data-screening-media>
-    <Image src={asset.poster} alt={asset.name} fill sizes="(max-width: 767px) 90vw, 1100px" loading="lazy" />
+  return <div className={styles.media} data-screening-media data-aspect-ready={ratio !== null}
+    style={{ '--screen-ratio': ratio ?? 1.6 } as CSSProperties}>
+    <Image src={asset.poster} alt={asset.name} fill sizes="(max-width: 767px) 90vw, 1100px" loading="lazy"
+      onLoad={event => { const image = event.currentTarget; if (image.naturalHeight) setRatio(image.naturalWidth / image.naturalHeight); }} />
     {asset.video && <video ref={video} poster={asset.poster} muted playsInline loop preload="none"
+      onLoadedMetadata={event => { const node = event.currentTarget; if (node.videoHeight) setRatio(node.videoWidth / node.videoHeight); }}
       onPlaying={event => { event.currentTarget.dataset.playback = 'playing'; setPlaying(true); }} onPause={() => setPlaying(false)} onError={event => { event.currentTarget.dataset.playback = `media-error-${event.currentTarget.error?.code}`; setPlaying(false); }} data-playing={playing} aria-hidden="true" />}
     {label && <span className={styles.mediaLabel}>{asset.name}</span>}
   </div>;
@@ -57,8 +61,7 @@ export function ServiceScreen({ service, variant, active, paused, onVariant }: {
       const position = exhibitPosition(index, variant);
       const label = exhibitLabel(exhibit, locale);
       return <div key={`${service}-${index}`} className={glass.card} data-position={position} data-exhibit-index={index}>
-        <div className={glass.edge} aria-hidden="true" />
-        <div className={glass.screen}><ScreeningMedia asset={asset} active={active && position === 'center'} paused={paused} /></div>
+        <div className={glass.screen}><ScreeningMedia asset={asset} active={active && position === 'center'} paused={paused} label={false} /></div>
         <span className={glass.cardLabel} aria-hidden="true">{label}</span>
         <button type="button" className={glass.selectCard} aria-label={label} aria-pressed={position === 'center'}
           tabIndex={position === 'center' ? -1 : 0} onClick={() => onVariant(index)} />
