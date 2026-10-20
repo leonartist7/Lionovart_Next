@@ -461,8 +461,8 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
                     exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
                     transition={{ duration: reducedMotion ? 0 : 0.18, delay: reducedMotion ? 0 : index * 0.045 }}
                     className="flex flex-col items-center"
-                    onMouseEnter={link.hasDropdown ? () => setMobileExpertiseOpen(true) : undefined}
-                    onMouseLeave={link.hasDropdown ? () => setMobileExpertiseOpen(false) : undefined}
+                    onMouseEnter={link.hasDropdown ? () => { if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) setMobileExpertiseOpen(true); } : undefined}
+                    onMouseLeave={link.hasDropdown ? () => { if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) setMobileExpertiseOpen(false); } : undefined}
                   >
                     <div className="flex items-center gap-1.5">
                       <button
