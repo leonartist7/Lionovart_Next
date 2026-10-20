@@ -240,20 +240,19 @@
 /* A revealed benefit uses the whole existing panel, rather than scrolling a
    small lower well. The film outline and the three panel sizes never change. */
 .card[data-integrated=true] { container: benefit-card / size; overflow: clip; }
+.card[data-integrated=true] .detailWell { container: benefit-detail / size; }
 .card[data-integrated=true] .integratedDetails {
-  position: absolute; inset: 0; z-index: 4; min-width: 0;
+  position: absolute; inset: 0; z-index: 1; min-width: 0;
   display: grid; align-content: center; gap: .875rem;
   padding: 1.25rem var(--benefit-inset) 3rem; border-radius: inherit;
-  background: #fffaf1; opacity: 0; visibility: hidden; overflow: clip;
-  transition: opacity 200ms cubic-bezier(.23,1,.32,1), visibility 200ms;
+  background: #fffaf1; overflow: clip;
 }
-.card[data-integrated=true][data-show-benefit=true] .integratedDetails { opacity: 1; visibility: visible; }
 .integratedDetails .integratedDetailTitle { margin: 0; }
 .integratedDetails .detailContent, .integratedDetails ul, .integratedDetails li { min-width: 0; }
 .integratedDetails .metric { grid-template-columns: minmax(0,1fr); }
 .card[data-integrated=true] .toggleIcon { right: .375rem; bottom: .25rem; }
 
-@container benefit-card (height < 230px) {
+@container benefit-detail (height < 230px) {
   .card[data-integrated=true] .integratedDetails { gap: .45rem; padding: .75rem .875rem 2rem; }
   .integratedDetails .integratedDetailTitle { font-size: 1.125rem; }
   .integratedDetails .detailContent { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(0,1fr); gap: .875rem; align-items: center; }
@@ -263,7 +262,7 @@
   .card[data-integrated=true] .integratedDetails .metricValue { font-size: 1.625rem; }
   .card[data-integrated=true] .integratedDetails .metricLabel { font-size: .6875rem; }
 }
-@container benefit-card (height < 150px) {
+@container benefit-detail (height < 150px) {
   .card[data-integrated=true] .integratedDetails { padding: .5rem .75rem 1.5rem; gap: .25rem; }
   .integratedDetails .integratedDetailTitle { font-size: .9375rem; }
   .card[data-integrated=true] .integratedDetails ul { gap: .25rem; }

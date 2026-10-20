@@ -100,7 +100,8 @@
 .world[data-world-mode=media] :global([data-service-panel] [data-service-title]) { max-width: 28ch; font-size: clamp(2rem,3.4vw,3.6rem); font-weight: 400; line-height: 1.08; letter-spacing: -.035em; text-transform: none; text-wrap: balance; }
 .world[data-world-mode=media] :global([data-service-description]) { max-width: 52ch; margin-top: 1rem; font-size: clamp(.8125rem,1.1vw,1rem); font-weight: 400; line-height: 1.65; color: #70695f; text-wrap: pretty; }
 .controls[data-exhibit-controls=true] { position: relative; isolation: isolate; margin-top: clamp(1.75rem,4svh,3rem); }
-.controls[data-exhibit-controls=true] .hint { margin-bottom: 1.7rem; color: #7a6f5c; font-size: .5625rem; letter-spacing: .2em; }
+.controls[data-exhibit-controls=true] .hint { margin-bottom: 1.4rem; color: #7a6f5c; font: italic 400 clamp(.9375rem,1.2vw,1.25rem)/1.4 var(--font-playfair-display),Georgia,serif; letter-spacing: 0; text-transform: none; }
+.controls[data-exhibit-controls=true] .utilities { display: none; }
 .tags[data-triptych-tags=true] { position: relative; display: block; width: min(88vw,35rem); height: 3.25rem; margin: 0 auto; isolation: isolate; }
 .tags[data-triptych-tags=true] button { position: absolute; width: 32%; left: 34%; top: 0; min-height: 48px; border: 0; border-radius: 0; padding: .55rem .45rem; background: transparent; color: #756b5b; font-weight: 400; transition: transform 850ms cubic-bezier(.23,1,.32,1),color 200ms ease; }
 .tags[data-triptych-tags=true] button::after { content: ''; position: absolute; bottom: .15rem; left: 35%; right: 35%; height: 1px; background: #967b4d; transform: scaleX(0); opacity: 0; transition: transform 250ms cubic-bezier(.23,1,.32,1),opacity 200ms ease; }

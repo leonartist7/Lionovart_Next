@@ -9,7 +9,6 @@ import { WorkBrowseProvider } from "./selected-work/WorkBrowse";
 import AboutScene from "./AboutScene";
 import SeasonalCampaigns from "./services/SeasonalCampaigns";
 import ServicesSwitcher from "@/components/sections/ServicesSwitcher";
-import WorkServicesTransition from "@/components/sections/WorkServicesTransition";
 import SelectedWork from "@/components/sections/SelectedWork";
 import ProcessExperience from "@/components/sections/ProcessExperience";
 import Testimonials from "@/components/sections/Testimonials";
@@ -47,7 +46,6 @@ export function PageBuilder() {
         </CardsServicesTransition>
         <NovaSection id="services"><ServicesSwitcher /></NovaSection>
         <SelectedWork compact servicesCurves />
-        <WorkServicesTransition />
         <AboutScene />
         </ServiceWorld>
         </WorkBrowseProvider>

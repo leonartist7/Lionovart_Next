@@ -46,6 +46,13 @@ export default function ServicesWorldReview() {
     view.scrollTo({ top: Math.max(0, y), behavior: 'instant' });
   };
   const scale = Math.min(1, available / size[0]);
+  const seekGallery = (progress: number) => {
+    const view = iframe.current?.contentWindow, doc = iframe.current?.contentDocument;
+    const element = doc?.querySelector('[data-gallery-runway]');
+    if (!view || !element) return;
+    const rect = element.getBoundingClientRect();
+    view.scrollTo({ top: view.scrollY + rect.top + progress * (rect.height - view.innerHeight * .85), behavior: 'instant' });
+  };
   return <main style={{ background: '#ddd7cc', minHeight: '100vh', padding: 16, color: '#211e18', fontFamily: 'sans-serif' }}>
     <header style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 12 }}>
       <strong style={{ marginRight: 16 }}>Phase 3 / device review</strong>
@@ -61,6 +68,7 @@ export default function ServicesWorldReview() {
       <button style={button} onClick={() => seek('#imagine')}>Split cards</button>
       {[0, .35, .65, .85].map(p => <button key={p} style={button} onClick={() => seek('[data-card-exit]', p)}>Handoff {Math.round(p * 100)}%</button>)}
       {([['Services','[data-services-runway]'],['Selected work','[data-gallery]'],['Partnership','#partnership'],['About','#about']] as const).map(([label,selector]) => <button key={label} style={button} onClick={() => seek(selector)}>{label}</button>)}
+      {[0, .25, .5, .75, .92].map(p => <button key={`gallery-${p}`} style={button} onClick={() => seekGallery(p)}>Gallery {Math.round(p * 100)}%</button>)}
     </nav>
     <details style={{ marginBottom: 12, maxWidth: 1440, fontSize: 13 }} open>
       <summary>Renderer diagnostics · resizing keeps the current selection</summary>

@@ -153,7 +153,7 @@ export function WorldStageControls({ service, variant, onVariant, labels, enable
 }) {
   const { locale } = useLanguage(); const fr = locale === 'fr';
   return <div className={styles.controls} data-exhibit-controls={mediaFirst} data-paused={paused} onPointerDown={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
-    <p className={styles.hint}>{fr ? 'Explorez cette expertise' : 'Explore this expertise'}</p>
+    <p className={styles.hint}>{mediaFirst ? (fr ? 'Imaginons les possibilités.' : 'Imagine the possibilities.') : (fr ? 'Explorez cette expertise' : 'Explore this expertise')}</p>
     <div className={styles.tags} data-triptych-tags={mediaFirst} role="group" aria-label={fr ? 'Exemples de services' : 'Service examples'}>
       {mediaFirst && <div className={glass.podium} data-service-podium aria-hidden="true">
         {serviceExhibits(service).map((exhibit, index) => <div key={index} className={glass.reflectedLight} data-selected={index === variant}
@@ -164,7 +164,7 @@ export function WorldStageControls({ service, variant, onVariant, labels, enable
     </div>
     <div className={styles.utilities}>
       {service === 'led' && !mediaFirst && <button type="button" role="switch" aria-checked={enabled} onClick={onEnabled}>{fr ? 'Écran LED' : 'LED display'} <span>{enabled ? 'ON' : 'OFF'}</span></button>}
-      <button type="button" aria-pressed={paused} onClick={onPaused}>{paused ? (fr ? 'Lire les aperçus' : 'Play previews') : (fr ? 'Mettre en pause' : 'Pause previews')}</button>
+      {!mediaFirst && <button type="button" aria-pressed={paused} onClick={onPaused}>{paused ? (fr ? 'Lire les aperçus' : 'Play previews') : (fr ? 'Mettre en pause' : 'Pause previews')}</button>}
       {!mediaFirst && <span>{fr ? 'Concept illustratif' : 'Illustrative concept'}</span>}
     </div>
   </div>;

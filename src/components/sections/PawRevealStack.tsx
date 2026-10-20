@@ -47,7 +47,7 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
     const pull = `translate(8%, ${Math.max(170, (coverRef.current?.offsetHeight ?? 200) / Math.max(1, pawRef.current?.offsetHeight ?? 120) * 105)}%) rotate(5deg)`;
     setPhase(opening ? "revealing" : "closing");
     try {
-      if (integrated || reduced || keyboard) {
+      if (reduced || keyboard) {
         cover.set({ transform: opening ? "translateY(105%)" : "translateY(0%)" });
         paw.set({ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)" });
       } else if (opening) {
@@ -85,7 +85,6 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
   </div>;
 
   return <article className={styles.card} data-benefit-card data-scroll-title-skip data-integrated={integrated} data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
-    {integrated && details}
     {integrated && <div className={styles.integratedArtwork} aria-hidden="true">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={artworkSource(artwork!, 800)} alt="" loading="lazy" decoding="async"
@@ -104,7 +103,7 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
         <Image src={item.artwork} alt="" width={500} height={500} sizes="(max-width: 919px) 176px, (max-width: 1600px) 16vw, 256px" />
       </div>}
       <div className={styles.detailWell}>
-        {!integrated && details}
+        {details}
         <motion.div ref={coverRef} className={styles.detailCover} animate={cover} aria-hidden={integrated ? showBenefit : true}>
           {integrated && <div className={styles.integratedCopy}>
             <p className={styles.serviceLabel}>{serviceTitle}</p>
