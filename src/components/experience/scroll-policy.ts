@@ -21,11 +21,22 @@ type ScrollIntent = {
 export function chooseScrollStop(intent: ScrollIntent): ScrollStop | undefined {
   const manualScenes = intent.scenes.filter(scene => scene.kind === "partnership");
   if (manualScenes.some(scene => intent.y >= scene.start && intent.y <= (scene.extent ?? scene.end))) return;
-  const stop = chooseGuidedStop(intent);
+  const stop = intent.mode === 'flow' ? chooseCardAlignment(intent) : chooseGuidedStop(intent);
   if (!stop || stop.kind === "partnership") return;
   const from = Math.min(intent.y, stop.y), to = Math.max(intent.y, stop.y);
   if (manualScenes.some(scene => to >= scene.start && from <= (scene.extent ?? scene.end))) return;
   return stop;
+}
+
+/** A small magnetic finish inside the card beat; never advances a chapter. */
+function chooseCardAlignment({ y, gestureStart, direction, viewport, scenes }: ScrollIntent): ScrollStop | undefined {
+  if (!direction || Math.abs(y - gestureStart) < 12) return;
+  const scene = scenes.find(s => s.kind === 'opening' && s.inlineBenefits && y >= s.start && y <= s.end);
+  if (!scene || scene.frontReading) return;
+  const card = scene.stops.find(stop => stop.id === 'cards');
+  if (!card) return;
+  const distance = card.y - y;
+  if (direction * distance > 6 && Math.abs(distance) <= Math.min(80, viewport * .1)) return card;
 }
 
 /** Other scenes can still finish a user-initiated beat. */

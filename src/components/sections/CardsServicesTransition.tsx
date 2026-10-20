@@ -36,6 +36,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       if (media.matches || pose.progress === 0 || enteringBackwards || bases.length !== panels.length) {
         panels.forEach(panel => {
           panel.style.removeProperty('--handoff-x'); panel.style.removeProperty('--handoff-y'); panel.style.removeProperty('--handoff-scale');
+          panel.style.removeProperty('--handoff-depth');
         });
         bases = panels.map(panel => {
           const r = panel.getBoundingClientRect();
@@ -56,6 +57,10 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         panel.style.setProperty('--handoff-x', `${(r.x + r.width / 2 - base.x) * pose.move / base.scale}px`);
         panel.style.setProperty('--handoff-y', `${(r.y + r.height / 2 - base.y) * pose.move / base.scale}px`);
         panel.style.setProperty('--handoff-scale', String(1 + (scale - 1) * pose.move));
+        // Match the service triptych's center-first depth before it dissolves in.
+        // The target bounds already include its perspective: scaling to those
+        // bounds preserves the fixed panel outline without a second projection.
+        panel.style.setProperty('--handoff-depth', String(index === 1 ? 1 : 1 - .38 * pose.move));
       });
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };

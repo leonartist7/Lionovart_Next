@@ -148,3 +148,21 @@ test('boundary settling cannot cross the manual partnership in either direction'
  assert.equal(pick(4030,3990,-1),undefined);
  assert.equal(pick(4010,4050,1)?.id,'services','unrelated sections retain settling');
 });
+
+test('free flow only aligns nearby cards in the direction of a released gesture', () => {
+ const stops = [
+  { id: 'film', y: 360, kind: 'opening', label: 'Film' },
+  { id: 'cards', y: 840, kind: 'opening', label: 'Cards' },
+  { id: 'services', y: 1400, kind: 'section', label: 'Services' },
+ ];
+ const scene = { start: 0, end: 1000, timelineSpan: 1000, inlineBenefits: true, kind: 'opening', stops };
+ const choose = (y, start, direction = 1, extra = {}) => chooseScrollStop({ mode: 'flow', y, gestureStart: start, direction, viewport: 844, scenes: [{ ...scene, ...extra }], boundaries: stops });
+ assert.equal(choose(800, 760)?.id, 'cards');
+ assert.equal(choose(880, 920, -1)?.id, 'cards');
+ assert.equal(choose(800, 850, -1), undefined, 'never pulls against the gesture');
+ assert.equal(choose(700, 650), undefined, 'never travels farther than the local alignment radius');
+ assert.equal(choose(800, 795), undefined, 'ignores tiny gestures');
+ assert.equal(choose(360, 320), undefined, 'film stays manual');
+ assert.equal(choose(1380, 1320), undefined, 'services stay manual');
+ assert.equal(choose(800, 760, 1, { frontReading: { start: 750, end: 900 } }), undefined, 'never interrupts reading');
+});

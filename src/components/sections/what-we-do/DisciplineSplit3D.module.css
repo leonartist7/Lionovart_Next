@@ -76,7 +76,8 @@
 /* A compact, straight triptych. The source film fit remains constant. */
 .paneSizer { height: var(--panel-height, 22rem); padding: 0; }
 .floatingObject { width: clamp(4rem,7vw,6rem); top: -.5rem; right: -.5rem; }
-.pane { translate: var(--handoff-x,0px) var(--handoff-y,0px); scale: var(--handoff-scale,1); }
+.pane { translate: var(--handoff-x,0px) var(--handoff-y,0px); scale: var(--handoff-scale,1); opacity: var(--handoff-depth,1); z-index: 1; }
+.pane:nth-child(2) { z-index: 3; }
 .integratedFace, .floatingObject { opacity: var(--handoff-content,1); }
 @media (width < 920px) { .floatingObject { width: 3.25rem; top: .5rem; left: -.25rem; } }
 @media (prefers-reduced-motion:reduce) { .paneSizer { height: 22rem; } }
