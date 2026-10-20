@@ -76,4 +76,5 @@ jobs:
         with:
           name: mobile-performance-evidence
           path: reports/performance/
+          include-hidden-files: true
           retention-days: 14

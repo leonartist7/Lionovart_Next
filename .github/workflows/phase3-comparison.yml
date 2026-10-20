@@ -1,0 +1,54 @@
+name: Phase 3 matched performance comparison
+on:
+  push:
+    branches: [review/mobile-image-optimization]
+    paths: [.github/workflows/phase3-comparison.yml]
+permissions:
+  contents: read
+jobs:
+  matched-mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PERF_VERIFY_URL: https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/
+      PERF_URLS: https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/,https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/
+      PERF_OUTPUT: ${{ github.workspace }}/reports/performance/matched-phase3
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - run: npm ci --prefix scripts/performance --ignore-scripts --no-audit --no-fund
+      - name: Collect matched baseline and final preview
+        working-directory: scripts/performance
+        run: |
+          node collect.mjs
+          node summarize.mjs "$PERF_OUTPUT"
+      - name: Preserve metrics and scope budgets to candidate
+        if: always()
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const root=process.env.PERF_OUTPUT;
+          const data=JSON.parse(fs.readFileSync(root+'/summary.json','utf8'));
+          console.log('PHASE3_MATCHED_JSON '+JSON.stringify(data));
+          const candidate={...data,runs:data.runs.filter(r=>r.url===process.env.PERF_VERIFY_URL),summaries:data.summaries.filter(r=>r.url===process.env.PERF_VERIFY_URL)};
+          fs.writeFileSync(root+'/candidate-summary.json',JSON.stringify(candidate,null,2));
+          const clip=(v,d=0)=>d>6?'[depth]':typeof v==='string'?v.slice(0,700):Array.isArray(v)?v.slice(0,3).map(x=>clip(x,d+1)):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).filter(([k])=>!['screenshot','screenshotData'].includes(k)).map(([k,x])=>[k,clip(x,d+1)])):v;
+          for(const file of fs.readdirSync(root+'/.lighthouseci').filter(f=>f.startsWith('lhr-')&&f.endsWith('.json'))){
+            const report=JSON.parse(fs.readFileSync(root+'/.lighthouseci/'+file,'utf8'));
+            const audits=Object.fromEntries(Object.entries(report.audits).filter(([id])=>/largest-contentful-paint-element|layout-shifts|layout-shift-elements|lcp-breakdown-insight|font-display-insight/.test(id)).map(([id,a])=>[id,{score:a.score,displayValue:a.displayValue,details:clip(a.details)}]));
+            console.log('PHASE3_DIAGNOSTIC_JSON '+JSON.stringify({file,url:report.finalDisplayedUrl||report.finalUrl,audits}));
+          }
+          NODE
+          node scripts/performance/assert-budgets.mjs "$PERF_OUTPUT/candidate-summary.json"
+      - name: Retain original JSON and HTML audits
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase3-matched-mobile-lighthouse
+          path: reports/performance/
+          include-hidden-files: true
+          retention-days: 90
