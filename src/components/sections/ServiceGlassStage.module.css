@@ -1,4 +1,4 @@
-.stage { position: relative; width: min(94vw, 1280px); height: clamp(14rem, 43svh, 36rem); margin: 0 auto; perspective: 1400px; isolation: isolate; }
+.stage { position: relative; left: 50%; transform: translateX(-50%); width: min(94vw, 1280px); height: clamp(14rem, 43svh, 36rem); margin: 0; perspective: 1400px; isolation: isolate; }
 .atmosphere { position: absolute; inset: -28svh -20vw -22svh; pointer-events: none; z-index: -1; }
 .colorSpill, .reflectedLight { position: absolute; inset: 0; opacity: 0; transition: opacity 900ms ease; pointer-events: none; }
 .colorSpill[data-selected=true], .reflectedLight[data-selected=true] { opacity: 1; }

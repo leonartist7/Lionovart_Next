@@ -48,7 +48,7 @@ export function ServiceScreen({ service, variant, active, paused, onVariant }: {
     onPointerDown={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
     <div className={glass.atmosphere} aria-hidden="true">
       {exhibits.map((exhibit, index) => <div key={index} className={glass.colorSpill} data-selected={index === variant}
-        style={{ background: `radial-gradient(ellipse at 50% 60%, ${exhibit.tint}55, transparent 66%)` }} />)}
+        style={{ background: `radial-gradient(ellipse closest-side at 50% 50%, ${exhibit.tint}55, transparent 100%)` }} />)}
     </div>
     <div className={glass.podium} aria-hidden="true">
       {exhibits.map((exhibit, index) => <div key={index} className={glass.reflectedLight} data-selected={index === variant}
