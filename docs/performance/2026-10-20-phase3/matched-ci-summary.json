@@ -1,0 +1,739 @@
+{
+  "note": "Emulated mobile lab measurements. Network and CPU values are simulated; graphics use software rendering. Not real-phone evidence.",
+  "runs": [
+    {
+      "file": "lhr-1792515699218.json",
+      "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/",
+      "fetchTime": "2026-10-20T17:01:08.237Z",
+      "lighthouseVersion": "12.6.1",
+      "browser": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36",
+      "runtimeError": null,
+      "warnings": [],
+      "performance": 0.44,
+      "fcpMs": 1899.607,
+      "lcpMs": 14724.607,
+      "cls": 0.02385534649781084,
+      "tbtMs": 837,
+      "speedIndexMs": 11288.67614634546,
+      "totalTransferBytes": 6926803,
+      "imageTransferBytes": 2003946,
+      "videoTransferBytes": 3244764,
+      "scriptTransferBytes": 703398,
+      "requestCount": 97,
+      "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 390,
+          "height": 844,
+          "deviceScaleFactor": 2,
+          "disabled": false
+        },
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        }
+      },
+      "largestRequests": [
+        {
+          "url": "https://res.cloudinary.com/dgio9uutc/video/upload/c_limit,w_720,f_mp4,vc_h264,q_auto/hero_demo_mobile.mp4",
+          "mimeType": "video/mp4",
+          "bytes": 3244764,
+          "type": "Media"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/models/lion/desktop-review.png?v=hid-20260914",
+          "mimeType": "image/png",
+          "bytes": 863060,
+          "type": "Image"
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web@0.70.0/dist/dotlottie-player.wasm",
+          "mimeType": "application/wasm",
+          "bytes": 617961,
+          "type": "Fetch"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/images/Testimonials/Northlinemotors/Marc-Cardealer-M.jpg",
+          "mimeType": "image/jpeg",
+          "bytes": 611395,
+          "type": "Image"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/images/Testimonials/Italy/Lumura/Team2025.avif",
+          "mimeType": "image/avif",
+          "bytes": 185399,
+          "type": "Image"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/_next/static/chunks/9da6db1e-721ac5761954932f.js?dpl=dpl_UHvEDXkQ2GNVWPePuvkkTvemQCMf",
+          "mimeType": "application/javascript",
+          "bytes": 81197,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/_next/static/chunks/3794-55dec2f92674774f.js?dpl=dpl_UHvEDXkQ2GNVWPePuvkkTvemQCMf",
+          "mimeType": "application/javascript",
+          "bytes": 65475,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/_next/static/chunks/4bd1b696-0562a75e9b1eb3c3.js?dpl=dpl_UHvEDXkQ2GNVWPePuvkkTvemQCMf",
+          "mimeType": "application/javascript",
+          "bytes": 64740,
+          "type": "Script"
+        },
+        {
+          "url": "https://res.cloudinary.com/dgio9uutc/image/upload/f_webp,q_auto,w_1200/v1791532132/sepW_1_put7gh.avif",
+          "mimeType": "image/webp",
+          "bytes": 52795,
+          "type": "Image"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/images/Testimonials/UK/Jess-Beautysalon-W.avif",
+          "mimeType": "image/avif",
+          "bytes": 50888,
+          "type": "Image"
+        }
+      ]
+    },
+    {
+      "file": "lhr-1792515731185.json",
+      "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/",
+      "fetchTime": "2026-10-20T17:01:42.703Z",
+      "lighthouseVersion": "12.6.1",
+      "browser": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36",
+      "runtimeError": null,
+      "warnings": [],
+      "performance": 0.46,
+      "fcpMs": 2138.6059999999998,
+      "lcpMs": 12383.606,
+      "cls": 0.02406512937756969,
+      "tbtMs": 751.5,
+      "speedIndexMs": 9574.931522106253,
+      "totalTransferBytes": 6927427,
+      "imageTransferBytes": 2003962,
+      "videoTransferBytes": 3244939,
+      "scriptTransferBytes": 703362,
+      "requestCount": 97,
+      "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 390,
+          "height": 844,
+          "deviceScaleFactor": 2,
+          "disabled": false
+        },
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        }
+      },
+      "largestRequests": [
+        {
+          "url": "https://res.cloudinary.com/dgio9uutc/video/upload/c_limit,w_720,f_mp4,vc_h264,q_auto/hero_demo_mobile.mp4",
+          "mimeType": "video/mp4",
+          "bytes": 3244939,
+          "type": "Media"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/models/lion/desktop-review.png?v=hid-20260914",
+          "mimeType": "image/png",
+          "bytes": 863031,
+          "type": "Image"
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web@0.70.0/dist/dotlottie-player.wasm",
+          "mimeType": "application/wasm",
+          "bytes": 617959,
+          "type": "Fetch"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/images/Testimonials/Northlinemotors/Marc-Cardealer-M.jpg",
+          "mimeType": "image/jpeg",
+          "bytes": 611418,
+          "type": "Image"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/images/Testimonials/Italy/Lumura/Team2025.avif",
+          "mimeType": "image/avif",
+          "bytes": 185389,
+          "type": "Image"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/_next/static/chunks/9da6db1e-721ac5761954932f.js?dpl=dpl_UHvEDXkQ2GNVWPePuvkkTvemQCMf",
+          "mimeType": "application/javascript",
+          "bytes": 81163,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/_next/static/chunks/3794-55dec2f92674774f.js?dpl=dpl_UHvEDXkQ2GNVWPePuvkkTvemQCMf",
+          "mimeType": "application/javascript",
+          "bytes": 65417,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/_next/static/chunks/4bd1b696-0562a75e9b1eb3c3.js?dpl=dpl_UHvEDXkQ2GNVWPePuvkkTvemQCMf",
+          "mimeType": "application/javascript",
+          "bytes": 64798,
+          "type": "Script"
+        },
+        {
+          "url": "https://res.cloudinary.com/dgio9uutc/image/upload/f_webp,q_auto,w_1200/v1791532132/sepW_1_put7gh.avif",
+          "mimeType": "image/webp",
+          "bytes": 52766,
+          "type": "Image"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/images/Testimonials/UK/Jess-Beautysalon-W.avif",
+          "mimeType": "image/avif",
+          "bytes": 50889,
+          "type": "Image"
+        }
+      ]
+    },
+    {
+      "file": "lhr-1792515761705.json",
+      "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/",
+      "fetchTime": "2026-10-20T17:02:14.094Z",
+      "lighthouseVersion": "12.6.1",
+      "browser": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36",
+      "runtimeError": null,
+      "warnings": [],
+      "performance": 0.46,
+      "fcpMs": 2128.1100000000006,
+      "lcpMs": 12653.653999999995,
+      "cls": 0.023250272451797407,
+      "tbtMs": 783,
+      "speedIndexMs": 8219.613757363095,
+      "totalTransferBytes": 6926694,
+      "imageTransferBytes": 2003994,
+      "videoTransferBytes": 3244867,
+      "scriptTransferBytes": 703400,
+      "requestCount": 97,
+      "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 390,
+          "height": 844,
+          "deviceScaleFactor": 2,
+          "disabled": false
+        },
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        }
+      },
+      "largestRequests": [
+        {
+          "url": "https://res.cloudinary.com/dgio9uutc/video/upload/c_limit,w_720,f_mp4,vc_h264,q_auto/hero_demo_mobile.mp4",
+          "mimeType": "video/mp4",
+          "bytes": 3244867,
+          "type": "Media"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/models/lion/desktop-review.png?v=hid-20260914",
+          "mimeType": "image/png",
+          "bytes": 863044,
+          "type": "Image"
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web@0.70.0/dist/dotlottie-player.wasm",
+          "mimeType": "application/wasm",
+          "bytes": 617309,
+          "type": "Fetch"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/images/Testimonials/Northlinemotors/Marc-Cardealer-M.jpg",
+          "mimeType": "image/jpeg",
+          "bytes": 611377,
+          "type": "Image"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/images/Testimonials/Italy/Lumura/Team2025.avif",
+          "mimeType": "image/avif",
+          "bytes": 185397,
+          "type": "Image"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/_next/static/chunks/9da6db1e-721ac5761954932f.js?dpl=dpl_UHvEDXkQ2GNVWPePuvkkTvemQCMf",
+          "mimeType": "application/javascript",
+          "bytes": 81197,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/_next/static/chunks/3794-55dec2f92674774f.js?dpl=dpl_UHvEDXkQ2GNVWPePuvkkTvemQCMf",
+          "mimeType": "application/javascript",
+          "bytes": 65444,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/_next/static/chunks/4bd1b696-0562a75e9b1eb3c3.js?dpl=dpl_UHvEDXkQ2GNVWPePuvkkTvemQCMf",
+          "mimeType": "application/javascript",
+          "bytes": 64734,
+          "type": "Script"
+        },
+        {
+          "url": "https://res.cloudinary.com/dgio9uutc/image/upload/f_webp,q_auto,w_1200/v1791532132/sepW_1_put7gh.avif",
+          "mimeType": "image/webp",
+          "bytes": 52811,
+          "type": "Image"
+        },
+        {
+          "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/images/Testimonials/UK/Jess-Beautysalon-W.avif",
+          "mimeType": "image/avif",
+          "bytes": 50877,
+          "type": "Image"
+        }
+      ]
+    },
+    {
+      "file": "lhr-1792515792137.json",
+      "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/",
+      "fetchTime": "2026-10-20T17:02:44.592Z",
+      "lighthouseVersion": "12.6.1",
+      "browser": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36",
+      "runtimeError": null,
+      "warnings": [],
+      "performance": 0.39,
+      "fcpMs": 2274.594,
+      "lcpMs": 10309.042999999996,
+      "cls": 0.02406512937756969,
+      "tbtMs": 1489,
+      "speedIndexMs": 8379.345710354397,
+      "totalTransferBytes": 2390601,
+      "imageTransferBytes": 695572,
+      "videoTransferBytes": 0,
+      "scriptTransferBytes": 710438,
+      "requestCount": 99,
+      "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 390,
+          "height": 844,
+          "deviceScaleFactor": 2,
+          "disabled": false
+        },
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        }
+      },
+      "largestRequests": [
+        {
+          "url": "https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web@0.70.0/dist/dotlottie-player.wasm",
+          "mimeType": "application/wasm",
+          "bytes": 617309,
+          "type": "Fetch"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/models/lion/desktop-review.815a8aa69b894535.webp",
+          "mimeType": "image/webp",
+          "bytes": 482491,
+          "type": "Image"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/chunks/9da6db1e-721ac5761954932f.js?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "application/javascript",
+          "bytes": 81190,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/chunks/3794-08ce3b36dfd2cfd0.js?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "application/javascript",
+          "bytes": 65440,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/chunks/4bd1b696-0562a75e9b1eb3c3.js?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "application/javascript",
+          "bytes": 64735,
+          "type": "Script"
+        },
+        {
+          "url": "https://res.cloudinary.com/dgio9uutc/video/upload/so_0,c_limit,w_720,f_jpg,q_auto/hero_demo_mobile.jpg",
+          "mimeType": "image/jpeg",
+          "bytes": 48365,
+          "type": "Image"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/",
+          "mimeType": "text/html",
+          "bytes": 48093,
+          "type": "Document"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/chunks/6013-d2c6e140d707d59a.js?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "application/javascript",
+          "bytes": 47950,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/chunks/7639-1f13258414934c55.js?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "application/javascript",
+          "bytes": 45559,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/css/8451c56e2de54df1.css?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "text/css",
+          "bytes": 43950,
+          "type": "Stylesheet"
+        }
+      ]
+    },
+    {
+      "file": "lhr-1792515822158.json",
+      "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/",
+      "fetchTime": "2026-10-20T17:03:15.020Z",
+      "lighthouseVersion": "12.6.1",
+      "browser": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36",
+      "runtimeError": null,
+      "warnings": [],
+      "performance": 0.34,
+      "fcpMs": 2266.121,
+      "lcpMs": 9652.967499999999,
+      "cls": 0.1557221866349055,
+      "tbtMs": 1149.9925000000003,
+      "speedIndexMs": 9231.05227491471,
+      "totalTransferBytes": 2390181,
+      "imageTransferBytes": 695122,
+      "videoTransferBytes": 0,
+      "scriptTransferBytes": 710506,
+      "requestCount": 99,
+      "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 390,
+          "height": 844,
+          "deviceScaleFactor": 2,
+          "disabled": false
+        },
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        }
+      },
+      "largestRequests": [
+        {
+          "url": "https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web@0.70.0/dist/dotlottie-player.wasm",
+          "mimeType": "application/wasm",
+          "bytes": 617305,
+          "type": "Fetch"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/models/lion/desktop-review.815a8aa69b894535.webp",
+          "mimeType": "image/webp",
+          "bytes": 482484,
+          "type": "Image"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/chunks/9da6db1e-721ac5761954932f.js?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "application/javascript",
+          "bytes": 81170,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/chunks/3794-08ce3b36dfd2cfd0.js?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "application/javascript",
+          "bytes": 65414,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/chunks/4bd1b696-0562a75e9b1eb3c3.js?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "application/javascript",
+          "bytes": 64741,
+          "type": "Script"
+        },
+        {
+          "url": "https://res.cloudinary.com/dgio9uutc/video/upload/so_0,c_limit,w_720,f_jpg,q_auto/hero_demo_mobile.jpg",
+          "mimeType": "image/jpeg",
+          "bytes": 48318,
+          "type": "Image"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/",
+          "mimeType": "text/html",
+          "bytes": 48049,
+          "type": "Document"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/chunks/6013-d2c6e140d707d59a.js?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "application/javascript",
+          "bytes": 47976,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/chunks/7639-1f13258414934c55.js?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "application/javascript",
+          "bytes": 45527,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/css/8451c56e2de54df1.css?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "text/css",
+          "bytes": 43971,
+          "type": "Stylesheet"
+        }
+      ]
+    },
+    {
+      "file": "lhr-1792515851943.json",
+      "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/",
+      "fetchTime": "2026-10-20T17:03:45.046Z",
+      "lighthouseVersion": "12.6.1",
+      "browser": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36",
+      "runtimeError": null,
+      "warnings": [],
+      "performance": 0.39,
+      "fcpMs": 2285.9950000000003,
+      "lcpMs": 10002.318499999998,
+      "cls": 0.023250272451797407,
+      "tbtMs": 1394.2264999999998,
+      "speedIndexMs": 9149.335646068588,
+      "totalTransferBytes": 2392773,
+      "imageTransferBytes": 696823,
+      "videoTransferBytes": 0,
+      "scriptTransferBytes": 710483,
+      "requestCount": 99,
+      "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 390,
+          "height": 844,
+          "deviceScaleFactor": 2,
+          "disabled": false
+        },
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        }
+      },
+      "largestRequests": [
+        {
+          "url": "https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web@0.70.0/dist/dotlottie-player.wasm",
+          "mimeType": "application/wasm",
+          "bytes": 617963,
+          "type": "Fetch"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/models/lion/desktop-review.815a8aa69b894535.webp",
+          "mimeType": "image/webp",
+          "bytes": 482484,
+          "type": "Image"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/chunks/9da6db1e-721ac5761954932f.js?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "application/javascript",
+          "bytes": 81202,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/chunks/3794-08ce3b36dfd2cfd0.js?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "application/javascript",
+          "bytes": 65414,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/chunks/4bd1b696-0562a75e9b1eb3c3.js?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "application/javascript",
+          "bytes": 64741,
+          "type": "Script"
+        },
+        {
+          "url": "https://res.cloudinary.com/dgio9uutc/video/upload/so_0,c_limit,w_720,f_jpg,q_auto/hero_demo_mobile.jpg",
+          "mimeType": "image/jpeg",
+          "bytes": 48370,
+          "type": "Image"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/",
+          "mimeType": "text/html",
+          "bytes": 48285,
+          "type": "Document"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/chunks/6013-d2c6e140d707d59a.js?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "application/javascript",
+          "bytes": 47950,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/chunks/7639-1f13258414934c55.js?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "application/javascript",
+          "bytes": 45559,
+          "type": "Script"
+        },
+        {
+          "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/_next/static/css/8451c56e2de54df1.css?dpl=dpl_6pLvGgJVsazT4kGD1kQ1ifJCdXnG",
+          "mimeType": "text/css",
+          "bytes": 43950,
+          "type": "Stylesheet"
+        }
+      ]
+    }
+  ],
+  "summaries": [
+    {
+      "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/",
+      "validRuns": 3,
+      "median": {
+        "performance": 0.46,
+        "fcpMs": 2128.1100000000006,
+        "lcpMs": 12653.653999999995,
+        "cls": 0.02385534649781084,
+        "tbtMs": 783,
+        "speedIndexMs": 9574.931522106253,
+        "totalTransferBytes": 6926803,
+        "imageTransferBytes": 2003962,
+        "videoTransferBytes": 3244867,
+        "scriptTransferBytes": 703398,
+        "requestCount": 97
+      },
+      "range": {
+        "performance": {
+          "min": 0.44,
+          "max": 0.46
+        },
+        "fcpMs": {
+          "min": 1899.607,
+          "max": 2138.6059999999998
+        },
+        "lcpMs": {
+          "min": 12383.606,
+          "max": 14724.607
+        },
+        "cls": {
+          "min": 0.023250272451797407,
+          "max": 0.02406512937756969
+        },
+        "tbtMs": {
+          "min": 751.5,
+          "max": 837
+        },
+        "speedIndexMs": {
+          "min": 8219.613757363095,
+          "max": 11288.67614634546
+        },
+        "totalTransferBytes": {
+          "min": 6926694,
+          "max": 6927427
+        },
+        "imageTransferBytes": {
+          "min": 2003946,
+          "max": 2003994
+        },
+        "videoTransferBytes": {
+          "min": 3244764,
+          "max": 3244939
+        },
+        "scriptTransferBytes": {
+          "min": 703362,
+          "max": 703400
+        },
+        "requestCount": {
+          "min": 97,
+          "max": 97
+        }
+      }
+    },
+    {
+      "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/",
+      "validRuns": 3,
+      "median": {
+        "performance": 0.39,
+        "fcpMs": 2274.594,
+        "lcpMs": 10002.318499999998,
+        "cls": 0.02406512937756969,
+        "tbtMs": 1394.2264999999998,
+        "speedIndexMs": 9149.335646068588,
+        "totalTransferBytes": 2390601,
+        "imageTransferBytes": 695572,
+        "videoTransferBytes": 0,
+        "scriptTransferBytes": 710483,
+        "requestCount": 99
+      },
+      "range": {
+        "performance": {
+          "min": 0.34,
+          "max": 0.39
+        },
+        "fcpMs": {
+          "min": 2266.121,
+          "max": 2285.9950000000003
+        },
+        "lcpMs": {
+          "min": 9652.967499999999,
+          "max": 10309.042999999996
+        },
+        "cls": {
+          "min": 0.023250272451797407,
+          "max": 0.1557221866349055
+        },
+        "tbtMs": {
+          "min": 1149.9925000000003,
+          "max": 1489
+        },
+        "speedIndexMs": {
+          "min": 8379.345710354397,
+          "max": 9231.05227491471
+        },
+        "totalTransferBytes": {
+          "min": 2390181,
+          "max": 2392773
+        },
+        "imageTransferBytes": {
+          "min": 695122,
+          "max": 696823
+        },
+        "videoTransferBytes": {
+          "min": 0,
+          "max": 0
+        },
+        "scriptTransferBytes": {
+          "min": 710438,
+          "max": 710506
+        },
+        "requestCount": {
+          "min": 99,
+          "max": 99
+        }
+      }
+    }
+  ]
+}

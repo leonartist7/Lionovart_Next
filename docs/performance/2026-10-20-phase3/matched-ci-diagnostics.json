@@ -1,0 +1,1080 @@
+[
+  {
+    "file": "lhr-1792515699218.json",
+    "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/",
+    "audits": {
+      "largest-contentful-paint-element": {
+        "score": 0,
+        "displayValue": "14,720 ms",
+        "details": {
+          "type": "list",
+          "items": [
+            {
+              "type": "table",
+              "headings": [
+                {
+                  "key": "node",
+                  "valueType": "node",
+                  "label": "Element"
+                }
+              ],
+              "items": [
+                {
+                  "node": {
+                    "type": "node",
+                    "lhId": "page-12-DIV",
+                    "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,1,DIV,0,SECTION,0,SECTION,0,DIV,1,DIV,0,DIV,1,DIV,0,DIV,0,DIV,1,DIV,0,DIV,0,DIV",
+                    "selector": "div.opening-glass-pane > div.absolute > div.absolute > div.pointer-events-none",
+                    "boundingRect": {
+                      "top": "[depth]",
+                      "bottom": "[depth]",
+                      "left": "[depth]",
+                      "right": "[depth]",
+                      "width": "[depth]",
+                      "height": "[depth]"
+                    },
+                    "snippet": "<div aria-hidden=\"true\" data-opening-crop=\"true\" class=\"pointer-events-none absolute inset-0 z-[1] overflow-hidden rounded-[inheri…\" style=\"background-image: url(&quot;https://res.cloudinary.com/dgio9uutc/video/upload/s…&quot;);\">",
+                    "nodeLabel": "div.opening-glass-pane > div.absolute > div.absolute > div.pointer-events-none"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "headings": [
+                {
+                  "key": "phase",
+                  "valueType": "text",
+                  "label": "Phase"
+                },
+                {
+                  "key": "percent",
+                  "valueType": "text",
+                  "label": "% of LCP"
+                },
+                {
+                  "key": "timing",
+                  "valueType": "ms",
+                  "label": "Timing"
+                }
+              ],
+              "items": [
+                {
+                  "phase": "TTFB",
+                  "timing": 699.607,
+                  "percent": "5%"
+                },
+                {
+                  "phase": "Load Delay",
+                  "timing": 13395.8224495776,
+                  "percent": "91%"
+                },
+                {
+                  "phase": "Load Time",
+                  "timing": 142.8051152235039,
+                  "percent": "1%"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "layout-shifts": {
+        "score": 1,
+        "displayValue": "3 layout shifts found",
+        "details": {
+          "type": "table",
+          "headings": [
+            {
+              "key": "node",
+              "valueType": "node",
+              "subItemsHeading": {
+                "key": "extra"
+              },
+              "label": "Element"
+            },
+            {
+              "key": "score",
+              "valueType": "numeric",
+              "subItemsHeading": {
+                "key": "cause",
+                "valueType": "text"
+              },
+              "granularity": 0.001,
+              "label": "Layout shift score"
+            }
+          ],
+          "items": [
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-16-DIV",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,0,DIV,0,SECTION,0,DIV",
+                "selector": "div.hero-opening-stage > div.opening-hero-layer > section.lion-hero > div.lion-content",
+                "boundingRect": {
+                  "top": 256,
+                  "bottom": 719,
+                  "left": 20,
+                  "right": 371,
+                  "width": 351,
+                  "height": 462
+                },
+                "snippet": "<div class=\"lion-content\">",
+                "nodeLabel": "LET'S\nMAKE\nYOUR\nBRAND\nROAR\n\nBrand strategy, intelligent systems & creative work…"
+              },
+              "score": 0.009743716448417601
+            },
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-13-P",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,0,DIV,0,SECTION,0,DIV,1,P",
+                "selector": "div.opening-hero-layer > section.lion-hero > div.lion-content > p.lion-description",
+                "boundingRect": {
+                  "top": 479,
+                  "bottom": 556,
+                  "left": 20,
+                  "right": 371,
+                  "width": 351,
+                  "height": 77
+                },
+                "snippet": "<p class=\"lion-description editorial-accent editorial-hero hero-positioning-copy\">",
+                "nodeLabel": "Brand strategy, intelligent systems & creative work built to move your business…"
+              },
+              "score": 0.00813700924196533,
+              "subItems": {
+                "type": "subitems",
+                "items": [
+                  {
+                    "extra": {
+                      "type": "[depth]",
+                      "value": "[depth]"
+                    },
+                    "cause": "Web font loaded"
+                  },
+                  {
+                    "extra": {
+                      "type": "[depth]",
+                      "value": "[depth]"
+                    },
+                    "cause": "Web font loaded"
+                  },
+                  {
+                    "extra": {
+                      "type": "[depth]",
+                      "value": "[depth]"
+                    },
+                    "cause": "Web font loaded"
+                  }
+                ]
+              }
+            },
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-17-DIV",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,1,DIV,0,SECTION,0,SECTION,0,DIV,1,DIV,0,DIV,0,DIV",
+                "selector": "div.opening-video-layout > div.opening-video-anchor > div.relative > div.opening-joined-film",
+                "boundingRect": {
+                  "top": 785,
+                  "bottom": 1266,
+                  "left": 60,
+                  "right": 330,
+                  "width": 270,
+                  "height": 481
+                },
+                "snippet": "<div data-opening-film=\"true\" class=\"opening-joined-film absolute z-[2] overflow-hidden rounded-[16px] bg-[#080…\" style=\"transform: translateX(-50%); pointer-events: auto; width: 329.688px;\">",
+                "nodeLabel": "div.opening-video-layout > div.opening-video-anchor > div.relative > div.opening-joined-film"
+              },
+              "score": 0.005974620807427911
+            }
+          ]
+        }
+      },
+      "font-display-insight": {
+        "score": null
+      }
+    }
+  },
+  {
+    "file": "lhr-1792515731185.json",
+    "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/",
+    "audits": {
+      "largest-contentful-paint-element": {
+        "score": 0,
+        "displayValue": "12,380 ms",
+        "details": {
+          "type": "list",
+          "items": [
+            {
+              "type": "table",
+              "headings": [
+                {
+                  "key": "node",
+                  "valueType": "node",
+                  "label": "Element"
+                }
+              ],
+              "items": [
+                {
+                  "node": {
+                    "type": "node",
+                    "lhId": "page-13-DIV",
+                    "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,1,DIV,0,SECTION,0,SECTION,0,DIV,1,DIV,0,DIV,1,DIV,0,DIV,0,DIV,1,DIV,0,DIV,0,DIV",
+                    "selector": "div.opening-glass-pane > div.absolute > div.absolute > div.pointer-events-none",
+                    "boundingRect": {
+                      "top": "[depth]",
+                      "bottom": "[depth]",
+                      "left": "[depth]",
+                      "right": "[depth]",
+                      "width": "[depth]",
+                      "height": "[depth]"
+                    },
+                    "snippet": "<div aria-hidden=\"true\" data-opening-crop=\"true\" class=\"pointer-events-none absolute inset-0 z-[1] overflow-hidden rounded-[inheri…\" style=\"background-image: url(&quot;https://res.cloudinary.com/dgio9uutc/video/upload/s…&quot;);\">",
+                    "nodeLabel": "div.opening-glass-pane > div.absolute > div.absolute > div.pointer-events-none"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "headings": [
+                {
+                  "key": "phase",
+                  "valueType": "text",
+                  "label": "Phase"
+                },
+                {
+                  "key": "percent",
+                  "valueType": "text",
+                  "label": "% of LCP"
+                },
+                {
+                  "key": "timing",
+                  "valueType": "ms",
+                  "label": "Timing"
+                }
+              ],
+              "items": [
+                {
+                  "phase": "TTFB",
+                  "timing": 638.606,
+                  "percent": "5%"
+                },
+                {
+                  "phase": "Load Delay",
+                  "timing": 9591.621282720738,
+                  "percent": "77%"
+                },
+                {
+                  "phase": "Load Time",
+                  "timing": 308.2499329003822,
+                  "percent": "2%"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "layout-shifts": {
+        "score": 1,
+        "displayValue": "3 layout shifts found",
+        "details": {
+          "type": "table",
+          "headings": [
+            {
+              "key": "node",
+              "valueType": "node",
+              "subItemsHeading": {
+                "key": "extra"
+              },
+              "label": "Element"
+            },
+            {
+              "key": "score",
+              "valueType": "numeric",
+              "subItemsHeading": {
+                "key": "cause",
+                "valueType": "text"
+              },
+              "granularity": 0.001,
+              "label": "Layout shift score"
+            }
+          ],
+          "items": [
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-17-DIV",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,0,DIV,0,SECTION,0,DIV",
+                "selector": "div.hero-opening-stage > div.opening-hero-layer > section.lion-hero > div.lion-content",
+                "boundingRect": {
+                  "top": 256,
+                  "bottom": 719,
+                  "left": 20,
+                  "right": 371,
+                  "width": 351,
+                  "height": 462
+                },
+                "snippet": "<div class=\"lion-content\">",
+                "nodeLabel": "LET'S\nMAKE\nYOUR\nBRAND\nROAR\n\nBrand strategy, intelligent systems & creative work…"
+              },
+              "score": 0.009743716448417601
+            },
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-14-P",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,0,DIV,0,SECTION,0,DIV,1,P",
+                "selector": "div.opening-hero-layer > section.lion-hero > div.lion-content > p.lion-description",
+                "boundingRect": {
+                  "top": 479,
+                  "bottom": 556,
+                  "left": 20,
+                  "right": 371,
+                  "width": 351,
+                  "height": 77
+                },
+                "snippet": "<p class=\"lion-description editorial-accent editorial-hero hero-positioning-copy\">",
+                "nodeLabel": "Brand strategy, intelligent systems & creative work built to move your business…"
+              },
+              "score": 0.008346792121724176,
+              "subItems": {
+                "type": "subitems",
+                "items": [
+                  {
+                    "extra": {
+                      "type": "[depth]",
+                      "value": "[depth]"
+                    },
+                    "cause": "Web font loaded"
+                  },
+                  {
+                    "extra": {
+                      "type": "[depth]",
+                      "value": "[depth]"
+                    },
+                    "cause": "Web font loaded"
+                  },
+                  {
+                    "extra": {
+                      "type": "[depth]",
+                      "value": "[depth]"
+                    },
+                    "cause": "Web font loaded"
+                  }
+                ]
+              }
+            },
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-18-DIV",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,1,DIV,0,SECTION,0,SECTION,0,DIV,1,DIV,0,DIV,0,DIV",
+                "selector": "div.opening-video-layout > div.opening-video-anchor > div.relative > div.opening-joined-film",
+                "boundingRect": {
+                  "top": 785,
+                  "bottom": 1266,
+                  "left": 60,
+                  "right": 330,
+                  "width": 270,
+                  "height": 481
+                },
+                "snippet": "<div data-opening-film=\"true\" class=\"opening-joined-film absolute z-[2] overflow-hidden rounded-[16px] bg-[#080…\" style=\"transform: translateX(-50%); pointer-events: auto; width: 329.688px;\">",
+                "nodeLabel": "div.opening-video-layout > div.opening-video-anchor > div.relative > div.opening-joined-film"
+              },
+              "score": 0.005974620807427911
+            }
+          ]
+        }
+      },
+      "font-display-insight": {
+        "score": null
+      }
+    }
+  },
+  {
+    "file": "lhr-1792515761705.json",
+    "url": "https://lionovartnext-pmq4r6yv5-lionovart.vercel.app/",
+    "audits": {
+      "largest-contentful-paint-element": {
+        "score": 0,
+        "displayValue": "12,650 ms",
+        "details": {
+          "type": "list",
+          "items": [
+            {
+              "type": "table",
+              "headings": [
+                {
+                  "key": "node",
+                  "valueType": "node",
+                  "label": "Element"
+                }
+              ],
+              "items": [
+                {
+                  "node": {
+                    "type": "node",
+                    "lhId": "page-13-DIV",
+                    "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,1,DIV,0,SECTION,0,SECTION,0,DIV,1,DIV,0,DIV,1,DIV,0,DIV,0,DIV,1,DIV,0,DIV,0,DIV",
+                    "selector": "div.opening-glass-pane > div.absolute > div.absolute > div.pointer-events-none",
+                    "boundingRect": {
+                      "top": "[depth]",
+                      "bottom": "[depth]",
+                      "left": "[depth]",
+                      "right": "[depth]",
+                      "width": "[depth]",
+                      "height": "[depth]"
+                    },
+                    "snippet": "<div aria-hidden=\"true\" data-opening-crop=\"true\" class=\"pointer-events-none absolute inset-0 z-[1] overflow-hidden rounded-[inheri…\" style=\"background-image: url(&quot;https://res.cloudinary.com/dgio9uutc/video/upload/s…&quot;);\">",
+                    "nodeLabel": "div.opening-glass-pane > div.absolute > div.absolute > div.pointer-events-none"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "headings": [
+                {
+                  "key": "phase",
+                  "valueType": "text",
+                  "label": "Phase"
+                },
+                {
+                  "key": "percent",
+                  "valueType": "text",
+                  "label": "% of LCP"
+                },
+                {
+                  "key": "timing",
+                  "valueType": "ms",
+                  "label": "Timing"
+                }
+              ],
+              "items": [
+                {
+                  "phase": "TTFB",
+                  "timing": 623.514,
+                  "percent": "5%"
+                },
+                {
+                  "phase": "Load Delay",
+                  "timing": 9867.212363304689,
+                  "percent": "78%"
+                },
+                {
+                  "phase": "Load Time",
+                  "timing": 364.2119884104559,
+                  "percent": "3%"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "layout-shifts": {
+        "score": 1,
+        "displayValue": "4 layout shifts found",
+        "details": {
+          "type": "table",
+          "headings": [
+            {
+              "key": "node",
+              "valueType": "node",
+              "subItemsHeading": {
+                "key": "extra"
+              },
+              "label": "Element"
+            },
+            {
+              "key": "score",
+              "valueType": "numeric",
+              "subItemsHeading": {
+                "key": "cause",
+                "valueType": "text"
+              },
+              "granularity": 0.001,
+              "label": "Layout shift score"
+            }
+          ],
+          "items": [
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-17-DIV",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,0,DIV,0,SECTION,0,DIV",
+                "selector": "div.hero-opening-stage > div.opening-hero-layer > section.lion-hero > div.lion-content",
+                "boundingRect": {
+                  "top": 256,
+                  "bottom": 719,
+                  "left": 20,
+                  "right": 371,
+                  "width": 351,
+                  "height": 462
+                },
+                "snippet": "<div class=\"lion-content\">",
+                "nodeLabel": "LET'S\nMAKE\nYOUR\nBRAND\nROAR\n\nBrand strategy, intelligent systems & creative work…"
+              },
+              "score": 0.009743716448417601
+            },
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-18-DIV",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,1,DIV,0,SECTION,0,SECTION,0,DIV,1,DIV,0,DIV,0,DIV",
+                "selector": "div.opening-video-layout > div.opening-video-anchor > div.relative > div.opening-joined-film",
+                "boundingRect": {
+                  "top": 785,
+                  "bottom": 1266,
+                  "left": 60,
+                  "right": 330,
+                  "width": 270,
+                  "height": 481
+                },
+                "snippet": "<div data-opening-film=\"true\" class=\"opening-joined-film absolute z-[2] overflow-hidden rounded-[16px] bg-[#080…\" style=\"transform: translateX(-50%); pointer-events: auto; width: 329.688px;\">",
+                "nodeLabel": "div.opening-video-layout > div.opening-video-anchor > div.relative > div.opening-joined-film"
+              },
+              "score": 0.005974620807427911
+            },
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-14-P",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,0,DIV,0,SECTION,0,DIV,1,P",
+                "selector": "div.opening-hero-layer > section.lion-hero > div.lion-content > p.lion-description",
+                "boundingRect": {
+                  "top": 479,
+                  "bottom": 556,
+                  "left": 20,
+                  "right": 371,
+                  "width": 351,
+                  "height": 77
+                },
+                "snippet": "<p class=\"lion-description editorial-accent editorial-hero hero-positioning-copy\">",
+                "nodeLabel": "Brand strategy, intelligent systems & creative work built to move your business…"
+              },
+              "score": 0.005469530656521065
+            }
+          ]
+        }
+      },
+      "font-display-insight": {
+        "score": null
+      }
+    }
+  },
+  {
+    "file": "lhr-1792515792137.json",
+    "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/",
+    "audits": {
+      "largest-contentful-paint-element": {
+        "score": 0,
+        "displayValue": "10,310 ms",
+        "details": {
+          "type": "list",
+          "items": [
+            {
+              "type": "table",
+              "headings": [
+                {
+                  "key": "node",
+                  "valueType": "node",
+                  "label": "Element"
+                }
+              ],
+              "items": [
+                {
+                  "node": {
+                    "type": "node",
+                    "lhId": "page-8-DIV",
+                    "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,1,DIV,0,SECTION,0,SECTION,0,DIV,1,DIV,0,DIV,1,DIV,0,DIV,0,DIV,1,DIV,0,DIV,0,DIV",
+                    "selector": "div.opening-glass-pane > div.absolute > div.absolute > div.pointer-events-none",
+                    "boundingRect": {
+                      "top": "[depth]",
+                      "bottom": "[depth]",
+                      "left": "[depth]",
+                      "right": "[depth]",
+                      "width": "[depth]",
+                      "height": "[depth]"
+                    },
+                    "snippet": "<div aria-hidden=\"true\" data-opening-crop=\"true\" class=\"pointer-events-none absolute inset-0 z-[1] overflow-hidden rounded-[inheri…\" style=\"background-image: url(&quot;https://res.cloudinary.com/dgio9uutc/video/upload/s…&quot;);\">",
+                    "nodeLabel": "div.opening-glass-pane > div.absolute > div.absolute > div.pointer-events-none"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "headings": [
+                {
+                  "key": "phase",
+                  "valueType": "text",
+                  "label": "Phase"
+                },
+                {
+                  "key": "percent",
+                  "valueType": "text",
+                  "label": "% of LCP"
+                },
+                {
+                  "key": "timing",
+                  "valueType": "ms",
+                  "label": "Timing"
+                }
+              ],
+              "items": [
+                {
+                  "phase": "TTFB",
+                  "timing": 618.107,
+                  "percent": "6%"
+                },
+                {
+                  "phase": "Load Delay",
+                  "timing": 7116.520194129526,
+                  "percent": "69%"
+                },
+                {
+                  "phase": "Load Time",
+                  "timing": 925.2886881858731,
+                  "percent": "9%"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "layout-shifts": {
+        "score": 1,
+        "displayValue": "3 layout shifts found",
+        "details": {
+          "type": "table",
+          "headings": [
+            {
+              "key": "node",
+              "valueType": "node",
+              "subItemsHeading": {
+                "key": "extra"
+              },
+              "label": "Element"
+            },
+            {
+              "key": "score",
+              "valueType": "numeric",
+              "subItemsHeading": {
+                "key": "cause",
+                "valueType": "text"
+              },
+              "granularity": 0.001,
+              "label": "Layout shift score"
+            }
+          ],
+          "items": [
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-12-DIV",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,0,DIV,0,SECTION,0,DIV",
+                "selector": "div.hero-opening-stage > div.opening-hero-layer > section.lion-hero > div.lion-content",
+                "boundingRect": {
+                  "top": 256,
+                  "bottom": 719,
+                  "left": 20,
+                  "right": 371,
+                  "width": 351,
+                  "height": 462
+                },
+                "snippet": "<div class=\"lion-content\">",
+                "nodeLabel": "LET'S\nMAKE\nYOUR\nBRAND\nROAR\n\nBrand strategy, intelligent systems & creative work…"
+              },
+              "score": 0.009743716448417601
+            },
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-9-P",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,0,DIV,0,SECTION,0,DIV,1,P",
+                "selector": "div.opening-hero-layer > section.lion-hero > div.lion-content > p.lion-description",
+                "boundingRect": {
+                  "top": 479,
+                  "bottom": 556,
+                  "left": 20,
+                  "right": 371,
+                  "width": 351,
+                  "height": 77
+                },
+                "snippet": "<p class=\"lion-description editorial-accent editorial-hero hero-positioning-copy\">",
+                "nodeLabel": "Brand strategy, intelligent systems & creative work built to move your business…"
+              },
+              "score": 0.008346792121724176
+            },
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-13-DIV",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,1,DIV,0,SECTION,0,SECTION,0,DIV,1,DIV,0,DIV,0,DIV",
+                "selector": "div.opening-video-layout > div.opening-video-anchor > div.relative > div.opening-joined-film",
+                "boundingRect": {
+                  "top": 785,
+                  "bottom": 1266,
+                  "left": 60,
+                  "right": 330,
+                  "width": 270,
+                  "height": 481
+                },
+                "snippet": "<div data-opening-film=\"true\" class=\"opening-joined-film absolute z-[2] overflow-hidden rounded-[16px] bg-[#080…\" style=\"transform: translateX(-50%); pointer-events: auto; width: 329.688px;\">",
+                "nodeLabel": "div.opening-video-layout > div.opening-video-anchor > div.relative > div.opening-joined-film"
+              },
+              "score": 0.005974620807427911
+            }
+          ]
+        }
+      },
+      "font-display-insight": {
+        "score": null
+      }
+    }
+  },
+  {
+    "file": "lhr-1792515822158.json",
+    "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/",
+    "audits": {
+      "largest-contentful-paint-element": {
+        "score": 0,
+        "displayValue": "9,650 ms",
+        "details": {
+          "type": "list",
+          "items": [
+            {
+              "type": "table",
+              "headings": [
+                {
+                  "key": "node",
+                  "valueType": "node",
+                  "label": "Element"
+                }
+              ],
+              "items": [
+                {
+                  "node": {
+                    "type": "node",
+                    "lhId": "page-0-DIV",
+                    "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,1,DIV,0,SECTION,0,SECTION,0,DIV,1,DIV,0,DIV,1,DIV,0,DIV,0,DIV,1,DIV,0,DIV,0,DIV",
+                    "selector": "div.opening-glass-pane > div.absolute > div.absolute > div.pointer-events-none",
+                    "boundingRect": {
+                      "top": "[depth]",
+                      "bottom": "[depth]",
+                      "left": "[depth]",
+                      "right": "[depth]",
+                      "width": "[depth]",
+                      "height": "[depth]"
+                    },
+                    "snippet": "<div aria-hidden=\"true\" data-opening-crop=\"true\" class=\"pointer-events-none absolute inset-0 z-[1] overflow-hidden rounded-[inheri…\" style=\"background-image: url(&quot;https://res.cloudinary.com/dgio9uutc/video/upload/s…&quot;);\">",
+                    "nodeLabel": "div.opening-glass-pane > div.absolute > div.absolute > div.pointer-events-none"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "headings": [
+                {
+                  "key": "phase",
+                  "valueType": "text",
+                  "label": "Phase"
+                },
+                {
+                  "key": "percent",
+                  "valueType": "text",
+                  "label": "% of LCP"
+                },
+                {
+                  "key": "timing",
+                  "valueType": "ms",
+                  "label": "Timing"
+                }
+              ],
+              "items": [
+                {
+                  "phase": "TTFB",
+                  "timing": 613.508,
+                  "percent": "6%"
+                },
+                {
+                  "phase": "Load Delay",
+                  "timing": 7718.157568147053,
+                  "percent": "80%"
+                },
+                {
+                  "phase": "Load Time",
+                  "timing": 34.157669494716174,
+                  "percent": "0%"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "layout-shifts": {
+        "score": 0,
+        "displayValue": "4 layout shifts found",
+        "details": {
+          "type": "table",
+          "headings": [
+            {
+              "key": "node",
+              "valueType": "node",
+              "subItemsHeading": {
+                "key": "extra"
+              },
+              "label": "Element"
+            },
+            {
+              "key": "score",
+              "valueType": "numeric",
+              "subItemsHeading": {
+                "key": "cause",
+                "valueType": "text"
+              },
+              "granularity": 0.001,
+              "label": "Layout shift score"
+            }
+          ],
+          "items": [
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-4-DIV",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,1,DIV,0,SECTION,0,SECTION,0,DIV,1,DIV",
+                "selector": "section#opening-work > section.relative > div.opening-video-layout > div.opening-video-anchor",
+                "boundingRect": {
+                  "top": 150,
+                  "bottom": 942,
+                  "left": 31,
+                  "right": 359,
+                  "width": 328,
+                  "height": 792
+                },
+                "snippet": "<div class=\"opening-video-anchor relative z-40 w-[min(80vw,360px)] min-[920px]:w-[min(…\" style=\"--opening-front-height: 792px;\">",
+                "nodeLabel": "LION\nTrust, before a word.\nClear positioning\nAn identity that reflects your qua…"
+              },
+              "score": 0.1316570572573358
+            },
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-6-DIV",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,0,DIV,0,SECTION,0,DIV",
+                "selector": "div.hero-opening-stage > div.opening-hero-layer > section.lion-hero > div.lion-content",
+                "boundingRect": {
+                  "top": 256,
+                  "bottom": 719,
+                  "left": 20,
+                  "right": 371,
+                  "width": 351,
+                  "height": 462
+                },
+                "snippet": "<div class=\"lion-content\">",
+                "nodeLabel": "LET'S\nMAKE\nYOUR\nBRAND\nROAR\n\nBrand strategy, intelligent systems & creative work…"
+              },
+              "score": 0.009743716448417601
+            },
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-1-P",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,0,DIV,0,SECTION,0,DIV,1,P",
+                "selector": "div.opening-hero-layer > section.lion-hero > div.lion-content > p.lion-description",
+                "boundingRect": {
+                  "top": 479,
+                  "bottom": 556,
+                  "left": 20,
+                  "right": 371,
+                  "width": 351,
+                  "height": 77
+                },
+                "snippet": "<p class=\"lion-description editorial-accent editorial-hero hero-positioning-copy\">",
+                "nodeLabel": "Brand strategy, intelligent systems & creative work built to move your business…"
+              },
+              "score": 0.008346792121724176
+            }
+          ]
+        }
+      },
+      "font-display-insight": {
+        "score": null
+      }
+    }
+  },
+  {
+    "file": "lhr-1792515851943.json",
+    "url": "https://lionovartnext-5v5ozlgn8-lionovart.vercel.app/",
+    "audits": {
+      "largest-contentful-paint-element": {
+        "score": 0,
+        "displayValue": "10,000 ms",
+        "details": {
+          "type": "list",
+          "items": [
+            {
+              "type": "table",
+              "headings": [
+                {
+                  "key": "node",
+                  "valueType": "node",
+                  "label": "Element"
+                }
+              ],
+              "items": [
+                {
+                  "node": {
+                    "type": "node",
+                    "lhId": "page-8-DIV",
+                    "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,1,DIV,0,SECTION,0,SECTION,0,DIV,1,DIV,0,DIV,1,DIV,0,DIV,0,DIV,1,DIV,0,DIV,0,DIV",
+                    "selector": "div.opening-glass-pane > div.absolute > div.absolute > div.pointer-events-none",
+                    "boundingRect": {
+                      "top": "[depth]",
+                      "bottom": "[depth]",
+                      "left": "[depth]",
+                      "right": "[depth]",
+                      "width": "[depth]",
+                      "height": "[depth]"
+                    },
+                    "snippet": "<div aria-hidden=\"true\" data-opening-crop=\"true\" class=\"pointer-events-none absolute inset-0 z-[1] overflow-hidden rounded-[inheri…\" style=\"background-image: url(&quot;https://res.cloudinary.com/dgio9uutc/video/upload/s…&quot;);\">",
+                    "nodeLabel": "div.opening-glass-pane > div.absolute > div.absolute > div.pointer-events-none"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "headings": [
+                {
+                  "key": "phase",
+                  "valueType": "text",
+                  "label": "Phase"
+                },
+                {
+                  "key": "percent",
+                  "valueType": "text",
+                  "label": "% of LCP"
+                },
+                {
+                  "key": "timing",
+                  "valueType": "ms",
+                  "label": "Timing"
+                }
+              ],
+              "items": [
+                {
+                  "phase": "TTFB",
+                  "timing": 621.032,
+                  "percent": "6%"
+                },
+                {
+                  "phase": "Load Delay",
+                  "timing": 7834.544971807337,
+                  "percent": "78%"
+                },
+                {
+                  "phase": "Load Time",
+                  "timing": 187.34049281216903,
+                  "percent": "2%"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "layout-shifts": {
+        "score": 1,
+        "displayValue": "4 layout shifts found",
+        "details": {
+          "type": "table",
+          "headings": [
+            {
+              "key": "node",
+              "valueType": "node",
+              "subItemsHeading": {
+                "key": "extra"
+              },
+              "label": "Element"
+            },
+            {
+              "key": "score",
+              "valueType": "numeric",
+              "subItemsHeading": {
+                "key": "cause",
+                "valueType": "text"
+              },
+              "granularity": 0.001,
+              "label": "Layout shift score"
+            }
+          ],
+          "items": [
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-12-DIV",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,0,DIV,0,SECTION,0,DIV",
+                "selector": "div.hero-opening-stage > div.opening-hero-layer > section.lion-hero > div.lion-content",
+                "boundingRect": {
+                  "top": 256,
+                  "bottom": 719,
+                  "left": 20,
+                  "right": 371,
+                  "width": 351,
+                  "height": 462
+                },
+                "snippet": "<div class=\"lion-content\">",
+                "nodeLabel": "LET'S\nMAKE\nYOUR\nBRAND\nROAR\n\nBrand strategy, intelligent systems & creative work…"
+              },
+              "score": 0.009743716448417601
+            },
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-13-DIV",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,1,DIV,0,SECTION,0,SECTION,0,DIV,1,DIV,0,DIV,0,DIV",
+                "selector": "div.opening-video-layout > div.opening-video-anchor > div.relative > div.opening-joined-film",
+                "boundingRect": {
+                  "top": 785,
+                  "bottom": 1266,
+                  "left": 60,
+                  "right": 330,
+                  "width": 270,
+                  "height": 481
+                },
+                "snippet": "<div data-opening-film=\"true\" class=\"opening-joined-film absolute z-[2] overflow-hidden rounded-[16px] bg-[#080…\" style=\"transform: translateX(-50%); pointer-events: auto; width: 329.688px;\">",
+                "nodeLabel": "div.opening-video-layout > div.opening-video-anchor > div.relative > div.opening-joined-film"
+              },
+              "score": 0.005974620807427911
+            },
+            {
+              "node": {
+                "type": "node",
+                "lhId": "page-9-P",
+                "path": "1,HTML,1,BODY,2,MAIN,2,DIV,0,DIV,0,DIV,0,DIV,2,DIV,3,DIV,0,DIV,0,SECTION,0,DIV,1,P",
+                "selector": "div.opening-hero-layer > section.lion-hero > div.lion-content > p.lion-description",
+                "boundingRect": {
+                  "top": 479,
+                  "bottom": 556,
+                  "left": 20,
+                  "right": 371,
+                  "width": 351,
+                  "height": 77
+                },
+                "snippet": "<p class=\"lion-description editorial-accent editorial-hero hero-positioning-copy\">",
+                "nodeLabel": "Brand strategy, intelligent systems & creative work built to move your business…"
+              },
+              "score": 0.005469530656521065
+            }
+          ]
+        }
+      },
+      "font-display-insight": {
+        "score": null
+      }
+    }
+  }
+]
