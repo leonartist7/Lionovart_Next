@@ -30,3 +30,7 @@ ui-debug.log
 
 .vercel
 .env*
+
+# Raw performance runs are kept locally; reviewed summaries are committed.
+/reports/performance/
+.lighthouseci/

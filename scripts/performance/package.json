@@ -1,0 +1,14 @@
+{
+  "name": "lionovart-performance-verification",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "collect": "node collect.mjs",
+    "summarize": "node summarize.mjs"
+  },
+  "devDependencies": {
+    "@lhci/cli": "0.15.1",
+    "@sparticuz/chromium": "153.0.0",
+    "puppeteer-core": "25.15.0"
+  }
+}

@@ -1,0 +1,476 @@
+[
+  {
+    "route": "/",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "deviceScaleFactor": 2,
+      "isMobile": true,
+      "hasTouch": true
+    },
+    "webpOnly": false,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 8
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/9857e9e34505b2f7-96.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/bb7359743722b9d6-64.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/1bf14b94cbeda1d2-64.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/334749f02e08ddbb-64.avif"
+    ]
+  },
+  {
+    "route": "/about",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "deviceScaleFactor": 2,
+      "isMobile": true,
+      "hasTouch": true
+    },
+    "webpOnly": false,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 0
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/9857e9e34505b2f7-96.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/dbff8cefc28f2ab1-640.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/faf80b9213861796-1024.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/07d71dd64597fbcd-640.avif"
+    ]
+  },
+  {
+    "route": "/services",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "deviceScaleFactor": 2,
+      "isMobile": true,
+      "hasTouch": true
+    },
+    "webpOnly": false,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 0
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/9857e9e34505b2f7-96.avif",
+      "https://res.cloudinary.com/dgio9uutc/image/upload/e_trim/c_limit,w_800,f_avif,q_95:444/v1787855087/memorable_1_1_owpwbv.avif"
+    ]
+  },
+  {
+    "route": "/",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "deviceScaleFactor": 2,
+      "isMobile": true,
+      "hasTouch": true
+    },
+    "webpOnly": true,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 8
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/87656a35f15f44cb-96.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/a0efa1226a10fdd6-64.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/bcd970b4fc5294b3-64.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/4034969d5f1ad1f0-64.webp"
+    ]
+  },
+  {
+    "route": "/about",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "deviceScaleFactor": 2,
+      "isMobile": true,
+      "hasTouch": true
+    },
+    "webpOnly": true,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 0
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/87656a35f15f44cb-96.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/e76e2e72fbe27885-640.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/1634450029bb9aa0-1024.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/4ad2a572baf012de-640.webp"
+    ]
+  },
+  {
+    "route": "/services",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "deviceScaleFactor": 2,
+      "isMobile": true,
+      "hasTouch": true
+    },
+    "webpOnly": true,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 0
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/87656a35f15f44cb-96.webp",
+      "https://res.cloudinary.com/dgio9uutc/image/upload/e_trim/c_limit,w_800,f_webp,q_95/v1787855087/memorable_1_1_owpwbv.avif"
+    ]
+  },
+  {
+    "route": "/",
+    "viewport": {
+      "width": 768,
+      "height": 1024,
+      "deviceScaleFactor": 2,
+      "isMobile": true,
+      "hasTouch": true
+    },
+    "webpOnly": false,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 18
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/9857e9e34505b2f7-96.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/bb7359743722b9d6-64.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/1bf14b94cbeda1d2-64.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/334749f02e08ddbb-64.avif"
+    ]
+  },
+  {
+    "route": "/about",
+    "viewport": {
+      "width": 768,
+      "height": 1024,
+      "deviceScaleFactor": 2,
+      "isMobile": true,
+      "hasTouch": true
+    },
+    "webpOnly": false,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 0
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/9857e9e34505b2f7-96.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/dbff8cefc28f2ab1-640.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/faf80b9213861796-1024.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/07d71dd64597fbcd-640.avif"
+    ]
+  },
+  {
+    "route": "/services",
+    "viewport": {
+      "width": 768,
+      "height": 1024,
+      "deviceScaleFactor": 2,
+      "isMobile": true,
+      "hasTouch": true
+    },
+    "webpOnly": false,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 0
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/9857e9e34505b2f7-96.avif",
+      "https://res.cloudinary.com/dgio9uutc/image/upload/e_trim/c_limit,w_1280,f_avif,q_95:444/v1787855087/memorable_1_1_owpwbv.avif"
+    ]
+  },
+  {
+    "route": "/",
+    "viewport": {
+      "width": 768,
+      "height": 1024,
+      "deviceScaleFactor": 2,
+      "isMobile": true,
+      "hasTouch": true
+    },
+    "webpOnly": true,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 18
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/87656a35f15f44cb-96.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/a0efa1226a10fdd6-64.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/bcd970b4fc5294b3-64.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/4034969d5f1ad1f0-64.webp"
+    ]
+  },
+  {
+    "route": "/about",
+    "viewport": {
+      "width": 768,
+      "height": 1024,
+      "deviceScaleFactor": 2,
+      "isMobile": true,
+      "hasTouch": true
+    },
+    "webpOnly": true,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 0
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/87656a35f15f44cb-96.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/e76e2e72fbe27885-640.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/1634450029bb9aa0-1024.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/4ad2a572baf012de-640.webp"
+    ]
+  },
+  {
+    "route": "/services",
+    "viewport": {
+      "width": 768,
+      "height": 1024,
+      "deviceScaleFactor": 2,
+      "isMobile": true,
+      "hasTouch": true
+    },
+    "webpOnly": true,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 0
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/87656a35f15f44cb-96.webp",
+      "https://res.cloudinary.com/dgio9uutc/image/upload/e_trim/c_limit,w_1280,f_webp,q_95/v1787855087/memorable_1_1_owpwbv.avif"
+    ]
+  },
+  {
+    "route": "/",
+    "viewport": {
+      "width": 1440,
+      "height": 900,
+      "deviceScaleFactor": 1,
+      "isMobile": false,
+      "hasTouch": false
+    },
+    "webpOnly": false,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 18
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/d366c48c2358f1e7-64.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/bb7359743722b9d6-64.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/1bf14b94cbeda1d2-64.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/334749f02e08ddbb-64.avif"
+    ]
+  },
+  {
+    "route": "/about",
+    "viewport": {
+      "width": 1440,
+      "height": 900,
+      "deviceScaleFactor": 1,
+      "isMobile": false,
+      "hasTouch": false
+    },
+    "webpOnly": false,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 0
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/d366c48c2358f1e7-64.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/dbff8cefc28f2ab1-640.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/faf80b9213861796-1024.avif",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/07d71dd64597fbcd-640.avif"
+    ]
+  },
+  {
+    "route": "/services",
+    "viewport": {
+      "width": 1440,
+      "height": 900,
+      "deviceScaleFactor": 1,
+      "isMobile": false,
+      "hasTouch": false
+    },
+    "webpOnly": false,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 0
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/d366c48c2358f1e7-64.avif",
+      "https://res.cloudinary.com/dgio9uutc/image/upload/e_trim/c_limit,w_1024,f_avif,q_95:444/v1787855087/memorable_1_1_owpwbv.avif"
+    ]
+  },
+  {
+    "route": "/",
+    "viewport": {
+      "width": 1440,
+      "height": 900,
+      "deviceScaleFactor": 1,
+      "isMobile": false,
+      "hasTouch": false
+    },
+    "webpOnly": true,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 18
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/994dc3cb19991b4c-64.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/a0efa1226a10fdd6-64.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/bcd970b4fc5294b3-64.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/4034969d5f1ad1f0-64.webp"
+    ]
+  },
+  {
+    "route": "/about",
+    "viewport": {
+      "width": 1440,
+      "height": 900,
+      "deviceScaleFactor": 1,
+      "isMobile": false,
+      "hasTouch": false
+    },
+    "webpOnly": true,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 0
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/994dc3cb19991b4c-64.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/e76e2e72fbe27885-640.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/1634450029bb9aa0-1024.webp",
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/4ad2a572baf012de-640.webp"
+    ]
+  },
+  {
+    "route": "/services",
+    "viewport": {
+      "width": 1440,
+      "height": 900,
+      "deviceScaleFactor": 1,
+      "isMobile": false,
+      "hasTouch": false
+    },
+    "webpOnly": true,
+    "passed": true,
+    "status": 200,
+    "wrongFormat": [],
+    "errors": [],
+    "initialGates": {
+      "partnership": 0,
+      "closingActive": 0,
+      "closingDecoded": 0,
+      "closingVisibleTiles": 0
+    },
+    "pictureSourceSamples": [
+      "https://lionovartnext-ln8ouhpg9-lionovart.vercel.app/images/optimized/994dc3cb19991b4c-64.webp",
+      "https://res.cloudinary.com/dgio9uutc/image/upload/e_trim/c_limit,w_1024,f_webp,q_95/v1787855087/memorable_1_1_owpwbv.avif"
+    ]
+  }
+]

@@ -431,6 +431,20 @@ export default function DisciplineSplit3D({
   // footage tints the head and makes it appear see-through.
   const pinnedWashOpacity = useTransform(openingProgress, [0, .36, .5], [0, 0, .3]);
   const flip = pinned ? openingFlip : scrollFlip;
+  // The pinned film shares the hero's visible container. Intersection alone
+  // must not download it while the visitor reads the hero. Its poster stays
+  // ready; request the same film on approach, including reverse scrolling.
+  const [filmRequested, setFilmRequested] = useState(false);
+  const shouldLoadFilm = !pinned || !!reduce || filmRequested;
+  useMotionValueEvent(rawOpeningProgress, "change", progress => {
+    if (progress > 0 && flip.get() < FILM_FADE_END) setFilmRequested(true);
+  });
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      if (rawOpeningProgress.get() > 0 && flip.get() < FILM_FADE_END) setFilmRequested(true);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [rawOpeningProgress, flip]);
   const filmOpacity = useTransform(flip, [HANDOFF_START, FILM_FADE_END], [1, 0], { ease: FRAME_EASE });
   // Switch from the native film to matching pane crops while still joined.
   const joinedFilmOpacity = useTransform(flip, p => p <= HANDOFF_START ? 1 : 0);
@@ -548,12 +562,12 @@ export default function DisciplineSplit3D({
       setPlayBlocked(false);
       fallbackSrcRef.current = landscape.matches ? videoFallback : mobileVideoFallback;
       setActivePoster(landscape.matches ? poster : mobilePoster);
-      setVideoSrc(landscape.matches ? video : mobileVideo);
+      setVideoSrc(shouldLoadFilm ? landscape.matches ? video : mobileVideo : "");
     };
     selectSource();
     landscape.addEventListener("change", selectSource);
     return () => landscape.removeEventListener("change", selectSource);
-  }, [video, mobileVideo, videoFallback, mobileVideoFallback, poster, mobilePoster]);
+  }, [video, mobileVideo, videoFallback, mobileVideoFallback, poster, mobilePoster, shouldLoadFilm]);
 
   useEffect(() => {
     const opening = sectionRef.current?.closest<HTMLElement>(".hero-opening-pinned");
@@ -842,6 +856,7 @@ export default function DisciplineSplit3D({
       data-cards-armed={armed}
       data-imagine-interactive={entranceDone || !!reduce}
       data-film-active={filmActive}
+      data-film-requested={shouldLoadFilm}
       className={journey ? "relative lion-video-section" : "relative isolate"}
       style={{
         height: pinned ? "100%" : journey ? "auto" : `${SECTION_HEIGHT_VH}vh`,
