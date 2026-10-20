@@ -15,7 +15,12 @@ export default function AtelierLight() {
     const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
     let shader: ShaderMount | undefined;
     let disposed = false, loading = false, failed = false;
-    const stop = () => { failed = true; mount.dataset.lightState = 'fallback'; shader?.setSpeed(0); };
+    const stop = (reason?: unknown) => {
+      if (disposed) return;
+      failed = true; mount.dataset.lightState = 'fallback';
+      mount.dataset.lightError = reason instanceof Error ? reason.message : 'Graphics context unavailable';
+      shader?.setSpeed(0);
+    };
     const sync = () => {
       if (disposed) return;
       const visible = world.dataset.worldVisible === 'true' && !document.hidden;
@@ -37,7 +42,7 @@ export default function AtelierLight() {
           }, { alpha: false, antialias: false, powerPreference: 'low-power' }, 0, 12000, 1, innerWidth < 768 ? 260_000 : 600_000);
           shader.canvasElement.addEventListener('webglcontextlost', stop);
           sync();
-        } catch { stop(); }
+        } catch (error) { stop(error); }
       }).catch(stop);
     };
     const observer = new MutationObserver(sync);
