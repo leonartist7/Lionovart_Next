@@ -246,10 +246,10 @@ function Pane({
               mixBlendMode: "screen",
             }}
           />
-          <motion.div className={styles.integratedFace} style={{ opacity: reducedMotion ? 1 : cardP }} data-imagine-card={i}>
+          <div className={styles.integratedFace} data-imagine-card={i}>
             <BenefitCard item={IMAGINE_BENEFITS[i]} index={i} artwork={card.image} code={card.code}
               serviceTitle={card.title} accent={card.accent} enabled={interactive} />
-          </motion.div>
+          </div>
           <motion.div
             className="pointer-events-none absolute inset-0 z-[2]"
             style={{
@@ -550,7 +550,7 @@ export default function DisciplineSplit3D({
     const opening = sectionRef.current?.closest<HTMLElement>(".hero-opening-pinned");
     if (!opening || !pinned) return;
     // The divided panels retain the fitted film size, so there is no taller
-    // card stack to scroll through. Expanded benefits scroll inside each card.
+    // card stack to scroll through. Benefits fit the full existing panel face.
     opening.style.setProperty("--opening-benefit-overflow", "0px");
     opening.style.setProperty("--opening-front-overflow", "0px");
   }, [pinned]);
