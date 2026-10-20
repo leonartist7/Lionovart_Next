@@ -19,6 +19,6 @@ jobs:
         with:
           node-version: '24'
       - run: npm ci --prefix scripts/performance --ignore-scripts --no-audit --no-fund
-      - name: Capture review screenshots
+      - name: Capture screenshots and verify reduced-motion reading
         working-directory: scripts/performance
         run: node visual-evidence.mjs
