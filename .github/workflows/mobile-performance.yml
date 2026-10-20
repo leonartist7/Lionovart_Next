@@ -30,6 +30,8 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - name: Lint performance verification tools
+        run: node node_modules/eslint/bin/eslint.js scripts/performance/*.mjs
       - name: Image, motion, navigation and delivery-budget tests
         run: node --test scripts/intro-readiness.test.mjs scripts/intro-scene.test.mjs scripts/lion-motion.test.mjs scripts/nav-scroll.test.mjs scripts/opening-layout.test.mjs scripts/partnership-motion.test.mjs scripts/process-lion-motion.test.mjs scripts/responsive-images.test.mjs scripts/scroll-experience.test.mjs scripts/performance/budgets.test.mjs scripts/performance/cursor-compatibility.test.mjs
 

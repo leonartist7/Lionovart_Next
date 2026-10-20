@@ -25,3 +25,10 @@ test('host-sensitive timing regressions are reported as advisory', () => {
   assert.equal(assessSummary(data).failures.length, 0);
   assert.equal(assessSummary(data).warnings.length, 1);
 });
+
+test('a single large CLS sample remains visible when the median is low', () => {
+  const data = fixture(); data.runs[0].cls = 0.16;
+  const result = assessSummary(data);
+  assert.equal(result.failures.length, 0);
+  assert.ok(result.warnings.some(message => message.includes('single-run CLS')));
+});

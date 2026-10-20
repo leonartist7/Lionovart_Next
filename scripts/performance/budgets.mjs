@@ -3,7 +3,10 @@ export const budgets = Object.freeze({ totalTransferBytes: 3_000_000, imageTrans
 export function assessSummary(summary) {
   const failures = [], warnings = [];
   if (!summary?.runs?.length || !summary?.summaries?.length) return { failures: ['Missing Lighthouse runs or medians'], warnings };
-  for (const run of summary.runs) if (run.runtimeError) failures.push(`${run.url}: Lighthouse runtime error`);
+  for (const run of summary.runs) {
+    if (run.runtimeError) failures.push(`${run.url}: Lighthouse runtime error`);
+    if (Number.isFinite(run.cls) && run.cls > 0.1) warnings.push(`${run.url}: single-run CLS=${run.cls} exceeds 0.1`);
+  }
   for (const group of summary.summaries) {
     if (!Number.isInteger(group.validRuns) || group.validRuns < 3) failures.push(`${group.url}: at least three valid runs required`);
     for (const [metric, ceiling] of Object.entries(budgets)) {
