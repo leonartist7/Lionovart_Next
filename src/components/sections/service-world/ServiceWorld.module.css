@@ -1,13 +1,21 @@
-.world { position: relative; isolation: isolate; background: #f7f4ef; --world-light: 0; }
+.world { position: relative; isolation: isolate; background: #08080a; clip-path: inset(0); --world-light: 0; }
 .canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0; }
 .story { position: relative; z-index: 1; }
-.world :global([data-work-scene]) { background: color-mix(in srgb, #f7f4ef calc(var(--world-light) * 100%), #08080a); }
-.world[data-world-ready=true] :global([data-work-scene]),
-.world[data-world-ready=true] :global([data-services-surface]),
-.world[data-world-ready=true] :global([data-services-arrival-layer]),
-.world[data-world-ready=true] :global([data-gallery=compact]),
-.world[data-world-ready=true] :global([data-work-services-transition]) { background: transparent !important; }
-.world[data-world-ready=true] :global([data-services-curves]) { opacity: .25 !important; }
+/* One viewport backdrop, clipped only at the outer journey boundaries. Section
+   surfaces never cover it, including loading and graphics-failure states. */
+.environment { position: fixed; inset: 0; pointer-events: none; z-index: 0; background: color-mix(in srgb, #f7f4ef calc(var(--world-light) * 100%), #08080a); }
+.architecture { position: absolute; inset: 0; opacity: var(--world-light); background: radial-gradient(ellipse at 50% 18%, #fffdf7 0%, transparent 62%), linear-gradient(180deg, #eee8dc 0%, #f7f4ef 64%, #e5dccb 100%); }
+.architecture i { position: absolute; inset: 5% 4% -25%; border: 1px solid #ac916742; border-top: 5px solid #fffdf5; box-shadow: 0 0 30px #77623b0a, inset 0 0 20px #fff8; }
+.architecture i:nth-child(2) { inset: 11% 13% -16%; }
+.architecture i:nth-child(3) { inset: 17% 22% -7%; }
+.architecture i:nth-child(4) { inset: 23% 31% 2%; }
+.canvas { transition: opacity .6s ease; }
+.world :global([data-work-scene]),
+.world :global([data-services-surface]),
+.world :global([data-services-arrival-layer]),
+.world :global([data-gallery=compact]),
+.world :global([data-work-services-transition]) { background: transparent !important; }
+.world :global([data-services-curves]) { opacity: 0 !important; }
 .world :global([data-world-service]) { position: relative; width: min(92vw, 64rem) !important; height: clamp(13rem, 40svh, 32rem); flex-shrink: 0; border: 0; background: transparent; box-shadow: none; overflow: hidden; }
 .world :global([data-world-service] > [data-world-poster]) { position: absolute; inset: 0; transition: opacity .4s ease; }
 .world[data-world-ready=true] :global([data-world-service][data-world-rendered=true] > [data-world-poster]),

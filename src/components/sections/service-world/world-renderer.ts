@@ -1,7 +1,7 @@
 import * as T from 'three/webgpu';
 import { FrameBudget } from './frame-budget';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { fitArtwork, fitDistance, type WorldInput } from './world-state';
+import { fitArtwork, exhibitPlacement, type WorldInput } from './world-state';
 
 export type WorldEngine = { update: (input: WorldInput) => void; dispose: () => void };
 import { createStudioExhibits } from './studio-exhibits';
@@ -188,13 +188,20 @@ export async function createWorld(canvas: HTMLCanvasElement, forceWebGL: boolean
   video.addEventListener('error', () => { videoFailed = true; });
   const studio = createStudioExhibits({ scene, box, screen, mesh, ivory, chalk, gold, ink, geometry, materials, textures, schedule, disposed: () => disposed });
   const groups = { content, led, work, ...studio.groups };
+  // The room and its camera never follow a scrolling DOM rectangle. Only the
+  // foreground display aligns with the semantic content above the canvas.
+  const display = new T.Group(); scene.add(display);
+  display.add(dais, ...Object.values(groups));
+  camera.position.set(0, 5.64, 24);
+  camera.lookAt(0, 1.8, 0);
+  const displayOffset = new T.Vector3();
   let input: WorldInput | null = null, disposed = false, raf = 0, last = 0, elapsed = 0, lastLED = -1;
   let width = 0, height = 0, ratio = 0;
   const budget = new FrameBudget();
   const review = new URLSearchParams(location.search).get('worldReview') === '1';
   let lastReport = -Infinity;
   let current = 'arrival', previousVariant = -1, settle = 0;
-  const position = new T.Vector3(), target = new T.Vector3(), look = new T.Vector3(0, 1.8, 0);
+
   let firstFrame = true;
   const tick = (now: number) => {
     raf = 0;
@@ -210,11 +217,14 @@ export async function createWorld(canvas: HTMLCanvasElement, forceWebGL: boolean
       background.setRGB((8 + 239 * input.light) / 255, (8 + 236 * input.light) / 255, (10 + 229 * input.light) / 255, T.SRGBColorSpace);
       (scene.fog as T.Fog).color.copy(background);
       hemi.intensity = .35 + input.light * 2.65; key.intensity = 1.2 + input.light * 3;
-      room.visible = input.light > .05; dais.visible = input.exhibit !== 'arrival' && input.exhibit !== 'empty';
+      room.visible = true;
+      ivory.color.set('#ece6db').multiplyScalar(.035 + .965 * input.light);
+      chalk.color.set('#faf8f3').multiplyScalar(.035 + .965 * input.light);
+      gold.color.set('#b99a58').multiplyScalar(.08 + .92 * input.light);
+      dais.visible = input.exhibit !== 'arrival' && input.exhibit !== 'empty';
       if (input.exhibit !== current || previousVariant !== input.variant) { settle = 0; current = input.exhibit; previousVariant = input.variant; }
       settle = input.reduced ? 1 : Math.min(1, settle + dt * 2.3);
-      const eased = 1 - Math.pow(1 - settle, 3);
-      Object.entries(groups).forEach(([name, group]) => { group.visible = input!.exhibit === name; group.position.y = -.65 * (1 - eased); group.scale.setScalar(.94 + .06 * eased); });
+      Object.entries(groups).forEach(([name, group]) => { group.visible = input!.exhibit === name; });
       const studioName = input.exhibit as StudioExhibit;
       if (studioName in studio.groups) {
         studio.update(studioName, input.variant, elapsed, input.reduced);
@@ -252,13 +262,11 @@ export async function createWorld(canvas: HTMLCanvasElement, forceWebGL: boolean
         : studioName in studio.groups
           ? (studio.ready(studioName, input.variant) ? `${studioName}:${input.variant}` : '')
           : `${input.exhibit}:${input.variant}`;
-      const distance = input.exhibit === 'arrival' ? 24 : fitDistance(input.rect.width, input.rect.height, w, h);
-      const centerY = input.exhibit === 'arrival' ? h * .48 : input.rect.top + input.rect.height * .51;
-      camera.setViewOffset(w, h, w / 2 - (input.rect.left + input.rect.width / 2), h / 2 - centerY, w, h);
-      const parallax = input.reduced ? 0 : .22;
-      position.set(input.pointer[0] * parallax, 1.8 + distance * .16, distance);
-      const blend = input.reduced || firstFrame || settle < .05 ? 1 : 1 - Math.exp(-dt * 8);
-      camera.position.lerp(position, blend); target.copy(look); camera.lookAt(target);
+      const placement = exhibitPlacement(input.rect, w, h);
+      display.scale.setScalar(placement.scale);
+      displayOffset.set(placement.x, placement.y, 0).applyQuaternion(camera.quaternion);
+      display.position.copy(displayOffset);
+      display.position.y += 1.8 * (1 - placement.scale);
       const renderStart = review ? performance.now() : 0;
       renderer.render(scene, camera);
       if (nextStageKey !== stageKey) { stageKey = nextStageKey; onStageReady(stageKey || null); }
@@ -276,7 +284,7 @@ export async function createWorld(canvas: HTMLCanvasElement, forceWebGL: boolean
           quality: budget.downgraded ? 'economy' : 'standard',
         });
       }
-      if (!input.reduced && ((!input.paused && (input.exhibit === 'content' || input.exhibit === 'led' || input.exhibit === 'systems')) || settle < 1 || camera.position.distanceTo(position) > .01)) raf = requestAnimationFrame(tick);
+      if (!input.reduced && ((!input.paused && (input.exhibit === 'content' || input.exhibit === 'led' || input.exhibit === 'systems')) || settle < 1)) raf = requestAnimationFrame(tick);
       else last = 0;
     } catch (error) { onFailure(error instanceof Error ? error.message : 'Graphics rendering failed'); }
   };

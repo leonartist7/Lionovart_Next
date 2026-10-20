@@ -21,3 +21,14 @@ export function fitArtwork(aspect: number, width = 6.6, height = 3.71) {
   const ratio = Number.isFinite(aspect) && aspect > 0 ? aspect : 16 / 9;
   return ratio > width / height ? [width, width / ratio] as const : [height * ratio, height] as const;
 }
+
+/** Place foreground displays without ever moving the persistent room camera. */
+export function exhibitPlacement(rect: WorldInput['rect'], viewportWidth: number, viewportHeight: number) {
+  const distance = Math.hypot(24, 3.84);
+  const viewHeight = 2 * distance * Math.tan(35 * Math.PI / 360);
+  return {
+    scale: distance / fitDistance(rect.width, rect.height, viewportWidth, viewportHeight),
+    x: (rect.left + rect.width / 2 - viewportWidth / 2) * viewHeight / viewportHeight,
+    y: (viewportHeight / 2 - rect.top - rect.height * .51) * viewHeight / viewportHeight,
+  };
+}

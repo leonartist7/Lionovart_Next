@@ -53,8 +53,9 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
       const h = innerHeight, w = innerWidth;
       const entry = runway?.getBoundingClientRect();
       const end = root.getBoundingClientRect();
-      const visible = !!entry && entry.top < h && end.bottom > 0 && !document.hidden;
-      const light = entry ? worldLight(entry.top, entry.height) : 1;
+      const visible = end.top < h && end.bottom > 0 && !document.hidden;
+      const staticEntry = root.querySelector('[data-work-services-transition]')?.getAttribute('data-static') === 'true';
+      const light = entry && !staticEntry ? worldLight(entry.top, entry.height) : 1;
       if (light !== lastLight) {
         lastLight = light;
         root.style.setProperty('--world-light', String(light));
@@ -65,7 +66,8 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
       const workBounds = workStage?.getBoundingClientRect();
       const stage = root.querySelector<HTMLElement>('[data-world-service]');
       const s = selection.current;
-      const atWork = !!workBounds && workBounds.top < h * .8 && workBounds.bottom > h * .15;
+      const gallery = workStage?.closest('[data-gallery]')?.getBoundingClientRect();
+      const atWork = !!workBounds && workBounds.top < h * .8 && !!gallery && gallery.bottom > 0;
       const atServices = !!serviceBounds && serviceBounds.top < h * .6 && serviceBounds.bottom > h * .4;
       const rect = atWork ? workBounds! : atServices && stage ? stage.getBoundingClientRect() : { left: 0, top: h * .12, width: w, height: h * .65 };
       const input: WorldInput = {
@@ -129,6 +131,7 @@ export default function ServiceWorld({ children }: { children: ReactNode }) {
   }, [reduced, attempt]);
 
   return <WorldContext.Provider value={context}><div ref={host} className={styles.world} data-service-world data-world-ready={ready}>
+    <div className={styles.environment} data-world-environment aria-hidden="true"><div className={styles.architecture}><i /><i /><i /><i /></div></div>
     <canvas key={`${attempt}-${reduced}`} ref={canvas} className={styles.canvas} aria-hidden="true" />
     <div className={styles.story}>{children}</div>
   </div></WorldContext.Provider>;

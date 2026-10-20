@@ -58,3 +58,16 @@ test('sustained slow animation lowers quality, but startup and isolated stalls d
   assert.equal(budget.summary().samples, 180);
   assert.equal(budget.summary().p95, 40);
 });
+
+const { exhibitPlacement } = await import('../src/components/sections/service-world/world-state.ts');
+test('scrolling a foreground exhibit changes its placement without changing scale or camera framing', () => {
+  for (const [w, h] of [[390, 844], [768, 1024], [1440, 900], [844, 390]]) {
+    const rect = { left: w * .04, top: 80, width: w * .92, height: h * .4 };
+    const start = exhibitPlacement(rect, w, h);
+    const scrolled = exhibitPlacement({ ...rect, top: rect.top - 300 }, w, h);
+    assert.equal(start.scale, scrolled.scale);
+    assert.equal(start.x, scrolled.x);
+    assert.ok(scrolled.y > start.y);
+    assert.ok(Object.values(start).every(Number.isFinite));
+  }
+});
