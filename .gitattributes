@@ -1,0 +1,2 @@
+# Preserve the exact reviewed bytes used by the vendor content hash.
+public/vendor/tubes1.*.mjs text eol=lf

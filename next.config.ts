@@ -30,6 +30,7 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      { source: "/vendor/tubes1.:hash([a-f0-9]+).mjs", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
       { source: "/images/optimized/:file", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
       { source: "/models/lion/:file([a-z-]+\\.[a-f0-9]+\\.webp)", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
     ];

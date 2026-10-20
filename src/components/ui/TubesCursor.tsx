@@ -58,7 +58,7 @@ type TubesCursorConstructor = (canvas: HTMLCanvasElement, options: unknown) => T
 type Phase = "idle" | "approach" | "settled" | "pressed" | "releasing";
 
 const TUBES_CURSOR_MODULE_URL =
-  "https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js";
+  "/vendor/tubes1.c11d86da05253570.mjs";
 
 export default function TubesCursor({
   initialColors = DEFAULT_TUBE_COLORS,

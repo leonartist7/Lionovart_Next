@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
+import ResponsiveImage from "@/components/ui/ResponsiveImage";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 
 const disciplines = [
@@ -107,7 +108,7 @@ export default function CareersExperience() {
       <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between rounded-full border border-white/10 bg-black/55 px-3 py-2 backdrop-blur-xl sm:px-4">
           <Link href="/" className="flex items-center gap-3 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70">
-            <Image src="/images/Icon.avif" alt="" width={36} height={36} className="h-9 w-9 rounded-full object-cover" />
+            <ResponsiveImage src="/images/Icon.avif" alt="" width={36} height={36} sizes="36px" priority preserveAlpha className="h-9 w-9 rounded-full object-cover" />
             <Image src="/images/LOGO.svg" alt="LIONOVART" width={150} height={24} className="hidden h-[18px] w-auto sm:block" />
           </Link>
           <div className="flex items-center gap-2">

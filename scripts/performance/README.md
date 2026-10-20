@@ -69,3 +69,43 @@ Official references:
 - https://github.com/GoogleChrome/lighthouse/blob/main/docs/variability.md
 - https://chromedevtools.github.io/devtools-protocol/tot/Emulation/#method-setDisabledImageTypes
 - https://github.com/Sparticuz/chromium
+
+## Phase 3 regression matrix
+
+Install the pinned Playwright browsers with `npx playwright install chromium webkit`
+from this directory (Linux CI also uses `--with-deps`). Then run:
+
+```sh
+PERF_VERIFY_URL='https://your-exact-lionovart-preview.vercel.app/' node validate.mjs
+PERF_VERIFY_URL='https://your-exact-lionovart-preview.vercel.app/' PERF_ENGINE=webkit node validate.mjs
+node assert-budgets.mjs ../../reports/performance/<run-directory>/summary.json
+```
+
+The runner requires an immutable `lionovartnext-*-lionovart.vercel.app` URL.
+Chromium covers 360/390/768/1024/1440 widths, service detail pages, careers,
+contact, pricing, WebP fallback, reduced motion, menu/service navigation, back
+navigation, three bounded SPA route cycles and a ten-second idle sample.
+WebKit covers mobile/desktop, the same detail routes and reduced motion.
+Chromium also checks a cold and repeat visit with 150 ms latency, 1.6 Mbps
+download and 750 Kbps upload; this is browser network emulation, not a phone.
+It verifies immutable headers and observed disk-cache reuse. `PERF_CASES`
+accepts comma-separated case IDs for a targeted rerun. `PERF_VERIFY_OUTPUT`
+selects the evidence directory. Host-configured credential-free HTTP proxies
+are used without disabling TLS validation. No booking or chat is submitted.
+
+The GitHub workflow runs image/motion/delivery unit tests on the review branch
+and relevant master PRs. Its manual preview job runs both browser matrices,
+three Lighthouse runs and budgets, retaining artifacts for fourteen days.
+It does not deploy or promote production and needs no Vercel token.
+
+Hard median homepage ceilings: total transfer 3,000,000 bytes, images 900,000
+bytes and initial video transfer zero, with at least three valid Lighthouse
+runs and no runtime error. Timing targets (LCP 6500 ms, TBT 1300 ms, CLS 0.1)
+produce advisory warnings because CI machines differ. These are regression
+limits against the Phase 2 delivery improvement, not a claim of optimal speed.
+
+The local cursor bundle retains upstream threejs-components 0.0.19 and all
+its visual code. Two `typeof VideoFrame` guards fix unsupported-browser errors.
+`cursor-compatibility.test.mjs` reverses those exact changes and verifies the
+original published source hash. Source metadata and licenses are under
+`public/vendor/`; only the content-hashed module receives immutable caching.

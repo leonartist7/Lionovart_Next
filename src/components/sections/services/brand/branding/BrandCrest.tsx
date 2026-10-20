@@ -7,8 +7,7 @@
  * through className/style.
  */
 
-import { useId } from "react";
-import { useReducedMotion } from "framer-motion";
+import { useEffect, useId, useRef } from "react";
 
 const GARNET = "#7B1E22";
 const GOLD = "#F0C917";
@@ -23,8 +22,22 @@ export default function BrandCrest({
   style?: React.CSSProperties;
   title?: string;
 }) {
-  const reduce = useReducedMotion();
+  const sheen = useRef<SVGAnimateTransformElement>(null);
   const gid = useId().replace(/:/g, "");
+  // Keep server and first client SVG markup identical. SMIL stays stopped until
+  // the browser preference is known, including when reduced motion is enabled.
+  useEffect(() => {
+    const animation = sheen.current;
+    if (!animation) return;
+    const preference = matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => {
+      if (preference.matches) animation.endElement();
+      else animation.beginElement();
+    };
+    sync();
+    preference.addEventListener("change", sync);
+    return () => preference.removeEventListener("change", sync);
+  }, []);
 
   return (
     <svg
@@ -42,8 +55,9 @@ export default function BrandCrest({
           <stop offset="0%" stopColor={GARNET} />
           <stop offset="50%" stopColor={EMBER} />
           <stop offset="100%" stopColor={GOLD} />
-          {!reduce && (
             <animateTransform
+              ref={sheen}
+              begin="indefinite"
               attributeName="gradientTransform"
               type="rotate"
               from="0 0.5 0.5"
@@ -51,7 +65,6 @@ export default function BrandCrest({
               dur="14s"
               repeatCount="indefinite"
             />
-          )}
         </linearGradient>
       </defs>
 

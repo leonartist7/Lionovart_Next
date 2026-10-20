@@ -1,0 +1,79 @@
+name: Mobile image and performance regression checks
+
+on:
+  push:
+    branches: [review/mobile-image-optimization]
+    paths: ['src/**', 'public/images/**', 'public/models/lion/**', 'scripts/**', '.github/workflows/mobile-performance.yml']
+  pull_request:
+    branches: [master]
+    paths: ['src/**', 'public/images/**', 'public/models/lion/**', 'scripts/**', '.github/workflows/mobile-performance.yml']
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: Exact immutable LIONOVART review preview URL
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  delivery-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Image, motion, navigation and delivery-budget tests
+        run: node --test scripts/intro-readiness.test.mjs scripts/intro-scene.test.mjs scripts/lion-motion.test.mjs scripts/nav-scroll.test.mjs scripts/opening-layout.test.mjs scripts/partnership-motion.test.mjs scripts/process-lion-motion.test.mjs scripts/responsive-images.test.mjs scripts/scroll-experience.test.mjs scripts/performance/budgets.test.mjs scripts/performance/cursor-compatibility.test.mjs
+
+  preview-validation:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      PERF_VERIFY_URL: ${{ inputs.preview_url }}
+      PERF_URLS: ${{ inputs.preview_url }}
+      PERF_VERIFY_OUTPUT: ${{ github.workspace }}/reports/performance/phase3
+      PERF_OUTPUT: ${{ github.workspace }}/reports/performance/lighthouse
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+      - name: Require an exact review preview
+        run: |
+          node --input-type=module -e 'const u=new URL(process.env.PERF_VERIFY_URL); if(u.protocol!=="https:" || !/^lionovartnext-[a-z0-9]+-lionovart\.vercel\.app$/.test(u.hostname) || u.username || u.password || u.search || u.hash || u.pathname!=="/") process.exit(1);'
+      - run: npm ci --prefix scripts/performance --ignore-scripts --no-audit --no-fund
+      - name: Install pinned test browsers
+        working-directory: scripts/performance
+        run: npx playwright install --with-deps chromium webkit
+      - name: Chromium viewport, loading, motion and interaction matrix
+        working-directory: scripts/performance
+        run: node validate.mjs
+      - name: WebKit viewport, motion and interaction matrix
+        if: success() || failure()
+        working-directory: scripts/performance
+        run: PERF_ENGINE=webkit PERF_VERIFY_OUTPUT="$PERF_VERIFY_OUTPUT-webkit" node validate.mjs
+      - name: Collect three mobile Lighthouse runs
+        working-directory: scripts/performance
+        run: |
+          export CHROME_PATH="$(node --input-type=module -e 'import {chromium} from "playwright"; console.log(chromium.executablePath())')"
+          node collect.mjs
+          node summarize.mjs "$PERF_OUTPUT"
+          node assert-budgets.mjs "$PERF_OUTPUT/summary.json"
+      - name: Retain evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: mobile-performance-evidence
+          path: reports/performance/
+          retention-days: 14

@@ -1,0 +1,9 @@
+{
+  "package": "threejs-components",
+  "version": "0.0.19",
+  "url": "https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js",
+  "originalSha256": "676abd6ccd18742a36dcb4ffce66a2052a4f203f240cd8cf97c6ea33a181f81b",
+  "patchedSha256": "c11d86da05253570b63f644445cc219932b14749decf48ac16ba86eac8bee0c1",
+  "file": "tubes1.c11d86da05253570.mjs",
+  "patch": "Only add typeof VideoFrame guards to the two instanceof checks; all rendering code/options remain unchanged."
+}
