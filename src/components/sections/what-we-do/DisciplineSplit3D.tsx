@@ -517,7 +517,7 @@ export default function DisciplineSplit3D({
       safeBottom - sharedCenter - splitAllowance,
     ));
     const scale = Math.min(viewportWidth * 0.96 / sourceWidth,
-      stageWidth * 1.14 / sourceWidth,
+      stageWidth / sourceWidth,
       (wideFilm ? 1400 : 420) / sourceWidth,
       filmHeight / sourceHeight);
     const width = sourceWidth * scale, height = sourceHeight * scale;

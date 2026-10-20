@@ -13,7 +13,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     if (!node || !runway || !copy) return;
     const world = node.closest('[data-service-world]');
     const media = matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)');
-    let frame = 0;
+    let frame = 0, previous = 0;
     let bases: { x: number; y: number; width: number; height: number; scale: number }[] = [];
     const sync = () => {
       frame = 0;
@@ -31,7 +31,9 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       copy.style.opacity = String(media.matches ? 0 : pose.copy);
       copy.style.visibility = !media.matches && pose.copy > .001 ? 'visible' : 'hidden';
       runway.dataset.handoffProgress = pose.progress.toFixed(3);
-      if (media.matches || pose.progress === 0 || bases.length !== panels.length) {
+      const enteringBackwards = previous >= 1 && pose.progress < 1;
+      previous = pose.progress;
+      if (media.matches || pose.progress === 0 || enteringBackwards || bases.length !== panels.length) {
         panels.forEach(panel => {
           panel.style.removeProperty('--handoff-x'); panel.style.removeProperty('--handoff-y'); panel.style.removeProperty('--handoff-scale');
         });
@@ -65,7 +67,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
   }, []);
   return <div className={styles.cardTransition} data-card-transition data-scroll-manual>
     <div ref={intro} className={styles.cardIntro}>{children}</div>
-    <div ref={message} className={styles.shapingMessage} data-shaping-message>
+    <div ref={message} className={styles.shapingMessage} data-shaping-message data-scroll-title-skip>
       <p>{locale === 'fr' ? 'La suite prend forme.' : 'What comes next takes shape.'}</p>
       <h2>{locale === 'fr' ? 'Façonner l’avenir de votre entreprise.' : 'Shaping what comes next for your business.'}</h2>
       <span>{locale === 'fr' ? 'Par la stratégie, le design et les expériences.' : 'Through strategy, design and experiences.'}</span>

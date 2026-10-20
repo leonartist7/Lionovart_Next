@@ -81,3 +81,5 @@
 @media (width < 920px) { .floatingObject { width: 3.25rem; top: .5rem; left: -.25rem; } }
 @media (prefers-reduced-motion:reduce) { .paneSizer { height: 22rem; } }
 @media (prefers-reduced-motion:reduce) and (width < 920px) { .paneSizer { height: 16.5rem; } }
+
+.imagineCaption h2 { font: 400 clamp(1.75rem,3.8vw,3.75rem)/1.08 var(--font-clash-display),sans-serif; text-transform: none; letter-spacing: -.035em; }
