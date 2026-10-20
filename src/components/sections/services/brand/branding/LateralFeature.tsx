@@ -1,4 +1,5 @@
 "use client";
+import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 
@@ -13,7 +14,7 @@ import { usePublicCopy } from "@/hooks/usePublicCopy";
  */
 
 import { useRef } from "react";
-import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 
 const EXPO = { stiffness: 90, damping: 26, mass: 0.7 };
 
@@ -36,7 +37,7 @@ export default function LateralFeature({
   climax = false,
 }: LateralFeatureProps) {
   const tr = usePublicCopy();
-  const reduce = useReducedMotion();
+  const reduce = useHydratedReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -62,7 +63,7 @@ export default function LateralFeature({
   const visual = (
     <div className="relative flex-1">
       {/* behind brand-form (slower) */}
-      <motion.div
+      <motion.div key={reduce ? "reduce-back" : "motion-back"}
         aria-hidden
         style={reduce ? undefined : { x: backX, opacity: fade }}
         className="pointer-events-none absolute -inset-6 -z-[1] rounded-[2rem] blur-[2px]"
@@ -76,7 +77,7 @@ export default function LateralFeature({
       </motion.div>
 
       {/* front visual (faster) */}
-      <motion.div
+      <motion.div key={reduce ? "reduce-front" : "motion-front"}
         style={reduce ? undefined : { x: frontX, scale: frontScale, opacity: fade }}
         className="relative aspect-[4/3] w-full overflow-hidden rounded-[1.75rem] border border-white/10"
       >
@@ -94,7 +95,7 @@ export default function LateralFeature({
   );
 
   const text = (
-    <motion.div
+    <motion.div key={reduce ? "reduce-text" : "motion-text"}
       style={reduce ? undefined : { opacity: fade }}
       className="flex-1"
     >

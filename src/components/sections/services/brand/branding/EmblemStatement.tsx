@@ -1,4 +1,5 @@
 "use client";
+import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 
@@ -8,14 +9,14 @@ import { usePublicCopy } from "@/hooks/usePublicCopy";
  * Reduced-motion: static, in place.
  */
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import BrandCrest from "./BrandCrest";
 
 const EXPO = [0.16, 1, 0.3, 1] as const;
 
 export default function EmblemStatement() {
   const tr = usePublicCopy();
-  const reduce = useReducedMotion();
+  const reduce = useHydratedReducedMotion();
 
   const slide = (from: number) =>
     reduce
@@ -39,7 +40,7 @@ export default function EmblemStatement() {
   return (
     <section className="relative z-10 flex min-h-[80vh] items-center justify-center px-6 py-[12vh]">
       <div className="flex w-full max-w-[1100px] items-center justify-center gap-6 md:gap-12">
-        <motion.p
+        <motion.p key={reduce ? "reduce-0" : "motion-0"}
           {...slide(-60)}
           className="flex-1 text-right font-clash text-xl font-medium uppercase leading-tight tracking-tight text-text-dark-primary md:text-3xl"
         >
@@ -47,11 +48,11 @@ export default function EmblemStatement() {
           <br />{tr("a logo")}
         </motion.p>
 
-        <motion.div {...pop} className="shrink-0">
+        <motion.div key={reduce ? "reduce-1" : "motion-1"} {...pop} className="shrink-0">
           <BrandCrest className="h-40 w-auto md:h-56" />
         </motion.div>
 
-        <motion.p
+        <motion.p key={reduce ? "reduce-2" : "motion-2"}
           {...slide(60)}
           className="flex-1 text-left font-clash text-xl font-medium uppercase leading-tight tracking-tight text-text-dark-primary md:text-3xl"
         >

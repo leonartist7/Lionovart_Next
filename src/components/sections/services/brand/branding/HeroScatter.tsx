@@ -1,4 +1,5 @@
 "use client";
+import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 
@@ -17,7 +18,7 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { useReducedMotion } from "framer-motion";
+
 import { ParallaxLayer } from "./ParallaxLayer";
 import BrandCrest from "./BrandCrest";
 
@@ -81,7 +82,7 @@ function FragmentVisual({ f }: { f: Fragment }) {
 
 export default function HeroScatter() {
   const tr = usePublicCopy();
-  const reduce = useReducedMotion();
+  const reduce = useHydratedReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
   const h1Ref = useRef<HTMLHeadingElement>(null);
@@ -138,7 +139,7 @@ export default function HeroScatter() {
         0,
       );
     },
-    { scope: stickyRef, dependencies: [reduce] },
+    { scope: stickyRef, dependencies: [reduce], revertOnUpdate: true },
   );
 
   return (

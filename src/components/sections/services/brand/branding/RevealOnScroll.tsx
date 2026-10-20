@@ -1,4 +1,5 @@
 "use client";
+import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
 /**
  * Ease-out-expo fade + rise on viewport enter. Content is VISIBLE BY DEFAULT
@@ -9,7 +10,7 @@
  * only when the rise + expo timing matters.
  */
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 
 const EXPO_OUT = [0.16, 1, 0.3, 1] as const;
 
@@ -26,7 +27,7 @@ export default function RevealOnScroll({
   amount = 0.3,
   ...rest
 }: RevealOnScrollProps) {
-  const reduce = useReducedMotion();
+  const reduce = useHydratedReducedMotion();
 
   if (reduce) {
     return <div {...rest}>{children}</div>;
