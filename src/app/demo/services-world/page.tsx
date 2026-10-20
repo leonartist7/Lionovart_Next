@@ -42,7 +42,7 @@ export default function ServicesWorldReview() {
     const element = doc?.querySelector(selector);
     if (!view || !element) return;
     const rect = element.getBoundingClientRect();
-    const y = view.scrollY + rect.top + (progress === undefined ? 0 : -view.innerHeight + rect.height * progress);
+    const y = view.scrollY + rect.top + (progress === undefined ? 0 : -view.innerHeight + (rect.height + view.innerHeight) * progress);
     view.scrollTo({ top: Math.max(0, y), behavior: 'instant' });
   };
   const scale = Math.min(1, available / size[0]);

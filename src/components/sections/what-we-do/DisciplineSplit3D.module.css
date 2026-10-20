@@ -83,3 +83,5 @@
 @media (prefers-reduced-motion:reduce) and (width < 920px) { .paneSizer { height: 16.5rem; } }
 
 .imagineCaption h2 { font: 400 clamp(1.75rem,3.8vw,3.75rem)/1.08 var(--font-clash-display),sans-serif; text-transform: none; letter-spacing: -.035em; }
+
+.floatingObject { filter: opacity(var(--handoff-content,1)); }

@@ -232,3 +232,8 @@
  .card[data-integrated=true] { grid-template-columns: minmax(0,1fr); grid-template-rows: minmax(0,1fr) 11.5rem; }
  .card[data-integrated=true] .tapLabel { left: var(--benefit-inset); }
 }
+
+@media(width < 600px) and (height <= 740px) {
+ .card[data-integrated=true] .serviceLabel, .card[data-integrated=true] .integratedAccent { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+ .card[data-integrated=true] .integratedCopy { display: flex; align-items: center; height: 100%; padding-block: .5rem 2.25rem; }
+}

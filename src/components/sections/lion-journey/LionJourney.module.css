@@ -261,7 +261,7 @@
 }
 
 /* One source-aspect film, divided into three without a second outline. */
-.journey :global([data-opening-imagine="inline"] .opening-video-anchor) { --opening-film-width: min(84vw,20rem,calc((100svh - 16rem) * 9 / 16)); width: var(--opening-film-width); }
+.journey :global([data-opening-imagine="inline"] .opening-video-anchor) { --opening-film-width: min(84vw,20rem); width: var(--opening-film-width); }
 @media(min-width:768px), (min-width:600px) and (min-aspect-ratio:6/5) {
  .journey :global([data-opening-imagine="inline"] .opening-video-anchor) { --opening-film-width: min(64vw,48rem,calc((100svh - 20rem) * 16 / 9)); }
 }
