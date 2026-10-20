@@ -7,6 +7,7 @@ import { useLenis } from "lenis/react";
 import { scrollEase } from "@/components/experience/scroll-policy";
 
 import { ServiceScreen } from "./ScreeningMedia";
+import { exhibitLabel, serviceExhibits } from "./service-triptych";
 import { useDissolveStage } from "@/hooks/useDissolveStage";
 import { useServiceWorld, WorldStageControls } from "./service-world/ServiceWorld";
 
@@ -146,7 +147,7 @@ export default function HomepageServicesChapter() {
   const lenis = useLenis();
   const tr = usePublicCopy();
   const carouselPreview = useServicesCarouselPreview();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const reduceMotion = useHydratedReducedMotion() ?? false;
   const world = useServiceWorld();
   const selectWorld = world?.select;
@@ -186,7 +187,9 @@ export default function HomepageServicesChapter() {
   }, [activeIndex, chapterRef]);
 
   const activeService = services[activeIndex] ?? services[0];
-  const variant = variants[activeService.id] ?? 0;
+  const variant = variants[activeService.id] ?? 1;
+  const exhibitLabels = serviceExhibits(activeService.id).map(exhibit => exhibitLabel(exhibit, locale));
+  const selectVariant = (value: number) => setVariants(previous => ({ ...previous, [activeService.id]: value }));
   const interactive = !!world;
 
   useEffect(() => {
@@ -348,7 +351,7 @@ export default function HomepageServicesChapter() {
               className="flex h-full flex-col items-center justify-center gap-7 sm:gap-9 lg:gap-[clamp(2.75rem,5.5svh,5rem)]"
             >
               {!carouselPreview && <div data-service-media className="relative order-1 shrink-0">
-                {interactive ? <ServiceScreen service={activeService.id} variant={variant} active={stageActive} paused={scenePaused} /> : <div className="h-[40svh] w-[80vw]">
+                {interactive ? <ServiceScreen service={activeService.id} variant={variant} active={stageActive} paused={scenePaused} onVariant={selectVariant} /> : <div className="h-[40svh] w-[80vw]">
                   <ServiceMediaCarousel key={activeService.id} images={activeService.media} alt={`${activeService.title} service visual`} />
                 </div>}
               </div>}
@@ -362,8 +365,8 @@ export default function HomepageServicesChapter() {
                       {activeService.description}
                     </p>
                     {interactive ? <WorldStageControls service={activeService.id} variant={variant}
-                      labels={activeService.deliverables} mediaFirst
-                      onVariant={value => setVariants(previous => ({ ...previous, [activeService.id]: value }))}
+                      labels={exhibitLabels} mediaFirst
+                      onVariant={selectVariant}
                       enabled={ledEnabled} onEnabled={() => setLedEnabled(value => !value)}
                       paused={scenePaused} onPaused={() => setScenePaused(value => !value)} /> : <div data-service-tags className="mx-auto mt-5 flex max-h-[4.6rem] max-w-[38rem] flex-wrap justify-center gap-1.5 overflow-hidden sm:mt-6 sm:max-h-none sm:gap-2 lg:mt-7 lg:max-w-[40rem]">
                       {activeService.deliverables.map((item) => (

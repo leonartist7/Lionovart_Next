@@ -93,4 +93,10 @@
 .world[data-world-mode=media] :global([data-service-title]) { font-size: clamp(1.75rem,3.4vw,3.25rem); }
 .world[data-world-mode=media] :global([data-service-panel]) { top: 7svh; bottom: 6.5rem; }
 .world[data-world-mode=media] :global([data-service-content] [data-service-media]) { width: 100%; }
+.tags[data-triptych-tags=true] { position: relative; display: block; width: min(88vw,35rem); height: 3.25rem; margin: 0 auto; }
+.tags[data-triptych-tags=true] button { position: absolute; width: 32%; left: 34%; top: 0; min-height: 48px; border-radius: 1.5rem; padding: .55rem .45rem; transition: transform 850ms cubic-bezier(.23,1,.32,1), background 200ms ease, border-color 200ms ease; }
+.tags[data-triptych-tags=true] button[data-position=left] { transform: translateX(-106.25%); }
+.tags[data-triptych-tags=true] button[data-position=center] { transform: translateX(0); }
+.tags[data-triptych-tags=true] button[data-position=right] { transform: translateX(106.25%); }
+@media(prefers-reduced-motion:reduce) { .tags[data-triptych-tags=true] button { transition: background 150ms ease; } }
 @media(max-height:740px) and (min-height:561px) { .world[data-world-mode=media] :global([data-service-media]) { max-height: 29svh; } .world[data-world-mode=media] :global([data-service-media] > div) { height: 29svh; min-height: 0; } }

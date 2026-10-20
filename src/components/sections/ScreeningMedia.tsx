@@ -2,7 +2,10 @@
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { GALLERY_WORK } from './selected-work/gallery';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { exhibitLabel, exhibitPosition, serviceExhibits } from './service-triptych';
 import styles from './ScreeningRoom.module.css';
+import glass from './ServiceGlassStage.module.css';
 
 export type ScreeningAsset = { poster: string; video?: string; name: string };
 export function previewVideo(source: string, width: number) {
@@ -38,22 +41,34 @@ export function ScreeningMedia({ asset, active, paused = false, label = true }: 
   </div>;
 }
 
-const SERVICE_REELS: Record<string, readonly string[]> = {
-  branding: ['rakbank', 'oma', 'soda-bold', 'lsi-asia-25'],
-  web: ['home-interior', 'coffeeshop-app-03', 'interactive-platform-3d-hightech', 'perfum-elegant'],
-  'content-studio': ['perfum-elegant', 'soda-bold', 'stormlikes', 'food-snack-bold'],
-  print: ['lsi-asia-25', 'oma', 'lsi-asia-25', 'rakbank'],
-  'smart-systems': ['vantra-facility-os-hitech', 'platform-smart', 'transport-manager-platform-hitech', 'energy-command-hitech'],
-};
-export function ServiceScreen({ service, variant, active, paused }: { service: string; variant: number; active: boolean; paused: boolean }) {
-  const slugs = SERVICE_REELS[service] ?? [];
-  const asset = GALLERY_WORK.find(work => work.slug === slugs[variant % slugs.length]);
-  const examples = slugs.map(slug => GALLERY_WORK.find(work => work.slug === slug)).filter(Boolean);
-  const portrait = service === 'content-studio';
-  const selected: ScreeningAsset = asset ?? { poster: '/images/transparent-led-concept.svg', name: 'Transparent LED · display concept' };
-  return <div className={styles.serviceScreen} data-layout={portrait ? 'portrait' : 'wide'}>
-    {portrait && examples[1] && <div className={styles.sideStill} aria-hidden="true"><Image src={examples[1].poster} alt="" fill sizes="150px" /></div>}
-    <div className={styles.screenMain}><ScreeningMedia key={selected.poster} asset={selected} active={active} paused={paused} /></div>
-    {portrait && examples[2] && <div className={styles.sideStill} aria-hidden="true"><Image src={examples[2].poster} alt="" fill sizes="150px" /></div>}
+export function ServiceScreen({ service, variant, active, paused, onVariant }: { service: string; variant: number; active: boolean; paused: boolean; onVariant: (index: number) => void }) {
+  const { locale } = useLanguage();
+  const exhibits = serviceExhibits(service);
+  return <div className={glass.stage} data-service-triptych data-paused={paused || !active}
+    onPointerDown={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
+    <div className={glass.atmosphere} aria-hidden="true">
+      {exhibits.map((exhibit, index) => <div key={index} className={glass.colorSpill} data-selected={index === variant}
+        style={{ background: `radial-gradient(ellipse at 50% 60%, ${exhibit.tint}55, transparent 66%)` }} />)}
+    </div>
+    <div className={glass.podium} aria-hidden="true">
+      {exhibits.map((exhibit, index) => <div key={index} className={glass.reflectedLight} data-selected={index === variant}
+        style={{ background: `radial-gradient(ellipse at center, ${exhibit.tint}80, transparent 68%)` }} />)}
+      <div className={glass.rim} /><div className={glass.innerRim} />
+      <div key={`${service}-${variant}`} className={glass.lightTrace} />
+    </div>
+    {exhibits.map((exhibit, index) => {
+      const asset: ScreeningAsset = GALLERY_WORK.find(work => work.slug === exhibit.slug) ?? {
+        poster: '/images/transparent-led-concept.svg', name: locale === 'fr' ? 'LED transparent · concept' : 'Transparent LED · display concept',
+      };
+      const position = exhibitPosition(index, variant);
+      const label = exhibitLabel(exhibit, locale);
+      return <div key={`${service}-${index}`} className={glass.card} data-position={position} data-exhibit-index={index}>
+        <div className={glass.edge} aria-hidden="true" />
+        <div className={glass.screen}><ScreeningMedia asset={asset} active={active && position === 'center'} paused={paused} /></div>
+        <span className={glass.cardLabel} aria-hidden="true">{label}</span>
+        <button type="button" className={glass.selectCard} aria-label={label} aria-pressed={position === 'center'}
+          tabIndex={position === 'center' ? -1 : 0} onClick={() => onVariant(index)} />
+      </div>;
+    })}
   </div>;
 }

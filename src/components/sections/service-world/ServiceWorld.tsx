@@ -7,6 +7,7 @@ import { serviceExhibit } from './scene-art';
 import type { WorldEngine } from './world-renderer';
 import { worldLight, smooth, type WorldInput } from './world-state';
 import styles from './ServiceWorld.module.css';
+import { exhibitPosition } from '../service-triptych';
 
 type Selection = { service: string; variant: number; enabled: boolean; paused: boolean };
 const WorldContext = createContext<{ ready: boolean; stageReady: string | null; select: (selection: Selection) => void } | null>(null);
@@ -148,8 +149,8 @@ export function WorldStageControls({ service, variant, onVariant, labels, enable
   const { locale } = useLanguage(); const fr = locale === 'fr';
   return <div className={styles.controls} onPointerDown={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
     <p className={styles.hint}>{fr ? 'Choisissez une expérience' : 'Select an experience'} <span aria-hidden="true">↗</span></p>
-    <div className={styles.tags} role="group" aria-label={fr ? 'Exemples de services' : 'Service examples'}>
-      {labels.map((label, index) => <button type="button" key={label} aria-pressed={variant === index} onClick={() => onVariant(index)}>{label}</button>)}
+    <div className={styles.tags} data-triptych-tags={mediaFirst} role="group" aria-label={fr ? 'Exemples de services' : 'Service examples'}>
+      {labels.map((label, index) => <button type="button" key={label} data-position={mediaFirst ? exhibitPosition(index, variant) : undefined} aria-pressed={variant === index} onClick={() => onVariant(index)}>{label}</button>)}
     </div>
     <div className={styles.utilities}>
       {service === 'led' && !mediaFirst && <button type="button" role="switch" aria-checked={enabled} onClick={onEnabled}>{fr ? 'Écran LED' : 'LED display'} <span>{enabled ? 'ON' : 'OFF'}</span></button>}
