@@ -13,7 +13,6 @@ export function previewVideo(source: string, width: number) {
 export function ScreeningMedia({ asset, active, paused = false, label = true }: { asset: ScreeningAsset; active: boolean; paused?: boolean; label?: boolean }) {
   const video = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
-  const [source, setSource] = useState<string | undefined>();
   useEffect(() => {
     const node = video.current;
     const media = matchMedia('(prefers-reduced-motion: reduce)');
@@ -21,17 +20,18 @@ export function ScreeningMedia({ asset, active, paused = false, label = true }: 
     let disposed = false;
     const sync = () => {
       const allowed = active && !paused && !document.hidden && !media.matches && !connection?.saveData;
-      if (allowed && asset.video) {
-        setSource(previewVideo(asset.video, innerWidth < 768 ? 640 : 1280));
-        if (node?.getAttribute('src')) void node.play().then(() => { if (disposed || document.hidden) node.pause(); }).catch(() => setPlaying(false));
+      if (allowed && asset.video && node) {
+        const source = previewVideo(asset.video, innerWidth < 768 ? 640 : 1280);
+        if (node.getAttribute('src') !== source) { node.src = source; node.load(); }
+        void node.play().catch(() => { if (!disposed) setPlaying(false); });
       } else { node?.pause(); setPlaying(false); }
     };
     sync(); document.addEventListener('visibilitychange', sync); media.addEventListener('change', sync);
     return () => { disposed = true; node?.pause(); document.removeEventListener('visibilitychange', sync); media.removeEventListener('change', sync); };
-  }, [active, paused, asset.video, source]);
+  }, [active, paused, asset.video]);
   return <div className={styles.media} data-screening-media>
     <Image src={asset.poster} alt={asset.name} fill sizes="(max-width: 767px) 90vw, 1100px" loading="lazy" />
-    {asset.video && <video ref={video} src={source} poster={asset.poster} muted playsInline loop preload="none"
+    {asset.video && <video ref={video} poster={asset.poster} muted playsInline loop preload="none"
       onPlaying={() => setPlaying(true)} onPause={() => setPlaying(false)} onError={() => setPlaying(false)} data-playing={playing} aria-hidden="true" />}
     {label && <span className={styles.mediaLabel}>{asset.name}</span>}
   </div>;

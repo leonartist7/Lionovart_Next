@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { usePublicCopy } from '@/hooks/usePublicCopy';
 import { useDissolveStage } from '@/hooks/useDissolveStage';
-import { partnershipPose, PARTNERSHIP_SCROLL_LENGTH } from './partnership-motion';
+import { PARTNERSHIP_SCROLL_LENGTH } from './partnership-motion';
 import PartnershipTiles from './PartnershipTiles';
 import styles from './ScreeningRoom.module.css';
 
@@ -13,7 +13,7 @@ export default function WorkServicesTransition() {
   const { runway, stage } = useDissolveStage();
   const progress = useMotionValue(0);
   const [staticScene, setStaticScene] = useState(false);
-  const headingOpacity = useTransform(progress, p => partnershipPose(p).chapterOpacity);
+  const headingOpacity = useTransform(progress, [0, .84, .98, 1], [1, 1, 0, 0]);
   useEffect(() => {
     const node = runway.current; if (!node) return;
     const media = matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)');
