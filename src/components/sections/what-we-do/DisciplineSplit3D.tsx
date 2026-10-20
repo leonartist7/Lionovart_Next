@@ -408,8 +408,6 @@ export default function DisciplineSplit3D({
      is a direct useTransform of scrollYProgress, not a triggered timeline. --- */
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
   const scrollFlip = useTransform(scrollYProgress, [SPLIT_START, SPLIT_FINISH], [0, 1], { clamp: true });
-  const emptyBenefitScroll = useMotionValue(0);
-  const benefitScroll = journey?.benefitScroll ?? emptyBenefitScroll;
   const rawOpeningProgress = journey?.openingProgress ?? scrollYProgress;
   // Keep the original film choreography; reserve the final third for Imagine.
   const openingProgress = useTransform(rawOpeningProgress, p => Math.min(1, p * 1.6));
@@ -434,7 +432,7 @@ export default function DisciplineSplit3D({
     if (!filmFrame) return "none";
     if (reduce) return "none";
     const geometry = handoffGeometry(filmFrame);
-    return `translateY(${geometry.glassOffset - benefitScroll.get()}px) scale(${geometry.glassX}, ${geometry.glassY})`;
+    return `translateY(${geometry.glassOffset}px) scale(${geometry.glassX}, ${geometry.glassY})`;
   });
   // Opaque card bases prevent a dark dip beneath the fading film crops.
   // Trust enters with the parked film and is complete before the split.
@@ -444,7 +442,7 @@ export default function DisciplineSplit3D({
     const geometry = handoffGeometry(filmFrame);
     const offset = geometry.glassOffset;
     const height = reduce ? filmFrame.stageHeight : geometry.height;
-    return `translateY(${offset + (filmFrame.stageHeight - height) / 2 - benefitScroll.get()}px)`;
+    return `translateY(${offset + (filmFrame.stageHeight - height) / 2}px)`;
   });
   // Let taller phones show more of the film without crowding the invitation.
   // The settled card and proof assembly moves as one, with the short-screen
@@ -550,31 +548,12 @@ export default function DisciplineSplit3D({
 
   useEffect(() => {
     const opening = sectionRef.current?.closest<HTMLElement>(".hero-opening-pinned");
-    const stage = stageRef.current;
-    if (!opening || !stage || !pinned) return;
-    let frame = 0;
-    const measureBenefits = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const cards = Array.from(stage.querySelectorAll<HTMLElement>("[data-imagine-card]"));
-        const heights = cards.map(card => card.offsetHeight);
-        const height = isDesktop ? Math.max(0, ...heights) : heights.reduce((total, h) => total + h, 0);
-        const extra = reduce ? 0 : Math.max(0, height * FINAL_FRAME_SCALE + (proofRef.current?.offsetHeight ?? 112) + (isDesktop ? 140 : 160) - innerHeight);
-        const value = `${Math.ceil(extra)}px`;
-        if (opening.style.getPropertyValue("--opening-front-overflow") !== value) {
-          opening.style.setProperty("--opening-benefit-overflow", "0px");
-          opening.style.setProperty("--opening-front-overflow", value);
-          window.dispatchEvent(new Event("resize"));
-        }
-      });
-    };
-    const observer = new ResizeObserver(measureBenefits);
-    stage.querySelectorAll<HTMLElement>("[data-imagine-card]").forEach(card => observer.observe(card));
-    if (proofRef.current) observer.observe(proofRef.current);
-    window.addEventListener("resize", measureBenefits);
-    measureBenefits();
-    return () => { observer.disconnect(); cancelAnimationFrame(frame); window.removeEventListener("resize", measureBenefits); };
-  }, [isDesktop, pinned, reduce]);
+    if (!opening || !pinned) return;
+    // The divided panels retain the fitted film size, so there is no taller
+    // card stack to scroll through. Expanded benefits scroll inside each card.
+    opening.style.setProperty("--opening-benefit-overflow", "0px");
+    opening.style.setProperty("--opening-front-overflow", "0px");
+  }, [pinned]);
 
   useEffect(() => {
     const v = videoRef.current;

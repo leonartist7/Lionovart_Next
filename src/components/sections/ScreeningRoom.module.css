@@ -66,5 +66,5 @@
 .shapingMessage > span { margin-top: 1.25rem; font: 400 clamp(.8125rem,1.1vw,1rem)/1.5 var(--font-dm-sans),sans-serif; color: #bcb6ad; }
 .cardIntro :global(.opening-proof-stage) { filter: opacity(var(--handoff-proof,1)); }
 .cardIntro :global([data-imagine-card]) { filter: opacity(var(--handoff-content,1)); }
-@media(max-width:767px) { .shapingMessage { padding-top: 50svh; }.shapingMessage h2 { max-width: 16ch; }.shapingMessage p { font-size: .5625rem; margin-bottom: 1rem; } }
+@media(max-width:767px) { .shapingMessage { padding-top: 54svh; }.shapingMessage h2 { max-width: 16ch; }.shapingMessage p { font-size: .5625rem; margin-bottom: 1rem; } }
 @media(max-height:560px), (prefers-reduced-motion:reduce) { .shapingMessage { display: none; }.cardIntro { translate: none !important; } }
