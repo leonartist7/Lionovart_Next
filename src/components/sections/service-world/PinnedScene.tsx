@@ -45,6 +45,7 @@ export default function PinnedScene({ children, environment }: { children: React
           opacity = chapterOpacity(bounds.top, Math.max(bounds.bottom, innerHeight), innerHeight) * handoff.services;
           surface.style.setProperty('--service-gallery-copy', String(handoff.serviceCopy));
           surface.dataset.galleryGathering = String(handoff.progress > 0);
+          surface.style.setProperty('--service-gallery-gather', String(handoff.gather));
           const media = surface.querySelector<HTMLElement>('[data-service-media]');
           if (media) {
             const r = media.getBoundingClientRect();
@@ -53,17 +54,6 @@ export default function PinnedScene({ children, environment }: { children: React
             media.style.translate = `0 ${(innerHeight * .54 - baseY) * handoff.gather}px`;
             media.style.scale = String(1 - .26 * handoff.gather);
           }
-          surface.querySelectorAll<HTMLElement>('[data-exhibit-index]').forEach(card => {
-            if (!handoff.progress) {
-              card.style.removeProperty('transform'); card.style.removeProperty('opacity'); card.style.removeProperty('transition');
-              return;
-            }
-            const side = card.dataset.position === 'center' ? 0 : card.dataset.position === 'left' ? -1 : 1;
-            const phone = innerWidth < 768;
-            card.style.transition = 'none';
-            card.style.transform = `translate3d(${side * (phone ? 60 : 68) * (1 - handoff.gather)}%, ${side ? (phone ? 2 : 3) * (1 - handoff.gather) : 0}%, ${side ? -(phone ? 210 : 300) * (1 - handoff.gather) - 70 * handoff.gather : 0}px)`;
-            card.style.opacity = String(side ? .48 + .32 * handoff.gather : 1);
-          });
         }
         if (handoff && chapter === 'work') {
           opacity = handoff.gallery * chapterOpacity(Math.min(bounds.top, 0), bounds.bottom, innerHeight);
