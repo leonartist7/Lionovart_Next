@@ -107,7 +107,7 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
         <motion.div ref={coverRef} className={styles.detailCover} animate={cover} aria-hidden={integrated ? showBenefit : true}>
           {integrated && <div className={styles.integratedCopy}>
             <p className={styles.serviceLabel}>{serviceTitle}</p>
-            <h3>{tr(item.title)}</h3>
+            <h3 data-benefit-title>{tr(item.title)}</h3>
             {accent && <p className={styles.integratedAccent}>{accent}</p>}
           </div>}
         </motion.div>
