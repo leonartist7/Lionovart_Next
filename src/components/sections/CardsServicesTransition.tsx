@@ -73,7 +73,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         const turns = base.height > base.width * 1.1 && r.width > r.height;
         const scaleX = (turns ? r.height : r.width) / Math.max(1, base.width);
         const scaleY = (turns ? r.width : r.height) / Math.max(1, base.height);
-        const inset = innerWidth < 768 && index === 0 ? Math.min(10, innerWidth * .025) * pose.move * (1 - pose.fit) : 0;
+        const inset = innerWidth < 768 && index !== 1 ? (index === 0 ? Math.min(32, innerWidth * .08) : -Math.min(24, innerWidth * .06)) * pose.move * (1 - pose.fit) : 0;
         const lift = index === 1 ? 0 : Math.min(80, innerHeight * .09) * pose.move * (1 - pose.fit);
         panel.style.setProperty('--handoff-x', `${((r.x + r.width / 2 - base.x) * pose.move + inset) / base.scale}px`);
         panel.style.setProperty('--handoff-y', `${((r.y + r.height / 2 - base.y) * pose.move - lift) / base.scale}px`);
