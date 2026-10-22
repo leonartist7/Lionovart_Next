@@ -45,6 +45,13 @@ export default function ServicesWorldReview() {
     const y = view.scrollY + rect.top + (progress === undefined ? 0 : -view.innerHeight + (rect.height + view.innerHeight) * progress);
     view.scrollTo({ top: Math.max(0, y), behavior: 'instant' });
   };
+  const seekBridge = (progress: number) => {
+    const view = iframe.current?.contentWindow, doc = iframe.current?.contentDocument;
+    const gallery = doc?.querySelector('[data-gallery-runway]');
+    if (!view || !gallery) return;
+    const rect = gallery.getBoundingClientRect();
+    view.scrollTo({ top: view.scrollY + rect.top - view.innerHeight * 1.1 * (1 - progress), behavior: 'instant' });
+  };
   const scale = Math.min(1, available / size[0]);
   const seekGallery = (progress: number) => {
     const view = iframe.current?.contentWindow, doc = iframe.current?.contentDocument;
@@ -66,8 +73,9 @@ export default function ServicesWorldReview() {
     </header>
     <nav aria-label="Journey review" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
       <button style={button} onClick={() => seek('#imagine')}>Split cards</button>
-      {[0, .2, .35, .65, .85].map(p => <button key={p} style={button} onClick={() => seek('[data-card-exit]', p)}>Handoff {Math.round(p * 100)}%</button>)}
+      {[0, .2, .35, .55, .7, .85].map(p => <button key={p} style={button} onClick={() => seek('[data-card-exit]', p)}>Handoff {Math.round(p * 100)}%</button>)}
       {([['Services','[data-services-runway]'],['Selected work','[data-gallery]'],['Partnership','#partnership'],['About','#about']] as const).map(([label,selector]) => <button key={label} style={button} onClick={() => seek(selector)}>{label}</button>)}
+      {[0, .3, .5, .7, 1].map(p => <button key={`bridge-${p}`} style={button} onClick={() => seekBridge(p)}>Work arrival {Math.round(p * 100)}%</button>)}
       {[0, .25, .5, .75, .92].map(p => <button key={`gallery-${p}`} style={button} onClick={() => seekGallery(p)}>Gallery {Math.round(p * 100)}%</button>)}
     </nav>
     <details style={{ marginBottom: 12, maxWidth: 1440, fontSize: 13 }} open>

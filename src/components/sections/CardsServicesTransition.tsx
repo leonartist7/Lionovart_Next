@@ -60,19 +60,21 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       }
       if (media.matches || !pose.progress) return;
       // Keep the original faces. Portrait panels turn on their own plane
-      // during transport so their long edge arrives horizontally.
+      // after the reading hold, as their content dissolves into the service outline.
       panels.forEach((panel, index) => {
         const base = bases[index];
         const position = index === 0 ? 'left' : index === 1 ? 'center' : 'right';
         const target = targets.find(el => el.dataset.position === position);
         if (!base || !target) return;
-        const r = target.getBoundingClientRect();
+        const r = (target.querySelector('[data-screening-media]') ?? target).getBoundingClientRect();
         const turns = base.height > base.width * 1.1 && r.width > r.height;
-        const scale = Math.min(1, r.width / Math.max(1, turns ? base.height : base.width), r.height / Math.max(1, turns ? base.width : base.height));
+        const scaleX = (turns ? r.height : r.width) / Math.max(1, base.width);
+        const scaleY = (turns ? r.width : r.height) / Math.max(1, base.height);
+        const lift = index === 1 ? 0 : Math.min(80, innerHeight * .09) * pose.move * (1 - pose.fit);
         panel.style.setProperty('--handoff-x', `${(r.x + r.width / 2 - base.x) * pose.move / base.scale}px`);
-        panel.style.setProperty('--handoff-y', `${(r.y + r.height / 2 - base.y) * pose.move / base.scale}px`);
-        panel.style.setProperty('--handoff-scale', String(1 + (scale - 1) * pose.move));
-        panel.style.setProperty('--handoff-rotate', `${turns ? 90 * pose.move : 0}deg`);
+        panel.style.setProperty('--handoff-y', `${((r.y + r.height / 2 - base.y) * pose.move - lift) / base.scale}px`);
+        panel.style.setProperty('--handoff-scale', `${1 + (scaleX - 1) * pose.fit} ${1 + (scaleY - 1) * pose.fit}`);
+        panel.style.setProperty('--handoff-rotate', `${turns ? 90 * pose.fit : 0}deg`);
         // Match the service triptych's center-first depth before it dissolves in.
         // The target bounds already include its perspective: scaling to those
         // bounds preserves the fixed panel outline without a second projection.

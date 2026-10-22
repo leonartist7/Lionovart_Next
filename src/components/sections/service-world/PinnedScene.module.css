@@ -19,3 +19,8 @@
 .layers :global([data-shaping-message]) { position: absolute; }
 
 .layers :global([data-scene-opening] [data-nova-section=problems]) { filter: opacity(var(--handoff-proof,1)); }
+
+.layers :global([data-services-stage] [data-service-copy]),
+.layers :global([data-services-stage] [data-services-arrival-layer]),
+.layers :global([data-services-stage] [data-service-triptych] > [aria-hidden=true]),
+.layers :global([data-services-stage] [data-exhibit-index] > span) { filter: opacity(var(--service-gallery-copy,1)); }

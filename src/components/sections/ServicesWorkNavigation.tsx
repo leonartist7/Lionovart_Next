@@ -64,8 +64,8 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
   const [visible, setVisible] = useState(false);
   useMotionValueEvent(handoff, "change", value => setWorkMode(value >= .5));
   useMotionValueEvent(visibility, "change", value => setVisible(value > .01));
-  const serviceOpacity = useTransform(handoff, [0, .4, .5, 1], [1, 0, 0, 0]);
-  const workOpacity = useTransform(handoff, [0, .5, .7, 1], [0, 0, 1, 1]);
+  const serviceOpacity = useTransform(handoff, [0, .35, .65, 1], [1, 1, 0, 0]);
+  const workOpacity = useTransform(handoff, [0, .35, .65, 1], [0, 0, 1, 1]);
 
   useEffect(() => {
     if (!client) return;
@@ -78,8 +78,8 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
       const h = window.innerHeight;
       const rect = services.getBoundingClientRect();
       const workRect = work?.getBoundingClientRect();
-      const serviceVisibility = clamp(1 - rect.top / (h * .2)) * clamp((rect.bottom - h * .4) / (h * .5));
-      const workVisibility = workRect ? clamp((h * .5 - workRect.top) / (h * .3)) * clamp((workRect.bottom - h * .12) / (h * .15)) : 0;
+      const serviceVisibility = clamp(1 - rect.top / (h * .2)) * clamp(rect.bottom / (h * .2));
+      const workVisibility = workRect ? clamp((h * .8 - workRect.top) / (h * .3)) * clamp((workRect.bottom - h * .12) / (h * .15)) : 0;
       visibility.set(Math.max(serviceVisibility, workVisibility));
       handoff.set(workRect ? clamp((h * .75 - workRect.top) / (h * .45)) : 0);
     };

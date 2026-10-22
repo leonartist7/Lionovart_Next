@@ -6,8 +6,8 @@
 .header { position: absolute; top: clamp(5.5rem,12svh,8rem); left: 5vw; right: 5vw; display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; z-index: 10; pointer-events: none; }
 .header h2 { margin: 0; font: 400 clamp(2rem,4.5vw,4.5rem)/1 var(--font-clash-display),sans-serif; letter-spacing: -.04em; }
 .header p { margin: 0; color: #88765d; font: italic 400 clamp(1rem,1.5vw,1.5rem)/1.4 var(--font-playfair-display),Georgia,serif; }
-.corridor { --gallery-wall-offset: 42vw; position: absolute; inset: 0; perspective: 1000px; perspective-origin: 50% 48%; transform-style: preserve-3d; pointer-events: none; }
-.panel { position: absolute; left: 50%; top: 48%; width: min(44vw,40rem); aspect-ratio: 16/11; transform-style: preserve-3d; will-change: transform,opacity; }
+.corridor { --gallery-wall-offset: 33vw; --gallery-wall-angle: 16deg; position: absolute; inset: 0; perspective: 1000px; perspective-origin: 50% 48%; transform-style: preserve-3d; pointer-events: none; }
+.panel { position: absolute; left: 50%; top: 54%; width: min(44vw,40rem); aspect-ratio: 16/11; transform-style: preserve-3d; will-change: transform,opacity; }
 .project { position: relative; display: block; width: 100%; height: 100%; padding: 0; border: 0; border-radius: .25rem; background: transparent; color: #554b3e; cursor: pointer; pointer-events: auto; }
 .screen { position: absolute; inset: 0; container-type: size; }
 .projectName { position: absolute; top: calc(100% + .9rem); left: .5rem; right: .5rem; display: flex; justify-content: space-between; gap: 1rem; font: 400 clamp(.8125rem,1vw,1.125rem)/1.3 var(--font-clash-display),sans-serif; }
@@ -37,8 +37,8 @@
 .stage[data-walkthrough-pinned=false] .ending > img { margin: 0 auto 2rem; border-radius: 50%; }
 .section:has([data-walkthrough-pinned=false]) .runway { height: auto; }
 @media(max-width:767px) {
-  .corridor { --gallery-wall-offset: 53vw; }
-  .panel { width: 69vw; aspect-ratio: 16/12; }
+  .corridor { --gallery-wall-offset: 35vw; --gallery-wall-angle: 12deg; }
+  .panel { width: 62vw; aspect-ratio: 16/12; }
   .header { top: 6rem; left: 1.5rem; right: 1.5rem; flex-direction: column; align-items: center; text-align: center; gap: .75rem; }
   .logo { top: 38%; width: 6rem; }
   .ending { top: 51%; }

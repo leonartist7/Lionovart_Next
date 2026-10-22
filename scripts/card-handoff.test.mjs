@@ -7,9 +7,9 @@ test('the shaping beat remains dark and legible before the light transition', ()
  const at=p=>cardHandoff(h-p*(runway+h),runway,h);
  assert.equal(at(0).intro,1);
  assert.equal(at(0).copy,0);
- assert.equal(at(.45).copy,1);
+ assert.equal(at(.76).copy,1);
  assert.equal(at(.35).light,0);
- assert.ok(at(.35).move>0 && at(.35).move<1);
+ assert.ok(at(.18).move>0 && at(.18).move<1);
  assert.equal(at(.7).move,1);
  assert.equal(at(1).intro,0);
  assert.equal(at(1).copy,0);
@@ -42,14 +42,17 @@ test('the opening and services dissolve together without an empty frame', async(
  }
 });
 
-test('the painted interior clears during transport and leaves glass before the warm room', () => {
+test('benefit titles hold after gathering, then dissolve during the service-frame fit', () => {
  const at=p=>cardHandoff(900-p*2340,1440,900);
- assert.equal(at(.03).dissolve,0);
- assert.equal(at(.03).glass,0);
- assert.ok(at(.2).dissolve>0 && at(.2).dissolve<1);
- assert.equal(at(.38).dissolve,1);
- assert.equal(at(.38).glass,1);
- assert.equal(at(.38).move,1);
- assert.equal(at(.38).light,0);
- assert.equal(at(.55).dissolve,1);
+ assert.equal(at(.35).move,1);
+ assert.equal(at(.35).dissolve,0);
+ assert.equal(at(.35).fit,0);
+ assert.equal(at(.35).copy,0);
+ assert.equal(at(.44).dissolve,0);
+ assert.ok(at(.55).dissolve>0 && at(.55).dissolve<1);
+ assert.equal(at(.55).dissolve,at(.55).fit);
+ assert.equal(at(.7).dissolve,1);
+ assert.equal(at(.7).glass,1);
+ assert.equal(at(.7).fit,1);
+ assert.equal(at(.7).light,0);
 });

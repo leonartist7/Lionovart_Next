@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties, type MouseEvent } from 'react';
 import Image from 'next/image';
 import { motion, useMotionValue, useMotionValueEvent, useTransform, type MotionValue } from 'framer-motion';
 import { useLenis } from 'lenis/react';
@@ -12,20 +12,22 @@ import { usePublicCopy } from '@/hooks/usePublicCopy';
 import { ScenePortal, usePinnedScene } from './service-world/PinnedScene';
 import { ScreeningMedia } from './ScreeningMedia';
 import type { GalleryWork } from './selected-work/gallery';
+import { serviceGalleryHandoff } from './service-gallery-handoff';
 import { galleryCardPose, galleryEnding, galleryPairProgress, galleryProgress, galleryTravel, GALLERY_DEPTH_STEP } from './gallery-journey';
 import styles from './GalleryWalkthrough.module.css';
 
-function GalleryPanel({ work, index, pairs, progress, near, active, onSelect }: {
-  work: GalleryWork; index: number; pairs: number; progress: MotionValue<number>;
+function GalleryPanel({ work, index, pairs, progress, entry, near, active, onSelect }: {
+  work: GalleryWork; index: number; pairs: number; progress: MotionValue<number>; entry: MotionValue<number>;
   near: boolean; active: boolean; onSelect: (slug: string) => void;
 }) {
   const pair = Math.floor(index / 2), side = index % 2 ? 1 : -1;
   const [visible, setVisible] = useState(pair < 4);
-  const transform = useTransform(progress, p => {
-    const { z } = galleryCardPose(p, pair, pairs);
-    return `translate3d(calc(${side} * var(--gallery-wall-offset)), ${pair % 2 ? '-2svh' : '2svh'}, ${z}px) translate(-50%,-50%) rotateY(${-side * 20}deg)`;
+  const transform = useTransform(() => {
+    const spread = entry.get();
+    const { z } = galleryCardPose(progress.get(), pair, pairs);
+    return `translate3d(calc(${side * spread} * var(--gallery-wall-offset)), ${(pair % 2 ? -2 : 2) * spread}svh, ${-350 - index * 18 * (1 - spread) + (z + 350) * spread}px) translate(-50%,-50%) rotateY(calc(${-side * spread} * var(--gallery-wall-angle)))`;
   });
-  const opacity = useTransform(progress, p => galleryCardPose(p, pair, pairs).opacity);
+  const opacity = useTransform(() => galleryCardPose(progress.get(), pair, pairs).opacity * (pair < 3 ? 1 : entry.get()));
   useMotionValueEvent(progress, 'change', p => setVisible(galleryCardPose(p, pair, pairs).visible));
   return <motion.div className={styles.panel} data-gallery-panel data-gallery-index={index}
     style={{ transform, opacity }} inert={!near || !active} aria-hidden={!near}>
@@ -46,10 +48,11 @@ export default function GalleryWalkthrough({ projects, onSelect, previewOpen, se
   const tr = usePublicCopy();
   const { runway, stage, active } = useDissolveStage();
   const progress = useMotionValue(0);
+  const entry = useMotionValue(0), arrivalTitle = useMotionValue(0);
   const [pair, setPair] = useState(0), [ending, setEnding] = useState(false), [walking, setWalking] = useState(true);
   const pairs = Math.max(1, Math.ceil(projects.length / 2));
   const pinned = !!scene?.target;
-  const titleOpacity = useTransform(progress, p => galleryEnding(p).header);
+  const titleOpacity = useTransform(() => galleryEnding(progress.get()).header * arrivalTitle.get());
   const logoTransform = useTransform(progress, p => `translate(-50%,-50%) translateZ(${galleryEnding(p).logoZ}px)`);
   const logoOpacity = useTransform(progress, p => galleryEnding(p).logo);
   const copyOpacity = useTransform(progress, p => galleryEnding(p).copy);
@@ -69,13 +72,16 @@ export default function GalleryWalkthrough({ projects, onSelect, previewOpen, se
       const box = anchor.getBoundingClientRect();
       const value = pinned ? galleryProgress(box.top, box.height, innerHeight) : 0;
       progress.set(value);
+      const arrival = serviceGalleryHandoff(box.top, innerHeight);
+      entry.set(pinned ? arrival.spread : 1);
+      arrivalTitle.set(pinned ? arrival.title : 1);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
     const observer = new ResizeObserver(schedule); observer.observe(anchor);
     window.addEventListener('scroll', schedule, { passive: true }); window.addEventListener('resize', schedule);
     sync();
     return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); };
-  }, [pinned, progress, runway]);
+  }, [pinned, progress, entry, arrivalTitle, runway]);
 
   useEffect(() => {
     if (!['#selected-work', '#partnership'].includes(location.hash)) return;
@@ -102,6 +108,19 @@ export default function GalleryWalkthrough({ projects, onSelect, previewOpen, se
     else window.scrollTo({ top: y, behavior: 'smooth' });
   };
 
+  const continueTo = (event: MouseEvent<HTMLAnchorElement>, hash: '#about' | '#client-experience') => {
+    // Preserve modified-click/browser behavior; ordinary activation stays in this document.
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const target = document.querySelector<HTMLElement>(hash === '#about' ? '[data-about-runway]' : hash);
+    if (!target) return;
+    event.preventDefault();
+    history.replaceState(null, '', hash);
+    const top = scrollY + target.getBoundingClientRect().top - (hash === '#about' && pinned ? 0 : 64);
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (lenis) lenis.scrollTo(top, { duration: .9, immediate: reduced, userData: { navigation: true } });
+    else window.scrollTo({ top, behavior: reduced ? 'instant' : 'smooth' });
+  };
+
   return <section id="selected-work" className={styles.section} data-gallery="compact" data-gallery-story data-nav-surface="light"
     data-scroll-title-skip data-curves={servicesCurves} aria-labelledby="selected-work-heading">
     <div ref={runway} className={styles.runway} data-gallery-runway style={{ '--gallery-runway': `${Math.max(6, pairs * .55 + 2.6) * 100}svh` } as CSSProperties}>
@@ -113,7 +132,7 @@ export default function GalleryWalkthrough({ projects, onSelect, previewOpen, se
         </motion.header>
         {pinned ? <div className={styles.corridor} data-gallery-corridor>
           {projects.map((work, index) => <GalleryPanel key={work.slug} work={work} index={index} pairs={pairs}
-            progress={progress} near={Math.floor(index / 2) === pair && !ending} active={active && !previewOpen}
+            progress={progress} entry={entry} near={Math.floor(index / 2) === pair && !ending} active={active && !previewOpen}
             onSelect={onSelect} />)}
           <motion.div className={styles.logo} data-gallery-logo style={{ transform: logoTransform, opacity: logoOpacity }}>
             <Image src="/images/lionovart-icon.svg" alt="LIONOVART" width={160} height={160} />
@@ -129,8 +148,8 @@ export default function GalleryWalkthrough({ projects, onSelect, previewOpen, se
           <h2>{tr('One partnership')}</h2>
           <p>{tr('Designing your legacy')}</p>
           <motion.div className={styles.links} style={{ opacity: pinned ? linkOpacity : 1 }} inert={pinned && !ending} aria-hidden={pinned && !ending}>
-            <a href="#about">{fr ? 'Rencontrez le studio' : 'Meet the studio'}<ArrowDown aria-hidden="true" /></a>
-            <a href="#client-experience">{fr ? 'Découvrez nos résultats' : 'See our results'}<ArrowUpRight aria-hidden="true" /></a>
+            <a href="#about" onClick={event => continueTo(event, '#about')}>{fr ? 'Rencontrez le studio' : 'Meet the studio'}<ArrowDown aria-hidden="true" /></a>
+            <a href="#client-experience" onClick={event => continueTo(event, '#client-experience')}>{fr ? 'Découvrez nos résultats' : 'See our results'}<ArrowDown aria-hidden="true" /></a>
           </motion.div>
         </motion.div>
         {pinned && <motion.nav className={styles.navigation} style={{ opacity: navOpacity }} aria-label={fr ? 'Parcourir les projets' : 'Browse the gallery'} inert={!walking} aria-hidden={!walking}>

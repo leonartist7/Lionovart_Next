@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { chapterOpacity } from '../chapter-dissolve';
+import { serviceGalleryHandoff } from '../service-gallery-handoff';
 import styles from './PinnedScene.module.css';
 
 type Chapter = { anchor: HTMLElement; surface: HTMLElement; onActive: (active: boolean) => void };
@@ -34,16 +35,48 @@ export default function PinnedScene({ children, environment }: { children: React
     const sync = () => {
       frame = 0;
       let current = 'opening';
+      const gallery = target.closest('[data-service-world]')?.querySelector<HTMLElement>('[data-gallery-runway]');
+      const handoff = gallery ? serviceGalleryHandoff(gallery.getBoundingClientRect().top, innerHeight) : null;
       for (const { anchor, surface, onActive } of chapters.current) {
         const bounds = anchor.getBoundingClientRect();
-        const opacity = chapterOpacity(bounds.top, bounds.bottom, innerHeight);
-        const active = opacity > .5 && !document.hidden;
+        const chapter = surface.dataset.sceneChapter;
+        let opacity = chapterOpacity(bounds.top, bounds.bottom, innerHeight);
+        if (handoff && chapter === 'services') {
+          opacity = chapterOpacity(bounds.top, Math.max(bounds.bottom, innerHeight), innerHeight) * handoff.services;
+          surface.style.setProperty('--service-gallery-copy', String(handoff.serviceCopy));
+          surface.dataset.galleryGathering = String(handoff.progress > 0);
+          const media = surface.querySelector<HTMLElement>('[data-service-media]');
+          if (media) {
+            const r = media.getBoundingClientRect();
+            const previousY = Number.parseFloat(media.style.translate.split(' ')[1]) || 0;
+            const baseY = r.y + r.height / 2 - previousY;
+            media.style.translate = `0 ${(innerHeight * .54 - baseY) * handoff.gather}px`;
+            media.style.scale = String(1 - .26 * handoff.gather);
+          }
+          surface.querySelectorAll<HTMLElement>('[data-exhibit-index]').forEach(card => {
+            if (!handoff.progress) {
+              card.style.removeProperty('transform'); card.style.removeProperty('opacity'); card.style.removeProperty('transition');
+              return;
+            }
+            const side = card.dataset.position === 'center' ? 0 : card.dataset.position === 'left' ? -1 : 1;
+            const phone = innerWidth < 768;
+            card.style.transition = 'none';
+            card.style.transform = `translate3d(${side * (phone ? 60 : 68) * (1 - handoff.gather)}%, ${side ? (phone ? 2 : 3) * (1 - handoff.gather) : 0}%, ${side ? -(phone ? 210 : 300) * (1 - handoff.gather) - 70 * handoff.gather : 0}px)`;
+            card.style.opacity = String(side ? .48 + .32 * handoff.gather : 1);
+          });
+        }
+        if (handoff && chapter === 'work') {
+          opacity = handoff.gallery * chapterOpacity(Math.min(bounds.top, 0), bounds.bottom, innerHeight);
+          surface.dataset.galleryEntry = handoff.progress.toFixed(3);
+        }
+        const interactive = chapter === 'services' ? !handoff || handoff.progress < .04 : chapter === 'work' ? !handoff || handoff.spread > .8 : true;
+        const active = opacity > .5 && interactive && !document.hidden;
         surface.style.opacity = String(opacity);
         surface.style.visibility = opacity > .001 ? 'visible' : 'hidden';
         surface.style.pointerEvents = active ? 'auto' : 'none';
         surface.inert = !active;
         surface.dataset.chapterActive = String(active);
-        if (active) current = surface.dataset.sceneChapter ?? current;
+        if (opacity > .5) current = surface.dataset.sceneChapter ?? current;
         onActive(active);
       }
       if (targetRef.current) targetRef.current.dataset.activeChapter = current;

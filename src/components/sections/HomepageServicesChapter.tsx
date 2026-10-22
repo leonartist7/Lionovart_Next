@@ -357,7 +357,7 @@ export default function HomepageServicesChapter() {
                 </div>}
               </div>}
 
-              <div className="order-2 flex min-w-0 flex-col justify-center text-center">
+              <div data-service-copy className="order-2 flex min-w-0 flex-col justify-center text-center">
                 <div>
                     <h3 data-service-title className="mx-auto max-w-[13ch] font-clash text-[clamp(2.15rem,8.6vw,3.75rem)] font-semibold uppercase leading-[0.86] tracking-[-0.052em] sm:text-[clamp(2.45rem,7.5vw,4.5rem)] lg:max-w-[11ch] lg:text-[clamp(3.2rem,5vw,6.2rem)]">
                       {activeService.title}
