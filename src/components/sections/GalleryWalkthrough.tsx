@@ -42,7 +42,7 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
     return `translate3d(calc(${side * spread * (1 - focus)} * var(--gallery-wall-offset)), ${(pair % 2 ? -2 : 2) * spread * (1 - focus)}svh, ${depth}px) translate(-50%,-50%) rotateY(calc(${-side * spread * (1 - focus)} * var(--gallery-wall-angle))) scale(${size})`;
   });
   const opacity = useTransform(() => galleryCardPose(progress.get(), pair, pairs).opacity * (pair < 3 ? 1 : entry.get()) * (reduce ? dimTarget.get() : dimSpring.get()));
-  const labelOpacity = useTransform(entry, [0, .65, 1], [0, 0, 1]);
+  const labelOpacity = useTransform(() => Math.max(0, Math.min(1, (entry.get() - .65) / .35)) * Math.max(0, ((reduce ? dimTarget.get() : dimSpring.get()) - .35) / .65));
   useMotionValueEvent(progress, 'change', p => setVisible(galleryCardPose(p, pair, pairs).visible));
   return <motion.div className={styles.panel} data-gallery-panel data-gallery-index={index} data-focused={selected}
     style={{ transform, opacity }} inert={!near || !active} aria-hidden={!near}>
