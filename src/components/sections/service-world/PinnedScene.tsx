@@ -46,13 +46,15 @@ export default function PinnedScene({ children, environment }: { children: React
           surface.style.setProperty('--service-gallery-copy', String(handoff.serviceCopy));
           surface.dataset.galleryGathering = String(handoff.progress > 0);
           surface.style.setProperty('--service-gallery-gather', String(handoff.gather));
+          surface.style.setProperty('--service-gallery-release', String(handoff.spread));
+          surface.style.setProperty('--service-release-x', `${(innerWidth < 768 ? .35 : .33) * document.documentElement.clientWidth / 1.35}px`);
           const media = surface.querySelector<HTMLElement>('[data-service-media]');
           if (media) {
-            const r = media.getBoundingClientRect();
+            const r = (media.querySelector('[data-position=center] [data-screening-media]') ?? media).getBoundingClientRect();
             const previousY = Number.parseFloat(media.style.translate.split(' ')[1]) || 0;
             const baseY = r.y + r.height / 2 - previousY;
-            media.style.translate = `0 ${(innerHeight * .54 - baseY) * handoff.gather}px`;
-            media.style.scale = String(1 - .26 * handoff.gather);
+            media.style.translate = `0 ${((innerHeight * .54 - baseY) * handoff.gather) + innerHeight * .02 / 1.35 * handoff.spread}px`;
+            media.style.removeProperty('scale');
           }
         }
         if (handoff && chapter === 'work') {

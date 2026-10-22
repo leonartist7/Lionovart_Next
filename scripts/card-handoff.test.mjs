@@ -8,6 +8,9 @@ test('the shaping beat remains dark and legible before the light transition', ()
  assert.equal(at(0).intro,1);
  assert.equal(at(0).copy,0);
  assert.equal(at(.76).copy,1);
+ assert.equal(at(.2).copy,1);
+ assert.equal(at(.06).proof,0);
+ assert.ok(at(.12).copy>0 && at(.12).move>0 && at(.12).move<1);
  assert.equal(at(.35).light,0);
  assert.ok(at(.18).move>0 && at(.18).move<1);
  assert.equal(at(.7).move,1);
@@ -47,7 +50,7 @@ test('benefit titles hold after gathering, then dissolve during the service-fram
  assert.equal(at(.35).move,1);
  assert.equal(at(.35).dissolve,0);
  assert.equal(at(.35).fit,0);
- assert.equal(at(.35).copy,0);
+ assert.equal(at(.35).copy,1);
  assert.equal(at(.44).dissolve,0);
  assert.ok(at(.55).dissolve>0 && at(.55).dissolve<1);
  assert.equal(at(.55).dissolve,at(.55).fit);

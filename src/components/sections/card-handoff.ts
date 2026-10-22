@@ -6,13 +6,13 @@ export function cardHandoff(top: number, height: number, viewport: number) {
   return {
     progress,
     move: smooth((progress - .04) / .24),
-    copy: smooth((progress - .64) / .10) * (1 - smooth((progress - .84) / .16)),
+    copy: smooth((progress - .06) / .12) * (1 - smooth((progress - .84) / .16)),
     // Gather first, hold the benefit titles, then dissolve while fitting the service outline.
     fit: smooth((progress - .46) / .22),
     dissolve: smooth((progress - .46) / .22),
     glass: smooth((progress - .46) / .18),
     intro: 1 - smooth((viewport * .75 - (top + height)) / Math.max(1, viewport * .5)),
     light: smooth((progress - .76) / .24),
-    proof: 1 - smooth(progress / .16),
+    proof: 1 - smooth(progress / .05),
   };
 }

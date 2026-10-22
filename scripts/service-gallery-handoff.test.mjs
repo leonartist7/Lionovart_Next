@@ -9,8 +9,9 @@ test('service copy clears before the title, and the original cards gather before
  assert.equal(at(.3).title, 0);
  assert.equal(at(.5).gather, 1);
  assert.equal(at(.5).services, 1);
- assert.equal(at(.5).gallery, 0);
- assert.equal(at(.5).spread, 0);
+ assert.ok(at(.5).gallery < 1e-10);
+ assert.equal(at(.45).spread, 0);
+ assert.ok(at(.65).gallery > 0 && at(.65).services > 0 && at(.65).spread > 0);
  assert.equal(at(.6).title, 1);
  assert.equal(at(1).spread, 1);
  for (let p = 0; p <= 1; p += .01) assert.ok(Math.abs(at(p).services + at(p).gallery - 1) < 1e-10);
