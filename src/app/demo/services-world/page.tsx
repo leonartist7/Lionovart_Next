@@ -73,7 +73,7 @@ export default function ServicesWorldReview() {
     </header>
     <nav aria-label="Journey review" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
       <button style={button} onClick={() => seek('#imagine')}>Split cards</button>
-      {[0, .2, .35, .55, .7, .85].map(p => <button key={p} style={button} onClick={() => seek('[data-card-exit]', p)}>Handoff {Math.round(p * 100)}%</button>)}
+      {[0, .2, .28, .35, .42, .55, .7, .78, .85, .9].map(p => <button key={p} style={button} onClick={() => seek('[data-card-exit]', p)}>Handoff {Math.round(p * 100)}%</button>)}
       {([['Services','[data-services-runway]'],['Selected work','[data-gallery]'],['Partnership','#partnership'],['About','#about']] as const).map(([label,selector]) => <button key={label} style={button} onClick={() => seek(selector)}>{label}</button>)}
       {[0, .3, .5, .7, 1].map(p => <button key={`bridge-${p}`} style={button} onClick={() => seekBridge(p)}>Work arrival {Math.round(p * 100)}%</button>)}
       {[0, .25, .5, .75, .92].map(p => <button key={`gallery-${p}`} style={button} onClick={() => seekGallery(p)}>Gallery {Math.round(p * 100)}%</button>)}

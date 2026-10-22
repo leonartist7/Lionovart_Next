@@ -39,6 +39,21 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         });
         previousDissolve = dissolve;
       }
+      // The middle frame fills through the same field in reverse, while the
+      // rear frames retire. Service text waits until shaping has fully left.
+      const services = world?.querySelector<HTMLElement>('[data-services-stage]');
+      const reveal = media.matches ? 1 : pose.serviceReveal;
+      services?.style.setProperty('--service-opening-copy', String(media.matches ? 1 : pose.serviceCopy));
+      services?.style.setProperty('--service-opening-sides', String(media.matches ? 1 : pose.serviceSides));
+      const triptych = services?.querySelector<HTMLElement>('[data-service-triptych]');
+      const centerMedia = triptych?.querySelector<HTMLElement>('[data-position=center] [data-screening-media]');
+      triptych?.querySelectorAll<SVGElement>('[data-service-merge-cutoff]').forEach(cutoff => {
+        cutoff.setAttribute('intercept', String((cutoff.dataset.serviceMergeCutoff === 'edge' ? 1.24 : 1) - (1 - reveal) * 14));
+      });
+      if (centerMedia) {
+        centerMedia.style.filter = reveal > 0 && reveal < 1 ? `url(#${triptych?.dataset.serviceMergeFilter})` : 'none';
+        centerMedia.style.opacity = reveal === 0 ? '0' : '1';
+      }
       node.style.setProperty('--handoff-proof', String(media.matches ? 1 : pose.proof));
       node.inert = !media.matches && pose.progress > .12;
       copy.style.opacity = String(media.matches ? 0 : pose.copy);
@@ -82,15 +97,21 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         // Match the service triptych's center-first depth before it dissolves in.
         // The target bounds already include its perspective: scaling to those
         // bounds preserves the fixed panel outline without a second projection.
-        panel.style.setProperty('--handoff-depth', String(index === 1 ? 1 : 1 - .38 * pose.move));
+        panel.style.setProperty('--handoff-depth', String(index === 1 ? 1 : (1 - .38 * pose.move) * pose.rear));
       });
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
     const resize = () => { bases = []; schedule(); };
     const observer = new ResizeObserver(resize); observer.observe(node);
+    const replacements = new MutationObserver(schedule);
+    if (world) replacements.observe(world, { childList: true, subtree: true });
     window.addEventListener('scroll', schedule, { passive: true }); window.addEventListener('resize', resize);
     media.addEventListener('change', resize); void document.fonts.ready.then(resize); sync();
-    return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', resize); media.removeEventListener('change', resize); };
+    return () => {
+      world?.querySelector<HTMLElement>('[data-services-stage]')?.style.removeProperty('--service-opening-copy');
+      world?.querySelector<HTMLElement>('[data-services-stage]')?.style.removeProperty('--service-opening-sides');
+      world?.querySelectorAll<HTMLElement>('[data-service-triptych] [data-screening-media]').forEach(el => { el.style.removeProperty('filter'); el.style.removeProperty('opacity'); });
+      cancelAnimationFrame(frame); observer.disconnect(); replacements.disconnect(); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', resize); media.removeEventListener('change', resize); };
   }, [scene?.target]);
   return <div className={styles.cardTransition} data-card-transition data-scroll-manual>
     <div ref={intro} className={styles.cardIntro}>{children}</div>

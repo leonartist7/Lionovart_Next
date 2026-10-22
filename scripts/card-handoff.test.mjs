@@ -7,10 +7,13 @@ test('the shaping beat remains dark and legible before the light transition', ()
  const at=p=>cardHandoff(h-p*(runway+h),runway,h);
  assert.equal(at(0).intro,1);
  assert.equal(at(0).copy,0);
- assert.equal(at(.76).copy,1);
- assert.equal(at(.2).copy,1);
+ assert.equal(at(.6).copy,1);
+ assert.equal(at(.2).copy,0);
  assert.equal(at(.06).proof,0);
- assert.ok(at(.12).copy>0 && at(.12).move>0 && at(.12).move<1);
+ assert.equal(at(.28).copy,0);
+ assert.equal(at(.28).move,1);
+ assert.ok(at(.35).copy>0 && at(.35).copy<1);
+ assert.equal(at(.42).copy,1);
  assert.equal(at(.35).light,0);
  assert.ok(at(.18).move>0 && at(.18).move<1);
  assert.equal(at(.7).move,1);
@@ -33,16 +36,22 @@ test('deep links and invalid runway lengths remain bounded',()=>{
  }
 });
 
-test('the opening and services dissolve together without an empty frame', async()=>{
- const { chapterOpacity }=await import('../src/components/sections/chapter-dissolve.ts');
- for(const h of [568,844,900,1180]) {
-  const runway=h*1.6;
-  for(let serviceTop=h;serviceTop>=0;serviceTop-=h/100) {
-   const opening=cardHandoff(serviceTop-runway,runway,h).intro;
-   const incoming=chapterOpacity(serviceTop,serviceTop+h*3.4,h);
-   assert.ok(Math.abs(opening+incoming-1)<1e-10);
-  }
+test('the middle frame merges into service media while shaping and service copy never overlap',()=>{
+ for(const h of [568,844,900,1180]) for(let step=0;step<=1000;step++) {
+  const p=step/1000, pose=cardHandoff(h-p*h*2.6,h*1.6,h);
+  assert.ok(Math.abs(pose.intro+pose.serviceReveal-1)<1e-10);
+  assert.equal(pose.copy*pose.serviceCopy,0,`text overlap at ${p}`);
+  if(p<.28) assert.equal(pose.copy,0);
+  if(p>.80) assert.equal(pose.rear,0);
+  if(p<=.86) assert.ok(pose.serviceSides<1e-10);
  }
+ const at=p=>cardHandoff(900-p*2340,1440,900);
+ assert.ok(at(.78).serviceReveal>0 && at(.78).serviceReveal<1);
+ assert.equal(at(.78).copy,0);
+ assert.equal(at(.78).serviceCopy,0);
+ assert.equal(at(.90).serviceReveal,1);
+ assert.equal(at(1).serviceCopy,1);
+ assert.equal(at(1).serviceSides,1);
 });
 
 test('benefit titles hold after gathering, then dissolve during the service-frame fit', () => {
@@ -50,7 +59,7 @@ test('benefit titles hold after gathering, then dissolve during the service-fram
  assert.equal(at(.35).move,1);
  assert.equal(at(.35).dissolve,0);
  assert.equal(at(.35).fit,0);
- assert.equal(at(.35).copy,1);
+ assert.equal(at(.44).copy,1);
  assert.equal(at(.44).dissolve,0);
  assert.ok(at(.55).dissolve>0 && at(.55).dissolve<1);
  assert.equal(at(.55).dissolve,at(.55).fit);

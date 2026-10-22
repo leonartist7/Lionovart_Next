@@ -1,5 +1,6 @@
 "use client";
 
+import HandoffDissolveFilter from '../HandoffDissolveFilter';
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import styles from "./DisciplineSplit3D.module.css";
 
@@ -196,27 +197,7 @@ function Pane({
       <div aria-hidden="true" className={`opening-pane-sizing ${styles.paneSizer} pointer-events-none w-full pb-52 pt-[100%] max-[920px]:h-[var(--opening-art-size)] max-[920px]:p-0`} />
       {/* A static noise field makes the entire painted face evaporate,
           including its backing. Only thresholds change while scrolling. */}
-      <svg width="0" height="0" aria-hidden="true" className={styles.dissolveDefinitions}>
-        <defs>
-          <filter id={dissolveId} x="-5%" y="-5%" width="110%" height="110%" colorInterpolationFilters="sRGB">
-            <feTurbulence type="fractalNoise" baseFrequency=".012 .024" numOctaves="2" seed={17 + i * 13} result="flow" />
-            <feColorMatrix in="flow" type="luminanceToAlpha" result="field" />
-            <feComponentTransfer in="field" result="remaining">
-              <feFuncA type="linear" slope="12" intercept="1" data-dissolve-cutoff="surface" />
-            </feComponentTransfer>
-            <feComponentTransfer in="field" result="halo">
-              <feFuncA type="linear" slope="12" intercept="1.24" data-dissolve-cutoff="edge" />
-            </feComponentTransfer>
-            <feComposite in="halo" in2="remaining" operator="arithmetic" k2="1" k3="-1" result="rim" />
-            <feComposite in="rim" in2="SourceAlpha" operator="in" result="boundedRim" />
-            <feGaussianBlur in="boundedRim" stdDeviation=".7" result="softRim" />
-            <feFlood floodColor="#ede5d7" floodOpacity=".45" result="light" />
-            <feComposite in="light" in2="softRim" operator="in" result="litRim" />
-            <feComposite in="SourceGraphic" in2="remaining" operator="in" result="dissolved" />
-            <feMerge><feMergeNode in="dissolved" /><feMergeNode in="litRim" /></feMerge>
-          </filter>
-        </defs>
-      </svg>
+      <HandoffDissolveFilter id={dissolveId} seed={17 + i * 13} />
       <div className={styles.handoffGlass} data-handoff-glass aria-hidden="true" />
       {/* The glass body rises underneath the fading, unbroken film. */}
       <motion.div

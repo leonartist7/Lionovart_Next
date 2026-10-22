@@ -23,4 +23,7 @@
 .layers :global([data-services-stage] [data-service-copy]),
 .layers :global([data-services-stage] [data-services-arrival-layer]),
 .layers :global([data-services-stage] [data-service-triptych] > [aria-hidden=true]),
-.layers :global([data-services-stage] [data-exhibit-index] > span) { filter: opacity(var(--service-gallery-copy,1)); }
+.layers :global([data-services-stage] [data-exhibit-index] > span) { filter: opacity(calc(var(--service-opening-copy,1) * var(--service-gallery-copy,1))); }
+
+/* Rear exhibits arrive after the inherited middle frame has filled. */
+.layers :global([data-services-stage] [data-exhibit-index]:not([data-position=center]) > div) { opacity: var(--service-opening-sides,1); }

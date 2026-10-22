@@ -1,6 +1,7 @@
 'use client';
 import Image from 'next/image';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import HandoffDissolveFilter from './HandoffDissolveFilter';
+import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import { GALLERY_WORK } from './selected-work/gallery';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { exhibitLabel, exhibitPosition, serviceExhibits } from './service-triptych';
@@ -48,8 +49,10 @@ export function ScreeningMedia({ asset, active, paused = false, label = true }: 
 export function ServiceScreen({ service, variant, active, paused, onVariant }: { service: string; variant: number; active: boolean; paused: boolean; onVariant: (index: number) => void }) {
   const { locale } = useLanguage();
   const exhibits = serviceExhibits(service);
-  return <div className={glass.stage} data-service-triptych data-paused={paused || !active}
+  const mergeId = `service-merge-${useId().replace(/:/g, "")}`;
+  return <div className={glass.stage} data-service-triptych data-service-merge-filter={mergeId} data-paused={paused || !active}
     onPointerDown={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
+    <HandoffDissolveFilter id={mergeId} seed={30} incoming />
     <div className={glass.atmosphere} aria-hidden="true">
       {exhibits.map((exhibit, index) => <div key={index} className={glass.colorSpill} data-selected={index === variant}
         style={{ background: `radial-gradient(ellipse closest-side at 50% 50%, ${exhibit.tint}55, transparent 100%)` }} />)}

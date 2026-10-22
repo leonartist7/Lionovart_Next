@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { cardHandoff } from '../card-handoff';
 import { chapterOpacity } from '../chapter-dissolve';
 import { serviceGalleryHandoff } from '../service-gallery-handoff';
 import styles from './PinnedScene.module.css';
@@ -35,14 +36,20 @@ export default function PinnedScene({ children, environment }: { children: React
     const sync = () => {
       frame = 0;
       let current = 'opening';
-      const gallery = target.closest('[data-service-world]')?.querySelector<HTMLElement>('[data-gallery-runway]');
+      const root = target.closest('[data-service-world]');
+      const gallery = root?.querySelector<HTMLElement>('[data-gallery-runway]');
+      const exit = root?.querySelector<HTMLElement>('[data-card-exit]')?.getBoundingClientRect();
+      const opening = exit ? cardHandoff(exit.top, exit.height, innerHeight) : null;
       const handoff = gallery ? serviceGalleryHandoff(gallery.getBoundingClientRect().top, innerHeight) : null;
       for (const { anchor, surface, onActive } of chapters.current) {
         const bounds = anchor.getBoundingClientRect();
         const chapter = surface.dataset.sceneChapter;
         let opacity = chapterOpacity(bounds.top, bounds.bottom, innerHeight);
         if (handoff && chapter === 'services') {
-          opacity = chapterOpacity(bounds.top, Math.max(bounds.bottom, innerHeight), innerHeight) * handoff.services;
+          // Media reveal owns the entrance; its field must not be multiplied
+          // by the generic chapter fade. Copy/atmosphere have a separate gate.
+          const entering = opening && opening.progress < 1;
+          opacity = (entering ? Number(opening.serviceReveal > 0) : chapterOpacity(bounds.top, Math.max(bounds.bottom, innerHeight), innerHeight)) * handoff.services;
           surface.style.setProperty('--service-gallery-copy', String(handoff.serviceCopy));
           surface.dataset.galleryGathering = String(handoff.progress > 0);
           surface.style.setProperty('--service-gallery-gather', String(handoff.gather));
@@ -62,7 +69,7 @@ export default function PinnedScene({ children, environment }: { children: React
           surface.style.setProperty('--gallery-arrival-media', String(handoff.gallery));
           surface.dataset.galleryEntry = handoff.progress.toFixed(3);
         }
-        const interactive = chapter === 'services' ? !handoff || handoff.progress < .04 : chapter === 'work' ? !handoff || handoff.spread > .8 : true;
+        const interactive = chapter === 'services' ? (!opening || opening.serviceCopy > .8) && (!handoff || handoff.progress < .04) : chapter === 'work' ? !handoff || handoff.spread > .8 : true;
         const active = opacity > .5 && interactive && !document.hidden;
         surface.style.opacity = String(opacity);
         surface.style.visibility = opacity > .001 ? 'visible' : 'hidden';
