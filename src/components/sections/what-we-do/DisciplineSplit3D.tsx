@@ -205,12 +205,12 @@ function Pane({
               <feFuncA type="linear" slope="12" intercept="1" data-dissolve-cutoff="surface" />
             </feComponentTransfer>
             <feComponentTransfer in="field" result="halo">
-              <feFuncA type="linear" slope="12" intercept="1.45" data-dissolve-cutoff="edge" />
+              <feFuncA type="linear" slope="12" intercept="1.24" data-dissolve-cutoff="edge" />
             </feComponentTransfer>
-            <feComposite in="halo" in2="remaining" operator="out" result="rim" />
+            <feComposite in="halo" in2="remaining" operator="arithmetic" k2="1" k3="-1" result="rim" />
             <feComposite in="rim" in2="SourceAlpha" operator="in" result="boundedRim" />
             <feGaussianBlur in="boundedRim" stdDeviation=".7" result="softRim" />
-            <feFlood floodColor="#ede5d7" floodOpacity=".7" result="light" />
+            <feFlood floodColor="#ede5d7" floodOpacity=".45" result="light" />
             <feComposite in="light" in2="softRim" operator="in" result="litRim" />
             <feComposite in="SourceGraphic" in2="remaining" operator="in" result="dissolved" />
             <feMerge><feMergeNode in="dissolved" /><feMergeNode in="litRim" /></feMerge>

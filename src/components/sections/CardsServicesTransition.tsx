@@ -35,7 +35,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           surface.style.opacity = dissolve === 1 ? '0' : '1';
         });
         node.querySelectorAll<SVGElement>('[data-dissolve-cutoff]').forEach(cutoff => {
-          cutoff.setAttribute('intercept', String((cutoff.dataset.dissolveCutoff === 'edge' ? 1.45 : 1) - dissolve * 14));
+          cutoff.setAttribute('intercept', String((cutoff.dataset.dissolveCutoff === 'edge' ? 1.24 : 1) - dissolve * 14));
         });
         previousDissolve = dissolve;
       }
