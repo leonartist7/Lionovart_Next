@@ -107,9 +107,22 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
     const observer = new ResizeObserver(schedule); observer.observe(anchor);
+    // Media metadata and service replacement can change the fitted width after
+    // the scroll frame. Keep the entry match current even while the reader rests.
+    const geometry = new ResizeObserver(schedule);
+    let measured: Element[] = [];
+    const refresh = () => {
+      const next = [scene?.target?.querySelector('[data-services-stage] [data-position=center] [data-screening-media]'),
+        stage.current?.querySelector('[data-gallery-index="0"] [data-screening-media]')].filter((node): node is Element => !!node);
+      if (next.length === measured.length && next.every((node, index) => node === measured[index])) return;
+      geometry.disconnect(); measured = next; measured.forEach(node => geometry.observe(node)); schedule();
+    };
+    const replacements = new MutationObserver(refresh);
+    if (scene?.target) replacements.observe(scene.target, { childList: true, subtree: true });
+    refresh();
     window.addEventListener('scroll', schedule, { passive: true }); window.addEventListener('resize', schedule);
     sync();
-    return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); };
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); geometry.disconnect(); replacements.disconnect(); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); };
   }, [pinned, progress, entry, entryScale, arrivalTitle, runway, scene?.target, stage]);
 
   useEffect(() => {
