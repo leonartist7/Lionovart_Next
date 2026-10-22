@@ -28,12 +28,13 @@ function GalleryPanel({ work, index, pairs, progress, entry, near, active, onSel
     return `translate3d(calc(${side * spread} * var(--gallery-wall-offset)), ${(pair % 2 ? -2 : 2) * spread}svh, ${-350 - index * 18 * (1 - spread) + (z + 350) * spread}px) translate(-50%,-50%) rotateY(calc(${-side * spread} * var(--gallery-wall-angle)))`;
   });
   const opacity = useTransform(() => galleryCardPose(progress.get(), pair, pairs).opacity * (pair < 3 ? 1 : entry.get()));
+  const labelOpacity = useTransform(entry, [0, .65, 1], [0, 0, 1]);
   useMotionValueEvent(progress, 'change', p => setVisible(galleryCardPose(p, pair, pairs).visible));
   return <motion.div className={styles.panel} data-gallery-panel data-gallery-index={index}
     style={{ transform, opacity }} inert={!near || !active} aria-hidden={!near}>
     {visible && <Dialog.Trigger className={styles.project} onClick={() => onSelect(work.slug)} aria-label={`View work: ${work.name}`}>
       <div className={styles.screen}><ScreeningMedia asset={work} active={active && near && side < 0} label={false} /></div>
-      <span className={styles.projectName}>{work.name}<ArrowUpRight aria-hidden="true" /></span>
+      <motion.span className={styles.projectName} style={{ opacity: labelOpacity }}>{work.name}<ArrowUpRight aria-hidden="true" /></motion.span>
     </Dialog.Trigger>}
   </motion.div>;
 }
@@ -58,7 +59,7 @@ export default function GalleryWalkthrough({ projects, onSelect, previewOpen, se
   const copyOpacity = useTransform(progress, p => galleryEnding(p).copy);
   const copyTransform = useTransform(progress, p => `translateY(${(1 - galleryEnding(p).copy) * 16}px)`);
   const linkOpacity = useTransform(progress, p => galleryEnding(p).links);
-  const navOpacity = useTransform(progress, p => 1 - galleryEnding(p).copy);
+  const navOpacity = useTransform(() => (1 - galleryEnding(progress.get()).copy) * entry.get());
   useMotionValueEvent(progress, 'change', p => {
     setPair(Math.min(pairs - 1, Math.max(0, Math.round(galleryTravel(p, pairs) / GALLERY_DEPTH_STEP))));
     setEnding(galleryEnding(p).links > .7);
