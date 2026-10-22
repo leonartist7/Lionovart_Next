@@ -3,7 +3,7 @@
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import styles from "./DisciplineSplit3D.module.css";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import {
   motion,
   cubicBezier,
@@ -149,6 +149,7 @@ function Pane({
   interactive: boolean;
   pointerX: MotionValue<number>; pointerY: MotionValue<number>;
 }) {
+  const dissolveId = `card-dissolve-${useId().replace(/:/g, "")}`;
   const splitP = useLocalProgress(flip, HANDOFF_START, HANDOFF_END);
   const cardP = splitP;
 
@@ -193,9 +194,34 @@ function Pane({
       {/* Desktop contains the full artwork above the copy; shorter screens
           reduce the art area's height while phones keep the side-by-side art. */}
       <div aria-hidden="true" className={`opening-pane-sizing ${styles.paneSizer} pointer-events-none w-full pb-52 pt-[100%] max-[920px]:h-[var(--opening-art-size)] max-[920px]:p-0`} />
+      {/* A static noise field makes the entire painted face evaporate,
+          including its backing. Only thresholds change while scrolling. */}
+      <svg width="0" height="0" aria-hidden="true" className={styles.dissolveDefinitions}>
+        <defs>
+          <filter id={dissolveId} x="-5%" y="-5%" width="110%" height="110%" colorInterpolationFilters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency=".012 .024" numOctaves="2" seed={17 + i * 13} result="flow" />
+            <feColorMatrix in="flow" type="luminanceToAlpha" result="field" />
+            <feComponentTransfer in="field" result="remaining">
+              <feFuncA type="linear" slope="12" intercept="1" data-dissolve-cutoff="surface" />
+            </feComponentTransfer>
+            <feComponentTransfer in="field" result="halo">
+              <feFuncA type="linear" slope="12" intercept="1.45" data-dissolve-cutoff="edge" />
+            </feComponentTransfer>
+            <feComposite in="halo" in2="remaining" operator="out" result="rim" />
+            <feComposite in="rim" in2="SourceAlpha" operator="in" result="boundedRim" />
+            <feGaussianBlur in="boundedRim" stdDeviation=".7" result="softRim" />
+            <feFlood floodColor="#ede5d7" floodOpacity=".7" result="light" />
+            <feComposite in="light" in2="softRim" operator="in" result="litRim" />
+            <feComposite in="SourceGraphic" in2="remaining" operator="in" result="dissolved" />
+            <feMerge><feMergeNode in="dissolved" /><feMergeNode in="litRim" /></feMerge>
+          </filter>
+        </defs>
+      </svg>
+      <div className={styles.handoffGlass} data-handoff-glass aria-hidden="true" />
       {/* The glass body rises underneath the fading, unbroken film. */}
       <motion.div
         className="absolute inset-0 z-[1] rounded-[inherit]"
+        data-handoff-surface={dissolveId}
         style={{
           z: cardZ,
           transformStyle: "preserve-3d",
@@ -318,11 +344,11 @@ function Pane({
           ) : null}
 
         </div>
-      </motion.div>
-      <motion.div className={styles.floatingObject} data-floating-card-object={card.code} aria-hidden="true"
-        style={{ opacity: reducedMotion ? 1 : objectOpacity, scale: objectScale, x: objectX, y: objectY, rotateY: objectTurn, z: reducedMotion ? 0 : 72 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={FLOATING_ART[i]} width={320} height={320} alt="" loading="lazy" decoding="async" />
+        <motion.div className={styles.floatingObject} data-floating-card-object={card.code} aria-hidden="true"
+          style={{ opacity: reducedMotion ? 1 : objectOpacity, scale: objectScale, x: objectX, y: objectY, rotateY: objectTurn, z: reducedMotion ? 0 : 72 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={FLOATING_ART[i]} width={320} height={320} alt="" loading="lazy" decoding="async" />
+        </motion.div>
       </motion.div>
     </motion.div>
   );

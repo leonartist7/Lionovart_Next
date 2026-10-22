@@ -15,7 +15,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     if (!node || !runway || !copy) return;
     const world = node.closest('[data-service-world]');
     const media = matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)');
-    let frame = 0, previous = 0;
+    let frame = 0, previous = 0, previousDissolve = -1;
     let bases: { x: number; y: number; width: number; height: number; scale: number }[] = [];
     const sync = () => {
       frame = 0;
@@ -25,7 +25,20 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       const targets = Array.from(world?.querySelectorAll<HTMLElement>('[data-service-triptych] [data-exhibit-index]') ?? []);
 
       node.style.opacity = media.matches ? '1' : String(pose.intro);
-      node.style.setProperty('--handoff-content', String(media.matches ? 1 : pose.content));
+      node.style.setProperty('--handoff-glass', String(media.matches ? 0 : pose.glass));
+      const dissolve = media.matches ? 0 : pose.dissolve;
+      // No idle shader loop: this reversible field only updates on scroll,
+      // and the SVG filter is released at both fully opaque/clear endpoints.
+      if (dissolve !== previousDissolve) {
+        node.querySelectorAll<HTMLElement>('[data-handoff-surface]').forEach(surface => {
+          surface.style.filter = dissolve > 0 && dissolve < 1 ? `url(#${surface.dataset.handoffSurface})` : 'none';
+          surface.style.opacity = dissolve === 1 ? '0' : '1';
+        });
+        node.querySelectorAll<SVGElement>('[data-dissolve-cutoff]').forEach(cutoff => {
+          cutoff.setAttribute('intercept', String((cutoff.dataset.dissolveCutoff === 'edge' ? 1.45 : 1) - dissolve * 14));
+        });
+        previousDissolve = dissolve;
+      }
       node.style.setProperty('--handoff-proof', String(media.matches ? 1 : pose.proof));
       node.inert = !media.matches && pose.progress > .12;
       copy.style.opacity = String(media.matches ? 0 : pose.copy);

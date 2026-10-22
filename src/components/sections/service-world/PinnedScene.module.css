@@ -12,7 +12,6 @@
 .layers :global([data-scene-opening] .hero-opening-stage) { position: absolute; inset: 0; height: 100%; overflow: visible; }
 .layers :global([data-scene-opening] .opening-hero-layer) { position: absolute; inset: 0; z-index: 2; }
 .layers :global([data-scene-opening] .opening-proof-stage) { filter: opacity(var(--handoff-proof,1)); }
-.layers :global([data-scene-opening] [data-imagine-card]) { filter: opacity(var(--handoff-content,1)); }
 .layers :global([data-services-stage]) { z-index: 4; color: #171412; }
 .layers :global([data-gallery-stage]) { z-index: 5; }
 .layers :global([data-work-scene]) { z-index: 6; }

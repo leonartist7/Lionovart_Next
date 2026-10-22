@@ -41,3 +41,15 @@ test('the opening and services dissolve together without an empty frame', async(
   }
  }
 });
+
+test('the painted interior clears during transport and leaves glass before the warm room', () => {
+ const at=p=>cardHandoff(900-p*2340,1440,900);
+ assert.equal(at(.03).dissolve,0);
+ assert.equal(at(.03).glass,0);
+ assert.ok(at(.2).dissolve>0 && at(.2).dissolve<1);
+ assert.equal(at(.38).dissolve,1);
+ assert.equal(at(.38).glass,1);
+ assert.equal(at(.38).move,1);
+ assert.equal(at(.38).light,0);
+ assert.equal(at(.55).dissolve,1);
+});
