@@ -114,6 +114,7 @@ export default function GalleryWalkthrough({ projects, onSelect, previewOpen, se
     const target = document.querySelector<HTMLElement>(hash === '#about' ? '[data-about-runway]' : hash);
     if (!target) return;
     event.preventDefault();
+    event.stopPropagation(); // The root Lenis anchor listener must not replace this runway destination.
     history.replaceState(null, '', hash);
     const top = scrollY + target.getBoundingClientRect().top - (hash === '#about' && pinned ? 0 : 64);
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
