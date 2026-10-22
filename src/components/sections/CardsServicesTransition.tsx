@@ -16,6 +16,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     const world = node.closest('[data-service-world]');
     const media = matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)');
     let frame = 0, previous = 0, previousDissolve = -1;
+    let fittedMedia: HTMLElement | null = null;
     let bases: { x: number; y: number; width: number; height: number; scale: number }[] = [];
     const sync = () => {
       frame = 0;
@@ -47,6 +48,10 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       services?.style.setProperty('--service-opening-sides', String(media.matches ? 1 : pose.serviceSides));
       const triptych = services?.querySelector<HTMLElement>('[data-service-triptych]');
       const centerMedia = triptych?.querySelector<HTMLElement>('[data-position=center] [data-screening-media]');
+      if (centerMedia !== fittedMedia) {
+        geometry.disconnect(); fittedMedia = centerMedia ?? null;
+        if (fittedMedia) geometry.observe(fittedMedia);
+      }
       triptych?.querySelectorAll<SVGElement>('[data-service-merge-cutoff]').forEach(cutoff => {
         cutoff.setAttribute('intercept', String((cutoff.dataset.serviceMergeCutoff === 'edge' ? 1.24 : 1) - (1 - reveal) * 14));
       });
@@ -103,6 +108,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
     const resize = () => { bases = []; schedule(); };
     const observer = new ResizeObserver(resize); observer.observe(node);
+    const geometry = new ResizeObserver(schedule);
     const replacements = new MutationObserver(schedule);
     if (world) replacements.observe(world, { childList: true, subtree: true });
     window.addEventListener('scroll', schedule, { passive: true }); window.addEventListener('resize', resize);
@@ -111,7 +117,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       world?.querySelector<HTMLElement>('[data-services-stage]')?.style.removeProperty('--service-opening-copy');
       world?.querySelector<HTMLElement>('[data-services-stage]')?.style.removeProperty('--service-opening-sides');
       world?.querySelectorAll<HTMLElement>('[data-service-triptych] [data-screening-media]').forEach(el => { el.style.removeProperty('filter'); el.style.removeProperty('opacity'); });
-      cancelAnimationFrame(frame); observer.disconnect(); replacements.disconnect(); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', resize); media.removeEventListener('change', resize); };
+      cancelAnimationFrame(frame); observer.disconnect(); geometry.disconnect(); replacements.disconnect(); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', resize); media.removeEventListener('change', resize); };
   }, [scene?.target]);
   return <div className={styles.cardTransition} data-card-transition data-scroll-manual>
     <div ref={intro} className={styles.cardIntro}>{children}</div>

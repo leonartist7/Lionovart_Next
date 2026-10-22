@@ -14,7 +14,7 @@ export function previewVideo(source: string, width: number) {
 }
 
 /** One silent decoder per active stage. A real poster survives blocked/failed video. */
-export function ScreeningMedia({ asset, active, paused = false, label = true }: { asset: ScreeningAsset; active: boolean; paused?: boolean; label?: boolean }) {
+export function ScreeningMedia({ asset, active, paused = false, label = true, prepare = false }: { asset: ScreeningAsset; active: boolean; paused?: boolean; label?: boolean; prepare?: boolean }) {
   const video = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [ratio, setRatio] = useState<number | null>(null);
@@ -25,20 +25,25 @@ export function ScreeningMedia({ asset, active, paused = false, label = true }: 
     let disposed = false;
     const sync = () => {
       const allowed = active && !paused && !document.hidden && !media.matches && !connection?.saveData;
-      if (allowed && asset.video && node) {
+      // Only the upcoming first service prepares metadata before its entrance.
+      // Its fitted frame must not change ratio when playback begins later.
+      if ((allowed || (prepare && !document.hidden && !media.matches && !connection?.saveData)) && asset.video && node) {
         const source = previewVideo(asset.video, innerWidth < 768 ? 640 : 1280);
+        node.preload = allowed ? 'auto' : 'metadata';
         if (node.getAttribute('src') !== source) { node.src = source; node.load(); }
+      }
+      if (allowed && asset.video && node) {
         node.dataset.playback = 'loading';
         void node.play().catch((error: DOMException) => { if (!disposed) { node.dataset.playback = error.name; setPlaying(false); } });
       } else { if (node) { node.pause(); node.dataset.playback = 'paused'; } setPlaying(false); }
     };
     sync(); document.addEventListener('visibilitychange', sync); media.addEventListener('change', sync);
     return () => { disposed = true; node?.pause(); document.removeEventListener('visibilitychange', sync); media.removeEventListener('change', sync); };
-  }, [active, paused, asset.video]);
+  }, [active, paused, asset.video, prepare]);
   return <div className={styles.media} data-screening-media data-aspect-ready={ratio !== null}
     style={{ '--screen-ratio': ratio ?? 1.6 } as CSSProperties}>
     <Image src={asset.poster} alt={asset.name} fill sizes="(max-width: 767px) 90vw, 1100px" loading="lazy"
-      onLoad={event => { const image = event.currentTarget; if (image.naturalHeight) setRatio(image.naturalWidth / image.naturalHeight); }} />
+      onLoad={event => { const image = event.currentTarget; if (image.naturalHeight && !video.current?.videoWidth) setRatio(image.naturalWidth / image.naturalHeight); }} />
     {asset.video && <video ref={video} poster={asset.poster} muted playsInline loop preload="none"
       onLoadedMetadata={event => { const node = event.currentTarget; if (node.videoHeight) setRatio(node.videoWidth / node.videoHeight); }}
       onPlaying={event => { event.currentTarget.dataset.playback = 'playing'; setPlaying(true); }} onPause={() => setPlaying(false)} onError={event => { event.currentTarget.dataset.playback = `media-error-${event.currentTarget.error?.code}`; setPlaying(false); }} data-playing={playing} aria-hidden="true" />}
@@ -64,7 +69,7 @@ export function ServiceScreen({ service, variant, active, paused, onVariant }: {
       const position = exhibitPosition(index, variant);
       const label = exhibitLabel(exhibit, locale);
       return <div key={`${service}-${index}`} className={glass.card} data-position={position} data-exhibit-index={index}>
-        <div className={glass.screen}><ScreeningMedia asset={asset} active={active && position === 'center'} paused={paused} label={false} /></div>
+        <div className={glass.screen}><ScreeningMedia asset={asset} active={active && position === 'center'} paused={paused} label={false} prepare={service === 'branding' && position === 'center'} /></div>
         <span className={glass.cardLabel} aria-hidden="true">{label}</span>
         <button type="button" className={glass.selectCard} aria-label={label} aria-pressed={position === 'center'}
           tabIndex={position === 'center' ? -1 : 0} onClick={() => onVariant(index)} />
