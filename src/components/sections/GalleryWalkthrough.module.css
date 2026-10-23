@@ -6,8 +6,8 @@
 .header { position: absolute; top: clamp(5.5rem,12svh,8rem); left: 5vw; right: 5vw; display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; z-index: 10; pointer-events: none; }
 .header h2 { margin: 0; font: 400 clamp(2rem,4.5vw,4.5rem)/1 var(--font-clash-display),sans-serif; letter-spacing: -.04em; }
 .header p { margin: 0; color: #88765d; font: italic 400 clamp(1rem,1.5vw,1.5rem)/1.4 var(--font-playfair-display),Georgia,serif; }
-.corridor { --gallery-wall-offset: 33vw; --gallery-wall-angle: 16deg; position: absolute; inset: 0; perspective: 1000px; perspective-origin: 50% 48%; transform-style: preserve-3d; pointer-events: none; opacity: var(--gallery-arrival-media,1); }
-.panel { position: absolute; left: 50%; top: 54%; width: min(44vw,40rem); aspect-ratio: 16/11; transform-style: preserve-3d; will-change: transform,opacity; }
+.corridor { position: absolute; inset: 0; perspective: 1000px; perspective-origin: 50% 48%; transform-style: preserve-3d; pointer-events: none; opacity: var(--gallery-arrival-media,1); }
+.panel { position: absolute; left: 50%; top: var(--gallery-panel-top,54%); width: var(--gallery-panel-width,min(44vw,40rem)); aspect-ratio: 16/11; transform-style: preserve-3d; will-change: transform,opacity; }
 .project { position: relative; display: block; width: 100%; height: 100%; padding: 0; border: 0; border-radius: .25rem; background: transparent; color: #554b3e; cursor: pointer; pointer-events: auto; }
 .screen { position: absolute; inset: 0; container-type: size; }
 .projectCaption { position: absolute; top: calc(100% + .75rem); left: .5rem; right: .5rem; display: block; text-align: left; }
@@ -38,8 +38,6 @@
 .stage[data-walkthrough-pinned=false] .ending > img { margin: 0 auto 2rem; border-radius: 50%; }
 .section:has([data-walkthrough-pinned=false]) .runway { height: auto; }
 @media(max-width:767px) {
-  .corridor { --gallery-wall-offset: 35vw; --gallery-wall-angle: 12deg; }
-  .panel { width: 62vw; aspect-ratio: 16/12; }
   .header { top: 6rem; left: 1.5rem; right: 1.5rem; flex-direction: column; align-items: center; text-align: center; gap: .75rem; }
   .logo { top: 38%; width: 6rem; }
   .ending { top: 51%; }
@@ -67,3 +65,18 @@
 .staticProject[data-dimmed=true] { opacity: .35; }
 .staticProject[data-focused=true] { outline: 1px solid #a39175; outline-offset: .5rem; }
 @media(prefers-reduced-motion:reduce) { .staticProject { transition: none; } }
+
+/* Phones and tablets open the gathered stack above and below the center.
+   Only the axes/layout change; native depth travel and inline focus remain shared. */
+.verticalArrow { display: none; }
+.stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .panel { aspect-ratio: 16/12; }
+.stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .header { top: 6rem; left: 1.5rem; right: 1.5rem; flex-direction: column; align-items: center; text-align: center; gap: .75rem; }
+.stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .horizontalArrow { display: none; }
+.stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .verticalArrow { display: block; }
+.stage[data-walkthrough-pinned=true][data-gallery-compact=true] .header { top: 3.5rem; gap: .35rem; }
+.stage[data-walkthrough-pinned=true][data-gallery-compact=true] .header h2 { font-size: clamp(1.5rem,4vw,2rem); }
+.stage[data-walkthrough-pinned=true][data-gallery-compact=true] .header p { font-size: .875rem; }
+.stage[data-walkthrough-pinned=true][data-gallery-compact=true] .navigation { bottom: max(5rem,env(safe-area-inset-bottom)); }
+.stage[data-walkthrough-pinned=true][data-gallery-compact=true] .projectCaption { top: calc(100% + .35rem); }
+.stage[data-walkthrough-pinned=true][data-gallery-compact=true] .projectName { font-size: .75rem; }
+.stage[data-walkthrough-pinned=true][data-gallery-compact=true] .projectTags { margin-top: .25rem; gap: .2rem; }

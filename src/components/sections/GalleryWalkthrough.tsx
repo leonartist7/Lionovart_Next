@@ -4,13 +4,14 @@ import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from
 import Image from 'next/image';
 import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useSpring, useTransform, type MotionValue } from 'framer-motion';
 import { useLenis } from 'lenis/react';
-import { ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp } from 'lucide-react';
 import { useDissolveStage } from '@/hooks/useDissolveStage';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePublicCopy } from '@/hooks/usePublicCopy';
 import { ScenePortal, usePinnedScene } from './service-world/PinnedScene';
 import { ScreeningMedia } from './ScreeningMedia';
 import { GALLERY_SERVICE_LABELS, type GalleryWork } from './selected-work/gallery';
+import { galleryLayout, GALLERY_ENTRY_PROJECTION } from './gallery-layout';
 import { serviceGalleryHandoff } from './service-gallery-handoff';
 import { galleryCardPose, galleryEnding, galleryPairProgress, galleryProgress, galleryTravel, GALLERY_DEPTH_STEP } from './gallery-journey';
 import styles from './GalleryWalkthrough.module.css';
@@ -39,7 +40,7 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
     const baseZ = -350 - index * 18 * (1 - spread) + (z + 350) * spread;
     const depth = baseZ + (Math.max(0, baseZ) - baseZ) * focus;
     const size = 1 + (entryScale.get() - 1) * (1 - spread);
-    return `translate3d(calc(${side * spread * (1 - focus)} * var(--gallery-wall-offset)), ${(pair % 2 ? -2 : 2) * spread * (1 - focus)}svh, ${depth}px) translate(-50%,-50%) rotateY(calc(${-side * spread * (1 - focus)} * var(--gallery-wall-angle))) scale(${size})`;
+    return `translate3d(calc(${side * spread * (1 - focus)} * var(--gallery-wall-offset)), calc(${side * spread * (1 - focus)} * var(--gallery-wall-offset-y) + ${(pair % 2 ? -1 : 1) * spread * (1 - focus)} * var(--gallery-wall-stagger)), ${depth}px) translate(-50%,-50%) rotateY(calc(${-side * spread * (1 - focus)} * var(--gallery-wall-angle))) scale(${size})`;
   });
   const opacity = useTransform(() => galleryCardPose(progress.get(), pair, pairs).opacity * (pair < 3 ? 1 : entry.get()) * (reduce ? dimTarget.get() : dimSpring.get()));
   const labelOpacity = useTransform(() => Math.max(0, Math.min(1, (entry.get() - .65) / .35)) * Math.max(0, ((reduce ? dimTarget.get() : dimSpring.get()) - .35) / .65));
@@ -90,10 +91,24 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   });
   useEffect(() => {
     const anchor = runway.current; if (!anchor) return;
-    let frame = 0;
+    let frame = 0, layoutKey = '';
     const sync = () => {
       frame = 0;
       const box = anchor.getBoundingClientRect();
+      const nextKey = `${innerWidth}/${innerHeight}/${document.documentElement.clientWidth}`;
+      const surface = stage.current;
+      if (surface && nextKey !== layoutKey) {
+        layoutKey = nextKey;
+        const layout = galleryLayout(innerWidth, innerHeight, document.documentElement.clientWidth);
+        surface.dataset.galleryAxis = layout.vertical ? 'vertical' : 'horizontal';
+        surface.dataset.galleryCompact = String(layout.compact);
+        surface.style.setProperty('--gallery-wall-offset', `${layout.x}px`);
+        surface.style.setProperty('--gallery-wall-offset-y', `${layout.y}px`);
+        surface.style.setProperty('--gallery-wall-stagger', layout.vertical ? '0px' : '2svh');
+        surface.style.setProperty('--gallery-wall-angle', layout.vertical ? '0deg' : '16deg');
+        surface.style.setProperty('--gallery-panel-top', `${layout.panelTop}%`);
+        surface.style.setProperty('--gallery-panel-width', `${layout.panelWidth}px`);
+      }
       const value = pinned ? galleryProgress(box.top, box.height, innerHeight) : 0;
       progress.set(value);
       const arrival = serviceGalleryHandoff(box.top, innerHeight);
@@ -102,7 +117,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       if (pinned && arrival.progress < 1) {
         const source = scene?.target?.querySelector<HTMLElement>('[data-services-stage] [data-position=center] [data-screening-media]');
         const incoming = stage.current?.querySelector<HTMLElement>('[data-gallery-index="0"] [data-screening-media]');
-        if (source && incoming?.offsetWidth) entryScale.set(source.getBoundingClientRect().width / (incoming.offsetWidth / 1.35));
+        if (source && incoming?.offsetWidth) entryScale.set(source.getBoundingClientRect().width / (incoming.offsetWidth / GALLERY_ENTRY_PROJECTION));
       }
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
@@ -198,9 +213,9 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
           </motion.div>
         </motion.div>
         {pinned && <motion.nav className={styles.navigation} style={{ opacity: navOpacity }} aria-label={fr ? 'Parcourir les projets' : 'Browse the gallery'} inert={!walking} aria-hidden={!walking}>
-          <button type="button" onClick={() => navigate(Math.max(0, pair - 1))} disabled={pair === 0} aria-label={tr('Previous works')}><ArrowLeft aria-hidden="true" /></button>
+          <button type="button" onClick={() => navigate(Math.max(0, pair - 1))} disabled={pair === 0} aria-label={tr('Previous works')}><ArrowLeft className={styles.horizontalArrow} aria-hidden="true" /><ArrowUp className={styles.verticalArrow} aria-hidden="true" /></button>
           <span aria-live="polite">{String(pair + 1).padStart(2, '0')} <i>/ {String(pairs).padStart(2, '0')}</i></span>
-          <button type="button" onClick={() => navigate(pair + 1)} aria-label={pair === pairs - 1 ? tr('One partnership') : tr('Next works')}><ArrowRight aria-hidden="true" /></button>
+          <button type="button" onClick={() => navigate(pair + 1)} aria-label={pair === pairs - 1 ? tr('One partnership') : tr('Next works')}><ArrowRight className={styles.horizontalArrow} aria-hidden="true" /><ArrowDown className={styles.verticalArrow} aria-hidden="true" /></button>
         </motion.nav>}
       </div></ScenePortal>
     </div>
