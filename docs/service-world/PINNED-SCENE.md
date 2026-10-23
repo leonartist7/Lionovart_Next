@@ -1,11 +1,11 @@
 # One continuous pinned scene
 
 Review branch: codex/services-world-phase1-20261019
-Verified preview: https://lionovartnext-b0z2bf90t-lionovart.vercel.app/#imagine
-Gallery: https://lionovartnext-b0z2bf90t-lionovart.vercel.app/#selected-work
-Runtime commit: 654fded920b56f834dae5a2eba6b25e001d829ef
+Verified preview: https://lionovartnext-5vr0hmxwr-lionovart.vercel.app/#imagine
+Gallery: https://lionovartnext-5vr0hmxwr-lionovart.vercel.app/#selected-work
+Runtime commit: 937641c4112e115f05d8798b051f187bc7cebe74
 
-## Current journey — 22 October 2026
+## Current journey — 23 October 2026
 
 Hero → studio film → three divided cards with the paw reveal → shaping message → services → scroll-through work gallery → logo / One partnership / Designing your legacy → About. The seasonal invitation follows About, then client results.
 
@@ -31,11 +31,11 @@ SHAPING-JOURNEY.md and earlier verification entries describe superseded implemen
 
 GalleryWalkthrough and gallery-journey.ts replace the pinned project pager with a native-scroll depth journey. All 40 currently curated works appear in 20 left/right pairs; browsing filters still use WorkBrowseProvider.
 
-service-gallery-handoff.ts coordinates the boundary before the gallery runway reaches the viewport top. The last service's three original media cards gather on the same center axis, with both side cards behind the selected front card at translateZ(-70px). The service media retain scale 1 during the gather. Their fitted media center is measured directly, and the first incoming gallery surface starts at the same projected width. Original service surfaces continue toward the gallery’s left/right positions while the new work fades in. Service copy, labels and local atmosphere retire first; the shared navigation pill stays visible. Selected work appears above the held stack before gallery media crossfades in and the nearby project pairs fan from its center to their wall positions. Captions and pair arrows wait for the fan-out. The inherited gather state survives the final service's React media update and reverses with native scrolling.
+service-gallery-handoff.ts coordinates the boundary before the gallery runway reaches the viewport top. The last service's three original media cards gather on the same center axis, with both side cards behind the selected front card at translateZ(-70px). The service media retain scale 1 during the gather. Their fitted media center is measured directly, and the first incoming gallery surface starts at the same projected width. Original service surfaces continue toward the gallery positions while the new work fades in: above/below on phones and tablets, left/right on desktop. Service copy, labels and local atmosphere retire first; the shared navigation pill stays visible. Selected work appears above the held stack before gallery media crossfades in and the nearby project pairs fan from its center to their wall positions. Captions and pair arrows wait for the fan-out. The inherited gather state survives the final service's React media update and reverses with native scrolling.
 
-Phone gallery walls use a 35vw offset, 62vw panels and 12-degree wall angle, bringing both sides almost entirely into view with a modest center gap. Desktop walls use a 33vw offset. The same gallery continues into the logo/partnership ending.
+gallery-layout.ts shares the responsive axis and fitted entrance geometry between PinnedScene and GalleryWalkthrough. At widths up to 1024px, the gathered cards fan vertically into upper/lower exhibits on one center line, with no angular tilt. The original service surfaces follow the same vertical release while fading into the gallery. Panel width is limited by both viewport width and height; the separation is capped on tall phones to avoid a large central gap. Screens up to 840px tall use a compact reading area above the navigation. Gallery arrows point up/down in this layout. Desktop retains its 33vw left/right gallery and perspective angle. The same gallery continues into the logo/partnership ending.
 
-The scroll timeline translates the project surfaces through CSS perspective. Posters retain their actual colors/aspect ratios. Only nearby surfaces mount media, and the nearest pair’s left exhibit is eligible to play by default; selecting either work transfers playback eligibility to that work. Inactive chapters, hidden pages, reduced motion and save-data mode pause playback.
+The scroll timeline translates the project surfaces through CSS perspective. Posters retain their actual colors/aspect ratios. Only nearby surfaces mount media, and the nearest pair’s first exhibit (upper on phones/tablets, left on desktop) is eligible to play by default; selecting either work transfers playback eligibility to that work. Inactive chapters, hidden pages, reduced motion and save-data mode pause playback.
 
 The logo approaches from the far end. After the last pair passes, One partnership and the italic Designing your legacy appear, followed by Meet the studio (#about) and See our results (#client-experience). These links are inert until the ending is visible. Ordinary activation explicitly scrolls to the About runway or the client-results anchor in the same document; propagation is stopped so the root Lenis anchor listener cannot replace the intended destination. No duplicate partnership imagery or tile transition follows the gallery.
 
@@ -44,6 +44,16 @@ Project activation stays inside the gallery. A native button centers and brings 
 Separate gallery arrows still provide pair-by-pair navigation; native forward/reverse scrolling owns the story. They sit above the existing industry/style filter bar, and the transparent perspective container does not intercept project clicks. Reduced motion and viewports at or below 560px tall retain a static, unpinned list with inline selection, service tags and the partnership ending.
 
 ## Verification
+
+Latest vertical-gallery review (23 October): runtime 937641c is READY. TypeScript, scoped ESLint and all 70 focused timeline/layout/service-world tests passed. The new layout test covers phones, a tall phone, portrait tablet, 1024px tablet, and the preserved desktop horizontal axis. Published phone 390 × 844, small phone 320 × 568, tablet 768 × 1024, desktop 1440 × 900 and landscape 844 × 390 paths were inspected. Reduced-motion system emulation and physical touch/shader checks remain unperformed.
+
+The service front card and first incoming work share x187.484/187.500 and vertical centers within .009px on phone during the release (arrival 70%). The original service media remains 259.875px wide while the incoming work gradually fits its final exhibit size; no gather scale is introduced. A fitted-media ResizeObserver and replacement observer keep the gathered center current when the last service changes. The front card's release is removed from the measurement before recentering, so its upward motion is preserved.
+
+At the phone gallery entrance the upper/lower panels share x187.5 and fit at approximately y199–370 and y441–612; lower tags end at y669 before the gallery controls at y696. Small-phone tags end at y440.912, before controls at y444; its header ends at y105.188 before upper media begins at y110.532. Tablet panels share x376.5 and occupy y201–463 and y520–782, with tags ending at y822 before controls at y868. Desktop keeps its horizontal centers x348.238/x1076.762 at the same y489.004. Distant vertical exhibit captions are hidden to keep the current pair legible; current tags remain visible before activation.
+
+Native forward/reverse phone scrolling changed arrival .700 → .850 → .700 with the stationary stage at top 0. Keyboard Enter on the lower work centered it at x187.5/y405.109; its counterpart softened to .35, and Escape restored the pair. The short-height landscape gallery remains unpinned. [Published vertical-gallery screenshot](verification/vertical-gallery-20261023.jpg).
+
+Earlier verification below describes the preceding runtime and layout. The historical horizontal phone dimensions are superseded by the vertical layout above.
 
 [Published inline-focus screenshot](verification/inline-focus-20261022.jpg).
 
