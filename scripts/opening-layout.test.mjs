@@ -47,17 +47,17 @@ test('inline benefits read one compact stack without a reset or second pass',()=
  const points=[0,840,960,1080,1240];
  assert.deepEqual(points.map(x=>inlineBenefitReadingPose(x,1000,240)).reverse(),points.reverse().map(x=>inlineBenefitReadingPose(x,1000,240)));
 });
-test('one card scene settles from film, protects reading, then leaves for partnership',()=>{
+test('one card scene protects reading and never skips the manual handoff',()=>{
  const stops=[['hero',0],['film',360],['cards',840],['partnership',1500]].map(([id,y])=>({id,y,label:id,kind:id==='partnership'?'partnership':'opening'}));
  const scene={start:0,end:1000,timelineSpan:1000,kind:'opening',inlineBenefits:true,stops};
  const choose=(y,gestureStart,direction=1,more={})=>chooseScrollStop({mode:'settle',y,gestureStart,direction,viewport:832,scenes:[{...scene,...more}],boundaries:stops});
  assert.equal(choose(520,360)?.id,'cards');
  assert.equal(choose(600,840,-1)?.id,'film');
- assert.equal(choose(900,840)?.id,'partnership');
+ assert.equal(choose(900,840),undefined,'the next chapter remains manual');
  assert.equal(choose(900,840,1,{end:1240,frontReading:{start:840,end:1080}}),undefined);
  assert.equal(choose(960,1080,-1,{end:1240,frontReading:{start:840,end:1080}}),undefined);
  assert.equal(choose(1180,900,1,{end:1240,frontReading:{start:840,end:1080}}),undefined,'a reading gesture cannot also skip to the next chapter');
- assert.equal(choose(1180,1080,1,{end:1240,frontReading:{start:840,end:1080}})?.id,'partnership');
+ assert.equal(choose(1180,1080,1,{end:1240,frontReading:{start:840,end:1080}}),undefined);
 });
 
 test('card anchors retain their document origin while the intro parent is sticky',()=>{

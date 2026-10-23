@@ -72,7 +72,19 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
     }
   };
 
-  return <article className={styles.card} data-benefit-card data-integrated={integrated} data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
+  const details = <div id={panelId} role="region" aria-labelledby={panelId + "-title"} aria-hidden={!open}
+    className={`${styles.details}${integrated ? ` ${styles.integratedDetails}` : ''}`}>
+    {integrated && <h3 id={panelId + "-title"} className={styles.integratedDetailTitle}>{tr(item.detail)}</h3>}
+    <div className={styles.detailContent} data-benefit-measure="detail">
+      <ul>{item.points.map(point => <li key={point}><Check aria-hidden="true" />{tr(point)}</li>)}</ul>
+      {item.stat && <div className={styles.metric} data-benefit-stat>
+        <span className={styles.metricValue}>{item.stat.qualifier && <small>{tr(item.stat.qualifier)}</small>}{tr(item.stat.value)}<span>{item.stat.unit}</span></span>
+        <span className={styles.metricLabel}>{tr(item.stat.label)}</span>
+      </div>}
+    </div>
+  </div>;
+
+  return <article className={styles.card} data-benefit-card data-scroll-title-skip data-integrated={integrated} data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
     {integrated && <div className={styles.integratedArtwork} aria-hidden="true">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={artworkSource(artwork!, 800)} alt="" loading="lazy" decoding="async"
@@ -91,20 +103,11 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
         <Image src={item.artwork} alt="" width={500} height={500} sizes="(max-width: 919px) 176px, (max-width: 1600px) 16vw, 256px" />
       </div>}
       <div className={styles.detailWell}>
-        <div id={panelId} role="region" aria-labelledby={panelId + "-title"} aria-hidden={!open} className={styles.details}>
-          {integrated && <h3 id={panelId + "-title"} className={styles.integratedDetailTitle}>{tr(item.detail)}</h3>}
-          <div className={styles.detailContent} data-benefit-measure="detail">
-            <ul>{item.points.map(point => <li key={point}><Check aria-hidden="true" />{tr(point)}</li>)}</ul>
-          {item.stat && <div className={styles.metric} data-benefit-stat>
-            <span className={styles.metricValue}>{item.stat.qualifier && <small>{tr(item.stat.qualifier)}</small>}{tr(item.stat.value)}<span>{item.stat.unit}</span></span>
-            <span className={styles.metricLabel}>{tr(item.stat.label)}</span>
-          </div>}
-          </div>
-        </div>
+        {details}
         <motion.div ref={coverRef} className={styles.detailCover} animate={cover} aria-hidden={integrated ? showBenefit : true}>
           {integrated && <div className={styles.integratedCopy}>
             <p className={styles.serviceLabel}>{serviceTitle}</p>
-            <h3>{tr(item.title)}</h3>
+            <h3 data-benefit-title>{tr(item.title)}</h3>
             {accent && <p className={styles.integratedAccent}>{accent}</p>}
           </div>}
         </motion.div>
@@ -121,7 +124,7 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
     <button ref={trigger} type="button" className={styles.cardToggle} aria-expanded={open || phase === "closing"} aria-controls={panelId}
       aria-label={`${tr(open ? "Hide benefit" : "Reveal benefit")}: ${tr(item.title)}`} disabled={busy || !enabled}
       onClick={event => void toggle(event.detail === 0)}>
-      <span className={styles.tapLabel}>{tr(open ? "Tap to close" : "Tap to reveal")}</span>
+      {!integrated && <span className={styles.tapLabel}>{tr(open ? "Tap to close" : "Tap to reveal")}</span>}
       <span className={styles.toggleIcon}>{open ? <Minus aria-hidden="true" /> : <Plus aria-hidden="true" />}</span>
     </button>
   </article>;

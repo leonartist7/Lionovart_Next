@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { motion, useMotionValueEvent, useTransform } from "framer-motion";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScenePortal, usePinnedScene } from '../service-world/PinnedScene';
+import journeyStyles from './LionJourney.module.css';
 import HeroTop from "../HeroTop";
 import WhatWeDo from "../WhatWeDo";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
@@ -10,6 +12,7 @@ import { useLionJourney } from "./LionJourney";
 
 export default function HeroOpening() {
   const { opening: openingRef, openingProgress, arrivalProgress } = useLionJourney()!;
+  const scene = usePinnedScene();
   const reduced = useHydratedReducedMotion();
   const [workInert, setWorkInert] = useState(false);
   const workOpacity = useTransform(arrivalProgress, [0, .3, .9, 1], [1, 1, 0, 0]);
@@ -20,8 +23,8 @@ export default function HeroOpening() {
 
   useEffect(() => {
     const opening = openingRef.current;
-    const stage = opening?.querySelector<HTMLElement>(".hero-opening-stage");
-    const hero = opening?.querySelector<HTMLElement>(".lion-hero");
+    const stage = (scene?.target ?? opening)?.querySelector<HTMLElement>(".hero-opening-stage");
+    const hero = stage?.querySelector<HTMLElement>(".lion-hero");
     const roar = hero?.querySelector<HTMLElement>(".lion-roar-text");
     const nav = document.querySelector<HTMLElement>("[data-nav-state]");
     if (!stage || !hero) return;
@@ -50,7 +53,7 @@ export default function HeroOpening() {
     void document.fonts.ready.then(measure);
     measure();
     return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener("resize", measure); };
-  }, [openingRef]);
+  }, [openingRef, scene?.target]);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -65,7 +68,8 @@ export default function HeroOpening() {
       <span id="what-we-build" className="opening-work-anchor" aria-hidden="true" />
       <span id="imagine" className="opening-imagine-anchor" aria-hidden="true" />
       <span id="problems" className="opening-imagine-anchor" aria-hidden="true" />
-      <div className="hero-opening-stage">
+      <ScenePortal><div className={journeyStyles.journey} data-scene-opening data-opening-imagine="inline">
+      <div className="hero-opening-stage" data-opening-imagine="inline">
         <motion.div data-nova-section="hero" data-opening-hero className="opening-hero-layer"
           style={{ opacity: reduced ? 1 : heroOpacity }} inert={!reduced && heroInert}>
           <HeroTop />
@@ -74,6 +78,7 @@ export default function HeroOpening() {
           <WhatWeDo pinned />
         </motion.div>
       </div>
+      </div></ScenePortal>
     </div>
   );
 }

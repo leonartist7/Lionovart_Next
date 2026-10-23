@@ -72,3 +72,23 @@
 .floatingObject img { display: block; width: 100%; height: 100%; object-fit: contain; }
 @media (width < 920px) { .floatingObject { top: .5rem; right: auto; left: -.5rem; width: 4.5rem; } }
 @media (prefers-reduced-motion: reduce) { .floatingObject { transform: none; } }
+
+/* A compact, straight triptych. The source film fit remains constant. */
+.paneSizer { height: var(--panel-height, 22rem); padding: 0; }
+.floatingObject { width: clamp(4rem,7vw,6rem); top: -.5rem; right: -.5rem; }
+.pane { translate: var(--handoff-x,0px) var(--handoff-y,0px); rotate: var(--handoff-rotate,0deg); scale: var(--handoff-scale,1); opacity: var(--handoff-depth,1); z-index: 1; }
+.pane:nth-child(2) { z-index: 3; }
+
+@media (width < 920px) { .floatingObject { width: 3.25rem; top: .5rem; left: -.25rem; } }
+@media (prefers-reduced-motion:reduce) { .paneSizer { height: 22rem; } }
+@media (prefers-reduced-motion:reduce) and (width < 920px) { .paneSizer { height: 16.5rem; } }
+
+.imagineCaption h2 { font: 400 clamp(1.75rem,3.8vw,3.75rem)/1.08 var(--font-clash-display),sans-serif; text-transform: none; letter-spacing: -.035em; }
+
+
+
+/* Transparent arrival frame: the painted face above it dissolves as a whole. */
+.dissolveDefinitions { position: absolute; pointer-events: none; overflow: hidden; }
+.handoffGlass { position: absolute; inset: 0; border: 1px solid #fffdf3b3; border-radius: 6px; background: transparent; box-shadow: inset 0 1px 0 #fff9, 0 1px 0 #91806924, 0 16px 40px -24px #57463045; opacity: var(--handoff-glass,0); pointer-events: none; }
+
+@media(width < 768px) { .pane:not(:nth-child(2)) :global([data-benefit-card] [data-benefit-title]) { max-width: 13ch; font-size: clamp(.875rem,3.6vw,1rem); line-height: 1.2; } }

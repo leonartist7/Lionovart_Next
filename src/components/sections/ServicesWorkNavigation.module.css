@@ -104,8 +104,26 @@
   .filterOption:hover { background: #fff; }
 }
 @media (width >= 640px) { .frame { bottom: max(4svh, calc(env(safe-area-inset-bottom) + .75rem)); } }
-@media (width < 640px) { .serviceLabel { display: none; } .serviceNumber { display: inline; } }
+@media (width < 640px) {
+  .serviceControls { justify-content: flex-start; overflow-x: auto; scrollbar-width: none; }
+  .serviceControls::-webkit-scrollbar { display: none; }
+  .serviceButton { flex: 0 0 auto; min-width: 3.75rem; font-size: .625rem; letter-spacing: .025em; padding-inline: .65rem; }
+  .serviceLabel { display: inline; }
+  .serviceNumber { display: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   .popup { transition: none; }
   .popup[data-starting-style], .popup[data-ending-style] { transform: none; }
+}
+
+/* Quiet navigation rail, subordinate to the exhibit. */
+.pill { border-color: #a9967130; background: #faf9f35c; box-shadow: 0 8px 28px -20px #4e423833; backdrop-filter: blur(12px); }
+.serviceButton,.browseButton { font-family: var(--font-dm-sans),sans-serif; font-weight: 500; font-size: .75rem; letter-spacing: .02em; text-transform: none; }
+.serviceButton[aria-pressed=true] { background: #ffffff75; box-shadow: none; }
+.serviceNumber { display: inline; margin-left: .4rem; font-size: .5rem; color: #8c7a59; vertical-align: super; }
+@media(width < 640px) {
+ .frame { max-width: calc(100vw - 1.25rem); }
+ .serviceControls { overflow: visible; }
+ .serviceButton { flex: 1; min-width: 0; padding-inline: .15rem; font-size: .625rem; }
+ .serviceNumber { display: none; }
 }

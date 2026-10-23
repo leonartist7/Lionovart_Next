@@ -1,0 +1,42 @@
+.stage { position: relative; left: 50%; transform: translateX(-50%); width: min(94vw,1280px); height: clamp(15rem,39svh,34rem); perspective: 1600px; isolation: isolate; }
+.atmosphere { position: absolute; inset: -16svh -12vw -14svh; pointer-events: none; z-index: -1; opacity: .28; }
+.colorSpill, .reflectedLight { position: absolute; inset: 0; opacity: 0; transition: opacity 900ms ease; pointer-events: none; }
+.colorSpill[data-selected=true], .reflectedLight[data-selected=true] { opacity: 1; }
+.podium { position: absolute; width: min(88vw,61rem); height: clamp(3rem,6svh,4.5rem); left: 50%; top: calc(100% + 2.5rem); transform: translate(-50%,-50%); z-index: -1; pointer-events: none; border-radius: 50%; background: radial-gradient(ellipse at 48% 12%,#fffefa99,transparent 62%),linear-gradient(178deg,#f8f7f142,#e5e1d64d 68%,#c9bfa966); box-shadow: 0 3px 0 -1px #b2a38738,0 22px 40px -22px #76695730,inset 0 1px 0 #fff9; }
+.reflectedLight { border-radius: inherit; opacity: 0; }
+.reflectedLight[data-selected=true] { opacity: .22; }
+.rim { position: absolute; inset: 0; border-radius: inherit; border-top: 1px solid #fffdf1cc; border-bottom: 1px solid #a5936b59; }
+.card { position: absolute; top: 0; left: 23%; width: 54%; height: 100%; padding: 0 0 1.8rem; background: transparent; transform-style: preserve-3d; transition: transform 850ms cubic-bezier(.23,1,.32,1),opacity 650ms ease; }
+.card[data-position=center] { transform: translate3d(0,0,0); z-index: 3; opacity: 1; }
+.card[data-position=left] { transform: translate3d(-68%,3%,-300px); z-index: 1; opacity: .48; }
+.card[data-position=right] { transform: translate3d(68%,3%,-300px); z-index: 1; opacity: .48; }
+.screen { position: relative; width: 100%; height: 100%; container-type: size; }
+.cardLabel { position: absolute; bottom: 0; left: .5rem; right: .5rem; text-align: center; font: 500 .625rem/1.4 var(--font-dm-sans),sans-serif; letter-spacing: .16em; text-transform: uppercase; color: #655d50; }
+.selectCard { position: absolute; inset: 0; cursor: pointer; background: transparent; border: 0; border-radius: 4px; }
+.card[data-position=center] .selectCard { pointer-events: none; }
+.selectCard:focus-visible { outline: 2px solid #8a7149; outline-offset: 5px; }
+@media(hover:hover) and (pointer:fine) { .card:has(.selectCard:hover) { opacity: .85; } }
+@media(max-width:767px) {
+  .stage { width: 98vw; height: clamp(12rem,29svh,21rem); perspective: 1000px; }
+  .card { width: 68%; left: 16%; padding-bottom: 1.5rem; }
+  .card[data-position=left] { transform: translate3d(-60%,2%,-210px); }
+  .card[data-position=right] { transform: translate3d(60%,2%,-210px); }
+  .cardLabel { font-size: .5rem; letter-spacing: .09em; }
+  .podium { width: 96vw; height: 3.25rem; }
+}
+@media(max-height:740px) and (min-height:561px) { .stage { height: 29svh; min-height: 10rem; } }
+@media(max-height:560px) { .stage { height: 19rem; } }
+@media(prefers-reduced-motion:reduce) {
+  .card { transition: opacity 150ms ease; }
+  .colorSpill, .reflectedLight { transition: opacity 150ms ease; }
+}
+
+/* Keep the same three DOM/media surfaces during the service-to-work gather.
+   Inherited progress also survives the final service's React content update. */
+.stage { --service-side-x: 68%; --service-side-y: 3%; --service-side-depth: -300px; }
+:global([data-gallery-gathering=true]) .card { transition: none; }
+:global([data-gallery-gathering=true]) .card[data-position=left] { transform: translate3d(calc(-1 * var(--service-side-x) * (1 - var(--service-gallery-gather,0)) - var(--service-release-x,0px) * var(--service-gallery-release,0)),calc(var(--service-side-y) * (1 - var(--service-gallery-gather,0)) - var(--service-release-y,0px) * var(--service-gallery-release,0)),calc(var(--service-side-depth) * (1 - var(--service-gallery-gather,0)) - 70px * var(--service-gallery-gather,0))); opacity: calc(.48 + .32 * var(--service-gallery-gather,0)); }
+:global([data-gallery-gathering=true]) .card[data-position=right] { transform: translate3d(calc(var(--service-side-x) * (1 - var(--service-gallery-gather,0)) + var(--service-release-x,0px) * var(--service-gallery-release,0)),calc(var(--service-side-y) * (1 - var(--service-gallery-gather,0)) + var(--service-release-y,0px) * var(--service-gallery-release,0)),calc(var(--service-side-depth) * (1 - var(--service-gallery-gather,0)) - 70px * var(--service-gallery-gather,0))); opacity: calc(.48 + .32 * var(--service-gallery-gather,0)); }
+@media(max-width:767px) { .stage { --service-side-x: 60%; --service-side-y: 2%; --service-side-depth: -210px; } }
+
+:global([data-gallery-gathering=true]) .card[data-position=center] { transform: translate3d(calc(-1 * var(--service-release-x,0px) * var(--service-gallery-release,0)),calc(-1 * var(--service-release-y,0px) * var(--service-gallery-release,0)),0); }

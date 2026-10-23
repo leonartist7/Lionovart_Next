@@ -259,3 +259,12 @@
  .journey :global([data-opening-imagine="inline"] .opening-video-anchor) { position: relative; top: auto; left: auto; translate: none; margin: 0 auto; padding-top: 8rem; }
  .journey :global([data-opening-imagine="inline"] [data-opening-film]), .journey :global([data-opening-imagine="inline"] [data-opening-crop]) { display: none; }
 }
+
+/* One source-aspect film, divided into three without a second outline. */
+.journey :global([data-opening-imagine="inline"] .opening-video-anchor) { --opening-film-width: min(88vw,21.5rem); width: var(--opening-film-width); }
+@media(min-width:768px), (min-width:600px) and (min-aspect-ratio:6/5) {
+ .journey :global([data-opening-imagine="inline"] .opening-video-anchor) { --opening-film-width: min(76vw,64rem,calc((100svh - 15rem) * 16 / 9)); }
+}
+@media(prefers-reduced-motion:reduce), (height <= 560px) {
+ .journey :global([data-opening-imagine="inline"] .opening-video-anchor) { --opening-film-width: min(84vw,22.5rem); }
+}

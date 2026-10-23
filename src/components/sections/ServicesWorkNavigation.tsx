@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { motion, useMotionValue, useMotionValueEvent, useTransform } from "framer-motion";
 import { Popover } from "@base-ui/react/popover";
@@ -56,6 +56,7 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
 }) {
   const tr = usePublicCopy();
   const browse = useWorkBrowse();
+  const serviceControls = useRef<HTMLDivElement>(null);
   const client = useSyncExternalStore(subscribeClient, () => true, () => false);
   const visibility = useMotionValue(0);
   const handoff = useMotionValue(0);
@@ -63,8 +64,8 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
   const [visible, setVisible] = useState(false);
   useMotionValueEvent(handoff, "change", value => setWorkMode(value >= .5));
   useMotionValueEvent(visibility, "change", value => setVisible(value > .01));
-  const serviceOpacity = useTransform(handoff, [0, .4, .5, 1], [1, 0, 0, 0]);
-  const workOpacity = useTransform(handoff, [0, .5, .7, 1], [0, 0, 1, 1]);
+  const serviceOpacity = useTransform(handoff, [0, .35, .65, 1], [1, 1, 0, 0]);
+  const workOpacity = useTransform(handoff, [0, .35, .65, 1], [0, 0, 1, 1]);
 
   useEffect(() => {
     if (!client) return;
@@ -77,8 +78,9 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
       const h = window.innerHeight;
       const rect = services.getBoundingClientRect();
       const workRect = work?.getBoundingClientRect();
-      visibility.set(clamp(1 - rect.top / (h * .2)) *
-        clamp(((workRect?.bottom ?? rect.bottom) - h * .12) / (h * .15)));
+      const serviceVisibility = clamp(1 - rect.top / (h * .2)) * clamp(rect.bottom / (h * .2));
+      const workVisibility = workRect ? clamp((h * .8 - workRect.top) / (h * .3)) * clamp((workRect.bottom - h * .12) / (h * .15)) : 0;
+      visibility.set(Math.max(serviceVisibility, workVisibility));
       handoff.set(workRect ? clamp((h * .75 - workRect.top) / (h * .45)) : 0);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
@@ -98,13 +100,19 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
     };
   }, [client, browse.industry, browse.style, visibility, handoff]);
 
+  useEffect(() => {
+    const rail = serviceControls.current;
+    const selected = rail?.querySelector<HTMLElement>('[aria-pressed="true"]');
+    if (rail && selected) rail.scrollTo({ left: selected.offsetLeft - (rail.clientWidth - selected.offsetWidth) / 2, behavior: 'instant' });
+  }, [activeIndex, client]);
+
   if (!client) return null;
   return createPortal(<motion.nav className={styles.frame} data-services-work-navigation data-browse-mode={workMode ? "work" : "services"}
     aria-label={tr(workMode ? "Browse selected work" : "Our services")}
     aria-hidden={!visible} inert={!visible}
     style={{ opacity: visibility, visibility: visible ? "visible" : "hidden" }}>
     <div className={styles.pill}>
-      <motion.div className={styles.serviceControls} style={{ opacity: serviceOpacity }} aria-hidden={workMode} inert={workMode}>
+      <motion.div ref={serviceControls} className={styles.serviceControls} style={{ opacity: serviceOpacity }} aria-hidden={workMode} inert={workMode}>
         {services.map((service, index) => <button key={service.id} type="button" className={styles.serviceButton}
           data-service-option aria-pressed={index === activeIndex} onClick={() => onSelect(index)}>
           <span className={styles.serviceLabel}>{tr(service.short)}</span>

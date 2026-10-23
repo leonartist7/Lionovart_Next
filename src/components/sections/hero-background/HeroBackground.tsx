@@ -4,6 +4,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useHeroComposition } from "./HeroComposition";
 import HeroLightRays from "./HeroLightRays";
+import { ScenePortal } from '../service-world/PinnedScene';
 import styles from "./HeroBackground.module.css";
 
 const BackgroundEditor = dynamic(() => import("./BackgroundEditor"), { ssr: false });
@@ -38,7 +39,7 @@ export default function HeroBackground() {
       window.removeEventListener("scroll", schedule); window.removeEventListener("resize", schedule);
     };
   }, []);
-  return <>
+  return <ScenePortal>
     <div ref={backdrop} className={styles.backdrop} aria-hidden="true" data-hero-background>
       {editing && composition.layers.map(layer => {
         if (!layer.desktop.visible && !layer.mobile.visible) return null;
@@ -59,5 +60,5 @@ export default function HeroBackground() {
     </div>
     <HeroLightRays />
     {editing && <BackgroundEditor composition={composition} onChange={setComposition} />}
-  </>;
+  </ScenePortal>;
 }
