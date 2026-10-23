@@ -68,7 +68,7 @@ export const SERVICE_ROUTES: ServiceRoute[] = [
     titles: ["Growth Marketing", "Marketing de Crecimiento", "Marketing de Croissance"],
     blurb: "SEO, local search, ads, and analytics that put you where buyers look.",
     signature: "Found first, chosen first.",
-    ready: false,
+    ready: true,
   },
 ];
 
