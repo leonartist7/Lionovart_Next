@@ -80,3 +80,5 @@
 .stage[data-walkthrough-pinned=true][data-gallery-compact=true] .projectCaption { top: calc(100% + .35rem); }
 .stage[data-walkthrough-pinned=true][data-gallery-compact=true] .projectName { font-size: .75rem; }
 .stage[data-walkthrough-pinned=true][data-gallery-compact=true] .projectTags { margin-top: .25rem; gap: .2rem; }
+
+.stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .panel[aria-hidden=true] .projectCaption { visibility: hidden; }

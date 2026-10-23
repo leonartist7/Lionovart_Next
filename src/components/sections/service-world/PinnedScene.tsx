@@ -62,7 +62,9 @@ export default function PinnedScene({ children, environment }: { children: React
           if (media) {
             const r = (media.querySelector('[data-position=center] [data-screening-media]') ?? media).getBoundingClientRect();
             const previousY = Number.parseFloat(media.style.translate.split(' ')[1]) || 0;
-            const baseY = r.y + r.height / 2 - previousY;
+            // Remove the front card's release as well as the group's previous
+            // translation; otherwise recentering would cancel its upward travel.
+            const baseY = r.y + r.height / 2 - previousY + layout.y / GALLERY_ENTRY_PROJECTION * handoff.spread;
             media.style.translate = `0 ${((layout.gatherY - baseY) * handoff.gather) + (layout.vertical ? 0 : innerHeight * .02 / GALLERY_ENTRY_PROJECTION * handoff.spread)}px`;
             media.style.removeProperty('scale');
           }
@@ -87,6 +89,18 @@ export default function PinnedScene({ children, environment }: { children: React
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
     scheduleRef.current = schedule;
     const resize = new ResizeObserver(schedule);
+    const fitted = new ResizeObserver(schedule);
+    let measured: Element | null = null;
+    const refresh = () => {
+      const next = target.querySelector('[data-services-stage] [data-position=center] [data-screening-media]');
+      if (next === measured) return;
+      fitted.disconnect(); measured = next;
+      if (measured) fitted.observe(measured);
+      schedule();
+    };
+    const replacements = new MutationObserver(refresh);
+    replacements.observe(target, { childList: true, subtree: true });
+    refresh();
     const root = target.closest('[data-service-world]');
     if (root) resize.observe(root);
     window.addEventListener('scroll', schedule, { passive: true });
@@ -95,7 +109,7 @@ export default function PinnedScene({ children, environment }: { children: React
     document.addEventListener('visibilitychange', schedule);
     void document.fonts.ready.then(schedule); sync();
     return () => {
-      cancelAnimationFrame(frame); resize.disconnect(); scheduleRef.current = () => {};
+      cancelAnimationFrame(frame); resize.disconnect(); fitted.disconnect(); replacements.disconnect(); scheduleRef.current = () => {};
       window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule);
       window.removeEventListener('pageshow', schedule); document.removeEventListener('visibilitychange', schedule);
     };
