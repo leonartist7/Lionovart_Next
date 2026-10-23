@@ -3,8 +3,8 @@ export const GALLERY_ENTRY_PROJECTION = 1.35; // perspective 1000px at translate
 export function galleryLayout(viewportWidth: number, height: number, contentWidth = viewportWidth) {
   const vertical = viewportWidth <= 1024;
   const compact = vertical && height <= 840;
-  const panelWidth = vertical ? Math.min(contentWidth * .82, height * (compact ? .38 : .46), 544) : Math.min(contentWidth * .44, 640);
-  const panelTop = vertical ? (compact ? 44 : 48) : 54;
+  const panelWidth = vertical ? Math.min(contentWidth * .82, height * (compact ? .36 : .46), 544) : Math.min(contentWidth * .44, 640);
+  const panelTop = vertical ? (compact ? 43 : 48) : 54;
   return {
     vertical, compact, panelWidth, panelTop,
     x: vertical ? 0 : contentWidth * .33,
