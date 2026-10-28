@@ -69,7 +69,7 @@
 @media(max-height:560px), (prefers-reduced-motion:reduce) { .shapingMessage { display: none; }.cardIntro { translate: none !important; } }
 
 /* About follows the pinned gallery in normal document flow, including at text zoom. */
-.aboutRunway { position: relative; height: auto; }
+.aboutRunway { position: relative; height: auto; background: var(--site-surface-light, #f7f4ef); }
 .aboutStage { position: relative; min-height: 100svh; padding: 5rem 0 3rem; color: #171412; }
 .aboutStage :global([data-about-content]) { min-height: 100%; display: grid; align-items: center; }
 .galleryStage > div:last-child { width: min(100%,76rem); margin-inline: auto; margin-top: 1.25rem; }
