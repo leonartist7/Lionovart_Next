@@ -248,7 +248,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     <div ref={runway} className={styles.runway} data-gallery-runway style={{ '--gallery-runway': `${galleryRunwayScreens(pairs) * 100}svh` } as CSSProperties}>
       <span id="partnership" className={styles.partnershipAnchor} aria-hidden="true" />
       <ScenePortal><div ref={stage} className={styles.stage} data-scroll-title-skip data-dissolve-stage data-gallery-stage data-gallery-rows={pairs} data-scene-chapter="work" data-walkthrough-pinned={pinned}
-        onKeyDown={event => { if (event.key === 'Escape') { setSelectedSlug(null); event.stopPropagation(); } }}>
+        onKeyDown={event => { if (event.key === 'Escape' && selectedSlug) { setSelectedSlug(null); event.stopPropagation(); } }}>
         <motion.header className={styles.header} style={{ opacity: pinned ? titleOpacity : 1 }}>
           <h2 id="selected-work-heading">{tr('Selected work')}</h2>
           <p>{fr ? 'Entrez dans notre univers.' : 'Step inside our world.'}</p>

@@ -13,7 +13,7 @@
 .pause { position: absolute; right: -2rem; bottom: -.25rem; width: 44px; height: 44px; display: grid; place-items: center; padding: 0; background: transparent; border: 1px solid #e5192a26; border-radius: 50%; color: #a6373f; cursor: pointer; opacity: var(--partnership-ring,1); }
 .pause svg { width: 13px; height: 13px; }
 .mark :is(button):focus-visible { outline: 2px solid var(--color-brand-red,#e5192a); outline-offset: 5px; }
-.results { --liquid-button-width: min(15rem,calc(100vw - 3rem)); --liquid-button-height: 3.25rem; --liquid-button-label-size: .8125rem; --liquid-button-label-wrap: normal; --liquid-button-label-max-width: calc(var(--liquid-button-width) - 1.5rem); width: fit-content; margin-inline: auto; }
+.results { --liquid-button-width: min(15rem,calc(100vw - 3rem)); --liquid-button-height: 3.25rem; --liquid-button-label-size: .8125rem; --liquid-button-label-wrap: normal; --liquid-button-label-max-width: calc(var(--liquid-button-width) - 1.5rem); display: flex; justify-content: center; width: fit-content; margin-inline: auto; }
 .results button:focus-visible { outline: 2px solid var(--color-brand-red,#e5192a); outline-offset: 5px; }
 @keyframes partnership-orbit { to { transform: rotate(360deg); } }
 @media(prefers-reduced-motion:reduce) { .orbit { animation: none; }.emblem,.orbit text { transition: none; }.pause { display: none; }.results * { transition: none !important; animation: none !important; } }
