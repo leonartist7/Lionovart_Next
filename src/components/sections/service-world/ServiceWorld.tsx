@@ -153,7 +153,15 @@ export function WorldStageControls({ service, variant, onVariant, labels, enable
   enabled: boolean; onEnabled: () => void; paused: boolean; onPaused: () => void;
 }) {
   const { locale } = useLanguage(); const fr = locale === 'fr';
-  return <div className={styles.controls} data-exhibit-controls={mediaFirst} data-paused={paused} onPointerDown={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
+  return <div className={styles.controls} data-exhibit-controls={mediaFirst} data-paused={paused} onPointerDown={e => e.stopPropagation()} onKeyDown={e => {
+    e.stopPropagation();
+    if (!mediaFirst || !(e.target instanceof HTMLButtonElement) || !e.target.hasAttribute('data-dial-option')) return;
+    const buttons = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>('[data-dial-option]'));
+    const index = buttons.indexOf(e.target);
+    const next = e.key === 'ArrowRight' ? (index + 1) % labels.length : e.key === 'ArrowLeft' ? (index + labels.length - 1) % labels.length : e.key === 'Home' ? 0 : e.key === 'End' ? labels.length - 1 : -1;
+    if (next < 0) return;
+    e.preventDefault(); onVariant(next); buttons[next]?.focus({ preventScroll: true });
+  }}>
     <p className={styles.hint}>{mediaFirst ? (fr ? 'Imaginons les possibilités.' : 'Imagine the possibilities.') : (fr ? 'Explorez cette expertise' : 'Explore this expertise')}</p>
     <div className={styles.tags} data-triptych-tags={mediaFirst} role="group" aria-label={fr ? 'Exemples de services' : 'Service examples'}>
       {mediaFirst && <div className={glass.podium} data-service-podium aria-hidden="true">

@@ -1,20 +1,18 @@
 'use client';
 
 import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion, useTransform, type MotionValue, type HTMLMotionProps } from 'framer-motion';
-import { createContext, useContext, useLayoutEffect, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useLayoutEffect, type ReactNode } from 'react';
 import { dialOrbit, nearestDialStop } from './service-selection';
 
 const DialContext = createContext<MotionValue<number> | null>(null);
 
 /** One motion value drives cards, labels and reflected light; no render loop. */
-export function ServiceDialMotion({ service, variant, reduced, children }: {
-  service: string; variant: number; reduced: boolean; children: ReactNode;
+export function ServiceDialMotion({ variant, reduced, children }: {
+  variant: number; reduced: boolean; children: ReactNode;
 }) {
   const position = useMotionValue(variant);
-  const previousService = useRef(service);
   useLayoutEffect(() => {
-    if (previousService.current !== service || reduced) {
-      previousService.current = service;
+    if (reduced) {
       position.set(variant);
       return;
     }
@@ -22,7 +20,7 @@ export function ServiceDialMotion({ service, variant, reduced, children }: {
       duration: .9, ease: [.22, 1, .36, 1],
     });
     return () => animation.stop();
-  }, [position, service, variant, reduced]);
+  }, [position, variant, reduced]);
   return <DialContext.Provider value={position}>{children}</DialContext.Provider>;
 }
 

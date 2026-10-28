@@ -155,7 +155,7 @@ export default function HomepageServicesChapter() {
   const selectWorld = world?.select;
   const [shortScreen, setShortScreen] = useState(false);
   const staticLayout = reduceMotion || shortScreen;
-  const [variants, setVariants] = useState<Record<string, number>>({});
+  const [variant, setVariant] = useState(1);
   const [ledEnabled, setLedEnabled] = useState(true);
   const [scenePaused, setScenePaused] = useState(false);
   useEffect(() => {
@@ -215,9 +215,8 @@ export default function HomepageServicesChapter() {
   }, [activeIndex, chapterRef]);
 
   const activeService = services[activeIndex] ?? services[0];
-  const variant = variants[activeService.id] ?? 1;
   const exhibitLabels = serviceExhibits(activeService.id).map(exhibit => exhibitLabel(exhibit, locale));
-  const selectVariant = (value: number) => setVariants(previous => ({ ...previous, [activeService.id]: value }));
+  const selectVariant = (value: number) => setVariant(value);
   const interactive = !!world;
 
   useEffect(() => {
@@ -364,7 +363,7 @@ export default function HomepageServicesChapter() {
           <ServicesCurves />
         </ServicesArrivalLayer>
 
-        <ServiceDialMotion service={activeService.id} variant={variant} reduced={reduceMotion}>
+        <ServiceDialMotion variant={variant} reduced={reduceMotion}>
         <div data-service-content data-service-current={activeService.id} data-service-loading={requestedIndex !== activeIndex} className="absolute inset-0 z-40">
           <span className="sr-only" aria-live="polite">{activeService.title}</span>
 
