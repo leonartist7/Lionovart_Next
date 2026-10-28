@@ -4,9 +4,10 @@ import { emitExperienceCue } from "../experience/experience-cues";
 
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useLenis } from "lenis/react";
-import { scrollEase } from "@/components/experience/scroll-policy";
 
-import { ServiceScreen } from "./ScreeningMedia";
+import { ServiceScreen, prepareServicePosters } from "./ScreeningMedia";
+import { ServiceDialMotion } from "./ServiceDialMotion";
+import { createSelectionGate } from "./service-selection";
 import { exhibitLabel, serviceExhibits } from "./service-triptych";
 import { ScenePortal } from './service-world/PinnedScene';
 import { useDissolveStage } from "@/hooks/useDissolveStage";
@@ -65,12 +66,12 @@ const SERVICE_MEDIA = {
 } as const;
 
 const SERVICE_META = [
-  { id: "branding", number: "01", short: "Brand" },
-  { id: "web", number: "02", short: "Digital" },
-  { id: "content-studio", number: "03", short: "Content" },
-  { id: "print", number: "04", short: "Spaces" },
-  { id: "smart-systems", number: "05", short: "Systems" },
-  { id: "led", number: "06", short: "LED" },
+  { id: "branding", short: "Brand" },
+  { id: "web", short: "Digital" },
+  { id: "content-studio", short: "Content" },
+  { id: "print", short: "Spaces" },
+  { id: "smart-systems", short: "Systems" },
+  { id: "led", short: "LED" },
 ] as const;
 const SERVICE_COUNT = SERVICE_META.length;
 
@@ -168,7 +169,33 @@ export default function HomepageServicesChapter() {
   const restoringViewport = useRef(false);
   const activeIndexRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
-  useEffect(() => { activeIndexRef.current = activeIndex; }, [activeIndex]);
+  const requestedIndexRef = useRef(0);
+  const [requestedIndex, setRequestedIndex] = useState(0);
+  const [loadError, setLoadError] = useState(false);
+  const navigationJump = useRef(false);
+  const jumpFrame = useRef(0);
+  const selection = useRef<ReturnType<typeof createSelectionGate<number>> | null>(null);
+  useEffect(() => {
+    const gate = createSelectionGate<number>({
+      prepare: index => prepareServicePosters(SERVICE_META[index].id),
+      commit: index => { activeIndexRef.current = index; setActiveIndex(index); },
+      fail: () => {
+        requestedIndexRef.current = activeIndexRef.current;
+        setRequestedIndex(activeIndexRef.current);
+        setLoadError(true);
+      },
+    });
+    selection.current = gate;
+    return () => { gate.cancel(); cancelAnimationFrame(jumpFrame.current); };
+  }, []);
+  const requestService = useCallback((index: number) => {
+    if (requestedIndexRef.current === index) return;
+    requestedIndexRef.current = index;
+    setRequestedIndex(index);
+    setLoadError(false);
+    if (activeIndexRef.current === index) selection.current?.cancel();
+    else selection.current?.request(index);
+  }, []);
 
   const services = SERVICE_META.map((meta, index) => ({
     ...meta,
@@ -202,7 +229,7 @@ export default function HomepageServicesChapter() {
   });
 
   useMotionValueEvent(scrollYProgress, "change", (value) => {
-    if (staticLayout || restoringViewport.current) return;
+    if (staticLayout || restoringViewport.current || navigationJump.current) return;
     const normalized = clamp(
       (value - SERVICE_START) / (SERVICE_END - SERVICE_START),
       0,
@@ -212,7 +239,7 @@ export default function HomepageServicesChapter() {
       SERVICE_COUNT - 1,
       Math.floor(normalized * SERVICE_COUNT),
     );
-    setActiveIndex((current) => (current === next ? current : next));
+    requestService(next);
   });
 
   const goToService = useCallback(
@@ -220,8 +247,8 @@ export default function HomepageServicesChapter() {
       const element = chapterRef.current;
       if (!element) return;
       const next = carouselPreview ? (index % SERVICE_COUNT + SERVICE_COUNT) % SERVICE_COUNT : clamp(index, 0, SERVICE_COUNT - 1);
+      requestService(next);
       if (staticLayout) {
-        setActiveIndex(next);
         if (behavior === 'instant') {
           const top = element.getBoundingClientRect().top + window.scrollY;
           if (lenis) lenis.scrollTo(top, { immediate: true, userData: { navigation: true } });
@@ -234,10 +261,14 @@ export default function HomepageServicesChapter() {
       const ratio = (next + 0.5) / SERVICE_COUNT;
       const targetProgress = SERVICE_START + ratio * (SERVICE_END - SERVICE_START);
       const target = sectionTop + travel * targetProgress;
-      if (lenis) lenis.scrollTo(target, { duration: .6, lerp: 0, easing: scrollEase, immediate: behavior !== "smooth", userData: { navigation: true } });
-      else window.scrollTo({ top: target, behavior });
+      // Rebase within the held stage in one frame. Never scroll through intervening categories.
+      navigationJump.current = true;
+      cancelAnimationFrame(jumpFrame.current);
+      if (lenis) lenis.scrollTo(target, { immediate: true, userData: { navigation: true } });
+      else window.scrollTo({ top: target, behavior: 'instant' });
+      jumpFrame.current = requestAnimationFrame(() => { jumpFrame.current = requestAnimationFrame(() => { navigationJump.current = false; }); });
     },
-    [carouselPreview, staticLayout, lenis, chapterRef],
+    [carouselPreview, staticLayout, lenis, chapterRef, requestService],
   );
 
   // Preserve the authored chapter across orientation/layout changes, without moving readers elsewhere on the page.
@@ -293,17 +324,17 @@ export default function HomepageServicesChapter() {
     const now = performance.now();
     if (now - wheelLockRef.current < 260) return;
     wheelLockRef.current = now;
-    goToService(activeIndex + (event.deltaX > 0 ? 1 : -1));
+    goToService(requestedIndexRef.current + (event.deltaX > 0 ? 1 : -1));
   };
 
   const handleKeys = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "ArrowRight") {
       event.preventDefault();
-      goToService(activeIndex + 1);
+      goToService(requestedIndexRef.current + 1);
     }
     if (event.key === "ArrowLeft") {
       event.preventDefault();
-      goToService(activeIndex - 1);
+      goToService(requestedIndexRef.current - 1);
     }
   };
 
@@ -333,7 +364,8 @@ export default function HomepageServicesChapter() {
           <ServicesCurves />
         </ServicesArrivalLayer>
 
-        <div data-service-content className="absolute inset-0 z-40">
+        <ServiceDialMotion service={activeService.id} variant={variant} reduced={reduceMotion}>
+        <div data-service-content data-service-current={activeService.id} data-service-loading={requestedIndex !== activeIndex} className="absolute inset-0 z-40">
           <span className="sr-only" aria-live="polite">{activeService.title}</span>
 
           <div data-service-panel
@@ -346,7 +378,7 @@ export default function HomepageServicesChapter() {
               dragDirectionLock
               onDragEnd={(_, info) => {
                 if (Math.abs(info.offset.x) < 44) return;
-                goToService(activeIndex + (info.offset.x < 0 ? 1 : -1));
+                goToService(requestedIndexRef.current + (info.offset.x < 0 ? 1 : -1));
               }}
               style={{ touchAction: "pan-y" }}
               className="flex h-full flex-col items-center justify-center gap-7 sm:gap-9 lg:gap-[clamp(2.75rem,5.5svh,5rem)]"
@@ -359,12 +391,17 @@ export default function HomepageServicesChapter() {
 
               <div data-service-copy className="order-2 flex min-w-0 flex-col justify-center text-center">
                 <div>
-                    <h3 data-service-title className="mx-auto max-w-[13ch] font-clash text-[clamp(2.15rem,8.6vw,3.75rem)] font-semibold uppercase leading-[0.86] tracking-[-0.052em] sm:text-[clamp(2.45rem,7.5vw,4.5rem)] lg:max-w-[11ch] lg:text-[clamp(3.2rem,5vw,6.2rem)]">
-                      {activeService.title}
-                    </h3>
-                    <p data-service-description className="mx-auto mt-4 max-w-[36ch] font-body text-[13px] font-medium leading-[1.52] text-black/60 sm:mt-5 sm:text-[15px] lg:mt-6 lg:max-w-[38ch] lg:text-[18px] lg:leading-[1.62]">
-                      {activeService.description}
-                    </p>
+                    <h3 className="sr-only">{activeService.title}</h3>
+                    <div data-service-description-slot>
+                      <AnimatePresence initial={false} mode="sync">
+                        <motion.p key={activeService.id} data-service-description
+                          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                          transition={{ duration: reduceMotion ? .12 : .8, ease: [.22, 1, .36, 1] }}>
+                          {activeService.description}
+                        </motion.p>
+                      </AnimatePresence>
+                    </div>
+                    {loadError && <p data-service-error role="status">{tr("Preview unavailable. Please select the service again.")}</p>}
                     {interactive ? <WorldStageControls service={activeService.id} variant={variant}
                       labels={exhibitLabels} mediaFirst
                       onVariant={selectVariant}
@@ -385,11 +422,11 @@ export default function HomepageServicesChapter() {
             </motion.div>
           </div>
         </div>
-
+        </ServiceDialMotion>
 
       </div></ScenePortal>
       </div>
-      <ServicesWorkNavigation services={services} activeIndex={activeIndex} onSelect={goToService} />
+      <ServicesWorkNavigation services={services} activeIndex={requestedIndex} onSelect={goToService} />
     </section>
   );
 }

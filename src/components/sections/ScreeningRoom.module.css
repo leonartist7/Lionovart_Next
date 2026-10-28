@@ -101,3 +101,7 @@
 }
 
 @media(min-width:768px) and (max-height:740px) { .shapingMessage h2 { font-size: clamp(2rem,5.2svh,3.25rem); } }
+
+/* Persistent frames, with only prepared media layers fading inside them. */
+.mediaLayer { position: absolute; inset: 0; border-radius: inherit; }
+.media[data-frame-ratio] { animation: none; }

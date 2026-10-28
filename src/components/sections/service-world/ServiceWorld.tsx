@@ -8,7 +8,8 @@ import { serviceExhibit } from './scene-art';
 import type { WorldEngine } from './world-renderer';
 import { worldLight, type WorldInput } from './world-state';
 import styles from './ServiceWorld.module.css';
-import { exhibitPosition, serviceExhibits } from '../service-triptych';
+import { serviceExhibits } from '../service-triptych';
+import { ServiceDialLight, ServiceDialOption } from '../ServiceDialMotion';
 import glass from '../ServiceGlassStage.module.css';
 import AtelierLight from './AtelierLight';
 import PinnedScene from './PinnedScene';
@@ -156,11 +157,13 @@ export function WorldStageControls({ service, variant, onVariant, labels, enable
     <p className={styles.hint}>{mediaFirst ? (fr ? 'Imaginons les possibilités.' : 'Imagine the possibilities.') : (fr ? 'Explorez cette expertise' : 'Explore this expertise')}</p>
     <div className={styles.tags} data-triptych-tags={mediaFirst} role="group" aria-label={fr ? 'Exemples de services' : 'Service examples'}>
       {mediaFirst && <div className={glass.podium} data-service-podium aria-hidden="true">
-        {serviceExhibits(service).map((exhibit, index) => <div key={index} className={glass.reflectedLight} data-selected={index === variant}
-          style={{ background: `radial-gradient(ellipse at center, ${exhibit.tint}55, transparent 68%)` }} />)}
+        {serviceExhibits(service).map((exhibit, index) => <ServiceDialLight key={index} index={index} className={glass.reflectedLight}
+          background={`${exhibit.tint}18`} />)}
         <div className={glass.rim} />
       </div>}
-      {labels.map((label, index) => <button type="button" key={label} data-position={mediaFirst ? exhibitPosition(index, variant) : undefined} aria-pressed={variant === index} onClick={() => onVariant(index)}>{label}</button>)}
+      {labels.map((label, index) => mediaFirst
+        ? <ServiceDialOption key={index} index={index} label={label} selected={variant === index} onSelect={() => onVariant(index)} />
+        : <button type="button" key={label} aria-pressed={variant === index} onClick={() => onVariant(index)}>{label}</button>)}
     </div>
     <div className={styles.utilities}>
       {service === 'led' && !mediaFirst && <button type="button" role="switch" aria-checked={enabled} onClick={onEnabled}>{fr ? 'Écran LED' : 'LED display'} <span>{enabled ? 'ON' : 'OFF'}</span></button>}

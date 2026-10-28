@@ -158,3 +158,18 @@
   .controls[data-exhibit-controls=true] .utilities { margin-top: .25rem; }
   .world :global([data-service-podium]) { opacity: .35; }
 }
+
+/* The copy holds its space while prepared categories dissolve; the dial has real depth. */
+.world[data-world-mode=media] :global([data-service-description-slot]) { display: grid; width: min(88vw,52ch); min-height: 3.3em; margin-inline: auto; }
+.world[data-world-mode=media] :global([data-service-description]) { grid-area: 1 / 1; align-self: center; margin: 0; }
+.tags[data-triptych-tags=true] { perspective: 900px; transform-style: preserve-3d; }
+.tags[data-triptych-tags=true] button[data-dial-option] { transform-style: preserve-3d; transition: color 200ms ease; font-size: .75rem; line-height: 1.3; }
+.tags[data-triptych-tags=true] button[data-dial-option] span { position: absolute; inset: 0; display: grid; place-items: center; padding: .4rem; }
+.tags[data-triptych-tags=true] button[data-dial-option]:focus-visible { outline: 1px solid #967b4d; outline-offset: 4px; border-radius: .5rem; }
+@media(max-width:767px) {
+  .tags[data-triptych-tags=true] button[data-dial-option] { font-size: .6875rem; }
+  .world[data-world-mode=media] :global([data-service-description-slot]) { width: min(88vw,39ch); min-height: 4.65em; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .tags[data-triptych-tags=true] button[data-dial-option] { transition: none; }
+}

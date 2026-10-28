@@ -11,7 +11,6 @@
 .card[data-position=left] { transform: translate3d(-68%,3%,-300px); z-index: 1; opacity: .48; }
 .card[data-position=right] { transform: translate3d(68%,3%,-300px); z-index: 1; opacity: .48; }
 .screen { position: relative; width: 100%; height: 100%; container-type: size; }
-.cardLabel { position: absolute; bottom: 0; left: .5rem; right: .5rem; text-align: center; font: 500 .625rem/1.4 var(--font-dm-sans),sans-serif; letter-spacing: .16em; text-transform: uppercase; color: #655d50; }
 .selectCard { position: absolute; inset: 0; cursor: pointer; background: transparent; border: 0; border-radius: 4px; }
 .card[data-position=center] .selectCard { pointer-events: none; }
 .selectCard:focus-visible { outline: 2px solid #8a7149; outline-offset: 5px; }
@@ -21,7 +20,6 @@
   .card { width: 68%; left: 16%; padding-bottom: 1.5rem; }
   .card[data-position=left] { transform: translate3d(-60%,2%,-210px); }
   .card[data-position=right] { transform: translate3d(60%,2%,-210px); }
-  .cardLabel { font-size: .5rem; letter-spacing: .09em; }
   .podium { width: 96vw; height: 3.25rem; }
 }
 @media(max-height:740px) and (min-height:561px) { .stage { height: 29svh; min-height: 10rem; } }
@@ -34,6 +32,10 @@
 /* Keep the same three DOM/media surfaces during the service-to-work gather.
    Inherited progress also survives the final service's React content update. */
 .stage { --service-side-x: 68%; --service-side-y: 3%; --service-side-depth: -300px; }
+/* Endpoint geometry stays identical to the authored entrance/gather. */
+.card[data-orbit] { transform: translate3d(calc(var(--service-side-x) * var(--orbit-x,0)),calc(var(--service-side-y) * var(--orbit-depth,0)),calc(var(--service-side-depth) * var(--orbit-depth,0))); opacity: var(--orbit-opacity,1); transition: none; }
+.colorSpill[data-orbit-light], .reflectedLight[data-orbit-light] { transition: none; mask-image: radial-gradient(ellipse closest-side at center,#000,transparent); }
+.podium { top: calc(100% + 3.75rem); }
 :global([data-gallery-gathering=true]) .card { transition: none; }
 :global([data-gallery-gathering=true]) .card[data-position=left] { transform: translate3d(calc(-1 * var(--service-side-x) * (1 - var(--service-gallery-gather,0)) - var(--service-release-x,0px) * var(--service-gallery-release,0)),calc(var(--service-side-y) * (1 - var(--service-gallery-gather,0)) - var(--service-release-y,0px) * var(--service-gallery-release,0)),calc(var(--service-side-depth) * (1 - var(--service-gallery-gather,0)) - 70px * var(--service-gallery-gather,0))); opacity: calc(.48 + .32 * var(--service-gallery-gather,0)); }
 :global([data-gallery-gathering=true]) .card[data-position=right] { transform: translate3d(calc(var(--service-side-x) * (1 - var(--service-gallery-gather,0)) + var(--service-release-x,0px) * var(--service-gallery-release,0)),calc(var(--service-side-y) * (1 - var(--service-gallery-gather,0)) + var(--service-release-y,0px) * var(--service-gallery-release,0)),calc(var(--service-side-depth) * (1 - var(--service-gallery-gather,0)) - 70px * var(--service-gallery-gather,0))); opacity: calc(.48 + .32 * var(--service-gallery-gather,0)); }

@@ -51,7 +51,7 @@ function WorkControls() {
 
 /** One viewport-anchored pill bridges the services and the work beneath them. */
 export default function ServicesWorkNavigation({ services, activeIndex, onSelect }: {
-  services: readonly { id: string; number: string; short: string }[];
+  services: readonly { id: string; short: string }[];
   activeIndex: number; onSelect: (index: number) => void;
 }) {
   const tr = usePublicCopy();
@@ -116,7 +116,6 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
         {services.map((service, index) => <button key={service.id} type="button" className={styles.serviceButton}
           data-service-option aria-pressed={index === activeIndex} onClick={() => onSelect(index)}>
           <span className={styles.serviceLabel}>{tr(service.short)}</span>
-          <span className={styles.serviceNumber}>{service.number}</span>
         </button>)}
       </motion.div>
       <motion.div className={styles.workLayer} style={{ opacity: workOpacity }} aria-hidden={!workMode} inert={!workMode}>
