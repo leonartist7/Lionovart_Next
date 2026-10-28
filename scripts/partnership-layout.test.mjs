@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { partnershipLayout } from '../src/components/sections/partnership-layout.ts';
 import { galleryEnding } from '../src/components/sections/gallery-journey.ts';
 
-for (const [width,height] of [[320,568],[390,844],[768,1024],[1024,768],[1365,650],[1440,900],[2560,1080]]) {
+for (const [width,height] of [[320,568],[360,640],[390,844],[768,1024],[1024,768],[1365,650],[1440,900],[2560,1080]]) {
  test(`partnership invitation and result action have separate reading areas at ${width}x${height}`, () => {
   const layout = partnershipLayout(width,height);
   const markTop = height * .4 + layout.markDrop - layout.markSize / 2;

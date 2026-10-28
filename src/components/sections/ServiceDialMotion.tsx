@@ -48,10 +48,10 @@ export function ServiceDialOption({ index, label, selected, onSelect }: {
   const rotateX = useTransform(position, value => dialOrbit(index, value).depth * 8);
   const rotateY = useTransform(position, value => dialOrbit(index, value).x * -8);
   const opacity = useTransform(position, value => 1 - dialOrbit(index, value).depth * .32);
-  return <motion.button type="button" data-dial-option aria-pressed={selected}
+  return <motion.button type="button" data-dial-option aria-label={label} aria-pressed={selected}
     style={{ x, y, z, rotateX, rotateY, opacity }} onClick={onSelect}>
     <AnimatePresence initial={false}>
-      <motion.span key={label} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      <motion.span key={label} aria-hidden="true" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         transition={{ duration: reduced ? .12 : .8, ease: [.22, 1, .36, 1] }}>{label}</motion.span>
     </AnimatePresence>
   </motion.button>;

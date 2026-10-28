@@ -34,7 +34,7 @@ test('native gallery progress is finite and consistent across portrait and deskt
 });
 
 test('phone and tablet exhibits open vertically within the reading area; desktop stays horizontal', () => {
- for(const [width,height] of [[320,568],[390,844],[390,1180],[768,1024],[1024,768]]) {
+ for(const [width,height] of [[320,568],[360,640],[390,844],[390,1180],[768,1024],[1024,768]]) {
   const layout=galleryLayout(width,height,width-15);
   assert.equal(layout.vertical,true);
   assert.equal(layout.x,0);
@@ -131,14 +131,14 @@ function bounds(width, height, layout, pose, side, row) {
  return {left:Math.min(...corners.map(p=>p.x)),right:Math.max(...corners.map(p=>p.x)),top:Math.min(...corners.map(p=>p.y)),bottom:Math.max(...corners.map(p=>p.y))};
 }
 test('reading pairs have clear space between their full frames on phones, tablets and desktop', () => {
- for(const [width,height] of [[320,568],[390,844],[768,1024],[1024,768],[1365,650],[1440,740],[1365,936],[1440,900],[2560,1080]]) {
+ for(const [width,height] of [[320,568],[360,640],[390,844],[768,1024],[1024,768],[1365,650],[1440,740],[1365,936],[1440,900],[2560,1080]]) {
   const layout=galleryLayout(width,height,width-15), pose=galleryCardPose(0,0,4);
   const a=bounds(width,height,layout,pose,-1,0), b=bounds(width,height,layout,pose,1,0);
   assert.ok(layout.vertical ? a.bottom+32<b.top : a.right+20<b.left, `reading pair overlaps at ${width}x${height}`);
  }
 });
 test('successive rows do not visibly pile on top of one another during outward travel', () => {
- for(const [width,height] of [[390,844],[768,1024],[1365,650],[1440,740],[1365,936],[1440,900],[2560,1080]]) {
+ for(const [width,height] of [[320,568],[360,640],[390,844],[768,1024],[1024,768],[1365,650],[1440,740],[1365,936],[1440,900],[2560,1080]]) {
   const layout=galleryLayout(width,height,width-15);
   for(let p=0;p<.76;p+=.0005) {
    for(let row=0;row<3;row++) {
