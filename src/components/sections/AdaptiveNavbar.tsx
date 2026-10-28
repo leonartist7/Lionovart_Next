@@ -181,7 +181,6 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
       setIsPastHero(nextPastHero);
       if (nextPastHero) setExpertiseOpen(false);
     }
-
   };
 
   const scrollToTarget = (target: string) => {
@@ -306,12 +305,14 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
     window.addEventListener("resize", schedule);
     window.addEventListener("pageshow", schedule);
     window.addEventListener("lionovart:splash-complete", schedule);
+    window.addEventListener("lionovart:hero-visibility", schedule);
     schedule();
     return () => {
       unsubscribe(); cancelAnimationFrame(frame);
       window.removeEventListener("resize", schedule);
       window.removeEventListener("pageshow", schedule);
       window.removeEventListener("lionovart:splash-complete", schedule);
+      window.removeEventListener("lionovart:hero-visibility", schedule);
     };
   }, [scrollY]);
 

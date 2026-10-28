@@ -20,6 +20,11 @@ export default function HeroOpening() {
   const [heroInert, setHeroInert] = useState(false);
   const heroOpacity = useTransform(openingProgress, [0, 0.03 / 1.6, 0.26 / 1.6], [1, 1, 0]);
   useMotionValueEvent(openingProgress, "change", p => { setHeroInert(p > 0.25 / 1.6); });
+  useMotionValueEvent(heroOpacity, "change", opacity => {
+    // Notify after the authored fade reaches an endpoint as well as on scroll.
+    // Otherwise the last scroll sample can precede Motion's final DOM write.
+    if (opacity === 0 || opacity === 1) window.dispatchEvent(new Event("lionovart:hero-visibility"));
+  });
 
   useEffect(() => {
     const opening = openingRef.current;
