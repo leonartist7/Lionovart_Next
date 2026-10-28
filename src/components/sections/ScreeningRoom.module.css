@@ -68,9 +68,9 @@
 @media(max-width:767px) { .shapingMessage { padding-top: 54svh; }.shapingMessage h2 { max-width: 16ch; }.shapingMessage p { font-size: .5625rem; margin-bottom: 1rem; } }
 @media(max-height:560px), (prefers-reduced-motion:reduce) { .shapingMessage { display: none; }.cardIntro { translate: none !important; } }
 
-/* About is an accessible final exhibit. Overflow is local only when text zoom requires it. */
-.aboutRunway { height: 190svh; }
-.aboutStage { position: sticky; top: 0; height: 100svh; overflow-y: auto; scrollbar-width: thin; padding: 5rem 0 3rem; color: #171412; }
+/* About follows the pinned gallery in normal document flow, including at text zoom. */
+.aboutRunway { position: relative; height: auto; }
+.aboutStage { position: relative; min-height: 100svh; padding: 5rem 0 3rem; color: #171412; }
 .aboutStage :global([data-about-content]) { min-height: 100%; display: grid; align-items: center; }
 .galleryStage > div:last-child { width: min(100%,76rem); margin-inline: auto; margin-top: 1.25rem; }
 @media(max-width:919px) {

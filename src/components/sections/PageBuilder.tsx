@@ -46,9 +46,9 @@ export function PageBuilder() {
         </CardsServicesTransition>
         <NovaSection id="services"><ServicesSwitcher /></NovaSection>
         <SelectedWork compact servicesCurves />
-        <AboutScene />
         </ServiceWorld>
         </WorkBrowseProvider>
+        <AboutScene />
         <SeasonalCampaigns compact />
 
 
