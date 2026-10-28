@@ -1,0 +1,19 @@
+.mark { position: relative; width: 100%; height: 100%; }
+.invitation { position: absolute; inset: 0; display: grid; place-items: center; width: 100%; height: 100%; border: 0; border-radius: 50%; padding: 0; background: transparent; cursor: pointer; color: #c51727; }
+.orbit { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; opacity: var(--partnership-ring,1); animation: partnership-orbit 28s linear infinite; animation-play-state: paused; pointer-events: none; }
+.orbit text { fill: currentColor; font: 500 16px var(--font-dm-sans),sans-serif; text-transform: uppercase; transition: opacity 240ms ease; }
+.responseText { opacity: 0; }
+.emblem { display: block; width: 58%; height: auto; border-radius: 50%; box-shadow: 0 12px 36px -24px #80674c66; transition: transform 350ms cubic-bezier(.22,1,.36,1); }
+.mark[data-motion-active=true] .orbit { animation-play-state: running; }
+.invitation:is(:hover,:focus-visible) .orbit { animation-play-state: paused; }
+.invitation:is(:hover,:focus-visible) .readyText { opacity: 0; }
+.invitation:is(:hover,:focus-visible) .responseText { opacity: 1; }
+.invitation:is(:hover,:focus-visible) .emblem { transform: scale(1.025); }
+.invitation:active .emblem { transform: scale(.98); }
+.pause { position: absolute; right: -2rem; bottom: -.25rem; width: 44px; height: 44px; display: grid; place-items: center; padding: 0; background: transparent; border: 1px solid #e5192a26; border-radius: 50%; color: #a6373f; cursor: pointer; opacity: var(--partnership-ring,1); }
+.pause svg { width: 13px; height: 13px; }
+.mark :is(button):focus-visible { outline: 2px solid var(--color-brand-red,#e5192a); outline-offset: 5px; }
+.results { --liquid-button-width: min(15rem,calc(100vw - 3rem)); --liquid-button-height: 3.25rem; --liquid-button-label-size: .8125rem; --liquid-button-label-wrap: normal; --liquid-button-label-max-width: calc(var(--liquid-button-width) - 1.5rem); width: fit-content; margin-inline: auto; }
+.results button:focus-visible { outline: 2px solid var(--color-brand-red,#e5192a); outline-offset: 5px; }
+@keyframes partnership-orbit { to { transform: rotate(360deg); } }
+@media(prefers-reduced-motion:reduce) { .orbit { animation: none; }.emblem,.orbit text { transition: none; }.pause { display: none; }.results * { transition: none !important; animation: none !important; } }

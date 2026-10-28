@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
-import Image from 'next/image';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useSpring, useTransform, type MotionValue } from 'framer-motion';
 import { useLenis } from 'lenis/react';
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp } from 'lucide-react';
@@ -15,6 +14,8 @@ import { galleryLayout, GALLERY_ENTRY_PROJECTION } from './gallery-layout';
 import { serviceGalleryHandoff } from './service-gallery-handoff';
 import { galleryCardPose, galleryEnding, galleryPairProgress, galleryProgress, galleryTravel, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
 import styles from './GalleryWalkthrough.module.css';
+import PartnershipMark, { PartnershipResultsButton } from './PartnershipMark';
+import { partnershipLayout } from './partnership-layout';
 
 function WorkTags({ work }: { work: GalleryWork }) {
   const tr = usePublicCopy();
@@ -80,8 +81,9 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const pairs = Math.max(1, Math.ceil(projects.length / 2));
   const pinned = !!scene?.target;
   const titleOpacity = useTransform(() => galleryEnding(progress.get()).header * arrivalTitle.get());
-  const logoTransform = useTransform(progress, p => `translate(-50%,-50%) translateZ(${galleryEnding(p).logoZ}px)`);
+  const logoTransform = useTransform(progress, p => `translate(-50%,-50%) translateY(calc(${galleryEnding(p).markSettle} * var(--partnership-mark-drop,24svh))) translateZ(${galleryEnding(p).logoZ}px)`);
   const logoOpacity = useTransform(progress, p => galleryEnding(p).logo);
+  const ringOpacity = useTransform(progress, p => galleryEnding(p).ring);
   const copyOpacity = useTransform(progress, p => galleryEnding(p).copy);
   const copyTransform = useTransform(progress, p => `translateY(${(1 - galleryEnding(p).copy) * 16}px)`);
   const linkOpacity = useTransform(progress, p => galleryEnding(p).links);
@@ -104,6 +106,11 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       if (surface && nextKey !== layoutKey) {
         layoutKey = nextKey;
         const layout = galleryLayout(innerWidth, innerHeight, document.documentElement.clientWidth);
+        const endingLayout = partnershipLayout(document.documentElement.clientWidth, innerHeight);
+        surface.style.setProperty('--partnership-mark-size', `${endingLayout.markSize}px`);
+        surface.style.setProperty('--partnership-mark-drop', `${endingLayout.markDrop}px`);
+        surface.style.setProperty('--partnership-copy-top', `${endingLayout.copyTop}px`);
+        surface.style.setProperty('--partnership-cta-bottom', `${endingLayout.ctaBottom}px`);
         surface.dataset.galleryAxis = layout.vertical ? 'vertical' : 'horizontal';
         surface.dataset.galleryCompact = String(layout.compact);
         surface.style.setProperty('--gallery-wall-offset', `${layout.x}px`);
@@ -159,14 +166,15 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       const anchor = runway.current; if (!anchor) return;
       const box = anchor.getBoundingClientRect();
       const offset = location.hash === '#partnership' && pinned ? (box.height - innerHeight * .85) * .91 : 0;
-      const target = scrollY + box.top + offset;
+      const staticEnding = !pinned && location.hash === '#partnership' ? stage.current?.querySelector('[data-gallery-ending]') : null;
+      const target = staticEnding ? scrollY + staticEnding.getBoundingClientRect().top - 64 : scrollY + box.top + offset;
       if (lenis) lenis.scrollTo(target, { immediate: true, force: true, userData: { navigation: true } });
       else window.scrollTo({ top: target, behavior: 'instant' });
     }); };
     if (document.documentElement.dataset.splashComplete === 'true') land();
     else window.addEventListener('lionovart:splash-complete', land, { once: true });
     return () => { cancelAnimationFrame(frame); window.removeEventListener('lionovart:splash-complete', land); };
-  }, [pinned, runway, lenis]);
+  }, [pinned, runway, stage, lenis]);
 
   // Native gestures interrupt both poster preparation and arrow travel. No scroll lock.
   useEffect(() => {
@@ -225,17 +233,13 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     });
   };
 
-  const continueTo = (event: MouseEvent<HTMLAnchorElement>, hash: '#about' | '#client-experience') => {
-    // Preserve modified-click/browser behavior; ordinary activation stays in this document.
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    const target = document.querySelector<HTMLElement>(hash === '#about' ? '[data-about-runway]' : hash);
+  const continueToResults = () => {
+    const target = document.getElementById('client-results') ?? document.getElementById('client-experience');
     if (!target) return;
-    event.preventDefault();
-    event.stopPropagation(); // The root Lenis anchor listener must not replace this runway destination.
-    history.replaceState(null, '', hash);
-    const top = scrollY + target.getBoundingClientRect().top - (hash === '#about' && pinned ? 0 : 64);
+    history.replaceState(null, '', `#${target.id}`);
+    const top = scrollY + target.getBoundingClientRect().top - 64;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (lenis) lenis.scrollTo(top, { duration: .9, immediate: reduced, userData: { navigation: true } });
+    if (lenis) lenis.scrollTo(top, { duration: 1.1, immediate: reduced, userData: { navigation: true } });
     else window.scrollTo({ top, behavior: reduced ? 'instant' : 'smooth' });
   };
 
@@ -253,8 +257,8 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
           {projects.map((work, index) => <GalleryPanel key={work.slug} work={work} index={index} pairs={pairs}
             progress={progress} entry={entry} entryScale={entryScale} solo={index === projects.length - 1 && projects.length % 2 === 1} selected={selectedSlug === work.slug} dimmed={!!selectedSlug && selectedSlug !== work.slug && Math.floor(index / 2) === pair} near={Math.floor(index / 2) === pair && !ending} active={active}
             onSelect={onSelect} />)}
-          <motion.div className={styles.logo} data-gallery-logo style={{ transform: logoTransform, opacity: logoOpacity }}>
-            <Image src="/images/lionovart-icon.svg" alt="LIONOVART" width={160} height={160} />
+          <motion.div className={styles.logo} data-gallery-logo style={{ transform: logoTransform, opacity: logoOpacity, pointerEvents: ending ? 'auto' : 'none', '--partnership-ring': ringOpacity } as unknown as React.ComponentProps<typeof motion.div>['style']}>
+            <PartnershipMark active={active && ending} ready={ending} />
           </motion.div>
         </div> : <div className={styles.staticGrid}>
           {projects.map(work => <button type="button" key={work.slug} className={styles.staticProject} data-focused={selectedSlug === work.slug} data-dimmed={!!selectedSlug && selectedSlug !== work.slug}
@@ -264,13 +268,13 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
           </button>)}
         </div>}
         <motion.div className={styles.ending} data-gallery-ending aria-hidden={pinned && !ending} style={{ opacity: pinned ? copyOpacity : 1, transform: pinned ? copyTransform : 'none' }}>
-          {!pinned && <Image src="/images/lionovart-icon.svg" alt="LIONOVART" width={96} height={96} />}
           <h2>{tr('One partnership')}</h2>
           <p>{tr('Designing your legacy')}</p>
-          <motion.div className={styles.links} style={{ opacity: pinned ? linkOpacity : 1 }} inert={pinned && !ending} aria-hidden={pinned && !ending}>
-            <a href="#about" onClick={event => continueTo(event, '#about')}>{fr ? 'Rencontrez le studio' : 'Meet the studio'}<ArrowDown aria-hidden="true" /></a>
-            <a href="#client-experience" onClick={event => continueTo(event, '#client-experience')}>{fr ? 'Découvrez nos résultats' : 'See our results'}<ArrowDown aria-hidden="true" /></a>
-          </motion.div>
+        </motion.div>
+        {!pinned && <div className={styles.staticMark}><PartnershipMark active={active} ready /></div>}
+        <motion.div className={styles.partnershipAction} data-partnership-action style={{ opacity: pinned ? linkOpacity : 1 }}
+          inert={pinned && !ending} aria-hidden={pinned && !ending}>
+          <PartnershipResultsButton active={active && (!pinned || ending)} onClick={continueToResults} />
         </motion.div>
         {previewError && <motion.p className={styles.previewError} style={{ opacity: pinned ? navOpacity : 1 }} aria-hidden={pinned && !walking} role="status">{fr ? 'Aperçu indisponible. Réessayez.' : 'Preview unavailable. Please try again.'}</motion.p>}
         {pinned && <motion.nav className={styles.navigation} data-gallery-navigation aria-busy={requested !== null} style={{ opacity: navOpacity }} aria-label={fr ? 'Parcourir les projets' : 'Browse the gallery'} inert={!walking} aria-hidden={!walking}>

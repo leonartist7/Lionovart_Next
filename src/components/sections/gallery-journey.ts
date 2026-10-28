@@ -30,6 +30,8 @@ export function galleryEnding(progress: number) {
   return {
     logoZ: 2800 * smooth(progress / GALLERY_WALK_END) - 2800,
     logo: smooth((progress - .1) / .3),
+    markSettle: smooth((progress - .76) / .1),
+    ring: smooth((progress - .73) / .08),
     copy: smooth((progress - .77) / .09),
     links: smooth((progress - .85) / .06),
     header: departure, dock: departure, navigation: departure,

@@ -69,20 +69,9 @@
 @media(max-height:560px), (prefers-reduced-motion:reduce) { .shapingMessage { display: none; }.cardIntro { translate: none !important; } }
 
 /* About follows the pinned gallery in normal document flow, including at text zoom. */
-.aboutRunway { position: relative; height: auto; background: var(--site-surface-light, #f7f4ef); }
-.aboutStage { position: relative; min-height: 100svh; padding: 5rem 0 3rem; color: #171412; }
-.aboutStage :global([data-about-content]) { min-height: 100%; display: grid; align-items: center; }
+.aboutRunway { position: relative; height: auto; scroll-margin-top: 5rem; background: var(--site-surface-light, #f7f4ef); }
+.aboutStage { position: relative; min-height: 0; padding: 0; color: #171412; }
 .galleryStage > div:last-child { width: min(100%,76rem); margin-inline: auto; margin-top: 1.25rem; }
-@media(max-width:919px) {
-  .aboutStage :global([data-about-content]) { padding: 1.5rem; }
-  .aboutStage :global([data-about-content]) > div { gap: 1.5rem; }
-  .aboutStage :global([data-about-content]) figure { grid-row: 1; width: 7.5rem; justify-self: start; }
-  .aboutStage :global([data-about-content]) figure img { border-radius: .5rem; }
-  .aboutStage :global([data-about-content]) figcaption { display: none; }
-  .aboutStage :global([data-about-content]) h2 { font-size: clamp(1.75rem,7vw,2.5rem); }
-  .aboutStage :global([data-about-content]) p { font-size: .875rem; margin-top: .875rem; line-height: 1.5; }
-  .aboutStage :global([data-about-content]) dl { margin-top: 1.25rem; }
-}
 @media(max-height:560px), (prefers-reduced-motion:reduce) {
   .aboutRunway { height: auto; }
   .aboutStage { position: relative; height: auto; padding: 0; overflow: visible; }

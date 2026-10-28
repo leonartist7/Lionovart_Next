@@ -17,3 +17,29 @@
 .portrait figcaption { margin-top: 1rem; font-size: .75rem; letter-spacing: .025em; color: #625d56; }
 @media (width >= 920px) { .grid { grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 5rem); } .portrait { justify-self: end; } }
 @media (600px <= width < 920px) { .grid { max-width: 42rem; } .portrait { width: 100%; } }
+
+/* The homepage introduction shares the following sections' normal document flow. */
+.section[data-about-content=true] { padding-block: clamp(2.5rem,5vw,4rem) clamp(2rem,4vw,3rem); }
+.section[data-about-content=true] .grid { grid-template-columns: minmax(0,1fr) minmax(12rem,16rem); gap: clamp(2rem,6vw,6rem); }
+.section[data-about-content=true] .heading { max-width: 25ch; font-size: clamp(2rem,3.4vw,3.25rem); line-height: 1.06; }
+.section[data-about-content=true] .description { max-width: 62ch; margin-top: .9rem; font-size: clamp(.875rem,1.1vw,1rem); line-height: 1.6; }
+.section[data-about-content=true] .portrait { width: min(100%,16rem); }
+.section[data-about-content=true] .portraitImage { border-radius: .75rem; }
+.section[data-about-content=true] .portrait figcaption { font-size: .6875rem; margin-top: .75rem; line-height: 1.4; }
+.section[data-about-content=true] .stats { margin-top: 1.5rem; }
+.section[data-about-content=true] .stats dd { font-size: clamp(1.5rem,2.2vw,2rem); }
+.section[data-about-content=true] .stats dt { font-size: .6875rem; }
+@media(width < 920px) {
+  .section[data-about-content=true] .grid { grid-template-columns: minmax(0,1fr) 6.5rem; gap: .875rem 1.25rem; align-items: start; }
+  .section[data-about-content=true] .copy { display: contents; }
+  .section[data-about-content=true] .heading { grid-column: 1; grid-row: 1; max-width: 22ch; font-size: clamp(1.5rem,4.5vw,2.5rem); }
+  .section[data-about-content=true] .portrait { grid-column: 2; grid-row: 1; width: 100%; }
+  .section[data-about-content=true] .portrait figcaption { display: none; }
+  .section[data-about-content=true] :is(.description,.stats,.link) { grid-column: 1 / -1; margin-top: 0; }
+  .section[data-about-content=true] .link { justify-self: start; }
+  .section[data-about-content=true] .stats { margin-top: .25rem; }
+}
+@media(width < 480px) {
+  .section[data-about-content=true] .grid { grid-template-columns: minmax(0,1fr) 5.25rem; gap: .875rem 1rem; }
+  .section[data-about-content=true] .stats > div + div { padding-left: .75rem; }
+}
