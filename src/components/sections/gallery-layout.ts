@@ -10,6 +10,8 @@ export function galleryLayout(viewportWidth: number, height: number, contentWidt
     x: vertical ? 0 : contentWidth * .33,
     // Cap the separation on very tall phones so the middle never becomes empty space.
     y: vertical ? Math.min(height * (compact ? .20 : .21), panelWidth * .375 + 48) : 0,
-    gatherY: vertical ? height * (.48 + (panelTop / 100 - .48) / GALLERY_ENTRY_PROJECTION) : height * .54,
+    // The incoming frame is projected around the corridor's 48% vanishing
+    // point on both axes/layouts. Match its rendered center, not its CSS top.
+    gatherY: height * (.48 + (panelTop / 100 - .48) / GALLERY_ENTRY_PROJECTION),
   };
 }

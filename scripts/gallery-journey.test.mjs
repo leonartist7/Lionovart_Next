@@ -53,3 +53,12 @@ test('phone and tablet exhibits open vertically within the reading area; desktop
  assert.equal(desktop.x,1425*.33);
  assert.equal(desktop.panelTop,54);
 });
+
+test('the service gather matches the projected gallery center on desktop and portrait', () => {
+ for (const [width, height] of [[320,568], [390,844], [768,1024], [1024,768], [1440,900], [2560,1080]]) {
+  const layout = galleryLayout(width, height, width - 15);
+  const vanishingY = height * .48;
+  const projectedY = vanishingY + (height * layout.panelTop / 100 - vanishingY) / GALLERY_ENTRY_PROJECTION;
+  assert.ok(Math.abs(layout.gatherY - projectedY) < .001, `service/gallery center mismatch at ${width}x${height}`);
+ }
+});

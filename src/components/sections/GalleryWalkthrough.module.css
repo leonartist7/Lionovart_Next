@@ -10,6 +10,7 @@
 .panel { position: absolute; left: 50%; top: var(--gallery-panel-top,54%); width: var(--gallery-panel-width,min(44vw,40rem)); aspect-ratio: 16/11; transform-style: preserve-3d; will-change: transform,opacity; }
 .project { position: relative; display: block; width: 100%; height: 100%; padding: 0; border: 0; border-radius: .25rem; background: transparent; color: #554b3e; cursor: pointer; pointer-events: auto; }
 .screen { position: absolute; inset: 0; container-type: size; }
+.stage[data-walkthrough-pinned=true] :global([data-screening-media]) { --screen-frame-ratio: calc(1.7777777778 * var(--gallery-frame-match,0) + var(--screen-ratio,1.6) * (1 - var(--gallery-frame-match,0))); }
 .projectCaption { position: absolute; top: calc(100% + .75rem); left: .5rem; right: .5rem; display: block; text-align: left; }
 .projectName { display: flex; justify-content: space-between; gap: 1rem; font: 400 clamp(.8125rem,1vw,1.125rem)/1.3 var(--font-clash-display),sans-serif; }
 .projectName svg { width: 1.1em; height: 1.1em; flex: none; }

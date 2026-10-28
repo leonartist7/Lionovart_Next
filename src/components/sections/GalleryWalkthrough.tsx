@@ -112,6 +112,9 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       const value = pinned ? galleryProgress(box.top, box.height, innerHeight) : 0;
       progress.set(value);
       const arrival = serviceGalleryHandoff(box.top, innerHeight);
+      // Inherit the service's complete 16:9 frame during the size match, then
+      // continuously recover each artwork's natural frame as the cards fan out.
+      surface?.style.setProperty('--gallery-frame-match', String(pinned ? 1 - arrival.spread : 0));
       entry.set(pinned ? arrival.spread : 1);
       arrivalTitle.set(pinned ? arrival.title : 1);
       if (pinned && arrival.progress < 1) {
