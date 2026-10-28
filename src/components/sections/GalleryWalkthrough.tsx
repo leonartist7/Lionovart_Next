@@ -23,11 +23,11 @@ function WorkTags({ work }: { work: GalleryWork }) {
   </span>;
 }
 
-function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, active, selected, dimmed, onSelect }: {
+function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, active, selected, dimmed, solo, onSelect }: {
   work: GalleryWork; index: number; pairs: number; progress: MotionValue<number>; entry: MotionValue<number>; entryScale: MotionValue<number>;
-  near: boolean; active: boolean; selected: boolean; dimmed: boolean; onSelect: (slug: string) => void;
+  near: boolean; active: boolean; selected: boolean; dimmed: boolean; solo: boolean; onSelect: (slug: string) => void;
 }) {
-  const pair = Math.floor(index / 2), side = index % 2 ? 1 : -1;
+  const pair = Math.floor(index / 2), side = solo ? 0 : index % 2 ? 1 : -1;
   const reduce = useReducedMotion();
   const [mediaVisible, setMediaVisible] = useState(pair === 0);
   useMotionValueEvent(progress, 'change', p => setMediaVisible(galleryCardPose(p, pair, pairs).opacity > .2));
@@ -50,7 +50,7 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
     style={{ transform, opacity, visibility }} inert={!near || !active} aria-hidden={!near}>
     <button type="button" className={styles.project} onClick={() => onSelect(work.slug)}
       aria-label={`Focus work: ${work.name}`} aria-pressed={selected}>
-      <div className={styles.screen}><ScreeningMedia asset={work} active={active && near && mediaVisible && (selected || !dimmed && side < 0)} label={false} /></div>
+      <div className={styles.screen}><ScreeningMedia asset={work} active={active && near && mediaVisible && (selected || !dimmed && side <= 0)} label={false} /></div>
       <motion.span className={styles.projectCaption} style={{ opacity: labelOpacity }}>
         <span className={styles.projectName}>{work.name}<span aria-hidden="true">{selected ? '−' : '+'}</span></span>
         <WorkTags work={work} />
@@ -181,11 +181,16 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       controller.target = null; setRequested(null);
       if (lenis) lenis.scrollTo(lenis.animatedScroll, { immediate: true });
     };
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    reduced.addEventListener('change', interrupt);
+    window.addEventListener('resize', interrupt);
     window.addEventListener('wheel', interrupt, { passive: true, capture: true });
     window.addEventListener('touchstart', interrupt, { passive: true, capture: true });
     window.addEventListener('keydown', interrupt, true);
     return () => {
       controller.ticket++;
+      reduced.removeEventListener('change', interrupt);
+      window.removeEventListener('resize', interrupt);
       window.removeEventListener('wheel', interrupt, true);
       window.removeEventListener('touchstart', interrupt, true);
       window.removeEventListener('keydown', interrupt, true);
@@ -246,7 +251,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
         </motion.header>
         {pinned ? <div className={styles.corridor} data-gallery-corridor>
           {projects.map((work, index) => <GalleryPanel key={work.slug} work={work} index={index} pairs={pairs}
-            progress={progress} entry={entry} entryScale={entryScale} selected={selectedSlug === work.slug} dimmed={!!selectedSlug && selectedSlug !== work.slug && Math.floor(index / 2) === pair} near={Math.floor(index / 2) === pair && !ending} active={active}
+            progress={progress} entry={entry} entryScale={entryScale} solo={index === projects.length - 1 && projects.length % 2 === 1} selected={selectedSlug === work.slug} dimmed={!!selectedSlug && selectedSlug !== work.slug && Math.floor(index / 2) === pair} near={Math.floor(index / 2) === pair && !ending} active={active}
             onSelect={onSelect} />)}
           <motion.div className={styles.logo} data-gallery-logo style={{ transform: logoTransform, opacity: logoOpacity }}>
             <Image src="/images/lionovart-icon.svg" alt="LIONOVART" width={160} height={160} />
