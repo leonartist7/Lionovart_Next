@@ -14,7 +14,11 @@ export function previewVideo(source: string, width: number) {
 }
 
 /** One silent decoder per active stage. A real poster survives blocked/failed video. */
-export function ScreeningMedia({ asset, active, paused = false, label = true, prepare = false }: { asset: ScreeningAsset; active: boolean; paused?: boolean; label?: boolean; prepare?: boolean }) {
+export function ScreeningMedia({ asset, active, paused = false, label = true, prepare = false, frameRatio }: {
+  asset: ScreeningAsset; active: boolean; paused?: boolean; label?: boolean; prepare?: boolean;
+  /** Fix the exhibit frame before metadata arrives; media retains its own proportions inside. */
+  frameRatio?: number;
+}) {
   const video = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [ratio, setRatio] = useState<number | null>(null);
@@ -40,12 +44,13 @@ export function ScreeningMedia({ asset, active, paused = false, label = true, pr
     sync(); document.addEventListener('visibilitychange', sync); media.addEventListener('change', sync);
     return () => { disposed = true; node?.pause(); document.removeEventListener('visibilitychange', sync); media.removeEventListener('change', sync); };
   }, [active, paused, asset.video, prepare]);
-  return <div className={styles.media} data-screening-media data-aspect-ready={ratio !== null}
-    style={{ '--screen-ratio': ratio ?? 1.6 } as CSSProperties}>
+  const displayRatio = frameRatio ?? ratio;
+  return <div className={styles.media} data-screening-media data-aspect-ready={displayRatio !== null} data-frame-ratio={frameRatio}
+    style={{ '--screen-ratio': displayRatio ?? 1.6 } as CSSProperties}>
     <Image src={asset.poster} alt={asset.name} fill sizes="(max-width: 767px) 90vw, 1100px" loading="lazy"
-      onLoad={event => { const image = event.currentTarget; if (image.naturalHeight && !video.current?.videoWidth) setRatio(image.naturalWidth / image.naturalHeight); }} />
+      onLoad={event => { const image = event.currentTarget; if (!frameRatio && image.naturalHeight && !video.current?.videoWidth) setRatio(image.naturalWidth / image.naturalHeight); }} />
     {asset.video && <video ref={video} poster={asset.poster} muted playsInline loop preload="none"
-      onLoadedMetadata={event => { const node = event.currentTarget; if (node.videoHeight) setRatio(node.videoWidth / node.videoHeight); }}
+      onLoadedMetadata={event => { const node = event.currentTarget; if (!frameRatio && node.videoHeight) setRatio(node.videoWidth / node.videoHeight); }}
       onPlaying={event => { event.currentTarget.dataset.playback = 'playing'; setPlaying(true); }} onPause={() => setPlaying(false)} onError={event => { event.currentTarget.dataset.playback = `media-error-${event.currentTarget.error?.code}`; setPlaying(false); }} data-playing={playing} aria-hidden="true" />}
     {label && <span className={styles.mediaLabel}>{asset.name}</span>}
   </div>;
@@ -69,7 +74,7 @@ export function ServiceScreen({ service, variant, active, paused, onVariant }: {
       const position = exhibitPosition(index, variant);
       const label = exhibitLabel(exhibit, locale);
       return <div key={`${service}-${index}`} className={glass.card} data-position={position} data-exhibit-index={index}>
-        <div className={glass.screen}><ScreeningMedia asset={asset} active={active && position === 'center'} paused={paused} label={false} prepare={service === 'branding' && position === 'center'} /></div>
+        <div className={glass.screen}><ScreeningMedia asset={asset} active={active && position === 'center'} paused={paused} label={false} prepare={service === 'branding' && position === 'center'} frameRatio={16 / 9} /></div>
         <span className={glass.cardLabel} aria-hidden="true">{label}</span>
         <button type="button" className={glass.selectCard} aria-label={label} aria-pressed={position === 'center'}
           tabIndex={position === 'center' ? -1 : 0} onClick={() => onVariant(index)} />
