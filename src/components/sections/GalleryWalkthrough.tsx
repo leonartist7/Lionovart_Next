@@ -9,11 +9,11 @@ import { useDissolveStage } from '@/hooks/useDissolveStage';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePublicCopy } from '@/hooks/usePublicCopy';
 import { ScenePortal, usePinnedScene } from './service-world/PinnedScene';
-import { ScreeningMedia } from './ScreeningMedia';
+import { prepareScreeningPosters, ScreeningMedia } from './ScreeningMedia';
 import { GALLERY_SERVICE_LABELS, type GalleryWork } from './selected-work/gallery';
 import { galleryLayout, GALLERY_ENTRY_PROJECTION } from './gallery-layout';
 import { serviceGalleryHandoff } from './service-gallery-handoff';
-import { galleryCardPose, galleryEnding, galleryPairProgress, galleryProgress, galleryTravel, GALLERY_DEPTH_STEP } from './gallery-journey';
+import { galleryCardPose, galleryEnding, galleryPairProgress, galleryProgress, galleryTravel, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
 import styles from './GalleryWalkthrough.module.css';
 
 function WorkTags({ work }: { work: GalleryWork }) {
@@ -28,33 +28,34 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
   near: boolean; active: boolean; selected: boolean; dimmed: boolean; onSelect: (slug: string) => void;
 }) {
   const pair = Math.floor(index / 2), side = index % 2 ? 1 : -1;
-  const [visible, setVisible] = useState(pair < 4);
   const reduce = useReducedMotion();
+  const [mediaVisible, setMediaVisible] = useState(pair === 0);
+  useMotionValueEvent(progress, 'change', p => setMediaVisible(galleryCardPose(p, pair, pairs).opacity > .2));
   const focusTarget = useMotionValue(0), dimTarget = useMotionValue(1);
   const focusSpring = useSpring(focusTarget, { stiffness: 180, damping: 30, mass: 1 });
   const dimSpring = useSpring(dimTarget, { stiffness: 180, damping: 30, mass: 1 });
   useEffect(() => { focusTarget.set(selected ? 1 : 0); dimTarget.set(dimmed ? .35 : 1); }, [selected, dimmed, focusTarget, dimTarget]);
   const transform = useTransform(() => {
     const spread = entry.get(), focus = reduce ? 0 : focusSpring.get();
-    const { z } = galleryCardPose(progress.get(), pair, pairs);
+    const { z, outward } = galleryCardPose(progress.get(), pair, pairs);
     const baseZ = -350 - index * 18 * (1 - spread) + (z + 350) * spread;
     const depth = baseZ + (Math.max(0, baseZ) - baseZ) * focus;
     const size = 1 + (entryScale.get() - 1) * (1 - spread);
-    return `translate3d(calc(${side * spread * (1 - focus)} * var(--gallery-wall-offset)), calc(${side * spread * (1 - focus)} * var(--gallery-wall-offset-y) + ${(pair % 2 ? -1 : 1) * spread * (1 - focus)} * var(--gallery-wall-stagger)), ${depth}px) translate(-50%,-50%) rotateY(calc(${-side * spread * (1 - focus)} * var(--gallery-wall-angle))) scale(${size})`;
+    return `translate3d(calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset) + ${outward} * var(--gallery-wall-travel))), calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset-y) + ${outward} * var(--gallery-wall-travel-y)) + ${(pair % 2 ? -1 : 1) * spread * (1 - focus) * outward} * var(--gallery-wall-stagger)), ${depth}px) translate(-50%,-50%) rotateY(calc(${-side * spread * (1 - focus)} * (var(--gallery-wall-angle) + ${outward} * var(--gallery-exit-angle)))) scale(${size})`;
   });
-  const opacity = useTransform(() => galleryCardPose(progress.get(), pair, pairs).opacity * (pair < 3 ? 1 : entry.get()) * (reduce ? dimTarget.get() : dimSpring.get()));
-  const labelOpacity = useTransform(() => Math.max(0, Math.min(1, (entry.get() - .65) / .35)) * Math.max(0, ((reduce ? dimTarget.get() : dimSpring.get()) - .35) / .65));
-  useMotionValueEvent(progress, 'change', p => setVisible(galleryCardPose(p, pair, pairs).visible));
+  const opacity = useTransform(() => galleryCardPose(progress.get(), pair, pairs).opacity * (reduce ? dimTarget.get() : dimSpring.get()));
+  const labelOpacity = useTransform(() => galleryCardPose(progress.get(), pair, pairs).caption * Math.max(0, Math.min(1, (entry.get() - .65) / .35)) * Math.max(0, ((reduce ? dimTarget.get() : dimSpring.get()) - .35) / .65));
+  const visibility = useTransform(progress, p => galleryCardPose(p, pair, pairs).visible ? 'visible' : 'hidden');
   return <motion.div className={styles.panel} data-gallery-panel data-gallery-index={index} data-focused={selected}
-    style={{ transform, opacity }} inert={!near || !active} aria-hidden={!near}>
-    {visible && <button type="button" className={styles.project} onClick={() => onSelect(work.slug)}
+    style={{ transform, opacity, visibility }} inert={!near || !active} aria-hidden={!near}>
+    <button type="button" className={styles.project} onClick={() => onSelect(work.slug)}
       aria-label={`Focus work: ${work.name}`} aria-pressed={selected}>
-      <div className={styles.screen}><ScreeningMedia asset={work} active={active && near && (selected || !dimmed && side < 0)} label={false} /></div>
+      <div className={styles.screen}><ScreeningMedia asset={work} active={active && near && mediaVisible && (selected || !dimmed && side < 0)} label={false} /></div>
       <motion.span className={styles.projectCaption} style={{ opacity: labelOpacity }}>
         <span className={styles.projectName}>{work.name}<span aria-hidden="true">{selected ? '−' : '+'}</span></span>
         <WorkTags work={work} />
       </motion.span>
-    </button>}
+    </button>
   </motion.div>;
 }
 
@@ -71,6 +72,9 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const entry = useMotionValue(0), arrivalTitle = useMotionValue(0), entryScale = useMotionValue(1);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const currentPair = useRef(0);
+  const navigation = useRef({ ticket: 0, target: null as number | null });
+  const [requested, setRequested] = useState<number | null>(null);
+  const [previewError, setPreviewError] = useState(false);
   const onSelect = (slug: string) => setSelectedSlug(current => current === slug ? null : slug);
   const [pair, setPair] = useState(0), [ending, setEnding] = useState(false), [walking, setWalking] = useState(true);
   const pairs = Math.max(1, Math.ceil(projects.length / 2));
@@ -81,13 +85,13 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const copyOpacity = useTransform(progress, p => galleryEnding(p).copy);
   const copyTransform = useTransform(progress, p => `translateY(${(1 - galleryEnding(p).copy) * 16}px)`);
   const linkOpacity = useTransform(progress, p => galleryEnding(p).links);
-  const navOpacity = useTransform(() => (1 - galleryEnding(progress.get()).copy) * entry.get());
+  const navOpacity = useTransform(() => galleryEnding(progress.get()).navigation * entry.get());
   useMotionValueEvent(progress, 'change', p => {
     const nextPair = Math.min(pairs - 1, Math.max(0, Math.round(galleryTravel(p, pairs) / GALLERY_DEPTH_STEP)));
     if (currentPair.current !== nextPair || galleryEnding(p).copy > .05) { currentPair.current = nextPair; setSelectedSlug(null); }
     setPair(nextPair);
     setEnding(galleryEnding(p).links > .7);
-    setWalking(galleryEnding(p).copy < .05);
+    setWalking(galleryEnding(p).navigation > .1);
   });
   useEffect(() => {
     const anchor = runway.current; if (!anchor) return;
@@ -104,8 +108,11 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
         surface.dataset.galleryCompact = String(layout.compact);
         surface.style.setProperty('--gallery-wall-offset', `${layout.x}px`);
         surface.style.setProperty('--gallery-wall-offset-y', `${layout.y}px`);
+        surface.style.setProperty('--gallery-wall-travel', `${layout.exitX - layout.x}px`);
+        surface.style.setProperty('--gallery-wall-travel-y', `${layout.exitY - layout.y}px`);
         surface.style.setProperty('--gallery-wall-stagger', layout.vertical ? '0px' : '2svh');
-        surface.style.setProperty('--gallery-wall-angle', layout.vertical ? '0deg' : '16deg');
+        surface.style.setProperty('--gallery-wall-angle', layout.vertical ? '0deg' : '4deg');
+        surface.style.setProperty('--gallery-exit-angle', layout.vertical ? '0deg' : '12deg');
         surface.style.setProperty('--gallery-panel-top', `${layout.panelTop}%`);
         surface.style.setProperty('--gallery-panel-width', `${layout.panelWidth}px`);
       }
@@ -144,7 +151,9 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   }, [pinned, progress, entry, entryScale, arrivalTitle, runway, scene?.target, stage]);
 
   useEffect(() => {
-    if (!['#selected-work', '#partnership'].includes(location.hash)) return;
+    const bounds = runway.current?.getBoundingClientRect();
+    const withinGallery = bounds && bounds.top <= innerHeight * .2 && bounds.bottom > innerHeight;
+    if (!withinGallery && !['#selected-work', '#partnership'].includes(location.hash)) return;
     let frame = 0;
     const land = () => { frame = requestAnimationFrame(() => {
       const anchor = runway.current; if (!anchor) return;
@@ -159,13 +168,56 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     return () => { cancelAnimationFrame(frame); window.removeEventListener('lionovart:splash-complete', land); };
   }, [pinned, runway, lenis]);
 
-  const navigate = (target: number) => {
-    const anchor = runway.current; if (!anchor) return;
-    const box = anchor.getBoundingClientRect();
-    const p = target >= pairs ? .91 : galleryPairProgress(target, pairs);
-    const y = scrollY + box.top + p * (box.height - innerHeight * .85);
-    if (lenis) lenis.scrollTo(y, { duration: .7, userData: { navigation: true } });
-    else window.scrollTo({ top: y, behavior: 'smooth' });
+  // Native gestures interrupt both poster preparation and arrow travel. No scroll lock.
+  useEffect(() => {
+    const controller = navigation.current;
+    const interrupt = (event: Event) => {
+      if (event instanceof KeyboardEvent) {
+        if (!['PageUp', 'PageDown', 'Home', 'End', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+        if (event.target instanceof Element && event.target.closest('[data-gallery-navigation], [data-work-filter]')) return;
+      }
+      if (controller.target === null) return;
+      controller.ticket++;
+      controller.target = null; setRequested(null);
+      if (lenis) lenis.scrollTo(lenis.animatedScroll, { immediate: true });
+    };
+    window.addEventListener('wheel', interrupt, { passive: true, capture: true });
+    window.addEventListener('touchstart', interrupt, { passive: true, capture: true });
+    window.addEventListener('keydown', interrupt, true);
+    return () => {
+      controller.ticket++;
+      window.removeEventListener('wheel', interrupt, true);
+      window.removeEventListener('touchstart', interrupt, true);
+      window.removeEventListener('keydown', interrupt, true);
+      if (controller.target !== null && lenis) lenis.scrollTo(lenis.animatedScroll, { immediate: true });
+    };
+  }, [lenis]);
+
+  const move = (direction: -1 | 1) => {
+    const target = galleryStepTarget(currentPair.current, navigation.current.target, direction, pairs);
+    const ticket = ++navigation.current.ticket;
+    navigation.current.target = target; setRequested(target); setPreviewError(false);
+    setSelectedSlug(null);
+    const complete = () => {
+      if (ticket !== navigation.current.ticket) return;
+      navigation.current.target = null; setRequested(null);
+    };
+    void prepareScreeningPosters(projects.slice(target * 2, target * 2 + 2)).then(() => {
+      if (ticket !== navigation.current.ticket) return;
+      const anchor = runway.current; if (!anchor) return;
+      const box = anchor.getBoundingClientRect();
+      const p = target >= pairs ? .91 : galleryPairProgress(target, pairs);
+      const y = scrollY + box.top + p * (box.height - innerHeight * .85);
+      const distance = y - scrollY;
+      const duration = galleryNavigationDuration(distance, innerHeight);
+      // Lenis exposes velocity in px/frame; carry it into the new curve in px/sec.
+      const easing = galleryNavigationEase((lenis?.velocity ?? 0) * 60, distance, duration);
+      if (lenis) lenis.scrollTo(y, { duration, lerp: 0, easing, lock: false, userData: { navigation: true }, onComplete: complete });
+      else { window.scrollTo({ top: y, behavior: 'smooth' }); complete(); }
+    }, () => {
+      if (ticket !== navigation.current.ticket) return;
+      complete(); setPreviewError(true);
+    });
   };
 
   const continueTo = (event: MouseEvent<HTMLAnchorElement>, hash: '#about' | '#client-experience') => {
@@ -184,9 +236,9 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
 
   return <section id="selected-work" className={styles.section} data-gallery="compact" data-gallery-story data-nav-surface="light"
     data-scroll-title-skip data-curves={servicesCurves} aria-labelledby="selected-work-heading">
-    <div ref={runway} className={styles.runway} data-gallery-runway style={{ '--gallery-runway': `${Math.max(6, pairs * .55 + 2.6) * 100}svh` } as CSSProperties}>
+    <div ref={runway} className={styles.runway} data-gallery-runway style={{ '--gallery-runway': `${galleryRunwayScreens(pairs) * 100}svh` } as CSSProperties}>
       <span id="partnership" className={styles.partnershipAnchor} aria-hidden="true" />
-      <ScenePortal><div ref={stage} className={styles.stage} data-scroll-title-skip data-dissolve-stage data-gallery-stage data-scene-chapter="work" data-walkthrough-pinned={pinned}
+      <ScenePortal><div ref={stage} className={styles.stage} data-scroll-title-skip data-dissolve-stage data-gallery-stage data-gallery-rows={pairs} data-scene-chapter="work" data-walkthrough-pinned={pinned}
         onKeyDown={event => { if (event.key === 'Escape') { setSelectedSlug(null); event.stopPropagation(); } }}>
         <motion.header className={styles.header} style={{ opacity: pinned ? titleOpacity : 1 }}>
           <h2 id="selected-work-heading">{tr('Selected work')}</h2>
@@ -215,10 +267,11 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
             <a href="#client-experience" onClick={event => continueTo(event, '#client-experience')}>{fr ? 'Découvrez nos résultats' : 'See our results'}<ArrowDown aria-hidden="true" /></a>
           </motion.div>
         </motion.div>
-        {pinned && <motion.nav className={styles.navigation} style={{ opacity: navOpacity }} aria-label={fr ? 'Parcourir les projets' : 'Browse the gallery'} inert={!walking} aria-hidden={!walking}>
-          <button type="button" onClick={() => navigate(Math.max(0, pair - 1))} disabled={pair === 0} aria-label={tr('Previous works')}><ArrowLeft className={styles.horizontalArrow} aria-hidden="true" /><ArrowUp className={styles.verticalArrow} aria-hidden="true" /></button>
+        {previewError && <motion.p className={styles.previewError} style={{ opacity: pinned ? navOpacity : 1 }} aria-hidden={pinned && !walking} role="status">{fr ? 'Aperçu indisponible. Réessayez.' : 'Preview unavailable. Please try again.'}</motion.p>}
+        {pinned && <motion.nav className={styles.navigation} data-gallery-navigation aria-busy={requested !== null} style={{ opacity: navOpacity }} aria-label={fr ? 'Parcourir les projets' : 'Browse the gallery'} inert={!walking} aria-hidden={!walking}>
+          <button type="button" onClick={() => move(-1)} disabled={(requested ?? pair) === 0} aria-label={tr('Previous works')}><ArrowLeft className={styles.horizontalArrow} aria-hidden="true" /><ArrowUp className={styles.verticalArrow} aria-hidden="true" /></button>
           <span aria-live="polite">{String(pair + 1).padStart(2, '0')} <i>/ {String(pairs).padStart(2, '0')}</i></span>
-          <button type="button" onClick={() => navigate(pair + 1)} aria-label={pair === pairs - 1 ? tr('One partnership') : tr('Next works')}><ArrowRight className={styles.horizontalArrow} aria-hidden="true" /><ArrowDown className={styles.verticalArrow} aria-hidden="true" /></button>
+          <button type="button" onClick={() => move(1)} aria-label={(requested ?? pair) >= pairs - 1 ? tr('One partnership') : tr('Next works')}><ArrowRight className={styles.horizontalArrow} aria-hidden="true" /><ArrowDown className={styles.verticalArrow} aria-hidden="true" /></button>
         </motion.nav>}
       </div></ScenePortal>
     </div>

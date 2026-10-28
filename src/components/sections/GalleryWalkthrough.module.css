@@ -3,7 +3,7 @@
 .partnershipAnchor { position: absolute; top: calc((100% - 85svh) * .9); width: 1px; height: 1px; pointer-events: none; }
 .stage { position: sticky; top: 0; height: 100svh; overflow: clip; isolation: isolate; }
 .stage[data-dissolve-pinned=true] { position: fixed; inset: 0; }
-.header { position: absolute; top: clamp(5.5rem,12svh,8rem); left: 5vw; right: 5vw; display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; z-index: 10; pointer-events: none; }
+.header { position: absolute; top: clamp(4.75rem,9svh,7rem); left: 5vw; right: 5vw; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center; gap: .75rem; z-index: 10; pointer-events: none; }
 .header h2 { margin: 0; font: 400 clamp(2rem,4.5vw,4.5rem)/1 var(--font-clash-display),sans-serif; letter-spacing: -.04em; }
 .header p { margin: 0; color: #88765d; font: italic 400 clamp(1rem,1.5vw,1.5rem)/1.4 var(--font-playfair-display),Georgia,serif; }
 .corridor { position: absolute; inset: 0; perspective: 1000px; perspective-origin: 50% 48%; transform-style: preserve-3d; pointer-events: none; opacity: var(--gallery-arrival-media,1); }
@@ -83,3 +83,12 @@
 .stage[data-walkthrough-pinned=true][data-gallery-compact=true] .projectTags { margin-top: .25rem; gap: .2rem; }
 
 .stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .panel[aria-hidden=true] .projectCaption { visibility: hidden; }
+
+/* Keep row metadata out of the incoming/exiting artwork's path. */
+.panel[aria-hidden=true] .projectCaption { visibility: hidden; }
+.previewError { position: absolute; left: 1rem; right: 1rem; bottom: 10.5rem; text-align: center; color: #8e2430; font-size: .75rem; }
+.navigation button { transition: background-color 200ms ease, border-color 200ms ease; }
+@media(hover:hover) and (pointer:fine) {
+  .navigation button:not(:disabled):hover { background: #fffdf6; border-color: #a3917580; }
+}
+@media(prefers-reduced-motion:reduce) { .navigation button { transition: none; } }

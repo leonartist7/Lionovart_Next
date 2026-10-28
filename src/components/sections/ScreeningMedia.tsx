@@ -25,8 +25,8 @@ export function serviceScreenAssets(service: string): ScreeningAsset[] {
 }
 
 /** Prepare the exact responsive image used by Next/Image, not a second full-size download. */
-export function prepareServicePosters(service: string) {
-  return Promise.all(serviceScreenAssets(service).map(asset => {
+export function prepareScreeningPosters(assets: readonly ScreeningAsset[]) {
+  return Promise.all(assets.map(asset => {
     const key = `${asset.poster}:${innerWidth}:${devicePixelRatio}`;
     let ready = preparedPosters.get(key);
     if (!ready) {
@@ -44,6 +44,10 @@ export function prepareServicePosters(service: string) {
     }
     return ready;
   }));
+}
+
+export function prepareServicePosters(service: string) {
+  return prepareScreeningPosters(serviceScreenAssets(service));
 }
 
 /** A departing layer pauses immediately; a real poster survives blocked/failed video. */

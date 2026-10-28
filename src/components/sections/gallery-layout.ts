@@ -7,9 +7,11 @@ export function galleryLayout(viewportWidth: number, height: number, contentWidt
   const panelTop = vertical ? (compact ? 43 : 48) : 54;
   return {
     vertical, compact, panelWidth, panelTop,
-    x: vertical ? 0 : contentWidth * .33,
+    x: vertical ? 0 : panelWidth * .5 + Math.min(40, Math.max(20, contentWidth * .02)),
+    exitX: vertical ? 0 : contentWidth * .33 * 1.18,
     // Cap the separation on very tall phones so the middle never becomes empty space.
-    y: vertical ? Math.min(height * (compact ? .20 : .21), panelWidth * .375 + 48) : 0,
+    y: vertical ? Math.min(height * (compact ? .20 : .21), panelWidth * .375 + 40) : 0,
+    exitY: vertical ? height * .34 : 0,
     // The incoming frame is projected around the corridor's 48% vanishing
     // point on both axes/layouts. Match its rendered center, not its CSS top.
     gatherY: height * (.48 + (panelTop / 100 - .48) / GALLERY_ENTRY_PROJECTION),

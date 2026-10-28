@@ -8,6 +8,7 @@ import { ChevronDown, Check } from "lucide-react";
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useWorkBrowse, WORK_INDUSTRIES, WORK_STYLES } from "./selected-work/WorkBrowse";
 import styles from "./ServicesWorkNavigation.module.css";
+import { galleryEnding, galleryProgress } from "./gallery-journey";
 
 const subscribeClient = () => () => {};
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
@@ -73,6 +74,8 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
     const services = document.querySelector<HTMLElement>("[data-services-runway], [data-services-static]");
     const work = document.getElementById("selected-work");
     if (!services) return;
+    const gallery = work?.querySelector<HTMLElement>('[data-gallery-runway]');
+    const staticScene = matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)');
     const sync = () => {
       frame = 0;
       const h = window.innerHeight;
@@ -80,7 +83,12 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
       const workRect = work?.getBoundingClientRect();
       const serviceVisibility = clamp(1 - rect.top / (h * .2)) * clamp(rect.bottom / (h * .2));
       const workVisibility = workRect ? clamp((h * .8 - workRect.top) / (h * .3)) * clamp((workRect.bottom - h * .12) / (h * .15)) : 0;
-      visibility.set(Math.max(serviceVisibility, workVisibility));
+      const galleryRect = gallery?.getBoundingClientRect();
+      const ending = staticScene.matches ? document.querySelector<HTMLElement>('[data-gallery-ending]') : null;
+      const departure = staticScene.matches
+        ? ending ? clamp((ending.getBoundingClientRect().top - h * .8) / (h * .25)) : 1
+        : galleryRect ? galleryEnding(galleryProgress(galleryRect.top, galleryRect.height, h)).dock : 1;
+      visibility.set(Math.max(serviceVisibility, workVisibility * departure));
       handoff.set(workRect ? clamp((h * .75 - workRect.top) / (h * .45)) : 0);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
@@ -90,6 +98,7 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
     window.addEventListener("lionovart:splash-complete", schedule);
+    staticScene.addEventListener('change', schedule);
     sync();
     return () => {
       cancelAnimationFrame(frame);
@@ -97,6 +106,7 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
       window.removeEventListener("lionovart:splash-complete", schedule);
+      staticScene.removeEventListener('change', schedule);
     };
   }, [client, browse.industry, browse.style, visibility, handoff]);
 
