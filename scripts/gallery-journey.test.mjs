@@ -1,7 +1,7 @@
 import test from 'node:test';
 import { galleryLayout, GALLERY_ENTRY_PROJECTION } from '../src/components/sections/gallery-layout.ts';
 import assert from 'node:assert/strict';
-import { galleryProgress, galleryTravel, galleryCardPose, galleryEnding, galleryTitlePose, galleryPairProgress, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase } from '../src/components/sections/gallery-journey.ts';
+import { galleryWithCarry, galleryCompanionPresence, galleryProgress, galleryTravel, galleryCardPose, galleryEnding, galleryTitlePose, galleryPairProgress, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase } from '../src/components/sections/gallery-journey.ts';
 
 test('gallery depth is reversible, visits every pair and clears the room before the ending', () => {
  for (const pairs of [1, 4, 6, 17]) {
@@ -53,7 +53,7 @@ test('phone and tablet exhibits open vertically within the reading area; desktop
  assert.ok(desktop.x < 1425*.33);
  assert.ok(desktop.exitX - desktop.x <= 20);
  assert.ok(desktop.x > desktop.panelWidth / 2);
- assert.equal(desktop.panelTop,47);
+ assert.equal(desktop.panelTop,40);
 });
 
 test('the service gather matches the projected gallery center on desktop and portrait', () => {
@@ -122,7 +122,7 @@ test('arrow curves carry forward velocity, settle without overshoot and stay dis
 function bounds(width, height, layout, pose, side, row) {
  const w=layout.panelWidth, h=w*(layout.vertical?.75:11/16);
  const angle=-side*(layout.vertical?0:4+2*pose.outward)*Math.PI/180;
- const x=side*(layout.x-pose.preview*layout.previewInset-Math.max(0,pose.z+350)/2000*layout.centerGap+(layout.exitX-layout.x)*pose.outward);
+ const x=side*(layout.x-pose.preview*layout.previewInset*(1000-pose.z)/1350-Math.max(0,pose.z+350)/2000*layout.centerGap+(layout.exitX-layout.x)*pose.outward);
  const y=side*(layout.y+(layout.exitY-layout.y)*pose.outward)+(row%2?-1:1)*(layout.vertical?0:height*.02)*pose.outward;
  const corners=[[-w/2,-h/2],[-w/2,h/2],[w/2,-h/2],[w/2,h/2]].map(([dx,dy])=>{
   const projection=1000/(1000-pose.z+Math.sin(angle)*dx);
@@ -174,7 +174,7 @@ test('cards reach a substantially larger readable size before a long, continuous
  }
 });
 
-test('desktop pairs preview closer together and reopen the logo lane before erosion', () => {
+test('desktop pairs recover the logo lane only during their exit', () => {
  for(const [width,height] of [[1365,936],[1440,900],[1920,1080]]) {
   const content=width-15,layout=galleryLayout(width,height,content),pose=galleryCardPose(galleryPairProgress(3,4)+.15,3,4);
   const left=bounds(content,height,layout,pose,-1,3),right=bounds(content,height,layout,pose,1,3);
@@ -254,18 +254,18 @@ test('short desktop windows reserve space for titles, captions and navigation', 
  }
 });
 
-test('the inward preview shares the service release axis and restores the original positions', () => {
+test('the close preview shares the service axis and holds until the lateral exit', () => {
  for(const [width,height] of [[320,568],[390,844],[768,1024],[1440,900],[1920,1080]]) {
   const layout=galleryLayout(width,height,width-15),p=galleryCardPose(0,0,4);
   assert.equal(p.preview,1);
   assert.equal(layout.entryX,layout.x-p.preview*layout.previewInset);
   if(layout.vertical) { assert.equal(layout.previewInset,0); continue; }
   const left=bounds(width-15,height,layout,p,-1,0),right=bounds(width-15,height,layout,p,1,0);
-  assert.ok(right.left-left.right>60 && right.left-left.right<160);
+  assert.ok(right.left-left.right>24 && right.left-left.right<80);
   const hold=galleryCardPose(.10,0,4);
-  assert.ok(hold.preview>.3 && hold.preview<1);
+  assert.equal(hold.preview,1);
   assert.equal(hold.dissolve,0);
-  const open=galleryCardPose(.15,0,4);
+  const open=galleryCardPose(.16,0,4);
   assert.equal(open.preview,0);
  }
  const samples=Array.from({length:2001},(_,i)=>i/2000),poses=samples.map(p=>galleryCardPose(p,0,4));
@@ -279,5 +279,37 @@ test('erosion finishes sooner while its endpoints retire the complete frame', ()
  for(const p of [.16,.17,.18]) {
   const pose=galleryCardPose(p,0,4);
   assert.equal(pose.dissolve,1);assert.equal(pose.visible,false);assert.equal(pose.surfaceOpacity,0);
+ }
+});
+
+
+test('the carried artwork leads eight unique projects across four rows', () => {
+ const projects=Array.from({length:12},(_,i)=>({slug:`work-${i}`}));
+ for(const carry of [projects[0],projects[5],{slug:'transparent-led-concept'}]) {
+  const composed=galleryWithCarry(projects,carry);
+  assert.equal(composed[0],carry);
+  assert.equal(composed.length,8);
+  assert.equal(new Set(composed.map(work=>work.slug)).size,8);
+  assert.deepEqual(composed.slice(1),projects.filter(work=>work.slug!==carry.slug).slice(0,7));
+ }
+ assert.equal(projects.length,12);
+});
+
+test('the single carried frame owns the entrance before its companion appears', () => {
+ for(const spread of [0,.25,.5,.75,.94]) assert.equal(galleryCompanionPresence(spread),0);
+ assert.ok(galleryCompanionPresence(.97)>.49 && galleryCompanionPresence(.97)<.51);
+ assert.equal(galleryCompanionPresence(1),1);
+});
+
+test('desktop artwork holds a narrow central lane through the enlarged reading beat', () => {
+ for(const [width,height] of [[1365,650],[1365,936],[1440,900],[1920,1080],[2560,1080]]) {
+  const content=width-15,layout=galleryLayout(width,height,content);
+  for(let p=0;p<=.11;p+=.001) {
+   const pose=galleryCardPose(p,0,4);
+   if(pose.advance>.68)continue;
+   const left=bounds(content,height,layout,pose,-1,0),right=bounds(content,height,layout,pose,1,0);
+   const gap=right.left-left.right;
+   assert.ok(gap>24 && gap<90,`central lane ${gap} at ${width}x${height}, ${p}`);
+  }
  }
 });

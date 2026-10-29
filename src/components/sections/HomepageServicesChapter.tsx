@@ -19,7 +19,7 @@ import { useServicesCarouselPreview } from "./ServicesPreview";
 import styles from "./ServicesCarouselPreview.module.css";
 import ServicesWorkNavigation from "./ServicesWorkNavigation";
 
-import { useHomepageExperiment } from "@/hooks/useHomepageExperiment";
+import { useServiceTitleExperiment } from "@/hooks/useHomepageExperiment";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
 import Image from "next/image";
@@ -147,7 +147,7 @@ function ServiceMediaCarousel({
 }
 
 export default function HomepageServicesChapter() {
-  const [boldTitles, toggleTitleWeight] = useHomepageExperiment("service-title-bold");
+  const [titleStyle, cycleTitleStyle] = useServiceTitleExperiment();
   const lenis = useLenis();
   const tr = usePublicCopy();
   const carouselPreview = useServicesCarouselPreview();
@@ -396,12 +396,13 @@ export default function HomepageServicesChapter() {
                     <div className={styles.serviceTitleSlot}>
                       <div className={styles.serviceTitleLayers} aria-hidden="true">
                       <AnimatePresence initial={false}>
-                        <motion.h3 key={activeService.id} data-service-title className={styles.serviceTitle} style={{ fontWeight: boldTitles ? 700 : 400 }}
+                        <motion.h3 key={activeService.id} data-service-title data-title-style={titleStyle} className={styles.serviceTitle} style={{ fontWeight: titleStyle ? 700 : 400, textTransform: titleStyle === 2 ? 'uppercase' : 'none' }}
                           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                           transition={{ duration: reduceMotion ? .12 : .8, ease: [.22, 1, .36, 1] }}>{activeService.title}</motion.h3>
                       </AnimatePresence>
                       </div>
-                      <button type="button" className={styles.serviceTitleSwitch} onClick={toggleTitleWeight} aria-pressed={boldTitles} aria-label={tr("Use bold service headings")} />
+                      <button type="button" className={styles.serviceTitleSwitch} onClick={cycleTitleStyle}
+                        aria-label={locale === 'fr' ? `Style du titre : ${['normal', 'gras', 'gras en majuscules'][titleStyle]}. Changer de style.` : locale === 'es' ? `Estilo del título: ${['normal', 'negrita', 'negrita en mayúsculas'][titleStyle]}. Cambiar estilo.` : `Heading style: ${['regular', 'bold', 'bold capitals'][titleStyle]}. Cycle heading style.`} />
                     </div>
                     <div data-service-description-slot>
                       <AnimatePresence initial={false} mode="sync">

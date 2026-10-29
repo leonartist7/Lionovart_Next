@@ -54,6 +54,7 @@ export default function PinnedScene({ children, environment }: { children: React
           surface.style.setProperty('--service-gallery-copy', String(handoff.serviceCopy));
           surface.dataset.galleryGathering = String(handoff.progress > 0);
           surface.style.setProperty('--service-gallery-gather', String(handoff.gather));
+          surface.style.setProperty('--service-gallery-rear', String(handoff.serviceRear));
           surface.style.setProperty('--service-gallery-release', String(handoff.spread));
           const layout = galleryLayout(innerWidth, innerHeight, document.documentElement.clientWidth);
           surface.style.setProperty('--service-release-x', `${layout.entryX / GALLERY_ENTRY_PROJECTION}px`);
@@ -74,7 +75,7 @@ export default function PinnedScene({ children, environment }: { children: React
           surface.style.setProperty('--gallery-arrival-media', String(handoff.gallery));
           surface.dataset.galleryEntry = handoff.progress.toFixed(3);
         }
-        const interactive = chapter === 'services' ? (!opening || opening.serviceCopy > .8) && (!handoff || handoff.progress < .04) : chapter === 'work' ? !handoff || handoff.spread > .8 : true;
+        const interactive = chapter === 'services' ? (!opening || opening.serviceCopy > .8) && (!handoff || handoff.progress < .04) : chapter === 'work' ? !handoff || handoff.spread > .99 : true;
         const active = opacity > .5 && interactive && !document.hidden;
         surface.style.opacity = String(opacity);
         surface.style.visibility = opacity > .001 ? 'visible' : 'hidden';

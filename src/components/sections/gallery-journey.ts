@@ -4,6 +4,14 @@ export const GALLERY_DEPTH_STEP = 1600;
 export const GALLERY_WALK_END = .76;
 export const GALLERY_MAX_PROJECTS = 8;
 
+/** The last viewed service is the first exhibit, with no duplicate or fifth row. */
+export function galleryWithCarry<T extends { slug: string }>(projects: readonly T[], carry: T) {
+  return [carry, ...projects.filter(project => project.slug !== carry.slug)].slice(0, GALLERY_MAX_PROJECTS);
+}
+
+/** Other artwork enters only after the carried frame has started opening out. */
+export const galleryCompanionPresence = (spread: number) => smooth((spread - .94) / .06);
+
 export function galleryTravel(progress: number, pairs: number) {
   const stops = Math.max(1, pairs);
   const linear = clamp(progress / GALLERY_WALK_END) * stops;
@@ -30,7 +38,7 @@ export function galleryCardPose(progress: number, pair: number, pairs: number) {
     surfaceOpacity: arrival * (1 - smooth((advance - .88) / .06)),
     visible: advance < .94 && arrival > .001,
     // Approach inward, hold the closer pair, then recover the full logo lane.
-    preview: smooth((advance + .95) / .8) * (1 - smooth((advance - .12) / .76)),
+    preview: smooth((advance + .95) / .8) * (1 - smooth((advance - .68) / .26)),
     background: smooth(-advance / .9),
     outward: smooth((advance - .60) / .38),
     caption: smooth((advance + .25) / .15) * (1 - smooth((advance - .60) / .14)),

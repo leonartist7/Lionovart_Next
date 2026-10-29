@@ -15,7 +15,7 @@ import AtelierLight from './AtelierLight';
 import PinnedScene from './PinnedScene';
 
 type Selection = { service: string; variant: number; enabled: boolean; paused: boolean };
-const WorldContext = createContext<{ ready: boolean; stageReady: string | null; select: (selection: Selection) => void } | null>(null);
+const WorldContext = createContext<{ ready: boolean; stageReady: string | null; handoff: Pick<Selection, 'service' | 'variant'>; select: (selection: Selection) => void } | null>(null);
 export const useServiceWorld = () => useContext(WorldContext);
 
 export default function ServiceWorld({ children, mediaFirst = false }: { children: ReactNode; mediaFirst?: boolean }) {
@@ -28,8 +28,12 @@ export default function ServiceWorld({ children, mediaFirst = false }: { childre
   const [ready, setReady] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [stageReady, setStageReady] = useState<string | null>(null);
-  const select = useCallback((value: Selection) => { selection.current = value; syncRef.current(); }, []);
-  const context = useMemo(() => ({ ready, stageReady, select }), [ready, stageReady, select]);
+  const [handoff, setHandoff] = useState({ service: 'branding', variant: 1 });
+  const select = useCallback((value: Selection) => {
+    selection.current = value; syncRef.current();
+    setHandoff(previous => previous.service === value.service && previous.variant === value.variant ? previous : { service: value.service, variant: value.variant });
+  }, []);
+  const context = useMemo(() => ({ ready, stageReady, handoff, select }), [ready, stageReady, handoff, select]);
 
   useEffect(() => {
     const root = host.current, surface = canvas.current;

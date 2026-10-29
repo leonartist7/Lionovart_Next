@@ -14,7 +14,7 @@ import { prepareScreeningPosters, ScreeningMedia } from './ScreeningMedia';
 import { GALLERY_SERVICE_LABELS, type GalleryWork } from './selected-work/gallery';
 import { galleryLayout, GALLERY_ENTRY_PROJECTION } from './gallery-layout';
 import { serviceGalleryHandoff } from './service-gallery-handoff';
-import { galleryCardPose, galleryEnding, galleryPairProgress, galleryProgress, galleryTravel, galleryTitlePose, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
+import { galleryCardPose, galleryCompanionPresence, galleryEnding, galleryPairProgress, galleryProgress, galleryTravel, galleryTitlePose, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
 import styles from './GalleryWalkthrough.module.css';
 import PartnershipMark, { PartnershipResultsButton } from './PartnershipMark';
 import { partnershipLayout } from './partnership-layout';
@@ -72,17 +72,19 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
     const depth = baseZ + (Math.max(0, baseZ) - baseZ) * focus;
     const size = 1 + (entryScale.get() - 1) * (1 - spread);
     const gapCompensation = Math.max(0, z + 350) / 2000;
-    return `translate3d(calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset) - ${preview} * var(--gallery-preview-inset,0px) - ${gapCompensation} * var(--gallery-center-gap,0px) + ${outward} * var(--gallery-wall-travel) + ${background * Math.max(1, (1000 - z) / 1000)} * var(--gallery-background-x,0px))), calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset-y) + ${outward} * var(--gallery-wall-travel-y)) + ${(pair % 2 ? -1 : 1) * spread * (1 - focus) * outward} * var(--gallery-wall-stagger)), ${depth}px) translate(-50%,-50%) rotateY(calc(${-side * spread * (1 - focus)} * (var(--gallery-wall-angle) + ${outward} * var(--gallery-exit-angle) + ${background} * var(--gallery-background-angle,0deg)))) scale(${size})`;
+    const depthProjection = Math.max(1, (1000 - z) / 1000);
+    const previewProjection = (1000 - z) / (1000 * GALLERY_ENTRY_PROJECTION);
+    return `translate3d(calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset) - ${preview * previewProjection} * var(--gallery-preview-inset,0px) - ${gapCompensation} * var(--gallery-center-gap,0px) + ${outward} * var(--gallery-wall-travel) + ${background * depthProjection} * var(--gallery-background-x,0px))), calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset-y) + ${outward} * var(--gallery-wall-travel-y)) + ${(pair % 2 ? -1 : 1) * spread * (1 - focus) * outward} * var(--gallery-wall-stagger) - ${background * depthProjection * spread * (1 - focus)} * var(--gallery-background-rise,0px)), ${depth}px) translate(-50%,-50%) rotateY(calc(${-side * spread * (1 - focus)} * (var(--gallery-wall-angle) + ${outward} * var(--gallery-exit-angle) + ${background} * var(--gallery-background-angle,0deg)))) scale(${size})`;
   });
   const opacity = useTransform(() => {
     const pose = galleryCardPose(progress.get(), pair, pairs);
-    return (reduce || simpleExit ? pose.opacity : pose.surfaceOpacity) * (pair > 0 ? entry.get() : 1) * (reduce ? dimTarget.get() : dimSpring.get());
+    return (reduce || simpleExit ? pose.opacity : pose.surfaceOpacity) * (index > 0 ? galleryCompanionPresence(entry.get()) : 1) * (reduce ? dimTarget.get() : dimSpring.get());
   });
   const labelOpacity = useTransform(() => galleryCardPose(progress.get(), pair, pairs).caption * Math.max(0, Math.min(1, (entry.get() - .65) / .35)) * Math.max(0, ((reduce ? dimTarget.get() : dimSpring.get()) - .35) / .65));
   const visibility = useTransform(progress, p => galleryCardPose(p, pair, pairs).visible ? 'visible' : 'hidden');
   return <motion.div ref={panelRef} className={styles.panel} data-gallery-panel data-gallery-index={index} data-focused={selected}
-    style={{ transform, opacity, visibility }} inert={!near || !active || !readable} aria-hidden={!near || !readable}>
-    <button type="button" className={styles.project} onClick={() => onSelect(work.slug)}
+    style={{ transform, opacity, visibility, '--gallery-hover-direction': -side } as React.ComponentProps<typeof motion.div>['style']} inert={!near || !active || !readable} aria-hidden={!near || !readable}>
+    <button type="button" className={styles.project} onClick={event => { event.stopPropagation(); onSelect(work.slug); }}
       aria-label={`Focus work: ${work.name}`} aria-pressed={selected}>
       <HandoffDissolveFilter id={filterId} seed={index + 43} gallery />
       <motion.div className={styles.screen} data-gallery-artwork style={{ filter }}><ScreeningMedia asset={work} active={active && near && readable && mediaVisible && (selected || !dimmed && side <= 0)} label={false} /></motion.div>
@@ -109,7 +111,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const navigation = useRef({ ticket: 0, target: null as number | null });
   const [requested, setRequested] = useState<number | null>(null);
   const [previewError, setPreviewError] = useState(false);
-  const onSelect = (slug: string) => setSelectedSlug(current => current === slug ? null : slug);
+  const onSelect = (slug: string) => setSelectedSlug(current => current ? null : slug);
   const [pair, setPair] = useState(0), [ending, setEnding] = useState(false), [walking, setWalking] = useState(true);
   const pairs = Math.max(1, Math.ceil(projects.length / 2));
   const pinned = !!scene?.target;
@@ -154,6 +156,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
         surface.style.setProperty('--gallery-center-gap', `${layout.centerGap}px`);
         surface.style.setProperty('--gallery-preview-inset', `${layout.previewInset}px`);
         surface.style.setProperty('--gallery-background-x', `${layout.backgroundX}px`);
+        surface.style.setProperty('--gallery-background-rise', `${layout.backgroundRise}px`);
         surface.style.setProperty('--gallery-background-angle', layout.vertical ? '7deg' : '0deg');
         surface.style.setProperty('--gallery-wall-offset-y', `${layout.y}px`);
         surface.style.setProperty('--gallery-wall-travel', `${layout.exitX - layout.x}px`);
@@ -289,6 +292,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     <div ref={runway} className={styles.runway} data-gallery-runway style={{ '--gallery-runway': `${galleryRunwayScreens(pairs) * 100}svh` } as CSSProperties}>
       <span id="partnership" className={styles.partnershipAnchor} aria-hidden="true" />
       <ScenePortal><div ref={stage} className={styles.stage} data-scroll-title-skip data-dissolve-stage data-gallery-stage data-gallery-rows={pairs} data-scene-chapter="work" data-walkthrough-pinned={pinned}
+        onClick={() => { if (selectedSlug) setSelectedSlug(null); }}
         onKeyDown={event => { if (event.key === 'Escape' && selectedSlug) { setSelectedSlug(null); event.stopPropagation(); } }}>
         <motion.header className={styles.header} style={{ opacity: pinned ? titleOpacity : 1, transform: pinned ? titleTransform : 'none' }}>
           <h2 id="selected-work-heading">{tr('Selected work')}</h2>
@@ -303,7 +307,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
           </motion.div>
         </div> : <div className={styles.staticGrid}>
           {projects.map(work => <button type="button" key={work.slug} className={styles.staticProject} data-focused={selectedSlug === work.slug} data-dimmed={!!selectedSlug && selectedSlug !== work.slug}
-            onClick={() => onSelect(work.slug)} aria-label={`Focus work: ${work.name}`} aria-pressed={selectedSlug === work.slug}>
+            onClick={event => { event.stopPropagation(); onSelect(work.slug); }} aria-label={`Focus work: ${work.name}`} aria-pressed={selectedSlug === work.slug}>
             <div className={styles.screen}><ScreeningMedia asset={work} active={false} label={false} /></div>
             <span className={styles.projectCaption}><WorkTags work={work} /></span>
           </button>)}
