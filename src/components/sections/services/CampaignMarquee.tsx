@@ -20,6 +20,7 @@ export default function CampaignMarquee() {
     ? ['Affirmez votre présence', 'Transformez l’attention en demandes', 'Donnez envie de revenir']
     : ['Build recognition', 'Turn attention into enquiries', 'Bring customers back'];
   return <section ref={root} className={styles.section} data-campaign-marquee data-nav-surface="light"
+    data-motion-available={available}
     data-motion-active={running && !paused} aria-labelledby="campaign-marquee-heading">
     <h2 id="campaign-marquee-heading" className="sr-only">{title}</h2>
     <div className={styles.headline} aria-hidden="true">

@@ -9,6 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { exhibitLabel, exhibitPosition, serviceExhibits } from './service-triptych';
 import styles from './ScreeningRoom.module.css';
 import glass from './ServiceGlassStage.module.css';
+import { useSaveData } from '@/hooks/useSaveData';
 
 export type ScreeningAsset = { poster: string; video?: string; name: string };
 export function previewVideo(source: string, width: number) {
@@ -56,18 +57,18 @@ function MediaLayer({ asset, active, paused, prepare, onRatio }: {
 }) {
   const present = useIsPresent();
   const reduced = useReducedMotion();
+  const saveData = useSaveData();
   const video = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   useEffect(() => {
     const node = video.current;
     const media = matchMedia('(prefers-reduced-motion: reduce)');
-    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
     let disposed = false;
     const sync = () => {
-      const allowed = present && active && !paused && !document.hidden && !media.matches && !connection?.saveData;
+      const allowed = present && active && !paused && !document.hidden && !media.matches && !saveData;
       // Only the upcoming first service prepares metadata before its entrance.
       // Its fitted frame must not change ratio when playback begins later.
-      if ((allowed || (present && prepare && !document.hidden && !media.matches && !connection?.saveData)) && asset.video && node) {
+      if ((allowed || (present && prepare && !document.hidden && !media.matches && !saveData)) && asset.video && node) {
         const source = previewVideo(asset.video, innerWidth < 768 ? 640 : 1280);
         node.preload = allowed ? 'auto' : 'metadata';
         if (node.getAttribute('src') !== source) { node.src = source; node.load(); }
@@ -79,7 +80,7 @@ function MediaLayer({ asset, active, paused, prepare, onRatio }: {
     };
     sync(); document.addEventListener('visibilitychange', sync); media.addEventListener('change', sync);
     return () => { disposed = true; node?.pause(); document.removeEventListener('visibilitychange', sync); media.removeEventListener('change', sync); };
-  }, [active, paused, asset.video, prepare, present]);
+  }, [active, paused, asset.video, prepare, present, saveData]);
   return <motion.div className={styles.mediaLayer} data-media-layer data-media-name={asset.name}
     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
     transition={{ duration: reduced ? .12 : .8, ease: [.22, 1, .36, 1] }}>

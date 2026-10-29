@@ -30,3 +30,16 @@ Local gates: targeted ESLint for changed components, TypeScript without incremen
 The browser exposes no viewport emulation, media-preference emulation or network throttling. Geometry tests are not device runtime evidence. Live 360/390/768/1024/1440 widths, phone landscape/touch/orientation changes, reduced-motion/save-data toggling and slow/failed network requests still require a supported browser/device. Under 560px viewport height and reduced motion, the existing source selects the static ordinary-flow gallery; that path was source-reviewed, not emulated here.
 
 GPU shader appearance and frame-time/heap performance cannot be qualified by this WebGL-disabled browser. No FPS, memory-leak-free or performance-improvement claim is made from screenshots or DOM counts. Existing shader-unavailable and browser-extension errors remain separate from the interaction checks. Production remains unchanged.
+
+## Phase 6 — preference fallback hardening
+
+29 October 2026. Base: `3cf2df3b36e1f910d27b02059bbd5c9cd3606888`.
+
+Source review of the remaining fallback paths found two specific gaps:
+
+- Data saver disabled campaign animation without applying the wrapped layout used for reduced motion. On narrow screens this left content frozen beyond the clipping boundary. The section now exposes whether decorative motion is available; when unavailable, a single copy of the heading/outcomes wraps within the section. Pausing a normal marquee still preserves its position, and scrolling offscreen still only pauses it.
+- Service/gallery MediaLayer read `connection.saveData` only when another effect event ran. It now uses the existing reactive `useSaveData` subscription, so preference changes update video eligibility and pause playback without waiting for a tab visibility or service change. Poster imagery remains available.
+
+Baseline desktop campaign sample on the Phase 5 immutable deployment: 1363 × 936 viewport, campaign height 337.23px, two running tracks, no document overflow, zero playing videos while About/campaign were in view. Existing reduced-motion CSS still handles first paint; the new state attribute also covers data saver after hydration. No new preferences, dependencies or public diagnostic controls were introduced.
+
+The existing 95 deterministic checks, targeted lint, TypeScript and production build are rerun for this change. Post-deploy normal-motion/media verification is reported in the handoff. Live narrow viewports, preference toggles, phone orientation and GPU profiling remain open: the available browser does not expose those controls. These source fixes do not constitute physical-device acceptance.

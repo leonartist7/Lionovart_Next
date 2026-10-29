@@ -30,3 +30,12 @@
   .outcomeCopy > span { white-space: normal; letter-spacing: .06em; gap: 1.25rem; }
   .pause { display: none; }.cta { transition: none; }
 }
+
+/* Data saver needs the same fully readable layout as reduced motion.
+   Visibility and the pause button only freeze the animated layout. */
+.section[data-motion-available=false] :is(.headlineTrack,.outcomeTrack) { animation: none; transform: none; width: 100%; }
+.section[data-motion-available=false] :is(.headlineCopy + .headlineCopy,.outcomeCopy + .outcomeCopy) { display: none; }
+.section[data-motion-available=false] .headlineCopy { min-width: 0; width: 100%; white-space: normal; font-size: clamp(2rem,7.5vw,7rem); }
+.section[data-motion-available=false] .headlineCopy span { min-width: 0; text-wrap: balance; }
+.section[data-motion-available=false] .outcomeCopy { width: 100%; min-width: 0; flex-wrap: wrap; justify-content: flex-start; gap: .75rem 1.25rem; }
+.section[data-motion-available=false] .outcomeCopy > span { white-space: normal; letter-spacing: .06em; gap: 1.25rem; }
