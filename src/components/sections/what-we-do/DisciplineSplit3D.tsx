@@ -455,10 +455,17 @@ export default function DisciplineSplit3D({
   // second beat reserved for viewports that cannot fit both legibly.
   const phonePeekLift = Math.min(45, Math.max(0, (viewportHeight - 700) * .25));
   const tallPhonePeekLift = Math.min(8, Math.max(0, (viewportHeight - 720) * .065));
-  const peekY = shortScreen
+  const basePeekY = shortScreen
     ? isDesktop && !isTablet ? "55svh" : isDesktop ? "59svh" : "51svh"
     : isDesktop ? isTablet && viewportWidth < 1024 ? "51svh" : "61svh"
       : isTablet ? "61svh" : `${70 - phonePeekLift / viewportHeight * 100 - tallPhonePeekLift}svh`;
+  // Raising the parked film must not raise its initial peek over the hero.
+  // Project the source frame at the opening scale and keep its top below
+  // the viewport; the shared hero overflow adds the same clearance on top.
+  const clearHero = filmFrame
+    ? (viewportHeight * .59 + 24 - .82 * (filmFrame.filmOffset - filmFrame.height / 2)) / viewportHeight * 100
+    : 110;
+  const peekY = `${Math.max(Number.parseFloat(basePeekY) + (viewportWidth < 920 ? 19 : 22), clearHero)}svh`;
   const settledY = veryShort ? "-8svh" : shortScreen ? isDesktop ? "-5svh" : "-6svh" : isTablet ? "-2svh" : "2svh";
   // Settle early, then hold the complete film before any crop separates.
   const entranceY = useTransform(openingProgress, [0, .30], [peekY, settledY]);
