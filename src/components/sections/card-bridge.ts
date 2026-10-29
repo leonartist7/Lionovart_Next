@@ -6,7 +6,7 @@ export type BridgeTarget = { x: number; y: number; width: number; height: number
 
 /** Individual CSS scale/rotate also transform the authored split translation.
  * Compensate that offset so every frame lands on its measured service target. */
-export function cardBridgeFrame(base: BridgeFrame, target: BridgeTarget, move: number, fit: number, turn: boolean, lift = 0, inset = 0) {
+export function cardBridgeFrame(base: BridgeFrame, target: BridgeTarget, move: number, fit: number, turn: boolean, lift = 0, inset = 0, verticalMove = move) {
   const angle = (turn ? 90 * fit : 0) * Math.PI / 180;
   const endX = turn ? target.height / (base.width / base.parentX * base.parentY) : target.width / base.width;
   const endY = turn ? target.width / (base.height / base.parentY * base.parentX) : target.height / base.height;
@@ -15,7 +15,7 @@ export function cardBridgeFrame(base: BridgeFrame, target: BridgeTarget, move: n
   const transformedY = Math.sin(angle) * sx * base.motionX + Math.cos(angle) * sy * base.motionY;
   return {
     x: ((target.x - base.x) * move + inset) / base.parentX - (transformedX - base.motionX),
-    y: ((target.y - base.y) * move - lift) / base.parentY - (transformedY - base.motionY),
+    y: ((target.y - base.y) * verticalMove - lift) / base.parentY - (transformedY - base.motionY),
     sx, sy, angle: turn ? 90 * fit : 0,
   };
 }

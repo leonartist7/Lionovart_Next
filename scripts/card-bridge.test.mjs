@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {cardBridgeFrame} from '../src/components/sections/card-bridge.ts';
+import {cardHandoff} from '../src/components/sections/card-handoff.ts';
 
 function project(base,frame) {
  const angle=frame.angle*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle);
@@ -48,5 +49,18 @@ test('the transport reverses continuously without a desktop rotation or scale ju
   assert.ok(Math.abs(frames[i].x-frames[i-1].x)<1);
   assert.ok(Math.abs(frames[i].y-frames[i-1].y)<1);
   assert.ok(frames[i].sx>0 && frames[i].sy>0);
+ }
+});
+
+test('desktop card tops stay inside the reading area throughout the reshape',()=>{
+ const base={x:310,y:380,width:341,height:576,parentX:1,parentY:1,motionX:-35.5,motionY:0};
+ for(const target of [{x:278,y:196,width:503,height:283},{x:674,y:243,width:598,height:336}]) {
+  for(let p=0;p<=1;p+=.001) {
+   const pose=cardHandoff(900-p*2340,1440,900);
+   const frame=cardBridgeFrame(base,target,pose.move,pose.fit,false,0,0,pose.fit);
+   const rect=project(base,frame),top=rect.y-rect.height/2;
+   assert.ok(top>=54-1e-8 && top<=92+1e-8,`top ${top} at ${p}`);
+   assert.equal(frame.angle,0);
+  }
  }
 });

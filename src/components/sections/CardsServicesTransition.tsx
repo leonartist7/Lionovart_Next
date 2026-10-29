@@ -83,9 +83,10 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         });
         bases = panels.map(panel => {
           const r = panel.getBoundingClientRect();
-          const motion = new DOMMatrixReadOnly(getComputedStyle(panel).transform);
+          const style = getComputedStyle(panel);
+          const motion = new DOMMatrixReadOnly(style.transform);
           return { x: r.x + r.width / 2, y: r.y + r.height / 2, width: r.width, height: r.height,
-            parentX: r.width / Math.max(1, panel.offsetWidth), parentY: r.height / Math.max(1, panel.offsetHeight), motionX: motion.m41, motionY: motion.m42 };
+            parentX: r.width / Math.max(1, parseFloat(style.width)), parentY: r.height / Math.max(1, parseFloat(style.height)), motionX: motion.m41, motionY: motion.m42 };
         });
       }
       if (media.matches || !pose.progress) return;
@@ -100,7 +101,9 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         const turns = portrait && base.height > base.width * 1.1 && r.width > r.height;
         const inset = innerWidth < 768 && index !== 1 ? (index === 0 ? Math.min(32, innerWidth * .08) : -Math.min(24, innerWidth * .06)) * pose.move * (1 - pose.fit) : 0;
         const lift = !portrait || index === 1 ? 0 : Math.min(80, innerHeight * .09) * pose.move * (1 - pose.fit);
-        const bridge = cardBridgeFrame(base, { x: r.x + r.width / 2, y: r.y + r.height / 2, width: r.width, height: r.height }, pose.move, pose.fit, turns, lift, inset);
+        // On a horizontal row, height and centre travel together so a tall
+        // card never rises above the viewport before it has become a frame.
+        const bridge = cardBridgeFrame(base, { x: r.x + r.width / 2, y: r.y + r.height / 2, width: r.width, height: r.height }, pose.move, pose.fit, turns, lift, inset, portrait ? pose.move : pose.fit);
         panel.style.setProperty('--handoff-x', `${bridge.x}px`);
         panel.style.setProperty('--handoff-y', `${bridge.y}px`);
         panel.style.setProperty('--handoff-scale', `${bridge.sx} ${bridge.sy}`);
