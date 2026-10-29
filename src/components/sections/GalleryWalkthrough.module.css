@@ -83,3 +83,8 @@
 .staticMark { width: min(15rem,60vw); aspect-ratio: 1; margin: 2rem auto; }
 .stage[data-walkthrough-pinned=false] .partnershipAction { position: relative; inset: auto; transform: none; width: fit-content; margin: 2rem auto 0; }
 .stage[data-walkthrough-pinned=false] .ending { margin-top: 5rem; }
+
+/* One short approach at the end of the service handoff; never over the rows. */
+.stage[data-walkthrough-pinned=true] .header { top:auto; bottom:clamp(4rem,12svh,8rem); transform-origin:50% 100%; }
+.stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .header { top:auto; bottom:clamp(4rem,12svh,8rem); }
+.panel[aria-hidden=true] .project { pointer-events:none; }

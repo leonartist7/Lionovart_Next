@@ -20,19 +20,28 @@ export function galleryCardPose(progress: number, pair: number, pairs: number) {
   // row becomes fully legible; distant previews remain quiet and never play.
   const preview = .18 / (1 + Math.max(0, -advance - .5) * .6);
   const arrival = preview + (1 - preview) * smooth((advance + .85) / .7);
-  const opacity = arrival * (1 - smooth((advance - .4) / .58));
+  const dissolve = smooth((advance - .60) / .38);
+  const opacity = arrival * (1 - smooth((advance - .60) / .38));
   return {
     // Approach the viewer continuously, then ease into a large reading hold.
     // An asymptote keeps the cards safely behind the perspective plane.
-    z: advance <= 0 ? -350 + advance * GALLERY_DEPTH_STEP : -350 + 410 * (1 - Math.exp(-advance * GALLERY_DEPTH_STEP / 410)),
-    opacity, visible: opacity > .001,
-    outward: smooth((advance - .28) / .65),
-    caption: smooth((advance + .25) / .15) * (1 - smooth((advance - .4) / .4)),
+    z: advance <= 0 ? -350 + advance * GALLERY_DEPTH_STEP : -350 + 480 * (1 - Math.exp(-advance * GALLERY_DEPTH_STEP / 480)),
+    opacity, dissolve, advance,
+    surfaceOpacity: arrival * (1 - smooth((advance - .88) / .1)),
+    visible: advance < .98 && arrival > .001,
+    background: smooth(-advance / .9),
+    outward: smooth((advance - .60) / .38),
+    caption: smooth((advance + .25) / .15) * (1 - smooth((advance - .54) / .18)),
   };
 }
-export function galleryTitlePose(progress: number) {
-  const retreat = smooth(progress / .72);
-  return { z: -1200 * retreat, y: -48 * retreat };
+/** Intro progress belongs to the service/gallery arrival, before row travel. */
+export function galleryTitlePose(arrival: number) {
+  const approach = smooth((arrival - .25) / .65);
+  return {
+    z: -360 + 740 * approach,
+    y: 10 * (1 - approach),
+    opacity: smooth((arrival - .23) / .18) * (1 - smooth((arrival - .62) / .28)),
+  };
 }
 export function galleryEnding(progress: number) {
   const departure = 1 - smooth((progress - .64) / .08);
@@ -50,7 +59,7 @@ export function galleryPairProgress(pair: number, pairs: number) {
   return Math.max(0, Math.min(Math.max(1, pairs) - 1, pair)) / Math.max(1, pairs) * GALLERY_WALK_END;
 }
 export function galleryRunwayScreens(pairs: number) {
-  return Math.max(5.4, Math.max(1, pairs) * 1.95 + 2.5);
+  return Math.max(5.4, Math.max(1, pairs) * 2.25 + 2.5);
 }
 
 export function galleryStepTarget(current: number, requested: number | null, direction: number, pairs: number) {

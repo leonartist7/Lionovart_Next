@@ -153,7 +153,7 @@ test('upcoming rows stay visible behind the current pair without competing at fu
   let previous=Infinity;
   for(let row=0;row<4;row++) {
    const pose=galleryCardPose(p,row,4);
-   assert.ok(pose.z<100 && pose.z<=previous);
+   assert.ok(pose.z<150 && pose.z<=previous);
    assert.ok(pose.opacity>=0 && pose.opacity<=1);
    previous=pose.z;
   }
@@ -198,17 +198,51 @@ test('large opaque desktop cards remain within the window before their soft exit
  }
 });
 
-test('gallery title recedes continuously and restores on reverse scroll', () => {
+test('gallery title approaches during the intro, clears before rows and restores in reverse', () => {
  const samples=Array.from({length:1001},(_,i)=>i/1000),poses=samples.map(galleryTitlePose);
  assert.deepEqual(poses.toReversed(),samples.toReversed().map(galleryTitlePose));
- assert.equal(Math.abs(poses[0].z),0);
+ assert.equal(poses[0].opacity,0);
+ assert.ok(galleryTitlePose(.5).opacity>.9);
  for(let i=1;i<poses.length;i++) {
-  assert.ok(poses[i].z<=poses[i-1].z);
+  assert.ok(poses[i].z>=poses[i-1].z);
+  assert.ok(poses[i].z<500);
   assert.ok(Math.abs(poses[i].z-poses[i-1].z)<3);
  }
- assert.equal(galleryTitlePose(.72).z,-1200);
+ for(const p of [.9,.95,1]) assert.equal(galleryTitlePose(p).opacity,0);
 });
 
+test('erosion starts after the enlarged hold and reverses without frame or caption residue', () => {
+ for(let row=0;row<4;row++) {
+  const samples=Array.from({length:2001},(_,i)=>i/2000);
+  const poses=samples.map(p=>galleryCardPose(p,row,4));
+  assert.deepEqual(poses.toReversed(),samples.toReversed().map(p=>galleryCardPose(p,row,4)));
+  let previous=0;
+  for(const pose of poses) {
+   assert.ok(pose.dissolve>=previous && pose.dissolve<=1);
+   if(pose.advance<=.60) assert.equal(pose.dissolve,0);
+   if(pose.advance>=.98) { assert.equal(pose.visible,false); assert.equal(pose.caption,0); assert.equal(pose.surfaceOpacity,0); }
+   previous=pose.dissolve;
+  }
+ }
+ const enlarged=galleryCardPose(.10,0,4);
+ assert.ok(enlarged.z>30);
+ assert.equal(enlarged.dissolve,0);
+ assert.ok(enlarged.caption>.9);
+});
+
+test('future mobile rows emerge laterally and settle to the centered active pair', () => {
+ for(const [width,height] of [[320,568],[390,844],[768,1024]]) {
+  const layout=galleryLayout(width,height,width);
+  for(let row=1;row<4;row++) {
+   const pose=galleryCardPose(0,row,4);
+   const worldOffset=pose.background*Math.max(1,(1000-pose.z)/1000)*layout.backgroundX;
+   const projected=worldOffset*1000/(1000-pose.z);
+   assert.ok(projected>=width*.2 && projected<=width*.36);
+   assert.equal(pose.caption,0);
+  }
+  assert.equal(galleryCardPose(galleryPairProgress(1,4),1,4).background,0);
+ }
+});
 
 test('short desktop windows reserve space for titles, captions and navigation', () => {
  for (const [width,height] of [[1365,650],[1440,740]]) {
