@@ -1,7 +1,7 @@
 import test from 'node:test';
 import { galleryLayout, GALLERY_ENTRY_PROJECTION } from '../src/components/sections/gallery-layout.ts';
 import assert from 'node:assert/strict';
-import { galleryProgress, galleryTravel, galleryCardPose, galleryEnding, galleryPairProgress, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase } from '../src/components/sections/gallery-journey.ts';
+import { galleryProgress, galleryTravel, galleryCardPose, galleryEnding, galleryTitlePose, galleryPairProgress, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase } from '../src/components/sections/gallery-journey.ts';
 
 test('gallery depth is reversible, visits every pair and clears the room before the ending', () => {
  for (const pairs of [1, 4, 6, 17]) {
@@ -51,7 +51,7 @@ test('phone and tablet exhibits open vertically within the reading area; desktop
  assert.equal(desktop.vertical,false);
  assert.equal(desktop.y,0);
  assert.ok(desktop.x < 1425*.33);
- assert.ok(desktop.exitX > 1425*.33);
+ assert.ok(desktop.exitX - desktop.x <= 20);
  assert.ok(desktop.x > desktop.panelWidth / 2);
  assert.equal(desktop.panelTop,54);
 });
@@ -78,8 +78,8 @@ test('each reading stop gets a longer hold and is C1 continuous through forward 
   const pose = galleryCardPose(p, pair, pairs);
   assert.equal(pose.outward, 0); assert.equal(pose.caption, 1);
  }
- assert.ok(galleryRunwayScreens(4) > 8);
- assert.ok(galleryRunwayScreens(4) < 9);
+ assert.ok(galleryRunwayScreens(4) > 10);
+ assert.ok(galleryRunwayScreens(4) < 12);
 });
 test('the dock, arrows and centred title are gone before the logo-only beat and restore in reverse', () => {
  for (const p of [.72, .74, .76, .85, 1]) {
@@ -121,7 +121,7 @@ test('arrow curves carry forward velocity, settle without overshoot and stay dis
 // Project the four corners, including rotation, rather than comparing unprojected CSS boxes.
 function bounds(width, height, layout, pose, side, row) {
  const w=layout.panelWidth, h=w*(layout.vertical?.75:11/16);
- const angle=-side*(layout.vertical?0:4+12*pose.outward)*Math.PI/180;
+ const angle=-side*(layout.vertical?0:4+2*pose.outward)*Math.PI/180;
  const x=side*(layout.x+(layout.exitX-layout.x)*pose.outward);
  const y=side*(layout.y+(layout.exitY-layout.y)*pose.outward)+(row%2?-1:1)*(layout.vertical?0:height*.02)*pose.outward;
  const corners=[[-w/2,-h/2],[-w/2,h/2],[w/2,-h/2],[w/2,h/2]].map(([dx,dy])=>{
@@ -137,22 +137,63 @@ test('reading pairs have clear space between their full frames on phones, tablet
   assert.ok(layout.vertical ? a.bottom+32<b.top : a.right+20<b.left, `reading pair overlaps at ${width}x${height}`);
  }
 });
-test('successive rows do not visibly pile on top of one another during outward travel', () => {
- for(const [width,height] of [[320,568],[360,640],[390,844],[768,1024],[1024,768],[1365,650],[1440,740],[1365,936],[1440,900],[2560,1080]]) {
-  const layout=galleryLayout(width,height,width-15);
-  for(let p=0;p<.76;p+=.0005) {
-   for(let row=0;row<3;row++) {
-    const outgoing=galleryCardPose(p,row,4), incoming=galleryCardPose(p,row+1,4);
-    if(outgoing.opacity<.1 || incoming.opacity<.1) continue;
-    for(const side of [-1,1]) {
-     const a=bounds(width,height,layout,outgoing,side,row), b=bounds(width,height,layout,incoming,side,row+1);
-     const overlapX=Math.min(a.right,b.right)-Math.max(a.left,b.left);
-     const overlapY=Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top);
-     assert.ok(overlapX<=0 || overlapY<=0, `rows overlap at ${width}x${height}, progress ${p}`);
-    }
-   }
+test('upcoming rows stay visible behind the current pair without competing at full opacity', () => {
+ for(let row=0;row<4;row++) {
+  const p=galleryPairProgress(row,4), front=galleryCardPose(p,row,4);
+  assert.equal(front.opacity,1);
+  for(let next=row+1;next<4;next++) {
+   const back=galleryCardPose(p,next,4);
+   assert.equal(back.visible,true);
+   assert.ok(back.z<front.z-1000);
+   assert.ok(back.opacity>0 && back.opacity<.2);
+   assert.equal(back.caption,0);
   }
  }
+ for(let p=0;p<=1;p+=.0005) {
+  let previous=Infinity;
+  for(let row=0;row<4;row++) {
+   const pose=galleryCardPose(p,row,4);
+   assert.ok(pose.z<100 && pose.z<=previous);
+   assert.ok(pose.opacity>=0 && pose.opacity<=1);
+   previous=pose.z;
+  }
+ }
+});
+
+test('cards reach a substantially larger readable size before a long, continuous fade', () => {
+ const start=galleryCardPose(0,0,4), large=galleryCardPose(.09,0,4), fading=galleryCardPose(.13,0,4);
+ assert.ok(large.opacity>.9);
+ assert.ok((1000-start.z)/(1000-large.z)>1.3);
+ assert.ok(fading.opacity>0 && fading.opacity<large.opacity);
+ let previous=galleryCardPose(0,0,4);
+ for(let p=.00001;p<=.76;p+=.00001) {
+  const next=galleryCardPose(p,0,4);
+  assert.ok(Math.abs(next.opacity-previous.opacity)<.002);
+  assert.ok(Math.abs(next.z-previous.z)<1);
+  previous=next;
+ }
+});
+
+test('desktop reading space preserves a balanced lane for the final logo', () => {
+ for(const [width,height] of [[1365,936],[1440,900],[1920,1080]]) {
+  const content=width-15,layout=galleryLayout(width,height,content),pose=galleryCardPose(galleryPairProgress(3,4),3,4);
+  const left=bounds(content,height,layout,pose,-1,3),right=bounds(content,height,layout,pose,1,3);
+  const gap=right.left-left.right;
+  assert.ok(gap>=Math.min(200,content*.15));
+  assert.ok(gap<content*.23);
+  assert.ok(layout.exitX-layout.x<=20);
+ }
+});
+
+test('gallery title recedes continuously and restores on reverse scroll', () => {
+ const samples=Array.from({length:1001},(_,i)=>i/1000),poses=samples.map(galleryTitlePose);
+ assert.deepEqual(poses.toReversed(),samples.toReversed().map(galleryTitlePose));
+ assert.equal(Math.abs(poses[0].z),0);
+ for(let i=1;i<poses.length;i++) {
+  assert.ok(poses[i].z<=poses[i-1].z);
+  assert.ok(Math.abs(poses[i].z-poses[i-1].z)<3);
+ }
+ assert.equal(galleryTitlePose(.72).z,-1200);
 });
 
 

@@ -122,8 +122,8 @@ export default function CardsServicesTransition({ children }: { children: ReactN
   return <div className={styles.cardTransition} data-card-transition data-scroll-manual>
     <div ref={intro} className={styles.cardIntro}>{children}</div>
     <ScenePortal><div ref={message} className={styles.shapingMessage} data-shaping-message data-scroll-title-skip>
-      <h2>{locale === 'fr' ? 'Façonner l’avenir de votre entreprise.' : 'Shaping what comes next for your business.'}</h2>
-      <span>{locale === 'fr' ? 'Par la stratégie, le design et les expériences.' : 'Through strategy, design and experiences.'}</span>
+      <h2>{locale === 'fr' ? 'L’innovation n’est pas une option.' : 'Innovation is not an option.'}<br />
+        {locale === 'fr' ? 'C’est une nécessité.' : 'It’s a necessity.'}</h2>
     </div></ScenePortal>
     <div ref={exit} className={styles.cardExit} data-card-exit aria-hidden="true" />
   </div>;

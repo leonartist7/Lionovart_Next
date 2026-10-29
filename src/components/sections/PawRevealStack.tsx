@@ -215,8 +215,7 @@ export default function PawRevealStack() {
     <span id="imagine" className={styles.anchor} aria-hidden="true" />
     <div className={styles.redChapter}>
       <header className={styles.intro}>
-        <h2 id="imagine-heading"><span>{tr("Your image speaks first.")}</span></h2>
-        <p className={styles.introBody}>{tr("Let it speak well of the work behind it.")}</p>
+        <h2 id="imagine-heading"><span>{tr("To lead in today’s digital era…")}</span></h2>
       </header>
       <div ref={gridRef} className={styles.grid} data-imagine-content>
         {BENEFITS.map((item, index) => <BenefitCard key={item.title} item={item} index={index} />)}

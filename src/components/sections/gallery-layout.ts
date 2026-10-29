@@ -3,15 +3,18 @@ export const GALLERY_ENTRY_PROJECTION = 1.35; // perspective 1000px at translate
 export function galleryLayout(viewportWidth: number, height: number, contentWidth = viewportWidth) {
   const vertical = viewportWidth <= 1024;
   const compact = height <= 740 || vertical && height <= 840;
-  const panelWidth = vertical ? Math.min(contentWidth * .82, height * (compact ? .36 : .46), 544) : Math.min(contentWidth * .44, height * .68, 640);
+  const panelWidth = vertical ? Math.min(contentWidth * .82, height * (compact ? .36 : .46), 544) : Math.min(contentWidth * .43, height * .68, 720);
   const panelTop = vertical ? (compact ? 43 : 48) : 54;
+  const centerGap = Math.min(260, Math.max(160, contentWidth * .17));
+  const x = vertical ? 0 : panelWidth * .5 + centerGap * GALLERY_ENTRY_PROJECTION / 2;
+  const y = vertical ? Math.min(height * (compact ? .20 : .21), panelWidth * .375 + 40) : 0;
   return {
     vertical, compact, panelWidth, panelTop,
-    x: vertical ? 0 : panelWidth * .5 + Math.min(40, Math.max(20, contentWidth * .02)),
-    exitX: vertical ? 0 : contentWidth * .33 * 1.18,
+    x,
+    exitX: vertical ? 0 : x + Math.min(20, contentWidth * .012),
     // Cap the separation on very tall phones so the middle never becomes empty space.
-    y: vertical ? Math.min(height * (compact ? .20 : .21), panelWidth * .375 + 40) : 0,
-    exitY: vertical ? height * .34 : 0,
+    y,
+    exitY: vertical ? y + Math.min(24, height * .035) : 0,
     // The incoming frame is projected around the corridor's 48% vanishing
     // point on both axes/layouts. Match its rendered center, not its CSS top.
     gatherY: height * (.48 + (panelTop / 100 - .48) / GALLERY_ENTRY_PROJECTION),

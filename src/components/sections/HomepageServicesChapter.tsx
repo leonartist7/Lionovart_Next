@@ -391,6 +391,13 @@ export default function HomepageServicesChapter() {
               <div data-service-copy className="order-2 flex min-w-0 flex-col justify-center text-center">
                 <div>
                     <h3 className="sr-only">{activeService.title}</h3>
+                    <div className={styles.serviceTitleSlot} aria-hidden="true">
+                      <AnimatePresence initial={false}>
+                        <motion.h3 key={activeService.id} data-service-title className={styles.serviceTitle}
+                          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                          transition={{ duration: reduceMotion ? .12 : .8, ease: [.22, 1, .36, 1] }}>{activeService.title}</motion.h3>
+                      </AnimatePresence>
+                    </div>
                     <div data-service-description-slot>
                       <AnimatePresence initial={false} mode="sync">
                         <motion.p key={activeService.id} data-service-description

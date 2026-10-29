@@ -12,7 +12,7 @@ import { prepareScreeningPosters, ScreeningMedia } from './ScreeningMedia';
 import { GALLERY_SERVICE_LABELS, type GalleryWork } from './selected-work/gallery';
 import { galleryLayout, GALLERY_ENTRY_PROJECTION } from './gallery-layout';
 import { serviceGalleryHandoff } from './service-gallery-handoff';
-import { galleryCardPose, galleryEnding, galleryPairProgress, galleryProgress, galleryTravel, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
+import { galleryCardPose, galleryEnding, galleryPairProgress, galleryProgress, galleryTravel, galleryTitlePose, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
 import styles from './GalleryWalkthrough.module.css';
 import PartnershipMark, { PartnershipResultsButton } from './PartnershipMark';
 import { partnershipLayout } from './partnership-layout';
@@ -44,7 +44,7 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
     const size = 1 + (entryScale.get() - 1) * (1 - spread);
     return `translate3d(calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset) + ${outward} * var(--gallery-wall-travel))), calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset-y) + ${outward} * var(--gallery-wall-travel-y)) + ${(pair % 2 ? -1 : 1) * spread * (1 - focus) * outward} * var(--gallery-wall-stagger)), ${depth}px) translate(-50%,-50%) rotateY(calc(${-side * spread * (1 - focus)} * (var(--gallery-wall-angle) + ${outward} * var(--gallery-exit-angle)))) scale(${size})`;
   });
-  const opacity = useTransform(() => galleryCardPose(progress.get(), pair, pairs).opacity * (reduce ? dimTarget.get() : dimSpring.get()));
+  const opacity = useTransform(() => galleryCardPose(progress.get(), pair, pairs).opacity * (pair > 0 ? entry.get() : 1) * (reduce ? dimTarget.get() : dimSpring.get()));
   const labelOpacity = useTransform(() => galleryCardPose(progress.get(), pair, pairs).caption * Math.max(0, Math.min(1, (entry.get() - .65) / .35)) * Math.max(0, ((reduce ? dimTarget.get() : dimSpring.get()) - .35) / .65));
   const visibility = useTransform(progress, p => galleryCardPose(p, pair, pairs).visible ? 'visible' : 'hidden');
   return <motion.div className={styles.panel} data-gallery-panel data-gallery-index={index} data-focused={selected}
@@ -53,7 +53,6 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
       aria-label={`Focus work: ${work.name}`} aria-pressed={selected}>
       <div className={styles.screen}><ScreeningMedia asset={work} active={active && near && mediaVisible && (selected || !dimmed && side <= 0)} label={false} /></div>
       <motion.span className={styles.projectCaption} style={{ opacity: labelOpacity }}>
-        <span className={styles.projectName}>{work.name}<span aria-hidden="true">{selected ? '−' : '+'}</span></span>
         <WorkTags work={work} />
       </motion.span>
     </button>
@@ -81,6 +80,10 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const pairs = Math.max(1, Math.ceil(projects.length / 2));
   const pinned = !!scene?.target;
   const titleOpacity = useTransform(() => galleryEnding(progress.get()).header * arrivalTitle.get());
+  const titleTransform = useTransform(progress, p => {
+    const { y, z } = galleryTitlePose(p);
+    return `perspective(1000px) translate3d(0,${y}px,${z}px)`;
+  });
   const logoTransform = useTransform(progress, p => `translate(-50%,-50%) translateY(calc(${galleryEnding(p).markSettle} * var(--partnership-mark-drop,24svh))) translateZ(${galleryEnding(p).logoZ}px)`);
   const logoOpacity = useTransform(progress, p => galleryEnding(p).logo);
   const ringOpacity = useTransform(progress, p => galleryEnding(p).ring);
@@ -89,7 +92,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const linkOpacity = useTransform(progress, p => galleryEnding(p).links);
   const navOpacity = useTransform(() => galleryEnding(progress.get()).navigation * entry.get());
   useMotionValueEvent(progress, 'change', p => {
-    const nextPair = Math.min(pairs - 1, Math.max(0, Math.round(galleryTravel(p, pairs) / GALLERY_DEPTH_STEP)));
+    const nextPair = Math.min(pairs - 1, Math.max(0, Math.floor(galleryTravel(p, pairs) / GALLERY_DEPTH_STEP + .2)));
     if (currentPair.current !== nextPair || galleryEnding(p).copy > .05) { currentPair.current = nextPair; setSelectedSlug(null); }
     setPair(nextPair);
     setEnding(galleryEnding(p).links > .7);
@@ -119,7 +122,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
         surface.style.setProperty('--gallery-wall-travel-y', `${layout.exitY - layout.y}px`);
         surface.style.setProperty('--gallery-wall-stagger', layout.vertical ? '0px' : '2svh');
         surface.style.setProperty('--gallery-wall-angle', layout.vertical ? '0deg' : '4deg');
-        surface.style.setProperty('--gallery-exit-angle', layout.vertical ? '0deg' : '12deg');
+        surface.style.setProperty('--gallery-exit-angle', layout.vertical ? '0deg' : '2deg');
         surface.style.setProperty('--gallery-panel-top', `${layout.panelTop}%`);
         surface.style.setProperty('--gallery-panel-width', `${layout.panelWidth}px`);
       }
@@ -249,7 +252,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       <span id="partnership" className={styles.partnershipAnchor} aria-hidden="true" />
       <ScenePortal><div ref={stage} className={styles.stage} data-scroll-title-skip data-dissolve-stage data-gallery-stage data-gallery-rows={pairs} data-scene-chapter="work" data-walkthrough-pinned={pinned}
         onKeyDown={event => { if (event.key === 'Escape' && selectedSlug) { setSelectedSlug(null); event.stopPropagation(); } }}>
-        <motion.header className={styles.header} aria-hidden={pinned && !walking} style={{ opacity: pinned ? titleOpacity : 1 }}>
+        <motion.header className={styles.header} aria-hidden={pinned && !walking} style={{ opacity: pinned ? titleOpacity : 1, transform: pinned ? titleTransform : 'none' }}>
           <h2 id="selected-work-heading">{tr('Selected work')}</h2>
           <p>{fr ? 'Entrez dans notre univers.' : 'Step inside our world.'}</p>
         </motion.header>
@@ -264,7 +267,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
           {projects.map(work => <button type="button" key={work.slug} className={styles.staticProject} data-focused={selectedSlug === work.slug} data-dimmed={!!selectedSlug && selectedSlug !== work.slug}
             onClick={() => onSelect(work.slug)} aria-label={`Focus work: ${work.name}`} aria-pressed={selectedSlug === work.slug}>
             <div className={styles.screen}><ScreeningMedia asset={work} active={false} label={false} /></div>
-            <span className={styles.projectCaption}><span className={styles.projectName}>{work.name}<span aria-hidden="true">{selectedSlug === work.slug ? '−' : '+'}</span></span><WorkTags work={work} /></span>
+            <span className={styles.projectCaption}><WorkTags work={work} /></span>
           </button>)}
         </div>}
         <motion.div className={styles.ending} data-gallery-ending aria-hidden={pinned && !ending} style={{ opacity: pinned ? copyOpacity : 1, transform: pinned ? copyTransform : 'none' }}>

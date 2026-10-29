@@ -12,6 +12,8 @@ import { galleryEnding, galleryProgress } from "./gallery-journey";
 
 const subscribeClient = () => () => {};
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
+// Temporarily park the gallery's industry/style filters; retain the service rail.
+const ENABLE_WORK_FILTERS = false;
 
 function WorkControls() {
   const tr = usePublicCopy();
@@ -88,8 +90,9 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
       const departure = staticScene.matches
         ? ending ? clamp((ending.getBoundingClientRect().top - h * .8) / (h * .25)) : 1
         : galleryRect ? galleryEnding(galleryProgress(galleryRect.top, galleryRect.height, h)).dock : 1;
-      visibility.set(Math.max(serviceVisibility, workVisibility * departure));
-      handoff.set(workRect ? clamp((h * .75 - workRect.top) / (h * .45)) : 0);
+      const nextHandoff = workRect ? clamp((h * .75 - workRect.top) / (h * .45)) : 0;
+      visibility.set(ENABLE_WORK_FILTERS ? Math.max(serviceVisibility, workVisibility * departure) : serviceVisibility * (1 - nextHandoff));
+      handoff.set(ENABLE_WORK_FILTERS ? nextHandoff : 0);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
     const observer = new ResizeObserver(schedule);

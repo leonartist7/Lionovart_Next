@@ -71,6 +71,7 @@ const french: Record<string, string> = {
   "Close details": "Refermer les détails",
 
   "Selected work": "Réalisations choisies",
+  "To lead in today’s digital era…": "Pour ouvrir la voie à l’ère numérique…",
   "Your image speaks first.": "Votre image parle d’abord.",
   "Your image speaks": "Votre image parle",
   "before you do.": "avant vous.",
