@@ -272,3 +272,34 @@
   .card[data-integrated=true] .integratedDetails .metricValue small { display: inline; font-size: .625rem; margin-right: .25rem; }
 }
 @media (prefers-reduced-motion: reduce) { .card[data-integrated=true] .integratedDetails { transition: none; } }
+
+/* The divided film keeps its outline; the reading area now owns half the face. */
+@media(min-width:768px), (min-width:600px) and (min-aspect-ratio:6/5) {
+ .card[data-integrated=true] { grid-template-rows: minmax(0,1fr) minmax(14rem,52%); }
+ .card[data-integrated=true] .integratedCopy { padding: 1.5rem var(--benefit-inset) 2.75rem; }
+ .card[data-integrated=true] .integratedCopy h3 { font-size: clamp(1.375rem,1rem + .75vw,2rem); line-height: 1.15; font-weight: 600; }
+ .card[data-integrated=true] .serviceLabel { font-size: clamp(.75rem,.65rem + .2vw,.9375rem); margin-bottom: .875rem; line-height: 1.4; }
+ .card[data-integrated=true] .integratedAccent { margin-top: .875rem; font-size: clamp(1rem,.85rem + .35vw,1.1875rem); line-height: 1.35; }
+}
+@media(min-width:600px) and (height <= 560px) {
+ .card[data-integrated=true] { grid-template-rows: minmax(0,1fr) 72%; }
+ .card[data-integrated=true] .integratedCopy { padding: .75rem .625rem 1.75rem; }
+ .card[data-integrated=true] .integratedCopy h3 { font-size: 1rem; }
+ .card[data-integrated=true] .serviceLabel { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+ .card[data-integrated=true] .integratedAccent { font-size: .75rem; margin-top: .375rem; }
+}
+
+/* A bounded, transform-only colour drift sits below the corner sculptures. */
+.card[data-integrated=true] { --art-light-a:#e8a020; --art-light-b:#e5192a; }
+.card[data-integrated=true][data-benefit-index="1"] { --art-light-a:#9e6df0; --art-light-b:#d6a85c; }
+.card[data-integrated=true][data-benefit-index="2"] { --art-light-a:#e5192a; --art-light-b:#efad54; }
+.integratedArtwork::after {
+ content:""; position:absolute; inset:-24%; z-index:1; pointer-events:none;
+ background:radial-gradient(ellipse at 28% 20%,var(--art-light-a),transparent 57%),radial-gradient(ellipse at 78% 68%,var(--art-light-b),transparent 62%);
+ opacity:.24; mix-blend-mode:screen; transform:translate3d(-5%,-3%,0) scale(1.06);
+ animation:opening-art-color 14s ease-in-out infinite alternate; animation-play-state:paused;
+}
+.pillarCode { z-index:2; }
+:global([data-card-color-motion=true]) .integratedArtwork::after { animation-play-state:running; will-change:transform; }
+@keyframes opening-art-color { to { transform:translate3d(6%,5%,0) scale(1.15) rotate(5deg); } }
+@media(prefers-reduced-motion:reduce) { .integratedArtwork::after { animation:none; } }

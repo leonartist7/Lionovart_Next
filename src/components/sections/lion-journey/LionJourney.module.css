@@ -270,7 +270,7 @@
 }
 
 /* The complete variants share reserved space; only their own proof is clickable. */
-.journey :global(.lion-roar-text) { rotate:5deg; }
+.journey :global(.lion-roar-text) { rotate:-5deg; }
 .journey :global(.trust-placement) { position:relative; width:100%; min-height:106px; display:grid; place-items:center; padding-inline:8px; }
 .journey :global(.trust-placement-content) { width:100%; display:grid; place-items:center; pointer-events:none; }
 .journey :global(.trust-placement .opening-proof) { width:100%; display:grid; grid-template-columns:auto auto auto; justify-content:center; align-items:center; gap:clamp(8px,2vw,24px); padding:0; }

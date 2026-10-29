@@ -47,7 +47,9 @@ test('the middle frame merges into service media while shaping and service copy 
  }
  const at=p=>cardHandoff(900-p*2340,1440,900);
  assert.ok(at(.78).serviceReveal>0 && at(.78).serviceReveal<1);
- assert.equal(at(.78).copy,0);
+ assert.ok(at(.78).copy>.49 && at(.78).copy<.51);
+ assert.equal(at(.84).copy,0);
+ assert.equal(at(.86).serviceCopy,0);
  assert.equal(at(.78).serviceCopy,0);
  assert.equal(at(.90).serviceReveal,1);
  assert.equal(at(1).serviceCopy,1);
@@ -67,4 +69,14 @@ test('benefit titles hold after gathering, then dissolve during the service-fram
  assert.equal(at(.7).glass,1);
  assert.equal(at(.7).fit,1);
  assert.equal(at(.7).light,0);
+});
+
+
+test('the innovation statement holds later and clears before the service headings enter', () => {
+ const at=p=>cardHandoff(900-p*2340,1440,900);
+ assert.equal(at(.72).copy,1);
+ assert.ok(at(.8).copy>0);
+ assert.equal(at(.8).light,0);
+ for(let p=.84;p<=1;p+=.001)assert.equal(at(p).copy,0);
+ assert.ok(at(.94).serviceCopy>.5);
 });

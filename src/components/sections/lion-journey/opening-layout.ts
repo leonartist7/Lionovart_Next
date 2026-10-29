@@ -1,4 +1,25 @@
 const clamp = (n: number, max = 1) => Math.max(0, Math.min(max, n));
+const smooth = (n: number) => { const p = clamp(n); return p * p * (3 - 2 * p); };
+
+/** Trust finishes before the invitation enters; the film is already dividing. */
+export function openingCopyPose(progress: number) {
+  return {
+    proof: smooth((progress - .23) / .13),
+    trust: 1 - smooth((progress - .44) / .10),
+    heading: smooth((progress - .58) / .14),
+  };
+}
+
+/** A little more breathing room without widening the film or its panels. */
+export function openingSplitGap(width: number, height: number, landscape: boolean) {
+  return landscape ? Math.min(40, Math.max(22, width * .026)) : Math.min(30, Math.max(18, height * .026));
+}
+
+/** One restrained pointer response is applied around the scroll-owned transform. */
+export function openingPointerTilt(x: number, y: number, enabled: boolean) {
+  const signed = (n: number) => Math.max(-1, Math.min(1, Number.isFinite(n) ? n : 0));
+  return { x: enabled ? -signed(y) * 2.2 : 0, y: enabled ? signed(x) * 3.4 : 0 };
+}
 export const LANDSCAPE_FILM_QUERY = "(min-width: 768px), (min-width: 600px) and (min-aspect-ratio: 6/5)";
 export function usesLandscapeFilm(width: number, height: number) {
   return width >= 768 || (width >= 600 && width >= height * 1.2);

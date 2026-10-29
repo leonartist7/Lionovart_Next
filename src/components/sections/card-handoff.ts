@@ -7,9 +7,9 @@ export function cardHandoff(top: number, height: number, viewport: number) {
     progress,
     move: smooth((progress - .04) / .24),
     // The whole message fades together only after transport settles at 28%.
-    copy: smooth((progress - .28) / .14) * (1 - smooth((progress - .66) / .12)),
+    copy: smooth((progress - .28) / .14) * (1 - smooth((progress - .72) / .12)),
     serviceReveal: smooth((progress - .66) / .24),
-    serviceCopy: smooth((progress - .80) / .16),
+    serviceCopy: smooth((progress - .86) / .14),
     serviceSides: smooth((progress - .86) / .14),
     rear: 1 - smooth((progress - .64) / .16),
     // Gather first, hold the benefit titles, then dissolve while fitting the service outline.
@@ -17,7 +17,7 @@ export function cardHandoff(top: number, height: number, viewport: number) {
     dissolve: smooth((progress - .46) / .22),
     glass: smooth((progress - .46) / .18),
     intro: 1 - smooth((progress - .66) / .24),
-    light: smooth((progress - .76) / .24),
+    light: smooth((progress - .82) / .18),
     proof: 1 - smooth(progress / .05),
   };
 }

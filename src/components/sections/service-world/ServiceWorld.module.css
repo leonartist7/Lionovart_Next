@@ -94,7 +94,7 @@
 .world[data-world-mode=media] .architecture i { inset: 9% -8% 37%; border: 1px solid #aa987117; border-top-color: #ffffff91; box-shadow: 0 -16px 42px #ffffff24,inset 0 1px 0 #fff9; }
 .world[data-world-mode=media] .architecture i:nth-child(2) { inset: 15% 5% 43%; opacity: .6; }
 .world[data-world-mode=media] .architecture i:nth-child(n+3) { display: none; }
-.world[data-world-mode=media] :global([data-service-panel]) { top: 8svh; bottom: 8rem; }
+.world[data-world-mode=media] :global([data-service-panel]) { top: 8svh; bottom: calc(8rem + clamp(1rem,2.5svh,1.75rem)); }
 .world[data-world-mode=media] :global([data-service-panel] > div) { justify-content: space-between; gap: clamp(1.5rem,4svh,3rem); }
 .world[data-world-mode=media] :global([data-service-content] [data-service-media]) { width: 100%; }
 .world[data-world-mode=media] :global([data-service-panel] [data-service-title]) { max-width: 28ch; font-size: clamp(2rem,3.4vw,3.6rem); font-weight: 400; line-height: 1.08; letter-spacing: -.035em; text-transform: none; text-wrap: balance; }
@@ -121,7 +121,7 @@
 @media(max-width:767px) {
   .world[data-world-mode=media] .architecture i { inset: 11% -40% 49%; }
   .world[data-world-mode=media] .architecture i:nth-child(2) { inset: 18% -20% 56%; }
-  .world[data-world-mode=media] :global([data-service-panel]) { top: 9svh; bottom: 7rem; }
+  .world[data-world-mode=media] :global([data-service-panel]) { top: 9svh; bottom: 8rem; }
   .world[data-world-mode=media] :global([data-service-panel] > div) { justify-content: center; gap: clamp(1.4rem,3.5svh,2.4rem); }
   .world[data-world-mode=media] :global([data-service-panel] [data-service-title]) { max-width: 20ch; font-size: clamp(1.65rem,7vw,2.25rem); }
   .world[data-world-mode=media] :global([data-service-description]) { margin-top: .85rem; max-width: 39ch; line-height: 1.55; }
@@ -132,7 +132,7 @@
 @media(max-height:740px) and (min-height:561px) {
   .world[data-world-mode=media] :global([data-service-media]) { max-height: 29svh; }
   .world[data-world-mode=media] :global([data-service-media] > div) { height: 29svh; min-height: 0; }
-  .world[data-world-mode=media] :global([data-service-panel]) { top: 8svh; bottom: 6.5rem; }
+  .world[data-world-mode=media] :global([data-service-panel]) { top: 8svh; bottom: 7.5rem; }
   .world[data-world-mode=media] :global([data-service-panel] > div) { gap: .9rem; }
   .world[data-world-mode=media] :global([data-service-panel] [data-service-title]) { font-size: clamp(1.6rem,3.4vw,2.4rem); }
   .controls[data-exhibit-controls=true] { margin-top: 1.25rem; }

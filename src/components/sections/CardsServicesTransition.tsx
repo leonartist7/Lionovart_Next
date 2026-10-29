@@ -26,6 +26,8 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       const targets = Array.from(world?.querySelectorAll<HTMLElement>('[data-service-triptych] [data-exhibit-index]') ?? []);
 
       node.style.opacity = media.matches ? '1' : String(pose.intro);
+      const handoffActive = String(!media.matches && pose.progress > 0);
+      if (node.dataset.cardHandoffActive !== handoffActive) node.dataset.cardHandoffActive = handoffActive;
       node.style.setProperty('--handoff-glass', String(media.matches ? 0 : pose.glass));
       const dissolve = media.matches ? 0 : pose.dissolve;
       // No idle shader loop: this reversible field only updates on scroll,
@@ -123,7 +125,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     <div ref={intro} className={styles.cardIntro}>{children}</div>
     <ScenePortal><div ref={message} className={styles.shapingMessage} data-shaping-message data-scroll-title-skip>
       <h2>{locale === 'fr' ? 'L’innovation n’est pas une option.' : 'Innovation is not an option.'}<br />
-        {locale === 'fr' ? 'C’est une nécessité.' : 'It’s a necessity.'}</h2>
+        <span className={styles.necessity}>{locale === 'fr' ? 'C’est une nécessité.' : 'It’s a necessity.'}</span></h2>
     </div></ScenePortal>
     <div ref={exit} className={styles.cardExit} data-card-exit aria-hidden="true" />
   </div>;

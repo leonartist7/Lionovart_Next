@@ -2,6 +2,7 @@
 
 import HandoffDissolveFilter from '../HandoffDissolveFilter';
 import { usePublicCopy } from "@/hooks/usePublicCopy";
+import { useSaveData } from "@/hooks/useSaveData";
 import styles from "./DisciplineSplit3D.module.css";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
@@ -22,7 +23,7 @@ import TrustPlacement from "../TrustPlacement";
 import { ImagineHeading } from "../ImagineCardFace";
 import { BenefitCard } from "../PawRevealStack";
 import { IMAGINE_BENEFITS } from "../imagine-benefits";
-import { LANDSCAPE_FILM_QUERY, usesLandscapeFilm, openingFrameCenters } from "../lion-journey/opening-layout";
+import { LANDSCAPE_FILM_QUERY, usesLandscapeFilm, openingFrameCenters, openingCopyPose, openingSplitGap, openingPointerTilt } from "../lion-journey/opening-layout";
 const FACE_TINTS = [
   "rgba(176, 112, 28, 0.16), rgba(7, 7, 10, 0.88)",
   "rgba(92, 54, 196, 0.16), rgba(7, 7, 10, 0.88)",
@@ -68,11 +69,7 @@ interface FilmFrame {
 /* â”€â”€â”€ Motion tuning â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 // Soft enough that releasing the cursor glides home instead of snapping.
-const CURSOR_SPRING = { stiffness: 140, damping: 22, mass: 0.6 } as const;
-
-// Max tilt of the whole glass plane, in degrees.
-const TILT_Y = 0;
-const TILT_X = 0;
+const CURSOR_SPRING = { stiffness: 95, damping: 24, mass: .85 } as const;
 
 // How far into the section's scroll runway the split+flip choreography is
 // scrubbed. Below SPLIT_START the video plays joined; between the two, the
@@ -134,6 +131,7 @@ function Pane({
   canvasReady,
   interactive,
   pointerX, pointerY,
+  splitGap,
 }: {
   card: Card;
   dir: number;
@@ -149,6 +147,7 @@ function Pane({
   canvasReady: boolean;
   interactive: boolean;
   pointerX: MotionValue<number>; pointerY: MotionValue<number>;
+  splitGap: number;
 }) {
   const dissolveId = `card-dissolve-${useId().replace(/:/g, "")}`;
   const splitP = useLocalProgress(flip, HANDOFF_START, HANDOFF_END);
@@ -156,8 +155,8 @@ function Pane({
 
   // The split-apart translate/tilt — driven straight off scroll, so it
   // scrubs forward and backward with the gesture instead of playing once.
-  const paneX = useTransform(splitP, (p) => (isDesktop && !reducedMotion ? `${dir * 1.4 * p}vw` : "0vw"));
-  const paneY = useTransform(splitP, (p) => (isDesktop || reducedMotion ? "0vh" : `${dir * 1.8 * p}vh`));
+  const paneX = useTransform(splitP, p => isDesktop && !reducedMotion ? dir * splitGap * p : 0);
+  const paneY = useTransform(splitP, p => isDesktop || reducedMotion ? 0 : dir * splitGap * p);
   // One sculptural rhythm across the set: the two outer cards share a quiet
   // lean while the middle counters it. The effect gives depth without making
   // any card look like a separate panel sitting on top of another.
@@ -359,6 +358,7 @@ export default function DisciplineSplit3D({
   const paneRectsRef = useRef<(DOMRect | null)[]>([]);
 
   const reduce = useReducedMotion();
+  const saveData = useSaveData();
   const [isDesktop, setIsDesktop] = useState(true);
   const [isTablet, setIsTablet] = useState(false);
   const [shortScreen, setShortScreen] = useState(false);
@@ -367,6 +367,7 @@ export default function DisciplineSplit3D({
   const [viewportHeight, setViewportHeight] = useState(700);
   const [entranceDone, setEntranceDone] = useState(false);
   const [finePointer, setFinePointer] = useState(false);
+  const [pointerAvailable, setPointerAvailable] = useState(false);
   const [filmActive, setFilmActive] = useState(true);
   // Resolve the viewport before attaching a source: phones never fetch the landscape film.
   const [videoSrc, setVideoSrc] = useState("");
@@ -380,7 +381,7 @@ export default function DisciplineSplit3D({
   const [filmFrame, setFilmFrame] = useState<FilmFrame | null>(null);
   // The scroll handoff is reversible on every device; optional pointer tilt
   // is available only after settling, with a mouse and motion enabled.
-  const armed = !reduce && entranceDone && finePointer;
+  const armed = !reduce && entranceDone && finePointer && pointerAvailable;
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "production") {
@@ -418,11 +419,14 @@ export default function DisciplineSplit3D({
   const rawOpeningProgress = journey?.openingProgress ?? scrollYProgress;
   // Keep the original film choreography; reserve the final third for Imagine.
   const openingProgress = useTransform(rawOpeningProgress, p => Math.min(1, p * 1.6));
-  // Read the trust and heading beneath the parked film before its split.
-  const captionOpacity = useTransform(openingProgress, [.31, .43], [0, 1]);
+  const captionOpacity = useTransform(openingProgress, p => openingCopyPose(p).heading);
+  const trustOpacity = useTransform(openingProgress, p => openingCopyPose(p).trust);
   const [imagineVisible, setImagineVisible] = useState(false);
-  useMotionValueEvent(rawOpeningProgress, "change", p => {
-    setImagineVisible(!reduce && p >= .31 / 1.6);
+  const [trustVisible, setTrustVisible] = useState(false);
+  useMotionValueEvent(openingProgress, "change", p => {
+    const pose = openingCopyPose(p);
+    setImagineVisible(!reduce && pose.heading > .01);
+    setTrustVisible(pose.proof > .01 && pose.trust > .01);
   });
   const openingFlip = useTransform(openingProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
   // The wash lives in the video layer, above the WebGL lion. Keep it off
@@ -441,8 +445,8 @@ export default function DisciplineSplit3D({
     return `translateY(${geometry.glassOffset}px) scale(${geometry.glassX}, ${geometry.glassY})`;
   });
   // Opaque card bases prevent a dark dip beneath the fading film crops.
-  // Trust enters with the parked film and is complete before the split.
-  const proofPresence = useTransform(openingProgress, [.23, .36, .48], [0, .8, 1], { ease: FRAME_EASE });
+  // One reserved slot alternates trust and invitation without moving the frame.
+  const proofPresence = useTransform(openingProgress, p => openingCopyPose(p).proof);
   const proofTransform = useTransform(() => {
     if (!filmFrame) return "none";
     const geometry = handoffGeometry(filmFrame);
@@ -732,8 +736,8 @@ export default function DisciplineSplit3D({
   const sx = useSpring(px, CURSOR_SPRING);
   const sy = useSpring(py, CURSOR_SPRING);
 
-  const rotateY = useTransform(() => reduce ? 0 : sx.get() * TILT_Y);
-  const rotateX = useTransform(() => reduce ? 0 : -sy.get() * TILT_X);
+  const rotateY = useTransform(() => openingPointerTilt(sx.get(), sy.get(), armed).y);
+  const rotateX = useTransform(() => openingPointerTilt(sx.get(), sy.get(), armed).x);
   const sheen = useTransform(sx, [-1, 0, 1], [0.55, 0.14, 0.55]);
   const handoffSheen = useTransform(flip, p => 0.14 * FRAME_EASE(cue(p, HANDOFF_START, HANDOFF_END)));
 
@@ -762,7 +766,7 @@ export default function DisciplineSplit3D({
 
   const handleMove = useCallback(
     (e: React.PointerEvent<HTMLElement>) => {
-      if (!armed) return;
+      if (!armed || e.pointerType !== 'mouse') return;
       const r = rectRef.current;
       if (!r) return;
       // The rig remains stable even when the pointer is in the breathing room
@@ -774,34 +778,32 @@ export default function DisciplineSplit3D({
       // whole card assembly. Every pane follows the same pointer, including
       // the gaps between cards, so the effect reads as one object instead of
       // three unrelated hover targets.
-      if (e.pointerType !== "touch") {
-        paneRectsRef.current.forEach((pr, i) => {
-          const el = paneNodesRef.current[i];
-          if (!el || !pr) return;
-          // The stage still moves as one object, but light belongs only to
-          // the card directly beneath the pointer.
-          const spotX = Math.max(0, Math.min(pr.width, e.clientX - pr.left));
-          const spotY = Math.max(0, Math.min(pr.height, e.clientY - pr.top));
-          const intensity =
-            e.clientX >= pr.left &&
-            e.clientX <= pr.right &&
-            e.clientY >= pr.top &&
-            e.clientY <= pr.bottom
-              ? 1
-              : 0;
+      paneRectsRef.current.forEach((pr, i) => {
+        const el = paneNodesRef.current[i];
+        if (!el || !pr) return;
+        // The stage still moves as one object, but light belongs only to
+        // the card directly beneath the pointer.
+        const spotX = Math.max(0, Math.min(pr.width, e.clientX - pr.left));
+        const spotY = Math.max(0, Math.min(pr.height, e.clientY - pr.top));
+        const intensity =
+          e.clientX >= pr.left &&
+          e.clientX <= pr.right &&
+          e.clientY >= pr.top &&
+          e.clientY <= pr.bottom
+            ? 1
+            : 0;
 
-          el.style.setProperty("--spot-active", intensity.toFixed(3));
-          // Clamp the inner spotlight to the card's own contour.
-          el.style.setProperty(
-            "--spot-x",
-            `${spotX}px`,
-          );
-          el.style.setProperty(
-            "--spot-y",
-            `${spotY}px`,
-          );
-        });
-      }
+        el.style.setProperty("--spot-active", intensity.toFixed(3));
+        // Clamp the inner spotlight to the card's own contour.
+        el.style.setProperty(
+          "--spot-x",
+          `${spotX}px`,
+        );
+        el.style.setProperty(
+          "--spot-y",
+          `${spotY}px`,
+        );
+      });
     },
     [armed, px, py],
   );
@@ -811,6 +813,24 @@ export default function DisciplineSplit3D({
     py.set(0);
     paneNodesRef.current.forEach((el) => el?.style.setProperty("--spot-active", "0"));
   }, [px, py]);
+
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node) return;
+    const chapter = node.closest<HTMLElement>('[data-scene-opening]');
+    let visible = false;
+    const sync = () => {
+      const available = visible && !document.hidden && !chapter?.inert && chapter?.dataset.cardHandoffActive !== 'true';
+      setPointerAvailable(available);
+      if (!available) handleLeave();
+    };
+    const viewport = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); }, { threshold: .01 });
+    viewport.observe(node);
+    const ownership = new MutationObserver(sync);
+    if (chapter) ownership.observe(chapter, { attributes: true, attributeFilter: ['inert', 'data-card-handoff-active'] });
+    document.addEventListener('visibilitychange', sync);
+    return () => { viewport.disconnect(); ownership.disconnect(); document.removeEventListener('visibilitychange', sync); };
+  }, [handleLeave]);
 
   const joinedFilmStyle = filmFrame ? {
     width: filmFrame.width, height: filmFrame.height, top: filmFrame.top,
@@ -826,6 +846,7 @@ export default function DisciplineSplit3D({
       data-opening-layout={isDesktop ? "horizontal" : "vertical"}
       id={pinned ? undefined : "what-we-build"}
       data-cards-armed={armed}
+      data-card-color-motion={armed && !saveData}
       data-imagine-interactive={entranceDone || !!reduce}
       data-film-active={filmActive}
       className={journey ? "relative lion-video-section" : "relative isolate"}
@@ -940,6 +961,7 @@ export default function DisciplineSplit3D({
                 flip={flip}
                 interactive={entranceDone || !!reduce}
                 pointerX={sx} pointerY={sy}
+                splitGap={openingSplitGap(viewportWidth, viewportHeight, isDesktop)}
                 armed={armed}
                 reducedMotion={!!reduce}
                 filmOpacity={filmOpacity}
@@ -970,8 +992,8 @@ export default function DisciplineSplit3D({
           </motion.div>
           {pinned && <motion.div ref={proofRef} className="opening-proof-stage" style={{ opacity: reduce ? 1 : proofPresence, transform: proofTransform }}>
             <div className={styles.captionStack}>
-              <div className={styles.captionLayer}><TrustPlacement slot="video" /></div>
-              <motion.header data-nova-section="problems" className={`${styles.captionLayer} ${styles.imagineCaption}`} style={{ opacity: reduce ? 0 : captionOpacity }} aria-hidden={reduce || !imagineVisible} inert={reduce || !imagineVisible}>
+              <motion.div className={styles.captionLayer} data-opening-trust style={{ opacity: reduce ? 1 : trustOpacity }} aria-hidden={!reduce && !trustVisible} inert={!reduce && !trustVisible}><TrustPlacement slot="video" /></motion.div>
+              <motion.header data-opening-caption data-nova-section="problems" className={`${styles.captionLayer} ${styles.imagineCaption}`} style={{ opacity: reduce ? 0 : captionOpacity }} aria-hidden={reduce || !imagineVisible} inert={reduce || !imagineVisible}>
                 <div id="imagine-heading"><ImagineHeading /></div>
               </motion.header>
             </div>

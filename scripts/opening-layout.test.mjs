@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {usesLandscapeFilm,openingReadingPose,openingFrameCenters,inlineBenefitReadingPose,openingDocumentTop} from '../src/components/sections/lion-journey/opening-layout.ts';
+import {openingCopyPose,openingSplitGap,openingPointerTilt,usesLandscapeFilm,openingReadingPose,openingFrameCenters,inlineBenefitReadingPose,openingDocumentTop} from '../src/components/sections/lion-journey/opening-layout.ts';
 import {chooseScrollStop} from '../src/components/experience/scroll-policy.ts';
 
 test('medium laptop/tablet and landscape phone get the horizontal film',()=>{
@@ -65,4 +65,45 @@ test('card anchors retain their document origin while the intro parent is sticky
  assert.equal(openingDocumentTop(node(120,100,100),0),120);
  assert.equal(openingDocumentTop(node(-980,-1000,-4900),5000),120);
  assert.equal(openingDocumentTop({getBoundingClientRect:()=>({top:-80}),closest:()=>null},200),120);
+});
+
+
+test('trust finishes before the invitation appears over the moving cards, in both directions', () => {
+ const points=Array.from({length:2001},(_,i)=>i/2000),poses=points.map(openingCopyPose);
+ assert.deepEqual(poses.toReversed(),points.toReversed().map(openingCopyPose));
+ assert.equal(openingCopyPose(.4).trust,1);
+ assert.equal(openingCopyPose(.54).trust,0);
+ assert.equal(openingCopyPose(.58).heading,0);
+ assert.equal(openingCopyPose(.72).heading,1);
+ for(let i=0;i<points.length;i++) {
+  const p=points[i],pose=poses[i];
+  assert.equal(pose.trust*pose.heading,0);
+  if(pose.heading>0)assert.ok(p>.5,'the film has begun splitting before the invitation');
+  for(const key of Object.keys(pose)) {
+   assert.ok(pose[key]>=0 && pose[key]<=1);
+   if(i)assert.ok(Math.abs(pose[key]-poses[i-1][key])<.01);
+  }
+ }
+});
+
+test('card separation expands within the available desktop and phone widths', () => {
+ for(const [width,height] of [[320,568],[390,844],[600,900],[768,1024],[844,393],[1363,650],[1440,900],[2560,1080]]) {
+  const landscape=usesLandscapeFilm(width,height),gap=openingSplitGap(width,height,landscape);
+  assert.ok(gap>=18 && gap<=40);
+  if(landscape) {
+   const filmWidth=Math.max(1,Math.min(width*.76,1024,(height-240)*16/9));
+   assert.ok(filmWidth+gap*2<width-24,'the split leaves room for tilt and corner artwork');
+  }
+ }
+ assert.ok(openingSplitGap(1440,900,true)>1440*.014*1.7);
+});
+
+test('the shared card pointer tilt stays small, bounded and neutral when disabled', () => {
+ for(const x of [-10,-1,0,1,10,NaN])for(const y of [-10,-1,0,1,10,NaN]) {
+  const pose=openingPointerTilt(x,y,true);
+  assert.ok(Number.isFinite(pose.x) && Math.abs(pose.x)<=2.2);
+  assert.ok(Number.isFinite(pose.y) && Math.abs(pose.y)<=3.4);
+  assert.deepEqual(openingPointerTilt(x,y,false),{x:0,y:0});
+ }
+ assert.ok(openingPointerTilt(1,1,true).x<0 && openingPointerTilt(1,1,true).y>0);
 });

@@ -84,7 +84,7 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
     </div>
   </div>;
 
-  return <article className={styles.card} data-benefit-card data-scroll-title-skip data-integrated={integrated} data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
+  return <article className={styles.card} data-benefit-card data-benefit-index={index} data-scroll-title-skip data-integrated={integrated} data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
     {integrated && <div className={styles.integratedArtwork} aria-hidden="true">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={artworkSource(artwork!, 800)} alt="" loading="lazy" decoding="async"
