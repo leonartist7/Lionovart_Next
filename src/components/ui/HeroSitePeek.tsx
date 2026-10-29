@@ -5,7 +5,7 @@ import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { CONTACT_EMAIL } from "@/lib/contact";
-import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useInView, useMotionValue, useMotionValueEvent, useReducedMotion } from "framer-motion";
 import { useDecorativeMotion } from "@/hooks/useDecorativeMotion";
 import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";
 import { useLionJourney } from "@/components/sections/lion-journey/LionJourney";
@@ -29,7 +29,12 @@ export default function HeroSitePeek() {
   const request = useRef<AbortController | null>(null);
   const reduced = useReducedMotion();
   const visible = useInView(host, { amount: .01 });
-  const { running } = useDecorativeMotion(visible && released && step === "closed");
+  const fallbackProgress = useMotionValue(0);
+  const openingProgress = journey?.openingProgress ?? fallbackProgress;
+  const [chapterVisible, setChapterVisible] = useState(() => openingProgress.get() < .26 / 1.6);
+  useMotionValueEvent(openingProgress, "change", p => setChapterVisible(p < .26 / 1.6));
+  // The pinned hero remains geometrically in view after its authored fade.
+  const { running } = useDecorativeMotion(visible && chapterVisible && released && step === "closed");
   useEffect(() => () => request.current?.abort(), []);
   useEffect(() => () => setPaused?.(false), [setPaused]);
   useEffect(() => {

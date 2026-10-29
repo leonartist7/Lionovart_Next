@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useId, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useSpring, useTransform, type MotionValue } from 'framer-motion';
 import { useLenis } from 'lenis/react';
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp } from 'lucide-react';
@@ -19,6 +19,13 @@ import styles from './GalleryWalkthrough.module.css';
 import PartnershipMark, { PartnershipResultsButton } from './PartnershipMark';
 import { partnershipLayout } from './partnership-layout';
 
+const subscribeCapacity = () => () => {};
+const constrainedCapacity = () => {
+  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+  return navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 2 || !!memory && memory <= 2;
+};
+const serverCapacity = () => false;
+
 function WorkTags({ work }: { work: GalleryWork }) {
   const tr = usePublicCopy();
   return <span className={styles.projectTags} data-work-tags>
@@ -33,11 +40,13 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
   const pair = Math.floor(index / 2), side = solo ? 0 : index % 2 ? 1 : -1;
   const reduce = useReducedMotion();
   const saveData = useSaveData();
+  const constrained = useSyncExternalStore(subscribeCapacity, constrainedCapacity, serverCapacity);
+  const simpleExit = saveData || constrained;
   const filterId = `gallery-erosion-${useId().replace(/:/g, '')}`;
   const panelRef = useRef<HTMLDivElement>(null);
   const [readable, setReadable] = useState(true);
   const erosion = useTransform(progress, p => galleryCardPose(p, pair, pairs).dissolve);
-  const filter = useTransform(erosion, p => !reduce && !saveData && p > 0 && p < 1 ? `url(#${filterId})` : 'none');
+  const filter = useTransform(erosion, p => !reduce && !simpleExit && p > 0 && p < 1 ? `url(#${filterId})` : 'none');
   useMotionValueEvent(erosion, 'change', value => {
     panelRef.current?.querySelectorAll<SVGElement>('[data-gallery-cutoff]').forEach(node => {
       node.setAttribute('intercept', String((node.dataset.galleryCutoff === 'edge' ? 1.24 : 1) - value * 14));
@@ -49,7 +58,7 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
     panelRef.current?.querySelectorAll<SVGElement>('[data-gallery-cutoff]').forEach(node => {
       node.setAttribute('intercept', String((node.dataset.galleryCutoff === 'edge' ? 1.24 : 1) - erosion.get() * 14));
     });
-  }, [erosion, reduce, saveData]);
+  }, [erosion, reduce, simpleExit]);
   const [mediaVisible, setMediaVisible] = useState(pair === 0);
   useMotionValueEvent(progress, 'change', p => setMediaVisible(galleryCardPose(p, pair, pairs).opacity > .2));
   const focusTarget = useMotionValue(0), dimTarget = useMotionValue(1);
@@ -67,7 +76,7 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
   });
   const opacity = useTransform(() => {
     const pose = galleryCardPose(progress.get(), pair, pairs);
-    return (reduce || saveData ? pose.opacity : pose.surfaceOpacity) * (pair > 0 ? entry.get() : 1) * (reduce ? dimTarget.get() : dimSpring.get());
+    return (reduce || simpleExit ? pose.opacity : pose.surfaceOpacity) * (pair > 0 ? entry.get() : 1) * (reduce ? dimTarget.get() : dimSpring.get());
   });
   const labelOpacity = useTransform(() => galleryCardPose(progress.get(), pair, pairs).caption * Math.max(0, Math.min(1, (entry.get() - .65) / .35)) * Math.max(0, ((reduce ? dimTarget.get() : dimSpring.get()) - .35) / .65));
   const visibility = useTransform(progress, p => galleryCardPose(p, pair, pairs).visible ? 'visible' : 'hidden');
