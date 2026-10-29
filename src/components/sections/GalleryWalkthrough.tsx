@@ -207,8 +207,8 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       const anchor = runway.current; if (!anchor) return;
       const box = anchor.getBoundingClientRect();
       const offset = location.hash === '#partnership' && pinned ? (box.height - innerHeight * .85) * .91 : pinned && location.hash === '#selected-work' ? -innerHeight * .52 : 0;
-      const staticEnding = !pinned && location.hash === '#partnership' ? stage.current?.querySelector('[data-gallery-ending]') : null;
-      const target = staticEnding ? scrollY + staticEnding.getBoundingClientRect().top - 64 : scrollY + box.top + offset;
+      const staticEnding = !pinned && location.hash === '#partnership' ? stage.current?.querySelector('[data-partnership-static-mark], [data-gallery-ending]') : null;
+      const target = staticEnding ? scrollY + staticEnding.getBoundingClientRect().top - 96 : scrollY + box.top + offset;
       if (lenis) lenis.scrollTo(target, { immediate: true, force: true, userData: { navigation: true } });
       else window.scrollTo({ top: target, behavior: 'instant' });
     }); };
@@ -308,11 +308,11 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
             <span className={styles.projectCaption}><WorkTags work={work} /></span>
           </button>)}
         </div>}
+        {!pinned && <div className={styles.staticMark} data-partnership-static-mark><PartnershipMark active={active} ready /></div>}
         <motion.div className={styles.ending} data-gallery-ending aria-hidden={pinned && !ending} style={{ opacity: pinned ? copyOpacity : 1, transform: pinned ? copyTransform : 'none' }}>
           <h2>{tr('One partnership')}</h2>
           <p>{tr('Designing your legacy')}</p>
         </motion.div>
-        {!pinned && <div className={styles.staticMark}><PartnershipMark active={active} ready /></div>}
         <motion.div className={styles.partnershipAction} data-partnership-action style={{ opacity: pinned ? linkOpacity : 1 }}
           inert={pinned && !ending} aria-hidden={pinned && !ending}>
           <PartnershipResultsButton active={active && (!pinned || ending)} onClick={continueToResults} />
