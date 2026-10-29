@@ -42,7 +42,8 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
     const baseZ = -350 - index * 18 * (1 - spread) + (z + 350) * spread;
     const depth = baseZ + (Math.max(0, baseZ) - baseZ) * focus;
     const size = 1 + (entryScale.get() - 1) * (1 - spread);
-    return `translate3d(calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset) + ${outward} * var(--gallery-wall-travel))), calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset-y) + ${outward} * var(--gallery-wall-travel-y)) + ${(pair % 2 ? -1 : 1) * spread * (1 - focus) * outward} * var(--gallery-wall-stagger)), ${depth}px) translate(-50%,-50%) rotateY(calc(${-side * spread * (1 - focus)} * (var(--gallery-wall-angle) + ${outward} * var(--gallery-exit-angle)))) scale(${size})`;
+    const gapCompensation = Math.max(0, z + 350) / 2000;
+    return `translate3d(calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset) - ${gapCompensation} * var(--gallery-center-gap,0px) + ${outward} * var(--gallery-wall-travel))), calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset-y) + ${outward} * var(--gallery-wall-travel-y)) + ${(pair % 2 ? -1 : 1) * spread * (1 - focus) * outward} * var(--gallery-wall-stagger)), ${depth}px) translate(-50%,-50%) rotateY(calc(${-side * spread * (1 - focus)} * (var(--gallery-wall-angle) + ${outward} * var(--gallery-exit-angle)))) scale(${size})`;
   });
   const opacity = useTransform(() => galleryCardPose(progress.get(), pair, pairs).opacity * (pair > 0 ? entry.get() : 1) * (reduce ? dimTarget.get() : dimSpring.get()));
   const labelOpacity = useTransform(() => galleryCardPose(progress.get(), pair, pairs).caption * Math.max(0, Math.min(1, (entry.get() - .65) / .35)) * Math.max(0, ((reduce ? dimTarget.get() : dimSpring.get()) - .35) / .65));
@@ -117,6 +118,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
         surface.dataset.galleryAxis = layout.vertical ? 'vertical' : 'horizontal';
         surface.dataset.galleryCompact = String(layout.compact);
         surface.style.setProperty('--gallery-wall-offset', `${layout.x}px`);
+        surface.style.setProperty('--gallery-center-gap', `${layout.centerGap}px`);
         surface.style.setProperty('--gallery-wall-offset-y', `${layout.y}px`);
         surface.style.setProperty('--gallery-wall-travel', `${layout.exitX - layout.x}px`);
         surface.style.setProperty('--gallery-wall-travel-y', `${layout.exitY - layout.y}px`);

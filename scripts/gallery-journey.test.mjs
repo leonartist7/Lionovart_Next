@@ -122,7 +122,7 @@ test('arrow curves carry forward velocity, settle without overshoot and stay dis
 function bounds(width, height, layout, pose, side, row) {
  const w=layout.panelWidth, h=w*(layout.vertical?.75:11/16);
  const angle=-side*(layout.vertical?0:4+2*pose.outward)*Math.PI/180;
- const x=side*(layout.x+(layout.exitX-layout.x)*pose.outward);
+ const x=side*(layout.x-Math.max(0,pose.z+350)/2000*layout.centerGap+(layout.exitX-layout.x)*pose.outward);
  const y=side*(layout.y+(layout.exitY-layout.y)*pose.outward)+(row%2?-1:1)*(layout.vertical?0:height*.02)*pose.outward;
  const corners=[[-w/2,-h/2],[-w/2,h/2],[w/2,-h/2],[w/2,h/2]].map(([dx,dy])=>{
   const projection=1000/(1000-pose.z+Math.sin(angle)*dx);
@@ -182,6 +182,19 @@ test('desktop reading space preserves a balanced lane for the final logo', () =>
   assert.ok(gap>=Math.min(200,content*.15));
   assert.ok(gap<content*.23);
   assert.ok(layout.exitX-layout.x<=20);
+ }
+});
+
+test('large opaque desktop cards remain within the window before their soft exit', () => {
+ for(const [width,height] of [[1365,936],[1440,900],[1920,1080]]) {
+  const content=width-15, layout=galleryLayout(width,height,content);
+  for(let p=0;p<=.12;p+=.001) {
+   const pose=galleryCardPose(p,0,4);
+   if(pose.opacity<.9) continue;
+   const left=bounds(content,height,layout,pose,-1,0),right=bounds(content,height,layout,pose,1,0);
+   assert.ok(left.left>=0 && right.right<=content,`opaque frame cropped at ${width}x${height}, progress ${p}`);
+   assert.ok(right.left-left.right<content*.23);
+  }
  }
 });
 

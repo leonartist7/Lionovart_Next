@@ -24,7 +24,7 @@ export function galleryCardPose(progress: number, pair: number, pairs: number) {
   return {
     // Approach the viewer continuously, then ease into a large reading hold.
     // An asymptote keeps the cards safely behind the perspective plane.
-    z: advance <= 0 ? -350 + advance * GALLERY_DEPTH_STEP : -350 + 450 * (1 - Math.exp(-advance * GALLERY_DEPTH_STEP / 450)),
+    z: advance <= 0 ? -350 + advance * GALLERY_DEPTH_STEP : -350 + 410 * (1 - Math.exp(-advance * GALLERY_DEPTH_STEP / 410)),
     opacity, visible: opacity > .001,
     outward: smooth((advance - .28) / .65),
     caption: smooth((advance + .25) / .15) * (1 - smooth((advance - .4) / .4)),

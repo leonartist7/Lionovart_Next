@@ -8,7 +8,7 @@ The supplied desktop reference shows a central lane between large side exhibits,
 
 - Upcoming project pairs remain visible at low opacity deeper in the corridor. Background posters stay mounted; only the current row is interactive and eligible for video playback. Eight projects / four rows remain the limit.
 - The four-row runway increases from 8.3 to 10.3 viewports. Cards approach a bounded front reading position, remain opaque longer, then fade across a longer interval. Additional sideways displacement is limited to 20px and additional rotation to 2 degrees.
-- Desktop geometry reserves a central lane of approximately 17% of the content width, bounded for wide screens. Mobile/tablet retain the vertical pair arrangement. The shared service-to-gallery gather still uses the same layout calculation.
+- Desktop geometry reserves a central lane of approximately 17% of the content width, bounded for wide screens. The lane compensates for perspective as cards grow, keeping opaque reading frames inside the desktop window. Mobile/tablet retain the vertical pair arrangement. The shared service-to-gallery gather still uses the same layout calculation.
 - Project names are removed visually; service tags remain below each card. Accessible buttons retain project names for identification.
 - The centred gallery title recedes through perspective as the reader scrolls; its position reverses with scrolling. Reduced-motion / short-screen static layout keeps a stationary heading.
 - Style/Industry controls are temporarily disabled via `ENABLE_WORK_FILTERS`; the service category rail still works and fades before Selected Work. Gallery arrows move into the space freed by the filter dock.
@@ -18,6 +18,6 @@ The supplied desktop reference shows a central lane between large side exhibits,
 
 ## Verification
 
-98 deterministic checks pass. New coverage checks quiet background depth, a larger readable state before fading, continuous opacity/depth, the desktop logo lane, and reversible title retreat. The former no-overlap-between-rows assertion is replaced because overlapping depth previews are now intentional; same-row frame separation, mobile bounds, shared handoff alignment, navigation interruption and poster failure/retry checks remain.
+99 deterministic checks pass. New coverage checks quiet background depth, a larger readable state before fading, continuous opacity/depth, the desktop logo lane, and reversible title retreat. The former no-overlap-between-rows assertion is replaced because overlapping depth previews are now intentional; same-row frame separation, mobile bounds, shared handoff alignment, navigation interruption and poster failure/retry checks remain.
 
 Targeted ESLint, TypeScript, whitespace validation and the production build are required before publication. Live preview review covers reading and enlarged states, arrows, background playback gating, the hidden filter dock, restored service title bounds, new copy and the partnership ending. Physical phone and GPU performance claims remain outside the available browser's capabilities.
