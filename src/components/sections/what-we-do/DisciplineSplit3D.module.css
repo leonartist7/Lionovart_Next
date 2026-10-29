@@ -27,8 +27,8 @@
 /* Only the two rotating faces paint the card; their wrapper stays clear. */
 .frontFace, .backFace { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .backFace { position: absolute; inset: 0; border-radius: inherit; transform: rotateY(180deg); background: #fffaf1; color: #302b26; overflow: hidden;  }
-.captionStack { display: grid; min-height: 7rem; }
-.captionLayer { grid-area: 1 / 1; }
+.captionStack { display:flex; flex-direction:column; align-items:center; gap:clamp(.75rem,2svh,1.5rem); min-height:7rem; }
+.captionLayer { width:100%; }
 .imagineCaption { display: flex; justify-content: center; align-items: center; padding-inline: 1.25rem; text-align: center; }
 .imagineCaption h2, .imagineFallback > header h2 { margin: 0; font: 600 clamp(1.625rem, 3.8vw, 3.75rem)/1.08 var(--font-heading), sans-serif; text-transform: uppercase; letter-spacing: -.025em; }
 .imagineCaption p, .imagineFallback > header p { margin: .625rem 0 0; font: italic 400 clamp(1rem, 1.65vw, 1.5rem)/1.4 var(--font-playfair-display), Georgia, serif; color: #e3d8c8; }

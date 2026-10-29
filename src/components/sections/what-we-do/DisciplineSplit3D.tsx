@@ -418,12 +418,11 @@ export default function DisciplineSplit3D({
   const rawOpeningProgress = journey?.openingProgress ?? scrollYProgress;
   // Keep the original film choreography; reserve the final third for Imagine.
   const openingProgress = useTransform(rawOpeningProgress, p => Math.min(1, p * 1.6));
-  // Retire the trust copy before the Imagine title shares the same space.
-  const badgeOpacity = useTransform(rawOpeningProgress, [.49 / 1.6, .68 / 1.6], [1, 0]);
-  const captionOpacity = useTransform(rawOpeningProgress, [.69 / 1.6, .84 / 1.6], [0, 1]);
+  // Read the trust and heading beneath the parked film before its split.
+  const captionOpacity = useTransform(openingProgress, [.31, .43], [0, 1]);
   const [imagineVisible, setImagineVisible] = useState(false);
   useMotionValueEvent(rawOpeningProgress, "change", p => {
-    setImagineVisible(!reduce && p >= .69 / 1.6);
+    setImagineVisible(!reduce && p >= .31 / 1.6);
   });
   const openingFlip = useTransform(openingProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
   // The wash lives in the video layer, above the WebGL lion. Keep it off
@@ -449,7 +448,7 @@ export default function DisciplineSplit3D({
     const geometry = handoffGeometry(filmFrame);
     const offset = geometry.glassOffset;
     const height = reduce ? filmFrame.stageHeight : geometry.height;
-    return `translateY(${offset + (filmFrame.stageHeight - height) / 2}px)`;
+    return `translateY(${offset + (filmFrame.stageHeight + height) / 2 + 18}px)`;
   });
   // Let taller phones show more of the film without crowding the invitation.
   // The settled card and proof assembly moves as one, with the short-screen
@@ -518,8 +517,8 @@ export default function DisciplineSplit3D({
     // Keep the whole source image inside the space around that same center;
     // this removes the upward translation during the video-to-card handoff.
     const filmHeight = Math.max(1, 2 * Math.min(
-      sharedCenter - safeTop - splitAllowance - proofReserve,
-      safeBottom - sharedCenter - splitAllowance,
+      sharedCenter - safeTop - splitAllowance,
+      safeBottom - sharedCenter - splitAllowance - proofReserve,
     ));
     const scale = Math.min(viewportWidth * 0.96 / sourceWidth,
       stageWidth / sourceWidth,
@@ -964,7 +963,7 @@ export default function DisciplineSplit3D({
           </motion.div>
           {pinned && <motion.div ref={proofRef} className="opening-proof-stage" style={{ opacity: reduce ? 1 : proofPresence, transform: proofTransform }}>
             <div className={styles.captionStack}>
-              <motion.div className={styles.captionLayer} style={{ opacity: reduce ? 1 : badgeOpacity }} aria-hidden={!reduce && imagineVisible} inert={!reduce && imagineVisible}><TrustPlacement slot="video" /></motion.div>
+              <div className={styles.captionLayer}><TrustPlacement slot="video" /></div>
               <motion.header data-nova-section="problems" className={`${styles.captionLayer} ${styles.imagineCaption}`} style={{ opacity: reduce ? 0 : captionOpacity }} aria-hidden={reduce || !imagineVisible} inert={reduce || !imagineVisible}>
                 <div id="imagine-heading"><ImagineHeading /></div>
               </motion.header>

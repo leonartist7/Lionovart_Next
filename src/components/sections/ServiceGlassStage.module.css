@@ -8,8 +8,8 @@
 .rim { position: absolute; inset: 0; border-radius: inherit; border-top: 1px solid #fffdf1cc; border-bottom: 1px solid #a5936b59; }
 .card { position: absolute; top: 0; left: 23%; width: 54%; height: 100%; padding: 0 0 1.8rem; background: transparent; transform-style: preserve-3d; transition: transform 850ms cubic-bezier(.23,1,.32,1),opacity 650ms ease; }
 .card[data-position=center] { transform: translate3d(0,0,0); z-index: 3; opacity: 1; }
-.card[data-position=left] { transform: translate3d(-68%,3%,-300px); z-index: 1; opacity: .48; }
-.card[data-position=right] { transform: translate3d(68%,3%,-300px); z-index: 1; opacity: .48; }
+.card[data-position=left] { transform: translate3d(-68%,-6%,-300px); z-index: 1; opacity: .48; }
+.card[data-position=right] { transform: translate3d(68%,-6%,-300px); z-index: 1; opacity: .48; }
 .screen { position: relative; width: 100%; height: 100%; container-type: size; }
 .selectCard { position: absolute; inset: 0; cursor: pointer; background: transparent; border: 0; border-radius: 4px; }
 .card[data-position=center] .selectCard { pointer-events: none; }
@@ -31,7 +31,7 @@
 
 /* Keep the same three DOM/media surfaces during the service-to-work gather.
    Inherited progress also survives the final service's React content update. */
-.stage { --service-side-x: 68%; --service-side-y: 3%; --service-side-depth: -300px; }
+.stage { --service-side-x: 68%; --service-side-y: -6%; --service-side-depth: -300px; }
 /* Endpoint geometry stays identical to the authored entrance/gather. */
 .card[data-orbit] { transform: translate3d(calc(var(--service-side-x) * var(--orbit-x,0)),calc(var(--service-side-y) * var(--orbit-depth,0)),calc(var(--service-side-depth) * var(--orbit-depth,0))); opacity: var(--orbit-opacity,1); transition: none; }
 .colorSpill[data-orbit-light], .reflectedLight[data-orbit-light] { transition: none; mask-image: radial-gradient(ellipse closest-side at center,#000,transparent); }
@@ -39,6 +39,6 @@
 :global([data-gallery-gathering=true]) .card { transition: none; }
 :global([data-gallery-gathering=true]) .card[data-position=left] { transform: translate3d(calc(-1 * var(--service-side-x) * (1 - var(--service-gallery-gather,0)) - var(--service-release-x,0px) * var(--service-gallery-release,0)),calc(var(--service-side-y) * (1 - var(--service-gallery-gather,0)) - var(--service-release-y,0px) * var(--service-gallery-release,0)),calc(var(--service-side-depth) * (1 - var(--service-gallery-gather,0)) - 70px * var(--service-gallery-gather,0))); opacity: calc(.48 + .32 * var(--service-gallery-gather,0)); }
 :global([data-gallery-gathering=true]) .card[data-position=right] { transform: translate3d(calc(var(--service-side-x) * (1 - var(--service-gallery-gather,0)) + var(--service-release-x,0px) * var(--service-gallery-release,0)),calc(var(--service-side-y) * (1 - var(--service-gallery-gather,0)) + var(--service-release-y,0px) * var(--service-gallery-release,0)),calc(var(--service-side-depth) * (1 - var(--service-gallery-gather,0)) - 70px * var(--service-gallery-gather,0))); opacity: calc(.48 + .32 * var(--service-gallery-gather,0)); }
-@media(max-width:767px) { .stage { --service-side-x: 60%; --service-side-y: 2%; --service-side-depth: -210px; } }
+@media(max-width:767px) { .stage { --service-side-x: 60%; --service-side-y: -5%; --service-side-depth: -210px; } }
 
 :global([data-gallery-gathering=true]) .card[data-position=center] { transform: translate3d(calc(-1 * var(--service-release-x,0px) * var(--service-gallery-release,0)),calc(-1 * var(--service-release-y,0px) * var(--service-gallery-release,0)),0); }

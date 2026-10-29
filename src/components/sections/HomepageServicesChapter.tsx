@@ -19,6 +19,7 @@ import { useServicesCarouselPreview } from "./ServicesPreview";
 import styles from "./ServicesCarouselPreview.module.css";
 import ServicesWorkNavigation from "./ServicesWorkNavigation";
 
+import { useHomepageExperiment } from "@/hooks/useHomepageExperiment";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
 import Image from "next/image";
@@ -146,6 +147,7 @@ function ServiceMediaCarousel({
 }
 
 export default function HomepageServicesChapter() {
+  const [boldTitles, toggleTitleWeight] = useHomepageExperiment("service-title-bold");
   const lenis = useLenis();
   const tr = usePublicCopy();
   const carouselPreview = useServicesCarouselPreview();
@@ -391,12 +393,15 @@ export default function HomepageServicesChapter() {
               <div data-service-copy className="order-2 flex min-w-0 flex-col justify-center text-center">
                 <div>
                     <h3 className="sr-only">{activeService.title}</h3>
-                    <div className={styles.serviceTitleSlot} aria-hidden="true">
+                    <div className={styles.serviceTitleSlot}>
+                      <div className={styles.serviceTitleLayers} aria-hidden="true">
                       <AnimatePresence initial={false}>
-                        <motion.h3 key={activeService.id} data-service-title className={styles.serviceTitle}
+                        <motion.h3 key={activeService.id} data-service-title className={styles.serviceTitle} style={{ fontWeight: boldTitles ? 700 : 400 }}
                           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                           transition={{ duration: reduceMotion ? .12 : .8, ease: [.22, 1, .36, 1] }}>{activeService.title}</motion.h3>
                       </AnimatePresence>
+                      </div>
+                      <button type="button" className={styles.serviceTitleSwitch} onClick={toggleTitleWeight} aria-pressed={boldTitles} aria-label={tr("Use bold service headings")} />
                     </div>
                     <div data-service-description-slot>
                       <AnimatePresence initial={false} mode="sync">

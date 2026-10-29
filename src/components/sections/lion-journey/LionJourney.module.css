@@ -107,8 +107,8 @@
 .journey :global(.opening-work-pinned) { --opening-video-center: 63svh; position: absolute; inset: 0; z-index: 3; pointer-events: none; }
 .journey :global(.opening-work-pinned .lion-video-section:is([data-cards-armed="true"], [data-imagine-interactive="true"])) { pointer-events: auto; }
 .journey :global(.opening-work-pinned .opening-video-anchor) { position: absolute; left: 50%; top: calc(var(--hero-overflow, 0px) + var(--opening-video-center) - var(--opening-front-height, 420px) / 2); translate: -50% 0; width: min(92vw,420px); }
-.journey :global(.opening-work-pinned .opening-proof-stage) { position: absolute; top: calc(-1 * var(--opening-proof-height, 148px) - 18px); left: 50%; width: 100vw; translate: -50% 0; }
-@media (width < 920px) { .journey :global(.opening-work-pinned .opening-proof-stage) { top: calc(-1 * var(--opening-proof-height, 132px) - 18px); } }
+.journey :global(.opening-work-pinned .opening-proof-stage) { position: absolute; top:0; left: 50%; width: 100vw; translate: -50% 0; }
+@media (width < 920px) { .journey :global(.opening-work-pinned .opening-proof-stage) { top:0; } }
 .journey :global(.opening-work-pinned .opening-proof) { padding: 0 16px; gap: clamp(16px,3vw,42px); }
 .journey :global(.opening-work-pinned .opening-laurel img) { height: clamp(42px,6vh,60px); }
 @media (min-width: 920px) {
@@ -136,7 +136,7 @@
  .journey :global(.opening-work-pinned .opening-video-anchor) {
   width: min(92vw,420px);
  }
- .journey :global(.opening-work-pinned .opening-proof-stage) { top: calc(-1 * var(--opening-proof-height, 148px) - 18px); }
+ .journey :global(.opening-work-pinned .opening-proof-stage) { top:0; }
  .journey :global(.opening-glass-pane) { --opening-art-size: clamp(6.25rem,18svh,7.5rem); }
  .journey :global(.opening-pane-copy) { min-height: 0; padding: 12px; }
  .journey :global(.opening-pane-copy h3) { font-size: clamp(0.8125rem,3.6vw,1.0625rem); }
@@ -292,3 +292,7 @@
  .journey :global(.lion-headline) { font-size:clamp(2.5rem,12vw,4rem); }
  .journey :global(.lion-content) { gap:1.25rem; }
 }
+
+/* The shared film/card geometry reserves this complete reading stack below. */
+.journey :global(.opening-work-pinned) { --opening-video-center:41svh; }
+.journey :global(.opening-work-pinned .opening-proof-stage) { top:0; }

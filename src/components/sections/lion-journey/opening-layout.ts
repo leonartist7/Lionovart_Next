@@ -13,12 +13,12 @@ export function openingReadingPose(travel: number, span: number, frontOverflow =
   return { progress, offset: frontRead * (1 - smooth) + clamp(travel - span - frontOverflow, backOverflow) };
 }
 
-/** Keep the film centered in view; long card stacks start below the proof. */
+/** Film sits above its trust/heading beat. Tall cards retain the same top edge and overflow reading path. */
 export function openingFrameCenters(stageCenter: number, finalHeight: number, safeTop: number, safeBottom: number, proofReserve: number, allowance: number) {
   const available = Math.max(1, safeBottom - safeTop - proofReserve - allowance * 2);
   const visibleHeight = Math.min(finalHeight, available);
-  const filmCenter = Math.max(safeTop + proofReserve + allowance + visibleHeight / 2,
-    Math.min(stageCenter, safeBottom - allowance - visibleHeight / 2));
+  const filmCenter = Math.max(safeTop + allowance + visibleHeight / 2,
+    Math.min(stageCenter, safeBottom - proofReserve - allowance - visibleHeight / 2));
   return { filmCenter, cardCenter: filmCenter + Math.max(0, finalHeight - available) / 2 };
 }
 

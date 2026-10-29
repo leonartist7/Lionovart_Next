@@ -9,10 +9,10 @@ test('medium laptop/tablet and landscape phone get the horizontal film',()=>{
 });
 test('a tall stack does not push the film below its visible reading area',()=>{
  const pose=openingFrameCenters(520,963,88,828,122,22);
- assert.equal(pose.filmCenter,519);
- assert.equal(pose.cardCenter-963/2,232);
- assert.equal(pose.filmCenter-574/2,232);
- assert.equal(pose.filmCenter+574/2,806);
+ assert.equal(pose.filmCenter,397);
+ assert.equal(pose.cardCenter-963/2,110);
+ assert.equal(pose.filmCenter-574/2,110);
+ assert.equal(pose.filmCenter+574/2+122,806);
  const desktop=openingFrameCenters(570,519,88,920,130,8);
  assert.equal(desktop.cardCenter,desktop.filmCenter,'a fitting row retains its fixed center');
 });
