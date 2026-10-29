@@ -20,18 +20,20 @@ export function galleryCardPose(progress: number, pair: number, pairs: number) {
   // row becomes fully legible; distant previews remain quiet and never play.
   const preview = .18 / (1 + Math.max(0, -advance - .5) * .6);
   const arrival = preview + (1 - preview) * smooth((advance + .85) / .7);
-  const dissolve = smooth((advance - .60) / .38);
-  const opacity = arrival * (1 - smooth((advance - .60) / .38));
+  const dissolve = smooth((advance - .70) / .24);
+  const opacity = arrival * (1 - dissolve);
   return {
     // Approach the viewer continuously, then ease into a large reading hold.
     // An asymptote keeps the cards safely behind the perspective plane.
     z: advance <= 0 ? -350 + advance * GALLERY_DEPTH_STEP : -350 + 480 * (1 - Math.exp(-advance * GALLERY_DEPTH_STEP / 480)),
     opacity, dissolve, advance,
-    surfaceOpacity: arrival * (1 - smooth((advance - .88) / .1)),
-    visible: advance < .98 && arrival > .001,
+    surfaceOpacity: arrival * (1 - smooth((advance - .88) / .06)),
+    visible: advance < .94 && arrival > .001,
+    // Approach inward, hold the closer pair, then recover the full logo lane.
+    preview: smooth((advance + .95) / .8) * (1 - smooth((advance - .12) / .76)),
     background: smooth(-advance / .9),
     outward: smooth((advance - .60) / .38),
-    caption: smooth((advance + .25) / .15) * (1 - smooth((advance - .54) / .18)),
+    caption: smooth((advance + .25) / .15) * (1 - smooth((advance - .60) / .14)),
   };
 }
 /** Intro progress belongs to the service/gallery arrival, before row travel. */

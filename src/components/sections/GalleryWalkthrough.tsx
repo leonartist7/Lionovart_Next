@@ -49,14 +49,14 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
   const filter = useTransform(erosion, p => !reduce && !simpleExit && p > 0 && p < 1 ? `url(#${filterId})` : 'none');
   useMotionValueEvent(erosion, 'change', value => {
     panelRef.current?.querySelectorAll<SVGElement>('[data-gallery-cutoff]').forEach(node => {
-      node.setAttribute('intercept', String((node.dataset.galleryCutoff === 'edge' ? 1.24 : 1) - value * 14));
+      node.setAttribute('intercept', String((node.dataset.galleryCutoff === 'edge' ? 1.24 : 1) - value * 10));
     });
     setReadable(value < .12);
   });
   // Restore the threshold after preference changes and deep-link mounting.
   useEffect(() => {
     panelRef.current?.querySelectorAll<SVGElement>('[data-gallery-cutoff]').forEach(node => {
-      node.setAttribute('intercept', String((node.dataset.galleryCutoff === 'edge' ? 1.24 : 1) - erosion.get() * 14));
+      node.setAttribute('intercept', String((node.dataset.galleryCutoff === 'edge' ? 1.24 : 1) - erosion.get() * 10));
     });
   }, [erosion, reduce, simpleExit]);
   const [mediaVisible, setMediaVisible] = useState(pair === 0);
@@ -67,12 +67,12 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
   useEffect(() => { focusTarget.set(selected ? 1 : 0); dimTarget.set(dimmed ? .35 : 1); }, [selected, dimmed, focusTarget, dimTarget]);
   const transform = useTransform(() => {
     const spread = entry.get(), focus = reduce ? 0 : focusSpring.get();
-    const { z, outward, background } = galleryCardPose(progress.get(), pair, pairs);
+    const { z, outward, background, preview } = galleryCardPose(progress.get(), pair, pairs);
     const baseZ = -350 - index * 18 * (1 - spread) + (z + 350) * spread;
     const depth = baseZ + (Math.max(0, baseZ) - baseZ) * focus;
     const size = 1 + (entryScale.get() - 1) * (1 - spread);
     const gapCompensation = Math.max(0, z + 350) / 2000;
-    return `translate3d(calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset) - ${gapCompensation} * var(--gallery-center-gap,0px) + ${outward} * var(--gallery-wall-travel) + ${background * Math.max(1, (1000 - z) / 1000)} * var(--gallery-background-x,0px))), calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset-y) + ${outward} * var(--gallery-wall-travel-y)) + ${(pair % 2 ? -1 : 1) * spread * (1 - focus) * outward} * var(--gallery-wall-stagger)), ${depth}px) translate(-50%,-50%) rotateY(calc(${-side * spread * (1 - focus)} * (var(--gallery-wall-angle) + ${outward} * var(--gallery-exit-angle) + ${background} * var(--gallery-background-angle,0deg)))) scale(${size})`;
+    return `translate3d(calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset) - ${preview} * var(--gallery-preview-inset,0px) - ${gapCompensation} * var(--gallery-center-gap,0px) + ${outward} * var(--gallery-wall-travel) + ${background * Math.max(1, (1000 - z) / 1000)} * var(--gallery-background-x,0px))), calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset-y) + ${outward} * var(--gallery-wall-travel-y)) + ${(pair % 2 ? -1 : 1) * spread * (1 - focus) * outward} * var(--gallery-wall-stagger)), ${depth}px) translate(-50%,-50%) rotateY(calc(${-side * spread * (1 - focus)} * (var(--gallery-wall-angle) + ${outward} * var(--gallery-exit-angle) + ${background} * var(--gallery-background-angle,0deg)))) scale(${size})`;
   });
   const opacity = useTransform(() => {
     const pose = galleryCardPose(progress.get(), pair, pairs);
@@ -118,7 +118,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     const { y, z } = galleryTitlePose(p);
     return `perspective(1000px) translate3d(0,${y}px,${z}px)`;
   });
-  const logoTransform = useTransform(progress, p => `translate(-50%,-50%) translateY(calc(${galleryEnding(p).markSettle} * var(--partnership-mark-drop,24svh))) translateZ(${galleryEnding(p).logoZ}px)`);
+  const logoTransform = useTransform(progress, p => `translate(-50%,-50%) translateZ(${galleryEnding(p).logoZ}px)`);
   const logoOpacity = useTransform(progress, p => galleryEnding(p).logo);
   const ringOpacity = useTransform(progress, p => galleryEnding(p).ring);
   const copyOpacity = useTransform(progress, p => galleryEnding(p).copy);
@@ -145,13 +145,14 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
         const layout = galleryLayout(innerWidth, innerHeight, document.documentElement.clientWidth);
         const endingLayout = partnershipLayout(document.documentElement.clientWidth, innerHeight);
         surface.style.setProperty('--partnership-mark-size', `${endingLayout.markSize}px`);
-        surface.style.setProperty('--partnership-mark-drop', `${endingLayout.markDrop}px`);
+        surface.style.setProperty('--partnership-mark-top', `${endingLayout.markCenter}px`);
         surface.style.setProperty('--partnership-copy-top', `${endingLayout.copyTop}px`);
         surface.style.setProperty('--partnership-cta-bottom', `${endingLayout.ctaBottom}px`);
         surface.dataset.galleryAxis = layout.vertical ? 'vertical' : 'horizontal';
         surface.dataset.galleryCompact = String(layout.compact);
         surface.style.setProperty('--gallery-wall-offset', `${layout.x}px`);
         surface.style.setProperty('--gallery-center-gap', `${layout.centerGap}px`);
+        surface.style.setProperty('--gallery-preview-inset', `${layout.previewInset}px`);
         surface.style.setProperty('--gallery-background-x', `${layout.backgroundX}px`);
         surface.style.setProperty('--gallery-background-angle', layout.vertical ? '7deg' : '0deg');
         surface.style.setProperty('--gallery-wall-offset-y', `${layout.y}px`);

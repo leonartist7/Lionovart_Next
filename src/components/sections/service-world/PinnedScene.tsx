@@ -56,7 +56,7 @@ export default function PinnedScene({ children, environment }: { children: React
           surface.style.setProperty('--service-gallery-gather', String(handoff.gather));
           surface.style.setProperty('--service-gallery-release', String(handoff.spread));
           const layout = galleryLayout(innerWidth, innerHeight, document.documentElement.clientWidth);
-          surface.style.setProperty('--service-release-x', `${layout.x / GALLERY_ENTRY_PROJECTION}px`);
+          surface.style.setProperty('--service-release-x', `${layout.entryX / GALLERY_ENTRY_PROJECTION}px`);
           surface.style.setProperty('--service-release-y', `${layout.y / GALLERY_ENTRY_PROJECTION}px`);
           const media = surface.querySelector<HTMLElement>('[data-service-media]');
           if (media) {

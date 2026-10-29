@@ -9,6 +9,7 @@ import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useWorkBrowse, WORK_INDUSTRIES, WORK_STYLES } from "./selected-work/WorkBrowse";
 import styles from "./ServicesWorkNavigation.module.css";
 import { galleryEnding, galleryProgress } from "./gallery-journey";
+import { serviceGalleryHandoff } from "./service-gallery-handoff";
 
 const subscribeClient = () => () => {};
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
@@ -91,7 +92,11 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
         ? ending ? clamp((ending.getBoundingClientRect().top - h * .8) / (h * .25)) : 1
         : galleryRect ? galleryEnding(galleryProgress(galleryRect.top, galleryRect.height, h)).dock : 1;
       const nextHandoff = workRect ? clamp((h * .75 - workRect.top) / (h * .45)) : 0;
-      visibility.set(ENABLE_WORK_FILTERS ? Math.max(serviceVisibility, workVisibility * departure) : serviceVisibility * (1 - nextHandoff));
+      // Share the title's exact departure instead of starting a later rail fade.
+      const titlePresence = !staticScene.matches && galleryRect
+        ? serviceGalleryHandoff(galleryRect.top, h).serviceCopy
+        : 1 - nextHandoff;
+      visibility.set(ENABLE_WORK_FILTERS ? Math.max(serviceVisibility, workVisibility * departure) : serviceVisibility * titlePresence);
       handoff.set(ENABLE_WORK_FILTERS ? nextHandoff : 0);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
