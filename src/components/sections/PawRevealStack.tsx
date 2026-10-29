@@ -28,7 +28,8 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
   const tr = usePublicCopy();
   const reduced = useHydratedReducedMotion();
   const [phase, setPhase] = useState<"closed" | "revealing" | "open" | "closing">("closed");
-  const lock = useRef(false);
+  const intent = useRef({ generation: 0, open: false });
+  const focusFrame = useRef(0);
   const trigger = useRef<HTMLButtonElement>(null);
   const cover = useAnimation();
   const paw = useAnimation();
@@ -40,10 +41,19 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
   const showBenefit = phase === "revealing" || open;
   const busy = phase === "revealing" || phase === "closing";
 
+  useEffect(() => () => {
+    intent.current.generation++;
+    cancelAnimationFrame(focusFrame.current);
+    cover.stop(); paw.stop();
+  }, [cover, paw]);
+
   const toggle = async (keyboard: boolean) => {
-    if (lock.current) return;
-    lock.current = true;
-    const opening = phase === "closed";
+    const ticket = ++intent.current.generation;
+    const opening = !intent.current.open;
+    intent.current.open = opening;
+    const current = () => intent.current.generation === ticket;
+    cancelAnimationFrame(focusFrame.current);
+    cover.stop(); paw.stop();
     const pull = `translate(8%, ${Math.max(170, (coverRef.current?.offsetHeight ?? 200) / Math.max(1, pawRef.current?.offsetHeight ?? 120) * 105)}%) rotate(5deg)`;
     setPhase(opening ? "revealing" : "closing");
     try {
@@ -52,24 +62,30 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
         paw.set({ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)" });
       } else if (opening) {
         await paw.start({ opacity: 1, transform: "translate(0, 0) rotate(0deg)", transition: { duration: PAW_TIMING.enter, ease: EASE } });
+        if (!current()) return;
         await Promise.all([
           cover.start({ transform: "translateY(105%)", transition: { duration: PAW_TIMING.pull, ease: PULL_EASE } }),
           paw.start({ transform: pull, transition: { duration: PAW_TIMING.pull, ease: PULL_EASE } }),
         ]);
+        if (!current()) return;
         paw.set({ opacity: 0 });
       } else {
-        paw.set({ opacity: 1, transform: pull });
+        paw.set(phase === "open" ? { opacity: 1, transform: pull } : { opacity: 1 });
         await Promise.all([
           cover.start({ transform: "translateY(0%)", transition: { duration: PAW_TIMING.return, ease: PULL_EASE } }),
           paw.start({ transform: "translate(0, 0) rotate(0deg)", transition: { duration: PAW_TIMING.return, ease: PULL_EASE } }),
         ]);
+        if (!current()) return;
         await paw.start({ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)", transition: { duration: PAW_TIMING.exit, ease: EASE } });
       }
-      setPhase(opening ? "open" : "closed");
-      if (keyboard) requestAnimationFrame(() => trigger.current?.focus({ preventScroll: true }));
-    } finally {
-      lock.current = false;
+    } catch {
+      if (!current()) return;
+      cover.set({ transform: opening ? "translateY(105%)" : "translateY(0%)" });
+      paw.set({ opacity: 0 });
     }
+    if (!current()) return;
+    setPhase(opening ? "open" : "closed");
+    if (keyboard) focusFrame.current = requestAnimationFrame(() => trigger.current?.focus({ preventScroll: true }));
   };
 
   const details = <div id={panelId} role="region" aria-labelledby={panelId + "-title"} aria-hidden={!open}
@@ -121,11 +137,12 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
         </div>
       </motion.div>
     </div>
-    <button ref={trigger} type="button" className={styles.cardToggle} aria-expanded={open || phase === "closing"} aria-controls={panelId}
-      aria-label={`${tr(open ? "Hide benefit" : "Reveal benefit")}: ${tr(item.title)}`} disabled={busy || !enabled}
+    <button ref={trigger} type="button" className={styles.cardToggle} aria-expanded={showBenefit} aria-busy={busy} aria-controls={panelId}
+      aria-label={`${tr(showBenefit ? "Hide benefit" : "Reveal benefit")}: ${tr(item.title)}`} disabled={!enabled}
+      onPointerDown={event => { if (event.isPrimary && event.button === 0) event.currentTarget.setPointerCapture(event.pointerId); }}
       onClick={event => void toggle(event.detail === 0)}>
-      {!integrated && <span className={styles.tapLabel}>{tr(open ? "Tap to close" : "Tap to reveal")}</span>}
-      <span className={styles.toggleIcon}>{open ? <Minus aria-hidden="true" /> : <Plus aria-hidden="true" />}</span>
+      {!integrated && <span className={styles.tapLabel}>{tr(showBenefit ? "Tap to close" : "Tap to reveal")}</span>}
+      <span className={styles.toggleIcon}>{showBenefit ? <Minus aria-hidden="true" /> : <Plus aria-hidden="true" />}</span>
     </button>
   </article>;
 }

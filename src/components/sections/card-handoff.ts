@@ -15,7 +15,7 @@ export function cardHandoff(top: number, height: number, viewport: number) {
     // Gather first, hold the benefit titles, then dissolve while fitting the service outline.
     fit: smooth((progress - .46) / .22),
     dissolve: smooth((progress - .46) / .22),
-    glass: smooth((progress - .46) / .18),
+    glass: smooth((progress - .14) / .22),
     intro: 1 - smooth((progress - .66) / .24),
     light: smooth((progress - .82) / .18),
     proof: 1 - smooth(progress / .05),

@@ -89,6 +89,11 @@
 
 /* Transparent arrival frame: the painted face above it dissolves as a whole. */
 .dissolveDefinitions { position: absolute; pointer-events: none; overflow: hidden; }
-.handoffGlass { position: absolute; inset: 0; border: 1px solid #fffdf3b3; border-radius: 6px; background: transparent; box-shadow: inset 0 1px 0 #fff9, 0 1px 0 #91806924, 0 16px 40px -24px #57463045; opacity: var(--handoff-glass,0); pointer-events: none; }
+.handoffGlass { --bridge-glow:#84622d; position: absolute; inset: 0; display:grid; place-items:center; overflow:hidden; border: 1px solid #fffdf3b3; border-radius: 6px; background:radial-gradient(ellipse at 18% 12%,var(--bridge-glow),transparent 80%),linear-gradient(140deg,#251d23,#111116); box-shadow: inset 0 1px 0 #fff9, 0 1px 0 #91806924, 0 16px 40px -24px #57463045; opacity: var(--handoff-glass,0); pointer-events: none; }
+.handoffGlass[data-handoff-pillar="1"] { --bridge-glow:#564078; }
+.handoffGlass[data-handoff-pillar="2"] { --bridge-glow:#873c40; }
+.handoffGlass > span { font:600 clamp(2.5rem,5.5vw,6rem)/1 var(--font-clash-display),sans-serif; letter-spacing:.025em; color:#fffaf126; transform:scale(var(--handoff-word-x,1),var(--handoff-word-y,1)); }
+/* The transport owns the plane after the reading interaction has ended. */
+:global([data-card-handoff-active=true]) .pointerPlane { transform:none !important; }
 
 @media(width < 768px) { .pane:not(:nth-child(2)) :global([data-benefit-card] [data-benefit-title]) { max-width: 13ch; font-size: clamp(.875rem,3.6vw,1rem); line-height: 1.2; } }

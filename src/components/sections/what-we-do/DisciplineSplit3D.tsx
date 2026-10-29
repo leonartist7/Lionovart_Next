@@ -197,7 +197,7 @@ function Pane({
       {/* A static noise field makes the entire painted face evaporate,
           including its backing. Only thresholds change while scrolling. */}
       <HandoffDissolveFilter id={dissolveId} seed={17 + i * 13} />
-      <div className={styles.handoffGlass} data-handoff-glass aria-hidden="true" />
+      <div className={styles.handoffGlass} data-handoff-glass data-handoff-pillar={i} aria-hidden="true"><span>{card.code}</span></div>
       {/* The glass body rises underneath the fading, unbroken film. */}
       <motion.div
         className="absolute inset-0 z-[1] rounded-[inherit]"
@@ -366,6 +366,7 @@ export default function DisciplineSplit3D({
   const [viewportWidth, setViewportWidth] = useState(1200);
   const [viewportHeight, setViewportHeight] = useState(700);
   const [entranceDone, setEntranceDone] = useState(false);
+  const [contentReady, setContentReady] = useState(false);
   const [finePointer, setFinePointer] = useState(false);
   const [pointerAvailable, setPointerAvailable] = useState(false);
   const [filmActive, setFilmActive] = useState(true);
@@ -483,6 +484,7 @@ export default function DisciplineSplit3D({
     const frame = requestAnimationFrame(() => {
       const v = flip.get();
       setEntranceDone(v > 0.98);
+      setContentReady(v >= FILM_FADE_END);
       setFilmActive(v < FILM_FADE_END);
       setJoinedFilmVisible(v <= HANDOFF_START);
     });
@@ -490,6 +492,7 @@ export default function DisciplineSplit3D({
   }, [flip]);
   useMotionValueEvent(flip, "change", (v) => {
     setEntranceDone(v > 0.98);
+    setContentReady(v >= FILM_FADE_END);
     setFilmActive(v < FILM_FADE_END);
     setJoinedFilmVisible(v <= HANDOFF_START);
   });
@@ -735,6 +738,7 @@ export default function DisciplineSplit3D({
   const py = useMotionValue(0);
   const sx = useSpring(px, CURSOR_SPRING);
   const sy = useSpring(py, CURSOR_SPRING);
+  const pointerHeld = useRef(false);
 
   const rotateY = useTransform(() => openingPointerTilt(sx.get(), sy.get(), armed).y);
   const rotateX = useTransform(() => openingPointerTilt(sx.get(), sy.get(), armed).x);
@@ -766,7 +770,7 @@ export default function DisciplineSplit3D({
 
   const handleMove = useCallback(
     (e: React.PointerEvent<HTMLElement>) => {
-      if (!armed || e.pointerType !== 'mouse') return;
+      if (!armed || pointerHeld.current || e.pointerType !== 'mouse') return;
       const r = rectRef.current;
       if (!r) return;
       // The rig remains stable even when the pointer is in the breathing room
@@ -809,10 +813,18 @@ export default function DisciplineSplit3D({
   );
 
   const handleLeave = useCallback(() => {
+    pointerHeld.current = false;
     px.set(0);
     py.set(0);
     paneNodesRef.current.forEach((el) => el?.style.setProperty("--spot-active", "0"));
   }, [px, py]);
+
+  const holdPointer = (event: React.PointerEvent<HTMLElement>) => {
+    if (event.pointerType !== 'mouse' || event.button !== 0 || !(event.target instanceof Element) || !event.target.closest('[data-benefit-card]')) return;
+    pointerHeld.current = true;
+    const x = sx.get(), y = sy.get();
+    px.set(x); py.set(y); sx.jump(x); sy.jump(y);
+  };
 
   useEffect(() => {
     const node = sectionRef.current;
@@ -847,7 +859,7 @@ export default function DisciplineSplit3D({
       id={pinned ? undefined : "what-we-build"}
       data-cards-armed={armed}
       data-card-color-motion={armed && !saveData}
-      data-imagine-interactive={entranceDone || !!reduce}
+      data-imagine-interactive={contentReady || !!reduce}
       data-film-active={filmActive}
       className={journey ? "relative lion-video-section" : "relative isolate"}
       style={{
@@ -862,6 +874,10 @@ export default function DisciplineSplit3D({
         onPointerEnter={measure}
         onPointerMove={handleMove}
         onPointerLeave={handleLeave}
+        onPointerDownCapture={holdPointer}
+        onPointerUpCapture={() => { pointerHeld.current = false; }}
+        onPointerCancelCapture={() => { pointerHeld.current = false; }}
+        onLostPointerCapture={() => { pointerHeld.current = false; }}
       >
         {/* Ambient wash from the film poster, blurred past legibility, pooling
             behind the stage. It's what makes the translucent panes read as
@@ -943,7 +959,7 @@ export default function DisciplineSplit3D({
           {/* Glass plane â€” tilts as one sheet so the three panes stay a single
               object. Individual feedback lives on the panes' hover lift. */}
           <motion.div
-            className={`opening-film-plane relative flex w-full ${isDesktop ? "flex-row" : "flex-col"}`}
+            className={`opening-film-plane ${styles.pointerPlane} relative flex w-full ${isDesktop ? "flex-row" : "flex-col"}`}
             style={{
               rotateX,
               rotateY,
@@ -959,7 +975,7 @@ export default function DisciplineSplit3D({
                 i={i}
                 isDesktop={isDesktop}
                 flip={flip}
-                interactive={entranceDone || !!reduce}
+                interactive={contentReady || !!reduce}
                 pointerX={sx} pointerY={sy}
                 splitGap={openingSplitGap(viewportWidth, viewportHeight, isDesktop)}
                 armed={armed}

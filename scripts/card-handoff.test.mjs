@@ -80,3 +80,12 @@ test('the innovation statement holds later and clears before the service heading
  for(let p=.84;p<=1;p+=.001)assert.equal(at(p).copy,0);
  assert.ok(at(.94).serviceCopy>.5);
 });
+
+
+test('a coloured backing is opaque before artwork erosion starts', () => {
+ const at=p=>cardHandoff(900-p*2340,1440,900);
+ assert.equal(at(0).glass,0);
+ for(let p=.46;p<=.9;p+=.001)assert.equal(at(p).glass,1);
+ assert.equal(at(.68).dissolve,1);
+ assert.ok(at(.68).intro>0 && at(.68).glass===1);
+});

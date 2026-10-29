@@ -72,9 +72,9 @@ test('trust finishes before the invitation appears over the moving cards, in bot
  const points=Array.from({length:2001},(_,i)=>i/2000),poses=points.map(openingCopyPose);
  assert.deepEqual(poses.toReversed(),points.toReversed().map(openingCopyPose));
  assert.equal(openingCopyPose(.4).trust,1);
- assert.equal(openingCopyPose(.54).trust,0);
- assert.equal(openingCopyPose(.58).heading,0);
- assert.equal(openingCopyPose(.72).heading,1);
+ assert.equal(openingCopyPose(.49).trust,0);
+ assert.equal(openingCopyPose(.50).heading,0);
+ assert.equal(openingCopyPose(.64).heading,1);
  for(let i=0;i<points.length;i++) {
   const p=points[i],pose=poses[i];
   assert.equal(pose.trust*pose.heading,0);
