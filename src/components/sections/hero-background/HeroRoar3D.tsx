@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useRef,type CSSProperties} from "react";
+import {useEffect,useRef,useSyncExternalStore,type CSSProperties} from "react";
 import {useIntroLifecycle} from "@/components/ui/IntroLifecycle";
 import model from "@/lib/hero-roar/model.json";
 import {roarProfile,pointerTilt,dampTilt,settledTilt} from "@/lib/hero-roar/motion.mjs";
@@ -7,7 +7,16 @@ import type {RoarEngine} from "@/lib/hero-roar/engine";
 import styles from "./HeroRoar3D.module.css";
 
 type Props={quality?:"auto"|"desktop"|"mobile";maxTiltX?:number;maxTiltY?:number;responseMs?:number;/** Inspection only: export the neutral transparent frame. */exportRequest?:number;onPoster?:(blob:Blob)=>void};
-export default function HeroRoar3D({quality="auto",maxTiltX=7,maxTiltY=12,responseMs=240,exportRequest=0,onPoster}:Props){
+const desktopQuery = "(min-width: 768px) and (hover: hover) and (pointer: fine)";
+const subscribeDesktop = (notify: () => void) => {
+ const media = matchMedia(desktopQuery); media.addEventListener("change", notify);
+ return () => media.removeEventListener("change", notify);
+};
+export default function HeroRoar3D(props: Props) {
+ const desktop = useSyncExternalStore(subscribeDesktop, () => matchMedia(desktopQuery).matches, () => false);
+ return desktop && props.quality !== "mobile" ? <DesktopRoar {...props} /> : <span className="lion-roar-text" data-roar-flat>ROAR</span>;
+}
+function DesktopRoar({quality="auto",maxTiltX=7,maxTiltY=12,responseMs=240,exportRequest=0,onPoster}:Props){
  const root=useRef<HTMLSpanElement>(null),surface=useRef<HTMLSpanElement>(null),engineRef=useRef<RoarEngine|undefined>(undefined);
  const exported=useRef(0);const {released}=useIntroLifecycle();
  useEffect(()=>{

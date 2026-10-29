@@ -18,7 +18,7 @@ import {
 } from "framer-motion";
 import { SPLIT_START, SPLIT_END } from "../lion-journey/motion";
 import { useLionJourney } from "../lion-journey/LionJourney";
-import OpeningProof from "../OpeningProof";
+import TrustPlacement from "../TrustPlacement";
 import { ImagineHeading } from "../ImagineCardFace";
 import { BenefitCard } from "../PawRevealStack";
 import { IMAGINE_BENEFITS } from "../imagine-benefits";
@@ -964,7 +964,7 @@ export default function DisciplineSplit3D({
           </motion.div>
           {pinned && <motion.div ref={proofRef} className="opening-proof-stage" style={{ opacity: reduce ? 1 : proofPresence, transform: proofTransform }}>
             <div className={styles.captionStack}>
-              <motion.div className={styles.captionLayer} style={{ opacity: reduce ? 1 : badgeOpacity }} aria-hidden={!reduce && imagineVisible} inert={!reduce && imagineVisible}><OpeningProof /></motion.div>
+              <motion.div className={styles.captionLayer} style={{ opacity: reduce ? 1 : badgeOpacity }} aria-hidden={!reduce && imagineVisible} inert={!reduce && imagineVisible}><TrustPlacement slot="video" /></motion.div>
               <motion.header data-nova-section="problems" className={`${styles.captionLayer} ${styles.imagineCaption}`} style={{ opacity: reduce ? 0 : captionOpacity }} aria-hidden={reduce || !imagineVisible} inert={reduce || !imagineVisible}>
                 <div id="imagine-heading"><ImagineHeading /></div>
               </motion.header>

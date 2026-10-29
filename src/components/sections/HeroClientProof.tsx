@@ -12,11 +12,12 @@ const FACES = [
 ];
 const ASSETS = "https://res.cloudinary.com/dgio9uutc/image/upload/";
 
-export default function HeroClientProof() {
+export default function HeroClientProof({ linked = true }: { linked?: boolean }) {
   const { t } = useLanguage();
   const title = t.hero.badges.experience;
+  const Tag = linked ? "a" : "div";
   return (
-    <a data-client-experience-rating className={styles.proof} href="#client-experience" aria-label={title.join(" ")}>
+    <Tag data-client-experience-rating className={styles.proof} href={linked ? "#client-experience" : undefined} aria-label={title.join(" ")}>
       <img className={styles.laurel} src={`${ASSETS}v1787020265/Laurel-L_vxtg55.webp`} alt="" width={52} height={130} />
       <span className={styles.rating}>
         <span className={styles.stars} aria-hidden="true">
@@ -28,6 +29,6 @@ export default function HeroClientProof() {
         <span className={styles.title}>{title.map(line => <span key={line}>{line}</span>)}</span>
       </span>
       <img className={styles.laurel} src={`${ASSETS}v1787020265/Laurel-R_kj7isz.webp`} alt="" width={52} height={130} />
-    </a>
+    </Tag>
   );
 }
