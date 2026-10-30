@@ -5,8 +5,8 @@ const smooth = (n: number) => { const p = clamp(n); return p * p * (3 - 2 * p); 
 export function openingCopyPose(progress: number) {
   return {
     proof: smooth((progress - .23) / .13),
-    trust: 1 - smooth((progress - .41) / .08),
-    heading: smooth((progress - .50) / .14),
+    trust: 1 - smooth((progress - .39) / .08),
+    heading: smooth((progress - .48) / .14),
   };
 }
 

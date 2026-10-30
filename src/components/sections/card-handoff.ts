@@ -12,10 +12,13 @@ export function cardHandoff(top: number, height: number, viewport: number) {
     serviceCopy: smooth((progress - .86) / .14),
     serviceSides: smooth((progress - .86) / .14),
     rear: 1 - smooth((progress - .64) / .16),
-    // Gather first, hold the benefit titles, then dissolve while fitting the service outline.
+    // Read first, then clear the painted face before changing its aspect ratio.
+    // The independent sculpture carries the pillar into the filled service frame.
     fit: smooth((progress - .46) / .22),
-    dissolve: smooth((progress - .46) / .22),
-    glass: smooth((progress - .14) / .22),
+    dissolve: smooth((progress - .30) / .16),
+    focus: smooth((progress - .14) / .28),
+    sculpture: 1 - smooth((progress - .62) / .14),
+    glass: smooth((progress - .10) / .18),
     intro: 1 - smooth((progress - .66) / .24),
     light: smooth((progress - .82) / .18),
     proof: 1 - smooth(progress / .05),

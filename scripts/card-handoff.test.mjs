@@ -56,15 +56,16 @@ test('the middle frame merges into service media while shaping and service copy 
  assert.equal(at(1).serviceSides,1);
 });
 
-test('benefit titles hold after gathering, then dissolve during the service-frame fit', () => {
+test('benefit titles hold after gathering and clear before the service-frame fit', () => {
  const at=p=>cardHandoff(900-p*2340,1440,900);
  assert.equal(at(.35).move,1);
- assert.equal(at(.35).dissolve,0);
+ assert.equal(at(.28).dissolve,0);
  assert.equal(at(.35).fit,0);
  assert.equal(at(.44).copy,1);
- assert.equal(at(.44).dissolve,0);
- assert.ok(at(.55).dissolve>0 && at(.55).dissolve<1);
- assert.equal(at(.55).dissolve,at(.55).fit);
+ assert.ok(at(.38).dissolve>0 && at(.38).dissolve<1);
+ assert.equal(at(.38).fit,0);
+ assert.equal(at(.46).dissolve,1);
+ assert.equal(at(.46).fit,0);
  assert.equal(at(.7).dissolve,1);
  assert.equal(at(.7).glass,1);
  assert.equal(at(.7).fit,1);
@@ -85,7 +86,23 @@ test('the innovation statement holds later and clears before the service heading
 test('a coloured backing is opaque before artwork erosion starts', () => {
  const at=p=>cardHandoff(900-p*2340,1440,900);
  assert.equal(at(0).glass,0);
- for(let p=.46;p<=.9;p+=.001)assert.equal(at(p).glass,1);
+ for(let p=.30;p<=.9;p+=.001)assert.equal(at(p).glass,1);
  assert.equal(at(.68).dissolve,1);
  assert.ok(at(.68).intro>0 && at(.68).glass===1);
+});
+
+test('the focal sculpture survives the painted face and retires before service media settles', () => {
+ const points=Array.from({length:1001},(_,i)=>i/1000);
+ const at=p=>cardHandoff(900-p*2340,1440,900);
+ assert.deepEqual(points.map(at).toReversed(),points.toReversed().map(at));
+ assert.equal(at(0).focus,0);
+ assert.equal(at(.42).focus,1);
+ assert.equal(at(.46).sculpture,1);
+ assert.ok(at(.7).sculpture>0 && at(.7).sculpture<1);
+ assert.equal(at(.76).sculpture,0);
+ for(const p of points) {
+  const pose=at(p);
+  if(pose.fit>0)assert.equal(pose.dissolve,1,'text never stretches with the reshaping frame');
+  if(pose.dissolve>0)assert.equal(pose.glass,1,'erosion always reveals a filled surface');
+ }
 });

@@ -31,7 +31,7 @@
 
 /* Keep the same three DOM/media surfaces during the service-to-work gather.
    Inherited progress also survives the final service's React content update. */
-.stage { --service-side-x: 68%; --service-side-y: -16%; --service-side-depth: -300px; }
+.stage { --service-side-x: 68%; --service-side-y: -20%; --service-side-depth: -300px; }
 /* Endpoint geometry stays identical to the authored entrance/gather. */
 .card[data-orbit] { transform: translate3d(calc(var(--service-side-x) * var(--orbit-x,0)),calc(var(--service-side-y) * var(--orbit-depth,0)),calc(var(--service-side-depth) * var(--orbit-depth,0))); opacity: var(--orbit-opacity,1); transition: none; }
 .colorSpill[data-orbit-light], .reflectedLight[data-orbit-light] { transition: none; mask-image: radial-gradient(ellipse closest-side at center,#000,transparent); }
@@ -39,6 +39,6 @@
 :global([data-gallery-gathering=true]) .card { transition: none; }
 :global([data-gallery-gathering=true]) .card[data-position=left] { transform: translate3d(calc(-1 * var(--service-side-x) * (1 - var(--service-gallery-gather,0)) - var(--service-release-x,0px) * var(--service-gallery-release,0)),calc(var(--service-side-y) * (1 - var(--service-gallery-gather,0)) - var(--service-release-y,0px) * var(--service-gallery-release,0)),calc(var(--service-side-depth) * (1 - var(--service-gallery-gather,0)) - 70px * var(--service-gallery-gather,0))); opacity: calc(.48 * var(--service-gallery-rear,1)); }
 :global([data-gallery-gathering=true]) .card[data-position=right] { transform: translate3d(calc(var(--service-side-x) * (1 - var(--service-gallery-gather,0)) + var(--service-release-x,0px) * var(--service-gallery-release,0)),calc(var(--service-side-y) * (1 - var(--service-gallery-gather,0)) + var(--service-release-y,0px) * var(--service-gallery-release,0)),calc(var(--service-side-depth) * (1 - var(--service-gallery-gather,0)) - 70px * var(--service-gallery-gather,0))); opacity: calc(.48 * var(--service-gallery-rear,1)); }
-@media(max-width:767px) { .stage { --service-side-x: 60%; --service-side-y: -10%; --service-side-depth: -210px; } }
+@media(max-width:767px) { .stage { --service-side-x: 60%; --service-side-y: -14%; --service-side-depth: -210px; } }
 
 :global([data-gallery-gathering=true]) .card[data-position=center] { transform: translate3d(calc(-1 * var(--service-release-x,0px) * var(--service-gallery-release,0)),calc(-1 * var(--service-release-y,0px) * var(--service-gallery-release,0)),0); }

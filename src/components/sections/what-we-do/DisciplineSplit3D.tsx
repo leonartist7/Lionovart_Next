@@ -324,12 +324,14 @@ function Pane({
           ) : null}
 
         </div>
-        <motion.div className={styles.floatingObject} data-floating-card-object={card.code} aria-hidden="true"
+      </motion.div>
+      <div className={styles.floatingCarrier} aria-hidden="true">
+        <motion.div className={styles.floatingObject} data-floating-card-object={card.code}
           style={{ opacity: reducedMotion ? 1 : objectOpacity, scale: objectScale, x: objectX, y: objectY, rotateY: objectTurn, z: reducedMotion ? 0 : 72 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={FLOATING_ART[i]} width={320} height={320} alt="" loading="lazy" decoding="async" />
         </motion.div>
-      </motion.div>
+      </div>
     </motion.div>
   );
 }

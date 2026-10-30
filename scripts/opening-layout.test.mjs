@@ -71,14 +71,15 @@ test('card anchors retain their document origin while the intro parent is sticky
 test('trust finishes before the invitation appears over the moving cards, in both directions', () => {
  const points=Array.from({length:2001},(_,i)=>i/2000),poses=points.map(openingCopyPose);
  assert.deepEqual(poses.toReversed(),points.toReversed().map(openingCopyPose));
- assert.equal(openingCopyPose(.4).trust,1);
- assert.equal(openingCopyPose(.49).trust,0);
- assert.equal(openingCopyPose(.50).heading,0);
- assert.equal(openingCopyPose(.64).heading,1);
+ assert.equal(openingCopyPose(.39).trust,1);
+ assert.equal(openingCopyPose(.47).trust,0);
+ assert.equal(openingCopyPose(.48).heading,0);
+ assert.ok(openingCopyPose(.49).heading>0,'the invitation starts at the split entrance');
+ assert.equal(openingCopyPose(.62).heading,1);
  for(let i=0;i<points.length;i++) {
   const p=points[i],pose=poses[i];
   assert.equal(pose.trust*pose.heading,0);
-  if(pose.heading>0)assert.ok(p>.5,'the film has begun splitting before the invitation');
+  if(pose.heading>0)assert.ok(p>.48,'the film has begun splitting before the invitation');
   for(const key of Object.keys(pose)) {
    assert.ok(pose[key]>=0 && pose[key]<=1);
    if(i)assert.ok(Math.abs(pose[key]-poses[i-1][key])<.01);
