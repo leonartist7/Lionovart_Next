@@ -97,3 +97,7 @@
 :global([data-card-handoff-active=true]) .pointerPlane { transform:none !important; }
 
 @media(width < 768px) { .pane:not(:nth-child(2)) :global([data-benefit-card] [data-benefit-title]) { max-width: 13ch; font-size: clamp(.875rem,3.6vw,1rem); line-height: 1.2; } }
+
+/* Transparent 3D planes must never intercept a button behind their z=0 plane. */
+.hitPlane, .pointerPlane { pointer-events:none; }
+.frontFace :global([data-benefit-card]) button { pointer-events:auto; }

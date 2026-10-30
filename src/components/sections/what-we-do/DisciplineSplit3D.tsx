@@ -951,7 +951,7 @@ export default function DisciplineSplit3D({
           </motion.div>
 
           {/* The original outline separates into three straight, fixed-size panels. */}
-          <motion.div ref={cardGroupRef} className="opening-card-morph relative"
+          <motion.div ref={cardGroupRef} className={`opening-card-morph relative ${styles.hitPlane}`}
             style={{ transform: cardTransform, opacity: reduce || filmFrame ? 1 : 0,
               transformStyle: "preserve-3d" }}>
           {/* Glass plane â€” tilts as one sheet so the three panes stay a single
