@@ -77,13 +77,13 @@ test('the innovation statement holds later and clears before the service heading
  const at=p=>cardHandoff(900-p*2340,1440,900);
  assert.equal(at(.72).copy,1);
  assert.ok(at(.8).copy>0);
- assert.equal(at(.8).light,0);
+ assert.ok(at(.8).light>0 && at(.8).light<.3);
  for(let p=.84;p<=1;p+=.001)assert.equal(at(p).copy,0);
  assert.ok(at(.94).serviceCopy>.5);
 });
 
 
-test('a coloured backing is opaque before artwork erosion starts', () => {
+test('cream paper is opaque before the painted face retracts', () => {
  const at=p=>cardHandoff(900-p*2340,1440,900);
  assert.equal(at(0).glass,0);
  for(let p=.30;p<=.9;p+=.001)assert.equal(at(p).glass,1);
@@ -91,15 +91,15 @@ test('a coloured backing is opaque before artwork erosion starts', () => {
  assert.ok(at(.68).intro>0 && at(.68).glass===1);
 });
 
-test('the focal sculpture survives the painted face and retires before service media settles', () => {
+test('the sculpture leaves its corner before the paper reveal and frame reshape', () => {
  const points=Array.from({length:1001},(_,i)=>i/1000);
  const at=p=>cardHandoff(900-p*2340,1440,900);
  assert.deepEqual(points.map(at).toReversed(),points.toReversed().map(at));
  assert.equal(at(0).focus,0);
  assert.equal(at(.42).focus,1);
- assert.equal(at(.46).sculpture,1);
- assert.ok(at(.7).sculpture>0 && at(.7).sculpture<1);
- assert.equal(at(.76).sculpture,0);
+ assert.equal(at(.12).sculpture,1);
+ assert.ok(at(.2).sculpture>0 && at(.2).sculpture<1);
+ assert.equal(at(.28).sculpture,0);
  for(const p of points) {
   const pose=at(p);
   if(pose.fit>0)assert.equal(pose.dissolve,1,'text never stretches with the reshaping frame');

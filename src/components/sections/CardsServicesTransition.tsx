@@ -19,7 +19,6 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     let frame = 0, previous = 0, previousDissolve = -1;
     let fittedMedia: HTMLElement | null = null;
     let bases: BridgeFrame[] = [];
-    let artworkAnchors: { x: number; y: number }[] = [];
     const sync = () => {
       frame = 0;
       const bounds = runway.getBoundingClientRect();
@@ -29,19 +28,20 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       const targets = Array.from(world?.querySelectorAll<HTMLElement>('[data-service-triptych] [data-exhibit-index]') ?? []);
 
       node.style.opacity = media.matches ? '1' : String(pose.intro);
-      const handoffActive = String(!media.matches && pose.progress > 0);
-      if (node.dataset.cardHandoffActive !== handoffActive) node.dataset.cardHandoffActive = handoffActive;
+      const handoffActive = String(!media.matches && pose.dissolve >= 1);
+      if (node.dataset.cardHandoffActive !== handoffActive) {
+        node.dataset.cardHandoffActive = handoffActive;
+        bases = [];
+      }
       node.style.setProperty('--handoff-glass', String(media.matches ? 0 : pose.glass));
       const dissolve = media.matches ? 0 : pose.dissolve;
-      // No idle shader loop: this reversible field only updates on scroll,
-      // and the SVG filter is released at both fully opaque/clear endpoints.
+      // The original cream paper rises across the face before any reshaping.
+      // Clip only the painted surface so the backing never goes transparent.
       if (dissolve !== previousDissolve) {
         node.querySelectorAll<HTMLElement>('[data-handoff-surface]').forEach(surface => {
-          surface.style.filter = dissolve > 0 && dissolve < 1 ? `url(#${surface.dataset.handoffSurface})` : 'none';
-          surface.style.opacity = String(1 - dissolve);
-        });
-        node.querySelectorAll<SVGElement>('[data-dissolve-cutoff]').forEach(cutoff => {
-          cutoff.setAttribute('intercept', String((cutoff.dataset.dissolveCutoff === 'edge' ? 1.24 : 1) - dissolve * 14));
+          surface.style.filter = 'none';
+          surface.style.clipPath = dissolve > 0 ? `inset(0 0 ${dissolve * 100}% 0 round 6px)` : 'none';
+          surface.style.opacity = dissolve === 1 ? '0' : '1';
         });
         previousDissolve = dissolve;
       }
@@ -61,14 +61,15 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         cutoff.setAttribute('intercept', String((cutoff.dataset.serviceMergeCutoff === 'edge' ? 1.24 : 1) - (1 - reveal) * 14));
       });
       if (centerMedia) {
-        centerMedia.style.filter = reveal > 0 && reveal < 1 ? `url(#${triptych?.dataset.serviceMergeFilter})` : 'none';
-        centerMedia.style.opacity = reveal === 0 ? '0' : '1';
+        centerMedia.style.filter = 'none';
+        centerMedia.style.opacity = String(reveal);
       }
       node.style.setProperty('--handoff-proof', String(media.matches ? 1 : pose.proof));
       // Keep the reading face clickable through its transport and hold.
-      // It retires only when its painted content starts leaving.
-      node.inert = !media.matches && pose.dissolve > 0;
+      // It retires only once no painted content remains.
+      node.inert = !media.matches && pose.dissolve >= 1;
       node.style.setProperty('--handoff-sculpture', String(media.matches ? 1 : pose.sculpture));
+      node.style.setProperty('--handoff-lift', `${media.matches ? 0 : -24 * pose.focus}px`);
       copy.style.opacity = String(media.matches ? 0 : pose.copy);
       copy.style.visibility = !media.matches && pose.copy > .001 ? 'visible' : 'hidden';
       runway.dataset.handoffProgress = pose.progress.toFixed(3);
@@ -84,7 +85,6 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           panel.style.removeProperty('--handoff-depth');
           panel.style.removeProperty('--handoff-rotate');
           panel.style.removeProperty('--handoff-word-x'); panel.style.removeProperty('--handoff-word-y');
-          panel.style.removeProperty('--handoff-object-x'); panel.style.removeProperty('--handoff-object-y');
         });
         bases = panels.map(panel => {
           const r = panel.getBoundingClientRect();
@@ -92,13 +92,6 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           const motion = new DOMMatrixReadOnly(style.transform);
           return { x: r.x + r.width / 2, y: r.y + r.height / 2, width: r.width, height: r.height,
             parentX: r.width / Math.max(1, parseFloat(style.width)), parentY: r.height / Math.max(1, parseFloat(style.height)), motionX: motion.m41, motionY: motion.m42 };
-        });
-        artworkAnchors = panels.map(panel => {
-          const sculpture = panel.querySelector<HTMLElement>('[data-floating-card-object]');
-          return sculpture ? {
-            x: panel.clientWidth / 2 - sculpture.offsetLeft - sculpture.offsetWidth / 2,
-            y: panel.clientHeight / 2 - sculpture.offsetTop - sculpture.offsetHeight / 2,
-          } : { x: 0, y: 0 };
         });
       }
       if (media.matches || !pose.progress) return;
@@ -122,10 +115,6 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         panel.style.setProperty('--handoff-rotate', `${bridge.angle}deg`);
         panel.style.setProperty('--handoff-word-x', String(1 / bridge.sx));
         panel.style.setProperty('--handoff-word-y', String(1 / bridge.sy));
-        // Cached layout dimensions stay fixed: only the carrier transform changes.
-        // Counter-scaling keeps the sculpture round as its frame widens.
-        panel.style.setProperty('--handoff-object-x', `${artworkAnchors[index].x * pose.focus}px`);
-        panel.style.setProperty('--handoff-object-y', `${artworkAnchors[index].y * pose.focus}px`);
         // Match the service triptych's center-first depth before it dissolves in.
         // The target bounds already include its perspective: scaling to those
         // bounds preserves the fixed panel outline without a second projection.

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import { galleryLayout, GALLERY_ENTRY_PROJECTION } from '../src/components/sections/gallery-layout.ts';
 import assert from 'node:assert/strict';
-import { galleryWithCarry, galleryCompanionPresence, galleryProgress, galleryTravel, galleryCardPose, galleryEnding, galleryTitlePose, galleryPairProgress, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase } from '../src/components/sections/gallery-journey.ts';
+import { galleryWithCarry, galleryCompanionPresence, galleryProgress, galleryTravel, galleryCardPose, galleryEnding, galleryTitlePose, galleryRingPose, galleryPairProgress, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase } from '../src/components/sections/gallery-journey.ts';
 
 test('gallery depth is reversible, visits every pair and clears the room before the ending', () => {
  for (const pairs of [1, 4, 6, 17]) {
@@ -10,7 +10,7 @@ test('gallery depth is reversible, visits every pair and clears the room before 
   assert.deepEqual(poses.toReversed(), progress.toReversed().map(p => galleryCardPose(p, 0, pairs)));
   for (let pair = 0; pair < pairs; pair++) {
    const p = galleryPairProgress(pair, pairs);
-   assert.ok(Math.abs(galleryCardPose(p, pair, pairs).z + 350) < 1e-8);
+   assert.ok(galleryCardPose(p, pair, pairs).z > 50 && galleryCardPose(p, pair, pairs).z < 75);
    assert.equal(galleryCardPose(p, pair, pairs).opacity, 1);
    assert.equal(galleryCardPose(.77, pair, pairs).visible, false);
   }
@@ -66,15 +66,14 @@ test('the service gather matches the projected gallery center on desktop and por
 });
 
 
-test('each reading stop gets a longer hold and is C1 continuous through forward and reverse travel', () => {
+test('closer arrow stops remain opaque and travel stays continuous in both directions', () => {
  const pairs = 4, epsilon = 1e-6;
  for (let pair = 1; pair < pairs; pair++) {
   const p = galleryPairProgress(pair, pairs);
   const before = (galleryTravel(p, pairs) - galleryTravel(p - epsilon, pairs)) / epsilon;
   const after = (galleryTravel(p + epsilon, pairs) - galleryTravel(p, pairs)) / epsilon;
-  const between = (galleryTravel(p + .095 + epsilon, pairs) - galleryTravel(p + .095, pairs)) / epsilon;
-  assert.ok(Math.abs(before - after) < .01);
-  assert.ok(between > before * 5);
+  assert.ok(Math.abs(before - after) / before < .0001);
+  assert.ok(galleryCardPose(p, pair, pairs).z > 50);
   const pose = galleryCardPose(p, pair, pairs);
   assert.equal(pose.outward, 0); assert.equal(pose.caption, 1);
  }
@@ -145,7 +144,7 @@ test('upcoming rows stay visible behind the current pair without competing at fu
    const back=galleryCardPose(p,next,4);
    assert.equal(back.visible,true);
    assert.ok(back.z<front.z-1000);
-   assert.ok(back.opacity>0 && back.opacity<.2);
+   assert.ok(back.opacity>0 && back.opacity<.3);
    assert.equal(back.caption,0);
   }
  }
@@ -153,7 +152,7 @@ test('upcoming rows stay visible behind the current pair without competing at fu
   let previous=Infinity;
   for(let row=0;row<4;row++) {
    const pose=galleryCardPose(p,row,4);
-   assert.ok(pose.z<150 && pose.z<=previous);
+   assert.ok(pose.z<750 && pose.z<=previous);
    assert.ok(pose.opacity>=0 && pose.opacity<=1);
    previous=pose.z;
   }
@@ -185,30 +184,29 @@ test('desktop pairs recover the logo lane only during their exit', () => {
  }
 });
 
-test('large opaque desktop cards remain within the window before their soft exit', () => {
+test('arrow stops fit fully, then opaque artwork passes beyond the desktop edges before erosion', () => {
  for(const [width,height] of [[1365,936],[1440,900],[1920,1080]]) {
-  const content=width-15, layout=galleryLayout(width,height,content);
-  for(let p=0;p<=.12;p+=.001) {
-   const pose=galleryCardPose(p,0,4);
-   if(pose.opacity<.9) continue;
-   const left=bounds(content,height,layout,pose,-1,0),right=bounds(content,height,layout,pose,1,0);
-   assert.ok(left.left>=0 && right.right<=content,`opaque frame cropped at ${width}x${height}, progress ${p}`);
-   assert.ok(right.left-left.right<content*.23);
-  }
+  const content=width-15,layout=galleryLayout(width,height,content);
+  const stop=galleryCardPose(galleryPairProgress(0,5),0,5);
+  const readingLeft=bounds(content,height,layout,stop,-1,0),readingRight=bounds(content,height,layout,stop,1,0);
+  assert.ok(readingLeft.left>=0 && readingRight.right<=content);
+  const firstErosion=Array.from({length:10001},(_,i)=>galleryCardPose(i/10000,0,5)).find(p=>p.dissolve>0);
+  const left=bounds(content,height,layout,firstErosion,-1,0),right=bounds(content,height,layout,firstErosion,1,0);
+  assert.ok(firstErosion.z>500,'artwork approaches before dissolving');
+  assert.ok(-left.left/(left.right-left.left)>.4,'left artwork is substantially beyond the viewport');
+  assert.ok((right.right-content)/(right.right-right.left)>.4,'right artwork is substantially beyond the viewport');
  }
 });
 
-test('gallery title approaches during the intro, clears before rows and restores in reverse', () => {
- const samples=Array.from({length:1001},(_,i)=>i/1000),poses=samples.map(galleryTitlePose);
- assert.deepEqual(poses.toReversed(),samples.toReversed().map(galleryTitlePose));
- assert.equal(poses[0].opacity,0);
- assert.ok(galleryTitlePose(.5).opacity>.9);
- for(let i=1;i<poses.length;i++) {
-  assert.ok(poses[i].z>=poses[i-1].z);
-  assert.ok(poses[i].z<500);
-  assert.ok(Math.abs(poses[i].z-poses[i-1].z)<3);
- }
- for(const p of [.9,.95,1]) assert.equal(galleryTitlePose(p).opacity,0);
+test('gallery invitation appears with the service gather, holds still, then leaves during row travel', () => {
+ const samples=Array.from({length:1001},(_,i)=>i/1000), poses=samples.map(p=>galleryTitlePose(p));
+ assert.deepEqual(poses.toReversed(),samples.toReversed().map(p=>galleryTitlePose(p)));
+ assert.equal(galleryTitlePose(0).opacity,0);
+ assert.ok(galleryTitlePose(.1).opacity>.4);
+ for(const p of [.2,.5,.9,1]) { assert.equal(galleryTitlePose(p).opacity,1); assert.equal(galleryTitlePose(p).z,0); }
+ assert.equal(galleryTitlePose(1,.04).opacity,1);
+ assert.ok(galleryTitlePose(1,.08).opacity>0);
+ assert.equal(galleryTitlePose(1,.12).opacity,0);
 });
 
 test('erosion starts after the enlarged hold and reverses without frame or caption residue', () => {
@@ -219,12 +217,12 @@ test('erosion starts after the enlarged hold and reverses without frame or capti
   let previous=0;
   for(const pose of poses) {
    assert.ok(pose.dissolve>=previous && pose.dissolve<=1);
-   if(pose.advance<=.70) assert.equal(pose.dissolve,0);
-   if(pose.advance>=.94) { assert.equal(pose.visible,false); assert.equal(pose.caption,0); assert.equal(pose.surfaceOpacity,0); }
+   if(pose.advance<=.86) assert.equal(pose.dissolve,0);
+   if(pose.advance>=1.22) { assert.equal(pose.visible,false); assert.equal(pose.caption,0); assert.equal(pose.surfaceOpacity,0); }
    previous=pose.dissolve;
   }
  }
- const enlarged=galleryCardPose(.10,0,4);
+ const enlarged=galleryCardPose(.09,0,4);
  assert.ok(enlarged.z>30);
  assert.equal(enlarged.dissolve,0);
  assert.ok(enlarged.caption>.9);
@@ -262,10 +260,10 @@ test('the close preview shares the service axis and holds until the lateral exit
   if(layout.vertical) { assert.equal(layout.previewInset,0); continue; }
   const left=bounds(width-15,height,layout,p,-1,0),right=bounds(width-15,height,layout,p,1,0);
   assert.ok(right.left-left.right>24 && right.left-left.right<80);
-  const hold=galleryCardPose(.10,0,4);
+  const hold=galleryCardPose(.09,0,4);
   assert.equal(hold.preview,1);
   assert.equal(hold.dissolve,0);
-  const open=galleryCardPose(.16,0,4);
+  const open=galleryCardPose(.23,0,4);
   assert.equal(open.preview,0);
  }
  const samples=Array.from({length:2001},(_,i)=>i/2000),poses=samples.map(p=>galleryCardPose(p,0,4));
@@ -273,24 +271,23 @@ test('the close preview shares the service axis and holds until the lateral exit
  for(let i=1;i<poses.length;i++)assert.ok(Math.abs(poses[i].preview-poses[i-1].preview)<.025);
 });
 
-test('erosion finishes sooner while its endpoints retire the complete frame', () => {
- const mid=galleryCardPose(.14,0,4);
- assert.ok(mid.outward>.7 && mid.dissolve>.7);
- for(const p of [.16,.17,.18]) {
-  const pose=galleryCardPose(p,0,4);
+test('erosion spans a long approach and fully retires every frame before the ending', () => {
+ const mid=galleryCardPose(.17,0,4);
+ assert.ok(mid.outward>.8 && mid.dissolve>.2 && mid.dissolve<.5);
+ for(const pairs of [1,4,5,17]) for(let row=0;row<pairs;row++) {
+  const pose=galleryCardPose(.76,row,pairs);
   assert.equal(pose.dissolve,1);assert.equal(pose.visible,false);assert.equal(pose.surfaceOpacity,0);
  }
 });
 
-
-test('the carried artwork leads eight unique projects across four rows', () => {
+test('the carried artwork leads ten unique projects across five rows', () => {
  const projects=Array.from({length:12},(_,i)=>({slug:`work-${i}`}));
  for(const carry of [projects[0],projects[5],{slug:'transparent-led-concept'}]) {
   const composed=galleryWithCarry(projects,carry);
   assert.equal(composed[0],carry);
-  assert.equal(composed.length,8);
-  assert.equal(new Set(composed.map(work=>work.slug)).size,8);
-  assert.deepEqual(composed.slice(1),projects.filter(work=>work.slug!==carry.slug).slice(0,7));
+  assert.equal(composed.length,10);
+  assert.equal(new Set(composed.map(work=>work.slug)).size,10);
+  assert.deepEqual(composed.slice(1),projects.filter(work=>work.slug!==carry.slug).slice(0,9));
  }
  assert.equal(projects.length,12);
 });
@@ -312,4 +309,16 @@ test('desktop artwork holds a narrow central lane through the enlarged reading b
    assert.ok(gap>24 && gap<90,`central lane ${gap} at ${width}x${height}, ${p}`);
   }
  }
+});
+
+test('five glass rings move forward reversibly, clear their edges, and leave the logo for the ending', () => {
+ const points=Array.from({length:1001},(_,i)=>i/1000);
+ for(let row=0;row<5;row++) {
+  const poses=points.map(p=>galleryRingPose(p,row,5));
+  assert.deepEqual(poses.toReversed(),points.toReversed().map(p=>galleryRingPose(p,row,5)));
+  for(let i=1;i<poses.length;i++) { assert.ok(poses[i].z>=poses[i-1].z); assert.ok(poses[i].z<1000); }
+  assert.equal(galleryRingPose(.76,row,5).opacity,0);
+ }
+ for(const p of [0,.2,.4,.6,.72]) assert.equal(galleryEnding(p).logo,0);
+ assert.equal(galleryEnding(.81).logo,1);
 });

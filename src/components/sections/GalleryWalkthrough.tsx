@@ -14,7 +14,7 @@ import { prepareScreeningPosters, ScreeningMedia } from './ScreeningMedia';
 import { GALLERY_SERVICE_LABELS, type GalleryWork } from './selected-work/gallery';
 import { galleryLayout, GALLERY_ENTRY_PROJECTION } from './gallery-layout';
 import { serviceGalleryHandoff } from './service-gallery-handoff';
-import { galleryCardPose, galleryCompanionPresence, galleryEnding, galleryPairProgress, galleryProgress, galleryTravel, galleryTitlePose, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
+import { galleryCardPose, galleryCompanionPresence, galleryEnding, galleryPairProgress, galleryProgress, galleryTravel, galleryTitlePose, galleryRingPose, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
 import styles from './GalleryWalkthrough.module.css';
 import PartnershipMark, { PartnershipResultsButton } from './PartnershipMark';
 import { partnershipLayout } from './partnership-layout';
@@ -69,7 +69,7 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
     const spread = entry.get(), focus = reduce ? 0 : focusSpring.get();
     const { z, outward, background, preview } = galleryCardPose(progress.get(), pair, pairs);
     const baseZ = -350 - index * 18 * (1 - spread) + (z + 350) * spread;
-    const depth = baseZ + (Math.max(0, baseZ) - baseZ) * focus;
+    const depth = baseZ + (Math.max(100, baseZ) - baseZ) * focus;
     const size = 1 + (entryScale.get() - 1) * (1 - spread);
     const gapCompensation = Math.max(0, z + 350) / 2000;
     const depthProjection = Math.max(1, (1000 - z) / 1000);
@@ -95,6 +95,12 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
   </motion.div>;
 }
 
+function GalleryRing({ row, pairs, progress }: { row: number; pairs: number; progress: MotionValue<number> }) {
+  const transform = useTransform(progress, p => `translate(-50%,-50%) translateZ(${galleryRingPose(p, row, pairs).z}px)`);
+  const opacity = useTransform(progress, p => galleryRingPose(p, row, pairs).opacity);
+  return <motion.div className={styles.portalRing} data-gallery-ring={row} data-final={row === pairs - 1} aria-hidden="true" style={{ transform, opacity }} />;
+}
+
 /** Scroll moves the exhibits through one stationary viewport, then reveals the studio mark. */
 export default function GalleryWalkthrough({ projects, servicesCurves }: {
   projects: readonly GalleryWork[]; servicesCurves: boolean;
@@ -115,7 +121,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const [pair, setPair] = useState(0), [ending, setEnding] = useState(false), [walking, setWalking] = useState(true);
   const pairs = Math.max(1, Math.ceil(projects.length / 2));
   const pinned = !!scene?.target;
-  const titleOpacity = useTransform(arrivalProgress, p => galleryTitlePose(p).opacity);
+  const titleOpacity = useTransform(() => galleryTitlePose(arrivalProgress.get(), progress.get()).opacity);
   const titleTransform = useTransform(arrivalProgress, p => {
     const { y, z } = galleryTitlePose(p);
     return `perspective(1000px) translate3d(0,${y}px,${z}px)`;
@@ -295,10 +301,13 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
         onClick={() => { if (selectedSlug) setSelectedSlug(null); }}
         onKeyDown={event => { if (event.key === 'Escape' && selectedSlug) { setSelectedSlug(null); event.stopPropagation(); } }}>
         <motion.header className={styles.header} style={{ opacity: pinned ? titleOpacity : 1, transform: pinned ? titleTransform : 'none' }}>
-          <h2 id="selected-work-heading">{tr('Selected work')}</h2>
-          <p>{fr ? 'Entrez dans notre univers.' : 'Step inside our world.'}</p>
+          <h2 id="selected-work-heading">{fr ? 'Nos projets sélectionnés' : 'Our selected work'}</h2>
         </motion.header>
+        <motion.p className={styles.invitation} data-gallery-invitation style={{ opacity: pinned ? titleOpacity : 1 }}>
+          {fr ? 'Entrez dans notre univers.' : 'Step inside our world.'}
+        </motion.p>
         {pinned ? <div className={styles.corridor} data-gallery-corridor>
+          {Array.from({ length: pairs }, (_, row) => <GalleryRing key={row} row={row} pairs={pairs} progress={progress} />)}
           {projects.map((work, index) => <GalleryPanel key={work.slug} work={work} index={index} pairs={pairs}
             progress={progress} entry={entry} entryScale={entryScale} solo={index === projects.length - 1 && projects.length % 2 === 1} selected={selectedSlug === work.slug} dimmed={!!selectedSlug && selectedSlug !== work.slug && Math.floor(index / 2) === pair} near={Math.floor(index / 2) === pair && !ending} active={active}
             onSelect={onSelect} />)}

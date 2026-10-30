@@ -98,3 +98,12 @@
   }
 }
 @media(prefers-reduced-motion:reduce) { .project { transition:none; } }
+
+/* Architectural glass rings belong to the room, never to the controls. */
+.portalRing { position:absolute; left:50%; top:48%; width:min(76vw,110svh); aspect-ratio:1; border-radius:50%; border:1px solid #fffdf5; box-shadow:inset 0 0 0 6px #fffdf535,inset 0 0 0 7px #8b7b6118,0 0 0 1px #9e8c7324,0 0 32px #d5c9b614; pointer-events:none; }
+.portalRing[data-final=true] { border-color:#bd1725; box-shadow:inset 0 0 0 5px #bd17250e,0 0 0 1px #bd172536,0 0 30px #bd172510; }
+.invitation { position:absolute; top:clamp(5rem,12svh,8rem); inset-inline:1.5rem; z-index:10; margin:0; text-align:center; pointer-events:none; color:#79674f; font:italic 400 clamp(1.25rem,2.5vw,2.5rem)/1.15 var(--font-playfair-display),Georgia,serif; }
+.stage[data-walkthrough-pinned=true] .header { bottom:clamp(7rem,18svh,12rem); }
+.stage[data-walkthrough-pinned=false] .invitation { position:relative; inset:auto; margin:0 0 3rem; }
+@media(max-width:1024px) { .portalRing { width:120vw; }.invitation { top:5rem; font-size:1.5rem; }.stage[data-walkthrough-pinned=true] .header { bottom:7rem; } }
+@media(prefers-reduced-motion:reduce) { .portalRing { display:none; } }

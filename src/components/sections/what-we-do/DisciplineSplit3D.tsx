@@ -1,11 +1,10 @@
 "use client";
 
-import HandoffDissolveFilter from '../HandoffDissolveFilter';
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useSaveData } from "@/hooks/useSaveData";
 import styles from "./DisciplineSplit3D.module.css";
 
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   motion,
   cubicBezier,
@@ -149,7 +148,6 @@ function Pane({
   pointerX: MotionValue<number>; pointerY: MotionValue<number>;
   splitGap: number;
 }) {
-  const dissolveId = `card-dissolve-${useId().replace(/:/g, "")}`;
   const splitP = useLocalProgress(flip, HANDOFF_START, HANDOFF_END);
   const cardP = splitP;
 
@@ -194,14 +192,12 @@ function Pane({
       {/* Desktop contains the full artwork above the copy; shorter screens
           reduce the art area's height while phones keep the side-by-side art. */}
       <div aria-hidden="true" className={`opening-pane-sizing ${styles.paneSizer} pointer-events-none w-full pb-52 pt-[100%] max-[920px]:h-[var(--opening-art-size)] max-[920px]:p-0`} />
-      {/* A static noise field makes the entire painted face evaporate,
-          including its backing. Only thresholds change while scrolling. */}
-      <HandoffDissolveFilter id={dissolveId} seed={17 + i * 13} />
+      {/* The card’s paper becomes the next room’s pale exhibition frame. */}
       <div className={styles.handoffGlass} data-handoff-glass data-handoff-pillar={i} aria-hidden="true"><span>{card.code}</span></div>
       {/* The glass body rises underneath the fading, unbroken film. */}
       <motion.div
         className="absolute inset-0 z-[1] rounded-[inherit]"
-        data-handoff-surface={dissolveId}
+        data-handoff-surface
         style={{
           z: cardZ,
           transformStyle: "preserve-3d",
@@ -383,7 +379,7 @@ export default function DisciplineSplit3D({
   const [joinedFilmVisible, setJoinedFilmVisible] = useState(true);
   const [filmFrame, setFilmFrame] = useState<FilmFrame | null>(null);
   // The scroll handoff is reversible on every device; optional pointer tilt
-  // is available only after settling, with a mouse and motion enabled.
+  // is available with the visible reading face, a mouse and motion enabled.
   const armed = !reduce && entranceDone && finePointer && pointerAvailable;
 
   useEffect(() => {
@@ -480,21 +476,21 @@ export default function DisciplineSplit3D({
   // The video-to-card handoff belongs to this section.  Keeping it local means
   // the cards always reveal as the visitor scrolls through WHAT WE BUILD.
 
-  // Cursor rig arms only once the sequence has fully landed, and disarms
-  // again the moment scrolling back pulls it out of the settled state.
+  // Input becomes available with the first visible card content. Pointer motion
+  // follows the same gate and continues through the reading/transport hold.
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       const v = flip.get();
-      setEntranceDone(v > 0.98);
-      setContentReady(v >= FILM_FADE_END);
+      setEntranceDone(v > HANDOFF_START + .02);
+      setContentReady(v > HANDOFF_START);
       setFilmActive(v < FILM_FADE_END);
       setJoinedFilmVisible(v <= HANDOFF_START);
     });
     return () => cancelAnimationFrame(frame);
   }, [flip]);
   useMotionValueEvent(flip, "change", (v) => {
-    setEntranceDone(v > 0.98);
-    setContentReady(v >= FILM_FADE_END);
+    setEntranceDone(v > HANDOFF_START + .02);
+    setContentReady(v > HANDOFF_START);
     setFilmActive(v < FILM_FADE_END);
     setJoinedFilmVisible(v <= HANDOFF_START);
   });

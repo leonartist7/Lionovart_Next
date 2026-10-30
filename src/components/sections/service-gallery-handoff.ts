@@ -10,7 +10,7 @@ export function serviceGalleryHandoff(galleryTop: number, viewport: number) {
     gather: smooth(progress / .45),
     serviceCopy: 1 - smooth(progress / .27),
     serviceRear: 1 - smooth(progress / .32),
-    title: smooth((progress - .32) / .25),
+    title: smooth((progress - .02) / .16),
     services: 1 - replace,
     gallery: replace,
     spread: smooth((progress - .72) / .28),

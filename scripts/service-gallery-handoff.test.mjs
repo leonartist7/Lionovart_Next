@@ -6,7 +6,8 @@ test('rear services clear before one identical frame transfers and opens into th
  const at = p => serviceGalleryHandoff(990 * (1 - p), 900);
  assert.ok(at(0).gather < 1e-10);
  assert.equal(at(.3).serviceCopy, 0);
- assert.equal(at(.3).title, 0);
+ assert.equal(at(.3).title, 1);
+ assert.ok(at(.1).title > 0 && at(.1).serviceCopy > 0);
  assert.equal(at(.5).gather, 1);
  assert.equal(at(.5).services, 1);
  assert.ok(at(.5).gallery < 1e-10);

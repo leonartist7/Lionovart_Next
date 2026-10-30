@@ -13,14 +13,14 @@ export function cardHandoff(top: number, height: number, viewport: number) {
     serviceSides: smooth((progress - .86) / .14),
     rear: 1 - smooth((progress - .64) / .16),
     // Read first, then clear the painted face before changing its aspect ratio.
-    // The independent sculpture carries the pillar into the filled service frame.
+    // Cream paper covers the artwork, then becomes the pale service frame.
     fit: smooth((progress - .46) / .22),
     dissolve: smooth((progress - .30) / .16),
-    focus: smooth((progress - .14) / .28),
-    sculpture: 1 - smooth((progress - .62) / .14),
+    focus: smooth((progress - .12) / .16),
+    sculpture: 1 - smooth((progress - .12) / .16),
     glass: smooth((progress - .10) / .18),
     intro: 1 - smooth((progress - .66) / .24),
-    light: smooth((progress - .82) / .18),
+    light: smooth((progress - .70) / .30),
     proof: 1 - smooth(progress / .05),
   };
 }
