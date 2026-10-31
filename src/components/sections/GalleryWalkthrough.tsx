@@ -84,7 +84,7 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
   const visibility = useTransform(progress, p => galleryCardPose(p, pair, pairs).visible ? 'visible' : 'hidden');
   return <motion.div ref={panelRef} className={styles.panel} data-gallery-panel data-gallery-index={index} data-focused={selected}
     style={{ transform, opacity, visibility, '--gallery-hover-direction': -side } as React.ComponentProps<typeof motion.div>['style']} inert={!near || !active || !readable} aria-hidden={!near || !readable}>
-    <button type="button" className={styles.project} onClick={event => { event.stopPropagation(); onSelect(work.slug); }}
+    <button type="button" className={styles.project} onClick={event => { event.stopPropagation(); event.currentTarget.focus({ preventScroll: true }); onSelect(work.slug); }}
       aria-label={`Focus work: ${work.name}`} aria-pressed={selected}>
       <HandoffDissolveFilter id={filterId} seed={index + 43} gallery />
       <motion.div className={styles.screen} data-gallery-artwork style={{ filter }}><ScreeningMedia asset={work} active={active && near && readable && mediaVisible && (selected || !dimmed && side <= 0)} label={false} /></motion.div>
@@ -319,7 +319,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
           </motion.div>
         </div> : <div className={styles.staticGrid}>
           {projects.map(work => <button type="button" key={work.slug} className={styles.staticProject} data-focused={selectedSlug === work.slug} data-dimmed={!!selectedSlug && selectedSlug !== work.slug}
-            onClick={event => { event.stopPropagation(); onSelect(work.slug); }} aria-label={`Focus work: ${work.name}`} aria-pressed={selectedSlug === work.slug}>
+            onClick={event => { event.stopPropagation(); event.currentTarget.focus({ preventScroll: true }); onSelect(work.slug); }} aria-label={`Focus work: ${work.name}`} aria-pressed={selectedSlug === work.slug}>
             <div className={styles.screen}><ScreeningMedia asset={work} active={false} label={false} /></div>
             <span className={styles.projectCaption}><WorkTags work={work} /></span>
           </button>)}
