@@ -12,7 +12,8 @@ import { serviceExhibits } from '../service-triptych';
 import { ServiceDialLight, ServiceDialOption } from '../ServiceDialMotion';
 import glass from '../ServiceGlassStage.module.css';
 import AtelierLight from './AtelierLight';
-import PinnedScene from './PinnedScene';
+import PinnedScene, { usePinnedScene } from './PinnedScene';
+import ServicePortal from './ServicePortal';
 
 type Selection = { service: string; variant: number; enabled: boolean; paused: boolean };
 const WorldContext = createContext<{ ready: boolean; stageReady: string | null; handoff: Pick<Selection, 'service' | 'variant'>; select: (selection: Selection) => void } | null>(null);
@@ -148,6 +149,7 @@ export default function ServiceWorld({ children, mediaFirst = false }: { childre
     <PinnedScene environment={<><div className={styles.environment} data-world-environment aria-hidden="true">{mediaFirst && <AtelierLight />}<div className={styles.architecture}><i /><i /><i /><i /></div></div>
     <canvas key={`${attempt}-${reduced}`} ref={canvas} className={styles.canvas} aria-hidden="true" /></>}>
     {children}
+    {mediaFirst && <ServicePortal />}
     </PinnedScene>
   </div></WorldContext.Provider>;
 }
@@ -157,6 +159,7 @@ export function WorldStageControls({ service, variant, onVariant, labels, enable
   enabled: boolean; onEnabled: () => void; paused: boolean; onPaused: () => void;
 }) {
   const { locale } = useLanguage(); const fr = locale === 'fr';
+  const scene = usePinnedScene();
   return <div className={styles.controls} data-exhibit-controls={mediaFirst} data-paused={paused} onPointerDown={e => e.stopPropagation()} onKeyDown={e => {
     e.stopPropagation();
     if (!mediaFirst || !(e.target instanceof HTMLButtonElement) || !e.target.hasAttribute('data-dial-option')) return;
@@ -168,7 +171,7 @@ export function WorldStageControls({ service, variant, onVariant, labels, enable
   }}>
     <p className={styles.hint}>{mediaFirst ? (fr ? 'Imaginons les possibilités.' : 'Imagine the possibilities.') : (fr ? 'Explorez cette expertise' : 'Explore this expertise')}</p>
     <div className={styles.tags} data-triptych-tags={mediaFirst} role="group" aria-label={fr ? 'Exemples de services' : 'Service examples'}>
-      {mediaFirst && <div className={glass.podium} data-service-podium aria-hidden="true">
+      {mediaFirst && <div className={glass.podium} data-service-podium={scene?.target ? undefined : ''} data-service-podium-anchor aria-hidden="true" style={scene?.target ? { visibility: 'hidden' } : undefined}>
         {serviceExhibits(service).map((exhibit, index) => <ServiceDialLight key={index} index={index} className={glass.reflectedLight}
           background={`${exhibit.tint}18`} />)}
         <div className={glass.rim} />

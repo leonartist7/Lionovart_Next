@@ -71,7 +71,7 @@ export default function PinnedScene({ children, environment }: { children: React
           }
         }
         if (handoff && chapter === 'work') {
-          opacity = Math.max(handoff.title, handoff.gallery) * chapterOpacity(Math.min(bounds.top, 0), bounds.bottom, innerHeight);
+          opacity = Number(handoff.progress > 0) * chapterOpacity(Math.min(bounds.top, 0), bounds.bottom, innerHeight);
           surface.style.setProperty('--gallery-arrival-media', String(handoff.gallery));
           surface.dataset.galleryEntry = handoff.progress.toFixed(3);
         }

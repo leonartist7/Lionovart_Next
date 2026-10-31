@@ -17,6 +17,7 @@
 .layers :global([data-work-scene]) { z-index: 6; }
 .layers :global([data-about-stage]) { z-index: 7; }
 .layers :global([data-shaping-message]) { position: absolute; }
+.layers :global([data-services-stage] [data-service-expertise]) { opacity: calc(var(--service-opening-expertise,1) * var(--service-gallery-copy,1)); }
 
 .layers :global([data-scene-opening] [data-nova-section=problems]) { filter: opacity(var(--handoff-proof,1)); }
 

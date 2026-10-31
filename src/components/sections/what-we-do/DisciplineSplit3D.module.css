@@ -89,8 +89,8 @@
 
 /* Filled arrival frame: painted content clears before the aspect ratio changes. */
 .dissolveDefinitions { position: absolute; pointer-events: none; overflow: hidden; }
-.handoffGlass { position:absolute; inset:0; display:grid; place-items:center; overflow:hidden; border:1px solid #fffdf6; border-radius:6px; background:#fffaf1; box-shadow:inset 0 1px 0 #fff,0 16px 40px -24px #57463045; opacity:var(--handoff-glass,0); pointer-events:none; }
-.handoffGlass > span { font:400 clamp(2.5rem,5.5vw,6rem)/1 var(--font-clash-display),sans-serif; letter-spacing:.025em; color:#d9d1c5; transform:scale(var(--handoff-word-x,1),var(--handoff-word-y,1)); }
+.handoffArtwork { position:absolute; inset:0; overflow:hidden; border-radius:6px; opacity:0; pointer-events:none; }
+.handoffArtwork img { display:block; width:100%; height:100%; object-fit:cover; }
 .floatingCarrier { position:absolute; inset:0; z-index:2; pointer-events:none; opacity:var(--handoff-sculpture,1); transform:translateY(var(--handoff-lift,0px)); }
 .floatingCarrier .floatingObject img { transform:scale(var(--handoff-word-x,1),var(--handoff-word-y,1)) rotate(calc(-1 * var(--handoff-rotate,0deg))); }
 /* The transport owns the plane after the reading interaction has ended. */

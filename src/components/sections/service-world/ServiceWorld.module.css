@@ -175,3 +175,4 @@
 }
 
 .world[data-world-mode=media] :global([data-service-error]) { margin: .5rem 0 0; color: #8e2430; font-size: .75rem; line-height: 1.4; }
+.world :global([data-service-expertise]) { margin: 0 0 .75rem; color: #8a775b; font: 400 .6875rem/1.4 var(--font-dm-sans),sans-serif; letter-spacing: .2em; text-transform: uppercase; }

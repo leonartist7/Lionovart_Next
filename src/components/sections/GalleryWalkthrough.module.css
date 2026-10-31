@@ -11,7 +11,7 @@
 .project { position: relative; display: block; width: 100%; height: 100%; padding: 0; border: 0; border-radius: .25rem; background: transparent; color: #554b3e; cursor: pointer; pointer-events: auto; }
 .screen { position: absolute; inset: 0; container-type: size; }
 .stage[data-walkthrough-pinned=true] :global([data-screening-media]) { --screen-frame-ratio: calc(1.7777777778 * var(--gallery-frame-match,0) + var(--screen-ratio,1.6) * (1 - var(--gallery-frame-match,0))); }
-.projectCaption { position: absolute; top: calc(100% + .75rem); left: .5rem; right: .5rem; display: block; text-align: left; }
+.projectCaption { position: absolute; top: calc(100% + .75rem); left: 0; right: 0; display: block; text-align: left; }
 .logo { position: absolute; left: 50%; top: var(--partnership-mark-top,32%); width: var(--partnership-mark-size,15rem); aspect-ratio: 1; pointer-events: auto; }
 .ending { position: absolute; top: var(--partnership-copy-top,60%); left: 1.5rem; right: 1.5rem; text-align: center; pointer-events: none; }
 .ending h2 { margin: 0; font: 400 clamp(2.5rem,5.8vw,6rem)/1.05 var(--font-clash-display),sans-serif; letter-spacing: -.045em; }
@@ -45,8 +45,8 @@
 }
 @media(prefers-reduced-motion:reduce), (max-height:560px) { .runway { height: auto; } }
 
-.projectTags { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0; }
-.projectTags > span { padding: .25rem .5rem; border: 1px solid #a3917540; border-radius: 999px; color: #796a57; font: 400 .75rem/1.25 var(--font-dm-sans),sans-serif; }
+.projectTags { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; }
+.projectTags > span { padding: 3px 6px; border: 1px solid #a3917540; border-radius: 999px; color: #796a57; font: 400 .75rem/1.25 var(--font-dm-sans),sans-serif; white-space: nowrap; }
 .panel[data-focused=true] { z-index: 3; }
 .staticProject { transition: opacity 200ms ease; }
 .staticProject[data-dimmed=true] { opacity: .35; }
@@ -57,16 +57,15 @@
    Only the axes/layout change; native depth travel and inline focus remain shared. */
 .verticalArrow { display: none; }
 .stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .panel { aspect-ratio: 16/12; }
-.stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .header { top: 6rem; left: 1.5rem; right: 1.5rem; flex-direction: column; align-items: center; text-align: center; gap: .75rem; }
 .stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .horizontalArrow { display: none; }
 .stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .verticalArrow { display: block; }
-.stage[data-walkthrough-pinned=true][data-gallery-compact=true] .header { top: 3.5rem; gap: .35rem; }
+.stage[data-walkthrough-pinned=true][data-gallery-compact=true] .header { gap: .35rem; }
 .stage[data-walkthrough-pinned=true][data-gallery-compact=true] .header h2 { font-size: clamp(1.5rem,4vw,2rem); }
 .stage[data-walkthrough-pinned=true][data-gallery-compact=true] .header p { font-size: .875rem; }
 .stage[data-walkthrough-pinned=true][data-gallery-compact=true] .navigation { bottom: max(2rem,env(safe-area-inset-bottom)); }
 .stage[data-walkthrough-pinned=true][data-gallery-compact=true] .projectCaption { top: calc(100% + .35rem); }
-.stage[data-walkthrough-pinned=true][data-gallery-compact=true] .projectTags { gap: .2rem; }
-.stage[data-walkthrough-pinned=true][data-gallery-compact=true] .projectTags > span { font-size: .625rem; }
+.stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .projectCaption { left: 50%; right: auto; width: var(--gallery-caption-width); transform: translateX(-50%); }
+.stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .projectTags { justify-content: center; }
 
 .stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .panel[aria-hidden=true] .projectCaption { visibility: hidden; }
 
@@ -86,8 +85,7 @@
 .stage[data-walkthrough-pinned=false] .ending { margin-top: 0; padding: 0; }
 
 /* One short approach at the end of the service handoff; never over the rows. */
-.stage[data-walkthrough-pinned=true] .header { top:auto; bottom:clamp(4rem,12svh,8rem); transform-origin:50% 100%; }
-.stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .header { top:auto; bottom:clamp(4rem,12svh,8rem); }
+.stage[data-walkthrough-pinned=true] .header { top:44%; bottom:auto; transform-origin:50% 50%; }
 .panel[aria-hidden=true] .project { pointer-events:none; }
 
 /* The hover attraction belongs to the artwork, not the scroll-owned panel. */
@@ -100,10 +98,8 @@
 @media(prefers-reduced-motion:reduce) { .project { transition:none; } }
 
 /* Architectural glass rings belong to the room, never to the controls. */
-.portalRing { position:absolute; left:50%; top:48%; width:min(76vw,110svh); aspect-ratio:1; border-radius:50%; border:1px solid #fffdf5; box-shadow:inset 0 0 0 6px #fffdf535,inset 0 0 0 7px #8b7b6118,0 0 0 1px #9e8c7324,0 0 32px #d5c9b614; pointer-events:none; }
+.portalRing { position:absolute; left:50%; top:var(--gallery-ring-top,48%); width:var(--gallery-ring-size); aspect-ratio:1; border-radius:50%; border:1px solid #fffdf5; box-shadow:inset 0 0 0 6px #fffdf535,inset 0 0 0 7px #8b7b6118,0 0 0 1px #9e8c7324,0 0 32px #d5c9b614; pointer-events:none; }
 .portalRing[data-final=true] { border-color:#bd1725; box-shadow:inset 0 0 0 5px #bd17250e,0 0 0 1px #bd172536,0 0 30px #bd172510; }
-.invitation { position:absolute; top:clamp(5rem,12svh,8rem); inset-inline:1.5rem; z-index:10; margin:0; text-align:center; pointer-events:none; color:#79674f; font:italic 400 clamp(1.25rem,2.5vw,2.5rem)/1.15 var(--font-playfair-display),Georgia,serif; }
-.stage[data-walkthrough-pinned=true] .header { bottom:clamp(7rem,18svh,12rem); }
-.stage[data-walkthrough-pinned=false] .invitation { position:relative; inset:auto; margin:0 0 3rem; }
-@media(max-width:1024px) { .portalRing { width:120vw; }.invitation { top:5rem; font-size:1.5rem; }.stage[data-walkthrough-pinned=true] .header { bottom:7rem; } }
+.header p { font-size:clamp(1.25rem,2.5vw,2.5rem); line-height:1.15; }
+.stage[data-walkthrough-pinned=true] .header h2 { max-width:18ch; }
 @media(prefers-reduced-motion:reduce) { .portalRing { display:none; } }

@@ -19,7 +19,13 @@ test('rear services clear before one identical frame transfers and opens into th
  assert.equal(at(.72).gallery,1);
  assert.equal(at(.72).spread,0);
  assert.ok(at(.85).spread>0);
- assert.equal(at(.6).title, 1);
+ assert.equal(at(.5).title, 1);
+ assert.ok(at(.6).title > 0 && at(.6).title < 1);
+ assert.equal(at(.8).title, 0);
+ assert.equal(at(.38).portalLift, 1);
+ assert.ok(at(.55).portalOpen < 1e-10);
+ assert.equal(at(.78).portalOpen, 1);
+ assert.equal(at(1).portalPass, 1);
  assert.equal(at(1).spread, 1);
  for (let p = 0; p <= 1; p += .01) assert.ok(Math.abs(at(p).services + at(p).gallery - 1) < 1e-10);
 });

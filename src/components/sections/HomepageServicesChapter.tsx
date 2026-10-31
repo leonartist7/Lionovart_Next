@@ -390,8 +390,9 @@ export default function HomepageServicesChapter() {
                 </div>}
               </div>}
 
-              <div data-service-copy className="order-2 flex min-w-0 flex-col justify-center text-center">
-                <div>
+              <div className="order-2 flex min-w-0 flex-col justify-center text-center">
+                <h2 data-service-expertise>{tr('Our expertise')}</h2>
+                <div data-service-copy>
                     <h3 className="sr-only">{activeService.title}</h3>
                     <div className={styles.serviceTitleSlot}>
                       <div className={styles.serviceTitleLayers} aria-hidden="true">

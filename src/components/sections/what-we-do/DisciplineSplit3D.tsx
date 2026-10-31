@@ -19,7 +19,6 @@ import {
 import { SPLIT_START, SPLIT_END } from "../lion-journey/motion";
 import { useLionJourney } from "../lion-journey/LionJourney";
 import TrustPlacement from "../TrustPlacement";
-import { ImagineHeading } from "../ImagineCardFace";
 import { BenefitCard } from "../PawRevealStack";
 import { IMAGINE_BENEFITS } from "../imagine-benefits";
 import { LANDSCAPE_FILM_QUERY, usesLandscapeFilm, openingFrameCenters, openingCopyPose, openingSplitGap, openingPointerTilt } from "../lion-journey/opening-layout";
@@ -192,8 +191,11 @@ function Pane({
       {/* Desktop contains the full artwork above the copy; shorter screens
           reduce the art area's height while phones keep the side-by-side art. */}
       <div aria-hidden="true" className={`opening-pane-sizing ${styles.paneSizer} pointer-events-none w-full pb-52 pt-[100%] max-[920px]:h-[var(--opening-art-size)] max-[920px]:p-0`} />
-      {/* The card’s paper becomes the next room’s pale exhibition frame. */}
-      <div className={styles.handoffGlass} data-handoff-glass data-handoff-pillar={i} aria-hidden="true"><span>{card.code}</span></div>
+      {/* The original photograph becomes the exhibit; no blank intermediate face. */}
+      <div className={styles.handoffArtwork} data-handoff-artwork aria-hidden="true">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={card.image} alt="" loading="lazy" decoding="async" />
+      </div>
       {/* The glass body rises underneath the fading, unbroken film. */}
       <motion.div
         className="absolute inset-0 z-[1] rounded-[inherit]"
@@ -418,13 +420,10 @@ export default function DisciplineSplit3D({
   const rawOpeningProgress = journey?.openingProgress ?? scrollYProgress;
   // Keep the original film choreography; reserve the final third for Imagine.
   const openingProgress = useTransform(rawOpeningProgress, p => Math.min(1, p * 1.6));
-  const captionOpacity = useTransform(openingProgress, p => openingCopyPose(p).heading);
   const trustOpacity = useTransform(openingProgress, p => openingCopyPose(p).trust);
-  const [imagineVisible, setImagineVisible] = useState(false);
   const [trustVisible, setTrustVisible] = useState(false);
   useMotionValueEvent(openingProgress, "change", p => {
     const pose = openingCopyPose(p);
-    setImagineVisible(!reduce && pose.heading > .01);
     setTrustVisible(pose.proof > .01 && pose.trust > .01);
   });
   const openingFlip = useTransform(openingProgress, [SPLIT_START, SPLIT_END], [0, 1], { clamp: true });
@@ -740,6 +739,7 @@ export default function DisciplineSplit3D({
 
   const rotateY = useTransform(() => openingPointerTilt(sx.get(), sy.get(), armed).y);
   const rotateX = useTransform(() => openingPointerTilt(sx.get(), sy.get(), armed).x);
+  const pointerTransform = useTransform(() => `rotateX(calc(${rotateX.get()}deg * var(--handoff-pointer,1))) rotateY(calc(${rotateY.get()}deg * var(--handoff-pointer,1)))`);
   const sheen = useTransform(sx, [-1, 0, 1], [0.55, 0.14, 0.55]);
   const handoffSheen = useTransform(flip, p => 0.14 * FRAME_EASE(cue(p, HANDOFF_START, HANDOFF_END)));
 
@@ -957,10 +957,10 @@ export default function DisciplineSplit3D({
           {/* Glass plane â€” tilts as one sheet so the three panes stay a single
               object. Individual feedback lives on the panes' hover lift. */}
           <motion.div
+            data-opening-pointer
             className={`opening-film-plane ${styles.pointerPlane} relative flex w-full ${isDesktop ? "flex-row" : "flex-col"}`}
             style={{
-              rotateX,
-              rotateY,
+              transform: pointerTransform,
               transformStyle: "preserve-3d",
               willChange: "transform",
             }}
@@ -1007,9 +1007,6 @@ export default function DisciplineSplit3D({
           {pinned && <motion.div ref={proofRef} className="opening-proof-stage" style={{ opacity: reduce ? 1 : proofPresence, transform: proofTransform }}>
             <div className={styles.captionStack}>
               <motion.div className={styles.captionLayer} data-opening-trust style={{ opacity: reduce ? 1 : trustOpacity }} aria-hidden={!reduce && !trustVisible} inert={!reduce && !trustVisible}><TrustPlacement slot="video" /></motion.div>
-              <motion.header data-opening-caption data-nova-section="problems" className={`${styles.captionLayer} ${styles.imagineCaption}`} style={{ opacity: reduce ? 0 : captionOpacity }} aria-hidden={reduce || !imagineVisible} inert={reduce || !imagineVisible}>
-                <div id="imagine-heading"><ImagineHeading /></div>
-              </motion.header>
             </div>
           </motion.div>}
         </motion.div>

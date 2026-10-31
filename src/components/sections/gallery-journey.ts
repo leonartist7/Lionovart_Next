@@ -26,8 +26,8 @@ export function galleryCardPose(progress: number, pair: number, pairs: number) {
   const advance = galleryTravel(progress, pairs) / GALLERY_DEPTH_STEP - pair;
   // The corridor stays populated behind the current pair. Only the nearest
   // row becomes fully legible; distant previews remain quiet and never play.
-  const preview = .18 / (1 + Math.max(0, -advance - .5) * .6);
-  const arrival = preview + (1 - preview) * smooth((advance + .85) / .7);
+  const preview = .04 / (1 + Math.max(0, -advance - .5) * .6);
+  const arrival = preview + (1 - preview) * smooth((advance + .65) / .5);
   const dissolve = smooth((advance - .86) / .36);
   const opacity = arrival * (1 - dissolve);
   return {
@@ -45,19 +45,19 @@ export function galleryCardPose(progress: number, pair: number, pairs: number) {
   };
 }
 /** Intro progress belongs to the service/gallery arrival, before row travel. */
-export function galleryTitlePose(arrival: number, travel = 0) {
+export function galleryTitlePose(arrival: number) {
   return {
     z: 0,
     y: 8 * (1 - smooth(arrival / .18)),
-    opacity: smooth((arrival - .02) / .16) * (1 - smooth((travel - .045) / .065)),
+    opacity: smooth((arrival - .02) / .13) * (1 - smooth((arrival - .55) / .23)),
   };
 }
 /** Glass thresholds pass around the viewer; the fifth carries the studio red. */
 export function galleryRingPose(progress: number, row: number, pairs: number) {
-  const advance = galleryTravel(progress, pairs) / GALLERY_DEPTH_STEP - row;
+  const card = galleryCardPose(progress, row, pairs);
   return {
-    z: Math.min(890, -950 + advance * 1700),
-    opacity: (.12 + .15 * smooth((advance + .7) / 1.1)) * (1 - smooth((advance - .78) / .3)),
+    z: card.z - 80,
+    opacity: (.06 + .22 * smooth((card.advance + .8) / .8)) * (1 - card.dissolve),
   };
 }
 export function galleryEnding(progress: number) {

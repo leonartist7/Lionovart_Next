@@ -60,14 +60,26 @@
 @keyframes screen-dissolve { from { opacity: 0; } to { opacity: 1; } }
 @media(prefers-reduced-motion:reduce) { .media { animation: none; } }
 
-.shapingMessage { position: fixed; inset: 0; z-index: 4; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 0 1.5rem clamp(1.5rem,7svh,5rem); color: #f4efe5; text-align: center; pointer-events: none; opacity: 0; visibility: hidden; }
-.shapingMessage p { margin: 0 0 1.25rem; font: 400 .625rem/1.4 var(--font-dm-sans),sans-serif; letter-spacing: .2em; text-transform: uppercase; color: #c2b49a; }
-.shapingMessage h2 { max-width: 30ch; margin: 0; font: 400 clamp(2rem,4.7vw,4.75rem)/1.06 var(--font-clash-display),sans-serif; letter-spacing: -.035em; text-wrap: balance; }
-.shapingMessage h2 .necessity { font-family: var(--font-playfair-display),Georgia,serif; font-style: italic; font-weight: 400; font-synthesis: none; color: #e5192a; line-height: 1.18; }
-.shapingMessage > span { margin-top: 1.25rem; font: 400 clamp(.8125rem,1.1vw,1rem)/1.5 var(--font-dm-sans),sans-serif; color: #bcb6ad; }
+.shapingMessage { position: fixed; inset: 0; z-index: 4; color: #f4efe5; text-align: center; pointer-events: none; visibility: hidden; }
+.brandStatement, .brandSignature { position: absolute; inset-inline: 1.25rem; bottom: clamp(1.5rem,5svh,3.5rem); }
+.brandStatement > p { margin: 0 0 .65rem; font: 400 clamp(1rem,1.6vw,1.5rem)/1.3 var(--font-clash-display),sans-serif; color: #d6cbbc; }
+.shapingMessage h2 { max-width: 30ch; margin: 0 auto; font: 400 clamp(1.75rem,3.8vw,4rem)/1.08 var(--font-clash-display),sans-serif; letter-spacing: -.035em; text-wrap: balance; }
+.shapingMessage h2 > span { display: block; }
+.shapingMessage h2 .necessity { margin-top: .2em; font-family: var(--font-playfair-display),Georgia,serif; font-style: italic; font-weight: 400; font-synthesis: none; color: #e5192a; line-height: 1.15; }
+.shapingMessage .brandSignature { margin: 0; font: 500 clamp(2.8rem,8vw,8rem)/1 var(--font-clash-display),sans-serif; letter-spacing: -.045em; color: var(--world-ink,#fffaf1); }
 .cardIntro :global(.opening-proof-stage) { filter: opacity(var(--handoff-proof,1)); }
-@media(max-width:767px) { .shapingMessage { justify-content:flex-start; padding:54svh 1.5rem 0; }.shapingMessage h2 { max-width: 16ch; }.shapingMessage p { font-size: .5625rem; margin-bottom: 1rem; } }
-@media(max-height:560px), (prefers-reduced-motion:reduce) { .shapingMessage { display: none; }.cardIntro { translate: none !important; } }
+@media(max-width:767px) {
+  .shapingMessage h2 { max-width: 19ch; font-size: clamp(1.65rem,6.8vw,2.6rem); }
+  .brandStatement { top:clamp(21rem,48svh,38rem); bottom:auto; }
+  .brandSignature { top:clamp(23rem,52svh,40rem); bottom:auto; }
+}
+@media(max-height:560px), (prefers-reduced-motion:reduce) {
+  .shapingMessage { position: relative; inset: auto; visibility: visible !important; padding: 3rem 1.25rem 4rem; background: #08080a; }
+  .shapingMessage [data-brand-beat] { opacity: 1 !important; }
+  .brandStatement, .shapingMessage .brandSignature { position: relative; inset: auto; }
+  .shapingMessage .brandSignature { margin-top: 2rem; color: #f4efe5; }
+  .cardIntro { translate: none !important; }
+}
 
 /* About follows the pinned gallery in normal document flow, including at text zoom. */
 .aboutRunway { position: relative; height: auto; scroll-margin-top: 5rem; background: var(--site-surface-light, #f7f4ef); }

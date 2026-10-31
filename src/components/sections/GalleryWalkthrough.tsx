@@ -12,7 +12,7 @@ import { usePublicCopy } from '@/hooks/usePublicCopy';
 import { ScenePortal, usePinnedScene } from './service-world/PinnedScene';
 import { prepareScreeningPosters, ScreeningMedia } from './ScreeningMedia';
 import { GALLERY_SERVICE_LABELS, type GalleryWork } from './selected-work/gallery';
-import { galleryLayout, GALLERY_ENTRY_PROJECTION } from './gallery-layout';
+import { galleryLayout, galleryRingDiameter, GALLERY_ENTRY_PROJECTION } from './gallery-layout';
 import { serviceGalleryHandoff } from './service-gallery-handoff';
 import { galleryCardPose, galleryCompanionPresence, galleryEnding, galleryPairProgress, galleryProgress, galleryTravel, galleryTitlePose, galleryRingPose, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
 import styles from './GalleryWalkthrough.module.css';
@@ -29,7 +29,7 @@ const serverCapacity = () => false;
 function WorkTags({ work }: { work: GalleryWork }) {
   const tr = usePublicCopy();
   return <span className={styles.projectTags} data-work-tags>
-    {work.services.map(id => <span key={id}>{tr(GALLERY_SERVICE_LABELS[id] ?? id)}</span>)}
+    {work.services.filter(id => id !== 'motion').map(id => <span key={id}>{tr(GALLERY_SERVICE_LABELS[id] ?? id)}</span>)}
   </span>;
 }
 
@@ -74,7 +74,7 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
     const gapCompensation = Math.max(0, z + 350) / 2000;
     const depthProjection = Math.max(1, (1000 - z) / 1000);
     const previewProjection = (1000 - z) / (1000 * GALLERY_ENTRY_PROJECTION);
-    return `translate3d(calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset) - ${preview * previewProjection} * var(--gallery-preview-inset,0px) - ${gapCompensation} * var(--gallery-center-gap,0px) + ${outward} * var(--gallery-wall-travel) + ${background * depthProjection} * var(--gallery-background-x,0px))), calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset-y) + ${outward} * var(--gallery-wall-travel-y)) + ${(pair % 2 ? -1 : 1) * spread * (1 - focus) * outward} * var(--gallery-wall-stagger) - ${background * depthProjection * spread * (1 - focus)} * var(--gallery-background-rise,0px)), ${depth}px) translate(-50%,-50%) rotateY(calc(${-side * spread * (1 - focus)} * (var(--gallery-wall-angle) + ${outward} * var(--gallery-exit-angle) + ${background} * var(--gallery-background-angle,0deg)))) scale(${size})`;
+    return `translate3d(calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset) - ${preview * previewProjection} * var(--gallery-preview-inset,0px) - ${gapCompensation} * var(--gallery-center-gap,0px) + ${outward} * var(--gallery-wall-travel) + ${background * depthProjection} * var(--gallery-background-x,0px))), calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset-y) + ${outward} * var(--gallery-wall-travel-y) + ${background * depthProjection} * var(--gallery-background-y,0px)) + ${(pair % 2 ? -1 : 1) * spread * (1 - focus) * outward} * var(--gallery-wall-stagger) - ${background * depthProjection * spread * (1 - focus)} * var(--gallery-background-rise,0px)), ${depth}px) translate(-50%,-50%) rotateY(calc(${-side * spread * (1 - focus)} * (var(--gallery-wall-angle) + ${outward} * var(--gallery-exit-angle) + ${background} * var(--gallery-background-angle,0deg)))) scale(${size})`;
   });
   const opacity = useTransform(() => {
     const pose = galleryCardPose(progress.get(), pair, pairs);
@@ -121,10 +121,11 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const [pair, setPair] = useState(0), [ending, setEnding] = useState(false), [walking, setWalking] = useState(true);
   const pairs = Math.max(1, Math.ceil(projects.length / 2));
   const pinned = !!scene?.target;
-  const titleOpacity = useTransform(() => galleryTitlePose(arrivalProgress.get(), progress.get()).opacity);
+  const sharedPortal = !!scene?.target?.closest('[data-world-mode="media"]');
+  const titleOpacity = useTransform(() => galleryTitlePose(arrivalProgress.get()).opacity);
   const titleTransform = useTransform(arrivalProgress, p => {
     const { y, z } = galleryTitlePose(p);
-    return `perspective(1000px) translate3d(0,${y}px,${z}px)`;
+    return `translateY(-50%) translate3d(0,${y}px,${z}px)`;
   });
   const logoTransform = useTransform(progress, p => `translate(-50%,-50%) translateZ(${galleryEnding(p).logoZ}px)`);
   const logoOpacity = useTransform(progress, p => galleryEnding(p).logo);
@@ -151,6 +152,8 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       if (surface && nextKey !== layoutKey) {
         layoutKey = nextKey;
         const layout = galleryLayout(innerWidth, innerHeight, document.documentElement.clientWidth);
+        surface.style.setProperty('--gallery-ring-size', `${galleryRingDiameter(layout)}px`);
+        surface.style.setProperty('--gallery-ring-top', `${innerHeight * layout.panelTop / 100 + 25}px`);
         const endingLayout = partnershipLayout(document.documentElement.clientWidth, innerHeight);
         surface.style.setProperty('--partnership-mark-size', `${endingLayout.markSize}px`);
         surface.style.setProperty('--partnership-mark-top', `${endingLayout.markCenter}px`);
@@ -163,11 +166,13 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
         surface.style.setProperty('--gallery-preview-inset', `${layout.previewInset}px`);
         surface.style.setProperty('--gallery-background-x', `${layout.backgroundX}px`);
         surface.style.setProperty('--gallery-background-rise', `${layout.backgroundRise}px`);
-        surface.style.setProperty('--gallery-background-angle', layout.vertical ? '7deg' : '0deg');
+        surface.style.setProperty('--gallery-background-y', `${layout.backgroundY}px`);
+        surface.style.setProperty('--gallery-caption-width', `${layout.captionWidth}px`);
+        surface.style.setProperty('--gallery-background-angle', '0deg');
         surface.style.setProperty('--gallery-wall-offset-y', `${layout.y}px`);
         surface.style.setProperty('--gallery-wall-travel', `${layout.exitX - layout.x}px`);
         surface.style.setProperty('--gallery-wall-travel-y', `${layout.exitY - layout.y}px`);
-        surface.style.setProperty('--gallery-wall-stagger', layout.vertical ? '0px' : '2svh');
+        surface.style.setProperty('--gallery-wall-stagger', '0px');
         surface.style.setProperty('--gallery-wall-angle', layout.vertical ? '0deg' : '4deg');
         surface.style.setProperty('--gallery-exit-angle', layout.vertical ? '0deg' : '2deg');
         surface.style.setProperty('--gallery-panel-top', `${layout.panelTop}%`);
@@ -300,14 +305,12 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       <ScenePortal><div ref={stage} className={styles.stage} data-scroll-title-skip data-dissolve-stage data-gallery-stage data-gallery-rows={pairs} data-scene-chapter="work" data-walkthrough-pinned={pinned}
         onClick={() => { if (selectedSlug) setSelectedSlug(null); }}
         onKeyDown={event => { if (event.key === 'Escape' && selectedSlug) { setSelectedSlug(null); event.stopPropagation(); } }}>
-        <motion.header className={styles.header} style={{ opacity: pinned ? titleOpacity : 1, transform: pinned ? titleTransform : 'none' }}>
-          <h2 id="selected-work-heading">{fr ? 'Nos projets sélectionnés' : 'Our selected work'}</h2>
+        <motion.header className={styles.header} data-gallery-title style={{ opacity: pinned ? titleOpacity : 1, transform: pinned ? titleTransform : 'none' }}>
+          <p>{fr ? 'Entrez dans l’univers' : 'Step inside'}</p>
+          <h2 id="selected-work-heading">{fr ? 'de nos réalisations' : 'our selected work'}</h2>
         </motion.header>
-        <motion.p className={styles.invitation} data-gallery-invitation style={{ opacity: pinned ? titleOpacity : 1 }}>
-          {fr ? 'Entrez dans notre univers.' : 'Step inside our world.'}
-        </motion.p>
         {pinned ? <div className={styles.corridor} data-gallery-corridor>
-          {Array.from({ length: pairs }, (_, row) => <GalleryRing key={row} row={row} pairs={pairs} progress={progress} />)}
+          {Array.from({ length: pairs }, (_, row) => !sharedPortal || row > 0 ? <GalleryRing key={row} row={row} pairs={pairs} progress={progress} /> : null)}
           {projects.map((work, index) => <GalleryPanel key={work.slug} work={work} index={index} pairs={pairs}
             progress={progress} entry={entry} entryScale={entryScale} solo={index === projects.length - 1 && projects.length % 2 === 1} selected={selectedSlug === work.slug} dimmed={!!selectedSlug && selectedSlug !== work.slug && Math.floor(index / 2) === pair} near={Math.floor(index / 2) === pair && !ending} active={active}
             onSelect={onSelect} />)}

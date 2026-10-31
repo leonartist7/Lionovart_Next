@@ -11,8 +11,11 @@ export function galleryLayout(viewportWidth: number, height: number, contentWidt
   const y = vertical ? Math.min(height * (compact ? .20 : .21), panelWidth * .375 + 40) : 0;
   return {
     vertical, compact, panelWidth, panelTop, centerGap: vertical ? 0 : centerGap,
-    backgroundX: vertical ? Math.min(contentWidth * .34, 240) : 0,
-    backgroundRise: height * (vertical ? .045 : .10),
+    // Preview, reading and departure share the same axis on every device.
+    backgroundX: 0,
+    backgroundY: vertical ? height * .24 : 0,
+    backgroundRise: 0,
+    captionWidth: vertical ? Math.max(1, contentWidth - 32) * .9 : panelWidth,
     previewInset,
     entryX: x - previewInset,
     x,
@@ -24,4 +27,14 @@ export function galleryLayout(viewportWidth: number, height: number, contentWidt
     // point on both axes/layouts. Match its rendered center, not its CSS top.
     gatherY: height * (.48 + (panelTop / 100 - .48) / GALLERY_ENTRY_PROJECTION),
   };
+}
+
+/** One circle encloses a pair and its captions at the close navigation stop.
+ * Compensate the ring's 80px setback so its projected edge clears the corners. */
+export function galleryRingDiameter(layout: ReturnType<typeof galleryLayout>) {
+  const depth = -350 + 1100 * (1 - Math.exp(-.26 * 1.8));
+  const x = layout.x - layout.previewInset * (1000 - depth) / 1350 - (depth + 350) / 2000 * layout.centerGap;
+  const width = layout.vertical ? Math.max(layout.panelWidth, layout.captionWidth) : 2 * x + layout.panelWidth;
+  const height = 2 * layout.y + layout.panelWidth * (layout.vertical ? .75 : 11 / 16) + 50;
+  return Math.hypot(width, height) * (1080 - depth) / (1000 - depth) + 48 * (1080 - depth) / 1000;
 }
