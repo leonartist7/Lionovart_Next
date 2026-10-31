@@ -1,6 +1,8 @@
 # One continuous pinned scene
 
 Review branch: `codex/services-world-phase1-20261019`.
+Verified runtime: `4ba2927f56a8ad04f9684c823b13844ed6a55380`.
+Review preview: https://lionovartnext-l7apg04r6-lionovart.vercel.app/
 Current implementation: 31 October 2026. This replaces the cream-card and floating-ring transitions documented in earlier revisions.
 
 ## Story and ownership

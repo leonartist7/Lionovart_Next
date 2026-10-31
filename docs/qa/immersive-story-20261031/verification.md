@@ -19,6 +19,14 @@ The PNGs and `browser-measurements.json` in this directory record the inspected 
 
 The Windows WebKit build was excluded from 3D visual judgments: a 100px fixture translated halfway toward a 1000px perspective plane still measured 100px instead of 200px. Edge provided actual perspective rendering. The browser connector disconnected during later navigation/reduced-motion scenarios; those checks must not be described as completed from that run.
 
-Local production compilation encountered an environment filesystem error creating a bracketed API-route directory under `.next`; the review deployment build is the release gate. No source error was reported by that failed local build. Physical touch hardware, device GPU performance and long-session heap behavior remain unmeasured.
+Local production compilation encountered environment filesystem errors creating directories under `.next`; the Vercel review build passed. No source error was reported by the failed local build. Physical touch hardware, device GPU performance and long-session heap behavior remain unmeasured.
 
-Deployment status and any later preview checks will be appended after the review build completes.
+## Verified deployed revision
+
+- Runtime: `4ba2927f56a8ad04f9684c823b13844ed6a55380`.
+- Preview: https://lionovartnext-l7apg04r6-lionovart.vercel.app/
+- Vercel deployment `dpl_6yDUuoqyX5HswEMuE6wrQBoCQVjo` reached READY. This is a review deployment; production was not promoted.
+- The deployed browser check caught and fixed Safari/WebKit pointer-selection focus: project activation now focuses its own button without scrolling, so Escape reaches the gallery handler.
+- All eight follow-up checks passed on this exact preview: five rows/five rings with a red final ring and no Motion tags; rapid double-next landing at z=60.575 with opacity 1; focus/Escape; native-wheel interruption; complete frame retirement at the ending; stable canvas count during the bounded idle sample; reduced-motion fallback at 390×844; and short landscape fallback at 844×390.
+- Both static fallbacks showed all ten projects, readable narrative copy, no moving portal and no horizontal overflow. No page errors were captured.
+- `preview-checks.json` contains the recorded results. These input, DOM and static-layout checks used WebKit; actual perspective visual judgments remain based on the earlier Edge captures.

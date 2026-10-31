@@ -1,0 +1,141 @@
+{
+  "base": "https://lionovartnext-l7apg04r6-lionovart.vercel.app",
+  "engine": "Windows WebKit; DOM, input and static checks only; 3D visual judgments use the earlier Edge captures",
+  "results": [
+    {
+      "check": "gallery",
+      "canvases": 8,
+      "playing": 1,
+      "rows": "5",
+      "rings": 5,
+      "red": "rgb(189, 23, 37)",
+      "overflow": false,
+      "tagRows": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "motion": false
+    },
+    {
+      "check": "rapid-next-stop",
+      "z": 60.575035,
+      "opacity": "1"
+    },
+    {
+      "check": "focus-and-escape",
+      "passed": true
+    },
+    {
+      "check": "native-scroll-interruption",
+      "passed": true
+    },
+    {
+      "check": "fully-retired-at-ending",
+      "passed": true
+    },
+    {
+      "check": "bounded-idle",
+      "before": {
+        "canvases": 8,
+        "playing": 0,
+        "rows": "5",
+        "rings": 5,
+        "red": "rgb(189, 23, 37)",
+        "overflow": false,
+        "tagRows": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "motion": false
+      },
+      "after": {
+        "canvases": 8,
+        "playing": 0,
+        "rows": "5",
+        "rings": 5,
+        "red": "rgb(189, 23, 37)",
+        "overflow": false,
+        "tagRows": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "motion": false
+      }
+    },
+    {
+      "check": "reduced",
+      "pinned": "false",
+      "portals": 0,
+      "projects": 10,
+      "statement": [
+        {
+          "text": "To lead today,",
+          "opacity": "1"
+        },
+        {
+          "text": "innovation isn’t optional.",
+          "opacity": "1"
+        },
+        {
+          "text": "It’s a necessity.",
+          "opacity": "1"
+        },
+        {
+          "text": "LIONOVART",
+          "opacity": "1"
+        }
+      ],
+      "overflow": false
+    },
+    {
+      "check": "landscape",
+      "pinned": "false",
+      "portals": 0,
+      "projects": 10,
+      "statement": [
+        {
+          "text": "To lead today,",
+          "opacity": "1"
+        },
+        {
+          "text": "innovation isn’t optional.",
+          "opacity": "1"
+        },
+        {
+          "text": "It’s a necessity.",
+          "opacity": "1"
+        },
+        {
+          "text": "LIONOVART",
+          "opacity": "1"
+        }
+      ],
+      "overflow": false
+    }
+  ],
+  "errors": []
+}
