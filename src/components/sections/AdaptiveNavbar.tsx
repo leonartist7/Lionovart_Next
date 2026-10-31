@@ -181,12 +181,6 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
       setIsPastHero(nextPastHero);
       if (nextPastHero) setExpertiseOpen(false);
     }
-
-    const nextScrolled = latest > GLASS_THRESHOLD;
-    if (nextScrolled !== isScrolledRef.current) {
-      isScrolledRef.current = nextScrolled;
-      setIsScrolled(nextScrolled);
-    }
   };
 
   const scrollToTarget = (target: string) => {
@@ -278,6 +272,18 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
     let frame = 0;
     const sample = () => {
       frame = 0;
+      // The opening wrapper also contains the film and cards. Follow the
+      // actual hero surface, including its authored fade and static fallback.
+      const hero = document.querySelector<HTMLElement>("[data-opening-hero]");
+      const heroBounds = hero?.getBoundingClientRect();
+      const heroStyle = hero ? getComputedStyle(hero) : null;
+      const heroVisible = !!heroBounds && heroBounds.bottom > 0 && heroBounds.top < innerHeight &&
+        heroStyle?.visibility !== "hidden" && Number(heroStyle?.opacity ?? 1) > .001;
+      const nextScrolled = scrollY.get() > GLASS_THRESHOLD && !heroVisible;
+      if (nextScrolled !== isScrolledRef.current) {
+        isScrolledRef.current = nextScrolled;
+        setIsScrolled(nextScrolled);
+      }
       // The opening stays white even when a cream card passes under the nav.
       // Follow the section surface, rather than individual images and cards.
       const surfaces = Array.from(document.querySelectorAll<HTMLElement>("[data-nav-surface]"));
@@ -297,8 +303,17 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sample); };
     const unsubscribe = scrollY.on("change", schedule);
     window.addEventListener("resize", schedule);
+    window.addEventListener("pageshow", schedule);
+    window.addEventListener("lionovart:splash-complete", schedule);
+    window.addEventListener("lionovart:hero-visibility", schedule);
     schedule();
-    return () => { unsubscribe(); cancelAnimationFrame(frame); window.removeEventListener("resize", schedule); };
+    return () => {
+      unsubscribe(); cancelAnimationFrame(frame);
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener("pageshow", schedule);
+      window.removeEventListener("lionovart:splash-complete", schedule);
+      window.removeEventListener("lionovart:hero-visibility", schedule);
+    };
   }, [scrollY]);
 
   const heroMode = !isPastHero;

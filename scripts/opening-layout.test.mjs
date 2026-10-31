@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {usesLandscapeFilm,openingReadingPose,openingFrameCenters,inlineBenefitReadingPose,openingDocumentTop} from '../src/components/sections/lion-journey/opening-layout.ts';
+import {openingCopyPose,openingSplitGap,openingPointerTilt,usesLandscapeFilm,openingReadingPose,openingFrameCenters,inlineBenefitReadingPose,openingDocumentTop} from '../src/components/sections/lion-journey/opening-layout.ts';
 import {chooseScrollStop} from '../src/components/experience/scroll-policy.ts';
 
 test('medium laptop/tablet and landscape phone get the horizontal film',()=>{
@@ -9,10 +9,10 @@ test('medium laptop/tablet and landscape phone get the horizontal film',()=>{
 });
 test('a tall stack does not push the film below its visible reading area',()=>{
  const pose=openingFrameCenters(520,963,88,828,122,22);
- assert.equal(pose.filmCenter,519);
- assert.equal(pose.cardCenter-963/2,232);
- assert.equal(pose.filmCenter-574/2,232);
- assert.equal(pose.filmCenter+574/2,806);
+ assert.equal(pose.filmCenter,397);
+ assert.equal(pose.cardCenter-963/2,110);
+ assert.equal(pose.filmCenter-574/2,110);
+ assert.equal(pose.filmCenter+574/2+122,806);
  const desktop=openingFrameCenters(570,519,88,920,130,8);
  assert.equal(desktop.cardCenter,desktop.filmCenter,'a fitting row retains its fixed center');
 });
@@ -47,17 +47,17 @@ test('inline benefits read one compact stack without a reset or second pass',()=
  const points=[0,840,960,1080,1240];
  assert.deepEqual(points.map(x=>inlineBenefitReadingPose(x,1000,240)).reverse(),points.reverse().map(x=>inlineBenefitReadingPose(x,1000,240)));
 });
-test('one card scene settles from film, protects reading, then leaves for partnership',()=>{
+test('one card scene protects reading and never skips the manual handoff',()=>{
  const stops=[['hero',0],['film',360],['cards',840],['partnership',1500]].map(([id,y])=>({id,y,label:id,kind:id==='partnership'?'partnership':'opening'}));
  const scene={start:0,end:1000,timelineSpan:1000,kind:'opening',inlineBenefits:true,stops};
  const choose=(y,gestureStart,direction=1,more={})=>chooseScrollStop({mode:'settle',y,gestureStart,direction,viewport:832,scenes:[{...scene,...more}],boundaries:stops});
  assert.equal(choose(520,360)?.id,'cards');
  assert.equal(choose(600,840,-1)?.id,'film');
- assert.equal(choose(900,840)?.id,'partnership');
+ assert.equal(choose(900,840),undefined,'the next chapter remains manual');
  assert.equal(choose(900,840,1,{end:1240,frontReading:{start:840,end:1080}}),undefined);
  assert.equal(choose(960,1080,-1,{end:1240,frontReading:{start:840,end:1080}}),undefined);
  assert.equal(choose(1180,900,1,{end:1240,frontReading:{start:840,end:1080}}),undefined,'a reading gesture cannot also skip to the next chapter');
- assert.equal(choose(1180,1080,1,{end:1240,frontReading:{start:840,end:1080}})?.id,'partnership');
+ assert.equal(choose(1180,1080,1,{end:1240,frontReading:{start:840,end:1080}}),undefined);
 });
 
 test('card anchors retain their document origin while the intro parent is sticky',()=>{
@@ -65,4 +65,46 @@ test('card anchors retain their document origin while the intro parent is sticky
  assert.equal(openingDocumentTop(node(120,100,100),0),120);
  assert.equal(openingDocumentTop(node(-980,-1000,-4900),5000),120);
  assert.equal(openingDocumentTop({getBoundingClientRect:()=>({top:-80}),closest:()=>null},200),120);
+});
+
+
+test('trust finishes before the invitation appears over the moving cards, in both directions', () => {
+ const points=Array.from({length:2001},(_,i)=>i/2000),poses=points.map(openingCopyPose);
+ assert.deepEqual(poses.toReversed(),points.toReversed().map(openingCopyPose));
+ assert.equal(openingCopyPose(.39).trust,1);
+ assert.equal(openingCopyPose(.47).trust,0);
+ assert.equal(openingCopyPose(.48).heading,0);
+ assert.ok(openingCopyPose(.49).heading>0,'the invitation starts at the split entrance');
+ assert.equal(openingCopyPose(.62).heading,1);
+ for(let i=0;i<points.length;i++) {
+  const p=points[i],pose=poses[i];
+  assert.equal(pose.trust*pose.heading,0);
+  if(pose.heading>0)assert.ok(p>.48,'the film has begun splitting before the invitation');
+  for(const key of Object.keys(pose)) {
+   assert.ok(pose[key]>=0 && pose[key]<=1);
+   if(i)assert.ok(Math.abs(pose[key]-poses[i-1][key])<.01);
+  }
+ }
+});
+
+test('card separation expands within the available desktop and phone widths', () => {
+ for(const [width,height] of [[320,568],[390,844],[600,900],[768,1024],[844,393],[1363,650],[1440,900],[2560,1080]]) {
+  const landscape=usesLandscapeFilm(width,height),gap=openingSplitGap(width,height,landscape);
+  assert.ok(gap>=18 && gap<=40);
+  if(landscape) {
+   const filmWidth=Math.max(1,Math.min(width*.76,1024,(height-240)*16/9));
+   assert.ok(filmWidth+gap*2<width-24,'the split leaves room for tilt and corner artwork');
+  }
+ }
+ assert.ok(openingSplitGap(1440,900,true)>1440*.014*1.7);
+});
+
+test('the shared card pointer tilt stays small, bounded and neutral when disabled', () => {
+ for(const x of [-10,-1,0,1,10,NaN])for(const y of [-10,-1,0,1,10,NaN]) {
+  const pose=openingPointerTilt(x,y,true);
+  assert.ok(Number.isFinite(pose.x) && Math.abs(pose.x)<=2.2);
+  assert.ok(Number.isFinite(pose.y) && Math.abs(pose.y)<=3.4);
+  assert.deepEqual(openingPointerTilt(x,y,false),{x:0,y:0});
+ }
+ assert.ok(openingPointerTilt(1,1,true).x<0 && openingPointerTilt(1,1,true).y>0);
 });

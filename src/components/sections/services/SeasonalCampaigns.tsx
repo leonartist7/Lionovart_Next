@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import styles from "./SeasonalCampaigns.module.css";
+import CampaignMarquee from "./CampaignMarquee";
 
 const campaigns = [
   { en: ["Festive season", "A season worth remembering.", "Gift collections, festive menus, celebrations and window displays. One creative direction, connected across every format.", "NOV — DEC 2026"], fr: ["Les fêtes", "Une saison qui marque les esprits.", "Coffrets cadeaux, menus de fête, événements et vitrines. Une direction créative cohérente sur tous vos supports.", "NOV — DÉC 2026"], word: "Celebrate", wordFr: "Célébrer", end: "2026-12-31" },
@@ -19,13 +20,7 @@ export default function SeasonalCampaigns({ compact = false }: { compact?: boole
   const campaign = campaigns[selected];
   const [label, title, description, dates] = fr ? campaign.fr : campaign.en;
 
-  if (compact) return (
-    <aside className={styles.banner} data-nav-surface="dark">
-      <div><span className={styles.eyebrow}>{fr ? "Votre prochain temps fort" : "Your next big moment"}</span>
-        <p>{fr ? "Une saison. Une idée. Votre signature." : "One season. One idea. Unmistakably you."}</p></div>
-      <Link href="/services#seasonal" className={styles.link}>{fr ? "Préparer ma campagne" : "Plan my campaign"}<span aria-hidden="true">↗</span></Link>
-    </aside>
-  );
+  if (compact) return <CampaignMarquee />;
 
   return (
     <section id="seasonal" className={styles.section} data-nav-surface="dark" aria-label={fr ? "Campagnes saisonnières" : "Seasonal campaigns"}>

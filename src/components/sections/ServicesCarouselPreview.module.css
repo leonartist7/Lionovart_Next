@@ -68,3 +68,15 @@
   .chapter:not([data-carousel-preview=true]) [data-service-media] { width: min(80vw, calc((100svh - 24rem) * 16 / 9), 64rem); }
   .chapter:not([data-carousel-preview=true]) [data-service-title] { font-size: clamp(2.125rem, 4.5vw, 3.5rem); }
 }
+
+.serviceTitleSlot { display: grid; min-height: 2.16em; max-width: min(88vw,28ch); margin: 0 auto .75rem; font: 400 clamp(2rem,3.4vw,3.6rem)/1.08 var(--font-clash-display),sans-serif; }
+.serviceTitle { grid-area: 1 / 1; align-self: center; margin: 0; }
+@media(width < 768px) { .serviceTitleSlot { max-width: 20ch; font-size: clamp(1.65rem,7vw,2.25rem); margin-bottom: .5rem; } }
+@media(max-height:740px) and (min-height:561px) { .serviceTitleSlot { font-size: clamp(1.6rem,3.4vw,2.4rem); margin-bottom: .5rem; } }
+
+/* Reserve the same two-line measure for either real Clash Display weight. */
+.serviceTitleSlot { position:relative; min-height:2.2em; }
+.serviceTitleLayers { display:grid; min-width:0; min-height:inherit; }
+.serviceTitle { overflow-wrap:anywhere; }
+.serviceTitleSwitch { position:absolute; inset:0; width:100%; min-height:44px; padding:0; border:0; background:transparent; border-radius:.25rem; cursor:pointer; }
+.serviceTitleSwitch:focus-visible { outline:2px solid #ad172b; outline-offset:4px; }

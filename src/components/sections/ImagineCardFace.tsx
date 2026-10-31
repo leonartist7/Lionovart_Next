@@ -7,7 +7,7 @@ import styles from "./what-we-do/DisciplineSplit3D.module.css";
 
 export function ImagineHeading() {
   const tr = usePublicCopy();
-  return <><h2>{tr("Your image speaks first.")}</h2><p>{tr("Let it speak well of the work behind it.")}</p></>;
+  return <h2>{tr("To lead in today’s digital era…")}</h2>;
 }
 
 export default function ImagineCardFace({ index }: { index: number }) {

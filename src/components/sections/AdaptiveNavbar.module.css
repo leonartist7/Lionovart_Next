@@ -1,14 +1,15 @@
 .shell { position: relative; width: 100%; color: #fffaf1; transition: color 220ms ease; }
 :global([data-nav-tone="light"]) .shell { color: #171412; }
 .header { position: relative; overflow: visible; }
-.glass { position: absolute; inset: 0 0 -2.5rem; pointer-events: none; background: linear-gradient(to bottom, rgb(8 8 10 / 48%), rgb(8 8 10 / 16%) 55%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); mask-image: linear-gradient(#000 0%, #000 35%, transparent 100%); -webkit-mask-image: linear-gradient(#000 0%, #000 35%, transparent 100%); }
-:global([data-nav-tone="light"]) .glass { background: linear-gradient(to bottom, rgb(250 247 241 / 72%), rgb(250 247 241 / 22%) 55%, transparent); }
+.glass { position: absolute; inset: 0 0 -2.5rem; pointer-events: none; opacity: 0; background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; mask-image: linear-gradient(#000 0%, #000 35%, transparent 100%); -webkit-mask-image: linear-gradient(#000 0%, #000 35%, transparent 100%); transition: opacity 240ms ease; }
+.shell[data-nav-glass="active"] .glass { opacity: 1; background: linear-gradient(to bottom, rgb(8 8 10 / 48%), rgb(8 8 10 / 16%) 55%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+:global([data-nav-tone="light"]) .shell[data-nav-glass="active"] .glass { background: linear-gradient(to bottom, rgb(250 247 241 / 72%), rgb(250 247 241 / 22%) 55%, transparent); }
 .wordmark { display: inline-flex; align-items: center; gap: .625rem; position: relative; z-index: 40; flex-shrink: 0; font-family: var(--font-clash-display), sans-serif; font-size: clamp(1.125rem, 2.2vw, 1.875rem); line-height: 1; font-weight: 700; letter-spacing: -.035em; color: inherit; white-space: nowrap; }
 .darkMenu { filter: brightness(0); }
 .shell :global([data-experience-sound]) { color: inherit; }
 .panelGlass { border-radius: 18px; background: rgb(255 255 255 / 94%); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 18px 42px rgb(0 0 0 / 11%); }
 .menuPanel { left: 50%; width: min(calc(100vw - 1.5rem), 760px); translate: -50% 0; }
-@media (prefers-reduced-motion: reduce) { .shell { transition: none; } .glass { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); } }
+@media (prefers-reduced-motion: reduce) { .shell, .glass { transition: none; } .shell[data-nav-glass="active"] .glass { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); } }
 
 .shell :global(button:focus-visible), .wordmark:focus-visible { outline-color: currentColor; }
 

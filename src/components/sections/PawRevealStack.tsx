@@ -28,7 +28,8 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
   const tr = usePublicCopy();
   const reduced = useHydratedReducedMotion();
   const [phase, setPhase] = useState<"closed" | "revealing" | "open" | "closing">("closed");
-  const lock = useRef(false);
+  const intent = useRef({ generation: 0, open: false });
+  const focusFrame = useRef(0);
   const trigger = useRef<HTMLButtonElement>(null);
   const cover = useAnimation();
   const paw = useAnimation();
@@ -40,10 +41,19 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
   const showBenefit = phase === "revealing" || open;
   const busy = phase === "revealing" || phase === "closing";
 
+  useEffect(() => () => {
+    intent.current.generation++;
+    cancelAnimationFrame(focusFrame.current);
+    cover.stop(); paw.stop();
+  }, [cover, paw]);
+
   const toggle = async (keyboard: boolean) => {
-    if (lock.current) return;
-    lock.current = true;
-    const opening = phase === "closed";
+    const ticket = ++intent.current.generation;
+    const opening = !intent.current.open;
+    intent.current.open = opening;
+    const current = () => intent.current.generation === ticket;
+    cancelAnimationFrame(focusFrame.current);
+    cover.stop(); paw.stop();
     const pull = `translate(8%, ${Math.max(170, (coverRef.current?.offsetHeight ?? 200) / Math.max(1, pawRef.current?.offsetHeight ?? 120) * 105)}%) rotate(5deg)`;
     setPhase(opening ? "revealing" : "closing");
     try {
@@ -52,27 +62,45 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
         paw.set({ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)" });
       } else if (opening) {
         await paw.start({ opacity: 1, transform: "translate(0, 0) rotate(0deg)", transition: { duration: PAW_TIMING.enter, ease: EASE } });
+        if (!current()) return;
         await Promise.all([
           cover.start({ transform: "translateY(105%)", transition: { duration: PAW_TIMING.pull, ease: PULL_EASE } }),
           paw.start({ transform: pull, transition: { duration: PAW_TIMING.pull, ease: PULL_EASE } }),
         ]);
+        if (!current()) return;
         paw.set({ opacity: 0 });
       } else {
-        paw.set({ opacity: 1, transform: pull });
+        paw.set(phase === "open" ? { opacity: 1, transform: pull } : { opacity: 1 });
         await Promise.all([
           cover.start({ transform: "translateY(0%)", transition: { duration: PAW_TIMING.return, ease: PULL_EASE } }),
           paw.start({ transform: "translate(0, 0) rotate(0deg)", transition: { duration: PAW_TIMING.return, ease: PULL_EASE } }),
         ]);
+        if (!current()) return;
         await paw.start({ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)", transition: { duration: PAW_TIMING.exit, ease: EASE } });
       }
-      setPhase(opening ? "open" : "closed");
-      if (keyboard) requestAnimationFrame(() => trigger.current?.focus({ preventScroll: true }));
-    } finally {
-      lock.current = false;
+    } catch {
+      if (!current()) return;
+      cover.set({ transform: opening ? "translateY(105%)" : "translateY(0%)" });
+      paw.set({ opacity: 0 });
     }
+    if (!current()) return;
+    setPhase(opening ? "open" : "closed");
+    if (keyboard) focusFrame.current = requestAnimationFrame(() => trigger.current?.focus({ preventScroll: true }));
   };
 
-  return <article className={styles.card} data-benefit-card data-integrated={integrated} data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
+  const details = <div id={panelId} role="region" aria-labelledby={panelId + "-title"} aria-hidden={!open}
+    className={`${styles.details}${integrated ? ` ${styles.integratedDetails}` : ''}`}>
+    {integrated && <h3 id={panelId + "-title"} className={styles.integratedDetailTitle}>{tr(item.detail)}</h3>}
+    <div className={styles.detailContent} data-benefit-measure="detail">
+      <ul>{item.points.map(point => <li key={point}><Check aria-hidden="true" />{tr(point)}</li>)}</ul>
+      {item.stat && <div className={styles.metric} data-benefit-stat>
+        <span className={styles.metricValue}>{item.stat.qualifier && <small>{tr(item.stat.qualifier)}</small>}{tr(item.stat.value)}<span>{item.stat.unit}</span></span>
+        <span className={styles.metricLabel}>{tr(item.stat.label)}</span>
+      </div>}
+    </div>
+  </div>;
+
+  return <article className={styles.card} data-benefit-card data-benefit-index={index} data-scroll-title-skip data-integrated={integrated} data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
     {integrated && <div className={styles.integratedArtwork} aria-hidden="true">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={artworkSource(artwork!, 800)} alt="" loading="lazy" decoding="async"
@@ -91,20 +119,11 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
         <Image src={item.artwork} alt="" width={500} height={500} sizes="(max-width: 919px) 176px, (max-width: 1600px) 16vw, 256px" />
       </div>}
       <div className={styles.detailWell}>
-        <div id={panelId} role="region" aria-labelledby={panelId + "-title"} aria-hidden={!open} className={styles.details}>
-          {integrated && <h3 id={panelId + "-title"} className={styles.integratedDetailTitle}>{tr(item.detail)}</h3>}
-          <div className={styles.detailContent} data-benefit-measure="detail">
-            <ul>{item.points.map(point => <li key={point}><Check aria-hidden="true" />{tr(point)}</li>)}</ul>
-          {item.stat && <div className={styles.metric} data-benefit-stat>
-            <span className={styles.metricValue}>{item.stat.qualifier && <small>{tr(item.stat.qualifier)}</small>}{tr(item.stat.value)}<span>{item.stat.unit}</span></span>
-            <span className={styles.metricLabel}>{tr(item.stat.label)}</span>
-          </div>}
-          </div>
-        </div>
+        {details}
         <motion.div ref={coverRef} className={styles.detailCover} animate={cover} aria-hidden={integrated ? showBenefit : true}>
           {integrated && <div className={styles.integratedCopy}>
             <p className={styles.serviceLabel}>{serviceTitle}</p>
-            <h3>{tr(item.title)}</h3>
+            <h3 data-benefit-title>{tr(item.title)}</h3>
             {accent && <p className={styles.integratedAccent}>{accent}</p>}
           </div>}
         </motion.div>
@@ -118,11 +137,12 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
         </div>
       </motion.div>
     </div>
-    <button ref={trigger} type="button" className={styles.cardToggle} aria-expanded={open || phase === "closing"} aria-controls={panelId}
-      aria-label={`${tr(open ? "Hide benefit" : "Reveal benefit")}: ${tr(item.title)}`} disabled={busy || !enabled}
+    <button ref={trigger} type="button" className={styles.cardToggle} aria-expanded={showBenefit} aria-busy={busy} aria-controls={panelId}
+      aria-label={`${tr(showBenefit ? "Hide benefit" : "Reveal benefit")}: ${tr(item.title)}`} disabled={!enabled}
+      onPointerDown={event => { if (event.isPrimary && event.button === 0) event.currentTarget.setPointerCapture(event.pointerId); }}
       onClick={event => void toggle(event.detail === 0)}>
-      <span className={styles.tapLabel}>{tr(open ? "Tap to close" : "Tap to reveal")}</span>
-      <span className={styles.toggleIcon}>{open ? <Minus aria-hidden="true" /> : <Plus aria-hidden="true" />}</span>
+      {!integrated && <span className={styles.tapLabel}>{tr(showBenefit ? "Tap to close" : "Tap to reveal")}</span>}
+      <span className={styles.toggleIcon}>{showBenefit ? <Minus aria-hidden="true" /> : <Plus aria-hidden="true" />}</span>
     </button>
   </article>;
 }
@@ -212,8 +232,7 @@ export default function PawRevealStack() {
     <span id="imagine" className={styles.anchor} aria-hidden="true" />
     <div className={styles.redChapter}>
       <header className={styles.intro}>
-        <h2 id="imagine-heading"><span>{tr("Your image speaks first.")}</span></h2>
-        <p className={styles.introBody}>{tr("Let it speak well of the work behind it.")}</p>
+        <h2 id="imagine-heading"><span>{tr("To lead in today’s digital era…")}</span></h2>
       </header>
       <div ref={gridRef} className={styles.grid} data-imagine-content>
         {BENEFITS.map((item, index) => <BenefitCard key={item.title} item={item} index={index} />)}

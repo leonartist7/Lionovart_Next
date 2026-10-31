@@ -1,172 +1,25 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import Image from "next/image";
-import { Dialog } from "@base-ui/react/dialog";
-import { ArrowLeft, ArrowRight, Play, Pause, X } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { usePublicCopy } from "@/hooks/usePublicCopy";
-import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
-import ServicesCurves from "./ServicesCurves";
 import { useWorkBrowse } from "./selected-work/WorkBrowse";
-import { GALLERY_SERVICE_LABELS, type GalleryWork } from "./selected-work/gallery";
-import styles from "./CompactWork.module.css";
+import GalleryWalkthrough from "./GalleryWalkthrough";
+import { galleryWithCarry } from "./gallery-journey";
+import { useServiceWorld } from "./service-world/ServiceWorld";
+import { serviceExhibits } from "./service-triptych";
+import { GALLERY_WORK, type GalleryWork } from "./selected-work/gallery";
 
-const subscribeSize = (notify: () => void) => {
-  const media = window.matchMedia("(min-width: 1536px)");
-  media.addEventListener("change", notify);
-  return () => media.removeEventListener("change", notify);
+const LED_WORK: GalleryWork = {
+  slug: 'transparent-led-concept', name: 'Transparent LED · display concept',
+  poster: '/images/transparent-led-concept.svg', assetId: 'transparent-led-concept',
+  industry: 'Events & Culture', styles: ['Elegant'], services: ['event-branding'],
+  fit: 'contain', status: 'concept',
 };
-const desktopSnapshot = () => window.matchMedia("(min-width: 1536px)").matches;
 
-function WorkThumbnail({ work, paused, pageVisible }: { work: GalleryWork; paused: boolean; pageVisible: boolean }) {
-  const [visible, setVisible] = useState(false);
-  const [playing, setPlaying] = useState(false);
-  const reduced = useHydratedReducedMotion();
-  const media = useRef<HTMLDivElement>(null);
-  const video = useRef<HTMLVideoElement>(null);
-  const active = visible && pageVisible && !paused && !reduced;
-  useEffect(() => {
-    const element = media.current;
-    if (!element) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
-      setVisible(entry.intersectionRatio >= .3 && !connection?.saveData);
-    }, { threshold: [0, .3] });
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
-  useEffect(() => {
-    const element = video.current;
-    if (active) void element?.play().catch(() => {});
-    else element?.pause();
-    return () => element?.pause();
-  }, [active]);
-  return <div ref={media} className={styles.media} data-work-autoplay={active && !!work.video}>
-    <Image src={work.poster} alt={work.name} fill loading="lazy"
-      sizes="(min-width: 1536px) 46vw, 92vw"
-      className={work.fit === "contain" ? styles.contain : styles.cover} />
-    {work.video && active && <video ref={video} src={work.video} poster={work.poster}
-      onPlaying={() => setPlaying(true)} onPause={() => setPlaying(false)}
-      className={styles.film} data-playing={playing} muted loop playsInline preload="metadata" aria-hidden="true" />}
-    {work.video && <span className={styles.play} aria-hidden="true"><Play /></span>}
-  </div>;
-}
-
+/** Work selection stays inside the shared room; filtering resets the local focus. */
 export default function CompactWork({ servicesCurves = false }: { servicesCurves?: boolean }) {
   const browse = useWorkBrowse();
-  return <WorkGrid key={browse.industry + "/" + browse.style} servicesCurves={servicesCurves} />;
-}
-
-function WorkGrid({ servicesCurves }: { servicesCurves: boolean }) {
-  const tr = usePublicCopy();
-  const reduced = useHydratedReducedMotion();
-  const t = useTranslations("selectedWork");
-  const browse = useWorkBrowse();
-  const wide = useSyncExternalStore(subscribeSize, desktopSnapshot, () => false);
-  const [page, setPage] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [pageVisible, setPageVisible] = useState(true);
-  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
-  const section = useRef<HTMLElement>(null);
-  const projects = browse.galleryProjects;
-  const size = wide ? 4 : 3;
-  const pages = Math.max(1, Math.ceil(projects.length / size));
-  const currentPage = Math.min(page, pages - 1);
-  const first = currentPage * size;
-  const visible = projects.slice(first, first + size);
-  const selectedIndex = projects.findIndex(work => work.slug === selectedSlug);
-  const selected = projects[selectedIndex];
-  const movePreview = (direction: number) => {
-    const next = (selectedIndex + direction + projects.length) % projects.length;
-    setSelectedSlug(projects[next].slug);
-  };
-  const movePage = (direction: number) => {
-    setPage(Math.min(pages - 1, Math.max(0, currentPage + direction)));
-    section.current?.scrollIntoView({ behavior: reduced ? "instant" : "smooth", block: "start" });
-  };
-
-  useEffect(() => {
-    const visibility = () => setPageVisible(!document.hidden);
-    document.addEventListener("visibilitychange", visibility);
-    return () => document.removeEventListener("visibilitychange", visibility);
-  }, []);
-
-  useEffect(() => {
-    if (window.location.hash !== "#selected-work") return;
-    let frame = 0;
-    const land = () => { frame = requestAnimationFrame(() => section.current?.scrollIntoView({ behavior: "instant", block: "start" })); };
-    if (document.documentElement.dataset.splashComplete === "true") land();
-    else window.addEventListener("lionovart:splash-complete", land, { once: true });
-    return () => { cancelAnimationFrame(frame); window.removeEventListener("lionovart:splash-complete", land); };
-  }, []);
-
-  return <Dialog.Root open={Boolean(selected)} onOpenChange={open => { if (!open) setSelectedSlug(null); }}>
-    <section ref={section} id="selected-work" data-gallery="compact" data-art-directed="light" data-nav-surface="light"
-      data-scroll-title-skip aria-labelledby="selected-work-heading" className={styles.section}>
-      {servicesCurves && <ServicesCurves continuation />}
-      <div className={styles.container}>
-        <header className={styles.header}>
-          <h2 id="selected-work-heading">{t("eyebrow")}</h2>
-          <div className={styles.previewControls}>
-            {!reduced && <button type="button" className={styles.iconButton} aria-label={tr(paused ? "Play previews" : "Pause previews")} aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}</button>}
-            <span className={styles.total}>{String(projects.length).padStart(2, "0")}</span>
-          </div>
-        </header>
-        <div className={styles.grid} data-work-preview-grid>
-          {visible.map(work => <article key={work.assetId} className={styles.card} data-work-card data-work-slug={work.slug}>
-            <Dialog.Trigger className={styles.cardButton} onClick={() => setSelectedSlug(work.slug)}
-              aria-label={tr("View work") + ": " + work.name}>
-              <WorkThumbnail work={work} paused={paused || !!selected} pageVisible={pageVisible} />
-              <span className={styles.caption}>
-                <span className={styles.tags}>{work.industry && <span>{tr(work.industry)}</span>}{work.services.slice(0, 3).map(id => <span key={id}>{tr(GALLERY_SERVICE_LABELS[id] ?? id)}</span>)}</span>
-                <ArrowRight aria-hidden="true" />
-              </span>
-            </Dialog.Trigger>
-          </article>)}
-        </div>
-        <div className={styles.footer}>
-          <p role="status" aria-live="polite">{first + 1}–{Math.min(first + size, projects.length)} <span>/ {projects.length}</span></p>
-          <div className={styles.pager}>
-            <button type="button" disabled={currentPage === 0} aria-label={tr("Previous works")}
-              onClick={() => movePage(-1)}><ArrowLeft aria-hidden="true" /></button>
-            <button type="button" disabled={currentPage === pages - 1} aria-label={tr("Next works")}
-              onClick={() => movePage(1)}><span>{tr("More work")}</span><ArrowRight aria-hidden="true" /></button>
-          </div>
-        </div>
-      </div>
-    </section>
-    <Dialog.Portal>
-      <Dialog.Backdrop className={styles.backdrop} />
-      <Dialog.Popup className={styles.preview} data-work-preview
-        onKeyDown={event => {
-          if (event.target instanceof Element && event.target.closest("video")) return;
-          if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
-            event.preventDefault(); movePreview(event.key === "ArrowRight" ? 1 : -1);
-          }
-        }}>
-        {selected && <>
-          <header className={styles.previewHeader}>
-            <div><Dialog.Title className={styles.previewTitle}>{selected.name}</Dialog.Title>
-              <Dialog.Description className={styles.previewDescription}>
-                {selected.services.map(id => tr(GALLERY_SERVICE_LABELS[id] ?? id)).join(" · ")}
-              </Dialog.Description>
-            </div>
-            <Dialog.Close className={styles.iconButton} aria-label={tr("Close preview")}><X aria-hidden="true" /></Dialog.Close>
-          </header>
-          <div className={styles.previewMedia}>
-            {selected.video ? <video key={selected.assetId} src={selected.video} poster={selected.poster}
-              controls muted playsInline preload="metadata" aria-label={selected.name} />
-              : <Image key={selected.assetId} src={selected.poster} alt={selected.name} fill
-                sizes="(min-width: 1600px) 1400px, 94vw" className={styles.contain} />}
-          </div>
-          <footer className={styles.previewFooter}>
-            <button type="button" className={styles.iconButton} aria-label={tr("Previous work")} onClick={() => movePreview(-1)}><ArrowLeft aria-hidden="true" /></button>
-            <span aria-live="polite">{selectedIndex + 1} / {projects.length}</span>
-            <button type="button" className={styles.iconButton} aria-label={tr("Next work")} onClick={() => movePreview(1)}><ArrowRight aria-hidden="true" /></button>
-          </footer>
-        </>}
-      </Dialog.Popup>
-    </Dialog.Portal>
-  </Dialog.Root>;
+  const world = useServiceWorld();
+  const exhibit = serviceExhibits(world?.handoff.service ?? 'branding')[world?.handoff.variant ?? 1];
+  const carry = GALLERY_WORK.find(work => work.slug === exhibit?.slug) ?? LED_WORK;
+  return <GalleryWalkthrough key={browse.industry + "/" + browse.style}
+    projects={galleryWithCarry(browse.galleryProjects, carry)} servicesCurves={servicesCurves} />;
 }

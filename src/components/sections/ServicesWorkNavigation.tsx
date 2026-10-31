@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { motion, useMotionValue, useMotionValueEvent, useTransform } from "framer-motion";
 import { Popover } from "@base-ui/react/popover";
@@ -8,9 +8,13 @@ import { ChevronDown, Check } from "lucide-react";
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useWorkBrowse, WORK_INDUSTRIES, WORK_STYLES } from "./selected-work/WorkBrowse";
 import styles from "./ServicesWorkNavigation.module.css";
+import { galleryEnding, galleryProgress } from "./gallery-journey";
+import { serviceGalleryHandoff } from "./service-gallery-handoff";
 
 const subscribeClient = () => () => {};
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
+// Temporarily park the gallery's industry/style filters; retain the service rail.
+const ENABLE_WORK_FILTERS = false;
 
 function WorkControls() {
   const tr = usePublicCopy();
@@ -51,11 +55,12 @@ function WorkControls() {
 
 /** One viewport-anchored pill bridges the services and the work beneath them. */
 export default function ServicesWorkNavigation({ services, activeIndex, onSelect }: {
-  services: readonly { id: string; number: string; short: string }[];
+  services: readonly { id: string; short: string }[];
   activeIndex: number; onSelect: (index: number) => void;
 }) {
   const tr = usePublicCopy();
   const browse = useWorkBrowse();
+  const serviceControls = useRef<HTMLDivElement>(null);
   const client = useSyncExternalStore(subscribeClient, () => true, () => false);
   const visibility = useMotionValue(0);
   const handoff = useMotionValue(0);
@@ -63,8 +68,8 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
   const [visible, setVisible] = useState(false);
   useMotionValueEvent(handoff, "change", value => setWorkMode(value >= .5));
   useMotionValueEvent(visibility, "change", value => setVisible(value > .01));
-  const serviceOpacity = useTransform(handoff, [0, .4, .5, 1], [1, 0, 0, 0]);
-  const workOpacity = useTransform(handoff, [0, .5, .7, 1], [0, 0, 1, 1]);
+  const serviceOpacity = useTransform(handoff, [0, .35, .65, 1], [1, 1, 0, 0]);
+  const workOpacity = useTransform(handoff, [0, .35, .65, 1], [0, 0, 1, 1]);
 
   useEffect(() => {
     if (!client) return;
@@ -72,14 +77,27 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
     const services = document.querySelector<HTMLElement>("[data-services-runway], [data-services-static]");
     const work = document.getElementById("selected-work");
     if (!services) return;
+    const gallery = work?.querySelector<HTMLElement>('[data-gallery-runway]');
+    const staticScene = matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)');
     const sync = () => {
       frame = 0;
       const h = window.innerHeight;
       const rect = services.getBoundingClientRect();
       const workRect = work?.getBoundingClientRect();
-      visibility.set(clamp(1 - rect.top / (h * .2)) *
-        clamp(((workRect?.bottom ?? rect.bottom) - h * .12) / (h * .15)));
-      handoff.set(workRect ? clamp((h * .75 - workRect.top) / (h * .45)) : 0);
+      const serviceVisibility = clamp(1 - rect.top / (h * .2)) * clamp(rect.bottom / (h * .2));
+      const workVisibility = workRect ? clamp((h * .8 - workRect.top) / (h * .3)) * clamp((workRect.bottom - h * .12) / (h * .15)) : 0;
+      const galleryRect = gallery?.getBoundingClientRect();
+      const ending = staticScene.matches ? document.querySelector<HTMLElement>('[data-gallery-ending]') : null;
+      const departure = staticScene.matches
+        ? ending ? clamp((ending.getBoundingClientRect().top - h * .8) / (h * .25)) : 1
+        : galleryRect ? galleryEnding(galleryProgress(galleryRect.top, galleryRect.height, h)).dock : 1;
+      const nextHandoff = workRect ? clamp((h * .75 - workRect.top) / (h * .45)) : 0;
+      // Share the title's exact departure instead of starting a later rail fade.
+      const titlePresence = !staticScene.matches && galleryRect
+        ? serviceGalleryHandoff(galleryRect.top, h).serviceCopy
+        : 1 - nextHandoff;
+      visibility.set(ENABLE_WORK_FILTERS ? Math.max(serviceVisibility, workVisibility * departure) : serviceVisibility * titlePresence);
+      handoff.set(ENABLE_WORK_FILTERS ? nextHandoff : 0);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
     const observer = new ResizeObserver(schedule);
@@ -88,6 +106,7 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
     window.addEventListener("lionovart:splash-complete", schedule);
+    staticScene.addEventListener('change', schedule);
     sync();
     return () => {
       cancelAnimationFrame(frame);
@@ -95,8 +114,15 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
       window.removeEventListener("lionovart:splash-complete", schedule);
+      staticScene.removeEventListener('change', schedule);
     };
   }, [client, browse.industry, browse.style, visibility, handoff]);
+
+  useEffect(() => {
+    const rail = serviceControls.current;
+    const selected = rail?.querySelector<HTMLElement>('[aria-pressed="true"]');
+    if (rail && selected) rail.scrollTo({ left: selected.offsetLeft - (rail.clientWidth - selected.offsetWidth) / 2, behavior: 'instant' });
+  }, [activeIndex, client]);
 
   if (!client) return null;
   return createPortal(<motion.nav className={styles.frame} data-services-work-navigation data-browse-mode={workMode ? "work" : "services"}
@@ -104,11 +130,10 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
     aria-hidden={!visible} inert={!visible}
     style={{ opacity: visibility, visibility: visible ? "visible" : "hidden" }}>
     <div className={styles.pill}>
-      <motion.div className={styles.serviceControls} style={{ opacity: serviceOpacity }} aria-hidden={workMode} inert={workMode}>
+      <motion.div ref={serviceControls} className={styles.serviceControls} style={{ opacity: serviceOpacity }} aria-hidden={workMode} inert={workMode}>
         {services.map((service, index) => <button key={service.id} type="button" className={styles.serviceButton}
           data-service-option aria-pressed={index === activeIndex} onClick={() => onSelect(index)}>
           <span className={styles.serviceLabel}>{tr(service.short)}</span>
-          <span className={styles.serviceNumber}>{service.number}</span>
         </button>)}
       </motion.div>
       <motion.div className={styles.workLayer} style={{ opacity: workOpacity }} aria-hidden={!workMode} inert={!workMode}>

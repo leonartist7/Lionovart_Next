@@ -56,6 +56,7 @@ export function LiquidMetalButton({
   >([]);
   const shaderRef = useRef<HTMLDivElement>(null);
   const shaderMount = useRef<ShaderMount | null>(null);
+  const shaderFailed = useRef(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const rippleId = useRef(0);
   const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -92,12 +93,13 @@ export function LiquidMetalButton({
     const isInView = useInView(shaderRef, { margin: "200px" });
 
   useEffect(() => {
-    if (!released || !shaderEnabled) return;
+    if (!released || !shaderEnabled || shaderFailed.current) return;
     const shaderElement = shaderRef.current;
-    const loadShader = async () => {
+    const loadShader = () => {
       try {
         if (shaderElement) {
           shaderMount.current?.dispose();
+          shaderMount.current = null;
           shaderMount.current = new ShaderMount(
             shaderElement,
             liquidMetalFragmentShader,
@@ -105,8 +107,15 @@ export function LiquidMetalButton({
             undefined,
             0.6
           );
+          shaderElement.dataset.shaderState = "ready";
         }
       } catch (error) {
+        // ShaderMount inserts its canvas before checking WebGL. A failed
+        // constructor has no instance to dispose, so remove that partial mount
+        // and keep the CSS metal fallback for this button's lifetime.
+        shaderFailed.current = true;
+        shaderElement?.querySelectorAll("canvas").forEach(canvas => canvas.remove());
+        if (shaderElement) shaderElement.dataset.shaderState = "fallback";
         console.error("Failed to load shader:", error);
       }
     };

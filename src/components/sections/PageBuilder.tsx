@@ -1,13 +1,14 @@
+import CardsServicesTransition from "./CardsServicesTransition";
+import ServiceWorld from "./service-world/ServiceWorld";
 import { HeroCompositionProvider } from "./hero-background/HeroComposition";
 import HeroBackground from "@/components/sections/hero-background/HeroBackground";
 import HeroOpening from "@/components/sections/lion-journey/HeroOpening";
 import LionJourney from "@/components/sections/lion-journey/LionJourney";
 import { WorkBrowseProvider } from "./selected-work/WorkBrowse";
 
-import CompactIntroduction from "@/components/sections/CompactIntroduction";
+import AboutScene from "./AboutScene";
 import SeasonalCampaigns from "./services/SeasonalCampaigns";
 import ServicesSwitcher from "@/components/sections/ServicesSwitcher";
-import WorkServicesTransition from "@/components/sections/WorkServicesTransition";
 import SelectedWork from "@/components/sections/SelectedWork";
 import ProcessExperience from "@/components/sections/ProcessExperience";
 import Testimonials from "@/components/sections/Testimonials";
@@ -35,19 +36,21 @@ export function PageBuilder() {
       {/* One shared runway joins the benefit cards, work and services. */}
       <div className="relative z-[2]">
         <WorkBrowseProvider>
-        <WorkServicesTransition intro={
+        <ServiceWorld mediaFirst>
+        <CardsServicesTransition>
           <HeroCompositionProvider><LionJourney>
             <HeroBackground />
             <HeroOpening />
             <span data-voice-reveal-boundary aria-hidden="true" />
           </LionJourney></HeroCompositionProvider>
-        }>
-          <NovaSection id="services"><ServicesSwitcher /></NovaSection>
-        </WorkServicesTransition>
+        </CardsServicesTransition>
+        <NovaSection id="services"><ServicesSwitcher /></NovaSection>
         <SelectedWork compact servicesCurves />
+        </ServiceWorld>
         </WorkBrowseProvider>
+        <AboutScene />
         <SeasonalCampaigns compact />
-        <NovaSection id="about"><CompactIntroduction /></NovaSection>
+
 
         {/* Personal introduction -> Brands Elevated/results -> Process. */}
         <div id="client-experience">

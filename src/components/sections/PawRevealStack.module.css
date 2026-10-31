@@ -119,7 +119,7 @@
 
 
 /* A single persistent control makes the entire card retractable. */
-.cardToggle { position: absolute; inset: 0; z-index: 5; width: 100%; display: flex; align-items: flex-end; background: transparent; padding: 1rem clamp(1.25rem, 1.75vw, 2.25rem); color: #f5e5c2; cursor: pointer; border-radius: inherit; text-align: left; }
+.cardToggle { position: absolute; inset: 0; z-index: 5; width: 100%; display: flex; align-items: flex-end; background: transparent; padding: 1rem clamp(1.25rem, 1.75vw, 2.25rem); color: #f5e5c2; cursor: pointer; border-radius: inherit; text-align: left; touch-action:pan-y; }
 .card[data-revealed=true] .cardToggle { color: var(--imagine-ink); }
 .cardToggle:focus-visible { outline: .125rem solid #ffe5a2 !important; outline-offset: -.4rem !important; }
 .card[data-revealed=true] .cardToggle:focus-visible { outline-color: #986c12 !important; }
@@ -212,3 +212,94 @@
   .card[data-integrated=true] .cardToggle { left: 0; width: 100%; }
   .card[data-integrated=true] .tapLabel { left: calc(28% + var(--benefit-inset)); }
 }
+
+/* Opening panels retain the video crop's size; no blank lower well. */
+.card[data-integrated=true] { grid-template-rows: minmax(0,1fr) 11.5rem; }
+.card[data-integrated=true] .integratedCopy { padding: 1rem var(--benefit-inset) 2.5rem; }
+.card[data-integrated=true] .integratedCopy h3 { font-size: clamp(1.125rem,1.35vw,1.5rem); font-weight: 500; }
+.card[data-integrated=true] .integratedAccent { margin-top: .6rem; font-size: .9375rem; }
+@media(width < 920px) {
+ .card[data-integrated=true] { grid-template-rows: minmax(0,1fr); grid-template-columns: 24% minmax(0,1fr); }
+ .card[data-integrated=true] .integratedCopy { padding: .875rem var(--benefit-inset) 2.5rem; }
+ .card[data-integrated=true] .integratedCopy h3 { font-size: 1.125rem; }
+ .card[data-integrated=true] .integratedAccent { font-size: .8125rem; margin-top: .45rem; }
+ .card[data-integrated=true] .tapLabel { left: calc(24% + var(--benefit-inset)); font-size: .6875rem; bottom: .65rem; }
+ .card[data-integrated=true] .serviceLabel { margin-bottom: .4rem; font-size: .625rem; }
+}
+
+@media(min-width:768px), (min-width:600px) and (min-aspect-ratio:6/5) {
+ .card[data-integrated=true] { grid-template-columns: minmax(0,1fr); grid-template-rows: minmax(0,1fr) 11.5rem; }
+ .card[data-integrated=true] .tapLabel { left: var(--benefit-inset); }
+}
+
+@media(width < 600px) and (height <= 740px) {
+ .card[data-integrated=true] .serviceLabel, .card[data-integrated=true] .integratedAccent { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+ .card[data-integrated=true] .integratedCopy { display: flex; align-items: center; height: 100%; padding-block: .5rem 2.25rem; }
+}
+
+/* Keep the original paw/cover reveal. Compact benefit content fits the
+   existing well without scrollbars; the film and panel outlines never change. */
+.card[data-integrated=true] { container: benefit-card / size; overflow: clip; }
+.card[data-integrated=true] .detailWell { container: benefit-detail / size; }
+.card[data-integrated=true] .integratedDetails {
+  position: absolute; inset: 0; z-index: 1; min-width: 0;
+  display: grid; align-content: center; gap: .875rem;
+  padding: 1.25rem var(--benefit-inset) 3rem; border-radius: inherit;
+  background: #fffaf1; overflow: clip;
+}
+.integratedDetails .integratedDetailTitle { margin: 0; }
+.integratedDetails .detailContent, .integratedDetails ul, .integratedDetails li { min-width: 0; }
+.integratedDetails .metric { grid-template-columns: minmax(0,1fr); }
+.card[data-integrated=true] .toggleIcon { right: .375rem; bottom: .25rem; }
+
+@container benefit-detail (height < 230px) {
+  .card[data-integrated=true] .integratedDetails { gap: .45rem; padding: .75rem .875rem 2rem; }
+  .integratedDetails .integratedDetailTitle { font-size: 1.125rem; }
+  .integratedDetails .detailContent { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(0,1fr); gap: .875rem; align-items: center; }
+  .card[data-integrated=true] .integratedDetails .metric { margin: 0; padding: 0 0 0 .75rem; border-top: 0; border-left: 1px solid #bba57c66; gap: .35rem; }
+  .card[data-integrated=true] .integratedDetails li { font-size: .75rem; line-height: 1.3; }
+  .integratedDetails li svg { width: .875rem; height: .875rem; margin-top: .1rem; }
+  .card[data-integrated=true] .integratedDetails .metricValue { font-size: 1.625rem; }
+  .card[data-integrated=true] .integratedDetails .metricLabel { font-size: .6875rem; }
+}
+@container benefit-detail (height < 150px) {
+  .card[data-integrated=true] .integratedDetails { padding: .5rem .75rem 1.5rem; gap: .25rem; }
+  .integratedDetails .integratedDetailTitle { font-size: .9375rem; }
+  .card[data-integrated=true] .integratedDetails ul { gap: .25rem; }
+  .card[data-integrated=true] .integratedDetails li { font-size: .6875rem; line-height: 1.2; gap: .25rem; }
+  .card[data-integrated=true] .integratedDetails .metricValue { font-size: 1.25rem; }
+  .card[data-integrated=true] .integratedDetails .metricLabel { font-size: .625rem; line-height: 1.2; }
+  .card[data-integrated=true] .integratedDetails .metricValue small { display: inline; font-size: .625rem; margin-right: .25rem; }
+}
+@media (prefers-reduced-motion: reduce) { .card[data-integrated=true] .integratedDetails { transition: none; } }
+
+/* The divided film keeps its outline; the reading area now owns half the face. */
+@media(min-width:768px), (min-width:600px) and (min-aspect-ratio:6/5) {
+ .card[data-integrated=true] { grid-template-rows: minmax(0,1fr) minmax(14rem,52%); }
+ .card[data-integrated=true] .integratedCopy { padding: 1.5rem var(--benefit-inset) 2.75rem; }
+ .card[data-integrated=true] .integratedCopy h3 { font-size: clamp(1.375rem,1rem + .75vw,2rem); line-height: 1.15; font-weight: 600; }
+ .card[data-integrated=true] .serviceLabel { font-size: clamp(.75rem,.65rem + .2vw,.9375rem); margin-bottom: .875rem; line-height: 1.4; }
+ .card[data-integrated=true] .integratedAccent { margin-top: .875rem; font-size: clamp(1rem,.85rem + .35vw,1.1875rem); line-height: 1.35; }
+}
+@media(min-width:600px) and (height <= 560px) {
+ .card[data-integrated=true] { grid-template-rows: minmax(0,1fr) 72%; }
+ .card[data-integrated=true] .integratedCopy { padding: .75rem .625rem 1.75rem; }
+ .card[data-integrated=true] .integratedCopy h3 { font-size: 1rem; }
+ .card[data-integrated=true] .serviceLabel { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+ .card[data-integrated=true] .integratedAccent { font-size: .75rem; margin-top: .375rem; }
+}
+
+/* A bounded, transform-only colour drift sits below the corner sculptures. */
+.card[data-integrated=true] { --art-light-a:#e8a020; --art-light-b:#e5192a; }
+.card[data-integrated=true][data-benefit-index="1"] { --art-light-a:#9e6df0; --art-light-b:#d6a85c; }
+.card[data-integrated=true][data-benefit-index="2"] { --art-light-a:#e5192a; --art-light-b:#efad54; }
+.integratedArtwork::after {
+ content:""; position:absolute; inset:-24%; z-index:1; pointer-events:none;
+ background:radial-gradient(ellipse at 28% 20%,var(--art-light-a),transparent 57%),radial-gradient(ellipse at 78% 68%,var(--art-light-b),transparent 62%);
+ opacity:.24; mix-blend-mode:screen; transform:translate3d(-5%,-3%,0) scale(1.06);
+ animation:opening-art-color 14s ease-in-out infinite alternate; animation-play-state:paused;
+}
+.pillarCode { z-index:2; }
+:global([data-card-color-motion=true]) .integratedArtwork::after { animation-play-state:running; will-change:transform; }
+@keyframes opening-art-color { to { transform:translate3d(6%,5%,0) scale(1.15) rotate(5deg); } }
+@media(prefers-reduced-motion:reduce) { .integratedArtwork::after { animation:none; } }
