@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DemoShell } from "@/components/portal/DemoShell";
 import { CalendarAgenda } from "@/components/portal/CalendarAgenda";
 import { CalendarMonthGrid } from "@/components/portal/CalendarMonthGrid";
+import { CalendarExportButton } from "@/components/portal/CalendarExportButton";
 import { deriveCalendarItems } from "@/lib/portal/calendar";
 import { demoProjects, resolveDemoView } from "@/lib/portal/demo-data";
 
@@ -24,9 +25,12 @@ export default async function DemoCalendarPage({
   return (
     <DemoShell view={view} path="/portal/demo/calendar">
       <div className="py-2 md:py-4">
-        <h1 className="font-heading text-foreground text-3xl leading-[1.05] font-bold tracking-[-0.025em]">
-          Calendar
-        </h1>
+        <div className="flex flex-wrap items-start justify-between gap-5">
+          <h1 className="font-heading text-foreground text-3xl leading-[1.05] font-bold tracking-[-0.025em]">
+            Calendar
+          </h1>
+          <CalendarExportButton href={`/portal/demo/calendar/export?view=${view}`} demo />
+        </div>
         <div className="mt-7">
           <div className="md:hidden">
             <CalendarAgenda items={items} workspaceSlug="demo" />
