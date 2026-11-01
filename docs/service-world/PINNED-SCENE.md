@@ -1,9 +1,9 @@
 # One continuous pinned scene
 
 Review branch: `codex/services-world-phase1-20261019`.
-Verified runtime: `4ba2927f56a8ad04f9684c823b13844ed6a55380`.
-Review preview: https://lionovartnext-l7apg04r6-lionovart.vercel.app/
-Current implementation: 31 October 2026. This replaces the cream-card and floating-ring transitions documented in earlier revisions.
+Verified runtime: `37afa7435d3be6a06733573ee06b70e2b5771491`.
+Review preview: https://lionovartnext-lnitxv841-lionovart.vercel.app/qa/story-responsive.html
+Current implementation: 1 November 2026. This replaces the cream-card and floating-ring transitions documented in earlier revisions.
 
 ## Story and ownership
 
@@ -23,12 +23,14 @@ The opening exit runway uses these cues:
 | 28–46% | Statement and intact benefit faces hold. |
 | 46–58% | Statement gives way to the studio signature. |
 | 58–68% | Original artwork fills the card faces; benefit copy clears. |
-| 68–92% | Frames fit the measured service-media geometry without flipping. Artwork counter-scales uniformly inside its crop. |
-| 76–96% | The same three frames crossfade into the compact service trio. |
+| 68–84% | Frames fit the measured service-media geometry without flipping. Artwork counter-scales uniformly inside its crop. |
+| 84–96% | The aligned, stationary frames crossfade into the compact service trio. |
 | 76–86% | “Our expertise” introduces the service chapter. |
 | 86–100% | Service heading, description and controls enter. |
 
 The surrounding room brightens from 54–92%. No blank cream face or empty transparent intermediate card is introduced. Corner sculptures fade from their own corners early in the transition and cannot cover the statement. Desktop cards retain enough separation to read their copy; the actual service targets already put both rear cards at the same raised level.
+
+Landscape opening-film sizing reserves the larger of the trust block and the measured statement area, with a REM-based gap. These beats do not coexist, so their reserves are not added together. The statement is observed for font, locale and text-size changes; no new narrative measurement runs on scroll. The service chapter becomes visible for the expertise heading before its media crossfade, while its controls retain their later interaction gate.
 
 Paw controls remain enabled from the existing early content-ready gate through the visible reading face. The moving wrapper does not intercept button hits. Pointer tilt persists through the hold and eases out during the late fit. A source face becomes inert only when its artwork replacement is complete; the opening scene becomes inert only once its crossfade is complete. Keyboard and reduced-motion behavior remain in `PawRevealStack`.
 
@@ -57,5 +59,7 @@ Project labels omit the presentation-only “Motion” tag. The wider caption ar
 Reduced motion and heights at or below 560px use normal document flow, static project lists and readable narrative copy. The shared portal is not mounted. Scroll handlers are RAF-batched; the portal has no idle loop. Listeners and observers are released on cleanup. Existing media eligibility still allows only the current selected/leading work to play.
 
 Measured content-fit can select the same fallback at other dimensions. The opening releases its pinned runway and absolute layers, presenting its source-aspect film and three original benefit cards in normal reading order. Both card faces reserve natural content height, including enlarged French text; native film controls and the existing paw/keyboard reveal remain available. See [the Phase 1 composition checkpoint](../qa/story-composition-20261101/README.md).
+
+See [the Phase 2 narrative checkpoint](../qa/story-narrative-20261101/README.md) for statement clearance and media-transfer verification.
 
 See [the dated verification record](../qa/immersive-story-20261031/verification.md) for completed checks and limitations. Older screenshots and transition descriptions are historical evidence, not the current design contract.
