@@ -1,9 +1,9 @@
 # One continuous pinned scene
 
 Review branch: `codex/services-world-phase1-20261019`.
-Verified runtime: `dee72434196ad29bcceea189b1e4c58ae9b7d973`.
-Review preview: https://lionovartnext-hql0qxrck-lionovart.vercel.app/qa/story-responsive.html
-Current implementation: 1 November 2026. This replaces the cream-card and floating-ring transitions documented in earlier revisions.
+Verified runtime: `847244bcddc9653641bc32a3c7373922bad2bde5`.
+Review preview: https://lionovartnext-qazzp0psk-lionovart.vercel.app/qa/story-responsive.html
+Current implementation: 2 November 2026. This replaces the cream-card and floating-ring transitions documented in earlier revisions.
 
 ## Story and ownership
 
@@ -48,9 +48,9 @@ The carried artwork transfers owners while stationary from 56–72%; the project
 
 `galleryWithCarry` supplies ten unique projects in five pairs. Widths over 1024px retain horizontal left/right pairs. Phones and tablets use one centered X axis, with approach, hold and departure along the vertical axis. Desktop wall staggering is zero.
 
-Every ring stays 80px behind its pair. `galleryRingDiameter` accounts for both artworks, captions, perspective and padding at the close navigation stop. The fifth world uses studio red. The studio mark remains hidden until the partnership ending.
+Every ring stays 80px behind its pair. The current ring holds near .18 opacity, the upcoming ring near .06, and farther rings fall away. Caption reserve and ring centering scale in REM. `galleryRingDiameter` accounts for both artworks, captions, perspective and padding at the close navigation stop. The fifth world uses studio red. The studio mark remains hidden until the partnership ending.
 
-Arrow navigation stops at row advance 0.26, approximately z=61px. Retargeting keeps the existing navigation controller and velocity-aware easing. Clicking a project brings it into focus; Escape restores the pair. Wheel, touch and keyboard interruption remain supported by the controller.
+Arrow navigation stops at row advance 0.26, approximately z=61px. Retargeting keeps the existing navigation controller and velocity-aware easing. Clicking a project brings it into focus; Escape restores the pair. A cached focus-depth limit fits the complete frame and measured captions between navigation and controls, even if selected late in its approach. The existing focus spring stays at stiffness 180, damping 30, mass 1. Caption ResizeObservers refresh this limit on typography/content changes, not on animation frames. Wheel, touch and keyboard interruption remain supported by the controller.
 
 Erosion starts at advance 0.86 after the enlarged cards pass substantially beyond the viewport. It spans 0.36 row units and finishes at 1.22. Captions and hit targets retire before the frame finishes dissolving. Poster-only and save-data fallbacks use opacity without the shader. Distant previews remain deliberately faint to keep metadata legible.
 
@@ -64,4 +64,4 @@ Measured content-fit can select the same fallback at other dimensions. The openi
 
 See [the Phase 2 narrative checkpoint](../qa/story-narrative-20261101/README.md) for statement clearance and media-transfer verification.
 
-See [the dated verification record](../qa/immersive-story-20261031/verification.md) for completed checks and limitations. Older screenshots and transition descriptions are historical evidence, not the current design contract.
+See [the dated verification record](../qa/immersive-story-20261031/verification.md) for completed checks and limitations. See [the Phase 4 worlds checkpoint](../qa/story-worlds-20261102/README.md) for focus fit, five-world traversal, ring hierarchy and ending verification. Older screenshots and transition descriptions are historical evidence, not the current design contract.
