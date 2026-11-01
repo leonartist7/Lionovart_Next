@@ -2,11 +2,10 @@
 
 import { useEffect, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { galleryTitlePose } from '../gallery-journey';
 import { ScenePortal, usePinnedScene } from './PinnedScene';
 import { cardHandoff } from '../card-handoff';
 import { galleryLayout, galleryRingDiameter } from '../gallery-layout';
-import { galleryProgress, galleryRingPose } from '../gallery-journey';
+import { galleryProgress, galleryRingPose, galleryTitlePose } from '../gallery-journey';
 import { serviceGalleryHandoff } from '../service-gallery-handoff';
 import styles from './ServicePortal.module.css';
 
@@ -81,7 +80,7 @@ export default function ServicePortal() {
     };
   }, [scene?.target]);
   if (!scene?.target) return null;
-  return <ScenePortal><div className={styles.space} data-service-portal>
+  return <ScenePortal><div className={styles.space} data-service-portal data-scroll-title-skip>
     <div ref={ring} className={styles.carrier} data-service-podium aria-hidden="true">
       <div ref={face} className={styles.ring} data-gallery-ring="0">
         <div ref={fill} className={styles.fill} />
