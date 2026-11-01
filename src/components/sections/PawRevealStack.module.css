@@ -306,9 +306,9 @@
 
 
 /* Text determines fallback card height; both cover and revealed copy reserve space. */
-.card[data-integrated=true][data-flow=true] { container-type: normal; height: auto; grid-template-columns: minmax(0,1fr); grid-template-rows: auto auto; border-radius: 1rem; }
+.card[data-integrated=true][data-flow=true] { container-type: normal; height: auto; margin: 0; grid-template-columns: minmax(0,1fr); grid-template-rows: auto auto; border-radius: 1rem; overflow-wrap: anywhere; }
 .card[data-flow=true] .integratedArtwork { aspect-ratio: 16 / 9; }
-.card[data-flow=true] .detailWell { container-type: normal; min-height: 18rem; }
+.card[data-flow=true] .detailWell { container-type: normal; min-width: 0; grid-template-columns: minmax(0,1fr); min-height: 18rem; }
 .card[data-integrated=true][data-flow=true] .integratedDetails { position: relative; inset: auto; align-content: start; padding: 1.25rem var(--benefit-inset) 3.5rem; }
 .card[data-flow=true] .detailCover { align-self: stretch; }
 .card[data-integrated=true][data-flow=true] .integratedCopy { display: block; height: auto; padding: 1.25rem var(--benefit-inset) 3.5rem; }
