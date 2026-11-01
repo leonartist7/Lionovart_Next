@@ -39,7 +39,7 @@ export function galleryLayout(viewportWidth: number, height: number, contentWidt
   const center = Math.max(minimumCenter, Math.min(height * (compact ? .40 : .43), maximumCenter));
   const panelTop = vertical ? center / Math.max(1, height) * 100 : 40;
   return {
-    vertical, compact, panelWidth, panelTop, centerGap: vertical ? 0 : centerGap,
+    vertical, compact, panelWidth, panelTop, captionAllowance, captionGap: .75 * rem, centerGap: vertical ? 0 : centerGap,
     // Preview, reading and departure share the same axis on every device.
     backgroundX: 0,
     backgroundY: vertical ? height * .24 : 0,
@@ -64,6 +64,27 @@ export function galleryRingDiameter(layout: ReturnType<typeof galleryLayout>) {
   const depth = -350 + 1100 * (1 - Math.exp(-.26 * 1.8));
   const x = layout.x - layout.previewInset * (1000 - depth) / 1350 - (depth + 350) / 2000 * layout.centerGap;
   const width = layout.vertical ? Math.max(layout.panelWidth, layout.captionWidth) : 2 * x + layout.panelWidth;
-  const height = 2 * layout.y + layout.panelWidth * (layout.vertical ? .75 : 11 / 16) + 50;
+  const height = 2 * layout.y + layout.panelWidth * (layout.vertical ? .75 : 11 / 16) + layout.captionAllowance + layout.captionGap;
   return Math.hypot(width, height) * (1080 - depth) / (1000 - depth) + 48 * (1080 - depth) / 1000;
+}
+
+/** The ring center includes the caption lane below each artwork. */
+export const galleryRingCenterOffset = (layout: ReturnType<typeof galleryLayout>) =>
+  (layout.captionAllowance + layout.captionGap) / 2;
+
+/** Focus keeps the complete artwork and caption inside the reading viewport.
+ * Cache this limit when layout/type changes; scroll and spring frames only interpolate. */
+export function galleryFocusDepth(layout: ReturnType<typeof galleryLayout>, width: number, height: number,
+  rem: number, captionHeight = layout.captionAllowance, captionWidth = layout.captionWidth) {
+  const halfHeight = layout.panelWidth * (layout.vertical ? .75 : 11 / 16) / 2;
+  const vanishingY = height * .48;
+  const offsetY = height * layout.panelTop / 100 - vanishingY;
+  const topReach = halfHeight - offsetY;
+  const bottomReach = halfHeight + offsetY + layout.captionGap + captionHeight;
+  const projection = Math.max(.1, Math.min(
+    (width - 2 * rem) / Math.max(layout.panelWidth, captionWidth),
+    (vanishingY - 5.25 * rem) / Math.max(1, topReach),
+    (height - 5.75 * rem - vanishingY) / Math.max(1, bottomReach),
+  ));
+  return Math.min(750, 1000 - 1000 / projection);
 }

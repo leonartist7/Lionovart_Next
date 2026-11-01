@@ -7,3 +7,5 @@
 .invitation h2 { margin:0; max-width:18ch; font:400 var(--story-invitation,2rem)/1.2 var(--font-clash-display),sans-serif; letter-spacing:-.04em; }
 .invitation p { margin:0; color:#88765d; font:italic 400 clamp(1.25rem,1rem + 1vw,2.5rem)/1.15 var(--font-playfair-display),Georgia,serif; }
 @media(max-width:767px) { .invitation { left:1.5rem; right:1.5rem; } }
+
+.ring[data-final=true] { border-color:#bd1725; box-shadow:inset 0 0 0 5px #bd17250e,0 0 0 1px #bd172536,0 0 30px #bd172510; }

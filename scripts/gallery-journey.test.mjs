@@ -1,5 +1,5 @@
 import test from 'node:test';
-import { galleryLayout, galleryRingDiameter, GALLERY_ENTRY_PROJECTION } from '../src/components/sections/gallery-layout.ts';
+import { galleryLayout, galleryRingDiameter, galleryRingCenterOffset, galleryFocusDepth, GALLERY_ENTRY_PROJECTION } from '../src/components/sections/gallery-layout.ts';
 import assert from 'node:assert/strict';
 import { galleryWithCarry, galleryCompanionPresence, galleryProgress, galleryTravel, galleryCardPose, galleryEnding, galleryTitlePose, galleryRingPose, galleryPairProgress, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase } from '../src/components/sections/gallery-journey.ts';
 
@@ -334,5 +334,38 @@ test('each world stays attached to its row and surrounds its reading frame and c
   const ringDiameter=galleryRingDiameter(layout)*1000/(1000-ring.z);
   const left=bounds(width,height,layout,card,-1,2),right=bounds(width,height,layout,card,1,2);
   assert.ok(ringDiameter>Math.hypot(right.right-left.left,right.bottom-left.top),'ring clears pair corners');
+ }
+});
+
+
+test('focused approaching artwork and captions fit the reading viewport at both axes and text sizes', () => {
+ for(const [width,height] of [[390,844],[768,1024],[1024,768],[1280,720],[1440,900],[1920,1080]]) {
+  for(const rem of [16,20,24]) {
+   const content=width-15,layout=galleryLayout(width,height,content,rem);
+   const captionHeight=3.25*rem,captionWidth=layout.captionWidth;
+   const limit=galleryFocusDepth(layout,content,height,rem,captionHeight,captionWidth);
+   for(const approachingDepth of [61,100,350,478,650]) {
+    const z=Math.min(limit,Math.max(100,approachingDepth)),projection=1000/(1000-z);
+    const half=layout.panelWidth*(layout.vertical?.75:11/16)/2;
+    const center=height*.48+(height*layout.panelTop/100-height*.48)*projection;
+    assert.ok(Math.max(layout.panelWidth,captionWidth)*projection<=content-2*rem+1e-8);
+    assert.ok(center-half*projection>=5.25*rem-1e-8);
+    assert.ok(center+(half+layout.captionGap+captionHeight)*projection<=height-5.75*rem+1e-8);
+    assert.ok(Number.isFinite(z)&&z<1000);
+   }
+  }
+ }
+});
+
+test('ring framing follows REM caption reserve and distant worlds remain quiet', () => {
+ const ordinary=galleryLayout(1440,900,1425,16),enlarged=galleryLayout(1440,900,1425,24);
+ assert.equal(galleryRingCenterOffset(ordinary),32);
+ assert.equal(galleryRingCenterOffset(enlarged),48);
+ assert.ok(galleryRingDiameter(enlarged)>galleryRingDiameter(ordinary));
+ for(let row=0;row<5;row++) {
+  const p=galleryPairProgress(row,5);
+  assert.ok(Math.abs(galleryRingPose(p,row,5).opacity-.18)<1e-10);
+  if(row<4)assert.ok(galleryRingPose(p,row+1,5).opacity<=.065);
+  if(row<3)assert.ok(galleryRingPose(p,row+2,5).opacity<.005);
  }
 });

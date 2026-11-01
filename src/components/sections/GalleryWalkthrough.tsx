@@ -12,7 +12,7 @@ import { usePublicCopy } from '@/hooks/usePublicCopy';
 import { ScenePortal, usePinnedScene } from './service-world/PinnedScene';
 import { prepareScreeningPosters, ScreeningMedia } from './ScreeningMedia';
 import { GALLERY_SERVICE_LABELS, type GalleryWork } from './selected-work/gallery';
-import { galleryLayout, galleryRingDiameter, GALLERY_ENTRY_PROJECTION } from './gallery-layout';
+import { galleryLayout, galleryRingDiameter, galleryRingCenterOffset, galleryFocusDepth, GALLERY_ENTRY_PROJECTION } from './gallery-layout';
 import { serviceGalleryHandoff } from './service-gallery-handoff';
 import { galleryCardPose, galleryCompanionPresence, galleryEnding, galleryPairProgress, galleryProgress, galleryTravel, galleryTitlePose, galleryRingPose, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
 import styles from './GalleryWalkthrough.module.css';
@@ -33,8 +33,8 @@ function WorkTags({ work }: { work: GalleryWork }) {
   </span>;
 }
 
-function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, active, selected, dimmed, solo, onSelect }: {
-  work: GalleryWork; index: number; pairs: number; progress: MotionValue<number>; entry: MotionValue<number>; entryScale: MotionValue<number>;
+function GalleryPanel({ work, index, pairs, progress, entry, entryScale, focusDepth, near, active, selected, dimmed, solo, onSelect }: {
+  work: GalleryWork; index: number; pairs: number; progress: MotionValue<number>; entry: MotionValue<number>; entryScale: MotionValue<number>; focusDepth: MotionValue<number>;
   near: boolean; active: boolean; selected: boolean; dimmed: boolean; solo: boolean; onSelect: (slug: string) => void;
 }) {
   const pair = Math.floor(index / 2), side = solo ? 0 : index % 2 ? 1 : -1;
@@ -69,7 +69,7 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
     const spread = entry.get(), focus = reduce ? 0 : focusSpring.get();
     const { z, outward, background, preview } = galleryCardPose(progress.get(), pair, pairs);
     const baseZ = -350 - index * 18 * (1 - spread) + (z + 350) * spread;
-    const depth = baseZ + (Math.max(100, baseZ) - baseZ) * focus;
+    const depth = baseZ + (Math.min(focusDepth.get(), Math.max(100, baseZ)) - baseZ) * focus;
     const size = 1 + (entryScale.get() - 1) * (1 - spread);
     const gapCompensation = Math.max(0, z + 350) / 2000;
     const depthProjection = Math.max(1, (1000 - z) / 1000);
@@ -111,6 +111,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const tr = usePublicCopy();
   const { runway, stage, active } = useDissolveStage();
   const progress = useMotionValue(0);
+  const focusDepth = useMotionValue(100);
   const entry = useMotionValue(0), arrivalProgress = useMotionValue(0), entryScale = useMotionValue(1);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const currentPair = useRef(0);
@@ -154,8 +155,12 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       if (surface && nextKey !== layoutKey) {
         layoutKey = nextKey;
         const layout = galleryLayout(innerWidth, innerHeight, document.documentElement.clientWidth, rem);
+        const captions = [...surface.querySelectorAll<HTMLElement>('[data-work-tags]')];
+        const captionHeight = Math.max(layout.captionAllowance, ...captions.map(node => node.offsetHeight));
+        const captionWidth = Math.max(layout.panelWidth, ...captions.map(node => node.offsetWidth));
+        focusDepth.set(galleryFocusDepth(layout, document.documentElement.clientWidth, innerHeight, rem, captionHeight, captionWidth));
         surface.style.setProperty('--gallery-ring-size', `${galleryRingDiameter(layout)}px`);
-        surface.style.setProperty('--gallery-ring-top', `${innerHeight * layout.panelTop / 100 + 25}px`);
+        surface.style.setProperty('--gallery-ring-top', `${innerHeight * layout.panelTop / 100 + galleryRingCenterOffset(layout)}px`);
         const endingLayout = partnershipLayout(document.documentElement.clientWidth, innerHeight);
         surface.style.setProperty('--partnership-mark-size', `${endingLayout.markSize}px`);
         surface.style.setProperty('--partnership-mark-top', `${endingLayout.markCenter}px`);
@@ -198,11 +203,12 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     const observer = new ResizeObserver(schedule); observer.observe(anchor);
     // Media metadata and service replacement can change the fitted width after
     // the scroll frame. Keep the entry match current even while the reader rests.
-    const geometry = new ResizeObserver(schedule);
+    const geometry = new ResizeObserver(() => { layoutKey = ''; schedule(); });
     let measured: Element[] = [];
     const refresh = () => {
       const next = [scene?.target?.querySelector('[data-services-stage] [data-position=center] [data-screening-media]'),
-        stage.current?.querySelector('[data-gallery-index="0"] [data-screening-media]')].filter((node): node is Element => !!node);
+        stage.current?.querySelector('[data-gallery-index="0"] [data-screening-media]'),
+        ...(stage.current?.querySelectorAll('[data-work-tags]') ?? [])].filter((node): node is Element => !!node);
       if (next.length === measured.length && next.every((node, index) => node === measured[index])) return;
       geometry.disconnect(); measured = next; measured.forEach(node => geometry.observe(node)); schedule();
     };
@@ -212,7 +218,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     window.addEventListener('scroll', schedule, { passive: true }); window.addEventListener('resize', schedule);
     sync();
     return () => { cancelAnimationFrame(frame); observer.disconnect(); geometry.disconnect(); replacements.disconnect(); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); };
-  }, [pinned, progress, entry, entryScale, arrivalProgress, runway, scene?.target, stage]);
+  }, [pinned, progress, entry, entryScale, focusDepth, arrivalProgress, runway, scene?.target, stage]);
 
   // Snapshot the reading identity before the shared scene changes DOM owners.
   useEffect(() => {
@@ -342,7 +348,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
         {pinned ? <div className={styles.corridor} data-gallery-corridor>
           {Array.from({ length: pairs }, (_, row) => !sharedPortal || row > 0 ? <GalleryRing key={row} row={row} pairs={pairs} progress={progress} /> : null)}
           {projects.map((work, index) => <GalleryPanel key={work.slug} work={work} index={index} pairs={pairs}
-            progress={progress} entry={entry} entryScale={entryScale} solo={index === projects.length - 1 && projects.length % 2 === 1} selected={selectedSlug === work.slug} dimmed={!!selectedSlug && selectedSlug !== work.slug && Math.floor(index / 2) === pair} near={Math.floor(index / 2) === pair && !ending} active={active}
+            progress={progress} entry={entry} entryScale={entryScale} focusDepth={focusDepth} solo={index === projects.length - 1 && projects.length % 2 === 1} selected={selectedSlug === work.slug} dimmed={!!selectedSlug && selectedSlug !== work.slug && Math.floor(index / 2) === pair} near={Math.floor(index / 2) === pair && !ending} active={active}
             onSelect={onSelect} />)}
           <motion.div className={styles.logo} data-gallery-logo style={{ transform: logoTransform, opacity: logoOpacity, pointerEvents: ending ? 'auto' : 'none', '--partnership-ring': ringOpacity } as unknown as React.ComponentProps<typeof motion.div>['style']}>
             <PartnershipMark active={active && ending} ready={ending} />

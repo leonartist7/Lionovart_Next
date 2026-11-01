@@ -57,7 +57,7 @@ export function galleryRingPose(progress: number, row: number, pairs: number) {
   const card = galleryCardPose(progress, row, pairs);
   return {
     z: card.z - 80,
-    opacity: (.06 + .22 * smooth((card.advance + .8) / .8)) * (1 - card.dissolve),
+    opacity: (.06 + .12 * smooth((card.advance + .8) / .8)) * smooth((card.advance + 1.8) / .8) * (1 - card.dissolve),
   };
 }
 export function galleryEnding(progress: number) {

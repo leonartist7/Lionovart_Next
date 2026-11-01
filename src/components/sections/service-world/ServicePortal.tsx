@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ScenePortal, usePinnedScene } from './PinnedScene';
 import { cardHandoff } from '../card-handoff';
-import { galleryLayout, galleryRingDiameter } from '../gallery-layout';
+import { galleryLayout, galleryRingDiameter, galleryRingCenterOffset } from '../gallery-layout';
 import { galleryProgress, galleryRingPose, galleryTitlePose } from '../gallery-journey';
 import { serviceGalleryHandoff } from '../service-gallery-handoff';
 import styles from './ServicePortal.module.css';
@@ -39,7 +39,7 @@ export default function ServicePortal() {
       const lift = handoff.podiumLift, pass = handoff.portalPass;
       const door = Math.min(w * .84, h * .70);
       const x = mix(anchor.x + anchor.width / 2, w / 2, lift);
-      const y = mix(mix(anchor.y + anchor.height / 2, h * .44, lift), h * layout.panelTop / 100 + 25, pass);
+      const y = mix(mix(anchor.y + anchor.height / 2, h * .44, lift), h * layout.panelTop / 100 + galleryRingCenterOffset(layout), pass);
       const size = mix(mix(anchor.width, door, lift), diameter, pass);
       const angle = Math.acos(Math.min(1, anchor.height / Math.max(1, anchor.width))) * 180 / Math.PI * (1 - handoff.podiumFace);
       const opacity = mix(mix(.62 * opening, 1, lift), pose.opacity, pass);
@@ -49,7 +49,10 @@ export default function ServicePortal() {
       node.style.transform = `translate3d(${x}px,${y}px,${pose.z * pass}px) translate(-50%,-50%) scale(${size / diameter})`;
       // Flatten the face inside its carrier before corridor perspective is applied.
       // Otherwise a nearly horizontal disc projects far beyond its measured anchor.
-      if (face.current) face.current.style.transform = `rotateX(${angle}deg)`;
+      if (face.current) {
+        face.current.style.transform = `rotateX(${angle}deg)`;
+        face.current.dataset.final = String(pairs === 1);
+      }
       node.style.opacity = String(opacity);
       node.style.visibility = opacity > .001 ? 'visible' : 'hidden';
       node.dataset.portalProgress = handoff.progress.toFixed(3);
