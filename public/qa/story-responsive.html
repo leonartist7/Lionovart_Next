@@ -45,7 +45,7 @@
     let top=win.scrollY+el.getBoundingClientRect().top;
     if(key==='statement') {if(pinned)top+=el.offsetHeight*.35;else {el=doc.querySelector('[data-shaping-message]');top=win.scrollY+el.getBoundingClientRect().top}}
     if(key==='services'&&pinned)top+=win.innerHeight*.2;
-    if(key==='gallery'&&pinned)top+=(el.offsetHeight-win.innerHeight*.85)*.072;
+    if(key==='gallery'&&pinned)top+=(el.offsetHeight-win.innerHeight*.85)*.04979601489843844;
     if(key==='partnership') {if(pinned)top+=(el.offsetHeight-win.innerHeight*.85)*.94;else {el=doc.querySelector('[data-partnership-static-mark]');top=win.scrollY+el.getBoundingClientRect().top}}
     win.scrollTo({top,behavior:'instant'});measure();
   }

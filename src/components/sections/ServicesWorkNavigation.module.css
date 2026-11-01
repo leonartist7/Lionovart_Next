@@ -123,3 +123,11 @@
  .serviceControls { overflow: visible; }
  .serviceButton { flex: 1; min-width: 0; padding-inline: .15rem; font-size: .625rem; }
 }
+
+
+/* In the shared reading fallback, controls belong to the document and can wrap. */
+.frame[data-static=true] { position: relative; inset: auto; transform: none; width: min(48rem, calc(100% - 2rem)); max-width: 100%; margin: 2rem auto; }
+.frame[data-static=true] .pill { height: auto; border-radius: 1.5rem; padding: .5rem; }
+.frame[data-static=true] .serviceControls { position: relative; inset: auto; flex-wrap: wrap; gap: .5rem; overflow: visible; }
+.frame[data-static=true] .serviceButton { flex: 1 1 6rem; min-width: 0; min-height: 2.75rem; padding: .5em .75em; font-size: .75rem; line-height: 1.4; overflow-wrap: anywhere; }
+.frame[data-static=true] .workLayer { display: none; }

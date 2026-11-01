@@ -9,6 +9,8 @@ import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useWorkBrowse, WORK_INDUSTRIES, WORK_STYLES } from "./selected-work/WorkBrowse";
 import styles from "./ServicesWorkNavigation.module.css";
 import { galleryEnding, galleryProgress } from "./gallery-journey";
+import { usePinnedScene } from './service-world/PinnedScene';
+import { STORY_STATIC_QUERY } from './gallery-layout';
 import { serviceGalleryHandoff } from "./service-gallery-handoff";
 
 const subscribeClient = () => () => {};
@@ -59,6 +61,7 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
   activeIndex: number; onSelect: (index: number) => void;
 }) {
   const tr = usePublicCopy();
+  const staticLayout = usePinnedScene()?.staticLayout ?? false;
   const browse = useWorkBrowse();
   const serviceControls = useRef<HTMLDivElement>(null);
   const client = useSyncExternalStore(subscribeClient, () => true, () => false);
@@ -78,22 +81,23 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
     const work = document.getElementById("selected-work");
     if (!services) return;
     const gallery = work?.querySelector<HTMLElement>('[data-gallery-runway]');
-    const staticScene = matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)');
+    const staticScene = matchMedia(STORY_STATIC_QUERY);
     const sync = () => {
       frame = 0;
+      const isStatic = staticLayout || staticScene.matches;
       const h = window.innerHeight;
       const rect = services.getBoundingClientRect();
       const workRect = work?.getBoundingClientRect();
       const serviceVisibility = clamp(1 - rect.top / (h * .2)) * clamp(rect.bottom / (h * .2));
       const workVisibility = workRect ? clamp((h * .8 - workRect.top) / (h * .3)) * clamp((workRect.bottom - h * .12) / (h * .15)) : 0;
       const galleryRect = gallery?.getBoundingClientRect();
-      const ending = staticScene.matches ? document.querySelector<HTMLElement>('[data-gallery-ending]') : null;
-      const departure = staticScene.matches
+      const ending = isStatic ? document.querySelector<HTMLElement>('[data-gallery-ending]') : null;
+      const departure = isStatic
         ? ending ? clamp((ending.getBoundingClientRect().top - h * .8) / (h * .25)) : 1
         : galleryRect ? galleryEnding(galleryProgress(galleryRect.top, galleryRect.height, h)).dock : 1;
       const nextHandoff = workRect ? clamp((h * .75 - workRect.top) / (h * .45)) : 0;
       // Share the title's exact departure instead of starting a later rail fade.
-      const titlePresence = !staticScene.matches && galleryRect
+      const titlePresence = !isStatic && galleryRect
         ? serviceGalleryHandoff(galleryRect.top, h).serviceCopy
         : 1 - nextHandoff;
       visibility.set(ENABLE_WORK_FILTERS ? Math.max(serviceVisibility, workVisibility * departure) : serviceVisibility * titlePresence);
@@ -116,7 +120,7 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
       window.removeEventListener("lionovart:splash-complete", schedule);
       staticScene.removeEventListener('change', schedule);
     };
-  }, [client, browse.industry, browse.style, visibility, handoff]);
+  }, [client, staticLayout, browse.industry, browse.style, visibility, handoff]);
 
   useEffect(() => {
     const rail = serviceControls.current;
@@ -125,12 +129,12 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
   }, [activeIndex, client]);
 
   if (!client) return null;
-  return createPortal(<motion.nav className={styles.frame} data-services-work-navigation data-browse-mode={workMode ? "work" : "services"}
+  const navigation = <motion.nav className={styles.frame} data-services-work-navigation data-static={staticLayout} data-browse-mode={workMode ? "work" : "services"}
     aria-label={tr(workMode ? "Browse selected work" : "Our services")}
-    aria-hidden={!visible} inert={!visible}
-    style={{ opacity: visibility, visibility: visible ? "visible" : "hidden" }}>
+    aria-hidden={!staticLayout && !visible} inert={!staticLayout && !visible}
+    style={{ opacity: staticLayout ? 1 : visibility, visibility: staticLayout || visible ? "visible" : "hidden" }}>
     <div className={styles.pill}>
-      <motion.div ref={serviceControls} className={styles.serviceControls} style={{ opacity: serviceOpacity }} aria-hidden={workMode} inert={workMode}>
+      <motion.div ref={serviceControls} className={styles.serviceControls} style={{ opacity: staticLayout ? 1 : serviceOpacity }} aria-hidden={!staticLayout && workMode} inert={!staticLayout && workMode}>
         {services.map((service, index) => <button key={service.id} type="button" className={styles.serviceButton}
           data-service-option aria-pressed={index === activeIndex} onClick={() => onSelect(index)}>
           <span className={styles.serviceLabel}>{tr(service.short)}</span>
@@ -140,5 +144,6 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
         {workMode && visible && <WorkControls />}
       </motion.div>
     </div>
-  </motion.nav>, document.body);
+  </motion.nav>;
+  return staticLayout ? navigation : createPortal(navigation, document.body);
 }
