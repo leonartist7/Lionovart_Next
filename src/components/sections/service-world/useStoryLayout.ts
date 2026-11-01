@@ -10,7 +10,7 @@ export function useStoryLayout(host: RefObject<HTMLDivElement | null>) {
     const world = host.current?.closest<HTMLElement>('[data-service-world]');
     if (!world) return;
     const preference = matchMedia(STORY_STATIC_QUERY);
-    let frame = 0, disposed = false, failedKey = '';
+    let frame = 0, disposed = false, failedKey = '', currentEnabled = false;
     const probe = document.createElement('div');
     probe.setAttribute('aria-hidden', 'true'); probe.inert = true;
     probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;overflow:hidden;visibility:hidden;pointer-events:none;contain:strict';
@@ -50,11 +50,15 @@ export function useStoryLayout(host: RefObject<HTMLDivElement | null>) {
           cardHeight: geometry.panelWidth * (geometry.vertical ? .75 : 11 / 16),
           captionHeight, rem, navHeight });
         const media = world.querySelector<HTMLElement>('[data-service-media]');
-        const serviceFits = !copy || !media || copy.offsetHeight + media.offsetHeight + 3 * rem <= innerHeight - navHeight - 7 * rem;
+        const serviceFits = !copy || !media || copy.offsetHeight + media.offsetHeight + 2 * rem <= innerHeight - navHeight - 6 * rem;
         const narrativeFits = !statement || statement.offsetHeight + 16 * rem <= innerHeight - navHeight - 3 * rem;
         if (!galleryFits || !serviceFits || !narrativeFits) { reason = 'content-fit'; failedKey = key; }
       }
       const next = { enabled: !reason, reason: reason || 'animated' };
+      if (next.enabled !== currentEnabled) {
+        window.dispatchEvent(new Event('lionovart:story-layout-will-change'));
+        currentEnabled = next.enabled;
+      }
       setLayout(previous => previous.enabled === next.enabled && previous.reason === next.reason ? previous : next);
     };
     const schedule = () => { if (!disposed && !frame) frame = requestAnimationFrame(measure); };
@@ -76,12 +80,13 @@ export function useStoryLayout(host: RefObject<HTMLDivElement | null>) {
     watchContent();
     preference.addEventListener('change', schedule);
     window.addEventListener('resize', schedule);
-    document.fonts.addEventListener('loadingdone', schedule);
-    void document.fonts.ready.then(schedule); schedule();
+    const fontsReady = () => { failedKey = ''; schedule(); };
+    document.fonts.addEventListener('loadingdone', fontsReady);
+    void document.fonts.ready.then(fontsReady); schedule();
     return () => {
       disposed = true; cancelAnimationFrame(frame); resize.disconnect(); mutations.disconnect(); rootStyle.disconnect(); probe.remove();
       preference.removeEventListener('change', schedule); window.removeEventListener('resize', schedule);
-      document.fonts.removeEventListener('loadingdone', schedule);
+      document.fonts.removeEventListener('loadingdone', fontsReady);
     };
   }, [host]);
   return layout;

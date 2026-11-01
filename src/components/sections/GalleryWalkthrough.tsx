@@ -82,7 +82,7 @@ function GalleryPanel({ work, index, pairs, progress, entry, entryScale, near, a
   });
   const labelOpacity = useTransform(() => galleryCardPose(progress.get(), pair, pairs).caption * Math.max(0, Math.min(1, (entry.get() - .65) / .35)) * Math.max(0, ((reduce ? dimTarget.get() : dimSpring.get()) - .35) / .65));
   const visibility = useTransform(progress, p => galleryCardPose(p, pair, pairs).visible ? 'visible' : 'hidden');
-  return <motion.div ref={panelRef} className={styles.panel} data-gallery-panel data-gallery-index={index} data-focused={selected}
+  return <motion.div ref={panelRef} className={styles.panel} data-gallery-panel data-gallery-index={index} data-gallery-project={work.slug} data-focused={selected}
     style={{ transform, opacity, visibility, '--gallery-hover-direction': -side } as React.ComponentProps<typeof motion.div>['style']} inert={!near || !active || !readable} aria-hidden={!near || !readable}>
     <button type="button" className={styles.project} onClick={event => { event.stopPropagation(); event.currentTarget.focus({ preventScroll: true }); onSelect(work.slug); }}
       aria-label={`Focus work: ${work.name}`} aria-pressed={selected}>
@@ -114,6 +114,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const entry = useMotionValue(0), arrivalProgress = useMotionValue(0), entryScale = useMotionValue(1);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const currentPair = useRef(0);
+  const readingAnchor = useRef<{ pair: number; slug: string | null; ending: boolean; focus: boolean } | null>(null);
   const navigation = useRef({ ticket: 0, target: null as number | null });
   const [requested, setRequested] = useState<number | null>(null);
   const [previewError, setPreviewError] = useState(false);
@@ -213,24 +214,52 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     return () => { cancelAnimationFrame(frame); observer.disconnect(); geometry.disconnect(); replacements.disconnect(); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); };
   }, [pinned, progress, entry, entryScale, arrivalProgress, runway, scene?.target, stage]);
 
+  // Snapshot the reading identity before the shared scene changes DOM owners.
   useEffect(() => {
+    const remember = () => {
+      const surface = stage.current;
+      if (!surface) return;
+      const bounds = runway.current?.getBoundingClientRect();
+      if (!bounds || bounds.top > innerHeight * .2 || bounds.bottom < 0) return;
+      if (pinned && surface.dataset.chapterActive !== 'true') return;
+      const cards = [...surface.querySelectorAll<HTMLElement>('[data-static-project]')];
+      const visible = cards.find(card => { const box = card.getBoundingClientRect(); return box.bottom > innerHeight * .2 && box.top < innerHeight; });
+      const atEnding = pinned ? ending : !visible && (surface.querySelector('[data-partnership-static-mark]')?.getBoundingClientRect().top ?? Infinity) < innerHeight;
+      const index = pinned ? currentPair.current * 2 : Math.max(0, cards.indexOf(visible!));
+      readingAnchor.current = { pair: Math.floor(index / 2), slug: selectedSlug ?? projects[index]?.slug ?? null,
+        ending: atEnding, focus: surface.contains(document.activeElement) };
+    };
+    window.addEventListener('lionovart:story-layout-will-change', remember);
+    return () => window.removeEventListener('lionovart:story-layout-will-change', remember);
+  }, [pinned, ending, selectedSlug, projects, runway, stage]);
+
+  useEffect(() => {
+    const remembered = readingAnchor.current;
+    readingAnchor.current = null;
     const bounds = runway.current?.getBoundingClientRect();
     const withinGallery = bounds && bounds.top <= innerHeight * .2 && bounds.bottom > innerHeight;
-    if (!withinGallery && !['#selected-work', '#partnership'].includes(location.hash)) return;
+    if (!remembered && !withinGallery && !['#selected-work', '#partnership'].includes(location.hash)) return;
     let frame = 0;
     const land = () => { frame = requestAnimationFrame(() => {
       const anchor = runway.current; if (!anchor) return;
       const box = anchor.getBoundingClientRect();
-      const offset = location.hash === '#partnership' && pinned ? (box.height - innerHeight * .85) * .91 : pinned && location.hash === '#selected-work' ? -innerHeight * .52 : 0;
-      const staticEnding = !pinned && location.hash === '#partnership' ? stage.current?.querySelector('[data-partnership-static-mark], [data-gallery-ending]') : null;
-      const target = staticEnding ? scrollY + staticEnding.getBoundingClientRect().top - 96 : scrollY + box.top + offset;
+      const offset = remembered && pinned ? (box.height - innerHeight * .85) * (remembered.ending ? .91 : galleryPairProgress(remembered.pair, pairs)) : location.hash === '#partnership' && pinned ? (box.height - innerHeight * .85) * .91 : pinned && location.hash === '#selected-work' ? -innerHeight * .52 : 0;
+      const staticEnding = !pinned && (remembered?.ending || location.hash === '#partnership') ? stage.current?.querySelector('[data-partnership-static-mark], [data-gallery-ending]') : null;
+      const project = remembered?.slug ? [...(stage.current?.querySelectorAll<HTMLElement>('[data-static-project], [data-gallery-project]') ?? [])].find(node => (node.dataset.staticProject ?? node.dataset.galleryProject) === remembered.slug) : null;
+      const target = !pinned && project && !remembered?.ending ? scrollY + project.getBoundingClientRect().top - 6 * (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16) : staticEnding ? scrollY + staticEnding.getBoundingClientRect().top - 96 : scrollY + box.top + offset;
       if (lenis) lenis.scrollTo(target, { immediate: true, force: true, userData: { navigation: true } });
       else window.scrollTo({ top: target, behavior: 'instant' });
+      if (remembered?.focus) {
+        frame = requestAnimationFrame(() => {
+          const equivalent = remembered.ending ? stage.current?.querySelector<HTMLButtonElement>('[data-partnership-action] button') : project?.matches('button') ? project : project?.querySelector<HTMLButtonElement>('button');
+          if (equivalent && !equivalent.closest('[inert]')) equivalent.focus({ preventScroll: true });
+        });
+      }
     }); };
     if (document.documentElement.dataset.splashComplete === 'true') land();
     else window.addEventListener('lionovart:splash-complete', land, { once: true });
     return () => { cancelAnimationFrame(frame); window.removeEventListener('lionovart:splash-complete', land); };
-  }, [pinned, runway, stage, lenis]);
+  }, [pinned, runway, stage, lenis, pairs]);
 
   // Native gestures interrupt both poster preparation and arrow travel. No scroll lock.
   useEffect(() => {

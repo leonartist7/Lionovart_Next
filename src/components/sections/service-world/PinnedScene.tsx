@@ -37,6 +37,7 @@ export default function PinnedScene({ children, environment }: { children: React
   useEffect(() => {
     if (!enabled || !target) return;
     let frame = 0;
+    let rootRem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
     const sync = () => {
       frame = 0;
       let current = 'opening';
@@ -59,7 +60,7 @@ export default function PinnedScene({ children, environment }: { children: React
           surface.style.setProperty('--service-gallery-gather', String(handoff.gather));
           surface.style.setProperty('--service-gallery-rear', String(handoff.serviceRear));
           surface.style.setProperty('--service-gallery-release', String(handoff.spread));
-          const layout = galleryLayout(innerWidth, innerHeight, document.documentElement.clientWidth);
+          const layout = galleryLayout(innerWidth, innerHeight, document.documentElement.clientWidth, rootRem);
           surface.style.setProperty('--service-release-x', `${layout.entryX / GALLERY_ENTRY_PROJECTION}px`);
           surface.style.setProperty('--service-release-y', `${layout.y / GALLERY_ENTRY_PROJECTION}px`);
           const media = surface.querySelector<HTMLElement>('[data-service-media]');
@@ -92,7 +93,8 @@ export default function PinnedScene({ children, environment }: { children: React
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
     scheduleRef.current = schedule;
-    const resize = new ResizeObserver(schedule);
+    const refreshType = () => { rootRem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16; schedule(); };
+    const resize = new ResizeObserver(refreshType);
     const fitted = new ResizeObserver(schedule);
     let measured: Element | null = null;
     const refresh = () => {
@@ -108,13 +110,13 @@ export default function PinnedScene({ children, environment }: { children: React
     const root = target.closest('[data-service-world]');
     if (root) resize.observe(root);
     window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
+    window.addEventListener('resize', refreshType);
     window.addEventListener('pageshow', schedule);
     document.addEventListener('visibilitychange', schedule);
     void document.fonts.ready.then(schedule); sync();
     return () => {
       cancelAnimationFrame(frame); resize.disconnect(); fitted.disconnect(); replacements.disconnect(); scheduleRef.current = () => {};
-      window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule);
+      window.removeEventListener('scroll', schedule); window.removeEventListener('resize', refreshType);
       window.removeEventListener('pageshow', schedule); document.removeEventListener('visibilitychange', schedule);
     };
   }, [enabled, target]);

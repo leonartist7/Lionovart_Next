@@ -12,7 +12,7 @@ export function storyGalleryFits({ height, center, separation, cardHeight, capti
   const projection = 1000 / (1000 - (-350 + 1100 * (1 - Math.exp(-.26 * 1.8))));
   const top = center - (separation + cardHeight / 2) * projection;
   const bottom = center + (separation + cardHeight / 2 + captionHeight + .75 * rem) * projection;
-  return Number.isFinite(top + bottom) && top >= navHeight + .5 * rem && bottom <= height - 5.75 * rem;
+  return Number.isFinite(top + bottom) && top >= navHeight + .5 * rem - .5 && bottom <= height - 5.75 * rem + .5;
 }
 
 /** Shared geometry keeps the departing services and incoming exhibits on one axis. */
@@ -20,12 +20,24 @@ export const GALLERY_ENTRY_PROJECTION = 1.35; // perspective 1000px at translate
 export function galleryLayout(viewportWidth: number, height: number, contentWidth = viewportWidth, rem = 16) {
   const vertical = storyGalleryVertical(viewportWidth);
   const compact = height <= 740 || vertical && height <= 840;
-  const panelWidth = vertical ? Math.min(contentWidth * .82, height * (compact ? .36 : .46), 544) : Math.min(contentWidth * .37, height * .68, 720);
-  const panelTop = vertical ? (compact ? 40 : 43) : 40;
+  const preferredWidth = vertical ? Math.min(contentWidth * .82, height * (compact ? .36 : .46), 544) : Math.min(contentWidth * .37, height * .68, 720);
+  const projection = 1000 / (1000 - (-350 + 1100 * (1 - Math.exp(-.26 * 1.8))));
+  const captionAllowance = 3.25 * rem;
+  // Fit the reading pair before falling back. Keep a useful artwork size;
+  // short/enlarged-text layouts must reflow instead of shrinking indefinitely.
+  const fittingWidth = ((height - 11 * rem) / projection / 2 - captionAllowance - .75 * rem) / .75;
+  const panelWidth = vertical ? Math.min(preferredWidth, Math.max(14 * rem, fittingWidth)) : preferredWidth;
   const centerGap = Math.min(260, Math.max(160, contentWidth * .17));
   const x = vertical ? 0 : panelWidth * .5 + centerGap * GALLERY_ENTRY_PROJECTION / 2;
   const previewInset = vertical ? 0 : centerGap * .55;
-  const y = vertical ? Math.min(height * (compact ? .20 : .21), panelWidth * .375 + 40) : 0;
+  const preferredY = Math.min(height * (compact ? .20 : .21), panelWidth * .375 + 40);
+  const minimumY = panelWidth * .375 + (captionAllowance + .75 * rem) / 2;
+  const fittingY = (height - 11 * rem) / projection / 2 - panelWidth * .375 - (captionAllowance + .75 * rem) / 2;
+  const y = vertical ? Math.max(minimumY, Math.min(preferredY, fittingY)) : 0;
+  const minimumCenter = 5.25 * rem + (y + panelWidth * .375) * projection;
+  const maximumCenter = height - 5.75 * rem - (y + panelWidth * .375 + captionAllowance + .75 * rem) * projection;
+  const center = Math.max(minimumCenter, Math.min(height * (compact ? .40 : .43), maximumCenter));
+  const panelTop = vertical ? center / Math.max(1, height) * 100 : 40;
   return {
     vertical, compact, panelWidth, panelTop, centerGap: vertical ? 0 : centerGap,
     // Preview, reading and departure share the same axis on every device.

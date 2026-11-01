@@ -24,3 +24,17 @@ test('content-fit reserves navigation, captions and controls at the reading stop
   assert.equal(storyGalleryFits({ ...reading, rem: 32, navHeight: 152, cardHeight: 440, captionHeight: 150 }), false);
   assert.equal(storyGalleryFits({ ...reading, center: NaN }), false);
 });
+
+
+test('ordinary vertical reading pairs retain room for two captions', () => {
+  for (const [width, height] of [[360, 800], [390, 844], [768, 1024], [1024, 768]]) {
+    const layout = galleryLayout(width, height);
+    assert.ok(storyGalleryFits({ height, center: height * layout.panelTop / 100,
+      separation: layout.y, cardHeight: layout.panelWidth * .75,
+      captionHeight: 52, rem: 16, navHeight: 76 }), `${width}x${height}`);
+  }
+  const layout = galleryLayout(390, 844, 390, 32);
+  assert.equal(storyGalleryFits({ height: 844, center: 844 * layout.panelTop / 100,
+    separation: layout.y, cardHeight: layout.panelWidth * .75,
+    captionHeight: 104, rem: 32, navHeight: 152 }), false);
+});

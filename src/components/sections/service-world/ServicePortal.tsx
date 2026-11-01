@@ -19,13 +19,14 @@ export default function ServicePortal() {
     if (!target || !node) return;
     const world = target.closest('[data-service-world]');
     let frame = 0, disposed = false;
+    let rootRem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
     const sync = () => {
       frame = 0;
       const gallery = world?.querySelector('[data-gallery-runway]')?.getBoundingClientRect();
       const anchor = world?.querySelector('[data-service-podium-anchor]')?.getBoundingClientRect();
       if (!gallery || !anchor || document.hidden) { node.style.visibility = 'hidden'; return; }
       const h = innerHeight, w = document.documentElement.clientWidth;
-      const layout = galleryLayout(innerWidth, h, w);
+      const layout = galleryLayout(innerWidth, h, w, rootRem);
       const diameter = galleryRingDiameter(layout);
       const handoff = serviceGalleryHandoff(gallery.top, h);
       const pairs = Number(world?.querySelector('[data-gallery-rows]')?.getAttribute('data-gallery-rows')) || 5;
@@ -48,18 +49,19 @@ export default function ServicePortal() {
       if (fill.current) fill.current.style.opacity = String(1 - handoff.portalOpen);
     };
     const schedule = () => { if (!disposed && !frame) frame = requestAnimationFrame(sync); };
-    const resize = new ResizeObserver(schedule);
+    const refreshType = () => { rootRem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16; schedule(); };
+    const resize = new ResizeObserver(refreshType);
     if (world) resize.observe(world);
     const mutations = new MutationObserver(schedule);
     if (world) mutations.observe(world, { childList: true, subtree: true });
     window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
+    window.addEventListener('resize', refreshType);
     window.addEventListener('pageshow', schedule);
     document.addEventListener('visibilitychange', schedule);
     void document.fonts.ready.then(schedule); sync();
     return () => {
       disposed = true; cancelAnimationFrame(frame); resize.disconnect(); mutations.disconnect();
-      window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule);
+      window.removeEventListener('scroll', schedule); window.removeEventListener('resize', refreshType);
       window.removeEventListener('pageshow', schedule); document.removeEventListener('visibilitychange', schedule);
     };
   }, [scene?.target]);
