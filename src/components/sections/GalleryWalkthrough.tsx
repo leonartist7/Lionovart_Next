@@ -147,11 +147,12 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     const sync = () => {
       frame = 0;
       const box = anchor.getBoundingClientRect();
-      const nextKey = `${innerWidth}/${innerHeight}/${document.documentElement.clientWidth}`;
+      const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      const nextKey = `${innerWidth}/${innerHeight}/${document.documentElement.clientWidth}/${rem}`;
       const surface = stage.current;
       if (surface && nextKey !== layoutKey) {
         layoutKey = nextKey;
-        const layout = galleryLayout(innerWidth, innerHeight, document.documentElement.clientWidth);
+        const layout = galleryLayout(innerWidth, innerHeight, document.documentElement.clientWidth, rem);
         surface.style.setProperty('--gallery-ring-size', `${galleryRingDiameter(layout)}px`);
         surface.style.setProperty('--gallery-ring-top', `${innerHeight * layout.panelTop / 100 + 25}px`);
         const endingLayout = partnershipLayout(document.documentElement.clientWidth, innerHeight);
@@ -318,7 +319,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
             <PartnershipMark active={active && ending} ready={ending} />
           </motion.div>
         </div> : <div className={styles.staticGrid}>
-          {projects.map(work => <button type="button" key={work.slug} className={styles.staticProject} data-focused={selectedSlug === work.slug} data-dimmed={!!selectedSlug && selectedSlug !== work.slug}
+          {projects.map(work => <button type="button" key={work.slug} data-static-project={work.slug} className={styles.staticProject} data-focused={selectedSlug === work.slug} data-dimmed={!!selectedSlug && selectedSlug !== work.slug}
             onClick={event => { event.stopPropagation(); event.currentTarget.focus({ preventScroll: true }); onSelect(work.slug); }} aria-label={`Focus work: ${work.name}`} aria-pressed={selectedSlug === work.slug}>
             <div className={styles.screen}><ScreeningMedia asset={work} active={false} label={false} /></div>
             <span className={styles.projectCaption}><WorkTags work={work} /></span>

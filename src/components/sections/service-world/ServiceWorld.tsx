@@ -8,6 +8,7 @@ import { serviceExhibit } from './scene-art';
 import type { WorldEngine } from './world-renderer';
 import { worldLight, type WorldInput } from './world-state';
 import styles from './ServiceWorld.module.css';
+import foundation from './StoryFoundation.module.css';
 import { serviceExhibits } from '../service-triptych';
 import { ServiceDialLight, ServiceDialOption } from '../ServiceDialMotion';
 import glass from '../ServiceGlassStage.module.css';
@@ -67,7 +68,7 @@ export default function ServiceWorld({ children, mediaFirst = false }: { childre
       const end = root.getBoundingClientRect();
       const visible = end.top < h && end.bottom > 0 && !document.hidden;
       const staticEntry = root.querySelector('[data-work-services-transition]')?.getAttribute('data-static') === 'true';
-      const staticCards = matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)').matches;
+      const staticCards = root.dataset.storyStatic === 'true' || matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)').matches;
       const light = cardExit ? (staticCards ? 1 : cardHandoff(entry!.top, entry!.height, h).light) : entry && !staticEntry ? worldLight(entry.top, entry.height) : 1;
       const galleryBounds = root.querySelector('[data-gallery]')?.getBoundingClientRect();
       root.style.setProperty('--gallery-travel', String(galleryBounds ? Math.min(1, Math.max(0, 1 - galleryBounds.top / h)) : 0));
@@ -131,6 +132,7 @@ export default function ServiceWorld({ children, mediaFirst = false }: { childre
     window.addEventListener('scroll', schedule, { passive: true });
     window.addEventListener('resize', schedule);
     window.addEventListener('pageshow', schedule);
+    window.addEventListener('lionovart:story-layout', schedule);
     window.addEventListener('pointermove', move, { passive: true });
     document.addEventListener('visibilitychange', schedule);
     void document.fonts.ready.then(schedule);
@@ -139,13 +141,14 @@ export default function ServiceWorld({ children, mediaFirst = false }: { childre
       disposed = true; cancelAnimationFrame(frame); observer.disconnect(); mutation.disconnect();
       window.removeEventListener('lionovart:world-retry', retry); window.removeEventListener('lionovart:world-fail', simulateFailure);
       window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule);
-      window.removeEventListener('pageshow', schedule); window.removeEventListener('pointermove', move);
+      window.removeEventListener('pageshow', schedule);
+      window.removeEventListener('lionovart:story-layout', schedule); window.removeEventListener('pointermove', move);
       document.removeEventListener('visibilitychange', schedule);
       engine.current?.dispose(); engine.current = null; syncRef.current = () => {};
     };
   }, [reduced, attempt, mediaFirst]);
 
-  return <WorldContext.Provider value={context}><div ref={host} className={styles.world} data-service-world data-world-ready={ready} data-world-mode={mediaFirst ? "media" : "models"}>
+  return <WorldContext.Provider value={context}><div ref={host} className={`${styles.world} ${foundation.foundation}`} data-service-world data-world-ready={ready} data-world-mode={mediaFirst ? "media" : "models"}>
     <PinnedScene environment={<><div className={styles.environment} data-world-environment aria-hidden="true">{mediaFirst && <AtelierLight />}<div className={styles.architecture}><i /><i /><i /><i /></div></div>
     <canvas key={`${attempt}-${reduced}`} ref={canvas} className={styles.canvas} aria-hidden="true" /></>}>
     {children}

@@ -9,7 +9,7 @@ import { ServiceScreen, prepareServicePosters } from "./ScreeningMedia";
 import { ServiceDialMotion } from "./ServiceDialMotion";
 import { createSelectionGate } from "./service-selection";
 import { exhibitLabel, serviceExhibits } from "./service-triptych";
-import { ScenePortal } from './service-world/PinnedScene';
+import { ScenePortal, usePinnedScene } from './service-world/PinnedScene';
 import { useDissolveStage } from "@/hooks/useDissolveStage";
 import { useServiceWorld, WorldStageControls } from "./service-world/ServiceWorld";
 
@@ -156,7 +156,8 @@ export default function HomepageServicesChapter() {
   const world = useServiceWorld();
   const selectWorld = world?.select;
   const [shortScreen, setShortScreen] = useState(false);
-  const staticLayout = reduceMotion || shortScreen;
+  const scene = usePinnedScene();
+  const staticLayout = !!scene?.staticLayout || reduceMotion || shortScreen;
   const [variant, setVariant] = useState(1);
   const [ledEnabled, setLedEnabled] = useState(true);
   const [scenePaused, setScenePaused] = useState(false);

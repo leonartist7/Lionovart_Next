@@ -1,0 +1,48 @@
+/* Scoped to the connected story. Existing page-wide typography is untouched. */
+.foundation {
+  --story-gutter: clamp(1rem, 3vw, 3rem);
+  --story-touch: 2.75rem;
+  --story-tag-size: .75rem;
+  --story-heading: clamp(1.75rem, 1.25rem + 2vw, 3.75rem);
+  --story-signature: clamp(2rem, 1.3rem + 3vw, 5rem);
+  --story-invitation: clamp(1.5rem, 1.1rem + 1.8vw, 3rem);
+  --story-body: clamp(1rem, .9375rem + .2vw, 1.125rem);
+}
+.foundation[data-service-world] :global([data-shaping-message] h2) { font-size: var(--story-heading); line-height: 1.16; }
+.foundation[data-service-world] :global([data-brand-beat=lead]) { font-size: clamp(1rem, .85rem + .6vw, 1.5rem); line-height: 1.4; }
+.foundation[data-service-world] :global([data-brand-beat=brand]) { font-size: var(--story-signature); line-height: 1.1; overflow-wrap: anywhere; }
+.foundation[data-service-world] :global([data-gallery-title] h2) { font-size: var(--story-invitation); line-height: 1.2; }
+.foundation[data-service-world] :global([data-service-panel] [data-service-title]) { font-size: clamp(1.65rem, 1.2rem + 2vw, 3.6rem); line-height: 1.16; }
+.foundation[data-service-world] :global([data-service-description]) { font-size: var(--story-body); line-height: 1.55; }
+.foundation[data-service-world] :global([data-service-expertise]) { font-size: var(--story-tag-size); line-height: 1.4; }
+.foundation[data-service-world] :global([data-dial-option]) { font-size: var(--story-tag-size); min-height: var(--story-touch); }
+.foundation[data-service-world] :global([data-work-tags]) { gap: .25rem; }
+.foundation[data-service-world] :global([data-work-tags] > span) { padding: .25em .5em; font-size: var(--story-tag-size); line-height: 1.4; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.foundation[data-service-world] :global([data-gallery-navigation] button) { width: var(--story-touch); height: var(--story-touch); flex-shrink: 0; }
+
+/* Content-fit uses the same reading path as the preference/short-height fallback. */
+.foundation[data-service-world][data-story-static=true] :global([data-card-exit]),
+.foundation[data-service-world][data-story-static=true] :global([data-services-runway]),
+.foundation[data-service-world][data-story-static=true] :global([data-gallery-runway]) { height: auto !important; }
+.foundation[data-service-world][data-story-static=true] :global([data-shaping-message]) { position: relative; inset: auto; visibility: visible; padding: 3rem var(--story-gutter) 4rem; background: #08080a; }
+.foundation[data-service-world][data-story-static=true] :global([data-brand-statement]),
+.foundation[data-service-world][data-story-static=true] :global([data-brand-beat=brand]) { position: relative; inset: auto; }
+.foundation[data-service-world][data-story-static=true] :global([data-brand-beat=brand]) { margin-top: 2rem; color: #f4efe5; }
+.foundation[data-service-world][data-story-static=true] :global([data-services-stage]) { position: relative; inset: auto; height: auto; min-height: 0; overflow: visible; padding: 5rem 0 8rem; }
+.foundation[data-service-world][data-story-static=true] :global([data-service-content]),
+.foundation[data-service-world][data-story-static=true] :global([data-service-panel]) { position: relative; inset: auto; }
+.foundation[data-service-world][data-story-static=true] :global([data-service-panel] > div) { height: auto; gap: 2rem; }
+.foundation[data-service-world][data-story-static=true] :global([data-service-media]),
+.foundation[data-service-world][data-story-static=true] :global([data-service-media] > div) { max-height: none; }
+.foundation[data-service-world][data-story-static=true] :global([data-service-description-slot]) { min-height: 0; width: min(100%, 52ch); }
+.foundation[data-service-world][data-story-static=true] :global([data-triptych-tags]) { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; height: auto; width: 100%; perspective: none; }
+.foundation[data-service-world][data-story-static=true] :global([data-triptych-tags] [data-dial-option]) { position: relative; inset: auto; width: auto; flex: 1 1 8rem; transform: none !important; opacity: 1 !important; padding: .75em; }
+.foundation[data-service-world][data-story-static=true] :global([data-dial-option] span) { position: relative; inset: auto; padding: 0; }
+.foundation[data-service-world][data-story-static=true] :global([data-service-podium-anchor]) { display: none; }
+.foundation[data-service-world][data-story-static=true] :global([data-gallery-stage]) { padding-inline: max(var(--story-gutter), env(safe-area-inset-left), env(safe-area-inset-right)); }
+
+/* Caption height participates in flow, including at 200% text size. */
+.foundation[data-service-world] :global([data-static-project]) { display: flex; flex-direction: column; height: auto; aspect-ratio: auto; min-width: 0; }
+.foundation[data-service-world] :global([data-static-project] > div) { position: relative; inset: auto; width: 100%; aspect-ratio: 16 / 12; flex-shrink: 0; }
+.foundation[data-service-world] :global([data-static-project] > span) { position: relative; inset: auto; margin-top: .75rem; width: 100%; }
+.foundation[data-service-world] :global([data-static-project] [data-work-tags]) { justify-content: center; }

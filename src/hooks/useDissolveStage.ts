@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
 import { usePinnedScene } from '@/components/sections/service-world/PinnedScene';
+import { STORY_STATIC_QUERY } from '@/components/sections/gallery-layout';
 import { chapterOpacity } from '@/components/sections/chapter-dissolve';
 
 /** Fixed visual stage, ordinary document runway, complete static accessibility fallback. */
@@ -15,15 +16,16 @@ export function useDissolveStage() {
       surface.dataset.dissolvePinned = 'false';
       return scene.register({ anchor, surface, onActive: setActive });
     }
-    const media = matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)');
+    const media = matchMedia(STORY_STATIC_QUERY);
     let frame = 0, wasActive = false;
     const sync = () => {
       frame = 0;
       const bounds = anchor.getBoundingClientRect();
-      const opacity = media.matches ? 1 : chapterOpacity(bounds.top, bounds.bottom, innerHeight);
+      const isStatic = !!scene?.staticLayout || media.matches;
+      const opacity = isStatic ? 1 : chapterOpacity(bounds.top, bounds.bottom, innerHeight);
       const visible = bounds.top < innerHeight && bounds.bottom > 0;
       const playing = visible && opacity > .7 && !document.hidden;
-      surface.dataset.dissolvePinned = String(!media.matches);
+      surface.dataset.dissolvePinned = String(!isStatic);
       surface.style.opacity = String(opacity);
       surface.style.visibility = opacity > .001 ? 'visible' : 'hidden';
       surface.style.pointerEvents = opacity > .7 ? 'auto' : 'none';

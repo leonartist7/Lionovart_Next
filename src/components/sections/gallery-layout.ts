@@ -1,7 +1,24 @@
+/** CSS pixels at the DOM boundary; text and spacing remain in rem/em. */
+export const STORY_GALLERY_BREAKPOINT = 1024;
+export const STORY_SHORT_HEIGHT = 560;
+export const STORY_STATIC_QUERY = `(prefers-reduced-motion: reduce), (max-height: ${STORY_SHORT_HEIGHT}px)`;
+export const storyGalleryVertical = (width: number) => width <= STORY_GALLERY_BREAKPOINT;
+
+/** A readable pair needs room for captions as well as the projected artwork. */
+export function storyGalleryFits({ height, center, separation, cardHeight, captionHeight, rem, navHeight }: {
+  height: number; center: number; separation: number; cardHeight: number;
+  captionHeight: number; rem: number; navHeight: number;
+}) {
+  const projection = 1000 / (1000 - (-350 + 1100 * (1 - Math.exp(-.26 * 1.8))));
+  const top = center - (separation + cardHeight / 2) * projection;
+  const bottom = center + (separation + cardHeight / 2 + captionHeight + .75 * rem) * projection;
+  return Number.isFinite(top + bottom) && top >= navHeight + .5 * rem && bottom <= height - 5.75 * rem;
+}
+
 /** Shared geometry keeps the departing services and incoming exhibits on one axis. */
 export const GALLERY_ENTRY_PROJECTION = 1.35; // perspective 1000px at translateZ(-350px)
-export function galleryLayout(viewportWidth: number, height: number, contentWidth = viewportWidth) {
-  const vertical = viewportWidth <= 1024;
+export function galleryLayout(viewportWidth: number, height: number, contentWidth = viewportWidth, rem = 16) {
+  const vertical = storyGalleryVertical(viewportWidth);
   const compact = height <= 740 || vertical && height <= 840;
   const panelWidth = vertical ? Math.min(contentWidth * .82, height * (compact ? .36 : .46), 544) : Math.min(contentWidth * .37, height * .68, 720);
   const panelTop = vertical ? (compact ? 40 : 43) : 40;
@@ -15,7 +32,7 @@ export function galleryLayout(viewportWidth: number, height: number, contentWidt
     backgroundX: 0,
     backgroundY: vertical ? height * .24 : 0,
     backgroundRise: 0,
-    captionWidth: vertical ? Math.max(1, contentWidth - 32) * .9 : panelWidth,
+    captionWidth: vertical ? Math.max(1, contentWidth - 2 * rem) * .9 : panelWidth,
     previewInset,
     entryX: x - previewInset,
     x,

@@ -7,9 +7,10 @@ import { cardHandoff } from '../card-handoff';
 import { chapterOpacity } from '../chapter-dissolve';
 import { serviceGalleryHandoff } from '../service-gallery-handoff';
 import styles from './PinnedScene.module.css';
+import { useStoryLayout } from './useStoryLayout';
 
 type Chapter = { anchor: HTMLElement; surface: HTMLElement; onActive: (active: boolean) => void };
-type Scene = { target: HTMLDivElement | null; register: (chapter: Chapter) => () => void };
+type Scene = { target: HTMLDivElement | null; staticLayout: boolean; register: (chapter: Chapter) => () => void };
 const Context = createContext<Scene | null>(null);
 export const usePinnedScene = () => useContext(Context);
 
@@ -18,7 +19,7 @@ export default function PinnedScene({ children, environment }: { children: React
   const [target, setTarget] = useState<HTMLDivElement | null>(null);
   const targetRef = useRef<HTMLDivElement | null>(null);
   const mount = useCallback((node: HTMLDivElement | null) => { targetRef.current = node; setTarget(node); }, []);
-  const [enabled, setEnabled] = useState(false);
+  const { enabled, reason } = useStoryLayout(targetRef);
   const chapters = useRef(new Set<Chapter>());
   const scheduleRef = useRef(() => {});
   const register = useCallback((chapter: Chapter) => {
@@ -26,11 +27,13 @@ export default function PinnedScene({ children, environment }: { children: React
     return () => { chapters.current.delete(chapter); };
   }, []);
   useEffect(() => {
-    const query = matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)');
-    const sync = () => setEnabled(!query.matches);
-    sync(); query.addEventListener('change', sync);
-    return () => query.removeEventListener('change', sync);
-  }, []);
+    const root = targetRef.current?.closest<HTMLElement>('[data-service-world]');
+    if (!root) return;
+    root.dataset.storyStatic = String(!enabled);
+    root.dataset.storyLayoutReason = reason;
+    window.dispatchEvent(new Event('lionovart:story-layout'));
+    return () => { delete root.dataset.storyStatic; delete root.dataset.storyLayoutReason; };
+  }, [enabled, reason]);
   useEffect(() => {
     if (!enabled || !target) return;
     let frame = 0;
@@ -115,7 +118,7 @@ export default function PinnedScene({ children, environment }: { children: React
       window.removeEventListener('pageshow', schedule); document.removeEventListener('visibilitychange', schedule);
     };
   }, [enabled, target]);
-  const context = useMemo(() => ({ target: enabled ? target : null, register }), [enabled, target, register]);
+  const context = useMemo(() => ({ target: enabled ? target : null, staticLayout: !enabled, register }), [enabled, target, register]);
   return <Context.Provider value={context}>
     <div className={styles.viewport} data-pinned-scene data-pinned={enabled}>
       {environment}

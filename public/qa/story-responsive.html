@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LIONOVART responsive review</title>
+<style>
+  * { box-sizing:border-box } body { margin:0;background:#202024;color:#f7f4ef;font:1rem/1.5 system-ui,sans-serif }
+  header { padding:1rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:end;position:sticky;top:0;background:#202024;z-index:1 }
+  label { display:grid;gap:.25rem } select,button { font:inherit;padding:.5em;background:#fff;color:#181818;border:0;border-radius:.25rem }
+  main { padding:1rem;overflow:auto } iframe { display:block;border:1px solid #777;background:#08080a;width:390px;height:844px;max-width:none }
+  output { padding:.5rem 1rem;display:block;font-size:.875rem } p { margin:0;font-size:.875rem;max-width:40ch }
+</style>
+<header>
+  <label>Viewport<select id="size"><option>390x844</option><option>320x568</option><option>360x800</option><option>768x1024</option><option>1023x768</option><option>1024x768</option><option>1025x768</option><option>1280x720</option><option>1440x900</option><option>1920x1080</option><option>844x390</option></select></label>
+  <label>Text size<select id="text"><option value="16">100%</option><option value="20">125%</option><option value="24">150%</option><option value="32">200%</option></select></label>
+  <label>Text spacing<select id="spacing"><option value="normal">Default</option><option value="expanded">Expanded</option></select></label>
+  <label>Reading stop<select id="chapter"><option value="hero">Hero</option><option value="statement">Statement</option><option value="services">Services</option><option value="gallery">Gallery</option><option value="partnership">Partnership</option></select></label>
+  <button id="go">Go to reading stop</button>
+  <button id="check">Measure layout</button>
+  <p>Review fixture: iframe widths exercise real media queries. Text sizing simulates a root-font preference, not browser zoom or physical touch hardware.</p>
+</header>
+<output id="result" aria-live="polite">Loading review…</output>
+<main><iframe id="site" src="/" title="LIONOVART viewport under review"></iframe></main>
+<script>
+  const frame=document.querySelector('#site'), result=document.querySelector('#result');
+  function settings() {
+    const [width,height]=document.querySelector('#size').value.split('x').map(Number);
+    frame.style.width=width+'px';frame.style.height=height+'px';
+    const doc=frame.contentDocument;if(!doc?.body)return;
+    doc.documentElement.style.fontSize=document.querySelector('#text').value+'px';
+    let style=doc.querySelector('#review-spacing');
+    if(!style){style=doc.createElement('style');style.id='review-spacing';doc.head.append(style)}
+    style.textContent=document.querySelector('#spacing').value==='expanded'?'[data-service-world] p,[data-service-world] h2,[data-service-world] h3,[data-service-world] button,[data-work-tags] > span {line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important} [data-service-world] p {margin-bottom:2em!important}':'';
+    frame.contentWindow.dispatchEvent(new Event('resize'));
+  }
+  function measure() {
+    const doc=frame.contentDocument,win=frame.contentWindow,world=doc.querySelector('[data-service-world]');
+    result.textContent=JSON.stringify({viewport:[win.innerWidth,win.innerHeight],rootFont:win.getComputedStyle(doc.documentElement).fontSize,mode:world?.dataset.storyLayoutReason,static:world?.dataset.storyStatic,axis:doc.querySelector('[data-gallery-stage]')?.dataset.galleryAxis,projects:doc.querySelectorAll('[data-work-tags]').length,overflow:doc.documentElement.scrollWidth>win.innerWidth});
+  }
+  function go() {
+    const doc=frame.contentDocument,win=frame.contentWindow,key=document.querySelector('#chapter').value;
+    const world=doc.querySelector('[data-service-world]'),pinned=world?.dataset.storyStatic==='false';
+    const selector={hero:'[data-opening-hero]',statement:'[data-card-exit]',services:'[data-services-runway]',gallery:'[data-gallery-runway]',partnership:'[data-gallery-runway]'}[key];
+    let el=doc.querySelector(selector);if(!el)return;
+    let top=win.scrollY+el.getBoundingClientRect().top;
+    if(key==='statement') {if(pinned)top+=el.offsetHeight*.35;else {el=doc.querySelector('[data-shaping-message]');top=win.scrollY+el.getBoundingClientRect().top}}
+    if(key==='services'&&pinned)top+=win.innerHeight*.2;
+    if(key==='gallery'&&pinned)top+=(el.offsetHeight-win.innerHeight*.85)*.072;
+    if(key==='partnership') {if(pinned)top+=(el.offsetHeight-win.innerHeight*.85)*.94;else {el=doc.querySelector('[data-partnership-static-mark]');top=win.scrollY+el.getBoundingClientRect().top}}
+    win.scrollTo({top,behavior:'instant'});measure();
+  }
+  frame.addEventListener('load',settings);
+  for(const id of ['size','text','spacing'])document.querySelector('#'+id).addEventListener('change',settings);
+  document.querySelector('#go').addEventListener('click',go);
+  document.querySelector('#check').addEventListener('click',measure);
+</script>
+</html>

@@ -2,6 +2,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ScenePortal, usePinnedScene } from './service-world/PinnedScene';
+import { STORY_STATIC_QUERY } from './gallery-layout';
 import { cardHandoff } from './card-handoff';
 import { cardBridgeFrame, type BridgeFrame } from './card-bridge';
 import styles from './ScreeningRoom.module.css';
@@ -15,24 +16,25 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     const node = (scene?.target?.querySelector('[data-scene-opening]') ?? intro.current) as HTMLElement | null, runway = exit.current, copy = message.current;
     if (!node || !runway || !copy) return;
     const world = node.closest('[data-service-world]');
-    const media = matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)');
+    const media = matchMedia(STORY_STATIC_QUERY);
     let frame = 0, previous = 0;
     let fittedMedia: HTMLElement | null = null;
     let bases: BridgeFrame[] = [];
     const sync = () => {
       frame = 0;
+      const isStatic = !!scene?.staticLayout || media.matches;
       const bounds = runway.getBoundingClientRect();
       const pose = cardHandoff(bounds.top, bounds.height, innerHeight);
       const panels = Array.from(node.querySelectorAll<HTMLElement>('.opening-glass-pane'));
       const portrait = !!node.querySelector('[data-opening-layout=vertical]');
       const targets = Array.from(world?.querySelectorAll<HTMLElement>('[data-service-triptych] [data-exhibit-index]') ?? []);
 
-      node.style.opacity = media.matches ? '1' : String(pose.intro);
-      const handoffActive = String(!media.matches && pose.intro === 0);
+      node.style.opacity = isStatic ? '1' : String(pose.intro);
+      const handoffActive = String(!isStatic && pose.intro === 0);
       if (node.dataset.cardHandoffActive !== handoffActive) {
         node.dataset.cardHandoffActive = handoffActive;
       }
-      const artwork = media.matches ? 0 : pose.artwork;
+      const artwork = isStatic ? 0 : pose.artwork;
       node.querySelectorAll<HTMLElement>('[data-handoff-surface]').forEach(surface => {
         surface.style.opacity = String(1 - artwork);
         surface.inert = artwork === 1;
@@ -40,10 +42,10 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       node.querySelectorAll<HTMLElement>('[data-handoff-artwork]').forEach(surface => { surface.style.opacity = String(artwork); });
       // Every incoming frame shares the outgoing frame's geometry and coverage.
       const services = world?.querySelector<HTMLElement>('[data-services-stage]');
-      const reveal = media.matches ? 1 : pose.serviceReveal;
-      services?.style.setProperty('--service-opening-copy', String(media.matches ? 1 : pose.serviceCopy));
-      services?.style.setProperty('--service-opening-expertise', String(media.matches ? 1 : pose.expertise));
-      services?.style.setProperty('--service-opening-sides', String(media.matches ? 1 : pose.serviceSides));
+      const reveal = isStatic ? 1 : pose.serviceReveal;
+      services?.style.setProperty('--service-opening-copy', String(isStatic ? 1 : pose.serviceCopy));
+      services?.style.setProperty('--service-opening-expertise', String(isStatic ? 1 : pose.expertise));
+      services?.style.setProperty('--service-opening-sides', String(isStatic ? 1 : pose.serviceSides));
       const triptych = services?.querySelector<HTMLElement>('[data-service-triptych]');
       const centerMedia = triptych?.querySelector<HTMLElement>('[data-position=center] [data-screening-media]');
       if (centerMedia !== fittedMedia) {
@@ -57,30 +59,30 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         centerMedia.style.filter = 'none';
         centerMedia.style.opacity = String(reveal);
       }
-      node.style.setProperty('--handoff-proof', String(media.matches ? 1 : pose.proof));
+      node.style.setProperty('--handoff-proof', String(isStatic ? 1 : pose.proof));
       // Keep the reading face clickable through its transport and hold.
       // It retires only once no painted content remains.
-      node.inert = !media.matches && pose.intro === 0;
-      node.style.setProperty('--handoff-sculpture', String(media.matches ? 1 : pose.sculpture));
-      node.style.setProperty('--handoff-lift', `${media.matches ? 0 : -24 * pose.focus}px`);
-      copy.style.visibility = media.matches || Math.max(pose.copy, pose.brand) > .001 ? 'visible' : 'hidden';
+      node.inert = !isStatic && pose.intro === 0;
+      node.style.setProperty('--handoff-sculpture', String(isStatic ? 1 : pose.sculpture));
+      node.style.setProperty('--handoff-lift', `${isStatic ? 0 : -24 * pose.focus}px`);
+      copy.style.visibility = isStatic || Math.max(pose.copy, pose.brand) > .001 ? 'visible' : 'hidden';
       for (const beat of ['lead', 'main', 'necessity', 'brand'] as const) {
         const element = copy.querySelector<HTMLElement>(`[data-brand-beat=${beat}]`);
         if (!element) continue;
-        const presence = media.matches ? 1 : pose[beat];
+        const presence = isStatic ? 1 : pose[beat];
         element.style.opacity = String(presence);
         element.setAttribute('aria-hidden', String(presence === 0));
       }
       const pointerPlane = node.querySelector<HTMLElement>('[data-opening-pointer]');
-      if (pointerPlane) pointerPlane.style.setProperty('--handoff-pointer', String(media.matches ? 0 : pose.pointer));
+      if (pointerPlane) pointerPlane.style.setProperty('--handoff-pointer', String(isStatic ? 0 : pose.pointer));
       runway.dataset.handoffProgress = pose.progress.toFixed(3);
       // A direct jump can reach this beat one frame before the shared scene
       // has unfolded the service triptych. Measure its settled target geometry.
-      if (!media.matches && pose.progress > 0 && pose.progress < 1 && world?.querySelector<HTMLElement>('[data-services-stage]')?.dataset.galleryGathering === 'true') { schedule(); return; }
+      if (!isStatic && pose.progress > 0 && pose.progress < 1 && world?.querySelector<HTMLElement>('[data-services-stage]')?.dataset.galleryGathering === 'true') { schedule(); return; }
       const enteringBackwards = previous >= 1 && pose.progress < 1;
       const startingHandoff = previous === 0 && pose.progress > 0;
       previous = pose.progress;
-      if (media.matches || pose.progress < 1 || startingHandoff || enteringBackwards || bases.length !== panels.length) {
+      if (isStatic || pose.progress < 1 || startingHandoff || enteringBackwards || bases.length !== panels.length) {
         panels.forEach(panel => {
           panel.style.removeProperty('--handoff-x'); panel.style.removeProperty('--handoff-y'); panel.style.removeProperty('--handoff-scale');
           panel.style.removeProperty('--handoff-depth');
@@ -95,7 +97,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
             parentX: r.width / Math.max(1, parseFloat(style.width)), parentY: r.height / Math.max(1, parseFloat(style.height)), motionX: motion.m41, motionY: motion.m42 };
         });
       }
-      if (media.matches || !pose.progress) return;
+      if (isStatic || !pose.progress) return;
       // A measured frame fits the service media without a flip. Artwork counter-
       // scales uniformly inside its crop while the outer frame changes aspect.
       panels.forEach((panel, index) => {
@@ -143,11 +145,11 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       node.style.opacity = ''; node.inert = false; delete node.dataset.cardHandoffActive;
       node.querySelectorAll<HTMLElement>('[data-handoff-surface]').forEach(surface => { surface.style.opacity = ''; surface.inert = false; });
       cancelAnimationFrame(frame); observer.disconnect(); geometry.disconnect(); replacements.disconnect(); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', resize); media.removeEventListener('change', resize); };
-  }, [scene?.target]);
+  }, [scene?.target, scene?.staticLayout]);
   return <div className={styles.cardTransition} data-card-transition data-scroll-manual>
     <div ref={intro} className={styles.cardIntro}>{children}</div>
     <ScenePortal><div ref={message} className={styles.shapingMessage} data-shaping-message data-scroll-title-skip>
-      <div className={styles.brandStatement}>
+      <div className={styles.brandStatement} data-brand-statement>
         <p data-brand-beat="lead">{locale === 'fr' ? 'Pour mener le changement,' : 'To lead today,'}</p>
         <h2><span data-brand-beat="main">{locale === 'fr' ? 'l’innovation n’est pas une option.' : 'innovation isn’t optional.'}</span>
           <span data-brand-beat="necessity" className={styles.necessity}>{locale === 'fr' ? 'C’est une nécessité.' : 'It’s a necessity.'}</span></h2>
