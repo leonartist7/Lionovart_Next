@@ -1,0 +1,271 @@
+(node:10) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/sections/card-bridge.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ desktop panels land exactly on a centred foreground and two level elevated rear frames (1.551638ms)
+✔ portrait turns preserve their final target even with split offsets and unequal parent projection (0.617891ms)
+✔ the transport reverses continuously without a desktop rotation or scale jump (8.354934ms)
+✔ desktop card tops stay inside the reading area throughout the reshape (20.263499ms)
+(node:11) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/sections/card-handoff.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ the statement starts with the cards, then gives the brand its own hold (1.281991ms)
+✔ artwork replaces the benefit face before fitting, with no blank intermediate cards (9.391531ms)
+✔ pointer motion lasts through the reading hold and corner sculptures clear early (0.220862ms)
+✔ every cue is reversible, bounded and independent of viewport scale (10.843709ms)
+(node:12) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/sections/chapter-dissolve.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ chapter dissolve at 568px has invisible boundaries, a readable hold and reversible entry (2.560798ms)
+✔ chapter dissolve at 844px has invisible boundaries, a readable hold and reversible entry (0.510599ms)
+✔ chapter dissolve at 900px has invisible boundaries, a readable hold and reversible entry (2.937145ms)
+✔ chapter dissolve at 1024px has invisible boundaries, a readable hold and reversible entry (0.393293ms)
+✔ adjacent chapters always share a complementary dissolve at every viewport size (7.610768ms)
+(node:18) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/sections/gallery-layout.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ gallery depth is reversible, visits every pair and clears the room before the ending (20.264735ms)
+✔ the logo arrives first, partnership copy follows and CTAs wait for the reading beat (0.331219ms)
+✔ native gallery progress is finite and consistent across portrait and desktop viewports (0.286091ms)
+✔ phone and tablet exhibits open vertically within the reading area; desktop stays horizontal (0.59735ms)
+✔ the service gather matches the projected gallery center on desktop and portrait (0.389617ms)
+✔ closer arrow stops remain opaque and travel stays continuous in both directions (0.289336ms)
+✔ the dock, arrows and centred title are gone before the logo-only beat and restore in reverse (0.316437ms)
+✔ rapid arrows accumulate a bounded target and reverse from the pending destination (0.226391ms)
+✔ arrow curves carry forward velocity, settle without overshoot and stay distance-scaled (1.623667ms)
+✔ reading pairs have clear space between their full frames on phones, tablets and desktop (0.814237ms)
+✔ upcoming rows stay visible behind the current pair without competing at full opacity (12.815902ms)
+✔ cards reach a substantially larger readable size before a long, continuous fade (28.107532ms)
+✔ desktop pairs recover the logo lane only during their exit (0.405241ms)
+✔ arrow stops fit fully, then opaque artwork passes beyond the desktop edges before erosion (13.819703ms)
+✔ gallery invitation appears with the gather, holds in the doorway and clears as it opens (2.255048ms)
+✔ erosion starts after the enlarged hold and reverses without frame or caption residue (24.579353ms)
+✔ future mobile rows approach vertically and retain the centered X axis (0.263908ms)
+✔ short desktop windows reserve space for titles, captions and navigation (0.213482ms)
+✔ the close preview shares the service axis and holds until the lateral exit (10.522595ms)
+✔ erosion spans a long approach and fully retires every frame before the ending (0.208123ms)
+✔ the carried artwork leads ten unique projects across five rows (0.293432ms)
+✔ the single carried frame owns the entrance before its companion appears (0.170667ms)
+✔ desktop artwork holds a narrow central lane through the enlarged reading beat (4.82397ms)
+✔ five glass rings move forward reversibly, clear their edges, and leave the logo for the ending (13.950334ms)
+✔ each world stays attached to its row and surrounds its reading frame and captions (0.356707ms)
+✔ Playfair italic 500 input retains tracking and four open counters (1.737628ms)
+✔ desktop: bounded asset size, two material meshes and finite geometry (26.678239ms)
+✔ desktop: exported front faces leave R/O/A/R counter centers empty (5.20905ms)
+✔ mobile: bounded asset size, two material meshes and finite geometry (9.981576ms)
+✔ mobile: exported front faces leave R/O/A/R counter centers empty (8.516904ms)
+✔ auto quality uses lighter geometry on narrow or coarse-pointer devices (0.320122ms)
+✔ pointer motion stays bounded, approaches without overshoot and returns to neutral (0.621056ms)
+(node:25) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/ui/intro-readiness.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ readiness waits for mounted content, essential fonts, both decoded images, then two measured frames (5.927661ms)
+✔ timeout cancellation disconnects mount observer (2.400117ms)
+✔ cancellation removes pending layout frame (2.624825ms)
+(node:26) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/ui/intro-scene.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ 320x568: centered, uncropped artwork and corner-covering wipes (15.586215ms)
+✔ 390x844: centered, uncropped artwork and corner-covering wipes (6.258621ms)
+✔ 844x390: centered, uncropped artwork and corner-covering wipes (10.210645ms)
+✔ 768x1024: centered, uncropped artwork and corner-covering wipes (7.656507ms)
+✔ 1024x768: centered, uncropped artwork and corner-covering wipes (6.964954ms)
+✔ 1440x900: centered, uncropped artwork and corner-covering wipes (6.70967ms)
+✔ 3840x2160: centered, uncropped artwork and corner-covering wipes (5.121217ms)
+(node:66) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/sections/lion-journey/motion.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ 320px: lion travels directly toward the film and faces forward (8.206446ms)
+✔ 320px: gold strands orbit the head and clear the invitation (0.548307ms)
+✔ 390px: lion travels directly toward the film and faces forward (3.834428ms)
+✔ 390px: gold strands orbit the head and clear the invitation (0.353874ms)
+✔ 768px: lion travels directly toward the film and faces forward (1.293539ms)
+✔ 768px: gold strands orbit the head and clear the invitation (0.333122ms)
+✔ 800px: lion travels directly toward the film and faces forward (1.940073ms)
+✔ 800px: gold strands orbit the head and clear the invitation (0.196036ms)
+✔ 1024px: lion travels directly toward the film and faces forward (4.332198ms)
+✔ 1024px: gold strands orbit the head and clear the invitation (0.339712ms)
+✔ 1440px: lion travels directly toward the film and faces forward (0.60391ms)
+✔ 1440px: gold strands orbit the head and clear the invitation (0.357278ms)
+✔ 1920px: lion travels directly toward the film and faces forward (3.421235ms)
+✔ 1920px: gold strands orbit the head and clear the invitation (0.383178ms)
+✔ gold orbit makes a reversible scroll-authored turn (0.940447ms)
+✔ sticky motion reverses along the same screen path (0.464ms)
+✔ lion remains visible until the film covers its mane (0.210287ms)
+(node:67) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/sections/nav-scroll.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ navigation hides on descent and returns after deliberate upward travel (0.991454ms)
+✔ a new direction resets its accumulated travel (0.337238ms)
+(node:73) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/sections/lion-journey/opening-layout.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ medium laptop/tablet and landscape phone get the horizontal film (2.491174ms)
+✔ a tall stack does not push the film below its visible reading area (3.982196ms)
+✔ each full card stack is readable before and after its flip (1.620401ms)
+✔ auto settling reads the front stack before carrying it into Imagine (0.741097ms)
+✔ inline benefits read one compact stack without a reset or second pass (0.482006ms)
+✔ one card scene protects reading and never skips the manual handoff (0.419992ms)
+✔ card anchors retain their document origin while the intro parent is sticky (1.563986ms)
+✔ trust finishes before the invitation appears over the moving cards, in both directions (10.605431ms)
+✔ card separation expands within the available desktop and phone widths (0.418471ms)
+✔ the shared card pointer tilt stays small, bounded and neutral when disabled (0.67717ms)
+(node:84) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/sections/partnership-layout.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ partnership invitation and result action have separate reading areas at 320x568 (1.290835ms)
+✔ partnership invitation and result action have separate reading areas at 360x640 (0.171709ms)
+✔ partnership invitation and result action have separate reading areas at 390x844 (0.157357ms)
+✔ partnership invitation and result action have separate reading areas at 768x1024 (0.105019ms)
+✔ partnership invitation and result action have separate reading areas at 1024x768 (0.13936ms)
+✔ partnership invitation and result action have separate reading areas at 1365x650 (0.104918ms)
+✔ partnership invitation and result action have separate reading areas at 1440x900 (0.10613ms)
+✔ partnership invitation and result action have separate reading areas at 2560x1080 (0.108804ms)
+✔ the upper logo stays in place throughout the partnership reading beat (0.830742ms)
+✔ the invitation position and ring reveal are continuous and reversible (9.018479ms)
+(node:97) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/sections/partnership-motion.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ cards dissolve into the centered chapter, with a complete reading hold (1.196643ms)
+✔ the dissolving handoff is continuous and reversible (12.243748ms)
+✔ the text gets a full reading interval before images begin moving (0.195345ms)
+✔ desktop: design validates and every reveal remains a finite cubic contour (28.186287ms)
+✔ desktop: all references resolve and material / shadow reveals are wired (2.299665ms)
+✔ tablet: design validates and every reveal remains a finite cubic contour (8.437038ms)
+✔ tablet: all references resolve and material / shadow reveals are wired (0.973317ms)
+✔ mobile: design validates and every reveal remains a finite cubic contour (4.040469ms)
+✔ mobile: all references resolve and material / shadow reveals are wired (0.594756ms)
+✔ formation is monotonic, staggered, and all layers finish at nine seconds (12.508223ms)
+✔ desktop: CTA material, receivers and shadows share cubic formation and lower blend (2.970836ms)
+✔ mobile: CTA material, receivers and shadows share cubic formation and lower blend (3.840787ms)
+(node:112) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/sections/process-lion-motion.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ 390px: step four has a complete hold before the lion departs (1.925651ms)
+✔ 390px: chapter appears with a centered, forward-facing lion before the CTA (0.305871ms)
+✔ 390px: the settled lion never descends during CTA formation (0.4249ms)
+✔ 390px: scroll route remains continuous and reversible (11.393208ms)
+✔ 768px: step four has a complete hold before the lion departs (1.109061ms)
+✔ 768px: chapter appears with a centered, forward-facing lion before the CTA (0.114703ms)
+✔ 768px: the settled lion never descends during CTA formation (0.149415ms)
+✔ 768px: scroll route remains continuous and reversible (0.592973ms)
+✔ 1440px: step four has a complete hold before the lion departs (0.159771ms)
+✔ 1440px: chapter appears with a centered, forward-facing lion before the CTA (0.204168ms)
+✔ 1440px: the settled lion never descends during CTA formation (0.169726ms)
+✔ 1440px: scroll route remains continuous and reversible (7.437722ms)
+✔ rings rotate on approach and departure but hold during the strong highlight (0.284229ms)
+✔ passed steps retract to white on reverse scroll (0.17965ms)
+✔ the lion becomes opaque and faces front as it settles above the copy (0.305501ms)
+✔ scroll nod is directional, bounded and neutral at rest (0.190147ms)
+✔ a shortened CTA lands on its measured upper dock without a release jump (0.175555ms)
+(node:120) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/experience/scroll-policy.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ 844px: free flow never settles; gentle mode protects film and card holds (1.948016ms)
+✔ 844px: cinematic advances one resting point, in either direction (7.630603ms)
+✔ 844px: reading content is free; only nearby section boundaries settle (0.518441ms)
+✔ 900px: free flow never settles; gentle mode protects film and card holds (0.149906ms)
+✔ 900px: cinematic advances one resting point, in either direction (0.297699ms)
+✔ 900px: reading content is free; only nearby section boundaries settle (0.153511ms)
+✔ 1024px: free flow never settles; gentle mode protects film and card holds (0.121102ms)
+✔ 1024px: cinematic advances one resting point, in either direction (0.102174ms)
+✔ 1024px: reading content is free; only nearby section boundaries settle (0.368345ms)
+✔ modes and easing stay bounded and give mobile enough runway (0.489087ms)
+✔ guided exit needs a fresh gesture after the card resting point (0.199491ms)
+✔ settling waits for a released gesture and the end of Lenis inertia (0.208194ms)
+✔ small corrections finish faster than full journeys, in either direction (0.398891ms)
+✔ 600px: every release through the film/card handoff finishes in either direction (0.419112ms)
+✔ 844px: every release through the film/card handoff finishes in either direction (0.140442ms)
+✔ 936px: every release through the film/card handoff finishes in either direction (0.145249ms)
+✔ 1024px: every release through the film/card handoff finishes in either direction (0.385781ms)
+✔ 600px: the new Imagine flip settles both ways and preserves reading holds (1.306369ms)
+✔ 844px: the new Imagine flip settles both ways and preserves reading holds (0.362596ms)
+✔ 936px: the new Imagine flip settles both ways and preserves reading holds (1.933142ms)
+✔ 1024px: the new Imagine flip settles both ways and preserves reading holds (0.186952ms)
+✔ the expanded mobile Imagine stack reads naturally in both directions (0.192219ms)
+✔ 600px: one fresh gesture leaves the film or cards, then stops for reading (0.20583ms)
+✔ 844px: one fresh gesture leaves the film or cards, then stops for reading (0.108253ms)
+✔ 936px: one fresh gesture leaves the film or cards, then stops for reading (0.088533ms)
+✔ the partnership never advances automatically in any mode or direction (0.347604ms)
+✔ Imagine cannot automatically skip to the end of the partnership (0.137918ms)
+✔ boundary settling cannot cross the manual partnership in either direction (0.189145ms)
+✔ free flow only aligns nearby cards in the direction of a released gesture (0.885314ms)
+(node:121) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/sections/service-gallery-handoff.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ rear services clear before one identical frame transfers and opens into the gallery (2.106083ms)
+✔ the gather and fan stay reversible, bounded and consistent across viewport sizes (2.428439ms)
+(node:135) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/sections/service-selection.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ dial takes the nearest stop from 0 to 2 (1.298296ms)
+✔ dial takes the nearest stop from 2 to 0 (0.150667ms)
+✔ dial takes the nearest stop from -1 to 0 (0.107553ms)
+✔ dial takes the nearest stop from 4 to 0 (0.122635ms)
+✔ dial takes the nearest stop from 1.3 to 2 (0.13284ms)
+✔ orbit endpoints preserve the three authored frame positions across wrapped turns (0.443177ms)
+✔ a full turn remains continuous and visible (3.255456ms)
+✔ slow earlier preparation cannot replace the latest choice (15.545655ms)
+✔ rapid choices only prepare the final requested scene (2.02378ms)
+✔ scroll interruption/unmount cancels both pending and in-flight commits (3.833396ms)
+✔ failed media keeps the current scene and permits a retry (2.033154ms)
+✔ a stale media failure cannot reset the new selection (3.752274ms)
+(node:143) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/sections/service-world/world-state.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ the room remains black before the card exit and reaches ivory within the partnership runway (6.801388ms)
+✔ all exhibit silhouettes fit the assigned viewport at 320x568 (0.296657ms)
+✔ all exhibit silhouettes fit the assigned viewport at 390x844 (0.310017ms)
+✔ all exhibit silhouettes fit the assigned viewport at 768x1024 (0.271369ms)
+✔ all exhibit silhouettes fit the assigned viewport at 1440x900 (0.169305ms)
+✔ all exhibit silhouettes fit the assigned viewport at 2560x1080 (0.111848ms)
+✔ all exhibit silhouettes fit the assigned viewport at 844x390 (0.234894ms)
+✔ gallery contains 0.25 aspect art at full scale without distortion (0.231369ms)
+✔ gallery contains 0.50 aspect art at full scale without distortion (0.157348ms)
+✔ gallery contains 1.00 aspect art at full scale without distortion (0.309206ms)
+✔ gallery contains 1.50 aspect art at full scale without distortion (0.15286ms)
+✔ gallery contains 1.78 aspect art at full scale without distortion (0.131549ms)
+✔ gallery contains 3.00 aspect art at full scale without distortion (0.149525ms)
+✔ gallery contains 5.00 aspect art at full scale without distortion (0.129244ms)
+✔ invalid image dimensions have a finite widescreen fallback (0.199872ms)
+✔ demand rendering and invalid samples cannot trigger a quality downgrade (0.359411ms)
+✔ sustained slow animation lowers quality, but startup and isolated stalls do not (0.327854ms)
+✔ scrolling a foreground exhibit changes its placement without changing scale or camera framing (0.302346ms)
+(node:151) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/experience/sonic.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ breeze is silent by default, reuses one graph and fades on suspension (7.146068ms)
+✔ hover cues stay opt-in, quiet and rate-limited (3.540385ms)
+✔ clicks and step/service cues remain quiet, rate-limited and release their voices (1.283894ms)
+(node:161) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/2ae4ef56cfba/lionovart/src/components/sections/gallery-layout.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/2ae4ef56cfba/lionovart/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ gallery axis switches once at the shared CSS pixel boundary (1.711379ms)
+✔ caption gutters scale with text preferences without changing the gallery axis (0.714477ms)
+✔ content-fit reserves navigation, captions and controls at the reading stop (0.358029ms)
+✔ ordinary vertical reading pairs retain room for two captions (0.454705ms)
+ℹ tests 191
+ℹ suites 0
+ℹ pass 191
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 713.823328

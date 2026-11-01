@@ -50,10 +50,12 @@ Arrow navigation stops at row advance 0.26, approximately z=61px. Retargeting ke
 
 Erosion starts at advance 0.86 after the enlarged cards pass substantially beyond the viewport. It spans 0.36 row units and finishes at 1.22. Captions and hit targets retire before the frame finishes dissolving. Poster-only and save-data fallbacks use opacity without the shader. Distant previews remain deliberately faint to keep metadata legible.
 
-Project labels omit the presentation-only “Motion” tag. Individual tags never break internally; the wider caption area accommodates at most two rows at the sampled small-phone, phone and tablet widths. Underlying project metadata remains intact.
+Project labels omit the presentation-only “Motion” tag. The wider caption area accommodates at most two rows at the sampled default-text phone and tablet widths. Enlarged text and custom spacing can wrap freely, including emergency word wrapping, without truncation. Underlying project metadata remains intact.
 
 ## Motion and verification
 
 Reduced motion and heights at or below 560px use normal document flow, static project lists and readable narrative copy. The shared portal is not mounted. Scroll handlers are RAF-batched; the portal has no idle loop. Listeners and observers are released on cleanup. Existing media eligibility still allows only the current selected/leading work to play.
+
+Measured content-fit can select the same fallback at other dimensions. The opening releases its pinned runway and absolute layers, presenting its source-aspect film and three original benefit cards in normal reading order. Both card faces reserve natural content height, including enlarged French text; native film controls and the existing paw/keyboard reveal remain available. See [the Phase 1 composition checkpoint](../qa/story-composition-20261101/README.md).
 
 See [the dated verification record](../qa/immersive-story-20261031/verification.md) for completed checks and limitations. Older screenshots and transition descriptions are historical evidence, not the current design contract.
