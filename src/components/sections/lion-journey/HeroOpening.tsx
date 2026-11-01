@@ -14,6 +14,7 @@ export default function HeroOpening() {
   const { opening: openingRef, openingProgress, arrivalProgress } = useLionJourney()!;
   const scene = usePinnedScene();
   const reduced = useHydratedReducedMotion();
+  const readingFlow = reduced || !!scene?.staticLayout;
   const [workInert, setWorkInert] = useState(false);
   const workOpacity = useTransform(arrivalProgress, [0, .3, .9, 1], [1, 1, 0, 0]);
   useMotionValueEvent(arrivalProgress, "change", p => setWorkInert(p >= .9));
@@ -32,7 +33,7 @@ export default function HeroOpening() {
     const hero = stage?.querySelector<HTMLElement>(".lion-hero");
     const roar = hero?.querySelector<HTMLElement>(".lion-roar-text");
     const nav = document.querySelector<HTMLElement>("[data-nav-state]");
-    if (!stage || !hero) return;
+    if (!stage || !hero || readingFlow) return;
     let frame = 0;
     const measure = () => {
       cancelAnimationFrame(frame);
@@ -58,7 +59,7 @@ export default function HeroOpening() {
     void document.fonts.ready.then(measure);
     measure();
     return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener("resize", measure); };
-  }, [openingRef, scene?.target]);
+  }, [openingRef, scene?.target, readingFlow]);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -69,17 +70,17 @@ export default function HeroOpening() {
   }, []);
 
   return (
-    <div ref={openingRef} className="hero-opening hero-opening-pinned" data-opening-mode="pinned" data-opening-imagine="inline" data-nav-surface="dark">
+    <div ref={openingRef} className="hero-opening hero-opening-pinned" data-opening-mode={readingFlow ? "static" : "pinned"} data-opening-imagine="inline" data-nav-surface="dark">
       <span id="what-we-build" className="opening-work-anchor" aria-hidden="true" />
       <span id="imagine" className="opening-imagine-anchor" aria-hidden="true" />
       <span id="problems" className="opening-imagine-anchor" aria-hidden="true" />
       <ScenePortal><div className={journeyStyles.journey} data-scene-opening data-opening-imagine="inline">
       <div className="hero-opening-stage" data-opening-imagine="inline">
         <motion.div data-nova-section="hero" data-opening-hero className="opening-hero-layer"
-          style={{ opacity: reduced ? 1 : heroOpacity }} inert={!reduced && heroInert}>
+          style={{ opacity: readingFlow ? 1 : heroOpacity }} inert={!readingFlow && heroInert}>
           <HeroTop />
         </motion.div>
-        <motion.div className="opening-work-layer" data-opening-cards-layer style={{ opacity: reduced ? 1 : workOpacity }} inert={!reduced && workInert}>
+        <motion.div className="opening-work-layer" data-opening-cards-layer style={{ opacity: readingFlow ? 1 : workOpacity }} inert={!readingFlow && workInert}>
           <WhatWeDo pinned />
         </motion.div>
       </div>

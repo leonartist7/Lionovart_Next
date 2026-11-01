@@ -303,3 +303,16 @@
 :global([data-card-color-motion=true]) .integratedArtwork::after { animation-play-state:running; will-change:transform; }
 @keyframes opening-art-color { to { transform:translate3d(6%,5%,0) scale(1.15) rotate(5deg); } }
 @media(prefers-reduced-motion:reduce) { .integratedArtwork::after { animation:none; } }
+
+
+/* Text determines fallback card height; both cover and revealed copy reserve space. */
+.card[data-integrated=true][data-flow=true] { container-type: normal; height: auto; grid-template-columns: minmax(0,1fr); grid-template-rows: auto auto; border-radius: 1rem; }
+.card[data-flow=true] .integratedArtwork { aspect-ratio: 16 / 9; }
+.card[data-flow=true] .detailWell { container-type: normal; min-height: 18rem; }
+.card[data-integrated=true][data-flow=true] .integratedDetails { position: relative; inset: auto; align-content: start; padding: 1.25rem var(--benefit-inset) 3.5rem; }
+.card[data-flow=true] .detailCover { align-self: stretch; }
+.card[data-integrated=true][data-flow=true] .integratedCopy { display: block; height: auto; padding: 1.25rem var(--benefit-inset) 3.5rem; }
+.card[data-integrated=true][data-flow=true] .integratedCopy h3 { font-size: 1.375rem; line-height: 1.2; }
+.card[data-integrated=true][data-flow=true] .serviceLabel,
+.card[data-integrated=true][data-flow=true] .integratedAccent { position: static; width: auto; height: auto; clip-path: none; white-space: normal; font-size: .875rem; }
+.card[data-flow=true] .cardToggle { pointer-events: auto; }

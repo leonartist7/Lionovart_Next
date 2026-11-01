@@ -11,10 +11,11 @@
   output { padding:.5rem 1rem;display:block;font-size:.875rem } p { margin:0;font-size:.875rem;max-width:40ch }
 </style>
 <header>
+  <label>Language<select id="locale"><option value="en">English</option><option value="fr">Français</option></select></label>
   <label>Viewport<select id="size"><option>390x844</option><option>320x568</option><option>360x800</option><option>768x1024</option><option>1023x768</option><option>1024x768</option><option>1025x768</option><option>1280x720</option><option>1440x900</option><option>1920x1080</option><option>844x390</option></select></label>
   <label>Text size<select id="text"><option value="16">100%</option><option value="20">125%</option><option value="24">150%</option><option value="32">200%</option></select></label>
   <label>Text spacing<select id="spacing"><option value="normal">Default</option><option value="expanded">Expanded</option></select></label>
-  <label>Reading stop<select id="chapter"><option value="hero">Hero</option><option value="statement">Statement</option><option value="services">Services</option><option value="gallery">Gallery</option><option value="partnership">Partnership</option></select></label>
+  <label>Reading stop<select id="chapter"><option value="hero">Hero</option><option value="cards-early">Opening cards — early</option><option value="cards">Opening cards — settled</option><option value="statement">Statement</option><option value="services">Services</option><option value="gallery">Gallery</option><option value="partnership">Partnership</option></select></label>
   <button id="go">Go to reading stop</button>
   <button id="check">Measure layout</button>
   <p>Review fixture: iframe widths exercise real media queries. Text sizing simulates a root-font preference, not browser zoom or physical touch hardware.</p>
@@ -40,9 +41,23 @@
   function go() {
     const doc=frame.contentDocument,win=frame.contentWindow,key=document.querySelector('#chapter').value;
     const world=doc.querySelector('[data-service-world]'),pinned=world?.dataset.storyStatic==='false';
-    const selector={hero:'[data-opening-hero]',statement:'[data-card-exit]',services:'[data-services-runway]',gallery:'[data-gallery-runway]',partnership:'[data-gallery-runway]'}[key];
+    const selector={hero:'.hero-opening','cards-early':'.hero-opening',cards:'.hero-opening',statement:'[data-card-exit]',services:'[data-services-runway]',gallery:'[data-gallery-runway]',partnership:'[data-gallery-runway]'}[key];
     let el=doc.querySelector(selector);if(!el)return;
     let top=win.scrollY+el.getBoundingClientRect().top;
+    if(pinned&&(key==='hero'||key==='cards'||key==='cards-early')) {
+      const intro=el.closest('[data-work-intro]'),transition=el.closest('[data-work-services-transition]');
+      if(intro&&transition)top=win.scrollY+transition.getBoundingClientRect().top+el.getBoundingClientRect().top-intro.getBoundingClientRect().top;
+    }
+    if(key==='cards'||key==='cards-early') {
+      if(pinned) {
+        const stage=doc.querySelector('.hero-opening-stage'),exit=doc.querySelector('[data-card-exit]');
+        const css=el.style,front=parseFloat(css.getPropertyValue('--opening-front-overflow'))||0;
+        const extra=parseFloat(css.getPropertyValue('--opening-benefit-overflow'))||0;
+        const overlap=exit?Math.max(0,-parseFloat(win.getComputedStyle(exit).marginTop)):0;
+        const span=Math.max(1,el.offsetHeight-stage.offsetHeight-overlap-extra-front);
+        top+=(parseFloat(css.getPropertyValue('--hero-overflow'))||0)+span*(key==='cards-early'?.52:.84);
+      } else {el=doc.querySelector('[data-opening-benefits]');if(el)top=win.scrollY+el.getBoundingClientRect().top-100}
+    }
     if(key==='statement') {if(pinned)top+=el.offsetHeight*.35;else {el=doc.querySelector('[data-shaping-message]');top=win.scrollY+el.getBoundingClientRect().top}}
     if(key==='services'&&pinned)top+=win.innerHeight*.2;
     if(key==='gallery'&&pinned)top+=(el.offsetHeight-win.innerHeight*.85)*.04979601489843844;
@@ -50,6 +65,7 @@
     win.scrollTo({top,behavior:'instant'});measure();
   }
   frame.addEventListener('load',settings);
+  document.querySelector('#locale').addEventListener('change',event=>{frame.src=event.target.value==='fr'?'/fr':'/'});
   for(const id of ['size','text','spacing'])document.querySelector('#'+id).addEventListener('change',settings);
   document.querySelector('#go').addEventListener('click',go);
   document.querySelector('#check').addEventListener('click',measure);

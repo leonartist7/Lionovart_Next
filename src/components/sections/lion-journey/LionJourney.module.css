@@ -296,3 +296,12 @@
 /* The shared film/card geometry reserves this complete reading stack below. */
 .journey :global(.opening-work-pinned) { --opening-video-center:41svh; }
 .journey :global(.opening-work-pinned .opening-proof-stage) { top:0; }
+
+
+/* Shared content-fit fallback must release the opening runway as well. */
+.journey :global(.hero-opening[data-opening-mode=static]) { height: auto; }
+.journey :global([data-opening-mode=static] [data-scene-opening]),
+.journey :global([data-opening-mode=static] .hero-opening-stage) { position: relative; top: auto; height: auto; overflow: visible; }
+.journey :global([data-opening-mode=static] .opening-hero-layer),
+.journey :global([data-opening-mode=static] .opening-work-layer),
+.journey :global([data-opening-mode=static] .opening-work-pinned) { position: relative; inset: auto; height: auto; }

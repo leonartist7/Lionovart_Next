@@ -1,7 +1,13 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 
+import { usePinnedScene } from './service-world/PinnedScene';
+import { BenefitCard } from './PawRevealStack';
+import { IMAGINE_BENEFITS } from './imagine-benefits';
+import { LANDSCAPE_FILM_QUERY } from './lion-journey/opening-layout';
+import styles from './OpeningReadingFlow.module.css';
 import OpeningProof from "./OpeningProof";
 import DisciplineSplit3D from "@/components/sections/what-we-do/DisciplineSplit3D";
 import { useLionJourney } from "./lion-journey/LionJourney";
@@ -41,14 +47,36 @@ const CARDS = [
   },
 ];
 
+function subscribeFilmLayout(notify: () => void) {
+  const query = window.matchMedia(LANDSCAPE_FILM_QUERY);
+  query.addEventListener("change", notify);
+  return () => query.removeEventListener("change", notify);
+}
+
+function ReadingFilm() {
+  const tr = usePublicCopy();
+  const landscape = useSyncExternalStore(subscribeFilmLayout,
+    () => window.matchMedia(LANDSCAPE_FILM_QUERY).matches, () => false);
+  return <video key={String(landscape)} className={styles.film} controls playsInline preload="none"
+    src={landscape ? SPLIT_VIDEO : MOBILE_VIDEO}
+    poster={landscape ? VIDEO_POSTER : MOBILE_VIDEO_POSTER} aria-label={tr("Watch video")} />;
+}
+
 export default function WhatWeDo({ pinned = false }: { pinned?: boolean }) {
   const tr = usePublicCopy();
   const journey = useLionJourney();
+  const readingFlow = usePinnedScene()?.staticLayout ?? false;
   return (
     <section id="opening-work" data-nova-section="what-we-do" className={`${journey ? "opening-work" : "bg-bg-dark"}${pinned ? " opening-work-pinned" : ""} text-white`}>
-      <DisciplineSplit3D cards={CARDS.map(card => ({ ...card, title: tr(card.title), accent: tr(card.accent), body: tr(card.body) }))} video={SPLIT_VIDEO} mobileVideo={MOBILE_VIDEO}
+      {readingFlow ? <div className={styles.flow} data-opening-static>
+        <ReadingFilm />
+        <div className={styles.cards} data-opening-benefits>
+          {CARDS.map((card, index) => <BenefitCard key={card.code} item={IMAGINE_BENEFITS[index]} index={index}
+            artwork={card.image} code={card.code} serviceTitle={tr(card.title)} accent={tr(card.accent)} flow />)}
+        </div>
+      </div> : <DisciplineSplit3D cards={CARDS.map(card => ({ ...card, title: tr(card.title), accent: tr(card.accent), body: tr(card.body) }))} video={SPLIT_VIDEO} mobileVideo={MOBILE_VIDEO}
         videoFallback={VIDEO_FALLBACK} mobileVideoFallback={MOBILE_VIDEO_FALLBACK}
-        poster={VIDEO_POSTER} mobilePoster={MOBILE_VIDEO_POSTER} pinned={pinned} />
+        poster={VIDEO_POSTER} mobilePoster={MOBILE_VIDEO_POSTER} pinned={pinned} />}
       {!pinned && <div className="opening-proof-stage"><OpeningProof /></div>}
     </section>
   );

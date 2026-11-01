@@ -20,9 +20,9 @@ const BENEFITS = IMAGINE_BENEFITS;
 function artworkSource(source: string, width: number) {
   return source.includes("res.cloudinary.com/") ? source.replace("/image/upload/", `/image/upload/f_auto,q_auto,c_limit,w_${width}/`) : source;
 }
-export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, enabled = true }: {
+export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, enabled = true, flow = false }: {
   item: typeof BENEFITS[number]; index: number; artwork?: string; code?: string;
-  serviceTitle?: string; accent?: string; enabled?: boolean;
+  serviceTitle?: string; accent?: string; enabled?: boolean; flow?: boolean;
 }) {
   const integrated = !!artwork;
   const tr = usePublicCopy();
@@ -100,12 +100,12 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
     </div>
   </div>;
 
-  return <article className={styles.card} data-benefit-card data-benefit-index={index} data-scroll-title-skip data-integrated={integrated} data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
+  return <article className={styles.card} data-benefit-card data-benefit-index={index} data-scroll-title-skip data-integrated={integrated} data-flow={flow} data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
     {integrated && <div className={styles.integratedArtwork} aria-hidden="true">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={artworkSource(artwork!, 800)} alt="" loading="lazy" decoding="async"
         srcSet={[240, 480, 800].map(width => `${artworkSource(artwork!, width)} ${width}w`).join(", ")}
-        sizes="(min-width: 920px) 26vw, 100px" />
+        sizes={flow ? "(min-width: 1056px) 32vw, (min-width: 704px) 48vw, 100vw" : "(min-width: 920px) 26vw, 100px"} />
       <span className={styles.pillarCode}>{code}</span>
     </div>}
     {!integrated && <div className={styles.cardTop}>
