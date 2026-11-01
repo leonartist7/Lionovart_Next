@@ -20,6 +20,8 @@
   <button id="check">Measure layout</button>
   <label>Handoff %<input id="handoff" type="number" min="0" max="100" value="35" step="1"></label>
   <button id="go-handoff">Review handoff</button>
+  <label>Doorway %<input id="doorway" type="number" min="0" max="100" value="45" step="1"></label>
+  <button id="go-doorway">Review doorway</button>
   <p>Review fixture: iframe widths exercise real media queries. Text sizing simulates a root-font preference, not browser zoom or physical touch hardware.</p>
 </header>
 <output id="result" aria-live="polite">Loading review…</output>
@@ -77,6 +79,14 @@
     const p=Math.max(0,Math.min(100,Number(document.querySelector('#handoff').value)||0))/100;
     const pinned=doc.querySelector('[data-service-world]')?.dataset.storyStatic==='false';
     const top=pinned?win.scrollY+el.getBoundingClientRect().top-win.innerHeight+p*(el.offsetHeight+win.innerHeight):win.scrollY+doc.querySelector('[data-shaping-message]').getBoundingClientRect().top;
+    win.scrollTo({top,behavior:'instant'});measure();
+  });
+  document.querySelector('#go-doorway').addEventListener('click',()=>{
+    const doc=frame.contentDocument,win=frame.contentWindow,el=doc.querySelector('[data-gallery-runway]');
+    if(!el)return;
+    const p=Math.max(0,Math.min(100,Number(document.querySelector('#doorway').value)||0))/100;
+    const pinned=doc.querySelector('[data-service-world]')?.dataset.storyStatic==='false';
+    const top=win.scrollY+el.getBoundingClientRect().top-(pinned?win.innerHeight*1.1*(1-p):0);
     win.scrollTo({top,behavior:'instant'});measure();
   });
 </script>

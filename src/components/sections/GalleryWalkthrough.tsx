@@ -335,10 +335,10 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       <ScenePortal><div ref={stage} className={styles.stage} data-scroll-title-skip data-dissolve-stage data-gallery-stage data-gallery-rows={pairs} data-scene-chapter="work" data-walkthrough-pinned={pinned}
         onClick={() => { if (selectedSlug) setSelectedSlug(null); }}
         onKeyDown={event => { if (event.key === 'Escape' && selectedSlug) { setSelectedSlug(null); event.stopPropagation(); } }}>
-        <motion.header className={styles.header} data-gallery-title style={{ opacity: pinned ? titleOpacity : 1, transform: pinned ? titleTransform : 'none' }}>
+        {!sharedPortal && <motion.header className={styles.header} data-gallery-title style={{ opacity: pinned ? titleOpacity : 1, transform: pinned ? titleTransform : 'none' }}>
           <p>{fr ? 'Entrez dans l’univers' : 'Step inside'}</p>
           <h2 id="selected-work-heading">{fr ? 'de nos réalisations' : 'our selected work'}</h2>
-        </motion.header>
+        </motion.header>}
         {pinned ? <div className={styles.corridor} data-gallery-corridor>
           {Array.from({ length: pairs }, (_, row) => !sharedPortal || row > 0 ? <GalleryRing key={row} row={row} pairs={pairs} progress={progress} /> : null)}
           {projects.map((work, index) => <GalleryPanel key={work.slug} work={work} index={index} pairs={pairs}
