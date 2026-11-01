@@ -43,6 +43,12 @@ export function openingFrameCenters(stageCenter: number, finalHeight: number, sa
   return { filmCenter, cardCenter: filmCenter + Math.max(0, finalHeight - available) / 2 };
 }
 
+/** Trust and the later statement share the space below a landscape film.
+ * Reserve whichever is taller, rather than stacking two nonconcurrent beats. */
+export function openingReadingReserve(safeBottom: number, statementTop: number | null, gap: number, proofReserve: number) {
+  return Math.max(proofReserve, statementTop === null ? 0 : safeBottom - statementTop + gap);
+}
+
 /** A single card stack is read once, without rewinding it for another face. */
 export function inlineBenefitReadingPose(travel: number, span: number, overflow = 0) {
   const offset = clamp(travel - span * .84, overflow);

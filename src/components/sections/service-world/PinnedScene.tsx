@@ -54,7 +54,7 @@ export default function PinnedScene({ children, environment }: { children: React
           // Media reveal owns the entrance; its field must not be multiplied
           // by the generic chapter fade. Copy/atmosphere have a separate gate.
           const entering = opening && opening.progress < 1;
-          opacity = (entering ? Number(opening.serviceReveal > 0) : chapterOpacity(bounds.top, Math.max(bounds.bottom, innerHeight), innerHeight)) * handoff.services;
+          opacity = (entering ? Number(Math.max(opening.serviceReveal, opening.expertise) > 0) : chapterOpacity(bounds.top, Math.max(bounds.bottom, innerHeight), innerHeight)) * handoff.services;
           surface.style.setProperty('--service-gallery-copy', String(handoff.serviceCopy));
           surface.dataset.galleryGathering = String(handoff.progress > 0);
           surface.style.setProperty('--service-gallery-gather', String(handoff.gather));

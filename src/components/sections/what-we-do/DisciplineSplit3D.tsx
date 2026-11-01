@@ -21,7 +21,7 @@ import { useLionJourney } from "../lion-journey/LionJourney";
 import TrustPlacement from "../TrustPlacement";
 import { BenefitCard } from "../PawRevealStack";
 import { IMAGINE_BENEFITS } from "../imagine-benefits";
-import { LANDSCAPE_FILM_QUERY, usesLandscapeFilm, openingFrameCenters, openingCopyPose, openingSplitGap, openingPointerTilt } from "../lion-journey/opening-layout";
+import { LANDSCAPE_FILM_QUERY, usesLandscapeFilm, openingFrameCenters, openingReadingReserve, openingCopyPose, openingSplitGap, openingPointerTilt } from "../lion-journey/opening-layout";
 const FACE_TINTS = [
   "rgba(176, 112, 28, 0.16), rgba(7, 7, 10, 0.88)",
   "rgba(92, 54, 196, 0.16), rgba(7, 7, 10, 0.88)",
@@ -522,7 +522,10 @@ export default function DisciplineSplit3D({
     const finalHeight = stageHeight * FINAL_FRAME_SCALE;
     const splitAllowance = landscape ? 8 : Math.min(28, viewport * 0.026);
     const proof = proofRef.current;
-    const proofReserve = proof ? proof.offsetHeight + 18 : 0;
+    const statement = pinned && landscape ? stage.closest('[data-service-world]')?.querySelector<HTMLElement>('[data-brand-statement]') : null;
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const proofReserve = openingReadingReserve(safeBottom, statement?.offsetTop ?? null, rem,
+      proof ? proof.offsetHeight + 18 : 0);
     stage.style.setProperty("--opening-proof-height", `${proof?.offsetHeight ?? 148}px`);
     const { filmCenter: sharedCenter, cardCenter } = openingFrameCenters(stageCenter, finalHeight, safeTop, safeBottom, proofReserve, splitAllowance);
     // Keep the whole source image inside the space around that same center;
@@ -588,6 +591,8 @@ export default function DisciplineSplit3D({
     const observer = new ResizeObserver(measureFilm);
     if (stageRef.current) observer.observe(stageRef.current);
     if (proofRef.current) observer.observe(proofRef.current);
+    const statement = stageRef.current?.closest('[data-service-world]')?.querySelector('[data-brand-statement]');
+    if (statement) observer.observe(statement);
     window.addEventListener("resize", measureFilm);
     return () => { observer.disconnect(); window.removeEventListener("resize", measureFilm); };
   }, [measureFilm]);

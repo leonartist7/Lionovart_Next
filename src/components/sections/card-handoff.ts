@@ -4,7 +4,9 @@ const smooth = (value: number) => { const p = clamp(value); return p * p * (3 - 
 export function cardHandoff(top: number, height: number, viewport: number) {
   const progress = clamp((viewport - top) / Math.max(1, height + viewport));
   const statement = 1 - smooth((progress - .46) / .08);
-  const reveal = smooth((progress - .76) / .20);
+  // Complete the measured reshape before a second media owner becomes visible.
+  // Both layers then crossfade on the same stationary outline in either direction.
+  const reveal = smooth((progress - .84) / .12);
   return {
     progress,
     move: smooth(progress / .28),
@@ -20,7 +22,7 @@ export function cardHandoff(top: number, height: number, viewport: number) {
     rear: 1,
     // The same artwork fills the face before reshaping; its pixels never stretch.
     artwork: smooth((progress - .58) / .10),
-    fit: smooth((progress - .68) / .24),
+    fit: smooth((progress - .68) / .16),
     dissolve: reveal,
     focus: smooth((progress - .12) / .18),
     sculpture: 1 - smooth((progress - .12) / .18),

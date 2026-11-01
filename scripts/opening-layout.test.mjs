@@ -1,11 +1,24 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {openingCopyPose,openingSplitGap,openingPointerTilt,usesLandscapeFilm,openingReadingPose,openingFrameCenters,inlineBenefitReadingPose,openingDocumentTop} from '../src/components/sections/lion-journey/opening-layout.ts';
+import {openingCopyPose,openingSplitGap,openingPointerTilt,usesLandscapeFilm,openingReadingPose,openingFrameCenters,openingReadingReserve,inlineBenefitReadingPose,openingDocumentTop} from '../src/components/sections/lion-journey/opening-layout.ts';
 import {chooseScrollStop} from '../src/components/experience/scroll-policy.ts';
 
 test('medium laptop/tablet and landscape phone get the horizontal film',()=>{
  for(const [w,h] of [[862,682],[962,682],[820,1180],[1024,768],[844,393],[640,400]]) assert.equal(usesLandscapeFilm(w,h),true,`${w}×${h}`);
  for(const [w,h] of [[393,844],[430,932],[600,900]]) assert.equal(usesLandscapeFilm(w,h),false,`${w}×${h}`);
+});
+
+test('landscape film reserves the measured statement without double-counting trust',()=>{
+ for (const [height,statementTop,rem] of [[720,529.42,16],[900,680,16],[1024,760,20]]) {
+  const safeTop=88,safeBottom=height-16,allowance=8;
+  const reserve=openingReadingReserve(safeBottom,statementTop,rem,130);
+  const center=openingFrameCenters(height*.41,480,safeTop,safeBottom,reserve,allowance).filmCenter;
+  const filmHeight=2*Math.min(center-safeTop-allowance,safeBottom-center-allowance-reserve);
+  assert.ok(filmHeight>0);
+  assert.ok(center+filmHeight/2 <= statementTop-rem,'the entire frame clears the lead');
+  assert.equal(reserve,Math.max(130,safeBottom-statementTop+rem));
+ }
+ assert.equal(openingReadingReserve(828,null,16,130),130,'portrait stack keeps its separate reading path');
 });
 test('a tall stack does not push the film below its visible reading area',()=>{
  const pose=openingFrameCenters(520,963,88,828,122,22);

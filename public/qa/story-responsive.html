@@ -6,7 +6,7 @@
 <style>
   * { box-sizing:border-box } body { margin:0;background:#202024;color:#f7f4ef;font:1rem/1.5 system-ui,sans-serif }
   header { padding:1rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:end;position:sticky;top:0;background:#202024;z-index:1 }
-  label { display:grid;gap:.25rem } select,button { font:inherit;padding:.5em;background:#fff;color:#181818;border:0;border-radius:.25rem }
+  label { display:grid;gap:.25rem } select,button,input { font:inherit;padding:.5em;background:#fff;color:#181818;border:0;border-radius:.25rem } input { width:5rem }
   main { padding:1rem;overflow:auto } iframe { display:block;border:0;outline:1px solid #777;background:#08080a;width:390px;height:844px;max-width:none }
   output { padding:.5rem 1rem;display:block;font-size:.875rem } p { margin:0;font-size:.875rem;max-width:40ch }
 </style>
@@ -18,6 +18,8 @@
   <label>Reading stop<select id="chapter"><option value="hero">Hero</option><option value="cards-early">Opening cards — early</option><option value="cards">Opening cards — settled</option><option value="statement">Statement</option><option value="services">Services</option><option value="gallery">Gallery</option><option value="partnership">Partnership</option></select></label>
   <button id="go">Go to reading stop</button>
   <button id="check">Measure layout</button>
+  <label>Handoff %<input id="handoff" type="number" min="0" max="100" value="35" step="1"></label>
+  <button id="go-handoff">Review handoff</button>
   <p>Review fixture: iframe widths exercise real media queries. Text sizing simulates a root-font preference, not browser zoom or physical touch hardware.</p>
 </header>
 <output id="result" aria-live="polite">Loading review…</output>
@@ -58,7 +60,7 @@
         top+=(parseFloat(css.getPropertyValue('--hero-overflow'))||0)+span*(key==='cards-early'?.52:.84);
       } else {el=doc.querySelector('[data-opening-benefits]');if(el)top=win.scrollY+el.getBoundingClientRect().top-100}
     }
-    if(key==='statement') {if(pinned)top+=el.offsetHeight*.35;else {el=doc.querySelector('[data-shaping-message]');top=win.scrollY+el.getBoundingClientRect().top}}
+    if(key==='statement') {if(pinned)top+=.35*(el.offsetHeight+win.innerHeight)-win.innerHeight;else {el=doc.querySelector('[data-shaping-message]');top=win.scrollY+el.getBoundingClientRect().top}}
     if(key==='services'&&pinned)top+=win.innerHeight*.2;
     if(key==='gallery'&&pinned)top+=(el.offsetHeight-win.innerHeight*.85)*.04979601489843844;
     if(key==='partnership') {if(pinned)top+=(el.offsetHeight-win.innerHeight*.85)*.94;else {el=doc.querySelector('[data-partnership-static-mark]');top=win.scrollY+el.getBoundingClientRect().top}}
@@ -69,5 +71,13 @@
   for(const id of ['size','text','spacing'])document.querySelector('#'+id).addEventListener('change',settings);
   document.querySelector('#go').addEventListener('click',go);
   document.querySelector('#check').addEventListener('click',measure);
+  document.querySelector('#go-handoff').addEventListener('click',()=>{
+    const doc=frame.contentDocument,win=frame.contentWindow,el=doc.querySelector('[data-card-exit]');
+    if(!el)return;
+    const p=Math.max(0,Math.min(100,Number(document.querySelector('#handoff').value)||0))/100;
+    const pinned=doc.querySelector('[data-service-world]')?.dataset.storyStatic==='false';
+    const top=pinned?win.scrollY+el.getBoundingClientRect().top-win.innerHeight+p*(el.offsetHeight+win.innerHeight):win.scrollY+doc.querySelector('[data-shaping-message]').getBoundingClientRect().top;
+    win.scrollTo({top,behavior:'instant'});measure();
+  });
 </script>
 </html>

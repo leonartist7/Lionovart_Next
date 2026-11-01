@@ -16,9 +16,12 @@ test('artwork replaces the benefit face before fitting, with no blank intermedia
  assert.equal(at(.5).artwork,0); assert.equal(at(.5).fit,0);
  assert.equal(at(.68).artwork,1); assert.equal(at(.68).fit,0);
  assert.ok(at(.8).fit>0); assert.equal(at(.96).serviceReveal,1);
+ assert.equal(at(.84).fit,1); assert.ok(at(.84).serviceReveal<1e-10);
+ assert.ok(at(.8).expertise>0,'expertise enters independently of the later media crossfade');
  for(let i=0;i<=1000;i++) {
   const pose=at(i/1000);
   if(pose.fit>0) assert.equal(pose.artwork,1,'copy never stretches with the frame');
+  if(pose.serviceReveal>0) assert.equal(pose.fit,1,'incoming and outgoing outlines coincide before blending');
   assert.ok(Math.abs(pose.intro+pose.serviceReveal-1)<1e-10);
   assert.equal(pose.copy*pose.serviceCopy,0);
   assert.equal(pose.brand*pose.expertise,0);
