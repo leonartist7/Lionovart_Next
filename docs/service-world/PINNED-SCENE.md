@@ -1,8 +1,8 @@
 # One continuous pinned scene
 
 Review branch: `codex/services-world-phase1-20261019`.
-Verified runtime: `37afa7435d3be6a06733573ee06b70e2b5771491`.
-Review preview: https://lionovartnext-lnitxv841-lionovart.vercel.app/qa/story-responsive.html
+Verified runtime: `dee72434196ad29bcceea189b1e4c58ae9b7d973`.
+Review preview: https://lionovartnext-hql0qxrck-lionovart.vercel.app/qa/story-responsive.html
 Current implementation: 1 November 2026. This replaces the cream-card and floating-ring transitions documented in earlier revisions.
 
 ## Story and ownership
@@ -36,11 +36,13 @@ Paw controls remain enabled from the existing early content-ready gate through t
 
 ## The service disc becomes the doorway
 
-`ServicePortal` is the single moving owner of the podium in the pinned media world. `WorldStageControls` retains an invisible measurement anchor in the original podium position. Static layouts retain the original podium.
+`ServicePortal` is the single moving owner of the podium in the pinned media world. `WorldStageControls` retains an invisible measurement anchor in the original podium position. Static layouts retain the original podium. The circular rim and fill rotate inside a flat carrier, so the floor ellipse matches the measured anchor before corridor perspective is applied. Scroll frames change transforms and opacity; carrier width only changes with viewport/type geometry.
 
-During the service/gallery arrival, the disc lifts and turns upright from 8–38%, then holds around “Step inside / our selected work”. That invitation enters early and clears from 55–78%. Its French equivalent is “Entrez dans l’univers / de nos réalisations”. The disc opens from 55–78% and grows continuously into the first project's ring by 100%.
+The portal also owns the single animated invitation, above its fill and prepared artwork. During the 38–55% hold the neutral fill is opaque, keeping project imagery out of the text. The invitation keeps the narrative opacity owner and bypasses generic heading reveals. Static layouts retain the gallery heading in normal flow.
 
-The carried artwork transfers owners while stationary from 56–72%; the project pair then opens from 72–100%. The original selected service is first in the gallery. There is one invitation and one first-row ring: the gallery renders the remaining four rings.
+During the service/gallery arrival, the disc lifts and turns upright from 10–38%, then holds around “Step inside / our selected work”. That invitation enters early and clears from 55–78%. Its French equivalent is “Entrez dans l’univers / de nos réalisations”. The disc opens from 55–78% and grows continuously into the first project's ring by 100%.
+
+The carried artwork transfers owners while stationary from 56–72%; the project pair then opens from 72–100%. The original selected service is first in the gallery. There is one invitation and one first-row ring: the gallery renders the remaining four rings. See [the Phase 3 doorway checkpoint](../qa/story-doorway-20261101/README.md) for measured floor matching, invitation layering and responsive transfer checks.
 
 ## Five project worlds
 
