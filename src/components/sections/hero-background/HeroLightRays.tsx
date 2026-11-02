@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState, useSyncExternalStore } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { motion, useMotionValueEvent, useTransform } from "framer-motion";
 import { useLionJourney } from "../lion-journey/LionJourney";
@@ -25,11 +25,15 @@ export default function HeroLightRays() {
   const { composition: { scene } } = useHeroComposition();
   const visible = useSyncExternalStore(subscribeVisibility, isPageVisible, serverVisible);
   const reducedMotion = useHydratedReducedMotion();
-  const animated = active && visible && !reducedMotion;
+  const [graphicsUnavailable, setGraphicsUnavailable] = useState(false);
+  const showStill = useCallback(() => setGraphicsUnavailable(true), []);
+  const still = reducedMotion || graphicsUnavailable;
+  const animated = active && visible && !still;
 
   return <motion.div className={styles.host} style={{ opacity }} aria-hidden="true" data-hero-light-rays data-rays-active={animated} data-rays-color={scene.raysColor} data-rays-secondary-color="#ef152b" data-rays-cycle-seconds="16" data-rays-origin={scene.raysOrigin}>
-    {active && reducedMotion && <div className={styles.still} style={{ background: `radial-gradient(ellipse at 50% ${scene.raysOrigin === "top-center" ? "0%" : "100%"}, ${scene.raysColor}33 0%, ${scene.raysColor}0d 35%, transparent 72%)` }} />}
+    {active && still && <div className={styles.still} style={{ background: `radial-gradient(ellipse at 50% ${scene.raysOrigin === "top-center" ? "0%" : "100%"}, ${scene.raysColor}33 0%, ${scene.raysColor}0d 35%, transparent 72%)` }} />}
     {animated && <LightRays
+      onUnavailable={showStill}
       raysOrigin={scene.raysOrigin}
       raysColor={scene.raysColor}
       raysSecondaryColor="#ef152b"

@@ -5,6 +5,7 @@ import { Renderer, Program, Triangle, Mesh } from 'ogl';
 import './LightRays.css';
 
 const DEFAULT_COLOR = '#ffffff';
+const noop = () => {};
 
 const hexToRgb = hex => {
   const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -50,6 +51,7 @@ const LightRays = ({
   noiseAmount = 0.0,
   distortion = 0.0,
   lightMode = false,
+  onUnavailable = noop,
   className = ''
 }) => {
   const containerRef = useRef(null);
@@ -92,14 +94,21 @@ const LightRays = ({
       cleanupFunctionRef.current = null;
     }
 
-    const initializeWebGL = async () => {
+    const initializeWebGL = () => {
       if (!containerRef.current) return;
 
-      await new Promise(resolve => setTimeout(resolve, 10));
-
-      if (!containerRef.current) return;
-
+      // OGL assumes a context exists inside its constructor. Use the same
+      // canvas for the capability check and rendering so only one is allocated.
+      const canvas = document.createElement('canvas');
+      const attributes = { alpha: true, premultipliedAlpha: false, antialias: false };
+      const gl2 = canvas.getContext('webgl2', attributes);
+      if (!gl2 && !canvas.getContext('webgl', attributes)) {
+        onUnavailable();
+        return;
+      }
       const renderer = new Renderer({
+        canvas,
+        webgl: gl2 ? 2 : 1,
         dpr: Math.min(window.devicePixelRatio, 2),
         alpha: true
       });
@@ -313,15 +322,14 @@ void main() {
         try {
           renderer.render({ scene: mesh });
           animationIdRef.current = requestAnimationFrame(loop);
-        } catch (error) {
-          console.warn('WebGL rendering error:', error);
+        } catch {
+          onUnavailable();
           return;
         }
       };
 
+      canvas.addEventListener('webglcontextlost', onUnavailable);
       window.addEventListener('resize', updatePlacement);
-      updatePlacement();
-      animationIdRef.current = requestAnimationFrame(loop);
 
       cleanupFunctionRef.current = () => {
         if (animationIdRef.current) {
@@ -329,6 +337,7 @@ void main() {
           animationIdRef.current = null;
         }
 
+        canvas.removeEventListener('webglcontextlost', onUnavailable);
         window.removeEventListener('resize', updatePlacement);
 
         if (renderer) {
@@ -351,11 +360,16 @@ void main() {
         uniformsRef.current = null;
         meshRef.current = null;
       };
+      updatePlacement();
+      animationIdRef.current = requestAnimationFrame(loop);
     };
 
-    initializeWebGL();
+    const startup = window.setTimeout(() => {
+      try { initializeWebGL(); } catch { onUnavailable(); }
+    }, 10);
 
     return () => {
+      window.clearTimeout(startup);
       if (cleanupFunctionRef.current) {
         cleanupFunctionRef.current();
         cleanupFunctionRef.current = null;
@@ -363,6 +377,7 @@ void main() {
     };
   }, [
     isVisible,
+    onUnavailable,
     raysOrigin,
     raysColor,
     raysSecondaryColor,

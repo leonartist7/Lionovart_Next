@@ -16,8 +16,14 @@ export class RoarEngine {
  private lost=()=>{if(!this.disposed)this.onError();};
  constructor(private host:HTMLElement,private onError:()=>void){}
  async init(quality:RoarQuality,forceWebGL=false){
-  for(const fallback of forceWebGL?[true]:[false,true]){
+  const gpu = (navigator as Navigator & { gpu?: { requestAdapter: () => Promise<unknown | null> } }).gpu;
+  const adapter = !forceWebGL && gpu ? await gpu.requestAdapter().catch(() => null) : null;
+  if (this.disposed) return;
+  for (const fallback of adapter ? [false, true] : [true]) {
    const canvas=document.createElement("canvas");
+   if (fallback && !canvas.getContext("webgl2", { alpha: true, antialias: true })) {
+    throw new Error("ROAR graphics unavailable");
+   }
    const renderer=new THREE.WebGPURenderer({canvas,alpha:true,antialias:true,forceWebGL:fallback});
    try{
     await renderer.init();
