@@ -1,8 +1,8 @@
 # One continuous pinned scene
 
 Review branch: `codex/services-world-phase1-20261019`.
-Verified runtime: `847244bcddc9653641bc32a3c7373922bad2bde5`.
-Review preview: https://lionovartnext-qazzp0psk-lionovart.vercel.app/qa/story-responsive.html
+Verified runtime: `c717d907eb578c906bb7ab49a0c35df932d26c02`.
+Review preview: https://lionovartnext-r5pzcxjjq-lionovart.vercel.app/qa/story-responsive.html
 Current implementation: 2 November 2026. This replaces the cream-card and floating-ring transitions documented in earlier revisions.
 
 ## Story and ownership
@@ -65,3 +65,9 @@ Measured content-fit can select the same fallback at other dimensions. The openi
 See [the Phase 2 narrative checkpoint](../qa/story-narrative-20261101/README.md) for statement clearance and media-transfer verification.
 
 See [the dated verification record](../qa/immersive-story-20261031/verification.md) for completed checks and limitations. See [the Phase 4 worlds checkpoint](../qa/story-worlds-20261102/README.md) for focus fit, five-world traversal, ring hierarchy and ending verification. Older screenshots and transition descriptions are historical evidence, not the current design contract.
+
+## Phase 5 review status
+
+The [integrated verification record](../qa/story-integrated-20261102/README.md) records the final 12-size gallery/ending matrix, enlarged French wrapping fix, navigation and deep-link checks, automated results, and bounded motion captures. Static gallery and partnership headings now constrain their width and wrap long words when enlarged text or custom spacing exceeds the reading column.
+
+The available cloud-browser and automated pass is complete. Device acceptance remains open: actual browser zoom, OS reduced-motion switching, physical touch devices, Firefox/WebKit, and comparable GPU performance traces need their listed checks before release approval. No production promotion or master merge is implied.

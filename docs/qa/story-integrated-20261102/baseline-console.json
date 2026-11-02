@@ -1,0 +1,182 @@
+[
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:42:37.278Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "unable to create webgl context",
+    "timestamp": "2026-11-01T23:42:45.708Z",
+    "url": "https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/7131.0b7d9adb801392bc.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot set properties of null (setting 'renderer')\n    at new h (https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/7131.0b7d9adb801392bc.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ:1:29971)\n    at https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/1617.52d4948a0b291ab2.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ:1:1727",
+    "timestamp": "2026-11-01T23:42:45.709Z",
+    "url": "https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/7131.0b7d9adb801392bc.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:42:50.418Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:42:57.182Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:43:13.089Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:43:13.543Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:43:13.889Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "unable to create webgl context",
+    "timestamp": "2026-11-01T23:43:14.323Z",
+    "url": "https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/7131.0b7d9adb801392bc.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot set properties of null (setting 'renderer')\n    at new h (https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/7131.0b7d9adb801392bc.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ:1:29971)\n    at https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/1617.52d4948a0b291ab2.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ:1:1727",
+    "timestamp": "2026-11-01T23:43:14.392Z",
+    "url": "https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/7131.0b7d9adb801392bc.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:43:20.443Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:43:21.510Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:43:21.510Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:43:50.418Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:43:50.512Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:43:50.533Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:43:50.570Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:43:50.583Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:43:50.583Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:43:50.587Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "warn",
+    "message": "THREE.WebGPURenderer: WebGPU is not available, running under WebGL2 backend.",
+    "timestamp": "2026-11-01T23:43:53.795Z",
+    "url": "https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/bd904a5c-264f0baed562aadc.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'getSupportedExtensions')\n    at new b0 (https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/b055d1fb-d2540f8d0e8d6a0a.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ:183:41323)\n    at b6.init (https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/b055d1fb-d2540f8d0e8d6a0a.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ:183:48061)\n    at https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/b055d1fb-d2540f8d0e8d6a0a.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ:10:43228",
+    "timestamp": "2026-11-01T23:43:53.800Z",
+    "url": "https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/b055d1fb-d2540f8d0e8d6a0a.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'getSupportedExtensions')\n    at new b0 (https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/b055d1fb-d2540f8d0e8d6a0a.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ:183:41323)\n    at b6.init (https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/b055d1fb-d2540f8d0e8d6a0a.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ:183:48061)\n    at https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/b055d1fb-d2540f8d0e8d6a0a.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ:10:43115\n    at new Promise (<anonymous>)\n    at TI.init (https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/b055d1fb-d2540f8d0e8d6a0a.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ:10:43059)\n    at d.init (https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/4285.29ae37bb74f81d80.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ:1:584)\n    at async T (https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/4297-095134fcc3b70884.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ:1:13336)",
+    "timestamp": "2026-11-01T23:43:53.801Z",
+    "url": "https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/b055d1fb-d2540f8d0e8d6a0a.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ"
+  },
+  {
+    "level": "error",
+    "message": "unable to create webgl context",
+    "timestamp": "2026-11-01T23:43:53.815Z",
+    "url": "https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/7131.0b7d9adb801392bc.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot set properties of null (setting 'renderer')\n    at new h (https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/7131.0b7d9adb801392bc.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ:1:29971)\n    at https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/1617.52d4948a0b291ab2.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ:1:1727",
+    "timestamp": "2026-11-01T23:43:53.815Z",
+    "url": "https://lionovartnext-qazzp0psk-lionovart.vercel.app/_next/static/chunks/7131.0b7d9adb801392bc.js?dpl=dpl_CBaFjT6dLZzsagUrgxWHJy51K9dJ"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:44:08.670Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:44:08.670Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:44:14.875Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:44:15.780Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  },
+  {
+    "level": "error",
+    "message": "Error sending browser metadata to extension: Object",
+    "timestamp": "2026-11-01T23:44:15.782Z",
+    "url": "chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js"
+  }
+]

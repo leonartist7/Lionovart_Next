@@ -1,0 +1,22 @@
+{
+  "keyboardEnterOpenedFirst": true,
+  "escapeDoesNotDismissInlineBenefit": true,
+  "afterRapidSecondToggle": [
+    {
+      "expanded": "false",
+      "label": "Toggle menu"
+    },
+    {
+      "expanded": "true",
+      "label": "Masquer le bénéfice: Une image à la hauteur de votre travail."
+    },
+    {
+      "expanded": "false",
+      "label": "Révéler le bénéfice: Moins de tâches. Plus de liberté."
+    },
+    {
+      "expanded": "false",
+      "label": "Révéler le bénéfice: Le nom qui reste en tête."
+    }
+  ]
+}

@@ -1,0 +1,200 @@
+[
+  {
+    "case": "fr-320-200-expanded",
+    "gallery": {
+      "action": {
+        "bottom": 7001.0625,
+        "height": 104,
+        "left": 40.5,
+        "right": 264.5,
+        "top": 6897.0625,
+        "width": 224,
+        "x": 40.5,
+        "y": 6897.0625
+      },
+      "axis": "vertical",
+      "ending": {
+        "bottom": 6801.0625,
+        "height": 433.59375,
+        "left": 32,
+        "right": 273,
+        "top": 6367.46875,
+        "width": 241,
+        "x": 32,
+        "y": 6367.46875
+      },
+      "endingText": "Un partenariatFaçonner votre héritage",
+      "locale": "fr-FR",
+      "logoOpacity": null,
+      "mode": "content-fit",
+      "overflow": false,
+      "panels": [],
+      "playing": 0,
+      "progress": 0.06758048006617992,
+      "rings": [],
+      "root": "32px",
+      "staticProjects": 10,
+      "travel": 0.4801131046109596,
+      "viewport": [
+        320,
+        568
+      ]
+    },
+    "handoff": {
+      "beats": [
+        {
+          "beat": "lead",
+          "opacity": "1",
+          "rect": {
+            "bottom": -4672.28125,
+            "height": 144,
+            "left": 32,
+            "right": 273,
+            "top": -4816.28125,
+            "width": 241,
+            "x": 32,
+            "y": -4816.28125
+          }
+        },
+        {
+          "beat": "main",
+          "opacity": "1",
+          "rect": {
+            "bottom": -4188.28125,
+            "height": 420,
+            "left": 32,
+            "right": 273,
+            "top": -4608.28125,
+            "width": 241,
+            "x": 32,
+            "y": -4608.28125
+          }
+        },
+        {
+          "beat": "necessity",
+          "opacity": "1",
+          "rect": {
+            "bottom": -3983.921875,
+            "height": 193.171875,
+            "left": 32,
+            "right": 273,
+            "top": -4177.09375,
+            "width": 241,
+            "x": 32,
+            "y": -4177.09375
+          }
+        },
+        {
+          "beat": "brand",
+          "opacity": "1",
+          "rect": {
+            "bottom": -3727.921875,
+            "height": 192,
+            "left": 32,
+            "right": 273,
+            "top": -3919.921875,
+            "width": 241,
+            "x": 32,
+            "y": -3919.921875
+          }
+        }
+      ],
+      "expertiseOpacity": "1",
+      "frames": [],
+      "incoming": [
+        {
+          "images": [
+            {
+              "complete": true,
+              "width": 800
+            }
+          ],
+          "opacity": "1"
+        },
+        {
+          "images": [
+            {
+              "complete": true,
+              "width": 800
+            }
+          ],
+          "opacity": "1"
+        },
+        {
+          "images": [
+            {
+              "complete": true,
+              "width": 1440
+            }
+          ],
+          "opacity": "1"
+        }
+      ],
+      "locale": "fr-FR",
+      "mode": "content-fit",
+      "openingOpacity": "1",
+      "overflow": false,
+      "progress": "1.000",
+      "root": "32px",
+      "serviceInert": false,
+      "serviceOpacity": "1",
+      "statementGap": null,
+      "viewport": [
+        320,
+        568
+      ]
+    },
+    "portal": {
+      "anchor": {
+        "bottom": 0,
+        "height": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "width": 0,
+        "x": 0,
+        "y": 0
+      },
+      "fillOpacity": null,
+      "frameDifference": null,
+      "galleryInert": false,
+      "galleryPlaying": 0,
+      "locale": "fr-FR",
+      "mode": "content-fit",
+      "overflow": false,
+      "posters": [],
+      "ringStyle": null,
+      "rings": [],
+      "root": "32px",
+      "serviceInert": false,
+      "source": {
+        "bottom": -3234.9765625,
+        "height": 76.953125,
+        "left": 84.0859375,
+        "right": 220.8828125,
+        "top": -3311.9296875,
+        "width": 136.796875,
+        "x": 84.0859375,
+        "y": -3311.9296875
+      },
+      "title": {
+        "bottom": 103.96875,
+        "height": 428,
+        "left": 32,
+        "right": 273,
+        "top": -324.03125,
+        "width": 241,
+        "x": 32,
+        "y": -324.03125
+      },
+      "titleCount": 1,
+      "titleHidden": null,
+      "titleOpacity": "1",
+      "titleText": "Entrez dans l’universde nos réalisations",
+      "viewport": [
+        320,
+        568
+      ]
+    }
+  }
+]
