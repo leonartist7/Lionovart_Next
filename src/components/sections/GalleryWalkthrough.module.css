@@ -29,6 +29,9 @@
 .staticProject svg { width: 1rem; height: 1rem; }
 .stage[data-walkthrough-pinned=false] { position: relative; height: auto; min-height: 100svh; padding: 5rem 1.5rem; }
 .stage[data-walkthrough-pinned=false] .header { position: relative; inset: auto; margin-bottom: 2rem; }
+/* Enlarged type and text-spacing preferences must not turn long words into
+   clipped content inside the static reading surface. */
+.stage[data-walkthrough-pinned=false] :is(.header,.ending) > :is(h2,p) { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
 .stage[data-walkthrough-pinned=false] .ending { position: relative; inset: auto; margin-top: 7rem; padding: 2rem 0; }
 .section:has([data-walkthrough-pinned=false]) .runway { height: auto; }
 @media(max-width:767px) {
