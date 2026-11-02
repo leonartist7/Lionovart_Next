@@ -11,6 +11,8 @@ export function ResourceLinksPanel({ initialLinks, canManage, endpoint, demo = f
   const [editing, setEditing] = useState(false);
   const [editingLink, setEditingLink] = useState<ResourceLink | null>(null);
   const nameRef = useRef<HTMLInputElement>(null);
+  const addButtonRef = useRef<HTMLButtonElement>(null);
+  const editButtonRefs = useRef(new Map<string, HTMLButtonElement>());
   useEffect(() => { if (editing) nameRef.current?.focus(); }, [editing, editingLink]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -55,6 +57,10 @@ export function ResourceLinksPanel({ initialLinks, canManage, endpoint, demo = f
       else setLinks(current => [...current, link]);
       const wasEditing = Boolean(editingLink);
       setEditingLink(null); setEditing(false); form.reset();
+      requestAnimationFrame(() => {
+        const target = wasEditing ? editButtonRefs.current.get(link.id) : undefined;
+        (target ?? addButtonRef.current)?.focus();
+      });
       setNotice(demo ? "Preview changed only. Reloading clears edits." : wasEditing ? "Resource updated in this workspace." : "Resource saved to this workspace.");
     } catch (cause) { setError(cause instanceof Error ? cause.message : "The resource could not be saved."); }
     finally { setBusy(false); }
@@ -82,7 +88,7 @@ export function ResourceLinksPanel({ initialLinks, canManage, endpoint, demo = f
           <h2 id="resource-links-heading" className="text-foreground text-lg font-semibold">Project resources</h2>
           <p className="text-muted-foreground mt-2 max-w-xl text-sm leading-relaxed">Keep Drive folders, Figma designs, Notion pages, GitHub repositories, and Vercel previews together. These are links—not account connections or file imports.</p>
         </div>
-        {canManage && <button type="button" onClick={() => { setEditingLink(null); setEditing(value => !value); }} aria-expanded={editing} aria-controls="resource-link-form" disabled={busy}
+        {canManage && <button type="button" ref={addButtonRef} onClick={() => { setEditingLink(null); setEditing(value => !value); }} aria-expanded={editing} aria-controls="resource-link-form" disabled={busy}
           className="border-border text-foreground inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-medium hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-4 disabled:opacity-60">
           <Plus className="h-4 w-4" aria-hidden="true" />{editing ? "Close form" : "Add resource"}
         </button>}
@@ -108,7 +114,7 @@ export function ResourceLinksPanel({ initialLinks, canManage, endpoint, demo = f
             <span className="text-muted-foreground mt-1 block text-xs">{link.provider}{link.visibility === "internal" ? " · Studio only" : " · Shared with workspace"}</span>
           </a>
           {link.visibility === "internal" && <LockKeyhole className="text-muted-foreground h-4 w-4 shrink-0" aria-label="Studio only"/>}
-          {canManage && <button type="button" disabled={busy} onClick={() => { setEditingLink(link); setEditing(true); setError(""); setNotice(""); }} aria-label={"Edit " + link.label} className="text-muted-foreground flex h-11 w-11 shrink-0 items-center justify-center rounded-full hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60"><Pencil className="h-4 w-4" aria-hidden="true"/></button>}
+          {canManage && <button type="button" disabled={busy} ref={node => { if (node) editButtonRefs.current.set(link.id, node); else editButtonRefs.current.delete(link.id); }} onClick={() => { setEditingLink(link); setEditing(true); setError(""); setNotice(""); }} aria-label={"Edit " + link.label} className="text-muted-foreground flex h-11 w-11 shrink-0 items-center justify-center rounded-full hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60"><Pencil className="h-4 w-4" aria-hidden="true"/></button>}
           {canManage && <button type="button" disabled={busy} onClick={() => remove(link)} aria-label={`Remove ${link.label}`} className="text-muted-foreground flex h-11 w-11 shrink-0 items-center justify-center rounded-full hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60"><Trash2 className="h-4 w-4" aria-hidden="true"/></button>}
         </li>)}
       </ul>
