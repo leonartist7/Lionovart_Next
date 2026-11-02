@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { partnershipLayout } from '../src/components/sections/partnership-layout.ts';
 import { galleryEnding } from '../src/components/sections/gallery-journey.ts';
 
-for (const [width,height] of [[320,568],[360,640],[390,844],[768,1024],[1024,768],[1365,650],[1440,900],[2560,1080]]) {
+for (const [width,height] of [[320,568],[360,640],[390,844],[768,1024],[1024,768],[1365,650],[1366,520],[1440,900],[2560,1080]]) {
  test(`partnership invitation and result action have separate reading areas at ${width}x${height}`, () => {
   const layout = partnershipLayout(width,height);
   const markTop = layout.markCenter - layout.markSize / 2;
@@ -17,8 +17,8 @@ for (const [width,height] of [[320,568],[360,640],[390,844],[768,1024],[1024,768
   // Reserve two lines for the title/subtitle on narrow screens.
   const narrow = width < 768;
   const short = height <= 740;
-  const title = short ? Math.max(32,Math.min(width*.05,56)) : narrow ? Math.max(32,Math.min(width*.08,56)) : Math.max(40,Math.min(width*.058,96));
-  const subtitle = short ? Math.max(24,Math.min(width*.04,44)) : narrow ? Math.max(24,Math.min(width*.063,40)) : Math.max(28,Math.min(width*.04,64));
+  const title = height<=560 && width>1024 ? Math.max(32,Math.min(width*.04,40)) : short ? Math.max(32,Math.min(width*.05,56)) : narrow ? Math.max(32,Math.min(width*.08,56)) : Math.max(40,Math.min(width*.058,96));
+  const subtitle = height<=560 && width>1024 ? Math.max(24,Math.min(width*.03,28)) : short ? Math.max(24,Math.min(width*.04,44)) : narrow ? Math.max(24,Math.min(width*.063,40)) : Math.max(28,Math.min(width*.04,64));
   const titleBottom = layout.copyTop + title*1.05 + 12.8 + subtitle*1.15*(width<360?2:1);
   assert.ok(titleBottom + 24 < actionTop, 'copy overlaps the results action');
   assert.ok(layout.markCenter <= height * .34, 'logo left the upper third');

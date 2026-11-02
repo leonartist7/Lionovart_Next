@@ -102,3 +102,8 @@
 @media(prefers-reduced-motion:reduce) { .portalRing:where(:not([data-story-static=false] *)) { display:none; } }
 
 .stage[data-walkthrough-pinned=true] .logo { top:48%; }
+
+@media(max-height:560px) and (min-width:1025px) {
+  .stage[data-walkthrough-pinned=true] .ending h2 { font-size:clamp(2rem,4vw,2.5rem); }
+  .stage[data-walkthrough-pinned=true] .ending > p { font-size:clamp(1.5rem,3vw,1.75rem); }
+}
