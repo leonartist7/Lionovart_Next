@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { FieldValue } from "firebase-admin/firestore";
 import { adminAuth, adminDb } from "@/lib/firebase-admin";
 import { rateLimitOk } from "@/lib/rate-limit";
 import { isAllowlistedEmail } from "@/lib/admin-auth";
@@ -7,8 +6,7 @@ import {
   PORTAL_SESSION_COOKIE,
   PORTAL_SESSION_TTL_MS,
 } from "@/lib/portal-auth";
-import { describeInviteError, findInviteByToken } from "@/lib/portal/invites";
-import type { Membership } from "@/lib/portal/types";
+import { describeInviteError, findInviteByToken, redeemInviteAtomically } from "@/lib/portal/invites";
 
 /**
  * POST — exchange a Firebase idToken (Google or email-link sign-in) for a
@@ -66,6 +64,14 @@ export async function POST(req: NextRequest) {
 
   // ── Redeem an invite, when one came with the request ──────────────
   if (inviteToken) {
+    // An unverified email on an otherwise valid Firebase ID token must not
+    // claim a bearer invite addressed to that email.
+    if (decoded.email_verified !== true) {
+      return NextResponse.json(
+        { error: "Verify your email address before accepting an invitation." },
+        { status: 403 },
+      );
+    }
     const lookup = await findInviteByToken(inviteToken);
     if (!lookup.ok) {
       return NextResponse.json(
@@ -73,42 +79,30 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
-
-    // The invite is bound to an address, so a forwarded link is useless to
-    // anyone else. Both providers we accept give a provider-verified email.
     if (lookup.invite.email !== email) {
       return NextResponse.json(
-        {
-          error: `This invitation was sent to ${lookup.invite.email}. Sign in with that address.`,
-        },
+        { error: "This invitation was sent to a different email address. Sign in with the invited address." },
         { status: 403 },
       );
     }
 
-    const membership: Membership = {
-      role: lookup.invite.role,
+    // The preview lookup is not a claim. The transaction re-checks the live
+    // token, expiry, address and membership before atomically burning the link.
+    const result = await redeemInviteAtomically({
+      inviteId: lookup.invite.id,
+      token: inviteToken,
+      uid: decoded.uid,
       email,
       name,
-      addedAt: new Date().toISOString(),
-    };
-
-    const workspaceRef = adminDb
-      .collection("workspaces")
-      .doc(lookup.invite.workspaceId);
-    const inviteRef = adminDb.collection("invites").doc(lookup.invite.id);
-
-    // One batch: membership and the burn either both land or neither does, so
-    // a crash can't leave a spent invite that granted nothing.
-    const batch = adminDb.batch();
-    batch.update(workspaceRef, {
-      [`members.${decoded.uid}`]: membership,
-      memberUids: FieldValue.arrayUnion(decoded.uid),
     });
-    batch.update(inviteRef, {
-      acceptedAt: new Date().toISOString(),
-      acceptedBy: decoded.uid,
-    });
-    await batch.commit();
+    if (!result.ok) {
+      return NextResponse.json(
+        { error: result.reason === "email_mismatch"
+          ? "This invitation was sent to a different email address. Sign in with the invited address."
+          : describeInviteError(result.reason) },
+        { status: result.reason === "email_mismatch" ? 403 : 400 },
+      );
+    }
   }
 
   // ── Upsert the portal user record ─────────────────────────────────
