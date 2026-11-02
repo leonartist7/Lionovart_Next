@@ -74,7 +74,7 @@
   .brandSignature { top:clamp(23rem,52svh,40rem); bottom:auto; }
 }
 @media(max-height:560px), (prefers-reduced-motion:reduce) {
-  .shapingMessage:where(:not([data-story-static=false] *)) { position: relative; inset: auto; visibility: visible !important; padding: 3rem 1.25rem:where(:not([data-story-static=false] *)) 4rem; background: #08080a; }
+  .shapingMessage:where(:not([data-story-static=false] *)) { position: relative; inset: auto; visibility: visible !important; padding: 3rem 1.25rem 4rem; background: #08080a; }
   .shapingMessage:where(:not([data-story-static=false] *)) [data-brand-beat] { opacity: 1 !important; }
   .brandStatement:where(:not([data-story-static=false] *)), .shapingMessage:where(:not([data-story-static=false] *)) .brandSignature:where(:not([data-story-static=false] *)) { position: relative; inset: auto; }
   .shapingMessage:where(:not([data-story-static=false] *)) .brandSignature:where(:not([data-story-static=false] *)) { margin-top: 2rem; color: #f4efe5; }
