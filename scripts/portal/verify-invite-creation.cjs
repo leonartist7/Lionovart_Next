@@ -223,3 +223,37 @@ test("invite history: invalid workspace is rejected and backend errors are redac
   const res = await h.route.GET({ nextUrl: new URL("https://portal.example.test/api/portal/invites?workspaceId=alpha") });
   assert.equal(res.status, 503); privateResponse(res); assert.doesNotMatch(await res.text(), /sensitive/);
 });
+
+/** Execute only the actual fixture configuration statements, never their SDK imports or network code. */
+function fixtureStatement(relative, name) {
+  const filename = path.resolve(root, relative);
+  const source = ts.createSourceFile(filename, fs.readFileSync(filename, "utf8"), ts.ScriptTarget.ES2022, true, ts.ScriptKind.JS);
+  const statement = source.statements.find(s => ts.isVariableStatement(s)
+    && s.declarationList.declarations.some(d => ts.isIdentifier(d.name) && d.name.text === name));
+  assert.ok(statement, "Missing fixture configuration: " + name);
+  return statement.getText(source).replace(/^export\s+/, "");
+}
+test("emulator harness: authenticated JSON writes carry the browser's same-origin header", () => {
+  const J = vm.runInNewContext(fixtureStatement("scripts/portal-verify/harness.mjs", "J") + "\nJ;", {
+    BASE: "http://localhost:3000", URL,
+  });
+  const headers = J("fixture-cookie");
+  assert.equal(headers.Origin, "http://localhost:3000");
+  assert.equal(headers.Cookie, "fixture-cookie");
+  assert.equal(headers["Content-Type"], "application/json");
+});
+test("emulator runner: HTTPS invitation origin is isolated from the HTTP client and mail is disabled", () => {
+  let captured;
+  const parentEnv = { PORTAL_BASE: "http://localhost:3000", RESEND_API_KEY: "fake-must-not-escape", VERCEL_ENV: "preview", VERCEL_URL: "unrelated.example.test" };
+  vm.runInNewContext(fixtureStatement("scripts/verify-integrated-runtime.mjs", "server"), {
+    process: { execPath: "fixture-node", env: parentEnv },
+    spawn: (executable, args, options) => { captured = { executable, args, options }; return {}; },
+  });
+  assert.equal(captured.executable, "fixture-node");
+  assert.equal(captured.args[0], "server.js");
+  assert.equal(captured.options.env.NODE_ENV, "production");
+  assert.equal(validation.resolveInviteOrigin(captured.options.env), "https://portal-fixture.example.test");
+  assert.equal(captured.options.env.RESEND_API_KEY, "");
+  assert.equal(parentEnv.PORTAL_BASE, "http://localhost:3000");
+  assert.equal(parentEnv.RESEND_API_KEY, "fake-must-not-escape");
+});
