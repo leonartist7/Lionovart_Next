@@ -184,10 +184,11 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
   };
 
   const scrollToTarget = (target: string) => {
-    const element = document.querySelector<HTMLElement>(`[data-nova-section="${target}"], #${target}`);
+    const sectionId = target === "work" ? "selected-work" : target;
+    const element = document.querySelector<HTMLElement>(`[data-nova-section="${target}"], #${sectionId}`);
     if (!element && !sectionFallback) return;
 
-    if (!element) router.push(`/#${target === "work" ? "selected-work" : target}`);
+    if (!element) router.push(`/#${sectionId}`);
     else if (lenis?.scrollTo) lenis.scrollTo(element, {
       offset: SCROLL_OFFSET, duration: .75, lerp: 0, easing: scrollEase,
       userData: { navigation: true },
