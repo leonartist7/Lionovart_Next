@@ -68,7 +68,7 @@ export default function ServiceWorld({ children, mediaFirst = false }: { childre
       const end = root.getBoundingClientRect();
       const visible = end.top < h && end.bottom > 0 && !document.hidden;
       const staticEntry = root.querySelector('[data-work-services-transition]')?.getAttribute('data-static') === 'true';
-      const staticCards = root.dataset.storyStatic === 'true' || matchMedia('(prefers-reduced-motion: reduce), (max-height: 560px)').matches;
+      const staticCards = root.dataset.storyStatic !== 'false';
       const light = cardExit ? (staticCards ? 1 : cardHandoff(entry!.top, entry!.height, h).light) : entry && !staticEntry ? worldLight(entry.top, entry.height) : 1;
       const galleryBounds = root.querySelector('[data-gallery]')?.getBoundingClientRect();
       root.style.setProperty('--gallery-travel', String(galleryBounds ? Math.min(1, Math.max(0, 1 - galleryBounds.top / h)) : 0));

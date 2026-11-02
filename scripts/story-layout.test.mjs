@@ -27,7 +27,7 @@ test('content-fit reserves navigation, captions and controls at the reading stop
 
 
 test('ordinary vertical reading pairs retain room for two captions', () => {
-  for (const [width, height] of [[360, 800], [390, 844], [768, 1024], [1024, 768]]) {
+  for (const [width, height] of [[320, 568], [360, 640], [360, 800], [390, 844], [768, 1024], [1024, 768]]) {
     const layout = galleryLayout(width, height);
     assert.ok(storyGalleryFits({ height, center: height * layout.panelTop / 100,
       separation: layout.y, cardHeight: layout.panelWidth * .75,

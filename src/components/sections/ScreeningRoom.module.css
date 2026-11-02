@@ -46,13 +46,13 @@
   .galleryRunway { height: 160svh; }
 }
 @media(max-height:560px), (prefers-reduced-motion:reduce) {
-  .cardIntro { position: relative; top: auto !important; opacity: 1 !important; }
-  .cardExit { height: 0; }
-  .partnershipRunway, .galleryRunway { height: auto !important; }
-  .partnershipStage { position: relative; min-height: 65svh; height: auto; }
-  .partnershipHeading { position: relative; padding: 4rem 1.25rem; }
-  .galleryStage { position: relative; min-height: auto; }
-  .serviceScreen, .corridor { height: 17rem; }
+  .cardIntro:where(:not([data-story-static=false] *)) { position: relative; top: auto !important; opacity: 1 !important; }
+  .cardExit:where(:not([data-story-static=false] *)) { height: 0; }
+  .partnershipRunway:where(:not([data-story-static=false] *)), .galleryRunway:where(:not([data-story-static=false] *)) { height: auto !important; }
+  .partnershipStage:where(:not([data-story-static=false] *)) { position: relative; min-height: 65svh; height: auto; }
+  .partnershipHeading:where(:not([data-story-static=false] *)) { position: relative; padding: 4rem 1.25rem; }
+  .galleryStage:where(:not([data-story-static=false] *)) { position: relative; min-height: auto; }
+  .serviceScreen:where(:not([data-story-static=false] *)), .corridor:where(:not([data-story-static=false] *)) { height: 17rem; }
 }
 @media(prefers-reduced-motion:reduce) { .media video, .screenSide { transition: none; } }
 
@@ -74,11 +74,11 @@
   .brandSignature { top:clamp(23rem,52svh,40rem); bottom:auto; }
 }
 @media(max-height:560px), (prefers-reduced-motion:reduce) {
-  .shapingMessage { position: relative; inset: auto; visibility: visible !important; padding: 3rem 1.25rem 4rem; background: #08080a; }
-  .shapingMessage [data-brand-beat] { opacity: 1 !important; }
-  .brandStatement, .shapingMessage .brandSignature { position: relative; inset: auto; }
-  .shapingMessage .brandSignature { margin-top: 2rem; color: #f4efe5; }
-  .cardIntro { translate: none !important; }
+  .shapingMessage:where(:not([data-story-static=false] *)) { position: relative; inset: auto; visibility: visible !important; padding: 3rem 1.25rem:where(:not([data-story-static=false] *)) 4rem; background: #08080a; }
+  .shapingMessage:where(:not([data-story-static=false] *)) [data-brand-beat] { opacity: 1 !important; }
+  .brandStatement:where(:not([data-story-static=false] *)), .shapingMessage:where(:not([data-story-static=false] *)) .brandSignature:where(:not([data-story-static=false] *)) { position: relative; inset: auto; }
+  .shapingMessage:where(:not([data-story-static=false] *)) .brandSignature:where(:not([data-story-static=false] *)) { margin-top: 2rem; color: #f4efe5; }
+  .cardIntro:where(:not([data-story-static=false] *)) { translate: none !important; }
 }
 
 /* About follows the pinned gallery in normal document flow, including at text zoom. */
@@ -86,8 +86,8 @@
 .aboutStage { position: relative; min-height: 0; padding: 0; color: #171412; }
 .galleryStage > div:last-child { width: min(100%,76rem); margin-inline: auto; margin-top: 1.25rem; }
 @media(max-height:560px), (prefers-reduced-motion:reduce) {
-  .aboutRunway { height: auto; }
-  .aboutStage { position: relative; height: auto; padding: 0; overflow: visible; }
+  .aboutRunway:where(:not([data-story-static=false] *)) { height: auto; }
+  .aboutStage:where(:not([data-story-static=false] *)) { position: relative; height: auto; padding: 0; overflow: visible; }
 }
 @media(max-height:740px) and (min-height:561px) {
   .galleryStage { padding: 4.5rem 1rem 6rem; }

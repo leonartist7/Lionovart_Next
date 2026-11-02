@@ -73,7 +73,7 @@
 .journey :global(.hero-client-title) { display: flex; flex-direction: column; text-align: center; font-family: var(--font-clash), sans-serif; font-size: 1.4375rem; font-weight: 700; line-height: .95; letter-spacing: -.035em; text-transform: uppercase; }
 .journey :global(.hero-client-proof:focus-visible) { outline: 1px solid #e8bd59; outline-offset: 6px; border-radius: 8px; }
 .journey :global(.opening-flags) { width: 100%; order: 3; }
-@media (prefers-reduced-motion: reduce) { .journey :global(.hero-capsule), .journey :global(.hero-capsule-interior::after) { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .journey:where(:not([data-story-static=false] *)) :global(.hero-capsule), .journey:where(:not([data-story-static=false] *)) :global(.hero-capsule-interior::after) { transition: none; } }
 .journey :global(.hero-invitation) { width: 100%; }
 .journey :global(.hero-client-proof) { width: 210px; margin: 0; padding: 0; justify-content: flex-start; gap: 4px; }
 .journey :global(.hero-client-laurel) { width: 24px; height: 72px; }
@@ -234,7 +234,7 @@
  .journey :global(.lion-description.editorial-accent.editorial-hero.hero-positioning-copy) { max-width:34ch; }
 }
 
-@media (prefers-reduced-motion: reduce) { .journey { --opening-overlap: 0px; } }
+@media (prefers-reduced-motion: reduce) { .journey:where(:not([data-story-static=false] *)) { --opening-overlap: 0px; } }
 
 /* A mobile back face stays legible; scroll the same stack through its overflow. */
 @media (width < 920px) {
@@ -252,12 +252,12 @@
 @media (width < 920px), (height <= 700px) { .journey :global(.hero-opening-pinned[data-opening-imagine="inline"]) { height: calc(100svh + var(--opening-scroll-span-mobile, 340svh) * .625 + var(--hero-overflow, 0px) + var(--opening-front-overflow, 0px)); } }
 
 @media (prefers-reduced-motion: reduce) {
- .journey :global(.hero-opening-pinned[data-opening-imagine="inline"]) { height: auto; }
- .journey :global([data-opening-imagine="inline"] .hero-opening-stage) { position: relative; top: auto; height: auto; overflow: visible; }
- .journey :global([data-opening-imagine="inline"] .opening-hero-layer), .journey :global([data-opening-imagine="inline"] .opening-work-layer), .journey :global([data-opening-imagine="inline"] .opening-work-pinned) { position: relative; inset: auto; }
- .journey :global([data-opening-imagine="inline"] .opening-video-layout) { height: auto; overflow: visible; padding-block: 1rem 3rem; }
- .journey :global([data-opening-imagine="inline"] .opening-video-anchor) { position: relative; top: auto; left: auto; translate: none; margin: 0 auto; padding-top: 8rem; }
- .journey :global([data-opening-imagine="inline"] [data-opening-film]), .journey :global([data-opening-imagine="inline"] [data-opening-crop]) { display: none; }
+ .journey:where(:not([data-story-static=false] *)) :global(.hero-opening-pinned[data-opening-imagine="inline"]) { height: auto; }
+ .journey:where(:not([data-story-static=false] *)) :global([data-opening-imagine="inline"] .hero-opening-stage) { position: relative; top: auto; height: auto; overflow: visible; }
+ .journey:where(:not([data-story-static=false] *)) :global([data-opening-imagine="inline"] .opening-hero-layer), .journey:where(:not([data-story-static=false] *)) :global([data-opening-imagine="inline"] .opening-work-layer), .journey:where(:not([data-story-static=false] *)) :global([data-opening-imagine="inline"] .opening-work-pinned) { position: relative; inset: auto; }
+ .journey:where(:not([data-story-static=false] *)) :global([data-opening-imagine="inline"] .opening-video-layout) { height: auto; overflow: visible; padding-block: 1rem 3rem; }
+ .journey:where(:not([data-story-static=false] *)) :global([data-opening-imagine="inline"] .opening-video-anchor) { position: relative; top: auto; left: auto; translate: none; margin: 0 auto; padding-top: 8rem; }
+ .journey:where(:not([data-story-static=false] *)) :global([data-opening-imagine="inline"] [data-opening-film]), .journey:where(:not([data-story-static=false] *)) :global([data-opening-imagine="inline"] [data-opening-crop]) { display: none; }
 }
 
 /* One source-aspect film, divided into three without a second outline. */
@@ -266,7 +266,7 @@
  .journey :global([data-opening-imagine="inline"] .opening-video-anchor) { --opening-film-width: min(76vw,64rem,calc((100svh - 15rem) * 16 / 9)); }
 }
 @media(prefers-reduced-motion:reduce), (height <= 560px) {
- .journey :global([data-opening-imagine="inline"] .opening-video-anchor) { --opening-film-width: min(84vw,22.5rem); }
+ .journey:where(:not([data-story-static=false] *)) :global([data-opening-imagine="inline"] .opening-video-anchor) { --opening-film-width: min(84vw,22.5rem); }
 }
 
 /* The complete variants share reserved space; only their own proof is clickable. */

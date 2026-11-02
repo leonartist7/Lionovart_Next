@@ -1,6 +1,7 @@
 "use client";
 
 import { usePublicCopy } from "@/hooks/usePublicCopy";
+import { usePinnedScene } from "../service-world/PinnedScene";
 import { useSaveData } from "@/hooks/useSaveData";
 import styles from "./DisciplineSplit3D.module.css";
 
@@ -357,7 +358,9 @@ export default function DisciplineSplit3D({
   const paneNodesRef = useRef<(HTMLDivElement | null)[]>([]);
   const paneRectsRef = useRef<(DOMRect | null)[]>([]);
 
-  const reduce = useReducedMotion();
+  const systemReduce = useReducedMotion();
+  const scene = usePinnedScene();
+  const reduce = scene ? scene.staticLayout : systemReduce;
   const saveData = useSaveData();
   const [isDesktop, setIsDesktop] = useState(true);
   const [isTablet, setIsTablet] = useState(false);

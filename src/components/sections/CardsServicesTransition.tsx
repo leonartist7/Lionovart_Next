@@ -22,7 +22,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     let bases: BridgeFrame[] = [];
     const sync = () => {
       frame = 0;
-      const isStatic = !!scene?.staticLayout || media.matches;
+      const isStatic = scene?.staticLayout ?? media.matches;
       const bounds = runway.getBoundingClientRect();
       const pose = cardHandoff(bounds.top, bounds.height, innerHeight);
       const panels = Array.from(node.querySelectorAll<HTMLElement>('.opening-glass-pane'));

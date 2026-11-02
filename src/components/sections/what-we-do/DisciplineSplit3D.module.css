@@ -37,19 +37,19 @@
   .captionStack { min-height: 6.5rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .imagineFallback { display: block; position: relative; padding: 3rem 1.25rem; background: #08080a; color: #fffaf1; }
-  .imagineFallback > header { text-align: center; margin-bottom: 2rem; }
-  .imagineFallback > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; max-width: 75rem; margin: 0 auto; }
-  .imagineFallback article { border: 2px solid #d6b269; border-radius: 1rem; background: #fffaf1; color: #302b26; }
-  .backFace, .imagineCaption { display: none; }
+  .imagineFallback:where(:not([data-story-static=false] *)) { display: block; position: relative; padding: 3rem 1.25rem; background: #08080a; color: #fffaf1; }
+  .imagineFallback:where(:not([data-story-static=false] *)) > header { text-align: center; margin-bottom: 2rem; }
+  .imagineFallback:where(:not([data-story-static=false] *)) > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; max-width: 75rem; margin: 0 auto; }
+  .imagineFallback:where(:not([data-story-static=false] *)) article { border: 2px solid #d6b269; border-radius: 1rem; background: #fffaf1; color: #302b26; }
+  .backFace:where(:not([data-story-static=false] *)), .imagineCaption:where(:not([data-story-static=false] *)) { display: none; }
 }
-@media (prefers-reduced-motion: reduce) and (width < 920px) { .imagineFallback > div { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) and (width < 920px) { .imagineFallback:where(:not([data-story-static=false] *)) > div { grid-template-columns: 1fr; } }
 
 .imagineCardWrapper { width: 100%; height: 100%; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); }
 .imagineCardWrapper > article { border-radius: inherit; }
 .backFace { overflow: visible; }
 .backFace .imagineCardWrapper { border-radius: inherit; }
-@media (prefers-reduced-motion: reduce) and (width < 920px) { .paneSizer { height: var(--opening-art-size); } }
+@media (prefers-reduced-motion: reduce) and (width < 920px) { .paneSizer:where(:not([data-story-static=false] *)) { height: var(--opening-art-size); } }
 
 @media (height <= 700px) { .captionStack { min-height: 5.5rem; } }
 
@@ -65,13 +65,13 @@
 @media (width < 360px) {
   .paneSizer { height: 17.5rem; }
 }
-@media (prefers-reduced-motion: reduce) { .paneSizer { height: 28rem; } }
-@media (prefers-reduced-motion: reduce) and (width < 920px) { .paneSizer { height: 16.5rem; } }
+@media (prefers-reduced-motion: reduce) { .paneSizer:where(:not([data-story-static=false] *)) { height: 28rem; } }
+@media (prefers-reduced-motion: reduce) and (width < 920px) { .paneSizer:where(:not([data-story-static=false] *)) { height: 16.5rem; } }
 
 .floatingObject { position: absolute; top: -.75rem; right: -1.125rem; z-index: 30; width: clamp(6rem, 10vw, 9.5rem); aspect-ratio: 1; pointer-events: none; transform-style: preserve-3d; }
 .floatingObject img { display: block; width: 100%; height: 100%; object-fit: contain; }
 @media (width < 920px) { .floatingObject { top: .5rem; right: auto; left: -.5rem; width: 4.5rem; } }
-@media (prefers-reduced-motion: reduce) { .floatingObject { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .floatingObject:where(:not([data-story-static=false] *)) { transform: none; } }
 
 /* A compact, straight triptych. The source film fit remains constant. */
 .paneSizer { height: var(--panel-height, 22rem); padding: 0; }
@@ -80,8 +80,8 @@
 .pane:nth-child(2) { z-index: 3; }
 
 @media (width < 920px) { .floatingObject { width: 3.25rem; top: .5rem; left: -.25rem; } }
-@media (prefers-reduced-motion:reduce) { .paneSizer { height: 22rem; } }
-@media (prefers-reduced-motion:reduce) and (width < 920px) { .paneSizer { height: 16.5rem; } }
+@media (prefers-reduced-motion:reduce) { .paneSizer:where(:not([data-story-static=false] *)) { height: 22rem; } }
+@media (prefers-reduced-motion:reduce) and (width < 920px) { .paneSizer:where(:not([data-story-static=false] *)) { height: 16.5rem; } }
 
 .imagineCaption h2 { font: 400 clamp(1.75rem,3.8vw,3.75rem)/1.08 var(--font-clash-display),sans-serif; text-transform: none; letter-spacing: -.035em; }
 

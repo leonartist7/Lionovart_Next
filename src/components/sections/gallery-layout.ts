@@ -1,7 +1,10 @@
 /** CSS pixels at the DOM boundary; text and spacing remain in rem/em. */
 export const STORY_GALLERY_BREAKPOINT = 1024;
 export const STORY_SHORT_HEIGHT = 560;
-export const STORY_STATIC_QUERY = `(prefers-reduced-motion: reduce), (max-height: ${STORY_SHORT_HEIGHT}px)`;
+// A short desktop still has room for a horizontal pair. Small landscape
+// screens need document flow to keep both vertical projects readable.
+export const STORY_SHORT_QUERY = `(max-height: 439px), (max-width: ${STORY_GALLERY_BREAKPOINT}px) and (max-height: ${STORY_SHORT_HEIGHT}px)`;
+export const STORY_STATIC_QUERY = `(prefers-reduced-motion: reduce), ${STORY_SHORT_QUERY}`;
 export const storyGalleryVertical = (width: number) => width <= STORY_GALLERY_BREAKPOINT;
 
 /** A readable pair needs room for captions as well as the projected artwork. */
@@ -26,7 +29,7 @@ export function galleryLayout(viewportWidth: number, height: number, contentWidt
   // Fit the reading pair before falling back. Keep a useful artwork size;
   // short/enlarged-text layouts must reflow instead of shrinking indefinitely.
   const fittingWidth = ((height - 11 * rem) / projection / 2 - captionAllowance - .75 * rem) / .75;
-  const panelWidth = vertical ? Math.min(preferredWidth, Math.max(14 * rem, fittingWidth)) : preferredWidth;
+  const panelWidth = vertical ? Math.min(preferredWidth, Math.max(8 * rem, fittingWidth)) : preferredWidth;
   const centerGap = Math.min(260, Math.max(160, contentWidth * .17));
   const x = vertical ? 0 : panelWidth * .5 + centerGap * GALLERY_ENTRY_PROJECTION / 2;
   const previewInset = vertical ? 0 : centerGap * .55;

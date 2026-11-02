@@ -14,7 +14,7 @@ export default function HeroOpening() {
   const { opening: openingRef, openingProgress, arrivalProgress } = useLionJourney()!;
   const scene = usePinnedScene();
   const reduced = useHydratedReducedMotion();
-  const readingFlow = reduced || !!scene?.staticLayout;
+  const readingFlow = scene?.staticLayout ?? reduced;
   const [workInert, setWorkInert] = useState(false);
   const workOpacity = useTransform(arrivalProgress, [0, .3, .9, 1], [1, 1, 0, 0]);
   useMotionValueEvent(arrivalProgress, "change", p => setWorkInert(p >= .9));

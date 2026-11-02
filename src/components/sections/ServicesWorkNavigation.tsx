@@ -61,7 +61,8 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
   activeIndex: number; onSelect: (index: number) => void;
 }) {
   const tr = usePublicCopy();
-  const staticLayout = usePinnedScene()?.staticLayout ?? false;
+  const scene = usePinnedScene();
+  const staticLayout = scene?.staticLayout;
   const browse = useWorkBrowse();
   const serviceControls = useRef<HTMLDivElement>(null);
   const client = useSyncExternalStore(subscribeClient, () => true, () => false);
@@ -84,7 +85,7 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
     const staticScene = matchMedia(STORY_STATIC_QUERY);
     const sync = () => {
       frame = 0;
-      const isStatic = staticLayout || staticScene.matches;
+      const isStatic = staticLayout ?? staticScene.matches;
       const h = window.innerHeight;
       const rect = services.getBoundingClientRect();
       const workRect = work?.getBoundingClientRect();

@@ -157,7 +157,7 @@ export default function HomepageServicesChapter() {
   const selectWorld = world?.select;
   const [shortScreen, setShortScreen] = useState(false);
   const scene = usePinnedScene();
-  const staticLayout = !!scene?.staticLayout || reduceMotion || shortScreen;
+  const staticLayout = scene?.staticLayout ?? (reduceMotion || shortScreen);
   const [variant, setVariant] = useState(1);
   const [ledEnabled, setLedEnabled] = useState(true);
   const [scenePaused, setScenePaused] = useState(false);

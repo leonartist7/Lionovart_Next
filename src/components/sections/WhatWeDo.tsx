@@ -8,6 +8,7 @@ import { BenefitCard } from './PawRevealStack';
 import { IMAGINE_BENEFITS } from './imagine-benefits';
 import { LANDSCAPE_FILM_QUERY } from './lion-journey/opening-layout';
 import styles from './OpeningReadingFlow.module.css';
+import TrustPlacement from "./TrustPlacement";
 import OpeningProof from "./OpeningProof";
 import DisciplineSplit3D from "@/components/sections/what-we-do/DisciplineSplit3D";
 import { useLionJourney } from "./lion-journey/LionJourney";
@@ -70,6 +71,7 @@ export default function WhatWeDo({ pinned = false }: { pinned?: boolean }) {
     <section id="opening-work" data-nova-section="what-we-do" className={`${journey ? "opening-work" : "bg-bg-dark"}${pinned ? " opening-work-pinned" : ""} text-white`}>
       {readingFlow ? <div className={styles.flow} data-opening-static>
         <ReadingFilm />
+        <TrustPlacement slot="video" />
         <div className={styles.cards} data-opening-benefits>
           {CARDS.map((card, index) => <BenefitCard key={card.code} item={IMAGINE_BENEFITS[index]} index={index}
             artwork={card.image} code={card.code} serviceTitle={tr(card.title)} accent={tr(card.accent)} flow />)}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, type RefObject } from 'react';
-import { galleryLayout, storyGalleryFits, STORY_STATIC_QUERY } from '../gallery-layout';
+import { galleryLayout, storyGalleryFits, STORY_SHORT_QUERY } from '../gallery-layout';
 
 /** Measure only on layout/content changes, never on a scroll or pointer frame. */
 export function useStoryLayout(host: RefObject<HTMLDivElement | null>) {
@@ -9,7 +9,9 @@ export function useStoryLayout(host: RefObject<HTMLDivElement | null>) {
   useEffect(() => {
     const world = host.current?.closest<HTMLElement>('[data-service-world]');
     if (!world) return;
-    const preference = matchMedia(STORY_STATIC_QUERY);
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const shortViewport = matchMedia(STORY_SHORT_QUERY);
+    const requestedMotion = new URLSearchParams(location.search).get('story') === 'animated';
     let frame = 0, disposed = false, failedKey = '', currentEnabled = false;
     const probe = document.createElement('div');
     probe.setAttribute('aria-hidden', 'true'); probe.inert = true;
@@ -31,8 +33,18 @@ export function useStoryLayout(host: RefObject<HTMLDivElement | null>) {
       const key = [innerWidth, innerHeight, rem, document.documentElement.lang,
         copy?.textContent, statement?.textContent, tags.map(tag => tag.textContent).join('|'),
         typeStyle?.fontSize, typeStyle?.lineHeight, typeStyle?.letterSpacing, typeStyle?.wordSpacing].join('/');
-      let reason = preference.matches ? 'preference-or-height' : failedKey === key ? 'content-fit' : '';
-      if (!reason) {
+      const fontSize = parseFloat(typeStyle?.fontSize || '0');
+      const expandedType = rem > 16 || fontSize > .75 * rem + .5
+        || parseFloat(typeStyle?.letterSpacing || '0') > .05 * fontSize
+        || parseFloat(typeStyle?.wordSpacing || '0') > .1 * fontSize
+        || parseFloat(typeStyle?.lineHeight || '0') > 1.48 * fontSize;
+      let reason = shortViewport.matches ? 'short-viewport'
+        : reducedMotion.matches && !requestedMotion ? 'reduced-motion'
+        : expandedType && failedKey === key ? 'content-fit' : '';
+      // Static media and text use different boxes. Only measure the real,
+      // mounted stage. Normal-size content adapts within the animated scene.
+      const pinned = host.current?.querySelector('[data-gallery-stage][data-walkthrough-pinned=true]');
+      if (!reason && expandedType && pinned) {
         let captionHeight = 0;
         for (const tag of tags) {
           const sample = tag.cloneNode(true) as HTMLElement;
@@ -54,7 +66,7 @@ export function useStoryLayout(host: RefObject<HTMLDivElement | null>) {
         const narrativeFits = !statement || statement.offsetHeight + 16 * rem <= innerHeight - navHeight - 3 * rem;
         if (!galleryFits || !serviceFits || !narrativeFits) { reason = 'content-fit'; failedKey = key; }
       }
-      const next = { enabled: !reason, reason: reason || 'animated' };
+      const next = { enabled: !reason, reason: reason || (requestedMotion ? 'animated-preview' : 'animated') };
       if (next.enabled !== currentEnabled) {
         window.dispatchEvent(new Event('lionovart:story-layout-will-change'));
         currentEnabled = next.enabled;
@@ -78,14 +90,15 @@ export function useStoryLayout(host: RefObject<HTMLDivElement | null>) {
     const rootStyle = new MutationObserver(schedule);
     rootStyle.observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'class', 'lang'] });
     watchContent();
-    preference.addEventListener('change', schedule);
+    reducedMotion.addEventListener('change', schedule);
+    shortViewport.addEventListener('change', schedule);
     window.addEventListener('resize', schedule);
     const fontsReady = () => { failedKey = ''; schedule(); };
     document.fonts.addEventListener('loadingdone', fontsReady);
     void document.fonts.ready.then(fontsReady); schedule();
     return () => {
       disposed = true; cancelAnimationFrame(frame); resize.disconnect(); mutations.disconnect(); rootStyle.disconnect(); probe.remove();
-      preference.removeEventListener('change', schedule); window.removeEventListener('resize', schedule);
+      reducedMotion.removeEventListener('change', schedule); shortViewport.removeEventListener('change', schedule); window.removeEventListener('resize', schedule);
       document.fonts.removeEventListener('loadingdone', fontsReady);
     };
   }, [host]);
