@@ -30,7 +30,7 @@ export function ConnectionsHub({ workspaceSlug, links, canManage, demoView, read
           <CalendarExportButton href={`${base}/calendar/export${suffix}`} demo={Boolean(demoView)}/>
         </section>
         {resourceError ? <section className="border-border bg-card rounded-2xl border p-5" role="alert"><h2 className="text-foreground font-semibold">Project resources unavailable</h2><p className="text-muted-foreground mt-2 text-sm">{resourceError}</p><a href={`${base}/connections${suffix}`} className="mt-3 inline-flex min-h-11 items-center text-sm underline">Reload resources</a></section> :
-          <ResourceLinksPanel initialLinks={links} canManage={canManage} endpoint={demoView ? undefined : `${base}/connections/resources`} demo={Boolean(demoView)}/>}
+          <ResourceLinksPanel key={JSON.stringify([workspaceSlug, canManage, links])} initialLinks={links} canManage={canManage} endpoint={demoView ? undefined : `${base}/connections/resources`} demo={Boolean(demoView)}/>}
         <Link href={`${base}/assets${suffix}`} className="border-border bg-card flex min-h-20 items-center gap-4 rounded-2xl border p-5 hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-4">
           <FolderOpen className="text-muted-foreground h-5 w-5 shrink-0" aria-hidden="true"/>
           <div className="min-w-0 flex-1"><span className="text-foreground block text-sm font-semibold">Workspace files</span><span className="text-muted-foreground mt-1 block text-sm">Uploaded files, versions, and feedback stay in the existing Files section.</span></div>
