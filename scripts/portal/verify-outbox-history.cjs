@@ -132,6 +132,7 @@ test("empty outbox is a valid read-only result", async () => {
 function pageHarness() {
   let token = "staff";
   let historyReads = 0;
+  let activityReads = 0;
   let linkReads = 0;
   const fakeHistory = { entries: [{ recipient: "u***@example.test", activity: "File reply", status: "sent", createdAt: null }] };
   const mocks = {
@@ -149,12 +150,13 @@ function pageHarness() {
     "@/lib/firebase-admin": { adminStorage: undefined },
     "@/lib/portal/resource-links-store": { listResourceLinks: async () => { linkReads++; return []; } },
     "@/lib/portal/outbox-history": { listNotificationHistory: async () => { historyReads++; return fakeHistory; } },
+    "@/lib/portal/visible-file-activity": { listVisibleFileActivity: async () => { activityReads++; return []; } },
   };
   const page = load("src/app/(app)/portal/(secure)/[workspace]/connections/page.tsx", mocks).default;
   const render = (slug = "alpha", outboxAfter) => page({
     params: Promise.resolve({ workspace: slug }), searchParams: Promise.resolve({ outboxAfter }),
   });
-  return { render, setToken: value => { token = value; }, counts: () => ({ historyReads, linkReads }), fakeHistory };
+  return { render, setToken: value => { token = value; }, counts: () => ({ historyReads, linkReads, activityReads }), fakeHistory };
 }
 test("client page never loads Studio outbox even with a forged cursor", async () => {
   const h = pageHarness(); h.setToken("client");
@@ -162,6 +164,7 @@ test("client page never loads Studio outbox even with a forged cursor", async ()
   assert.equal(rendered.props.canManage, false);
   assert.equal(rendered.props.history, undefined);
   assert.equal(h.counts().historyReads, 0);
+  assert.equal(h.counts().activityReads, 1, "authorized client receives visibility-filtered activity");
 });
 test("Studio page reads only its authorized workspace history", async () => {
   const h = pageHarness();
@@ -176,4 +179,102 @@ test("expired session and unknown workspace never reach the outbox", async () =>
   h.setToken("staff");
   await assert.rejects(() => h.render("other"), /notFound/);
   assert.equal(h.counts().historyReads, 0);
+  assert.equal(h.counts().activityReads, 0, "revoked session cannot query activity");
+});
+
+/* Recent client file-activity checks use mocked Firestore and an existing-asset
+ * visibility decision. No real rules, browser, or customer data is exercised. */
+function fileActivityHarness(rows, access = {}) {
+  const queryLog = [];
+  const assetReads = [];
+  const fakeDb = { collection(name) {
+    assert.equal(name, "workspaces");
+    return { doc(workspace) { return { collection(child) {
+      assert.equal(child, "threads");
+      return { orderBy(field, direction) {
+        assert.equal(field, "updatedAt");
+        assert.equal(direction, "desc");
+        return { limit(n) {
+          assert.equal(n, 60);
+          return { async get() {
+            queryLog.push(workspace);
+            return { docs: rows.slice(0, n).map(row => ({ id: row.id, data: () => row.data })) };
+          } };
+        } };
+      } };
+    } }; } };
+  } };
+  const activity = load("src/lib/portal/visible-file-activity.ts", {
+    "server-only": {},
+    "@/lib/firebase-admin": { adminDb: fakeDb },
+    "@/lib/portal/assets": { getAsset: async (ws, id, role) => {
+      assetReads.push([ws, id, role]);
+      const name = access[`${ws}:${role}:${id}`];
+      return name ? { id, name } : null;
+    } },
+  });
+  return { activity, queryLog, assetReads };
+}
+const at = "2026-11-02T03:00:00.000Z";
+function feedbackRow(id, targetId, extra = {}) {
+  return { id, data: {
+    targetType: "asset", targetId, status: "open", updatedAt: at,
+    body: "Private comment body", authorUid: "secret-user",
+    recipientEmail: "private@example.test", ...extra,
+  } };
+}
+test("recent file activity reuses existing role-based asset visibility per workspace", async () => {
+  const h = fileActivityHarness([
+    feedbackRow("thread-public", "public"), feedbackRow("thread-internal", "internal"),
+    feedbackRow("thread-deleted", "deleted"),
+  ], { "alpha:viewer:public": "Approved artwork", "alpha:agency:public": "Approved artwork",
+       "alpha:agency:internal": "Internal strategy" });
+  const client = await h.activity.listVisibleFileActivity("alpha", "viewer");
+  assert.deepEqual(client.map(x => x.assetName), ["Approved artwork"]);
+  const studio = await h.activity.listVisibleFileActivity("alpha", "agency");
+  assert.deepEqual(studio.map(x => x.assetName), ["Approved artwork", "Internal strategy"]);
+  assert.deepEqual(await h.activity.listVisibleFileActivity("beta", "viewer"), []);
+  assert.ok(h.queryLog.every(ws => ["alpha", "beta"].includes(ws)));
+  assert.ok(h.assetReads.some(([ws, ,role]) => ws === "alpha" && role === "viewer"));
+});
+test("activity cards contain no authors, raw comments, recipient emails or provider data", async () => {
+  const h = fileActivityHarness([feedbackRow("pin-one", "public", {
+    status: "resolved", pin: { x: 0.5, y: 0.3 }, error: "SECRET token",
+  })], { "alpha:viewer:public": "Preview.png" });
+  const [item] = await h.activity.listVisibleFileActivity("alpha", "viewer");
+  assert.deepEqual(item, {
+    assetId: "public", threadId: "pin-one", assetName: "Preview.png",
+    kind: "Pinned feedback", status: "resolved", updatedAt: at,
+  });
+  const json = JSON.stringify(item);
+  for (const word of ["Private comment", "secret-user", "private@example.test", "SECRET"]) {
+    assert.ok(!json.includes(word));
+  }
+});
+test("activity skips non-file, malformed, deleted, or hidden discussions", async () => {
+  const h = fileActivityHarness([
+    feedbackRow("project-thread", "public", { targetType: "project" }),
+    feedbackRow("bad-date", "public", { updatedAt: "invalid" }),
+    feedbackRow("bad-status", "public", { status: "invalid" }),
+    feedbackRow("bad/id", "public"), feedbackRow("good-thread", "public"),
+    feedbackRow("gone-thread", "deleted"),
+  ], { "alpha:viewer:public": "Public file" });
+  assert.deepEqual((await h.activity.listVisibleFileActivity("alpha", "viewer")).map(x => x.threadId), ["good-thread"]);
+  assert.equal(h.assetReads.length, 2);
+});
+test("activity limits the query window and returned records and caches asset permissions", async () => {
+  const rows = Array.from({ length: 90 }, (_, n) => feedbackRow(`thread-${n}`, "public"));
+  const h = fileActivityHarness(rows, { "alpha:viewer:public": "Public file" });
+  const list = await h.activity.listVisibleFileActivity("alpha", "viewer");
+  assert.equal(list.length, 8);
+  assert.equal(h.queryLog.length, 1);
+  assert.equal(h.assetReads.length, 1);
+});
+test("unavailable activity storage is an error, not a misleading empty inbox", async () => {
+  const activity = load("src/lib/portal/visible-file-activity.ts", {
+    "server-only": {},
+    "@/lib/firebase-admin": { adminDb: null },
+    "@/lib/portal/assets": { getAsset: async () => null },
+  });
+  await assert.rejects(() => activity.listVisibleFileActivity("alpha", "viewer"), /unavailable/);
 });
