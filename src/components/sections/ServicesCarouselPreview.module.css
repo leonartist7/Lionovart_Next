@@ -80,3 +80,7 @@
 .serviceTitle { overflow-wrap:anywhere; }
 .serviceTitleSwitch { position:absolute; inset:0; width:100%; min-height:44px; padding:0; border:0; background:transparent; border-radius:.25rem; cursor:pointer; }
 .serviceTitleSwitch:focus-visible { outline:2px solid #ad172b; outline-offset:4px; }
+
+@media (min-width:1025px) and (440px <= height <= 560px) {
+  .serviceTitleSlot { font-size: clamp(1.5rem,4.8svh,1.75rem); margin-bottom: .35rem; }
+}
