@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { ArrowUpRight, CalendarDays, FolderOpen, Mail, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, CalendarDays, FolderOpen, Mail, MessageSquare, ShieldCheck } from "lucide-react";
 import { CalendarExportButton } from "./CalendarExportButton";
 import { ResourceLinksPanel } from "./ResourceLinksPanel";
 import type { ResourceLink } from "@/lib/portal/resource-links";
 import type { DeliveryHistoryPage } from "@/lib/portal/outbox-history";
 import { NotificationHistoryPanel } from "./NotificationHistoryPanel";
+import type { VisibleFileActivity } from "@/lib/portal/visible-file-activity";
 
-export function ConnectionsHub({ workspaceSlug, links, canManage, demoView, readiness, resourceError, history, historyError, historyCursor }: {
+export function ConnectionsHub({ workspaceSlug, links, canManage, demoView, readiness, resourceError, history, historyError, historyCursor, activity, activityError }: {
   workspaceSlug: string;
   links: ResourceLink[];
   canManage: boolean;
@@ -16,6 +17,8 @@ export function ConnectionsHub({ workspaceSlug, links, canManage, demoView, read
   history?: DeliveryHistoryPage;
   historyError?: boolean;
   historyCursor?: string;
+  activity?: VisibleFileActivity[];
+  activityError?: boolean;
 }) {
   const base = `/portal/${encodeURIComponent(workspaceSlug)}`;
   const suffix = demoView ? `?view=${demoView}` : "";
@@ -41,6 +44,42 @@ export function ConnectionsHub({ workspaceSlug, links, canManage, demoView, read
           <div className="min-w-0 flex-1"><span className="text-foreground block text-sm font-semibold">Workspace files</span><span className="text-muted-foreground mt-1 block text-sm">Uploaded files, versions, and feedback stay in the existing Files section.</span></div>
           <ArrowUpRight className="h-5 w-5 shrink-0" aria-hidden="true"/>
         </Link>
+        <section className="border-border bg-card rounded-2xl border p-5 md:p-7" aria-labelledby="recent-file-feedback-heading">
+          <div className="flex items-center gap-3">
+            <MessageSquare className="text-muted-foreground h-5 w-5" aria-hidden="true"/>
+            <h2 id="recent-file-feedback-heading" className="text-foreground text-lg font-semibold">Recent file feedback</h2>
+          </div>
+          <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+            A snapshot of recent file conversations you can access. Open a file to see its complete feedback history.
+          </p>
+          {demoView ? (
+            <p className="text-muted-foreground mt-5 text-sm">Public preview: live client feedback is not loaded.</p>
+          ) : activityError ? (
+            <p className="text-muted-foreground mt-5 text-sm" role="alert">Recent feedback could not be loaded. Your files and conversations are unchanged.</p>
+          ) : activity?.length ? (
+            <ol className="border-border mt-5 divide-y border-t" aria-label="Visible file feedback">
+              {activity.map(item => (
+                <li key={item.threadId}>
+                  <Link
+                    href={`${base}/assets/${encodeURIComponent(item.assetId)}#thread-${encodeURIComponent(item.threadId)}`}
+                    className="flex min-h-16 flex-wrap items-center justify-between gap-x-5 gap-y-1 py-3 focus-visible:outline-2 focus-visible:outline-offset-2"
+                  >
+                    <span className="min-w-0">
+                      <span className="text-foreground block break-words text-sm font-medium">{item.assetName}</span>
+                      <span className="text-muted-foreground mt-1 block text-xs">{item.kind} · {item.status === "resolved" ? "Resolved" : "Open"}</span>
+                    </span>
+                    <span className="text-muted-foreground flex shrink-0 items-center gap-2 text-xs">
+                      <time dateTime={item.updatedAt}>{new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(item.updatedAt))} UTC</time>
+                      <ArrowUpRight className="h-4 w-4" aria-hidden="true"/>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="text-muted-foreground mt-5 text-sm">No recent file conversations are visible in this workspace.</p>
+          )}
+        </section>
         {canManage && <NotificationHistoryPanel href={`${base}/connections`} demo={Boolean(demoView)} history={history} error={historyError} hasCursor={Boolean(historyCursor)}/>}
         {canManage && <section className="border-border rounded-2xl border p-5 md:p-7" aria-labelledby="provider-readiness-heading">
           <div className="flex items-center gap-3"><ShieldCheck className="text-muted-foreground h-5 w-5" aria-hidden="true"/><h2 id="provider-readiness-heading" className="text-foreground text-lg font-semibold">Studio connection readiness</h2></div>
