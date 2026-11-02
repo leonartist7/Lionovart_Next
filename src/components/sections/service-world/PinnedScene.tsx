@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { galleryLayout, GALLERY_ENTRY_PROJECTION } from '../gallery-layout';
+import { galleryLayout } from '../gallery-layout';
 import { cardHandoff } from '../card-handoff';
 import { chapterOpacity } from '../chapter-dissolve';
 import { serviceGalleryHandoff } from '../service-gallery-handoff';
@@ -61,16 +61,12 @@ export default function PinnedScene({ children, environment }: { children: React
           surface.style.setProperty('--service-gallery-rear', String(handoff.serviceRear));
           surface.style.setProperty('--service-gallery-release', String(handoff.spread));
           const layout = galleryLayout(innerWidth, innerHeight, document.documentElement.clientWidth, rootRem);
-          surface.style.setProperty('--service-release-x', `${layout.entryX / GALLERY_ENTRY_PROJECTION}px`);
-          surface.style.setProperty('--service-release-y', `${layout.y / GALLERY_ENTRY_PROJECTION}px`);
           const media = surface.querySelector<HTMLElement>('[data-service-media]');
           if (media) {
             const r = (media.querySelector('[data-position=center] [data-screening-media]') ?? media).getBoundingClientRect();
             const previousY = Number.parseFloat(media.style.translate.split(' ')[1]) || 0;
-            // Remove the front card's release as well as the group's previous
-            // translation; otherwise recentering would cancel its upward travel.
-            const baseY = r.y + r.height / 2 - previousY + layout.y / GALLERY_ENTRY_PROJECTION * handoff.spread;
-            media.style.translate = `0 ${((layout.gatherY - baseY) * handoff.gather) + (layout.vertical ? 0 : innerHeight * .02 / GALLERY_ENTRY_PROJECTION * handoff.spread)}px`;
+            const baseY = r.y + r.height / 2 - previousY;
+            media.style.translate = `0 ${(layout.gatherY - baseY) * handoff.gather}px`;
             media.style.removeProperty('scale');
           }
         }

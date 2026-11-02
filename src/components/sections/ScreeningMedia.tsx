@@ -2,8 +2,7 @@
 import Image, { getImageProps } from 'next/image';
 import { AnimatePresence, motion, useIsPresent, useReducedMotion } from 'framer-motion';
 import { ServiceDialLight, ServiceOrbitCard } from './ServiceDialMotion';
-import HandoffDissolveFilter from './HandoffDissolveFilter';
-import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { GALLERY_WORK } from './selected-work/gallery';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { exhibitLabel, exhibitPosition, serviceExhibits } from './service-triptych';
@@ -112,10 +111,8 @@ export function ServiceScreen({ service, variant, active, paused, onVariant }: {
   const { locale } = useLanguage();
   const exhibits = serviceExhibits(service);
   const assets = serviceScreenAssets(service);
-  const mergeId = `service-merge-${useId().replace(/:/g, "")}`;
-  return <div className={glass.stage} data-service-triptych data-service-merge-filter={mergeId} data-paused={paused || !active}
+  return <div className={glass.stage} data-service-triptych data-paused={paused || !active}
     onPointerDown={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
-    <HandoffDissolveFilter id={mergeId} seed={30} incoming />
     <div className={glass.atmosphere} aria-hidden="true">
       {exhibits.map((exhibit, index) => <ServiceDialLight key={index} index={index} className={glass.colorSpill}
         background={`${exhibit.tint}55`} />)}

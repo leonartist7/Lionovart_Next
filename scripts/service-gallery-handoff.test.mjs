@@ -6,8 +6,16 @@ test('rear services clear before one identical frame transfers and opens into th
  const at = p => serviceGalleryHandoff(990 * (1 - p), 900);
  assert.ok(at(0).gather < 1e-10);
  assert.equal(at(.3).serviceCopy, 0);
- assert.equal(at(.3).title, 1);
- assert.ok(at(.1).title > 0 && at(.1).serviceCopy > 0);
+ assert.equal(at(.3).title, 0);
+ for(let i=0;i<=1000;i++){
+   const pose=at(i/1000);
+   if(pose.title>0) {
+     assert.equal(pose.podiumFace,1);
+     assert.equal(pose.podiumLift,1);
+     assert.equal(pose.portalPass,0);
+     assert.equal(pose.serviceCopy,0);
+   }
+ }
  assert.equal(at(.5).gather, 1);
  assert.equal(at(.5).services, 1);
  assert.ok(at(.5).gallery < 1e-10);
@@ -24,7 +32,7 @@ test('rear services clear before one identical frame transfers and opens into th
  assert.equal(at(.8).title, 0);
  assert.equal(at(.38).podiumLift, 1);
  assert.ok(at(.55).portalOpen < 1e-10);
- assert.equal(at(.78).portalOpen, 1);
+ assert.equal(at(.85).portalOpen, 1);
  assert.equal(at(1).portalPass, 1);
  assert.equal(at(1).spread, 1);
  for (let p = 0; p <= 1; p += .01) assert.ok(Math.abs(at(p).services + at(p).gallery - 1) < 1e-10);
@@ -44,13 +52,14 @@ test('the gather and fan stay reversible, bounded and consistent across viewport
 });
 
 // A readable doorway hold separates the floor lift from aperture travel.
-test('the floor disc faces the viewer before the aperture opens in either direction', () => {
+test('the entrance disc faces the viewer before the aperture opens in either direction', () => {
  const at = p => serviceGalleryHandoff(990 * (1 - p), 900);
  for (const p of [0, .05, .10]) {
   assert.ok(at(p).podiumLift < 1e-10);
   assert.ok(at(p).podiumFace < 1e-10);
  }
- for (const p of [.38, .45, .55]) {
+ assert.equal(at(.38).title,0);
+ for (const p of [.50, .55, .58]) {
   assert.equal(at(p).podiumLift, 1);
   assert.equal(at(p).podiumFace, 1);
   assert.equal(at(p).title, 1);

@@ -22,9 +22,9 @@
   <button id="go-handoff">Review handoff</button>
   <label>Doorway %<input id="doorway" type="number" min="0" max="100" value="45" step="1"></label>
   <button id="go-doorway">Review doorway</button>
-  <label>World<select id="row"><option value="0">1</option><option value="1">2</option><option value="2">3</option><option value="3">4</option><option value="4">5</option></select></label>
+  <label>Project<select id="row"><option value="0">1</option><option value="1">2</option><option value="2">3</option><option value="3">4</option><option value="4">5</option><option value="5">6</option><option value="6">7</option><option value="7">8</option><option value="8">9</option><option value="9">10</option></select></label>
   <label>Row advance %<input id="advance" type="number" min="0" max="130" value="26" step="1"></label>
-  <button id="go-row">Review world</button>
+  <button id="go-row">Review project</button>
   <button id="profile-toggle">Start 30s profile</button>
   <p>Review fixture: iframe widths exercise real media queries. Text sizing simulates a root-font preference, not browser zoom or physical touch hardware.</p>
 </header>
@@ -46,6 +46,15 @@
   function measure() {
     const doc=frame.contentDocument,win=frame.contentWindow,world=doc.querySelector('[data-service-world]');
     result.textContent=JSON.stringify({viewport:[win.innerWidth,win.innerHeight],rootFont:win.getComputedStyle(doc.documentElement).fontSize,mode:world?.dataset.storyLayoutReason,static:world?.dataset.storyStatic,axis:doc.querySelector('[data-gallery-stage]')?.dataset.galleryAxis,projects:doc.querySelectorAll('[data-work-tags]').length,overflow:doc.documentElement.scrollWidth>win.innerWidth});
+  }
+  function projectProgress(count, advance) {
+    let low=0, high=.76;
+    for(let i=0;i<40;i++){
+      const mid=(low+high)/2, linear=mid/.76*(count+.5);
+      const travel=linear-.82*Math.sin(linear*Math.PI*2)/(Math.PI*2);
+      if(travel<advance) low=mid; else high=mid;
+    }
+    return (low+high)/2;
   }
   function go() {
     const doc=frame.contentDocument,win=frame.contentWindow,key=document.querySelector('#chapter').value;
@@ -69,7 +78,7 @@
     }
     if(key==='statement') {if(pinned)top+=.35*(el.offsetHeight+win.innerHeight)-win.innerHeight;else {el=doc.querySelector('[data-shaping-message]');top=win.scrollY+el.getBoundingClientRect().top}}
     if(key==='services'&&pinned)top+=win.innerHeight*.2;
-    if(key==='gallery'&&pinned)top+=(el.offsetHeight-win.innerHeight*.85)*.04979601489843844;
+    if(key==='gallery'&&pinned)top+=(el.offsetHeight-win.innerHeight*.85)*projectProgress(Number(doc.querySelector('[data-gallery-rows]')?.dataset.galleryRows)||10,.26);
     if(key==='partnership') {if(pinned)top+=(el.offsetHeight-win.innerHeight*.85)*.94;else {el=doc.querySelector('[data-partnership-static-mark]');top=win.scrollY+el.getBoundingClientRect().top}}
     win.scrollTo({top,behavior:'instant'});measure();
   }
@@ -97,16 +106,14 @@
   document.querySelector('#go-row').addEventListener('click',()=>{
     const doc=frame.contentDocument,win=frame.contentWindow,el=doc.querySelector('[data-gallery-runway]');
     if(!el)return;
-    const pairs=Number(doc.querySelector('[data-gallery-rows]')?.dataset.galleryRows)||5;
+    const pairs=Number(doc.querySelector('[data-gallery-rows]')?.dataset.galleryRows)||10;
     const row=Math.min(pairs-1,Number(document.querySelector('#row').value));
     const advance=Math.max(0,Math.min(130,Number(document.querySelector('#advance').value)||0))/100;
     const pinned=doc.querySelector('[data-service-world]')?.dataset.storyStatic==='false';
     let top=win.scrollY+el.getBoundingClientRect().top;
     if(pinned){
-      let low=0,high=.76;
-      for(let i=0;i<40;i++){const mid=(low+high)/2,linear=mid/.76*(pairs+.5),travel=linear-.82*Math.sin(linear*Math.PI*2)/(Math.PI*2);if(travel<row+advance)low=mid;else high=mid}
-      top+=(low+high)/2*(el.offsetHeight-win.innerHeight*.85);
-    }else{const project=doc.querySelectorAll('[data-static-project]')[row*2];if(project)top=win.scrollY+project.getBoundingClientRect().top-5.25*parseFloat(win.getComputedStyle(doc.documentElement).fontSize)}
+      top+=projectProgress(pairs,row+advance)*(el.offsetHeight-win.innerHeight*.85);
+    }else{const project=doc.querySelectorAll('[data-static-project]')[row];if(project)top=win.scrollY+project.getBoundingClientRect().top-5.25*parseFloat(win.getComputedStyle(doc.documentElement).fontSize)}
     win.scrollTo({top,behavior:'instant'});measure();
   });
   // Review-only instrumentation: bounded read-only observers, one RAF sampler,

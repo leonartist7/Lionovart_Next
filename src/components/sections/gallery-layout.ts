@@ -23,57 +23,27 @@ export const GALLERY_ENTRY_PROJECTION = 1.35; // perspective 1000px at translate
 export function galleryLayout(viewportWidth: number, height: number, contentWidth = viewportWidth, rem = 16) {
   const vertical = storyGalleryVertical(viewportWidth);
   const compact = height <= 740 || vertical && height <= 840;
-  const preferredWidth = vertical ? Math.min(contentWidth * .82, height * (compact ? .36 : .46), 544) : Math.min(contentWidth * .37, height * .68, 720);
-  const projection = 1000 / (1000 - (-350 + 1100 * (1 - Math.exp(-.26 * 1.8))));
-  const captionAllowance = 3.25 * rem;
-  // Fit the reading pair before falling back. Keep a useful artwork size;
-  // short/enlarged-text layouts must reflow instead of shrinking indefinitely.
-  const fittingWidth = ((height - 11 * rem) / projection / 2 - captionAllowance - .75 * rem) / .75;
-  const panelWidth = vertical ? Math.min(preferredWidth, Math.max(8 * rem, fittingWidth)) : preferredWidth;
-  const centerGap = Math.min(260, Math.max(160, contentWidth * .17));
-  const x = vertical ? 0 : panelWidth * .5 + centerGap * GALLERY_ENTRY_PROJECTION / 2;
-  const previewInset = vertical ? 0 : centerGap * .55;
-  const preferredY = Math.min(height * (compact ? .20 : .21), panelWidth * .375 + 40);
-  const minimumY = panelWidth * .375 + (captionAllowance + .75 * rem) / 2;
-  const fittingY = (height - 11 * rem) / projection / 2 - panelWidth * .375 - (captionAllowance + .75 * rem) / 2;
-  const y = vertical ? Math.max(minimumY, Math.min(preferredY, fittingY)) : 0;
-  const minimumCenter = 5.25 * rem + (y + panelWidth * .375) * projection;
-  const maximumCenter = height - 5.75 * rem - (y + panelWidth * .375 + captionAllowance + .75 * rem) * projection;
-  const center = Math.max(minimumCenter, Math.min(height * (compact ? .40 : .43), maximumCenter));
-  const panelTop = vertical ? center / Math.max(1, height) * 100 : 40;
-  return {
-    vertical, compact, panelWidth, panelTop, captionAllowance, captionGap: .75 * rem, centerGap: vertical ? 0 : centerGap,
-    // Preview, reading and departure share the same axis on every device.
-    backgroundX: 0,
-    backgroundY: vertical ? height * .24 : 0,
-    backgroundRise: 0,
-    captionWidth: vertical ? Math.max(1, contentWidth - 2 * rem) * .9 : panelWidth,
-    previewInset,
-    entryX: x - previewInset,
-    x,
-    exitX: vertical ? 0 : x + Math.min(20, contentWidth * .012),
-    // Cap the separation on very tall phones so the middle never becomes empty space.
-    y,
-    exitY: vertical ? y + Math.min(24, height * .035) : 0,
-    // The incoming frame is projected around the corridor's 48% vanishing
-    // point on both axes/layouts. Match its rendered center, not its CSS top.
-    gatherY: height * (.48 + (panelTop / 100 - .48) / GALLERY_ENTRY_PROJECTION),
-  };
+  const captionAllowance = 3.25 * rem, captionGap = .75 * rem;
+  const available = Math.max(8 * rem, Math.min(contentWidth - rem, height - 5 * rem));
+  const ratio = vertical ? .75 : 11 / 16;
+  // Fit the four corners of a single artwork and its caption inside its circle.
+  const textHeight = captionAllowance + captionGap;
+  const diagonal = Math.max(textHeight, available - 1.5 * rem);
+  const panelWidth = Math.min(54 * rem, Math.max(5 * rem,
+    (Math.sqrt((1 + ratio ** 2) * diagonal ** 2 - textHeight ** 2) - ratio * textHeight) / (1 + ratio ** 2)));
+  const panelTop = 48 - textHeight / 2 / height * 100;
+  const gatherY = height * .48 + (height * panelTop / 100 - height * .48) / GALLERY_ENTRY_PROJECTION;
+  return { vertical, compact, panelWidth, panelTop, captionAllowance, captionGap,
+    captionWidth: panelWidth, gatherY, y: 0 };
 }
 
-/** One circle encloses a pair and its captions at the close navigation stop.
- * Compensate the ring's 80px setback so its projected edge clears the corners. */
-export function galleryRingDiameter(layout: ReturnType<typeof galleryLayout>) {
-  const depth = -350 + 1100 * (1 - Math.exp(-.26 * 1.8));
-  const x = layout.x - layout.previewInset * (1000 - depth) / 1350 - (depth + 350) / 2000 * layout.centerGap;
-  const width = layout.vertical ? Math.max(layout.panelWidth, layout.captionWidth) : 2 * x + layout.panelWidth;
-  const height = 2 * layout.y + layout.panelWidth * (layout.vertical ? .75 : 11 / 16) + layout.captionAllowance + layout.captionGap;
-  return Math.hypot(width, height) * (1080 - depth) / (1000 - depth) + 48 * (1080 - depth) / 1000;
+export function galleryRingDiameter(layout: ReturnType<typeof galleryLayout>, captionHeight = layout.captionAllowance) {
+  const height = layout.panelWidth * (layout.vertical ? .75 : 11 / 16) + layout.captionGap + captionHeight;
+  return Math.hypot(layout.panelWidth, height) + 2 * layout.captionGap;
 }
 
-/** The ring center includes the caption lane below each artwork. */
-export const galleryRingCenterOffset = (layout: ReturnType<typeof galleryLayout>) =>
-  (layout.captionAllowance + layout.captionGap) / 2;
+export const galleryRingCenterOffset = (layout: ReturnType<typeof galleryLayout>, captionHeight = layout.captionAllowance) =>
+  (captionHeight + layout.captionGap) / 2;
 
 /** Focus keeps the complete artwork and caption inside the reading viewport.
  * Cache this limit when layout/type changes; scroll and spring frames only interpolate. */

@@ -192,11 +192,6 @@ function Pane({
       {/* Desktop contains the full artwork above the copy; shorter screens
           reduce the art area's height while phones keep the side-by-side art. */}
       <div aria-hidden="true" className={`opening-pane-sizing ${styles.paneSizer} pointer-events-none w-full pb-52 pt-[100%] max-[920px]:h-[var(--opening-art-size)] max-[920px]:p-0`} />
-      {/* The original photograph becomes the exhibit; no blank intermediate face. */}
-      <div className={styles.handoffArtwork} data-handoff-artwork aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={card.image} alt="" loading="lazy" decoding="async" />
-      </div>
       {/* The glass body rises underneath the fading, unbroken film. */}
       <motion.div
         className="absolute inset-0 z-[1] rounded-[inherit]"

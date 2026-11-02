@@ -1,11 +1,9 @@
 'use client';
 
-import { useEffect, useId, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useSpring, useTransform, type MotionValue } from 'framer-motion';
 import { useLenis } from 'lenis/react';
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp } from 'lucide-react';
-import { useSaveData } from '@/hooks/useSaveData';
-import HandoffDissolveFilter from './HandoffDissolveFilter';
 import { useDissolveStage } from '@/hooks/useDissolveStage';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePublicCopy } from '@/hooks/usePublicCopy';
@@ -13,18 +11,11 @@ import { ScenePortal, usePinnedScene } from './service-world/PinnedScene';
 import { prepareScreeningPosters, ScreeningMedia } from './ScreeningMedia';
 import { GALLERY_SERVICE_LABELS, type GalleryWork } from './selected-work/gallery';
 import { galleryLayout, galleryRingDiameter, galleryRingCenterOffset, galleryFocusDepth, GALLERY_ENTRY_PROJECTION } from './gallery-layout';
-import { serviceGalleryHandoff } from './service-gallery-handoff';
-import { galleryCardPose, galleryCompanionPresence, galleryEnding, galleryPairProgress, galleryProgress, galleryTravel, galleryTitlePose, galleryRingPose, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
+import { doorwayTitleOpacity, serviceGalleryHandoff } from './service-gallery-handoff';
+import { galleryCardPose, galleryEnding, galleryProjectProgress, galleryProgress, galleryTravel, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
 import styles from './GalleryWalkthrough.module.css';
 import PartnershipMark, { PartnershipResultsButton } from './PartnershipMark';
 import { partnershipLayout } from './partnership-layout';
-
-const subscribeCapacity = () => () => {};
-const constrainedCapacity = () => {
-  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
-  return navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 2 || !!memory && memory <= 2;
-};
-const serverCapacity = () => false;
 
 function WorkTags({ work }: { work: GalleryWork }) {
   const tr = usePublicCopy();
@@ -33,72 +24,38 @@ function WorkTags({ work }: { work: GalleryWork }) {
   </span>;
 }
 
-function GalleryPanel({ work, index, pairs, progress, entry, entryScale, focusDepth, near, active, selected, dimmed, solo, onSelect }: {
-  work: GalleryWork; index: number; pairs: number; progress: MotionValue<number>; entry: MotionValue<number>; entryScale: MotionValue<number>; focusDepth: MotionValue<number>;
-  near: boolean; active: boolean; selected: boolean; dimmed: boolean; solo: boolean; onSelect: (slug: string) => void;
+function GalleryPanel({ work, index, count, progress, entry, entryScale, focusDepth, active, selected, onSelect }: {
+  work: GalleryWork; index: number; count: number; progress: MotionValue<number>; entry: MotionValue<number>;
+  entryScale: MotionValue<number>; focusDepth: MotionValue<number>; active: boolean; selected: boolean; onSelect: (slug: string) => void;
 }) {
-  const pair = Math.floor(index / 2), side = solo ? 0 : index % 2 ? 1 : -1;
   const reduce = useReducedMotion();
-  const saveData = useSaveData();
-  const constrained = useSyncExternalStore(subscribeCapacity, constrainedCapacity, serverCapacity);
-  const simpleExit = saveData || constrained;
-  const filterId = `gallery-erosion-${useId().replace(/:/g, '')}`;
-  const panelRef = useRef<HTMLDivElement>(null);
-  const [readable, setReadable] = useState(true);
-  const erosion = useTransform(progress, p => galleryCardPose(p, pair, pairs).dissolve);
-  const filter = useTransform(erosion, p => !reduce && !simpleExit && p > 0 && p < 1 ? `url(#${filterId})` : 'none');
-  useMotionValueEvent(erosion, 'change', value => {
-    panelRef.current?.querySelectorAll<SVGElement>('[data-gallery-cutoff]').forEach(node => {
-      node.setAttribute('intercept', String((node.dataset.galleryCutoff === 'edge' ? 1.24 : 1) - value * 10));
-    });
-    setReadable(value < .12);
-  });
-  // Restore the threshold after preference changes and deep-link mounting.
-  useEffect(() => {
-    panelRef.current?.querySelectorAll<SVGElement>('[data-gallery-cutoff]').forEach(node => {
-      node.setAttribute('intercept', String((node.dataset.galleryCutoff === 'edge' ? 1.24 : 1) - erosion.get() * 10));
-    });
-  }, [erosion, reduce, simpleExit]);
-  const [mediaVisible, setMediaVisible] = useState(pair === 0);
-  useMotionValueEvent(progress, 'change', p => setMediaVisible(galleryCardPose(p, pair, pairs).opacity > .2));
-  const focusTarget = useMotionValue(0), dimTarget = useMotionValue(1);
-  const focusSpring = useSpring(focusTarget, { stiffness: 180, damping: 30, mass: 1 });
-  const dimSpring = useSpring(dimTarget, { stiffness: 180, damping: 30, mass: 1 });
-  useEffect(() => { focusTarget.set(selected ? 1 : 0); dimTarget.set(dimmed ? .35 : 1); }, [selected, dimmed, focusTarget, dimTarget]);
+  const focusSpring = useSpring(0, { stiffness: 180, damping: 30, mass: 1 });
+  useEffect(() => { focusSpring.set(selected ? 1 : 0); }, [selected, focusSpring]);
+  const pose = useTransform(progress, p => galleryCardPose(p, index, count));
   const transform = useTransform(() => {
-    const spread = entry.get(), focus = reduce ? 0 : focusSpring.get();
-    const { z, outward, background, preview } = galleryCardPose(progress.get(), pair, pairs);
-    const baseZ = -350 - index * 18 * (1 - spread) + (z + 350) * spread;
-    const depth = baseZ + (Math.min(focusDepth.get(), Math.max(100, baseZ)) - baseZ) * focus;
-    const size = 1 + (entryScale.get() - 1) * (1 - spread);
-    const gapCompensation = Math.max(0, z + 350) / 2000;
-    const depthProjection = Math.max(1, (1000 - z) / 1000);
-    const previewProjection = (1000 - z) / (1000 * GALLERY_ENTRY_PROJECTION);
-    return `translate3d(calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset) - ${preview * previewProjection} * var(--gallery-preview-inset,0px) - ${gapCompensation} * var(--gallery-center-gap,0px) + ${outward} * var(--gallery-wall-travel) + ${background * depthProjection} * var(--gallery-background-x,0px))), calc(${side * spread * (1 - focus)} * (var(--gallery-wall-offset-y) + ${outward} * var(--gallery-wall-travel-y) + ${background * depthProjection} * var(--gallery-background-y,0px)) + ${(pair % 2 ? -1 : 1) * spread * (1 - focus) * outward} * var(--gallery-wall-stagger) - ${background * depthProjection * spread * (1 - focus)} * var(--gallery-background-rise,0px)), ${depth}px) translate(-50%,-50%) rotateY(calc(${-side * spread * (1 - focus)} * (var(--gallery-wall-angle) + ${outward} * var(--gallery-exit-angle) + ${background} * var(--gallery-background-angle,0deg)))) scale(${size})`;
+    const { z, outward } = pose.get();
+    const focus = (reduce ? Number(selected) : focusSpring.get()) * (1 - outward);
+    const depth = z + (Math.min(focusDepth.get(), 145) - z) * focus;
+    const size = index === 0 ? 1 + (entryScale.get() - 1) * (1 - entry.get()) : 1;
+    const direction = index % 2 ? -1 : 1;
+    return `translate3d(calc(${direction * outward} * var(--gallery-exit-x)),calc(${outward} * var(--gallery-exit-y)),${depth}px) translate(-50%,-50%) scale(${size})`;
   });
-  const opacity = useTransform(() => {
-    const pose = galleryCardPose(progress.get(), pair, pairs);
-    return (reduce || simpleExit ? pose.opacity : pose.surfaceOpacity) * (index > 0 ? galleryCompanionPresence(entry.get()) : 1) * (reduce ? dimTarget.get() : dimSpring.get());
-  });
-  const labelOpacity = useTransform(() => galleryCardPose(progress.get(), pair, pairs).caption * Math.max(0, Math.min(1, (entry.get() - .65) / .35)) * Math.max(0, ((reduce ? dimTarget.get() : dimSpring.get()) - .35) / .65));
-  const visibility = useTransform(progress, p => galleryCardPose(p, pair, pairs).visible ? 'visible' : 'hidden');
-  return <motion.div ref={panelRef} className={styles.panel} data-gallery-panel data-gallery-index={index} data-gallery-project={work.slug} data-focused={selected}
-    style={{ transform, opacity, visibility, '--gallery-hover-direction': -side } as React.ComponentProps<typeof motion.div>['style']} inert={!near || !active || !readable} aria-hidden={!near || !readable}>
+  const opacity = useTransform(pose, p => p.opacity);
+  const visibility = useTransform(pose, p => p.visible ? 'visible' : 'hidden');
+  const caption = useTransform(() => pose.get().caption * entry.get());
+  const rim = useTransform(() => .45 * (index === 0 ? entry.get() : 1));
+  const [readable, setReadable] = useState(() => pose.get().caption > .5);
+  useMotionValueEvent(pose, 'change', p => setReadable(p.caption > .5));
+  const interactive = active && readable;
+  return <motion.div className={styles.panel} data-gallery-panel data-gallery-index={index} data-gallery-project={work.slug} data-focused={selected}
+    style={{ transform, opacity, visibility }} inert={!interactive} aria-hidden={!interactive}>
+    <motion.div className={styles.portalRing} data-gallery-ring={index} data-final={index === count - 1} aria-hidden="true" style={{ opacity: rim }} />
     <button type="button" className={styles.project} onClick={event => { event.stopPropagation(); event.currentTarget.focus({ preventScroll: true }); onSelect(work.slug); }}
       aria-label={`Focus work: ${work.name}`} aria-pressed={selected}>
-      <HandoffDissolveFilter id={filterId} seed={index + 43} gallery />
-      <motion.div className={styles.screen} data-gallery-artwork style={{ filter }}><ScreeningMedia asset={work} active={active && near && readable && mediaVisible && (selected || !dimmed && side <= 0)} label={false} /></motion.div>
-      <motion.span className={styles.projectCaption} style={{ opacity: labelOpacity }}>
-        <WorkTags work={work} />
-      </motion.span>
+      <div className={styles.screen} data-gallery-artwork><ScreeningMedia asset={work} active={interactive} label={false} /></div>
+      <motion.span className={styles.projectCaption} style={{ opacity: caption }}><WorkTags work={work} /></motion.span>
     </button>
   </motion.div>;
-}
-
-function GalleryRing({ row, pairs, progress }: { row: number; pairs: number; progress: MotionValue<number> }) {
-  const transform = useTransform(progress, p => `translate(-50%,-50%) translateZ(${galleryRingPose(p, row, pairs).z}px)`);
-  const opacity = useTransform(progress, p => galleryRingPose(p, row, pairs).opacity);
-  return <motion.div className={styles.portalRing} data-gallery-ring={row} data-final={row === pairs - 1} aria-hidden="true" style={{ transform, opacity }} />;
 }
 
 /** Scroll moves the exhibits through one stationary viewport, then reveals the studio mark. */
@@ -114,21 +71,17 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const focusDepth = useMotionValue(100);
   const entry = useMotionValue(0), arrivalProgress = useMotionValue(0), entryScale = useMotionValue(1);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
-  const currentPair = useRef(0);
-  const readingAnchor = useRef<{ pair: number; slug: string | null; ending: boolean; focus: boolean } | null>(null);
+  const currentProject = useRef(0);
+  const readingAnchor = useRef<{ projectIndex: number; slug: string | null; ending: boolean; focus: boolean } | null>(null);
   const navigation = useRef({ ticket: 0, target: null as number | null });
   const [requested, setRequested] = useState<number | null>(null);
   const [previewError, setPreviewError] = useState(false);
-  const onSelect = (slug: string) => setSelectedSlug(current => current ? null : slug);
-  const [pair, setPair] = useState(0), [ending, setEnding] = useState(false), [walking, setWalking] = useState(true);
-  const pairs = Math.max(1, Math.ceil(projects.length / 2));
+  const onSelect = (slug: string) => setSelectedSlug(current => current === slug ? null : slug);
+  const [projectIndex, setProjectIndex] = useState(0), [ending, setEnding] = useState(false), [walking, setWalking] = useState(true);
+  const projectCount = Math.max(1, projects.length);
   const pinned = !!scene?.target;
   const sharedPortal = !!scene?.target?.closest('[data-world-mode="media"]');
-  const titleOpacity = useTransform(() => galleryTitlePose(arrivalProgress.get()).opacity);
-  const titleTransform = useTransform(arrivalProgress, p => {
-    const { y, z } = galleryTitlePose(p);
-    return `translateY(-50%) translate3d(0,${y}px,${z}px)`;
-  });
+  const titleOpacity = useTransform(() => doorwayTitleOpacity(arrivalProgress.get()));
   const logoTransform = useTransform(progress, p => `translate(-50%,-50%) translateZ(${galleryEnding(p).logoZ}px)`);
   const logoOpacity = useTransform(progress, p => galleryEnding(p).logo);
   const ringOpacity = useTransform(progress, p => galleryEnding(p).ring);
@@ -137,9 +90,9 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const linkOpacity = useTransform(progress, p => galleryEnding(p).links);
   const navOpacity = useTransform(() => galleryEnding(progress.get()).navigation * entry.get());
   useMotionValueEvent(progress, 'change', p => {
-    const nextPair = Math.min(pairs - 1, Math.max(0, Math.floor(galleryTravel(p, pairs) / GALLERY_DEPTH_STEP + .2)));
-    if (currentPair.current !== nextPair || galleryEnding(p).copy > .05) { currentPair.current = nextPair; setSelectedSlug(null); }
-    setPair(nextPair);
+    const nextProject = Math.min(projectCount - 1, Math.max(0, Math.floor(galleryTravel(p, projectCount) / GALLERY_DEPTH_STEP + .18)));
+    if (currentProject.current !== nextProject || galleryEnding(p).copy > .05) { currentProject.current = nextProject; setSelectedSlug(null); }
+    setProjectIndex(nextProject);
     setEnding(galleryEnding(p).links > .7);
     setWalking(galleryEnding(p).navigation > .1);
   });
@@ -159,8 +112,8 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
         const captionHeight = Math.max(layout.captionAllowance, ...captions.map(node => node.offsetHeight));
         const captionWidth = Math.max(layout.panelWidth, ...captions.map(node => node.offsetWidth));
         focusDepth.set(galleryFocusDepth(layout, document.documentElement.clientWidth, innerHeight, rem, captionHeight, captionWidth));
-        surface.style.setProperty('--gallery-ring-size', `${galleryRingDiameter(layout)}px`);
-        surface.style.setProperty('--gallery-ring-top', `${innerHeight * layout.panelTop / 100 + galleryRingCenterOffset(layout)}px`);
+        surface.style.setProperty('--gallery-ring-size', `${galleryRingDiameter(layout, captionHeight)}px`);
+        surface.style.setProperty('--gallery-ring-offset', `${galleryRingCenterOffset(layout, captionHeight)}px`);
         const endingLayout = partnershipLayout(document.documentElement.clientWidth, innerHeight);
         surface.style.setProperty('--partnership-mark-size', `${endingLayout.markSize}px`);
         surface.style.setProperty('--partnership-mark-top', `${endingLayout.markCenter}px`);
@@ -168,20 +121,9 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
         surface.style.setProperty('--partnership-cta-bottom', `${endingLayout.ctaBottom}px`);
         surface.dataset.galleryAxis = layout.vertical ? 'vertical' : 'horizontal';
         surface.dataset.galleryCompact = String(layout.compact);
-        surface.style.setProperty('--gallery-wall-offset', `${layout.x}px`);
-        surface.style.setProperty('--gallery-center-gap', `${layout.centerGap}px`);
-        surface.style.setProperty('--gallery-preview-inset', `${layout.previewInset}px`);
-        surface.style.setProperty('--gallery-background-x', `${layout.backgroundX}px`);
-        surface.style.setProperty('--gallery-background-rise', `${layout.backgroundRise}px`);
-        surface.style.setProperty('--gallery-background-y', `${layout.backgroundY}px`);
         surface.style.setProperty('--gallery-caption-width', `${layout.captionWidth}px`);
-        surface.style.setProperty('--gallery-background-angle', '0deg');
-        surface.style.setProperty('--gallery-wall-offset-y', `${layout.y}px`);
-        surface.style.setProperty('--gallery-wall-travel', `${layout.exitX - layout.x}px`);
-        surface.style.setProperty('--gallery-wall-travel-y', `${layout.exitY - layout.y}px`);
-        surface.style.setProperty('--gallery-wall-stagger', '0px');
-        surface.style.setProperty('--gallery-wall-angle', layout.vertical ? '0deg' : '4deg');
-        surface.style.setProperty('--gallery-exit-angle', layout.vertical ? '0deg' : '2deg');
+        surface.style.setProperty('--gallery-exit-x', layout.vertical ? '0px' : '100vw');
+        surface.style.setProperty('--gallery-exit-y', layout.vertical ? '-100svh' : '0px');
         surface.style.setProperty('--gallery-panel-top', `${layout.panelTop}%`);
         surface.style.setProperty('--gallery-panel-width', `${layout.panelWidth}px`);
       }
@@ -231,8 +173,8 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       const cards = [...surface.querySelectorAll<HTMLElement>('[data-static-project]')];
       const visible = cards.find(card => { const box = card.getBoundingClientRect(); return box.bottom > innerHeight * .2 && box.top < innerHeight; });
       const atEnding = pinned ? ending : !visible && (surface.querySelector('[data-partnership-static-mark]')?.getBoundingClientRect().top ?? Infinity) < innerHeight;
-      const index = pinned ? currentPair.current * 2 : Math.max(0, cards.indexOf(visible!));
-      readingAnchor.current = { pair: Math.floor(index / 2), slug: selectedSlug ?? projects[index]?.slug ?? null,
+      const index = pinned ? currentProject.current : Math.max(0, cards.indexOf(visible!));
+      readingAnchor.current = { projectIndex: index, slug: selectedSlug ?? projects[index]?.slug ?? null,
         ending: atEnding, focus: surface.contains(document.activeElement) };
     };
     window.addEventListener('lionovart:story-layout-will-change', remember);
@@ -249,7 +191,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     const land = () => { frame = requestAnimationFrame(() => {
       const anchor = runway.current; if (!anchor) return;
       const box = anchor.getBoundingClientRect();
-      const offset = remembered && pinned ? (box.height - innerHeight * .85) * (remembered.ending ? .91 : galleryPairProgress(remembered.pair, pairs)) : location.hash === '#partnership' && pinned ? (box.height - innerHeight * .85) * .91 : pinned && location.hash === '#selected-work' ? -innerHeight * .52 : 0;
+      const offset = remembered && pinned ? (box.height - innerHeight * .85) * (remembered.ending ? .91 : galleryProjectProgress(remembered.projectIndex, projectCount)) : location.hash === '#partnership' && pinned ? (box.height - innerHeight * .85) * .91 : pinned && location.hash === '#selected-work' ? -innerHeight * .52 : 0;
       const staticEnding = !pinned && (remembered?.ending || location.hash === '#partnership') ? stage.current?.querySelector('[data-partnership-static-mark], [data-gallery-ending]') : null;
       const project = remembered?.slug ? [...(stage.current?.querySelectorAll<HTMLElement>('[data-static-project], [data-gallery-project]') ?? [])].find(node => (node.dataset.staticProject ?? node.dataset.galleryProject) === remembered.slug) : null;
       const target = !pinned && project && !remembered?.ending ? scrollY + project.getBoundingClientRect().top - 6 * (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16) : staticEnding ? scrollY + staticEnding.getBoundingClientRect().top - 96 : scrollY + box.top + offset;
@@ -265,7 +207,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     if (document.documentElement.dataset.splashComplete === 'true') land();
     else window.addEventListener('lionovart:splash-complete', land, { once: true });
     return () => { cancelAnimationFrame(frame); window.removeEventListener('lionovart:splash-complete', land); };
-  }, [pinned, runway, stage, lenis, pairs]);
+  }, [pinned, runway, stage, lenis, projectCount]);
 
   // Native gestures interrupt both poster preparation and arrow travel. No scroll lock.
   useEffect(() => {
@@ -298,7 +240,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   }, [lenis]);
 
   const move = (direction: -1 | 1) => {
-    const target = galleryStepTarget(currentPair.current, navigation.current.target, direction, pairs);
+    const target = galleryStepTarget(currentProject.current, navigation.current.target, direction, projectCount);
     const ticket = ++navigation.current.ticket;
     navigation.current.target = target; setRequested(target); setPreviewError(false);
     setSelectedSlug(null);
@@ -306,11 +248,11 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       if (ticket !== navigation.current.ticket) return;
       navigation.current.target = null; setRequested(null);
     };
-    void prepareScreeningPosters(projects.slice(target * 2, target * 2 + 2)).then(() => {
+    void prepareScreeningPosters(projects.slice(target, target + 1)).then(() => {
       if (ticket !== navigation.current.ticket) return;
       const anchor = runway.current; if (!anchor) return;
       const box = anchor.getBoundingClientRect();
-      const p = target >= pairs ? .91 : galleryPairProgress(target, pairs);
+      const p = target >= projectCount ? .91 : galleryProjectProgress(target, projectCount);
       const y = scrollY + box.top + p * (box.height - innerHeight * .85);
       const distance = y - scrollY;
       const duration = galleryNavigationDuration(distance, innerHeight);
@@ -336,20 +278,19 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
 
   return <section id="selected-work" className={styles.section} data-gallery="compact" data-gallery-story data-nav-surface="light"
     data-scroll-title-skip data-curves={servicesCurves} aria-labelledby="selected-work-heading">
-    <div ref={runway} className={styles.runway} data-gallery-runway style={{ '--gallery-runway': `${galleryRunwayScreens(pairs) * 100}svh` } as CSSProperties}>
+    <div ref={runway} className={styles.runway} data-gallery-runway style={{ '--gallery-runway': `${galleryRunwayScreens(projectCount) * 100}svh` } as CSSProperties}>
       <span id="partnership" className={styles.partnershipAnchor} aria-hidden="true" />
-      <ScenePortal><div ref={stage} className={styles.stage} data-scroll-title-skip data-dissolve-stage data-gallery-stage data-gallery-rows={pairs} data-scene-chapter="work" data-walkthrough-pinned={pinned}
+      <ScenePortal><div ref={stage} className={styles.stage} data-scroll-title-skip data-dissolve-stage data-gallery-stage data-gallery-rows={projectCount} data-scene-chapter="work" data-walkthrough-pinned={pinned}
         onClick={() => { if (selectedSlug) setSelectedSlug(null); }}
         onKeyDown={event => { if (event.key === 'Escape' && selectedSlug) { setSelectedSlug(null); event.stopPropagation(); } }}>
-        {!sharedPortal && <motion.header className={styles.header} data-gallery-title style={{ opacity: pinned ? titleOpacity : 1, transform: pinned ? titleTransform : 'none' }}>
+        {!sharedPortal && <motion.header className={styles.header} data-gallery-title style={{ opacity: pinned ? titleOpacity : 1, transform: pinned ? 'translateY(-50%)' : 'none' }}>
           <p>{fr ? 'Entrez dans l’univers' : 'Step inside'}</p>
           <h2 id="selected-work-heading">{fr ? 'de nos réalisations' : 'our selected work'}</h2>
         </motion.header>}
         {pinned ? <div className={styles.corridor} data-gallery-corridor>
-          {Array.from({ length: pairs }, (_, row) => !sharedPortal || row > 0 ? <GalleryRing key={row} row={row} pairs={pairs} progress={progress} /> : null)}
-          {projects.map((work, index) => <GalleryPanel key={work.slug} work={work} index={index} pairs={pairs}
-            progress={progress} entry={entry} entryScale={entryScale} focusDepth={focusDepth} solo={index === projects.length - 1 && projects.length % 2 === 1} selected={selectedSlug === work.slug} dimmed={!!selectedSlug && selectedSlug !== work.slug && Math.floor(index / 2) === pair} near={Math.floor(index / 2) === pair && !ending} active={active}
-            onSelect={onSelect} />)}
+          {projects.map((work, index) => <GalleryPanel key={work.slug} work={work} index={index} count={projectCount}
+            progress={progress} entry={entry} entryScale={entryScale} focusDepth={focusDepth} selected={selectedSlug === work.slug}
+            active={active && index === projectIndex && !ending} onSelect={onSelect} />)}
           <motion.div className={styles.logo} data-gallery-logo style={{ transform: logoTransform, opacity: logoOpacity, pointerEvents: ending ? 'auto' : 'none', '--partnership-ring': ringOpacity } as unknown as React.ComponentProps<typeof motion.div>['style']}>
             <PartnershipMark active={active && ending} ready={ending} />
           </motion.div>
@@ -371,9 +312,9 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
         </motion.div>
         {previewError && <motion.p className={styles.previewError} style={{ opacity: pinned ? navOpacity : 1 }} aria-hidden={pinned && !walking} role="status">{fr ? 'Aperçu indisponible. Réessayez.' : 'Preview unavailable. Please try again.'}</motion.p>}
         {pinned && <motion.nav className={styles.navigation} data-gallery-navigation aria-busy={requested !== null} style={{ opacity: navOpacity }} aria-label={fr ? 'Parcourir les projets' : 'Browse the gallery'} inert={!walking} aria-hidden={!walking}>
-          <button type="button" onClick={() => move(-1)} disabled={(requested ?? pair) === 0} aria-label={tr('Previous works')}><ArrowLeft className={styles.horizontalArrow} aria-hidden="true" /><ArrowUp className={styles.verticalArrow} aria-hidden="true" /></button>
-          <span aria-live="polite">{String(pair + 1).padStart(2, '0')} <i>/ {String(pairs).padStart(2, '0')}</i></span>
-          <button type="button" onClick={() => move(1)} aria-label={(requested ?? pair) >= pairs - 1 ? tr('One partnership') : tr('Next works')}><ArrowRight className={styles.horizontalArrow} aria-hidden="true" /><ArrowDown className={styles.verticalArrow} aria-hidden="true" /></button>
+          <button type="button" onClick={() => move(-1)} disabled={(requested ?? projectIndex) === 0} aria-label={tr('Previous works')}><ArrowLeft className={styles.horizontalArrow} aria-hidden="true" /><ArrowUp className={styles.verticalArrow} aria-hidden="true" /></button>
+          <span aria-live="polite">{String(projectIndex + 1).padStart(2, '0')} <i>/ {String(projectCount).padStart(2, '0')}</i></span>
+          <button type="button" onClick={() => move(1)} aria-label={(requested ?? projectIndex) >= projectCount - 1 ? tr('One partnership') : tr('Next works')}><ArrowRight className={styles.horizontalArrow} aria-hidden="true" /><ArrowDown className={styles.verticalArrow} aria-hidden="true" /></button>
         </motion.nav>}
       </div></ScenePortal>
     </div>

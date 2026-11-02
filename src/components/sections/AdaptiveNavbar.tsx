@@ -24,7 +24,7 @@ import styles from "./AdaptiveNavbar.module.css";
 import { ExperienceSoundToggle } from "@/components/experience/ScrollExperience";
 import { hrefForTitle } from "@/lib/service-routes";
 import { navScrollIntent } from "./nav-scroll";
-import { galleryPairProgress } from "./gallery-journey";
+import { galleryProjectProgress } from "./gallery-journey";
 import { scrollEase } from "@/components/experience/scroll-policy";
 
 const SCROLL_OFFSET = -88;
@@ -41,7 +41,7 @@ function firstWorkDestination(section: HTMLElement) {
 
   const bounds = runway.getBoundingClientRect();
   const rows = Number(stage.dataset.galleryRows) || 1;
-  return window.scrollY + bounds.top + galleryPairProgress(0, rows) * (bounds.height - innerHeight * .85);
+  return window.scrollY + bounds.top + galleryProjectProgress(0, rows) * (bounds.height - innerHeight * .85);
 }
 
 const CARD_VARIANTS = {

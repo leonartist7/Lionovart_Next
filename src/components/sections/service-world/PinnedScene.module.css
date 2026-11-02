@@ -28,3 +28,5 @@
 
 /* Rear exhibits arrive after the inherited middle frame has filled. */
 .layers :global([data-services-stage] [data-exhibit-index]:not([data-position=center]) > div) { opacity: var(--service-opening-sides,1); }
+
+.layers :global([data-services-stage] [data-service-triptych]) { translate: 0 var(--service-entrance-y,0px); }
