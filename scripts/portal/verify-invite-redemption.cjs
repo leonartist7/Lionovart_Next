@@ -238,3 +238,92 @@ test("session creation denies unverified email before inviting or issuing a cook
   assert.equal(lookups, 0);
   assert.equal(cookies, 0);
 });
+
+
+/** The real email module is loaded with a fake Resend transport: zero network requests. */
+function inviteEmailFixture(response, configured = true) {
+  const oldKey = process.env.RESEND_API_KEY;
+  if (configured) process.env.RESEND_API_KEY = "isolated-fixture-key";
+  else delete process.env.RESEND_API_KEY;
+  const calls = [];
+  const email = load("src/lib/email.ts", {
+    "server-only": {},
+    resend: {
+      Resend: class {
+        constructor(key) { assert.equal(key, "isolated-fixture-key"); }
+        emails = {
+          send: async payload => {
+            calls.push(payload);
+            if (response instanceof Error) throw response;
+            return response;
+          },
+        };
+      },
+    },
+  });
+  return {
+    calls,
+    send: input => email.sendPortalInviteEmail(input),
+    restore() {
+      if (oldKey === undefined) delete process.env.RESEND_API_KEY;
+      else process.env.RESEND_API_KEY = oldKey;
+    },
+  };
+}
+const inviteEmailArgs = {
+  toEmail: "fictional@example.test",
+  workspaceName: "Sample Workspace",
+  joinUrl: "https://app.example.test/portal/join?token=fixture",
+  expiresAt: "2026-11-16T00:00:00.000Z",
+};
+
+test("portal invitation email: provider acceptance requires a returned message ID", async () => {
+  const h = inviteEmailFixture({ data: { id: "fixture-message" }, error: null });
+  try {
+    assert.equal(await h.send(inviteEmailArgs), true);
+    assert.equal(h.calls.length, 1);
+    assert.equal(h.calls[0].to, inviteEmailArgs.toEmail);
+  } finally { h.restore(); }
+});
+
+test("portal invitation email: resolved provider rejection is not acceptance", async () => {
+  const h = inviteEmailFixture({ data: null, error: { name: "validation_error", message: "rejected" } });
+  try {
+    assert.equal(await h.send(inviteEmailArgs), false);
+    assert.equal(h.calls.length, 1);
+  } finally { h.restore(); }
+});
+
+test("portal invitation email: missing ID and thrown transport errors fail closed", async () => {
+  for (const result of [{ data: null, error: null }, new Error("fake transport error")]) {
+    const h = inviteEmailFixture(result);
+    try {
+      assert.equal(await h.send(inviteEmailArgs), false);
+      assert.equal(h.calls.length, 1);
+    } finally { h.restore(); }
+  }
+});
+
+test("portal invitation email: missing API key prevents all send attempts", async () => {
+  const h = inviteEmailFixture({ data: { id: "should-not-send" }, error: null }, false);
+  try {
+    assert.equal(await h.send(inviteEmailArgs), false);
+    assert.equal(h.calls.length, 0);
+  } finally { h.restore(); }
+});
+
+test("portal invitation email: workspace and link content are safely escaped", async () => {
+  const h = inviteEmailFixture({ data: { id: "fixture-message" }, error: null });
+  try {
+    assert.equal(await h.send({
+      ...inviteEmailArgs,
+      workspaceName: 'ACME\n<script>alert("x")</script> & Partners',
+      joinUrl: "https://app.example.test/portal/join?token=fixture&next=<unsafe>",
+    }), true);
+    const payload = h.calls[0];
+    assert.match(payload.html, /ACME &lt;script&gt;alert\(&quot;x&quot;\)&lt;\/script&gt; &amp; Partners/);
+    assert.doesNotMatch(payload.html, /<script>/);
+    assert.match(payload.html, /token=fixture&amp;next=&lt;unsafe&gt;/);
+    assert.doesNotMatch(payload.subject, /[\r\n]/);
+  } finally { h.restore(); }
+});

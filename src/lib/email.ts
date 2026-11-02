@@ -116,9 +116,20 @@ export async function sendDossierEmail({
   }
 }
 
+/** Escape workspace-derived content in portal invite email HTML. */
+function escapePortalEmailHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 /**
  * The client-portal invitation. Returns true only when Resend was actually
- * configured and the send succeeded — the caller surfaces the raw join link to
+ * configured and the provider returned an accepted message ID. This is not a
+ * delivery guarantee. The caller surfaces the raw join link to
  * the studio when it didn't, so an unconfigured mailer never strands a client.
  */
 export async function sendPortalInviteEmail({
@@ -137,6 +148,11 @@ export async function sendPortalInviteEmail({
     return false;
   }
 
+  // Workspace titles are stored data, not trusted HTML or email headers.
+  const displayName = (typeof workspaceName === "string" ? workspaceName : "")
+    .replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, 120) || "your";
+  const htmlName = escapePortalEmailHtml(displayName);
+  const htmlJoinUrl = escapePortalEmailHtml(joinUrl);
   const expires = new Date(expiresAt).toLocaleDateString("en-CA", {
     month: "long",
     day: "numeric",
@@ -148,11 +164,11 @@ export async function sendPortalInviteEmail({
       <p style="font-size:12px;color:#e5192a;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;margin-bottom:20px;">LIONOVART</p>
       <h1 style="font-size:22px;line-height:1.3;margin:0 0 16px;">Your workspace is ready</h1>
       <p style="font-size:15px;line-height:1.65;color:#333;margin:0 0 24px;">
-        You've been given access to <strong>${workspaceName}</strong> — where you'll
+        You've been given access to <strong>${htmlName}</strong> — where you'll
         follow progress, review work, leave feedback directly on designs, and talk to us.
       </p>
       <p style="margin:0 0 28px;">
-        <a href="${joinUrl}" style="display:inline-block;background:#e5192a;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:9999px;font-size:14px;font-weight:600;">
+        <a href="${htmlJoinUrl}" style="display:inline-block;background:#e5192a;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:9999px;font-size:14px;font-weight:600;">
           Open your workspace
         </a>
       </p>
@@ -160,21 +176,28 @@ export async function sendPortalInviteEmail({
         This link is for you alone and expires on ${expires}.
       </p>
       <p style="font-size:12px;line-height:1.6;color:#aaa;margin:0;word-break:break-all;">
-        If the button doesn't work, paste this into your browser:<br>${joinUrl}
+        If the button doesn't work, paste this into your browser:<br>${htmlJoinUrl}
       </p>
     </div>
   `;
 
   try {
-    await getResend().emails.send({
+    const { data, error } = await getResend().emails.send({
       from: PORTAL_FROM,
       to: toEmail,
-      subject: `Your ${workspaceName} workspace is ready`,
+      subject: `Your ${displayName} workspace is ready`,
       html: htmlBody,
     });
+    // An HTTP rejection is a resolved { error }, not necessarily a throw.
+    // No accepted provider message ID means staff still needs a copyable link.
+    if (error || !data?.id) {
+      console.warn("[email] portal invite was not accepted by provider");
+      return false;
+    }
     return true;
-  } catch (err) {
-    console.error("[email] portal invite send failed:", err);
+  } catch {
+    // Never log invitation URLs, tokens or provider response bodies.
+    console.error("[email] portal invite send failed");
     return false;
   }
 }
