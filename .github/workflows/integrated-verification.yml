@@ -51,6 +51,14 @@ jobs:
           java-version: "21"
       - name: Install locked application dependencies
         run: npm ci
+      - name: Portal connection regressions
+        run: |
+          node scripts/portal/verify-connections.cjs
+          node scripts/portal/verify-connection-view-isolation.cjs
+          node scripts/portal/verify-resource-security.cjs
+          node scripts/portal/verify-outbox-history.cjs
+          node scripts/portal/verify-invite-redemption.cjs
+          node scripts/portal/verify-invite-creation.cjs
       - name: Record application dependency advisories
         run: node scripts/verify-dependency-advisories.mjs
       - name: Motion and intro regression tests
