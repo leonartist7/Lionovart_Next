@@ -45,7 +45,7 @@ function GalleryPanel({ work, index, count, progress, entry, entryScale, focusDe
   const caption = useTransform(() => pose.get().caption * entry.get());
   const rim = useTransform(() => .45 * (index === 0 ? entry.get() : 1));
   const [readable, setReadable] = useState(() => pose.get().caption > .5);
-  useMotionValueEvent(pose, 'change', p => setReadable(p.caption > .5));
+  useMotionValueEvent(progress, 'change', p => setReadable(galleryCardPose(p, index, count).caption > .5));
   const interactive = active && readable;
   return <motion.div className={styles.panel} data-gallery-panel data-gallery-index={index} data-gallery-project={work.slug} data-focused={selected}
     style={{ transform, opacity, visibility }} inert={!interactive} aria-hidden={!interactive}>
