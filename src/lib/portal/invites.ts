@@ -130,15 +130,16 @@ export async function redeemInviteAtomically(input: {
   email: string;
   name: string;
 }): Promise<InviteRedemption> {
-  if (!adminDb) throw new Error("Firestore is not configured");
+  const db = adminDb;
+  if (!db) throw new Error("Firestore is not configured");
   if (!/^[A-Za-z0-9_-]{1,128}$/.test(input.inviteId) ||
       typeof input.token !== "string" || !INVITE_TOKEN_RE.test(input.token) ||
       !input.uid || !input.email) {
     return { ok: false, reason: "not_found" };
   }
   const tokenHash = hashInviteToken(input.token);
-  const inviteRef = adminDb.collection("invites").doc(input.inviteId);
-  return adminDb.runTransaction(async (transaction): Promise<InviteRedemption> => {
+  const inviteRef = db.collection("invites").doc(input.inviteId);
+  return db.runTransaction(async (transaction): Promise<InviteRedemption> => {
     const snapshot = await transaction.get(inviteRef);
     if (!snapshot.exists) return { ok: false, reason: "not_found" };
     const invite = snapshot.data() as Invite;
@@ -156,7 +157,7 @@ export async function redeemInviteAtomically(input: {
         !/^[A-Za-z0-9_-]{1,128}$/.test(invite.workspaceId)) {
       return { ok: false, reason: "not_found" };
     }
-    const workspaceRef = adminDb.collection("workspaces").doc(invite.workspaceId);
+    const workspaceRef = db.collection("workspaces").doc(invite.workspaceId);
     const workspace = await transaction.get(workspaceRef);
     if (!workspace.exists) return { ok: false, reason: "not_found" };
     const existing = (workspace.data()?.members as Record<string, Membership> | undefined)?.[input.uid];
