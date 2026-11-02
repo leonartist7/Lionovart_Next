@@ -24,12 +24,25 @@ import styles from "./AdaptiveNavbar.module.css";
 import { ExperienceSoundToggle } from "@/components/experience/ScrollExperience";
 import { hrefForTitle } from "@/lib/service-routes";
 import { navScrollIntent } from "./nav-scroll";
+import { galleryPairProgress } from "./gallery-journey";
 import { scrollEase } from "@/components/experience/scroll-policy";
 
 const SCROLL_OFFSET = -88;
 const HERO_THRESHOLD_RATIO = 0.62;
 const GLASS_THRESHOLD = 2;
 
+
+function firstWorkDestination(section: HTMLElement) {
+  const runway = section.querySelector<HTMLElement>('[data-gallery-runway]');
+  const stage = section.closest('[data-service-world]')?.querySelector<HTMLElement>(
+    '[data-gallery-stage][data-walkthrough-pinned="true"]'
+  );
+  if (!runway || !stage) return window.scrollY + section.getBoundingClientRect().top + SCROLL_OFFSET;
+
+  const bounds = runway.getBoundingClientRect();
+  const rows = Number(stage.dataset.galleryRows) || 1;
+  return window.scrollY + bounds.top + galleryPairProgress(0, rows) * (bounds.height - innerHeight * .85);
+}
 
 const CARD_VARIANTS = {
   hidden: {
@@ -189,6 +202,23 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
     if (!element && !sectionFallback) return;
 
     if (!element) router.push(`/#${sectionId}`);
+    else if (sectionId === "selected-work") {
+      if (lenis) {
+        lenis.scrollTo(firstWorkDestination(element), {
+          duration: .75, lerp: 0, easing: scrollEase, userData: { navigation: true },
+          onComplete: () => {
+            // The opening can finish measuring while a fresh visitor is travelling.
+            if (!element.isConnected) return;
+            const settled = firstWorkDestination(element);
+            if (Math.abs(settled - window.scrollY) > 2) {
+              lenis.scrollTo(settled, { immediate: true, userData: { navigation: true } });
+            }
+          },
+        });
+      } else {
+        window.scrollTo({ top: firstWorkDestination(element), behavior: reducedMotion ? "instant" : "smooth" });
+      }
+    }
     else if (lenis?.scrollTo) lenis.scrollTo(element, {
       offset: SCROLL_OFFSET, duration: .75, lerp: 0, easing: scrollEase,
       userData: { navigation: true },
