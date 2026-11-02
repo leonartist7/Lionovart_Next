@@ -138,7 +138,7 @@ export async function redeemInviteAtomically(input: {
   }
   const tokenHash = hashInviteToken(input.token);
   const inviteRef = adminDb.collection("invites").doc(input.inviteId);
-  return adminDb.runTransaction(async transaction => {
+  return adminDb.runTransaction(async (transaction): Promise<InviteRedemption> => {
     const snapshot = await transaction.get(inviteRef);
     if (!snapshot.exists) return { ok: false, reason: "not_found" };
     const invite = snapshot.data() as Invite;
@@ -164,7 +164,7 @@ export async function redeemInviteAtomically(input: {
     const keepExisting = existing && PORTAL_ROLES.includes(existing.role) &&
       roleAtLeast(existing.role, invite.role);
     const at = new Date().toISOString();
-    const membership: Membership = keepExisting ? existing : {
+    const membership: Membership = keepExisting && existing ? existing : {
       role: invite.role, email: input.email, name: input.name, addedAt: at,
     };
     transaction.update(workspaceRef, {
