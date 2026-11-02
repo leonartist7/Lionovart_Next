@@ -215,3 +215,80 @@ test('deletion writes audit atomically and cannot affect another workspace', asy
   assert.equal(repeat.status, 409);
   assert.equal(auditFor(db, 'alpha-id').length, 2, 'failed transaction must not append an audit');
 });
+
+test('Studio PATCH revises URL and label, retains createdAt and audits the change', async () => {
+  const { route, db, store } = setup();
+  const original = (await (await route.POST(request('staff', 'alpha'), context('alpha'))).json()).link;
+  const next = { ...input, label: 'Updated design', url: 'https://www.figma.com/design/updated-v2' };
+  const response = await route.PATCH(request('staff', 'alpha', {
+    method: 'PATCH', body: { id: original.id, expected: input, resource: next },
+  }), context('alpha'));
+  assert.equal(response.status, 200);
+  const updated = (await response.json()).link;
+  assert.notEqual(updated.id, original.id);
+  assert.equal(updated.createdAt, original.createdAt);
+  assert.deepEqual((await store.listResourceLinks('alpha-id', true)).map(link => link.id), [updated.id]);
+  const audits = auditFor(db, 'alpha-id');
+  assert.deepEqual(audits.map(item => item.action), ['created', 'updated']);
+  assert.equal(audits[1].previousLinkId, original.id);
+  assert.equal(audits[1].actorUid, 'agency-staff');
+  assert.ok(!JSON.stringify(audits[1]).includes('figma.com'), 'audit must not store URL');
+});
+test('Client PATCH remains forbidden even if the view query is forged', async () => {
+  const { route, db } = setup();
+  const original = (await (await route.POST(request('staff', 'alpha'), context('alpha'))).json()).link;
+  const previous = db.transactions;
+  const response = await route.PATCH(request('client-alpha', 'alpha', {
+    method: 'PATCH', query: '?view=studio',
+    body: { id: original.id, expected: input, resource: { ...input, visibility: 'shared' }, confirmShare: true },
+  }), context('alpha'));
+  assert.equal(response.status, 403);
+  assert.equal(db.transactions, previous);
+  assert.equal(db.links('alpha-id')[0].visibility, 'internal');
+});
+test('Sharing an internal link requires explicit confirmation checked inside transaction', async () => {
+  const { route, db, store } = setup();
+  const original = (await (await route.POST(request('staff', 'alpha'), context('alpha'))).json()).link;
+  const patch = { id: original.id, expected: input, resource: { ...input, visibility: 'shared' } };
+  const rejected = await route.PATCH(request('staff', 'alpha', { method: 'PATCH', body: patch }), context('alpha'));
+  assert.equal(rejected.status, 409);
+  assert.equal(db.audit.length, 1);
+  assert.deepEqual(await store.listResourceLinks('alpha-id', false), []);
+  const accepted = await route.PATCH(request('staff', 'alpha', { method: 'PATCH', body: { ...patch, confirmShare: true } }), context('alpha'));
+  assert.equal(accepted.status, 200);
+  assert.equal((await store.listResourceLinks('alpha-id', false)).length, 1);
+  assert.equal(auditFor(db, 'alpha-id')[1].visibilityTo, 'shared');
+});
+test('Stale edits reject without overwriting another editor or appending an audit', async () => {
+  const { route, db } = setup();
+  const original = (await (await route.POST(request('staff', 'alpha'), context('alpha'))).json()).link;
+  const first = { id: original.id, expected: input, resource: { ...input, label: 'First edit' } };
+  assert.equal((await route.PATCH(request('staff', 'alpha', { method: 'PATCH', body: first }), context('alpha'))).status, 200);
+  const stale = await route.PATCH(request('staff', 'alpha', { method: 'PATCH', body: { ...first, resource: { ...input, label: 'Second edit' } } }), context('alpha'));
+  assert.equal(stale.status, 409);
+  assert.equal(db.links('alpha-id')[0].label, 'First edit');
+  assert.equal(db.audit.length, 2);
+});
+test('PATCH refuses existing URLs, unsafe URLs and a foreign workspace', async () => {
+  const { route, db } = setup();
+  const original = (await (await route.POST(request('staff', 'alpha'), context('alpha'))).json()).link;
+  const other = { ...input, url: 'https://github.com/lionovart/test', label: 'Source' };
+  assert.equal((await route.POST(request('staff', 'alpha', { body: other }), context('alpha'))).status, 201);
+  const attempt = resource => route.PATCH(request('staff', 'alpha', { method: 'PATCH', body: { id: original.id, expected: input, resource } }), context('alpha'));
+  assert.equal((await attempt({ ...input, url: other.url })).status, 409);
+  assert.equal((await attempt({ ...input, url: 'https://evil.example' })).status, 400);
+  assert.equal((await route.PATCH(request('staff', 'beta', { method: 'PATCH', body: { id: original.id, expected: input, resource: { ...input, label: 'Wrong workspace' } } }), context('beta'))).status, 409);
+  assert.equal(db.links('alpha-id').length, 2);
+  assert.deepEqual(db.links('beta-id'), []);
+  assert.equal(db.audit.length, 2);
+});
+test('Concurrent PATCH of a single old version commits one winner', async () => {
+  const { route, db } = setup();
+  const original = (await (await route.POST(request('staff', 'alpha'), context('alpha'))).json()).link;
+  const patch = label => route.PATCH(request('staff', 'alpha', { method: 'PATCH', body: {
+    id: original.id, expected: input, resource: { ...input, label },
+  } }), context('alpha'));
+  const [a, b] = await Promise.all([patch('One'), patch('Two')]);
+  assert.deepEqual([a.status, b.status].sort(), [200, 409]);
+  assert.equal(db.audit.length, 2);
+});
