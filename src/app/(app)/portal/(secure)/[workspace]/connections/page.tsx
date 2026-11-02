@@ -6,11 +6,12 @@ import { PORTAL_SESSION_COOKIE, getPortalSession, getWorkspaceAccessBySlug } fro
 import { adminStorage } from "@/lib/firebase-admin";
 import { listResourceLinks } from "@/lib/portal/resource-links-store";
 import type { ResourceLink } from "@/lib/portal/resource-links";
+import { listNotificationHistory, type DeliveryHistoryPage } from "@/lib/portal/outbox-history";
 
 export const metadata: Metadata = { title: "Connections", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
-export default async function ConnectionsPage({ params }: { params: Promise<{ workspace: string }> }) {
+export default async function ConnectionsPage({ params, searchParams }: { params: Promise<{ workspace: string }>; searchParams: Promise<{ outboxAfter?: string | string[] }> }) {
   const { workspace: slug } = await params;
   const cookieStore = await cookies();
   const session = await getPortalSession(cookieStore.get(PORTAL_SESSION_COOKIE)?.value);
@@ -27,5 +28,14 @@ export default async function ConnectionsPage({ params }: { params: Promise<{ wo
     email: Boolean(process.env.RESEND_API_KEY), storage: Boolean(adminStorage),
     emulated: Boolean(process.env.FIRESTORE_EMULATOR_HOST || process.env.FIREBASE_AUTH_EMULATOR_HOST),
   } : undefined;
-  return <ConnectionsHub workspaceSlug={slug} links={links} canManage={canManage} readiness={readiness} resourceError={resourceError}/>;
+  // The outbox is private Studio diagnostics, never a client-visible query.
+  const queryCursor = (await searchParams).outboxAfter;
+  const historyCursor = typeof queryCursor === "string" ? queryCursor : undefined;
+  let history: DeliveryHistoryPage | undefined;
+  let historyError = false;
+  if (canManage) {
+    try { history = await listNotificationHistory(access.workspace.id, historyCursor); }
+    catch { historyError = true; }
+  }
+  return <ConnectionsHub workspaceSlug={slug} links={links} canManage={canManage} readiness={readiness} resourceError={resourceError} history={history} historyError={historyError} historyCursor={historyCursor}/>;
 }

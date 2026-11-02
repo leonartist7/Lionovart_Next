@@ -56,6 +56,7 @@ jobs:
           node scripts/portal/verify-connections.cjs
           node scripts/portal/verify-connection-view-isolation.cjs
           node scripts/portal/verify-resource-security.cjs
+          node scripts/portal/verify-outbox-history.cjs
       - name: Record application dependency advisories
         run: node scripts/verify-dependency-advisories.mjs
       - name: Motion and intro regression tests

@@ -3,14 +3,19 @@ import { ArrowUpRight, CalendarDays, FolderOpen, Mail, ShieldCheck } from "lucid
 import { CalendarExportButton } from "./CalendarExportButton";
 import { ResourceLinksPanel } from "./ResourceLinksPanel";
 import type { ResourceLink } from "@/lib/portal/resource-links";
+import type { DeliveryHistoryPage } from "@/lib/portal/outbox-history";
+import { NotificationHistoryPanel } from "./NotificationHistoryPanel";
 
-export function ConnectionsHub({ workspaceSlug, links, canManage, demoView, readiness, resourceError }: {
+export function ConnectionsHub({ workspaceSlug, links, canManage, demoView, readiness, resourceError, history, historyError, historyCursor }: {
   workspaceSlug: string;
   links: ResourceLink[];
   canManage: boolean;
   demoView?: "studio" | "client";
   readiness?: { email: boolean; storage: boolean; emulated: boolean };
   resourceError?: string;
+  history?: DeliveryHistoryPage;
+  historyError?: boolean;
+  historyCursor?: string;
 }) {
   const base = `/portal/${encodeURIComponent(workspaceSlug)}`;
   const suffix = demoView ? `?view=${demoView}` : "";
@@ -36,6 +41,7 @@ export function ConnectionsHub({ workspaceSlug, links, canManage, demoView, read
           <div className="min-w-0 flex-1"><span className="text-foreground block text-sm font-semibold">Workspace files</span><span className="text-muted-foreground mt-1 block text-sm">Uploaded files, versions, and feedback stay in the existing Files section.</span></div>
           <ArrowUpRight className="h-5 w-5 shrink-0" aria-hidden="true"/>
         </Link>
+        {canManage && <NotificationHistoryPanel href={`${base}/connections`} demo={Boolean(demoView)} history={history} error={historyError} hasCursor={Boolean(historyCursor)}/>}
         {canManage && <section className="border-border rounded-2xl border p-5 md:p-7" aria-labelledby="provider-readiness-heading">
           <div className="flex items-center gap-3"><ShieldCheck className="text-muted-foreground h-5 w-5" aria-hidden="true"/><h2 id="provider-readiness-heading" className="text-foreground text-lg font-semibold">Studio connection readiness</h2></div>
           <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{demoView ? "Public preview: no production configuration is inspected or displayed." : "Configuration presence is not proof of a successful connection. No messages or provider API calls are sent by this page."}</p>
