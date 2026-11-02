@@ -12,34 +12,54 @@ export function galleryWithCarry<T extends { slug: string }>(projects: readonly 
 export function galleryTravel(progress: number, projectCount: number) {
   const stops = Math.max(1, projectCount);
   const linear = clamp(progress / GALLERY_WALK_END) * (stops + .5);
-  // Slow through each reading position, accelerate between rows. The slope
+  // Slow through each reading position, accelerate between projects. The slope
   // stays continuous at every stop, in either direction and under retargeting.
   return (linear - .82 * Math.sin(linear * Math.PI * 2) / (Math.PI * 2)) * GALLERY_DEPTH_STEP;
 }
 export function galleryProgress(top: number, height: number, viewport: number) {
   return clamp(-top / Math.max(1, height - viewport * .85));
 }
-/** The next work enters only after the previous work and its ring have gone. */
+/** One readable exhibit at a time; departure travels through the viewing plane. */
 export function galleryCardPose(progress: number, index: number, count: number) {
   const advance = galleryTravel(progress, count) / GALLERY_DEPTH_STEP - index;
-  const approach = smooth((advance + .18) / .18);
-  const hold = smooth(clamp(advance / .26));
-  const departure = clamp((advance - .36) / .46);
-  const outward = Math.expm1(3.5 * departure) / Math.expm1(3.5);
-  const opacity = approach * (1 - smooth((advance - .70) / .12));
-  const z = -350 - 480 * (1 - approach) + 350 * hold + 440 * outward;
-  return { advance, z, outward, opacity, visible: opacity > .001,
-    caption: approach * (1 - smooth((advance - .37) / .19)) };
+  const approach = smooth((advance + .16) / .16);
+  const hold = smooth(advance / .26);
+  const departure = clamp((advance - .36) / .60);
+  const forward = Math.expm1(3.5 * departure) / Math.expm1(3.5);
+  const dissolve = smooth((advance - .40) / .44);
+  const opacity = approach * (1 - smooth((advance - .72) / .12));
+  const z = -350 - 480 * (1 - approach) + 350 * hold + 900 * forward;
+  return { advance, z, forward, dissolve, opacity, visible: opacity > .001,
+    caption: approach * (1 - smooth((advance - .34) / .18)) };
 }
+
+/** The next two rings remain ahead of the exhibit, on the same vanishing point. */
+export function galleryRingPose(progress: number, index: number, count: number) {
+  const pose = galleryCardPose(progress, index, count);
+  const z = pose.advance < -.16 ? -830 + (pose.advance + .16) * GALLERY_DEPTH_STEP : pose.z;
+  const opacity = .45 * smooth((pose.advance + 2.25) / .65) * (1 - smooth((pose.advance - .94) / .10));
+  return { z, opacity, visible: opacity > .001 };
+}
+
+/** Cover every corner from the tunnel's 48% vanishing point, including ultrawide screens. */
+export function galleryCoreCover(width: number, height: number) {
+  return 2.08 * Math.hypot(width / 2, height * .52) / Math.max(1, Math.min(width, height) * .72);
+}
+
+/** Red arrives through the last portal; logo settles before the partnership reading beat. */
 export function galleryEnding(progress: number) {
   const departure = 1 - smooth((progress - .71) / .05);
+  const settle = smooth((progress - .845) / .055);
   return {
-    logoZ: 2800 * smooth(progress / GALLERY_WALK_END) - 2800,
-    logo: smooth((progress - .72) / .08),
-    markSettle: smooth((progress - .76) / .1),
-    ring: smooth((progress - .73) / .08),
-    copy: smooth((progress - .77) / .09),
-    links: smooth((progress - .85) / .06),
+    core: smooth((progress - .70) / .035),
+    coreGrowth: smooth((progress - .73) / .08),
+    logoZ: 0,
+    logo: smooth((progress - .81) / .035),
+    logoScale: 6 - 5 * settle,
+    markSettle: settle,
+    ring: smooth((progress - .90) / .025),
+    copy: smooth((progress - .90) / .035),
+    links: smooth((progress - .94) / .025),
     header: departure, dock: departure, navigation: departure,
   };
 }

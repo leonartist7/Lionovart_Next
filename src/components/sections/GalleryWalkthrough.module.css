@@ -1,19 +1,19 @@
 .section { position: relative; color: #302a23; scroll-margin-top: 0; }
 .runway { position: relative; height: var(--gallery-runway,1000svh); }
-.partnershipAnchor { position: absolute; top: calc((100% - 85svh) * .9); width: 1px; height: 1px; pointer-events: none; }
+.partnershipAnchor { position: absolute; top: calc((100% - 85svh) * .98); width: 1px; height: 1px; pointer-events: none; }
 .stage { position: sticky; top: 0; height: 100svh; overflow: clip; isolation: isolate; }
 .stage[data-dissolve-pinned=true] { position: fixed; inset: 0; }
 .header { position: absolute; top: clamp(4.75rem,9svh,7rem); left: 5vw; right: 5vw; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center; gap: .75rem; z-index: 10; pointer-events: none; }
 .header h2 { margin: 0; font: 400 clamp(2rem,4.5vw,4.5rem)/1 var(--font-clash-display),sans-serif; letter-spacing: -.04em; }
 .header p { margin: 0; color: #88765d; font: italic 400 clamp(1rem,1.5vw,1.5rem)/1.4 var(--font-playfair-display),Georgia,serif; }
-.corridor { position: absolute; inset: 0; perspective: 1000px; perspective-origin: 50% 48%; transform-style: preserve-3d; pointer-events: none; opacity: var(--gallery-arrival-media,1); }
+.corridor { z-index:1; position: absolute; inset: 0; perspective: 1000px; perspective-origin: 50% 48%; transform-style: preserve-3d; pointer-events: none; opacity: var(--gallery-arrival-media,1); }
 .panel { position: absolute; left: 50%; top: var(--gallery-panel-top,40%); width: var(--gallery-panel-width,min(44vw,40rem)); aspect-ratio: 16/11; transform-style: preserve-3d; will-change: transform,opacity; }
 .project { position: relative; display: block; width: 100%; height: 100%; padding: 0; border: 0; border-radius: .25rem; background: transparent; color: #554b3e; cursor: pointer; pointer-events: auto; }
 .screen { position: absolute; inset: 0; container-type: size; }
 .stage[data-walkthrough-pinned=true] :global([data-screening-media]) { --screen-frame-ratio: calc(1.7777777778 * var(--gallery-frame-match,0) + var(--screen-ratio,1.6) * (1 - var(--gallery-frame-match,0))); }
 .projectCaption { position: absolute; top: calc(100% + .75rem); left: 0; right: 0; display: block; text-align: left; }
-.logo { position: absolute; left: 50%; top: var(--partnership-mark-top,32%); width: var(--partnership-mark-size,15rem); aspect-ratio: 1; pointer-events: auto; }
-.ending { position: absolute; top: var(--partnership-copy-top,60%); left: 1.5rem; right: 1.5rem; text-align: center; pointer-events: none; }
+.logo { z-index:2; position: absolute; left: 50%; top: var(--partnership-mark-top,32%); width: var(--partnership-mark-size,15rem); aspect-ratio: 1; pointer-events: auto; }
+.ending { z-index:3; position: absolute; top: var(--partnership-copy-top,60%); left: 1.5rem; right: 1.5rem; text-align: center; pointer-events: none; }
 .ending h2 { margin: 0; font: 400 clamp(2.5rem,5.8vw,6rem)/1.05 var(--font-clash-display),sans-serif; letter-spacing: -.045em; }
 .ending > p { margin: .8rem 0 0; color: #8a714f; font: italic 400 clamp(1.75rem,4vw,4rem)/1.15 var(--font-playfair-display),Georgia,serif; }
 .navigation { position: absolute; bottom: max(3.5rem,env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 1.25rem; z-index: 10; }
@@ -32,7 +32,7 @@
 /* Enlarged type and text-spacing preferences must not turn long words into
    clipped content inside the static reading surface. */
 .stage[data-walkthrough-pinned=false] :is(.header,.ending) > :is(h2,p) { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
-.stage[data-walkthrough-pinned=false] .ending { position: relative; inset: auto; margin-top: 7rem; padding: 2rem 0; }
+.stage[data-walkthrough-pinned=false] .ending { z-index:3; position: relative; inset: auto; margin-top: 7rem; padding: 2rem 0; }
 .section:has([data-walkthrough-pinned=false]) .runway { height: auto; }
 @media(max-width:767px) {
   .header { top: 6rem; left: 1.5rem; right: 1.5rem; flex-direction: column; align-items: center; text-align: center; gap: .75rem; }
@@ -56,8 +56,7 @@
 .staticProject[data-focused=true] { outline: 1px solid #a39175; outline-offset: .5rem; }
 @media(prefers-reduced-motion:reduce) { .staticProject { transition: none; } }
 
-/* Phones and tablets open the gathered stack above and below the center.
-   Only the axes/layout change; native depth travel and inline focus remain shared. */
+/* All devices share forward depth travel; phones retain their taller artwork frame. */
 .verticalArrow { display: none; }
 .stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .panel { aspect-ratio: 16/12; }
 .stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .horizontalArrow { display: none; }
@@ -72,7 +71,7 @@
 
 .stage[data-walkthrough-pinned=true][data-gallery-axis=vertical] .panel[aria-hidden=true] .projectCaption { visibility: hidden; }
 
-/* Keep row metadata out of the incoming/exiting artwork's path. */
+/* Keep project metadata out of the incoming/exiting artwork's path. */
 .panel[aria-hidden=true] .projectCaption { visibility: hidden; }
 .previewError { position: absolute; left: 1rem; right: 1rem; bottom: 7rem; text-align: center; color: #8e2430; font-size: .75rem; }
 .navigation button { transition: background-color 200ms ease, border-color 200ms ease; }
@@ -92,8 +91,14 @@
 .panel[aria-hidden=true] .project { pointer-events:none; }
 
 /* Architectural glass rings belong to the room, never to the controls. */
-.portalRing { position:absolute; left:50%; top:calc(50% + var(--gallery-ring-offset,2rem)); transform:translate(-50%,-50%); width:var(--gallery-ring-size); aspect-ratio:1; border-radius:50%; border:1px solid #ac9478; box-shadow:inset 0 0 0 6px #fffdf535,inset 0 0 0 7px #8b7b6118,0 0 0 1px #9e8c7324,0 0 32px #d5c9b614; pointer-events:none; }
-.portalRing[data-final=true] { border-color:#bd1725; box-shadow:inset 0 0 0 5px #bd17250e,0 0 0 1px #bd172536,0 0 30px #bd172510; }
+.portalRing { position:absolute; left:50%; top:48%; width:var(--gallery-ring-size); aspect-ratio:1; border-radius:50%; border:1px solid #ac9478; box-shadow:inset 0 0 0 6px #fffdf535,inset 0 0 0 7px #8b7b6118,0 0 0 1px #9e8c7324; pointer-events:none; }
+.portalRing[data-final=true] { border-color:#f51b2c; box-shadow:inset 0 0 0 5px #f51b2c16,0 0 0 1px #f51b2c55; }
+.redCore { position:absolute; z-index:0; left:50%; top:48%; width:min(72vw,72svh); aspect-ratio:1; border-radius:50%; background:#f51b2c; pointer-events:none; }
+.stage[data-walkthrough-pinned=true] .ending { color:#fffaf3; }
+.stage[data-walkthrough-pinned=true] .ending > p { color:#fffaf3; }
+.stage[data-walkthrough-pinned=true] .partnershipAction button:focus-visible { outline-color:#fffaf3; }
 .header p { font-size:clamp(1.25rem,2.5vw,2.5rem); line-height:1.15; }
 .stage[data-walkthrough-pinned=true] .header h2 { max-width:18ch; }
 @media(prefers-reduced-motion:reduce) { .portalRing:where(:not([data-story-static=false] *)) { display:none; } }
+
+.stage[data-walkthrough-pinned=true] .logo { top:48%; }

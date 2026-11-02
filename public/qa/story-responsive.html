@@ -23,8 +23,10 @@
   <label>Doorway %<input id="doorway" type="number" min="0" max="100" value="45" step="1"></label>
   <button id="go-doorway">Review doorway</button>
   <label>Project<select id="row"><option value="0">1</option><option value="1">2</option><option value="2">3</option><option value="3">4</option><option value="4">5</option><option value="5">6</option><option value="6">7</option><option value="7">8</option><option value="8">9</option><option value="9">10</option></select></label>
-  <label>Row advance %<input id="advance" type="number" min="0" max="130" value="26" step="1"></label>
+  <label>Project advance %<input id="advance" type="number" min="0" max="130" value="26" step="1"></label>
   <button id="go-row">Review project</button>
+  <label>Finale %<input id="finale" type="number" min="70" max="100" value="84" step="1"></label>
+  <button id="go-finale">Review red finale</button>
   <button id="profile-toggle">Start 30s profile</button>
   <p>Review fixture: iframe widths exercise real media queries. Text sizing simulates a root-font preference, not browser zoom or physical touch hardware.</p>
 </header>
@@ -82,6 +84,12 @@
     if(key==='partnership') {if(pinned)top+=(el.offsetHeight-win.innerHeight*.85)*.94;else {el=doc.querySelector('[data-partnership-static-mark]');top=win.scrollY+el.getBoundingClientRect().top}}
     win.scrollTo({top,behavior:'instant'});measure();
   }
+  document.querySelector('#go-finale').addEventListener('click',()=>{
+    const win=frame.contentWindow,el=frame.contentDocument.querySelector('[data-gallery-runway]');
+    if(!el)return;
+    const p=Math.max(.70,Math.min(1,Number(document.querySelector('#finale').value)/100));
+    win.scrollTo({top:win.scrollY+el.getBoundingClientRect().top+p*(el.offsetHeight-win.innerHeight*.85),behavior:'instant'});measure();
+  });
   frame.addEventListener('load',settings);
   document.querySelector('#locale').addEventListener('change',event=>{frame.src=event.target.value==='fr'?'/fr':'/'});
   for(const id of ['size','text','spacing'])document.querySelector('#'+id).addEventListener('change',settings);

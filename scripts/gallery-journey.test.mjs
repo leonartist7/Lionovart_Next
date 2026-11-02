@@ -1,15 +1,23 @@
 import test from 'node:test';
 import { galleryLayout, galleryRingDiameter, galleryRingCenterOffset, galleryFocusDepth, GALLERY_ENTRY_PROJECTION } from '../src/components/sections/gallery-layout.ts';
 import assert from 'node:assert/strict';
-import { galleryWithCarry, galleryProgress, galleryTravel, galleryCardPose, galleryEnding, galleryProjectProgress, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase } from '../src/components/sections/gallery-journey.ts';
+import { galleryWithCarry, galleryProgress, galleryTravel, galleryCardPose, galleryRingPose, galleryCoreCover, galleryEnding, galleryProjectProgress, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase } from '../src/components/sections/gallery-journey.ts';
 
-test('the logo arrives first, partnership copy follows and CTAs wait for the reading beat', () => {
- assert.equal(galleryEnding(.76).logoZ, 0);
- assert.equal(galleryEnding(.76).copy, 0);
- assert.equal(galleryEnding(.86).copy, 1);
- assert.equal(galleryEnding(.85).links, 0);
- assert.equal(galleryEnding(.92).links, 1);
- assert.equal(galleryEnding(1).copy, 1);
+test('the red fills the viewport, a large logo settles, then copy and action become readable', () => {
+ assert.equal(galleryEnding(.70).core,0);
+ assert.equal(galleryEnding(.81).coreGrowth,1);
+ assert.equal(galleryEnding(.81).logo,0);
+ assert.equal(galleryEnding(.845).logo,1);
+ assert.equal(galleryEnding(.845).logoScale,6);
+ assert.equal(galleryEnding(.90).logoScale,1);
+ assert.equal(galleryEnding(.90).copy,0);
+ assert.equal(galleryEnding(.94).copy,1);
+ assert.equal(galleryEnding(.94).links,0);
+ assert.equal(galleryEnding(.98).links,1);
+ for (const [w,h] of [[320,568],[390,844],[1366,520],[1440,900],[2560,1080]]) {
+  const radius=Math.min(w,h)*.72*galleryCoreCover(w,h)/2;
+  assert.ok(radius>Math.hypot(w/2,h*.52));
+ }
 });
 
 test('native gallery progress is finite and consistent across portrait and desktop viewports', () => {
@@ -61,19 +69,6 @@ test('arrow curves carry forward velocity, settle without overshoot and stay dis
  }
 });
 
-// Project the four corners, including rotation, rather than comparing unprojected CSS boxes.
-function bounds(width, height, layout, pose, side, row) {
- const w=layout.panelWidth, h=w*(layout.vertical?.75:11/16);
- const angle=-side*(layout.vertical?0:4+2*pose.outward)*Math.PI/180;
- const x=side*(layout.x-pose.preview*layout.previewInset*(1000-pose.z)/1350-Math.max(0,pose.z+350)/2000*layout.centerGap+(layout.exitX-layout.x)*pose.outward);
- const y=side*(layout.y+(layout.exitY-layout.y)*pose.outward)+(row%2?-1:1)*(layout.vertical?0:height*.02)*pose.outward;
- const corners=[[-w/2,-h/2],[-w/2,h/2],[w/2,-h/2],[w/2,h/2]].map(([dx,dy])=>{
-  const projection=1000/(1000-pose.z+Math.sin(angle)*dx);
-  return {x:width/2+(x+Math.cos(angle)*dx)*projection,y:height*.48+(height*(layout.panelTop/100-.48)+y+dy)*projection};
- });
- return {left:Math.min(...corners.map(p=>p.x)),right:Math.max(...corners.map(p=>p.x)),top:Math.min(...corners.map(p=>p.y)),bottom:Math.max(...corners.map(p=>p.y))};
-}
-
 test('the carried artwork leads ten unique project stops', () => {
  const projects=Array.from({length:12},(_,i)=>({slug:`work-${i}`}));
  for(const carry of [projects[0],projects[5],{slug:'transparent-led-concept'}]) {
@@ -103,14 +98,14 @@ test('one project is visible at a time throughout the trip in either direction',
       assert.ok(Math.abs(pose.advance - .26) < 1e-8);
       assert.equal(pose.opacity, 1);
       assert.equal(pose.caption, 1);
-      assert.equal(pose.outward, 0);
+      assert.equal(pose.forward, 0);
       assert.ok(galleryEnding(p).navigation > .99);
     }
     assert.equal(galleryCardPose(.76, count-1, count).visible, false);
   }
 });
 
-test('departure starts after the reading hold and accelerates toward the edge', () => {
+test('departure starts after the reading hold and accelerates through the viewing plane', () => {
   const at = advance => {
     let lo = 0, hi = .76;
     for (let i = 0; i < 45; i++) {
@@ -120,10 +115,14 @@ test('departure starts after the reading hold and accelerates toward the edge', 
     return galleryCardPose((lo + hi) / 2, 0, 10);
   };
   const a = at(.40), b = at(.52), c = at(.64), d = at(.76);
-  assert.ok(b.outward-a.outward < c.outward-b.outward);
-  assert.ok(c.outward-b.outward < d.outward-c.outward);
+  assert.ok(b.forward-a.forward < c.forward-b.forward);
+  assert.ok(c.forward-b.forward < d.forward-c.forward);
   assert.equal(at(.57).caption, 0);
-  assert.equal(at(.83).visible, false);
+  assert.equal(at(.85).visible, false);
+  assert.equal(at(.36).dissolve,0);
+  assert.ok(at(.65).dissolve>.5);
+  assert.ok(at(.96).z>850);
+  assert.ok(at(.85).z>at(.65).z);
   assert.ok(galleryRunwayScreens(10) < 17);
 });
 
@@ -137,4 +136,23 @@ test('a single circle encloses artwork and metadata on each screen size', () => 
     assert.equal(galleryRingCenterOffset(layout),(layout.captionAllowance+layout.captionGap)/2);
     assert.ok(Number.isFinite(galleryFocusDepth(layout,w,h,16)));
   }
+});
+
+test('rings surround the reading position, remain ahead in depth, and pass beyond the frame', () => {
+ for(const count of [1,3,10]) for(let index=0;index<count;index++) {
+  const p=galleryProjectProgress(index,count), card=galleryCardPose(p,index,count);
+  assert.ok(Math.abs(galleryRingPose(p,index,count).z-card.z)<1e-9);
+  if(index+1<count) {
+   const next=galleryRingPose(p,index+1,count);
+   assert.ok(next.z<card.z-1000);
+   assert.ok(next.visible);
+  }
+ }
+ const points=Array.from({length:1001},(_,i)=>i/1000);
+ const poses=p=>[galleryCardPose(p,4,10),galleryRingPose(p,4,10),galleryEnding(p)];
+ assert.deepEqual(points.map(poses).reverse(),points.toReversed().map(poses));
+ for(const p of points) {
+  for(const pose of poses(p)) for(const value of Object.values(pose)) if(typeof value==='number')assert.ok(Number.isFinite(value));
+  assert.ok(galleryRingPose(p,4,10).z<=900);
+ }
 });

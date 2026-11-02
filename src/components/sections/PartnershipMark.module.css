@@ -17,3 +17,8 @@
 .results button:focus-visible { outline: 2px solid var(--color-brand-red,#e5192a); outline-offset: 5px; }
 @keyframes partnership-orbit { to { transform: rotate(360deg); } }
 @media(prefers-reduced-motion:reduce) { .orbit { animation: none; }.emblem,.orbit text { transition: none; }.pause { display: none; }.results * { transition: none !important; animation: none !important; } }
+
+.mark[data-tone=light] .invitation { color:#fffaf3; }
+.mark[data-tone=light] .emblem { border-radius:0; box-shadow:none; }
+.mark[data-tone=light] .pause { color:#fffaf3; border-color:#fffaf366; }
+.mark[data-tone=light] button:focus-visible { outline-color:#fffaf3; }

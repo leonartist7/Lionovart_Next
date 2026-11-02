@@ -27,15 +27,16 @@ for (const [width,height] of [[320,568],[360,640],[390,844],[768,1024],[1024,768
 test('the upper logo stays in place throughout the partnership reading beat', () => {
  assert.equal(galleryEnding(.72).markSettle,0);
  assert.equal(galleryEnding(.72).ring,0);
- assert.equal(galleryEnding(.81).ring,1);
- assert.equal(galleryEnding(.86).logoZ,0);
- for (const p of [.76,.8,.86,.92,1]) assert.equal(galleryEnding(p).logoZ,0);
- assert.equal(galleryEnding(.86).copy,1);
- assert.equal(galleryEnding(.92).links,1);
+ assert.equal(galleryEnding(.93).ring,1);
+ assert.equal(galleryEnding(.90).markSettle,1);
+ assert.equal(galleryEnding(.90).logoScale,1);
+ for (const p of [.90,.94,.98,1]) assert.equal(galleryEnding(p).logoZ,0);
+ assert.equal(galleryEnding(.94).copy,1);
+ assert.equal(galleryEnding(.98).links,1);
  assert.equal(galleryEnding(.92).dock,0);
 });
 test('the invitation position and ring reveal are continuous and reversible', () => {
- const samples = Array.from({length:1001},(_,i)=>.7+i*.0003);
+ const samples = Array.from({length:2001},(_,i)=>.7+i*.00015);
  for(const key of ['markSettle','ring']) {
   const values=samples.map(p=>galleryEnding(p)[key]);
   for(let i=1;i<values.length;i++) assert.ok(Math.abs(values[i]-values[i-1])<.01);

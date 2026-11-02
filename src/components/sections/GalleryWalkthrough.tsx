@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useId, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useSpring, useTransform, type MotionValue } from 'framer-motion';
 import { useLenis } from 'lenis/react';
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp } from 'lucide-react';
+import { useSaveData } from '@/hooks/useSaveData';
+import HandoffDissolveFilter from './HandoffDissolveFilter';
 import { useDissolveStage } from '@/hooks/useDissolveStage';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePublicCopy } from '@/hooks/usePublicCopy';
@@ -12,7 +14,7 @@ import { prepareScreeningPosters, ScreeningMedia } from './ScreeningMedia';
 import { GALLERY_SERVICE_LABELS, type GalleryWork } from './selected-work/gallery';
 import { galleryLayout, galleryRingDiameter, galleryRingCenterOffset, galleryFocusDepth, GALLERY_ENTRY_PROJECTION } from './gallery-layout';
 import { doorwayTitleOpacity, serviceGalleryHandoff } from './service-gallery-handoff';
-import { galleryCardPose, galleryEnding, galleryProjectProgress, galleryProgress, galleryTravel, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
+import { galleryCardPose, galleryRingPose, galleryCoreCover, galleryEnding, galleryProjectProgress, galleryProgress, galleryTravel, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
 import styles from './GalleryWalkthrough.module.css';
 import PartnershipMark, { PartnershipResultsButton } from './PartnershipMark';
 import { partnershipLayout } from './partnership-layout';
@@ -24,38 +26,70 @@ function WorkTags({ work }: { work: GalleryWork }) {
   </span>;
 }
 
+const subscribeCapacity = () => () => {};
+const constrainedCapacity = () => {
+  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+  return navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 2 || !!memory && memory <= 2;
+};
+const serverCapacity = () => false;
+
 function GalleryPanel({ work, index, count, progress, entry, entryScale, focusDepth, active, selected, onSelect }: {
   work: GalleryWork; index: number; count: number; progress: MotionValue<number>; entry: MotionValue<number>;
   entryScale: MotionValue<number>; focusDepth: MotionValue<number>; active: boolean; selected: boolean; onSelect: (slug: string) => void;
 }) {
   const reduce = useReducedMotion();
+  const saveData = useSaveData();
+  const constrained = useSyncExternalStore(subscribeCapacity, constrainedCapacity, serverCapacity);
+  const simpleExit = reduce || saveData || constrained;
+  const panelRef = useRef<HTMLDivElement>(null);
+  const filterId = `gallery-erosion-${useId().replace(/:/g, '')}`;
   const focusSpring = useSpring(0, { stiffness: 180, damping: 30, mass: 1 });
   useEffect(() => { focusSpring.set(selected ? 1 : 0); }, [selected, focusSpring]);
   const pose = useTransform(progress, p => galleryCardPose(p, index, count));
   const transform = useTransform(() => {
-    const { z, outward } = pose.get();
-    const focus = (reduce ? Number(selected) : focusSpring.get()) * (1 - outward);
+    const { z, forward } = pose.get();
+    const focus = (reduce ? Number(selected) : focusSpring.get()) * (1 - forward);
     const depth = z + (Math.min(focusDepth.get(), 145) - z) * focus;
     const size = index === 0 ? 1 + (entryScale.get() - 1) * (1 - entry.get()) : 1;
-    const direction = index % 2 ? -1 : 1;
-    return `translate3d(calc(${direction * outward} * var(--gallery-exit-x)),calc(${outward} * var(--gallery-exit-y)),${depth}px) translate(-50%,-50%) scale(${size})`;
+    return `translate3d(0,0,${depth}px) translate(-50%,-50%) scale(${size})`;
   });
   const opacity = useTransform(pose, p => p.opacity);
   const visibility = useTransform(pose, p => p.visible ? 'visible' : 'hidden');
   const caption = useTransform(() => pose.get().caption * entry.get());
-  const rim = useTransform(() => .45 * (index === 0 ? entry.get() : 1));
+  const filter = useTransform(pose, p => !simpleExit && p.visible && p.dissolve > 0 && p.dissolve < 1 ? `url(#${filterId})` : 'none');
+  const maskImage = useTransform(pose, p => {
+    if (simpleExit || !p.visible || p.dissolve <= 0) return 'none';
+    const hole = -20 + 160 * p.dissolve;
+    return `radial-gradient(ellipse closest-side, transparent ${hole}%, #000 ${hole + 20}%)`;
+  });
   const [readable, setReadable] = useState(() => pose.get().caption > .5);
-  useMotionValueEvent(progress, 'change', p => setReadable(galleryCardPose(p, index, count).caption > .5));
+  // Subscribe to the numeric input. An object-valued pose can emit during React render.
+  useMotionValueEvent(progress, 'change', p => {
+    const next = galleryCardPose(p, index, count);
+    setReadable(next.caption > .5);
+    if (!simpleExit && next.visible && next.dissolve > 0 && next.dissolve < 1) {
+      panelRef.current?.querySelectorAll<SVGElement>('[data-gallery-cutoff]').forEach(node => {
+        node.setAttribute('intercept', String((node.dataset.galleryCutoff === 'edge' ? 1.24 : 1) - next.dissolve * 7));
+      });
+    }
+  });
   const interactive = active && readable;
-  return <motion.div className={styles.panel} data-gallery-panel data-gallery-index={index} data-gallery-project={work.slug} data-focused={selected}
+  return <motion.div ref={panelRef} className={styles.panel} data-gallery-panel data-gallery-index={index} data-gallery-project={work.slug} data-focused={selected}
     style={{ transform, opacity, visibility }} inert={!interactive} aria-hidden={!interactive}>
-    <motion.div className={styles.portalRing} data-gallery-ring={index} data-final={index === count - 1} aria-hidden="true" style={{ opacity: rim }} />
     <button type="button" className={styles.project} onClick={event => { event.stopPropagation(); event.currentTarget.focus({ preventScroll: true }); onSelect(work.slug); }}
       aria-label={`Focus work: ${work.name}`} aria-pressed={selected}>
-      <div className={styles.screen} data-gallery-artwork><ScreeningMedia asset={work} active={interactive} label={false} /></div>
+      {!simpleExit && <HandoffDissolveFilter id={filterId} seed={index + 43} gallery />}
+      <motion.div className={styles.screen} data-gallery-artwork style={{ filter, maskImage }}><ScreeningMedia asset={work} active={interactive} label={false} /></motion.div>
       <motion.span className={styles.projectCaption} style={{ opacity: caption }}><WorkTags work={work} /></motion.span>
     </button>
   </motion.div>;
+}
+
+function GalleryRing({ index, count, progress, entry }: { index: number; count: number; progress: MotionValue<number>; entry: MotionValue<number> }) {
+  const transform = useTransform(progress, p => `translate(-50%,-50%) translateZ(${galleryRingPose(p, index, count).z}px)`);
+  const opacity = useTransform(() => galleryRingPose(progress.get(), index, count).opacity * entry.get());
+  const visibility = useTransform(progress, p => galleryRingPose(p, index, count).visible ? 'visible' : 'hidden');
+  return <motion.div className={styles.portalRing} data-gallery-ring={index} data-final={index === count - 1} aria-hidden="true" style={{ transform, opacity, visibility }} />;
 }
 
 /** Scroll moves the exhibits through one stationary viewport, then reveals the studio mark. */
@@ -82,7 +116,9 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const pinned = !!scene?.target;
   const sharedPortal = !!scene?.target?.closest('[data-world-mode="media"]');
   const titleOpacity = useTransform(() => doorwayTitleOpacity(arrivalProgress.get()));
-  const logoTransform = useTransform(progress, p => `translate(-50%,-50%) translateZ(${galleryEnding(p).logoZ}px)`);
+  const logoTransform = useTransform(progress, p => `translate(-50%,-50%) translateY(calc((var(--partnership-mark-top) - 48svh) * ${galleryEnding(p).markSettle})) scale(calc(1 + (var(--gallery-logo-hero-scale,6) - 1) * ${1 - galleryEnding(p).markSettle}))`);
+  const coreOpacity = useTransform(progress, p => galleryEnding(p).core);
+  const coreTransform = useTransform(progress, p => `translate(-50%,-50%) scale(calc(.22 + (var(--gallery-core-cover,3) - .22) * ${galleryEnding(p).coreGrowth}))`);
   const logoOpacity = useTransform(progress, p => galleryEnding(p).logo);
   const ringOpacity = useTransform(progress, p => galleryEnding(p).ring);
   const copyOpacity = useTransform(progress, p => galleryEnding(p).copy);
@@ -122,8 +158,8 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
         surface.dataset.galleryAxis = layout.vertical ? 'vertical' : 'horizontal';
         surface.dataset.galleryCompact = String(layout.compact);
         surface.style.setProperty('--gallery-caption-width', `${layout.captionWidth}px`);
-        surface.style.setProperty('--gallery-exit-x', layout.vertical ? '0px' : '100vw');
-        surface.style.setProperty('--gallery-exit-y', layout.vertical ? '-100svh' : '0px');
+        surface.style.setProperty('--gallery-core-cover', String(galleryCoreCover(document.documentElement.clientWidth, innerHeight)));
+        surface.style.setProperty('--gallery-logo-hero-scale', String(Math.min(document.documentElement.clientWidth, innerHeight) * 1.05 / (endingLayout.markSize * .58)));
         surface.style.setProperty('--gallery-panel-top', `${layout.panelTop}%`);
         surface.style.setProperty('--gallery-panel-width', `${layout.panelWidth}px`);
       }
@@ -131,7 +167,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       progress.set(value);
       const arrival = serviceGalleryHandoff(box.top, innerHeight);
       // Inherit the service's complete 16:9 frame during the size match, then
-      // continuously recover each artwork's natural frame as the cards fan out.
+      // continuously recover each artwork's natural frame on the tunnel axis.
       surface?.style.setProperty('--gallery-frame-match', String(pinned ? 1 - arrival.spread : 0));
       entry.set(pinned ? arrival.spread : 1);
       arrivalProgress.set(pinned ? arrival.progress : 0);
@@ -191,7 +227,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     const land = () => { frame = requestAnimationFrame(() => {
       const anchor = runway.current; if (!anchor) return;
       const box = anchor.getBoundingClientRect();
-      const offset = remembered && pinned ? (box.height - innerHeight * .85) * (remembered.ending ? .91 : galleryProjectProgress(remembered.projectIndex, projectCount)) : location.hash === '#partnership' && pinned ? (box.height - innerHeight * .85) * .91 : pinned && location.hash === '#selected-work' ? -innerHeight * .52 : 0;
+      const offset = remembered && pinned ? (box.height - innerHeight * .85) * (remembered.ending ? .98 : galleryProjectProgress(remembered.projectIndex, projectCount)) : location.hash === '#partnership' && pinned ? (box.height - innerHeight * .85) * .98 : pinned && location.hash === '#selected-work' ? -innerHeight * .52 : 0;
       const staticEnding = !pinned && (remembered?.ending || location.hash === '#partnership') ? stage.current?.querySelector('[data-partnership-static-mark], [data-gallery-ending]') : null;
       const project = remembered?.slug ? [...(stage.current?.querySelectorAll<HTMLElement>('[data-static-project], [data-gallery-project]') ?? [])].find(node => (node.dataset.staticProject ?? node.dataset.galleryProject) === remembered.slug) : null;
       const target = !pinned && project && !remembered?.ending ? scrollY + project.getBoundingClientRect().top - 6 * (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16) : staticEnding ? scrollY + staticEnding.getBoundingClientRect().top - 96 : scrollY + box.top + offset;
@@ -252,7 +288,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       if (ticket !== navigation.current.ticket) return;
       const anchor = runway.current; if (!anchor) return;
       const box = anchor.getBoundingClientRect();
-      const p = target >= projectCount ? .91 : galleryProjectProgress(target, projectCount);
+      const p = target >= projectCount ? .98 : galleryProjectProgress(target, projectCount);
       const y = scrollY + box.top + p * (box.height - innerHeight * .85);
       const distance = y - scrollY;
       const duration = galleryNavigationDuration(distance, innerHeight);
@@ -287,13 +323,12 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
           <p>{fr ? 'Entrez dans l’univers' : 'Step inside'}</p>
           <h2 id="selected-work-heading">{fr ? 'de nos réalisations' : 'our selected work'}</h2>
         </motion.header>}
+        {pinned && <motion.div className={styles.redCore} data-gallery-red-core aria-hidden="true" style={{ opacity: coreOpacity, transform: coreTransform }} />}
         {pinned ? <div className={styles.corridor} data-gallery-corridor>
+          {projects.map((work, index) => <GalleryRing key={`ring-${work.slug}`} index={index} count={projectCount} progress={progress} entry={entry} />)}
           {projects.map((work, index) => <GalleryPanel key={work.slug} work={work} index={index} count={projectCount}
             progress={progress} entry={entry} entryScale={entryScale} focusDepth={focusDepth} selected={selectedSlug === work.slug}
             active={active && index === projectIndex && !ending} onSelect={onSelect} />)}
-          <motion.div className={styles.logo} data-gallery-logo style={{ transform: logoTransform, opacity: logoOpacity, pointerEvents: ending ? 'auto' : 'none', '--partnership-ring': ringOpacity } as unknown as React.ComponentProps<typeof motion.div>['style']}>
-            <PartnershipMark active={active && ending} ready={ending} />
-          </motion.div>
         </div> : <div className={styles.staticGrid}>
           {projects.map(work => <button type="button" key={work.slug} data-static-project={work.slug} className={styles.staticProject} data-focused={selectedSlug === work.slug} data-dimmed={!!selectedSlug && selectedSlug !== work.slug}
             onClick={event => { event.stopPropagation(); event.currentTarget.focus({ preventScroll: true }); onSelect(work.slug); }} aria-label={`Focus work: ${work.name}`} aria-pressed={selectedSlug === work.slug}>
@@ -301,6 +336,9 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
             <span className={styles.projectCaption}><WorkTags work={work} /></span>
           </button>)}
         </div>}
+        {pinned && <motion.div className={styles.logo} data-gallery-logo style={{ transform: logoTransform, opacity: logoOpacity, pointerEvents: ending ? 'auto' : 'none', '--partnership-ring': ringOpacity } as unknown as React.ComponentProps<typeof motion.div>['style']}>
+            <PartnershipMark tone="light" active={active && ending} ready={ending} />
+          </motion.div>}
         {!pinned && <div className={styles.staticMark} data-partnership-static-mark><PartnershipMark active={active} ready /></div>}
         <motion.div className={styles.ending} data-gallery-ending aria-hidden={pinned && !ending} style={{ opacity: pinned ? copyOpacity : 1, transform: pinned ? copyTransform : 'none' }}>
           <h2>{tr('One partnership')}</h2>
