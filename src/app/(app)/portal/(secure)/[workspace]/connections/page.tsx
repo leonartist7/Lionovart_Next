@@ -7,6 +7,7 @@ import { adminStorage } from "@/lib/firebase-admin";
 import { listResourceLinks } from "@/lib/portal/resource-links-store";
 import type { ResourceLink } from "@/lib/portal/resource-links";
 import { listNotificationHistory, type DeliveryHistoryPage } from "@/lib/portal/outbox-history";
+import { listVisibleFileActivity, type VisibleFileActivity } from "@/lib/portal/visible-file-activity";
 
 export const metadata: Metadata = { title: "Connections", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -37,5 +38,11 @@ export default async function ConnectionsPage({ params, searchParams }: { params
     try { history = await listNotificationHistory(access.workspace.id, historyCursor); }
     catch { historyError = true; }
   }
-  return <ConnectionsHub workspaceSlug={slug} links={links} canManage={canManage} readiness={readiness} resourceError={resourceError} history={history} historyError={historyError} historyCursor={historyCursor}/>;
+  // Both roles receive only file conversations permitted by the existing
+  // getAsset project visibility gate. No email/outbox data enters this feed.
+  let activity: VisibleFileActivity[] = [];
+  let activityError = false;
+  try { activity = await listVisibleFileActivity(access.workspace.id, access.membership.role); }
+  catch { activityError = true; }
+  return <ConnectionsHub workspaceSlug={slug} links={links} canManage={canManage} readiness={readiness} resourceError={resourceError} history={history} historyError={historyError} historyCursor={historyCursor} activity={activity} activityError={activityError}/>;
 }
