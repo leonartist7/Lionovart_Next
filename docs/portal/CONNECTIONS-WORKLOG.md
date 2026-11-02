@@ -82,3 +82,8 @@ Append verified results here.
 - Actual `firebase.json` contains emulator ports but no rules file declaration; `firestore.rules` was absent at repository root. **Deployed Firestore browser rules and preview-vs-production data isolation remain unverified.** No access to customer data, service credentials, OAuth consent, or real providers was assumed.
 - No production merge, email send, live-data mutation, new provider connection, DNS change, or deployment trigger by an API was performed. The new test commit's automatic Vercel preview must be inspected by its own SHA before claiming a new build outcome.
 - **Next checkpoint:** verify automatic deployment for this test SHA; locate authoritative deployed Firestore rules / check preview data isolation through authorized read-only configuration; if inaccessible, advance safe transactional resource edit/share functionality with explicit confirmation and tests. Device/browser validation stays outstanding.
+
+### Exact-commit automatic preview verification
+- Vercel deployment `dpl_3h9a19SJjtM6GVY5aPAcmNSpfh7k` for worklog commit `fea413bb086187e0417b2b890a7e4c709358b310` reported `READY`; its build events included `Build Completed in /vercel/output [44s]` and `Deployment completed`.
+- Review preview: https://lionovartnext-pemmzyqhr-lionovart.vercel.app/portal/demo?view=studio (Client: `?view=client`). Retrieval from the external browsing tool failed, so **interactive browser and protected-preview access remain unverified**. Vercel build/deploy success is not functional acceptance.
+- This evidence-only worklog commit changes no executable code. No duplicate Vercel deployment was requested and production was not touched.
