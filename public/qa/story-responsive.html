@@ -12,7 +12,7 @@
 </style>
 <header>
   <label>Language<select id="locale"><option value="en">English</option><option value="fr">Français</option></select></label>
-  <label>Viewport<select id="size"><option>390x844</option><option>320x568</option><option>360x800</option><option>768x1024</option><option>1023x768</option><option>1024x768</option><option>1025x768</option><option>1280x720</option><option>1440x900</option><option>1920x1080</option><option>844x390</option></select></label>
+  <label>Viewport<select id="size"><option>390x844</option><option>320x568</option><option>360x800</option><option>768x1024</option><option>1023x768</option><option>1024x768</option><option>1025x768</option><option>1280x720</option><option>1440x900</option><option>1920x1080</option><option>2560x1440</option><option>844x390</option></select></label>
   <label>Text size<select id="text"><option value="16">100%</option><option value="20">125%</option><option value="24">150%</option><option value="32">200%</option></select></label>
   <label>Text spacing<select id="spacing"><option value="normal">Default</option><option value="expanded">Expanded</option></select></label>
   <label>Reading stop<select id="chapter"><option value="hero">Hero</option><option value="cards-early">Opening cards — early</option><option value="cards">Opening cards — settled</option><option value="statement">Statement</option><option value="services">Services</option><option value="gallery">Gallery</option><option value="partnership">Partnership</option></select></label>
@@ -25,9 +25,11 @@
   <label>World<select id="row"><option value="0">1</option><option value="1">2</option><option value="2">3</option><option value="3">4</option><option value="4">5</option></select></label>
   <label>Row advance %<input id="advance" type="number" min="0" max="130" value="26" step="1"></label>
   <button id="go-row">Review world</button>
+  <button id="profile-toggle">Start 30s profile</button>
   <p>Review fixture: iframe widths exercise real media queries. Text sizing simulates a root-font preference, not browser zoom or physical touch hardware.</p>
 </header>
 <output id="result" aria-live="polite">Loading review…</output>
+<output id="profile-result" aria-live="polite">Profile idle</output>
 <main><iframe id="site" src="/" title="LIONOVART viewport under review"></iframe></main>
 <script>
   const frame=document.querySelector('#site'), result=document.querySelector('#result');
@@ -107,5 +109,47 @@
     }else{const project=doc.querySelectorAll('[data-static-project]')[row*2];if(project)top=win.scrollY+project.getBoundingClientRect().top-5.25*parseFloat(win.getComputedStyle(doc.documentElement).fontSize)}
     win.scrollTo({top,behavior:'instant'});measure();
   });
+  // Review-only instrumentation: bounded read-only observers, one RAF sampler,
+  // no playback changes, synthetic input, or animation-state overrides.
+  let recording=null;
+  const profileOutput=document.querySelector('#profile-result'),profileButton=document.querySelector('#profile-toggle');
+  function stopProfile(reason='manual') {
+    const current=recording;if(!current)return;recording=null;
+    current.win.cancelAnimationFrame(current.raf);current.observers.forEach(observer=>observer.disconnect());
+    const sorted=current.frames.slice().sort((a,b)=>a-b),percentile=p=>sorted.length?sorted[Math.min(sorted.length-1,Math.floor((sorted.length-1)*p))]:null;
+    const videos=[...current.doc.querySelectorAll('video')];
+    const report={reason,viewport:[current.win.innerWidth,current.win.innerHeight],locale:current.doc.documentElement.lang,
+      durationMs:current.win.performance.now()-current.start,frameSamples:sorted.length,
+      frameMs:{median:percentile(.5),p95:percentile(.95),p99:percentile(.99),max:sorted.at(-1)??null},
+      over33ms:sorted.filter(value=>value>33.4).length,longTasks:current.longTasks,
+      layoutShift:current.shifts.reduce((total,entry)=>total+entry.value,0),layoutShifts:current.shifts,
+      observers:current.supported,hiddenSamples:current.hidden,
+      media:{total:videos.length,playing:videos.filter(video=>!video.paused).length},
+      canvases:current.doc.querySelectorAll('canvas').length};
+    profileOutput.textContent=JSON.stringify(report);profileButton.textContent='Start 30s profile';
+  }
+  profileButton.addEventListener('click',()=>{
+    if(recording){stopProfile();return}
+    const win=frame.contentWindow,doc=frame.contentDocument;
+    const current={win,doc,start:win.performance.now(),last:null,raf:0,frames:[],longTasks:[],shifts:[],observers:[],supported:[],hidden:0};
+    recording=current;profileButton.textContent='Stop profile';profileOutput.textContent='Recording native scrolling for up to 30 seconds…';
+    for(const type of ['longtask','layout-shift']) {
+      if(!win.PerformanceObserver?.supportedEntryTypes.includes(type))continue;
+      const observer=new win.PerformanceObserver(list=>{for(const entry of list.getEntries()){
+        if(type==='longtask')current.longTasks.push({start:entry.startTime,duration:entry.duration});
+        else if(!entry.hadRecentInput)current.shifts.push({start:entry.startTime,value:entry.value});
+      }});observer.observe({type,buffered:false});current.observers.push(observer);current.supported.push(type);
+    }
+    function tick(now){
+      if(recording!==current)return;
+      if(doc.hidden){current.hidden++;current.last=null}
+      else {if(current.last!==null)current.frames.push(now-current.last);current.last=now}
+      if(now-current.start>=30000){stopProfile('30s limit');return}
+      current.raf=win.requestAnimationFrame(tick);
+    }
+    current.raf=win.requestAnimationFrame(tick);
+  });
+  frame.addEventListener('load',()=>stopProfile('route changed'));
+  window.addEventListener('pagehide',()=>stopProfile('review closed'));
 </script>
 </html>
