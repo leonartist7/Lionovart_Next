@@ -8,6 +8,7 @@ const ts = require('typescript');
 const root = path.resolve(__dirname, '../..');
 const source = fs.readFileSync(path.join(root, 'src/components/portal/ConnectionsHub.tsx'), 'utf8');
 const panel = Symbol('ResourceLinksPanel');
+const notificationPanel = Symbol('NotificationHistoryPanel');
 const jsx = (type, props, key) => ({ type, props, key });
 const mocks = {
   'react/jsx-runtime': { jsx, jsxs: jsx },
@@ -15,6 +16,7 @@ const mocks = {
   'lucide-react': new Proxy({}, { get: (_target, key) => String(key) }),
   './CalendarExportButton': { CalendarExportButton: Symbol('CalendarExportButton') },
   './ResourceLinksPanel': { ResourceLinksPanel: panel },
+  './NotificationHistoryPanel': { NotificationHistoryPanel: notificationPanel },
 };
 const compiled = ts.transpileModule(source, { compilerOptions: {
   target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX,
@@ -47,4 +49,20 @@ test('server data changes replace stale local state; equivalent snapshots stay s
   assert.notEqual(key(), key({ links: [] }));
   assert.notEqual(key(), key({ links: [{ ...link, visibility: 'shared' }] }));
   assert.notEqual(key(), key({ links: [{ ...link, label: 'Renamed design' }] }));
+});
+
+function includesComponent(node, target) {
+  if (!node || typeof node !== 'object') return false;
+  if (node.type === target) return true;
+  const children = node.props?.children;
+  return (Array.isArray(children) ? children : [children]).some(child => includesComponent(child, target));
+}
+test('Studio outbox diagnostics never render for client mode, even with injected data', () => {
+  const extra = { history: { entries: [{ recipient: 'private', status: 'failed' }] } };
+  assert.equal(includesComponent(loaded.exports.ConnectionsHub({
+    workspaceSlug: 'alpha', links: [], canManage: false, ...extra,
+  }), notificationPanel), false);
+  assert.equal(includesComponent(loaded.exports.ConnectionsHub({
+    workspaceSlug: 'alpha', links: [], canManage: true, ...extra,
+  }), notificationPanel), true);
 });
