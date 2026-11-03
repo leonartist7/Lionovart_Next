@@ -390,6 +390,7 @@ export default function HomepageServicesChapter() {
               </div>}
 
               <div className="order-0 flex min-w-0 flex-col justify-center text-center">
+                <p data-service-expertise>{locale === 'fr' ? 'Notre expertise' : 'Our expertise'}</p>
                 <div data-service-copy>
                     <h3 className="sr-only">{activeService.title}</h3>
                     <div className={styles.serviceTitleSlot}>
