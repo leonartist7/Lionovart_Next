@@ -172,7 +172,7 @@ export function WorldStageControls({ service, variant, onVariant, labels, enable
     if (next < 0) return;
     e.preventDefault(); onVariant(next); buttons[next]?.focus({ preventScroll: true });
   }}>
-    <p className={styles.hint}>{mediaFirst ? (fr ? 'Imaginons les possibilités.' : 'Imagine the possibilities.') : (fr ? 'Explorez cette expertise' : 'Explore this expertise')}</p>
+    <p className={styles.hint} data-service-expertise>{mediaFirst ? (fr ? 'Notre expertise' : 'Our expertise') : (fr ? 'Explorez cette expertise' : 'Explore this expertise')}</p>
     <div className={styles.tags} data-triptych-tags={mediaFirst} role="group" aria-label={fr ? 'Exemples de services' : 'Service examples'}>
       {mediaFirst && <div className={glass.podium} data-service-podium={scene?.target ? undefined : ''} data-service-podium-anchor aria-hidden="true" style={scene?.target ? { visibility: 'hidden' } : undefined}>
         {serviceExhibits(service).map((exhibit, index) => <ServiceDialLight key={index} index={index} className={glass.reflectedLight}
@@ -190,3 +190,4 @@ export function WorldStageControls({ service, variant, onVariant, labels, enable
     </div>
   </div>;
 }
+

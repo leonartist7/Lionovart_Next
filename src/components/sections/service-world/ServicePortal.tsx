@@ -74,7 +74,12 @@ export default function ServicePortal() {
       node.style.opacity = String(opacity);
       node.style.visibility = opacity > .001 ? 'visible' : 'hidden';
       node.dataset.portalProgress = handoff.progress.toFixed(3);
-      if (fill.current) fill.current.style.opacity = String(1 - handoff.portalOpen);
+      if (fill.current) {
+        const hole = handoff.portalOpen * 72;
+        fill.current.style.maskImage = hole <= 0 ? 'none' : `radial-gradient(circle at 50% 50%,transparent ${hole}%,#000 ${hole + .45}%)`;
+        fill.current.style.opacity = '1';
+        fill.current.dataset.iris = handoff.portalOpen.toFixed(3);
+      }
       if (invitation.current) {
         invitation.current.style.opacity = String(handoff.title);
         invitation.current.style.top = centered ? '48%' : '44%';
@@ -115,3 +120,4 @@ export default function ServicePortal() {
     </header>
   </div></ScenePortal>;
 }
+

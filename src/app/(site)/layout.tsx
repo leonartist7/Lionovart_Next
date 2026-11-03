@@ -14,6 +14,7 @@ import { NovaPortalMount } from "@/components/ai-strategist/NovaPortalMount";
 import CustomCursor from "@/components/ui/CustomCursor";
 import TubesCursor from "@/components/ui/TubesCursor";
 import BottomBlur from "@/components/ui/BottomBlur";
+import SiteGoldDots from "@/components/ui/SiteGoldDots";
 import { IntroProvider } from "@/components/ui/IntroLifecycle";
 import SplashScreen from "@/components/ui/SplashScreen";
 import SiteTitleReveal from "@/components/ui/SiteTitleReveal";
@@ -90,6 +91,7 @@ export default async function RootLayout({
           <SmoothScrollProvider>
             <SplashScreen />
             <SiteTitleReveal />
+            <SiteGoldDots />
             {children}
           </SmoothScrollProvider>
           <NovaPortalMount />

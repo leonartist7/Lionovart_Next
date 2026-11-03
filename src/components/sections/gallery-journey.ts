@@ -14,7 +14,7 @@ export function galleryTravel(progress: number, projectCount: number) {
   const linear = clamp(progress / GALLERY_WALK_END) * (stops + .5);
   // Slow through each reading position, accelerate between projects. The slope
   // stays continuous at every stop, in either direction and under retargeting.
-  return (linear - .82 * Math.sin(linear * Math.PI * 2) / (Math.PI * 2)) * GALLERY_DEPTH_STEP;
+  return (linear - .35 * Math.sin(linear * Math.PI * 2) / (Math.PI * 2)) * GALLERY_DEPTH_STEP;
 }
 export function galleryProgress(top: number, height: number, viewport: number) {
   return clamp(-top / Math.max(1, height - viewport * .85));
@@ -26,8 +26,8 @@ export function galleryCardPose(progress: number, index: number, count: number) 
   const hold = smooth(advance / .26);
   const departure = clamp((advance - .36) / .60);
   const forward = Math.expm1(3.5 * departure) / Math.expm1(3.5);
-  const dissolve = smooth((advance - .40) / .44);
-  const opacity = approach * (1 - smooth((advance - .72) / .12));
+  const dissolve = smooth((advance - .82) / .36);
+  const opacity = approach * (1 - smooth((advance - .99) / .20));
   const z = -350 - 480 * (1 - approach) + 350 * hold + 900 * forward;
   return { advance, z, forward, dissolve, opacity, visible: opacity > .001,
     caption: approach * (1 - smooth((advance - .34) / .18)) };
@@ -51,9 +51,9 @@ export function galleryEnding(progress: number) {
     coreScale: .22 + .78 * approach - .24 * settle,
     title: smooth((progress - .79) / .025),
     markSettle: settle,
-    logo: smooth((progress - .91) / .025),
-    copy: smooth((progress - .915) / .025),
-    links: smooth((progress - .95) / .025),
+    logo: 1,
+    copy: smooth((progress - .805) / .025),
+    links: 0,
     header: departure, dock: departure, navigation: departure,
   };
 }
@@ -86,3 +86,4 @@ export function galleryNavigationEase(velocity: number, distance: number, durati
     return (slope - 2) * p ** 3 + (3 - 2 * slope) * p ** 2 + slope * p;
   };
 }
+

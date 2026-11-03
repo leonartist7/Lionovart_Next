@@ -5,7 +5,7 @@
   isolation: isolate;
   overflow: clip;
   margin-top: -.0625rem;
-  background: var(--site-surface-light, #f2ede3);
+  background: #030407;
   color: var(--footer-ivory);
 }
 .finale {

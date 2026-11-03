@@ -19,7 +19,6 @@ import { useServicesCarouselPreview } from "./ServicesPreview";
 import styles from "./ServicesCarouselPreview.module.css";
 import ServicesWorkNavigation from "./ServicesWorkNavigation";
 
-import { useServiceTitleExperiment } from "@/hooks/useHomepageExperiment";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
 import Image from "next/image";
@@ -67,12 +66,12 @@ const SERVICE_MEDIA = {
 } as const;
 
 const SERVICE_META = [
-  { id: "branding", short: "Brand" },
-  { id: "web", short: "Digital" },
-  { id: "content-studio", short: "Content" },
-  { id: "print", short: "Spaces" },
-  { id: "smart-systems", short: "Systems" },
-  { id: "led", short: "LED" },
+  { id: "branding", short: "Brand", copyIndex: 0 },
+  { id: "content-studio", short: "Content", copyIndex: 2 },
+  { id: "web", short: "Digital", copyIndex: 1 },
+  { id: "smart-systems", short: "Systems", copyIndex: 4 },
+  { id: "led", short: "LED", copyIndex: 5 },
+  { id: "print", short: "Spaces", copyIndex: 3 },
 ] as const;
 const SERVICE_COUNT = SERVICE_META.length;
 
@@ -147,7 +146,6 @@ function ServiceMediaCarousel({
 }
 
 export default function HomepageServicesChapter() {
-  const [titleStyle, cycleTitleStyle] = useServiceTitleExperiment();
   const lenis = useLenis();
   const tr = usePublicCopy();
   const carouselPreview = useServicesCarouselPreview();
@@ -200,12 +198,12 @@ export default function HomepageServicesChapter() {
     else selection.current?.request(index);
   }, []);
 
-  const services = SERVICE_META.map((meta, index) => ({
+  const services = SERVICE_META.map((meta) => ({
     ...meta,
-    title: t.services.items[index]?.title ?? "",
-    description: t.services.items[index]?.description ?? "",
+    title: t.services.items[meta.copyIndex]?.title ?? "",
+    description: t.services.items[meta.copyIndex]?.description ?? "",
     deliverables:
-      (t.services.items[index]?.deliverables as readonly string[] | undefined) ?? [],
+      (t.services.items[meta.copyIndex]?.deliverables as readonly string[] | undefined) ?? [],
     media: SERVICE_MEDIA[meta.id],
   }));
 
@@ -391,20 +389,17 @@ export default function HomepageServicesChapter() {
                 </div>}
               </div>}
 
-              <div className="order-2 flex min-w-0 flex-col justify-center text-center">
-                <h2 data-service-expertise>{tr('Our expertise')}</h2>
+              <div className="order-0 flex min-w-0 flex-col justify-center text-center">
                 <div data-service-copy>
                     <h3 className="sr-only">{activeService.title}</h3>
                     <div className={styles.serviceTitleSlot}>
                       <div className={styles.serviceTitleLayers} aria-hidden="true">
                       <AnimatePresence initial={false}>
-                        <motion.h3 key={activeService.id} data-service-title data-title-style={titleStyle} className={styles.serviceTitle} style={{ fontWeight: titleStyle ? 700 : 400, textTransform: titleStyle === 2 ? 'uppercase' : 'none' }}
+                        <motion.h3 key={activeService.id} data-service-title className={styles.serviceTitle} style={{ fontWeight: 700, textTransform: 'uppercase' }}
                           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                           transition={{ duration: reduceMotion ? .12 : .8, ease: [.22, 1, .36, 1] }}>{activeService.title}</motion.h3>
                       </AnimatePresence>
                       </div>
-                      <button type="button" className={styles.serviceTitleSwitch} onClick={cycleTitleStyle}
-                        aria-label={locale === 'fr' ? `Style du titre : ${['normal', 'gras', 'gras en majuscules'][titleStyle]}. Changer de style.` : locale === 'es' ? `Estilo del título: ${['normal', 'negrita', 'negrita en mayúsculas'][titleStyle]}. Cambiar estilo.` : `Heading style: ${['regular', 'bold', 'bold capitals'][titleStyle]}. Cycle heading style.`} />
                     </div>
                     <div data-service-description-slot>
                       <AnimatePresence initial={false} mode="sync">
@@ -444,3 +439,4 @@ export default function HomepageServicesChapter() {
     </section>
   );
 }
+

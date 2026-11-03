@@ -3,30 +3,34 @@ const smooth = (value: number) => { const p = clamp(value); return p * p * (3 - 
 /** One reversible story: conviction, signature, expertise. No timer owns a beat. */
 export function cardHandoff(top: number, height: number, viewport: number) {
   const progress = clamp((viewport - top) / Math.max(1, height + viewport));
-  const statement = 1 - smooth((progress - .46) / .08);
+  const statement = 1 - smooth((progress - .53) / .055);
   // Keep the printed card faces intact until the signature has been read.
-  const gather = smooth((progress - .52) / .14);
-  const reshape = smooth((progress - .70) / .10);
-  const spread = smooth((progress - .85) / .11);
-  const reveal = smooth((progress - .80) / .05);
+  const gather = smooth((progress - .585) / .11);
+  const reshape = smooth((progress - .695) / .055);
+  const spread = smooth((progress - .845) / .12);
+  const reveal = smooth((progress - .83) / .09);
   return {
     progress,
     gather, reshape, spread,
-    benefit: 1 - smooth((progress - .62) / .08),
+    white: smooth((progress - .585) / .105),
+    assembly: smooth((progress - .64) / .11),
+    wordmark: smooth((progress - .69) / .06) * (1 - smooth((progress - .815) / .055)),
+    benefit: 1 - smooth((progress - .575) / .055),
     lead: smooth(progress / .08) * statement,
     main: smooth((progress - .08) / .10) * statement,
     necessity: smooth((progress - .18) / .10) * statement,
     copy: smooth(progress / .08) * statement,
-    brand: smooth((progress - .48) / .10) * (1 - smooth((progress - .68) / .08)),
-    expertise: smooth((progress - .86) / .06),
+    brand: 0,
+    expertise: smooth((progress - .905) / .045),
     serviceReveal: reveal,
-    serviceCopy: smooth((progress - .94) / .06),
+    serviceCopy: smooth((progress - .95) / .05),
     serviceSides: spread,
     focus: smooth((progress - .12) / .18),
-    sculpture: 1 - smooth((progress - .12) / .18),
-    pointer: 1 - smooth((progress - .46) / .06),
+    sculpture: 1 - smooth((progress - .53) / .055),
+    pointer: 1 - smooth((progress - .53) / .055),
     intro: 1,
-    light: smooth((progress - .54) / .38),
+    light: smooth((progress - .62) / .30),
     proof: 1 - smooth(progress / .05),
   };
 }
+

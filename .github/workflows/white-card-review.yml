@@ -1,0 +1,35 @@
+name: White card homepage review
+on:
+  push:
+    branches: [review/white-card-to-portfolio]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: white-card-review
+  cancel-in-progress: true
+jobs:
+  browser-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Motion regression checks
+        run: node --experimental-strip-types --test scripts/white-card-story.test.mjs scripts/card-bridge.test.mjs scripts/service-selection.test.mjs scripts/opening-layout.test.mjs scripts/service-gallery-handoff.test.mjs
+      - name: Install browser tools in cloud runner
+        run: |
+          npm install --prefix /tmp/story-qa --no-package-lock playwright@1.56.1
+          /tmp/story-qa/node_modules/.bin/playwright install --with-deps chromium
+      - name: Verify deployed homepage and capture continuous motion
+        env:
+          STORY_PREVIEW: https://lionovartnext-git-review-white-card-to-portfolio-lionovart.vercel.app
+        run: node scripts/verify-white-card-preview.mjs
+      - name: Upload review evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: white-card-homepage-evidence
+          path: verification-output/white-card/

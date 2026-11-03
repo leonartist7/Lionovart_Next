@@ -16,7 +16,7 @@ import { galleryLayout, galleryRingDiameter, galleryRingCenterOffset, galleryFoc
 import { doorwayTitleOpacity, serviceGalleryHandoff } from './service-gallery-handoff';
 import { galleryCardPose, galleryRingPose, galleryEnding, galleryProjectProgress, galleryProgress, galleryTravel, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
 import styles from './GalleryWalkthrough.module.css';
-import PartnershipMark, { PartnershipResultsButton } from './PartnershipMark';
+import PartnershipMark from './PartnershipMark';
 import { partnershipDiscLayout, partnershipLayout } from './partnership-layout';
 
 function WorkTags({ work }: { work: GalleryWork }) {
@@ -89,7 +89,9 @@ function GalleryRing({ index, count, progress, entry }: { index: number; count: 
   const transform = useTransform(progress, p => `translate(-50%,-50%) translateZ(${galleryRingPose(p, index, count).z}px)`);
   const opacity = useTransform(() => galleryRingPose(progress.get(), index, count).opacity * entry.get());
   const visibility = useTransform(progress, p => galleryRingPose(p, index, count).visible ? 'visible' : 'hidden');
-  return <motion.div className={styles.portalRing} data-gallery-ring={index} data-final={index === count - 1} aria-hidden="true" style={{ transform, opacity, visibility }} />;
+  return <motion.div className={styles.portalRing} data-gallery-ring={index} data-final={index === count - 1} aria-hidden="true" style={{ transform, opacity, visibility }}>
+    {index === count - 1 && <img src="/images/lionovart-icon.svg" className={styles.finalRingLogo} alt="" width={160} height={160} />}
+  </motion.div>;
 }
 
 /** Scroll moves the exhibits through one stationary viewport, then reveals the studio mark. */
@@ -124,15 +126,14 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const copyOpacity = useTransform(progress, p => galleryEnding(p).copy);
   const copyTransform = useTransform(progress, p => `translateY(${(1 - galleryEnding(p).copy) * 16}px)`);
   const [finaleVisible, setFinaleVisible] = useState(false), [logoReady, setLogoReady] = useState(false);
-  const linkOpacity = useTransform(progress, p => galleryEnding(p).links);
   const navOpacity = useTransform(() => galleryEnding(progress.get()).navigation * entry.get());
   useMotionValueEvent(progress, 'change', p => {
     const nextProject = Math.min(projectCount - 1, Math.max(0, Math.floor(galleryTravel(p, projectCount) / GALLERY_DEPTH_STEP + .18)));
     if (currentProject.current !== nextProject || galleryEnding(p).copy > .05) { currentProject.current = nextProject; setSelectedSlug(null); }
     setProjectIndex(nextProject);
-    setEnding(galleryEnding(p).links > .7);
+    setEnding(galleryEnding(p).core > .7);
     setFinaleVisible(galleryEnding(p).title > .5);
-    setLogoReady(galleryEnding(p).logo > .7);
+    setLogoReady(galleryEnding(p).core > .5);
     setWalking(galleryEnding(p).navigation > .1);
   });
   useEffect(() => {
@@ -331,7 +332,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
         {pinned && <motion.div className={styles.redCore} data-gallery-red-core style={{ opacity: coreOpacity, transform: coreTransform }}>
           <motion.h2 className={styles.discTitle} data-partnership-disc-title aria-hidden={!finaleVisible} style={{ opacity: headlineOpacity, transform: headlineTransform }}>{tr('One partnership')}</motion.h2>
           <motion.div className={styles.discLogo} data-gallery-logo style={{ opacity: logoOpacity, pointerEvents: logoReady ? 'auto' : 'none' }}>
-            <PartnershipMark tone="light" emblemOnly active={active && logoReady} ready={logoReady} />
+            <img src="/images/lionovart-icon.svg" className={styles.realLogo} alt="LIONOVART" width={160} height={160} />
           </motion.div>
         </motion.div>}
         {pinned ? <div className={styles.corridor} data-gallery-corridor>
@@ -346,14 +347,10 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
             <span className={styles.projectCaption}><WorkTags work={work} /></span>
           </button>)}
         </div>}
-        {!pinned && <div className={styles.staticMark} data-partnership-static-mark><PartnershipMark active={active} ready /></div>}
+        {!pinned && <div className={styles.staticMark} data-partnership-static-mark><PartnershipMark emblemOnly active={active} ready /></div>}
         <motion.div className={styles.ending} data-gallery-ending aria-hidden={pinned && !logoReady} style={{ opacity: pinned ? copyOpacity : 1, transform: pinned ? copyTransform : 'none' }}>
           {!pinned && <h2>{tr('One partnership')}</h2>}
           <p>{tr('Designing your legacy')}</p>
-        </motion.div>
-        <motion.div className={styles.partnershipAction} data-partnership-action style={{ opacity: pinned ? linkOpacity : 1 }}
-          inert={pinned && !ending} aria-hidden={pinned && !ending}>
-          <PartnershipResultsButton active={active && (!pinned || ending)} onClick={continueToResults} />
         </motion.div>
         {previewError && <motion.p className={styles.previewError} style={{ opacity: pinned ? navOpacity : 1 }} aria-hidden={pinned && !walking} role="status">{fr ? 'Aperçu indisponible. Réessayez.' : 'Preview unavailable. Please try again.'}</motion.p>}
         {pinned && <motion.nav className={styles.navigation} data-gallery-navigation aria-busy={requested !== null} style={{ opacity: navOpacity }} aria-label={fr ? 'Parcourir les projets' : 'Browse the gallery'} inert={!walking} aria-hidden={!walking}>
@@ -365,3 +362,4 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     </div>
   </section>;
 }
+

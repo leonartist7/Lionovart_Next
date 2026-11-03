@@ -23,7 +23,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     let sources: { node:HTMLElement; base:BridgeFrame }[] = [];
     const rect = (node:Element):CardRect => { const r=node.getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2,width:r.width,height:r.height}; };
     const clear = (pane:HTMLElement) => {
-      for(const key of ['x','y','scale','depth','material','benefit','object']) pane.style.removeProperty(`--handoff-${key}`);
+      for(const key of ['x','y','scale','depth','material','benefit','object','white','identity','assembly']) pane.style.removeProperty(`--handoff-${key}`);
       pane.style.removeProperty('z-index');
       const face=pane.querySelector<HTMLElement>('[data-handoff-surface] > div');
       if(face)face.inert=false;
@@ -36,6 +36,8 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       const gallery = world?.querySelector('[data-gallery-runway]')?.getBoundingClientRect();
       const remaining = gallery ? serviceGalleryHandoff(gallery.top,innerHeight).services : 1;
       node.style.opacity = isStatic ? '1' : String(remaining);
+      // Once the doorway owns the scene, retire card measurement and writes.
+      if (!isStatic && remaining <= .001) { node.inert = true; return; }
       node.dataset.cardHandoffActive = String(!isStatic && pose.progress > .46);
       node.style.removeProperty('--handoff-scale'); node.style.removeProperty('--handoff-y');
       const services = world?.querySelector<HTMLElement>('[data-services-stage]');
@@ -72,10 +74,14 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           pane.style.setProperty('--handoff-y',`${fitted.y}px`);
           pane.style.setProperty('--handoff-scale',`${fitted.sx} ${fitted.sy}`);
           pane.style.setProperty('--handoff-depth',String(1+(target.opacity-1)*pose.spread));
-          pane.style.setProperty('--handoff-material',String(1-pose.serviceReveal));
+          pane.style.setProperty('--handoff-material',String((1-pose.serviceReveal) * (index===2 ? 1 : 1-pose.assembly)));
+          pane.style.setProperty('--handoff-white',String(pose.white));
+          pane.style.setProperty('--handoff-assembly',String(pose.assembly));
+          pane.style.setProperty('--handoff-identity',String(1-pose.serviceReveal));
+          pane.style.setProperty('--identity-size',`${Math.min(50,desired.width*.11)/Math.max(.01,base.parentY*fitted.sy)}px`);
           pane.style.setProperty('--handoff-benefit',String(pose.benefit));
           pane.style.setProperty('--handoff-object',String(1-pose.gather));
-          pane.style.zIndex=String(pose.reshape>.5?(target.selected?3:1):(index===1?3:1));
+          pane.style.zIndex=String(pose.spread>.01?(target.selected?3:index+1):(3-index));
           const face=pane.querySelector<HTMLElement>('[data-handoff-surface] > div');
           if(face)face.inert=pose.benefit<.1;
           const slot=pane.querySelector<HTMLElement>('[data-persistent-service-slot]');
@@ -141,8 +147,8 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         <h2><span data-brand-beat="main">{locale === 'fr' ? 'l’innovation n’est pas une option.' : 'innovation isn’t optional.'}</span>
           <span data-brand-beat="necessity" className={styles.necessity}>{locale === 'fr' ? 'C’est une nécessité.' : 'It’s a necessity.'}</span></h2>
       </div>
-      <p data-brand-beat="brand" className={styles.brandSignature}>LIONOVART</p>
     </div></ScenePortal>
     <div ref={exit} className={styles.cardExit} data-card-exit aria-hidden="true" />
   </div>;
 }
+

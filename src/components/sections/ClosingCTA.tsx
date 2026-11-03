@@ -78,7 +78,6 @@ function CompactClosing({ words, onStart, ringRef, chapterInJourney }: { words: 
       }}
       onPointerLeave={() => dotsRef.current?.removeAttribute("data-lit")}
     >
-      <div ref={dotsRef} className={styles.dots} aria-hidden="true" />
       <div ref={ringRef} className={styles.copy} data-closing-copy>
         {!chapterInJourney && <p className={`${styles.accent} ${locale === "ja" || locale === "ko" ? "font-body" : "editorial-accent"}`}>
           {tr("Your next chapter, together")}
@@ -209,3 +208,4 @@ export default function ClosingCTA({ crest = false, workShowcase = false, ringRe
     </section>
   );
 }
+

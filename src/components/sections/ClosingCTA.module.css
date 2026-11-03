@@ -1,5 +1,5 @@
 .section {
-  --diameter:min(112vw, 96svh, 72rem);
+  --diameter:min(88vw, 78svh, 60rem);
   --closing-heading:clamp(1.65rem,calc(var(--diameter) * .105),5.5rem);
   --closing-word:clamp(1.5rem,calc(var(--diameter) * .10),5.25rem);
   --closing-art:calc(var(--diameter) * .19);
@@ -72,6 +72,8 @@
 
 .accent { margin:0 0 .6rem; font-size:clamp(1rem,calc(var(--diameter) * .042),1.75rem); color:#f0c9bc; }
 .stage { margin-top:clamp(1.5rem, 4svh, 3rem); }
+.section { min-height:100svh; background:#030407; }
+@media(max-width:767px) { .section { --diameter:min(88vw,78svh); --closing-heading:clamp(1.15rem,calc(var(--diameter) * .09),2.3rem); --closing-word:clamp(1.25rem,calc(var(--diameter) * .10),2.5rem); --closing-art:calc(var(--diameter) * .16); --liquid-button-width:min(11rem,54vw); --liquid-button-height:2.75rem; } .stage { margin-top:1.25rem; } .accent { font-size:clamp(.875rem,3.5vw,1.15rem); } }
 .stage,.action { position:relative; display:grid; place-items:center; }
 .action button:focus-visible { outline:2px solid #ffe2cf; outline-offset:5px; }
 
@@ -95,3 +97,4 @@
 .glass :focus-visible { outline:2px solid #e8c79c; outline-offset:2px; }
 .dismiss { position:absolute;right:.55rem;top:.45rem;width:2.75rem;height:2.75rem;font-size:1.5rem; }
 .talk { margin-top:.3rem; border:1px solid #ffab9788; border-radius:2rem; padding:.85rem; background:linear-gradient(#c21829,#7b0a18); color:white;font-weight:600; }
+
