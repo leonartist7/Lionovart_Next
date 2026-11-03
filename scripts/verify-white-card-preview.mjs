@@ -6,7 +6,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261103-r5';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261103-r6';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -78,17 +78,6 @@ try {
    for(const p of [.05,.15,.27,.42,.6,.73,.84,.91]){await scroll(gallery.top+p*(gallery.height-h*.85));await page.screenshot({path:`${output}/${prefix}-gallery-${Math.round(p*100)}.png`});}
    const about=await page.locator('[data-about-runway]').evaluate(el=>scrollY+el.getBoundingClientRect().top);
    for(const p of [.2,.5,1,.5,.2]){await scroll(about-h*(1-p));await page.screenshot({path:`${output}/${prefix}-about-${Math.round(p*100)}.png`});}
-   /* Comparable performance samples run separately without video below.
-   galleryTiming=await page.evaluate(async({from,to})=>{
-     const deltas=[];let previous=performance.now();
-     for(const reverse of [false,true])for(let i=0;i<=160;i++){
-       await new Promise(requestAnimationFrame);
-       const now=performance.now();deltas.push(now-previous);previous=now;
-       const p=reverse?1-i/160:i/160;window.scrollTo({top:from+(to-from)*p,behavior:'instant'});
-     }
-     const sorted=deltas.slice(5).sort((a,b)=>a-b);
-     return {frames:sorted.length,medianMs:sorted[Math.floor(sorted.length*.5)],p95Ms:sorted[Math.floor(sorted.length*.95)]};
-   },{from:gallery.top-h*1.1,to:about+h*.2}); */
   }
   assert.equal(await page.locator('[data-process-step]').count(),4);
   assert.equal(await page.locator('[data-process-journey] canvas,[data-process-journey] img[src*="lion-poster"]').count(),0,'Process does not mount lion rendering or fallback');

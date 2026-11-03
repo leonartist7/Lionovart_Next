@@ -100,4 +100,5 @@
 
 
 /* Large text may ask for more natural page height; never clip the action. */
-.copy { min-height:min-content; }
+.copy { aspect-ratio:auto; min-height:var(--diameter); padding-block:calc(var(--diameter) * .22); }
+.copy > * { flex-shrink:0; }
