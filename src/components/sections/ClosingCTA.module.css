@@ -20,10 +20,25 @@
   color:#fff;
   text-align:center;
 }
-.section::before {
-  content:""; position:absolute; inset:0; pointer-events:none;
-  background:radial-gradient(circle,#d8b8b655 .7px,transparent 1px) center / 12px 12px;
-  mask-image:radial-gradient(ellipse closest-side,#000,transparent);
+.dots {
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:var(--cta-copy-opacity, 1);
+  background:radial-gradient(circle, rgb(220 202 200 / 25%) .8px, transparent 1.15px) center / 12px 12px;
+  mask-image:radial-gradient(ellipse at center, black 20%, rgb(0 0 0 / 65%) 100%);
+}
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference) {
+  .dots::after {
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle, rgb(255 210 202 / 56%) .8px, transparent 1.15px) center / 12px 12px;
+    mask-image:radial-gradient(circle 9rem at var(--dot-x, 50%) var(--dot-y, 50%), black, transparent);
+    opacity:0;
+    transition:opacity 220ms ease-out;
+  }
+  .dots[data-lit]::after { opacity:1; }
 }
 .copy {
   position:relative; width:var(--diameter); aspect-ratio:1; border-radius:50%;

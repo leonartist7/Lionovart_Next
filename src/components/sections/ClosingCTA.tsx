@@ -50,6 +50,7 @@ function CompactClosing({ words, onStart, ringRef, chapterInJourney }: { words: 
   const tr = usePublicCopy();
   const { t, locale } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
+  const dotsRef = useRef<HTMLDivElement>(null);
   const inView = useInView(sectionRef);
   const reducedMotion = useHydratedReducedMotion();
   const hidden = useSyncExternalStore(subscribeVisibility, getHidden, getServerHidden);
@@ -64,7 +65,18 @@ function CompactClosing({ words, onStart, ringRef, chapterInJourney }: { words: 
   const paused = reducedMotion || saveData || hidden || !inView || !revealed;
 
   return (
-    <section id="closing-cta" ref={sectionRef} className={styles.section} data-art-directed="dark" data-scroll-title-skip>
+    <section id="closing-cta" ref={sectionRef} className={styles.section} data-art-directed="dark" data-scroll-title-skip
+      onPointerMove={event => {
+        const dots = dotsRef.current;
+        if (!dots || event.pointerType !== "mouse" || reducedMotion) return;
+        const bounds = dots.getBoundingClientRect();
+        dots.style.setProperty("--dot-x", `${(event.clientX - bounds.left) / bounds.width * 100}%`);
+        dots.style.setProperty("--dot-y", `${(event.clientY - bounds.top) / bounds.height * 100}%`);
+        dots.toggleAttribute("data-lit", true);
+      }}
+      onPointerLeave={() => dotsRef.current?.removeAttribute("data-lit")}
+    >
+      <div ref={dotsRef} className={styles.dots} aria-hidden="true" />
       <div ref={ringRef} className={styles.copy} data-closing-copy>
         {!chapterInJourney && <p className={`${styles.accent} ${locale === "ja" || locale === "ko" ? "font-body" : "editorial-accent"}`}>
           {tr("Your next chapter, together")}
