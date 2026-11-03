@@ -124,7 +124,10 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const headlineTransform = useTransform(progress, p => `translate(-50%,-50%) translateY(calc(var(--partnership-disc-size) * ${galleryEnding(p).markSettle * .14}))`);
   const logoOpacity = useTransform(progress, p => galleryEnding(p).logo);
   const copyOpacity = useTransform(progress, p => galleryEnding(p).copy);
-  const copyTransform = useTransform(progress, p => `translateY(${(1 - galleryEnding(p).copy) * 16}px)`);
+  const copyTransform = useTransform(progress, p => {
+    const ending = galleryEnding(p);
+    return `translateY(calc((48svh - var(--partnership-disc-center)) * ${1-ending.markSettle} + var(--partnership-disc-size) * ${(ending.coreScale-.76)/2} + ${(1-ending.copy)*16}px))`;
+  });
   const [finaleVisible, setFinaleVisible] = useState(false), [logoReady, setLogoReady] = useState(false);
   const navOpacity = useTransform(() => galleryEnding(progress.get()).navigation * entry.get());
   useMotionValueEvent(progress, 'change', p => {

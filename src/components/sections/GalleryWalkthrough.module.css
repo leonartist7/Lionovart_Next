@@ -94,8 +94,8 @@
 .portalRing { position:absolute; left:50%; top:48%; width:var(--gallery-ring-size); aspect-ratio:1; border-radius:50%; border:1px solid #ac9478; box-shadow:inset 0 0 0 6px #fffdf535,inset 0 0 0 7px #8b7b6118,0 0 0 1px #9e8c7324; pointer-events:none; }
 .portalRing[data-final=true] { border-color:#f51b2c; box-shadow:inset 0 0 0 5px #f51b2c16,0 0 0 1px #f51b2c55; }
 .portalRing[data-final=true] { background:#f51b2c; }
-.finalRingLogo { position:absolute; width:22%; height:auto; top:18%; left:39%; filter:brightness(0) invert(1); }
-.realLogo { width:100%; height:100%; object-fit:contain; filter:brightness(0) invert(1); }
+.finalRingLogo { position:absolute; width:22%; height:auto; top:18%; left:39%; }
+.realLogo { width:100%; height:100%; object-fit:contain; }
 .redCore { position:absolute; z-index:2; left:50%; top:48%; width:var(--partnership-disc-size,min(80vw,66svh)); aspect-ratio:1; container-type:inline-size; border-radius:50%; background:#f51b2c; color:#fffaf3; pointer-events:none; }
 .discTitle { position:absolute; left:50%; top:50%; width:84%; margin:0; text-align:center; font:400 clamp(2rem,12cqw,4rem)/1.04 var(--font-clash-display),sans-serif; letter-spacing:-.045em; }
 .discLogo { position:absolute; left:50%; top:29%; width:24%; aspect-ratio:1; transform:translate(-50%,-50%); }
