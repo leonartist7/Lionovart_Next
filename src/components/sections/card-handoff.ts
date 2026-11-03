@@ -1,17 +1,28 @@
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 const smooth = (value: number) => { const p = clamp(value); return p * p * (3 - 2 * p); };
+/** Named intervals share one native scroll coordinate in both directions. */
+export const CARD_POSES = {
+  read: [0.28, 0.53],
+  gather: [0.585, 0.695],
+  resolve: [0.695, 0.77],
+  hold: [0.77, 0.815],
+  services: [0.845, 0.965],
+} as const;
+const interval = (p: number, [start, end]: readonly [number, number]) => smooth((p - start) / (end - start));
 /** One reversible story: conviction, signature, expertise. No timer owns a beat. */
 export function cardHandoff(top: number, height: number, viewport: number) {
   const progress = clamp((viewport - top) / Math.max(1, height + viewport));
   const statement = 1 - smooth((progress - .53) / .055);
   // Keep the printed card faces intact until the signature has been read.
-  const gather = smooth((progress - .585) / .11);
-  const reshape = smooth((progress - .695) / .075);
-  const spread = smooth((progress - .845) / .12);
+  const gather = interval(progress, CARD_POSES.gather);
+  const reshape = interval(progress, CARD_POSES.resolve);
+  const spread = interval(progress, CARD_POSES.services);
   const reveal = smooth((progress - .83) / .09);
   return {
     progress,
     gather, reshape, spread,
+    corner: smooth((progress - .53) / .09),
+    identity: smooth((progress - .53) / .055) * (1 - reveal),
     white: smooth((progress - .585) / .105),
     assembly: smooth((progress - .64) / .11),
     wordmark: smooth((progress - .69) / .06) * (1 - smooth((progress - .815) / .055)),

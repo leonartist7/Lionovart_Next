@@ -118,3 +118,15 @@
   .identityLettering { top:calc(68% - 18% * var(--handoff-assembly,0)); font-size:var(--identity-size,clamp(1.125rem,4.5vw,1.75rem)); }
 }
 
+
+/* The original printed artwork arrives inside its own masked corner before white. */
+.integratedFace { opacity:1; }
+.integratedFace :global([data-integrated=true] > div:first-child) {
+  transform-origin:0 0;
+  transform:translate3d(var(--handoff-art-x,0px),var(--handoff-art-y,0px),0) scale(var(--handoff-art-scale,1));
+  border-radius:.5rem;
+}
+.integratedFace :global([data-integrated=true] > div:not(:first-child)),
+.integratedFace :global([data-integrated=true] > button) { opacity:var(--handoff-benefit,1); }
+.identityLettering { left:calc(12% + 38% * var(--handoff-assembly,0)); top:calc(80% - 30% * var(--handoff-assembly,0)); }
+@media(width < 920px) { .identityLettering { top:calc(70% - 20% * var(--handoff-assembly,0)); } }

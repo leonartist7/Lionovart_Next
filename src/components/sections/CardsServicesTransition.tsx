@@ -20,10 +20,10 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     const world = node.closest('[data-service-world]');
     const media = matchMedia(STORY_STATIC_QUERY);
     let frame = 0, dirty = true;
-    let sources: { node:HTMLElement; base:BridgeFrame }[] = [];
+    let sources: { node:HTMLElement; base:BridgeFrame; art: { x:number; y:number; scale:number } }[] = [];
     const rect = (node:Element):CardRect => { const r=node.getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2,width:r.width,height:r.height}; };
     const clear = (pane:HTMLElement) => {
-      for(const key of ['x','y','scale','depth','material','benefit','object','white','identity','assembly']) pane.style.removeProperty(`--handoff-${key}`);
+      for(const key of ['x','y','scale','depth','material','benefit','object','white','identity','assembly','corner','art-x','art-y','art-scale']) pane.style.removeProperty(`--handoff-${key}`);
       pane.style.removeProperty('z-index');
       for(const key of ['size','scale-x','offset-x']) pane.style.removeProperty(`--identity-${key}`);
       const face=pane.querySelector<HTMLElement>('[data-handoff-surface] > div');
@@ -55,7 +55,14 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           panes.forEach(clear);
           sources = panes.map(pane => {
             const r=rect(pane), matrix=new DOMMatrixReadOnly(getComputedStyle(pane).transform);
-            return {node:pane,base:{...r,parentX:r.width/Math.max(1,pane.offsetWidth),parentY:r.height/Math.max(1,pane.offsetHeight),motionX:matrix.m41,motionY:matrix.m42}};
+            const artwork=pane.querySelector<HTMLElement>('[data-integrated=true] > div');
+            const a=artwork?.getBoundingClientRect();
+            const parentX=r.width/Math.max(1,pane.offsetWidth), parentY=r.height/Math.max(1,pane.offsetHeight);
+            const cornerSize=Math.min(r.width*.30,r.height*.30,96);
+            const artScale=a ? Math.min(cornerSize/Math.max(1,a.width),cornerSize/Math.max(1,a.height)) : 1;
+            return {node:pane,base:{...r,parentX,parentY,motionX:matrix.m41,motionY:matrix.m42},
+              art:a ? {x:(r.x+r.width/2-(a.width*artScale)-12-a.x)/parentX,y:(r.y-r.height/2+12-a.y)/parentY,
+                scale:artScale} : {x:0,y:0,scale:1}};
           });
           if(sources.some(({base})=>base.width<=1||base.height<=1)) return;
           dirty = false;
@@ -67,7 +74,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           opacity:Number(getComputedStyle(target).opacity), selected:target.dataset.position==='center',
         }));
         const center = destination.find(target=>target.selected) ?? destination[1];
-        sources.forEach(({node:pane,base},index)=>{
+        sources.forEach(({node:pane,base,art},index)=>{
           const target=destination[index];
           const heldCenter={...center.rect,x:innerWidth/2,y:innerHeight*.48};
           const desired=cardTransportRect(base,sources[1].base,target.rect,heldCenter,index,target.selected,pose);
@@ -78,8 +85,12 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           pane.style.setProperty('--handoff-depth',String(1+(target.opacity-1)*pose.spread));
           pane.style.setProperty('--handoff-material',String((1-pose.serviceReveal) * (index===2 ? 1 : 1-pose.assembly)));
           pane.style.setProperty('--handoff-white',String(pose.white));
+          pane.style.setProperty('--handoff-corner',String(pose.corner));
+          pane.style.setProperty('--handoff-art-x',`${art.x*pose.corner}px`);
+          pane.style.setProperty('--handoff-art-y',`${art.y*pose.corner}px`);
+          pane.style.setProperty('--handoff-art-scale',String(1+(art.scale-1)*pose.corner));
           pane.style.setProperty('--handoff-assembly',String(pose.assembly));
-          pane.style.setProperty('--handoff-identity',String(1-pose.serviceReveal));
+          pane.style.setProperty('--handoff-identity',String(pose.identity));
           const identitySize = Math.min(50,desired.width*.11);
           const identityX = Math.max(.01,base.parentX*fitted.sx), identityY = Math.max(.01,base.parentY*fitted.sy);
           pane.style.setProperty('--identity-size',`${identitySize/identityY}px`);
