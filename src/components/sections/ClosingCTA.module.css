@@ -22,7 +22,7 @@
 }
 .section::before {
   content:""; position:absolute; inset:0; pointer-events:none;
-  background:radial-gradient(circle,#aec5ea55 .7px,transparent 1px) center / 12px 12px;
+  background:radial-gradient(circle,#d8b8b655 .7px,transparent 1px) center / 12px 12px;
   mask-image:radial-gradient(ellipse closest-side,#000,transparent);
 }
 .copy {
@@ -38,19 +38,19 @@
   border-radius:inherit;
   /* Radial bands model the polished lip and the hollow of the bevel. */
   background:
-    radial-gradient(closest-side,transparent 84.5%,#01061c88 86%,transparent 90%,#939fcb14 96%,#ecf6ff94 99.3%,transparent),
-    conic-gradient(from -50deg,#9bdfff,#efffff 8deg,#93bcf3 20deg,#294275 47deg,#080e20 82deg,#071126 131deg,#12357c 173deg,#3276ee 207deg,#245ddd 230deg,#152f82 266deg,#132955 298deg,#3a78cd 333deg,#9bdfff);
+    radial-gradient(closest-side,transparent 84.5%,#20030788 86%,transparent 90%,#d8939614 96%,#fff1e994 99.3%,transparent),
+    conic-gradient(from -50deg,#ff9a86,#fff0e5 8deg,#f77c70 20deg,#79232d 47deg,#21060a 82deg,#28070d 131deg,#821020 173deg,#ff3941 207deg,#e5192a 230deg,#941424 266deg,#63101b 298deg,#db3a42 333deg,#ff9a86);
   mask-image:radial-gradient(closest-side,transparent 84%,black 84.7% 99.5%,transparent);
 }
 .copy::after {
   content:"";
   position:absolute;
   inset:-12%;
-  background:radial-gradient(ellipse 12% 7% at 21% 22%,#c7edff6e, #518dfd38 43%,transparent),
-             radial-gradient(ellipse 22% 15% at 23% 21%,#3182ff35,transparent);
+  background:radial-gradient(ellipse 12% 7% at 21% 22%,#ffd5be6e, #ff504238 43%,transparent),
+             radial-gradient(ellipse 22% 15% at 23% 21%,#fb253535,transparent);
   pointer-events:none;
 }
 
-.accent { margin:0 0 .6rem; font-size:clamp(.875rem,2vw,1.2rem); color:#bbd5ff; }
+.accent { margin:0 0 .6rem; font-size:clamp(.875rem,2vw,1.2rem); color:#f0c9bc; }
 .stage,.action { position:relative; display:grid; place-items:center; }
-.action button:focus-visible { outline:2px solid #c7edff; outline-offset:5px; }
+.action button:focus-visible { outline:2px solid #ffe2cf; outline-offset:5px; }
