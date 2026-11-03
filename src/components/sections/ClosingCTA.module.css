@@ -1,5 +1,5 @@
 .section {
-  --diameter:min(96vw, 77svh, 53rem);
+  --diameter:min(112vw, 96svh, 72rem);
   --closing-heading:clamp(1.65rem,calc(var(--diameter) * .105),5.5rem);
   --closing-word:clamp(1.5rem,calc(var(--diameter) * .10),5.25rem);
   --closing-art:calc(var(--diameter) * .19);
@@ -9,6 +9,7 @@
   --liquid-button-label-size:.875rem;
   position:relative;
   isolation:isolate;
+  overflow-x:clip;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -46,7 +47,7 @@
   background:radial-gradient(circle closest-side, #030407 0% 34%, rgb(3 4 7 / 95%) 55%, rgb(3 4 7 / 68%) 75%, transparent 96%);
   display:flex; flex-direction:column; align-items:center; justify-content:center;
 }
-.copy > * { position:relative; width:79%; z-index:1; }
+.copy > * { position:relative; width:min(74%, 86vw); z-index:1; }
 .copy::before,.copy::after { pointer-events:none; }
 .copy::before {
   content:"";
@@ -69,5 +70,6 @@
 }
 
 .accent { margin:0 0 .6rem; font-size:clamp(1rem,calc(var(--diameter) * .042),1.75rem); color:#f0c9bc; }
+.stage { margin-top:clamp(.65rem, 2svh, 1.5rem); }
 .stage,.action { position:relative; display:grid; place-items:center; }
 .action button:focus-visible { outline:2px solid #ffe2cf; outline-offset:5px; }

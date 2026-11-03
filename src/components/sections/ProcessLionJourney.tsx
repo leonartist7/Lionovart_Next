@@ -60,10 +60,8 @@ export default function ProcessLionJourney() {
     const checkFit = () => {
       const smallViewport = parseFloat(getComputedStyle(view).height) || window.innerHeight;
       const copy=section.querySelector<HTMLElement>("[data-closing-copy]");
-      const action=section.querySelector<HTMLElement>("[data-closing-stage]");
       const height=Math.min(smallViewport,window.innerHeight);
-      const actionGap=action ? parseFloat(getComputedStyle(action).marginTop)||0 : 0;
-      const needed=(copy?.offsetHeight??0)+(action?.offsetHeight??0)+actionGap+Math.max(144,height*.2);
+      const needed=(copy?.offsetHeight??0)+Math.min(24,height*.04);
       setOversizedCTA(needed>height);
     };
     const observer = new ResizeObserver(checkFit);

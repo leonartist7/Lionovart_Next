@@ -82,12 +82,12 @@ function CompactClosing({ words, onStart, ringRef, chapterInJourney }: { words: 
           {tr("Your next chapter, together")}
         </p>}
         <HeroCycling variant="closing" staticText={t.hero.staticText} words={words} staticColor="#ffffff" cyclingColor="#ffffff" paused={paused} />
-      </div>
-      <div className={styles.stage} data-closing-stage>
-        <div className={styles.action} data-closing-action>
-          <TrailAttractionTarget>
-            <LiquidMetalButton label={tr("Start your brand")} width={220} paused={paused} shaderEnabled={!compact && !saveData && !reducedMotion && inView && revealed} onClick={onStart} />
-          </TrailAttractionTarget>
+        <div className={styles.stage} data-closing-stage>
+          <div className={styles.action} data-closing-action>
+            <TrailAttractionTarget>
+              <LiquidMetalButton label={tr("Start your brand")} width={220} paused={paused} shaderEnabled={!compact && !saveData && !reducedMotion && inView && revealed} onClick={onStart} />
+            </TrailAttractionTarget>
+          </div>
         </div>
       </div>
     </section>
