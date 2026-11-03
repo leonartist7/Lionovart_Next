@@ -130,3 +130,6 @@
 .integratedFace :global([data-integrated=true] > button) { opacity:var(--handoff-benefit,1); }
 .identityLettering { left:calc(12% + 38% * var(--handoff-assembly,0)); top:calc(80% - 30% * var(--handoff-assembly,0)); }
 @media(width < 920px) { .identityLettering { top:calc(70% - 20% * var(--handoff-assembly,0)); } }
+
+/* Counter-scaling must use the lettering's own left edge, not its center. */
+.identityLettering { transform-origin:0 0; }

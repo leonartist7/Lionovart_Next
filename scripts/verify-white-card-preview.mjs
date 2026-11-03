@@ -8,7 +8,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261103-r12';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261103-r13';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -53,6 +53,15 @@ try {
    for(const p of [.40,.60,.64,.70,.78,.90,.96,1]){
     await scroll(exit.top-h+p*(exit.height+h));assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2),false,'No opening handoff overflow');await page.screenshot({path:`${output}/${prefix}-cards-${Math.round(p*100)}.png`});
    }
+   await scroll(exit.top-h+.78*(exit.height+h));
+   const lettering=await page.locator('[data-card-identity]').evaluateAll(es=>es.map(el=>{
+     const r=el.getBoundingClientRect(),p=el.parentElement.getBoundingClientRect();
+     return {x:r.x,right:r.right,y:r.y,width:r.width,paneX:p.x,paneRight:p.right};
+   }));
+   assert.ok(Math.abs(lettering[1].x-lettering[0].right)<12,'LIO and NOV join without an unintended gap');
+   assert.ok(Math.abs(lettering[2].x-lettering[1].right)<12,'NOV and ART join without an unintended gap');
+   const wordCenter=(lettering[0].x+lettering[2].right)/2;
+   assert.ok(Math.abs(wordCenter-(lettering[0].paneX+lettering[0].paneRight)/2)<(lettering[0].paneRight-lettering[0].paneX)*.05,'Wordmark is centered in the white card');
    assert.deepEqual(await page.locator('[data-persistent-card]').evaluateAll(nodes=>nodes.map(n=>n.dataset.persistentFrameId)),frames,'Original card DOM identities persist');
    const options=page.locator('[data-service-option]');
    assert.deepEqual(await options.evaluateAll(es=>es.map(e=>e.dataset.serviceId)),['branding','content-studio','web','smart-systems','led','print']);
