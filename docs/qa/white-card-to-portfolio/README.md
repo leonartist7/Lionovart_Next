@@ -14,3 +14,13 @@ The ending uses the repository logo asset on the final red disc from first visib
 Process no longer creates a lion canvas, poster, origin or dock. Its four rows use cached vertical geometry and event-driven emphasis. The closing CTA has no dependency on that motion; Start and Nova intake remain the existing implementation. The closing ring is 78svh desktop / 88vw phone, with responsive inner typography. The footer's rounded edge now reveals black rather than ivory. One static gold-dot texture replaces the CTA-only layer, with a clear center and subdued outer-edge coverage.
 
 Verification evidence and any limits are recorded after the preview checks.
+
+## Continued review — 3 November 2026
+
+The existing four compatible commits were preserved. Follow-up checkpoints carry the original artwork to masked corners, place the editorial expertise line above the service title, simplify the gallery-only erosion filter, park atelier movement outside Services, reserve the real About entrance, remove the fixed gold-dot overlay, and repair closing-anchor and Nova focus restoration.
+
+The expanded cloud workflow checks all requested default sizes, both sides of the 1024px gallery breakpoint, English/French, 200% root text, reduced motion, keyboard selection, invalid intake, valid Nova-panel handoff, direct closing anchors and resize during the white hold. It records continuous forward/reverse passes through the actual homepage and captures precise stills. Its separate performance comparison uses the same viewports and normalized segments on the starting preview and final review preview without recording video during the sample.
+
+Final workflow results will be reported after completion. No physical device or live microphone conversation is implied by these checks.
+
+Reproduce priority views in `/qa/story-responsive.html`: Handoff 78%; Doorway 76%; About reveal 50%; Reading stop Closing CTA at 390x844. Gather is 64% and separation is 90%.

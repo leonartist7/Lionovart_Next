@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import ConversationView from "./ConversationView";
@@ -31,6 +31,7 @@ const widgetVariants = {
 
 export default function StrategistPanel({ isOpen, onClose, autoStart = false }: StrategistPanelProps) {
   const [mounted, setMounted] = useState(false);
+  const panel = useRef<HTMLDivElement>(null);
   const session = useStrategistSession({ onClose });
 
   // Page-section tracking — only active while session is live
@@ -73,6 +74,13 @@ export default function StrategistPanel({ isOpen, onClose, autoStart = false }: 
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, handleKeyDown]);
 
+  useEffect(() => {
+    if (!mounted || !isOpen) return;
+    const origin = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const frame = requestAnimationFrame(() => panel.current?.querySelector<HTMLElement>('button, input, [tabindex="0"]')?.focus({ preventScroll:true }));
+    return () => { cancelAnimationFrame(frame); if (origin?.isConnected) origin.focus({ preventScroll:true }); };
+  }, [mounted, isOpen]);
+
   if (!mounted) return null;
 
   return createPortal(
@@ -80,6 +88,7 @@ export default function StrategistPanel({ isOpen, onClose, autoStart = false }: 
       {isOpen && (
         <motion.div
           key="nova-widget"
+          ref={panel}
           role="dialog"
           aria-modal="false"
           aria-label="Nova — LIONOVART AI Strategist"

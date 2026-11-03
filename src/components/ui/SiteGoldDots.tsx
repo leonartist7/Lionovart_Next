@@ -1,6 +1,4 @@
-import styles from './SiteGoldDots.module.css';
+import './site-gold-dots.css';
 
-/** One static, translucent texture; the reading column and artwork stay clear. */
-export default function SiteGoldDots() {
-  return <div className={styles.texture} data-site-gold-dots aria-hidden="true" />;
-}
+/** Shared surface backgrounds; intentionally creates no overlay or DOM layer. */
+export default function SiteGoldDots() { return null; }

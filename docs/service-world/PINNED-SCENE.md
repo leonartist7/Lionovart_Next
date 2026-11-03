@@ -1,73 +1,78 @@
-# One continuous pinned scene
+# White card to portfolio: one continuous homepage
 
-Review branch: `codex/services-world-phase1-20261019`.
-Verified runtime: `c717d907eb578c906bb7ab49a0c35df932d26c02`.
-Review preview: https://lionovartnext-r5pzcxjjq-lionovart.vercel.app/qa/story-responsive.html
-Current implementation: 2 November 2026. This replaces the cream-card and floating-ring transitions documented in earlier revisions.
+Review branch: `review/white-card-to-portfolio`.
+Starting branch/head: `codex/services-world-phase1-20261019` / `2456aabc4c3a3046e06dd3529ccc47ccec14922b`.
+This record supersedes the earlier cream-card/pair-gallery description. The review branch already contained compatible work; it has been continued without resetting it.
 
-## Story and ownership
+## Ownership
 
-The sequence is hero → studio film → three interactive discipline cards → conviction → LIONOVART → expertise → services → circular doorway → five project worlds → partnership.
-
-`PinnedScene` owns one sticky viewport. `ScenePortal` places visual chapters in that viewport; document runways measure native scrolling. The opening transition, service handoff and gallery all derive their poses from scroll progress, so a reverse gesture restores the same composition. No animation timer advances the story.
-
-## Cards, statement and expertise
-
-English copy: “To lead today,” / “innovation isn’t optional.” / “It’s a necessity.” / “LIONOVART” / “Our expertise”. The necessity line uses the red Playfair italic. French has the corresponding explicit copy in `CardsServicesTransition` and the public-copy dictionary.
-
-The opening exit runway uses these cues:
-
-| Progress | Cue |
+| Responsibility | Owner |
 | --- | --- |
-| 0–28% | The trio gathers gently; lead, main statement and necessity enter in sequence. |
-| 28–46% | Statement and intact benefit faces hold. |
-| 46–58% | Statement gives way to the studio signature. |
-| 58–68% | Original artwork fills the card faces; benefit copy clears. |
-| 68–84% | Frames fit the measured service-media geometry without flipping. Artwork counter-scales uniformly inside its crop. |
-| 84–96% | The aligned, stationary frames crossfade into the compact service trio. |
-| 76–86% | “Our expertise” introduces the service chapter. |
-| 86–100% | Service heading, description and controls enter. |
+| Single sticky viewport and chapter visibility | PinnedScene / ScenePortal |
+| Native card-exit progress and frame geometry | CardsServicesTransition / card-handoff / card-transport |
+| Original three frame nodes and benefit interactions | DisciplineSplit3D / PawRevealStack |
+| Ordered services, selection, arrows, keyboard | HomepageServicesChapter / ServicesWorkNavigation |
+| Persistent service artwork | ScreeningMedia portals into the original card slots |
+| Service disc, aperture, invitation | ServicePortal / service-gallery-handoff |
+| Carried first artwork and ten sequential projects | galleryWithCarry / GalleryWalkthrough |
+| Partnership disc | galleryEnding / GalleryWalkthrough |
+| Real About surface and normal-flow release | AboutScene |
+| Four process steps and independent closing CTA | ProcessLionJourney / ClosingCTA |
 
-The surrounding room brightens from 54–92%. No blank cream face or empty transparent intermediate card is introduced. Corner sculptures fade from their own corners early in the transition and cannot cover the statement. Desktop cards retain enough separation to read their copy; the actual service targets already put both rear cards at the same raised level.
+## Opening: five reversible poses
 
-Landscape opening-film sizing reserves the larger of the trust block and the measured statement area, with a REM-based gap. These beats do not coexist, so their reserves are not added together. The statement is observed for font, locale and text-size changes; no new narrative measurement runs on scroll. The service chapter becomes visible for the expertise heading before its media crossfade, while its controls retain their later interaction gate.
+English copy remains “To lead today,” / “innovation isn’t optional.” / “It’s a necessity.” The last line is red Playfair italic. French copy stays paired in CardsServicesTransition.
 
-Paw controls remain enabled from the existing early content-ready gate through the visible reading face. The moving wrapper does not intercept button hits. Pointer tilt persists through the hold and eases out during the late fit. A source face becomes inert only when its artwork replacement is complete; the opening scene becomes inert only once its crossfade is complete. Keyboard and reduced-motion behavior remain in `PawRevealStack`.
+The exit runway is 230svh. Progress uses the runway plus one viewport. `CARD_POSES` names the intervals:
 
-## The service disc becomes the doorway
+| Pose | Progress | Result |
+| --- | --- | --- |
+| Read | .28–.53 | All three statement lines remain fully opaque; no fade consumes this hold. |
+| Gather | .585–.695 | Original rear frames converge on the leading frame, with visible edges during approach. |
+| Resolve | .695–.77 | The stack fits the destination frame proportions while remaining centered. |
+| Hold | .77–.815 | One white outline; existing identity spans assemble LIO + NOV + ART on one baseline. |
+| Become Services | .845–.965 | The same original frames unfold into measured service positions. |
 
-`ServicePortal` is the single moving owner of the podium in the pinned media world. `WorldStageControls` retains an invisible measurement anchor in the original podium position. Static layouts retain the original podium. The circular rim and fill rotate inside a flat carrier, so the floor ellipse matches the measured anchor before corridor perspective is applied. Scroll frames change transforms and opacity; carrier width only changes with viewport/type geometry.
+The original artwork moves into a measured upper corner before white closes over it; its front face clips the crop. Benefit text clears independently. The wordmark's counter-scaling preserves proportions while the outer frame changes aspect. The service slot becomes interactive only after the service-copy gate and active chapter agree. No fourth card or extra below-card logo is rendered.
 
-The portal also owns the single animated invitation, above its fill and prepared artwork. During the 38–55% hold the neutral fill is opaque, keeping project imagery out of the text. The invitation keeps the narrative opacity owner and bypasses generic heading reveals. Static layouts retain the gallery heading in normal flow.
+Our expertise / Notre expertise is a single smaller Playfair line above the stable uppercase bold active title. Service IDs, translation indices, media and navigation stay in the same ordered array:
 
-During the service/gallery arrival, the disc lifts and turns upright from 10–38%, then holds around “Step inside / our selected work”. That invitation enters early and clears from 55–78%. Its French equivalent is “Entrez dans l’univers / de nos réalisations”. The disc opens from 55–78% and grows continuously into the first project's ring by 100%.
+1. Brand & Graphic Design — `branding`
+2. Content & Campaigns — `content-studio`
+3. Digital Experiences — `web`
+4. Smart Business Systems — `smart-systems`
+5. Transparent LED Experiences — `led`
+6. Spaces & Events — `print`
 
-The carried artwork transfers owners while stationary from 56–72%; the project pair then opens from 72–100%. The original selected service is first in the gallery. There is one invitation and one first-row ring: the gallery renders the remaining four rings. See [the Phase 3 doorway checkpoint](../qa/story-doorway-20261101/README.md) for measured floor matching, invitation layering and responsive transfer checks.
+## Doorway and tunnel
 
-## Five project worlds
+ServicePortal retains the disc face. Its centered radial mask opens at .68–.84 of the doorway handoff. The first selected artwork is already behind it. At .76 the hole is half open; the outer disc remains opaque. The stationary artwork transfer is .56–.72; project separation follows at .72–1. The invitation is held before the opening and is not a whole-disc opacity fade.
 
-`galleryWithCarry` supplies ten unique projects in five pairs. Widths over 1024px retain horizontal left/right pairs. Phones and tablets use one centered X axis, with approach, hold and departure along the vertical axis. Desktop wall staggering is zero.
+Ten unique projects follow the existing galleryWithCarry order, with the selected service artwork first. Project travel remains native-scroll based with sinusoidal modulation .35, and the existing focus spring and navigation controller remain. Erosion begins at advance .82 and spans .36. Geometry screenshots are required to judge the half-passed threshold, since projection differs by viewport.
 
-Every ring stays 80px behind its pair. The current ring holds near .18 opacity, the upcoming ring near .06, and farther rings fall away. Caption reserve and ring centering scale in REM. `galleryRingDiameter` accounts for both artworks, captions, perspective and padding at the close navigation stop. The fifth world uses studio red. The studio mark remains hidden until the partnership ending.
+Gallery typography is cached between geometry/font changes; erosion cutoff nodes are cached. The gallery-only SVG filter uses a static one-octave field and four passes, without allocating halo/blur/merge layers for an enlarged outgoing image. Service filters retain their existing treatment. Atelier light stops moving after Services. Only active eligible media decode/play.
 
-Arrow navigation stops at row advance 0.26, approximately z=61px. Retargeting keeps the existing navigation controller and velocity-aware easing. Clicking a project brings it into focus; Escape restores the pair. A cached focus-depth limit fits the complete frame and measured captions between navigation and controls, even if selected late in its approach. The existing focus spring stays at stiffness 180, damping 30, mass 1. Caption ResizeObservers refresh this limit on typography/content changes, not on animation frames. Wheel, touch and keyboard interruption remain supported by the controller.
+The red final project ring carries the repository logo asset from its first appearance. The contained partnership disc reveals only “One Partnership” and “Designing your legacy.” About then opens through a separate red circular edge. The actual About section reserves at least a viewport during this reveal and subsequently scrolls in normal flow. There is no second About component.
 
-Erosion starts at advance 0.86 after the enlarged cards pass substantially beyond the viewport. It spans 0.36 row units and finishes at 1.22. Captions and hit targets retire before the frame finishes dissolving. Poster-only and save-data fallbacks use opacity without the shader. Distant previews remain deliberately faint to keep metadata legible.
+A named anchor outside the gallery is excluded from gallery restoration. Process and closing direct anchors settle after the intro/layout gates rather than being mistaken for gallery resize restoration.
 
-Project labels omit the presentation-only “Motion” tag. The wider caption area accommodates at most two rows at the sampled default-text phone and tablet widths. Enlarged text and custom spacing can wrap freely, including emergency word wrapping, without truncation. Underlying project metadata remains intact.
+## Closing and public surfaces
 
-## Motion and verification
+Process mounts no lion canvas, poster, origin, destination or reserved lion rail. Four semantic ordered steps remain readable without animation. Cached row centers drive restrained emphasis; the CTA has no dependency on a lion ref.
 
-Reduced motion and heights at or below 560px use normal document flow, static project lists and readable narrative copy. The shared portal is not mounted. Scroll handlers are RAF-batched; the portal has no idle loop. Listeners and observers are released on cleanup. Existing media eligibility still allows only the current selected/leading work to play.
+The closing ring is 78svh desktop / 88vw phone, capped by available viewport height. Black is retained across its parent and footer seam. Copy can use natural height when enlarged. Start retains the native glass intake; invalid contact/website validation remains. Nova now takes keyboard focus when opened and returns focus to its origin on dismissal.
 
-Measured content-fit can select the same fallback at other dimensions. The opening releases its pinned runway and absolute layers, presenting its source-aspect film and three original benefit cards in normal reading order. Both card faces reserve natural content height, including enlarged French text; native film controls and the existing paw/keyboard reveal remain available. See [the Phase 1 composition checkpoint](../qa/story-composition-20261101/README.md).
+The shared gold-dot tokens paint actual exposed backgrounds, including the story environment, Process, closing CTA, About and footer. There is no fixed dot overlay or pointer repaint. The ring's dark radial center stays above the texture, and imagery/forms/white card retain their own clear surfaces.
 
-See [the Phase 2 narrative checkpoint](../qa/story-narrative-20261101/README.md) for statement clearance and media-transfer verification.
+## Verification and reproduction
 
-See [the dated verification record](../qa/immersive-story-20261031/verification.md) for completed checks and limitations. See [the Phase 4 worlds checkpoint](../qa/story-worlds-20261102/README.md) for focus fit, five-world traversal, ring hierarchy and ending verification. Older screenshots and transition descriptions are historical evidence, not the current design contract.
+See [the review record](../qa/white-card-to-portfolio/README.md) and the branch's White card homepage review workflow.
+The real deployed homepage is the acceptance route. The fixture `/qa/story-responsive.html` additionally exposes:
 
-## Phase 5 review status
+- Handoff 64%: gather; 78%: white wordmark hold; 90%: separation.
+- Doorway 76%: centered aperture half open with the carried artwork visible.
+- Finale 84%: partnership hold.
+- About reveal 50%: passage into the actual About surface.
+- Reading stop Closing CTA at 390×844: full phone ring.
 
-The [integrated verification record](../qa/story-integrated-20261102/README.md) records the final 12-size gallery/ending matrix, enlarged French wrapping fix, navigation and deep-link checks, automated results, and bounded motion captures. Static gallery and partnership headings now constrain their width and wrap long words when enlarged text or custom spacing exceeds the reading column.
-
-The available cloud-browser and automated pass is complete. Device acceptance remains open: actual browser zoom, OS reduced-motion switching, physical touch devices, Firefox/WebKit, and comparable GPU performance traces need their listed checks before release approval. No production promotion or master merge is implied.
+The content-fit, short-height and reduced-motion paths keep content/actions in normal document order. Cloud Chromium viewports/touch emulation are not physical-device, WebKit/Firefox or live microphone acceptance. Comparative software-renderer timings must not be presented as physical-device frame rates.

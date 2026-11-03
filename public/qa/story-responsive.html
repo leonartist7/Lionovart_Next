@@ -15,7 +15,7 @@
   <label>Viewport<select id="size"><option>390x844</option><option>320x568</option><option>360x800</option><option>768x1024</option><option>1023x768</option><option>1024x768</option><option>1025x768</option><option>1280x720</option><option>1366x520</option><option>1440x640</option><option>1536x740</option><option>1440x900</option><option>1920x1080</option><option>2560x1440</option><option>844x390</option></select></label>
   <label>Text size<select id="text"><option value="16">100%</option><option value="20">125%</option><option value="24">150%</option><option value="32">200%</option></select></label>
   <label>Text spacing<select id="spacing"><option value="normal">Default</option><option value="expanded">Expanded</option></select></label>
-  <label>Reading stop<select id="chapter"><option value="hero">Hero</option><option value="cards-early">Opening cards — early</option><option value="cards">Opening cards — settled</option><option value="statement">Statement</option><option value="services">Services</option><option value="gallery">Gallery</option><option value="partnership">Partnership</option></select></label>
+  <label>Reading stop<select id="chapter"><option value="hero">Hero</option><option value="cards-early">Opening cards — early</option><option value="cards">Opening cards — settled</option><option value="statement">Statement</option><option value="services">Services</option><option value="gallery">Gallery</option><option value="partnership">Partnership</option><option value="about">About</option><option value="closing">Closing CTA</option></select></label>
   <button id="go">Go to reading stop</button>
   <button id="check">Measure layout</button>
   <label>Handoff %<input id="handoff" type="number" min="0" max="100" value="35" step="1"></label>
@@ -27,6 +27,7 @@
   <button id="go-row">Review project</button>
   <label>Finale %<input id="finale" type="number" min="70" max="100" value="84" step="1"></label>
   <button id="go-finale">Review red finale</button>
+  <label>About reveal %<input id="about-reveal" type="number" min="0" max="100" value="50"></label><button id="go-about">Review About passage</button>
   <button id="profile-toggle">Start 30s profile</button>
   <p>Review fixture: iframe widths exercise real media queries. Text sizing simulates a root-font preference, not browser zoom or physical touch hardware.</p>
 </header>
@@ -53,7 +54,7 @@
     let low=0, high=.76;
     for(let i=0;i<40;i++){
       const mid=(low+high)/2, linear=mid/.76*(count+.5);
-      const travel=linear-.82*Math.sin(linear*Math.PI*2)/(Math.PI*2);
+      const travel=linear-.35*Math.sin(linear*Math.PI*2)/(Math.PI*2);
       if(travel<advance) low=mid; else high=mid;
     }
     return (low+high)/2;
@@ -61,7 +62,7 @@
   function go() {
     const doc=frame.contentDocument,win=frame.contentWindow,key=document.querySelector('#chapter').value;
     const world=doc.querySelector('[data-service-world]'),pinned=world?.dataset.storyStatic==='false';
-    const selector={hero:'.hero-opening','cards-early':'.hero-opening',cards:'.hero-opening',statement:'[data-card-exit]',services:'[data-services-runway]',gallery:'[data-gallery-runway]',partnership:'[data-gallery-runway]'}[key];
+    const selector={hero:'.hero-opening','cards-early':'.hero-opening',cards:'.hero-opening',statement:'[data-card-exit]',services:'[data-services-runway]',gallery:'[data-gallery-runway]',partnership:'[data-gallery-runway]',about:'[data-about-runway]',closing:'#closing-cta'}[key];
     let el=doc.querySelector(selector);if(!el)return;
     let top=win.scrollY+el.getBoundingClientRect().top;
     if(pinned&&(key==='hero'||key==='cards'||key==='cards-early')) {
@@ -89,6 +90,12 @@
     if(!el)return;
     const p=Math.max(.70,Math.min(1,Number(document.querySelector('#finale').value)/100));
     win.scrollTo({top:win.scrollY+el.getBoundingClientRect().top+p*(el.offsetHeight-win.innerHeight*.85),behavior:'instant'});measure();
+  });
+  document.querySelector('#go-about').addEventListener('click',()=>{
+    const win=frame.contentWindow,el=frame.contentDocument.querySelector('[data-about-runway]');
+    if(!el)return;
+    const p=Math.max(0,Math.min(1,Number(document.querySelector('#about-reveal').value)/100));
+    win.scrollTo({top:win.scrollY+el.getBoundingClientRect().top-win.innerHeight*(1-p),behavior:'instant'});measure();
   });
   frame.addEventListener('load',settings);
   document.querySelector('#locale').addEventListener('change',event=>{frame.src=event.target.value==='fr'?'/fr':'/'});

@@ -57,6 +57,31 @@ export default function ProcessLionJourney() {
       rows.forEach(row => { row.style.removeProperty('transform'); row.style.removeProperty('--step-highlight'); delete row.dataset.highlighted; delete row.dataset.completed; });
     };
   }, [locale, reduced]);
+  useEffect(() => {
+    let frame = 0, landed = false;
+    const land = (event?: Event) => {
+      if (event?.type === 'hashchange') landed = false;
+      if (landed || !['#process', '#closing-studio', '#closing-cta'].includes(location.hash)
+        || document.documentElement.dataset.splashComplete !== 'true') return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => { frame = requestAnimationFrame(() => {
+        const target = document.getElementById(location.hash.slice(1));
+        if (!target) return;
+        landed = true;
+        window.scrollTo({ top: scrollY + target.getBoundingClientRect().top - 64, behavior:'instant' });
+      }); });
+    };
+    window.addEventListener('hashchange', land);
+    window.addEventListener('lionovart:splash-complete', land);
+    window.addEventListener('lionovart:story-layout', land);
+    land();
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('hashchange', land);
+      window.removeEventListener('lionovart:splash-complete', land);
+      window.removeEventListener('lionovart:story-layout', land);
+    };
+  }, []);
   return <div ref={root} className={styles.journey} data-process-journey data-static={reduced !== false} data-nav-surface="dark">
     <section id="process" data-nova-section="process" className={styles.process} aria-labelledby="process-heading" data-scroll-title-skip data-art-directed="dark">
       <div className={styles.inner}>

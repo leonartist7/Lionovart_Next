@@ -6,19 +6,21 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261103-r4';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261103-r5';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
 const browser=await chromium.launch({headless:true});
 const results=[];
 try {
- for(const [w,h,locale,reduced] of [[1440,900,'en',false],[768,1024,'en',false],[390,844,'en',false],[320,568,'fr',false],[1366,520,'fr',false],[390,844,'fr',true],[844,390,'en',false]]) {
-  const context=await browser.newContext({viewport:{width:w,height:h},reducedMotion:reduced?'reduce':'no-preference',recordVideo:{dir:output,size:{width:Math.min(1440,w),height:Math.min(900,h)}}});
+ for(const [w,h,locale,reduced,text=16] of [[1440,900,'en',false],[390,844,'en',false],[320,568,'en',false],[844,390,'en',false],[768,1024,'en',false],[1023,768,'en',false],[1025,768,'en',false],[1280,720,'en',false],[1920,1080,'en',false],[390,844,'fr',false],[1440,900,'fr',false],[390,844,'fr',true],[390,844,'fr',false,32],[1366,520,'fr',false]]) {
+  const context=await browser.newContext({viewport:{width:w,height:h},hasTouch:w<=390,isMobile:w<=390,reducedMotion:reduced?'reduce':'no-preference',recordVideo:{dir:output,size:{width:Math.min(1440,w),height:Math.min(900,h)}}});
   const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(base+(locale==='fr'?'/fr':'/'),{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>document.documentElement.dataset.splashComplete==='true',{},{timeout:90000});
-  await page.waitForTimeout(1500);
+  await page.waitForFunction(()=>!!document.querySelector('[data-service-world]')?.getAttribute('data-story-static'));
+  if(text!==16){await page.evaluate(size=>document.documentElement.style.fontSize=size+'px',text);await page.waitForTimeout(700);}
+  await page.waitForTimeout(1000);
   // Dismiss the real exit prompt before interactions; moving to a target far
   // down the document can otherwise trigger the site's desktop exit heuristic.
   if(await page.evaluate(()=>matchMedia('(pointer:fine)').matches)) {
@@ -30,17 +32,43 @@ try {
   let galleryTiming=null;
   const scroll=async y=>{await page.evaluate(y=>window.scrollTo({top:y,behavior:'instant'}),y);await page.waitForTimeout(100);};
   const getExit=()=>page.locator('[data-card-exit]').evaluate(el=>({top:scrollY+el.getBoundingClientRect().top,height:el.offsetHeight}));
-  const prefix=`${w}x${h}-${locale}${reduced?'-reduced':''}`;
+  const prefix=`${w}x${h}-${locale}${reduced?'-reduced':''}${text!==16?'-text200':''}`;
+  // A continuous pass through the real route precedes the exact-stop fixture work.
+  if((w===1440||w===390)&&locale==='en'&&!reduced&&text===16){
+    const distance=await page.evaluate(()=>document.documentElement.scrollHeight-innerHeight);
+    await scroll(0);
+    for(const direction of [1,-1]){
+      const steps=Math.ceil(distance/(h*.8));
+      for(let i=0;i<steps;i++){await page.mouse.wheel(0,direction*h*.8);await page.waitForTimeout(90);}
+      await page.screenshot({path:`${output}/${prefix}-continuous-${direction===1?'forward':'reverse'}.png`});
+    }
+  }
   if(animated){
    const frames=await page.locator('[data-persistent-card]').evaluateAll(nodes=>nodes.map(n=>n.dataset.persistentFrameId));
    assert.equal(frames.length,3);
    const exit=await getExit();
-   for(const p of [.40,.6,.7,.78,.86,.96,1]){
-    await scroll(exit.top-h+p*(exit.height+h));await page.screenshot({path:`${output}/${prefix}-cards-${Math.round(p*100)}.png`});
+   for(const p of [.40,.60,.64,.70,.78,.90,.96,1]){
+    await scroll(exit.top-h+p*(exit.height+h));assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2),false,'No opening handoff overflow');await page.screenshot({path:`${output}/${prefix}-cards-${Math.round(p*100)}.png`});
    }
    assert.deepEqual(await page.locator('[data-persistent-card]').evaluateAll(nodes=>nodes.map(n=>n.dataset.persistentFrameId)),frames,'Original card DOM identities persist');
+   const options=page.locator('[data-service-option]');
+   assert.deepEqual(await options.evaluateAll(es=>es.map(e=>e.dataset.serviceId)),['branding','content-studio','web','smart-systems','led','print']);
+   await options.nth(2).click();
+   await page.waitForFunction(()=>document.querySelector('[data-service-content]')?.getAttribute('data-service-current')==='web');
+   await page.locator('[data-services-stage]').press('ArrowRight');
+   await page.waitForFunction(()=>document.querySelector('[data-service-content]')?.getAttribute('data-service-current')==='smart-systems');
+   await options.last().click();
+   await page.waitForFunction(()=>document.querySelector('[data-service-content]')?.getAttribute('data-service-current')==='print');
+   await page.screenshot({path:`${output}/${prefix}-service-last.png`});
    // A continuous forward/reverse pass records the actual choreography.
    for(const direction of [1,-1])for(let i=0;i<=70;i++){const p=direction===1?.52+i*.48/70:1-i*.48/70;await scroll(exit.top-h+p*(exit.height+h));}
+   if(w===1440&&locale==='en'){
+     await scroll(exit.top-h+.78*(exit.height+h));
+     await page.setViewportSize({width:1280,height:720});await page.waitForTimeout(400);
+     assert.equal(await page.locator('[data-persistent-card]').count(),3,'Resize keeps three original frames');
+     await page.screenshot({path:`${output}/${prefix}-hold-resize.png`});
+     await page.setViewportSize({width:w,height:h});await page.waitForTimeout(400);
+   }
    const gallery=await page.locator('[data-gallery-runway]').evaluate(el=>({top:scrollY+el.getBoundingClientRect().top,height:el.offsetHeight}));
    await scroll(gallery.top-h*1.1*(1-.76));
    const iris=page.locator('[data-service-podium] [data-iris]');
@@ -50,6 +78,7 @@ try {
    for(const p of [.05,.15,.27,.42,.6,.73,.84,.91]){await scroll(gallery.top+p*(gallery.height-h*.85));await page.screenshot({path:`${output}/${prefix}-gallery-${Math.round(p*100)}.png`});}
    const about=await page.locator('[data-about-runway]').evaluate(el=>scrollY+el.getBoundingClientRect().top);
    for(const p of [.2,.5,1,.5,.2]){await scroll(about-h*(1-p));await page.screenshot({path:`${output}/${prefix}-about-${Math.round(p*100)}.png`});}
+   /* Comparable performance samples run separately without video below.
    galleryTiming=await page.evaluate(async({from,to})=>{
      const deltas=[];let previous=performance.now();
      for(const reverse of [false,true])for(let i=0;i<=160;i++){
@@ -59,12 +88,17 @@ try {
      }
      const sorted=deltas.slice(5).sort((a,b)=>a-b);
      return {frames:sorted.length,medianMs:sorted[Math.floor(sorted.length*.5)],p95Ms:sorted[Math.floor(sorted.length*.95)]};
-   },{from:gallery.top-h*1.1,to:about+h*.2});
+   },{from:gallery.top-h*1.1,to:about+h*.2}); */
   }
   assert.equal(await page.locator('[data-process-step]').count(),4);
   assert.equal(await page.locator('[data-process-journey] canvas,[data-process-journey] img[src*="lion-poster"]').count(),0,'Process does not mount lion rendering or fallback');
   await page.locator('#closing-cta').scrollIntoViewIfNeeded();await page.waitForTimeout(600);
   const ring=await page.locator('[data-closing-copy]').boundingBox();
+  const fit=await page.locator('[data-closing-copy]').evaluate(el=>{
+    const r=el.getBoundingClientRect();
+    return [...el.querySelectorAll('h2,[data-closing-action]')].every(n=>{const b=n.getBoundingClientRect();return b.left>=r.left&&b.right<=r.right&&b.top>=r.top&&b.bottom<=r.bottom;});
+  });
+  assert.ok(fit,'Closing copy and Start fit their containing ring');
   if(w<=390)assert.ok(ring.width<=w*.9,'Phone ring silhouette fits with breathing space');
   await page.screenshot({path:`${output}/${prefix}-closing.png`});
   const start=page.locator('#closing-cta button').first();await start.click();
@@ -72,12 +106,36 @@ try {
   await dialog.locator('input[name=contact]').fill('invalid');
   await dialog.locator('button[type=submit]').click();assert.ok(await dialog.isVisible(),'Invalid intake remains in dialog');
   await page.keyboard.press('Escape');assert.equal(await dialog.isVisible(),false,'Escape dismisses intake');
+  assert.equal(await start.evaluate(el=>el===document.activeElement),true,'Dismissal returns focus to Start');
+  let novaHandoff=false;
+  if((w===390||w===1440)&&!reduced&&text===16){
+    await start.click();
+    await dialog.locator('input[name=contact]').fill(locale==='fr'?'+33 6 12 34 56 78':'qa@example.com');
+    await dialog.locator('input[name=website]').fill('invalid');
+    await dialog.locator('button[type=submit]').click();
+    assert.equal(await dialog.locator('input[name=website]').evaluate(el=>el.validity.valid),false,'Invalid website is rejected');
+    await dialog.locator('input[name=website]').fill('example.com');
+    await dialog.locator('button[type=submit]').click();
+    const nova=page.getByRole('dialog',{name:'Nova — LIONOVART AI Strategist'});
+    await nova.waitFor({state:'visible',timeout:15000});
+    novaHandoff=true;
+    await page.screenshot({path:`${output}/${prefix}-nova-handoff.png`});
+    await page.keyboard.press('Escape');await nova.waitFor({state:'hidden'});
+    assert.equal(await start.evaluate(el=>el===document.activeElement),true,'Nova returns focus to Start');
+  }
   await page.locator('#footer-finale').scrollIntoViewIfNeeded();
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2),false,'No horizontal overflow');
   const fatal=errors.filter(e=>!e.includes('WebGL')&&!e.includes('GPU')&&!e.includes('ResizeObserver loop'));
-  results.push({width:w,height:h,locale,reduced,animated,galleryTiming,errors:fatal});
+  results.push({width:w,height:h,locale,reduced,text,animated,galleryTiming,novaHandoff,errors:fatal});
   console.log(JSON.stringify(results.at(-1)));
   await writeFile(`${output}/results.json`,JSON.stringify(results,null,2));
+  if((w===1440||w===390)&&locale==='en'&&text===16&&!reduced){
+    await page.goto(base+'/#closing-studio',{waitUntil:'domcontentloaded'});
+    await page.waitForFunction(()=>document.documentElement.dataset.splashComplete==='true');
+    await page.waitForTimeout(1200);
+    const closingTop=await page.locator('#closing-studio').evaluate(el=>el.getBoundingClientRect().top);
+    assert.ok(Math.abs(closingTop)<h*.5,'Direct closing anchor lands at the closing chapter');
+  }
   await context.close();
  }
  await writeFile(`${output}/results.json`,JSON.stringify(results,null,2));

@@ -98,3 +98,6 @@
 .dismiss { position:absolute;right:.55rem;top:.45rem;width:2.75rem;height:2.75rem;font-size:1.5rem; }
 .talk { margin-top:.3rem; border:1px solid #ffab9788; border-radius:2rem; padding:.85rem; background:linear-gradient(#c21829,#7b0a18); color:white;font-weight:600; }
 
+
+/* Large text may ask for more natural page height; never clip the action. */
+.copy { min-height:min-content; }

@@ -11,7 +11,7 @@ concurrency:
 jobs:
   browser-review:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
@@ -27,6 +27,11 @@ jobs:
         env:
           STORY_PREVIEW: https://lionovartnext-git-review-white-card-to-portfolio-lionovart.vercel.app
         run: node scripts/verify-white-card-preview.mjs
+      - name: Compare deployed doorway and project-pass work
+        if: always()
+        env:
+          STORY_PREVIEW: https://lionovartnext-git-review-white-card-to-portfolio-lionovart.vercel.app
+        run: node scripts/compare-white-card-performance.mjs
       - name: Upload review evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

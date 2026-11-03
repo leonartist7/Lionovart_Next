@@ -1,0 +1,15 @@
+/* One background material, painted by each owning surface under its content.
+   No viewport overlay, pointer listener, duplicate grid or artwork tint. */
+:root {
+  --site-dot-size:.9px;
+  --site-dot-spacing:26px;
+  --site-dot-tint:rgb(225 182 99 / 18%);
+  --site-dot-image:radial-gradient(circle,var(--site-dot-tint) var(--site-dot-size),transparent 1.25px);
+}
+body { background-image:var(--site-dot-image); background-size:var(--site-dot-spacing) var(--site-dot-spacing); }
+:is([data-world-environment],#process,#closing-cta,[data-about-content]) {
+  background-image:var(--site-dot-image);
+  background-size:var(--site-dot-spacing) var(--site-dot-spacing);
+  background-position:0 0;
+}
+[data-about-content] { --site-dot-tint:rgb(175 132 64 / 7%); }

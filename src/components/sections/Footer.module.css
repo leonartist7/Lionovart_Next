@@ -105,3 +105,6 @@
 .copyright { grid-column: 1 / -1; grid-row: auto; padding-top: .875rem; border-top: 1px solid #fffaf133; text-align: right; font: 400 clamp(.625rem, .6rem + .15vw, .8125rem)/1.5 var(--font-dm-sans), sans-serif; }
 @media (width < 600px) { .finaleInner { column-gap: .875rem; padding-top: 1.75rem; } .brandCopy .signature { font-size: .875rem; max-width: 18ch; } .finaleUtility { font-size: .6875rem; } .legal { gap: .5rem; } }
 @media (width < 360px) { .finaleInner { grid-template-columns: 1fr; } .finaleUtility { grid-column: 1; align-items: flex-start; } .copyright { text-align: left; } }
+
+/* Extend the same material into the red footer without an overlapping grid. */
+.finale { background-image:var(--site-dot-image),linear-gradient(to bottom,var(--brand-red-light),var(--brand-red-mid) 55%,var(--brand-red-dark)); background-size:var(--site-dot-spacing) var(--site-dot-spacing),auto; background-position:0 0; }
