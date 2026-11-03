@@ -5,7 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { ScenePortal, usePinnedScene } from './PinnedScene';
 import { cardHandoff } from '../card-handoff';
 import { galleryLayout, galleryRingDiameter, galleryRingCenterOffset } from '../gallery-layout';
-import { serviceGalleryHandoff } from '../service-gallery-handoff';
+import { doorwayZoom, serviceGalleryHandoff } from '../service-gallery-handoff';
 import styles from './ServicePortal.module.css';
 
 const mix = (a: number, b: number, p: number) => a + (b - a) * p;
@@ -14,15 +14,10 @@ const mix = (a: number, b: number, p: number) => a + (b - a) * p;
 export default function ServicePortal() {
   const scene = usePinnedScene();
   const { locale } = useLanguage();
-  const [fromBelow, setFromBelow] = useState(() => {
-    try { return typeof window !== 'undefined' && sessionStorage.getItem('lionovart:door-origin') === 'below'; }
-    catch { return false; }
-  });
-  const switchOrigin = () => {
-    const next = !fromBelow;
-    setFromBelow(next);
-    try { sessionStorage.setItem('lionovart:door-origin', next ? 'below' : 'above'); } catch { /* Keep the in-memory choice. */ }
-  };
+  const [origin, setOrigin] = useState<'center' | 'above' | 'below'>('center');
+  const switchOrigin = () => setOrigin(value => value === 'center' ? 'above' : value === 'above' ? 'below' : 'center');
+  const fromBelow = origin === 'below';
+  const pedestal = useRef<HTMLDivElement>(null);
   const invitation = useRef<HTMLElement>(null), face = useRef<HTMLButtonElement>(null);
   const ring = useRef<HTMLDivElement>(null), fill = useRef<HTMLSpanElement>(null);
   useEffect(() => {
@@ -49,7 +44,9 @@ export default function ServicePortal() {
       const y = mix(mix(startY, h * .44, lift), h * layout.panelTop / 100 + galleryRingCenterOffset(layout), pass);
       const size = mix(mix(anchor.width, door, lift), diameter, pass);
       const angle = Math.acos(Math.min(1, anchor.height / Math.max(1, anchor.width))) * 180 / Math.PI * (1 - handoff.podiumFace);
-      const opacity = mix(.62 * opening, 1, lift) * (1 - handoff.spread);
+      const zoom = doorwayZoom(handoff.progress);
+      const centered = origin === 'center';
+      const opacity = centered ? zoom.opacity : mix(.62 * opening, 1, lift) * (1 - handoff.spread);
       const canSwitch = opening > .95 && handoff.progress < .70 && opacity > .2;
       if (face.current) {
         face.current.disabled = !canSwitch;
@@ -58,11 +55,21 @@ export default function ServicePortal() {
       // Size changes only when viewport/type geometry changes, never per scroll frame.
       const diameterStyle = `${diameter}px`;
       if (node.style.width !== diameterStyle) node.style.width = diameterStyle;
-      node.style.transform = `translate3d(${x}px,${y}px,${-350 * pass}px) translate(-50%,-50%) scale(${size / diameter})`;
+      node.style.transform = centered
+        ? `translate3d(${w / 2}px,${h * .48}px,${zoom.z}px) translate(-50%,-50%) scale(${zoom.size})`
+        : `translate3d(${x}px,${y}px,${-350 * pass}px) translate(-50%,-50%) scale(${size / diameter})`;
+      if (pedestal.current) {
+        pedestal.current.style.width = diameterStyle;
+        pedestal.current.style.transform = `translate3d(${anchor.x + anchor.width / 2}px,${anchor.y + anchor.height / 2}px,0) translate(-50%,-50%) scale(${anchor.width / diameter})`;
+        const podiumFace = pedestal.current.firstElementChild as HTMLElement | null;
+        if (podiumFace) podiumFace.style.transform = `rotateX(${angle}deg)`;
+        pedestal.current.style.opacity = String(centered ? .62 * opening * zoom.pedestal : 0);
+        pedestal.current.style.visibility = centered && opening * zoom.pedestal > .001 ? 'visible' : 'hidden';
+      }
       // Flatten the face inside its carrier before corridor perspective is applied.
       // Otherwise a nearly horizontal disc projects far beyond its measured anchor.
       if (face.current) {
-        face.current.style.transform = `rotateX(${fromBelow ? angle : -angle}deg)`;
+        face.current.style.transform = `rotateX(${centered ? 0 : fromBelow ? angle : -angle}deg)`;
       }
       node.style.opacity = String(opacity);
       node.style.visibility = opacity > .001 ? 'visible' : 'hidden';
@@ -70,6 +77,7 @@ export default function ServicePortal() {
       if (fill.current) fill.current.style.opacity = String(1 - handoff.portalOpen);
       if (invitation.current) {
         invitation.current.style.opacity = String(handoff.title);
+        invitation.current.style.top = centered ? '48%' : '44%';
         invitation.current.style.transform = 'translateY(-50%)';
         invitation.current.style.visibility = handoff.title > .001 ? 'visible' : 'hidden';
         invitation.current.setAttribute('aria-hidden', String(handoff.title <= .001));
@@ -91,12 +99,13 @@ export default function ServicePortal() {
       window.removeEventListener('scroll', schedule); window.removeEventListener('resize', refreshType);
       window.removeEventListener('pageshow', schedule); document.removeEventListener('visibilitychange', schedule);
     };
-  }, [scene?.target, fromBelow]);
+  }, [scene?.target, fromBelow, origin]);
   if (!scene?.target) return null;
   return <ScenePortal><div className={styles.space} data-service-portal data-scroll-title-skip>
-    <div ref={ring} className={styles.carrier} data-service-podium data-disc-origin={fromBelow ? "below" : "above"}>
+    <div ref={pedestal} className={styles.carrier} data-service-pedestal aria-hidden="true"><span className={styles.ring}><span className={styles.fill} /></span></div>
+    <div ref={ring} className={styles.carrier} data-service-podium data-disc-origin={origin}>
       <button ref={face} type="button" className={styles.ring} onClick={switchOrigin}
-        aria-label={locale === 'fr' ? 'Faire venir le disque du bas' : 'Bring the disc from below'} aria-pressed={fromBelow}>
+        aria-label={locale === 'fr' ? `Tester l’entrée du disque : ${origin === 'center' ? 'zoom centré' : origin === 'above' ? 'du haut' : 'du bas'}. Changer d’orientation.` : `Test disc entrance: ${origin === 'center' ? 'centered zoom' : origin === 'above' ? 'from above' : 'from below'}. Change orientation.`}>
         <span ref={fill} className={styles.fill} />
       </button>
     </div>

@@ -14,10 +14,10 @@ import { prepareScreeningPosters, ScreeningMedia } from './ScreeningMedia';
 import { GALLERY_SERVICE_LABELS, type GalleryWork } from './selected-work/gallery';
 import { galleryLayout, galleryRingDiameter, galleryRingCenterOffset, galleryFocusDepth, GALLERY_ENTRY_PROJECTION } from './gallery-layout';
 import { doorwayTitleOpacity, serviceGalleryHandoff } from './service-gallery-handoff';
-import { galleryCardPose, galleryRingPose, galleryCoreCover, galleryEnding, galleryProjectProgress, galleryProgress, galleryTravel, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
+import { galleryCardPose, galleryRingPose, galleryEnding, galleryProjectProgress, galleryProgress, galleryTravel, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
 import styles from './GalleryWalkthrough.module.css';
 import PartnershipMark, { PartnershipResultsButton } from './PartnershipMark';
-import { partnershipLayout } from './partnership-layout';
+import { partnershipDiscLayout, partnershipLayout } from './partnership-layout';
 
 function WorkTags({ work }: { work: GalleryWork }) {
   const tr = usePublicCopy();
@@ -116,13 +116,14 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const pinned = !!scene?.target;
   const sharedPortal = !!scene?.target?.closest('[data-world-mode="media"]');
   const titleOpacity = useTransform(() => doorwayTitleOpacity(arrivalProgress.get()));
-  const logoTransform = useTransform(progress, p => `translate(-50%,-50%) translateY(calc((var(--partnership-mark-top) - 48svh) * ${galleryEnding(p).markSettle})) scale(calc(1 + (var(--gallery-logo-hero-scale,6) - 1) * ${1 - galleryEnding(p).markSettle}))`);
   const coreOpacity = useTransform(progress, p => galleryEnding(p).core);
-  const coreTransform = useTransform(progress, p => `translate(-50%,-50%) scale(calc(.22 + (var(--gallery-core-cover,3) - .22) * ${galleryEnding(p).coreGrowth}))`);
+  const coreTransform = useTransform(progress, p => `translate(-50%,-50%) translateY(calc((var(--partnership-disc-center) - 48svh) * ${galleryEnding(p).markSettle})) scale(${galleryEnding(p).coreScale})`);
+  const headlineOpacity = useTransform(progress, p => galleryEnding(p).title);
+  const headlineTransform = useTransform(progress, p => `translate(-50%,-50%) translateY(calc(var(--partnership-disc-size) * ${galleryEnding(p).markSettle * .14}))`);
   const logoOpacity = useTransform(progress, p => galleryEnding(p).logo);
-  const ringOpacity = useTransform(progress, p => galleryEnding(p).ring);
   const copyOpacity = useTransform(progress, p => galleryEnding(p).copy);
   const copyTransform = useTransform(progress, p => `translateY(${(1 - galleryEnding(p).copy) * 16}px)`);
+  const [finaleVisible, setFinaleVisible] = useState(false), [logoReady, setLogoReady] = useState(false);
   const linkOpacity = useTransform(progress, p => galleryEnding(p).links);
   const navOpacity = useTransform(() => galleryEnding(progress.get()).navigation * entry.get());
   useMotionValueEvent(progress, 'change', p => {
@@ -130,6 +131,8 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     if (currentProject.current !== nextProject || galleryEnding(p).copy > .05) { currentProject.current = nextProject; setSelectedSlug(null); }
     setProjectIndex(nextProject);
     setEnding(galleryEnding(p).links > .7);
+    setFinaleVisible(galleryEnding(p).title > .5);
+    setLogoReady(galleryEnding(p).logo > .7);
     setWalking(galleryEnding(p).navigation > .1);
   });
   useEffect(() => {
@@ -158,8 +161,10 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
         surface.dataset.galleryAxis = layout.vertical ? 'vertical' : 'horizontal';
         surface.dataset.galleryCompact = String(layout.compact);
         surface.style.setProperty('--gallery-caption-width', `${layout.captionWidth}px`);
-        surface.style.setProperty('--gallery-core-cover', String(galleryCoreCover(document.documentElement.clientWidth, innerHeight)));
-        surface.style.setProperty('--gallery-logo-hero-scale', String(Math.min(document.documentElement.clientWidth, innerHeight) * 1.05 / (endingLayout.markSize * .58)));
+        const disc = partnershipDiscLayout(document.documentElement.clientWidth, innerHeight, rem);
+        surface.style.setProperty('--partnership-disc-size', `${disc.diameter}px`);
+        surface.style.setProperty('--partnership-disc-center', `${disc.center}px`);
+        surface.style.setProperty('--partnership-copy-top', `${disc.subtitleTop}px`);
         surface.style.setProperty('--gallery-panel-top', `${layout.panelTop}%`);
         surface.style.setProperty('--gallery-panel-width', `${layout.panelWidth}px`);
       }
@@ -208,14 +213,14 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       if (pinned && surface.dataset.chapterActive !== 'true') return;
       const cards = [...surface.querySelectorAll<HTMLElement>('[data-static-project]')];
       const visible = cards.find(card => { const box = card.getBoundingClientRect(); return box.bottom > innerHeight * .2 && box.top < innerHeight; });
-      const atEnding = pinned ? ending : !visible && (surface.querySelector('[data-partnership-static-mark]')?.getBoundingClientRect().top ?? Infinity) < innerHeight;
+      const atEnding = pinned ? finaleVisible : !visible && (surface.querySelector('[data-partnership-static-mark]')?.getBoundingClientRect().top ?? Infinity) < innerHeight;
       const index = pinned ? currentProject.current : Math.max(0, cards.indexOf(visible!));
       readingAnchor.current = { projectIndex: index, slug: selectedSlug ?? projects[index]?.slug ?? null,
         ending: atEnding, focus: surface.contains(document.activeElement) };
     };
     window.addEventListener('lionovart:story-layout-will-change', remember);
     return () => window.removeEventListener('lionovart:story-layout-will-change', remember);
-  }, [pinned, ending, selectedSlug, projects, runway, stage]);
+  }, [pinned, finaleVisible, selectedSlug, projects, runway, stage]);
 
   useEffect(() => {
     const remembered = readingAnchor.current;
@@ -323,7 +328,12 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
           <p>{fr ? 'Entrez dans l’univers' : 'Step inside'}</p>
           <h2 id="selected-work-heading">{fr ? 'de nos réalisations' : 'our selected work'}</h2>
         </motion.header>}
-        {pinned && <motion.div className={styles.redCore} data-gallery-red-core aria-hidden="true" style={{ opacity: coreOpacity, transform: coreTransform }} />}
+        {pinned && <motion.div className={styles.redCore} data-gallery-red-core style={{ opacity: coreOpacity, transform: coreTransform }}>
+          <motion.h2 className={styles.discTitle} data-partnership-disc-title aria-hidden={!finaleVisible} style={{ opacity: headlineOpacity, transform: headlineTransform }}>{tr('One partnership')}</motion.h2>
+          <motion.div className={styles.discLogo} data-gallery-logo style={{ opacity: logoOpacity, pointerEvents: logoReady ? 'auto' : 'none' }}>
+            <PartnershipMark tone="light" emblemOnly active={active && logoReady} ready={logoReady} />
+          </motion.div>
+        </motion.div>}
         {pinned ? <div className={styles.corridor} data-gallery-corridor>
           {projects.map((work, index) => <GalleryRing key={`ring-${work.slug}`} index={index} count={projectCount} progress={progress} entry={entry} />)}
           {projects.map((work, index) => <GalleryPanel key={work.slug} work={work} index={index} count={projectCount}
@@ -336,12 +346,9 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
             <span className={styles.projectCaption}><WorkTags work={work} /></span>
           </button>)}
         </div>}
-        {pinned && <motion.div className={styles.logo} data-gallery-logo style={{ transform: logoTransform, opacity: logoOpacity, pointerEvents: ending ? 'auto' : 'none', '--partnership-ring': ringOpacity } as unknown as React.ComponentProps<typeof motion.div>['style']}>
-            <PartnershipMark tone="light" active={active && ending} ready={ending} />
-          </motion.div>}
         {!pinned && <div className={styles.staticMark} data-partnership-static-mark><PartnershipMark active={active} ready /></div>}
-        <motion.div className={styles.ending} data-gallery-ending aria-hidden={pinned && !ending} style={{ opacity: pinned ? copyOpacity : 1, transform: pinned ? copyTransform : 'none' }}>
-          <h2>{tr('One partnership')}</h2>
+        <motion.div className={styles.ending} data-gallery-ending aria-hidden={pinned && !logoReady} style={{ opacity: pinned ? copyOpacity : 1, transform: pinned ? copyTransform : 'none' }}>
+          {!pinned && <h2>{tr('One partnership')}</h2>}
           <p>{tr('Designing your legacy')}</p>
         </motion.div>
         <motion.div className={styles.partnershipAction} data-partnership-action style={{ opacity: pinned ? linkOpacity : 1 }}

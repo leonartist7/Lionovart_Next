@@ -93,15 +93,14 @@
 /* Architectural glass rings belong to the room, never to the controls. */
 .portalRing { position:absolute; left:50%; top:48%; width:var(--gallery-ring-size); aspect-ratio:1; border-radius:50%; border:1px solid #ac9478; box-shadow:inset 0 0 0 6px #fffdf535,inset 0 0 0 7px #8b7b6118,0 0 0 1px #9e8c7324; pointer-events:none; }
 .portalRing[data-final=true] { border-color:#f51b2c; box-shadow:inset 0 0 0 5px #f51b2c16,0 0 0 1px #f51b2c55; }
-.redCore { position:absolute; z-index:0; left:50%; top:48%; width:min(72vw,72svh); aspect-ratio:1; border-radius:50%; background:#f51b2c; pointer-events:none; }
-.stage[data-walkthrough-pinned=true] .ending { color:#fffaf3; }
-.stage[data-walkthrough-pinned=true] .ending > p { color:#fffaf3; }
-.stage[data-walkthrough-pinned=true] .partnershipAction button:focus-visible { outline-color:#fffaf3; }
+.redCore { position:absolute; z-index:2; left:50%; top:48%; width:var(--partnership-disc-size,min(80vw,66svh)); aspect-ratio:1; border-radius:50%; background:#f51b2c; color:#fffaf3; pointer-events:none; }
+.discTitle { position:absolute; left:50%; top:50%; width:84%; margin:0; text-align:center; font:400 clamp(2rem,4.5vw,4rem)/1.04 var(--font-clash-display),sans-serif; letter-spacing:-.045em; }
+.discLogo { position:absolute; left:50%; top:29%; width:24%; aspect-ratio:1; transform:translate(-50%,-50%); }
+.stage[data-walkthrough-pinned=true] .ending > p { margin:0; }
 .header p { font-size:clamp(1.25rem,2.5vw,2.5rem); line-height:1.15; }
 .stage[data-walkthrough-pinned=true] .header h2 { max-width:18ch; }
 @media(prefers-reduced-motion:reduce) { .portalRing:where(:not([data-story-static=false] *)) { display:none; } }
 
-.stage[data-walkthrough-pinned=true] .logo { top:48%; }
 
 @media(max-height:560px) and (min-width:1025px) {
   .stage[data-walkthrough-pinned=true] .ending h2 { font-size:clamp(2rem,4vw,2.5rem); }

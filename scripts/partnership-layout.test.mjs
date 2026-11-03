@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { partnershipLayout } from '../src/components/sections/partnership-layout.ts';
+import { partnershipDiscLayout, partnershipLayout } from '../src/components/sections/partnership-layout.ts';
 import { galleryEnding } from '../src/components/sections/gallery-journey.ts';
 
 for (const [width,height] of [[320,568],[360,640],[390,844],[768,1024],[1024,768],[1365,650],[1366,520],[1440,900],[2560,1080]]) {
@@ -24,22 +24,25 @@ for (const [width,height] of [[320,568],[360,640],[390,844],[768,1024],[1024,768
   assert.ok(layout.markCenter <= height * .34, 'logo left the upper third');
  });
 }
-test('the upper logo stays in place throughout the partnership reading beat', () => {
- assert.equal(galleryEnding(.72).markSettle,0);
- assert.equal(galleryEnding(.72).ring,0);
- assert.equal(galleryEnding(.93).ring,1);
- assert.equal(galleryEnding(.90).markSettle,1);
- assert.equal(galleryEnding(.90).logoScale,1);
- for (const p of [.90,.94,.98,1]) assert.equal(galleryEnding(p).logoZ,0);
- assert.equal(galleryEnding(.94).copy,1);
- assert.equal(galleryEnding(.98).links,1);
- assert.equal(galleryEnding(.92).dock,0);
+test('the red disc remains contained and leaves clear subtitle and action regions', () => {
+ for(const [w,h] of [[305,568],[375,844],[753,1024],[1351,520],[1425,900],[2545,1440]]) {
+  const disc=partnershipDiscLayout(w,h),finalDiameter=disc.diameter*.76;
+  assert.ok(disc.diameter<=w-48&&disc.diameter<=h*.66);
+  assert.ok(h*.48-disc.diameter/2>=0);
+  assert.ok(h*.48+disc.diameter/2<h);
+  assert.ok(disc.center-finalDiameter/2>=64);
+  assert.equal(disc.subtitleTop-(disc.center+finalDiameter/2),24);
+  const subtitleHeight=h<=560?32.2:w<360?55.2:w<768?46:73.6;
+  const actionTop=h-Math.max(32,h*.08)-52;
+  assert.ok(disc.subtitleTop+subtitleHeight+16<actionTop);
+ }
 });
-test('the invitation position and ring reveal are continuous and reversible', () => {
+test('the title remains visible as the disc contracts in either scroll direction', () => {
+ for(const p of [.82,.85,.87,.905,.94,.98,1])assert.equal(galleryEnding(p).title,1);
  const samples = Array.from({length:2001},(_,i)=>.7+i*.00015);
- for(const key of ['markSettle','ring']) {
+ for(const key of ['coreScale','title','markSettle','logo','copy','links']) {
   const values=samples.map(p=>galleryEnding(p)[key]);
-  for(let i=1;i<values.length;i++) assert.ok(Math.abs(values[i]-values[i-1])<.01);
+  for(let i=1;i<values.length;i++)assert.ok(Math.abs(values[i]-values[i-1])<.01);
   assert.deepEqual(values.toReversed(),samples.toReversed().map(p=>galleryEnding(p)[key]));
  }
 });

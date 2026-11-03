@@ -22,3 +22,15 @@ export function serviceGalleryHandoff(galleryTop: number, viewport: number) {
     spread: smooth((progress - .72) / .28),
   };
 }
+
+/** The entrance grows on the tunnel axis, then passes beyond the viewing plane. */
+export function doorwayZoom(progress: number) {
+  const approach = smooth((progress - .10) / .28);
+  const pass = smooth((progress - .68) / .32);
+  return {
+    size: .08 + .72 * approach,
+    z: -1300 * (1 - approach) + 850 * pass,
+    opacity: smooth((progress - .08) / .12) * (1 - smooth((progress - .90) / .10)),
+    pedestal: 1 - smooth(progress / .12),
+  };
+}

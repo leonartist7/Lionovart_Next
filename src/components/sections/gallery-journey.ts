@@ -41,25 +41,19 @@ export function galleryRingPose(progress: number, index: number, count: number) 
   return { z, opacity, visible: opacity > .001 };
 }
 
-/** Cover every corner from the tunnel's 48% vanishing point, including ultrawide screens. */
-export function galleryCoreCover(width: number, height: number) {
-  return 2.08 * Math.hypot(width / 2, height * .52) / Math.max(1, Math.min(width, height) * .72);
-}
-
-/** Red arrives through the last portal; logo settles before the partnership reading beat. */
+/** The title holds inside a contained red disc, then the disc contracts for the signature. */
 export function galleryEnding(progress: number) {
   const departure = 1 - smooth((progress - .71) / .05);
-  const settle = smooth((progress - .845) / .055);
+  const approach = smooth((progress - .73) / .06);
+  const settle = smooth((progress - .85) / .055);
   return {
     core: smooth((progress - .70) / .035),
-    coreGrowth: smooth((progress - .73) / .08),
-    logoZ: 0,
-    logo: smooth((progress - .81) / .035),
-    logoScale: 6 - 5 * settle,
+    coreScale: .22 + .78 * approach - .24 * settle,
+    title: smooth((progress - .79) / .025),
     markSettle: settle,
-    ring: smooth((progress - .90) / .025),
-    copy: smooth((progress - .90) / .035),
-    links: smooth((progress - .94) / .025),
+    logo: smooth((progress - .91) / .025),
+    copy: smooth((progress - .915) / .025),
+    links: smooth((progress - .95) / .025),
     header: departure, dock: departure, navigation: departure,
   };
 }

@@ -22,3 +22,5 @@
 .mark[data-tone=light] .emblem { border-radius:0; box-shadow:none; }
 .mark[data-tone=light] .pause { color:#fffaf3; border-color:#fffaf366; }
 .mark[data-tone=light] button:focus-visible { outline-color:#fffaf3; }
+
+.mark[data-emblem-only=true] .emblem { width:100%; }

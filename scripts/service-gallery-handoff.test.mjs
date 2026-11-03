@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { serviceGalleryHandoff } from '../src/components/sections/service-gallery-handoff.ts';
+import { doorwayZoom, serviceGalleryHandoff } from '../src/components/sections/service-gallery-handoff.ts';
 
 test('rear services clear before one identical frame transfers and opens into the gallery', () => {
  const at = p => serviceGalleryHandoff(990 * (1 - p), 900);
@@ -71,4 +71,23 @@ test('the entrance disc faces the viewer before the aperture opens in either dir
   assert.equal(at(p).spread, 0);
   assert.ok(Math.abs(at(p).services + at(p).gallery - 1) < 1e-10);
  }
+});
+
+test('the centered entrance grows toward the viewer and opens after its reading hold', () => {
+ let previous=0;
+ for(let i=0;i<=1000;i++) {
+  const pose=doorwayZoom(i/1000),projection=pose.size/(1-pose.z/1000);
+  assert.ok(projection>=previous-1e-10);
+  assert.ok(pose.z<1000);
+  previous=projection;
+ }
+ assert.equal(doorwayZoom(0).opacity,0);
+ assert.ok(Math.abs(doorwayZoom(.38).size-.8)<1e-10);
+ assert.equal(doorwayZoom(.38).z,0);
+ assert.equal(doorwayZoom(.38).opacity,1);
+ assert.equal(doorwayZoom(.68).z,0);
+ assert.equal(doorwayZoom(1).z,850);
+ assert.ok(previous>5);
+ const points=[0,.1,.2,.38,.5,.68,.8,.94,1];
+ assert.deepEqual(points.map(doorwayZoom).reverse(),points.toReversed().map(doorwayZoom));
 });

@@ -1,22 +1,27 @@
 import test from 'node:test';
 import { galleryLayout, galleryRingDiameter, galleryRingCenterOffset, galleryFocusDepth, GALLERY_ENTRY_PROJECTION } from '../src/components/sections/gallery-layout.ts';
 import assert from 'node:assert/strict';
-import { galleryWithCarry, galleryProgress, galleryTravel, galleryCardPose, galleryRingPose, galleryCoreCover, galleryEnding, galleryProjectProgress, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase } from '../src/components/sections/gallery-journey.ts';
+import { galleryWithCarry, galleryProgress, galleryTravel, galleryCardPose, galleryRingPose, galleryEnding, galleryProjectProgress, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase } from '../src/components/sections/gallery-journey.ts';
 
-test('the red fills the viewport, a large logo settles, then copy and action become readable', () => {
+test('a contained title disc holds, contracts, then reveals the logo, subtitle and action', () => {
  assert.equal(galleryEnding(.70).core,0);
- assert.equal(galleryEnding(.81).coreGrowth,1);
- assert.equal(galleryEnding(.81).logo,0);
- assert.equal(galleryEnding(.845).logo,1);
- assert.equal(galleryEnding(.845).logoScale,6);
- assert.equal(galleryEnding(.90).logoScale,1);
- assert.equal(galleryEnding(.90).copy,0);
+ for(const p of [.82,.84,.85]) {
+  assert.equal(galleryEnding(p).coreScale,1);
+  assert.equal(galleryEnding(p).title,1);
+  assert.equal(galleryEnding(p).logo,0);
+  assert.equal(galleryEnding(p).copy,0);
+ }
+ assert.equal(galleryEnding(.91).coreScale,.76);
+ assert.equal(galleryEnding(.91).markSettle,1);
+ assert.equal(galleryEnding(.91).logo,0);
+ assert.equal(galleryEnding(.94).logo,1);
  assert.equal(galleryEnding(.94).copy,1);
- assert.equal(galleryEnding(.94).links,0);
+ assert.equal(galleryEnding(.95).links,0);
  assert.equal(galleryEnding(.98).links,1);
- for (const [w,h] of [[320,568],[390,844],[1366,520],[1440,900],[2560,1080]]) {
-  const radius=Math.min(w,h)*.72*galleryCoreCover(w,h)/2;
-  assert.ok(radius>Math.hypot(w/2,h*.52));
+ for(let i=0;i<=2000;i++) {
+  const p=i/2000,pose=galleryEnding(p);
+  assert.ok(pose.coreScale>=.22&&pose.coreScale<=1);
+  if(pose.logo>0||pose.copy>0)assert.equal(pose.markSettle,1);
  }
 });
 
