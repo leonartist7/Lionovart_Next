@@ -1,0 +1,167 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> lionovart@0.1.0 build
+> next build --webpack
+
+▲ Next.js 16.3.8 (webpack)
+- Environments: .env.production
+✓ Running next.config.ts took 41ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 13.1s
+  Running TypeScript ...
+
+  We detected TypeScript in your project and reconfigured your tsconfig.json file for you.
+  The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+
+  	- include was updated to add '.next-phase0/types/**/*.ts'
+  	- include was updated to add '.next-phase0/dev/types/**/*.ts'
+
+  Finished TypeScript in 4.5s ...
+  Collecting page data using 8 workers ...
+  Generating static pages using 8 workers (0/67) ...
+  Generating static pages using 8 workers (16/67) 
+  Generating static pages using 8 workers (33/67) 
+  Generating static pages using 8 workers (50/67) 
+✓ Generating static pages using 8 workers (67/67) in 539ms
+  Finalizing page optimization ...
+  Collecting build traces ...
+
+Route (app)
+┌ ƒ /
+├ ○ /_not-found
+├ ƒ /[locale]/[[...slug]]
+├ ƒ /about
+├ ƒ /admin
+├ ƒ /admin/analytics
+├ ƒ /admin/conversations
+├ ƒ /admin/conversations/[id]
+├ ƒ /admin/leads
+├ ƒ /admin/leads/[id]
+├ ƒ /admin/login
+├ ƒ /admin/objections
+├ ƒ /admin/portal
+├ ƒ /admin/studio
+├ ƒ /admin/whatsapp
+├ ƒ /api/admin/config
+├ ƒ /api/admin/config/rollback
+├ ƒ /api/admin/dossier
+├ ƒ /api/admin/leads/[id]
+├ ƒ /api/admin/session
+├ ƒ /api/admin/whatsapp/appearance
+├ ƒ /api/admin/whatsapp/conversation
+├ ƒ /api/admin/whatsapp/intelligence
+├ ƒ /api/admin/whatsapp/rewrite
+├ ƒ /api/admin/whatsapp/send
+├ ƒ /api/careers/apply
+├ ƒ /api/draft-mode/disable
+├ ƒ /api/draft-mode/enable
+├ ƒ /api/geo-market
+├ ƒ /api/health
+├ ƒ /api/hero-images
+├ ƒ /api/portal/[workspace]/approvals
+├ ƒ /api/portal/[workspace]/approvals/[approvalId]
+├ ƒ /api/portal/[workspace]/assets
+├ ƒ /api/portal/[workspace]/assets/[assetId]
+├ ƒ /api/portal/[workspace]/assets/[assetId]/versions
+├ ƒ /api/portal/[workspace]/assets/sign-upload
+├ ƒ /api/portal/[workspace]/assistant
+├ ƒ /api/portal/[workspace]/content
+├ ƒ /api/portal/[workspace]/content/[postId]
+├ ƒ /api/portal/[workspace]/content/[postId]/publish
+├ ƒ /api/portal/[workspace]/content/[postId]/submit
+├ ƒ /api/portal/[workspace]/content/ai/ideas
+├ ƒ /api/portal/[workspace]/content/ai/image
+├ ƒ /api/portal/[workspace]/messages
+├ ƒ /api/portal/[workspace]/projects
+├ ƒ /api/portal/[workspace]/projects/[projectId]
+├ ƒ /api/portal/[workspace]/projects/[projectId]/milestones
+├ ƒ /api/portal/[workspace]/projects/[projectId]/milestones/[milestoneId]
+├ ƒ /api/portal/[workspace]/projects/[projectId]/tasks
+├ ƒ /api/portal/[workspace]/projects/[projectId]/tasks/[taskId]
+├ ƒ /api/portal/[workspace]/threads
+├ ƒ /api/portal/[workspace]/threads/[threadId]
+├ ƒ /api/portal/[workspace]/threads/[threadId]/comments
+├ ƒ /api/portal/[workspace]/threads/[threadId]/comments/[commentId]
+├ ƒ /api/portal/invite-preview
+├ ƒ /api/portal/invites
+├ ƒ /api/portal/session
+├ ƒ /api/portal/workspaces
+├ ƒ /api/strategist/chat
+├ ƒ /api/strategist/conversation
+├ ƒ /api/strategist/conversation/start
+├ ƒ /api/strategist/dossier
+├ ƒ /api/strategist/lead
+├ ƒ /api/strategist/peek
+├ ƒ /api/strategist/session-token
+├ ƒ /api/strategist/summary
+├ ƒ /api/strategist/tool
+├ ƒ /api/strategist/ui-config
+├ ƒ /api/ve/patch
+├ ƒ /api/visual-editor/save
+├ ƒ /api/webhooks/whatsapp
+├ ƒ /audit
+├ ƒ /audit/thanks
+├ ƒ /calgary
+├ ƒ /call
+├ ƒ /careers
+├ ƒ /careers/apply
+├ ○ /demo/ornaments
+├ ƒ /demo/ornaments/closing
+├ ○ /demo/ornaments/devices
+├ ○ /demo/ornaments/roar
+├ ○ /demo/pillars
+├ ƒ /demo/selected-work
+├ ƒ /demo/services-gallery
+├ ○ /demo/services-world
+├ ○ /demo/typography
+├ ƒ /grenoble
+├ ○ /manifest.webmanifest
+├ ƒ /portal
+├ ƒ /portal/[workspace]
+├ ƒ /portal/[workspace]/approvals
+├ ƒ /portal/[workspace]/assets
+├ ƒ /portal/[workspace]/assets/[assetId]
+├ ƒ /portal/[workspace]/assistant
+├ ƒ /portal/[workspace]/calendar
+├ ƒ /portal/[workspace]/content
+├ ƒ /portal/[workspace]/content/[postId]
+├ ƒ /portal/[workspace]/messages
+├ ƒ /portal/[workspace]/projects
+├ ƒ /portal/[workspace]/projects/[projectId]
+├ ƒ /portal/[workspace]/projects/[projectId]/board
+├ ƒ /portal/[workspace]/settings
+├ ƒ /portal/demo
+├ ƒ /portal/demo/approvals
+├ ƒ /portal/demo/assets
+├ ƒ /portal/demo/assets/[assetId]
+├ ƒ /portal/demo/assistant
+├ ƒ /portal/demo/calendar
+├ ƒ /portal/demo/content
+├ ƒ /portal/demo/content/[postId]
+├ ƒ /portal/demo/messages
+├ ƒ /portal/demo/projects
+├ ƒ /portal/demo/projects/[projectId]
+├ ƒ /portal/demo/projects/[projectId]/board
+├ ƒ /portal/join
+├ ƒ /portal/login
+├ ƒ /pricing
+├ ƒ /privacy
+├ ○ /robots.txt
+├ ƒ /services
+├ ƒ /services/ai
+├ ƒ /services/brand
+├ ƒ /services/content-studio
+├ ƒ /services/led
+├ ƒ /services/print
+├ ƒ /services/web
+├ ○ /sitemap.xml
+├ ƒ /terms
+└ ƒ /v2
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

@@ -14,12 +14,12 @@ function Laurel({ children }: { children: React.ReactNode }) {
     <img src="https://res.cloudinary.com/dgio9uutc/image/upload/v1787020265/Laurel-R_kj7isz.webp" alt="" width={30} height={78} loading="lazy" />
   </div>;
 }
-export default function OpeningProof() {
+export default function OpeningProof({ standalone = true }: { standalone?: boolean }) {
   const tr = usePublicCopy();
   const journey = useLionJourney();
-  return <div ref={journey?.proof} className="lion-proof opening-proof" aria-label={tr("Our work across borders")}>
+  return <div ref={standalone ? journey?.proof : undefined} className="lion-proof opening-proof" aria-label={tr("Our work across borders")}>
     <Laurel>{tr("PROVEN")}<br />{tr("RESULTS")}</Laurel>
-    <HeroClientProof />
+    <HeroClientProof linked={standalone} />
     <Laurel>{tr("CREATIVE")}<br />{tr("EXCELLENCE")}</Laurel>
 
   </div>;

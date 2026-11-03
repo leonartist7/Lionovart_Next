@@ -1,0 +1,13 @@
+{
+  "method": "Native ctrl+0 followed by eight ctrl+plus presses; ctrl+0 restored",
+  "result": {
+    "dpr": 1,
+    "mode": "animated",
+    "viewport": [
+      1363,
+      936
+    ]
+  },
+  "verified": false,
+  "reason": "Viewport and DPR did not change; browser-level zoom could not be exercised through this session."
+}

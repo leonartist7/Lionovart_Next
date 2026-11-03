@@ -2,19 +2,18 @@
 
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 
-import { useContext, useMemo, useRef, useSyncExternalStore, type ReactNode } from "react";
+import { useContext, useMemo, useRef, useSyncExternalStore, type Ref } from "react";
 import { useInView } from "framer-motion";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import styles from "./ClosingCTA.module.css";
 import HeroCycling, { type Word } from "@/components/sections/HeroCycling";
 import VideoBackdrop from "@/components/ui/VideoBackdrop";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
-import { useNovaStore } from "@/lib/stores/nova-store";
+import { useNovaStore, type NovaIntake } from "@/lib/stores/nova-store";
 import { useLanguage } from "@/contexts/LanguageContext";
 import BrandCrest from "@/components/sections/services/brand/branding/BrandCrest";
 import TrailAttractionTarget from "@/components/ui/TrailAttractionTarget";
 import { EN_WORD_ART } from "@/lib/word-art";
-import ClosingMediaWall from "./ClosingMediaWall";
 import { useSaveData } from "@/hooks/useSaveData";
 import { ClosingRevealContext } from "./ClosingRibbonOrnament";
 
@@ -47,10 +46,13 @@ const getCompact = () => matchMedia(compactQuery).matches;
 const getFalse = () => false;
 const getTrue = () => true;
 
-function CompactClosing({ words, onStart, lionDock, chapterInJourney }: { words: Word[]; onStart: () => void; lionDock?: ReactNode; chapterInJourney?: boolean }) {
+function CompactClosing({ words, onStart, ringRef, chapterInJourney }: { words: Word[]; onStart: (intake: NovaIntake) => void; ringRef?: Ref<HTMLDivElement>; chapterInJourney?: boolean }) {
   const tr = usePublicCopy();
   const { t, locale } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
+  const intakeDialog = useRef<HTMLDialogElement>(null);
+  const fr = locale === "fr";
+  const dotsRef = useRef<HTMLDivElement>(null);
   const inView = useInView(sectionRef);
   const reducedMotion = useHydratedReducedMotion();
   const hidden = useSyncExternalStore(subscribeVisibility, getHidden, getServerHidden);
@@ -65,22 +67,73 @@ function CompactClosing({ words, onStart, lionDock, chapterInJourney }: { words:
   const paused = reducedMotion || saveData || hidden || !inView || !revealed;
 
   return (
-    <section id="closing-cta" ref={sectionRef} className={`${styles.section}${lionDock ? ` ${styles.withLion}` : ""}`} data-art-directed="light" data-scroll-title-skip>
-      <ClosingMediaWall />
-      <div className={styles.copy} data-closing-copy>
+    <section id="closing-cta" ref={sectionRef} className={styles.section} data-art-directed="dark" data-scroll-title-skip
+      onPointerMove={event => {
+        const dots = dotsRef.current;
+        if (!dots || event.pointerType !== "mouse" || reducedMotion) return;
+        const bounds = dots.getBoundingClientRect();
+        dots.style.setProperty("--dot-x", `${(event.clientX - bounds.left) / bounds.width * 100}%`);
+        dots.style.setProperty("--dot-y", `${(event.clientY - bounds.top) / bounds.height * 100}%`);
+        dots.toggleAttribute("data-lit", true);
+      }}
+      onPointerLeave={() => dotsRef.current?.removeAttribute("data-lit")}
+    >
+      <div ref={dotsRef} className={styles.dots} aria-hidden="true" />
+      <div ref={ringRef} className={styles.copy} data-closing-copy>
         {!chapterInJourney && <p className={`${styles.accent} ${locale === "ja" || locale === "ko" ? "font-body" : "editorial-accent"}`}>
           {tr("Your next chapter, together")}
         </p>}
-        <HeroCycling variant="closing" staticText={t.hero.staticText} words={words} staticColor="#171412" cyclingColor="#171412" paused={paused} />
-      </div>
-      <div className={styles.stage} data-closing-stage>
-        <div className={styles.action} data-closing-action>
-          <TrailAttractionTarget>
-            <LiquidMetalButton label={tr("Start your brand")} width={220} paused={paused} shaderEnabled={!compact && !saveData && !reducedMotion && inView && revealed} onClick={onStart} />
-          </TrailAttractionTarget>
+        <HeroCycling variant="closing" staticText={t.hero.staticText} words={words} staticColor="#ffffff" cyclingColor="#ffffff" paused={paused} />
+        <div className={styles.stage} data-closing-stage>
+          <div className={styles.action} data-closing-action>
+            <TrailAttractionTarget>
+              <LiquidMetalButton label={fr ? "Commencer" : "Start"} width={220} paused={paused} shaderEnabled={!compact && !saveData && !reducedMotion && inView && revealed} onClick={() => intakeDialog.current?.showModal()} />
+            </TrailAttractionTarget>
+          </div>
         </div>
       </div>
-      {lionDock && <div className={styles.lionDock} data-closing-lion>{lionDock}</div>}
+      <dialog ref={intakeDialog} className={styles.glass} aria-labelledby="closing-intake-title">
+        <form onSubmit={event => {
+          event.preventDefault();
+          const form = event.currentTarget;
+          const contact = form.elements.namedItem("contact") as HTMLInputElement;
+          const site = form.elements.namedItem("website") as HTMLInputElement;
+          const value = contact.value.trim();
+          const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+          const phone = /^\+?[\d\s().-]+$/.test(value) && /^\d{7,15}$/.test(value.replace(/\D/g, ""));
+          if (!email && !phone) {
+            contact.setCustomValidity(fr ? "Indiquez un e-mail ou un numéro valide." : "Enter a valid email or phone number.");
+            contact.reportValidity();
+            return;
+          }
+          let website = "";
+          if (site.value.trim()) {
+            try {
+              const raw = site.value.trim();
+              const url = new URL(raw.includes("://") ? raw : "https://" + raw);
+              if (!["http:", "https:"].includes(url.protocol) || !url.hostname.includes(".") || url.username || url.password) throw new Error();
+              website = url.href;
+            } catch {
+              site.setCustomValidity(fr ? "Indiquez un site valide, par exemple studio.fr." : "Enter a website such as studio.com.");
+              site.reportValidity();
+              return;
+            }
+          }
+          intakeDialog.current?.close();
+          onStart({ email: email ? value : "", phone: email ? "" : value, website });
+        }}>
+          <button type="button" className={styles.dismiss} aria-label={fr ? "Fermer" : "Close"} onClick={() => intakeDialog.current?.close()}>×</button>
+          <p className={styles.eyebrow}>LIONOVART / NOVA</p>
+          <h2 id="closing-intake-title">{fr ? "Parlons de votre projet." : "Let’s talk about your project."}</h2>
+          <label>{fr ? "E-mail ou téléphone" : "Email or phone number"}
+            <input name="contact" required autoFocus autoCapitalize="none" spellCheck={false} maxLength={254} onInput={e => e.currentTarget.setCustomValidity("")} />
+          </label>
+          <label>{fr ? "Site web (facultatif)" : "Website (optional)"}
+            <input name="website" autoComplete="url" inputMode="url" placeholder="studio.com" maxLength={512} onInput={e => e.currentTarget.setCustomValidity("")} />
+          </label>
+          <button className={styles.talk} type="submit">{fr ? "Parler avec notre agent" : "Talk with our agent"}</button>
+        </form>
+      </dialog>
     </section>
   );
 }
@@ -92,7 +145,7 @@ function CompactClosing({ words, onStart, lionDock, chapterInJourney }: { words:
  * Used once per page (the footer is now navigation/legal only), so pages never
  * double-close. `crest` adds the brand crest beside the button (branding page).
  */
-export default function ClosingCTA({ crest = false, workShowcase = false, lionDock, chapterInJourney = false }: { crest?: boolean; workShowcase?: boolean; lionDock?: ReactNode; chapterInJourney?: boolean }) {
+export default function ClosingCTA({ crest = false, workShowcase = false, ringRef, chapterInJourney = false }: { crest?: boolean; workShowcase?: boolean; ringRef?: Ref<HTMLDivElement>; chapterInJourney?: boolean }) {
   const tr = usePublicCopy();
   const { t, locale } = useLanguage();
   const openNova = useNovaStore((s) => s.openNova);
@@ -114,7 +167,11 @@ export default function ClosingCTA({ crest = false, workShowcase = false, lionDo
           type: "text" as const,
         }));
 
-  if (workShowcase) return <CompactClosing words={words} onStart={() => openNova("offer", true)} lionDock={lionDock} chapterInJourney={chapterInJourney} />;
+  if (workShowcase) return <CompactClosing words={words} onStart={intake => {
+    let accepted = false;
+    try { accepted = sessionStorage.getItem("nova_privacy_accepted") === "1"; } catch { /* Show the voice consent prompt. */ }
+    openNova("offer", accepted, intake);
+  }} ringRef={ringRef} chapterInJourney={chapterInJourney} />;
 
   return (
     <section

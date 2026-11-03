@@ -5,7 +5,8 @@ import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { CONTACT_EMAIL } from "@/lib/contact";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useInView, useMotionValue, useMotionValueEvent, useReducedMotion } from "framer-motion";
+import { useDecorativeMotion } from "@/hooks/useDecorativeMotion";
 import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";
 import { useLionJourney } from "@/components/sections/lion-journey/LionJourney";
 import { FUNNEL_EVENT, trackFunnelEvent } from "@/lib/funnel-events";
@@ -27,22 +28,25 @@ export default function HeroSitePeek() {
   const shader = useRef<HTMLDivElement>(null);
   const request = useRef<AbortController | null>(null);
   const reduced = useReducedMotion();
+  const visible = useInView(host, { amount: .01 });
+  const fallbackProgress = useMotionValue(0);
+  const openingProgress = journey?.openingProgress ?? fallbackProgress;
+  const [chapterVisible, setChapterVisible] = useState(() => openingProgress.get() < .26 / 1.6);
+  useMotionValueEvent(openingProgress, "change", p => setChapterVisible(p < .26 / 1.6));
+  // The pinned hero remains geometrically in view after its authored fade.
+  const { running } = useDecorativeMotion(visible && chapterVisible && released && step === "closed");
   useEffect(() => () => request.current?.abort(), []);
   useEffect(() => () => setPaused?.(false), [setPaused]);
   useEffect(() => {
-    if (!shader.current || reduced || !released) return;
+    const surface = shader.current;
+    if (!surface || !running) return;
     let mount: ShaderMount | undefined;
     try {
-      mount = new ShaderMount(shader.current, liquidMetalFragmentShader,
+      mount = new ShaderMount(surface, liquidMetalFragmentShader,
         { u_repetition: 4, u_softness: 0.5, u_shiftRed: 0.65, u_shiftBlue: 0, u_distortion: 0, u_contour: 0, u_angle: 45, u_scale: 8, u_shape: 1, u_offsetX: 0.1, u_offsetY: -0.1 }, undefined, 0.6);
-    } catch { return; }
-    let visible = true;
-    const update = () => mount?.setSpeed(visible && !document.hidden ? 0.6 : 0);
-    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; update(); });
-    observer.observe(shader.current);
-    document.addEventListener("visibilitychange", update);
-    return () => { observer.disconnect(); document.removeEventListener("visibilitychange", update); mount?.dispose(); };
-  }, [reduced, released]);
+    } catch { surface.replaceChildren(); return; }
+    return () => { mount?.setSpeed(0); mount?.dispose(); surface.replaceChildren(); };
+  }, [running]);
   const changeStep = (next: Step) => { setError(""); setStep(next); };
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -85,7 +89,7 @@ export default function HeroSitePeek() {
     onFocusCapture={() => setPaused?.(true)}
     onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused?.(false); }}>
     <div ref={journey?.cta} className={`hero-capsule ${expanded ? "hero-capsule-open" : ""} ${step === "done" ? "hero-capsule-done" : ""}`}>
-      <div ref={shader} className="hero-capsule-metal" aria-hidden="true" />
+      {step === "closed" && running && <div ref={shader} className="hero-capsule-metal" aria-hidden="true" />}
       <div className="hero-capsule-interior" aria-hidden="true" />
       <AnimatePresence initial={false} mode="wait">
         {step === "closed" ? <motion.button key="invitation" type="button" className="hero-capsule-trigger"

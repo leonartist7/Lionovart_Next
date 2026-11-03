@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import HeroSitePeek from "@/components/ui/HeroSitePeek";
-import HeroTrustLine from "./HeroTrustLine";
+import TrustPlacement from "./TrustPlacement";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLionJourney } from "./lion-journey/LionJourney";
 import HeroRoar3D from "./hero-background/HeroRoar3D";
@@ -24,7 +24,7 @@ export default function HeroTop() {
       </h1>
     </div>
     <p className={`lion-description${locale === "ja" || locale === "ko" ? "" : " editorial-accent editorial-hero"}${locale === "en" || locale === "fr" ? " hero-positioning-copy" : ""}`}>{t.hero.subtitle}</p>
-    <div className="lion-cta"><HeroSitePeek /><HeroTrustLine text={t.hero.trustLine} /></div>
+    <div className="lion-cta"><HeroSitePeek /><TrustPlacement slot="hero" /></div>
     </div>
   </section>;
 }

@@ -9,13 +9,13 @@ import styles from "./CompactIntroduction.module.css";
 
 const STAT_VALUES = ["15+", "10+", "100%"];
 
-export default function CompactIntroduction() {
+export default function CompactIntroduction({ embedded = false }: { embedded?: boolean }) {
   const { t } = useLanguage();
   const tr = usePublicCopy();
   const copy = t.compactComparison;
   return (
-    <section id="about" aria-labelledby="innovation-heading" className={styles.section} data-scroll-title-skip data-nav-surface="light">
-      <GoldThreads />
+    <section id={embedded ? undefined : "about"} data-about-content={embedded} aria-labelledby="innovation-heading" className={styles.section} data-scroll-title-skip data-nav-surface="light">
+      {!embedded && <GoldThreads />}
       <div className={styles.grid}>
         <div className={styles.copy}>
           <h2 id="innovation-heading" className={styles.heading}>
@@ -31,7 +31,7 @@ export default function CompactIntroduction() {
           </dl>
         </div>
         <figure className={styles.portrait}>
-          <Image src="/images/Leon-Studioshot.avif" alt={tr("Leonardo, founder and creative director of LIONOVART")} width={1024} height={1024} sizes="(max-width: 919px) 90vw, 42vw" className={styles.portraitImage} />
+          <Image src="/images/Leon-Studioshot.avif" alt={tr("Leonardo, founder and creative director of LIONOVART")} width={1024} height={1024} sizes={embedded ? "(max-width: 919px) 104px, 256px" : "(max-width: 919px) 90vw, 42vw"} className={styles.portraitImage} />
           <figcaption>{tr("Leonardo / Founder & creative director")}</figcaption>
         </figure>
       </div>

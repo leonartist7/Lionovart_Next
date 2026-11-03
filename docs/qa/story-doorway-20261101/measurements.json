@@ -1,0 +1,1272 @@
+{
+  "runtime": "dee72434196ad29bcceea189b1e4c58ae9b7d973",
+  "samples": [
+    {
+      "anchor": {
+        "bottom": 684,
+        "height": 48,
+        "left": 144.484375,
+        "right": 1120.484375,
+        "top": 636,
+        "width": 976,
+        "x": 144.484375,
+        "y": 636
+      },
+      "fillOpacity": "1",
+      "frameDifference": 155.33424377441406,
+      "galleryInert": true,
+      "galleryPlaying": 0,
+      "incoming": {
+        "bottom": 392.9386901855469,
+        "height": 180.0106964111328,
+        "left": 472.4786376953125,
+        "right": 792.5106811523438,
+        "top": 212.9279937744141,
+        "width": 320.03204345703125,
+        "x": 472.4786376953125,
+        "y": 212.9279937744141
+      },
+      "locale": "en-CA",
+      "mode": "animated",
+      "overflow": false,
+      "posters": [
+        {
+          "complete": true,
+          "width": 267
+        }
+      ],
+      "progress": "0.000",
+      "ring": {
+        "bottom": 684,
+        "height": 47.99993896484375,
+        "left": 144.4849853515625,
+        "right": 1120.4837646484375,
+        "top": 636.0000610351562,
+        "width": 975.998779296875,
+        "x": 144.4849853515625,
+        "y": 636.0000610351562
+      },
+      "ringStyle": {
+        "opacity": "0.62",
+        "pointerEvents": "none",
+        "transform": "matrix(0.827282, 0, 0, 0.827282, 42.6016, 70.1172)"
+      },
+      "rings": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "0"
+      ],
+      "root": "16px",
+      "serviceInert": false,
+      "source": {
+        "bottom": 237.59375,
+        "height": 180,
+        "left": 472.484375,
+        "right": 792.484375,
+        "top": 57.59375,
+        "width": 320,
+        "x": 472.484375,
+        "y": 57.59375
+      },
+      "title": {
+        "bottom": 371.734375,
+        "height": 93.875,
+        "left": 64,
+        "right": 1201,
+        "top": 277.859375,
+        "width": 1137,
+        "x": 64,
+        "y": 277.859375
+      },
+      "titleCount": 1,
+      "titleHidden": "true",
+      "titleOpacity": "0",
+      "titleText": "Step insideour selected work",
+      "viewport": [
+        1280,
+        720
+      ],
+      "label": "desktop-floor"
+    },
+    {
+      "anchor": {
+        "bottom": 684,
+        "height": 48,
+        "left": 144.484375,
+        "right": 1120.484375,
+        "top": 636,
+        "width": 976,
+        "x": 144.484375,
+        "y": 636
+      },
+      "fillOpacity": "1",
+      "frameDifference": 0.03204345703125,
+      "galleryInert": true,
+      "galleryPlaying": 0,
+      "incoming": {
+        "bottom": 392.9386901855469,
+        "height": 180.0106964111328,
+        "left": 472.4786376953125,
+        "right": 792.5106811523438,
+        "top": 212.9279937744141,
+        "width": 320.03204345703125,
+        "x": 472.4786376953125,
+        "y": 212.9279937744141
+      },
+      "locale": "en-CA",
+      "mode": "animated",
+      "overflow": false,
+      "posters": [
+        {
+          "complete": true,
+          "width": 267
+        }
+      ],
+      "progress": "0.449",
+      "ring": {
+        "bottom": 568.7996826171875,
+        "height": 503.9993896484375,
+        "left": 380.5003051757813,
+        "right": 884.4996948242188,
+        "top": 64.80029296875,
+        "width": 503.9993896484375,
+        "x": 380.5003051757813,
+        "y": 64.80029296875
+      },
+      "ringStyle": {
+        "opacity": "1",
+        "pointerEvents": "none",
+        "transform": "matrix(0.427203, 0, 0, 0.427203, 42.6172, -273.083)"
+      },
+      "rings": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "0"
+      ],
+      "root": "16px",
+      "serviceInert": true,
+      "source": {
+        "bottom": 392.9327392578125,
+        "height": 180,
+        "left": 472.484375,
+        "right": 792.484375,
+        "top": 212.9327392578125,
+        "width": 320,
+        "x": 472.484375,
+        "y": 212.9327392578125
+      },
+      "title": {
+        "bottom": 363.734375,
+        "height": 93.875,
+        "left": 64,
+        "right": 1201,
+        "top": 269.859375,
+        "width": 1137,
+        "x": 64,
+        "y": 269.859375
+      },
+      "titleCount": 1,
+      "titleHidden": "false",
+      "titleOpacity": "1",
+      "titleText": "Step insideour selected work",
+      "viewport": [
+        1280,
+        720
+      ],
+      "label": "desktop-hold"
+    },
+    {
+      "anchor": {
+        "bottom": 684,
+        "height": 48,
+        "left": 144.484375,
+        "right": 1120.484375,
+        "top": 636,
+        "width": 976,
+        "x": 144.484375,
+        "y": 636
+      },
+      "fillOpacity": "0.595652",
+      "frameDifference": 0.03204345703125,
+      "galleryInert": true,
+      "galleryPlaying": 0,
+      "incoming": {
+        "bottom": 392.9386901855469,
+        "height": 180.0106964111328,
+        "left": 472.4786376953125,
+        "right": 792.5106811523438,
+        "top": 212.9279937744141,
+        "width": 320.03204345703125,
+        "x": 472.4786376953125,
+        "y": 212.9279937744141
+      },
+      "locale": "en-CA",
+      "mode": "animated",
+      "overflow": false,
+      "posters": [
+        {
+          "complete": true,
+          "width": 267
+        }
+      ],
+      "progress": "0.650",
+      "ring": {
+        "bottom": 597.426929473877,
+        "height": 559.1897583007812,
+        "left": 352.9051208496094,
+        "right": 912.0949401855468,
+        "top": 38.2371711730957,
+        "width": 559.1898193359375,
+        "x": 352.9051208496094,
+        "y": 38.2371711730957
+      },
+      "ringStyle": {
+        "opacity": "0.908716",
+        "pointerEvents": "none",
+        "transform": "matrix3d(0.499824, 0, 0, 0, 0, 0.499824, 0, 0, 0, 0, 1, 0, 42.6172, -273.565, -54.5166, 1)"
+      },
+      "rings": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "0"
+      ],
+      "root": "16px",
+      "serviceInert": true,
+      "source": {
+        "bottom": 392.933349609375,
+        "height": 180,
+        "left": 472.484375,
+        "right": 792.484375,
+        "top": 212.933349609375,
+        "width": 320,
+        "x": 472.484375,
+        "y": 212.933349609375
+      },
+      "title": {
+        "bottom": 363.734375,
+        "height": 93.875,
+        "left": 64,
+        "right": 1201,
+        "top": 269.859375,
+        "width": 1137,
+        "x": 64,
+        "y": 269.859375
+      },
+      "titleCount": 1,
+      "titleHidden": "false",
+      "titleOpacity": "0.595652",
+      "titleText": "Step insideour selected work",
+      "viewport": [
+        1280,
+        720
+      ],
+      "label": "desktop-transfer"
+    },
+    {
+      "anchor": {
+        "bottom": 684,
+        "height": 48,
+        "left": 144.484375,
+        "right": 1120.484375,
+        "top": 636,
+        "width": 976,
+        "x": 144.484375,
+        "y": 636
+      },
+      "fillOpacity": "0",
+      "frameDifference": 12.64056396484375,
+      "galleryInert": true,
+      "galleryPlaying": 0,
+      "incoming": {
+        "bottom": 396.4902648925781,
+        "height": 187.5561981201172,
+        "left": 379.2804260253906,
+        "right": 711.9210205078125,
+        "top": 208.93406677246097,
+        "width": 332.6405944824219,
+        "x": 379.2804260253906,
+        "y": 208.93406677246097
+      },
+      "locale": "en-CA",
+      "mode": "animated",
+      "overflow": false,
+      "posters": [
+        {
+          "complete": true,
+          "width": 267
+        }
+      ],
+      "progress": "0.850",
+      "ring": {
+        "bottom": 702.4652824401855,
+        "height": 761.6929931640625,
+        "left": 251.65350341796875,
+        "right": 1013.3464965820312,
+        "top": -59.22771072387695,
+        "width": 761.6929931640625,
+        "x": 251.65350341796875,
+        "y": -59.22771072387695
+      },
+      "ringStyle": {
+        "opacity": "0.467206",
+        "pointerEvents": "none",
+        "transform": "matrix3d(0.851068, 0, 0, 0, 0, 0.851068, 0, 0, 0, 0, 1, 0, 42.6172, -275.895, -318.197, 1)"
+      },
+      "rings": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "0"
+      ],
+      "root": "16px",
+      "serviceInert": true,
+      "source": {
+        "bottom": 397.6822509765625,
+        "height": 180,
+        "left": 386.4483337402344,
+        "right": 706.4483642578125,
+        "top": 217.6822509765625,
+        "width": 320.0000305175781,
+        "x": 386.4483337402344,
+        "y": 217.6822509765625
+      },
+      "title": {
+        "bottom": 363.734375,
+        "height": 93.875,
+        "left": 64,
+        "right": 1201,
+        "top": 269.859375,
+        "width": 1137,
+        "x": 64,
+        "y": 269.859375
+      },
+      "titleCount": 1,
+      "titleHidden": "true",
+      "titleOpacity": "0",
+      "titleText": "Step insideour selected work",
+      "viewport": [
+        1280,
+        720
+      ],
+      "label": "desktop-aperture-open"
+    },
+    {
+      "anchor": {
+        "bottom": 684,
+        "height": 48,
+        "left": 144.484375,
+        "right": 1120.484375,
+        "top": 636,
+        "width": 976,
+        "x": 144.484375,
+        "y": 636
+      },
+      "fillOpacity": "0",
+      "frameDifference": 30.58245849609375,
+      "galleryInert": false,
+      "galleryPlaying": 0,
+      "incoming": {
+        "bottom": 400.98736572265625,
+        "height": 197.15261840820312,
+        "left": 261.8193664550781,
+        "right": 612.4017944335938,
+        "top": 203.83474731445312,
+        "width": 350.5824279785156,
+        "x": 261.8193664550781,
+        "y": 203.83474731445312
+      },
+      "locale": "en-CA",
+      "mode": "animated",
+      "overflow": false,
+      "posters": [
+        {
+          "complete": true,
+          "width": 267
+        }
+      ],
+      "progress": "1.000",
+      "ring": {
+        "bottom": 735.3083190917969,
+        "height": 825.010986328125,
+        "left": 219.9945373535156,
+        "right": 1045.0055236816406,
+        "top": -89.70266723632812,
+        "width": 825.010986328125,
+        "x": 219.9945373535156,
+        "y": -89.70266723632812
+      },
+      "ringStyle": {
+        "opacity": "0.28",
+        "pointerEvents": "none",
+        "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 42.6172, -276.883, -430, 1)"
+      },
+      "rings": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "0"
+      ],
+      "root": "16px",
+      "serviceInert": true,
+      "source": {
+        "bottom": 403.6004943847656,
+        "height": 180,
+        "left": 279.2204895019531,
+        "right": 599.220458984375,
+        "top": 223.6004943847656,
+        "width": 319.9999694824219,
+        "x": 279.2204895019531,
+        "y": 223.6004943847656
+      },
+      "title": {
+        "bottom": 363.734375,
+        "height": 93.875,
+        "left": 64,
+        "right": 1201,
+        "top": 269.859375,
+        "width": 1137,
+        "x": 64,
+        "y": 269.859375
+      },
+      "titleCount": 1,
+      "titleHidden": "true",
+      "titleOpacity": "0",
+      "titleText": "Step insideour selected work",
+      "viewport": [
+        1280,
+        720
+      ],
+      "label": "desktop-first-world"
+    },
+    {
+      "anchor": {
+        "bottom": 684,
+        "height": 48,
+        "left": 144.484375,
+        "right": 1120.484375,
+        "top": 636,
+        "width": 976,
+        "x": 144.484375,
+        "y": 636
+      },
+      "fillOpacity": "1",
+      "frameDifference": 19.238037109375,
+      "galleryInert": true,
+      "galleryPlaying": 0,
+      "incoming": {
+        "bottom": 392.9386901855469,
+        "height": 180.0106964111328,
+        "left": 472.4786376953125,
+        "right": 792.5106811523438,
+        "top": 212.9279937744141,
+        "width": 320.03204345703125,
+        "x": 472.4786376953125,
+        "y": 212.9279937744141
+      },
+      "locale": "en-CA",
+      "mode": "animated",
+      "overflow": false,
+      "posters": [
+        {
+          "complete": true,
+          "width": 267
+        }
+      ],
+      "progress": "0.351",
+      "ring": {
+        "bottom": 585.8716430664062,
+        "height": 517.5930786132812,
+        "left": 373.4342346191406,
+        "right": 891.5648498535156,
+        "top": 68.278564453125,
+        "width": 518.130615234375,
+        "x": 373.4342346191406,
+        "y": 68.278564453125
+      },
+      "ringStyle": {
+        "opacity": "0.988623",
+        "pointerEvents": "none",
+        "transform": "matrix(0.439181, 0, 0, 0.439181, 42.6167, -262.808)"
+      },
+      "rings": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "0"
+      ],
+      "root": "16px",
+      "serviceInert": true,
+      "source": {
+        "bottom": 373.68994140625,
+        "height": 179.99998474121094,
+        "left": 472.484375,
+        "right": 792.484375,
+        "top": 193.68995666503903,
+        "width": 320,
+        "x": 472.484375,
+        "y": 193.68995666503903
+      },
+      "title": {
+        "bottom": 363.734375,
+        "height": 93.875,
+        "left": 64,
+        "right": 1201,
+        "top": 269.859375,
+        "width": 1137,
+        "x": 64,
+        "y": 269.859375
+      },
+      "titleCount": 1,
+      "titleHidden": "false",
+      "titleOpacity": "1",
+      "titleText": "Step insideour selected work",
+      "viewport": [
+        1280,
+        720
+      ],
+      "label": "desktop-reverse-hold"
+    },
+    {
+      "anchor": {
+        "bottom": 684,
+        "height": 48,
+        "left": 144.484375,
+        "right": 1120.484375,
+        "top": 636,
+        "width": 976,
+        "x": 144.484375,
+        "y": 636
+      },
+      "fillOpacity": "1",
+      "frameDifference": 155.33424377441406,
+      "galleryInert": true,
+      "galleryPlaying": 0,
+      "incoming": {
+        "bottom": 392.9386901855469,
+        "height": 180.0106964111328,
+        "left": 472.4786376953125,
+        "right": 792.5106811523438,
+        "top": 212.9279937744141,
+        "width": 320.03204345703125,
+        "x": 472.4786376953125,
+        "y": 212.9279937744141
+      },
+      "locale": "en-CA",
+      "mode": "animated",
+      "overflow": false,
+      "posters": [
+        {
+          "complete": true,
+          "width": 267
+        }
+      ],
+      "progress": "0.000",
+      "ring": {
+        "bottom": 684,
+        "height": 47.99993896484375,
+        "left": 144.4849853515625,
+        "right": 1120.4837646484375,
+        "top": 636.0000610351562,
+        "width": 975.998779296875,
+        "x": 144.4849853515625,
+        "y": 636.0000610351562
+      },
+      "ringStyle": {
+        "opacity": "0.62",
+        "pointerEvents": "none",
+        "transform": "matrix(0.827282, 0, 0, 0.827282, 42.6016, 70.1172)"
+      },
+      "rings": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "0"
+      ],
+      "root": "16px",
+      "serviceInert": false,
+      "source": {
+        "bottom": 237.59375,
+        "height": 180,
+        "left": 472.484375,
+        "right": 792.484375,
+        "top": 57.59375,
+        "width": 320,
+        "x": 472.484375,
+        "y": 57.59375
+      },
+      "title": {
+        "bottom": 371.734375,
+        "height": 93.875,
+        "left": 64,
+        "right": 1201,
+        "top": 277.859375,
+        "width": 1137,
+        "x": 64,
+        "y": 277.859375
+      },
+      "titleCount": 1,
+      "titleHidden": "true",
+      "titleOpacity": "0",
+      "titleText": "Step insideour selected work",
+      "viewport": [
+        1280,
+        720
+      ],
+      "label": "desktop-native-reverse-floor"
+    },
+    {
+      "anchor": {
+        "bottom": 684,
+        "height": 48,
+        "left": 144.484375,
+        "right": 1120.484375,
+        "top": 636,
+        "width": 976,
+        "x": 144.484375,
+        "y": 636
+      },
+      "fillOpacity": "1",
+      "frameDifference": 0.03204345703125,
+      "galleryInert": true,
+      "galleryPlaying": 0,
+      "incoming": {
+        "bottom": 392.9386901855469,
+        "height": 180.0106964111328,
+        "left": 472.4786376953125,
+        "right": 792.5106811523438,
+        "top": 212.9279937744141,
+        "width": 320.03204345703125,
+        "x": 472.4786376953125,
+        "y": 212.9279937744141
+      },
+      "locale": "en-CA",
+      "mode": "animated",
+      "overflow": false,
+      "posters": [
+        {
+          "complete": true,
+          "width": 267
+        }
+      ],
+      "progress": "0.449",
+      "ring": {
+        "bottom": 568.7996826171875,
+        "height": 503.9993896484375,
+        "left": 380.5003051757813,
+        "right": 884.4996948242188,
+        "top": 64.80029296875,
+        "width": 503.9993896484375,
+        "x": 380.5003051757813,
+        "y": 64.80029296875
+      },
+      "ringStyle": {
+        "opacity": "1",
+        "pointerEvents": "none",
+        "transform": "matrix(0.427203, 0, 0, 0.427203, 42.6172, -273.083)"
+      },
+      "rings": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "0"
+      ],
+      "root": "16px",
+      "serviceInert": true,
+      "source": {
+        "bottom": 392.9327392578125,
+        "height": 180,
+        "left": 472.484375,
+        "right": 792.484375,
+        "top": 212.9327392578125,
+        "width": 320,
+        "x": 472.484375,
+        "y": 212.9327392578125
+      },
+      "title": {
+        "bottom": 363.734375,
+        "height": 93.875,
+        "left": 64,
+        "right": 1201,
+        "top": 269.859375,
+        "width": 1137,
+        "x": 64,
+        "y": 269.859375
+      },
+      "titleCount": 1,
+      "titleHidden": "false",
+      "titleOpacity": "1",
+      "titleText": "Step insideour selected work",
+      "viewport": [
+        1280,
+        720
+      ],
+      "label": "desktop-reverse-hold-settled"
+    },
+    {
+      "anchor": {
+        "bottom": 766.515625,
+        "height": 52,
+        "left": 0.3046875,
+        "right": 374.6953125,
+        "top": 714.515625,
+        "width": 374.390625,
+        "x": 0.3046875,
+        "y": 714.515625
+      },
+      "fillOpacity": "1",
+      "frameDifference": 1.405548095703125,
+      "galleryInert": true,
+      "galleryPlaying": 0,
+      "incoming": {
+        "bottom": 453.7314758300781,
+        "height": 145.9423828125,
+        "left": 57.773433685302734,
+        "right": 317.22655868530273,
+        "top": 307.7890930175781,
+        "width": 259.453125,
+        "x": 57.773433685302734,
+        "y": 307.7890930175781
+      },
+      "locale": "fr-FR",
+      "mode": "animated",
+      "overflow": false,
+      "posters": [
+        {
+          "complete": true,
+          "width": 267
+        }
+      ],
+      "progress": "0.450",
+      "ring": {
+        "bottom": 528.8584747314453,
+        "height": 314.9969482421875,
+        "left": 30.001541137695312,
+        "right": 344.9984893798828,
+        "top": 213.8615264892578,
+        "width": 314.9969482421875,
+        "x": 30.001541137695312,
+        "y": 213.8615264892578
+      },
+      "ringStyle": {
+        "opacity": "1",
+        "pointerEvents": "none",
+        "transform": "matrix(0.407648, 0, 0, 0.407648, -198.859, -14.9994)"
+      },
+      "rings": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "0"
+      ],
+      "root": "16px",
+      "serviceInert": true,
+      "source": {
+        "bottom": 452.555419921875,
+        "height": 146.171875,
+        "left": 57.546875,
+        "right": 317.421875,
+        "top": 306.383544921875,
+        "width": 259.875,
+        "x": 57.546875,
+        "y": 306.383544921875
+      },
+      "title": {
+        "bottom": 403.6328125,
+        "height": 64.546875,
+        "left": 24,
+        "right": 351,
+        "top": 339.0859375,
+        "width": 327,
+        "x": 24,
+        "y": 339.0859375
+      },
+      "titleCount": 1,
+      "titleHidden": "false",
+      "titleOpacity": "1",
+      "titleText": "Entrez dans l’universde nos réalisations",
+      "viewport": [
+        390,
+        844
+      ],
+      "label": "phone-FR-hold"
+    },
+    {
+      "anchor": {
+        "bottom": 766.515625,
+        "height": 52,
+        "left": 0.3046875,
+        "right": 374.6953125,
+        "top": 714.515625,
+        "width": 374.390625,
+        "x": 0.3046875,
+        "y": 714.515625
+      },
+      "fillOpacity": "0.596499",
+      "frameDifference": 0.421875,
+      "galleryInert": true,
+      "galleryPlaying": 0,
+      "incoming": {
+        "bottom": 453.7314758300781,
+        "height": 145.9423828125,
+        "left": 57.773433685302734,
+        "right": 317.22655868530273,
+        "top": 307.7890930175781,
+        "width": 259.453125,
+        "x": 57.773433685302734,
+        "y": 307.7890930175781
+      },
+      "locale": "fr-FR",
+      "mode": "animated",
+      "overflow": false,
+      "posters": [
+        {
+          "complete": true,
+          "width": 267
+        }
+      ],
+      "progress": "0.650",
+      "ring": {
+        "bottom": 553.0335845947266,
+        "height": 353.65496826171875,
+        "left": 10.672507286071776,
+        "right": 364.3274755477905,
+        "top": 199.3786163330078,
+        "width": 353.65496826171875,
+        "x": 10.672507286071776,
+        "y": 199.3786163330078
+      },
+      "ringStyle": {
+        "opacity": "0.908936",
+        "pointerEvents": "none",
+        "transform": "matrix3d(0.482567, 0, 0, 0, 0, 0.482567, 0, 0, 0, 0, 1, 0, -198.859, -11.7258, -54.3856, 1)"
+      },
+      "rings": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "0"
+      ],
+      "root": "16px",
+      "serviceInert": true,
+      "source": {
+        "bottom": 453.852783203125,
+        "height": 146.171875,
+        "left": 57.546875,
+        "right": 317.421875,
+        "top": 307.680908203125,
+        "width": 259.875,
+        "x": 57.546875,
+        "y": 307.680908203125
+      },
+      "title": {
+        "bottom": 403.6328125,
+        "height": 64.546875,
+        "left": 24,
+        "right": 351,
+        "top": 339.0859375,
+        "width": 327,
+        "x": 24,
+        "y": 339.0859375
+      },
+      "titleCount": 1,
+      "titleHidden": "false",
+      "titleOpacity": "0.596499",
+      "titleText": "Entrez dans l’universde nos réalisations",
+      "viewport": [
+        390,
+        844
+      ],
+      "label": "phone-FR-transfer"
+    },
+    {
+      "anchor": {
+        "bottom": 766.515625,
+        "height": 52,
+        "left": 0.3046875,
+        "right": 374.6953125,
+        "top": 714.515625,
+        "width": 374.390625,
+        "x": 0.3046875,
+        "y": 714.515625
+      },
+      "fillOpacity": "1",
+      "frameDifference": 159.07815551757812,
+      "galleryInert": true,
+      "galleryPlaying": 0,
+      "incoming": {
+        "bottom": 453.7314758300781,
+        "height": 145.9423828125,
+        "left": 57.773433685302734,
+        "right": 317.22655868530273,
+        "top": 307.7890930175781,
+        "width": 259.453125,
+        "x": 57.773433685302734,
+        "y": 307.7890930175781
+      },
+      "locale": "fr-FR",
+      "mode": "animated",
+      "overflow": false,
+      "posters": [
+        {
+          "complete": true,
+          "width": 267
+        }
+      ],
+      "progress": "0.000",
+      "ring": {
+        "bottom": 766.515380859375,
+        "height": 51.99951171875,
+        "left": 0.3065185546875,
+        "right": 374.6934814453125,
+        "top": 714.515869140625,
+        "width": 374.386962890625,
+        "x": 0.3065185546875,
+        "y": 714.515869140625
+      },
+      "ringStyle": {
+        "opacity": "0.62",
+        "pointerEvents": "none",
+        "transform": "matrix(0.484506, 0, 0, 0.484506, -198.859, 354.156)"
+      },
+      "rings": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "0"
+      ],
+      "root": "16px",
+      "serviceInert": false,
+      "source": {
+        "bottom": 294.8828125,
+        "height": 146.171875,
+        "left": 57.546875,
+        "right": 317.421875,
+        "top": 148.7109375,
+        "width": 259.875,
+        "x": 57.546875,
+        "y": 148.7109375
+      },
+      "title": {
+        "bottom": 411.6328125,
+        "height": 64.546875,
+        "left": 24,
+        "right": 351,
+        "top": 347.0859375,
+        "width": 327,
+        "x": 24,
+        "y": 347.0859375
+      },
+      "titleCount": 1,
+      "titleHidden": "true",
+      "titleOpacity": "0",
+      "titleText": "Entrez dans l’universde nos réalisations",
+      "viewport": [
+        390,
+        844
+      ],
+      "label": "phone-FR-floor"
+    },
+    {
+      "anchor": {
+        "bottom": 961.125,
+        "height": 61.4375,
+        "left": 38.5859375,
+        "right": 714.4140625,
+        "top": 899.6875,
+        "width": 675.828125,
+        "x": 38.5859375,
+        "y": 899.6875
+      },
+      "fillOpacity": "1",
+      "frameDifference": 0.38330078125,
+      "galleryInert": true,
+      "galleryPlaying": 0,
+      "incoming": {
+        "bottom": 588.207763671875,
+        "height": 219.483642578125,
+        "left": 181.3943023681641,
+        "right": 571.6057281494141,
+        "top": 368.72412109375,
+        "width": 390.21142578125,
+        "x": 181.3943023681641,
+        "y": 368.72412109375
+      },
+      "locale": "fr-FR",
+      "mode": "animated",
+      "overflow": false,
+      "posters": [
+        {
+          "complete": true,
+          "width": 267
+        }
+      ],
+      "progress": "0.450",
+      "ring": {
+        "bottom": 766.8191223144531,
+        "height": 632.5181884765625,
+        "left": 60.240875244140625,
+        "right": 692.7590637207031,
+        "top": 134.30093383789062,
+        "width": 632.5181884765625,
+        "x": 60.240875244140625,
+        "y": 134.30093383789062
+      },
+      "ringStyle": {
+        "opacity": "1",
+        "pointerEvents": "none",
+        "transform": "matrix(0.549158, 0, 0, 0.549158, -199.398, -125.338)"
+      },
+      "rings": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "0"
+      ],
+      "root": "16px",
+      "serviceInert": true,
+      "source": {
+        "bottom": 588.1132202148438,
+        "height": 219.265625,
+        "left": 181.5703125,
+        "right": 571.3984375,
+        "top": 368.84759521484375,
+        "width": 389.828125,
+        "x": 181.5703125,
+        "y": 368.84759521484375
+      },
+      "title": {
+        "bottom": 489.015625,
+        "height": 76.9375,
+        "left": 38.390625,
+        "right": 714.609375,
+        "top": 412.078125,
+        "width": 676.21875,
+        "x": 38.390625,
+        "y": 412.078125
+      },
+      "titleCount": 1,
+      "titleHidden": "false",
+      "titleOpacity": "1",
+      "titleText": "Entrez dans l’universde nos réalisations",
+      "viewport": [
+        768,
+        1024
+      ],
+      "label": "tablet-FR-hold"
+    },
+    {
+      "anchor": {
+        "bottom": 961.125,
+        "height": 61.4375,
+        "left": 38.5859375,
+        "right": 714.4140625,
+        "top": 899.6875,
+        "width": 675.828125,
+        "x": 38.5859375,
+        "y": 899.6875
+      },
+      "fillOpacity": "0.594659",
+      "frameDifference": 0.38330078125,
+      "galleryInert": true,
+      "galleryPlaying": 0,
+      "incoming": {
+        "bottom": 588.207763671875,
+        "height": 219.483642578125,
+        "left": 181.3943023681641,
+        "right": 571.6057281494141,
+        "top": 368.72412109375,
+        "width": 390.21142578125,
+        "x": 181.3943023681641,
+        "y": 368.72412109375
+      },
+      "locale": "fr-FR",
+      "mode": "animated",
+      "overflow": false,
+      "posters": [
+        {
+          "complete": true,
+          "width": 267
+        }
+      ],
+      "progress": "0.650",
+      "ring": {
+        "bottom": 789.677490234375,
+        "height": 662.3297119140625,
+        "left": 45.33515930175781,
+        "right": 707.6648712158203,
+        "top": 127.3477783203125,
+        "width": 662.3297119140625,
+        "x": 45.33515930175781,
+        "y": 127.3477783203125
+      },
+      "ringStyle": {
+        "opacity": "0.908459",
+        "pointerEvents": "none",
+        "transform": "matrix3d(0.606478, 0, 0, 0, 0, 0.606478, 0, 0, 0, 0, 1, 0, -199.398, -119.19, -54.6703, 1)"
+      },
+      "rings": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "0"
+      ],
+      "root": "16px",
+      "serviceInert": true,
+      "source": {
+        "bottom": 588.113525390625,
+        "height": 219.26565551757812,
+        "left": 181.5703125,
+        "right": 571.3984375,
+        "top": 368.8478698730469,
+        "width": 389.828125,
+        "x": 181.5703125,
+        "y": 368.8478698730469
+      },
+      "title": {
+        "bottom": 489.015625,
+        "height": 76.9375,
+        "left": 38.390625,
+        "right": 714.609375,
+        "top": 412.078125,
+        "width": 676.21875,
+        "x": 38.390625,
+        "y": 412.078125
+      },
+      "titleCount": 1,
+      "titleHidden": "false",
+      "titleOpacity": "0.594659",
+      "titleText": "Entrez dans l’universde nos réalisations",
+      "viewport": [
+        768,
+        1024
+      ],
+      "label": "tablet-FR-transfer"
+    },
+    {
+      "anchor": {
+        "bottom": 0,
+        "height": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "width": 0,
+        "x": 0,
+        "y": 0
+      },
+      "fillOpacity": null,
+      "frameDifference": null,
+      "galleryInert": false,
+      "galleryPlaying": 0,
+      "locale": "fr-FR",
+      "mode": "content-fit",
+      "overflow": false,
+      "posters": [],
+      "ringStyle": null,
+      "rings": [],
+      "root": "32px",
+      "serviceInert": false,
+      "source": {
+        "bottom": -2762.9765625,
+        "height": 76.953125,
+        "left": 84.0859375,
+        "right": 220.8828125,
+        "top": -2839.9296875,
+        "width": 136.796875,
+        "x": 84.0859375,
+        "y": -2839.9296875
+      },
+      "title": {
+        "bottom": 587.96875,
+        "height": 428,
+        "left": 32,
+        "right": 273,
+        "top": 159.96875,
+        "width": 241,
+        "x": 32,
+        "y": 159.96875
+      },
+      "titleCount": 1,
+      "titleHidden": null,
+      "titleOpacity": "1",
+      "titleText": "Entrez dans l’universde nos réalisations",
+      "viewport": [
+        320,
+        568
+      ],
+      "label": "phone-FR-200-expanded-static"
+    },
+    {
+      "anchor": {
+        "bottom": 0,
+        "height": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "width": 0,
+        "x": 0,
+        "y": 0
+      },
+      "fillOpacity": null,
+      "frameDifference": null,
+      "galleryInert": false,
+      "galleryPlaying": 0,
+      "locale": "fr-FR",
+      "mode": "preference-or-height",
+      "overflow": false,
+      "posters": [],
+      "ringStyle": null,
+      "rings": [],
+      "root": "16px",
+      "serviceInert": false,
+      "source": {
+        "bottom": -656.046875,
+        "height": 240.96875,
+        "left": 200.2890625,
+        "right": 628.6953125,
+        "top": -897.015625,
+        "width": 428.40625,
+        "x": 200.2890625,
+        "y": -897.015625
+      },
+      "title": {
+        "bottom": 155.625,
+        "height": 75.59375,
+        "left": 25.3125,
+        "right": 803.6875,
+        "top": 80.03125,
+        "width": 778.375,
+        "x": 25.3125,
+        "y": 80.03125
+      },
+      "titleCount": 1,
+      "titleHidden": null,
+      "titleOpacity": "1",
+      "titleText": "Entrez dans l’universde nos réalisations",
+      "viewport": [
+        844,
+        390
+      ],
+      "label": "short-landscape-FR-static"
+    }
+  ],
+  "interaction": {
+    "firstProjectPointerFocus": true,
+    "escapeUsed": true
+  }
+}

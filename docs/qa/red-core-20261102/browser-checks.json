@@ -1,0 +1,454 @@
+[
+  {
+    "name": "phone-finale",
+    "data": {
+      "action": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 52,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(1, 0, 0, 1, -120, 0)",
+        "w": 240,
+        "x": 67.5,
+        "y": 724.484375
+      },
+      "copy": {
+        "color": "rgb(255, 250, 243)",
+        "filter": "none",
+        "h": 74.625,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "w": 327,
+        "x": 24,
+        "y": 506.390625
+      },
+      "core": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 1032.385498046875,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(3.67663, 0, 0, 3.67663, -140.398, -140.398)",
+        "w": 1032.385498046875,
+        "x": -328.6927490234375,
+        "y": -111.0833740234375
+      },
+      "logo": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 206.25001525878903,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(1, 0, 0, 1, -103.125, -238.165)",
+        "w": 206.25,
+        "x": 84.375,
+        "y": 166.9443817138672
+      },
+      "mode": "animated",
+      "overflow": false,
+      "panels": [],
+      "rings": [],
+      "stage": {
+        "h": 844,
+        "w": 375,
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  {
+    "name": "phone-last-reading",
+    "data": {
+      "action": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 52,
+        "mask": "none",
+        "opacity": "0",
+        "transform": "matrix(1, 0, 0, 1, -120, 0)",
+        "w": 240,
+        "x": 67.5,
+        "y": 724.484375
+      },
+      "copy": {
+        "color": "rgb(255, 250, 243)",
+        "filter": "none",
+        "h": 74.625,
+        "mask": "none",
+        "opacity": "0",
+        "transform": "matrix(1, 0, 0, 1, 0, 16)",
+        "w": 327,
+        "x": 24,
+        "y": 522.390625
+      },
+      "core": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 61.775299072265625,
+        "mask": "none",
+        "opacity": "0",
+        "transform": "matrix(0.22, 0, 0, 0.22, -140.398, -140.398)",
+        "w": 61.77531433105469,
+        "x": 156.6123504638672,
+        "y": 374.2217102050781
+      },
+      "logo": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 678.87939453125,
+        "mask": "none",
+        "opacity": "0",
+        "transform": "matrix(3.29154, 0, 0, 3.29154, -103.125, -103.125)",
+        "w": 678.87939453125,
+        "x": -151.93966674804688,
+        "y": 65.66970825195312
+      },
+      "mode": "animated",
+      "overflow": false,
+      "panels": [
+        {
+          "art": {
+            "color": "rgb(85, 75, 62)",
+            "filter": "none",
+            "h": 175.59060668945312,
+            "mask": "none",
+            "opacity": "1",
+            "transform": "none",
+            "w": 234.1208038330078,
+            "x": 70.43959045410156,
+            "y": 285.31463623046875
+          },
+          "h": 175.59060668945312,
+          "slug": "soda-bold",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -117.062, -87.7969, -0.0178853, 1)",
+          "w": 234.1208038330078,
+          "x": 70.43959045410156,
+          "y": 285.31463623046875
+        }
+      ],
+      "rings": [
+        {
+          "h": 360.4154052734375,
+          "i": "9",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -180.211, -180.211, -0.0178853, 1)",
+          "w": 360.4154052734375,
+          "x": 7.292285442352295,
+          "y": 224.9016571044922
+        }
+      ],
+      "stage": {
+        "h": 844,
+        "w": 375,
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  {
+    "name": "phone-ring-pass",
+    "data": {
+      "action": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 52,
+        "mask": "none",
+        "opacity": "0",
+        "transform": "matrix(1, 0, 0, 1, -120, 0)",
+        "w": 240,
+        "x": 67.5,
+        "y": 724.484375
+      },
+      "copy": {
+        "color": "rgb(255, 250, 243)",
+        "filter": "none",
+        "h": 74.625,
+        "mask": "none",
+        "opacity": "0",
+        "transform": "matrix(1, 0, 0, 1, 0, 16)",
+        "w": 327,
+        "x": 24,
+        "y": 522.390625
+      },
+      "core": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 61.775299072265625,
+        "mask": "none",
+        "opacity": "0.336486",
+        "transform": "matrix(0.22, 0, 0, 0.22, -140.398, -140.398)",
+        "w": 61.77531433105469,
+        "x": 156.6123504638672,
+        "y": 374.2217102050781
+      },
+      "logo": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 678.87939453125,
+        "mask": "none",
+        "opacity": "0",
+        "transform": "matrix(3.29154, 0, 0, 3.29154, -103.125, -103.125)",
+        "w": 678.87939453125,
+        "x": -151.93966674804688,
+        "y": 65.66970825195312
+      },
+      "mode": "animated",
+      "overflow": false,
+      "panels": [],
+      "rings": [
+        {
+          "h": 3604.21875,
+          "i": "9",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -180.211, -180.211, 900, 1)",
+          "w": 3604.21875,
+          "x": -1614.609375,
+          "y": -1397.0955810546875
+        }
+      ],
+      "stage": {
+        "h": 844,
+        "w": 375,
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  {
+    "name": "short-desktop-before",
+    "data": {
+      "action": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 52,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(1, 0, 0, 1, -120, 0)",
+        "w": 240,
+        "x": 555.5,
+        "y": 426.40625
+      },
+      "copy": {
+        "color": "rgb(255, 250, 243)",
+        "filter": "none",
+        "h": 158.8125,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "w": 1303,
+        "x": 24,
+        "y": 301.59375
+      },
+      "core": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 1513.39111328125,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(4.04228, 0, 0, 4.04228, -187.195, -187.195)",
+        "w": 1513.39111328125,
+        "x": -81.195556640625,
+        "y": -507.101806640625
+      },
+      "logo": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 176,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(1, 0, 0, 1, -88, -171.2)",
+        "w": 176,
+        "x": 587.5,
+        "y": 78.39375305175781
+      },
+      "mode": "animated",
+      "overflow": false,
+      "panels": [],
+      "rings": [],
+      "stage": {
+        "h": 520,
+        "w": 1351,
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  {
+    "name": "tablet-finale",
+    "data": {
+      "action": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 52,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(1, 0, 0, 1, -120, 0)",
+        "w": 240,
+        "x": 256.5,
+        "y": 890.09375
+      },
+      "copy": {
+        "color": "rgb(255, 250, 243)",
+        "filter": "none",
+        "h": 94.875,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "w": 705,
+        "x": 24,
+        "y": 614.390625
+      },
+      "core": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 1383.4560546875,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(2.50194, 0, 0, 2.50194, -276.477, -276.477)",
+        "w": 1383.4560546875,
+        "x": -315.22796630859375,
+        "y": -200.21234130859375
+      },
+      "logo": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 240,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(1, 0, 0, 1, -120, -283.84)",
+        "w": 240,
+        "x": 256.5,
+        "y": 207.67562866210935
+      },
+      "mode": "animated",
+      "overflow": false,
+      "panels": [],
+      "rings": [],
+      "stage": {
+        "h": 1024,
+        "w": 753,
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  {
+    "name": "french-320-finale",
+    "data": {
+      "action": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 52,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(1, 0, 0, 1, -120, 0)",
+        "w": 240,
+        "x": 32.5,
+        "y": 470.5625
+      },
+      "copy": {
+        "color": "rgb(255, 250, 243)",
+        "filter": "none",
+        "h": 73.984375,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "w": 257,
+        "x": 24,
+        "y": 329.4375
+      },
+      "core": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 725.3785400390625,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(3.14847, 0, 0, 3.14847, -115.195, -115.195)",
+        "w": 725.3785400390625,
+        "x": -210.18927001953125,
+        "y": -90.06427001953125
+      },
+      "logo": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 167.75,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(1, 0, 0, 1, -83.875, -174.755)",
+        "w": 167.75,
+        "x": 68.625,
+        "y": 97.8699951171875
+      },
+      "mode": "animated",
+      "overflow": false,
+      "panels": [],
+      "rings": [],
+      "stage": {
+        "h": 568,
+        "w": 305,
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  {
+    "name": "short-desktop-fixed",
+    "sha": "25e0c3496f849a7c13ab180fdfd492a378588a8f",
+    "data": {
+      "action": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 52,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(1, 0, 0, 1, -120, 0)",
+        "w": 240,
+        "x": 555.5,
+        "y": 426.40625
+      },
+      "copy": {
+        "color": "rgb(255, 250, 243)",
+        "filter": "none",
+        "h": 86.984375,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "w": 1303,
+        "x": 24,
+        "y": 301.59375
+      },
+      "core": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 1513.39111328125,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(4.04228, 0, 0, 4.04228, -187.195, -187.195)",
+        "w": 1513.39111328125,
+        "x": -81.195556640625,
+        "y": -507.101806640625
+      },
+      "logo": {
+        "color": "rgb(23, 20, 18)",
+        "filter": "none",
+        "h": 176,
+        "mask": "none",
+        "opacity": "1",
+        "transform": "matrix(1, 0, 0, 1, -88, -171.2)",
+        "w": 176,
+        "x": 587.5,
+        "y": 78.39375305175781
+      },
+      "mode": "animated",
+      "overflow": false,
+      "panels": [],
+      "rings": [],
+      "stage": {
+        "h": 520,
+        "w": 1351,
+        "x": 0,
+        "y": 0
+      }
+    }
+  }
+]

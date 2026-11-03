@@ -24,12 +24,25 @@ import styles from "./AdaptiveNavbar.module.css";
 import { ExperienceSoundToggle } from "@/components/experience/ScrollExperience";
 import { hrefForTitle } from "@/lib/service-routes";
 import { navScrollIntent } from "./nav-scroll";
+import { galleryProjectProgress } from "./gallery-journey";
 import { scrollEase } from "@/components/experience/scroll-policy";
 
 const SCROLL_OFFSET = -88;
 const HERO_THRESHOLD_RATIO = 0.62;
 const GLASS_THRESHOLD = 2;
 
+
+function firstWorkDestination(section: HTMLElement) {
+  const runway = section.querySelector<HTMLElement>('[data-gallery-runway]');
+  const stage = section.closest('[data-service-world]')?.querySelector<HTMLElement>(
+    '[data-gallery-stage][data-walkthrough-pinned="true"]'
+  );
+  if (!runway || !stage) return window.scrollY + section.getBoundingClientRect().top + SCROLL_OFFSET;
+
+  const bounds = runway.getBoundingClientRect();
+  const rows = Number(stage.dataset.galleryRows) || 1;
+  return window.scrollY + bounds.top + galleryProjectProgress(0, rows) * (bounds.height - innerHeight * .85);
+}
 
 const CARD_VARIANTS = {
   hidden: {
@@ -181,19 +194,31 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
       setIsPastHero(nextPastHero);
       if (nextPastHero) setExpertiseOpen(false);
     }
-
-    const nextScrolled = latest > GLASS_THRESHOLD;
-    if (nextScrolled !== isScrolledRef.current) {
-      isScrolledRef.current = nextScrolled;
-      setIsScrolled(nextScrolled);
-    }
   };
 
   const scrollToTarget = (target: string) => {
-    const element = document.querySelector<HTMLElement>(`[data-nova-section="${target}"], #${target}`);
+    const sectionId = target === "work" ? "selected-work" : target;
+    const element = document.querySelector<HTMLElement>(`[data-nova-section="${target}"], #${sectionId}`);
     if (!element && !sectionFallback) return;
 
-    if (!element) router.push(`/#${target === "work" ? "selected-work" : target}`);
+    if (!element) router.push(`/#${sectionId}`);
+    else if (sectionId === "selected-work") {
+      if (lenis) {
+        lenis.scrollTo(firstWorkDestination(element), {
+          duration: .75, lerp: 0, easing: scrollEase, userData: { navigation: true },
+          onComplete: () => {
+            // The opening can finish measuring while a fresh visitor is travelling.
+            if (!element.isConnected) return;
+            const settled = firstWorkDestination(element);
+            if (Math.abs(settled - window.scrollY) > 2) {
+              lenis.scrollTo(settled, { immediate: true, userData: { navigation: true } });
+            }
+          },
+        });
+      } else {
+        window.scrollTo({ top: firstWorkDestination(element), behavior: reducedMotion ? "instant" : "smooth" });
+      }
+    }
     else if (lenis?.scrollTo) lenis.scrollTo(element, {
       offset: SCROLL_OFFSET, duration: .75, lerp: 0, easing: scrollEase,
       userData: { navigation: true },
@@ -278,6 +303,18 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
     let frame = 0;
     const sample = () => {
       frame = 0;
+      // The opening wrapper also contains the film and cards. Follow the
+      // actual hero surface, including its authored fade and static fallback.
+      const hero = document.querySelector<HTMLElement>("[data-opening-hero]");
+      const heroBounds = hero?.getBoundingClientRect();
+      const heroStyle = hero ? getComputedStyle(hero) : null;
+      const heroVisible = !!heroBounds && heroBounds.bottom > 0 && heroBounds.top < innerHeight &&
+        heroStyle?.visibility !== "hidden" && Number(heroStyle?.opacity ?? 1) > .001;
+      const nextScrolled = scrollY.get() > GLASS_THRESHOLD && !heroVisible;
+      if (nextScrolled !== isScrolledRef.current) {
+        isScrolledRef.current = nextScrolled;
+        setIsScrolled(nextScrolled);
+      }
       // The opening stays white even when a cream card passes under the nav.
       // Follow the section surface, rather than individual images and cards.
       const surfaces = Array.from(document.querySelectorAll<HTMLElement>("[data-nav-surface]"));
@@ -297,8 +334,17 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sample); };
     const unsubscribe = scrollY.on("change", schedule);
     window.addEventListener("resize", schedule);
+    window.addEventListener("pageshow", schedule);
+    window.addEventListener("lionovart:splash-complete", schedule);
+    window.addEventListener("lionovart:hero-visibility", schedule);
     schedule();
-    return () => { unsubscribe(); cancelAnimationFrame(frame); window.removeEventListener("resize", schedule); };
+    return () => {
+      unsubscribe(); cancelAnimationFrame(frame);
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener("pageshow", schedule);
+      window.removeEventListener("lionovart:splash-complete", schedule);
+      window.removeEventListener("lionovart:hero-visibility", schedule);
+    };
   }, [scrollY]);
 
   const heroMode = !isPastHero;

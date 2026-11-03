@@ -56,7 +56,7 @@ export default function LionJourney({ children }: { children: ReactNode }) {
     const sync = () => {
       if (disposed || !opening.current) return;
       const bounds = opening.current.getBoundingClientRect();
-      const stage = opening.current.querySelector<HTMLElement>(".hero-opening-stage");
+      const stage = (opening.current.closest("[data-service-world]") ?? opening.current).querySelector<HTMLElement>(".hero-opening-stage");
       const overflow = Number.parseFloat(opening.current.style.getPropertyValue("--hero-overflow")) || 0;
       const pinStart = openingDocumentTop(opening.current, scrollY) + overflow;
       const stageHeight = stage?.offsetHeight ?? innerHeight;

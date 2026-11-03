@@ -1,0 +1,106 @@
+[
+  {
+    "case": "cold-gallery-hash",
+    "state": {
+      "active": null,
+      "canvases": 7,
+      "heading": "our selected work",
+      "mode": "animated",
+      "overflow": false,
+      "progress": null,
+      "projects": 10,
+      "url": "https://lionovartnext-r5pzcxjjq-lionovart.vercel.app/#selected-work",
+      "viewport": [
+        1363,
+        936
+      ]
+    }
+  },
+  {
+    "case": "gallery-reload",
+    "state": {
+      "active": null,
+      "canvases": 7,
+      "heading": "our selected work",
+      "mode": "animated",
+      "overflow": false,
+      "progress": null,
+      "projects": 10,
+      "url": "https://lionovartnext-r5pzcxjjq-lionovart.vercel.app/#selected-work",
+      "viewport": [
+        1363,
+        936
+      ]
+    }
+  },
+  {
+    "case": "partnership-hash",
+    "state": {
+      "active": null,
+      "canvases": 7,
+      "heading": "our selected work",
+      "mode": "animated",
+      "overflow": false,
+      "progress": null,
+      "projects": 10,
+      "url": "https://lionovartnext-r5pzcxjjq-lionovart.vercel.app/#partnership",
+      "viewport": [
+        1363,
+        936
+      ]
+    },
+    "pose": {
+      "active": "true",
+      "ending": {
+        "bottom": 720.0625,
+        "height": 158.46875,
+        "left": 24,
+        "right": 1324,
+        "top": 561.59375,
+        "width": 1300,
+        "x": 24,
+        "y": 561.59375
+      },
+      "logo": true,
+      "nav": "05 / 05",
+      "rings": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "1"
+      ]
+    }
+  },
+  {
+    "case": "back-to-gallery",
+    "state": {
+      "active": null,
+      "canvases": 7,
+      "heading": "our selected work",
+      "mode": "animated",
+      "overflow": false,
+      "progress": null,
+      "projects": 10,
+      "url": "https://lionovartnext-r5pzcxjjq-lionovart.vercel.app/#selected-work",
+      "viewport": [
+        1363,
+        936
+      ]
+    },
+    "pose": {
+      "active": "true",
+      "nav": "01 / 05",
+      "rect": {
+        "bottom": 936,
+        "height": 936,
+        "left": 0,
+        "right": 1348,
+        "top": 0,
+        "width": 1348,
+        "x": 0,
+        "y": 0
+      }
+    }
+  }
+]

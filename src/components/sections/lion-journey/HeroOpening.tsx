@@ -3,28 +3,34 @@
 import { useEffect, useState } from "react";
 import { motion, useMotionValueEvent, useTransform } from "framer-motion";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScenePortal, usePinnedScene } from '../service-world/PinnedScene';
+import journeyStyles from './LionJourney.module.css';
 import HeroTop from "../HeroTop";
 import WhatWeDo from "../WhatWeDo";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { useLionJourney } from "./LionJourney";
 
 export default function HeroOpening() {
-  const { opening: openingRef, openingProgress, arrivalProgress } = useLionJourney()!;
+  const { opening: openingRef, openingProgress } = useLionJourney()!;
+  const scene = usePinnedScene();
   const reduced = useHydratedReducedMotion();
-  const [workInert, setWorkInert] = useState(false);
-  const workOpacity = useTransform(arrivalProgress, [0, .3, .9, 1], [1, 1, 0, 0]);
-  useMotionValueEvent(arrivalProgress, "change", p => setWorkInert(p >= .9));
+  const readingFlow = scene?.staticLayout ?? reduced;
   const [heroInert, setHeroInert] = useState(false);
   const heroOpacity = useTransform(openingProgress, [0, 0.03 / 1.6, 0.26 / 1.6], [1, 1, 0]);
   useMotionValueEvent(openingProgress, "change", p => { setHeroInert(p > 0.25 / 1.6); });
+  useMotionValueEvent(heroOpacity, "change", opacity => {
+    // Notify after the authored fade reaches an endpoint as well as on scroll.
+    // Otherwise the last scroll sample can precede Motion's final DOM write.
+    if (opacity === 0 || opacity === 1) window.dispatchEvent(new Event("lionovart:hero-visibility"));
+  });
 
   useEffect(() => {
     const opening = openingRef.current;
-    const stage = opening?.querySelector<HTMLElement>(".hero-opening-stage");
-    const hero = opening?.querySelector<HTMLElement>(".lion-hero");
+    const stage = (scene?.target ?? opening)?.querySelector<HTMLElement>(".hero-opening-stage");
+    const hero = stage?.querySelector<HTMLElement>(".lion-hero");
     const roar = hero?.querySelector<HTMLElement>(".lion-roar-text");
     const nav = document.querySelector<HTMLElement>("[data-nav-state]");
-    if (!stage || !hero) return;
+    if (!stage || !hero || readingFlow) return;
     let frame = 0;
     const measure = () => {
       cancelAnimationFrame(frame);
@@ -50,7 +56,7 @@ export default function HeroOpening() {
     void document.fonts.ready.then(measure);
     measure();
     return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener("resize", measure); };
-  }, [openingRef]);
+  }, [openingRef, scene?.target, readingFlow]);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -61,19 +67,21 @@ export default function HeroOpening() {
   }, []);
 
   return (
-    <div ref={openingRef} className="hero-opening hero-opening-pinned" data-opening-mode="pinned" data-opening-imagine="inline" data-nav-surface="dark">
+    <div ref={openingRef} className="hero-opening hero-opening-pinned" data-opening-mode={readingFlow ? "static" : "pinned"} data-opening-imagine="inline" data-nav-surface="dark">
       <span id="what-we-build" className="opening-work-anchor" aria-hidden="true" />
       <span id="imagine" className="opening-imagine-anchor" aria-hidden="true" />
       <span id="problems" className="opening-imagine-anchor" aria-hidden="true" />
-      <div className="hero-opening-stage">
+      <ScenePortal><div className={journeyStyles.journey} data-scene-opening data-opening-imagine="inline">
+      <div className="hero-opening-stage" data-opening-imagine="inline">
         <motion.div data-nova-section="hero" data-opening-hero className="opening-hero-layer"
-          style={{ opacity: reduced ? 1 : heroOpacity }} inert={!reduced && heroInert}>
+          style={{ opacity: readingFlow ? 1 : heroOpacity }} inert={!readingFlow && heroInert}>
           <HeroTop />
         </motion.div>
-        <motion.div className="opening-work-layer" data-opening-cards-layer style={{ opacity: reduced ? 1 : workOpacity }} inert={!reduced && workInert}>
+        <motion.div className="opening-work-layer" data-opening-cards-layer style={{ opacity: 1 }}>
           <WhatWeDo pinned />
         </motion.div>
       </div>
+      </div></ScenePortal>
     </div>
   );
 }

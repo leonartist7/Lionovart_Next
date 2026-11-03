@@ -1,140 +1,97 @@
 .section {
-  --closing-heading: clamp(2.125rem, 1.36rem + 4.6vw, 5.5rem);
-  --closing-word: clamp(2rem, 1.5rem + 2.5vw, 3.75rem);
-  --closing-art: clamp(3.5rem, 2.75rem + 3.6vw, 6rem);
-  --closing-line-height: 1.06;
-  --closing-word-gap: clamp(1rem, 0.75rem + 1vw, 1.5rem);
-  --liquid-button-width: min(13.75rem, calc(100vw - 3rem));
-  --liquid-button-height: 3rem;
-  --liquid-button-label-size: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
-  --liquid-button-label-wrap: normal;
-  --liquid-button-label-max-width: calc(var(--liquid-button-width) - 2rem);
-  --closing-surface: var(--site-surface-light, #f2ede3);
-  position: relative;
-  isolation: isolate;
-  overflow-x: clip;
-  padding-top: 3rem;
-  color: #171412;
-  background: var(--closing-surface);
-  text-align: center;
-  scroll-margin-top: 6rem;
+  --diameter:min(112vw, 96svh, 72rem);
+  --closing-heading:clamp(1.65rem,calc(var(--diameter) * .105),5.5rem);
+  --closing-word:clamp(1.5rem,calc(var(--diameter) * .10),5.25rem);
+  --closing-art:calc(var(--diameter) * .19);
+  --closing-word-gap:.45rem;
+  --liquid-button-width:min(13.75rem,80vw);
+  --liquid-button-height:3rem;
+  --liquid-inner-trim:6px;
+  --liquid-button-label-size:.875rem;
+  position:relative;
+  isolation:isolate;
+  overflow-x:clip;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(1.2rem,3.5svh,2.25rem);
+  min-height:90svh;
+  padding:clamp(1rem,2svh,2rem) 0;
+  background:#030407;
+  color:#fff;
+  text-align:center;
 }
-
+.dots {
+  --dot-spacing:26px;
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:var(--cta-copy-opacity, 1);
+  background:radial-gradient(circle, rgb(225 182 99 / 26%) .9px, transparent 1.25px) center / var(--dot-spacing) var(--dot-spacing);
+  mask-image:radial-gradient(ellipse at center, black 20%, rgb(0 0 0 / 80%) 100%);
+}
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference) {
+  .dots::after {
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle, rgb(249 208 127 / 45%) 1px, transparent 1.4px) center / var(--dot-spacing) var(--dot-spacing);
+    mask-image:radial-gradient(circle 9rem at var(--dot-x, 50%) var(--dot-y, 50%), black, transparent);
+    opacity:0;
+    transition:opacity 220ms ease-out;
+  }
+  .dots[data-lit]::after { opacity:1; }
+}
 .copy {
-  position: relative;
-  z-index: 2;
-  max-width: 61rem;
-  margin-inline: auto;
-  padding-inline: 1.25rem;
+  position:relative; width:var(--diameter); aspect-ratio:1; flex:none; border-radius:50%;
+  background:radial-gradient(circle closest-side, #030407 0% 34%, rgb(3 4 7 / 95%) 55%, rgb(3 4 7 / 68%) 75%, transparent 96%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.copy > * { position:relative; width:min(74%, 86vw); z-index:1; }
+.copy::before,.copy::after { pointer-events:none; }
+.copy::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  /* Radial bands model the polished lip and the hollow of the bevel. */
+  background:
+    radial-gradient(closest-side,transparent 84.5%,#20030788 86%,transparent 90%,#d8939614 96%,#fff1e994 99.3%,transparent),
+    conic-gradient(from -50deg,#ff9a86,#fff0e5 8deg,#f77c70 20deg,#79232d 47deg,#21060a 82deg,#28070d 131deg,#821020 173deg,#ff3941 207deg,#e5192a 230deg,#941424 266deg,#63101b 298deg,#db3a42 333deg,#ff9a86);
+  mask-image:radial-gradient(closest-side,transparent 84%,black 84.7% 99.5%,transparent);
+}
+.copy::after {
+  content:"";
+  position:absolute;
+  inset:-12%;
+  background:radial-gradient(ellipse 12% 7% at 21% 22%,#ffd5be6e, #ff504238 43%,transparent),
+             radial-gradient(ellipse 22% 15% at 23% 21%,#fb253535,transparent);
+  pointer-events:none;
 }
 
-.accent {
-  margin: 0 0 1.5rem;
-  font-size: clamp(1.25rem, 1.16rem + 0.4vw, 1.5rem);
-  line-height: 1.3;
-  color: var(--color-brand-red, #e5192a);
-  text-wrap: balance;
-}
+.accent { margin:0 0 .6rem; font-size:clamp(1rem,calc(var(--diameter) * .042),1.75rem); color:#f0c9bc; }
+.stage { margin-top:clamp(1.5rem, 4svh, 3rem); }
+.stage,.action { position:relative; display:grid; place-items:center; }
+.action button:focus-visible { outline:2px solid #ffe2cf; outline-offset:5px; }
 
-.stage {
-  position: relative;
-  isolation: isolate;
-  width: 100%;
-  max-width: 65rem;
-  margin: 1.875rem auto 0;
-  padding: 0 1.5rem 6rem;
+.glass {
+  position:fixed; inset:0; margin:auto; width:min(26rem,calc(100vw - 2rem));
+  max-height:calc(100dvh - 2rem); overflow:auto; padding:clamp(1.5rem,4vw,2.25rem);
+  border:1px solid #f6cfba66; border-radius:1.65rem; text-align:left; color:#faf5ef;
+  background:linear-gradient(145deg,#60464188,#19171be8 42%,#251317ed);
+  backdrop-filter:blur(22px); box-shadow:inset 0 1px #fff5,0 1.5rem 6rem #0008;
 }
-
-.ornament {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: clip;
-  pointer-events: none;
-}
-.ornament > div {
-  position: absolute;
-  inset-block: 0;
-  display: block;
-  height: 100%;
-  aspect-ratio: 760 / 800;
-}
-.ornament > div[data-side="left"] { left: 0; transform: translate(-8%, var(--ribbon-drift, 0px)); }
-.ornament > div[data-side="right"] { right: 0; transform: translate(8%, var(--ribbon-drift, 0px)) scaleX(-1); }
-.ornament svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.ornament > div[data-profile="mobile"] { display: none; }
-@media (width < 640px) {
-  .ornament > div[data-profile="desktop"] { display: none; }
-  .ornament > div[data-profile="mobile"] { display: block; aspect-ratio: 210 / 800; }
-}
-
-.action {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.action button:focus-visible {
-  outline: 3px solid #171412;
-  outline-offset: 6px;
-}
-
-@media (min-width: 40rem) {
-  .section {
-    padding-top: 3.75rem;
-  }
-  .copy { padding-inline: 2rem; }
-  .accent { margin-bottom: 2rem; }
-  .stage { margin-top: 2.625rem; padding-bottom: 7rem; }
-}
-
-@media (min-width: 64rem) {
-  .section {
-    padding-top: 4.5rem;
-  }
-  .copy { padding-inline: 3rem; }
-  .stage { margin-top: 3rem; padding-bottom: 8rem; }
-  .action { gap: 2rem; }
-}
-
-/* The dock and copy share a fixed, centered layout throughout the handoff. */
-.withLion {
-  --closing-heading: clamp(1.75rem, 1.2rem + 3.5vw, 5rem);
-  --liquid-button-width: min(13.75rem, calc(100vw - var(--process-pad) * 2));
-  padding-top: clamp(1.5rem, 3.75svh, 3rem);
-}
-.withLion .copy, .withLion .stage { padding-inline: var(--process-pad); }
-.withLion .accent { margin-bottom: clamp(1rem, 2svh, 1.5rem); }
-.withLion .stage { margin-top: clamp(.9375rem, 2.25svh, 1.5rem); padding-bottom: 0; }
-.withLion .action { gap: 1rem; }
-.lionDock {
-  position: relative;
-  z-index: 1;
-  margin-top: clamp(1rem, 2.5svh, 2rem);
-  padding-bottom: clamp(1rem, 2.5svh, 2rem);
-}
-
-/* The lion sits behind the upper plane; copy and action occupy their own rows. */
-.withLion { min-height: max(36rem, 80svh); padding-top: 0; }
-.withLion .copy { position: absolute; top: 63%; left: 0; width: 100%; max-width: none; transform: translateY(-50%); z-index: 4; }
-.withLion .stage { position: absolute; bottom: max(2rem, 6svh); left: 0; width: 100%; max-width: none; margin: 0; padding-block: 0; z-index: 4; }
-.withLion .lionDock { position: absolute; top: 28%; left: 0; width: 100%; margin: 0; padding: 0; transform: translateY(-50%); z-index: 1; }
-:global([data-static="true"]) .withLion { display: flex; flex-direction: column; padding: 2rem 0 3rem; gap: 2rem; }
-:global([data-static="true"]) .withLion .lionDock { order: -1; }
-:global([data-static="true"]) .withLion :is(.copy, .stage, .lionDock) { position: relative; top: auto; left: auto; bottom: auto; transform: none; }
-
-@media (width < 640px) {
-  /* Closer panels frame the scene; a quiet reading lane protects every locale
-     and the wide gold word art throughout the drift, including static flow. */
-  .withLion .copy::before {
-    content: "";
-    position: absolute;
-    inset: -.75rem 0;
-    z-index: -1;
-    pointer-events: none;
-    background: linear-gradient(90deg, transparent, var(--closing-surface) 8%, var(--closing-surface) 92%, transparent);
-  }
-}
+.glass::backdrop { background:#080408a8; }
+.glass[open] { animation:glassOpen .32s cubic-bezier(.2,.8,.25,1) both; transform-origin:center bottom; }
+@keyframes glassOpen { from { opacity:0;transform:translateY(2rem) scale(.9); } }
+@media(prefers-reduced-motion:reduce) { .glass[open] {animation:none} }
+.glass form,.glass label { display:grid; gap:.45rem; }
+.glass form { gap:1.1rem; }
+.eyebrow { font-size:.68rem; letter-spacing:.16em; color:#e8c79c; }
+.glass h2 { font:600 clamp(1.8rem,4vw,2.5rem)/1.03 var(--font-clash-display),sans-serif; max-width:12em; letter-spacing:-.035em; }
+.glass label { color:#f2e5df; font-size:.875rem; }
+.glass input { width:100%; min-height:2.85rem; border:1px solid #fae3da40; border-radius:.65rem; background:#07060970; padding:.65rem .85rem; color:white; font-size:1rem; }
+.glass :focus-visible { outline:2px solid #e8c79c; outline-offset:2px; }
+.dismiss { position:absolute;right:.55rem;top:.45rem;width:2.75rem;height:2.75rem;font-size:1.5rem; }
+.talk { margin-top:.3rem; border:1px solid #ffab9788; border-radius:2rem; padding:.85rem; background:linear-gradient(#c21829,#7b0a18); color:white;font-weight:600; }

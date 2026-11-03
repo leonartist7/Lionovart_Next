@@ -7,6 +7,7 @@ import type { HandoffData, SessionState, LeadFieldKey } from "@/lib/strategist-c
 import type { LeadData, SessionNotice, FieldConfirmations } from "./useStrategistSession";
 import NovaOrb from "./NovaOrb";
 import HandoffCards from "./HandoffCards";
+import { useNovaStore } from "@/lib/stores/nova-store";
 import { PrivacyGate } from "./PrivacyGate";
 import { useAudioAmplitude } from "./useAudioAmplitude";
 
@@ -68,7 +69,7 @@ export default function ConversationView({
     }
     return false;
   });
-  const [showPrivacyPrompt, setShowPrivacyPrompt] = useState(false);
+  const [showPrivacyPrompt, setShowPrivacyPrompt] = useState(() => Boolean(useNovaStore.getState().intake) && !privacyAccepted);
 
   const handleBlobClick = () => {
     if (isSessionActive) return;
