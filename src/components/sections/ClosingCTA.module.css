@@ -21,11 +21,12 @@
   text-align:center;
 }
 .dots {
+  --dot-spacing:26px;
   position:absolute;
   inset:0;
   pointer-events:none;
   opacity:var(--cta-copy-opacity, 1);
-  background:radial-gradient(circle, rgb(242 228 224 / 44%) .85px, transparent 1.25px) center / 12px 12px;
+  background:radial-gradient(circle, rgb(255 248 244 / 78%) .9px, transparent 1.25px) center / var(--dot-spacing) var(--dot-spacing);
   mask-image:radial-gradient(ellipse at center, black 20%, rgb(0 0 0 / 80%) 100%);
 }
 @media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference) {
@@ -33,7 +34,7 @@
     content:"";
     position:absolute;
     inset:0;
-    background:radial-gradient(circle, rgb(255 229 218 / 70%) .8px, transparent 1.15px) center / 12px 12px;
+    background:radial-gradient(circle, rgb(255 240 233 / 96%) 1px, transparent 1.4px) center / var(--dot-spacing) var(--dot-spacing);
     mask-image:radial-gradient(circle 9rem at var(--dot-x, 50%) var(--dot-y, 50%), black, transparent);
     opacity:0;
     transition:opacity 220ms ease-out;
