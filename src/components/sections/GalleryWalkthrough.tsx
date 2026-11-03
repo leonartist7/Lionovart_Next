@@ -43,6 +43,8 @@ function GalleryPanel({ work, index, count, progress, entry, entryScale, focusDe
   const simpleExit = reduce || saveData || constrained;
   const panelRef = useRef<HTMLDivElement>(null);
   const filterId = `gallery-erosion-${useId().replace(/:/g, '')}`;
+  const cutoffs = useRef<SVGElement[]>([]);
+  useEffect(() => { cutoffs.current = [...(panelRef.current?.querySelectorAll<SVGElement>('[data-gallery-cutoff]') ?? [])]; }, [simpleExit]);
   const focusSpring = useSpring(0, { stiffness: 180, damping: 30, mass: 1 });
   useEffect(() => { focusSpring.set(selected ? 1 : 0); }, [selected, focusSpring]);
   const pose = useTransform(progress, p => galleryCardPose(p, index, count));
@@ -68,7 +70,7 @@ function GalleryPanel({ work, index, count, progress, entry, entryScale, focusDe
     const next = galleryCardPose(p, index, count);
     setReadable(next.caption > .5);
     if (!simpleExit && next.visible && next.dissolve > 0 && next.dissolve < 1) {
-      panelRef.current?.querySelectorAll<SVGElement>('[data-gallery-cutoff]').forEach(node => {
+      cutoffs.current.forEach(node => {
         node.setAttribute('intercept', String((node.dataset.galleryCutoff === 'edge' ? 1.24 : 1) - next.dissolve * 7));
       });
     }
@@ -142,10 +144,11 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   useEffect(() => {
     const anchor = runway.current; if (!anchor) return;
     let frame = 0, layoutKey = '';
+    let rootRem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
     const sync = () => {
       frame = 0;
       const box = anchor.getBoundingClientRect();
-      const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      const rem = rootRem;
       const nextKey = `${innerWidth}/${innerHeight}/${document.documentElement.clientWidth}/${rem}`;
       const surface = stage.current;
       if (surface && nextKey !== layoutKey) {
@@ -187,7 +190,8 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       }
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
-    const observer = new ResizeObserver(schedule); observer.observe(anchor);
+    const refreshType = () => { rootRem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16; layoutKey = ''; schedule(); };
+    const observer = new ResizeObserver(refreshType); observer.observe(anchor);
     // Media metadata and service replacement can change the fitted width after
     // the scroll frame. Keep the entry match current even while the reader rests.
     const geometry = new ResizeObserver(() => { layoutKey = ''; schedule(); });
@@ -202,9 +206,10 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     const replacements = new MutationObserver(refresh);
     if (scene?.target) replacements.observe(scene.target, { childList: true, subtree: true });
     refresh();
-    window.addEventListener('scroll', schedule, { passive: true }); window.addEventListener('resize', schedule);
+    window.addEventListener('scroll', schedule, { passive: true }); window.addEventListener('resize', refreshType);
+    void document.fonts.ready.then(refreshType);
     sync();
-    return () => { cancelAnimationFrame(frame); observer.disconnect(); geometry.disconnect(); replacements.disconnect(); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); };
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); geometry.disconnect(); replacements.disconnect(); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', refreshType); };
   }, [pinned, progress, entry, entryScale, focusDepth, arrivalProgress, runway, scene?.target, stage]);
 
   // Snapshot the reading identity before the shared scene changes DOM owners.

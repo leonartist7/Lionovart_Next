@@ -94,7 +94,7 @@ export default function ServiceWorld({ children, mediaFirst = false }: { childre
       };
       latest = input;
       root.dataset.worldVisible = String(visible);
-      root.dataset.worldMotion = reduced ? 'reduced' : s.paused ? 'paused' : 'active';
+      root.dataset.worldMotion = reduced ? 'reduced' : s.paused || !atServices ? 'paused' : 'active';
       surface.style.opacity = visible && !failed ? '1' : '0';
       if (engine.current) engine.current.update(input);
       else if (visible && !loading && !failed && !fallbackOnly) {

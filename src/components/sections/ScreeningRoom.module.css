@@ -111,3 +111,8 @@
 .mediaLayer { position: absolute; inset: 0; border-radius: inherit; }
 .media[data-frame-ratio] { animation: none; }
 
+
+/* The reveal consumes one real viewport before the next document section. */
+.aboutRunway[data-about-reveal=true],
+.aboutRunway[data-about-reveal=true] .aboutStage { min-height:100svh; }
+.aboutRunway[data-about-reveal=true] .aboutStage { display:grid; align-items:center; }

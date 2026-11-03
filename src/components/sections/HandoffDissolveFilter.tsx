@@ -1,6 +1,17 @@
 /** Static field shared by the outgoing card and its incoming service media.
  * Only the alpha threshold changes; no clock or render loop runs at rest. */
 export default function HandoffDissolveFilter({ id, seed, incoming = false, gallery = false }: { id: string; seed: number; incoming?: boolean; gallery?: boolean }) {
+  // A departing tunnel image can project well beyond the viewport. Four passes
+  // preserve the coarse erosion field without allocating two halo surfaces,
+  // a blur and a merge for that enlarged artwork.
+  if (gallery) return <svg width="0" height="0" aria-hidden="true" style={{ position:'absolute', pointerEvents:'none' }}>
+    <defs><filter id={id} x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".018 .028" numOctaves={1} seed={seed} result="flow" />
+      <feColorMatrix in="flow" type="luminanceToAlpha" result="field" />
+      <feComponentTransfer in="field" result="remaining"><feFuncA type="linear" slope={8} intercept="1" data-gallery-cutoff="surface" /></feComponentTransfer>
+      <feComposite in="SourceGraphic" in2="remaining" operator="in" />
+    </filter></defs>
+  </svg>;
   return (
       <svg width="0" height="0" aria-hidden="true" style={{ position: 'absolute', pointerEvents: 'none' }}>
         <defs>
