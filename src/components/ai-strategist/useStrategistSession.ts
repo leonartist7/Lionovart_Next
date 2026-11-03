@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, type RefObject } from "react";
 import type { HandoffData, SessionState, LeadFieldKey } from "@/lib/strategist-config";
 import { trackNovaEvent, NOVA_EVENT } from "@/lib/nova-events";
+import { useNovaStore } from "@/lib/stores/nova-store";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface LeadData {
@@ -333,7 +334,8 @@ export function useStrategistSession({
       setTranscript([]);
       setSessionNotice(null);
       setIsMicMuted(false);
-      setLeadData(EMPTY_LEAD);
+      const intake = useNovaStore.getState().intake;
+      setLeadData({ ...EMPTY_LEAD, ...intake });
       setFieldConfirmations(EMPTY_CONFIRMATIONS);
       setHandoffData(null);
       micEnabledRef.current = true;
@@ -585,7 +587,9 @@ export function useStrategistSession({
             ws.send(
               JSON.stringify({
                 realtimeInput: {
-                  text: "Hello. Please greet me out loud as instructed in Stage 0.",
+                  text: intake
+                    ? `I entered these details in the onboarding form: ${JSON.stringify(intake)}. Use the nonempty fields as contact details. Please greet me and ask about my project.`
+                    : "Hello. Please greet me out loud as instructed in Stage 0.",
                 },
               }),
             );

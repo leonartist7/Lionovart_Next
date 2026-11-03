@@ -82,8 +82,8 @@ export function LiquidMetalButton({
       return {
         width: resolvedWidth,
         height: resolvedHeight,
-        innerWidth: `calc(${resolvedWidth} - 4px)`,
-        innerHeight: `calc(${resolvedHeight} - 4px)`,
+        innerWidth: `calc(${resolvedWidth} - var(--liquid-inner-trim, 4px))`,
+        innerHeight: `calc(${resolvedHeight} - var(--liquid-inner-trim, 4px))`,
         shaderWidth: resolvedWidth,
         shaderHeight: resolvedHeight,
       };
@@ -284,7 +284,7 @@ export function LiquidMetalButton({
               style={{
                 width: dimensions.innerWidth,
                 height: dimensions.innerHeight,
-                margin: "2px",
+                margin: "calc(var(--liquid-inner-trim, 4px) / 2)",
                 borderRadius: "100px",
                 background: variant === "white"
                   ? "linear-gradient(180deg, #ffffff 0%, #f0ece8 100%)"
