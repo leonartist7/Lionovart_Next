@@ -63,6 +63,7 @@ try {
    const wordCenter=(lettering[0].x+lettering[2].right)/2;
    assert.ok(Math.abs(wordCenter-(lettering[0].paneX+lettering[0].paneRight)/2)<(lettering[0].paneRight-lettering[0].paneX)*.05,'Wordmark is centered in the white card');
    assert.deepEqual(await page.locator('[data-persistent-card]').evaluateAll(nodes=>nodes.map(n=>n.dataset.persistentFrameId)),frames,'Original card DOM identities persist');
+   await scroll(exit.top-h+(exit.height+h));
    const options=page.locator('[data-service-option]');
    assert.deepEqual(await options.evaluateAll(es=>es.map(e=>e.dataset.serviceId)),['branding','content-studio','web','smart-systems','led','print']);
    await options.nth(2).click();
