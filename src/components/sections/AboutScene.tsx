@@ -10,7 +10,7 @@ export default function AboutScene() {
     const node = section.current;
     if (!node) return;
     const preference = matchMedia('(prefers-reduced-motion: reduce), (max-height:560px)');
-    let frame = 0;
+    let frame = 0, landingFrame = 0, landed = false;
     const sync = () => {
       frame = 0;
       const animated = !preference.matches && document.querySelector<HTMLElement>('[data-service-world]')?.dataset.storyStatic === 'false';
@@ -30,11 +30,24 @@ export default function AboutScene() {
       node.inert = p < .03;
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
+    const land = (event?: Event) => {
+      if (event?.type === 'hashchange') landed = false;
+      if (landed || location.hash !== '#about' || document.documentElement.dataset.splashComplete !== 'true') return;
+      cancelAnimationFrame(landingFrame);
+      landingFrame = requestAnimationFrame(() => { landingFrame = requestAnimationFrame(() => {
+        landed = true;
+        window.scrollTo({ top:scrollY + node.getBoundingClientRect().top - 64, behavior:'instant' });
+        schedule();
+      }); });
+    };
     window.addEventListener('scroll', schedule, { passive:true });
     window.addEventListener('resize', schedule);
     window.addEventListener('lionovart:story-layout', schedule);
-    preference.addEventListener('change', schedule); sync();
-    return () => { cancelAnimationFrame(frame); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); window.removeEventListener('lionovart:story-layout', schedule); preference.removeEventListener('change', schedule); node.inert=false; };
+    window.addEventListener('hashchange', land);
+    window.addEventListener('lionovart:splash-complete', land);
+    window.addEventListener('lionovart:story-layout', land);
+    preference.addEventListener('change', schedule); sync(); land();
+    return () => { cancelAnimationFrame(frame); cancelAnimationFrame(landingFrame); window.removeEventListener('hashchange', land); window.removeEventListener('lionovart:splash-complete', land); window.removeEventListener('lionovart:story-layout', land); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); window.removeEventListener('lionovart:story-layout', schedule); preference.removeEventListener('change', schedule); node.inert=false; };
   }, []);
   return <section ref={section} id="about" className={styles.aboutRunway} data-about-runway
     data-nova-section="about" data-nav-surface="light" data-scroll-title-skip>

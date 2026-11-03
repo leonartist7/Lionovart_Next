@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: white-card-review
+  group: white-card-review-final
   cancel-in-progress: true
 jobs:
   browser-review:
@@ -28,7 +28,7 @@ jobs:
           STORY_PREVIEW: https://lionovartnext-git-review-white-card-to-portfolio-lionovart.vercel.app
         run: node scripts/verify-white-card-preview.mjs
       - name: Compare deployed doorway and project-pass work
-        if: always()
+        if: ${{ !cancelled() }}
         env:
           STORY_PREVIEW: https://lionovartnext-git-review-white-card-to-portfolio-lionovart.vercel.app
         run: node scripts/compare-white-card-performance.mjs

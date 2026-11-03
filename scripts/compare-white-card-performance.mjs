@@ -12,6 +12,13 @@ try {
    await page.goto(base,{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>document.documentElement.dataset.splashComplete==='true');
    await page.waitForTimeout(1800);
+   if(label==='before'){
+     const exit=await page.locator('[data-card-exit]').evaluate(el=>({top:scrollY+el.getBoundingClientRect().top,height:el.offsetHeight}));
+     for(const p of [.3,.64,.96]){
+       await page.evaluate(y=>scrollTo({top:y,behavior:'instant'}),exit.top-height+p*(exit.height+height));await page.waitForTimeout(150);
+       await page.screenshot({path:output+'/'+width+'x'+height+'-before-cards-'+Math.round(p*100)+'.png'});
+     }
+   }
    const g=await page.locator('[data-gallery-runway]').evaluate(el=>({top:scrollY+el.getBoundingClientRect().top,height:el.offsetHeight}));
    const client=await context.newCDPSession(page);
    await client.send('Performance.enable');
@@ -20,9 +27,9 @@ try {
     const before=(await client.send('Performance.getMetrics')).metrics;
     const timing=await page.evaluate(async({from,to})=>{
      const frames=[];let previous=performance.now();
-     for(const reverse of [false,true])for(let i=0;i<=90;i++){
+     for(const reverse of [false,true])for(let i=0;i<=60;i++){
       await new Promise(requestAnimationFrame);const now=performance.now();frames.push(now-previous);previous=now;
-      const p=reverse?1-i/90:i/90;scrollTo({top:from+(to-from)*p,behavior:'instant'});
+      const p=reverse?1-i/60:i/60;scrollTo({top:from+(to-from)*p,behavior:'instant'});
      }
      const sorted=frames.slice(5).sort((a,b)=>a-b);
      return {samples:sorted.length,medianMs:sorted[Math.floor(sorted.length*.5)],p95Ms:sorted[Math.floor(sorted.length*.95)]};

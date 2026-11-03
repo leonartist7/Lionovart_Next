@@ -1,12 +1,14 @@
 import { chromium } from '/tmp/story-qa/node_modules/playwright/index.mjs';
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
+import { globSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 const base=process.env.STORY_PREVIEW;
 const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261103-r6';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261103-r7';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -15,6 +17,7 @@ const results=[];
 try {
  for(const [w,h,locale,reduced,text=16] of [[1440,900,'en',false],[390,844,'en',false],[320,568,'en',false],[844,390,'en',false],[768,1024,'en',false],[1023,768,'en',false],[1025,768,'en',false],[1280,720,'en',false],[1920,1080,'en',false],[390,844,'fr',false],[1440,900,'fr',false],[390,844,'fr',true],[390,844,'fr',false,32],[1366,520,'fr',false]]) {
   const context=await browser.newContext({viewport:{width:w,height:h},hasTouch:w<=390,isMobile:w<=390,reducedMotion:reduced?'reduce':'no-preference',recordVideo:{dir:output,size:{width:Math.min(1440,w),height:Math.min(900,h)}}});
+  const recordingEpoch=Date.now();let clipStart=0,clipDuration=0;
   const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(base+(locale==='fr'?'/fr':'/'),{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>document.documentElement.dataset.splashComplete==='true',{},{timeout:90000});
@@ -61,7 +64,9 @@ try {
    await page.waitForFunction(()=>document.querySelector('[data-service-content]')?.getAttribute('data-service-current')==='print');
    await page.screenshot({path:`${output}/${prefix}-service-last.png`});
    // A continuous forward/reverse pass records the actual choreography.
+   clipStart=(Date.now()-recordingEpoch)/1000;
    for(const direction of [1,-1])for(let i=0;i<=70;i++){const p=direction===1?.52+i*.48/70:1-i*.48/70;await scroll(exit.top-h+p*(exit.height+h));}
+   clipDuration=(Date.now()-recordingEpoch)/1000-clipStart;
    if(w===1440&&locale==='en'){
      await scroll(exit.top-h+.78*(exit.height+h));
      await page.setViewportSize({width:1280,height:720});await page.waitForTimeout(400);
@@ -124,8 +129,19 @@ try {
     await page.waitForTimeout(1200);
     const closingTop=await page.locator('#closing-studio').evaluate(el=>el.getBoundingClientRect().top);
     assert.ok(Math.abs(closingTop)<h*.5,'Direct closing anchor lands at the closing chapter');
+    await page.goto(base+'/#about',{waitUntil:'domcontentloaded'});
+    await page.waitForFunction(()=>document.documentElement.dataset.splashComplete==='true');
+    await page.waitForTimeout(1200);
+    const aboutTop=await page.locator('#about').evaluate(el=>el.getBoundingClientRect().top);
+    assert.ok(Math.abs(aboutTop)<h*.5,'Direct About anchor lands at the actual About surface');
   }
-  await context.close();
+  const video=page.video();await context.close();
+  if(clipDuration>0&&video){
+    try {
+      const ffmpeg=globSync('/home/runner/.cache/ms-playwright/ffmpeg-*/ffmpeg-linux')[0];
+      if(ffmpeg)execFileSync(ffmpeg,['-y','-ss',String(clipStart),'-i',await video.path(),'-t',String(clipDuration),'-c','copy',`${output}/white-card-forward-reverse-${prefix}.webm`],{stdio:'ignore'});
+    } catch { console.log('The full recording remains available; optional short-clip trimming was unavailable.'); }
+  }
  }
  await writeFile(`${output}/results.json`,JSON.stringify(results,null,2));
  assert.ok(results.every(r=>r.errors.length===0),JSON.stringify(results));
