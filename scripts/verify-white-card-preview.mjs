@@ -8,7 +8,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261103-r7';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261103-r8';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -73,6 +73,17 @@ try {
      assert.equal(await page.locator('[data-persistent-card]').count(),3,'Resize keeps three original frames');
      await page.screenshot({path:`${output}/${prefix}-hold-resize.png`});
      await page.setViewportSize({width:w,height:h});await page.waitForTimeout(400);
+   }
+   if(w===390&&locale==='en'){
+     await scroll(exit.top-h+.78*(exit.height+h));
+     await page.setViewportSize({width:844,height:390});await page.waitForTimeout(700);
+     assert.equal(await page.locator('[data-service-world]').getAttribute('data-story-static'),'true','Landscape uses reading flow');
+     const readingTop=await page.locator('[data-shaping-message]').evaluate(el=>el.getBoundingClientRect().top);
+     assert.ok(readingTop>=-10&&readingTop<390,'Rotation retains the narrative reading beat');
+     await page.screenshot({path:`${output}/${prefix}-landscape-reading.png`});
+     await page.setViewportSize({width:w,height:h});await page.waitForTimeout(700);
+     const restored=Number(await page.locator('[data-card-exit]').getAttribute('data-handoff-progress'));
+     assert.ok(Math.abs(restored-.78)<.03,'Returning to portrait restores the white-card pose');
    }
    const gallery=await page.locator('[data-gallery-runway]').evaluate(el=>({top:scrollY+el.getBoundingClientRect().top,height:el.offsetHeight}));
    await scroll(gallery.top-h*1.1*(1-.76));

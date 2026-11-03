@@ -14,6 +14,33 @@ export default function CardsServicesTransition({ children }: { children: ReactN
   const intro = useRef<HTMLDivElement>(null), exit = useRef<HTMLDivElement>(null);
   const message = useRef<HTMLDivElement>(null);
   const { locale } = useLanguage();
+  const readingPose = useRef<number | null>(null), restorePose = useRef<number | null>(null);
+  // A short landscape viewport switches to the existing reading-flow layout.
+  // Keep the same narrative beat across that ownership change.
+  useEffect(() => {
+    const remember = () => {
+      const bounds = message.current?.getBoundingClientRect();
+      const readingStatic = scene?.staticLayout && bounds && bounds.bottom > 0 && bounds.top < innerHeight;
+      restorePose.current = !scene?.staticLayout || readingStatic ? readingPose.current : null;
+    };
+    window.addEventListener('lionovart:story-layout-will-change', remember);
+    return () => window.removeEventListener('lionovart:story-layout-will-change', remember);
+  }, [scene?.staticLayout]);
+  useEffect(() => {
+    const remembered = restorePose.current;
+    if (remembered === null) return;
+    restorePose.current = null;
+    let frame = requestAnimationFrame(() => { frame = requestAnimationFrame(() => {
+      const runway = exit.current, copy = message.current;
+      if (!runway || !copy) return;
+      const bounds = runway.getBoundingClientRect();
+      const top = scene?.staticLayout
+        ? scrollY + copy.getBoundingClientRect().top - 64
+        : scrollY + bounds.top - innerHeight + remembered * (bounds.height + innerHeight);
+      window.scrollTo({ top, behavior:'instant' });
+    }); });
+    return () => cancelAnimationFrame(frame);
+  }, [scene?.staticLayout]);
   useEffect(() => {
     const node = (scene?.target?.querySelector('[data-scene-opening]') ?? intro.current) as HTMLElement | null, runway = exit.current, copy = message.current;
     if (!node || !runway || !copy) return;
@@ -34,6 +61,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       const isStatic = scene?.staticLayout ?? media.matches;
       const bounds = runway.getBoundingClientRect();
       const pose = cardHandoff(bounds.top, bounds.height, innerHeight);
+      if (!isStatic) readingPose.current = pose.progress > .02 && pose.progress < .995 ? pose.progress : null;
       const gallery = world?.querySelector('[data-gallery-runway]')?.getBoundingClientRect();
       const remaining = gallery ? serviceGalleryHandoff(gallery.top,innerHeight).services : 1;
       node.style.opacity = isStatic ? '1' : String(remaining);
