@@ -40,3 +40,6 @@
 @media(max-width:767px) { .stage { --service-side-x: 46%; --service-side-y: -10%; --service-side-depth: -130px; } }
 
 :global([data-gallery-gathering=true]) .card[data-position=center] { transform: translate3d(calc(-1 * var(--service-release-x,0px) * var(--service-gallery-release,0)),calc(-1 * var(--service-release-y,0px) * var(--service-gallery-release,0)),0); }
+
+.card[data-service-card-target] { pointer-events:none; }
+.card[data-service-card-target] > .screen { visibility:hidden; }

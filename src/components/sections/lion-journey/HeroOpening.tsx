@@ -11,13 +11,10 @@ import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import { useLionJourney } from "./LionJourney";
 
 export default function HeroOpening() {
-  const { opening: openingRef, openingProgress, arrivalProgress } = useLionJourney()!;
+  const { opening: openingRef, openingProgress } = useLionJourney()!;
   const scene = usePinnedScene();
   const reduced = useHydratedReducedMotion();
   const readingFlow = scene?.staticLayout ?? reduced;
-  const [workInert, setWorkInert] = useState(false);
-  const workOpacity = useTransform(arrivalProgress, [0, .3, .9, 1], [1, 1, 0, 0]);
-  useMotionValueEvent(arrivalProgress, "change", p => setWorkInert(p >= .9));
   const [heroInert, setHeroInert] = useState(false);
   const heroOpacity = useTransform(openingProgress, [0, 0.03 / 1.6, 0.26 / 1.6], [1, 1, 0]);
   useMotionValueEvent(openingProgress, "change", p => { setHeroInert(p > 0.25 / 1.6); });
@@ -80,7 +77,7 @@ export default function HeroOpening() {
           style={{ opacity: readingFlow ? 1 : heroOpacity }} inert={!readingFlow && heroInert}>
           <HeroTop />
         </motion.div>
-        <motion.div className="opening-work-layer" data-opening-cards-layer style={{ opacity: readingFlow ? 1 : workOpacity }} inert={!readingFlow && workInert}>
+        <motion.div className="opening-work-layer" data-opening-cards-layer style={{ opacity: 1 }}>
           <WhatWeDo pinned />
         </motion.div>
       </div>

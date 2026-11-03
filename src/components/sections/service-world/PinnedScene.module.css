@@ -26,7 +26,16 @@
 .layers :global([data-services-stage] [data-service-triptych] > [aria-hidden=true]),
 .layers :global([data-services-stage] [data-exhibit-index] > span) { filter: opacity(calc(var(--service-opening-copy,1) * var(--service-gallery-copy,1))); }
 
-/* Rear exhibits arrive after the inherited middle frame has filled. */
-.layers :global([data-services-stage] [data-exhibit-index]:not([data-position=center]) > div) { opacity: var(--service-opening-sides,1); }
+/* Only the flow fallback owns separate exhibit surfaces. */
+.layers :global([data-services-stage] [data-exhibit-index]:not([data-service-card-target]):not([data-position=center]) > div) { opacity: var(--service-opening-sides,1); }
 
-.layers :global([data-services-stage] [data-service-triptych]) { translate: 0 var(--service-entrance-y,0px); }
+.layers :global([data-services-stage]:has([data-persistent-frames=true])) { pointer-events:none !important; }
+.layers :global([data-services-stage] :is(button,[data-service-content])) { pointer-events:auto; }
+.layers :global([data-services-stage] [data-service-content]:has([data-persistent-frames=true])) { pointer-events:none; }
+.layers :global([data-services-stage] [data-service-content]:has([data-persistent-frames=true]) button) { pointer-events:auto; }
+.layers :global([data-scene-opening][data-card-handoff-active=true] .opening-video-layout) { overflow:visible; }
+
+/* The persistent panes sit above the service backdrop; copy stays in its own layer. */
+.layers :global([data-services-stage]:has([data-persistent-frames=true])) { z-index:3; }
+.layers :global([data-scene-opening][data-card-handoff-active=true]) { z-index:4; }
+.layers :global([data-scene-opening][data-card-handoff-active=true] [data-opening-transition]) { pointer-events:none !important; }

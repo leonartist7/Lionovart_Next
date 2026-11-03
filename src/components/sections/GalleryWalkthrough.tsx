@@ -177,7 +177,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       entry.set(pinned ? arrival.spread : 1);
       arrivalProgress.set(pinned ? arrival.progress : 0);
       if (pinned && arrival.progress < 1) {
-        const source = scene?.target?.querySelector<HTMLElement>('[data-services-stage] [data-position=center] [data-screening-media]');
+        const source = scene?.target?.querySelector<HTMLElement>('[data-services-stage] [data-position=center] [data-service-frame-target], [data-services-stage] [data-position=center] [data-screening-media]');
         const incoming = stage.current?.querySelector<HTMLElement>('[data-gallery-index="0"] [data-screening-media]');
         if (source && incoming?.offsetWidth) entryScale.set(source.getBoundingClientRect().width / (incoming.offsetWidth / GALLERY_ENTRY_PROJECTION));
       }
@@ -189,7 +189,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     const geometry = new ResizeObserver(() => { layoutKey = ''; schedule(); });
     let measured: Element[] = [];
     const refresh = () => {
-      const next = [scene?.target?.querySelector('[data-services-stage] [data-position=center] [data-screening-media]'),
+      const next = [scene?.target?.querySelector('[data-services-stage] [data-position=center] [data-service-frame-target], [data-services-stage] [data-position=center] [data-screening-media]'),
         stage.current?.querySelector('[data-gallery-index="0"] [data-screening-media]'),
         ...(stage.current?.querySelectorAll('[data-work-tags]') ?? [])].filter((node): node is Element => !!node);
       if (next.length === measured.length && next.every((node, index) => node === measured[index])) return;

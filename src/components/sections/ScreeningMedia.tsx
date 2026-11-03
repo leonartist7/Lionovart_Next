@@ -1,4 +1,6 @@
 'use client';
+import { createPortal } from 'react-dom';
+import { usePinnedScene } from './service-world/PinnedScene';
 import Image, { getImageProps } from 'next/image';
 import { AnimatePresence, motion, useIsPresent, useReducedMotion } from 'framer-motion';
 import { ServiceDialLight, ServiceOrbitCard } from './ServiceDialMotion';
@@ -107,11 +109,23 @@ export function ScreeningMedia({ asset, active, paused = false, label = true, pr
   </div>;
 }
 
+function PersistentServiceContent({ slot, position, children }: { slot: HTMLElement | null; position: string; children: React.ReactNode }) {
+  useEffect(() => {
+    const card = slot?.closest<HTMLElement>('[data-persistent-card]');
+    if (!card) return;
+    card.dataset.position = position;
+    window.dispatchEvent(new Event('lionovart:service-pose'));
+  }, [slot, position]);
+  return slot ? createPortal(children, slot) : null;
+}
+
 export function ServiceScreen({ service, variant, active, paused, onVariant }: { service: string; variant: number; active: boolean; paused: boolean; onVariant: (index: number) => void }) {
   const { locale } = useLanguage();
+  const scene = usePinnedScene();
+  const persistent = !!scene?.target;
   const exhibits = serviceExhibits(service);
   const assets = serviceScreenAssets(service);
-  return <div className={glass.stage} data-service-triptych data-paused={paused || !active}
+  return <div className={glass.stage} data-service-triptych data-persistent-frames={persistent} data-paused={paused || !active}
     onPointerDown={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
     <div className={glass.atmosphere} aria-hidden="true">
       {exhibits.map((exhibit, index) => <ServiceDialLight key={index} index={index} className={glass.colorSpill}
@@ -121,10 +135,16 @@ export function ServiceScreen({ service, variant, active, paused, onVariant }: {
       const asset = assets[index];
       const position = exhibitPosition(index, variant);
       const label = exhibitLabel(exhibit, locale);
-      return <ServiceOrbitCard key={index} index={index} className={glass.card} position={position}>
+      const content = <>
         <div className={glass.screen}><ScreeningMedia asset={asset} active={active && position === 'center'} paused={paused} label={false} prepare={service === 'branding' && position === 'center'} frameRatio={16 / 9} /></div>
         <button type="button" className={glass.selectCard} aria-label={label} aria-pressed={position === 'center'}
           tabIndex={position === 'center' ? -1 : 0} onClick={() => onVariant(index)} />
+      </>;
+      return <ServiceOrbitCard key={index} index={index} className={glass.card} position={position} unpainted={persistent}>
+        {persistent ? <>
+          <div className={glass.screen} aria-hidden="true"><div className={styles.media} data-service-frame-target style={{ '--screen-ratio':16/9, animation:'none' } as CSSProperties} /></div>
+          <PersistentServiceContent slot={scene.cardSlots[index]} position={position}>{content}</PersistentServiceContent>
+        </> : content}
       </ServiceOrbitCard>;
     })}
   </div>;

@@ -9,26 +9,31 @@ test('the statement starts with the cards, then gives the brand its own hold',()
  for(const p of [.3,.4,.46]) for(const key of ['lead','main','necessity']) assert.equal(at(p)[key],1);
  assert.equal(at(.58).copy,0); assert.equal(at(.6).brand,1);
  assert.equal(at(.76).brand,0); assert.equal(at(.76).expertise,0);
- assert.ok(at(.82).expertise>.5); assert.equal(at(.86).serviceCopy,0);
+ assert.ok(at(.90).expertise>.5); assert.equal(at(.94).serviceCopy,0);
  assert.equal(at(1).serviceCopy,1);
 });
-test('cards retain their reading hold, then retreat before Services settles',()=>{
- assert.equal(at(.46).retreat,0);
- assert.equal(at(.46).intro,1);
- assert.equal(at(.53).serviceReveal,0);
- assert.ok(at(.65).retreat>0 && at(.65).intro<1);
- assert.equal(at(.77).intro,0);
- assert.ok(at(.77).serviceReveal>at(.77).serviceSides);
- assert.equal(at(.91).serviceSides,1);
+test('the same frames gather, reshape while stacked, reveal media and then spread',()=>{
+ assert.equal(at(.50).gather,0);
+ assert.equal(at(.66).gather,1);
+ assert.equal(at(.69).reshape,0);
+ assert.equal(at(.80).reshape,1);
+ assert.equal(at(.80).serviceReveal,0);
+ assert.equal(at(.85).serviceReveal,1);
+ assert.equal(at(.85).spread,0);
+ assert.equal(at(.96).spread,1);
  for(let i=0;i<=1000;i++) {
   const pose=at(i/1000);
+  assert.equal(pose.intro,1,'the source frames never disappear');
+  if(pose.reshape>0)assert.equal(pose.gather,1);
+  if(pose.serviceReveal>0)assert.equal(pose.reshape,1);
+  if(pose.spread>0)assert.equal(pose.serviceReveal,1);
   assert.equal(pose.copy*pose.serviceCopy,0);
   assert.equal(pose.brand*pose.expertise,0);
  }
 });
 test('pointer tilt and corner sculptures clear before the incoming artwork',()=>{
  assert.equal(at(.46).pointer,1);
- assert.equal(at(.65).pointer,0);
+ assert.equal(at(.52).pointer,0);
  assert.equal(at(.12).sculpture,1); assert.equal(at(.3).sculpture,0);
  assert.equal(at(.54).light,0); assert.equal(at(.93).light,1);
 });

@@ -101,3 +101,8 @@
 /* Transparent 3D planes must never intercept a button behind their z=0 plane. */
 .hitPlane, .pointerPlane { pointer-events:none; }
 .frontFace :global([data-benefit-card]) button { pointer-events:auto; }
+
+.serviceSlot { position:absolute; left:50%; top:50%; width:100%; height:100%; opacity:0; pointer-events:none; transform-origin:center; }
+.pane :global([data-handoff-surface]) { opacity:var(--handoff-material,1); }
+.integratedFace { opacity:var(--handoff-benefit,1); }
+.floatingCarrier { opacity:var(--handoff-object,1); }

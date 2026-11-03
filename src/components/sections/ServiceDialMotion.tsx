@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion, useTransform, type MotionValue, type HTMLMotionProps } from 'framer-motion';
+import { AnimatePresence, animate, motion, useMotionValue, useMotionValueEvent, useReducedMotion, useTransform, type MotionValue, type HTMLMotionProps } from 'framer-motion';
 import { createContext, useContext, useLayoutEffect, type ReactNode } from 'react';
 import { dialOrbit, nearestDialStop } from './service-selection';
 
@@ -11,6 +11,7 @@ export function ServiceDialMotion({ variant, reduced, children }: {
   variant: number; reduced: boolean; children: ReactNode;
 }) {
   const position = useMotionValue(variant);
+  useMotionValueEvent(position, 'change', () => window.dispatchEvent(new Event('lionovart:service-pose')));
   useLayoutEffect(() => {
     if (reduced) {
       position.set(variant);
@@ -24,14 +25,14 @@ export function ServiceDialMotion({ variant, reduced, children }: {
   return <DialContext.Provider value={position}>{children}</DialContext.Provider>;
 }
 
-export function ServiceOrbitCard({ index, className, position: selectedPosition, children }: {
-  index: number; className: string; position: string; children: ReactNode;
+export function ServiceOrbitCard({ index, className, position: selectedPosition, unpainted = false, children }: {
+  index: number; className: string; position: string; unpainted?: boolean; children: ReactNode;
 }) {
   const position = useContext(DialContext)!;
   const x = useTransform(position, value => dialOrbit(index, value).x);
   const depth = useTransform(position, value => dialOrbit(index, value).depth);
   const opacity = useTransform(position, value => dialOrbit(index, value).opacity);
-  return <motion.div className={className} data-orbit data-position={selectedPosition} data-exhibit-index={index}
+  return <motion.div className={className} data-orbit data-position={selectedPosition} data-exhibit-index={index} data-service-card-target={unpainted ? index : undefined} aria-hidden={unpainted || undefined}
     style={{ '--orbit-x': x, '--orbit-depth': depth, '--orbit-opacity': opacity } as HTMLMotionProps<'div'>['style']}>
     {children}
   </motion.div>;

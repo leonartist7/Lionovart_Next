@@ -5,7 +5,7 @@ import { usePinnedScene } from "../service-world/PinnedScene";
 import { useSaveData } from "@/hooks/useSaveData";
 import styles from "./DisciplineSplit3D.module.css";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import {
   motion,
   cubicBezier,
@@ -148,6 +148,10 @@ function Pane({
   pointerX: MotionValue<number>; pointerY: MotionValue<number>;
   splitGap: number;
 }) {
+  const scene = usePinnedScene();
+  const frameId = useId();
+  const registerCardSlot = scene?.registerCardSlot;
+  const registerSlot = useCallback((node: HTMLDivElement | null) => registerCardSlot?.(i, node), [registerCardSlot, i]);
   const splitP = useLocalProgress(flip, HANDOFF_START, HANDOFF_END);
   const cardP = splitP;
 
@@ -175,7 +179,7 @@ function Pane({
   return (
     <motion.div
       ref={registerPane}
-      data-card-face="benefit"
+      data-card-face="benefit" data-persistent-card={i} data-persistent-frame-id={frameId}
       className={`opening-glass-pane ${styles.pane} relative min-h-0 min-w-0 flex-1 [--opening-art-size:clamp(8.5rem,42vw,10rem)]`}
       style={{
         x: paneX,
@@ -319,6 +323,7 @@ function Pane({
 
         </div>
       </motion.div>
+      <div ref={registerSlot} className={styles.serviceSlot} data-persistent-service-slot={i} inert />
       <div className={styles.floatingCarrier} aria-hidden="true">
         <motion.div className={styles.floatingObject} data-floating-card-object={card.code}
           style={{ opacity: reducedMotion ? 1 : objectOpacity, scale: objectScale, x: objectX, y: objectY, rotateY: objectTurn, z: reducedMotion ? 0 : 72 }}>
@@ -970,7 +975,7 @@ export default function DisciplineSplit3D({
           >
             {cards.map((card, i) => (
               <Pane
-                key={`${card.title}-${isDesktop ? "d" : "m"}`}
+                key={card.code}
                 card={card}
                 dir={i - 1}
                 i={i}

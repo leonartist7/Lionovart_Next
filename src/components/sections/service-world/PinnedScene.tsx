@@ -10,13 +10,20 @@ import styles from './PinnedScene.module.css';
 import { useStoryLayout } from './useStoryLayout';
 
 type Chapter = { anchor: HTMLElement; surface: HTMLElement; onActive: (active: boolean) => void };
-type Scene = { target: HTMLDivElement | null; staticLayout: boolean; register: (chapter: Chapter) => () => void };
+type Scene = { cardSlots: readonly (HTMLElement | null)[]; registerCardSlot: (index: number, slot: HTMLElement | null) => void; target: HTMLDivElement | null; staticLayout: boolean; register: (chapter: Chapter) => () => void };
 const Context = createContext<Scene | null>(null);
 export const usePinnedScene = () => useContext(Context);
 
 /** One physical viewport owns every visual chapter. Document anchors only measure travel. */
 export default function PinnedScene({ children, environment }: { children: ReactNode; environment: ReactNode }) {
   const [target, setTarget] = useState<HTMLDivElement | null>(null);
+  const [cardSlots, setCardSlots] = useState<readonly (HTMLElement | null)[]>([null, null, null]);
+  const registerCardSlot = useCallback((index: number, slot: HTMLElement | null) => {
+    setCardSlots(previous => {
+      if (previous[index] === slot) return previous;
+      const next = [...previous]; next[index] = slot; return next;
+    });
+  }, []);
   const targetRef = useRef<HTMLDivElement | null>(null);
   const mount = useCallback((node: HTMLDivElement | null) => { targetRef.current = node; setTarget(node); }, []);
   const { enabled, reason } = useStoryLayout(targetRef);
@@ -63,7 +70,7 @@ export default function PinnedScene({ children, environment }: { children: React
           const layout = galleryLayout(innerWidth, innerHeight, document.documentElement.clientWidth, rootRem);
           const media = surface.querySelector<HTMLElement>('[data-service-media]');
           if (media) {
-            const r = (media.querySelector('[data-position=center] [data-screening-media]') ?? media).getBoundingClientRect();
+            const r = (media.querySelector('[data-position=center] [data-service-frame-target], [data-position=center] [data-screening-media]') ?? media).getBoundingClientRect();
             const previousY = Number.parseFloat(media.style.translate.split(' ')[1]) || 0;
             const baseY = r.y + r.height / 2 - previousY;
             media.style.translate = `0 ${(layout.gatherY - baseY) * handoff.gather}px`;
@@ -94,7 +101,7 @@ export default function PinnedScene({ children, environment }: { children: React
     const fitted = new ResizeObserver(schedule);
     let measured: Element | null = null;
     const refresh = () => {
-      const next = target.querySelector('[data-services-stage] [data-position=center] [data-screening-media]');
+      const next = target.querySelector('[data-services-stage] [data-position=center] [data-service-frame-target], [data-services-stage] [data-position=center] [data-screening-media]');
       if (next === measured) return;
       fitted.disconnect(); measured = next;
       if (measured) fitted.observe(measured);
@@ -116,7 +123,7 @@ export default function PinnedScene({ children, environment }: { children: React
       window.removeEventListener('pageshow', schedule); document.removeEventListener('visibilitychange', schedule);
     };
   }, [enabled, target]);
-  const context = useMemo(() => ({ target: enabled ? target : null, staticLayout: !enabled, register }), [enabled, target, register]);
+  const context = useMemo(() => ({ target: enabled ? target : null, staticLayout: !enabled, register, cardSlots, registerCardSlot }), [enabled, target, register, cardSlots, registerCardSlot]);
   return <Context.Provider value={context}>
     <div className={styles.viewport} data-pinned-scene data-pinned={enabled}>
       {environment}
