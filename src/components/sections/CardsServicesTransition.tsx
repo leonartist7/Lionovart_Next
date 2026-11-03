@@ -14,7 +14,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
   const intro = useRef<HTMLDivElement>(null), exit = useRef<HTMLDivElement>(null);
   const message = useRef<HTMLDivElement>(null);
   const { locale } = useLanguage();
-  const readingPose = useRef<number | null>(null), restorePose = useRef<number | null>(null);
+  const readingPose = useRef<number | null>(null), restorePose = useRef<number | null>(null), pendingPose = useRef<number | null>(null);
   // A short landscape viewport switches to the existing reading-flow layout.
   // Keep the same narrative beat across that ownership change.
   useEffect(() => {
@@ -31,6 +31,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     const remembered = restorePose.current;
     if (remembered === null) return;
     restorePose.current = null;
+    if (!scene?.staticLayout) pendingPose.current = remembered;
     let frame = requestAnimationFrame(() => { frame = requestAnimationFrame(() => {
       const runway = exit.current, copy = message.current;
       if (!runway || !copy) return;
@@ -60,9 +61,18 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     const sync = () => {
       frame = 0;
       const isStatic = scene?.staticLayout ?? media.matches;
-      const bounds = runway.getBoundingClientRect();
+      let bounds = runway.getBoundingClientRect();
+      if (!isStatic && pendingPose.current !== null) {
+        const target = scrollY + bounds.top - innerHeight + pendingPose.current * (bounds.height + innerHeight);
+        if (Math.abs(target-scrollY) > 1) {
+          // Refit after the existing film/card measurements reflow. An ordinary
+          // scroll frame relinquishes this bookmark immediately.
+          if (dirty) { window.scrollTo({top:target,behavior:'instant'}); bounds=runway.getBoundingClientRect(); }
+          else pendingPose.current = null;
+        }
+      }
       const pose = cardHandoff(bounds.top, bounds.height, innerHeight);
-      if (!isStatic) readingPose.current = pose.progress > .02 && pose.progress < .995 ? pose.progress : null;
+      if (!isStatic && restorePose.current === null && pendingPose.current === null) readingPose.current = pose.progress > .02 && pose.progress < .995 ? pose.progress : null;
       const gallery = world?.querySelector('[data-gallery-runway]')?.getBoundingClientRect();
       const remaining = gallery ? serviceGalleryHandoff(gallery.top,innerHeight).services : 1;
       node.style.opacity = isStatic ? '1' : String(remaining);
