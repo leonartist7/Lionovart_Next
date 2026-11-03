@@ -17,6 +17,7 @@ export default function ServicePortal() {
   const [origin, setOrigin] = useState<'center' | 'above' | 'below'>('center');
   const switchOrigin = () => setOrigin(value => value === 'center' ? 'above' : value === 'above' ? 'below' : 'center');
   const fromBelow = origin === 'below';
+  const room = useRef<HTMLDivElement>(null);
   const pedestal = useRef<HTMLDivElement>(null);
   const invitation = useRef<HTMLElement>(null), face = useRef<HTMLButtonElement>(null);
   const ring = useRef<HTMLDivElement>(null), fill = useRef<HTMLSpanElement>(null);
@@ -75,6 +76,10 @@ export default function ServicePortal() {
       node.style.visibility = opacity > .001 ? 'visible' : 'hidden';
       node.dataset.portalProgress = handoff.progress.toFixed(3);
       if (fill.current) fill.current.style.opacity = String(1 - handoff.portalOpen);
+      if (room.current) {
+        room.current.style.opacity = String(handoff.title);
+        room.current.style.visibility = handoff.title > .001 ? 'visible' : 'hidden';
+      }
       if (invitation.current) {
         invitation.current.style.opacity = String(handoff.title);
         invitation.current.style.top = centered ? '48%' : '44%';
@@ -102,6 +107,7 @@ export default function ServicePortal() {
   }, [scene?.target, fromBelow, origin]);
   if (!scene?.target) return null;
   return <ScenePortal><div className={styles.space} data-service-portal data-scroll-title-skip>
+    <div ref={room} className={styles.room} aria-hidden="true" />
     <div ref={pedestal} className={styles.carrier} data-service-pedestal aria-hidden="true"><span className={styles.ring}><span className={styles.fill} /></span></div>
     <div ref={ring} className={styles.carrier} data-service-podium data-disc-origin={origin}>
       <button ref={face} type="button" className={styles.ring} onClick={switchOrigin}
@@ -111,7 +117,7 @@ export default function ServicePortal() {
     </div>
     <header ref={invitation} className={styles.invitation} data-gallery-title aria-hidden="true">
       <p>{locale === 'fr' ? 'Entrez dans l’univers' : 'Step inside'}</p>
-      <h2 id="selected-work-heading">{locale === 'fr' ? 'de nos réalisations' : 'our selected work'}</h2>
+      <h2 id="selected-work-heading">{locale === 'fr' ? 'Réalisations' : 'Selected Work'}</h2>
     </header>
   </div></ScenePortal>;
 }
