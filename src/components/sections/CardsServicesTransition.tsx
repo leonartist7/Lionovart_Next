@@ -174,7 +174,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
     const scrolling = () => {
-      if (scene?.staticLayout && !restoringFlow.current) {
+      if (scene?.staticLayout && media.matches && !restoringFlow.current) {
         const bounds = copy.getBoundingClientRect();
         if (bounds.bottom <= 0 || bounds.top >= innerHeight) readingPose.current = null;
       }
