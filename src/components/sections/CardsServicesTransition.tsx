@@ -25,6 +25,8 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     const clear = (pane:HTMLElement) => {
       for(const key of ['x','y','scale','depth','material','benefit','object']) pane.style.removeProperty(`--handoff-${key}`);
       pane.style.removeProperty('z-index');
+      const face=pane.querySelector<HTMLElement>('[data-handoff-surface] > div');
+      if(face)face.inert=false;
     };
     const sync = () => {
       frame = 0;
@@ -52,6 +54,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
             const r=rect(pane), matrix=new DOMMatrixReadOnly(getComputedStyle(pane).transform);
             return {node:pane,base:{...r,parentX:r.width/Math.max(1,pane.offsetWidth),parentY:r.height/Math.max(1,pane.offsetHeight),motionX:matrix.m41,motionY:matrix.m42}};
           });
+          if(sources.some(({base})=>base.width<=1||base.height<=1)) return;
           dirty = false;
         }
         // Read all live target geometry before writing any frame. These targets

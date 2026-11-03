@@ -37,5 +37,5 @@
 
 /* The persistent panes sit above the service backdrop; copy stays in its own layer. */
 .layers :global([data-services-stage]:has([data-persistent-frames=true])) { z-index:3; }
-.layers :global([data-scene-opening][data-card-handoff-active=true]) { z-index:4; }
+.layers :global([data-scene-opening][data-card-handoff-active=true]) { z-index:4; pointer-events:none !important; }
 .layers :global([data-scene-opening][data-card-handoff-active=true] [data-opening-transition]) { pointer-events:none !important; }
