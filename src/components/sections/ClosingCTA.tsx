@@ -2,7 +2,7 @@
 
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 
-import { useContext, useMemo, useRef, useSyncExternalStore, type ReactNode } from "react";
+import { useContext, useMemo, useRef, useSyncExternalStore, type Ref } from "react";
 import { useInView } from "framer-motion";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import styles from "./ClosingCTA.module.css";
@@ -14,7 +14,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import BrandCrest from "@/components/sections/services/brand/branding/BrandCrest";
 import TrailAttractionTarget from "@/components/ui/TrailAttractionTarget";
 import { EN_WORD_ART } from "@/lib/word-art";
-import ClosingMediaWall from "./ClosingMediaWall";
 import { useSaveData } from "@/hooks/useSaveData";
 import { ClosingRevealContext } from "./ClosingRibbonOrnament";
 
@@ -47,7 +46,7 @@ const getCompact = () => matchMedia(compactQuery).matches;
 const getFalse = () => false;
 const getTrue = () => true;
 
-function CompactClosing({ words, onStart, lionDock, chapterInJourney }: { words: Word[]; onStart: () => void; lionDock?: ReactNode; chapterInJourney?: boolean }) {
+function CompactClosing({ words, onStart, ringRef, chapterInJourney }: { words: Word[]; onStart: () => void; ringRef?: Ref<HTMLDivElement>; chapterInJourney?: boolean }) {
   const tr = usePublicCopy();
   const { t, locale } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
@@ -65,13 +64,12 @@ function CompactClosing({ words, onStart, lionDock, chapterInJourney }: { words:
   const paused = reducedMotion || saveData || hidden || !inView || !revealed;
 
   return (
-    <section id="closing-cta" ref={sectionRef} className={`${styles.section}${lionDock ? ` ${styles.withLion}` : ""}`} data-art-directed="light" data-scroll-title-skip>
-      <ClosingMediaWall />
-      <div className={styles.copy} data-closing-copy>
+    <section id="closing-cta" ref={sectionRef} className={styles.section} data-art-directed="dark" data-scroll-title-skip>
+      <div ref={ringRef} className={styles.copy} data-closing-copy>
         {!chapterInJourney && <p className={`${styles.accent} ${locale === "ja" || locale === "ko" ? "font-body" : "editorial-accent"}`}>
           {tr("Your next chapter, together")}
         </p>}
-        <HeroCycling variant="closing" staticText={t.hero.staticText} words={words} staticColor="#171412" cyclingColor="#171412" paused={paused} />
+        <HeroCycling variant="closing" staticText={t.hero.staticText} words={words} staticColor="#ffffff" cyclingColor="#ffffff" paused={paused} />
       </div>
       <div className={styles.stage} data-closing-stage>
         <div className={styles.action} data-closing-action>
@@ -80,7 +78,6 @@ function CompactClosing({ words, onStart, lionDock, chapterInJourney }: { words:
           </TrailAttractionTarget>
         </div>
       </div>
-      {lionDock && <div className={styles.lionDock} data-closing-lion>{lionDock}</div>}
     </section>
   );
 }
@@ -92,7 +89,7 @@ function CompactClosing({ words, onStart, lionDock, chapterInJourney }: { words:
  * Used once per page (the footer is now navigation/legal only), so pages never
  * double-close. `crest` adds the brand crest beside the button (branding page).
  */
-export default function ClosingCTA({ crest = false, workShowcase = false, lionDock, chapterInJourney = false }: { crest?: boolean; workShowcase?: boolean; lionDock?: ReactNode; chapterInJourney?: boolean }) {
+export default function ClosingCTA({ crest = false, workShowcase = false, ringRef, chapterInJourney = false }: { crest?: boolean; workShowcase?: boolean; ringRef?: Ref<HTMLDivElement>; chapterInJourney?: boolean }) {
   const tr = usePublicCopy();
   const { t, locale } = useLanguage();
   const openNova = useNovaStore((s) => s.openNova);
@@ -114,7 +111,7 @@ export default function ClosingCTA({ crest = false, workShowcase = false, lionDo
           type: "text" as const,
         }));
 
-  if (workShowcase) return <CompactClosing words={words} onStart={() => openNova("offer", true)} lionDock={lionDock} chapterInJourney={chapterInJourney} />;
+  if (workShowcase) return <CompactClosing words={words} onStart={() => openNova("offer", true)} ringRef={ringRef} chapterInJourney={chapterInJourney} />;
 
   return (
     <section

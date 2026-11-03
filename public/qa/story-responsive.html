@@ -9,11 +9,6 @@
   label { display:grid;gap:.25rem } select,button,input { font:inherit;padding:.5em;background:#fff;color:#181818;border:0;border-radius:.25rem } input { width:5rem }
   main { padding:1rem;overflow:auto } iframe { display:block;border:0;outline:1px solid #777;background:#08080a;width:390px;height:844px;max-width:none }
   output { padding:.5rem 1rem;display:block;font-size:.875rem } p { margin:0;font-size:.875rem;max-width:40ch }
-
-  html[data-door-study] body { margin:0;background:#030407; }
-  html[data-door-study] header, html[data-door-study] output { display:none; }
-  html[data-door-study] main { padding:0;overflow:hidden; }
-  html[data-door-study] iframe { width:100vw!important;height:100dvh!important;outline:0; }
 </style>
 <header>
   <label>Language<select id="locale"><option value="en">English</option><option value="fr">Français</option></select></label>
@@ -95,31 +90,6 @@
     const p=Math.max(.70,Math.min(1,Number(document.querySelector('#finale').value)/100));
     win.scrollTo({top:win.scrollY+el.getBoundingClientRect().top+p*(el.offsetHeight-win.innerHeight*.85),behavior:'instant'});measure();
   });
-  if (location.hash === '#doorway') {
-    document.documentElement.dataset.doorStudy = '';
-    document.querySelector('#doorway').value = '54';
-    frame.addEventListener('load', async () => {
-      const doc = frame.contentDocument;
-      await doc.fonts.ready;
-      // Keep the review stop aligned while the pinned runways finish sizing.
-      // Release immediately on the viewer's first navigation gesture.
-      const win = frame.contentWindow;
-      let active = true;
-      const release = () => { active = false; };
-      for (const event of ['wheel', 'touchstart', 'pointerdown', 'keydown']) {
-        win.addEventListener(event, release, { once:true, passive:true });
-      }
-      const keepReadingStop = () => {
-        if (!active) return;
-        const runway = doc.querySelector('[data-gallery-runway]');
-        if (runway && Math.abs(runway.getBoundingClientRect().top - win.innerHeight * 1.1 * .46) > 2) {
-          document.querySelector('#go-doorway').click();
-        }
-        setTimeout(keepReadingStop, 240);
-      };
-      keepReadingStop();
-    });
-  }
   frame.addEventListener('load',settings);
   document.querySelector('#locale').addEventListener('change',event=>{frame.src=event.target.value==='fr'?'/fr':'/'});
   for(const id of ['size','text','spacing'])document.querySelector('#'+id).addEventListener('change',settings);

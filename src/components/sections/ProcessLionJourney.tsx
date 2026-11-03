@@ -17,7 +17,6 @@ import styles from "./ProcessLionJourney.module.css";
 
 const STEP_RING = "https://res.cloudinary.com/dgio9uutc/image/upload/v1791549765/steps_1_urfdp7.avif";
 const LION_POSTER = "/models/lion/lion-poster.png?v=hid-20260914";
-const LION_FRONT_POSTER = "/models/lion/desktop-review.png?v=hid-20260914";
 const shortQuery = "(max-height: 480px)";
 const subscribeMounted = () => () => {};
 const subscribeShort = (notify: () => void) => {
@@ -44,7 +43,6 @@ export default function ProcessLionJourney() {
   const scene = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLDivElement>(null);
   const poster = useRef<HTMLImageElement>(null);
-  const frontPoster = useRef<HTMLImageElement>(null);
   const origin = useRef<HTMLDivElement>(null);
   const process = useRef<HTMLElement>(null);
   const closing = useRef<HTMLDivElement>(null);
@@ -63,16 +61,15 @@ export default function ProcessLionJourney() {
       const smallViewport = parseFloat(getComputedStyle(view).height) || window.innerHeight;
       const copy=section.querySelector<HTMLElement>("[data-closing-copy]");
       const action=section.querySelector<HTMLElement>("[data-closing-stage]");
-      const lion=section.querySelector<HTMLElement>("[data-process-lion-dock]");
       const height=Math.min(smallViewport,window.innerHeight);
       const actionGap=action ? parseFloat(getComputedStyle(action).marginTop)||0 : 0;
-      const needed=(lion?.offsetHeight??0)+(copy?.offsetHeight??0)+(action?.offsetHeight??0)+actionGap+Math.max(144,height*.2);
+      const needed=(copy?.offsetHeight??0)+(action?.offsetHeight??0)+actionGap+Math.max(144,height*.2);
       setOversizedCTA(needed>height);
     };
     const observer = new ResizeObserver(checkFit);
     observer.observe(section);
     observer.observe(view);
-    section.querySelectorAll("[data-closing-copy], [data-closing-stage], [data-process-lion-dock]").forEach(node=>observer.observe(node));
+    section.querySelectorAll("[data-closing-copy], [data-closing-stage]").forEach(node=>observer.observe(node));
     window.addEventListener("resize", checkFit);
     checkFit();
     return () => { observer.disconnect(); window.removeEventListener("resize", checkFit); };
@@ -158,13 +155,12 @@ export default function ProcessLionJourney() {
       const visible = rootBounds.top < height && rootBounds.bottom > 0;
       // Once the sticky scene releases, the settled emblem scrolls away with its dock.
       if (pose.progress >= 1) pose.y = finish.top - viewBounds.top + finish.height / 2;
-      root.dataset.navSurface = pose.backgroundReveal >= .55 ? "light" : "dark";
       closingProgress.set(pose.progress);
       root.dataset.handoffProgress=String(pose.progress);
       view.style.visibility = visible ? "visible" : "hidden";
       view.dataset.footerProgress = String(pose.footerProgress);
       view.dataset.lionTurn = String(pose.turn);
-      view.style.setProperty("--lion-opacity", String(pose.opacity));
+      view.style.setProperty("--lion-opacity", String(pose.opacity * pose.processOpacity));
       processSection.style.opacity = String(pose.processOpacity);
       processSection.style.pointerEvents = pose.processOpacity > 0 ? "" : "none";
       closingSection.style.pointerEvents = pose.reveal >= .95 ? "auto" : "none";
@@ -188,12 +184,8 @@ export default function ProcessLionJourney() {
         poster.current.style.width = `${size}px`;
         poster.current.style.height = `${size}px`;
         poster.current.style.transform = `translate3d(${pose.x - size / 2}px,${pose.y - size / 2}px,0) scaleX(${pose.footerProgress > .5 ? 1 : -1})`;
-        poster.current.style.opacity = String(pose.opacity * (1 - pose.arrival));
-        if (frontPoster.current) {
-          frontPoster.current.style.width = `${size}px`;
-          frontPoster.current.style.height = `${size}px`;
-          frontPoster.current.style.opacity = String(pose.opacity * pose.arrival);
-        }
+        poster.current.style.opacity = String(pose.opacity * pose.processOpacity);
+
       }
       dirty = false;
     };
@@ -212,12 +204,9 @@ export default function ProcessLionJourney() {
       scrollVelocity *= Math.exp(-dt / .18);
       scrollPitch += (scrollLionTilt(scrollVelocity) - scrollPitch) * (1 - Math.exp(-dt / .24));
       view.dataset.lionPitch = String(pose.pitch + scrollPitch);
-      if (!ready && frontPoster.current) {
-        const size = pose.size * 1.35;
-        frontPoster.current.style.transform = `translate3d(${pose.x - size / 2}px,${pose.y - size / 2}px,0) perspective(900px) rotateX(${pose.pitch + scrollPitch}rad)`;
-      }
+
       const interaction = pose.processOpacity;
-      if (ready && engine) engine.render({
+      if (ready && engine && pose.processOpacity > 0) engine.render({
         x: pose.x, y: pose.y, size: pose.size,
         turn: pose.turn + (Math.sin(time * Math.PI / 5) * .035 + pointerX * .08) * interaction,
         pitch: pose.pitch + scrollPitch - pointerY * .025 * interaction,
@@ -330,9 +319,6 @@ export default function ProcessLionJourney() {
     <div ref={viewport} className={styles.lionViewport} data-process-lion-viewport aria-hidden="true">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img ref={poster} className={styles.travellingPoster} src={LION_POSTER} alt="" width={900} height={900} loading="lazy" />
-      {/* The supplied front render keeps the CTA pose on non-WebGL browsers. */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img ref={frontPoster} className={styles.travellingPoster} src={LION_FRONT_POSTER} alt="" width={900} height={900} loading="lazy" style={{ opacity: 0 }} />
       <div ref={canvas} className={styles.canvas} />
       <p ref={chapter} className={styles.chapter} data-process-chapter data-locale={locale}>
         <span>{chapterLines[0]}</span><span>{together.charAt(0).toUpperCase() + together.slice(1)}</span>
@@ -363,21 +349,17 @@ export default function ProcessLionJourney() {
         </div>
       </div>
     </section>
-    <div ref={closing} className={styles.closingSurface} data-nav-surface={staticMode ? "light" : undefined} data-nova-section="closing-cta">
+    <div ref={closing} className={styles.closingSurface} data-nav-surface="dark" data-nova-section="closing-cta">
       {!staticMode && <p className="sr-only">{tr("Your next chapter, together")}</p>}
       <div ref={ctaContent} className={styles.ctaContent}>
         <ClosingRevealContext.Provider value={staticMode ? 1 : closingProgress}>
-        <ClosingCTA workShowcase chapterInJourney={!staticMode} lionDock={
-          <div ref={dock} className={styles.dock} data-process-lion-dock aria-hidden="true">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className={styles.staticPoster} src={LION_FRONT_POSTER} alt="" width={900} height={900} loading="lazy" />
-          </div>
-        } />
+        <ClosingCTA workShowcase chapterInJourney={!staticMode} ringRef={dock} />
         </ClosingRevealContext.Provider>
       </div>
       <div ref={veil} className={styles.veil} aria-hidden="true" />
     </div>
     </div>
     <div className={styles.runway} aria-hidden="true" />
+    <span id="closing-studio" className={styles.closingAnchor} aria-hidden="true" />
   </div></>;
 }

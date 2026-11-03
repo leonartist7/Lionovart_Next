@@ -1,110 +1,14 @@
-.space {
-  position:absolute;
-  inset:0;
-  perspective:1000px;
-  perspective-origin:50% 48%;
-  z-index:6;
-  pointer-events:none !important;
-}
-.room {
-  position:absolute;
-  inset:0;
-  visibility:hidden;
-  background:#030407;
-}
-.room::before {
-  content:"";
-  position:absolute;
-  inset:0;
-  background:radial-gradient(circle,#aab8ce55 .65px,transparent 1px) center / 12px 12px;
-  mask-image:radial-gradient(ellipse at 50% 48%,black 0%,#0008 36%,transparent 69%);
-}
-.carrier {
-  position:absolute;
-  left:0;
-  top:0;
-  aspect-ratio:1;
-  transform-style:flat;
-  visibility:hidden;
-  pointer-events:none;
-}
-.ring {
-  position:absolute;
-  inset:0;
-  border-radius:50%;
-  width:100%;
-  height:100%;
-  padding:0;
-  border:0;
-  appearance:none;
-  background:transparent;
-  pointer-events:none;
-  cursor:pointer;
-}
-.ring::before {
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:inherit;
-  /* Radial bands model the polished lip and the hollow of the bevel. */
-  background:
-    radial-gradient(closest-side,transparent 84.5%,#01061c88 86%,transparent 90%,#939fcb14 96%,#ecf6ff94 99.3%,transparent),
-    conic-gradient(from -50deg,#9bdfff,#efffff 8deg,#93bcf3 20deg,#294275 47deg,#080e20 82deg,#071126 131deg,#12357c 173deg,#3276ee 207deg,#245ddd 230deg,#152f82 266deg,#132955 298deg,#3a78cd 333deg,#9bdfff);
-  mask-image:radial-gradient(closest-side,transparent 84%,black 84.7% 99.5%,transparent);
-}
-.ring::after {
-  content:"";
-  position:absolute;
-  inset:-12%;
-  background:radial-gradient(ellipse 12% 7% at 21% 22%,#c7edff6e, #518dfd38 43%,transparent),
-             radial-gradient(ellipse 22% 15% at 23% 21%,#3182ff35,transparent);
-  pointer-events:none;
-}
-.fill {
-  position:absolute;
-  inset:8%;
-  border-radius:inherit;
-  background:transparent;
-}
-.invitation {
-  position:absolute;
-  left:50%;
-  translate:-50% 0;
-  width:min(82vw,65vh);
-  text-align:center;
-  pointer-events:none;
-  visibility:hidden;
-  color:#f3f5fb;
-}
-.invitation h2 {
-  margin:0;
-  font:600 clamp(2.25rem,min(10vw,7.2vh),5rem)/1 var(--font-clash-display),sans-serif;
-  letter-spacing:-.055em;
-  text-shadow:0 1px 2px #0009;
-}
-.invitation p {
-  position:absolute;
-  top:calc(100% + min(5.5vw,4vh));
-  left:50%;
-  transform:translateX(-50%);
-  box-sizing:border-box;
-  width:90%;
-  margin:0;
-  padding:.68em 1.2em .9em;
-  border:1px solid #b6ccdf50;
-  border-radius:.58rem;
-  background:linear-gradient(120deg,#2836473b,#04071085 35%,#10182762);
-  backdrop-filter:blur(3px);
-  box-shadow:inset 0 1px #efffff28,0 2px 9px #0004;
-  color:#f2f6ff;
-  font:500 clamp(.875rem,1.15vw,1.1rem)/1.2 var(--font-clash-display),sans-serif;
-  letter-spacing:.025em;
-}
-.invitation p::after {
-  content:"";
-  display:block;
-  height:1px;
-  margin:.45em auto 0;
-  background:linear-gradient(90deg,transparent,#5c99db 24%,#b6eaff 38%,#424b68 39%,transparent);
-}
-.ring:focus-visible { outline:2px solid #b6eaff; outline-offset:4px; }
+.space { position:absolute; inset:0; perspective:1000px; perspective-origin:50% 48%; z-index:6; pointer-events:none !important; }
+/* The flat carrier keeps floor projection orthographic; corridor depth belongs here. */
+.carrier { position:absolute; left:0; top:0; aspect-ratio:1; transform-style:flat; visibility:hidden; pointer-events:none; }
+.ring { position:absolute; inset:0; border-radius:50%; border:1px solid #fffdf5; box-shadow:inset 0 0 0 6px #fffdf535,inset 0 0 0 7px #8b7b6118,0 0 0 1px #9e8c7324,0 0 32px #d5c9b614; pointer-events:none; }
+.fill { position:absolute; inset:0; border-radius:inherit; background:radial-gradient(circle at 32% 18%,#fffefb,#faf8f1 58%,#e7e0d3); box-shadow:inset 0 1px 0 #fff9,inset 0 -2px 6px #b7aa9120; }
+.invitation { position:absolute; top:44%; left:5vw; right:5vw; display:flex; flex-direction:column; align-items:center; text-align:center; gap:.75rem; color:#302a23; visibility:hidden; pointer-events:none; }
+.invitation h2 { margin:0; max-width:18ch; font:400 var(--story-invitation,2rem)/1.2 var(--font-clash-display),sans-serif; letter-spacing:-.04em; }
+.invitation p { margin:0; color:#88765d; font:italic 400 clamp(1.25rem,1rem + 1vw,2.5rem)/1.15 var(--font-playfair-display),Georgia,serif; }
+@media(max-width:767px) { .invitation { left:1.5rem; right:1.5rem; } }
+
+.ring[data-final=true] { border-color:#bd1725; box-shadow:inset 0 0 0 5px #bd17250e,0 0 0 1px #bd172536,0 0 30px #bd172510; }
+
+.ring { padding:0; margin:0; width:100%; height:100%; appearance:none; background:transparent; cursor:pointer; }
+.ring:focus-visible { outline:2px solid #a31525; outline-offset:4px; }
