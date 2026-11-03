@@ -21,7 +21,8 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     const remember = () => {
       const bounds = message.current?.getBoundingClientRect();
       const readingStatic = scene?.staticLayout && bounds && bounds.bottom > 0 && bounds.top < innerHeight;
-      restorePose.current = !scene?.staticLayout || readingStatic ? readingPose.current : null;
+      if (!scene?.staticLayout) restorePose.current ??= readingPose.current;
+      else restorePose.current = readingStatic ? readingPose.current : null;
     };
     window.addEventListener('lionovart:story-layout-will-change', remember);
     return () => window.removeEventListener('lionovart:story-layout-will-change', remember);
@@ -160,7 +161,10 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       runway.dataset.handoffProgress = pose.progress.toFixed(3);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
-    const resize = () => { dirty=true; schedule(); };
+    const resize = () => {
+      if (!scene?.staticLayout && media.matches) restorePose.current ??= readingPose.current;
+      dirty=true; schedule();
+    };
     const observer = new ResizeObserver(resize); observer.observe(node);
     const replacements = new MutationObserver(() => { dirty=true; schedule(); });
     if (world) replacements.observe(world, { childList: true, subtree: true });

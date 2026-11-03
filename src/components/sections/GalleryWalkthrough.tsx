@@ -236,9 +236,9 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     readingAnchor.current = null;
     // A later-page anchor must not be mistaken for a gallery resize restore.
     if (!remembered && location.hash && !['#selected-work', '#partnership'].includes(location.hash)) return;
-    const bounds = runway.current?.getBoundingClientRect();
-    const withinGallery = bounds && bounds.top <= innerHeight * .2 && bounds.bottom > innerHeight;
-    if (!remembered && !withinGallery && !['#selected-work', '#partnership'].includes(location.hash)) return;
+    // Geometry can move the gallery under a reader who was in another chapter.
+    // Only an explicit gallery bookmark or gallery anchor owns restoration.
+    if (!remembered && !['#selected-work', '#partnership'].includes(location.hash)) return;
     let frame = 0;
     const land = () => { frame = requestAnimationFrame(() => {
       const anchor = runway.current; if (!anchor) return;

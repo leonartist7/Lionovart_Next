@@ -8,7 +8,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261103-r8';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261103-r9';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
