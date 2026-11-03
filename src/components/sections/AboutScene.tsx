@@ -15,7 +15,7 @@ export default function AboutScene() {
       frame = 0;
       const animated = !preference.matches && document.querySelector<HTMLElement>('[data-service-world]')?.dataset.storyStatic === 'false';
       node.dataset.aboutReveal = String(animated);
-      if (!animated) { node.style.removeProperty('clip-path'); node.inert=false; return; }
+      if (!animated) { node.style.removeProperty('clip-path'); node.style.removeProperty('--about-content-y'); node.inert=false; return; }
       const r = node.getBoundingClientRect();
       const p = Math.max(0, Math.min(1, (innerHeight - r.top) / innerHeight));
       const eased = p * p * (3 - 2 * p);
@@ -24,6 +24,7 @@ export default function AboutScene() {
       node.style.clipPath = p >= .999 ? 'none' : `circle(${radius}px at 50% ${centerY}px)`;
       node.style.setProperty('--about-opening-diameter', `${radius * 2}px`);
       node.style.setProperty('--about-opening-y', `${centerY}px`);
+      node.style.setProperty('--about-content-y', `${-Math.max(0,r.top)}px`);
       node.style.setProperty('--about-edge-opacity', p > .01 && p < .999 ? '1' : '0');
       node.dataset.aboutProgress = p.toFixed(3);
       node.inert = p < .03;

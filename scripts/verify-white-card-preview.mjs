@@ -6,7 +6,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261103-r2';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261103-r3';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -19,6 +19,13 @@ try {
   await page.goto(base+(locale==='fr'?'/fr':'/'),{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>document.documentElement.dataset.splashComplete==='true',{},{timeout:90000});
   await page.waitForTimeout(1500);
+  // Dismiss the real exit prompt before interactions; moving to a target far
+  // down the document can otherwise trigger the site's desktop exit heuristic.
+  if(await page.evaluate(()=>matchMedia('(pointer:fine)').matches)) {
+    await page.evaluate(()=>document.dispatchEvent(new MouseEvent('mouseout',{clientY:0,bubbles:true})));
+    const exit=page.locator('[aria-labelledby=exit-intent-heading]');
+    if(await exit.isVisible())await exit.locator('button').first().click();
+  }
   const animated=await page.locator('[data-service-world]').getAttribute('data-story-static')==='false';
   const scroll=async y=>{await page.evaluate(y=>window.scrollTo({top:y,behavior:'instant'}),y);await page.waitForTimeout(100);};
   const getExit=()=>page.locator('[data-card-exit]').evaluate(el=>({top:scrollY+el.getBoundingClientRect().top,height:el.offsetHeight}));

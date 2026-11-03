@@ -330,7 +330,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
           <h2 id="selected-work-heading">{fr ? 'de nos réalisations' : 'our selected work'}</h2>
         </motion.header>}
         {pinned && <motion.div className={styles.redCore} data-gallery-red-core style={{ opacity: coreOpacity, transform: coreTransform }}>
-          <motion.h2 className={styles.discTitle} data-partnership-disc-title aria-hidden={!finaleVisible} style={{ opacity: headlineOpacity, transform: headlineTransform }}>{tr('One partnership')}</motion.h2>
+          <motion.h2 className={styles.discTitle} data-partnership-disc-title aria-hidden={!finaleVisible} style={{ opacity: headlineOpacity, transform: headlineTransform }}>{locale === 'en' ? 'One Partnership' : tr('One partnership')}</motion.h2>
           <motion.div className={styles.discLogo} data-gallery-logo style={{ opacity: logoOpacity, pointerEvents: logoReady ? 'auto' : 'none' }}>
             <img src="/images/lionovart-icon.svg" className={styles.realLogo} alt="LIONOVART" width={160} height={160} />
           </motion.div>

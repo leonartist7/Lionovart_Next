@@ -25,6 +25,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     const clear = (pane:HTMLElement) => {
       for(const key of ['x','y','scale','depth','material','benefit','object','white','identity','assembly']) pane.style.removeProperty(`--handoff-${key}`);
       pane.style.removeProperty('z-index');
+      for(const key of ['size','scale-x','offset-x']) pane.style.removeProperty(`--identity-${key}`);
       const face=pane.querySelector<HTMLElement>('[data-handoff-surface] > div');
       if(face)face.inert=false;
     };
@@ -68,7 +69,8 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         const center = destination.find(target=>target.selected) ?? destination[1];
         sources.forEach(({node:pane,base},index)=>{
           const target=destination[index];
-          const desired=cardTransportRect(base,sources[1].base,target.rect,center.rect,index,target.selected,pose);
+          const heldCenter={...center.rect,x:innerWidth/2,y:innerHeight*.48};
+          const desired=cardTransportRect(base,sources[1].base,target.rect,heldCenter,index,target.selected,pose);
           const fitted=cardBridgeFrame(base,desired,1,1,false);
           pane.style.setProperty('--handoff-x',`${fitted.x}px`);
           pane.style.setProperty('--handoff-y',`${fitted.y}px`);
@@ -78,7 +80,11 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           pane.style.setProperty('--handoff-white',String(pose.white));
           pane.style.setProperty('--handoff-assembly',String(pose.assembly));
           pane.style.setProperty('--handoff-identity',String(1-pose.serviceReveal));
-          pane.style.setProperty('--identity-size',`${Math.min(50,desired.width*.11)/Math.max(.01,base.parentY*fitted.sy)}px`);
+          const identitySize = Math.min(50,desired.width*.11);
+          const identityX = Math.max(.01,base.parentX*fitted.sx), identityY = Math.max(.01,base.parentY*fitted.sy);
+          pane.style.setProperty('--identity-size',`${identitySize/identityY}px`);
+          pane.style.setProperty('--identity-scale-x',String(identityY/identityX));
+          pane.style.setProperty('--identity-offset-x',`${[-1.88,-.06,1.94][index]*identitySize/identityX}px`);
           pane.style.setProperty('--handoff-benefit',String(pose.benefit));
           pane.style.setProperty('--handoff-object',String(1-pose.gather));
           pane.style.zIndex=String(pose.spread>.01?(target.selected?3:index+1):(3-index));

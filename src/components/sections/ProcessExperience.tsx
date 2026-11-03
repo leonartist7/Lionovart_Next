@@ -2,7 +2,7 @@
 
 import ProcessLionJourney from "./ProcessLionJourney";
 
-/** Homepage process and closing CTA share a single lion scene. */
+/** Scroll-emphasized process steps lead into the independent closing CTA. */
 export default function ProcessExperience() {
   return <ProcessLionJourney />;
 }

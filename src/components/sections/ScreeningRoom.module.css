@@ -85,6 +85,7 @@
 .aboutRunway { position: relative; height: auto; scroll-margin-top: 5rem; background: var(--site-surface-light, #f7f4ef); }
 .aboutStage { position: relative; min-height: 0; padding: 0; color: #171412; }
 .aboutRunway[data-about-reveal=true] { z-index:4; margin-top:-100svh; }
+.aboutRunway[data-about-reveal=true] .aboutStage { transform:translateY(var(--about-content-y,0px)); }
 .aboutRunway[data-about-reveal=true]::after { content:""; position:absolute; z-index:3; pointer-events:none; left:50%; top:var(--about-opening-y,50svh); width:var(--about-opening-diameter,0px); aspect-ratio:1; transform:translate(-50%,-50%); border:clamp(.5rem,2.5vw,2rem) solid #f51b2c; border-radius:50%; opacity:var(--about-edge-opacity,0); box-shadow:inset 0 0 0 1px #ffb2a0; }
 .galleryStage > div:last-child { width: min(100%,76rem); margin-inline: auto; margin-top: 1.25rem; }
 @media(max-height:560px), (prefers-reduced-motion:reduce) {
