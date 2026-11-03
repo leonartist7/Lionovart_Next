@@ -116,7 +116,7 @@ export default function ServicePortal() {
       </button>
     </div>
     <header ref={invitation} className={styles.invitation} data-gallery-title aria-hidden="true">
-      <p>{locale === 'fr' ? 'Entrez dans l’univers' : 'Step inside'}</p>
+      <p>{locale === 'fr' ? 'Entrez' : 'Step inside'}</p>
       <h2 id="selected-work-heading">{locale === 'fr' ? 'Réalisations' : 'Selected Work'}</h2>
     </header>
   </div></ScenePortal>;
