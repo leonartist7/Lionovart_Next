@@ -15,14 +15,14 @@ export default function CardsServicesTransition({ children }: { children: ReactN
   const message = useRef<HTMLDivElement>(null);
   const { locale } = useLanguage();
   const readingPose = useRef<number | null>(null), restorePose = useRef<number | null>(null), pendingPose = useRef<number | null>(null);
+  const restoringFlow = useRef(false);
   // A short landscape viewport switches to the existing reading-flow layout.
   // Keep the same narrative beat across that ownership change.
   useEffect(() => {
     const remember = () => {
-      const bounds = message.current?.getBoundingClientRect();
-      const readingStatic = scene?.staticLayout && bounds && bounds.bottom > 0 && bounds.top < innerHeight;
-      if (!scene?.staticLayout) restorePose.current ??= readingPose.current;
-      else restorePose.current = readingStatic ? readingPose.current : null;
+      // Use the last reading state, rather than post-resize geometry: the
+      // phone film reflows before the layout-change event is dispatched.
+      restorePose.current ??= readingPose.current;
     };
     window.addEventListener('lionovart:story-layout-will-change', remember);
     return () => window.removeEventListener('lionovart:story-layout-will-change', remember);
@@ -32,6 +32,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     if (remembered === null) return;
     restorePose.current = null;
     if (!scene?.staticLayout) pendingPose.current = remembered;
+    restoringFlow.current = !!scene?.staticLayout;
     let frame = requestAnimationFrame(() => { frame = requestAnimationFrame(() => {
       const runway = exit.current, copy = message.current;
       if (!runway || !copy) return;
@@ -40,8 +41,9 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         ? scrollY + copy.getBoundingClientRect().top - 64
         : scrollY + bounds.top - innerHeight + remembered * (bounds.height + innerHeight);
       window.scrollTo({ top, behavior:'instant' });
+      restoringFlow.current = false;
     }); });
-    return () => cancelAnimationFrame(frame);
+    return () => { cancelAnimationFrame(frame); restoringFlow.current = false; };
   }, [scene?.staticLayout]);
   useEffect(() => {
     const node = (scene?.target?.querySelector('[data-scene-opening]') ?? intro.current) as HTMLElement | null, runway = exit.current, copy = message.current;
@@ -171,6 +173,13 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       runway.dataset.handoffProgress = pose.progress.toFixed(3);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
+    const scrolling = () => {
+      if (scene?.staticLayout && !restoringFlow.current) {
+        const bounds = copy.getBoundingClientRect();
+        if (bounds.bottom <= 0 || bounds.top >= innerHeight) readingPose.current = null;
+      }
+      schedule();
+    };
     const resize = () => {
       if (!scene?.staticLayout && media.matches) restorePose.current ??= readingPose.current;
       dirty=true; schedule();
@@ -184,7 +193,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     const geometry = new ResizeObserver(resize);
     node.querySelectorAll('[data-persistent-card]').forEach(pane=>geometry.observe(pane));
     world?.querySelectorAll('[data-service-frame-target]').forEach(target=>geometry.observe(target));
-    window.addEventListener('scroll', schedule, { passive: true }); window.addEventListener('resize', resize);
+    window.addEventListener('scroll', scrolling, { passive: true }); window.addEventListener('resize', resize);
     window.addEventListener('lionovart:service-pose',schedule);
     media.addEventListener('change', resize); void document.fonts.ready.then(resize); sync();
     return () => {
@@ -194,7 +203,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       sources.forEach(({node:pane})=>clear(pane));
       node.style.opacity = ''; node.inert = false; delete node.dataset.cardHandoffActive;
       cancelAnimationFrame(frame); observer.disconnect(); geometry.disconnect(); parentGeometry.disconnect(); replacements.disconnect();
-      window.removeEventListener('scroll', schedule); window.removeEventListener('resize', resize);
+      window.removeEventListener('scroll', scrolling); window.removeEventListener('resize', resize);
       window.removeEventListener('lionovart:service-pose',schedule);media.removeEventListener('change', resize);
     };
   }, [scene?.target, scene?.staticLayout, scene?.cardSlots]);
