@@ -97,6 +97,7 @@
   });
   if (location.hash === '#doorway') {
     document.documentElement.dataset.doorStudy = '';
+    document.querySelector('#doorway').value = '54';
     frame.addEventListener('load', async () => {
       const doc = frame.contentDocument;
       await doc.fonts.ready;
