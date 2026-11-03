@@ -6,7 +6,7 @@ export function cardHandoff(top: number, height: number, viewport: number) {
   const statement = 1 - smooth((progress - .53) / .055);
   // Keep the printed card faces intact until the signature has been read.
   const gather = smooth((progress - .585) / .11);
-  const reshape = smooth((progress - .695) / .055);
+  const reshape = smooth((progress - .695) / .075);
   const spread = smooth((progress - .845) / .12);
   const reveal = smooth((progress - .83) / .09);
   return {

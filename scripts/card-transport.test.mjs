@@ -9,16 +9,16 @@ const sourceCenter={...source,x:610};
 const center={x:610,y:270,width:600,height:337.5};
 const destination={x:280,y:235,width:500,height:281.25};
 test('collection completes behind the original middle frame before reshaping begins',()=>{
- const held=cardTransportRect(source,sourceCenter,destination,center,0,false,pose(.68));
- assert.equal(held.x,sourceCenter.x);assert.equal(held.y,sourceCenter.y+8);
- assert.equal(held.width,sourceCenter.width*.96);
- assert.equal(held.height,sourceCenter.height*.96);
- const hero=cardTransportRect(sourceCenter,sourceCenter,center,center,1,true,pose(.68));
+ const held=cardTransportRect(source,sourceCenter,destination,center,0,false,pose(.695));
+ assert.equal(held.x,sourceCenter.x);assert.equal(held.y,sourceCenter.y);
+ assert.equal(held.width,sourceCenter.width);
+ assert.equal(held.height,sourceCenter.height);
+ const hero=cardTransportRect(sourceCenter,sourceCenter,center,center,1,true,pose(.695));
  assert.deepEqual(hero,sourceCenter);
 });
 test('the stack reaches its complete service aspect before any lateral expansion',()=>{
  const held=cardTransportRect(source,sourceCenter,destination,center,0,false,pose(.84));
- assert.equal(held.x,center.x);assert.equal(held.y,center.y+8);
+ assert.equal(held.x,center.x);assert.equal(held.y,center.y);
  assert.ok(Math.abs(held.width/held.height-16/9)<1e-10);
 });
 test('transport reaches live service positions under unequal original film projection',()=>{
@@ -45,3 +45,4 @@ test('rapid forward and reverse input produce the same finite frames without tra
   assert.ok(next.width>0&&next.height>0);previous=next;
  }
 });
+

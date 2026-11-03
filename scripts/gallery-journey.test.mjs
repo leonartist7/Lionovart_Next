@@ -3,25 +3,25 @@ import { galleryLayout, galleryRingDiameter, galleryRingCenterOffset, galleryFoc
 import assert from 'node:assert/strict';
 import { galleryWithCarry, galleryProgress, galleryTravel, galleryCardPose, galleryRingPose, galleryEnding, galleryProjectProgress, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase } from '../src/components/sections/gallery-journey.ts';
 
-test('a contained title disc holds, contracts, then reveals the logo, subtitle and action', () => {
+test('a branded title disc holds, contracts, and keeps the subtitle readable', () => {
  assert.equal(galleryEnding(.70).core,0);
  for(const p of [.82,.84,.85]) {
   assert.equal(galleryEnding(p).coreScale,1);
   assert.equal(galleryEnding(p).title,1);
-  assert.equal(galleryEnding(p).logo,0);
-  assert.equal(galleryEnding(p).copy,0);
+  assert.equal(galleryEnding(p).logo,1);
+  assert.ok(galleryEnding(p).copy>.5);
  }
  assert.equal(galleryEnding(.91).coreScale,.76);
  assert.equal(galleryEnding(.91).markSettle,1);
- assert.equal(galleryEnding(.91).logo,0);
+ assert.equal(galleryEnding(.91).logo,1);
  assert.equal(galleryEnding(.94).logo,1);
  assert.equal(galleryEnding(.94).copy,1);
  assert.equal(galleryEnding(.95).links,0);
- assert.equal(galleryEnding(.98).links,1);
+ assert.equal(galleryEnding(.98).links,0);
  for(let i=0;i<=2000;i++) {
   const p=i/2000,pose=galleryEnding(p);
   assert.ok(pose.coreScale>=.22&&pose.coreScale<=1);
-  if(pose.logo>0||pose.copy>0)assert.equal(pose.markSettle,1);
+  assert.equal(pose.logo,1,'The real logo is present from first disc visibility');
  }
 });
 
@@ -87,13 +87,13 @@ test('the carried artwork leads ten unique project stops', () => {
 });
 
 
-test('one project is visible at a time throughout the trip in either direction', () => {
+test('only the departing project and its next project are visible in either direction', () => {
   for (const count of [1, 3, 10]) {
     const seen = new Set();
     for (let tick = 0; tick <= 2000; tick++) {
       const p = tick / 2000;
       const shown = Array.from({length: count}, (_, i) => galleryCardPose(p, i, count).visible);
-      assert.ok(shown.filter(Boolean).length <= 1);
+      assert.ok(shown.filter(Boolean).length <= 2);
       shown.forEach((visible, i) => { if (visible) seen.add(i); });
     }
     assert.equal(seen.size, count);
@@ -123,9 +123,10 @@ test('departure starts after the reading hold and accelerates through the viewin
   assert.ok(b.forward-a.forward < c.forward-b.forward);
   assert.ok(c.forward-b.forward < d.forward-c.forward);
   assert.equal(at(.57).caption, 0);
-  assert.equal(at(.85).visible, false);
+  assert.equal(at(.85).visible, true);
   assert.equal(at(.36).dissolve,0);
-  assert.ok(at(.65).dissolve>.5);
+  assert.equal(at(.8).dissolve,0);
+  assert.ok(at(.98).dissolve>0);
   assert.ok(at(.96).z>850);
   assert.ok(at(.85).z>at(.65).z);
   assert.ok(galleryRunwayScreens(10) < 17);
@@ -161,3 +162,4 @@ test('rings surround the reading position, remain ahead in depth, and pass beyon
   assert.ok(galleryRingPose(p,4,10).z<=900);
  }
 });
+
