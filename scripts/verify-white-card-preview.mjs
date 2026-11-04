@@ -8,7 +8,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261104-r26';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r27';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -59,17 +59,25 @@ try {
      const statement=await page.locator('[data-brand-statement]').boundingBox();
      assert.ok(Math.max(...read.map(r=>r.bottom))<=statement.y-16,'Phone statement has its own space below all three cards');
      await scroll(exit.top-h+.695*(exit.height+h));
-     const topCard=await page.locator('[data-persistent-card="0"]').boundingBox();
-     assert.ok(Math.abs(topCard.y-read[0].top)<2,'Portrait stack gathers into the original top card');
+     const centered=await page.locator('[data-service-card-target][data-position=center] [data-service-frame-target]').boundingBox();
+     const gathered=await page.locator('[data-persistent-card]').evaluateAll(es=>es.map(el=>{const r=el.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};}));
+     assert.ok(gathered.every(r=>Math.abs(r.x-centered.x-centered.width/2)<1&&Math.abs(r.y-centered.y-centered.height/2)<1),'Portrait stack reaches the exact service anchor before opening');
    }
-   await scroll(exit.top-h+.69*(exit.height+h));
+   await scroll(exit.top-h+.71*(exit.height+h));
    const joining=await page.locator('[data-card-identity]').evaluateAll(es=>es.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,right:r.right};}));
-   assert.ok(joining[1].x>=joining[0].right-2&&joining[2].x>=joining[1].right-2,'Outlined fragments reach their slots before the stack closes');
+   assert.ok(joining[1].x>=joining[0].right-2&&joining[2].x>=joining[1].right-2,'Outlined fragments join after the frames are close enough');
    await scroll(exit.top-h+.78*(exit.height+h));
    assert.equal(await page.locator('[data-brand-beat=main]').evaluate(el=>getComputedStyle(el).opacity),'1','The statement remains present through the merge');
    assert.equal(await page.locator('[data-brand-beat=main]').evaluate(el=>getComputedStyle(el).color),'rgb(23, 20, 18)','Retained statement switches to dark ink on the lightening field');
    const cornerArt=await page.locator('[data-floating-card-object] img').evaluateAll(nodes=>nodes.map(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height,fit:getComputedStyle(el).objectFit};}));
    assert.ok(cornerArt.every(r=>Math.abs(r.width-r.height)<1&&r.fit==='fill'),'Counter-projected corner artwork preserves its square proportions');
+   const held=await page.locator('[data-persistent-card]').first().boundingBox();
+   assert.ok(cornerArt.every(r=>r.width>=Math.min(104,held.width*.25,held.height*.42)-1),'Merged artwork uses the enlarged responsive composition');
+   const anchor=await page.locator('[data-service-card-target][data-position=center] [data-service-frame-target]').boundingBox();
+   assert.ok(Math.abs(held.x+held.width/2-anchor.x-anchor.width/2)<1&&Math.abs(held.y+held.height/2-anchor.y-anchor.height/2)<1,'White hold and service foreground share one exact center');
+   const edges=await page.locator('[data-card-edge]').evaluateAll(es=>es.map(el=>Number(getComputedStyle(el).opacity)));
+   assert.ok(edges.every(opacity=>opacity===0),'Hover edges clear completely before merging');
+   assert.ok((await page.locator('[data-card-identity] > span:last-child').evaluateAll(es=>es.slice(0,2).map(el=>Number(getComputedStyle(el).opacity)))).every(opacity=>opacity===0),'Duplicate N/A letters retire after their origins align');
    assert.equal(await page.locator('[data-card-identity]').first().evaluate(el=>getComputedStyle(el).webkitTextFillColor),'rgba(0, 0, 0, 0)','Identity lettering stays outline-only');
    const lettering=await page.locator('[data-card-identity]').evaluateAll(es=>es.map(el=>{
      const r=el.getBoundingClientRect(),p=el.parentElement.getBoundingClientRect();
@@ -213,4 +221,5 @@ try {
  await writeFile(`${output}/results.json`,JSON.stringify(results,null,2));
  assert.ok(results.every(r=>r.errors.length===0),JSON.stringify(results));
 }finally{await browser.close();}
+
 

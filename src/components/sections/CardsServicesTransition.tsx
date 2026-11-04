@@ -7,7 +7,7 @@ import { cardBridgeFrame, type BridgeFrame } from './card-bridge';
 import { cardReadingStack, cardTransportRect, type CardRect } from './card-transport';
 import { serviceGalleryHandoff } from './service-gallery-handoff';
 import { cardHandoff } from './card-handoff';
-import { cardLettering } from './card-lettering';
+import { cardLettering, cardTailOpacity } from './card-lettering';
 import styles from './ScreeningRoom.module.css';
 
 export default function CardsServicesTransition({ children }: { children: ReactNode }) {
@@ -57,7 +57,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     const mix = (a:number,b:number,p:number) => a+(b-a)*p;
     const rect = (node:Element):CardRect => { const r=node.getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2,width:r.width,height:r.height}; };
     const clear = (pane:HTMLElement) => {
-      for(const key of ['x','y','scale','depth','material','benefit','object','object-width','object-height','object-right','object-top','white','identity','assembly','corner','art-x','art-y','art-scale']) pane.style.removeProperty(`--handoff-${key}`);
+      for(const key of ['x','y','scale','depth','material','benefit','object','object-width','object-height','object-right','object-top','white','identity','assembly','tail','corner','art-x','art-y','art-scale']) pane.style.removeProperty(`--handoff-${key}`);
       pane.style.removeProperty('z-index');
       for(const key of ['size','scale-x','offset-x','x','y']) pane.style.removeProperty(`--identity-${key}`);
       const face=pane.querySelector<HTMLElement>('[data-handoff-surface] > div');
@@ -143,11 +143,12 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           width:mix(base.width,reading.width,pose.reading),height:mix(base.height,reading.height,pose.reading),
         }));
         const leader=reading[portrait ? 0 : 1];
+        const units=sources.map(source=>source.unit);
+        const desiredFrames=reading.map((source,index)=>cardTransportRect(source,leader,destination[index].rect,center.rect,index,destination[index].selected,pose));
+        const letters=desiredFrames.map((desired,index)=>cardLettering(desired.width,desired.height,units,index,pose.assembly));
         sources.forEach(({node:pane,base,objectWidth},index)=>{
           const target=destination[index];
-          const heldCenter={...center.rect,x:portrait ? leader.x : innerWidth/2,
-            y:portrait ? leader.y-leader.height/2+center.rect.height/2 : innerHeight*.48};
-          const desired=cardTransportRect(reading[index],leader,target.rect,heldCenter,index,target.selected,pose);
+          const desired=desiredFrames[index];
           const fitted=cardBridgeFrame(base,desired,1,1,false);
           pane.style.setProperty('--handoff-x',`${fitted.x}px`);
           pane.style.setProperty('--handoff-y',`${fitted.y}px`);
@@ -157,7 +158,15 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           pane.style.setProperty('--handoff-white',String(pose.white));
           pane.style.setProperty('--handoff-assembly',String(pose.assembly));
           pane.style.setProperty('--handoff-identity',String(pose.identity));
-          const lettering=cardLettering(desired.width,desired.height,sources.map(source=>source.unit),index,pose.assembly);
+          const lettering=letters[index];
+          if(index<2){
+            const next=desiredFrames[index+1],nextLetter=letters[index+1];
+            const tailX=desired.x-desired.width/2+lettering.x+units[index]*lettering.size;
+            const nextX=next.x-next.width/2+nextLetter.x;
+            const tailY=desired.y-desired.height/2+lettering.y;
+            const nextY=next.y-next.height/2+nextLetter.y;
+            pane.style.setProperty('--handoff-tail',String(cardTailOpacity(Math.hypot(tailX-nextX,tailY-nextY),lettering.size,pose.assembly)));
+          }
           const identityX = Math.max(.01,base.parentX*fitted.sx), identityY = Math.max(.01,base.parentY*fitted.sy);
           pane.style.setProperty('--identity-size',`${lettering.size/identityY}px`);
           pane.style.setProperty('--identity-scale-x',String(identityY/identityX));
@@ -165,12 +174,15 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           pane.style.setProperty('--identity-y',`${lettering.y/identityY}px`);
           pane.style.setProperty('--handoff-benefit',String(pose.benefit));
           const naturalObject=objectWidth*base.parentY*Math.min(desired.width/base.width,desired.height/base.height);
-          const objectSize=mix(naturalObject,Math.min(56,desired.width*.14),pose.assembly);
+          const objectSize=mix(naturalObject,Math.min(104,desired.width*.25,desired.height*.42),pose.assembly);
+          const gap=Math.max(6,desired.width*.018);
+          const groupLeft=(desired.width-3*objectSize-2*gap)/2;
+          const objectRight=mix(10,desired.width-groupLeft-index*(objectSize+gap)-objectSize,pose.assembly);
           pane.style.setProperty('--handoff-object',String(pose.objects));
           pane.style.setProperty('--handoff-object-width',`${objectSize/identityX}px`);
           pane.style.setProperty('--handoff-object-height',`${objectSize/identityY}px`);
-          pane.style.setProperty('--handoff-object-right',`${(8+(2-index)*(objectSize+4)*pose.assembly)/identityX}px`);
-          pane.style.setProperty('--handoff-object-top',`${8/identityY}px`);
+          pane.style.setProperty('--handoff-object-right',`${objectRight/identityX}px`);
+          pane.style.setProperty('--handoff-object-top',`${mix(10,Math.max(8,desired.height*.055),pose.assembly)/identityY}px`);
           // No rear card may share the selected card's stacking level.
           pane.style.zIndex=String(pose.spread>.01?(target.selected?10:2-index):(3-index));
           const face=pane.querySelector<HTMLElement>('[data-handoff-surface] > div');
@@ -247,5 +259,6 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     <div ref={exit} className={styles.cardExit} data-card-exit aria-hidden="true" />
   </div>;
 }
+
 
 

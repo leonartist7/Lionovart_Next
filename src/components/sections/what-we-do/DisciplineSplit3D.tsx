@@ -227,20 +227,6 @@ function Pane({
             <canvas ref={registerCanvas} className="absolute inset-0 h-full w-full"
               style={{ opacity: canvasReady ? 1 : 0 }} />
           </motion.div>
-          {/* One continuous bevel: always present, then intensified by the
-              pointer's proximity to this pane. */}
-          <motion.div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] p-[1.25px] transition-opacity duration-300"
-            style={{
-              opacity: cardP,
-              background: `linear-gradient(135deg, ${EDGE_TINTS[i]}, rgba(255,245,214,0.78) 18%, ${EDGE_TINTS[i]} 52%, rgba(255,255,255,0.4) 76%, ${EDGE_TINTS[i]})`,
-              WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-              WebkitMaskComposite: "xor",
-              mask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-              maskComposite: "exclude",
-            }}
-          />
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 rounded-[inherit] transition-opacity duration-300"
@@ -262,10 +248,6 @@ function Pane({
               opacity: cardP,
             }}
           />
-          <motion.div
-            className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/10"
-            style={{ opacity: cardP }}
-          />
           {/* Spotlight, armed only once the flip has fully landed. The edge
               light carries the effect; the surface wash underneath is now
               just enough to seat it, not compete with it. Colour comes from
@@ -281,7 +263,7 @@ function Pane({
           {armed ? (
             <>
               <div
-                aria-hidden="true"
+                aria-hidden="true" data-card-edge
                 className="pointer-events-none absolute inset-0 rounded-[inherit] transition-opacity duration-500 ease-out"
                 style={{
                   opacity: "var(--spot-active, 0)",
@@ -293,7 +275,7 @@ function Pane({
                   stays reserved for the card the cursor is on, so it reads as
                   selection rather than decoration. */}
               <div
-                aria-hidden="true"
+                aria-hidden="true" data-card-edge
                 className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] p-[1.25px] blur-[2px] transition-opacity duration-500 ease-out"
                 style={{
                   opacity: "calc(var(--spot-active, 0) * 0.95)",
@@ -306,7 +288,7 @@ function Pane({
                 }}
               />
               <div
-                aria-hidden="true"
+                aria-hidden="true" data-card-edge
                 className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] p-[1px] transition-opacity duration-500 ease-out"
                 style={{
                   opacity: "var(--spot-active, 0)",
@@ -1025,5 +1007,6 @@ export default function DisciplineSplit3D({
     </section>
   );
 }
+
 
 

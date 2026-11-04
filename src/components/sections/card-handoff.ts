@@ -25,7 +25,7 @@ export function cardHandoff(top: number, height: number, viewport: number) {
     identity: 1 - reveal,
     objects: 1 - reveal,
     white: smooth((progress - .53) / .105),
-    assembly: smooth((progress - .585) / .09),
+    assembly: smooth((progress - .60) / .11),
     material: 1 - smooth((progress - .635) / .06),
     wordmark: smooth((progress - .69) / .06) * (1 - smooth((progress - .815) / .055)),
     benefit: 1 - smooth((progress - .575) / .055),
@@ -46,5 +46,6 @@ export function cardHandoff(top: number, height: number, viewport: number) {
     proof: 1 - smooth(progress / .05),
   };
 }
+
 
 

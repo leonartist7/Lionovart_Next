@@ -8,13 +8,20 @@ const source={x:250,y:220,width:280,height:390};
 const sourceCenter={...source,x:610};
 const center={x:610,y:270,width:600,height:337.5};
 const destination={x:280,y:235,width:500,height:281.25};
-test('collection completes behind the original middle frame before reshaping begins',()=>{
+test('collection reaches the service anchor before reshaping begins',()=>{
  const held=cardTransportRect(source,sourceCenter,destination,center,0,false,pose(.695));
- assert.equal(held.x,sourceCenter.x);assert.equal(held.y,sourceCenter.y);
+ assert.equal(held.x,center.x);assert.equal(held.y,center.y);
  assert.equal(held.width,sourceCenter.width);
  assert.equal(held.height,sourceCenter.height);
  const hero=cardTransportRect(sourceCenter,sourceCenter,center,center,1,true,pose(.695));
- assert.deepEqual(hero,sourceCenter);
+ assert.deepEqual(hero,{...sourceCenter,x:center.x,y:center.y});
+});
+test('the foreground has no second vertical or horizontal movement while opening',()=>{
+ const front={...sourceCenter,x:900,y:540};
+ for(let step=695;step<=1000;step++) {
+  const r=cardTransportRect(front,front,center,center,1,true,pose(step/1000));
+  assert.equal(r.x,center.x);assert.equal(r.y,center.y);
+ }
 });
 test('the stack reaches its complete service aspect before any lateral expansion',()=>{
  const held=cardTransportRect(source,sourceCenter,destination,center,0,false,pose(.84));
@@ -45,4 +52,5 @@ test('rapid forward and reverse input produce the same finite frames without tra
   assert.ok(next.width>0&&next.height>0);previous=next;
  }
 });
+
 

@@ -117,8 +117,8 @@
 .integratedFace :global([data-integrated=true] > button) { opacity:var(--handoff-benefit,1); }
 /* The existing code, always an outline, supplies the eventual wordmark.
    Its glyph origin is explicit; no percentage of a shrinking word moves it. */
-.identityLettering { position:absolute; z-index:4; left:var(--identity-x,12%); top:var(--identity-y,74%); color:transparent; -webkit-text-fill-color:transparent; -webkit-text-stroke:1px #8e7c64; paint-order:stroke fill; font:700 var(--identity-size,clamp(1.5rem,3.5vw,3.5rem))/1 var(--font-clash-display),sans-serif; letter-spacing:-.055em; white-space:nowrap; pointer-events:none; opacity:var(--handoff-identity,1); transform-origin:0 0; transform:scaleX(var(--identity-scale-x,1)) translateY(-50%); }
-.identityTail { position:absolute; left:100%; top:0; transform-origin:0 50%; transform:scaleX(max(0,calc(1 - var(--handoff-assembly,0) * 1.8))); opacity:max(0,calc(1 - var(--handoff-assembly,0) * 1.8)); }
+.identityLettering { position:absolute; z-index:4; left:var(--identity-x,8%); top:var(--identity-y,16%); color:transparent; -webkit-text-fill-color:transparent; -webkit-text-stroke:1px #8e7c64; paint-order:stroke fill; font:700 var(--identity-size,clamp(2rem,5.25vw,4.5rem))/1 var(--font-clash-display),sans-serif; letter-spacing:-.055em; white-space:nowrap; pointer-events:none; opacity:var(--handoff-identity,1); transform-origin:0 0; transform:scaleX(var(--identity-scale-x,1)) translateY(-50%); }
+.identityTail { position:absolute; left:100%; top:0; opacity:var(--handoff-tail,1); }
 .floatingCarrier { transform:none; }
 .floatingObject { right:.25rem; top:.25rem; }
 @media(width < 920px) {
@@ -137,3 +137,10 @@
 /* This box counteracts the pane's unequal X/Y scale. Fill that compensated
    box: contain would letterbox a square before the parent projects it. */
 :global([data-card-handoff-active=true]) .floatingObject img { transform:none; object-fit:fill; }
+
+/* Names belong to the upper image area; the travelling edge exists only while
+   interacting with a reading card and clears before the white gathering. */
+.floatingObject { width:clamp(6rem,10.5vw,9rem); }
+@media(width < 920px) { .floatingObject { width:clamp(3.75rem,13.5vw,4.875rem); } }
+:global([data-card-handoff-active=true]) .pane :global([data-card-edge]) { opacity:0 !important; }
+

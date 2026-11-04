@@ -7,7 +7,9 @@ const blend = (a: CardRect, b: CardRect, p: number): CardRect => ({
 /** The original frames gather first, reshape while stacked, then spread to the live service orbit. */
 export function cardTransportRect(source: CardRect, sourceCenter: CardRect, service: CardRect,
   serviceCenter: CardRect, index: number, selected: boolean, pose: ReturnType<typeof cardHandoff>) {
-  const gathered = { ...sourceCenter };
+  // Rise into the live service anchor during collection. Reshaping and opening
+  // then share that same center; the front frame cannot drift during the reveal.
+  const gathered = { ...sourceCenter, x: serviceCenter.x, y: serviceCenter.y };
   const stacked = { ...serviceCenter };
   return blend(blend(blend(source,gathered,pose.gather),stacked,pose.reshape),service,pose.spread);
 }
@@ -24,3 +26,4 @@ export function cardReadingStack(sources: readonly CardRect[], statementTop: num
     y: y + (r.y - top) * scale, width: r.width * scale, height: r.height * scale,
   }));
 }
+
