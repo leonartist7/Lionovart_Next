@@ -25,6 +25,13 @@ test('native gallery progress is finite and consistent across portrait and deskt
  for (const top of [-100000, 0, 100000]) assert.ok(Number.isFinite(galleryProgress(top, 0, 0)));
 });
 
+test('equal native scroll distances carry equal tunnel distances without another easing layer', () => {
+ for(const count of [1,6,10]) {
+  const step=galleryTravel(.01,count)-galleryTravel(0,count);
+  for(let i=1;i<99;i++) assert.ok(Math.abs(galleryTravel((i+1)/100,count)-galleryTravel(i/100,count)-step)<1e-9);
+ }
+});
+
 
 test('the service gather matches the projected gallery center on desktop and portrait', () => {
  for (const [width, height] of [[320,568], [390,844], [768,1024], [1024,768], [1440,900], [2560,1080]]) {

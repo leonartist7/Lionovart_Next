@@ -331,7 +331,9 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
           <h2 id="selected-work-heading">{fr ? 'de nos réalisations' : 'our selected work'}</h2>
         </motion.header>}
         {pinned ? <div className={styles.corridor} data-gallery-corridor>
-          <motion.div className={styles.depthSpace} style={{opacity:navOpacity}} aria-hidden="true"/>
+          <motion.svg className={styles.depthSpace} style={{opacity:navOpacity}} viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M500 480 50 1000M500 480 950 1000M340 665H660M235 785H765M85 960H915" />
+          </motion.svg>
           {projects.map((work, index) => <GalleryRing key={`ring-${work.slug}`} index={index} count={projectCount} progress={progress} entry={entry} />)}
           {projects.map((work, index) => <GalleryPanel key={work.slug} work={work} index={index} count={projectCount}
             progress={progress} entry={entry} entryScale={entryScale} focusDepth={focusDepth} selected={selectedSlug === work.slug}
