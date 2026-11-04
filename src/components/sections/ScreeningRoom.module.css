@@ -60,9 +60,10 @@
 @keyframes screen-dissolve { from { opacity: 0; } to { opacity: 1; } }
 @media(prefers-reduced-motion:reduce) { .media { animation: none; } }
 
-.shapingMessage { position: fixed; inset: 0; z-index: 4; color: #f4efe5; text-align: center; pointer-events: none; visibility: hidden; }
+.shapingMessage { position: fixed; inset: 0; z-index: 4; color: var(--world-ink,#f4efe5); text-align: center; pointer-events: none; visibility: hidden; }
+:global([data-story-static=true]) .shapingMessage { color:#f4efe5; }
 .brandStatement, .brandSignature { position: absolute; inset-inline: 1.25rem; bottom: clamp(1.5rem,5svh,3.5rem); }
-.brandStatement > p { margin: 0 0 .65rem; font: 400 clamp(1rem,1.6vw,1.5rem)/1.3 var(--font-clash-display),sans-serif; color: #d6cbbc; }
+.brandStatement > p { margin: 0 0 .65rem; font: 400 clamp(1rem,1.6vw,1.5rem)/1.3 var(--font-clash-display),sans-serif; color: inherit; }
 .shapingMessage h2 { max-width: 30ch; margin: 0 auto; font: 400 clamp(1.75rem,3.8vw,4rem)/1.08 var(--font-clash-display),sans-serif; letter-spacing: -.035em; text-wrap: balance; }
 .shapingMessage h2 > span { display: block; }
 .shapingMessage h2 .necessity { margin-top: .2em; font-family: var(--font-playfair-display),Georgia,serif; font-style: italic; font-weight: 400; font-synthesis: none; color: #e5192a; line-height: 1.15; }
@@ -116,3 +117,4 @@
 .aboutRunway[data-about-reveal=true],
 .aboutRunway[data-about-reveal=true] .aboutStage { min-height:100svh; }
 .aboutRunway[data-about-reveal=true] .aboutStage { display:grid; align-items:center; }
+

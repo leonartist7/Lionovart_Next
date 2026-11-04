@@ -8,7 +8,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261104-r22';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261104-r23';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -67,6 +67,7 @@ try {
    assert.ok(joining[1].x>=joining[0].right-2&&joining[2].x>=joining[1].right-2,'Outlined fragments reach their slots before the stack closes');
    await scroll(exit.top-h+.78*(exit.height+h));
    assert.equal(await page.locator('[data-brand-beat=main]').evaluate(el=>getComputedStyle(el).opacity),'1','The statement remains present through the merge');
+   assert.equal(await page.locator('[data-brand-beat=main]').evaluate(el=>getComputedStyle(el).color),'rgb(23, 20, 18)','Retained statement switches to dark ink on the lightening field');
    assert.equal(await page.locator('[data-card-identity]').first().evaluate(el=>getComputedStyle(el).webkitTextFillColor),'rgba(0, 0, 0, 0)','Identity lettering stays outline-only');
    const lettering=await page.locator('[data-card-identity]').evaluateAll(es=>es.map(el=>{
      const r=el.getBoundingClientRect(),p=el.parentElement.getBoundingClientRect();
