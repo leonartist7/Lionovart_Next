@@ -98,8 +98,11 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         if (dirty || sources.some((source,index)=>source.node!==panes[index])) {
           panes.forEach(clear);
           sources = panes.map(pane => {
-            const r=rect(pane), matrix=new DOMMatrixReadOnly(getComputedStyle(pane).transform);
-            const parentX=r.width/Math.max(1,pane.offsetWidth), parentY=r.height/Math.max(1,pane.offsetHeight);
+            const r=rect(pane), style=getComputedStyle(pane), matrix=new DOMMatrixReadOnly(style.transform);
+            // offsetWidth/Height round fractional CSS pixels and misalign the
+            // independently transported baselines, especially in a phone stack.
+            const parentX=r.width/Math.max(1,parseFloat(style.width)||pane.offsetWidth);
+            const parentY=r.height/Math.max(1,parseFloat(style.height)||pane.offsetHeight);
             // Measure each surviving segment once, with the actual loaded font.
             // Absolute tails do not alter the advance or move the segment origin.
             pane.style.setProperty('--identity-size','50px');
@@ -148,7 +151,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           pane.style.setProperty('--identity-x',`${lettering.x/identityX}px`);
           pane.style.setProperty('--identity-y',`${lettering.y/identityY}px`);
           pane.style.setProperty('--handoff-benefit',String(pose.benefit));
-          pane.style.setProperty('--handoff-object',String(1-pose.gather));
+          pane.style.setProperty('--handoff-object',String(pose.sculpture));
           pane.style.zIndex=String(pose.spread>.01?(target.selected?3:index+1):(3-index));
           const face=pane.querySelector<HTMLElement>('[data-handoff-surface] > div');
           if(face)face.inert=pose.benefit<.1;
