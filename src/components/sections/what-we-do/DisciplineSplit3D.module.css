@@ -110,9 +110,9 @@
 
 /* White grows out of the existing reading well and covers the stationary art.
    Never fade the well's parent: it would expose the original black face. */
-.frontFace::after { content:""; position:absolute; inset:0; z-index:50; border-radius:inherit; background:#fff; clip-path:inset(calc((1 - var(--handoff-white,0)) * 100%) 0 0); pointer-events:none; }
+.frontFace::after { content:""; position:absolute; inset:0; z-index:50; border-radius:inherit; background:var(--opening-card-white,#fffaf1); clip-path:inset(calc((1 - var(--handoff-white,0)) * 100%) 0 0); pointer-events:none; }
 .integratedFace { opacity:1; }
-:global([data-card-handoff-active=true]) .integratedFace :global([data-integrated=true]) { background:#fff; }
+:global([data-card-handoff-active=true]) .integratedFace :global([data-integrated=true]) { background:var(--opening-card-white,#fffaf1); }
 .integratedFace :global([data-integrated=true] > div:not(:first-child)) { opacity:1; }
 .integratedFace :global([data-integrated=true] > button) { opacity:var(--handoff-benefit,1); }
 /* The existing code, always an outline, supplies the eventual wordmark.
@@ -128,3 +128,10 @@
 
 /* The film's blurred red poster belongs to the opening, never to Services. */
 :global([data-card-handoff-active=true]) .openingAmbient { opacity:calc(.3 * var(--handoff-ambient,1)) !important; }
+
+
+/* The revealed paper supplies the entire merged face, with no shadow seam. */
+.pane { --opening-card-white:#fffaf1; }
+.frontFace { box-shadow:none; }
+:global([data-card-handoff-active=true]) .floatingObject { left:auto; right:var(--handoff-object-right,.25rem); top:var(--handoff-object-top,.25rem); width:var(--handoff-object-width,3.25rem); height:var(--handoff-object-height,3.25rem); transform:none !important; }
+:global([data-card-handoff-active=true]) .floatingObject img { transform:none; }

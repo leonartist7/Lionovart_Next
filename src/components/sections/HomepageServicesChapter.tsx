@@ -390,7 +390,6 @@ export default function HomepageServicesChapter() {
               </div>}
 
               <div data-service-reading className="order-1 flex min-w-0 flex-col justify-center text-center">
-                <p data-service-expertise>{locale === 'fr' ? 'Notre expertise' : 'Our expertise'}</p>
                 <div data-service-copy>
                     <h3 className="sr-only">{activeService.title}</h3>
                     <div className={styles.serviceTitleSlot}>
@@ -412,6 +411,7 @@ export default function HomepageServicesChapter() {
                       </AnimatePresence>
                     </div>
                     {loadError && <p data-service-error role="status">{tr("Preview unavailable. Please select the service again.")}</p>}
+                    <p data-service-expertise>{locale === 'fr' ? 'Notre expertise' : 'Our expertise'}</p>
                     {interactive ? <WorldStageControls service={activeService.id} variant={variant}
                       labels={exhibitLabels} mediaFirst
                       onVariant={selectVariant}
@@ -440,4 +440,5 @@ export default function HomepageServicesChapter() {
     </section>
   );
 }
+
 

@@ -53,11 +53,11 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     const ambient = node.querySelector<HTMLElement>('[data-opening-ambient]');
     const media = matchMedia(STORY_STATIC_QUERY);
     let frame = 0, dirty = true;
-    let sources: { node:HTMLElement; base:BridgeFrame; reading:CardRect; unit:number }[] = [];
+    let sources: { node:HTMLElement; base:BridgeFrame; reading:CardRect; unit:number; objectWidth:number }[] = [];
     const mix = (a:number,b:number,p:number) => a+(b-a)*p;
     const rect = (node:Element):CardRect => { const r=node.getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2,width:r.width,height:r.height}; };
     const clear = (pane:HTMLElement) => {
-      for(const key of ['x','y','scale','depth','material','benefit','object','white','identity','assembly','corner','art-x','art-y','art-scale']) pane.style.removeProperty(`--handoff-${key}`);
+      for(const key of ['x','y','scale','depth','material','benefit','object','object-width','object-height','object-right','object-top','white','identity','assembly','corner','art-x','art-y','art-scale']) pane.style.removeProperty(`--handoff-${key}`);
       pane.style.removeProperty('z-index');
       for(const key of ['size','scale-x','offset-x','x','y']) pane.style.removeProperty(`--identity-${key}`);
       const face=pane.querySelector<HTMLElement>('[data-handoff-surface] > div');
@@ -109,7 +109,9 @@ export default function CardsServicesTransition({ children }: { children: ReactN
             pane.style.setProperty('--identity-size','50px');
             const core=pane.querySelector<HTMLElement>('[data-card-identity-core]');
             const unit=(core?.getBoundingClientRect().width ?? 100)/Math.max(.01,parentX)/50;
-            return {node:pane,base:{...r,parentX,parentY,motionX:matrix.m41,motionY:matrix.m42},reading:r,unit};
+            const object=pane.querySelector<HTMLElement>('[data-floating-card-object]');
+            const objectWidth=object ? parseFloat(getComputedStyle(object).width) : 48;
+            return {node:pane,base:{...r,parentX,parentY,motionX:matrix.m41,motionY:matrix.m42},reading:r,unit,objectWidth};
           });
           if (portrait) {
             const statement=copy.querySelector<HTMLElement>('[data-brand-statement]');
@@ -131,7 +133,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           width:mix(base.width,reading.width,pose.reading),height:mix(base.height,reading.height,pose.reading),
         }));
         const leader=reading[portrait ? 0 : 1];
-        sources.forEach(({node:pane,base},index)=>{
+        sources.forEach(({node:pane,base,objectWidth},index)=>{
           const target=destination[index];
           const heldCenter={...center.rect,x:portrait ? leader.x : innerWidth/2,
             y:portrait ? leader.y-leader.height/2+center.rect.height/2 : innerHeight*.48};
@@ -140,7 +142,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           pane.style.setProperty('--handoff-x',`${fitted.x}px`);
           pane.style.setProperty('--handoff-y',`${fitted.y}px`);
           pane.style.setProperty('--handoff-scale',`${fitted.sx} ${fitted.sy}`);
-          pane.style.setProperty('--handoff-depth',String(1+(target.opacity-1)*pose.spread));
+          pane.style.setProperty('--handoff-depth',String(1+((target.selected?1:target.opacity)-1)*pose.spread));
           pane.style.setProperty('--handoff-material',String((1-pose.serviceReveal) * (index===2 ? 1 : pose.material)));
           pane.style.setProperty('--handoff-white',String(pose.white));
           pane.style.setProperty('--handoff-assembly',String(pose.assembly));
@@ -152,8 +154,15 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           pane.style.setProperty('--identity-x',`${lettering.x/identityX}px`);
           pane.style.setProperty('--identity-y',`${lettering.y/identityY}px`);
           pane.style.setProperty('--handoff-benefit',String(pose.benefit));
-          pane.style.setProperty('--handoff-object',String(pose.sculpture));
-          pane.style.zIndex=String(pose.spread>.01?(target.selected?3:index+1):(3-index));
+          const naturalObject=objectWidth*base.parentY*Math.min(desired.width/base.width,desired.height/base.height);
+          const objectSize=mix(naturalObject,Math.min(56,desired.width*.14),pose.assembly);
+          pane.style.setProperty('--handoff-object',String(pose.objects));
+          pane.style.setProperty('--handoff-object-width',`${objectSize/identityX}px`);
+          pane.style.setProperty('--handoff-object-height',`${objectSize/identityY}px`);
+          pane.style.setProperty('--handoff-object-right',`${(8+(2-index)*(objectSize+4)*pose.assembly)/identityX}px`);
+          pane.style.setProperty('--handoff-object-top',`${8/identityY}px`);
+          // No rear card may share the selected card's stacking level.
+          pane.style.zIndex=String(pose.spread>.01?(target.selected?10:2-index):(3-index));
           const face=pane.querySelector<HTMLElement>('[data-handoff-surface] > div');
           if(face)face.inert=pose.benefit<.1;
           const slot=pane.querySelector<HTMLElement>('[data-persistent-service-slot]');
@@ -236,4 +245,5 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     <div ref={exit} className={styles.cardExit} data-card-exit aria-hidden="true" />
   </div>;
 }
+
 

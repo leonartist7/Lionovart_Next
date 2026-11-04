@@ -12,7 +12,7 @@ const interval = (p: number, [start, end]: readonly [number, number]) => smooth(
 /** One reversible story: conviction, signature, expertise. No timer owns a beat. */
 export function cardHandoff(top: number, height: number, viewport: number) {
   const progress = clamp((viewport - top) / Math.max(1, height + viewport));
-  const statement = 1 - smooth((progress - .53) / .055);
+  const statement = 1 - smooth((progress - .815) / .08);
   // Keep the printed card faces intact until the signature has been read.
   const gather = interval(progress, CARD_POSES.gather);
   const reshape = interval(progress, CARD_POSES.resolve);
@@ -23,6 +23,7 @@ export function cardHandoff(top: number, height: number, viewport: number) {
     gather, reshape, spread,
     reading: smooth(progress / .18),
     identity: 1 - reveal,
+    objects: 1 - reveal,
     white: smooth((progress - .53) / .105),
     assembly: smooth((progress - .585) / .09),
     material: 1 - smooth((progress - .635) / .06),
@@ -45,4 +46,5 @@ export function cardHandoff(top: number, height: number, viewport: number) {
     proof: 1 - smooth(progress / .05),
   };
 }
+
 

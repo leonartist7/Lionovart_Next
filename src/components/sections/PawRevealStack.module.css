@@ -50,7 +50,7 @@
 .introBody { max-width: 46ch; margin: 0; font-family: var(--font-playfair-display), Georgia, serif; font-style: italic; font-weight: 400; font-synthesis: none; font-size: clamp(1.625rem, 1.25rem + 1vw, 3.25rem); line-height: 1.4; color: #fffaf1; text-wrap: pretty; }
 .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: clamp(1.125rem, 2vw, 3rem); row-gap: 0; max-width: 105rem; margin: clamp(2rem, 3vw, 4rem) auto 0; }
 .card { --benefit-inset: clamp(1.125rem, 1.75vw, 2.25rem); position: relative; display: grid; grid-template-rows: subgrid; grid-row: span 2; min-width: 0; padding: .25rem; border-radius: 1.125rem; color: var(--imagine-ink); background: linear-gradient(135deg, #a57624 0%, #ffe6a1 12%, #e1b95c 36%, #b8882c 55%, #fff1b5 82%, #bc8c32 100%); }
-.cardTop { position: relative; min-height: calc(var(--benefit-copy-height, 4rem) + 1.75rem); padding: .875rem var(--benefit-inset); background: #fffaf1; border-radius: .875rem .875rem 0 0; }
+.cardTop { position: relative; min-height: calc(var(--benefit-copy-height, 4rem) + 1.75rem); padding: .875rem var(--benefit-inset); background: var(--opening-card-white, #fffaf1); border-radius: .875rem .875rem 0 0; }
 .cardBody > span { display: block; }
 .cardBody { margin: 0; max-width: 30ch; font-family: var(--font-heading), sans-serif; font-weight: 500; font-size: clamp(1.25rem, 1.05rem + .35vw, 1.75rem); line-height: 1.4; color: #302b26; text-wrap: pretty; }
 .cardCopy { min-width: 0; display: grid; align-items: center; }
@@ -60,7 +60,7 @@
 .card[data-show-benefit=true] .cardHeadline { opacity: 1; transition-delay: 120ms; }
 .card[data-show-benefit=false] .cardBody { transition-delay: 120ms; }
 .detailShell { position: relative; display: grid; clip-path: inset(-16rem 0 0); }
-.detailWell { position: relative; display: grid; min-height: max(11rem, calc(var(--benefit-detail-height, 9rem) + 2.4375rem)); overflow: hidden; border-radius: 0 0 .875rem .875rem; background: #fffaf1; }
+.detailWell { position: relative; display: grid; min-height: max(11rem, calc(var(--benefit-detail-height, 9rem) + 2.4375rem)); overflow: hidden; border-radius: 0 0 .875rem .875rem; background: var(--opening-card-white, #fffaf1); }
 .details { grid-area: 1 / 1; padding: .875rem var(--benefit-inset) 1.5rem; border-top: .0625rem solid #bba57c55; }
 .details ul { list-style: none; padding: 0; margin: 0; display: grid; gap: .6rem; }
 .details li { display: flex; gap: .625rem; font-size: clamp(1.0625rem, .95rem + .2vw, 1.25rem); line-height: 1.4; }
@@ -245,7 +245,7 @@
   position: absolute; inset: 0; z-index: 1; min-width: 0;
   display: grid; align-content: center; gap: .875rem;
   padding: 1.25rem var(--benefit-inset) 3rem; border-radius: inherit;
-  background: #fffaf1; overflow: clip;
+  background: var(--opening-card-white, #fffaf1); overflow: clip;
 }
 .integratedDetails .integratedDetailTitle { margin: 0; }
 .integratedDetails .detailContent, .integratedDetails ul, .integratedDetails li { min-width: 0; }
@@ -316,3 +316,4 @@
 .card[data-integrated=true][data-flow=true] .serviceLabel,
 .card[data-integrated=true][data-flow=true] .integratedAccent { position: static; width: auto; height: auto; clip-path: none; white-space: normal; font-size: .875rem; }
 .card[data-flow=true] .cardToggle { pointer-events: auto; }
+

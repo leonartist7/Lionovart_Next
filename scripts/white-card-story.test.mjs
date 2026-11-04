@@ -6,7 +6,7 @@ import { galleryCardPose, galleryTravel, galleryProjectProgress, galleryEnding }
 const at = p => cardHandoff(900-p*2970,2070,900);
 test('reading holds fully opaque before white assembly, and the white wordmark has its own hold',()=>{
   for(const p of [.3,.4,.5,.53]) for(const key of ['lead','main','necessity']) assert.equal(at(p)[key],1);
-  assert.equal(at(.585).copy,0);
+  assert.equal(at(.78).copy,1);
   for(const p of [.755,.78,.81]) { const pose=at(p); assert.equal(pose.white,1);assert.equal(pose.assembly,1);assert.equal(pose.spread,0);assert.equal(pose.serviceReveal,0); }
   assert.equal(at(1).serviceCopy,1);
 });
@@ -32,3 +32,4 @@ test('scroll state is finite, bounded and exactly reversible',()=>{
   assert.deepEqual(points.map(at).toReversed(),points.toReversed().map(at));
   for(const p of points)for(const value of Object.values(at(p)))assert.ok(Number.isFinite(value)&&value>=0&&value<=1);
 });
+
