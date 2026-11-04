@@ -127,4 +127,4 @@
 }
 
 /* The film's blurred red poster belongs to the opening, never to Services. */
-:global([data-card-handoff-active=true] [data-opening-ambient]) { opacity:calc(.3 * var(--handoff-ambient,1)) !important; }
+:global([data-card-handoff-active=true]) .openingAmbient { opacity:calc(.3 * var(--handoff-ambient,1)) !important; }
