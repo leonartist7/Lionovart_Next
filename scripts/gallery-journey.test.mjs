@@ -25,6 +25,17 @@ test('native gallery progress is finite and consistent across portrait and deskt
  for (const top of [-100000, 0, 100000]) assert.ok(Number.isFinite(galleryProgress(top, 0, 0)));
 });
 
+test('partnership reading clears before the actual About aperture takes over',()=>{
+ assert.equal(galleryEnding(.91).release,1);
+ assert.ok(galleryEnding(.9225).release>.49&&galleryEnding(.9225).release<.51);
+ assert.equal(galleryEnding(.94).release,0);
+ for(const p of [.75,.84,.91,.9225,.94,.98,.94,.9225,.91,.84]) {
+  const pose=galleryEnding(p);
+  assert.ok(pose.release>=0&&pose.release<=1);
+  assert.equal(pose.title,1,'Reading ownership persists for restoration while its visual layer releases');
+ }
+});
+
 test('equal native scroll distances carry equal tunnel distances without another easing layer', () => {
  for(const count of [1,6,10]) {
   const step=galleryTravel(.01,count)-galleryTravel(0,count);

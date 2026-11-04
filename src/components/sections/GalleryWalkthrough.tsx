@@ -121,9 +121,9 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const titleOpacity = useTransform(() => doorwayTitleOpacity(arrivalProgress.get()));
   const coreOpacity = useTransform(progress,p=>galleryEnding(p,projectCount).core);
   const coreTransform = useTransform(progress,p=>`translate3d(0,0,${galleryEnding(p,projectCount).z}px) translate(-50%,-50%) scale(.76)`);
-  const headlineOpacity = useTransform(progress,p=>galleryEnding(p,projectCount).title);
+  const headlineOpacity = useTransform(progress,p=>{const ending=galleryEnding(p,projectCount);return ending.title*ending.release;});
   const logoOpacity = useTransform(progress,p=>galleryEnding(p,projectCount).logo);
-  const copyOpacity = useTransform(progress,p=>galleryEnding(p,projectCount).copy);
+  const copyOpacity = useTransform(progress,p=>{const ending=galleryEnding(p,projectCount);return ending.copy*ending.release;});
   const [finaleVisible,setFinaleVisible]=useState(false);
   const navOpacity = useTransform(()=>galleryEnding(progress.get(),projectCount).navigation*entry.get());
   const readingState=useRef({ending:false,finale:false,walking:true});

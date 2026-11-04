@@ -87,3 +87,5 @@ The retained statement inherits the scene ink as the field lightens, preserving 
 Corner images fill their counter-projected boxes during transport: contain would letterbox before the pane applies its unequal X/Y scale and visibly flatten desktop artwork.
 
 Partnership copy uses stable dark ink across both the red silhouette and surrounding light field, so long English/French lines remain readable as the disc fades.
+
+The complete partnership reading pose holds through gallery progress .91. Only its visual copy fades .91–.935, before the actual About aperture opens; semantic reading/restoration ownership remains unchanged.

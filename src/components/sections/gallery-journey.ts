@@ -57,6 +57,7 @@ export function galleryEnding(progress: number, projectCount = 10) {
     logo:1-smooth((advance+.04)/.16),
     title:smooth((advance-.12)/.14),
     copy:smooth((advance-.26)/.16),
+    release:1-smooth((progress-.91)/.025),
     markSettle:0, links:0,
     header:departure,dock:departure,navigation:departure,
   };
