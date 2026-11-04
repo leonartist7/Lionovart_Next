@@ -124,7 +124,6 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const headlineOpacity = useTransform(progress,p=>galleryEnding(p,projectCount).title);
   const logoOpacity = useTransform(progress,p=>galleryEnding(p,projectCount).logo);
   const copyOpacity = useTransform(progress,p=>galleryEnding(p,projectCount).copy);
-  const endingColor = useTransform(progress,p=>`color-mix(in srgb,#fffaf1 ${galleryEnding(p,projectCount).core*100}%,#302a23)`);
   const [finaleVisible,setFinaleVisible]=useState(false);
   const navOpacity = useTransform(()=>galleryEnding(progress.get(),projectCount).navigation*entry.get());
   const readingState=useRef({ending:false,finale:false,walking:true});
@@ -349,7 +348,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
           </button>)}
         </div>}
         {!pinned && <div className={styles.staticMark} data-partnership-static-mark><img src="/images/lionovart-icon.svg" alt="LIONOVART" width={160} height={160}/></div>}
-        <motion.div className={styles.ending} data-gallery-ending aria-hidden={pinned&&!finaleVisible} style={{color:pinned?endingColor:undefined}}>
+        <motion.div className={styles.ending} data-gallery-ending aria-hidden={pinned&&!finaleVisible}>
           <motion.h2 style={{opacity:pinned?headlineOpacity:1}}>{locale==='en'?'One Partnership':tr('One partnership')}</motion.h2>
           <motion.p style={{opacity:pinned?copyOpacity:1}}>{tr('Designing your legacy')}</motion.p>
         </motion.div>

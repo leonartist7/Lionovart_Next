@@ -8,7 +8,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261104-r24';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261104-r25';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -143,7 +143,11 @@ try {
      assert.equal(await page.locator('[data-service-podium]').evaluate(el=>getComputedStyle(el).opacity),'1','Incoming disc stays solid until the iris removes paint');
      await page.screenshot({path:`${output}/${prefix}-solid-disc-${Math.round(p*100)}.png`});
    }
-   for(const p of [.05,.15,.27,.42,.6,.716,.725,.735,.75,.78,.84,.91]){await scroll(gallery.top+p*(gallery.height-h*.85));await page.screenshot({path:`${output}/${prefix}-gallery-${Math.round(p*100)}.png`});}
+   for(const p of [.05,.15,.27,.42,.6,.716,.725,.735,.75,.78,.84,.91]){
+    await scroll(gallery.top+p*(gallery.height-h*.85));
+    if(p>=.75)assert.equal(await page.locator('[data-gallery-ending] h2').evaluate(el=>getComputedStyle(el).color),'rgb(23, 20, 18)','Partnership copy stays legible across the red silhouette and light field');
+    await page.screenshot({path:`${output}/${prefix}-gallery-${Math.round(p*100)}.png`});
+   }
    const about=await page.locator('[data-about-runway]').evaluate(el=>scrollY+el.getBoundingClientRect().top);
    for(const p of [.2,.5,1,.5,.2]){await scroll(about-h*(1-p));await page.screenshot({path:`${output}/${prefix}-about-${Math.round(p*100)}.png`});}
   }

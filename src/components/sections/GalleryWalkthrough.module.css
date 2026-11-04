@@ -13,7 +13,7 @@
 .stage[data-walkthrough-pinned=true] .panel[data-gallery-index="0"] :global([data-screening-media]) { --screen-frame-ratio: calc(1.7777777778 * var(--gallery-frame-match,0) + var(--screen-ratio,1.6) * (1 - var(--gallery-frame-match,0))); }
 .projectCaption { position: absolute; top: calc(100% + .75rem); left: 0; right: 0; display: block; text-align: left; }
 .logo { z-index:2; position: absolute; left: 50%; top: var(--partnership-mark-top,32%); width: var(--partnership-mark-size,15rem); aspect-ratio: 1; pointer-events: auto; }
-.ending { z-index:3; position: absolute; top: var(--partnership-copy-top,60%); left: 1.5rem; right: 1.5rem; text-align: center; pointer-events: none; }
+.ending { z-index:3; position: absolute; top: var(--partnership-copy-top,60%); left: 1.5rem; right: 1.5rem; text-align: center; pointer-events: none; color:#171412; }
 .ending h2 { margin: 0; font: 400 clamp(2.5rem,5.8vw,6rem)/1.05 var(--font-clash-display),sans-serif; letter-spacing: -.045em; }
 .ending > p { margin: .8rem 0 0; color: #8a714f; font: italic 400 clamp(1.75rem,4vw,4rem)/1.15 var(--font-playfair-display),Georgia,serif; }
 .navigation { position: absolute; bottom: max(3.5rem,env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 1.25rem; z-index: 10; }

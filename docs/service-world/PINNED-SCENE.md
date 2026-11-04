@@ -85,3 +85,5 @@ The statement portal settles before the opening owner returns early outside its 
 The retained statement inherits the scene ink as the field lightens, preserving its red italic emphasis; the static black reading surface keeps light text.
 
 Corner images fill their counter-projected boxes during transport: contain would letterbox before the pane applies its unequal X/Y scale and visibly flatten desktop artwork.
+
+Partnership copy uses stable dark ink across both the red silhouette and surrounding light field, so long English/French lines remain readable as the disc fades.
