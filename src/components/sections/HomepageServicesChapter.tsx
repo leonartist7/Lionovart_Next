@@ -383,13 +383,13 @@ export default function HomepageServicesChapter() {
               style={{ touchAction: "pan-y" }}
               className="flex h-full flex-col items-center justify-center gap-7 sm:gap-9 lg:gap-[clamp(2.75rem,5.5svh,5rem)]"
             >
-              {!carouselPreview && <div data-service-media className="relative order-1 shrink-0">
+              {!carouselPreview && <div data-service-media className="relative order-0 shrink-0">
                 {interactive ? <ServiceScreen service={activeService.id} variant={variant} active={stageActive} paused={scenePaused} onVariant={selectVariant} /> : <div className="h-[40svh] w-[80vw]">
                   <ServiceMediaCarousel key={activeService.id} images={activeService.media} alt={`${activeService.title} service visual`} />
                 </div>}
               </div>}
 
-              <div className="order-0 flex min-w-0 flex-col justify-center text-center">
+              <div data-service-reading className="order-1 flex min-w-0 flex-col justify-center text-center">
                 <p data-service-expertise>{locale === 'fr' ? 'Notre expertise' : 'Our expertise'}</p>
                 <div data-service-copy>
                     <h3 className="sr-only">{activeService.title}</h3>

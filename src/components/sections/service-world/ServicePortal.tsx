@@ -46,7 +46,7 @@ export default function ServicePortal() {
       const angle = Math.acos(Math.min(1, anchor.height / Math.max(1, anchor.width))) * 180 / Math.PI * (1 - handoff.podiumFace);
       const zoom = doorwayZoom(handoff.progress);
       const centered = origin === 'center';
-      const opacity = centered ? zoom.opacity : mix(.62 * opening, 1, lift) * (1 - handoff.spread);
+      const opacity = centered ? zoom.opacity : mix(opening, 1, lift) * (1 - handoff.spread);
       const canSwitch = opening > .95 && handoff.progress < .70 && opacity > .2;
       if (face.current) {
         face.current.disabled = !canSwitch;
@@ -63,7 +63,7 @@ export default function ServicePortal() {
         pedestal.current.style.transform = `translate3d(${anchor.x + anchor.width / 2}px,${anchor.y + anchor.height / 2}px,0) translate(-50%,-50%) scale(${anchor.width / diameter})`;
         const podiumFace = pedestal.current.firstElementChild as HTMLElement | null;
         if (podiumFace) podiumFace.style.transform = `rotateX(${angle}deg)`;
-        pedestal.current.style.opacity = String(centered ? .62 * opening * zoom.pedestal : 0);
+        pedestal.current.style.opacity = centered && opening * zoom.pedestal > .001 ? '1' : '0';
         pedestal.current.style.visibility = centered && opening * zoom.pedestal > .001 ? 'visible' : 'hidden';
       }
       // Flatten the face inside its carrier before corridor perspective is applied.
@@ -71,7 +71,8 @@ export default function ServicePortal() {
       if (face.current) {
         face.current.style.transform = `rotateX(${centered ? 0 : fromBelow ? angle : -angle}deg)`;
       }
-      node.style.opacity = String(opacity);
+      // A visible disc is always opaque. Only its centered aperture removes paint.
+      node.style.opacity = opacity > .001 ? '1' : '0';
       node.style.visibility = opacity > .001 ? 'visible' : 'hidden';
       node.dataset.portalProgress = handoff.progress.toFixed(3);
       if (fill.current) {

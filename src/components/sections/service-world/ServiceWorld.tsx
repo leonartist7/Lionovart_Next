@@ -10,7 +10,7 @@ import { worldLight, type WorldInput } from './world-state';
 import styles from './ServiceWorld.module.css';
 import foundation from './StoryFoundation.module.css';
 import { serviceExhibits } from '../service-triptych';
-import { ServiceDialLight, ServiceDialOption } from '../ServiceDialMotion';
+import { ServiceDialOption } from '../ServiceDialMotion';
 import glass from '../ServiceGlassStage.module.css';
 import AtelierLight from './AtelierLight';
 import PinnedScene, { usePinnedScene } from './PinnedScene';
@@ -175,8 +175,6 @@ export function WorldStageControls({ service, variant, onVariant, labels, enable
     {!mediaFirst && <p className={styles.hint} data-service-expertise>{fr ? 'Explorez cette expertise' : 'Explore this expertise'}</p>}
     <div className={styles.tags} data-triptych-tags={mediaFirst} role="group" aria-label={fr ? 'Exemples de services' : 'Service examples'}>
       {mediaFirst && <div className={glass.podium} data-service-podium={scene?.target ? undefined : ''} data-service-podium-anchor aria-hidden="true" style={scene?.target ? { visibility: 'hidden' } : undefined}>
-        {serviceExhibits(service).map((exhibit, index) => <ServiceDialLight key={index} index={index} className={glass.reflectedLight}
-          background={`${exhibit.tint}18`} />)}
         <div className={glass.rim} />
       </div>}
       {labels.map((label, index) => mediaFirst

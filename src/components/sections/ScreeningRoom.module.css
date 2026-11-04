@@ -70,7 +70,7 @@
 .cardIntro :global(.opening-proof-stage) { filter: opacity(var(--handoff-proof,1)); }
 @media(max-width:767px) {
   .shapingMessage h2 { max-width: 19ch; font-size: clamp(1.65rem,6.8vw,2.6rem); }
-  .brandStatement { top:clamp(21rem,48svh,38rem); bottom:auto; }
+  .brandStatement { top:auto; bottom:max(1.5rem,4svh); }
   .brandSignature { top:clamp(23rem,52svh,40rem); bottom:auto; }
 }
 @media(max-height:560px), (prefers-reduced-motion:reduce) {

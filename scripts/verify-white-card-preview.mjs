@@ -8,7 +8,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261103-r13';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261104-r14';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -53,7 +53,17 @@ try {
    for(const p of [.40,.60,.64,.70,.78,.90,.96,1]){
     await scroll(exit.top-h+p*(exit.height+h));assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2),false,'No opening handoff overflow');await page.screenshot({path:`${output}/${prefix}-cards-${Math.round(p*100)}.png`});
    }
+   if(w<768){
+     await scroll(exit.top-h+.4*(exit.height+h));
+     const read=await page.locator('[data-persistent-card]').evaluateAll(es=>es.map(el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom};}));
+     const statement=await page.locator('[data-brand-statement]').boundingBox();
+     assert.ok(Math.max(...read.map(r=>r.bottom))<=statement.y-16,'Phone statement has its own space below all three cards');
+     await scroll(exit.top-h+.695*(exit.height+h));
+     const topCard=await page.locator('[data-persistent-card="0"]').boundingBox();
+     assert.ok(Math.abs(topCard.y-read[0].top)<2,'Portrait stack gathers into the original top card');
+   }
    await scroll(exit.top-h+.78*(exit.height+h));
+   assert.equal(await page.locator('[data-card-identity]').first().evaluate(el=>getComputedStyle(el).webkitTextFillColor),'rgba(0, 0, 0, 0)','Identity lettering stays outline-only');
    const lettering=await page.locator('[data-card-identity]').evaluateAll(es=>es.map(el=>{
      const r=el.getBoundingClientRect(),p=el.parentElement.getBoundingClientRect();
      return {x:r.x,right:r.right,y:r.y,width:r.width,paneX:p.x,paneRight:p.right};
@@ -64,6 +74,10 @@ try {
    assert.ok(Math.abs(wordCenter-(lettering[0].paneX+lettering[0].paneRight)/2)<(lettering[0].paneRight-lettering[0].paneX)*.05,'Wordmark is centered in the white card');
    assert.deepEqual(await page.locator('[data-persistent-card]').evaluateAll(nodes=>nodes.map(n=>n.dataset.persistentFrameId)),frames,'Original card DOM identities persist');
    await scroll(exit.top-h+(exit.height+h));
+   const mediaBounds=await page.locator('[data-service-media]').boundingBox();
+   const readingBounds=await page.locator('[data-service-reading]').boundingBox();
+   assert.ok(mediaBounds.y+mediaBounds.height<=readingBounds.y+1,'Service cards sit above the service reading');
+   assert.equal(await page.locator('[data-service-triptych] [data-orbit-light]').count(),0,'No colored shadow layers behind Services');
    const options=page.locator('[data-service-option]');
    assert.deepEqual(await options.evaluateAll(es=>es.map(e=>e.dataset.serviceId)),['branding','content-studio','web','smart-systems','led','print']);
    await options.nth(2).click();
@@ -101,6 +115,14 @@ try {
    const mask=await iris.evaluate(el=>getComputedStyle(el).maskImage);
    assert.ok(mask.includes('radial-gradient'),'Doorway uses a centered aperture mask');
    await page.screenshot({path:`${output}/${prefix}-iris.png`});
+   await scroll(gallery.top-h*1.1*(1-.45));
+   await page.locator('[data-service-podium] > button').click();
+   assert.equal(await page.locator('[data-service-podium]').getAttribute('data-disc-origin'),'above');
+   for(const p of [.25,.5,.76]){
+     await scroll(gallery.top-h*1.1*(1-p));
+     assert.equal(await page.locator('[data-service-podium]').evaluate(el=>getComputedStyle(el).opacity),'1','Incoming disc stays solid until the iris removes paint');
+     await page.screenshot({path:`${output}/${prefix}-solid-disc-${Math.round(p*100)}.png`});
+   }
    for(const p of [.05,.15,.27,.42,.6,.73,.84,.91]){await scroll(gallery.top+p*(gallery.height-h*.85));await page.screenshot({path:`${output}/${prefix}-gallery-${Math.round(p*100)}.png`});}
    const about=await page.locator('[data-about-runway]').evaluate(el=>scrollY+el.getBoundingClientRect().top);
    for(const p of [.2,.5,1,.5,.2]){await scroll(about-h*(1-p));await page.screenshot({path:`${output}/${prefix}-about-${Math.round(p*100)}.png`});}

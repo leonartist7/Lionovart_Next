@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { usePinnedScene } from './service-world/PinnedScene';
 import Image, { getImageProps } from 'next/image';
 import { AnimatePresence, motion, useIsPresent, useReducedMotion } from 'framer-motion';
-import { ServiceDialLight, ServiceOrbitCard } from './ServiceDialMotion';
+import { ServiceOrbitCard } from './ServiceDialMotion';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { GALLERY_WORK } from './selected-work/gallery';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -127,10 +127,6 @@ export function ServiceScreen({ service, variant, active, paused, onVariant }: {
   const assets = serviceScreenAssets(service);
   return <div className={glass.stage} data-service-triptych data-persistent-frames={persistent} data-paused={paused || !active}
     onPointerDown={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
-    <div className={glass.atmosphere} aria-hidden="true">
-      {exhibits.map((exhibit, index) => <ServiceDialLight key={index} index={index} className={glass.colorSpill}
-        background={`${exhibit.tint}55`} />)}
-    </div>
     {exhibits.map((exhibit, index) => {
       const asset = assets[index];
       const position = exhibitPosition(index, variant);

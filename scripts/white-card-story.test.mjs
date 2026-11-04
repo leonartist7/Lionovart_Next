@@ -21,7 +21,8 @@ test('all three original frames share one outline during the hold and reach thei
 });
 test('the artwork remains intact through departure, then dissolves gradually',()=>{
   const poseAt = advance => { let low=0,high=.76;for(let i=0;i<50;i++){const mid=(low+high)/2;if(galleryTravel(mid,10)/1600<advance)low=mid;else high=mid;}return galleryCardPose((low+high)/2,0,10); };
-  assert.equal(poseAt(.8).dissolve,0);assert.ok(poseAt(.9).dissolve>0&&poseAt(.9).dissolve<.5);
+  assert.equal(poseAt(.72).dissolve,0);assert.ok(poseAt(.8).dissolve>0&&poseAt(.8).dissolve<.2);
+  assert.ok(poseAt(.9).dissolve>.2&&poseAt(.9).dissolve<.6);
   assert.ok(poseAt(.82).z>300);
   for(let i=0;i<10;i++){const pose=galleryCardPose(galleryProjectProgress(i,10),i,10);assert.equal(pose.caption,1);assert.equal(pose.dissolve,0);}
   assert.equal(galleryEnding(.84).logo,1);assert.equal(galleryEnding(.84).copy,1);

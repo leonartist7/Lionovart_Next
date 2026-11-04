@@ -26,7 +26,7 @@ export function galleryCardPose(progress: number, index: number, count: number) 
   const hold = smooth(advance / .26);
   const departure = clamp((advance - .36) / .60);
   const forward = Math.expm1(3.5 * departure) / Math.expm1(3.5);
-  const dissolve = smooth((advance - .82) / .36);
+  const dissolve = smooth((advance - .74) / .38);
   const opacity = approach * (1 - smooth((advance - .99) / .20));
   const z = -350 - 480 * (1 - approach) + 350 * hold + 900 * forward;
   return { advance, z, forward, dissolve, opacity, visible: opacity > .001,

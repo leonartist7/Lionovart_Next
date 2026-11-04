@@ -12,3 +12,15 @@ export function cardTransportRect(source: CardRect, sourceCenter: CardRect, serv
   return blend(blend(blend(source,gathered,pose.gather),stacked,pose.reshape),service,pose.spread);
 }
 
+
+/** Fit the portrait reading stack above its own statement, preserving every aspect ratio. */
+export function cardReadingStack(sources: readonly CardRect[], statementTop: number, viewportWidth: number, safeTop = 72, gap = 24) {
+  const top = Math.min(...sources.map(r => r.y - r.height / 2));
+  const bottom = Math.max(...sources.map(r => r.y + r.height / 2));
+  const scale = Math.min(1, Math.max(1, statementTop - gap - safeTop) / Math.max(1, bottom - top));
+  const y = Math.max(safeTop, Math.min(top, statementTop - gap - (bottom - top) * scale));
+  return sources.map(r => ({
+    x: viewportWidth / 2 + (r.x - viewportWidth / 2) * scale,
+    y: y + (r.y - top) * scale, width: r.width * scale, height: r.height * scale,
+  }));
+}

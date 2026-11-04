@@ -323,7 +323,7 @@ function Pane({
 
         </div>
       </motion.div>
-      <span className={styles.identityLettering} data-card-identity={i} aria-hidden="true">{card.code.slice(0,3)}<span className={styles.identityTail}>{card.code.slice(3)}</span></span>
+      <span className={styles.identityLettering} data-card-identity={i} aria-hidden="true"><span data-card-identity-core>{card.code.slice(0,3)}</span><span className={styles.identityTail}>{card.code.slice(3)}</span></span>
       <div ref={registerSlot} className={styles.serviceSlot} data-persistent-service-slot={i} inert />
       <div className={styles.floatingCarrier} aria-hidden="true">
         <motion.div className={styles.floatingObject} data-floating-card-object={card.code}

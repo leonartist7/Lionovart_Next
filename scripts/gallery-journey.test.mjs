@@ -125,7 +125,8 @@ test('departure starts after the reading hold and accelerates through the viewin
   assert.equal(at(.57).caption, 0);
   assert.equal(at(.85).visible, true);
   assert.equal(at(.36).dissolve,0);
-  assert.equal(at(.8).dissolve,0);
+  assert.equal(at(.72).dissolve,0);
+  assert.ok(at(.8).dissolve>0&&at(.8).dissolve<.2);
   assert.ok(at(.98).dissolve>0);
   assert.ok(at(.96).z>850);
   assert.ok(at(.85).z>at(.65).z);

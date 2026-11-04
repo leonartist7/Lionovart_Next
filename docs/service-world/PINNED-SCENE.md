@@ -33,7 +33,7 @@ The exit runway is 230svh. Progress uses the runway plus one viewport. `CARD_POS
 | Hold | .77–.815 | One white outline; existing identity spans assemble LIO + NOV + ART on one baseline. |
 | Become Services | .845–.965 | The same original frames unfold into measured service positions. |
 
-The original artwork moves into a measured upper corner before white closes over it; its front face clips the crop. Benefit text clears independently. The wordmark's counter-scaling preserves proportions while the outer frame changes aspect. The service slot becomes interactive only after the service-copy gate and active chapter agree. No fourth card or extra below-card logo is rendered.
+The artwork stays stationary. White wipes upward from the existing well on desktop and leftward on phones, covering the full masked face before material ownership changes. Identity lettering remains outline-only; measured segment advances and absolute departing tails form LIONOVART on one baseline. On portrait phones, the reading stack fits above the bottom statement and gathers into the original top card. Benefit text clears independently. The wordmark's counter-scaling preserves proportions while the outer frame changes aspect. Services places the card media above its reading hierarchy; its colored atmosphere/reflection layers are removed. A visible incoming disc has opacity 1, with transparency restricted to its circular iris. The service slot becomes interactive only after the service-copy gate and active chapter agree. No fourth card or extra below-card logo is rendered.
 
 Our expertise / Notre expertise is a single smaller Playfair line above the stable uppercase bold active title. Service IDs, translation indices, media and navigation stay in the same ordered array:
 
@@ -48,7 +48,7 @@ Our expertise / Notre expertise is a single smaller Playfair line above the stab
 
 ServicePortal retains the disc face. Its centered radial mask opens at .68–.84 of the doorway handoff. The first selected artwork is already behind it. At .76 the hole is half open; the outer disc remains opaque. The stationary artwork transfer is .56–.72; project separation follows at .72–1. The invitation is held before the opening and is not a whole-disc opacity fade.
 
-Ten unique projects follow the existing galleryWithCarry order, with the selected service artwork first. Project travel remains native-scroll based with sinusoidal modulation .35, and the existing focus spring and navigation controller remain. Erosion begins at advance .82 and spans .36. Geometry screenshots are required to judge the half-passed threshold, since projection differs by viewport.
+Ten unique projects follow the existing galleryWithCarry order, with the selected service artwork first. Project travel remains native-scroll based with sinusoidal modulation .35, and the existing focus spring and navigation controller remain. Erosion begins slightly earlier at advance .74 and spans .38. Geometry screenshots are required to judge the half-passed threshold, since projection differs by viewport.
 
 Gallery typography is cached between geometry/font changes; erosion cutoff nodes are cached. The gallery-only SVG filter uses a static one-octave field and four passes, without allocating halo/blur/merge layers for an enlarged outgoing image. Service filters retain their existing treatment. Atelier light stops moving after Services. Only active eligible media decode/play.
 

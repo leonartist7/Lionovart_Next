@@ -21,9 +21,9 @@ export function cardHandoff(top: number, height: number, viewport: number) {
   return {
     progress,
     gather, reshape, spread,
-    corner: smooth((progress - .53) / .09),
-    identity: smooth((progress - .53) / .055) * (1 - reveal),
-    white: smooth((progress - .585) / .105),
+    reading: smooth(progress / .18),
+    identity: 1 - reveal,
+    white: smooth((progress - .53) / .105),
     assembly: smooth((progress - .64) / .11),
     wordmark: smooth((progress - .69) / .06) * (1 - smooth((progress - .815) / .055)),
     benefit: 1 - smooth((progress - .575) / .055),
