@@ -8,7 +8,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261104-r17';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261104-r18';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -62,6 +62,9 @@ try {
      const topCard=await page.locator('[data-persistent-card="0"]').boundingBox();
      assert.ok(Math.abs(topCard.y-read[0].top)<2,'Portrait stack gathers into the original top card');
    }
+   await scroll(exit.top-h+.69*(exit.height+h));
+   const joining=await page.locator('[data-card-identity]').evaluateAll(es=>es.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,right:r.right};}));
+   assert.ok(joining[1].x>=joining[0].right-2&&joining[2].x>=joining[1].right-2,'Outlined fragments reach their slots before the stack closes');
    await scroll(exit.top-h+.78*(exit.height+h));
    assert.equal(await page.locator('[data-card-identity]').first().evaluate(el=>getComputedStyle(el).webkitTextFillColor),'rgba(0, 0, 0, 0)','Identity lettering stays outline-only');
    const lettering=await page.locator('[data-card-identity]').evaluateAll(es=>es.map(el=>{

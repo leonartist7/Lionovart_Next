@@ -31,5 +31,8 @@ test('white covers the original face before material ownership starts changing',
  assert.equal(at(.53).white,0);
  assert.ok(at(.58).white>0&&at(.58).white<1);
  assert.equal(at(.64).white,1);
+ assert.equal(at(.675).assembly,1);
+ assert.equal(at(.695).material,0);
+ for(let i=0;i<=1000;i++)if(at(i/1000).material<1)assert.ok(at(i/1000).white>.999,'No face thins before white has covered it');
  for(const p of [.4,.53,.64,.78])assert.equal(at(p).identity,1);
 });

@@ -141,7 +141,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           pane.style.setProperty('--handoff-y',`${fitted.y}px`);
           pane.style.setProperty('--handoff-scale',`${fitted.sx} ${fitted.sy}`);
           pane.style.setProperty('--handoff-depth',String(1+(target.opacity-1)*pose.spread));
-          pane.style.setProperty('--handoff-material',String((1-pose.serviceReveal) * (index===2 ? 1 : 1-pose.assembly)));
+          pane.style.setProperty('--handoff-material',String((1-pose.serviceReveal) * (index===2 ? 1 : pose.material)));
           pane.style.setProperty('--handoff-white',String(pose.white));
           pane.style.setProperty('--handoff-assembly',String(pose.assembly));
           pane.style.setProperty('--handoff-identity',String(pose.identity));
