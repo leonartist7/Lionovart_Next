@@ -891,7 +891,7 @@ export default function DisciplineSplit3D({
             glass, and it's masked to a soft pool so it never squares off
             into a panel. Oversized so the blur's own edge stays offscreen. */}
         <motion.div
-          aria-hidden="true"
+          aria-hidden="true" data-opening-ambient
           className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-[130%] w-[130%] -translate-x-1/2 -translate-y-1/2"
           style={{
             // Held down hard: the footage runs cool magenta, and this is a

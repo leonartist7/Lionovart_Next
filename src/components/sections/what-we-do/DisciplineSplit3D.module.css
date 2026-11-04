@@ -125,3 +125,6 @@
   .floatingObject { left:auto; right:.25rem; top:.25rem; width:clamp(2.5rem,9vw,3.25rem); }
   .frontFace::after { clip-path:inset(0 0 0 calc((1 - var(--handoff-white,0)) * 100%)); }
 }
+
+/* The film's blurred red poster belongs to the opening, never to Services. */
+:global([data-card-handoff-active=true] [data-opening-ambient]) { opacity:calc(.3 * var(--handoff-ambient,1)) !important; }

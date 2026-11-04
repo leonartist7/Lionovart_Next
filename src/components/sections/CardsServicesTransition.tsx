@@ -50,6 +50,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     const node = (scene?.target?.querySelector('[data-scene-opening]') ?? intro.current) as HTMLElement | null, runway = exit.current, copy = message.current;
     if (!node || !runway || !copy) return;
     const world = node.closest('[data-service-world]');
+    const ambient = node.querySelector<HTMLElement>('[data-opening-ambient]');
     const media = matchMedia(STORY_STATIC_QUERY);
     let frame = 0, dirty = true;
     let sources: { node:HTMLElement; base:BridgeFrame; reading:CardRect; unit:number }[] = [];
@@ -166,6 +167,8 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           }
         });
       }
+      node.style.setProperty('--handoff-ambient', String(isStatic ? 1 : 1-pose.white));
+      if (ambient) ambient.style.visibility = !isStatic && pose.white >= .999 ? 'hidden' : '';
       node.style.setProperty('--handoff-proof', String(isStatic ? 1 : pose.proof));
       // Keep the reading face clickable through its transport and hold.
       // It retires only once no painted content remains.
@@ -215,6 +218,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       world?.querySelector<HTMLElement>('[data-services-stage]')?.style.removeProperty('--service-opening-sides');
       sources.forEach(({node:pane})=>clear(pane));
       node.style.opacity = ''; node.inert = false; delete node.dataset.cardHandoffActive;
+      node.style.removeProperty('--handoff-ambient'); if(ambient)ambient.style.visibility='';
       cancelAnimationFrame(frame); observer.disconnect(); geometry.disconnect(); parentGeometry.disconnect(); replacements.disconnect();
       window.removeEventListener('scroll', scrolling); window.removeEventListener('resize', resize);
       window.removeEventListener('lionovart:service-pose',schedule);media.removeEventListener('change', resize);

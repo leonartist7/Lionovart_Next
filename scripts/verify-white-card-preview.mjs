@@ -8,7 +8,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261104-r15';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261104-r16';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -75,6 +75,7 @@ try {
    assert.ok(Math.abs(wordCenter-(lettering[0].paneX+lettering[0].paneRight)/2)<(lettering[0].paneRight-lettering[0].paneX)*.05,'Wordmark is centered in the white card');
    assert.deepEqual(await page.locator('[data-persistent-card]').evaluateAll(nodes=>nodes.map(n=>n.dataset.persistentFrameId)),frames,'Original card DOM identities persist');
    await scroll(exit.top-h+(exit.height+h));
+   assert.equal(await page.locator('[data-opening-ambient]').evaluate(el=>getComputedStyle(el).visibility),'hidden','The opening poster cannot leave a red haze behind Services');
    const mediaBounds=await page.locator('[data-service-media]').boundingBox();
    const readingBounds=await page.locator('[data-service-reading]').boundingBox();
    assert.ok(mediaBounds.y+mediaBounds.height<=readingBounds.y+1,'Service cards sit above the service reading');
