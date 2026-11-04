@@ -1,7 +1,8 @@
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 const smooth = (value: number) => { const p = clamp(value); return p * p * (3 - 2 * p); };
 
-export const doorwayTitleOpacity = (p: number) => smooth((p - .39) / .10) * (1 - smooth((p - .59) / .09));
+export const doorwayTitleOpacity = (p: number) => smooth((p - .38) / .08) * (1 - smooth((p - .60) / .08));
+export const doorwayStepOpacity = (p: number) => smooth((p - .06) / .14) * (1 - smooth((p - .60) / .08));
 
 /** One carried artwork changes owners while stationary; only then does the room open. */
 export function serviceGalleryHandoff(galleryTop: number, viewport: number) {
@@ -13,6 +14,7 @@ export function serviceGalleryHandoff(galleryTop: number, viewport: number) {
     serviceCopy: 1 - smooth(progress / .27),
     serviceRear: 1 - smooth(progress / .32),
     title: doorwayTitleOpacity(progress),
+    step: doorwayStepOpacity(progress),
     podiumLift: smooth((progress - .10) / .28),
     podiumFace: smooth((progress - .10) / .28),
     portalOpen: smooth((progress - .68) / .16),
@@ -34,3 +36,4 @@ export function doorwayZoom(progress: number) {
     pedestal: 1 - smooth(progress / .12),
   };
 }
+

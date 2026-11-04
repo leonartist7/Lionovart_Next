@@ -25,7 +25,7 @@ test('the artwork remains intact through departure, then dissolves gradually',()
   assert.ok(poseAt(.9).dissolve>.2&&poseAt(.9).dissolve<.6);
   assert.ok(poseAt(.82).z>300);
   for(let i=0;i<10;i++){const pose=galleryCardPose(galleryProjectProgress(i,10),i,10);assert.equal(pose.caption,1);assert.equal(pose.dissolve,0);}
-  assert.equal(galleryEnding(.84).logo,1);assert.equal(galleryEnding(.84).copy,1);
+  assert.equal(galleryEnding(.84).logo,0);assert.equal(galleryEnding(.84).copy,1);
 });
 test('scroll state is finite, bounded and exactly reversible',()=>{
   const points=Array.from({length:1001},(_,i)=>i/1000);

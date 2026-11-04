@@ -54,7 +54,7 @@
     let low=0, high=.76;
     for(let i=0;i<40;i++){
       const mid=(low+high)/2, linear=mid/.76*(count+.5);
-      const travel=linear-.35*Math.sin(linear*Math.PI*2)/(Math.PI*2);
+      const travel=linear;
       if(travel<advance) low=mid; else high=mid;
     }
     return (low+high)/2;
@@ -175,3 +175,4 @@
   window.addEventListener('pagehide',()=>stopProfile('review closed'));
 </script>
 </html>
+

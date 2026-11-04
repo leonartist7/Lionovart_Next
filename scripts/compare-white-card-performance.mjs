@@ -6,7 +6,7 @@ const browser=await chromium.launch({headless:true});
 const results=[];
 try {
  for(const [width,height] of [[1440,900],[390,844]]) for(const [label,base] of [
-  ['before','https://lionovartnext-lch6ztl4b-lionovart.vercel.app'],['after',process.env.STORY_PREVIEW]]) {
+  ['before','https://lionovartnext-2nx3dogoa-lionovart.vercel.app'],['after',process.env.STORY_PREVIEW]]) {
    const context=await browser.newContext({viewport:{width,height},hasTouch:width===390,isMobile:width===390});
    const page=await context.newPage();
    await page.goto(base,{waitUntil:'domcontentloaded'});
@@ -46,3 +46,4 @@ try {
    await context.close();
  }
 } finally {await browser.close();}
+

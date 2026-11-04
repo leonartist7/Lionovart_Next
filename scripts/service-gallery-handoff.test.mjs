@@ -28,7 +28,8 @@ test('rear services clear before one identical frame transfers and opens into th
  assert.equal(at(.72).spread,0);
  assert.ok(at(.85).spread>0);
  assert.equal(at(.5).title, 1);
- assert.ok(at(.6).title > 0 && at(.6).title < 1);
+ assert.ok(at(.64).title > 0 && at(.64).title < 1);
+ assert.ok(at(.18).step>.5); assert.equal(at(.18).title,0);
  assert.equal(at(.8).title, 0);
  assert.equal(at(.38).podiumLift, 1);
  assert.ok(at(.55).portalOpen < 1e-10);
@@ -58,7 +59,7 @@ test('the entrance disc faces the viewer before the aperture opens in either dir
   assert.ok(at(p).podiumLift < 1e-10);
   assert.ok(at(p).podiumFace < 1e-10);
  }
- assert.equal(at(.38).title,0);
+ assert.ok(at(.38).title<1e-10);
  for (const p of [.50, .55, .58]) {
   assert.equal(at(p).podiumLift, 1);
   assert.equal(at(p).podiumFace, 1);
@@ -91,3 +92,4 @@ test('the centered entrance grows toward the viewer and opens after its reading 
  const points=[0,.1,.2,.38,.5,.68,.8,.94,1];
  assert.deepEqual(points.map(doorwayZoom).reverse(),points.toReversed().map(doorwayZoom));
 });
+

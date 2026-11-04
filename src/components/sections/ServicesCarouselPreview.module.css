@@ -84,3 +84,8 @@
 @media (min-width:1025px) and (440px <= height <= 560px) {
   .serviceTitleSlot { font-size: clamp(1.5rem,4.8svh,1.75rem); margin-bottom: .35rem; }
 }
+
+
+/* The editorial invitation belongs directly above the rotating examples. */
+.chapter :global([data-service-reading] [data-service-expertise]) { margin:.9rem 0 .2rem; color:#8a775b; font:400 clamp(.9375rem,1.3vw,1.25rem)/1.3 var(--font-playfair-display),Georgia,serif; letter-spacing:0; text-transform:none; }
+.chapter :global([data-service-expertise] + [data-exhibit-controls]) { margin-top:.25rem; }

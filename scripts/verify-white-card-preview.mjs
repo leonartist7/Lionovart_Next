@@ -8,7 +8,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261104-r19';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261104-r20';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -66,6 +66,7 @@ try {
    const joining=await page.locator('[data-card-identity]').evaluateAll(es=>es.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,right:r.right};}));
    assert.ok(joining[1].x>=joining[0].right-2&&joining[2].x>=joining[1].right-2,'Outlined fragments reach their slots before the stack closes');
    await scroll(exit.top-h+.78*(exit.height+h));
+   assert.equal(await page.locator('[data-brand-beat=main]').evaluate(el=>getComputedStyle(el).opacity),'1','The statement remains present through the merge');
    assert.equal(await page.locator('[data-card-identity]').first().evaluate(el=>getComputedStyle(el).webkitTextFillColor),'rgba(0, 0, 0, 0)','Identity lettering stays outline-only');
    const lettering=await page.locator('[data-card-identity]').evaluateAll(es=>es.map(el=>{
      const r=el.getBoundingClientRect(),p=el.parentElement.getBoundingClientRect();
@@ -83,6 +84,14 @@ try {
    const readingBounds=await page.locator('[data-service-reading]').boundingBox();
    assert.ok(mediaBounds.y+mediaBounds.height<=readingBounds.y+1,'Service cards sit above the service reading');
    assert.equal(await page.locator('[data-service-triptych] [data-orbit-light]').count(),0,'No colored shadow layers behind Services');
+   const stack=await page.locator('[data-persistent-card]').evaluateAll(es=>es.map(el=>({selected:el.dataset.position==='center',z:+getComputedStyle(el).zIndex,opacity:+getComputedStyle(el).opacity})));
+   const front=stack.find(r=>r.selected);
+   assert.equal(front.opacity,1,'Focused service is fully opaque');
+   assert.ok(stack.filter(r=>!r.selected).every(r=>r.z<front.z),'Every rear card is below the focused card');
+   const expertise=await page.locator('[data-service-expertise]').boundingBox();
+   const description=await page.locator('[data-service-description-slot]').boundingBox();
+   const controls=await page.locator('[data-exhibit-controls]').boundingBox();
+   assert.ok(expertise.y>=description.y+description.height-1&&expertise.y+expertise.height<=controls.y+1,'Expertise sits between description and rotating service labels');
    const options=page.locator('[data-service-option]');
    assert.deepEqual(await options.evaluateAll(es=>es.map(e=>e.dataset.serviceId)),['branding','content-studio','web','smart-systems','led','print']);
    await options.nth(2).click();
@@ -121,6 +130,8 @@ try {
    assert.ok(mask.includes('radial-gradient'),'Doorway uses a centered aperture mask');
    await page.screenshot({path:`${output}/${prefix}-iris.png`});
    await scroll(gallery.top-h*1.1*(1-.45));
+   assert.equal(await page.locator('[data-service-podium]').getAttribute('data-disc-origin'),'below');
+   await page.locator('[data-service-podium] > button').click();
    await page.locator('[data-service-podium] > button').click();
    assert.equal(await page.locator('[data-service-podium]').getAttribute('data-disc-origin'),'above');
    for(const p of [.25,.5,.76]){
@@ -128,7 +139,7 @@ try {
      assert.equal(await page.locator('[data-service-podium]').evaluate(el=>getComputedStyle(el).opacity),'1','Incoming disc stays solid until the iris removes paint');
      await page.screenshot({path:`${output}/${prefix}-solid-disc-${Math.round(p*100)}.png`});
    }
-   for(const p of [.05,.15,.27,.42,.6,.73,.84,.91]){await scroll(gallery.top+p*(gallery.height-h*.85));await page.screenshot({path:`${output}/${prefix}-gallery-${Math.round(p*100)}.png`});}
+   for(const p of [.05,.15,.27,.42,.6,.716,.725,.735,.75,.78,.84,.91]){await scroll(gallery.top+p*(gallery.height-h*.85));await page.screenshot({path:`${output}/${prefix}-gallery-${Math.round(p*100)}.png`});}
    const about=await page.locator('[data-about-runway]').evaluate(el=>scrollY+el.getBoundingClientRect().top);
    for(const p of [.2,.5,1,.5,.2]){await scroll(about-h*(1-p));await page.screenshot({path:`${output}/${prefix}-about-${Math.round(p*100)}.png`});}
   }

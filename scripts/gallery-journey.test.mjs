@@ -3,25 +3,17 @@ import { galleryLayout, galleryRingDiameter, galleryRingCenterOffset, galleryFoc
 import assert from 'node:assert/strict';
 import { galleryWithCarry, galleryProgress, galleryTravel, galleryCardPose, galleryRingPose, galleryEnding, galleryProjectProgress, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase } from '../src/components/sections/gallery-journey.ts';
 
-test('a branded title disc holds, contracts, and keeps the subtitle readable', () => {
+test('the logo is a forward-moving exhibit that clears before early partnership copy',()=>{
  assert.equal(galleryEnding(.70).core,0);
- for(const p of [.82,.84,.85]) {
-  assert.equal(galleryEnding(p).coreScale,1);
-  assert.equal(galleryEnding(p).title,1);
-  assert.equal(galleryEnding(p).logo,1);
-  assert.ok(galleryEnding(p).copy>.5);
- }
- assert.equal(galleryEnding(.91).coreScale,.76);
- assert.equal(galleryEnding(.91).markSettle,1);
- assert.equal(galleryEnding(.91).logo,1);
- assert.equal(galleryEnding(.94).logo,1);
- assert.equal(galleryEnding(.94).copy,1);
- assert.equal(galleryEnding(.95).links,0);
- assert.equal(galleryEnding(.98).links,0);
- for(let i=0;i<=2000;i++) {
+ const first=galleryEnding(.716),middle=galleryEnding(.725),front=galleryEnding(.75);
+ assert.ok(first.core>0);assert.equal(first.logo,1);
+ assert.ok(first.z<middle.z&&middle.z<front.z);
+ for(const p of [.75,.78,.84,.98]){const pose=galleryEnding(p);assert.equal(pose.logo,0);assert.equal(pose.title,1);assert.ok(pose.copy>.5);}
+ assert.equal(galleryEnding(.84).core,0);
+ for(let i=0;i<=2000;i++){
   const p=i/2000,pose=galleryEnding(p);
-  assert.ok(pose.coreScale>=.22&&pose.coreScale<=1);
-  assert.equal(pose.logo,1,'The real logo is present from first disc visibility');
+  if(pose.title>0)assert.equal(pose.logo,0,'The partnership headline never shares its beat with the logo');
+  assert.ok(pose.z<1000&&pose.core>=0&&pose.core<=1);
  }
 });
 
@@ -103,7 +95,7 @@ test('only the departing project and its next project are visible in either dire
       assert.ok(Math.abs(pose.advance - .26) < 1e-8);
       assert.equal(pose.opacity, 1);
       assert.equal(pose.caption, 1);
-      assert.equal(pose.forward, 0);
+      assert.ok(Math.abs(pose.forward)<1e-10);
       assert.ok(galleryEnding(p).navigation > .99);
     }
     assert.equal(galleryCardPose(.76, count-1, count).visible, false);
@@ -163,4 +155,5 @@ test('rings surround the reading position, remain ahead in depth, and pass beyon
   assert.ok(galleryRingPose(p,4,10).z<=900);
  }
 });
+
 

@@ -11,26 +11,30 @@ export function galleryWithCarry<T extends { slug: string }>(projects: readonly 
 
 export function galleryTravel(progress: number, projectCount: number) {
   const stops = Math.max(1, projectCount);
-  const linear = clamp(progress / GALLERY_WALK_END) * (stops + .5);
-  // Slow through each reading position, accelerate between projects. The slope
-  // stays continuous at every stop, in either direction and under retargeting.
-  return (linear - .35 * Math.sin(linear * Math.PI * 2) / (Math.PI * 2)) * GALLERY_DEPTH_STEP;
+  // Lenis already settles wheel input. The tunnel itself follows distance
+  // directly, including the final branded exhibit after the last artwork.
+  return clamp(progress) / GALLERY_WALK_END * (stops + .5) * GALLERY_DEPTH_STEP;
 }
 export function galleryProgress(top: number, height: number, viewport: number) {
   return clamp(-top / Math.max(1, height - viewport * .85));
 }
-/** One readable exhibit at a time; departure travels through the viewing plane. */
-export function galleryCardPose(progress: number, index: number, count: number) {
-  const advance = galleryTravel(progress, count) / GALLERY_DEPTH_STEP - index;
+/** The same depth curve carries artwork and the final branded exhibit. */
+export function galleryDepthPose(advance: number) {
   const approach = smooth((advance + .16) / .16);
   const hold = smooth(advance / .26);
-  const departure = clamp((advance - .36) / .60);
-  const forward = Math.expm1(3.5 * departure) / Math.expm1(3.5);
-  const dissolve = smooth((advance - .74) / .38);
-  const opacity = approach * (1 - smooth((advance - .99) / .20));
+  const departure = clamp((advance - .26) / .70);
+  const forward = Math.expm1(2.6 * departure) / Math.expm1(2.6);
   const z = -350 - 480 * (1 - approach) + 350 * hold + 900 * forward;
-  return { advance, z, forward, dissolve, opacity, visible: opacity > .001,
-    caption: approach * (1 - smooth((advance - .34) / .18)) };
+  return { approach, z, forward };
+}
+/** One readable exhibit at a time; departure travels through the viewing plane. */
+export function galleryCardPose(progress: number, index: number, count: number) {
+  const advance = galleryTravel(progress,count)/GALLERY_DEPTH_STEP-index;
+  const {approach,z,forward} = galleryDepthPose(advance);
+  const dissolve = smooth((advance-.74)/.38);
+  const opacity = approach*(1-smooth((advance-.99)/.20));
+  return {advance,z,forward,dissolve,opacity,visible:opacity>.001,
+    caption:approach*(1-smooth((advance-.34)/.18))};
 }
 
 /** The next two rings remain ahead of the exhibit, on the same vanishing point. */
@@ -41,20 +45,20 @@ export function galleryRingPose(progress: number, index: number, count: number) 
   return { z, opacity, visible: opacity > .001 };
 }
 
-/** The title holds inside a contained red disc, then the disc contracts for the signature. */
-export function galleryEnding(progress: number) {
-  const departure = 1 - smooth((progress - .71) / .05);
-  const approach = smooth((progress - .73) / .06);
-  const settle = smooth((progress - .85) / .055);
+/** The logo travels as the next exhibit; it clears before the partnership copy. */
+export function galleryEnding(progress: number, projectCount = 10) {
+  const advance=galleryTravel(progress,projectCount)/GALLERY_DEPTH_STEP-projectCount;
+  const depth=galleryDepthPose(advance);
+  const departure=1-smooth((advance+.36)/.54);
   return {
-    core: smooth((progress - .70) / .035),
-    coreScale: .22 + .78 * approach - .24 * settle,
-    title: smooth((progress - .79) / .025),
-    markSettle: settle,
-    logo: 1,
-    copy: smooth((progress - .805) / .025),
-    links: 0,
-    header: departure, dock: departure, navigation: departure,
+    advance, z:Math.min(200,depth.z),
+    core:depth.approach*(1-smooth((advance-.42)/.36)),
+    coreScale:.76,
+    logo:1-smooth((advance+.04)/.16),
+    title:smooth((advance-.12)/.14),
+    copy:smooth((advance-.26)/.16),
+    markSettle:0, links:0,
+    header:departure,dock:departure,navigation:departure,
   };
 }
 export function galleryProjectProgress(index: number, projectCount: number) {
@@ -86,4 +90,5 @@ export function galleryNavigationEase(velocity: number, distance: number, durati
     return (slope - 2) * p ** 3 + (3 - 2 * slope) * p ** 2 + slope * p;
   };
 }
+
 
