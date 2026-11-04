@@ -81,6 +81,16 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       const gallery = world?.querySelector('[data-gallery-runway]')?.getBoundingClientRect();
       const remaining = gallery ? serviceGalleryHandoff(gallery.top,innerHeight).services : 1;
       node.style.opacity = isStatic ? '1' : String(remaining);
+      // This copy lives in its own scene portal: settle it even when a fast
+      // scroll skips directly past the card owner into the doorway.
+      copy.style.visibility = isStatic || Math.max(pose.copy, pose.brand) > .001 ? 'visible' : 'hidden';
+      for (const beat of ['lead', 'main', 'necessity', 'brand'] as const) {
+        const element = copy.querySelector<HTMLElement>(`[data-brand-beat=${beat}]`);
+        if (!element) continue;
+        const presence = isStatic ? 1 : pose[beat];
+        element.style.opacity = String(presence);
+        element.setAttribute('aria-hidden', String(presence === 0));
+      }
       // Once the doorway owns the scene, retire card measurement and writes.
       if (!isStatic && remaining <= .001) { node.inert = true; return; }
       node.dataset.cardHandoffActive = String(!isStatic && pose.progress > .46);
@@ -185,14 +195,6 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       node.querySelectorAll<HTMLElement>('.opening-proof-stage').forEach(proof=>{proof.inert=!isStatic&&pose.proof<.01;});
       node.style.setProperty('--handoff-sculpture', String(isStatic ? 1 : pose.sculpture));
       node.style.setProperty('--handoff-lift', `${isStatic ? 0 : -24 * pose.focus}px`);
-      copy.style.visibility = isStatic || Math.max(pose.copy, pose.brand) > .001 ? 'visible' : 'hidden';
-      for (const beat of ['lead', 'main', 'necessity', 'brand'] as const) {
-        const element = copy.querySelector<HTMLElement>(`[data-brand-beat=${beat}]`);
-        if (!element) continue;
-        const presence = isStatic ? 1 : pose[beat];
-        element.style.opacity = String(presence);
-        element.setAttribute('aria-hidden', String(presence === 0));
-      }
       const pointerPlane = node.querySelector<HTMLElement>('[data-opening-pointer]');
       if (pointerPlane) pointerPlane.style.setProperty('--handoff-pointer', String(isStatic ? 0 : pose.pointer));
       runway.dataset.handoffProgress = pose.progress.toFixed(3);

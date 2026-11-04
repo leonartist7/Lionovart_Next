@@ -79,3 +79,5 @@ The real deployed homepage is the acceptance route. The fixture `/qa/story-respo
 
 The content-fit, short-height and reduced-motion paths keep content/actions in normal document order. Cloud Chromium viewports/touch emulation are not physical-device, WebKit/Firefox or live microphone acceptance. Comparative software-renderer timings must not be presented as physical-device frame rates.
 
+
+The statement portal settles before the opening owner returns early outside its visible range. A fast jump from the white hold into the iris must hide all statement beats; reverse scroll restores their existing pose.

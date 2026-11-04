@@ -8,7 +8,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261104-r21';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261104-r22';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -126,6 +126,7 @@ try {
    const gallery=await page.locator('[data-gallery-runway]').evaluate(el=>({top:scrollY+el.getBoundingClientRect().top,height:el.offsetHeight}));
    await scroll(gallery.top-h*1.1*(1-.76));
    const iris=page.locator('[data-service-podium] [data-iris]');
+   assert.equal(await page.locator('[data-shaping-message]').evaluate(el=>getComputedStyle(el).visibility),'hidden','A direct jump from the white hold retires its separate statement layer');
    const mask=await iris.evaluate(el=>getComputedStyle(el).maskImage);
    assert.ok(mask.includes('radial-gradient'),'Doorway uses a centered aperture mask');
    await page.screenshot({path:`${output}/${prefix}-iris.png`});
