@@ -83,3 +83,5 @@ The content-fit, short-height and reduced-motion paths keep content/actions in n
 The statement portal settles before the opening owner returns early outside its visible range. A fast jump from the white hold into the iris must hide all statement beats; reverse scroll restores their existing pose.
 
 The retained statement inherits the scene ink as the field lightens, preserving its red italic emphasis; the static black reading surface keeps light text.
+
+Corner images fill their counter-projected boxes during transport: contain would letterbox before the pane applies its unequal X/Y scale and visibly flatten desktop artwork.

@@ -134,4 +134,6 @@
 .pane { --opening-card-white:#fffaf1; }
 .frontFace { box-shadow:none; }
 :global([data-card-handoff-active=true]) .floatingObject { left:auto; right:var(--handoff-object-right,.25rem); top:var(--handoff-object-top,.25rem); width:var(--handoff-object-width,3.25rem); height:var(--handoff-object-height,3.25rem); transform:none !important; }
-:global([data-card-handoff-active=true]) .floatingObject img { transform:none; }
+/* This box counteracts the pane's unequal X/Y scale. Fill that compensated
+   box: contain would letterbox a square before the parent projects it. */
+:global([data-card-handoff-active=true]) .floatingObject img { transform:none; object-fit:fill; }
