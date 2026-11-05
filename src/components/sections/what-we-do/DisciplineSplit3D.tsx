@@ -417,7 +417,11 @@ export default function DisciplineSplit3D({
   // until the opaque film has covered the mane; otherwise its translucent
   // footage tints the head and makes it appear see-through.
   const pinnedWashOpacity = useTransform(openingProgress, [0, .36, .5], [0, 0, .3]);
-  const flip = pinned ? openingFlip : scrollFlip;
+  const readingFlip = useMotionValue(0);
+  const sourceFlip = pinned ? openingFlip : scrollFlip;
+  // Native card transport owns the fully split face, including fast jumps and
+  // reverse scrolling on phones, where the earlier journey value can lag.
+  const flip = useTransform(() => pinned ? Math.max(sourceFlip.get(), readingFlip.get()) : sourceFlip.get());
   const filmOpacity = useTransform(flip, [HANDOFF_START, FILM_FADE_END], [1, 0], { ease: FRAME_EASE });
   // Switch from the native film to matching pane crops while still joined.
   const joinedFilmOpacity = useTransform(flip, p => p <= HANDOFF_START ? 1 : 0);
@@ -823,6 +827,7 @@ export default function DisciplineSplit3D({
     const chapter = node.closest<HTMLElement>('[data-scene-opening]');
     let visible = false;
     const sync = () => {
+      readingFlip.set(pinned && chapter?.dataset.cardReadingStarted === 'true' ? 1 : 0);
       const available = visible && !document.hidden && !chapter?.inert && chapter?.dataset.cardReadingInteractive !== 'false';
       setPointerAvailable(available);
       if (!available) handleLeave();
@@ -830,10 +835,10 @@ export default function DisciplineSplit3D({
     const viewport = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); }, { threshold: .01 });
     viewport.observe(node);
     const ownership = new MutationObserver(sync);
-    if (chapter) ownership.observe(chapter, { attributes: true, attributeFilter: ['inert', 'data-card-reading-interactive'] });
+    if (chapter) ownership.observe(chapter, { attributes: true, attributeFilter: ['inert', 'data-card-reading-interactive', 'data-card-reading-started'] });
     document.addEventListener('visibilitychange', sync);
     return () => { viewport.disconnect(); ownership.disconnect(); document.removeEventListener('visibilitychange', sync); };
-  }, [handleLeave]);
+  }, [handleLeave, pinned, readingFlip]);
 
   const joinedFilmStyle = filmFrame ? {
     width: filmFrame.width, height: filmFrame.height, top: filmFrame.top,

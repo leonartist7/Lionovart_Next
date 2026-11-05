@@ -111,6 +111,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       if (!isStatic && remaining <= .001) { node.inert = true; return; }
       node.dataset.cardHandoffActive = String(!isStatic && pose.white > 0);
       node.dataset.cardReadingInteractive = String(isStatic || pose.benefit > .1);
+      node.dataset.cardReadingStarted = String(!isStatic && pose.progress > .001);
       node.style.removeProperty('--handoff-scale'); node.style.removeProperty('--handoff-y');
       const services = world?.querySelector<HTMLElement>('[data-services-stage]');
       services?.style.setProperty('--service-opening-copy', String(isStatic ? 1 : pose.serviceCopy));
@@ -279,7 +280,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       world?.querySelector<HTMLElement>('[data-services-stage]')?.style.removeProperty('--service-opening-expertise');
       world?.querySelector<HTMLElement>('[data-services-stage]')?.style.removeProperty('--service-opening-sides');
       sources.forEach(({node:pane})=>clear(pane));
-      node.style.opacity = ''; node.inert = false; delete node.dataset.cardHandoffActive; delete node.dataset.cardReadingInteractive;
+      node.style.opacity = ''; node.inert = false; delete node.dataset.cardHandoffActive; delete node.dataset.cardReadingInteractive; delete node.dataset.cardReadingStarted;
       node.style.removeProperty('--handoff-ambient'); if(ambient)ambient.style.visibility='';
       cancelAnimationFrame(frame); observer.disconnect(); geometry.disconnect(); parentGeometry.disconnect(); replacements.disconnect();
       window.removeEventListener('scroll', scrolling); window.removeEventListener('resize', resize);

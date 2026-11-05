@@ -8,7 +8,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r31';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r32';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -53,6 +53,7 @@ try {
    for(const p of [.3,.46,.52]){
     await scroll(exit.top-h+p*(exit.height+h));
     const buttons=page.locator('[data-persistent-card] [data-benefit-card] button');
+    console.log(JSON.stringify({check:'card-interaction',width:w,height:h,progress:p,enabled:await buttons.first().isEnabled()}));
     assert.ok(await buttons.first().isEnabled(),'Card remains enabled through the statement');
     await buttons.first().click();
     await page.waitForFunction(()=>document.querySelector('[data-persistent-card] [data-benefit-card]')?.dataset.phase==='open');
