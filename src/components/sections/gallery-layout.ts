@@ -1,9 +1,9 @@
 /** CSS pixels at the DOM boundary; text and spacing remain in rem/em. */
 export const STORY_GALLERY_BREAKPOINT = 1024;
 export const STORY_SHORT_HEIGHT = 560;
-// A short desktop still has room for a horizontal pair. Small landscape
-// screens need document flow to keep both vertical projects readable.
-export const STORY_SHORT_QUERY = `(max-height: 439px), (max-width: ${STORY_GALLERY_BREAKPOINT}px) and (max-height: ${STORY_SHORT_HEIGHT}px)`;
+// Short windows use document flow so the statement, cards and controls
+// retain readable sizes instead of competing inside one pinned viewport.
+export const STORY_SHORT_QUERY = `(max-height: ${STORY_SHORT_HEIGHT}px)`;
 export const STORY_STATIC_QUERY = `(prefers-reduced-motion: reduce), ${STORY_SHORT_QUERY}`;
 export const storyGalleryVertical = (width: number) => width <= STORY_GALLERY_BREAKPOINT;
 

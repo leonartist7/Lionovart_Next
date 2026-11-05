@@ -8,7 +8,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r39';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r40';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -49,6 +49,20 @@ try {
   // Native wheel momentum must finish before precise programmatic stops.
   // Otherwise Lenis can carry the phone back to the hero after scrollTo.
   await page.waitForFunction(()=>!document.documentElement.classList.contains('lenis-scrolling'), {}, {timeout:10000});
+  if(process.env.STORY_REVIEW_FOCUS==='short')assert.equal(animated,false,'Short windows retain readable document flow');
+  if(!animated){
+   const flowCards=page.locator('[data-opening-static] [data-benefit-card]');
+   assert.equal(await flowCards.count(),3,'Reading flow retains all three original disciplines');
+   for(let i=0;i<3;i++){
+    const card=flowCards.nth(i),button=card.locator('button');
+    await button.click();
+    await page.waitForFunction(i=>document.querySelectorAll('[data-opening-static] [data-benefit-card]')[i]?.dataset.phase==='open',i);
+    assert.equal(await button.getAttribute('aria-expanded'),'true','Flow card opens');
+    if(i===0)await page.screenshot({path:`${output}/${prefix}-flow-card-open.png`});
+    await button.click();
+    await page.waitForFunction(i=>document.querySelectorAll('[data-opening-static] [data-benefit-card]')[i]?.dataset.phase==='closed',i);
+   }
+  }
   if(animated){
    const frames=await page.locator('[data-persistent-card]').evaluateAll(nodes=>nodes.map(n=>n.dataset.persistentFrameId));
    assert.equal(frames.length,3);
