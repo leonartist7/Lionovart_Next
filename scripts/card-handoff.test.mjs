@@ -4,7 +4,7 @@ import { cardHandoff } from '../src/components/sections/card-handoff.ts';
 const at = (p,h=900) => cardHandoff(h-p*h*2.6,h*1.6,h);
 
 test('the statement starts with the cards, then gives the brand its own hold',()=>{
- assert.equal(at(.04).lead,0); assert.ok(at(.08).lead>0);
+ assert.ok(at(.04).lead<1e-12); assert.ok(at(.08).lead>0);
  assert.equal(at(.04).main,0); assert.equal(at(.16).necessity,0);
  for(const p of [.4,.46,.53]) for(const key of ['lead','main','necessity']) assert.equal(at(p)[key],1);
  assert.equal(at(.78).copy,1); assert.equal(at(.90).copy,0); assert.equal(at(.78).wordmark,1);

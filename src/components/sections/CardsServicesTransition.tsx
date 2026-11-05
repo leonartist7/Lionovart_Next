@@ -93,6 +93,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       }
       copy.style.setProperty('--claim-rewrite',String(isStatic ? 1 : pose.claim));
       copy.style.setProperty('--claim-strike',String(isStatic ? 1 : pose.strike));
+      copy.querySelector('[data-brand-optional]')?.setAttribute('aria-hidden',String(isStatic || pose.claim >= .999));
       const letteringLayer=scene?.target?.querySelector<HTMLElement>('[data-card-lettering-layer]');
       const identities=[...(letteringLayer?.querySelectorAll<HTMLElement>('[data-card-identity]') ?? [])];
       if(letteringLayer) letteringLayer.style.opacity=String(isStatic || node.querySelector('[data-film-active=true]') ? 0 : remaining);
