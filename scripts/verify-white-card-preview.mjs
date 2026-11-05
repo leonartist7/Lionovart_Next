@@ -8,7 +8,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r32';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r33';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -46,6 +46,9 @@ try {
       await page.screenshot({path:`${output}/${prefix}-continuous-${direction===1?'forward':'reverse'}.png`});
     }
   }
+  // Native wheel momentum must finish before precise programmatic stops.
+  // Otherwise Lenis can carry the phone back to the hero after scrollTo.
+  await page.waitForFunction(()=>!document.documentElement.classList.contains('lenis-scrolling'), {}, {timeout:10000});
   if(animated){
    const frames=await page.locator('[data-persistent-card]').evaluateAll(nodes=>nodes.map(n=>n.dataset.persistentFrameId));
    assert.equal(frames.length,3);
