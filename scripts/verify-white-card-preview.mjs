@@ -8,7 +8,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r37';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r38';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -76,7 +76,8 @@ try {
       const pointer=await page.locator('[data-opening-pointer]').evaluate(el=>getComputedStyle(el).transform);
       assert.notEqual(pointer,'none','Cursor tilt remains live through the statement');
       const edgeState=await page.locator('[data-card-edge]').evaluateAll(es=>({opacity:es.map(e=>Number(getComputedStyle(e).opacity)),cards:[...document.querySelectorAll('[data-persistent-card]')].map(e=>({spot:e.style.getPropertyValue('--spot-active'),rect:(()=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};})()})),stage:document.querySelector('[data-opening-transition]')?.dataset,chapter:document.querySelector('[data-scene-opening]')?.dataset}));
-      assert.ok(edgeState.opacity.some(n=>n>0),`Card hover outline stays live: ${JSON.stringify(edgeState)}`);
+      const hitState=await page.evaluate(({x,y})=>{const el=document.elementFromPoint(x,y);return {x,y,tag:el?.tagName,className:el?.className,card:el?.closest('[data-persistent-card]')?.getAttribute('data-persistent-card'),button:el?.closest('button')?.getAttribute('aria-label')};},{x:box.x+box.width*.75,y:box.y+box.height*.35});
+      assert.ok(edgeState.opacity.some(n=>n>0),`Card hover outline stays live: ${JSON.stringify({edgeState,hitState})}`);
       await page.mouse.move(w-10,h/2);await page.waitForTimeout(500);
     }
    }

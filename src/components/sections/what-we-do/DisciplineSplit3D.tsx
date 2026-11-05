@@ -759,6 +759,9 @@ export default function DisciplineSplit3D({
 
   const handleMove = useCallback(
     (e: React.PointerEvent<HTMLElement>) => {
+      // A transported/captured button can miss the local release event. The
+      // physical mouse buttons are authoritative when pointer movement resumes.
+      if (e.buttons === 0) pointerHeld.current = false;
       if (!armed || pointerHeld.current || e.pointerType !== 'mouse') return;
       // Transport changes the visual bounds while the reading face stays live.
       measure();
