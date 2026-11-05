@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: white-card-review-final
+  group: white-card-review-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   browser-review:
