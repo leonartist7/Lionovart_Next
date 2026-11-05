@@ -91,9 +91,25 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         element.style.opacity = String(presence);
         element.setAttribute('aria-hidden', String(presence === 0));
       }
+      copy.style.setProperty('--claim-rewrite',String(isStatic ? 1 : pose.claim));
+      copy.style.setProperty('--claim-strike',String(isStatic ? 1 : pose.strike));
+      const letteringLayer=scene?.target?.querySelector<HTMLElement>('[data-card-lettering-layer]');
+      const identities=[...(letteringLayer?.querySelectorAll<HTMLElement>('[data-card-identity]') ?? [])];
+      if(letteringLayer) letteringLayer.style.opacity=String(isStatic || node.querySelector('[data-film-active=true]') ? 0 : remaining);
+      const placeIdentity=(index:number,desired:CardRect,assembly:number,units:number[])=>{
+        const identity=identities[index]; if(!identity || !letteringLayer)return;
+        const lettering=cardLettering(desired.width,desired.height,units,index,assembly,innerWidth<768);
+        const origin=letteringLayer.getBoundingClientRect();
+        identity.style.left=`${desired.x-desired.width/2+lettering.x-origin.left}px`;
+        identity.style.top=`${desired.y-desired.height/2+lettering.y-origin.top-lettering.size/2}px`;
+        identity.style.fontSize=`${lettering.size}px`;
+        identity.style.opacity=String(pose.identity);
+        return lettering;
+      };
       // Once the doorway owns the scene, retire card measurement and writes.
       if (!isStatic && remaining <= .001) { node.inert = true; return; }
-      node.dataset.cardHandoffActive = String(!isStatic && pose.progress > .46);
+      node.dataset.cardHandoffActive = String(!isStatic && pose.white > 0);
+      node.dataset.cardReadingInteractive = String(isStatic || pose.benefit > .1);
       node.style.removeProperty('--handoff-scale'); node.style.removeProperty('--handoff-y');
       const services = world?.querySelector<HTMLElement>('[data-services-stage]');
       services?.style.setProperty('--service-opening-copy', String(isStatic ? 1 : pose.serviceCopy));
@@ -102,13 +118,32 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       const panes = [...node.querySelectorAll<HTMLElement>('[data-persistent-card]')];
       const targets = [...(services?.querySelectorAll<HTMLElement>('[data-service-card-target]') ?? [])];
       const portrait = innerWidth < 768;
+      // Cache the paper's original well: only its clip expands, never a new face.
+      panes.forEach(pane=>{
+        const paper=pane.querySelector<HTMLElement>('[data-benefit-paper]');
+        const well=pane.querySelector<HTMLElement>('[data-benefit-well]');
+        const card=pane.querySelector<HTMLElement>('[data-benefit-card]');
+        if(!paper||!well||!card||(!dirty&&paper.style.getPropertyValue('--benefit-paper-top')))return;
+        const w=well.getBoundingClientRect(),c=card.getBoundingClientRect();
+        paper.style.setProperty('--benefit-paper-top',`${Math.max(0,(w.top-c.top)/Math.max(1,c.height))*100}%`);
+        paper.style.setProperty('--benefit-paper-left',`${Math.max(0,(w.left-c.left)/Math.max(1,c.width))*100}%`);
+      });
       if (isStatic || pose.progress < (portrait ? .001 : .50) || panes.length !== 3 || targets.length !== 3) {
-        panes.forEach(pane => { clear(pane); const slot=pane.querySelector<HTMLElement>('[data-persistent-service-slot]'); if(slot){slot.style.opacity='0';slot.inert=true;} });
+        panes.forEach((pane,index) => {
+          clear(pane);
+          placeIdentity(index,rect(pane),0,[]);
+          identities[index]?.style.setProperty('--handoff-tail','1');
+          const slot=pane.querySelector<HTMLElement>('[data-persistent-service-slot]');
+          if(slot){slot.style.opacity='0';slot.inert=true;}
+        });
         dirty = true;
       } else {
         if (dirty || sources.some((source,index)=>source.node!==panes[index])) {
           panes.forEach(clear);
-          sources = panes.map(pane => {
+          const pointer=node.querySelector<HTMLElement>('[data-opening-pointer]');
+          const savedPointer=pointer?.style.transform;
+          if(pointer) pointer.style.transform='none';
+          sources = panes.map((pane,index) => {
             const r=rect(pane), style=getComputedStyle(pane), matrix=new DOMMatrixReadOnly(style.transform);
             // offsetWidth/Height round fractional CSS pixels and misalign the
             // independently transported baselines, especially in a phone stack.
@@ -116,13 +151,15 @@ export default function CardsServicesTransition({ children }: { children: ReactN
             const parentY=r.height/Math.max(1,parseFloat(style.height)||pane.offsetHeight);
             // Measure each surviving segment once, with the actual loaded font.
             // Absolute tails do not alter the advance or move the segment origin.
-            pane.style.setProperty('--identity-size','50px');
-            const core=pane.querySelector<HTMLElement>('[data-card-identity-core]');
-            const unit=(core?.getBoundingClientRect().width ?? 100)/Math.max(.01,parentX)/50;
+            const identity=identities[index];
+            if(identity)identity.style.fontSize='50px';
+            const core=identity?.querySelector<HTMLElement>('[data-card-identity-core]');
+            const unit=(core?.getBoundingClientRect().width ?? 100)/50;
             const object=pane.querySelector<HTMLElement>('[data-floating-card-object]');
             const objectWidth=object ? parseFloat(getComputedStyle(object).width) : 48;
             return {node:pane,base:{...r,parentX,parentY,motionX:matrix.m41,motionY:matrix.m42},reading:r,unit,objectWidth};
           });
+          if(pointer) pointer.style.transform=savedPointer ?? '';
           if (portrait) {
             const statement=copy.querySelector<HTMLElement>('[data-brand-statement]');
             const fitted=cardReadingStack(sources.map(source=>source.base),statement?.offsetTop ?? innerHeight*.78,innerWidth);
@@ -145,7 +182,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         const leader=reading[portrait ? 0 : 1];
         const units=sources.map(source=>source.unit);
         const desiredFrames=reading.map((source,index)=>cardTransportRect(source,leader,destination[index].rect,center.rect,index,destination[index].selected,pose));
-        const letters=desiredFrames.map((desired,index)=>cardLettering(desired.width,desired.height,units,index,pose.assembly));
+        const letters=desiredFrames.map((desired,index)=>cardLettering(desired.width,desired.height,units,index,pose.assembly,portrait));
         sources.forEach(({node:pane,base,objectWidth},index)=>{
           const target=destination[index];
           const desired=desiredFrames[index];
@@ -159,13 +196,14 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           pane.style.setProperty('--handoff-assembly',String(pose.assembly));
           pane.style.setProperty('--handoff-identity',String(pose.identity));
           const lettering=letters[index];
+          placeIdentity(index,desired,pose.assembly,units);
           if(index<2){
             const next=desiredFrames[index+1],nextLetter=letters[index+1];
             const tailX=desired.x-desired.width/2+lettering.x+units[index]*lettering.size;
             const nextX=next.x-next.width/2+nextLetter.x;
             const tailY=desired.y-desired.height/2+lettering.y;
             const nextY=next.y-next.height/2+nextLetter.y;
-            pane.style.setProperty('--handoff-tail',String(cardTailOpacity(Math.hypot(tailX-nextX,tailY-nextY),lettering.size,pose.assembly)));
+            identities[index]?.style.setProperty('--handoff-tail',String(cardTailOpacity(Math.hypot(tailX-nextX,tailY-nextY),lettering.size,pose.assembly)));
           }
           const identityX = Math.max(.01,base.parentX*fitted.sx), identityY = Math.max(.01,base.parentY*fitted.sy);
           pane.style.setProperty('--identity-size',`${lettering.size/identityY}px`);
@@ -174,9 +212,9 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           pane.style.setProperty('--identity-y',`${lettering.y/identityY}px`);
           pane.style.setProperty('--handoff-benefit',String(pose.benefit));
           const naturalObject=objectWidth*base.parentY*Math.min(desired.width/base.width,desired.height/base.height);
-          const objectSize=mix(naturalObject,Math.min(104,desired.width*.25,desired.height*.42),pose.assembly);
+          const objectSize=mix(naturalObject,Math.min(104,desired.width*(portrait ? .23 : .115),desired.height*.36),pose.assembly);
           const gap=Math.max(6,desired.width*.018);
-          const groupLeft=(desired.width-3*objectSize-2*gap)/2;
+          const groupLeft=portrait ? desired.width*.08 : desired.width*.92-3*objectSize-2*gap;
           const objectRight=mix(10,desired.width-groupLeft-index*(objectSize+gap)-objectSize,pose.assembly);
           pane.style.setProperty('--handoff-object',String(pose.objects));
           pane.style.setProperty('--handoff-object-width',`${objectSize/identityX}px`);
@@ -240,7 +278,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       world?.querySelector<HTMLElement>('[data-services-stage]')?.style.removeProperty('--service-opening-expertise');
       world?.querySelector<HTMLElement>('[data-services-stage]')?.style.removeProperty('--service-opening-sides');
       sources.forEach(({node:pane})=>clear(pane));
-      node.style.opacity = ''; node.inert = false; delete node.dataset.cardHandoffActive;
+      node.style.opacity = ''; node.inert = false; delete node.dataset.cardHandoffActive; delete node.dataset.cardReadingInteractive;
       node.style.removeProperty('--handoff-ambient'); if(ambient)ambient.style.visibility='';
       cancelAnimationFrame(frame); observer.disconnect(); geometry.disconnect(); parentGeometry.disconnect(); replacements.disconnect();
       window.removeEventListener('scroll', scrolling); window.removeEventListener('resize', resize);
@@ -252,8 +290,14 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     <ScenePortal><div ref={message} className={styles.shapingMessage} data-shaping-message data-scroll-title-skip>
       <div className={styles.brandStatement} data-brand-statement>
         <p data-brand-beat="lead">{locale === 'fr' ? 'Pour mener le changement,' : 'To lead today,'}</p>
-        <h2><span data-brand-beat="main">{locale === 'fr' ? 'l’innovation n’est pas une option.' : 'innovation isn’t optional.'}</span>
-          <span data-brand-beat="necessity" className={styles.necessity}>{locale === 'fr' ? 'C’est une nécessité.' : 'It’s a necessity.'}</span></h2>
+        <h2><span data-brand-beat="main">
+          <span className={styles.innovation}>{locale === 'fr' ? 'L’innovation' : 'Innovation'}</span>{' '}
+          <span className={styles.claimSwap}>
+            <span className={styles.optional} data-brand-optional>{locale === 'fr' ? 'n’est pas une option.' : 'isn’t optional.'}</span>
+            <span className={styles.claimStroke} data-brand-strike aria-hidden="true" />
+            <span data-brand-beat="necessity" className={styles.necessity}>{locale === 'fr' ? 'est une nécessité.' : 'it’s a necessity.'}</span>
+          </span>
+        </span></h2>
       </div>
     </div></ScenePortal>
     <div ref={exit} className={styles.cardExit} data-card-exit aria-hidden="true" />

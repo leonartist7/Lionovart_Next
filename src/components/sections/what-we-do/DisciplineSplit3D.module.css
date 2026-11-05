@@ -94,7 +94,7 @@
 .floatingCarrier { position:absolute; inset:0; z-index:2; pointer-events:none; opacity:var(--handoff-sculpture,1); transform:translateY(var(--handoff-lift,0px)); }
 .floatingCarrier .floatingObject img { transform:scale(var(--handoff-word-x,1),var(--handoff-word-y,1)) rotate(calc(-1 * var(--handoff-rotate,0deg))); }
 /* The transport owns the plane after the reading interaction has ended. */
-:global([data-card-handoff-active=true]) .pointerPlane { transform:none !important; }
+/* The cursor transform eases away only when the white face takes ownership. */
 
 @media(width < 768px) { .pane:not(:nth-child(2)) :global([data-benefit-card] [data-benefit-title]) { max-width: 13ch; font-size: clamp(.875rem,3.6vw,1rem); line-height: 1.2; } }
 
@@ -110,10 +110,10 @@
 
 /* White grows out of the existing reading well and covers the stationary art.
    Never fade the well's parent: it would expose the original black face. */
-.frontFace::after { content:""; position:absolute; inset:0; z-index:50; border-radius:inherit; background:var(--opening-card-white,#fffaf1); clip-path:inset(calc((1 - var(--handoff-white,0)) * 100%) 0 0); pointer-events:none; }
+/* The existing benefit paper now expands; no second white overlay is painted. */
 .integratedFace { opacity:1; }
-:global([data-card-handoff-active=true]) .integratedFace :global([data-integrated=true]) { background:var(--opening-card-white,#fffaf1); }
-.integratedFace :global([data-integrated=true] > div:not(:first-child)) { opacity:1; }
+
+
 .integratedFace :global([data-integrated=true] > button) { opacity:var(--handoff-benefit,1); }
 /* The existing code, always an outline, supplies the eventual wordmark.
    Its glyph origin is explicit; no percentage of a shrinking word moves it. */
@@ -123,7 +123,6 @@
 .floatingObject { right:.25rem; top:.25rem; }
 @media(width < 920px) {
   .floatingObject { left:auto; right:.25rem; top:.25rem; width:clamp(2.5rem,9vw,3.25rem); }
-  .frontFace::after { clip-path:inset(0 0 0 calc((1 - var(--handoff-white,0)) * 100%)); }
 }
 
 /* The film's blurred red poster belongs to the opening, never to Services. */
@@ -142,5 +141,9 @@
    interacting with a reading card and clears before the white gathering. */
 .floatingObject { width:clamp(6rem,10.5vw,9rem); }
 @media(width < 920px) { .floatingObject { width:clamp(3.75rem,13.5vw,4.875rem); } }
-:global([data-card-handoff-active=true]) .pane :global([data-card-edge]) { opacity:0 !important; }
+.pane :global([data-card-edge]) { filter:opacity(var(--handoff-pointer,1)); }
 
+
+/* One screen-space lettering plane stays above every transported card. */
+.letteringLayer { position:fixed; inset:0; z-index:8; pointer-events:none; opacity:0; }
+.letteringLayer .identityLettering { left:0; top:0; transform:none; }

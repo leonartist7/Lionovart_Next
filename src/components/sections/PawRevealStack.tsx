@@ -101,6 +101,7 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
   </div>;
 
   return <article className={styles.card} data-benefit-card data-benefit-index={index} data-scroll-title-skip data-integrated={integrated} data-flow={flow} data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
+    {integrated && <div className={styles.benefitPaper} data-benefit-paper aria-hidden="true" />}
     {integrated && <div className={styles.integratedArtwork} aria-hidden="true">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={artworkSource(artwork!, 800)} alt="" loading="lazy" decoding="async"
@@ -118,7 +119,7 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
       {!integrated && <div className={styles.sculpture} data-sculpture={index} data-leaving={phase !== "closed"} aria-hidden="true">
         <Image src={item.artwork} alt="" width={500} height={500} sizes="(max-width: 919px) 176px, (max-width: 1600px) 16vw, 256px" />
       </div>}
-      <div className={styles.detailWell}>
+      <div className={styles.detailWell} data-benefit-well>
         {details}
         <motion.div ref={coverRef} className={styles.detailCover} animate={cover} aria-hidden={integrated ? showBenefit : true}>
           {integrated && <div className={styles.integratedCopy}>

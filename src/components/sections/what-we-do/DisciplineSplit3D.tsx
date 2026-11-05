@@ -1,7 +1,7 @@
 "use client";
 
 import { usePublicCopy } from "@/hooks/usePublicCopy";
-import { usePinnedScene } from "../service-world/PinnedScene";
+import { ScenePortal, usePinnedScene } from "../service-world/PinnedScene";
 import { useSaveData } from "@/hooks/useSaveData";
 import styles from "./DisciplineSplit3D.module.css";
 
@@ -305,7 +305,7 @@ function Pane({
 
         </div>
       </motion.div>
-      <span className={styles.identityLettering} data-card-identity={i} aria-hidden="true"><span data-card-identity-core>{card.code.slice(0,3)}</span><span className={styles.identityTail}>{card.code.slice(3)}</span></span>
+      {(!scene || scene.staticLayout) && <span className={styles.identityLettering} data-card-identity={i} aria-hidden="true"><span data-card-identity-core>{card.code.slice(0,3)}</span><span className={styles.identityTail}>{card.code.slice(3)}</span></span>}
       <div ref={registerSlot} className={styles.serviceSlot} data-persistent-service-slot={i} inert />
       <div className={styles.floatingCarrier} aria-hidden="true">
         <motion.div className={styles.floatingObject} data-floating-card-object={card.code}
@@ -760,6 +760,8 @@ export default function DisciplineSplit3D({
   const handleMove = useCallback(
     (e: React.PointerEvent<HTMLElement>) => {
       if (!armed || pointerHeld.current || e.pointerType !== 'mouse') return;
+      // Transport changes the visual bounds while the reading face stays live.
+      measure();
       const r = rectRef.current;
       if (!r) return;
       // The rig remains stable even when the pointer is in the breathing room
@@ -798,7 +800,7 @@ export default function DisciplineSplit3D({
         );
       });
     },
-    [armed, px, py],
+    [armed, px, py, measure],
   );
 
   const handleLeave = useCallback(() => {
@@ -821,14 +823,14 @@ export default function DisciplineSplit3D({
     const chapter = node.closest<HTMLElement>('[data-scene-opening]');
     let visible = false;
     const sync = () => {
-      const available = visible && !document.hidden && !chapter?.inert && chapter?.dataset.cardHandoffActive !== 'true';
+      const available = visible && !document.hidden && !chapter?.inert && chapter?.dataset.cardReadingInteractive !== 'false';
       setPointerAvailable(available);
       if (!available) handleLeave();
     };
     const viewport = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); }, { threshold: .01 });
     viewport.observe(node);
     const ownership = new MutationObserver(sync);
-    if (chapter) ownership.observe(chapter, { attributes: true, attributeFilter: ['inert', 'data-card-handoff-active'] });
+    if (chapter) ownership.observe(chapter, { attributes: true, attributeFilter: ['inert', 'data-card-reading-interactive'] });
     document.addEventListener('visibilitychange', sync);
     return () => { viewport.disconnect(); ownership.disconnect(); document.removeEventListener('visibilitychange', sync); };
   }, [handleLeave]);
@@ -1004,6 +1006,9 @@ export default function DisciplineSplit3D({
         </div>
 
       </div>
+      {pinned && !scene?.staticLayout && <ScenePortal><div className={styles.letteringLayer} data-card-lettering-layer aria-hidden="true">
+        {cards.map((card, i) => <span key={card.code} className={styles.identityLettering} data-card-identity={i}><span data-card-identity-core>{card.code.slice(0,3)}</span><span className={styles.identityTail}>{card.code.slice(3)}</span></span>)}
+      </div></ScenePortal>}
     </section>
   );
 }

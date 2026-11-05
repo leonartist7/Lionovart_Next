@@ -4,9 +4,9 @@ import { cardHandoff } from '../src/components/sections/card-handoff.ts';
 const at = (p,h=900) => cardHandoff(h-p*h*2.6,h*1.6,h);
 
 test('the statement starts with the cards, then gives the brand its own hold',()=>{
- assert.ok(at(.04).lead>0);
+ assert.equal(at(.04).lead,0); assert.ok(at(.08).lead>0);
  assert.equal(at(.04).main,0); assert.equal(at(.16).necessity,0);
- for(const p of [.3,.4,.46]) for(const key of ['lead','main','necessity']) assert.equal(at(p)[key],1);
+ for(const p of [.4,.46,.53]) for(const key of ['lead','main','necessity']) assert.equal(at(p)[key],1);
  assert.equal(at(.78).copy,1); assert.equal(at(.90).copy,0); assert.equal(at(.78).wordmark,1);
  assert.equal(at(.76).brand,0); assert.equal(at(.76).expertise,0);
  assert.ok(at(.94).expertise>.5); assert.equal(at(.94).serviceCopy,0);
@@ -50,3 +50,11 @@ test('every cue is reversible, bounded and independent of viewport scale',()=>{
 });
 
 
+
+test('the red strike completes before the optional claim rewrites',()=>{
+ assert.equal(at(.22).strike,0);assert.equal(at(.22).claim,0);
+ assert.equal(at(.30).strike,1);assert.equal(at(.30).claim,0);
+ assert.ok(at(.35).claim>0&&at(.35).claim<1);
+ assert.equal(at(.4).claim,1);assert.equal(at(.4).necessity,1);
+ for(const p of [.1,.3,.46,.52]) assert.equal(at(p).pointer,1);
+});

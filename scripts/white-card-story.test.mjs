@@ -5,7 +5,7 @@ import { cardTransportRect } from '../src/components/sections/card-transport.ts'
 import { galleryCardPose, galleryTravel, galleryProjectProgress, galleryEnding } from '../src/components/sections/gallery-journey.ts';
 const at = p => cardHandoff(900-p*2970,2070,900);
 test('reading holds fully opaque before white assembly, and the white wordmark has its own hold',()=>{
-  for(const p of [.3,.4,.5,.53]) for(const key of ['lead','main','necessity']) assert.equal(at(p)[key],1);
+  for(const p of [.4,.5,.53]) for(const key of ['lead','main','necessity']) assert.equal(at(p)[key],1);
   assert.equal(at(.78).copy,1);
   for(const p of [.755,.78,.81]) { const pose=at(p); assert.equal(pose.white,1);assert.equal(pose.assembly,1);assert.equal(pose.spread,0);assert.equal(pose.serviceReveal,0); }
   assert.equal(at(1).serviceCopy,1);

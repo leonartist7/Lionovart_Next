@@ -317,3 +317,22 @@
 .card[data-integrated=true][data-flow=true] .integratedAccent { position: static; width: auto; height: auto; clip-path: none; white-space: normal; font-size: .875rem; }
 .card[data-flow=true] .cardToggle { pointer-events: auto; }
 
+
+/* The paper visible under the paw is the same surface that fills the card.
+   Its clip starts at the measured reading well and opens in place. */
+.benefitPaper { position:absolute; inset:0; z-index:0; pointer-events:none; background:var(--opening-card-white,#fffaf1); clip-path:inset(calc(var(--benefit-paper-top,48%) * (1 - var(--handoff-white,0))) 0 0 calc(var(--benefit-paper-left,0%) * (1 - var(--handoff-white,0)))); }
+.card[data-integrated=true] .integratedArtwork { z-index:1; opacity:calc(1 - var(--handoff-white,0)); }
+.card[data-integrated=true] .detailShell { z-index:2; }
+.card[data-integrated=true] .detailWell,
+.card[data-integrated=true] .integratedDetails { background:transparent; }
+.card[data-integrated=true] .integratedDetails { align-content:start; padding-top:1.25rem; }
+.card[data-integrated=true] .integratedDetails > *,
+.card[data-integrated=true] .detailCover,
+.card[data-integrated=true] .seamCarrier,
+.card[data-integrated=true] .paw { opacity:var(--handoff-benefit,1); }
+@media(width < 768px) {
+ .benefitPaper { --benefit-paper-top:0%; --benefit-paper-left:24%; }
+ .card[data-integrated=true] .integratedDetails { align-content:end; padding-bottom:2.25rem; }
+}
+.card[data-flow=true] .benefitPaper { display:none; }
+.card[data-flow=true] .detailWell { background:var(--opening-card-white,#fffaf1); }

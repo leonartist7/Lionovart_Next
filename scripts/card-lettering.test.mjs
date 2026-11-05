@@ -4,12 +4,13 @@ import {cardLettering,cardTailOpacity} from '../src/components/sections/card-let
 import {cardReadingStack,cardTransportRect} from '../src/components/sections/card-transport.ts';
 import {cardHandoff} from '../src/components/sections/card-handoff.ts';
 
-test('actual segment advances join exactly on a centered baseline at every card width',()=>{
+test('actual segment advances join exactly on a shared baseline above the cards at every card width',()=>{
  for(const width of [140,230,360,720]) for(const units of [[1.8,2.1,1.9],[1.7,2,1.8]]) {
   const poses=units.map((_,i)=>cardLettering(width,width*9/16,units,i,1));
   for(let i=1;i<3;i++)assert.ok(Math.abs(poses[i].x-(poses[i-1].x+units[i-1]*poses[i-1].size))<1e-9);
   const left=poses[0].x,right=poses[2].x+units[2]*poses[2].size;
-  assert.ok(Math.abs((left+right)/2-width/2)<1e-9);
+  assert.ok(Math.abs(left-width*.08)<1e-9);
+  assert.ok(right<=width*.64+1e-9, "Desktop artwork retains its upper-right space");
   assert.equal(poses[0].y,poses[2].y);
   assert.ok(left>0&&right<width);
  }
@@ -55,3 +56,12 @@ test('names start in the image area and duplicate N/A glyphs survive until they 
  }
 });
 
+
+test('mobile lettering stays bottom left and desktop lettering stays upper left',()=>{
+ const units=[1.8,2.1,1.9];
+ for(const width of [230,360,720]) {
+  const height=width*9/16;
+  assert.equal(cardLettering(width,height,units,0,1,true).y,height*.78);
+  assert.equal(cardLettering(width,height,units,0,1).y,height*.24);
+ }
+});

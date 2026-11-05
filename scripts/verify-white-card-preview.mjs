@@ -8,7 +8,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r29';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r30';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -50,6 +50,30 @@ try {
    const frames=await page.locator('[data-persistent-card]').evaluateAll(nodes=>nodes.map(n=>n.dataset.persistentFrameId));
    assert.equal(frames.length,3);
    const exit=await getExit();
+   for(const p of [.3,.46,.52]){
+    await scroll(exit.top-h+p*(exit.height+h));
+    const buttons=page.locator('[data-persistent-card] [data-benefit-card] button');
+    assert.ok(await buttons.first().isEnabled(),'Card remains enabled through the statement');
+    await buttons.first().click();
+    await page.waitForFunction(()=>document.querySelector('[data-persistent-card] [data-benefit-card]')?.dataset.phase==='open');
+    await buttons.first().click();
+    await page.waitForFunction(()=>document.querySelector('[data-persistent-card] [data-benefit-card]')?.dataset.phase==='closed');
+    if(w>=768){
+      const box=await buttons.first().boundingBox();
+      await page.mouse.move(box.x+box.width*.75,box.y+box.height*.35);
+      await page.waitForTimeout(200);
+      const pointer=await page.locator('[data-opening-pointer]').evaluate(el=>getComputedStyle(el).transform);
+      assert.notEqual(pointer,'none','Cursor tilt remains live through the statement');
+      assert.ok((await page.locator('[data-card-edge]').evaluateAll(es=>es.map(e=>Number(getComputedStyle(e).opacity)))).some(n=>n>0),'Card hover outline stays live');
+      await page.mouse.move(w-10,h/2);await page.waitForTimeout(500);
+    }
+   }
+   const paperNodes=await page.locator('[data-benefit-paper]').evaluateAll(es=>es.map((el,i)=>{el.dataset.paperIdentity=String(i);return el.dataset.paperIdentity;}));
+   assert.equal(paperNodes.length,3,'Each original card owns one paper surface');
+   await scroll(exit.top-h+.29*(exit.height+h));
+   await page.screenshot({path:`${output}/${prefix}-red-strike.png`});
+   await scroll(exit.top-h+.4*(exit.height+h));
+   await page.screenshot({path:`${output}/${prefix}-claim-rewritten.png`});
    for(const p of [.40,.60,.64,.70,.78,.90,.96,1]){
     await scroll(exit.top-h+p*(exit.height+h));assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2),false,'No opening handoff overflow');await page.screenshot({path:`${output}/${prefix}-cards-${Math.round(p*100)}.png`});
    }
@@ -71,8 +95,10 @@ try {
    assert.equal(await page.locator('[data-brand-beat=main]').evaluate(el=>getComputedStyle(el).color),'rgb(23, 20, 18)','Retained statement switches to dark ink on the lightening field');
    const cornerArt=await page.locator('[data-floating-card-object] img').evaluateAll(nodes=>nodes.map(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height,fit:getComputedStyle(el).objectFit};}));
    assert.ok(cornerArt.every(r=>Math.abs(r.width-r.height)<1&&r.fit==='fill'),'Counter-projected corner artwork preserves its square proportions');
+   assert.deepEqual(await page.locator('[data-benefit-paper]').evaluateAll(es=>es.map(el=>el.dataset.paperIdentity)),paperNodes,'The original revealed paper survives the merge');
+   assert.equal(await page.locator('[data-card-lettering-layer] [data-card-identity]').count(),3,'All three labels share the foreground lettering layer');
    const held=await page.locator('[data-persistent-card]').first().boundingBox();
-   assert.ok(cornerArt.every(r=>r.width>=Math.min(104,held.width*.25,held.height*.42)-1),'Merged artwork uses the enlarged responsive composition');
+   assert.ok(cornerArt.every(r=>r.width>=Math.min(104,held.width*(w<768?.23:.115),held.height*.36)-1),'Merged artwork uses the enlarged responsive composition');
    const anchor=await page.locator('[data-service-card-target][data-position=center] [data-service-frame-target]').boundingBox();
    assert.ok(Math.abs(held.x+held.width/2-anchor.x-anchor.width/2)<1&&Math.abs(held.y+held.height/2-anchor.y-anchor.height/2)<1,'White hold and service foreground share one exact center');
    const edges=await page.locator('[data-card-edge]').evaluateAll(es=>es.map(el=>Number(getComputedStyle(el).opacity)));
@@ -80,14 +106,13 @@ try {
    assert.ok((await page.locator('[data-card-identity] > span:last-child').evaluateAll(es=>es.slice(0,2).map(el=>Number(getComputedStyle(el).opacity)))).every(opacity=>opacity===0),'Duplicate N/A letters retire after their origins align');
    assert.equal(await page.locator('[data-card-identity]').first().evaluate(el=>getComputedStyle(el).webkitTextFillColor),'rgba(0, 0, 0, 0)','Identity lettering stays outline-only');
    const lettering=await page.locator('[data-card-identity]').evaluateAll(es=>es.map(el=>{
-     const r=el.getBoundingClientRect(),p=el.parentElement.getBoundingClientRect();
+     const r=el.getBoundingClientRect(),p=document.querySelector(`[data-persistent-card="${el.dataset.cardIdentity}"]`).getBoundingClientRect();
      return {x:r.x,right:r.right,y:r.y,width:r.width,paneX:p.x,paneRight:p.right};
    }));
    assert.ok(Math.abs(lettering[1].x-lettering[0].right)<12,'LIO and NOV join without an unintended gap');
    assert.ok(Math.abs(lettering[2].x-lettering[1].right)<12,'NOV and ART join without an unintended gap');
    assert.ok(Math.max(...lettering.map(r=>r.y))-Math.min(...lettering.map(r=>r.y))<.25,'All wordmark segments share one precise baseline');
-   const wordCenter=(lettering[0].x+lettering[2].right)/2;
-   assert.ok(Math.abs(wordCenter-(lettering[0].paneX+lettering[0].paneRight)/2)<(lettering[0].paneRight-lettering[0].paneX)*.05,'Wordmark is centered in the white card');
+   assert.ok(Math.abs(lettering[0].x-lettering[0].paneX-(lettering[0].paneRight-lettering[0].paneX)*.08)<2,'Wordmark stays aligned to the left reading corner');
    assert.deepEqual(await page.locator('[data-persistent-card]').evaluateAll(nodes=>nodes.map(n=>n.dataset.persistentFrameId)),frames,'Original card DOM identities persist');
    await scroll(exit.top-h+(exit.height+h));
    assert.equal(await page.locator('[data-opening-ambient]').evaluate(el=>getComputedStyle(el).visibility),'hidden','The opening poster cannot leave a red haze behind Services');

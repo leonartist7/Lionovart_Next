@@ -2,14 +2,14 @@ const mix = (a: number, b: number, p: number) => a + (b - a) * p;
 
 /** Measured glyph widths, in ems, keep the three surviving segments on one baseline.
  * The departing N/A tails are absolute and never change the segment's advance. */
-export function cardLettering(width: number, height: number, segments: readonly number[], index: number, assembly: number) {
+export function cardLettering(width: number, height: number, segments: readonly number[], index: number, assembly: number, portrait = false) {
   const total = segments.reduce((sum, segment) => sum + segment, 0);
   const readingSize = Math.min(72, width * .17);
-  const joinedSize = Math.min(72, width * .76 / Math.max(1, total));
+  const joinedSize = Math.min(72, width * (portrait ? .80 : .56) / Math.max(1, total));
   const size = mix(readingSize, joinedSize, assembly);
   const before = segments.slice(0, index).reduce((sum, segment) => sum + segment, 0);
-  const joined = (width - total * size) / 2 + before * size;
-  return { size, x: mix(width * .08, joined, assembly), y: mix(height * .16, height * .62, assembly) };
+  const joined = width * .08 + before * size;
+  return { size, x: mix(width * .08, joined, assembly), y: mix(height * (portrait ? .78 : .16), height * (portrait ? .78 : .24), assembly) };
 }
 
 /** Retire a duplicate only as its actual projected origin meets the next N/A.
