@@ -61,3 +61,27 @@ jobs:
         with:
           name: mobile-viewport-evidence
           path: verification-output/white-card/
+  short-screen-input:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Install browser tools in cloud runner
+        timeout-minutes: 5
+        run: |
+          npm install --prefix /tmp/story-qa --no-package-lock playwright@1.56.1
+          /tmp/story-qa/node_modules/.bin/playwright install chromium
+      - name: Verify compact desktop input and the full reading transition
+        env:
+          STORY_PREVIEW: https://lionovartnext-git-review-white-card-to-portfolio-lionovart.vercel.app
+          STORY_REVIEW_FOCUS: short
+        run: node scripts/verify-white-card-preview.mjs
+      - name: Upload compact desktop evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: short-screen-card-evidence
+          path: verification-output/white-card/

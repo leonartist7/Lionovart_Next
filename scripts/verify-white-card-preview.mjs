@@ -8,14 +8,14 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r36';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r37';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
 const browser=await chromium.launch({headless:true});
 const results=[];
 try {
- for(const [w,h,locale,reduced,text=16] of [[768,1024,'en',false],[390,844,'en',false],[1440,900,'en',false],[320,568,'en',false],[844,390,'en',false],[1023,768,'en',false],[1025,768,'en',false],[1280,720,'en',false],[1920,1080,'en',false],[390,844,'fr',false],[1440,900,'fr',false],[390,844,'fr',true],[390,844,'fr',false,32],[1366,520,'fr',false]]) {
+ for(const [w,h,locale,reduced,text=16] of [[768,1024,'en',false],[390,844,'en',false],[1440,900,'en',false],[320,568,'en',false],[844,390,'en',false],[1023,768,'en',false],[1025,768,'en',false],[1280,720,'en',false],[1920,1080,'en',false],[390,844,'fr',false],[1440,900,'fr',false],[390,844,'fr',true],[390,844,'fr',false,32],[1366,520,'fr',false]].filter(([w,h])=>process.env.STORY_REVIEW_FOCUS!=='short'||(w===1366&&h===520))) {
   const context=await browser.newContext({viewport:{width:w,height:h},hasTouch:w<=390,isMobile:w<=390,reducedMotion:reduced?'reduce':'no-preference',recordVideo:{dir:output,size:{width:Math.min(1440,w),height:Math.min(900,h)}}});
   const recordingEpoch=Date.now();let clipStart=0,clipDuration=0;
   const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -75,7 +75,8 @@ try {
       await page.waitForTimeout(200);
       const pointer=await page.locator('[data-opening-pointer]').evaluate(el=>getComputedStyle(el).transform);
       assert.notEqual(pointer,'none','Cursor tilt remains live through the statement');
-      assert.ok((await page.locator('[data-card-edge]').evaluateAll(es=>es.map(e=>Number(getComputedStyle(e).opacity)))).some(n=>n>0),'Card hover outline stays live');
+      const edgeState=await page.locator('[data-card-edge]').evaluateAll(es=>({opacity:es.map(e=>Number(getComputedStyle(e).opacity)),cards:[...document.querySelectorAll('[data-persistent-card]')].map(e=>({spot:e.style.getPropertyValue('--spot-active'),rect:(()=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};})()})),stage:document.querySelector('[data-opening-transition]')?.dataset,chapter:document.querySelector('[data-scene-opening]')?.dataset}));
+      assert.ok(edgeState.opacity.some(n=>n>0),`Card hover outline stays live: ${JSON.stringify(edgeState)}`);
       await page.mouse.move(w-10,h/2);await page.waitForTimeout(500);
     }
    }

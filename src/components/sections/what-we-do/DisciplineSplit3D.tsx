@@ -823,7 +823,10 @@ export default function DisciplineSplit3D({
     const chapter = node.closest<HTMLElement>('[data-scene-opening]');
     let visible = false;
     const sync = () => {
-      const available = visible && !document.hidden && !chapter?.inert && chapter?.dataset.cardReadingInteractive !== 'false';
+      // A short viewport can transport the painted cards beyond their original
+      // section box. Keep their input live while the reading owner is visible.
+      const transportedReading = innerHeight <= 560 && chapter?.dataset.cardReadingInteractive === 'true';
+      const available = (visible || transportedReading) && !document.hidden && !chapter?.inert && chapter?.dataset.cardReadingInteractive !== 'false';
       setPointerAvailable(available);
       if (!available) handleLeave();
     };
