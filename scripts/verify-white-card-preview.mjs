@@ -8,14 +8,14 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r33';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r34';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
 const browser=await chromium.launch({headless:true});
 const results=[];
 try {
- for(const [w,h,locale,reduced,text=16] of [[390,844,'en',false],[1440,900,'en',false],[320,568,'en',false],[844,390,'en',false],[768,1024,'en',false],[1023,768,'en',false],[1025,768,'en',false],[1280,720,'en',false],[1920,1080,'en',false],[390,844,'fr',false],[1440,900,'fr',false],[390,844,'fr',true],[390,844,'fr',false,32],[1366,520,'fr',false]]) {
+ for(const [w,h,locale,reduced,text=16] of [[768,1024,'en',false],[390,844,'en',false],[1440,900,'en',false],[320,568,'en',false],[844,390,'en',false],[1023,768,'en',false],[1025,768,'en',false],[1280,720,'en',false],[1920,1080,'en',false],[390,844,'fr',false],[1440,900,'fr',false],[390,844,'fr',true],[390,844,'fr',false,32],[1366,520,'fr',false]]) {
   const context=await browser.newContext({viewport:{width:w,height:h},hasTouch:w<=390,isMobile:w<=390,reducedMotion:reduced?'reduce':'no-preference',recordVideo:{dir:output,size:{width:Math.min(1440,w),height:Math.min(900,h)}}});
   const recordingEpoch=Date.now();let clipStart=0,clipDuration=0;
   const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -100,7 +100,7 @@ try {
    }
    await scroll(exit.top-h+.71*(exit.height+h));
    const joining=await page.locator('[data-card-identity]').evaluateAll(es=>es.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,right:r.right};}));
-   assert.ok(joining[1].x>=joining[0].right-2&&joining[2].x>=joining[1].right-2,'Outlined fragments join after the frames are close enough');
+   assert.ok(joining[1].x>=joining[0].right-2&&joining[2].x>=joining[1].right-2,`Outlined fragments join after the frames are close enough: ${JSON.stringify(joining)}`);
    await scroll(exit.top-h+.78*(exit.height+h));
    assert.equal(await page.locator('[data-brand-beat=main]').evaluate(el=>getComputedStyle(el).opacity),'1','The statement remains present through the merge');
    assert.equal(await page.locator('[data-brand-beat=main]').evaluate(el=>getComputedStyle(el).color),'rgb(23, 20, 18)','Retained statement switches to dark ink on the lightening field');
@@ -109,7 +109,10 @@ try {
    assert.deepEqual(await page.locator('[data-benefit-paper]').evaluateAll(es=>es.map(el=>el.dataset.paperIdentity)),paperNodes,'The original revealed paper survives the merge');
    assert.equal(await page.locator('[data-card-lettering-layer] [data-card-identity]').count(),3,'All three labels share the foreground lettering layer');
    const held=await page.locator('[data-persistent-card]').first().boundingBox();
-   assert.ok(cornerArt.every(r=>r.width>=Math.min(104,held.width*(w<768?.23:.115),held.height*.36)-1),'Merged artwork uses the enlarged responsive composition');
+   assert.ok(cornerArt.every(r=>r.width>=Math.min(104,held.width*(w<768 ? .23 : .09),held.height*.36)-1),'Merged artwork uses the enlarged responsive composition');
+   const composition=await page.locator('[data-card-lettering-layer] [data-card-identity]').evaluateAll(es=>({labels:es.map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};}),art:[...document.querySelectorAll('[data-floating-card-object] img')].map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};})}));
+   if(w>=768)assert.ok(Math.max(...composition.labels.map(r=>r.right))<=Math.min(...composition.art.map(r=>r.left))+1,'Desktop names and upper-right artwork have separate space');
+   else assert.ok(Math.max(...composition.art.map(r=>r.bottom))<=Math.min(...composition.labels.map(r=>r.top))+1,'Phone upper-left artwork clears the bottom-left names');
    const anchor=await page.locator('[data-service-card-target][data-position=center] [data-service-frame-target]').boundingBox();
    assert.ok(Math.abs(held.x+held.width/2-anchor.x-anchor.width/2)<1&&Math.abs(held.y+held.height/2-anchor.y-anchor.height/2)<1,'White hold and service foreground share one exact center');
    const edges=await page.locator('[data-card-edge]').evaluateAll(es=>es.map(el=>Number(getComputedStyle(el).opacity)));

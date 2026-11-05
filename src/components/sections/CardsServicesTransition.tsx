@@ -213,7 +213,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           pane.style.setProperty('--identity-y',`${lettering.y/identityY}px`);
           pane.style.setProperty('--handoff-benefit',String(pose.benefit));
           const naturalObject=objectWidth*base.parentY*Math.min(desired.width/base.width,desired.height/base.height);
-          const objectSize=mix(naturalObject,Math.min(104,desired.width*(portrait ? .23 : .115),desired.height*.36),pose.assembly);
+          const objectSize=mix(naturalObject,Math.min(104,desired.width*(portrait ? .23 : .09),desired.height*.36),pose.assembly);
           const gap=Math.max(6,desired.width*.018);
           const groupLeft=portrait ? desired.width*.08 : desired.width*.92-3*objectSize-2*gap;
           const objectRight=mix(10,desired.width-groupLeft-index*(objectSize+gap)-objectSize,pose.assembly);
@@ -273,7 +273,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     world?.querySelectorAll('[data-service-frame-target]').forEach(target=>geometry.observe(target));
     window.addEventListener('scroll', scrolling, { passive: true }); window.addEventListener('resize', resize);
     window.addEventListener('lionovart:service-pose',schedule);
-    media.addEventListener('change', resize); void document.fonts.ready.then(resize); sync();
+    media.addEventListener('change', resize); document.fonts.addEventListener('loadingdone',resize); void document.fonts.ready.then(resize); sync();
     return () => {
       world?.querySelector<HTMLElement>('[data-services-stage]')?.style.removeProperty('--service-opening-copy');
       world?.querySelector<HTMLElement>('[data-services-stage]')?.style.removeProperty('--service-opening-expertise');
@@ -283,7 +283,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       node.style.removeProperty('--handoff-ambient'); if(ambient)ambient.style.visibility='';
       cancelAnimationFrame(frame); observer.disconnect(); geometry.disconnect(); parentGeometry.disconnect(); replacements.disconnect();
       window.removeEventListener('scroll', scrolling); window.removeEventListener('resize', resize);
-      window.removeEventListener('lionovart:service-pose',schedule);media.removeEventListener('change', resize);
+      window.removeEventListener('lionovart:service-pose',schedule);media.removeEventListener('change', resize); document.fonts.removeEventListener('loadingdone',resize);
     };
   }, [scene?.target, scene?.staticLayout, scene?.cardSlots]);
   return <div className={styles.cardTransition} data-card-transition data-scroll-manual>

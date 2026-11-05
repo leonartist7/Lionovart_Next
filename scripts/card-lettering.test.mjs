@@ -10,7 +10,7 @@ test('actual segment advances join exactly on a shared baseline above the cards 
   for(let i=1;i<3;i++)assert.ok(Math.abs(poses[i].x-(poses[i-1].x+units[i-1]*poses[i-1].size))<1e-9);
   const left=poses[0].x,right=poses[2].x+units[2]*poses[2].size;
   assert.ok(Math.abs(left-width*.08)<1e-9);
-  assert.ok(right<=width*.64+1e-9, "Desktop artwork retains its upper-right space");
+  assert.ok(right<=width*.58+1e-9, "Desktop artwork retains its upper-right space");
   assert.equal(poses[0].y,poses[2].y);
   assert.ok(left>0&&right<width);
  }
