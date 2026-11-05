@@ -8,7 +8,7 @@ const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r35';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r36';}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
@@ -111,7 +111,7 @@ try {
    const held=await page.locator('[data-persistent-card]').first().boundingBox();
    assert.ok(cornerArt.every(r=>r.width>=Math.min(104,held.width*(w<768 ? .23 : .09),held.height*.36)-1),'Merged artwork uses the enlarged responsive composition');
    const composition=await page.locator('[data-card-lettering-layer] [data-card-identity]').evaluateAll(es=>({labels:es.map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};}),art:[...document.querySelectorAll('[data-floating-card-object] img')].map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};})}));
-   if(w>=768)assert.ok(Math.max(...composition.labels.map(r=>r.right))<=Math.min(...composition.art.map(r=>r.left))+1,'Desktop names and upper-right artwork have separate space');
+   if(w>=768)assert.ok(Math.max(...composition.labels.map(r=>r.right))<=Math.min(...composition.art.map(r=>r.left))+1,`Desktop names and upper-right artwork have separate space: ${JSON.stringify(composition)}`);
    else assert.ok(Math.max(...composition.art.map(r=>r.bottom))<=Math.min(...composition.labels.map(r=>r.top))+1,'Phone upper-left artwork clears the bottom-left names');
    const anchor=await page.locator('[data-service-card-target][data-position=center] [data-service-frame-target]').boundingBox();
    assert.ok(Math.abs(held.x+held.width/2-anchor.x-anchor.width/2)<1&&Math.abs(held.y+held.height/2-anchor.y-anchor.height/2)<1,'White hold and service foreground share one exact center');

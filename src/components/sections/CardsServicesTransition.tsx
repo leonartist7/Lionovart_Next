@@ -237,6 +237,18 @@ export default function CardsServicesTransition({ children }: { children: ReactN
             slot.inert=!interactive;slot.style.pointerEvents=interactive?'auto':'none';
           }
         });
+        // Once the frames meet, lay out the actual painted label boxes in one
+        // row. Glyph bearings and tracking differ from a cached inline advance.
+        const settleLetters=Math.max(0,Math.min(1,(pose.assembly-.9)/.1));
+        if(settleLetters>0 && identities.length===3){
+          const widths=identities.map(identity=>identity.getBoundingClientRect().width);
+          let left=parseFloat(identities[0].style.left);
+          identities.forEach((identity,index)=>{
+            identity.style.left=`${mix(parseFloat(identity.style.left),left,settleLetters)}px`;
+            left+=widths[index];
+            if(index<2 && settleLetters>=.999)identity.style.setProperty('--handoff-tail','0');
+          });
+        }
       }
       node.style.setProperty('--handoff-ambient', String(isStatic ? 1 : 1-pose.white));
       if (ambient) ambient.style.visibility = !isStatic && pose.white >= .999 ? 'hidden' : '';
