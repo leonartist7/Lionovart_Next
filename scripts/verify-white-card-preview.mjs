@@ -15,7 +15,7 @@ assert.ok(ready,'The matching Vercel review preview is ready');
 const browser=await chromium.launch({headless:true});
 const results=[];
 try {
- for(const [w,h,locale,reduced,text=16] of [[1440,900,'en',false],[390,844,'en',false],[320,568,'en',false],[844,390,'en',false],[768,1024,'en',false],[1023,768,'en',false],[1025,768,'en',false],[1280,720,'en',false],[1920,1080,'en',false],[390,844,'fr',false],[1440,900,'fr',false],[390,844,'fr',true],[390,844,'fr',false,32],[1366,520,'fr',false]]) {
+ for(const [w,h,locale,reduced,text=16] of [[390,844,'en',false],[1440,900,'en',false],[320,568,'en',false],[844,390,'en',false],[768,1024,'en',false],[1023,768,'en',false],[1025,768,'en',false],[1280,720,'en',false],[1920,1080,'en',false],[390,844,'fr',false],[1440,900,'fr',false],[390,844,'fr',true],[390,844,'fr',false,32],[1366,520,'fr',false]]) {
   const context=await browser.newContext({viewport:{width:w,height:h},hasTouch:w<=390,isMobile:w<=390,reducedMotion:reduced?'reduce':'no-preference',recordVideo:{dir:output,size:{width:Math.min(1440,w),height:Math.min(900,h)}}});
   const recordingEpoch=Date.now();let clipStart=0,clipDuration=0;
   const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -53,6 +53,13 @@ try {
    for(const p of [.3,.46,.52]){
     await scroll(exit.top-h+p*(exit.height+h));
     const buttons=page.locator('[data-persistent-card] [data-benefit-card] button');
+    await page.waitForFunction(()=>!document.querySelector('[data-persistent-card] [data-benefit-card] button')?.disabled, {}, {timeout:8000}).catch(async error=>{
+      console.log(JSON.stringify(await page.evaluate(()=>{
+        const card=document.querySelector('[data-persistent-card]'),section=card?.closest('[data-opening-transition]'),chapter=card?.closest('[data-scene-opening]');
+        return {check:'card-input-state',scrollY,exit:document.querySelector('[data-card-exit]')?.dataset.handoffProgress,section:section?.dataset,chapter:chapter?.dataset,buttonDisabled:card?.querySelector('button')?.disabled,ancestors:card?Array.from((function*(el){while(el){yield el;el=el.parentElement;}})(card)).map(el=>({tag:el.tagName,inert:el.inert,ariaDisabled:el.getAttribute('aria-disabled')})):[]};
+      })));
+      throw error;
+    });
     console.log(JSON.stringify({check:'card-interaction',width:w,height:h,progress:p,enabled:await buttons.first().isEnabled()}));
     assert.ok(await buttons.first().isEnabled(),'Card remains enabled through the statement');
     await buttons.first().click();
