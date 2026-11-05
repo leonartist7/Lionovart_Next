@@ -576,6 +576,19 @@
     "description": "[TODO: translate]"
   },
   "selectedWork": {
+    "rakbankMark": {
+      "overview": "Tavola di identità visiva",
+      "follow": "Segui il simbolo",
+      "invitation": "Tocca l’icona rossa per aprire l’interfaccia bancaria.",
+      "detail": "Dentro l’app",
+      "detailCaption": "L’icona rossa e la schermata dei conti Rakbank.",
+      "back": "Torna alla tavola",
+      "watch": "Guarda il video",
+      "film": "Video del progetto",
+      "boardAlt": "L’identità rossa di Rakbank su carte, confezioni e un’icona dell’app.",
+      "detailAlt": "Dettaglio della schermata dei conti Rakbank accanto all’icona rossa dell’app.",
+      "error": "Impossibile caricare il dettaglio. Riprova o guarda il video."
+    },
     "eyebrow": "Selected work",
     "previous": "Previous project",
     "next": "Next project",

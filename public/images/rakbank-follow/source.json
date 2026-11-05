@@ -1,0 +1,20 @@
+{
+  "project": "Rakbank",
+  "catalog": "src/components/sections/selected-work/gallery.ts",
+  "source": "https://res.cloudinary.com/dgio9uutc/video/upload/v1790330510/original-ca7d8db36054fe22faf618552f2f5514_iobfz9.mp4",
+  "sourceSha256": "2a0b46a1dbbe2bce0a98c446061032588a341b3f01086d4869b721e6c679b101",
+  "frameSeconds": 4,
+  "frame": "https://res.cloudinary.com/dgio9uutc/video/upload/so_4,q_100,f_jpg/v1790330510/original-ca7d8db36054fe22faf618552f2f5514_iobfz9.jpg",
+  "frameSha256": "6c9b591b5ac874780e73dedefbc059ce405eaa4ab0be0dfa4c37d64fd3d1e875",
+  "frameSize": [3200, 2400],
+  "outputSize": [1200, 900],
+  "hotspot": { "x": 0.8646875, "y": 0.5652083333, "origin": "top-left" },
+  "board.webp": "Full frame resized to 1200 by 900.",
+  "app-detail.webp": {
+    "description": "Two details from the same frame. The dashboard appears beside the launcher icon, whose center matches the original hotspot.",
+    "coordinateOrder": "x, y, width, height in source or output pixels",
+    "dashboard": { "from": [2252, 464, 391, 480], "to": [0, 0, 734, 900] },
+    "launcher": { "from": [2596, 1802, 267, 529], "to": [746, 0, 454, 900] },
+    "gutter": "12 px, white"
+  }
+}

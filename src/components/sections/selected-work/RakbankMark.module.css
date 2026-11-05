@@ -1,0 +1,71 @@
+.study {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+.stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  isolation: isolate;
+  background: #eee7e2;
+}
+.image, .film { width: 100%; height: 100%; object-fit: contain; }
+.image[hidden] { display: none; }
+.output, .output canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.output { z-index: 1; }
+.hotspot {
+  position: absolute;
+  z-index: 2;
+  left: 86.469%;
+  top: 56.521%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  width: max(44px, 10.5%);
+  aspect-ratio: 1;
+  background: transparent;
+  border: 0;
+  border-radius: 22%;
+  cursor: pointer;
+}
+.hotspot::before {
+  content: "";
+  position: absolute;
+  inset: 3%;
+  border-radius: inherit;
+  border: 1px solid rgba(103, 14, 22, .7);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .9);
+}
+.hotspot[aria-disabled=true] { visibility: hidden; }
+.panel { display: flex; flex-direction: column; justify-content: center; gap: 1rem; }
+.caption { max-width: 34ch; }
+.title { margin: 0; font: 600 clamp(1.32rem, 1.05rem + 1.3vw, 2.35rem)/1.06 var(--font-clash-display), sans-serif; letter-spacing: -.035em; }
+.note { margin: .5rem 0 0; color: #655e57; font: 400 1rem/1.45 var(--font-dm-sans), sans-serif; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .9rem; }
+.action, .filmLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  min-height: 44px;
+  padding: .5rem .8rem;
+  font: 500 .95rem/1.2 var(--font-dm-sans), sans-serif;
+  cursor: pointer;
+}
+.action { background: #211c1a; color: #faf7f1; border: 1px solid #211c1a; }
+.action[aria-disabled=true] { cursor: progress; }
+.filmLink { padding-inline: .1rem; color: #28211e; background: transparent; border: 0; }
+.actions svg { width: .94rem; height: .94rem; flex-shrink: 0; }
+.hotspot:focus-visible, .actions button:focus-visible { outline: 3px solid #a21224; outline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) {
+  .hotspot:hover::before { border-width: 2px; }
+  .action:hover { background: #43242a; }
+  .filmLink:hover { text-decoration: underline; }
+}
+@media (min-width: 800px) {
+  .study { grid-template-columns: minmax(0, min(63%, 83dvh)) minmax(0, 1fr); gap: clamp(2rem, 4vw, 5rem); }
+  .panel { padding-inline-end: clamp(0rem, 3vw, 3rem); gap: 1.4rem; }
+}

@@ -576,6 +576,19 @@
     "description": "[TODO: translate]"
   },
   "selectedWork": {
+    "rakbankMark": {
+      "overview": "ブランドボード",
+      "follow": "マークをたどる",
+      "invitation": "赤いアプリアイコンをタップすると、銀行アプリの画面が開きます。",
+      "detail": "アプリの画面",
+      "detailCaption": "赤いアプリアイコンとRakbankの口座ダッシュボード。",
+      "back": "ボードに戻る",
+      "watch": "映像を見る",
+      "film": "プロジェクト映像",
+      "boardAlt": "カード、パッケージ、アプリアイコンに展開されたRakbankの赤いビジュアルアイデンティティ。",
+      "detailAlt": "Rakbankの口座ダッシュボードを拡大した画面と赤いアプリアイコン。",
+      "error": "拡大画像を読み込めませんでした。もう一度お試しいただくか、映像をご覧ください。"
+    },
     "eyebrow": "Selected work",
     "previous": "Previous project",
     "next": "Next project",

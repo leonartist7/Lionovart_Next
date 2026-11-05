@@ -545,6 +545,19 @@
     "description": "Una selección en movimiento de identidad, experiencias digitales, contenido, impresión, sistemas inteligentes y crecimiento."
   },
   "selectedWork": {
+    "rakbankMark": {
+      "overview": "Tablero de identidad",
+      "follow": "Sigue el símbolo",
+      "invitation": "Toca el icono rojo para ver la interfaz bancaria.",
+      "detail": "Dentro de la app",
+      "detailCaption": "El icono rojo y el panel de cuentas de Rakbank.",
+      "back": "Volver al tablero",
+      "watch": "Ver el vídeo",
+      "film": "Vídeo del proyecto",
+      "boardAlt": "La identidad roja de Rakbank en tarjetas, embalajes y un icono de aplicación.",
+      "detailAlt": "Detalle del panel de cuentas de Rakbank junto al icono rojo de la app.",
+      "error": "No se pudo cargar el detalle. Inténtalo de nuevo o mira el vídeo."
+    },
     "eyebrow": "Selected work",
     "previous": "Previous project",
     "next": "Next project",

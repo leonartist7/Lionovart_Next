@@ -10,6 +10,7 @@ import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 import ServicesCurves from "./ServicesCurves";
 import { useWorkBrowse } from "./selected-work/WorkBrowse";
 import { GALLERY_SERVICE_LABELS, type GalleryWork } from "./selected-work/gallery";
+import { RakbankMark } from "./selected-work/RakbankMark";
 import styles from "./CompactWork.module.css";
 
 const subscribeSize = (notify: () => void) => {
@@ -93,15 +94,27 @@ function WorkGrid({ servicesCurves }: { servicesCurves: boolean }) {
   }, []);
 
   useEffect(() => {
-    if (window.location.hash !== "#selected-work") return;
+    const linkedMark = window.location.hash === "#rakbank-mark";
+    if (!linkedMark && window.location.hash !== "#selected-work") return;
     let frame = 0;
-    const land = () => { frame = requestAnimationFrame(() => section.current?.scrollIntoView({ behavior: "instant", block: "start" })); };
+    const land = () => { frame = requestAnimationFrame(() => {
+      section.current?.scrollIntoView({ behavior: "instant", block: "start" });
+      if (linkedMark) {
+        // Opening the real trigger preserves the dialog's normal focus return.
+        section.current?.querySelector<HTMLButtonElement>('[data-work-slug="rakbank"] button')?.click();
+      }
+    }); };
     if (document.documentElement.dataset.splashComplete === "true") land();
     else window.addEventListener("lionovart:splash-complete", land, { once: true });
     return () => { cancelAnimationFrame(frame); window.removeEventListener("lionovart:splash-complete", land); };
   }, []);
 
-  return <Dialog.Root open={Boolean(selected)} onOpenChange={open => { if (!open) setSelectedSlug(null); }}>
+  return <Dialog.Root open={Boolean(selected)} onOpenChange={open => {
+    if (!open) {
+      setSelectedSlug(null);
+      if (window.location.hash === "#rakbank-mark") history.replaceState(history.state, "", "#selected-work");
+    }
+  }}>
     <section ref={section} id="selected-work" data-gallery="compact" data-art-directed="light" data-nav-surface="light"
       data-scroll-title-skip aria-labelledby="selected-work-heading" className={styles.section}>
       {servicesCurves && <ServicesCurves continuation />}
@@ -154,12 +167,14 @@ function WorkGrid({ servicesCurves }: { servicesCurves: boolean }) {
             </div>
             <Dialog.Close className={styles.iconButton} aria-label={tr("Close preview")}><X aria-hidden="true" /></Dialog.Close>
           </header>
-          <div className={styles.previewMedia}>
+          {selected.slug === "rakbank" && selected.video
+            ? <RakbankMark film={selected.video} poster={selected.poster} />
+            : <div className={styles.previewMedia}>
             {selected.video ? <video key={selected.assetId} src={selected.video} poster={selected.poster}
               controls muted playsInline preload="metadata" aria-label={selected.name} />
               : <Image key={selected.assetId} src={selected.poster} alt={selected.name} fill
                 sizes="(min-width: 1600px) 1400px, 94vw" className={styles.contain} />}
-          </div>
+          </div>}
           <footer className={styles.previewFooter}>
             <button type="button" className={styles.iconButton} aria-label={tr("Previous work")} onClick={() => movePreview(-1)}><ArrowLeft aria-hidden="true" /></button>
             <span aria-live="polite">{selectedIndex + 1} / {projects.length}</span>

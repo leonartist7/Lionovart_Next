@@ -1,0 +1,52 @@
+{
+  "source": "360 Motion Vector / assets/shaders/compiled.vs",
+  "sourceSha256": "f55aad07b075895eb55193eda43ad65cb37db45aa3f879c6e3216488e61e1e09",
+  "packedSha256": "ced9b995fd423a33c187274502404a7ab8f4e2ef635480a0bf1921776667d513",
+  "offsets": "UTF-8 bytes in the original bank, half-open",
+  "modules": {
+    "FXScrollTransition.glsl": {
+      "startByte": 94288,
+      "endByteExclusive": 97053,
+      "sha256": "458e4e03c6d9b23735a0c4f2afdf3e8c262573436930eee992bd4b35a47966e3"
+    },
+    "range.glsl": {
+      "startByte": 57944,
+      "endByteExclusive": 59421,
+      "sha256": "8be26d76b1d49cf94b91d3d4ff50026d91efb2b40b6b51a508869448dca5979e"
+    },
+    "hexagons.fs": {
+      "startByte": 79985,
+      "endByteExclusive": 81359,
+      "sha256": "087fdb5193f6fd4a7140a9f076d12002f4c4929beb9ea0502b510681d2929913"
+    },
+    "transformUV.glsl": {
+      "startByte": 63377,
+      "endByteExclusive": 64512,
+      "sha256": "29a5588a8a38efa24041ec4d4b64ab85d5595dbab066c7841b8896558d96d6a0"
+    },
+    "rgbshift.fs": {
+      "startByte": 60004,
+      "endByteExclusive": 60301,
+      "sha256": "3cfa6fbd1f09abe602733ed1b296e1e952ae6f2fe36afe2798518ccbcd12363b"
+    },
+    "blendmodes.glsl": {
+      "startByte": 962,
+      "endByteExclusive": 9129,
+      "sha256": "f7c2d6784817cc519c1434b43da7f2a3676402a8685736f2121e6c1b5305c7f2"
+    },
+    "simplenoise.glsl": {
+      "startByte": 61126,
+      "endByteExclusive": 63355,
+      "sha256": "78a949f3df24d667605e8df7d533f1a50d3edf7bd9cde6828c44084b0eb367da"
+    },
+    "eases.glsl": {
+      "startByte": 18867,
+      "endByteExclusive": 22156,
+      "sha256": "825a18d01bd08c864ae9a056367f40263ae353a320f1c13d0c2472b7bf2e39ad"
+    }
+  },
+  "desktopWebGL2ShaderSha256": {
+    "vertex": "e9b153e6e43986657cce755b1cacc36066f29fdd547a3e9f91a3c1c05f0d976e",
+    "fragment": "5a0b5646e359296226f3b17008e015f96a812b07213af5d42246846c5403fe1f"
+  }
+}

@@ -576,6 +576,19 @@
     "description": "[TODO: translate]"
   },
   "selectedWork": {
+    "rakbankMark": {
+      "overview": "브랜드 보드",
+      "follow": "심볼 따라가기",
+      "invitation": "빨간 앱 아이콘을 누르면 뱅킹 앱 화면이 열립니다.",
+      "detail": "앱 화면",
+      "detailCaption": "빨간 앱 아이콘과 Rakbank의 계좌 대시보드입니다.",
+      "back": "보드로 돌아가기",
+      "watch": "영상 보기",
+      "film": "프로젝트 영상",
+      "boardAlt": "카드와 패키지, 앱 아이콘에 적용된 Rakbank의 붉은 브랜드 아이덴티티.",
+      "detailAlt": "빨간 앱 아이콘 옆에 확대해 보여 주는 Rakbank 계좌 대시보드.",
+      "error": "확대 이미지를 불러올 수 없습니다. 다시 시도하거나 영상을 확인해 주세요."
+    },
     "eyebrow": "Selected work",
     "previous": "Previous project",
     "next": "Next project",

@@ -679,6 +679,19 @@
     "description": "Une sélection vivante d’identités, d’expériences numériques, de contenus, de supports imprimés, de systèmes intelligents et de projets de croissance."
   },
   "selectedWork": {
+    "rakbankMark": {
+      "overview": "Planche d’identité",
+      "follow": "Suivre l’emblème",
+      "invitation": "Touchez l’icône rouge pour découvrir l’interface bancaire.",
+      "detail": "Dans l’application",
+      "detailCaption": "L’icône rouge et le tableau de bord des comptes Rakbank.",
+      "back": "Revoir la planche",
+      "watch": "Voir le film",
+      "film": "Film du projet",
+      "boardAlt": "L’identité rouge de Rakbank déclinée sur des cartes, des emballages et une icône d’application.",
+      "detailAlt": "Gros plan sur le tableau de bord des comptes Rakbank et son icône rouge.",
+      "error": "Le gros plan n’a pas pu se charger. Réessayez ou regardez le film."
+    },
     "eyebrow": "Réalisations choisies",
     "previous": "Projet précédent",
     "next": "Projet suivant",

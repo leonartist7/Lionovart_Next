@@ -675,6 +675,19 @@
     "description": "A moving selection across identity, digital experiences, content, print, intelligent systems and growth."
   },
   "selectedWork": {
+    "rakbankMark": {
+      "overview": "Identity board",
+      "follow": "Follow the mark",
+      "invitation": "Tap the red app icon to open the banking interface.",
+      "detail": "Inside the app",
+      "detailCaption": "The red launcher icon and the Rakbank account dashboard.",
+      "back": "Back to the board",
+      "watch": "Watch film",
+      "film": "Project film",
+      "boardAlt": "Rakbank’s red identity across cards, packaging and an app icon.",
+      "detailAlt": "Close-up of the Rakbank account dashboard alongside its red app icon.",
+      "error": "The close-up couldn’t load. Try again or watch the film."
+    },
     "eyebrow": "Selected work",
     "previous": "Previous project",
     "next": "Next project",

@@ -3,7 +3,7 @@
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { type ReactNode, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   AnimatePresence,
   motion,
@@ -28,6 +28,27 @@ import { scrollEase } from "@/components/experience/scroll-policy";
 const SCROLL_OFFSET = -88;
 const HERO_THRESHOLD_RATIO = 0.62;
 const GLASS_THRESHOLD = 2;
+const WORK_SECTION = "selected-work";
+
+function SectionTrigger({ target, onSelect, className, expanded, children }: {
+  target: string;
+  onSelect: (target: string) => void;
+  className: string;
+  expanded?: boolean;
+  children: ReactNode;
+}) {
+  if (target === WORK_SECTION) {
+    return (
+      <Link href="/#selected-work" className={className} onNavigate={event => {
+        if (!document.getElementById(WORK_SECTION)) return;
+        event.preventDefault();
+        if (window.location.hash !== "#selected-work") window.history.pushState(null, "", "#selected-work");
+        onSelect(target);
+      }}>{children}</Link>
+    );
+  }
+  return <button type="button" className={className} aria-expanded={expanded} onClick={() => onSelect(target)}>{children}</button>;
+}
 
 
 const CARD_VARIANTS = {
@@ -151,7 +172,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
   const navLinks = [
     { label: t.nav.we, target: "about" },
     { label: t.nav.expertise, target: "services", hasDropdown: true },
-    { label: t.nav.work, target: "work" },
+    { label: t.nav.work, target: WORK_SECTION },
     { label: t.nav.results, target: "testimonials" },
   ];
   const ctaLabel = t.nav.cta;
@@ -192,9 +213,14 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
     const element = document.querySelector<HTMLElement>(`[data-nova-section="${target}"], #${target}`);
     if (!element && !sectionFallback) return;
 
-    if (!element) router.push(`/#${target === "work" ? "selected-work" : target}`);
+    if (element && target === WORK_SECTION) {
+      const heading = element.querySelector<HTMLElement>("h2") ?? element;
+      heading.tabIndex = -1;
+      heading.focus({ preventScroll: true });
+    }
+    if (!element) router.push(`/#${target}`);
     else if (lenis?.scrollTo) lenis.scrollTo(element, {
-      offset: SCROLL_OFFSET, duration: .75, lerp: 0, easing: scrollEase,
+      offset: SCROLL_OFFSET, duration: .75, lerp: 0, easing: scrollEase, immediate: reducedMotion,
       userData: { navigation: true },
     });
     else element.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
@@ -344,10 +370,10 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
                         onMouseEnter={link.hasDropdown ? openExpertise : undefined}
                         onMouseLeave={link.hasDropdown ? scheduleCloseExpertise : undefined}
                       >
-                        <button
-                          type="button"
-                          onClick={() => scrollToTarget(link.target)}
-                          aria-expanded={link.hasDropdown ? expertiseOpen : undefined}
+                        <SectionTrigger
+                          target={link.target}
+                          onSelect={scrollToTarget}
+                          expanded={link.hasDropdown ? expertiseOpen : undefined}
                           className="group relative flex items-center gap-1 text-[13px] font-semibold uppercase tracking-[0.15em] text-current transition-opacity hover:opacity-70"
                         >
                           {link.label}
@@ -368,7 +394,7 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
                             </svg>
                           )}
                           <span className="absolute -bottom-1.5 left-0 h-[2px] w-full origin-left scale-x-0 bg-current transition-transform duration-300 group-hover:scale-x-100 motion-reduce:transition-none" />
-                        </button>
+                        </SectionTrigger>
                       </li>
                     ))}
                   </ul>
@@ -465,14 +491,14 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
                     onMouseLeave={link.hasDropdown ? () => setMobileExpertiseOpen(false) : undefined}
                   >
                     <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => scrollToTarget(link.target)}
+                      <SectionTrigger
+                        target={link.target}
+                        onSelect={scrollToTarget}
                         className="group relative flex items-center whitespace-nowrap py-1.5 text-[15px] font-semibold uppercase tracking-[0.12em] text-black/70 transition-colors hover:text-black"
                       >
                         {link.label}
                         <span className="absolute bottom-0 left-0 right-0 h-[1.5px] origin-left scale-x-0 bg-black/70 transition-transform duration-200 group-hover:scale-x-100 motion-reduce:transition-none" />
-                      </button>
+                      </SectionTrigger>
 
                       {link.hasDropdown && (
                         <button
