@@ -121,11 +121,22 @@ try {
       if (w === 390) await page.screenshot({ path: `${output}/mobile-toolbar-after.png` });
       await jump(page, '#about');
       assert.ok(await page.locator('#about').evaluate(el => getComputedStyle(el).clipPath === 'none'), 'About finishes its reveal without a blank handoff');
+      assert.equal(await page.locator('#about').evaluate(el => getComputedStyle(el, '::after').content), 'none', 'The finished About ring has no invisible overflow geometry');
+      // Reverse into the aperture: its real ring must return, then retire again.
+      await page.locator('#about').evaluate(el => scrollTo({ top: scrollY + el.getBoundingClientRect().top - innerHeight * .5, behavior: 'instant' }));
+      await settle(page);
+      assert.notEqual(await page.locator('#about').evaluate(el => getComputedStyle(el, '::after').content), 'none', 'Reverse scrolling restores the About ring');
     }
     await page.evaluate(() => scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
     await settle(page);
-    const end = await page.locator('#footer-compact').evaluate(el => ({ bottom: scrollY + el.getBoundingClientRect().bottom, doc: document.documentElement.scrollHeight }));
-    assert.ok(Math.abs(end.doc - end.bottom) < 2, `No phantom scroll tail after the footer: ${JSON.stringify(end)}`);
+    // Repeated End gestures caught the invisible ring growing the document again.
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await page.evaluate(() => scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+      await settle(page);
+      const end = await page.locator('#footer-compact').evaluate(el => ({ bottom: scrollY + el.getBoundingClientRect().bottom, doc: document.documentElement.scrollHeight }));
+      await record({ label: 'footer', size: `${w}x${h}`, attempt, gap: end.doc - end.bottom });
+      assert.ok(Math.abs(end.doc - end.bottom) < 2, `No phantom scroll tail after the footer: ${JSON.stringify(end)}`);
+    }
     assert.deepEqual(errors, []);
     // Rotation must release short landscape layouts to normal document flow.
     if (w === 390) {

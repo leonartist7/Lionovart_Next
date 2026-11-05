@@ -15,10 +15,14 @@ export default function AboutScene() {
       frame = 0;
       const animated = !preference.matches && document.querySelector<HTMLElement>('[data-service-world]')?.dataset.storyStatic === 'false';
       node.dataset.aboutReveal = String(animated);
-      if (!animated) { node.style.removeProperty('clip-path'); node.style.removeProperty('--about-content-y'); node.inert=false; return; }
+      if (!animated) { node.dataset.aboutTransitioning='false'; node.style.removeProperty('clip-path'); node.style.removeProperty('--about-content-y'); node.inert=false; return; }
       const r = node.getBoundingClientRect();
       const p = Math.max(0, Math.min(1, (innerHeight - r.top) / innerHeight));
       const eased = p * p * (3 - 2 * p);
+      // Opacity alone leaves the viewport-following pseudo-element in scrollable
+      // overflow. Once unclipped, that invisible circle can grow the document
+      // past the footer on every scroll. Generate it only during the aperture.
+      node.dataset.aboutTransitioning = String(p > .01 && p < .999);
       const radius = Math.hypot(innerWidth, innerHeight) * .72 * eased;
       const centerY = innerHeight * .5 - r.top;
       node.style.clipPath = p >= .999 ? 'none' : `circle(${radius}px at 50% ${centerY}px)`;
