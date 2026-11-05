@@ -154,8 +154,9 @@ export default function CardsServicesTransition({ children }: { children: ReactN
             // Absolute tails do not alter the advance or move the segment origin.
             const identity=identities[index];
             if(identity)identity.style.fontSize='50px';
-            const core=identity?.querySelector<HTMLElement>('[data-card-identity-core]');
-            const unit=(core?.getBoundingClientRect().width ?? 100)/50;
+            // The absolute label's advance includes the font's trailing tracking;
+            // an inline child rect can be shorter by several pixels on tablets.
+            const unit=(identity?.getBoundingClientRect().width ?? 100)/50;
             const object=pane.querySelector<HTMLElement>('[data-floating-card-object]');
             const objectWidth=object ? parseFloat(getComputedStyle(object).width) : 48;
             return {node:pane,base:{...r,parentX,parentY,motionX:matrix.m41,motionY:matrix.m42},reading:r,unit,objectWidth};
