@@ -145,5 +145,5 @@
 
 
 /* One screen-space lettering plane stays above every transported card. */
-.letteringLayer { position:fixed; inset:0; z-index:8; pointer-events:none; opacity:0; }
+.letteringLayer { position:fixed; inset:0; z-index:8; pointer-events:none !important; overflow:clip; opacity:0; }
 .letteringLayer .identityLettering { left:0; top:0; transform:none; }
