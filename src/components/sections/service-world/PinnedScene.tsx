@@ -141,6 +141,9 @@ export default function PinnedScene({ children, environment }: { children: React
     const replacements = new MutationObserver(refresh);
     replacements.observe(target, { childList: true, subtree: true });
     refresh();
+    // The viewport can resize with mobile browser chrome without changing the
+    // svh runways or the world's flow height. Refresh cached scene geometry too.
+    resize.observe(target);
     if (root) resize.observe(root);
     for (const { anchor } of chapters.current) resize.observe(anchor);
     const locale = new MutationObserver(refreshGeometry);

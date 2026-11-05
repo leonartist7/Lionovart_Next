@@ -96,7 +96,7 @@ export default function ServicePortal() {
     const schedule = () => { if (!disposed && !frame) frame=requestAnimationFrame(sync); };
     const refresh = () => { dirty=true; schedule(); };
     const resize = new ResizeObserver(refresh);
-    resize.observe(gallery); resize.observe(anchor); if(world)resize.observe(world);
+    resize.observe(target); resize.observe(gallery); resize.observe(anchor); if(world)resize.observe(world);
     const mutations = new MutationObserver(refresh);
     if (world) mutations.observe(world,{childList:true,subtree:true});
     window.addEventListener('scroll',schedule,{passive:true});

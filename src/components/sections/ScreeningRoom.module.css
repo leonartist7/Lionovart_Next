@@ -118,3 +118,11 @@
 .aboutRunway[data-about-reveal=true] .aboutStage { min-height:100svh; }
 .aboutRunway[data-about-reveal=true] .aboutStage { display:grid; align-items:center; }
 
+/* Match the shared scene's real painted height at its final handoff. Keep
+   overlap and minimum height paired as the phone's browser chrome changes. */
+@supports (height: 100dvh) {
+  .aboutRunway[data-about-reveal=true] { margin-top:-100dvh; }
+  .aboutRunway[data-about-reveal=true],
+  .aboutRunway[data-about-reveal=true] .aboutStage { min-height:100dvh; }
+}
+

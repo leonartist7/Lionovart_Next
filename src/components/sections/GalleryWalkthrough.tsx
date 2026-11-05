@@ -182,6 +182,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     const schedule=()=>{if(!frame)frame=requestAnimationFrame(sync);};
     const refresh=()=>{dirty=true;schedule();};
     const resize=new ResizeObserver(refresh);resize.observe(anchor);if(world)resize.observe(world);
+    if(scene?.target)resize.observe(scene.target);
     let measured:Element[]=[];
     const captions=new ResizeObserver(refresh);
     const replacements=new MutationObserver(()=>{

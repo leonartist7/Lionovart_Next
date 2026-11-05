@@ -1,4 +1,10 @@
-.viewport { position: sticky; top: 0; height: 100svh; margin-bottom: -100svh; z-index: 2; pointer-events: none; isolation: isolate; transform: translateZ(0); overflow: clip; }
+/* Runway distances stay in svh so browser chrome cannot stretch the story.
+   The painted viewport must instead cover the current visible height. Using
+   svh here leaves the toolbar's height exposed below every portalled chapter
+   after mobile chrome retracts, while the body-portalled dock stays at bottom.
+   Cancel exactly the same height in flow; otherwise the fix adds a scroll gap. */
+.viewport { --scene-viewport-height: 100vh; position: sticky; top: 0; height: var(--scene-viewport-height); margin-bottom: calc(-1 * var(--scene-viewport-height)); z-index: 2; pointer-events: none; isolation: isolate; transform: translateZ(0); overflow: clip; }
+@supports (height: 100dvh) { .viewport { --scene-viewport-height: 100dvh; } }
 .layers { position: absolute; inset: 0; }
 .layers > * { pointer-events: auto; }
 .runways { position: relative; z-index: 1; }

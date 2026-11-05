@@ -89,3 +89,9 @@ Corner images fill their counter-projected boxes during transport: contain would
 Partnership copy uses stable dark ink across both the red silhouette and surrounding light field, so long English/French lines remain readable as the disc fades.
 
 The complete partnership reading pose holds through gallery progress .91. Only its visual copy fades .91–.935, before the actual About aperture opens; semantic reading/restoration ownership remains unchanged.
+
+### Mobile browser chrome coverage
+
+The shared painted viewport uses `100dvh` (with a `100vh` fallback), and its negative flow margin cancels that exact same height. Runway distances remain in `svh`: changing browser chrome must resize the painted surface without stretching the scroll story. About's reveal overlap and minimum height match the dynamic viewport. The scene, doorway and gallery observe their actual containing block so cached geometry refreshes even when only the painted height changes.
+
+Ordinary mobile emulation equates `svh` and `dvh` and misses the black bottom-strip failure. `scripts/verify-mobile-viewport.mjs` reproduces a 120px small/large viewport difference against checkpoint `9966088`, then checks the new deployment across phone/tablet widths, repeated toolbar expansion/retraction, forward/reverse travel, rotation, the About reveal and the footer's actual document boundary. This is Chromium emulation, not a physical iOS/Android guarantee.

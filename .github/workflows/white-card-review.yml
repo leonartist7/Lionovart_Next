@@ -23,7 +23,12 @@ jobs:
         run: |
           npm install --prefix /tmp/story-qa --no-package-lock playwright@1.56.1
           /tmp/story-qa/node_modules/.bin/playwright install --with-deps chromium
+      - name: Reproduce and verify mobile toolbar viewport coverage
+        env:
+          STORY_PREVIEW: https://lionovartnext-git-review-white-card-to-portfolio-lionovart.vercel.app
+        run: node scripts/verify-mobile-viewport.mjs
       - name: Verify deployed homepage and capture continuous motion
+        if: ${{ !cancelled() }}
         env:
           STORY_PREVIEW: https://lionovartnext-git-review-white-card-to-portfolio-lionovart.vercel.app
         run: node scripts/verify-white-card-preview.mjs
