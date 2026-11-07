@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { polygonIris, previewShape, PREVIEW_SHAPES, SHAPE_PREVIEW_EVENT } from '@/lib/shape-preview';
 import { ScenePortal, usePinnedScene } from './PinnedScene';
 import { cardHandoff } from '../card-handoff';
 import { galleryLayout, galleryRingDiameter } from '../gallery-layout';
@@ -82,7 +83,10 @@ export default function ServicePortal() {
       }
       if (fill.current) {
         const hole = handoff.portalOpen*72;
-        fill.current.style.maskImage = hole<=0 ? 'none' : `radial-gradient(circle at 50% 50%,transparent ${hole}%,#000 ${hole+.45}%)`;
+        const shape = previewShape(document.documentElement.dataset.shapePreview ?? null);
+        const sides = shape ? PREVIEW_SHAPES[shape] : 0;
+        fill.current.style.maskImage = sides || hole <= 0 ? 'none' : `radial-gradient(circle at 50% 50%,transparent ${hole}%,#000 ${hole+.45}%)`;
+        fill.current.style.clipPath = sides && hole > 0 ? polygonIris(sides, hole) : '';
         fill.current.dataset.iris = handoff.portalOpen.toFixed(3);
       }
       if (invitation.current) {
@@ -102,6 +106,7 @@ export default function ServicePortal() {
     window.addEventListener('scroll',schedule,{passive:true});
     window.addEventListener('resize',refresh);
     window.addEventListener('lionovart:story-layout',refresh);
+    window.addEventListener(SHAPE_PREVIEW_EVENT, schedule);
     world?.addEventListener('load',refresh,true);
     document.addEventListener('visibilitychange',schedule);
     void document.fonts.ready.then(refresh); sync();
@@ -110,15 +115,16 @@ export default function ServicePortal() {
       window.removeEventListener('scroll',schedule);window.removeEventListener('resize',refresh);
       window.removeEventListener('lionovart:story-layout',refresh);world?.removeEventListener('load',refresh,true);
       document.removeEventListener('visibilitychange',schedule);
+      window.removeEventListener(SHAPE_PREVIEW_EVENT, schedule);
     };
   },[scene?.target,origin,locale]);
   if (!scene?.target) return null;
   return <ScenePortal><div className={styles.space} data-service-portal data-scroll-title-skip>
-    <div ref={pedestal} className={styles.carrier} data-service-pedestal aria-hidden="true"><span className={styles.ring}><span className={styles.fill}/></span></div>
+    <div ref={pedestal} className={styles.carrier} data-service-pedestal aria-hidden="true"><span className={styles.ring} data-shape-portal-face><span className={styles.fill} data-shape-portal-fill /></span></div>
     <div ref={ring} className={styles.carrier} data-service-podium data-disc-origin={origin}>
-      <button ref={face} type="button" className={styles.ring} onClick={switchOrigin}
-        aria-label={locale==='fr'?'Changer l’entrée du cercle':'Change the circle entrance'}>
-        <span ref={fill} className={styles.fill}/>
+      <button ref={face} type="button" className={styles.ring} data-shape-portal-face onClick={switchOrigin}
+        aria-label={locale==='fr'?'Changer l’entrée du portail':'Change the portal entrance'}>
+        <span ref={fill} className={styles.fill} data-shape-portal-fill />
         <span ref={invitation} className={styles.invitation} data-gallery-title aria-hidden="true">
           <span className={styles.invitationLead} data-invitation-lead>{locale==='fr'?'Entrez dans l’univers':'Step inside'}</span>
           <span role="heading" aria-level={2} id="selected-work-heading" className={styles.invitationWork} data-invitation-work>{locale==='fr'?'de nos réalisations':'our selected work'}</span>

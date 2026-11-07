@@ -378,7 +378,9 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
 
           <div className="relative mx-auto flex w-full items-center justify-between px-5 py-3 sm:px-8 xl:px-12 xl:py-4">
             <Link href="/" aria-label="LIONOVART home" data-nav-logo className={styles.wordmark}>
-              <Image src="/images/Icon.avif" alt="" width={40} height={40} sizes="40px" priority className={styles.brandIcon} />
+              <span data-shape-badge>
+                <Image src="/images/Icon.avif" alt="" width={40} height={40} sizes="40px" priority className={styles.brandIcon} />
+              </span>
               <span>LIONOVART</span>
             </Link>
 

@@ -280,7 +280,7 @@ export function LiquidMetalButton({
               zIndex: 20,
             }}
           >
-            <div
+            <div data-shape-metal
               style={{
                 width: dimensions.innerWidth,
                 height: dimensions.innerHeight,
@@ -312,7 +312,7 @@ export function LiquidMetalButton({
               zIndex: 10,
             }}
           >
-            <div
+            <div data-shape-metal
               style={{
                 height: dimensions.height,
                 width: dimensions.width,
@@ -350,7 +350,7 @@ export function LiquidMetalButton({
 
           {/* The shader supplies the moving material. This fixed contour keeps
               the pill perimeter complete between highlight passes. */}
-          <div
+          <div data-shape-metal-contour
             aria-hidden
             style={{
               position: "absolute",

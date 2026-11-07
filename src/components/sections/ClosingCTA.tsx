@@ -119,7 +119,7 @@ function CompactClosing({ words, onStart, ringRef, chapterInJourney }: { words: 
           <label>{fr ? "Site web (facultatif)" : "Website (optional)"}
             <input name="website" autoComplete="url" inputMode="url" placeholder="studio.com" maxLength={512} onInput={e => e.currentTarget.setCustomValidity("")} />
           </label>
-          <button className={styles.talk} type="submit">{fr ? "Parler avec notre agent" : "Talk with our agent"}</button>
+          <button className={styles.talk} data-shape-button type="submit">{fr ? "Parler avec notre agent" : "Talk with our agent"}</button>
         </form>
       </dialog>
     </section>

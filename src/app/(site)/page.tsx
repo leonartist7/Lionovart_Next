@@ -3,6 +3,7 @@ import Footer from "@/components/sections/Footer";
 import { PageBuilder } from "@/components/sections/PageBuilder";
 import FounderOfferBanner from "@/components/sections/FounderOfferBanner";
 import ScrollExperience from "@/components/experience/ScrollExperience";
+import ShapePreview from "@/components/ui/ShapePreview";
 
 export default function Home() {
 
@@ -17,6 +18,7 @@ export default function Home() {
         </ScrollExperience>
       </main>
       <Footer variant="compact" />
+      <ShapePreview />
     </>
   );
 }

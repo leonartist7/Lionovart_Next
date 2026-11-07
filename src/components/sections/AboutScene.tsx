@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef } from 'react';
+import { polygonClip, previewShape, PREVIEW_SHAPES, SHAPE_PREVIEW_EVENT } from '@/lib/shape-preview';
 import CompactIntroduction from './CompactIntroduction';
 import styles from './ScreeningRoom.module.css';
 
@@ -25,7 +26,11 @@ export default function AboutScene() {
       node.dataset.aboutTransitioning = String(p > .01 && p < .999);
       const radius = Math.hypot(innerWidth, innerHeight) * .72 * eased;
       const centerY = innerHeight * .5 - r.top;
-      node.style.clipPath = p >= .999 ? 'none' : `circle(${radius}px at 50% ${centerY}px)`;
+      const shape = previewShape(document.documentElement.dataset.shapePreview ?? null);
+      const sides = shape ? PREVIEW_SHAPES[shape] : 0;
+      node.style.clipPath = p >= .999 ? 'none' : sides
+        ? polygonClip(sides, radius, r.width / 2, centerY, 'px')
+        : `circle(${radius}px at 50% ${centerY}px)`;
       node.style.setProperty('--about-opening-diameter', `${radius * 2}px`);
       node.style.setProperty('--about-opening-y', `${centerY}px`);
       node.style.setProperty('--about-content-y', `${-Math.max(0,r.top)}px`);
@@ -46,12 +51,13 @@ export default function AboutScene() {
     };
     window.addEventListener('scroll', schedule, { passive:true });
     window.addEventListener('resize', schedule);
+    window.addEventListener(SHAPE_PREVIEW_EVENT, schedule);
     window.addEventListener('lionovart:story-layout', schedule);
     window.addEventListener('hashchange', land);
     window.addEventListener('lionovart:splash-complete', land);
     window.addEventListener('lionovart:story-layout', land);
     preference.addEventListener('change', schedule); sync(); land();
-    return () => { cancelAnimationFrame(frame); cancelAnimationFrame(landingFrame); window.removeEventListener('hashchange', land); window.removeEventListener('lionovart:splash-complete', land); window.removeEventListener('lionovart:story-layout', land); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); window.removeEventListener('lionovart:story-layout', schedule); preference.removeEventListener('change', schedule); node.inert=false; };
+    return () => { cancelAnimationFrame(frame); cancelAnimationFrame(landingFrame); window.removeEventListener('hashchange', land); window.removeEventListener('lionovart:splash-complete', land); window.removeEventListener('lionovart:story-layout', land); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); window.removeEventListener(SHAPE_PREVIEW_EVENT, schedule); window.removeEventListener('lionovart:story-layout', schedule); preference.removeEventListener('change', schedule); node.inert=false; };
   }, []);
   return <section ref={section} id="about" className={styles.aboutRunway} data-about-runway
     data-nova-section="about" data-nav-surface="light" data-scroll-title-skip>

@@ -16,7 +16,65 @@ assert.ok(ready,'The matching Vercel review preview is ready');
 const browser=await chromium.launch({headless:true});
 const focused = process.env.STORY_REVIEW_FOCUS === 'short';
 const results=[];
+async function verifyShapePreview(width, height) {
+  const context = await browser.newContext({ viewport: { width, height }, hasTouch: width < 768, isMobile: width < 768 });
+  try {
+    const page = await context.newPage();
+    await page.goto(base + '/?shape=hexagon', { waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => document.documentElement.dataset.splashComplete === 'true' &&
+      document.documentElement.dataset.shapePreview === 'hexagon', {}, { timeout: 90000 });
+    const badge = page.locator('[data-nav-logo] [data-shape-badge]').first();
+    const hero = page.locator('.hero-capsule').first();
+    const shape = (locator, pseudo) => locator.evaluate((el, pseudo) => getComputedStyle(el, pseudo).clipPath, pseudo);
+    for (const [name, sides] of [['pentagon', 5], ['hexagon', 6], ['heptagon', 7]]) {
+      await page.locator(`[data-preview-option="${name}"]`).click();
+      await page.waitForFunction(name => document.documentElement.dataset.shapePreview === name, name);
+      assert.equal((await shape(badge)).split(',').length, sides, 'Logo badge uses the selected outline');
+      assert.equal((await shape(hero)).split(',').length, sides, 'Hero CTA follows the selected outline');
+      assert.equal(new URL(page.url()).searchParams.get('shape'), name);
+      assert.equal(await page.locator(`[data-preview-option="${name}"]`).getAttribute('aria-pressed'), 'true');
+      await page.screenshot({ path: `${output}/shapes-${width}-${name}.png` });
+    }
+    await page.locator('[data-preview-option="original"]').click();
+    await page.waitForFunction(() => !document.documentElement.hasAttribute('data-shape-preview'));
+    assert.equal(await shape(badge), 'none', 'Original restores the normal badge');
+    assert.equal(await shape(hero), 'none', 'Original restores the normal CTA');
+    await page.locator('[data-preview-option="hexagon"]').click();
+    await page.waitForFunction(() => document.documentElement.dataset.shapePreview === 'hexagon');
+    const opener = page.locator('.hero-capsule-trigger').first();
+    await opener.click();
+    await page.locator('#hero-introduction').waitFor({ state: 'visible' });
+    assert.equal(await shape(hero), 'none', 'The expanded form can use its natural silhouette');
+    await page.keyboard.press('Escape');
+    await opener.waitFor({ state: 'visible' });
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2));
+    const gallery = page.locator('[data-gallery-runway]');
+    const animated = await page.locator('[data-service-world]').getAttribute('data-story-static') === 'false';
+    if (animated) {
+      const y = await gallery.evaluate(el => scrollY + el.getBoundingClientRect().top - innerHeight * 1.1 * (1 - .76));
+      await page.evaluate(y => scrollTo({ top: y, behavior: 'instant' }), y);
+      await page.waitForFunction(() => document.querySelector('[data-service-podium] [data-iris]')?.style.clipPath.startsWith('polygon(evenodd'));
+      const red = page.locator('[data-gallery-red-core]');
+      assert.equal((await shape(red)).split(',').length, 6, 'Partnership disc uses six sides');
+      await page.screenshot({ path: `${output}/shapes-${width}-iris.png` });
+    }
+    const closing = page.locator('[data-closing-copy]');
+    assert.match(await shape(closing, '::before'), /^polygon\(evenodd/);
+    await closing.scrollIntoViewIfNeeded();
+    await page.locator('[data-closing-action] button').click();
+    await page.locator('#closing-cta dialog').waitFor({ state: 'visible' });
+    await page.keyboard.press('Escape');
+    console.log(JSON.stringify({ check: 'shape-preview', width, height, animated, result: 'passed' }));
+  } finally {
+    await context.close();
+  }
+}
+
 try {
+ if (focused) {
+   await verifyShapePreview(1366, 820);
+   await verifyShapePreview(390, 844);
+ }
  for(const [w,h,locale,reduced,text=16] of [[768,1024,'en',false],[835,694,'en',false],[390,844,'en',false],[1440,900,'en',false],[320,568,'en',false],[844,390,'en',false],[1023,768,'en',false],[1025,768,'en',false],[1280,720,'en',false],[1920,1080,'en',false],[390,844,'fr',false],[1440,900,'fr',false],[390,844,'fr',true],[390,844,'fr',false,32],[1366,520,'fr',false]].filter(([w,h,locale,reduced,text]) => !focused || (w === 1366 && h === 520) || (locale === 'en' && !reduced && !text && (w === 835 || w === 390)))) {
   const context=await browser.newContext({viewport:{width:w,height:h},hasTouch:w<=390,isMobile:w<=390,reducedMotion:reduced?'reduce':'no-preference',recordVideo:{dir:output,size:{width:Math.min(1440,w),height:Math.min(900,h)}}});
   const recordingEpoch=Date.now();let clipStart=0,clipDuration=0;
