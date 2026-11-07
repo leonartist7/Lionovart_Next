@@ -104,7 +104,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         identity.style.left=`${desired.x-desired.width/2+lettering.x-origin.left}px`;
         identity.style.top=`${desired.y-desired.height/2+lettering.y-origin.top-lettering.size/2}px`;
         identity.style.fontSize=`${lettering.size}px`;
-        identity.style.opacity=String(pose.identity);
+        identity.style.opacity=String(pose.identity * pose.white);
         return lettering;
       };
       // Once the doorway owns the scene, retire card measurement and writes.

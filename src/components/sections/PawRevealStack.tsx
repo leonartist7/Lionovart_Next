@@ -102,13 +102,10 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
 
   return <article className={styles.card} data-benefit-card data-benefit-index={index} data-scroll-title-skip data-integrated={integrated} data-flow={flow} data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
     {integrated && <div className={styles.benefitPaper} data-benefit-paper aria-hidden="true" />}
-    {integrated && <div className={styles.integratedArtwork} aria-hidden="true">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={artworkSource(artwork!, 800)} alt="" loading="lazy" decoding="async"
-        srcSet={[240, 480, 800].map(width => `${artworkSource(artwork!, width)} ${width}w`).join(", ")}
-        sizes={flow ? "(min-width: 1056px) 32vw, (min-width: 704px) 48vw, 100vw" : "(min-width: 920px) 26vw, 100px"} />
+    {integrated && <header className={styles.integratedHeading} data-benefit-heading>
       <span className={styles.pillarCode}>{code}</span>
-    </div>}
+      <h3>{accent}</h3>
+    </header>}
     {!integrated && <div className={styles.cardTop}>
       <div className={styles.cardCopy}>
         <p className={styles.cardBody} data-benefit-measure="copy" aria-hidden={showBenefit}>{tr(item.body)}</p>
@@ -121,12 +118,19 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
       </div>}
       <div className={styles.detailWell} data-benefit-well>
         {details}
-        <motion.div ref={coverRef} className={styles.detailCover} animate={cover} aria-hidden={integrated ? showBenefit : true}>
-          {integrated && <div className={styles.integratedCopy}>
-            <p className={styles.serviceLabel}>{serviceTitle}</p>
-            <h3 data-benefit-title>{tr(item.title)}</h3>
-            {accent && <p className={styles.integratedAccent}>{accent}</p>}
-          </div>}
+        <motion.div ref={coverRef} className={styles.detailCover} data-benefit-cover animate={cover} aria-hidden={integrated ? showBenefit : true}>
+          {artwork && <>
+            <div className={styles.coverArtwork} aria-hidden="true" data-benefit-cover-art>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={artworkSource(artwork, 800)} alt="" loading="lazy" decoding="async"
+                srcSet={[240, 480, 800].map(width => `${artworkSource(artwork, width)} ${width}w`).join(", ")}
+                sizes={flow ? "(min-width: 1056px) 32vw, (min-width: 704px) 48vw, 100vw" : "(min-width: 768px) 32vw, 68vw"} />
+            </div>
+            <div className={styles.integratedCopy}>
+              <p className={styles.serviceLabel}>{serviceTitle}</p>
+              <p data-benefit-title>{tr(item.title)}</p>
+            </div>
+          </>}
         </motion.div>
         <motion.div ref={pawRef} className={styles.paw} aria-hidden="true" initial={{ opacity: 0, transform: "translate(-115%, 8%) rotate(-6deg)" }} animate={paw}>
           <Image src={PAW_IMAGE} alt="" fill sizes="(max-width: 767px) 144px, (max-width: 2000px) 12vw, 240px" className={styles.pawImage} />

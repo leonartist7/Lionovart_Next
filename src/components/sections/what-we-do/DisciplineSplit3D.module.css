@@ -137,8 +137,7 @@
    box: contain would letterbox a square before the parent projects it. */
 :global([data-card-handoff-active=true]) .floatingObject img { transform:none; object-fit:fill; }
 
-/* Names belong to the upper image area; the travelling edge exists only while
-   interacting with a reading card and clears before the white gathering. */
+/* The corner artwork stays independent of the black reveal cover. */
 .floatingObject { width:clamp(6rem,10.5vw,9rem); }
 @media(width < 920px) { .floatingObject { width:clamp(3.75rem,13.5vw,4.875rem); } }
 .pane :global([data-card-edge]) { filter:opacity(var(--handoff-pointer,1)); }

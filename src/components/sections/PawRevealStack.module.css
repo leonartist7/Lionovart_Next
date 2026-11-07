@@ -173,9 +173,28 @@
 
 /* Benefits live inside the original artwork cards; opening never resizes them. */
 .card[data-integrated=true] { --imagine-ink: #302b26; --benefit-inset: 1.125rem; display: grid; grid-template-rows: minmax(0, 1fr) 16.5rem; grid-row: auto; height: 100%; padding: 0; border-radius: inherit; background: #08080a; }
-.integratedArtwork { position: relative; min-height: 0; overflow: hidden; }
-.integratedArtwork img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; }
-.pillarCode { position: absolute; left: 1rem; top: 1rem; font: 700 clamp(2rem, 4vw, 4rem)/.8 var(--font-heading); color: transparent; -webkit-text-stroke: 1px #ffffff45; }
+.integratedHeading {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-content: start;
+  gap: .375rem;
+  min-width: 0;
+  padding: clamp(.75rem, 2vw, 1.5rem) 8% .5rem;
+  overflow: hidden;
+  color: #fffaf1;
+}
+.pillarCode {
+  font: 700 clamp(1.75rem, 4vw, 4.5rem)/.9 var(--font-clash-display), sans-serif;
+  letter-spacing: -.055em;
+  color: transparent;
+  -webkit-text-stroke: 1px #f5e5c2;
+}
+.integratedHeading h3 {
+  margin: 0;
+  font: italic 400 clamp(.875rem, 1.5vw, 1.375rem)/1.15 var(--font-playfair-display), Georgia, serif;
+  text-wrap: balance;
+}
 .card[data-integrated=true] .detailShell { min-width: 0; clip-path: inset(-6rem 0 0); }
 .card[data-integrated=true] .detailWell { min-height: 0; border-radius: 0; }
 .card[data-integrated=true] .details { padding: 1.125rem var(--benefit-inset) 3rem; border: 0; }
@@ -186,11 +205,25 @@
 .card[data-integrated=true] .metricValue { font-size: 2rem; }
 .card[data-integrated=true] .metricValue small { font-size: .75rem; }
 .card[data-integrated=true] .metricLabel { font-size: .75rem; line-height: 1.35; }
-.card[data-integrated=true] .detailCover { background: #08080a; }
-.integratedCopy { padding: 1.625rem var(--benefit-inset) 3rem; color: #f7f4ef; }
+.card[data-integrated=true] .detailCover { background: #08080a; overflow: hidden; }
+.coverArtwork { position: absolute; inset: 0; pointer-events: none; }
+.coverArtwork img {
+  position: absolute;
+  inset: -.25rem;
+  width: calc(100% + .5rem);
+  height: calc(100% + .5rem);
+  object-fit: cover;
+  filter: blur(2px);
+}
+.coverArtwork::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, #08080ad9, #08080a82 68%, #08080a55);
+}
+.integratedCopy { position: relative; padding: 1.625rem var(--benefit-inset) 3rem; color: #f7f4ef; }
 .serviceLabel { margin: 0 0 .75rem; font: 500 .75rem/1.3 var(--font-heading), sans-serif; color: #c5bfb8; }
-.integratedCopy h3 { margin: 0; font: 650 clamp(1.375rem, 1rem + .75vw, 1.875rem)/1.1 var(--font-heading), sans-serif; letter-spacing: -.025em; text-wrap: balance; }
-.integratedAccent { margin: .875rem 0 0; font: italic 400 1.0625rem/1.3 var(--font-playfair-display), Georgia, serif; color: #d2c4b2; }
+.integratedCopy [data-benefit-title] { margin: 0; font: 650 clamp(1.375rem, 1rem + .75vw, 1.875rem)/1.1 var(--font-heading), sans-serif; letter-spacing: -.025em; text-wrap: balance; }
 .card[data-integrated=true] .paw { width: min(65%, 10rem); }
 .card[data-integrated=true] .cardToggle { z-index: 6; }
 .card[data-integrated=true] .toggleIcon { bottom: .5rem; }
@@ -198,17 +231,14 @@
 @media (width < 920px) {
   .card[data-integrated=true] { --benefit-inset: .875rem; grid-template-columns: 28% minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
   .card[data-integrated=true] .detailShell { border-left: 1px solid #e1b95c66; }
-  .card[data-integrated=true] .integratedArtwork img { object-fit: cover; }
-  .pillarCode { left: .5rem; top: .875rem; font-size: 1.75rem; }
   .card[data-integrated=true] .details { padding: .875rem var(--benefit-inset) 2.75rem; }
   .integratedDetailTitle { margin-bottom: .625rem; font-size: 1.25rem; }
   .card[data-integrated=true] .details li { font-size: .8125rem; }
   .card[data-integrated=true] .metric { margin-top: .625rem; padding-top: .625rem; }
   .card[data-integrated=true] .metricValue { font-size: 1.875rem; }
   .integratedCopy { padding: 1.625rem var(--benefit-inset) 3rem; }
-  .integratedCopy h3 { font-size: 1.375rem; }
+  .integratedCopy [data-benefit-title] { font-size: 1.375rem; }
   .serviceLabel { font-size: .6875rem; margin-bottom: .625rem; }
-  .integratedAccent { font-size: .9375rem; margin-top: .75rem; }
   .card[data-integrated=true] .cardToggle { left: 0; width: 100%; }
   .card[data-integrated=true] .tapLabel { left: calc(28% + var(--benefit-inset)); }
 }
@@ -216,14 +246,15 @@
 /* Opening panels retain the video crop's size; no blank lower well. */
 .card[data-integrated=true] { grid-template-rows: minmax(0,1fr) 11.5rem; }
 .card[data-integrated=true] .integratedCopy { padding: 1rem var(--benefit-inset) 2.5rem; }
-.card[data-integrated=true] .integratedCopy h3 { font-size: clamp(1.125rem,1.35vw,1.5rem); font-weight: 500; }
-.card[data-integrated=true] .integratedAccent { margin-top: .6rem; font-size: .9375rem; }
+.card[data-integrated=true] .integratedCopy [data-benefit-title] { font-size: clamp(1.125rem,1.35vw,1.5rem); font-weight: 500; }
 @media(width < 920px) {
- .card[data-integrated=true] { grid-template-rows: minmax(0,1fr); grid-template-columns: 24% minmax(0,1fr); }
+ .card[data-integrated=true] { grid-template-rows: minmax(0,1fr); grid-template-columns: minmax(5rem,32%) minmax(0,1fr); }
  .card[data-integrated=true] .integratedCopy { padding: .875rem var(--benefit-inset) 2.5rem; }
- .card[data-integrated=true] .integratedCopy h3 { font-size: 1.125rem; }
- .card[data-integrated=true] .integratedAccent { font-size: .8125rem; margin-top: .45rem; }
- .card[data-integrated=true] .tapLabel { left: calc(24% + var(--benefit-inset)); font-size: .6875rem; bottom: .65rem; }
+ .integratedHeading { padding: .5rem; align-content: center; }
+ .pillarCode { font-size: clamp(1.25rem, 4vw, 2rem); }
+ .integratedHeading h3 { font-size: clamp(.75rem, 2.7vw, 1rem); overflow-wrap: anywhere; }
+ .card[data-integrated=true] .integratedCopy [data-benefit-title] { font-size: 1.125rem; }
+ .card[data-integrated=true] .tapLabel { left: calc(32% + var(--benefit-inset)); font-size: .6875rem; bottom: .65rem; }
  .card[data-integrated=true] .serviceLabel { margin-bottom: .4rem; font-size: .625rem; }
 }
 
@@ -233,7 +264,7 @@
 }
 
 @media(width < 600px) and (height <= 740px) {
- .card[data-integrated=true] .serviceLabel, .card[data-integrated=true] .integratedAccent { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+ .card[data-integrated=true] .serviceLabel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
  .card[data-integrated=true] .integratedCopy { display: flex; align-items: center; height: 100%; padding-block: .5rem 2.25rem; }
 }
 
@@ -277,51 +308,49 @@
 @media(min-width:768px), (min-width:600px) and (min-aspect-ratio:6/5) {
  .card[data-integrated=true] { grid-template-rows: minmax(0,1fr) minmax(14rem,52%); }
  .card[data-integrated=true] .integratedCopy { padding: 1.5rem var(--benefit-inset) 2.75rem; }
- .card[data-integrated=true] .integratedCopy h3 { font-size: clamp(1.375rem,1rem + .75vw,2rem); line-height: 1.15; font-weight: 600; }
+ .card[data-integrated=true] .integratedCopy [data-benefit-title] { font-size: clamp(1.375rem,1rem + .75vw,2rem); line-height: 1.15; font-weight: 600; }
  .card[data-integrated=true] .serviceLabel { font-size: clamp(.75rem,.65rem + .2vw,.9375rem); margin-bottom: .875rem; line-height: 1.4; }
- .card[data-integrated=true] .integratedAccent { margin-top: .875rem; font-size: clamp(1rem,.85rem + .35vw,1.1875rem); line-height: 1.35; }
 }
 @media(min-width:600px) and (height <= 560px) {
  .card[data-integrated=true] { grid-template-rows: minmax(0,1fr) 72%; }
  .card[data-integrated=true] .integratedCopy { padding: .75rem .625rem 1.75rem; }
- .card[data-integrated=true] .integratedCopy h3 { font-size: 1rem; }
+ .card[data-integrated=true] .integratedCopy [data-benefit-title] { font-size: 1rem; }
  .card[data-integrated=true] .serviceLabel { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
- .card[data-integrated=true] .integratedAccent { font-size: .75rem; margin-top: .375rem; }
 }
 
 /* A bounded, transform-only colour drift sits below the corner sculptures. */
 .card[data-integrated=true] { --art-light-a:#e8a020; --art-light-b:#e5192a; }
 .card[data-integrated=true][data-benefit-index="1"] { --art-light-a:#9e6df0; --art-light-b:#d6a85c; }
 .card[data-integrated=true][data-benefit-index="2"] { --art-light-a:#e5192a; --art-light-b:#efad54; }
-.integratedArtwork::after {
- content:""; position:absolute; inset:-24%; z-index:1; pointer-events:none;
+.integratedHeading::before {
+ content:""; position:absolute; inset:-24%; z-index:-1; pointer-events:none;
  background:radial-gradient(ellipse at 28% 20%,var(--art-light-a),transparent 57%),radial-gradient(ellipse at 78% 68%,var(--art-light-b),transparent 62%);
  opacity:.24; mix-blend-mode:screen; transform:translate3d(-5%,-3%,0) scale(1.06);
  animation:opening-art-color 14s ease-in-out infinite alternate; animation-play-state:paused;
 }
-.pillarCode { z-index:2; }
-:global([data-card-color-motion=true]) .integratedArtwork::after { animation-play-state:running; will-change:transform; }
+:global([data-card-color-motion=true]) .integratedHeading::before { animation-play-state:running; will-change:transform; }
 @keyframes opening-art-color { to { transform:translate3d(6%,5%,0) scale(1.15) rotate(5deg); } }
-@media(prefers-reduced-motion:reduce) { .integratedArtwork::after { animation:none; } }
+@media(prefers-reduced-motion:reduce) { .integratedHeading::before { animation:none; } }
 
 
 /* Text determines fallback card height; both cover and revealed copy reserve space. */
 .card[data-integrated=true][data-flow=true] { container-type: normal; height: auto; margin: 0; grid-template-columns: minmax(0,1fr); grid-template-rows: auto auto; border-radius: 1rem; overflow-wrap: anywhere; }
-.card[data-flow=true] .integratedArtwork { aspect-ratio: 16 / 9; }
+.card[data-flow=true] .integratedHeading { padding: 1.25rem var(--benefit-inset); }
+.card[data-flow=true] .pillarCode { font-size: 2.5rem; }
+.card[data-flow=true] .integratedHeading h3 { font-size: 1.125rem; }
 .card[data-flow=true] .detailWell { container-type: normal; min-width: 0; grid-template-columns: minmax(0,1fr); min-height: 18rem; }
 .card[data-integrated=true][data-flow=true] .integratedDetails { position: relative; inset: auto; align-content: start; padding: 1.25rem var(--benefit-inset) 3.5rem; }
 .card[data-flow=true] .detailCover { align-self: stretch; }
 .card[data-integrated=true][data-flow=true] .integratedCopy { display: block; height: auto; padding: 1.25rem var(--benefit-inset) 3.5rem; }
-.card[data-integrated=true][data-flow=true] .integratedCopy h3 { font-size: 1.375rem; line-height: 1.2; }
-.card[data-integrated=true][data-flow=true] .serviceLabel,
-.card[data-integrated=true][data-flow=true] .integratedAccent { position: static; width: auto; height: auto; clip-path: none; white-space: normal; font-size: .875rem; }
+.card[data-integrated=true][data-flow=true] .integratedCopy [data-benefit-title] { font-size: 1.375rem; line-height: 1.2; }
+.card[data-integrated=true][data-flow=true] .serviceLabel { position: static; width: auto; height: auto; clip-path: none; white-space: normal; font-size: .875rem; }
 .card[data-flow=true] .cardToggle { pointer-events: auto; }
 
 
 /* The paper visible under the paw is the same surface that fills the card.
    Its clip starts at the measured reading well and opens in place. */
 .benefitPaper { position:absolute; inset:0; z-index:0; pointer-events:none; background:var(--opening-card-white,#fffaf1); clip-path:inset(calc(var(--benefit-paper-top,48%) * (1 - var(--handoff-white,0))) 0 0 calc(var(--benefit-paper-left,0%) * (1 - var(--handoff-white,0)))); }
-.card[data-integrated=true] .integratedArtwork { z-index:1; opacity:calc(1 - var(--handoff-white,0)); }
+.card[data-integrated=true] .integratedHeading { z-index:1; opacity:calc(1 - var(--handoff-white,0)); }
 .card[data-integrated=true] .detailShell { z-index:2; }
 .card[data-integrated=true] .detailWell,
 .card[data-integrated=true] .integratedDetails { background:transparent; }
@@ -331,7 +360,7 @@
 .card[data-integrated=true] .seamCarrier,
 .card[data-integrated=true] .paw { opacity:var(--handoff-benefit,1); }
 @media(width < 768px) {
- .benefitPaper { --benefit-paper-top:0%; --benefit-paper-left:24%; }
+ .benefitPaper { --benefit-paper-top:0%; --benefit-paper-left:32%; }
  .card[data-integrated=true] .integratedDetails { align-content:end; padding-bottom:2.25rem; }
 }
 .card[data-flow=true] .benefitPaper { display:none; }

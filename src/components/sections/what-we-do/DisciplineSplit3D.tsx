@@ -238,7 +238,7 @@ function Pane({
           />
           <div className={styles.integratedFace} data-imagine-card={i}>
             <BenefitCard item={IMAGINE_BENEFITS[i]} index={i} artwork={card.image}
-              serviceTitle={card.title} accent={card.accent} enabled={interactive} />
+              code={card.code} serviceTitle={card.title} accent={card.accent} enabled={interactive} />
           </div>
           <motion.div
             className="pointer-events-none absolute inset-0 z-[2]"
@@ -305,7 +305,6 @@ function Pane({
 
         </div>
       </motion.div>
-      {(!scene || scene.staticLayout) && <span className={styles.identityLettering} data-card-identity={i} aria-hidden="true"><span data-card-identity-core>{card.code.slice(0,3)}</span><span className={styles.identityTail}>{card.code.slice(3)}</span></span>}
       <div ref={registerSlot} className={styles.serviceSlot} data-persistent-service-slot={i} inert />
       <div className={styles.floatingCarrier} aria-hidden="true">
         <motion.div className={styles.floatingObject} data-floating-card-object={card.code}

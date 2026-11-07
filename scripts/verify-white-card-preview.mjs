@@ -1,21 +1,22 @@
 import { chromium } from '/tmp/story-qa/node_modules/playwright/index.mjs';
 import assert from 'node:assert/strict';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { globSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 const base=process.env.STORY_PREVIEW;
 const output='verification-output/white-card';
 await mkdir(output,{recursive:true});
+const revision = JSON.parse(await readFile('public/qa/white-card-version.json', 'utf8')).revision;
 let ready=false;
 for(let i=0;i<90;i++) {
-  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision==='white-card-20261105-r40';}catch{}
+  try {const r=await fetch(base+'/qa/white-card-version.json');ready=r.ok&&(await r.json()).revision===revision;}catch{}
   if(ready)break;await new Promise(r=>setTimeout(r,10000));
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
 const browser=await chromium.launch({headless:true});
 const results=[];
 try {
- for(const [w,h,locale,reduced,text=16] of [[768,1024,'en',false],[390,844,'en',false],[1440,900,'en',false],[320,568,'en',false],[844,390,'en',false],[1023,768,'en',false],[1025,768,'en',false],[1280,720,'en',false],[1920,1080,'en',false],[390,844,'fr',false],[1440,900,'fr',false],[390,844,'fr',true],[390,844,'fr',false,32],[1366,520,'fr',false]].filter(([w,h])=>process.env.STORY_REVIEW_FOCUS!=='short'||(w===1366&&h===520))) {
+ for(const [w,h,locale,reduced,text=16] of [[768,1024,'en',false],[835,694,'en',false],[390,844,'en',false],[1440,900,'en',false],[320,568,'en',false],[844,390,'en',false],[1023,768,'en',false],[1025,768,'en',false],[1280,720,'en',false],[1920,1080,'en',false],[390,844,'fr',false],[1440,900,'fr',false],[390,844,'fr',true],[390,844,'fr',false,32],[1366,520,'fr',false]].filter(([w,h])=>process.env.STORY_REVIEW_FOCUS!=='short'||(w===1366&&h===520))) {
   const context=await browser.newContext({viewport:{width:w,height:h},hasTouch:w<=390,isMobile:w<=390,reducedMotion:reduced?'reduce':'no-preference',recordVideo:{dir:output,size:{width:Math.min(1440,w),height:Math.min(900,h)}}});
   const recordingEpoch=Date.now();let clipStart=0,clipDuration=0;
   const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -95,6 +96,43 @@ try {
       await page.mouse.move(w-10,h/2);await page.waitForTimeout(500);
     }
    }
+   const openingCards = page.locator('[data-persistent-card] [data-benefit-card]');
+   const readingFaces = await openingCards.evaluateAll(cards => cards.map(card => {
+     const heading = card.querySelector('[data-benefit-heading]');
+     const [name, title] = heading.children;
+     const cover = card.querySelector('[data-benefit-cover]');
+     const image = cover.querySelector('[data-benefit-cover-art] img');
+     const frame = card.getBoundingClientRect();
+     const titleBounds = title.getBoundingClientRect();
+     return {
+       name: name.textContent,
+       title: title.textContent,
+       headlineFits: title.offsetTop >= name.offsetTop + name.offsetHeight - 1 && titleBounds.bottom <= frame.bottom + 1,
+       coverContainsImage: !!image && getComputedStyle(image).filter !== 'none',
+       cornerIsSeparate: !!card.closest('[data-persistent-card]').querySelector('[data-floating-card-object] img'),
+     };
+   }));
+   assert.deepEqual(readingFaces.map(face => face.name), ['LION', 'NOVA', 'ART']);
+   if (locale === 'en') assert.deepEqual(readingFaces.map(face => face.title), ['Lead with confidence.', 'Move with innovation.', 'Direct with emotion.']);
+   assert.ok(readingFaces.every(face => face.title && face.headlineFits && face.coverContainsImage && face.cornerIsSeparate), JSON.stringify(readingFaces));
+   const firstCard = openingCards.first();
+   await firstCard.locator('button').press('Enter');
+   await page.waitForFunction(() => {
+     const card = document.querySelector('[data-persistent-card] [data-benefit-card]');
+     const cover = card.querySelector('[data-benefit-cover]').getBoundingClientRect();
+     const well = card.querySelector('[data-benefit-well]').getBoundingClientRect();
+     return card.dataset.phase === 'open' && cover.top >= well.bottom - 1;
+   });
+   assert.ok(await firstCard.locator('[data-benefit-heading] h3').isVisible(), 'Card headline stays in place during the reveal');
+   if(w===835) await page.screenshot({path:`${output}/${prefix}-card-open.png`});
+   await firstCard.locator('button').press('Enter');
+   await page.waitForFunction(() => {
+     const card = document.querySelector('[data-persistent-card] [data-benefit-card]');
+     const cover = card.querySelector('[data-benefit-cover]').getBoundingClientRect();
+     const well = card.querySelector('[data-benefit-well]').getBoundingClientRect();
+     return card.dataset.phase === 'closed' && Math.abs(cover.top - well.top) < 1;
+   });
+   if(w===835) await page.screenshot({path:`${output}/${prefix}-card-closed.png`});
    const paperNodes=await page.locator('[data-benefit-paper]').evaluateAll(es=>es.map((el,i)=>{el.dataset.paperIdentity=String(i);return el.dataset.paperIdentity;}));
    assert.equal(paperNodes.length,3,'Each original card owns one paper surface');
    await scroll(exit.top-h+.29*(exit.height+h));
