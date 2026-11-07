@@ -46,7 +46,7 @@ async function verifyShapePreview(width, height) {
     await opener.click();
     await page.locator('#hero-introduction').waitFor({ state: 'visible' });
     assert.equal(await shape(hero), 'none', 'The expanded form can use its natural silhouette');
-    await page.keyboard.press('Escape');
+    await page.locator('.hero-capsule-dismiss').click();
     await opener.waitFor({ state: 'visible' });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2));
     const gallery = page.locator('[data-gallery-runway]');
