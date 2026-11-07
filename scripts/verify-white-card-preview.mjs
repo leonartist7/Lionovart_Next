@@ -20,6 +20,7 @@ async function verifyShapePreview(width, height) {
   const context = await browser.newContext({ viewport: { width, height }, hasTouch: width < 768, isMobile: width < 768 });
   try {
     const page = await context.newPage();
+    await page.addInitScript(() => sessionStorage.setItem('lionovart:exit-intent-shown', '1'));
     await page.goto(base + '/?shape=hexagon', { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => document.documentElement.dataset.splashComplete === 'true' &&
       document.documentElement.dataset.shapePreview === 'hexagon', {}, { timeout: 90000 });
