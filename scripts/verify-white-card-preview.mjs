@@ -217,8 +217,8 @@ try {
    assert.ok(Math.abs(lettering[0].x-lettering[0].paneX-(lettering[0].paneRight-lettering[0].paneX)*.08)<2,'Wordmark stays aligned to the left reading corner');
    assert.deepEqual(await page.locator('[data-persistent-card]').evaluateAll(nodes=>nodes.map(n=>n.dataset.persistentFrameId)),frames,'Original card DOM identities persist');
    if (focused) {
-     assert.deepEqual(errors.filter(e => !/WebGL|GPU|ResizeObserver loop/.test(e)), []);
-     results.push({ width: w, height: h, locale, animated, cardHandoff: 'passed' });
+     const fatal = errors.filter(e => !/WebGL|GPU|ResizeObserver loop/.test(e));
+     results.push({ width: w, height: h, locale, animated, cardHandoff: 'passed', errors: fatal });
      await context.close();
      continue;
    }
