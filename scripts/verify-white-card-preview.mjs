@@ -140,18 +140,21 @@ try {
        await scroll(exit.top - h + progress * (exit.height + h));
        const faces = await page.evaluate(() => {
          const layer = document.querySelector('[data-card-lettering-layer]');
-         const labels = [...layer.querySelectorAll('[data-card-identity]')];
-         return [...document.querySelectorAll('[data-persistent-card]')].map((pane, i) => {
+         const opacity = el => el ? Number(getComputedStyle(el).opacity) : 0;
+         return [...document.querySelectorAll('[data-persistent-card]')].map(pane => {
+           const label = layer?.querySelector(`[data-card-identity="${pane.dataset.persistentCard}"]`);
+           const heading = pane.querySelector('[data-benefit-heading]');
            const art = pane.querySelector('[data-floating-card-object] img').getBoundingClientRect();
            const frame = pane.getBoundingClientRect();
            return {
-             localOpacity: Number(getComputedStyle(pane.querySelector('[data-benefit-code]')).opacity),
-             outlineOpacity: Number(getComputedStyle(labels[i]).opacity) * Number(getComputedStyle(layer).opacity),
+             name: label?.textContent,
+             localOpacity: opacity(heading?.firstElementChild) * opacity(heading),
+             outlineOpacity: opacity(label) * opacity(layer),
              art: [art.left - frame.left, art.top - frame.top, art.width, art.height],
            };
          });
        });
-       assert.equal(faces.length, 3);
+       assert.deepEqual(faces.map(face => face.name), ['LION', 'NOVA', 'ART']);
        assert.ok(faces.every(face => face.localOpacity === 0 && face.outlineOpacity > .99),
          `One outline per card at ${progress}: ${JSON.stringify(faces)}`);
        poses.push(faces);
