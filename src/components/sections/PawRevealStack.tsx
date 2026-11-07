@@ -20,9 +20,9 @@ const BENEFITS = IMAGINE_BENEFITS;
 function artworkSource(source: string, width: number) {
   return source.includes("res.cloudinary.com/") ? source.replace("/image/upload/", `/image/upload/f_auto,q_auto,c_limit,w_${width}/`) : source;
 }
-export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, enabled = true, flow = false }: {
+export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, enabled = true, flow = false, foregroundCode = false }: {
   item: typeof BENEFITS[number]; index: number; artwork?: string; code?: string;
-  serviceTitle?: string; accent?: string; enabled?: boolean; flow?: boolean;
+  serviceTitle?: string; accent?: string; enabled?: boolean; flow?: boolean; foregroundCode?: boolean;
 }) {
   const integrated = !!artwork;
   const tr = usePublicCopy();
@@ -103,7 +103,7 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
   return <article className={styles.card} data-benefit-card data-benefit-index={index} data-scroll-title-skip data-integrated={integrated} data-flow={flow} data-revealed={open} data-phase={phase} data-show-benefit={showBenefit}>
     {integrated && <div className={styles.benefitPaper} data-benefit-paper aria-hidden="true" />}
     {integrated && <header className={styles.integratedHeading} data-benefit-heading>
-      <span className={styles.pillarCode}>{code}</span>
+      <span className={styles.pillarCode} data-benefit-code data-foreground={foregroundCode}>{code}</span>
       <h3>{accent}</h3>
     </header>}
     {!integrated && <div className={styles.cardTop}>

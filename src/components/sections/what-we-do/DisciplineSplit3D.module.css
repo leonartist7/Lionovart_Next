@@ -69,7 +69,7 @@
 @media (prefers-reduced-motion: reduce) and (width < 920px) { .paneSizer:where(:not([data-story-static=false] *)) { height: 16.5rem; } }
 
 .floatingObject { position: absolute; top: -.75rem; right: -1.125rem; z-index: 30; width: clamp(6rem, 10vw, 9.5rem); aspect-ratio: 1; pointer-events: none; transform-style: preserve-3d; }
-.floatingObject img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.floatingObject img { display: block; width: 100%; height: 100%; object-fit: fill; }
 @media (width < 920px) { .floatingObject { top: .5rem; right: auto; left: -.5rem; width: 4.5rem; } }
 @media (prefers-reduced-motion: reduce) { .floatingObject:where(:not([data-story-static=false] *)) { transform: none; } }
 
@@ -92,7 +92,6 @@
 .handoffArtwork { position:absolute; inset:0; overflow:hidden; border-radius:6px; opacity:0; pointer-events:none; }
 .handoffArtwork img { display:block; width:100%; height:100%; object-fit:cover; }
 .floatingCarrier { position:absolute; inset:0; z-index:2; pointer-events:none; opacity:var(--handoff-sculpture,1); transform:translateY(var(--handoff-lift,0px)); }
-.floatingCarrier .floatingObject img { transform:scale(var(--handoff-word-x,1),var(--handoff-word-y,1)) rotate(calc(-1 * var(--handoff-rotate,0deg))); }
 /* The transport owns the plane after the reading interaction has ended. */
 /* The cursor transform eases away only when the white face takes ownership. */
 
@@ -132,10 +131,12 @@
 /* The revealed paper supplies the entire merged face, with no shadow seam. */
 .pane { --opening-card-white:#fffaf1; }
 .frontFace { box-shadow:none; }
-:global([data-card-handoff-active=true]) .floatingObject { left:auto; right:var(--handoff-object-right,.25rem); top:var(--handoff-object-top,.25rem); width:var(--handoff-object-width,3.25rem); height:var(--handoff-object-height,3.25rem); transform:none !important; }
-/* This box counteracts the pane's unequal X/Y scale. Fill that compensated
-   box: contain would letterbox a square before the parent projects it. */
-:global([data-card-handoff-active=true]) .floatingObject img { transform:none; object-fit:fill; }
+/* Keep the same corner anchor while the frame and artwork change shape. */
+.floatingObject {
+  transform-origin: top right;
+  translate: var(--handoff-art-x, 0px) var(--handoff-art-y, 0px);
+  scale: var(--handoff-art-scale-x, 1) var(--handoff-art-scale-y, 1);
+}
 
 /* The corner artwork stays independent of the black reveal cover. */
 .floatingObject { width:clamp(6rem,10.5vw,9rem); }
@@ -145,4 +146,10 @@
 
 /* One screen-space lettering plane stays above every transported card. */
 .letteringLayer { position:fixed; inset:0; z-index:8; pointer-events:none !important; overflow:clip; opacity:0; }
-.letteringLayer .identityLettering { left:0; top:0; transform:none; }
+.letteringLayer .identityLettering {
+  left: 0;
+  top: 0;
+  transform: none;
+  line-height: .9;
+  -webkit-text-stroke-color: color-mix(in srgb, #f5e5c2, #8e7c64 var(--identity-paper, 0%));
+}

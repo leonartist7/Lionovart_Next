@@ -14,9 +14,10 @@ for(let i=0;i<90;i++) {
 }
 assert.ok(ready,'The matching Vercel review preview is ready');
 const browser=await chromium.launch({headless:true});
+const focused = process.env.STORY_REVIEW_FOCUS === 'short';
 const results=[];
 try {
- for(const [w,h,locale,reduced,text=16] of [[768,1024,'en',false],[835,694,'en',false],[390,844,'en',false],[1440,900,'en',false],[320,568,'en',false],[844,390,'en',false],[1023,768,'en',false],[1025,768,'en',false],[1280,720,'en',false],[1920,1080,'en',false],[390,844,'fr',false],[1440,900,'fr',false],[390,844,'fr',true],[390,844,'fr',false,32],[1366,520,'fr',false]].filter(([w,h])=>process.env.STORY_REVIEW_FOCUS!=='short'||(w===1366&&h===520))) {
+ for(const [w,h,locale,reduced,text=16] of [[768,1024,'en',false],[835,694,'en',false],[390,844,'en',false],[1440,900,'en',false],[320,568,'en',false],[844,390,'en',false],[1023,768,'en',false],[1025,768,'en',false],[1280,720,'en',false],[1920,1080,'en',false],[390,844,'fr',false],[1440,900,'fr',false],[390,844,'fr',true],[390,844,'fr',false,32],[1366,520,'fr',false]].filter(([w,h,locale,reduced,text]) => !focused || (w === 1366 && h === 520) || (locale === 'en' && !reduced && !text && (w === 835 || w === 390)))) {
   const context=await browser.newContext({viewport:{width:w,height:h},hasTouch:w<=390,isMobile:w<=390,reducedMotion:reduced?'reduce':'no-preference',recordVideo:{dir:output,size:{width:Math.min(1440,w),height:Math.min(900,h)}}});
   const recordingEpoch=Date.now();let clipStart=0,clipDuration=0;
   const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -38,7 +39,7 @@ try {
   const getExit=()=>page.locator('[data-card-exit]').evaluate(el=>({top:scrollY+el.getBoundingClientRect().top,height:el.offsetHeight}));
   const prefix=`${w}x${h}-${locale}${reduced?'-reduced':''}${text!==16?'-text200':''}`;
   // A continuous pass through the real route precedes the exact-stop fixture work.
-  if((w===1440||w===390)&&locale==='en'&&!reduced&&text===16){
+  if(!focused&&(w===1440||w===390)&&locale==='en'&&!reduced&&text===16){
     const distance=await page.evaluate(()=>document.documentElement.scrollHeight-innerHeight);
     await scroll(0);
     for(const direction of [1,-1]){
@@ -50,7 +51,7 @@ try {
   // Native wheel momentum must finish before precise programmatic stops.
   // Otherwise Lenis can carry the phone back to the hero after scrollTo.
   await page.waitForFunction(()=>!document.documentElement.classList.contains('lenis-scrolling'), {}, {timeout:10000});
-  if(process.env.STORY_REVIEW_FOCUS==='short')assert.equal(animated,false,'Short windows retain readable document flow');
+  if(focused) assert.equal(animated, h > 560, 'Focused review covers the animated handoff and the short reading flow');
   if(!animated){
    const flowCards=page.locator('[data-opening-static] [data-benefit-card]');
    assert.equal(await flowCards.count(),3,'Reading flow retains all three original disciplines');
@@ -133,6 +134,36 @@ try {
      return card.dataset.phase === 'closed' && Math.abs(cover.top - well.top) < 1;
    });
    if(w===835) await page.screenshot({path:`${output}/${prefix}-card-closed.png`});
+   if ((w === 835 || w === 390) && locale === 'en') {
+     const poses = [];
+     for (const progress of [.529, .531, .57, .78, .57, .531, .529]) {
+       await scroll(exit.top - h + progress * (exit.height + h));
+       const faces = await page.evaluate(() => {
+         const layer = document.querySelector('[data-card-lettering-layer]');
+         const labels = [...layer.querySelectorAll('[data-card-identity]')];
+         return [...document.querySelectorAll('[data-persistent-card]')].map((pane, i) => {
+           const art = pane.querySelector('[data-floating-card-object] img').getBoundingClientRect();
+           const frame = pane.getBoundingClientRect();
+           return {
+             localOpacity: Number(getComputedStyle(pane.querySelector('[data-benefit-code]')).opacity),
+             outlineOpacity: Number(getComputedStyle(labels[i]).opacity) * Number(getComputedStyle(layer).opacity),
+             art: [art.left - frame.left, art.top - frame.top, art.width, art.height],
+           };
+         });
+       });
+       assert.equal(faces.length, 3);
+       assert.ok(faces.every(face => face.localOpacity === 0 && face.outlineOpacity > .99),
+         `One outline per card at ${progress}: ${JSON.stringify(faces)}`);
+       poses.push(faces);
+     }
+     for (const [before, after] of [[0, 1], [5, 6]]) {
+       poses[before].forEach((face, i) => {
+         const change = Math.max(...face.art.map((value, j) => Math.abs(value - poses[after][i].art[j])));
+         assert.ok(change < 4, `Corner artwork stays continuous at the white reveal on ${w}px: ${change}px`);
+       });
+     }
+     await page.screenshot({path:`${output}/${prefix}-single-outline.png`});
+   }
    const paperNodes=await page.locator('[data-benefit-paper]').evaluateAll(es=>es.map((el,i)=>{el.dataset.paperIdentity=String(i);return el.dataset.paperIdentity;}));
    assert.equal(paperNodes.length,3,'Each original card owns one paper surface');
    await scroll(exit.top-h+.29*(exit.height+h));
@@ -182,6 +213,12 @@ try {
    assert.ok(Math.max(...lettering.map(r=>r.y))-Math.min(...lettering.map(r=>r.y))<.25,'All wordmark segments share one precise baseline');
    assert.ok(Math.abs(lettering[0].x-lettering[0].paneX-(lettering[0].paneRight-lettering[0].paneX)*.08)<2,'Wordmark stays aligned to the left reading corner');
    assert.deepEqual(await page.locator('[data-persistent-card]').evaluateAll(nodes=>nodes.map(n=>n.dataset.persistentFrameId)),frames,'Original card DOM identities persist');
+   if (focused) {
+     assert.deepEqual(errors.filter(e => !/WebGL|GPU|ResizeObserver loop/.test(e)), []);
+     results.push({ width: w, height: h, locale, animated, cardHandoff: 'passed' });
+     await context.close();
+     continue;
+   }
    await scroll(exit.top-h+(exit.height+h));
    assert.equal(await page.locator('[data-opening-ambient]').evaluate(el=>getComputedStyle(el).visibility),'hidden','The opening poster cannot leave a red haze behind Services');
    const mediaBounds=await page.locator('[data-service-media]').boundingBox();

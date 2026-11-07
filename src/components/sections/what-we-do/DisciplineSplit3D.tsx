@@ -129,6 +129,7 @@ function Pane({
   poster,
   canvasReady,
   interactive,
+  foregroundCode,
   pointerX, pointerY,
   splitGap,
 }: {
@@ -145,6 +146,7 @@ function Pane({
   poster: string;
   canvasReady: boolean;
   interactive: boolean;
+  foregroundCode: boolean;
   pointerX: MotionValue<number>; pointerY: MotionValue<number>;
   splitGap: number;
 }) {
@@ -172,9 +174,12 @@ function Pane({
   const cardZ = useTransform(cardP, [0, 1], [0, 0]);
   const objectOpacity = useTransform(cardP, [.55, .9], [0, 1]);
   const objectScale = useTransform(cardP, [.55, 1], reducedMotion ? [1, 1] : [.82, 1], { ease: FRAME_EASE });
-  const objectX = useTransform(pointerX, p => reducedMotion || !armed ? 0 : p * 14);
-  const objectY = useTransform(() => reducedMotion ? 0 : (1 - cardP.get()) * 18 + (armed ? pointerY.get() * 10 : 0));
-  const objectTurn = useTransform(pointerX, () => 0);
+  const objectTransform = useTransform(() => {
+    const x = !reducedMotion && armed ? pointerX.get() * 14 : 0;
+    const y = reducedMotion ? 0 : (1 - cardP.get()) * 18 + (armed ? pointerY.get() * 10 : 0);
+    const z = reducedMotion ? 0 : 72;
+    return `translate3d(calc(${x}px * var(--handoff-pointer, 1)), calc(${y}px * var(--handoff-pointer, 1)), calc(${z}px * var(--handoff-pointer, 1))) scale(${objectScale.get()})`;
+  });
 
   return (
     <motion.div
@@ -238,7 +243,8 @@ function Pane({
           />
           <div className={styles.integratedFace} data-imagine-card={i}>
             <BenefitCard item={IMAGINE_BENEFITS[i]} index={i} artwork={card.image}
-              code={card.code} serviceTitle={card.title} accent={card.accent} enabled={interactive} />
+              code={card.code} serviceTitle={card.title} accent={card.accent} enabled={interactive}
+              foregroundCode={foregroundCode} />
           </div>
           <motion.div
             className="pointer-events-none absolute inset-0 z-[2]"
@@ -307,11 +313,10 @@ function Pane({
       </motion.div>
       <div ref={registerSlot} className={styles.serviceSlot} data-persistent-service-slot={i} inert />
       <div className={styles.floatingCarrier} aria-hidden="true">
-        <motion.div className={styles.floatingObject} data-floating-card-object={card.code}
-          style={{ opacity: reducedMotion ? 1 : objectOpacity, scale: objectScale, x: objectX, y: objectY, rotateY: objectTurn, z: reducedMotion ? 0 : 72 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={FLOATING_ART[i]} width={320} height={320} alt="" loading="lazy" decoding="async" />
-        </motion.div>
+        <div className={styles.floatingObject} data-floating-card-object={card.code}>
+          <motion.img src={FLOATING_ART[i]} width={320} height={320} alt="" loading="lazy" decoding="async"
+            style={{ opacity: reducedMotion ? 1 : objectOpacity, transform: objectTransform }} />
+        </div>
       </div>
     </motion.div>
   );
@@ -972,6 +977,7 @@ export default function DisciplineSplit3D({
                 isDesktop={isDesktop}
                 flip={flip}
                 interactive={contentReady || !!reduce}
+                foregroundCode={pinned && !!scene && !scene.staticLayout}
                 pointerX={sx} pointerY={sy}
                 splitGap={openingSplitGap(viewportWidth, viewportHeight, isDesktop)}
                 armed={armed}

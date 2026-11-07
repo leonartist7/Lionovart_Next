@@ -190,7 +190,9 @@
   color: transparent;
   -webkit-text-stroke: 1px #f5e5c2;
 }
+.pillarCode[data-foreground=true] { opacity: 0; }
 .integratedHeading h3 {
+  opacity: max(0, calc(1 - 2 * var(--handoff-white, 0)));
   margin: 0;
   font: italic 400 clamp(.875rem, 1.5vw, 1.375rem)/1.15 var(--font-playfair-display), Georgia, serif;
   text-wrap: balance;

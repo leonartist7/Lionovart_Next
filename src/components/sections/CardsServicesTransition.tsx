@@ -10,6 +10,8 @@ import { cardHandoff } from './card-handoff';
 import { cardLettering, cardTailOpacity } from './card-lettering';
 import styles from './ScreeningRoom.module.css';
 
+type ReadingLabel = { x: number; y: number; size: number };
+
 export default function CardsServicesTransition({ children }: { children: ReactNode }) {
   const scene = usePinnedScene();
   const intro = useRef<HTMLDivElement>(null), exit = useRef<HTMLDivElement>(null);
@@ -53,11 +55,21 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     const ambient = node.querySelector<HTMLElement>('[data-opening-ambient]');
     const media = matchMedia(STORY_STATIC_QUERY);
     let frame = 0, dirty = true;
-    let sources: { node:HTMLElement; base:BridgeFrame; reading:CardRect; unit:number; objectWidth:number }[] = [];
+    let sources: { node:HTMLElement; base:BridgeFrame; reading:CardRect; label:ReadingLabel; unit:number; objectWidth:number; objectInset:number }[] = [];
     const mix = (a:number,b:number,p:number) => a+(b-a)*p;
     const rect = (node:Element):CardRect => { const r=node.getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2,width:r.width,height:r.height}; };
+    const readLabel = (pane: HTMLElement, bounds: CardRect): ReadingLabel => {
+      const label = pane.querySelector<HTMLElement>('[data-benefit-code]');
+      if (!label || !bounds.width || !bounds.height) return { x: .08, y: .16, size: .16 };
+      const position = rect(label);
+      return {
+        x: (position.x - position.width / 2 - bounds.x + bounds.width / 2) / bounds.width,
+        y: (position.y - bounds.y + bounds.height / 2) / bounds.height,
+        size: parseFloat(getComputedStyle(label).fontSize) / Math.max(1, pane.offsetHeight),
+      };
+    };
     const clear = (pane:HTMLElement) => {
-      for(const key of ['x','y','scale','depth','material','benefit','object','object-width','object-height','object-right','object-top','white','identity','assembly','tail','corner','art-x','art-y','art-scale']) pane.style.removeProperty(`--handoff-${key}`);
+      for(const key of ['x','y','scale','depth','material','benefit','object','white','identity','assembly','tail','corner','art-x','art-y','art-scale-x','art-scale-y']) pane.style.removeProperty(`--handoff-${key}`);
       pane.style.removeProperty('z-index');
       for(const key of ['size','scale-x','offset-x','x','y']) pane.style.removeProperty(`--identity-${key}`);
       const face=pane.querySelector<HTMLElement>('[data-handoff-surface] > div');
@@ -96,16 +108,19 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       copy.querySelector('[data-brand-optional]')?.setAttribute('aria-hidden',String(isStatic || pose.claim >= .999));
       const letteringLayer=scene?.target?.querySelector<HTMLElement>('[data-card-lettering-layer]');
       const identities=[...(letteringLayer?.querySelectorAll<HTMLElement>('[data-card-identity]') ?? [])];
-      if(letteringLayer) letteringLayer.style.opacity=String(isStatic || node.querySelector('[data-film-active=true]') ? 0 : remaining);
-      const placeIdentity=(index:number,desired:CardRect,assembly:number,units:number[])=>{
-        const identity=identities[index]; if(!identity || !letteringLayer)return;
-        const lettering=cardLettering(desired.width,desired.height,units,index,assembly,innerWidth<768);
-        const origin=letteringLayer.getBoundingClientRect();
-        identity.style.left=`${desired.x-desired.width/2+lettering.x-origin.left}px`;
-        identity.style.top=`${desired.y-desired.height/2+lettering.y-origin.top-lettering.size/2}px`;
-        identity.style.fontSize=`${lettering.size}px`;
-        identity.style.opacity=String(pose.identity * pose.white);
-        return lettering;
+      const showLettering = !isStatic && remaining > .001 && !node.querySelector('[data-film-active=true]');
+      const letteringOrigin = showLettering ? letteringLayer?.getBoundingClientRect() : undefined;
+      if (letteringLayer) {
+        letteringLayer.style.opacity = String(showLettering ? remaining : 0);
+        letteringLayer.style.setProperty('--identity-paper', `${pose.white * 100}%`);
+      }
+      const placeIdentity = (index: number, desired: CardRect, lettering: ReadingLabel) => {
+        const identity = identities[index];
+        if (!identity || !letteringOrigin) return;
+        identity.style.left = `${desired.x - desired.width / 2 + lettering.x - letteringOrigin.left}px`;
+        identity.style.top = `${desired.y - desired.height / 2 + lettering.y - letteringOrigin.top - lettering.size * .45}px`;
+        identity.style.fontSize = `${lettering.size}px`;
+        identity.style.opacity = String(pose.identity);
       };
       // Once the doorway owns the scene, retire card measurement and writes.
       if (!isStatic && remaining <= .001) { node.inert = true; return; }
@@ -132,8 +147,12 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       if (isStatic || pose.progress < (portrait ? .001 : .50) || panes.length !== 3 || targets.length !== 3) {
         panes.forEach((pane,index) => {
           clear(pane);
-          placeIdentity(index,rect(pane),0,[]);
-          identities[index]?.style.setProperty('--handoff-tail','1');
+          if (letteringOrigin) {
+            const bounds = rect(pane);
+            const label = readLabel(pane, bounds);
+            placeIdentity(index, bounds, { x: bounds.width * label.x, y: bounds.height * label.y, size: bounds.height * label.size });
+            identities[index]?.style.setProperty('--handoff-tail', '1');
+          }
           const slot=pane.querySelector<HTMLElement>('[data-persistent-service-slot]');
           if(slot){slot.style.opacity='0';slot.inert=true;}
         });
@@ -158,8 +177,11 @@ export default function CardsServicesTransition({ children }: { children: ReactN
             // an inline child rect can be shorter by several pixels on tablets.
             const unit=(identity?.getBoundingClientRect().width ?? 100)/50;
             const object=pane.querySelector<HTMLElement>('[data-floating-card-object]');
-            const objectWidth=object ? parseFloat(getComputedStyle(object).width) : 48;
-            return {node:pane,base:{...r,parentX,parentY,motionX:matrix.m41,motionY:matrix.m42},reading:r,unit,objectWidth};
+            const objectStyle = object && getComputedStyle(object);
+            const objectWidth = objectStyle ? parseFloat(objectStyle.width) : 48;
+            const objectInset = objectStyle ? parseFloat(objectStyle.right) : 4;
+            const label = readLabel(pane, r);
+            return { node:pane, base:{...r,parentX,parentY,motionX:matrix.m41,motionY:matrix.m42}, reading:r, label, unit, objectWidth, objectInset };
           });
           if(pointer) pointer.style.transform=savedPointer ?? '';
           if (portrait) {
@@ -184,8 +206,16 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         const leader=reading[portrait ? 0 : 1];
         const units=sources.map(source=>source.unit);
         const desiredFrames=reading.map((source,index)=>cardTransportRect(source,leader,destination[index].rect,center.rect,index,destination[index].selected,pose));
-        const letters=desiredFrames.map((desired,index)=>cardLettering(desired.width,desired.height,units,index,pose.assembly,portrait));
-        sources.forEach(({node:pane,base,objectWidth},index)=>{
+        const letters = desiredFrames.map((desired, index) => {
+          const reading = sources[index].label;
+          const merged = cardLettering(desired.width, desired.height, units, index, pose.assembly, portrait);
+          return {
+            x: mix(desired.width * reading.x, merged.x, pose.white),
+            y: mix(desired.height * reading.y, merged.y, pose.white),
+            size: mix(desired.height * reading.size, merged.size, pose.white),
+          };
+        });
+        sources.forEach(({node:pane,base,objectWidth,objectInset},index)=>{
           const target=destination[index];
           const desired=desiredFrames[index];
           const fitted=cardBridgeFrame(base,desired,1,1,false);
@@ -198,7 +228,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           pane.style.setProperty('--handoff-assembly',String(pose.assembly));
           pane.style.setProperty('--handoff-identity',String(pose.identity));
           const lettering=letters[index];
-          placeIdentity(index,desired,pose.assembly,units);
+          placeIdentity(index, desired, lettering);
           if(index<2){
             const next=desiredFrames[index+1],nextLetter=letters[index+1];
             const tailX=desired.x-desired.width/2+lettering.x+units[index]*lettering.size;
@@ -213,16 +243,16 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           pane.style.setProperty('--identity-x',`${lettering.x/identityX}px`);
           pane.style.setProperty('--identity-y',`${lettering.y/identityY}px`);
           pane.style.setProperty('--handoff-benefit',String(pose.benefit));
-          const naturalObject=objectWidth*base.parentY*Math.min(desired.width/base.width,desired.height/base.height);
-          const objectSize=mix(naturalObject,Math.min(104,desired.width*(portrait ? .23 : .09),desired.height*.36),pose.assembly);
-          const gap=Math.max(6,desired.width*.018);
-          const groupLeft=portrait ? desired.width*.08 : desired.width*.92-3*objectSize-2*gap;
-          const objectRight=mix(10,desired.width-groupLeft-index*(objectSize+gap)-objectSize,pose.assembly);
-          pane.style.setProperty('--handoff-object',String(pose.objects));
-          pane.style.setProperty('--handoff-object-width',`${objectSize/identityX}px`);
-          pane.style.setProperty('--handoff-object-height',`${objectSize/identityY}px`);
-          pane.style.setProperty('--handoff-object-right',`${objectRight/identityX}px`);
-          pane.style.setProperty('--handoff-object-top',`${mix(10,Math.max(8,desired.height*.055),pose.assembly)/identityY}px`);
+          const objectSize = Math.min(104, desired.width * (portrait ? .23 : .09), desired.height * .36);
+          const gap = Math.max(6, desired.width * .018);
+          const groupLeft = portrait ? desired.width * .08 : desired.width * .92 - 3 * objectSize - 2 * gap;
+          const objectRight = desired.width - groupLeft - index * (objectSize + gap) - objectSize;
+          const objectTop = Math.max(8, desired.height * .055);
+          pane.style.setProperty('--handoff-object', String(pose.objects));
+          pane.style.setProperty('--handoff-art-x', `${(objectInset - objectRight / identityX) * pose.assembly}px`);
+          pane.style.setProperty('--handoff-art-y', `${(objectTop / identityY - objectInset) * pose.assembly}px`);
+          pane.style.setProperty('--handoff-art-scale-x', String(mix(1, objectSize / (objectWidth * identityX), pose.assembly)));
+          pane.style.setProperty('--handoff-art-scale-y', String(mix(1, objectSize / (objectWidth * identityY), pose.assembly)));
           // No rear card may share the selected card's stacking level.
           pane.style.zIndex=String(pose.spread>.01?(target.selected?10:2-index):(3-index));
           const face=pane.querySelector<HTMLElement>('[data-handoff-surface] > div');
@@ -281,6 +311,8 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     const parentGeometry = new MutationObserver(resize);
     const group=node.querySelector('.opening-card-morph');
     if(group)parentGeometry.observe(group,{attributes:true,attributeFilter:['style']});
+    const opening = node.querySelector('[data-opening-transition]');
+    if (opening) parentGeometry.observe(opening, { attributes: true, attributeFilter: ['data-film-active'] });
     const geometry = new ResizeObserver(resize);
     node.querySelectorAll('[data-persistent-card]').forEach(pane=>geometry.observe(pane));
     world?.querySelectorAll('[data-service-frame-target]').forEach(target=>geometry.observe(target));
