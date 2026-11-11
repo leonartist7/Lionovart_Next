@@ -281,6 +281,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         }
       }
       node.style.setProperty('--handoff-ambient', String(isStatic ? 1 : 1-pose.white));
+      node.style.setProperty('--preview-merge-draw', String(isStatic ? 0 : pose.reshape));
       if (ambient) ambient.style.visibility = !isStatic && pose.white >= .999 ? 'hidden' : '';
       node.style.setProperty('--handoff-proof', String(isStatic ? 1 : pose.proof));
       // Keep the reading face clickable through its transport and hold.
@@ -326,6 +327,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       sources.forEach(({node:pane})=>clear(pane));
       node.style.opacity = ''; node.inert = false; delete node.dataset.cardHandoffActive; delete node.dataset.cardReadingInteractive;
       node.style.removeProperty('--handoff-ambient'); if(ambient)ambient.style.visibility='';
+      node.style.removeProperty('--preview-merge-draw');
       cancelAnimationFrame(frame); observer.disconnect(); geometry.disconnect(); parentGeometry.disconnect(); replacements.disconnect();
       window.removeEventListener('scroll', scrolling); window.removeEventListener('resize', resize);
       window.removeEventListener('lionovart:service-pose',schedule);media.removeEventListener('change', resize); document.fonts.removeEventListener('loadingdone',resize);

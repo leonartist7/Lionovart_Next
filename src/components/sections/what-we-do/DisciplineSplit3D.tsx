@@ -314,8 +314,11 @@ function Pane({
       <div ref={registerSlot} className={styles.serviceSlot} data-persistent-service-slot={i} inert />
       <div className={styles.floatingCarrier} aria-hidden="true">
         <div className={styles.floatingObject} data-floating-card-object={card.code}>
-          <motion.img src={FLOATING_ART[i]} width={320} height={320} alt="" loading="lazy" decoding="async"
-            style={{ opacity: reducedMotion ? 1 : objectOpacity, transform: objectTransform }} />
+          <motion.div className="absolute inset-0" data-preview-corner-art
+            style={{ opacity: reducedMotion ? 1 : objectOpacity, transform: objectTransform }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={FLOATING_ART[i]} width={320} height={320} alt="" loading="lazy" decoding="async" />
+          </motion.div>
         </div>
       </div>
     </motion.div>

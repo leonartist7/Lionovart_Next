@@ -134,8 +134,8 @@ export default function ServicesWorkNavigation({ services, activeIndex, onSelect
     aria-label={tr(workMode ? "Browse selected work" : "Our services")}
     aria-hidden={!staticLayout && !visible} inert={!staticLayout && !visible}
     style={{ opacity: staticLayout ? 1 : visibility, visibility: staticLayout || visible ? "visible" : "hidden" }}>
-    <div className={styles.pill}>
-      <motion.div ref={serviceControls} className={styles.serviceControls} style={{ opacity: staticLayout ? 1 : serviceOpacity }} aria-hidden={!staticLayout && workMode} inert={!staticLayout && workMode}>
+    <div className={styles.pill} data-preview-service-shell>
+      <motion.div ref={serviceControls} className={styles.serviceControls} data-preview-service-controls style={{ opacity: staticLayout ? 1 : serviceOpacity }} aria-hidden={!staticLayout && workMode} inert={!staticLayout && workMode}>
         {services.map((service, index) => <button key={service.id} type="button" className={styles.serviceButton}
           data-service-option data-service-id={service.id} aria-pressed={index === activeIndex} onClick={() => onSelect(index)}>
           <span className={styles.serviceLabel}>{tr(service.short)}</span>

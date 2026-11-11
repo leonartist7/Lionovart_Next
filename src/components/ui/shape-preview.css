@@ -115,3 +115,143 @@
   clip-path: var(--preview-polygon);
   background: radial-gradient(ellipse at 20% 10%, #501b26, #10070f 42%, #030407 72%);
 }
+
+/* Trace the merge in the existing scroll timeline, using the front card as the anchor. */
+:root[data-shape-preview="hexagon"] [data-preview-corner-art]::after {
+  content: "";
+  position: absolute;
+  inset: 1%;
+  pointer-events: none;
+  clip-path: var(--preview-edge);
+  background: #e8bd85;
+  opacity: calc((.28 + var(--spot-active, 0) * .72) * (1 - var(--handoff-white, 0)));
+}
+:root[data-shape-preview="hexagon"] [data-persistent-card]:has(button:focus-visible) [data-preview-corner-art]::after {
+  opacity: calc(1 - var(--handoff-white, 0));
+}
+:root[data-shape-preview="hexagon"] [data-persistent-card="0"]::after {
+  content: "";
+  position: absolute;
+  inset: -.45rem -.65rem;
+  pointer-events: none;
+  z-index: 1;
+  opacity: calc(var(--preview-merge-draw, 0) * var(--handoff-identity, 1));
+  clip-path: polygon(evenodd, 4% 0, 96% 0, 100% 50%, 96% 100%, 4% 100%, 0 50%, 4% 0,
+    4.3% .8%, 95.7% .8%, 99.5% 50%, 95.7% 99.2%, 4.3% 99.2%, .5% 50%, 4.3% .8%);
+  background: conic-gradient(from -66deg, #bc7d43 0 calc(var(--preview-merge-draw, 0) * 1turn), transparent 0);
+}
+
+/* The service dial reuses the same six buttons and active state at every size. */
+:root[data-shape-preview="hexagon"] [data-services-work-navigation][data-browse-mode="services"] {
+  width: min(20rem, calc(100% - 1.5rem));
+  bottom: calc(4.2rem + env(safe-area-inset-bottom));
+}
+:root[data-shape-preview="hexagon"] [data-services-work-navigation][data-static="true"] {
+  bottom: auto;
+}
+:root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-preview-service-shell] {
+  height: auto;
+  padding: .25rem;
+  border-radius: .75rem;
+  background: #f7f3ebe8;
+}
+:root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-preview-service-controls] {
+  position: relative;
+  inset: auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .125rem;
+  overflow: visible;
+}
+:root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-service-option] {
+  isolation: isolate;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: .25rem .4rem;
+  border-radius: .375rem;
+  background: transparent;
+  color: #40372f;
+  font-size: .75rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+:root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-service-option]::before {
+  content: "";
+  position: absolute;
+  inset: .15rem .075rem;
+  z-index: -1;
+  pointer-events: none;
+  clip-path: var(--preview-button);
+  background: #fffdf8;
+}
+:root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-service-option][aria-pressed="true"] {
+  color: #fffaf1;
+  box-shadow: none;
+}
+:root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-service-option][aria-pressed="true"]::before {
+  background: #9a1930;
+}
+@media (hover: hover) and (pointer: fine) {
+  :root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-service-option]:not([aria-pressed="true"]):hover::before {
+    background: #f4e3d3;
+  }
+}
+@media (max-width: 1279px), (max-height: 719px) {
+  :root[data-shape-preview="hexagon"] [data-story-static="false"] [data-services-stage] [data-service-panel] {
+    bottom: calc(10.75rem + env(safe-area-inset-bottom));
+  }
+}
+@media (min-width: 1280px) and (min-height: 720px) {
+  :root[data-shape-preview="hexagon"] [data-services-work-navigation][data-browse-mode="services"] {
+    left: auto;
+    right: max(1.25rem, calc((100vw - 1500px) / 2 + 1.25rem));
+    bottom: max(3.5svh, 1.25rem);
+    width: 14rem;
+    transform: none;
+  }
+  :root[data-shape-preview="hexagon"] [data-services-work-navigation][data-static="true"] {
+    right: auto;
+    bottom: auto;
+  }
+  :root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-preview-service-shell] {
+    aspect-ratio: 1;
+    padding: 0;
+    border-color: #a9967148;
+    border-radius: 50%;
+  }
+  :root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-preview-service-controls] {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+  :root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-preview-service-controls]::before {
+    content: "";
+    position: absolute;
+    inset: 12%;
+    border: 1px solid #b797704d;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  :root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-preview-service-controls]::after {
+    content: "";
+    position: absolute;
+    inset: 42%;
+    background: #a2754c;
+    clip-path: var(--preview-edge);
+    pointer-events: none;
+  }
+  :root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-service-option] {
+    position: absolute;
+    z-index: 1;
+    width: 4.5rem;
+    left: var(--dial-x);
+    top: var(--dial-y);
+    transform: translate(-50%, -50%);
+  }
+  :root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-service-option]:nth-child(1) { --dial-x: 50%; --dial-y: 12%; }
+  :root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-service-option]:nth-child(2) { --dial-x: 81%; --dial-y: 30%; }
+  :root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-service-option]:nth-child(3) { --dial-x: 81%; --dial-y: 70%; }
+  :root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-service-option]:nth-child(4) { --dial-x: 50%; --dial-y: 88%; }
+  :root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-service-option]:nth-child(5) { --dial-x: 19%; --dial-y: 70%; }
+  :root[data-shape-preview="hexagon"] [data-browse-mode="services"] [data-service-option]:nth-child(6) { --dial-x: 19%; --dial-y: 30%; }
+}

@@ -52,6 +52,49 @@ async function verifyShapePreview(width, height) {
     const gallery = page.locator('[data-gallery-runway]');
     const animated = await page.locator('[data-service-world]').getAttribute('data-story-static') === 'false';
     if (animated) {
+      const scrollCards = async progress => {
+        await page.locator('[data-card-exit]').evaluate((el, p) => {
+          const bounds = el.getBoundingClientRect();
+          scrollTo({ top: scrollY + bounds.top - innerHeight + p * (bounds.height + innerHeight), behavior: 'instant' });
+        }, progress);
+        await page.waitForFunction(p => Math.abs(Number(document.querySelector('[data-card-exit]')?.dataset.handoffProgress) - p) < .006, progress);
+      };
+      await scrollCards(.52);
+      const corner = page.locator('[data-preview-corner-art]').first();
+      assert.match(await shape(corner, '::after'), /^polygon\(evenodd/, 'Corner artwork has a hexagonal outline');
+      await scrollCards(.78);
+      const merged = page.locator('[data-persistent-card="0"]');
+      assert.match(await shape(merged, '::after'), /^polygon\(evenodd/, 'One outline wraps the merged cards');
+      assert.ok(await merged.evaluate(el => Number(getComputedStyle(el, '::after').opacity) > .95));
+      await page.screenshot({ path: `${output}/shapes-${width}-card-merge.png` });
+      await scrollCards(1);
+      const nav = page.locator('[data-services-work-navigation]');
+      const choices = nav.locator('[data-service-option]');
+      await choices.first().waitFor({ state: 'visible' });
+      assert.equal(await choices.count(), 6);
+      const boxes = await choices.evaluateAll(elements => elements.map(el => {
+        const box = el.getBoundingClientRect();
+        return { x: Math.round(box.x), y: Math.round(box.y), height: box.height };
+      }));
+      assert.ok(boxes.every(box => box.height >= 44), 'Service choices retain usable touch targets');
+      assert.equal(new Set(boxes.map(box => box.y)).size, width >= 1280 ? 4 : 2,
+        'Desktop wraps choices around the dial and mobile uses two rows');
+      if (width < 768) {
+        assert.equal(new Set(boxes.map(box => box.x)).size, 3, 'Three choices fit in each phone row');
+        const reading = await page.locator('[data-service-reading]').boundingBox();
+        const dock = await nav.boundingBox();
+        assert.ok(reading.y + reading.height <= dock.y + 2, 'Phone service copy clears the selector');
+      }
+      await choices.nth(2).click();
+      await page.waitForFunction(() => document.querySelector('[data-service-content]')?.getAttribute('data-service-current') === 'web');
+      assert.equal(await choices.nth(2).getAttribute('aria-pressed'), 'true');
+      assert.equal((await shape(choices.nth(2), '::before')).split(',').length, 6);
+      await page.screenshot({ path: `${output}/shapes-${width}-service-dial.png` });
+      await page.locator('[data-preview-option="original"]').click();
+      await page.waitForFunction(() => !document.documentElement.hasAttribute('data-shape-preview'));
+      assert.equal(await shape(choices.nth(2), '::before'), 'none', 'Original restores the service rail');
+      await page.locator('[data-preview-option="hexagon"]').click();
+      await page.waitForFunction(() => document.documentElement.dataset.shapePreview === 'hexagon');
       const y = await gallery.evaluate(el => scrollY + el.getBoundingClientRect().top - innerHeight * 1.1 * (1 - .76));
       await page.evaluate(y => scrollTo({ top: y, behavior: 'instant' }), y);
       await page.waitForFunction(() => document.querySelector('[data-service-podium] [data-iris]')?.style.clipPath.startsWith('polygon(evenodd'));
