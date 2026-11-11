@@ -15,9 +15,13 @@ for(let i=0;i<90;i++) {
 assert.ok(ready,'The matching Vercel review preview is ready');
 const browser=await chromium.launch({headless:true});
 const focused = process.env.STORY_REVIEW_FOCUS === 'short';
+const shapeOnly = process.env.STORY_REVIEW_FOCUS === 'shape';
 const results=[];
 async function verifyShapePreview(width, height) {
-  const context = await browser.newContext({ viewport: { width, height }, hasTouch: width < 768, isMobile: width < 768 });
+  const context = await browser.newContext({
+    viewport: { width, height }, hasTouch: width < 768, isMobile: width < 768,
+    recordVideo: shapeOnly ? { dir: output, size: { width, height } } : undefined,
+  });
   try {
     const page = await context.newPage();
     await page.addInitScript(() => sessionStorage.setItem('lionovart:exit-intent-shown', '1'));
@@ -115,11 +119,11 @@ async function verifyShapePreview(width, height) {
 }
 
 try {
- if (focused) {
+ if (focused || shapeOnly) {
    await verifyShapePreview(1366, 820);
    await verifyShapePreview(390, 844);
  }
- for(const [w,h,locale,reduced,text=16] of [[768,1024,'en',false],[835,694,'en',false],[390,844,'en',false],[1440,900,'en',false],[320,568,'en',false],[844,390,'en',false],[1023,768,'en',false],[1025,768,'en',false],[1280,720,'en',false],[1920,1080,'en',false],[390,844,'fr',false],[1440,900,'fr',false],[390,844,'fr',true],[390,844,'fr',false,32],[1366,520,'fr',false]].filter(([w,h,locale,reduced,text]) => !focused || (w === 1366 && h === 520) || (locale === 'en' && !reduced && !text && (w === 835 || w === 390)))) {
+ for(const [w,h,locale,reduced,text=16] of [[768,1024,'en',false],[835,694,'en',false],[390,844,'en',false],[1440,900,'en',false],[320,568,'en',false],[844,390,'en',false],[1023,768,'en',false],[1025,768,'en',false],[1280,720,'en',false],[1920,1080,'en',false],[390,844,'fr',false],[1440,900,'fr',false],[390,844,'fr',true],[390,844,'fr',false,32],[1366,520,'fr',false]].filter(([w,h,locale,reduced,text]) => !shapeOnly && (!focused || (w === 1366 && h === 520) || (locale === 'en' && !reduced && !text && (w === 835 || w === 390))))) {
   const context=await browser.newContext({viewport:{width:w,height:h},hasTouch:w<=390,isMobile:w<=390,reducedMotion:reduced?'reduce':'no-preference',recordVideo:{dir:output,size:{width:Math.min(1440,w),height:Math.min(900,h)}}});
   const recordingEpoch=Date.now();let clipStart=0,clipDuration=0;
   const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
