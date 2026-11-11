@@ -52,12 +52,27 @@ async function verifyShapePreview(width, height) {
     const gallery = page.locator('[data-gallery-runway]');
     const animated = await page.locator('[data-service-world]').getAttribute('data-story-static') === 'false';
     if (animated) {
+      // A native tap can leave Lenis settling and carry the viewport back to the hero.
+      const runway = page.locator('[data-card-exit]');
       const scrollCards = async progress => {
-        await page.locator('[data-card-exit]').evaluate((el, p) => {
-          const bounds = el.getBoundingClientRect();
-          scrollTo({ top: scrollY + bounds.top - innerHeight + p * (bounds.height + innerHeight), behavior: 'instant' });
-        }, progress);
-        await page.waitForFunction(p => Math.abs(Number(document.querySelector('[data-card-exit]')?.dataset.handoffProgress) - p) < .006, progress);
+        for (let attempt = 0; attempt < 3; attempt++) {
+          await page.waitForFunction(() => !document.documentElement.classList.contains('lenis-scrolling'), {}, { timeout: 10000 });
+          const y = await runway.evaluate((el, p) => {
+            const bounds = el.getBoundingClientRect();
+            return scrollY + bounds.top - innerHeight + p * (bounds.height + innerHeight);
+          }, progress);
+          await page.evaluate(top => window.scrollTo({ top, behavior: 'instant' }), y);
+          try {
+            await page.waitForFunction(p => Math.abs(Number(document.querySelector('[data-card-exit]')?.dataset.handoffProgress) - p) < .008,
+              progress, { timeout: 3500 });
+            return;
+          } catch (error) {
+            const position = await runway.evaluate(el => ({ scrollY, top: el.getBoundingClientRect().top,
+              viewport: innerHeight, actual: el.dataset.handoffProgress, story: el.closest('[data-service-world]')?.dataset.storyStatic }));
+            console.log(JSON.stringify({ check: 'shape-preview-scroll', width, target: progress, y, position }));
+            if (attempt === 2) throw error;
+          }
+        }
       };
       await scrollCards(.52);
       const corner = page.locator('[data-preview-corner-art]').first();
