@@ -26,14 +26,17 @@ export default function HeroLightRays() {
   const visible = useSyncExternalStore(subscribeVisibility, isPageVisible, serverVisible);
   const reducedMotion = useHydratedReducedMotion();
   const [graphicsUnavailable, setGraphicsUnavailable] = useState(false);
-  const showStill = useCallback(() => setGraphicsUnavailable(true), []);
+  const [painted, setPainted] = useState(false);
+  const showStill = useCallback(() => { setGraphicsUnavailable(true); setPainted(false); }, []);
+  const showLive = useCallback(() => setPainted(true), []);
   const still = reducedMotion || graphicsUnavailable;
   const animated = active && visible && !still;
 
-  return <motion.div className={styles.host} style={{ opacity }} aria-hidden="true" data-hero-light-rays data-rays-active={animated} data-rays-color={scene.raysColor} data-rays-secondary-color="#ef152b" data-rays-cycle-seconds="16" data-rays-origin={scene.raysOrigin}>
-    {active && still && <div className={styles.still} style={{ background: `radial-gradient(ellipse at 50% ${scene.raysOrigin === "top-center" ? "0%" : "100%"}, ${scene.raysColor}33 0%, ${scene.raysColor}0d 35%, transparent 72%)` }} />}
+  return <motion.div className={styles.host} style={{ opacity }} aria-hidden="true" data-hero-light-rays data-intro-rays={!active || still ? "still" : painted ? "live" : "pending"} data-rays-active={animated} data-rays-color={scene.raysColor} data-rays-secondary-color="#ef152b" data-rays-cycle-seconds="16" data-rays-origin={scene.raysOrigin}>
+    {active && (still || !painted) && <div className={styles.still} style={{ background: `radial-gradient(ellipse at 50% ${scene.raysOrigin === "top-center" ? "0%" : "100%"}, ${scene.raysColor}33 0%, ${scene.raysColor}0d 35%, transparent 72%)` }} />}
     {animated && <LightRays
       onUnavailable={showStill}
+      onFirstFrame={showLive}
       raysOrigin={scene.raysOrigin}
       raysColor={scene.raysColor}
       raysSecondaryColor="#ef152b"

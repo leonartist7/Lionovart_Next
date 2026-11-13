@@ -4,25 +4,46 @@
   z-index: 10000;
   overflow: hidden;
   contain: strict;
-  background: #000;
+  background: #0d0a0d;
   opacity: 1;
-  transition: opacity 450ms ease;
-  /* Independent of React: release even if hydration never starts. */
+  /* The CSS clock starts before hydration and can release the overlay on its own. */
   animation: intro-failsafe 9s step-end forwards;
 }
-.stage { position: absolute; inset: 0; opacity: 0; transition: opacity 350ms ease; }
-.screen[data-frame-ready="true"] .stage { opacity: 1; }
-.screen[data-phase="revealing"], .screen[data-phase="complete"] { opacity: 0; }
-.canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.stage, .canvas, .lattice, .shade { position: absolute; inset: 0; pointer-events: none; }
+.canvas { width: 100%; height: 100%; opacity: 0; transition: opacity .3s ease; }
+.lattice {
+  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20144%2083.14'%3E%3Cpath%20d%3D'M48.00%20-83.14L24.00%20-41.57L-24.00%20-41.57L-48.00%20-83.14L-24.00%20-124.71L24.00%20-124.71ZM48.00%200.00L24.00%2041.57L-24.00%2041.57L-48.00%200.00L-24.00%20-41.57L24.00%20-41.57ZM48.00%2083.14L24.00%20124.71L-24.00%20124.71L-48.00%2083.14L-24.00%2041.57L24.00%2041.57ZM120.00%20-41.57L96.00%200.00L48.00%200.00L24.00%20-41.57L48.00%20-83.14L96.00%20-83.14ZM120.00%2041.57L96.00%2083.14L48.00%2083.14L24.00%2041.57L48.00%200.00L96.00%200.00ZM120.00%20124.71L96.00%20166.28L48.00%20166.28L24.00%20124.71L48.00%2083.14L96.00%2083.14ZM192.00%20-83.14L168.00%20-41.57L120.00%20-41.57L96.00%20-83.14L120.00%20-124.71L168.00%20-124.71ZM192.00%200.00L168.00%2041.57L120.00%2041.57L96.00%200.00L120.00%20-41.57L168.00%20-41.57ZM192.00%2083.14L168.00%20124.71L120.00%20124.71L96.00%2083.14L120.00%2041.57L168.00%2041.57Z'%20fill%3D'%23191216'%20stroke%3D'%236a5340'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E") center / clamp(6.5rem, 14vw, 11rem) auto;
+  transform: scale(var(--intro-fallback-zoom, 1));
+  transition: opacity .3s ease;
+}
+.screen[data-intro-visual="honeycomb"] .canvas { opacity: 1; }
+.screen[data-intro-visual="honeycomb"] .lattice { opacity: 0; }
+.shade { background: radial-gradient(ellipse at center, #100b10eb, #100b10bb 22%, #100b102e 64%, #0d0a0d9c); }
+.wordmark {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: min(66vw, 21rem);
+  aspect-ratio: 4.7;
+  transform: translate(-50%, -50%);
+  background: url("/images/LOGO.svg") center / contain no-repeat;
+  opacity: var(--intro-wordmark-opacity, 1);
+  pointer-events: none;
+}
 .status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .skip {
   position: absolute;
-  right: max(16px, env(safe-area-inset-right));
-  bottom: max(16px, env(safe-area-inset-bottom));
-  min-width: 64px; min-height: 44px; padding: 8px 14px;
-  border-radius: 24px; border: 1px solid #888;
-  background: #111; color: #fff; cursor: pointer; font-size: 14px;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  min-width: 64px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border-radius: 24px;
+  border: 1px solid #887257;
+  background: #181216;
+  color: #fff5e7;
+  cursor: pointer;
+  font-size: 14px;
 }
-.skip:focus-visible { outline: 3px solid #e5192a; outline-offset: 4px; }
+.skip:focus-visible { outline: 2px solid #f3d7aa; outline-offset: 4px; }
 @keyframes intro-failsafe { from { visibility: visible; pointer-events: auto; } to { visibility: hidden; pointer-events: none; } }
-@media (prefers-reduced-motion: reduce) { .screen, .stage { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .canvas, .lattice { transition: none; } }

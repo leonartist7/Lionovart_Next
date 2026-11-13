@@ -52,6 +52,7 @@ const LightRays = ({
   distortion = 0.0,
   lightMode = false,
   onUnavailable = noop,
+  onFirstFrame = noop,
   className = ''
 }) => {
   const containerRef = useRef(null);
@@ -303,6 +304,7 @@ void main() {
         uniforms.rayDir.value = dir;
       };
 
+      let painted = false;
       const loop = t => {
         if (!rendererRef.current || !uniformsRef.current || !meshRef.current) {
           return;
@@ -321,6 +323,7 @@ void main() {
 
         try {
           renderer.render({ scene: mesh });
+          if (!painted) { painted = true; onFirstFrame(); }
           animationIdRef.current = requestAnimationFrame(loop);
         } catch {
           onUnavailable();
@@ -378,6 +381,7 @@ void main() {
   }, [
     isVisible,
     onUnavailable,
+    onFirstFrame,
     raysOrigin,
     raysColor,
     raysSecondaryColor,

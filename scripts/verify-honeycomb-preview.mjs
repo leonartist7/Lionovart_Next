@@ -15,6 +15,66 @@ async function start(page, query = '?shape=hexagon') {
   await page.waitForFunction(() => document.documentElement.dataset.splashComplete === 'true', null, { timeout: 90000 });
 }
 
+async function verifyIntro() {
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  try {
+    const page = await context.newPage();
+    let unblock;
+    const blocked = new Promise(resolve => { unblock = resolve; });
+    await page.route('**/models/roar/roar-placeholder.svg', async route => {
+      await blocked;
+      await route.continue();
+    });
+    try {
+      await page.goto(base + '/?shape=hexagon', { waitUntil: 'domcontentloaded' });
+      await page.locator('[data-intro-visual="honeycomb"]').waitFor({ timeout: 7500 });
+      assert.equal(await page.locator('[data-intro]').getAttribute('data-phase'), 'preparing');
+      assert.equal(await page.evaluate(() => document.documentElement.dataset.splashComplete), undefined);
+      assert.equal(await page.evaluate(() => document.body.style.overflow), 'hidden');
+      await page.screenshot({ path: output + '/preloader.png' });
+    } finally {
+      unblock();
+    }
+    await page.waitForFunction(() => document.documentElement.dataset.splashComplete === 'true');
+    const state = await page.evaluate(() => ({
+      reason: document.documentElement.dataset.introResult,
+      content: document.documentElement.dataset.introContent,
+      graphics: document.documentElement.dataset.introGraphics,
+      marks: performance.getEntriesByType('mark').map(mark => mark.name),
+      lock: document.body.style.overflow,
+    }));
+    assert.equal(state.reason, 'ready');
+    assert.equal(state.content, 'ready');
+    assert.match(state.graphics, /^(live|fallback)$/);
+    assert.notEqual(state.lock, 'hidden');
+    assert.ok(state.marks.indexOf('lionovart:intro:honeycomb-painted') >= 0);
+    assert.ok(state.marks.indexOf('lionovart:intro:hero-ready') < state.marks.indexOf('lionovart:intro:reveal'));
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => document.documentElement.dataset.introResult === 'returning');
+    console.log('Verified first-frame honeycomb, hero asset gate, reveal, and session bypass');
+  } finally {
+    await context.close();
+  }
+
+  const fallback = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  try {
+    await fallback.addInitScript(() => {
+      const native = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function (type, ...options) {
+        if (this.hasAttribute('data-intro-honeycomb') && type === 'webgl2') return null;
+        return native.call(this, type, ...options);
+      };
+    });
+    const page = await fallback.newPage();
+    await start(page);
+    assert.equal(await page.evaluate(() => document.documentElement.dataset.introAnimation), 'fallback');
+    assert.equal(await page.evaluate(() => document.documentElement.dataset.introResult), 'ready');
+    console.log('Verified the non-WebGL loader reaches the hero');
+  } finally {
+    await fallback.close();
+  }
+}
+
 async function verifyOpeningControls(page, hero) {
   const sound = page.locator('[data-experience-sound]:visible').first();
   assert.equal(await sound.getAttribute('aria-pressed'), 'true');
@@ -198,7 +258,10 @@ async function check(width, height, phone = false) {
 
 try {
   const viewport = process.env.STORY_VIEWPORT;
-  if (!viewport || viewport === 'desktop') await check(1440, 900);
+  if (!viewport || viewport === 'desktop') {
+    await verifyIntro();
+    await check(1440, 900);
+  }
   if (!viewport || viewport === 'tablet') await check(768, 1024);
   if (!viewport || viewport === 'phone') await check(390, 844, true);
   if (!viewport || viewport === 'phone') {
@@ -206,6 +269,8 @@ try {
     await start(reduced, '');
     await reduced.locator('[data-static-project]').first().waitFor();
     assert.equal(await reduced.locator(canvas).count(), 0);
+    assert.equal(await reduced.evaluate(() => document.documentElement.dataset.introAnimation), 'fallback');
+    assert.equal(await reduced.evaluate(() => document.documentElement.dataset.introResult), 'ready');
   }
 } finally {
   await browser.close();

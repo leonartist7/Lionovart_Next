@@ -6,3 +6,6 @@
 .surface canvas { display: block; width: 100%; height: 100%; }
 .word[data-ready="true"] .surface { opacity: 1; }
 .word[data-ready="true"] .poster { visibility: hidden; }
+
+.textFallback { display: block; position: absolute; inset: 0; color: #d1ab72; }
+.word[data-ready="true"] .textFallback { visibility: hidden; }

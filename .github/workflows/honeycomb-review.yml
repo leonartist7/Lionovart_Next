@@ -34,7 +34,7 @@ jobs:
       - name: Install locked application dependencies
         run: npm ci
       - name: Verify the lattice and transition math
-        run: node --test scripts/honeycomb-journey.test.mjs scripts/gallery-journey.test.mjs scripts/service-gallery-handoff.test.mjs
+        run: node --test scripts/intro-readiness.test.mjs scripts/honeycomb-journey.test.mjs scripts/gallery-journey.test.mjs scripts/service-gallery-handoff.test.mjs
       - name: Build and type-check the homepage
         run: npm run build
       - name: Install Chromium verification tools

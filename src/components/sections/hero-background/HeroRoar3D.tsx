@@ -1,6 +1,5 @@
 "use client";
-import {useEffect,useRef,useSyncExternalStore,type CSSProperties} from "react";
-import {useIntroLifecycle} from "@/components/ui/IntroLifecycle";
+import {useEffect,useRef,useState,useSyncExternalStore,type CSSProperties} from "react";
 import model from "@/lib/hero-roar/model.json";
 import {roarProfile,pointerTilt,dampTilt,settledTilt} from "@/lib/hero-roar/motion.mjs";
 import type {RoarEngine} from "@/lib/hero-roar/engine";
@@ -18,7 +17,8 @@ export default function HeroRoar3D(props: Props) {
 }
 function DesktopRoar({quality="auto",maxTiltX=7,maxTiltY=12,responseMs=240,exportRequest=0,onPoster}:Props){
  const root=useRef<HTMLSpanElement>(null),surface=useRef<HTMLSpanElement>(null),engineRef=useRef<RoarEngine|undefined>(undefined);
- const exported=useRef(0);const {released}=useIntroLifecycle();
+ const exported=useRef(0);
+ const [posterFailed,setPosterFailed]=useState(false);
  useEffect(()=>{
   const host=root.current,canvas=surface.current;if(!host||!canvas)return;
   const fine=matchMedia("(hover: hover) and (pointer: fine)"),reduced=matchMedia("(prefers-reduced-motion: reduce)");
@@ -27,7 +27,7 @@ function DesktopRoar({quality="auto",maxTiltX=7,maxTiltY=12,responseMs=240,expor
   let profile=roarProfile(quality,innerWidth,fine.matches),tilt={x:0,y:0},target={x:0,y:0};
   const allowed=()=>visible&&!document.hidden&&!host.closest("[data-opening-hero]")?.hasAttribute("inert");
   const stop=()=>{cancelAnimationFrame(frame);frame=0;last=0;lastPaint=0;host.dataset.animationActive="false";};
-  const fail=()=>{failed=true;ready=false;stop();host.dataset.ready="false";host.dataset.mode="poster";engineRef.current?.dispose();engineRef.current=undefined;wake();};
+  const fail=()=>{failed=true;ready=false;stop();host.dataset.ready="false";host.dataset.mode="poster";host.dataset.introRoar="still";engineRef.current?.dispose();engineRef.current=undefined;wake();};
   const paint=(now:number)=>{
    frame=0;if(!allowed()){stop();return;}
    if(lastPaint&&now-lastPaint<1000/(profile==="mobile"?30:60)-1){frame=requestAnimationFrame(paint);return;}
@@ -35,7 +35,7 @@ function DesktopRoar({quality="auto",maxTiltX=7,maxTiltY=12,responseMs=240,expor
    const seconds=last?(now-last)/1000:1/60;last=now;
    tilt=reduced.matches||!fine.matches||profile==="mobile"?{x:0,y:0}:dampTilt(tilt,target,seconds,responseMs);
    if(settledTilt(tilt,target))tilt={...target};
-   if(ready&&engineRef.current){engineRef.current.render(tilt.x,tilt.y);host.dataset.ready=String(ready);}
+   if(ready&&engineRef.current){engineRef.current.render(tilt.x,tilt.y);host.dataset.ready=String(ready);if(ready&&host.dataset.introRoar!=="live")host.dataset.introRoar="live";}
    if(!ready){host.style.setProperty("--roar-x",`${tilt.x*180/Math.PI}deg`);host.style.setProperty("--roar-y",`${tilt.y*180/Math.PI}deg`);}
    host.dataset.tiltX=String(tilt.x*180/Math.PI);host.dataset.tiltY=String(tilt.y*180/Math.PI);
    if(!reduced.matches&&fine.matches&&profile==="desktop"&&!settledTilt(tilt,target)){host.dataset.animationActive="true";frame=requestAnimationFrame(paint);}
@@ -43,7 +43,7 @@ function DesktopRoar({quality="auto",maxTiltX=7,maxTiltY=12,responseMs=240,expor
   };
   const wake=()=>{if(allowed()&&!frame){host.dataset.animationActive="true";frame=requestAnimationFrame(paint);}};
   async function load(){
-   if(disposed||failed||ready||loading||!released||!allowed()||profile==="mobile"||reduced.matches||connection?.saveData)return;
+   if(disposed||failed||ready||loading||!allowed()||profile==="mobile"||reduced.matches||connection?.saveData)return;
    loading=true;const token=++generation;
    host!.dataset.initCount=String(Number(host!.dataset.initCount||0)+1);
    try{
@@ -69,7 +69,7 @@ function DesktopRoar({quality="auto",maxTiltX=7,maxTiltY=12,responseMs=240,expor
    target=pointerTilt((event.clientX-bounds.left)/bounds.width*2-1,(event.clientY-bounds.top)/bounds.height*2-1,maxTiltX,maxTiltY);wake();
   };
   const neutral=()=>{target={x:0,y:0};if(profile==="desktop"&&!settledTilt(tilt,target))wake();};
-  const media=()=>{tilt={x:0,y:0};target={x:0,y:0};resize();};
+  const media=()=>{tilt={x:0,y:0};target={x:0,y:0};if(reduced.matches&&!ready)host.dataset.introRoar="still";resize();void load();};
   const visibility=()=>{if(!allowed())stop();else{void load();wake();}};
   const scrollVisibility=()=>{if(!allowed())stop();else{void load();if(!settledTilt(tilt,target))wake();}};
   const observer=new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;visibility();},{threshold:.01});observer.observe(host);
@@ -79,19 +79,20 @@ function DesktopRoar({quality="auto",maxTiltX=7,maxTiltY=12,responseMs=240,expor
   fine.addEventListener("change",media);reduced.addEventListener("change",media);
   document.addEventListener("visibilitychange",visibility);window.addEventListener("scroll",scrollVisibility,{passive:true});
   window.addEventListener("resize",resize);
-  host.dataset.ready="false";host.dataset.animationActive="false";host.dataset.mode="poster";
+  host.dataset.ready="false";host.dataset.animationActive="false";host.dataset.mode="poster";host.dataset.introRoar=reduced.matches||connection?.saveData||profile==="mobile"?"still":"pending";
   return ()=>{disposed=true;generation++;stop();observer.disconnect();sizes.disconnect();pointerHost.removeEventListener("pointermove",move);pointerHost.removeEventListener("pointerleave",neutral);fine.removeEventListener("change",media);reduced.removeEventListener("change",media);document.removeEventListener("visibilitychange",visibility);window.removeEventListener("scroll",scrollVisibility);window.removeEventListener("resize",resize);engineRef.current?.dispose();engineRef.current=undefined;};
- },[released,quality,maxTiltX,maxTiltY,responseMs]);
+ },[quality,maxTiltX,maxTiltY,responseMs]);
  useEffect(()=>{
   if(!exportRequest||exportRequest===exported.current||!engineRef.current)return;
   exported.current=exportRequest;let cancelled=false;
   void engineRef.current.poster().then(blob=>{if(!cancelled)onPoster?.(blob);}).catch(()=>{});
   return ()=>{cancelled=true;};
  },[exportRequest,onPoster]);
- return <span ref={root} className={`lion-roar-text ${styles.word}`} style={{"--roar-width":model.frameWidthEm,"--roar-line-center":model.lineCenterY} as CSSProperties} data-roar-3d data-ready="false">
+ return <span ref={root} className={`lion-roar-text ${styles.word}`} style={{"--roar-width":model.frameWidthEm,"--roar-line-center":model.lineCenterY} as CSSProperties} data-roar-3d data-ready="false" data-intro-roar="pending">
   <span className={styles.semantic}>ROAR</span>
-  {/* eslint-disable-next-line @next/next/no-img-element */}
-  <img className={styles.poster} src="/models/roar/roar-placeholder.svg" alt="" aria-hidden="true" width={1536} height={575} />
+  {posterFailed ? <span className={styles.textFallback} aria-hidden="true">ROAR</span> :
+    // eslint-disable-next-line @next/next/no-img-element
+    <img className={styles.poster} src="/models/roar/roar-placeholder.svg" alt="" aria-hidden="true" width={1536} height={575} data-intro-roar-poster onError={()=>setPosterFailed(true)} />}
   <span ref={surface} className={styles.surface} aria-hidden="true" />
  </span>;
 }

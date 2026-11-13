@@ -13,12 +13,14 @@ const ATLAS_COLUMNS = 4;
 const FRAME_WIDTH = 1.38;
 const FRAME_HEIGHT = FRAME_WIDTH * 9 / 16;
 
-type Pose = { arrival: number; lift: number; push: number; opacity: number };
+type Pose = { arrival: number; lift: number; push: number; opacity: number; panX?: number; panY?: number };
+type RenderOptions = { opening?: boolean; onFirstFrame?: () => void };
 
 export function createHoneycombRenderer(
   canvas: HTMLCanvasElement,
   projects: readonly GalleryWork[],
   onFailure: () => void,
+  { opening = false, onFirstFrame }: RenderOptions = {},
 ) {
   const atlas = document.createElement('canvas');
   const count = projects.length;
@@ -106,6 +108,7 @@ export function createHoneycombRenderer(
   let pose: Pose = { arrival: 0, lift: 0, push: 0, opacity: 0 };
   let fittedWidth = 0, fittedTop = .4;
   let nextPoster = 0;
+  let painted = false;
 
   function invalidate() {
     dirty = true;
@@ -120,15 +123,17 @@ export function createHoneycombRenderer(
     const settling = pan.distanceToSquared(target) > .00001;
     if (settling) pan.lerp(target, .22);
     else pan.copy(target);
-    const exit = pose.lift > 0 ? nearestProject(pan.x, pan.y, count - 1, count) : pan;
+    const x = pose.panX ?? pan.x, y = pose.panY ?? pan.y;
+    const exit = pose.lift > 0 ? nearestProject(x, y, count - 1, count) : { x, y };
     const focus = pose.lift * (1 - pose.push) + pose.push;
-    const centerX = pan.x + (exit.x - pan.x) * focus;
-    const centerY = pan.y + (exit.y - pan.y) * focus;
+    const centerX = x + (exit.x - x) * focus;
+    const centerY = y + (exit.y - y) * focus;
     const aspect = width / height;
     const startZoom = 1 + 1.4 * (1 - pose.arrival);
-    const endZoom = fittedWidth > 0 ? (fittedWidth / height) * span / FRAME_WIDTH : 3;
+    const endZoom = opening ? 1.08 * span * Math.max(aspect / FRAME_WIDTH, 1 / FRAME_HEIGHT)
+      : fittedWidth > 0 ? (fittedWidth / height) * span / FRAME_WIDTH : 3;
     const zoom = startZoom + (endZoom - startZoom) * pose.push;
-    const yShift = (pose.push * (.5 - fittedTop) * span) / zoom;
+    const yShift = opening ? 0 : (pose.push * (.5 - fittedTop) * span) / zoom;
     const col = Math.round(centerX / CELL_X), row = Math.round(centerY / CELL_Y);
     columns = Math.min(20, Math.ceil(span * aspect / (2 * CELL_X)) + 2);
     rows = Math.ceil(span / (2 * CELL_Y)) + 2;
@@ -163,7 +168,16 @@ export function createHoneycombRenderer(
     field.position.set(-centerX, -centerY + yShift, 0).applyEuler(field.rotation);
     camera.zoom = zoom;
     camera.updateProjectionMatrix();
-    renderer.render(scene, camera);
+    try {
+      renderer.render(scene, camera);
+    } catch {
+      onFailure();
+      return;
+    }
+    if (!painted) {
+      painted = true;
+      onFirstFrame?.();
+    }
     if (settling) invalidate();
   }
 
@@ -177,7 +191,7 @@ export function createHoneycombRenderer(
     const style = stage && getComputedStyle(stage);
     fittedWidth = style ? parseFloat(style.getPropertyValue('--gallery-panel-width')) || 0 : 0;
     fittedTop = style ? (parseFloat(style.getPropertyValue('--gallery-panel-top')) || 40) / 100 : .4;
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, width < 768 ? 1.25 : 1.5));
+    renderer.setPixelRatio(opening ? Math.min(devicePixelRatio || 1, 1.15) : Math.min(devicePixelRatio || 1, width < 768 ? 1.25 : 1.5));
     renderer.setSize(width, height, false);
     const halfHeight = span / 2, halfWidth = halfHeight * width / height;
     camera.left = -halfWidth; camera.right = halfWidth;
@@ -217,6 +231,7 @@ export function createHoneycombRenderer(
       requests.add(img);
       img.crossOrigin = 'anonymous';
       img.decoding = 'async';
+      if (opening) img.fetchPriority = 'low';
       const finish = (loaded: boolean) => {
         requests.delete(img);
         if (disposed) return;
@@ -310,7 +325,8 @@ export function createHoneycombRenderer(
       for (const material of [outline, surface, poster]) material.dispose();
       atlasTexture.dispose();
       renderer.dispose();
-      // Three releases its GPU resources without invalidating a canvas React may reuse.
+      // The intro owns a throwaway canvas. Gallery canvases may be reused by React.
+      if (opening) renderer.forceContextLoss();
     },
   };
 }
