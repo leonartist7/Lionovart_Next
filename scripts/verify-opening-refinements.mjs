@@ -54,7 +54,7 @@ try {
     return { title: name?.textContent, fits: node.scrollHeight <= node.clientHeight + 2 };
   }));
   assert.equal(headers.length, 3);
-  assert.ok(headers.every(header => header.title && header.fits), 'Each service name fits on the dark card header');
+  assert.ok(headers.every(header => header.title && header.fits), 'Each service name fits on the dark card header: ' + JSON.stringify(headers));
   for (const p of [.47, .55, .635, .76]) {
     await scroll(p);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2));
@@ -65,6 +65,7 @@ try {
       background: getComputedStyle(node).backgroundColor,
       image: getComputedStyle(node).backgroundImage,
       opacity: getComputedStyle(node).opacity,
+      highlight: getComputedStyle(node, '::after').opacity,
     })),
   );
   assert.equal(paper.length, 3);
@@ -72,6 +73,7 @@ try {
     assert.equal(face.background, 'rgb(247, 244, 239)', 'Each card uses the site paper color');
     assert.equal(face.image, 'none', 'Artwork tint stays off the paper');
     assert.equal(face.opacity, '1', 'The original paper is solid after the transition');
+    assert.equal(face.highlight, '0', 'The travelling highlight clears when the paper settles');
   }
   console.log('Verified centered copy, both review pages, and shared paper color at', width);
 } finally {

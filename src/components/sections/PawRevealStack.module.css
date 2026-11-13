@@ -354,13 +354,19 @@
 @supports (mask-image: linear-gradient(#000, transparent)) {
   .benefitPaper {
     clip-path: none;
-    background-image: linear-gradient(var(--paper-angle),
-      transparent calc(var(--paper-edge) - var(--paper-feather)),
-      rgb(174 147 115 / calc(.25 * var(--paper-light))) var(--paper-edge),
-      rgb(255 255 255 / calc(.8 * var(--paper-light))) calc(var(--paper-edge) + var(--paper-feather)),
-      transparent calc(var(--paper-edge) + 3 * var(--paper-feather)));
     mask-image: linear-gradient(var(--paper-angle),
       transparent calc(var(--paper-edge) - var(--paper-feather)), #000 calc(var(--paper-edge) + var(--paper-feather)));
+  }
+  .benefitPaper::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: var(--paper-light);
+    background-image: linear-gradient(var(--paper-angle),
+      transparent calc(var(--paper-edge) - var(--paper-feather)),
+      rgb(174 147 115 / .25) var(--paper-edge),
+      rgb(255 255 255 / .8) calc(var(--paper-edge) + var(--paper-feather)),
+      transparent calc(var(--paper-edge) + 3 * var(--paper-feather)));
   }
 }
 
