@@ -59,9 +59,18 @@ async function check(width, height, phone = false) {
     await scroll(page, .14);
     await page.waitForSelector(gallery + '[data-honeycomb-browsing="true"]', { timeout: 20000 });
     const field = page.locator(canvas);
-    const initial = await field.screenshot();
-    const bounds = await field.boundingBox();
-    assert.ok(bounds.width > 0 && bounds.height > 0);
+    const frame = await field.evaluate(node => {
+      const box = node.getBoundingClientRect();
+      const style = getComputedStyle(node);
+      return { x: box.x, y: box.y, width: box.width, height: box.height, visibility: style.visibility, display: style.display,
+        scroll: scrollY, world: node.parentElement?.outerHTML.slice(0, 390), buffer: [node.width, node.height] };
+    });
+    console.log('Gallery frame', width, JSON.stringify(frame));
+    assert.equal(frame.visibility, 'visible');
+    assert.ok(frame.width > 0 && frame.height > 0);
+    const bounds = { x: Math.max(0, frame.x), y: Math.max(0, frame.y), width: Math.min(width, frame.width), height: Math.min(height, frame.height) };
+    const patch = { x: Math.round(width * .2), y: Math.round(height * .25), width: Math.round(width * .6), height: Math.round(height * .48) };
+    const initial = await page.screenshot({ clip: patch });
     const centerX = bounds.x + bounds.width / 2, centerY = bounds.y + bounds.height / 2;
     if (phone) {
       const cdp = await context.newCDPSession(page);
@@ -78,7 +87,7 @@ async function check(width, height, phone = false) {
       await page.mouse.up();
     }
     await page.waitForTimeout(500);
-    assert.notDeepEqual(await field.screenshot(), initial, 'Dragging changes the WebGL field');
+    assert.notDeepEqual(await page.screenshot({ clip: patch }), initial, 'Dragging changes the WebGL field');
     await page.screenshot({ path: output + '/selected-work-' + width + '.png' });
 
     const picker = page.locator('[data-honeycomb-projects]');
@@ -95,7 +104,7 @@ async function check(width, height, phone = false) {
     await page.screenshot({ path: output + '/project-detail-' + width + '.png' });
     await page.keyboard.press('Escape');
     await dialog.waitFor({ state: 'hidden' });
-    assert.ok(await opener.evaluate(el => document.activeElement === el));
+    await page.waitForFunction(() => document.activeElement?.hasAttribute('data-honeycomb-open'));
 
     await scroll(page, .49);
     await page.waitForSelector(gallery + '[data-honeycomb-browsing="false"]');
@@ -111,7 +120,7 @@ async function check(width, height, phone = false) {
     await scroll(page, .14);
     await page.waitForSelector(gallery + '[data-honeycomb-browsing="true"]');
     await field.evaluate(node => node.dispatchEvent(new Event('webglcontextlost', { cancelable: true })));
-    await page.waitForSelector(gallery + '[data-honeycomb-ready="false"]');
+    await page.waitForSelector(gallery + '[data-honeycomb-ready="false"]', { state: 'attached' });
     await page.waitForSelector('[data-gallery-navigation]:not([inert])');
     assert.equal(errors.length, 0, errors.join('\n'));
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2));

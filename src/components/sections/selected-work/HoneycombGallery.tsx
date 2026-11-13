@@ -162,7 +162,7 @@ export default function HoneycombGallery({
         <ArrowDown aria-hidden="true" size={15} />
       </button>
     </div>
-    <dialog ref={dialog} className={styles.dialog} aria-labelledby={dialogTitleId} aria-modal="true" role="dialog" data-lenis-prevent
+    <dialog ref={dialog} className={styles.dialog} aria-labelledby={dialogTitleId} aria-modal={work ? true : undefined} role="dialog" data-lenis-prevent
       onClose={() => { setOpened(null); restoreFocus.current?.focus({ preventScroll: true }); restoreFocus.current = null; }}
       onClick={event => { if (event.target === event.currentTarget) event.currentTarget.close(); }}>
       {work && <div className={styles.detail} data-honeycomb-detail={work.slug}>
