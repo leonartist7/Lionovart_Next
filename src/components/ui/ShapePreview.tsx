@@ -19,6 +19,17 @@ export function usePreviewShape() {
   return useSyncExternalStore(subscribe, readShape, serverShape);
 }
 
+const subscribeAppliedShape = (notify: () => void) => {
+  window.addEventListener(SHAPE_PREVIEW_EVENT, notify);
+  return () => window.removeEventListener(SHAPE_PREVIEW_EVENT, notify);
+};
+const readAppliedHexagon = () => document.documentElement.dataset.shapePreview === "hexagon";
+const serverAppliedHexagon = () => false;
+
+export function useAppliedHexagon() {
+  return useSyncExternalStore(subscribeAppliedShape, readAppliedHexagon, serverAppliedHexagon);
+}
+
 export default function ShapePreview() {
   const shape = usePreviewShape();
   const hexagon = shape !== "original";

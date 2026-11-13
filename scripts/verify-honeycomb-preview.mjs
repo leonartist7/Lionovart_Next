@@ -11,9 +11,50 @@ const gallery = '[data-honeycomb-gallery]';
 const canvas = '[data-honeycomb-canvas]';
 
 async function start(page, query = '?shape=hexagon') {
-  await page.addInitScript(() => sessionStorage.setItem('lionovart:exit-intent-shown', '1'));
   await page.goto(base + '/' + query, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => document.documentElement.dataset.splashComplete === 'true', null, { timeout: 90000 });
+}
+
+async function verifyOpeningControls(page, hero) {
+  const sound = page.locator('[data-experience-sound]:visible').first();
+  assert.equal(await sound.getAttribute('aria-pressed'), 'true');
+  const label = page.locator('.cursor-label');
+  await label.waitFor({ state: 'attached' });
+  assert.equal(await label.evaluate(node => node.style.opacity), '0');
+
+  await page.evaluate(() => document.dispatchEvent(new MouseEvent('mouseout', { bubbles: true, clientY: 0 })));
+  await page.waitForTimeout(200);
+  assert.equal(await page.locator('#exit-intent-heading').count(), 0);
+  assert.equal(await page.evaluate(() => sessionStorage.getItem('lionovart:exit-intent-shown')), null);
+
+  await page.waitForFunction(() => document.querySelector('.hero-capsule')?.getAttribute('data-hex-metal-active') === 'true');
+  const sampleRim = () => hero.evaluate(element => {
+    const rim = getComputedStyle(element, '::after');
+    return [rim.animationName, rim.backgroundImage, rim.getPropertyValue('--hex-metal-angle')];
+  });
+  const first = await sampleRim();
+  assert.equal(first[0], 'hex-metal-flow');
+  assert.match(first[1], /^conic-gradient/);
+  await page.waitForTimeout(300);
+  const second = await sampleRim();
+  assert.notEqual(second[2], first[2]);
+  assert.notEqual(second[1], first[1]);
+  assert.equal(await hero.locator('.hero-capsule-metal canvas').count(), 0);
+
+  const nextTone = () => page.waitForFunction(() => window.reviewTones > 0);
+  await page.locator('[data-logo-shape-control]').press('Enter');
+  await nextTone();
+  await page.locator('[data-logo-shape-control]').press('Enter');
+  await page.locator('[data-logo-shape-control]').press('Enter');
+  await page.waitForURL('**/?shape=hexagon');
+
+  await sound.press('Space');
+  assert.equal(await sound.getAttribute('aria-pressed'), 'false');
+  assert.equal(await page.evaluate(() => localStorage.getItem('lionovart:experience-sound')), 'off');
+  await sound.press('Space');
+  assert.equal(await sound.getAttribute('aria-pressed'), 'true');
+  assert.equal(await page.evaluate(() => localStorage.getItem('lionovart:experience-sound')), 'on');
+  console.log('Passed hexagon rim animation, default audio, and opening cleanup');
 }
 
 async function scroll(page, progress) {
@@ -32,6 +73,14 @@ async function check(width, height, phone = false) {
       if (/THREE\.WebGLProgram|WebGL: INVALID/i.test(message.text())) errors.push(message.text());
       if (/honeycomb|Context Lost/i.test(message.text())) console.log(width, message.text());
     });
+    if (width === 1440) await page.addInitScript(() => {
+      window.reviewTones = 0;
+      const oscillator = AudioContext.prototype.createOscillator;
+      AudioContext.prototype.createOscillator = function () {
+        if (this.state === 'running') window.reviewTones++;
+        return oscillator.call(this);
+      };
+    });
     await start(page);
     const badge = page.locator('[data-logo-shape-control] [data-shape-badge]');
     const control = page.locator('[data-logo-shape-control]');
@@ -43,6 +92,7 @@ async function check(width, height, phone = false) {
     const rim = await hero.evaluate(element => getComputedStyle(element, '::after').clipPath);
     assert.match(rim, /^polygon\(evenodd/);
     assert.equal(await page.locator('[data-shape-preview-controls]').count(), 0);
+    if (width === 1440) await verifyOpeningControls(page, hero);
     await control.focus();
     await control.press('Enter');
     await page.waitForURL('**/?shape=hexagon-flat');

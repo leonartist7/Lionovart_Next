@@ -1,10 +1,19 @@
+@property --hex-metal-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 15deg;
+}
+
+@keyframes hex-metal-flow {
+  to { --hex-metal-angle: 375deg; }
+}
+
 :root[data-shape-preview="hexagon"] {
   --preview-cut: min(12%, .9rem);
   --preview-button: polygon(var(--preview-cut) 0, calc(100% - var(--preview-cut)) 0, 100% 50%, calc(100% - var(--preview-cut)) 100%, var(--preview-cut) 100%, 0 50%);
-  --preview-button-interior: polygon(var(--preview-cut) 2px, calc(100% - var(--preview-cut)) 2px, calc(100% - 2px) 50%, calc(100% - var(--preview-cut)) calc(100% - 2px), var(--preview-cut) calc(100% - 2px), 2px 50%);
   --preview-metal-edge: polygon(evenodd,
     var(--preview-cut) 0, calc(100% - var(--preview-cut)) 0, 100% 50%, calc(100% - var(--preview-cut)) 100%, var(--preview-cut) 100%, 0 50%, var(--preview-cut) 0,
-    var(--preview-cut) 1px, calc(100% - var(--preview-cut)) 1px, calc(100% - 1px) 50%, calc(100% - var(--preview-cut)) calc(100% - 1px), var(--preview-cut) calc(100% - 1px), 1px 50%, var(--preview-cut) 1px);
+    var(--preview-cut) 2px, calc(100% - var(--preview-cut)) 2px, calc(100% - 2px) 50%, calc(100% - var(--preview-cut)) calc(100% - 2px), var(--preview-cut) calc(100% - 2px), 2px 50%, var(--preview-cut) 2px);
 }
 [data-shape-badge] { position: relative; display: inline-flex; flex: none; }
 :root[data-shape-preview] [data-shape-badge] {
@@ -20,23 +29,19 @@
   border-radius: 0;
   clip-path: var(--preview-button);
 }
-:root[data-shape-preview] .hero-capsule:not(.hero-capsule-open) :is(.hero-capsule-metal, .hero-capsule-interior, .hero-capsule-trigger) {
-  border-radius: 0;
-}
+:root[data-shape-preview] .hero-capsule:not(.hero-capsule-open) { background: transparent; box-shadow: none; }
+:root[data-shape-preview] .hero-capsule:not(.hero-capsule-open) :is(.hero-capsule-interior, .hero-capsule-trigger) { border-radius: 0; }
 :root[data-shape-preview] .hero-invitation:has(.hero-capsule-trigger:focus-visible) {
   filter: drop-shadow(0 0 .25rem #ffe2cf);
 }
 :root[data-shape-preview] [data-shape-button]:focus-visible { box-shadow: inset 0 0 0 3px #ffe2cf; }
-:root[data-shape-preview] [data-shape-metal] {
-  clip-path: var(--preview-button);
-  border-radius: 0 !important;
-}
-:root[data-shape-preview] [data-shape-metal] > .shader-container-exploded { border-radius: 0 !important; }
+:root[data-shape-preview] [data-shape-metal-surface] { display: none; }
 :root[data-shape-preview] [data-shape-metal-interior] {
   width: 100% !important;
   height: 100% !important;
   margin: 0 !important;
-  clip-path: var(--preview-button-interior);
+  border-radius: 0 !important;
+  clip-path: var(--preview-button);
 }
 :root[data-shape-preview] [data-shape-metal-contour],
 :root[data-shape-preview] .hero-capsule:not(.hero-capsule-open)::after {
@@ -45,7 +50,29 @@
   border-radius: 0 !important;
   box-shadow: none !important;
   clip-path: var(--preview-metal-edge);
-  background: linear-gradient(110deg, #ffedd5aa, transparent 28%, #ffffe68a 64%, #a8764e99);
+  /* One moving reflection across the entire rim, with a dark-to-bright
+     range on every side. The center is cut out at the same six vertices. */
+  background: conic-gradient(from var(--hex-metal-angle, 15deg),
+    var(--hex-metal-shadow, #66524b) 0deg,
+    var(--hex-metal-midtone, #b5a59e) 36deg,
+    var(--hex-metal-glint, #fff5e7) 67deg,
+    var(--hex-metal-midtone, #b5a59e) 101deg,
+    var(--hex-metal-shadow, #66524b) 157deg,
+    var(--hex-metal-midtone, #b5a59e) 215deg,
+    var(--hex-metal-glint, #fff5e7) 254deg,
+    var(--hex-metal-midtone, #b5a59e) 282deg,
+    var(--hex-metal-shadow, #66524b) 360deg);
+}
+:root[data-shape-preview] [data-shape-metal-contour="gold"] {
+  --hex-metal-shadow: #795038;
+  --hex-metal-midtone: #cba46c;
+  --hex-metal-glint: #fff2c7;
+}
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-shape-preview] [data-hex-metal-active="true"] > [data-shape-metal-contour],
+  :root[data-shape-preview] .hero-capsule[data-hex-metal-active="true"]:not(.hero-capsule-open)::after {
+    animation: hex-metal-flow 3.6s linear infinite;
+  }
 }
 :root[data-shape-preview] .hero-capsule:not(.hero-capsule-open)::after {
   content: "";
@@ -55,7 +82,7 @@
 }
 :root[data-shape-preview] .hero-capsule:not(.hero-capsule-open) .hero-capsule-interior {
   inset: 0;
-  clip-path: var(--preview-button-interior);
+  clip-path: var(--preview-button);
 }
 :root[data-shape-preview] [data-shape-metal-contour] ~ [data-cta-target] { clip-path: var(--preview-button); }
 :root[data-shape-preview] [data-shape-metal-contour] ~ [data-cta-target]:focus-visible {

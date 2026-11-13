@@ -1,4 +1,4 @@
-/** Locally synthesized cues and a very quiet breeze, enabled only by a click. */
+/** Locally synthesized cues. Audio starts after the first browser-approved interaction. */
 export class SonicCues {
   private context: AudioContext | undefined;
   private lastChapter = -Infinity;
@@ -17,29 +17,44 @@ export class SonicCues {
   private breezeGain: GainNode | undefined;
   private breezeFilter: BiquadFilterNode | undefined;
   private hush: ReturnType<typeof setTimeout> | undefined;
-  enabled = false;
+  private starting: Promise<boolean> | undefined;
+  private disposed = false;
+  private suspended = false;
 
-  async toggle() {
-    if (this.enabled) {
-      this.enabled = false;
-      this.quiet();
-      this.stopCues();
-      await this.context?.suspend();
+  constructor(public enabled = true) {}
+
+  setEnabled(enabled: boolean) {
+    this.enabled = enabled;
+    if (enabled) {
+      void this.unlock().then(ready => { if (ready) this.tap(); });
+    } else {
+      this.suspend();
+    }
+  }
+
+  unlock() {
+    if (!this.enabled || this.disposed || document.hidden) return Promise.resolve(false);
+    if (this.context?.state === "running" && this.breeze && !this.suspended) return Promise.resolve(true);
+    this.starting ??= this.start().finally(() => { this.starting = undefined; });
+    return this.starting;
+  }
+
+  private async start() {
+    try {
+      const ctx = this.context ??= new AudioContext();
+      if (!this.output) {
+        this.output = ctx.createGain();
+        this.output.gain.value = .45;
+        this.output.connect(ctx.destination);
+      }
+      if (ctx.state !== "running" || this.suspended) await ctx.resume();
+      if (!this.canHear() || this.disposed) return false;
+      this.suspended = false;
+      this.prepareBreeze();
+      return true;
+    } catch {
       return false;
     }
-    try {
-      this.context ??= new AudioContext();
-      if (!this.output) {
-        this.output = this.context.createGain();
-        this.output.gain.value = .45;
-        this.output.connect(this.context.destination);
-      }
-      await this.context.resume();
-      this.enabled = this.context.state === "running";
-      if (this.enabled) this.prepareBreeze();
-      if (this.enabled) this.tap();
-    } catch { this.enabled = false; }
-    return this.enabled;
   }
 
   tap() {
@@ -176,13 +191,19 @@ export class SonicCues {
     this.cueCleanup.add(dispose); tone.onended = cleanup;
   }
 
-  suspend() { this.quiet(); this.stopCues(); void this.context?.suspend(); }
-  resume() { if (this.enabled) void this.context?.resume(); }
+  suspend() {
+    this.suspended = true;
+    this.quiet();
+    this.stopCues();
+    void this.context?.suspend().catch(() => {});
+  }
+  resume() { if (this.context) void this.unlock(); }
   dispose() {
+    this.disposed = true;
     this.enabled = false; clearTimeout(this.hush);
     this.stopCues();
     this.breeze?.stop(); this.breeze?.disconnect(); this.breezeFilter?.disconnect(); this.breezeGain?.disconnect();
     this.output?.disconnect();
-    void this.context?.close();
+    void this.context?.close().catch(() => {});
   }
 }

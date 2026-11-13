@@ -336,6 +336,7 @@ export const MagneticCursor: FC<MagneticCursorProps> = ({
     const handleMouseLeave = () => {
       inViewport = false;
       leaveMagnetic();
+      labelVisible = false;
       if (labelEl) gsap.to(labelEl, { opacity: 0, duration: 0.12, overwrite: "auto" });
       gsap.to(cursorEl, { opacity: 0, duration: prefersReducedMotion ? 0.01 : 0.2, overwrite: "auto" });
     };
@@ -403,7 +404,7 @@ export const MagneticCursor: FC<MagneticCursorProps> = ({
         className={`magnetic-cursor ${cursorClassName}`.trim()}
         style={cursorStyles}
       />
-      <div ref={labelRef} className="cursor-label" aria-hidden="true" />
+      <div ref={labelRef} className="cursor-label" aria-hidden="true" style={{ opacity: 0 }} />
       {children}
     </>
   );

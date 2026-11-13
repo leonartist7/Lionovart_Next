@@ -6,6 +6,8 @@ import { Sparkles } from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useInView } from "framer-motion";
+import { useAppliedHexagon } from "./ShapePreview";
+import { useDecorativeMotion } from "@/hooks/useDecorativeMotion";
 
 interface LiquidMetalButtonProps {
   label?: string;
@@ -54,6 +56,7 @@ export function LiquidMetalButton({
   const [ripples, setRipples] = useState<
     Array<{ x: number; y: number; id: number }>
   >([]);
+  const frameRef = useRef<HTMLDivElement>(null);
   const shaderRef = useRef<HTMLDivElement>(null);
   const shaderMount = useRef<ShaderMount | null>(null);
   const shaderFailed = useRef(false);
@@ -90,10 +93,13 @@ export function LiquidMetalButton({
     }
   }, [viewMode, width, height]);
 
-    const isInView = useInView(shaderRef, { margin: "200px" });
+  const isInView = useInView(frameRef, { margin: "200px" });
+  const hexagon = useAppliedHexagon();
+  const usePillShader = shaderEnabled && !hexagon;
+  const { running: rimRunning } = useDecorativeMotion(hexagon && released && !paused && (alwaysAnimate || isInView));
 
   useEffect(() => {
-    if (!released || !shaderEnabled || shaderFailed.current) return;
+    if (!released || !usePillShader || shaderFailed.current) return;
     const shaderElement = shaderRef.current;
     const loadShader = () => {
       try {
@@ -133,7 +139,7 @@ export function LiquidMetalButton({
         shaderMount.current = null;
       }
     };
-  }, [released, shaderEnabled]);
+  }, [released, usePillShader]);
 
   // Most shader buttons pause off-screen. Persistent controls, such as Nova,
   // can opt out so their surface remains alive whenever the tab is active.
@@ -147,7 +153,7 @@ export function LiquidMetalButton({
       }
     }
     return () => { if (clickTimer.current) clearTimeout(clickTimer.current); };
-  }, [alwaysAnimate, isInView, isHovered, paused, released, shaderEnabled]);
+  }, [alwaysAnimate, isInView, isHovered, paused, released, usePillShader]);
 
   const handleMouseEnter = () => {
     if (typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches) {
@@ -204,6 +210,8 @@ export function LiquidMetalButton({
         }}
       >
         <div
+          ref={frameRef}
+          data-hex-metal-active={rimRunning}
           style={{
             position: "relative",
             width: dimensions.width,
@@ -280,7 +288,7 @@ export function LiquidMetalButton({
               zIndex: 20,
             }}
           >
-            <div data-shape-metal data-shape-metal-interior
+            <div data-shape-metal-interior
               style={{
                 width: dimensions.innerWidth,
                 height: dimensions.innerHeight,
@@ -312,7 +320,7 @@ export function LiquidMetalButton({
               zIndex: 10,
             }}
           >
-            <div data-shape-metal
+            <div data-shape-metal-surface
               style={{
                 height: dimensions.height,
                 width: dimensions.width,
@@ -332,7 +340,7 @@ export function LiquidMetalButton({
               <div
                 ref={shaderRef}
                 className="shader-container-exploded"
-                data-shader-enabled={shaderEnabled}
+                data-shader-enabled={usePillShader}
                 style={{
                   borderRadius: "100px",
                   overflow: "hidden",
@@ -350,7 +358,7 @@ export function LiquidMetalButton({
 
           {/* The shader supplies the moving material. This fixed contour keeps
               the pill perimeter complete between highlight passes. */}
-          <div data-shape-metal-contour
+          <div data-shape-metal-contour={metalTone}
             aria-hidden
             style={{
               position: "absolute",

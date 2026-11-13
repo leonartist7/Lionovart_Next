@@ -12,6 +12,7 @@ import { SonicCues } from "./sonic";
 import { PARTNERSHIP_REST } from "../sections/partnership-motion";
 import styles from "./ScrollExperience.module.css";
 
+const SOUND_PREFERENCE = "lionovart:experience-sound";
 const SoundContext = createContext({ enabled: false, toggle: () => {} });
 
 export function ExperienceSoundToggle() {
@@ -36,7 +37,7 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
   const [mode, setMode] = useState<ScrollMode>("settle");
   const [review, setReview] = useState(false);
   const [panel, setPanel] = useState(false);
-  const [sound, setSound] = useState(false);
+  const [sound, setSound] = useState(true);
   const sonic = useRef<SonicCues | null>(null);
   const points = useRef<ScrollStop[]>([]);
   const move = useRef<(stop: ScrollStop) => void>(() => {});
@@ -45,16 +46,37 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
     const params = new URLSearchParams(location.search);
     const selected = params.get("scrollPreview") === "1" ? parseScrollMode(params.get("scrollMode")) : "flow";
     // This initialization runs after hydration; no browser state enters server markup.
+    let enabled = true;
+    try { enabled = localStorage.getItem(SOUND_PREFERENCE) !== "off"; } catch {}
+    const audio = new SonicCues(enabled);
+    sonic.current = audio;
     const frame = requestAnimationFrame(() => {
       setMode(selected);
       setReview(params.get("scrollPreview") === "1");
+      setSound(audio.enabled);
     });
-    sonic.current = new SonicCues();
-    return () => { cancelAnimationFrame(frame); sonic.current?.dispose(); sonic.current = null; };
+    const unlock = (event: Event) => {
+      if (!event.isTrusted || (event.target instanceof Element && event.target.closest("[data-experience-sound]"))) return;
+      if (event instanceof KeyboardEvent && (event.repeat || event.metaKey || event.ctrlKey || event.altKey)) return;
+      void audio.unlock();
+    };
+    const activationEvents = ["pointerup", "keydown", "click"] as const;
+    activationEvents.forEach(type => window.addEventListener(type, unlock, true));
+    return () => {
+      cancelAnimationFrame(frame);
+      activationEvents.forEach(type => window.removeEventListener(type, unlock, true));
+      audio.dispose();
+      sonic.current = null;
+    };
   }, []);
 
   const toggleSound = useCallback(() => {
-    void sonic.current?.toggle().then(setSound);
+    const audio = sonic.current;
+    if (!audio) return;
+    const enabled = !audio.enabled;
+    audio.setEnabled(enabled);
+    setSound(enabled);
+    try { localStorage.setItem(SOUND_PREFERENCE, enabled ? "on" : "off"); } catch {}
   }, []);
 
   useEffect(() => {
@@ -234,7 +256,10 @@ export default function ScrollExperience({ children }: { children: ReactNode }) 
         const stop = stops.find(s => s.id === "imagine");
         if (stop) move.current(stop);
       }
-      if (event.target instanceof Element && event.target.closest('a[href], button:not([disabled]), [data-sound-cue]') && !event.target.closest("[data-experience-sound]")) sonic.current?.tap();
+      if (event.isTrusted && event.target instanceof Element && event.target.closest('a[href], button:not([disabled]), [data-sound-cue]') && !event.target.closest("[data-experience-sound]")) {
+        const audio = sonic.current;
+        void audio?.unlock().then(ready => { if (ready) audio.tap(); });
+      }
     };
     const cue = (event: Event) => {
       const detail = (event as CustomEvent<{ kind: "service" | "process"; id: string; index: number }>).detail;

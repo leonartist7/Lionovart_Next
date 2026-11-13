@@ -12,7 +12,6 @@ import ServicesSwitcher from "@/components/sections/ServicesSwitcher";
 import SelectedWork from "@/components/sections/SelectedWork";
 import ProcessExperience from "@/components/sections/ProcessExperience";
 import Testimonials from "@/components/sections/Testimonials";
-import ExitIntentModal from "@/components/ui/ExitIntentModal";
 import { TrailAttractionProvider } from "@/contexts/TrailAttractionContext";
 
 /**
@@ -31,8 +30,6 @@ function NovaSection({ id, children }: { id: string; children: React.ReactNode }
 export function PageBuilder() {
   return (
     <TrailAttractionProvider>
-      <ExitIntentModal />
-
       {/* One shared runway joins the benefit cards, work and services. */}
       <div className="relative z-[2]">
         <WorkBrowseProvider>
