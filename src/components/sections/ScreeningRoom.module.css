@@ -66,12 +66,12 @@
 .brandStatement > p { margin: 0 0 .65rem; font: 400 clamp(1rem,1.6vw,1.5rem)/1.3 var(--font-clash-display),sans-serif; color: inherit; }
 .shapingMessage h2 { max-width: 30ch; margin: 0 auto; font: 400 clamp(1.75rem,3.8vw,4rem)/1.08 var(--font-clash-display),sans-serif; letter-spacing: -.035em; text-wrap: balance; }
 .shapingMessage h2 > span { display: block; }
-.innovation { color:#e5192a; }
-.claimSwap { position:relative; display:inline-grid; min-width:12.25ch; vertical-align:baseline; text-align:left; }
-.optional { grid-area:1 / 1; color:#fffaf1; opacity:calc(1 - var(--claim-rewrite,0)); }
-.claimStroke { position:absolute; left:0; right:0; top:52%; height:2px; background:#e5192a; transform-origin:left center; transform:translateY(calc(var(--claim-rewrite,0) * .3em)) scaleX(calc(var(--claim-strike,0) * (1 - var(--claim-rewrite,0)))); opacity:calc(1 - var(--claim-rewrite,0)); }
-.shapingMessage h2 .necessity { grid-area:1 / 1; align-self:center; margin:0; font-family:var(--font-playfair-display),Georgia,serif; font-style:italic; font-weight:400; font-synthesis:none; color:#e5192a; line-height:1.15; transform:translateY(calc((1 - var(--claim-rewrite,0)) * .3em)); clip-path:inset(calc((1 - var(--claim-rewrite,0)) * 50%) 0); }
-@media(max-width:767px) { .innovation { display:block; margin-bottom:.15em; }.claimSwap { text-align:center; } }
+.innovation { display: block; margin-bottom: .08em; color: #e5192a; }
+.claimSwap { display: grid; place-items: center; text-align: center; }
+.claimSwap > span { grid-area: 1 / 1; }
+.optional { opacity: max(0, calc(1 - var(--claim-fade, 0) * 2)); }
+.needed { opacity: max(0, calc(var(--claim-fade, 0) * 2 - 1)); }
+:global([data-story-static=true]) .shapingMessage { --claim-fade: 1; }
 .shapingMessage .brandSignature { margin: 0; font: 500 clamp(2.8rem,8vw,8rem)/1 var(--font-clash-display),sans-serif; letter-spacing: -.045em; color: var(--world-ink,#fffaf1); }
 .cardIntro :global(.opening-proof-stage) { filter: opacity(var(--handoff-proof,1)); }
 @media(max-width:767px) {

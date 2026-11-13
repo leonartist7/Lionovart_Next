@@ -190,11 +190,13 @@ async function check(width, height, phone = false) {
     });
     console.log('Gallery frame', width, JSON.stringify(frame));
     assert.equal(frame.visibility, 'visible');
-    assert.ok(frame.width > 0 && frame.height > 0);
-    const bounds = { x: Math.max(0, frame.x), y: Math.max(0, frame.y), width: Math.min(width, frame.width), height: Math.min(height, frame.height) };
-    const patch = { x: Math.round(width * .2), y: Math.round(height * .25), width: Math.round(width * .6), height: Math.round(height * .48) };
+    assert.ok(frame.width > width * .6 && frame.width < width && frame.height > height * .28 && frame.height < height * .78);
+    assert.equal(await page.locator('[data-honeycomb-frame]').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(248, 244, 238)');
+    assert.equal(await page.locator('[data-honeycomb-projects], [data-honeycomb-open], [data-honeycomb-continue]').count(), 0);
+    const patch = { x: Math.round(frame.x + frame.width * .15), y: Math.round(frame.y + frame.height * .15),
+      width: Math.round(frame.width * .7), height: Math.round(frame.height * .7) };
     const initial = await page.screenshot({ clip: patch });
-    const centerX = bounds.x + bounds.width / 2, centerY = bounds.y + bounds.height / 2;
+    const centerX = frame.x + frame.width / 2, centerY = frame.y + frame.height / 2;
     if (phone) {
       const cdp = await context.newCDPSession(page);
       for (const [type, offset] of [['touchStart', 0], ['touchMove', 28], ['touchMove', 65], ['touchMove', 105], ['touchEnd', 105]]) {
@@ -205,6 +207,9 @@ async function check(width, height, phone = false) {
       assert.ok(Math.abs(await page.evaluate(() => scrollY) - await page.locator(runway).evaluate(node => scrollY + node.getBoundingClientRect().top + .14 * (node.getBoundingClientRect().height - innerHeight * .85))) < 6);
     } else {
       await page.mouse.move(centerX, centerY);
+      await page.waitForFunction(() => document.querySelector('[data-honeycomb-canvas]')?.getAttribute('data-hovering') === 'true');
+      await page.waitForTimeout(250);
+      assert.notDeepEqual(await page.screenshot({ clip: patch }), initial, 'Hovering changes the rendered tile');
       await page.mouse.down();
       await page.mouse.move(centerX - 105, centerY + 30, { steps: 8 });
       await page.mouse.up();
@@ -213,13 +218,21 @@ async function check(width, height, phone = false) {
     assert.notDeepEqual(await page.screenshot({ clip: patch }), initial, 'Dragging changes the WebGL field');
     await page.screenshot({ path: output + '/selected-work-' + width + '.png' });
 
-    const picker = page.locator('[data-honeycomb-projects]');
-    await picker.selectOption({ index: 2 });
-    const name = await picker.locator('option:checked').textContent();
-    const opener = page.locator('[data-honeycomb-open]');
-    await opener.focus();
-    await opener.press('Enter');
     const dialog = page.locator(gallery + ' dialog[open]');
+    if (phone) await page.touchscreen.tap(centerX, centerY);
+    else await page.mouse.click(centerX, centerY);
+    await dialog.waitFor();
+    assert.ok((await dialog.locator('h3').textContent())?.trim());
+    await page.keyboard.press('Escape');
+    await dialog.waitFor({ state: 'hidden' });
+
+    const opener = page.locator('[data-honeycomb-keyboard-project]');
+    const initialProject = await opener.locator('[aria-live]').textContent();
+    await opener.focus();
+    await opener.press('ArrowRight');
+    const name = await opener.locator('[aria-live]').textContent();
+    assert.notEqual(name, initialProject);
+    await opener.press('Enter');
     await dialog.waitFor();
     assert.equal(await dialog.locator('h3').textContent(), name);
     const media = dialog.locator('[data-screening-media]');
@@ -227,16 +240,15 @@ async function check(width, height, phone = false) {
     await page.screenshot({ path: output + '/project-detail-' + width + '.png' });
     await page.keyboard.press('Escape');
     await dialog.waitFor({ state: 'hidden' });
-    await page.waitForFunction(() => document.activeElement?.hasAttribute('data-honeycomb-open'));
+    await page.waitForFunction(() => document.activeElement?.hasAttribute('data-honeycomb-keyboard-project'));
 
     await scroll(page, .49);
     await page.waitForSelector(gallery + '[data-honeycomb-browsing="false"]');
     await page.screenshot({ path: output + '/lift-' + width + '.png' });
     await scroll(page, .14);
     await page.waitForSelector(gallery + '[data-honeycomb-browsing="true"]');
-    assert.equal(await picker.inputValue(), '2');
-    if (phone) await page.locator('[data-honeycomb-continue]').tap();
-    else await page.locator('[data-honeycomb-continue]').click();
+    assert.equal(await opener.locator('[aria-live]').textContent(), name);
+    await scroll(page, .86);
     await page.waitForSelector('[data-gallery-ending][aria-hidden="false"]', { timeout: 12000 });
     await page.waitForFunction(() => Number(document.querySelector('[data-gallery-stage]')?.getAttribute('data-gallery-journey')) >= .859);
     await page.waitForTimeout(250);

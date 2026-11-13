@@ -34,7 +34,7 @@ jobs:
       - name: Install locked application dependencies
         run: npm ci
       - name: Verify the lattice and transition math
-        run: node --test scripts/intro-readiness.test.mjs scripts/honeycomb-journey.test.mjs scripts/gallery-journey.test.mjs scripts/service-gallery-handoff.test.mjs
+        run: node --test scripts/intro-readiness.test.mjs scripts/card-handoff.test.mjs scripts/card-lettering.test.mjs scripts/white-card-story.test.mjs scripts/honeycomb-journey.test.mjs scripts/gallery-journey.test.mjs scripts/service-gallery-handoff.test.mjs
       - name: Build and type-check the homepage
         run: npm run build
       - name: Install Chromium verification tools
@@ -51,6 +51,8 @@ jobs:
           server=$!
           trap 'kill "$server" 2>/dev/null || true' EXIT
           curl --fail --silent --retry 20 --retry-connrefused --retry-delay 2 "$STORY_PREVIEW/qa/white-card-version.json"
+          node scripts/verify-opening-refinements.mjs
+          if [ "$STORY_VIEWPORT" = desktop ]; then node scripts/verify-chapter-previews.mjs; fi
           node scripts/verify-honeycomb-preview.mjs
       - name: Upload viewport review
         if: always()

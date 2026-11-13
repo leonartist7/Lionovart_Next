@@ -90,7 +90,7 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
 
   const details = <div id={panelId} role="region" aria-labelledby={panelId + "-title"} aria-hidden={!open}
     className={`${styles.details}${integrated ? ` ${styles.integratedDetails}` : ''}`}>
-    {integrated && <h3 id={panelId + "-title"} className={styles.integratedDetailTitle}>{tr(item.detail)}</h3>}
+    {integrated && <h3 id={panelId + "-title"} className={styles.integratedDetailTitle} data-benefit-title>{tr(item.title)}</h3>}
     <div className={styles.detailContent} data-benefit-measure="detail">
       <ul>{item.points.map(point => <li key={point}><Check aria-hidden="true" />{tr(point)}</li>)}</ul>
       {item.stat && <div className={styles.metric} data-benefit-stat>
@@ -104,7 +104,8 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
     {integrated && <div className={styles.benefitPaper} data-benefit-paper aria-hidden="true" />}
     {integrated && <header className={styles.integratedHeading} data-benefit-heading>
       <span className={styles.pillarCode} data-benefit-code data-foreground={foregroundCode}>{code}</span>
-      <h3>{accent}</h3>
+      {accent && <p className={styles.serviceTagline}>{accent}</p>}
+      {serviceTitle && <h3 className={styles.serviceTitle} data-benefit-service-title>{serviceTitle}</h3>}
     </header>}
     {!integrated && <div className={styles.cardTop}>
       <div className={styles.cardCopy}>
@@ -127,7 +128,6 @@ export function BenefitCard({ item, index, artwork, code, serviceTitle, accent, 
                 sizes={flow ? "(min-width: 1056px) 32vw, (min-width: 704px) 48vw, 100vw" : "(min-width: 768px) 32vw, 68vw"} />
             </div>
             <div className={styles.integratedCopy}>
-              <p className={styles.serviceLabel}>{serviceTitle}</p>
               <p data-benefit-title>{tr(item.title)}</p>
             </div>
           </>}

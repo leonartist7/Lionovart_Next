@@ -48,7 +48,7 @@ export function createHoneycombRenderer(
   const slot = new InstancedBufferAttribute(new Float32Array(CAPACITY), 1).setUsage(DynamicDrawUsage);
   frame.setAttribute('posterIndex', slot);
 
-  const outline = new MeshBasicMaterial({ color: '#78644e' });
+  const outline = new MeshBasicMaterial({ color: opening ? '#78644e' : '#d4c6b4' });
   const surface = new MeshBasicMaterial();
   const poster = new ShaderMaterial({
     uniforms: {
@@ -81,7 +81,43 @@ export function createHoneycombRenderer(
   const rim = new InstancedMesh(tile, outline, CAPACITY);
   const face = new InstancedMesh(inset, surface, CAPACITY);
   const images = new InstancedMesh(frame, poster, CAPACITY);
-  for (const mesh of [rim, face, images]) {
+  const tileMeshes = [rim, face, images];
+  // A soft projected shadow sits above the adjacent flat tiles and below
+  // the lifted tile. It uses one instanced draw, with no shadow-map pass.
+  const shadowGeometry = opening ? null : new PlaneGeometry(2.66, 2.66);
+  const shadowOpacity = opening ? null : new InstancedBufferAttribute(new Float32Array(CAPACITY), 1).setUsage(DynamicDrawUsage);
+  if (shadowGeometry && shadowOpacity) shadowGeometry.setAttribute('shadowOpacity', shadowOpacity);
+  const shadowMaterial = opening ? null : new ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    vertexShader: `
+      attribute float shadowOpacity;
+      varying vec2 localPoint;
+      varying float strength;
+      void main() {
+        localPoint = position.xy;
+        strength = shadowOpacity;
+        gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(position, 1.0);
+      }`,
+    fragmentShader: `
+      varying vec2 localPoint;
+      varying float strength;
+      void main() {
+        vec2 p = abs(localPoint);
+        float edge = max(p.y, 0.8660254 * p.x + 0.5 * p.y) - 0.8660254;
+        float shade = 1.0 - smoothstep(-0.07, 0.28, edge);
+        gl_FragColor = vec4(0.19, 0.12, 0.08, shade * strength);
+        #include <colorspace_fragment>
+      }`,
+  });
+  const shadows = shadowGeometry && shadowMaterial ? new InstancedMesh(shadowGeometry, shadowMaterial, CAPACITY) : null;
+  if (shadows) {
+    shadows.count = 0;
+    shadows.frustumCulled = false;
+    shadows.instanceMatrix.setUsage(DynamicDrawUsage);
+    field.add(shadows);
+  }
+  for (const mesh of tileMeshes) {
     mesh.frustumCulled = false;
     mesh.instanceMatrix.setUsage(DynamicDrawUsage);
     field.add(mesh);
@@ -93,8 +129,12 @@ export function createHoneycombRenderer(
   const matrix = new Matrix4();
   const ray = new Raycaster();
   const hit = new Vector3();
-  const slate = [new Color('#22201f'), new Color('#282122'), new Color('#242020')];
-  const highlighted = new Color('#604733');
+  const colors = (opening ? ['#22201f', '#282122', '#242020'] : ['#fffdfa', '#faf6f0', '#fefbf7']).map(value => new Color(value));
+  const highlighted = new Color('#ffffff');
+  const color = new Color();
+  const elevation = new Map<number, number>();
+  let focused: ReturnType<typeof tileCenter> | null = null;
+  let lastDraw = 0;
   const requests = new Set<HTMLImageElement>();
   let hovered = -1;
   let frameId = 0;
@@ -115,11 +155,29 @@ export function createHoneycombRenderer(
     if (running && !document.hidden && !disposed && !frameId) frameId = requestAnimationFrame(draw);
   }
 
-  function draw() {
+  function updateTile(index: number, x: number, y: number, lift: number) {
+    const scale = 1 + .075 * lift;
+    const rise = .27 * lift;
+    const shiftedY = y + .07 * lift;
+    matrix.makeScale(scale, scale, 1).setPosition(x, shiftedY, rise);
+    rim.setMatrixAt(index, matrix);
+    face.setMatrixAt(index, matrix.setPosition(x, shiftedY, rise + .005));
+    images.setMatrixAt(index, matrix.setPosition(x, shiftedY, rise + .01));
+    face.setColorAt(index, color.copy(colors[slot.getX(index) % colors.length]).lerp(highlighted, lift));
+  }
+
+  function instanceAt(column: number, row: number) {
+    const x = column - gridColumn + columns, y = row - gridRow + rows;
+    return x < 0 || x > columns * 2 || y < 0 || y > rows * 2 ? -1 : x * (rows * 2 + 1) + y;
+  }
+
+  function draw(now: number) {
     frameId = 0;
     if (!running || !dirty || disposed || document.hidden) return;
     dirty = false;
     if (pose.opacity < .001) return;
+    const delta = Math.min(32, lastDraw ? now - lastDraw : 16.7);
+    lastDraw = now;
     const settling = pan.distanceToSquared(target) > .00001;
     if (settling) pan.lerp(target, .22);
     else pan.copy(target);
@@ -135,32 +193,68 @@ export function createHoneycombRenderer(
     const zoom = startZoom + (endZoom - startZoom) * pose.push;
     const yShift = opening ? 0 : (pose.push * (.5 - fittedTop) * span) / zoom;
     const col = Math.round(centerX / CELL_X), row = Math.round(centerY / CELL_Y);
-    columns = Math.min(20, Math.ceil(span * aspect / (2 * CELL_X)) + 2);
     rows = Math.ceil(span / (2 * CELL_Y)) + 2;
+    const maxColumns = Math.floor((Math.floor(CAPACITY / (rows * 2 + 1)) - 1) / 2);
+    columns = Math.min(maxColumns, Math.ceil(span * aspect / (2 * CELL_X)) + 2);
 
     if (col !== gridColumn || row !== gridRow) {
       gridColumn = col; gridRow = row; hovered = -1;
+      elevation.clear();
       let instance = 0;
       for (let x = col - columns; x <= col + columns; x++) {
         for (let y = row - rows; y <= row + rows; y++) {
           const cell = tileCenter(x, y);
           const project = tileProject(x, y, count);
-          matrix.makeTranslation(cell.x, cell.y, 0);
-          rim.setMatrixAt(instance, matrix);
-          face.setMatrixAt(instance, matrix.setPosition(cell.x, cell.y, .005));
-          images.setMatrixAt(instance, matrix.setPosition(cell.x, cell.y, .01));
           slot.setX(instance, project);
+          updateTile(instance, cell.x, cell.y, 0);
           instance++;
         }
       }
-      for (const mesh of [rim, face, images]) {
+      for (const mesh of tileMeshes) {
         mesh.count = instance;
         mesh.instanceMatrix.needsUpdate = true;
       }
       slot.needsUpdate = true;
+      if (face.instanceColor) face.instanceColor.needsUpdate = true;
     }
-    for (let i = 0; i < face.count; i++) face.setColorAt(i, i === hovered ? highlighted : slate[slot.getX(i) % slate.length]);
-    if (face.instanceColor) face.instanceColor.needsUpdate = true;
+    let lifting = false;
+    if (shadows && shadowOpacity) {
+      const focusColumn = focused ? Math.round(focused.x / CELL_X) : 0;
+      const active = pose.lift > 0 ? -1 : focused
+        ? instanceAt(focusColumn, Math.round(focused.y / CELL_Y - (focusColumn & 1) * .5))
+        : hovered;
+      if (active >= 0 && !elevation.has(active)) elevation.set(active, 0);
+      let shadowCount = 0;
+      if (elevation.size) {
+        for (const [index, current] of elevation) {
+          const targetLift = index === active ? 1 : 0;
+          const damped = targetLift + (current - targetLift) * Math.exp(-delta / 47);
+          const lift = Math.abs(targetLift - damped) < .006 ? targetLift : damped;
+          const column = gridColumn - columns + Math.floor(index / (rows * 2 + 1));
+          const row = gridRow - rows + index % (rows * 2 + 1);
+          const cell = tileCenter(column, row);
+          updateTile(index, cell.x, cell.y, lift);
+          if (lift === 0 && targetLift === 0) {
+            elevation.delete(index);
+            continue;
+          }
+          elevation.set(index, lift);
+          if (lift > .12) {
+            matrix.makeTranslation(cell.x + .075 * lift, cell.y - .11 * lift, .025);
+            shadows.setMatrixAt(shadowCount, matrix);
+            shadowOpacity.setX(shadowCount++, (lift - .12) * .28);
+          }
+          lifting ||= lift !== targetLift;
+        }
+        for (const mesh of tileMeshes) mesh.instanceMatrix.needsUpdate = true;
+        if (face.instanceColor) face.instanceColor.needsUpdate = true;
+      }
+      if (shadowCount || shadows.count !== shadowCount) {
+        shadows.count = shadowCount;
+        shadows.instanceMatrix.needsUpdate = true;
+        shadowOpacity.needsUpdate = true;
+      }
+    }
 
     // Raise the far edge before the camera moves through the final artwork.
     field.rotation.x = -.42 * pose.lift * (1 - pose.push);
@@ -178,7 +272,7 @@ export function createHoneycombRenderer(
       painted = true;
       onFirstFrame?.();
     }
-    if (settling) invalidate();
+    if (settling || lifting) invalidate();
   }
 
   function resize() {
@@ -186,11 +280,17 @@ export function createHoneycombRenderer(
     if (!parent) return;
     width = Math.max(1, parent.clientWidth);
     height = Math.max(1, parent.clientHeight);
-    span = Math.min(9, Math.max(4.8, 4.6 / (width / height)));
+    const aspect = width / height;
+    span = opening ? Math.min(9, Math.max(4.8, 4.6 / aspect))
+      : Math.max(3.15, Math.min(8.25, Math.max(3.35, Math.min(7.2, width / 175)) / aspect));
     const stage = canvas.closest<HTMLElement>('[data-gallery-stage]');
     const style = stage && getComputedStyle(stage);
     fittedWidth = style ? parseFloat(style.getPropertyValue('--gallery-panel-width')) || 0 : 0;
-    fittedTop = style ? (parseFloat(style.getPropertyValue('--gallery-panel-top')) || 40) / 100 : .4;
+    if (stage && style) {
+      const panelTop = (parseFloat(style.getPropertyValue('--gallery-panel-top')) || 40) / 100;
+      const top = parent.getBoundingClientRect().top - stage.getBoundingClientRect().top;
+      fittedTop = (panelTop * stage.clientHeight - top) / height;
+    }
     renderer.setPixelRatio(opening ? Math.min(devicePixelRatio || 1, 1.15) : Math.min(devicePixelRatio || 1, width < 768 ? 1.25 : 1.5));
     renderer.setSize(width, height, false);
     const halfHeight = span / 2, halfWidth = halfHeight * width / height;
@@ -203,10 +303,10 @@ export function createHoneycombRenderer(
   function paintPoster(index: number, image?: HTMLImageElement) {
     const x = (index % ATLAS_COLUMNS) * POSTER_WIDTH;
     const y = Math.floor(index / ATLAS_COLUMNS) * POSTER_HEIGHT;
-    ink!.fillStyle = '#161415';
+    ink!.fillStyle = opening ? '#161415' : '#f3ece2';
     ink!.fillRect(x, y, POSTER_WIDTH, POSTER_HEIGHT);
     if (!image) {
-      ink!.fillStyle = '#dbc4a6';
+      ink!.fillStyle = opening ? '#dbc4a6' : '#655344';
       ink!.font = '600 17px sans-serif';
       ink!.textAlign = 'center';
       ink!.textBaseline = 'middle';
@@ -263,9 +363,7 @@ export function createHoneycombRenderer(
       const center = tileCenter(col, row);
       const x = Math.abs(hit.x - center.x), y = Math.abs(hit.y - center.y);
       if (y <= CELL_Y / 2 && x + y / CELL_Y <= 1) {
-        const offsetX = col - gridColumn + columns, offsetY = row - gridRow + rows;
-        if (offsetX < 0 || offsetX > columns * 2 || offsetY < 0 || offsetY > rows * 2) return -1;
-        return offsetX * (rows * 2 + 1) + offsetY;
+        return instanceAt(col, row);
       }
     }
     return -1;
@@ -285,7 +383,7 @@ export function createHoneycombRenderer(
       if (running === active) return;
       running = active;
       if (active) { invalidate(); loadPosters(); }
-      else { cancelAnimationFrame(frameId); frameId = 0; }
+      else { cancelAnimationFrame(frameId); frameId = 0; lastDraw = 0; }
     },
     setPose(next: Pose) {
       pose = next;
@@ -295,11 +393,18 @@ export function createHoneycombRenderer(
       const worldPerPixel = span / (height * camera.zoom);
       target.set(target.x - dx * worldPerPixel, target.y + dy * worldPerPixel);
       hovered = -1;
+      focused = null;
       invalidate();
     },
-    goTo(project: number) {
+    goTo(project: number, highlight = false) {
       const next = nearestProject(pan.x, pan.y, project, count);
       target.set(next.x, next.y);
+      focused = highlight ? next : null;
+      invalidate();
+    },
+    clearFocus() {
+      if (!focused) return;
+      focused = null;
       invalidate();
     },
     hover(x: number, y: number) {
@@ -320,7 +425,10 @@ export function createHoneycombRenderer(
       document.removeEventListener('visibilitychange', visibility);
       canvas.removeEventListener('webglcontextlost', lost);
       for (const img of requests) { img.onload = null; img.onerror = null; img.removeAttribute('src'); }
-      for (const mesh of [rim, face, images]) mesh.dispose();
+      for (const mesh of tileMeshes) mesh.dispose();
+      shadows?.dispose();
+      shadowGeometry?.dispose();
+      shadowMaterial?.dispose();
       for (const geometry of [tile, inset, frame]) geometry.dispose();
       for (const material of [outline, surface, poster]) material.dispose();
       atlasTexture.dispose();

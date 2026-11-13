@@ -23,17 +23,11 @@ import TrustPlacement from "../TrustPlacement";
 import { BenefitCard } from "../PawRevealStack";
 import { IMAGINE_BENEFITS } from "../imagine-benefits";
 import { LANDSCAPE_FILM_QUERY, usesLandscapeFilm, openingFrameCenters, openingReadingReserve, openingCopyPose, openingSplitGap, openingPointerTilt } from "../lion-journey/opening-layout";
-const FACE_TINTS = [
-  "rgba(176, 112, 28, 0.16), rgba(7, 7, 10, 0.88)",
-  "rgba(92, 54, 196, 0.16), rgba(7, 7, 10, 0.88)",
-  "rgba(170, 24, 42, 0.16), rgba(7, 7, 10, 0.88)",
-] as const;
 const FLOATING_ART = [
   "https://res.cloudinary.com/dgio9uutc/image/upload/v1791997395/lion-branding-320.avif",
   "https://res.cloudinary.com/dgio9uutc/image/upload/v1791997928/nova-voice-agent-256.avif",
   "https://res.cloudinary.com/dgio9uutc/image/upload/v1791998348/art-creative-256.avif",
 ];
-const EDGE_TINTS = ["#e8a020", "#7b3ff2", "#e5192a"] as const;
 
 // Locked tag style (flip to red here if preferred).
 interface Card {
@@ -215,11 +209,6 @@ function Pane({
         <div
           className={`absolute inset-0 z-[1] overflow-hidden rounded-[inherit] ${styles.frontFace}`}
           inert={!interactive}
-          style={{
-            backgroundColor: "#08080a",
-            backgroundImage: `linear-gradient(135deg, ${FACE_TINTS[i]}, rgba(4,4,6,0.94) 72%)`,
-            boxShadow: 'none',
-          }}
         >
           {/* Three crops from one decoder preserve the complete image at the
               join, then travel with their card instead of fading above it. */}
@@ -232,50 +221,14 @@ function Pane({
             <canvas ref={registerCanvas} className="absolute inset-0 h-full w-full"
               style={{ opacity: canvasReady ? 1 : 0 }} />
           </motion.div>
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 rounded-[inherit] transition-opacity duration-300"
-            style={{
-              opacity: "calc(0.12 + (var(--spot-active, 0) * 0.34))",
-              background: `radial-gradient(180px circle at var(--spot-x, 50%) var(--spot-y, 20%), ${EDGE_TINTS[i]}66, transparent 72%)`,
-              mixBlendMode: "screen",
-            }}
-          />
           <div className={styles.integratedFace} data-imagine-card={i}>
             <BenefitCard item={IMAGINE_BENEFITS[i]} index={i} artwork={card.image}
               code={card.code} serviceTitle={card.title} accent={card.accent} enabled={interactive}
               foregroundCode={foregroundCode} />
           </div>
-          <motion.div
-            className="pointer-events-none absolute inset-0 z-[2]"
-            style={{
-              background:
-                "radial-gradient(120% 85% at 6% 0%, rgba(255,255,255,0.23) 0%, transparent 48%), linear-gradient(150deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.045) 52%, rgba(255,255,255,0.025) 100%)",
-              opacity: cardP,
-            }}
-          />
-          {/* Spotlight, armed only once the flip has fully landed. The edge
-              light carries the effect; the surface wash underneath is now
-              just enough to seat it, not compete with it. Colour comes from
-              SPOT_STOPS, one point per pillar on a single gold-to-Lacquer-Red
-              gradient, so the three cards read as variations of one system
-              instead of the same accent stamped three times.
-              Opacity is driven by --spot-active, a var the stage's own
-              pointermove handler writes after a flat 2D box test against
-              this pane's rect. Native :hover isn't used: these panes are
-              rotateY-tilted, so CSS hit-tests the rendered 3D trapezoid, not
-              the visual rectangle -- the tilted-away edge of the outer two
-              cards would never register a hover close to their outer side. */}
+          {/* Hover reflections stay on the rim, off the shared paper. */}
           {armed ? (
             <>
-              <div
-                aria-hidden="true" data-card-edge
-                className="pointer-events-none absolute inset-0 rounded-[inherit] transition-opacity duration-500 ease-out"
-                style={{
-                  opacity: "var(--spot-active, 0)",
-                  background: `radial-gradient(circle 220px at var(--spot-x, 50%) var(--spot-y, 35%), rgba(${SPOT_STOPS[i][0]},0.14) 0%, rgba(${SPOT_STOPS[i][1]},0.06) 42%, rgba(${SPOT_STOPS[i][2]},0.02) 62%, transparent 74%)`,
-                }}
-              />
               {/* Travelling edge light, in two passes: a blurred bloom that
                   spills off the border, then the crisp line on top. Colour
                   stays reserved for the card the cursor is on, so it reads as
@@ -859,7 +812,6 @@ export default function DisciplineSplit3D({
       data-opening-layout={isDesktop ? "horizontal" : "vertical"}
       id={pinned ? undefined : "what-we-build"}
       data-cards-armed={armed}
-      data-card-color-motion={armed && !saveData}
       data-imagine-interactive={contentReady || !!reduce}
       data-film-active={filmActive}
       className={journey ? "relative lion-video-section" : "relative isolate"}

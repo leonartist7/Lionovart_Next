@@ -35,8 +35,8 @@ test('white covers the original face before material ownership starts changing',
  assert.equal(at(.64).white,1);
  assert.ok(at(.675).assembly<1);
  assert.equal(at(.71).assembly,1);
- assert.equal(at(.695).material,0);
- for(let i=0;i<=1000;i++)if(at(i/1000).material<1)assert.ok(at(i/1000).white>.999,'No face thins before white has covered it');
+ assert.equal(at(.815).serviceReveal,0);
+ for(let i=0;i<=1000;i++)if(at(i/1000).serviceReveal>0)assert.ok(at(i/1000).white>.999,'The paper is solid until the service media starts to reveal');
  for(const p of [.4,.53,.64,.78])assert.equal(at(p).identity,1);
 });
 test('names start in the image area and duplicate N/A glyphs survive until they meet',()=>{

@@ -191,11 +191,23 @@
   -webkit-text-stroke: 1px #f5e5c2;
 }
 .pillarCode[data-foreground=true] { opacity: 0; }
-.integratedHeading h3 {
-  opacity: max(0, calc(1 - 2 * var(--handoff-white, 0)));
+.serviceTagline {
   margin: 0;
-  font: italic 400 clamp(.875rem, 1.5vw, 1.375rem)/1.15 var(--font-playfair-display), Georgia, serif;
-  text-wrap: balance;
+  color: #ead9bd;
+  font: italic 400 clamp(.75rem, 1.35vw, 1.125rem)/1.2 var(--font-playfair-display), Georgia, serif;
+  text-wrap: pretty;
+}
+.serviceTitle {
+  margin: .2em 0 0;
+  color: #fffaf1;
+  font: 600 clamp(1.1875rem, 2.35vw, 2.5rem)/1.02 var(--font-heading), sans-serif;
+  letter-spacing: -.035em;
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+}
+@container benefit-card (max-width: 240px) {
+  .integratedHeading { gap: .3rem; padding: .625rem .75rem .5rem; }
+  .serviceTitle { font-size: clamp(1.0625rem, 9.5cqi, 1.4375rem); }
 }
 .card[data-integrated=true] .detailShell { min-width: 0; clip-path: inset(-6rem 0 0); }
 .card[data-integrated=true] .detailWell { min-height: 0; border-radius: 0; }
@@ -215,16 +227,10 @@
   width: calc(100% + .5rem);
   height: calc(100% + .5rem);
   object-fit: cover;
-  filter: blur(2px);
-}
-.coverArtwork::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(115deg, #08080ad9, #08080a82 68%, #08080a55);
+  filter: blur(2px) saturate(.65);
+  opacity: .36;
 }
 .integratedCopy { position: relative; padding: 1.625rem var(--benefit-inset) 3rem; color: #f7f4ef; }
-.serviceLabel { margin: 0 0 .75rem; font: 500 .75rem/1.3 var(--font-heading), sans-serif; color: #c5bfb8; }
 .integratedCopy [data-benefit-title] { margin: 0; font: 650 clamp(1.375rem, 1rem + .75vw, 1.875rem)/1.1 var(--font-heading), sans-serif; letter-spacing: -.025em; text-wrap: balance; }
 .card[data-integrated=true] .paw { width: min(65%, 10rem); }
 .card[data-integrated=true] .cardToggle { z-index: 6; }
@@ -240,7 +246,6 @@
   .card[data-integrated=true] .metricValue { font-size: 1.875rem; }
   .integratedCopy { padding: 1.625rem var(--benefit-inset) 3rem; }
   .integratedCopy [data-benefit-title] { font-size: 1.375rem; }
-  .serviceLabel { font-size: .6875rem; margin-bottom: .625rem; }
   .card[data-integrated=true] .cardToggle { left: 0; width: 100%; }
   .card[data-integrated=true] .tapLabel { left: calc(28% + var(--benefit-inset)); }
 }
@@ -250,14 +255,14 @@
 .card[data-integrated=true] .integratedCopy { padding: 1rem var(--benefit-inset) 2.5rem; }
 .card[data-integrated=true] .integratedCopy [data-benefit-title] { font-size: clamp(1.125rem,1.35vw,1.5rem); font-weight: 500; }
 @media(width < 920px) {
- .card[data-integrated=true] { grid-template-rows: minmax(0,1fr); grid-template-columns: minmax(5rem,32%) minmax(0,1fr); }
+ .card[data-integrated=true] { grid-template-rows: minmax(0,1fr); grid-template-columns: minmax(5rem,43%) minmax(0,1fr); }
  .card[data-integrated=true] .integratedCopy { padding: .875rem var(--benefit-inset) 2.5rem; }
- .integratedHeading { padding: .5rem; align-content: center; }
+ .integratedHeading { padding: .625rem .625rem .5rem; align-content: start; }
  .pillarCode { font-size: clamp(1.25rem, 4vw, 2rem); }
- .integratedHeading h3 { font-size: clamp(.75rem, 2.7vw, 1rem); overflow-wrap: anywhere; }
+ .serviceTagline { font-size: clamp(.6875rem, 3.2vw, .875rem); }
+ .serviceTitle { font-size: clamp(1.0625rem, 5.4vw, 1.4375rem); }
  .card[data-integrated=true] .integratedCopy [data-benefit-title] { font-size: 1.125rem; }
- .card[data-integrated=true] .tapLabel { left: calc(32% + var(--benefit-inset)); font-size: .6875rem; bottom: .65rem; }
- .card[data-integrated=true] .serviceLabel { margin-bottom: .4rem; font-size: .625rem; }
+ .card[data-integrated=true] .tapLabel { left: calc(43% + var(--benefit-inset)); font-size: .6875rem; bottom: .65rem; }
 }
 
 @media(min-width:768px), (min-width:600px) and (min-aspect-ratio:6/5) {
@@ -266,7 +271,6 @@
 }
 
 @media(width < 600px) and (height <= 740px) {
- .card[data-integrated=true] .serviceLabel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
  .card[data-integrated=true] .integratedCopy { display: flex; align-items: center; height: 100%; padding-block: .5rem 2.25rem; }
 }
 
@@ -278,7 +282,7 @@
   position: absolute; inset: 0; z-index: 1; min-width: 0;
   display: grid; align-content: center; gap: .875rem;
   padding: 1.25rem var(--benefit-inset) 3rem; border-radius: inherit;
-  background: var(--opening-card-white, #fffaf1); overflow: clip;
+  background: transparent; overflow: clip;
 }
 .integratedDetails .integratedDetailTitle { margin: 0; }
 .integratedDetails .detailContent, .integratedDetails ul, .integratedDetails li { min-width: 0; }
@@ -308,51 +312,59 @@
 
 /* The divided film keeps its outline; the reading area now owns half the face. */
 @media(min-width:768px), (min-width:600px) and (min-aspect-ratio:6/5) {
- .card[data-integrated=true] { grid-template-rows: minmax(0,1fr) minmax(14rem,52%); }
+ .card[data-integrated=true] { grid-template-rows: minmax(0,1fr) minmax(0,49%); }
  .card[data-integrated=true] .integratedCopy { padding: 1.5rem var(--benefit-inset) 2.75rem; }
  .card[data-integrated=true] .integratedCopy [data-benefit-title] { font-size: clamp(1.375rem,1rem + .75vw,2rem); line-height: 1.15; font-weight: 600; }
- .card[data-integrated=true] .serviceLabel { font-size: clamp(.75rem,.65rem + .2vw,.9375rem); margin-bottom: .875rem; line-height: 1.4; }
 }
 @media(min-width:600px) and (height <= 560px) {
- .card[data-integrated=true] { grid-template-rows: minmax(0,1fr) 72%; }
+ .card[data-integrated=true] { grid-template-rows: minmax(0,1fr) 52%; }
  .card[data-integrated=true] .integratedCopy { padding: .75rem .625rem 1.75rem; }
  .card[data-integrated=true] .integratedCopy [data-benefit-title] { font-size: 1rem; }
- .card[data-integrated=true] .serviceLabel { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
 }
-
-/* A bounded, transform-only colour drift sits below the corner sculptures. */
-.card[data-integrated=true] { --art-light-a:#e8a020; --art-light-b:#e5192a; }
-.card[data-integrated=true][data-benefit-index="1"] { --art-light-a:#9e6df0; --art-light-b:#d6a85c; }
-.card[data-integrated=true][data-benefit-index="2"] { --art-light-a:#e5192a; --art-light-b:#efad54; }
-.integratedHeading::before {
- content:""; position:absolute; inset:-24%; z-index:-1; pointer-events:none;
- background:radial-gradient(ellipse at 28% 20%,var(--art-light-a),transparent 57%),radial-gradient(ellipse at 78% 68%,var(--art-light-b),transparent 62%);
- opacity:.24; mix-blend-mode:screen; transform:translate3d(-5%,-3%,0) scale(1.06);
- animation:opening-art-color 14s ease-in-out infinite alternate; animation-play-state:paused;
-}
-:global([data-card-color-motion=true]) .integratedHeading::before { animation-play-state:running; will-change:transform; }
-@keyframes opening-art-color { to { transform:translate3d(6%,5%,0) scale(1.15) rotate(5deg); } }
-@media(prefers-reduced-motion:reduce) { .integratedHeading::before { animation:none; } }
-
 
 /* Text determines fallback card height; both cover and revealed copy reserve space. */
 .card[data-integrated=true][data-flow=true] { container-type: normal; height: auto; margin: 0; grid-template-columns: minmax(0,1fr); grid-template-rows: auto auto; border-radius: 1rem; overflow-wrap: anywhere; }
 .card[data-flow=true] .integratedHeading { padding: 1.25rem var(--benefit-inset); }
 .card[data-flow=true] .pillarCode { font-size: 2.5rem; }
-.card[data-flow=true] .integratedHeading h3 { font-size: 1.125rem; }
+.card[data-flow=true] .serviceTagline { font-size: 1.125rem; }
+.card[data-flow=true] .serviceTitle { font-size: clamp(1.5rem, 6vw, 2.25rem); }
 .card[data-flow=true] .detailWell { container-type: normal; min-width: 0; grid-template-columns: minmax(0,1fr); min-height: 18rem; }
 .card[data-integrated=true][data-flow=true] .integratedDetails { position: relative; inset: auto; align-content: start; padding: 1.25rem var(--benefit-inset) 3.5rem; }
 .card[data-flow=true] .detailCover { align-self: stretch; }
 .card[data-integrated=true][data-flow=true] .integratedCopy { display: block; height: auto; padding: 1.25rem var(--benefit-inset) 3.5rem; }
 .card[data-integrated=true][data-flow=true] .integratedCopy [data-benefit-title] { font-size: 1.375rem; line-height: 1.2; }
-.card[data-integrated=true][data-flow=true] .serviceLabel { position: static; width: auto; height: auto; clip-path: none; white-space: normal; font-size: .875rem; }
 .card[data-flow=true] .cardToggle { pointer-events: auto; }
 
 
-/* The paper visible under the paw is the same surface that fills the card.
-   Its clip starts at the measured reading well and opens in place. */
-.benefitPaper { position:absolute; inset:0; z-index:0; pointer-events:none; background:var(--opening-card-white,#fffaf1); clip-path:inset(calc(var(--benefit-paper-top,48%) * (1 - var(--handoff-white,0))) 0 0 calc(var(--benefit-paper-left,0%) * (1 - var(--handoff-white,0)))); }
-.card[data-integrated=true] .integratedHeading { z-index:1; opacity:calc(1 - var(--handoff-white,0)); }
+/* The paper under the paw is also the merged face. Its edge carries a
+   restrained specular band only while the material crosses the dark surface. */
+.benefitPaper {
+  --paper-progress: var(--handoff-white, 0);
+  --paper-light: calc(4 * var(--paper-progress) * (1 - var(--paper-progress)));
+  --paper-angle: calc(var(--paper-direction, 180deg) - 9deg * var(--paper-light));
+  --paper-edge: calc(var(--paper-start, var(--benefit-paper-top, 51%)) * (1 - var(--paper-progress)) - 4% * var(--paper-progress));
+  --paper-feather: calc(2.25% * var(--paper-light));
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--opening-card-white, var(--site-surface-light));
+  clip-path: inset(calc(var(--benefit-paper-top, 51%) * (1 - var(--paper-progress))) 0 0 calc(var(--benefit-paper-left, 0%) * (1 - var(--paper-progress))));
+}
+@supports (mask-image: linear-gradient(#000, transparent)) {
+  .benefitPaper {
+    clip-path: none;
+    background-image: linear-gradient(var(--paper-angle),
+      transparent calc(var(--paper-edge) - var(--paper-feather)),
+      rgb(174 147 115 / calc(.25 * var(--paper-light))) var(--paper-edge),
+      rgb(255 255 255 / calc(.8 * var(--paper-light))) calc(var(--paper-edge) + var(--paper-feather)),
+      transparent calc(var(--paper-edge) + 3 * var(--paper-feather)));
+    mask-image: linear-gradient(var(--paper-angle),
+      transparent calc(var(--paper-edge) - var(--paper-feather)), #000 calc(var(--paper-edge) + var(--paper-feather)));
+  }
+}
+
+.card[data-integrated=true] .integratedHeading { z-index:1; opacity:max(0, calc(1 - 2.2 * var(--handoff-white,0))); }
 .card[data-integrated=true] .detailShell { z-index:2; }
 .card[data-integrated=true] .detailWell,
 .card[data-integrated=true] .integratedDetails { background:transparent; }
@@ -361,9 +373,9 @@
 .card[data-integrated=true] .detailCover,
 .card[data-integrated=true] .seamCarrier,
 .card[data-integrated=true] .paw { opacity:var(--handoff-benefit,1); }
-@media(width < 768px) {
- .benefitPaper { --benefit-paper-top:0%; --benefit-paper-left:32%; }
- .card[data-integrated=true] .integratedDetails { align-content:end; padding-bottom:2.25rem; }
+@media (width < 768px) and ((width < 600px) or (aspect-ratio < 6/5)) {
+ .benefitPaper { --benefit-paper-top: 0%; --benefit-paper-left: 43%; --paper-direction: 90deg; --paper-start: var(--benefit-paper-left); }
+ .card[data-integrated=true] .integratedDetails { padding-top: .75rem; padding-bottom: 2rem; }
 }
 .card[data-flow=true] .benefitPaper { display:none; }
-.card[data-flow=true] .detailWell { background:var(--opening-card-white,#fffaf1); }
+.card[data-flow=true] .detailWell { background:var(--opening-card-white,var(--site-surface-light)); }

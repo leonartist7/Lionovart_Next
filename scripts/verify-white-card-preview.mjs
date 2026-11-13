@@ -228,10 +228,10 @@ try {
    }
    const paperNodes=await page.locator('[data-benefit-paper]').evaluateAll(es=>es.map((el,i)=>{el.dataset.paperIdentity=String(i);return el.dataset.paperIdentity;}));
    assert.equal(paperNodes.length,3,'Each original card owns one paper surface');
-   await scroll(exit.top-h+.29*(exit.height+h));
-   await page.screenshot({path:`${output}/${prefix}-red-strike.png`});
+   await scroll(exit.top-h+.24*(exit.height+h));
+   await page.screenshot({path:`${output}/${prefix}-innovation-first-claim.png`});
    await scroll(exit.top-h+.4*(exit.height+h));
-   await page.screenshot({path:`${output}/${prefix}-claim-rewritten.png`});
+   await page.screenshot({path:`${output}/${prefix}-innovation-final-claim.png`});
    for(const p of [.40,.60,.64,.70,.78,.90,.96,1]){
     await scroll(exit.top-h+p*(exit.height+h));assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2),false,'No opening handoff overflow');await page.screenshot({path:`${output}/${prefix}-cards-${Math.round(p*100)}.png`});
    }

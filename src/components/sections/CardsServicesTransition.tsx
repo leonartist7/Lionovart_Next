@@ -53,6 +53,9 @@ export default function CardsServicesTransition({ children }: { children: ReactN
     if (!node || !runway || !copy) return;
     const world = node.closest('[data-service-world]');
     const ambient = node.querySelector<HTMLElement>('[data-opening-ambient]');
+    const optionalClaim = copy.querySelector('[data-brand-optional]');
+    const neededClaim = copy.querySelector('[data-brand-needed]');
+    let showingFinalClaim: boolean | undefined;
     const media = matchMedia(STORY_STATIC_QUERY);
     let frame = 0, dirty = true;
     let sources: { node:HTMLElement; base:BridgeFrame; reading:CardRect; label:ReadingLabel; unit:number; objectWidth:number; objectInset:number }[] = [];
@@ -96,16 +99,21 @@ export default function CardsServicesTransition({ children }: { children: ReactN
       // This copy lives in its own scene portal: settle it even when a fast
       // scroll skips directly past the card owner into the doorway.
       copy.style.visibility = isStatic || Math.max(pose.copy, pose.brand) > .001 ? 'visible' : 'hidden';
-      for (const beat of ['lead', 'main', 'necessity', 'brand'] as const) {
+      for (const beat of ['lead', 'main'] as const) {
         const element = copy.querySelector<HTMLElement>(`[data-brand-beat=${beat}]`);
         if (!element) continue;
         const presence = isStatic ? 1 : pose[beat];
         element.style.opacity = String(presence);
         element.setAttribute('aria-hidden', String(presence === 0));
       }
-      copy.style.setProperty('--claim-rewrite',String(isStatic ? 1 : pose.claim));
-      copy.style.setProperty('--claim-strike',String(isStatic ? 1 : pose.strike));
-      copy.querySelector('[data-brand-optional]')?.setAttribute('aria-hidden',String(isStatic || pose.claim >= .999));
+      const claim = isStatic ? 1 : pose.claim;
+      copy.style.setProperty('--claim-fade', String(claim));
+      const finalClaim = claim >= .5;
+      if (finalClaim !== showingFinalClaim) {
+        showingFinalClaim = finalClaim;
+        optionalClaim?.setAttribute('aria-hidden', String(finalClaim));
+        neededClaim?.setAttribute('aria-hidden', String(!finalClaim));
+      }
       const letteringLayer=scene?.target?.querySelector<HTMLElement>('[data-card-lettering-layer]');
       const identities=[...(letteringLayer?.querySelectorAll<HTMLElement>('[data-card-identity]') ?? [])];
       const showLettering = !isStatic && remaining > .001 && !node.querySelector('[data-film-active=true]');
@@ -223,7 +231,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           pane.style.setProperty('--handoff-y',`${fitted.y}px`);
           pane.style.setProperty('--handoff-scale',`${fitted.sx} ${fitted.sy}`);
           pane.style.setProperty('--handoff-depth',String(1+((target.selected?1:target.opacity)-1)*pose.spread));
-          pane.style.setProperty('--handoff-material',String((1-pose.serviceReveal) * (index===2 ? 1 : pose.material)));
+          pane.style.setProperty('--handoff-material',String(1 - pose.serviceReveal));
           pane.style.setProperty('--handoff-white',String(pose.white));
           pane.style.setProperty('--handoff-assembly',String(pose.assembly));
           pane.style.setProperty('--handoff-identity',String(pose.identity));
@@ -340,8 +348,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           <span className={styles.innovation}>{locale === 'fr' ? 'L’innovation' : 'Innovation'}</span>{' '}
           <span className={styles.claimSwap}>
             <span className={styles.optional} data-brand-optional>{locale === 'fr' ? 'n’est pas une option.' : 'isn’t optional.'}</span>
-            <span className={styles.claimStroke} data-brand-strike aria-hidden="true" />
-            <span data-brand-beat="necessity" className={styles.necessity}>{locale === 'fr' ? 'est une nécessité.' : 'it’s a necessity.'}</span>
+            <span className={styles.needed} data-brand-needed aria-hidden="true">{locale === 'fr' ? 'est nécessaire.' : 'is needed.'}</span>
           </span>
         </span></h2>
       </div>

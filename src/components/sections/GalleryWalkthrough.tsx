@@ -330,14 +330,6 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     });
   };
 
-  const continueFromHoneycomb = () => {
-    const box = runway.current?.getBoundingClientRect();
-    if (!box) return;
-    const top = scrollY + box.top + .86 * (box.height - innerHeight * .85);
-    if (lenis) lenis.scrollTo(top, { duration: 2, lerp: 0, userData: { navigation: true } });
-    else window.scrollTo({ top, behavior: 'smooth' });
-  };
-
   const continueToResults = () => {
     const target = document.getElementById('client-results') ?? document.getElementById('client-experience');
     if (!target) return;
@@ -360,7 +352,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
           <h2 id="selected-work-heading">{fr ? 'de nos réalisations' : 'our selected work'}</h2>
         </motion.header>}
         {canBrowse && <HoneycombGallery key={catalog} projects={projects} progress={journeyProgress} lastProject={lastProject}
-          active={active} ready={showHoneycomb} onReady={setHoneycombReady} onContinue={continueFromHoneycomb} />}
+          active={active} ready={showHoneycomb} onReady={setHoneycombReady} />}
         {pinned ? <div className={styles.corridor} data-gallery-corridor>
           <motion.div className={styles.exhibits} style={{opacity:corridorOpacity}} inert={honeycombOwns} aria-hidden={honeycombOwns}>
             <motion.svg className={styles.depthSpace} style={{opacity:navOpacity}} viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
@@ -389,7 +381,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
           <motion.p style={{opacity:pinned?copyOpacity:1}}>{tr('Designing your legacy')}</motion.p>
         </motion.div>
         {previewError && <motion.p className={styles.previewError} style={{ opacity: pinned ? navOpacity : 1 }} aria-hidden={pinned && !walking} role="status">{fr ? 'Aperçu indisponible. Réessayez.' : 'Preview unavailable. Please try again.'}</motion.p>}
-        {pinned && !honeycombOwns && <motion.nav className={styles.navigation} data-gallery-navigation aria-busy={requested !== null} style={{ opacity: navOpacity }} aria-label={fr ? 'Parcourir les projets' : 'Browse the gallery'} inert={!walking} aria-hidden={!walking}>
+        {pinned && !showHoneycomb && <motion.nav className={styles.navigation} data-gallery-navigation aria-busy={requested !== null} style={{ opacity: navOpacity }} aria-label={fr ? 'Parcourir les projets' : 'Browse the gallery'} inert={!walking} aria-hidden={!walking}>
           <button type="button" onClick={() => move(-1)} disabled={(requested ?? projectIndex) === 0} aria-label={tr('Previous works')}><ArrowLeft className={styles.horizontalArrow} aria-hidden="true" /><ArrowUp className={styles.verticalArrow} aria-hidden="true" /></button>
           <span aria-live="polite">{String(projectIndex + 1).padStart(2, '0')} <i>/ {String(projectCount).padStart(2, '0')}</i></span>
           <button type="button" onClick={() => move(1)} aria-label={(requested ?? projectIndex) >= projectCount - 1 ? tr('One partnership') : tr('Next works')}><ArrowRight className={styles.horizontalArrow} aria-hidden="true" /><ArrowDown className={styles.verticalArrow} aria-hidden="true" /></button>

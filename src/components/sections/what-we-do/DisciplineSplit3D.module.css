@@ -129,8 +129,8 @@
 
 
 /* The revealed paper supplies the entire merged face, with no shadow seam. */
-.pane { --opening-card-white:#fffaf1; }
-.frontFace { box-shadow:none; }
+.pane { --opening-card-white:var(--site-surface-light); }
+.frontFace { background:#08080a; box-shadow:none; }
 /* Keep the same corner anchor while the frame and artwork change shape. */
 .floatingObject {
   transform-origin: top right;
