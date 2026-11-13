@@ -56,8 +56,8 @@ export function cookieFrom(res, name) {
   return hit ? hit.split(";")[0].slice(name.length + 1) : null;
 }
 
-/** Headers for an authenticated JSON request. */
-export const J = (cookie) => ({ "Content-Type": "application/json", Cookie: cookie });
+/** Match browser same-origin JSON writes without relaxing the application guard. */
+export const J = (cookie) => ({ "Content-Type": "application/json", Cookie: cookie, Origin: new URL(BASE).origin });
 
 
 /** Fixture sign-ins obey the production token bucket, including when the

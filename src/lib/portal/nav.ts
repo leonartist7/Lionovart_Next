@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   Sparkles,
   Settings,
+  Plug,
   type LucideIcon,
 } from "lucide-react";
 
@@ -102,6 +103,15 @@ export const PORTAL_NAV: PortalNavItem[] = [
     label: "Assistant",
     shortLabel: "Assistant",
     icon: Bot,
+    ready: true,
+    primary: false,
+  },
+  {
+    id: "connections",
+    segment: "connections",
+    label: "Connections",
+    shortLabel: "Connections",
+    icon: Plug,
     ready: true,
     primary: false,
   },

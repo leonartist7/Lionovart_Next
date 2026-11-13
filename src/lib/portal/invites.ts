@@ -1,9 +1,11 @@
 import "server-only";
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase-admin";
-import type { Invite, PortalRole } from "@/lib/portal/types";
+import { PORTAL_ROLES, roleAtLeast, type Invite, type Membership, type PortalRole } from "@/lib/portal/types";
 
 const INVITE_TTL_MS = 14 * 24 * 60 * 60 * 1000;
+const INVITE_TOKEN_RE = /^[A-Za-z0-9_-]{43}$/;
 
 /**
  * Invite tokens are single-use bearer secrets that travel through email, so the
@@ -81,7 +83,9 @@ export type InviteLookup =
 export async function findInviteByToken(
   token: string,
 ): Promise<InviteLookup> {
-  if (!adminDb) return { ok: false, reason: "not_found" };
+  if (!adminDb || typeof token !== "string" || !INVITE_TOKEN_RE.test(token)) {
+    return { ok: false, reason: "not_found" };
+  }
 
   const tokenHash = hashInviteToken(token);
   const snap = await adminDb
@@ -97,15 +101,80 @@ export async function findInviteByToken(
 
   // Re-verify in constant time: the equality query above already matched, but
   // this keeps the comparison explicit if the lookup strategy ever changes.
-  if (!hashesMatch(invite.tokenHash, tokenHash)) {
+  if (typeof invite.tokenHash !== "string" || !hashesMatch(invite.tokenHash, tokenHash)) {
     return { ok: false, reason: "not_found" };
   }
   if (invite.acceptedAt) return { ok: false, reason: "already_accepted" };
-  if (Date.parse(invite.expiresAt) < Date.now()) {
+  const expiresAt = Date.parse(invite.expiresAt);
+  if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
     return { ok: false, reason: "expired" };
   }
 
   return { ok: true, invite };
+}
+
+
+export type InviteRedemption =
+  | { ok: true }
+  | { ok: false; reason: InviteLookupError | "email_mismatch" };
+
+/**
+ * A preview lookup can race a second sign-in or an expiring invitation.
+ * Re-read BOTH documents inside a Firestore transaction before granting access.
+ * Firestore retries a transaction if its read documents were modified.
+ */
+export async function redeemInviteAtomically(input: {
+  inviteId: string;
+  token: string;
+  uid: string;
+  email: string;
+  name: string;
+}): Promise<InviteRedemption> {
+  const db = adminDb;
+  if (!db) throw new Error("Firestore is not configured");
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(input.inviteId) ||
+      typeof input.token !== "string" || !INVITE_TOKEN_RE.test(input.token) ||
+      !input.uid || !input.email) {
+    return { ok: false, reason: "not_found" };
+  }
+  const tokenHash = hashInviteToken(input.token);
+  const inviteRef = db.collection("invites").doc(input.inviteId);
+  return db.runTransaction(async (transaction): Promise<InviteRedemption> => {
+    const snapshot = await transaction.get(inviteRef);
+    if (!snapshot.exists) return { ok: false, reason: "not_found" };
+    const invite = snapshot.data() as Invite;
+    if (typeof invite.tokenHash !== "string" || !hashesMatch(invite.tokenHash, tokenHash)) {
+      return { ok: false, reason: "not_found" };
+    }
+    if (invite.acceptedAt) return { ok: false, reason: "already_accepted" };
+    const expiresAt = Date.parse(invite.expiresAt);
+    if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
+      return { ok: false, reason: "expired" };
+    }
+    if (invite.email !== input.email) return { ok: false, reason: "email_mismatch" };
+    if (!PORTAL_ROLES.includes(invite.role) || invite.role === "agency" ||
+        typeof invite.workspaceId !== "string" ||
+        !/^[A-Za-z0-9_-]{1,128}$/.test(invite.workspaceId)) {
+      return { ok: false, reason: "not_found" };
+    }
+    const workspaceRef = db.collection("workspaces").doc(invite.workspaceId);
+    const workspace = await transaction.get(workspaceRef);
+    if (!workspace.exists) return { ok: false, reason: "not_found" };
+    const existing = (workspace.data()?.members as Record<string, Membership> | undefined)?.[input.uid];
+    // An older/lower-role invite must never demote an existing member.
+    const keepExisting = existing && PORTAL_ROLES.includes(existing.role) &&
+      roleAtLeast(existing.role, invite.role);
+    const at = new Date().toISOString();
+    const membership: Membership = keepExisting && existing ? existing : {
+      role: invite.role, email: input.email, name: input.name, addedAt: at,
+    };
+    transaction.update(workspaceRef, {
+      [`members.${input.uid}`]: membership,
+      memberUids: FieldValue.arrayUnion(input.uid),
+    });
+    transaction.update(inviteRef, { acceptedAt: at, acceptedBy: input.uid });
+    return { ok: true };
+  });
 }
 
 export function describeInviteError(reason: InviteLookupError): string {

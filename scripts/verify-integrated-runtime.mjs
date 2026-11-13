@@ -5,7 +5,16 @@ import { chromium } from "playwright";
 import WebSocket from "ws";
 
 const base = process.env.PORTAL_BASE ?? "http://localhost:3000";
-const server = spawn(process.execPath, ["server.js"], { stdio: "inherit", env: { ...process.env, NODE_ENV: "production" } });
+// The HTTP test client keeps its local BASE. Only generated invitation links use
+// this non-deliverable HTTPS fixture origin; invitations are never emailed.
+const server = spawn(process.execPath, ["server.js"], {
+  stdio: "inherit",
+  env: {
+    ...process.env, NODE_ENV: "production",
+    PORTAL_BASE: "https://portal-fixture.example.test",
+    VERCEL_ENV: "development", VERCEL_URL: "", RESEND_API_KEY: "",
+  },
+});
 const run = (args) => new Promise((resolve, reject) => {
   const child = spawn(process.execPath, args, { stdio: "inherit", env: process.env });
   child.once("error", reject);
