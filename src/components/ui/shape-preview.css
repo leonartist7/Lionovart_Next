@@ -1,54 +1,18 @@
-/* Preview controls are mounted only with a supported ?shape= value. */
-.shape-preview-controls {
-  position: fixed;
-  z-index: 1200;
-  left: max(.75rem, env(safe-area-inset-left));
-  bottom: calc(.6rem + env(safe-area-inset-bottom));
-  display: flex;
-  gap: .125rem;
-  padding: .25rem;
-  max-width: calc(100vw - 1.5rem);
-  border: 1px solid #d4b27d55;
-  border-radius: .625rem;
-  background: #100c10f5;
-  color: #fffaf1;
-  box-shadow: 0 .5rem 1.75rem #0005;
-  font: 600 .72rem/1.15 var(--font-dm-sans), sans-serif;
-}
-.shape-preview-controls button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: .3rem;
-  min-height: 2.75rem;
-  padding: .35rem .55rem;
-  border-radius: .375rem;
-  cursor: pointer;
-}
-.shape-preview-controls button[aria-pressed="true"] { color: #fffaf1; background: #a5162d; }
-.shape-preview-controls button:focus-visible { outline: 2px solid #f5d8a8; outline-offset: -2px; }
-.shape-preview-controls svg { width: .9rem; height: .9rem; fill: none; stroke: currentColor; stroke-width: 8; }
-@media (max-width: 460px) {
-  .shape-preview-controls { font-size: .69rem; }
-  .shape-preview-controls button { padding-inline: .4rem; }
-  .shape-preview-controls svg { display: none; }
-}
-
-:root[data-shape-preview="pentagon"] {
-  --preview-button: polygon(50% 0, 100% 25%, 92% 100%, 8% 100%, 0 25%);
-}
 :root[data-shape-preview="hexagon"] {
-  --preview-button: polygon(8% 0, 92% 0, 100% 50%, 92% 100%, 8% 100%, 0 50%);
+  --preview-cut: min(12%, .9rem);
+  --preview-button: polygon(var(--preview-cut) 0, calc(100% - var(--preview-cut)) 0, 100% 50%, calc(100% - var(--preview-cut)) 100%, var(--preview-cut) 100%, 0 50%);
+  --preview-button-interior: polygon(var(--preview-cut) 2px, calc(100% - var(--preview-cut)) 2px, calc(100% - 2px) 50%, calc(100% - var(--preview-cut)) calc(100% - 2px), var(--preview-cut) calc(100% - 2px), 2px 50%);
+  --preview-metal-edge: polygon(evenodd,
+    var(--preview-cut) 0, calc(100% - var(--preview-cut)) 0, 100% 50%, calc(100% - var(--preview-cut)) 100%, var(--preview-cut) 100%, 0 50%, var(--preview-cut) 0,
+    var(--preview-cut) 1px, calc(100% - var(--preview-cut)) 1px, calc(100% - 1px) 50%, calc(100% - var(--preview-cut)) calc(100% - 1px), var(--preview-cut) calc(100% - 1px), 1px 50%, var(--preview-cut) 1px);
 }
-:root[data-shape-preview="heptagon"] {
-  --preview-button: polygon(50% 0, 92% 9%, 100% 51%, 93% 100%, 7% 100%, 0 51%, 8% 9%);
-}
-
-/* Keep the monogram centred on its red badge at every vertex count. */
 [data-shape-badge] { position: relative; display: inline-flex; flex: none; }
 :root[data-shape-preview] [data-shape-badge] {
   clip-path: var(--preview-polygon);
   background: #f51b2c url("/images/lionovart-icon.svg") center / 72% no-repeat;
+}
+:root[data-shape-preview] [data-shape-badge][data-badge-shape="hexagon-flat"] {
+  clip-path: polygon(25% 6.7%, 75% 6.7%, 100% 50%, 75% 93.3%, 25% 93.3%, 0 50%);
 }
 :root[data-shape-preview] [data-shape-badge] > img { opacity: 0; }
 
@@ -68,7 +32,37 @@
   border-radius: 0 !important;
 }
 :root[data-shape-preview] [data-shape-metal] > .shader-container-exploded { border-radius: 0 !important; }
-:root[data-shape-preview] [data-shape-metal-contour] { display: none; }
+:root[data-shape-preview] [data-shape-metal-interior] {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  clip-path: var(--preview-button-interior);
+}
+:root[data-shape-preview] [data-shape-metal-contour],
+:root[data-shape-preview] .hero-capsule:not(.hero-capsule-open)::after {
+  inset: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  clip-path: var(--preview-metal-edge);
+  background: linear-gradient(110deg, #ffedd5aa, transparent 28%, #ffffe68a 64%, #a8764e99);
+}
+:root[data-shape-preview] .hero-capsule:not(.hero-capsule-open)::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+}
+:root[data-shape-preview] .hero-capsule:not(.hero-capsule-open) .hero-capsule-interior {
+  inset: 0;
+  clip-path: var(--preview-button-interior);
+}
+:root[data-shape-preview] [data-shape-metal-contour] ~ [data-cta-target] { clip-path: var(--preview-button); }
+:root[data-shape-preview] [data-shape-metal-contour] ~ [data-cta-target]:focus-visible {
+  background: #ffedd525 !important;
+  outline: 2px solid #ffe2cf;
+  outline-offset: -4px;
+}
 
 :root[data-shape-preview] :is([data-gallery-red-core], [data-partnership-static-mark], [data-shape-portal-fill]) {
   border-radius: 0;
@@ -89,7 +83,6 @@
   z-index: 1;
 }
 :root[data-shape-preview] [data-gallery-ring] { border: 0; border-radius: 0; box-shadow: none; }
-:root[data-shape-preview] [data-gallery-stage] [data-screening-media] { clip-path: var(--preview-polygon); }
 
 :root[data-shape-preview] [data-about-runway][data-about-transitioning="true"]::after {
   border: 0;

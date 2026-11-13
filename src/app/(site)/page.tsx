@@ -13,7 +13,7 @@ export default function Home() {
       <main className="bg-bg-dark min-h-screen relative z-10">
         <FounderOfferBanner />
         <ScrollExperience>
-          <Navbar withSound />
+          <Navbar withSound shapeControl />
           <PageBuilder />
         </ScrollExperience>
       </main>

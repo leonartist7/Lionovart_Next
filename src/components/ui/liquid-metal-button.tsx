@@ -280,7 +280,7 @@ export function LiquidMetalButton({
               zIndex: 20,
             }}
           >
-            <div data-shape-metal
+            <div data-shape-metal data-shape-metal-interior
               style={{
                 width: dimensions.innerWidth,
                 height: dimensions.innerHeight,

@@ -21,6 +21,8 @@ import { MenuBurgerLottie } from "@/components/ui/menu-burger-lottie";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import styles from "./AdaptiveNavbar.module.css";
+import { usePreviewShape } from "@/components/ui/ShapePreview";
+import { cyclePreviewShape } from "@/lib/shape-preview";
 import { ExperienceSoundToggle } from "@/components/experience/ScrollExperience";
 import { hrefForTitle } from "@/lib/service-routes";
 import { navScrollIntent } from "./nav-scroll";
@@ -104,6 +106,7 @@ const REDUCED_ITEM_VARIANTS = {
 
 export type NavbarProps = {
   withSound?: boolean;
+  shapeControl?: boolean;
   lightweightMenu?: boolean;
   sectionFallback?: boolean;
 };
@@ -133,7 +136,23 @@ function LightweightMenuToggle({
   );
 }
 
-export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallback = false, withSound = false }: NavbarProps) {
+function LogoBadge({ control }: { control: boolean }) {
+  const shape = usePreviewShape();
+  const { locale } = useLanguage();
+  const description = {
+    original: "Original",
+    hexagon: locale === "fr" ? "Hexagone sur pointe" : "Point-bottom hexagon",
+    "hexagon-flat": locale === "fr" ? "Hexagone à base plate" : "Flat-bottom hexagon",
+  }[shape];
+  const badge = <span data-shape-badge data-badge-shape={control ? shape : undefined}>
+    <Image src="/images/Icon.avif" alt="" width={40} height={40} sizes="40px" priority className={styles.brandIcon} />
+  </span>;
+  return control ? <button type="button" className={styles.shapeControl} data-logo-shape-control
+    aria-label={locale === "fr" ? `Changer la forme du logo. ${description}` : `Cycle logo shape. ${description}`}
+    onClick={cyclePreviewShape}>{badge}</button> : badge;
+}
+
+export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallback = false, withSound = false, shapeControl = false }: NavbarProps) {
   const tr = usePublicCopy();
   const router = useRouter();
   const { released } = useIntroLifecycle();
@@ -377,12 +396,13 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
           <div aria-hidden className={styles.glass} />
 
           <div className="relative mx-auto flex w-full items-center justify-between px-5 py-3 sm:px-8 xl:px-12 xl:py-4">
-            <Link href="/" aria-label="LIONOVART home" data-nav-logo className={styles.wordmark}>
-              <span data-shape-badge>
-                <Image src="/images/Icon.avif" alt="" width={40} height={40} sizes="40px" priority className={styles.brandIcon} />
-              </span>
+            {shapeControl ? <div data-nav-logo className={styles.wordmark}>
+              <LogoBadge control />
+              <Link href="/" aria-label="LIONOVART home">LIONOVART</Link>
+            </div> : <Link href="/" aria-label="LIONOVART home" data-nav-logo className={styles.wordmark}>
+              <LogoBadge control={false} />
               <span>LIONOVART</span>
-            </Link>
+            </Link>}
 
             <AnimatePresence initial={false}>
               {heroMode && (

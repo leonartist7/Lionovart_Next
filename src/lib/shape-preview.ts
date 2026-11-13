@@ -1,5 +1,16 @@
 export const SHAPE_PREVIEW_EVENT = "lionovart:shape-preview";
-export const PREVIEW_SHAPES = { original: 0, pentagon: 5, hexagon: 6, heptagon: 7 } as const;
+export const SHAPE_SELECTION_EVENT = "lionovart:shape-selection";
+export const PREVIEW_SHAPES = { original: 0, hexagon: 6, "hexagon-flat": 6 } as const;
+const shapeOrder = ["original", "hexagon", "hexagon-flat"] as const;
+
+export function cyclePreviewShape() {
+  const url = new URL(window.location.href);
+  const current = previewShape(url.searchParams.get("shape")) ?? "original";
+  const next = shapeOrder[(shapeOrder.indexOf(current) + 1) % shapeOrder.length];
+  url.searchParams.set("shape", next);
+  window.history.replaceState(window.history.state, "", url);
+  window.dispatchEvent(new Event(SHAPE_SELECTION_EVENT));
+}
 export type PreviewShape = keyof typeof PREVIEW_SHAPES;
 
 export function previewShape(value: string | null): PreviewShape | null {

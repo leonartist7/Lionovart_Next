@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { useWorkBrowse } from "./selected-work/WorkBrowse";
 import GalleryWalkthrough from "./GalleryWalkthrough";
 import { galleryWithCarry } from "./gallery-journey";
@@ -20,6 +22,7 @@ export default function CompactWork({ servicesCurves = false }: { servicesCurves
   const world = useServiceWorld();
   const exhibit = serviceExhibits(world?.handoff.service ?? 'branding')[world?.handoff.variant ?? 1];
   const carry = GALLERY_WORK.find(work => work.slug === exhibit?.slug) ?? LED_WORK;
+  const projects = useMemo(() => galleryWithCarry(browse.galleryProjects, carry), [browse.galleryProjects, carry]);
   return <GalleryWalkthrough key={browse.industry + "/" + browse.style}
-    projects={galleryWithCarry(browse.galleryProjects, carry)} servicesCurves={servicesCurves} />;
+    projects={projects} servicesCurves={servicesCurves} />;
 }

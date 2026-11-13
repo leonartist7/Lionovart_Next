@@ -17,6 +17,8 @@ import { doorwayTitleOpacity, serviceGalleryHandoff } from './service-gallery-ha
 import { galleryCardPose, galleryRingPose, galleryEnding, galleryProjectProgress, galleryProgress, galleryTravel, galleryRunwayScreens, galleryStepTarget, galleryNavigationDuration, galleryNavigationEase, GALLERY_DEPTH_STEP } from './gallery-journey';
 import styles from './GalleryWalkthrough.module.css';
 import { partnershipDiscLayout } from './partnership-layout';
+import HoneycombGallery from './selected-work/HoneycombGallery';
+import { HONEYCOMB_BROWSE_START, HONEYCOMB_PASS_END, honeycombPose } from './selected-work/honeycomb-journey';
 
 function WorkTags({ work }: { work: GalleryWork }) {
   const tr = usePublicCopy();
@@ -105,6 +107,12 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const tr = usePublicCopy();
   const { runway, stage, active } = useDissolveStage();
   const progress = useMotionValue(0);
+  const journeyProgress = useMotionValue(0);
+  const [honeycombReady, setHoneycombReady] = useState(false);
+  const [honeycombOwns, setHoneycombOwns] = useState(false);
+  const honeycombOwnsRef = useRef(false);
+  const reduce = useReducedMotion();
+  const saveData = useSaveData();
   const focusDepth = useMotionValue(100);
   const entry = useMotionValue(0), arrivalProgress = useMotionValue(0), entryScale = useMotionValue(1);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
@@ -117,6 +125,10 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const [projectIndex, setProjectIndex] = useState(0), [ending, setEnding] = useState(false), [walking, setWalking] = useState(true);
   const projectCount = Math.max(1, projects.length);
   const pinned = !!scene?.target;
+  const canBrowse = pinned && !reduce && !saveData && projects.length > 0;
+  const showHoneycomb = canBrowse && honeycombReady;
+  const lastProject = galleryProjectProgress(projectCount - 1, projectCount);
+  const corridorOpacity = useTransform(journeyProgress, p => showHoneycomb ? honeycombPose(p, lastProject).tunnelOpacity : 1);
   const sharedPortal = !!scene?.target?.closest('[data-world-mode="media"]');
   const titleOpacity = useTransform(() => doorwayTitleOpacity(arrivalProgress.get()));
   const coreOpacity = useTransform(progress,p=>galleryEnding(p,projectCount).core);
@@ -177,7 +189,13 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       if(match!==lastMatch){surface.style.setProperty('--gallery-frame-match',String(match));lastMatch=match;}
       entryScale.set(initialScale);entry.set(pinned?arrival.spread:1);
       arrivalProgress.set(pinned?arrival.progress:0);
-      progress.set(value);
+      journeyProgress.set(value);
+      const owns = showHoneycomb && value >= HONEYCOMB_BROWSE_START && value < HONEYCOMB_PASS_END;
+      if (honeycombOwnsRef.current !== owns) {
+        honeycombOwnsRef.current = owns;
+        setHoneycombOwns(owns);
+      }
+      progress.set(showHoneycomb ? honeycombPose(value, lastProject).tunnel : value);
     };
     const schedule=()=>{if(!frame)frame=requestAnimationFrame(sync);};
     const refresh=()=>{dirty=true;schedule();};
@@ -201,7 +219,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       window.removeEventListener('scroll',schedule);window.removeEventListener('resize',refresh);
       window.removeEventListener('lionovart:story-layout',refresh);
       world?.removeEventListener('load',refresh,true);world?.removeEventListener('loadedmetadata',refresh,true);};
-  },[pinned,locale,projectCount,progress,entry,entryScale,focusDepth,arrivalProgress,runway,scene?.target,stage]);
+  },[pinned,locale,projectCount,progress,entry,entryScale,focusDepth,arrivalProgress,runway,scene?.target,stage,journeyProgress,showHoneycomb,lastProject]);
 
   // Snapshot the reading identity before the shared scene changes DOM owners.
   useEffect(() => {
@@ -283,7 +301,8 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   }, [lenis]);
 
   const move = (direction: -1 | 1) => {
-    const target = galleryStepTarget(currentProject.current, navigation.current.target, direction, projectCount);
+    const target = showHoneycomb ? (direction === 1 ? projectCount : 0)
+      : galleryStepTarget(currentProject.current, navigation.current.target, direction, projectCount);
     const ticket = ++navigation.current.ticket;
     navigation.current.target = target; setRequested(target); setPreviewError(false);
     setSelectedSlug(null);
@@ -295,7 +314,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       if (ticket !== navigation.current.ticket) return;
       const anchor = runway.current; if (!anchor) return;
       const box = anchor.getBoundingClientRect();
-      const p = target >= projectCount ? .98 : galleryProjectProgress(target, projectCount);
+      const p = target >= projectCount ? .98 : showHoneycomb ? .14 : galleryProjectProgress(target, projectCount);
       const y = scrollY + box.top + p * (box.height - innerHeight * .85);
       const distance = y - scrollY;
       const duration = galleryNavigationDuration(distance, innerHeight);
@@ -309,6 +328,14 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
     });
   };
 
+  const continueFromHoneycomb = () => {
+    const box = runway.current?.getBoundingClientRect();
+    if (!box) return;
+    const top = scrollY + box.top + .86 * (box.height - innerHeight * .85);
+    if (lenis) lenis.scrollTo(top, { duration: 2, lerp: 0, userData: { navigation: true } });
+    else window.scrollTo({ top, behavior: 'smooth' });
+  };
+
   const continueToResults = () => {
     const target = document.getElementById('client-results') ?? document.getElementById('client-experience');
     if (!target) return;
@@ -320,7 +347,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   };
 
   return <section id="selected-work" className={styles.section} data-gallery="compact" data-gallery-story data-nav-surface="light"
-    data-scroll-title-skip data-curves={servicesCurves} aria-labelledby="selected-work-heading">
+    data-scroll-title-skip data-curves={servicesCurves} aria-label={fr ? 'Nos réalisations' : 'Selected Work'}>
     <div ref={runway} className={styles.runway} data-gallery-runway style={{ '--gallery-runway': `${galleryRunwayScreens(projectCount) * 100}svh` } as CSSProperties}>
       <span id="partnership" className={styles.partnershipAnchor} aria-hidden="true" />
       <ScenePortal><div ref={stage} className={styles.stage} data-scroll-title-skip data-dissolve-stage data-gallery-stage data-gallery-rows={projectCount} data-scene-chapter="work" data-walkthrough-pinned={pinned}
@@ -330,14 +357,20 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
           <p>{fr ? 'Entrez dans l’univers' : 'Step inside'}</p>
           <h2 id="selected-work-heading">{fr ? 'de nos réalisations' : 'our selected work'}</h2>
         </motion.header>}
+        {canBrowse && <HoneycombGallery projects={projects} progress={journeyProgress} lastProject={lastProject}
+          active={active} ready={showHoneycomb} onReady={setHoneycombReady} onContinue={continueFromHoneycomb} />}
         {pinned ? <div className={styles.corridor} data-gallery-corridor>
-          <motion.svg className={styles.depthSpace} style={{opacity:navOpacity}} viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
-            <path d="M500 480 50 1000M500 480 950 1000M340 665H660M235 785H765M85 960H915" />
-          </motion.svg>
-          {projects.map((work, index) => <GalleryRing key={`ring-${work.slug}`} index={index} count={projectCount} progress={progress} entry={entry} />)}
-          {projects.map((work, index) => <GalleryPanel key={work.slug} work={work} index={index} count={projectCount}
-            progress={progress} entry={entry} entryScale={entryScale} focusDepth={focusDepth} selected={selectedSlug === work.slug}
-            active={active && index === projectIndex && !ending} onSelect={onSelect} />)}
+          <motion.div className={styles.exhibits} style={{opacity:corridorOpacity}} inert={honeycombOwns} aria-hidden={honeycombOwns}>
+            <motion.svg className={styles.depthSpace} style={{opacity:navOpacity}} viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M500 480 50 1000M500 480 950 1000M340 665H660M235 785H765M85 960H915" />
+            </motion.svg>
+            {projects.map((work, index) => (!showHoneycomb || index === 0 || index === projectCount - 1) &&
+              <GalleryRing key={`ring-${work.slug}`} index={index} count={projectCount} progress={progress} entry={entry} />)}
+            {projects.map((work, index) => (!showHoneycomb || index === 0 || index === projectCount - 1) &&
+              <GalleryPanel key={work.slug} work={work} index={index} count={projectCount}
+                progress={progress} entry={entry} entryScale={entryScale} focusDepth={focusDepth} selected={selectedSlug === work.slug}
+                active={active && !honeycombOwns && index === projectIndex && !ending} onSelect={onSelect} />)}
+          </motion.div>
           <motion.div className={styles.redCore} data-gallery-red-core aria-hidden="true" style={{opacity:coreOpacity,transform:coreTransform}}>
             <motion.img src="/images/lionovart-icon.svg" className={styles.discLogo} data-gallery-logo alt="" width={160} height={160} style={{opacity:logoOpacity}}/>
           </motion.div>
@@ -354,7 +387,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
           <motion.p style={{opacity:pinned?copyOpacity:1}}>{tr('Designing your legacy')}</motion.p>
         </motion.div>
         {previewError && <motion.p className={styles.previewError} style={{ opacity: pinned ? navOpacity : 1 }} aria-hidden={pinned && !walking} role="status">{fr ? 'Aperçu indisponible. Réessayez.' : 'Preview unavailable. Please try again.'}</motion.p>}
-        {pinned && <motion.nav className={styles.navigation} data-gallery-navigation aria-busy={requested !== null} style={{ opacity: navOpacity }} aria-label={fr ? 'Parcourir les projets' : 'Browse the gallery'} inert={!walking} aria-hidden={!walking}>
+        {pinned && !honeycombOwns && <motion.nav className={styles.navigation} data-gallery-navigation aria-busy={requested !== null} style={{ opacity: navOpacity }} aria-label={fr ? 'Parcourir les projets' : 'Browse the gallery'} inert={!walking} aria-hidden={!walking}>
           <button type="button" onClick={() => move(-1)} disabled={(requested ?? projectIndex) === 0} aria-label={tr('Previous works')}><ArrowLeft className={styles.horizontalArrow} aria-hidden="true" /><ArrowUp className={styles.verticalArrow} aria-hidden="true" /></button>
           <span aria-live="polite">{String(projectIndex + 1).padStart(2, '0')} <i>/ {String(projectCount).padStart(2, '0')}</i></span>
           <button type="button" onClick={() => move(1)} aria-label={(requested ?? projectIndex) >= projectCount - 1 ? tr('One partnership') : tr('Next works')}><ArrowRight className={styles.horizontalArrow} aria-hidden="true" /><ArrowDown className={styles.verticalArrow} aria-hidden="true" /></button>
