@@ -190,6 +190,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
       if(match!==lastMatch){surface.style.setProperty('--gallery-frame-match',String(match));lastMatch=match;}
       entryScale.set(initialScale);entry.set(pinned?arrival.spread:1);
       arrivalProgress.set(pinned?arrival.progress:0);
+      surface.dataset.galleryJourney = value.toFixed(3);
       journeyProgress.set(value);
       const owns = showHoneycomb && value >= HONEYCOMB_BROWSE_START && value < HONEYCOMB_PASS_END;
       if (honeycombOwnsRef.current !== owns) {

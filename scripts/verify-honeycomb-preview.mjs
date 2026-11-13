@@ -128,28 +128,35 @@ async function check(width, height, phone = false) {
     if (phone) await page.locator('[data-honeycomb-continue]').tap();
     else await page.locator('[data-honeycomb-continue]').click();
     await page.waitForSelector('[data-gallery-ending][aria-hidden="false"]', { timeout: 12000 });
+    await page.waitForFunction(() => Number(document.querySelector('[data-gallery-stage]')?.getAttribute('data-gallery-journey')) >= .859);
+    await page.waitForTimeout(250);
     await page.screenshot({ path: output + '/one-partnership-' + width + '.png' });
 
     await scroll(page, .14);
     await page.waitForSelector(gallery + '[data-honeycomb-browsing="true"]');
+    console.log('Passed logo cycle, browsing, project details and reverse travel', width);
     await field.evaluate(node => node.dispatchEvent(new Event('webglcontextlost', { cancelable: true })));
     await page.waitForSelector(gallery + '[data-honeycomb-ready="false"]', { state: 'attached' });
     await page.waitForSelector('[data-gallery-navigation]:not([inert])');
     assert.equal(errors.length, 0, errors.join('\n'));
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2));
+    console.log('Passed context loss fallback', width);
   } finally {
     await context.close();
   }
 }
 
 try {
-  await check(1440, 900);
-  await check(768, 1024);
-  await check(390, 844, true);
-  const reduced = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
-  await start(reduced, '');
-  await reduced.locator('[data-static-project]').first().waitFor();
-  assert.equal(await reduced.locator(canvas).count(), 0);
+  const viewport = process.env.STORY_VIEWPORT;
+  if (!viewport || viewport === 'desktop') await check(1440, 900);
+  if (!viewport || viewport === 'tablet') await check(768, 1024);
+  if (!viewport || viewport === 'phone') await check(390, 844, true);
+  if (!viewport || viewport === 'phone') {
+    const reduced = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+    await start(reduced, '');
+    await reduced.locator('[data-static-project]').first().waitFor();
+    assert.equal(await reduced.locator(canvas).count(), 0);
+  }
 } finally {
   await browser.close();
 }

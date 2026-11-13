@@ -10,6 +10,10 @@ concurrency:
   cancel-in-progress: true
 jobs:
   verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        viewport: [desktop, tablet, phone]
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -37,9 +41,10 @@ jobs:
         run: |
           npm install --prefix /tmp/story-qa --no-package-lock playwright@1.56.1
           /tmp/story-qa/node_modules/.bin/playwright install chromium
-      - name: Check the running build and record both layouts
+      - name: Check the running build and capture the gallery
         env:
           STORY_PREVIEW: http://127.0.0.1:3100
+          STORY_VIEWPORT: ${{ matrix.viewport }}
         run: |
           mkdir -p verification-output/honeycomb
           ./node_modules/.bin/next start --hostname 127.0.0.1 --port 3100 >verification-output/honeycomb/server.log 2>&1 &
@@ -47,9 +52,9 @@ jobs:
           trap 'kill "$server" 2>/dev/null || true' EXIT
           curl --fail --silent --retry 20 --retry-connrefused --retry-delay 2 "$STORY_PREVIEW/qa/white-card-version.json"
           node scripts/verify-honeycomb-preview.mjs
-      - name: Upload desktop and phone review
+      - name: Upload viewport review
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: honeycomb-desktop-tablet-phone
+          name: honeycomb-${{ matrix.viewport }}
           path: verification-output/honeycomb/
