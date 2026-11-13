@@ -27,6 +27,7 @@ export default function HoneycombGallery({
   const dialogTitleId = useId();
   const canvas = useRef<HTMLCanvasElement>(null);
   const field = useRef<HoneycombRenderer | null>(null);
+  const initialProjects = useRef(projects);
   const dialog = useRef<HTMLDialogElement>(null);
   const restoreFocus = useRef<HTMLElement | null>(null);
   const pointer = useRef<{ id: number; x: number; y: number; moved: boolean } | null>(null);
@@ -48,9 +49,11 @@ export default function HoneycombGallery({
     const node = canvas.current;
     let cancelled = false;
     let instance: HoneycombRenderer | undefined;
+    node.dataset.honeycombState = 'loading';
     void import('./honeycomb-renderer').then(({ createHoneycombRenderer }) => {
       if (cancelled) return;
-      instance = createHoneycombRenderer(node, projects, () => {
+      instance = createHoneycombRenderer(node, initialProjects.current, () => {
+        node.dataset.honeycombState = 'context-lost';
         onReady(false);
         instance?.dispose();
         field.current = null;
@@ -62,15 +65,21 @@ export default function HoneycombGallery({
       wasBrowsing.current = pose.browsing;
       setBrowsing(pose.browsing);
       instance.setActive(p < HONEYCOMB_PASS_END && node.closest('[data-chapter-active="true"]') !== null);
+      node.dataset.honeycombState = 'rendering';
       onReady(true);
-    }).catch(() => { if (!cancelled) onReady(false); });
+    }).catch(() => {
+      if (!cancelled) {
+        node.dataset.honeycombState = 'unavailable';
+        onReady(false);
+      }
+    });
     return () => {
       cancelled = true;
       instance?.dispose();
       field.current = null;
       onReady(false);
     };
-  }, [available, lastProject, onReady, progress, projects]);
+  }, [available, lastProject, onReady, progress]);
 
   useEffect(() => {
     field.current?.setActive(active && progress.get() < HONEYCOMB_PASS_END);

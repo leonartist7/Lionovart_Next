@@ -30,6 +30,7 @@ async function check(width, height, phone = false) {
     const errors = [];
     page.on('console', message => {
       if (/THREE\.WebGLProgram|WebGL: INVALID/i.test(message.text())) errors.push(message.text());
+      if (/honeycomb|Context Lost/i.test(message.text())) console.log(width, message.text());
     });
     await start(page);
     const badge = page.locator('[data-logo-shape-control] [data-shape-badge]');
@@ -57,8 +58,20 @@ async function check(width, height, phone = false) {
     await page.screenshot({ path: output + '/logo-and-cta-' + width + '.png' });
 
     await scroll(page, .14);
-    await page.waitForSelector(gallery + '[data-honeycomb-browsing="true"]', { timeout: 20000 });
+    try {
+      await page.waitForSelector(gallery + '[data-honeycomb-browsing="true"]', { timeout: 15000 });
+    } catch (error) {
+      console.log('Gallery diagnostics', await page.locator(gallery).evaluate(node => ({
+        gallery: node.outerHTML.slice(0, 650), story: node.closest('[data-service-world]')?.getAttribute('data-story-layout-reason'),
+        stage: node.closest('[data-gallery-stage]')?.outerHTML.slice(0, 480),
+      })), errors);
+      throw error;
+    }
     const field = page.locator(canvas);
+    await page.waitForFunction(() => {
+      const node = document.querySelector('[data-honeycomb-canvas]');
+      return node && node.getAttribute('data-honeycomb-state') === 'rendering' && getComputedStyle(node).visibility === 'visible';
+    });
     const frame = await field.evaluate(node => {
       const box = node.getBoundingClientRect();
       const style = getComputedStyle(node);

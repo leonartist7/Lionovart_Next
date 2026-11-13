@@ -310,7 +310,7 @@ export function createHoneycombRenderer(
       for (const material of [outline, surface, poster]) material.dispose();
       atlasTexture.dispose();
       renderer.dispose();
-      renderer.forceContextLoss();
+      // Three releases its GPU resources without invalidating a canvas React may reuse.
     },
   };
 }

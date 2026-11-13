@@ -126,6 +126,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
   const projectCount = Math.max(1, projects.length);
   const pinned = !!scene?.target;
   const canBrowse = pinned && !reduce && !saveData && projects.length > 0;
+  const catalog = projects.map(project => project.slug).join('/');
   const showHoneycomb = canBrowse && honeycombReady;
   const lastProject = galleryProjectProgress(projectCount - 1, projectCount);
   const corridorOpacity = useTransform(journeyProgress, p => showHoneycomb ? honeycombPose(p, lastProject).tunnelOpacity : 1);
@@ -357,7 +358,7 @@ export default function GalleryWalkthrough({ projects, servicesCurves }: {
           <p>{fr ? 'Entrez dans l’univers' : 'Step inside'}</p>
           <h2 id="selected-work-heading">{fr ? 'de nos réalisations' : 'our selected work'}</h2>
         </motion.header>}
-        {canBrowse && <HoneycombGallery projects={projects} progress={journeyProgress} lastProject={lastProject}
+        {canBrowse && <HoneycombGallery key={catalog} projects={projects} progress={journeyProgress} lastProject={lastProject}
           active={active} ready={showHoneycomb} onReady={setHoneycombReady} onContinue={continueFromHoneycomb} />}
         {pinned ? <div className={styles.corridor} data-gallery-corridor>
           <motion.div className={styles.exhibits} style={{opacity:corridorOpacity}} inert={honeycombOwns} aria-hidden={honeycombOwns}>
