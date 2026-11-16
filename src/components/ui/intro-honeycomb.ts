@@ -6,7 +6,6 @@ const smooth = (value: number) => {
 
 export const INTRO_MIN_MS = 950;
 export const INTRO_EXIT_MS = 1520;
-export const INTRO_FALLBACK_EXIT_MS = 560;
 export const INTRO_DEADLINE_MS = 8500;
 
 export function introExitFrame(departure: number) {

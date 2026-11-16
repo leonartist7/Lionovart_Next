@@ -29,7 +29,7 @@ export function createHoneycombRenderer(
   const ink = atlas.getContext('2d');
   if (!ink || !count) throw new Error('Project atlas is unavailable');
 
-  const context = canvas.getContext('webgl2', { alpha: true, antialias: false, powerPreference: 'low-power' });
+  const context = canvas.getContext('webgl2', { alpha: true, antialias: false, powerPreference: 'low-power', failIfMajorPerformanceCaveat: opening });
   if (!context) throw new Error('WebGL2 is unavailable');
   const renderer = new WebGLRenderer({ canvas, context, alpha: true, antialias: false });
   renderer.setClearColor(0, 0);

@@ -5,7 +5,7 @@ import { useLenis } from "lenis/react";
 import { isLocale } from "@/i18n/routing";
 import { useIntroLifecycle } from "./IntroLifecycle";
 import { waitForIntroContent, waitForIntroGraphics } from "./intro-readiness";
-import { INTRO_DEADLINE_MS, INTRO_EXIT_FRAMES, INTRO_EXIT_MS, INTRO_FALLBACK_EXIT_MS, INTRO_MIN_MS } from "./intro-honeycomb";
+import { INTRO_DEADLINE_MS, INTRO_EXIT_FRAMES, INTRO_EXIT_MS, INTRO_MIN_MS } from "./intro-honeycomb";
 import type { HoneycombRenderer } from "@/components/sections/selected-work/honeycomb-renderer";
 import styles from "./SplashScreen.module.css";
 
@@ -96,7 +96,7 @@ export default function SplashScreen() {
         wake();
         return;
       }
-      const duration = Math.min(field ? INTRO_EXIT_MS : INTRO_FALLBACK_EXIT_MS, INTRO_DEADLINE_MS - age);
+      const duration = Math.min(INTRO_EXIT_MS, INTRO_DEADLINE_MS - age);
       if (duration < 380) return; // The outer failsafe fade is already in progress.
       exiting = true;
       field?.setActive(false);
@@ -108,7 +108,7 @@ export default function SplashScreen() {
       const options = { duration, fill: "forwards" } as const;
       const dissolve = veil.animate(INTRO_EXIT_FRAMES.map(({ cover }) => ({ opacity: cover })), options);
       animations.push(dissolve, logo.animate(INTRO_EXIT_FRAMES.map(({ wordmarkOpacity, wordmarkPosition }) => ({ opacity: wordmarkOpacity, translate: wordmarkPosition })), options));
-      if (field) animations.push(plane.animate(INTRO_EXIT_FRAMES.map(({ camera }) => ({ transform: camera })), options));
+      animations.push(plane.animate(INTRO_EXIT_FRAMES.map(({ camera }) => ({ transform: camera })), options));
       void dissolve.finished.then(() => finish("ready"), () => {});
     };
     const wake = () => {

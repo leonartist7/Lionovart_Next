@@ -25,28 +25,27 @@ async function verifyIntro() {
       await blocked;
       await route.continue();
     });
-    try {
-      await page.goto(base + '/?shape=hexagon', { waitUntil: 'domcontentloaded' });
-      await page.locator('[data-intro-visual="honeycomb"]').waitFor({ timeout: 7500 });
-      assert.equal(await page.locator('[data-intro]').getAttribute('data-phase'), 'preparing');
-      assert.equal(await page.evaluate(() => document.documentElement.dataset.splashComplete), undefined);
-      assert.equal(await page.evaluate(() => document.body.style.overflow), 'hidden');
-      await page.evaluate(() => {
+    await page.addInitScript(() => {
+      const samples = [];
+      window.introReviewSamples = samples;
+      function sample(now) {
+        if (document.documentElement.dataset.splashComplete) return;
         const overlay = document.querySelector('[data-intro]');
-        const header = document.querySelector('[data-intro-header-mounted] header');
-        const cover = overlay?.querySelector('[data-intro-cover]');
-        const samples = [];
-        window.introReviewSamples = samples;
-        function sample(now) {
-          if (!overlay?.isConnected || overlay.style.display === 'none') return;
-          if (overlay.dataset.phase === 'revealing') {
-            samples.push([now, Number(getComputedStyle(cover).opacity), Number(getComputedStyle(header).opacity)]);
-            window.introReviewDissolve ??= cover.getAnimations()[0]?.effect.getKeyframes().map(frame => Number(frame.opacity));
-          }
-          requestAnimationFrame(sample);
+        if (overlay?.dataset.phase === 'revealing') {
+          const header = document.querySelector('[data-intro-header-mounted] header');
+          const cover = overlay.querySelector('[data-intro-cover]');
+          samples.push([now, Number(getComputedStyle(cover).opacity), Number(getComputedStyle(header).opacity)]);
+          window.introReviewDissolve ??= cover.getAnimations()[0]?.effect.getKeyframes().map(frame => Number(frame.opacity));
         }
         requestAnimationFrame(sample);
-      });
+      }
+      requestAnimationFrame(sample);
+    });
+    try {
+      await page.goto(base + '/?shape=hexagon', { waitUntil: 'domcontentloaded' });
+      await page.waitForFunction(() => document.querySelector('[data-intro][data-phase="preparing"]') &&
+        document.querySelector('[data-intro-roar-poster]') && document.body.style.overflow === 'hidden' &&
+        !document.documentElement.dataset.splashComplete);
     } finally {
       unblock();
     }
@@ -55,11 +54,12 @@ async function verifyIntro() {
       reason: document.documentElement.dataset.introResult,
       content: document.documentElement.dataset.introContent,
       graphics: document.documentElement.dataset.introGraphics,
+      visual: document.documentElement.dataset.introAnimation,
       marks: performance.getEntriesByType('mark').map(mark => mark.name),
       lock: document.body.style.overflow,
       samples: window.introReviewSamples,
       dissolve: window.introReviewDissolve,
-      duration: performance.measure('intro-review', 'lionovart:intro:reveal', 'lionovart:intro:complete').duration,
+      duration: performance.getEntriesByName('lionovart:intro:complete')[0]?.startTime - performance.getEntriesByName('lionovart:intro:reveal')[0]?.startTime,
     }));
     assert.equal(state.reason, 'ready', `Intro ended with ${state.reason} after ${state.samples.length} reveal frames (${state.marks.join(', ')})`);
     assert.equal(state.content, 'ready');
@@ -74,11 +74,12 @@ async function verifyIntro() {
       const change = state.dissolve[i - 1] - state.dissolve[i];
       assert.ok(change >= 0 && change < .1, 'The compositor keyframes ease the cover out');
     }
-    assert.ok(state.marks.indexOf('lionovart:intro:honeycomb-painted') >= 0);
+    assert.match(state.visual, /^(honeycomb|fallback)$/);
+    if (state.visual === 'honeycomb') assert.ok(state.marks.includes('lionovart:intro:honeycomb-painted'));
     assert.ok(state.marks.indexOf('lionovart:intro:hero-ready') < state.marks.indexOf('lionovart:intro:reveal'));
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => document.documentElement.dataset.introResult === 'returning');
-    console.log(`Verified first-frame honeycomb, hero asset gate, ${state.samples.length} reveal frames, and session bypass`);
+    console.log(`Verified ${state.visual} intro, hero asset gate, ${state.samples.length} reveal frames, and session bypass`);
   } finally {
     await context.close();
   }
