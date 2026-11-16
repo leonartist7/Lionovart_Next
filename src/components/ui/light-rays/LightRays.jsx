@@ -53,6 +53,7 @@ const LightRays = ({
   lightMode = false,
   onUnavailable = noop,
   onFirstFrame = noop,
+  holdFirstFrame = false,
   className = ''
 }) => {
   const containerRef = useRef(null);
@@ -61,10 +62,17 @@ const LightRays = ({
   const mouseRef = useRef({ x: 0.5, y: 0.5 });
   const smoothMouseRef = useRef({ x: 0.5, y: 0.5 });
   const animationIdRef = useRef(null);
+  const holdRef = useRef(holdFirstFrame);
+  const wakeRef = useRef(null);
   const meshRef = useRef(null);
   const cleanupFunctionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
   const observerRef = useRef(null);
+
+  useEffect(() => {
+    holdRef.current = holdFirstFrame;
+    if (!holdFirstFrame) wakeRef.current?.();
+  }, [holdFirstFrame]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -302,15 +310,19 @@ void main() {
         const { anchor, dir } = getAnchorAndDir(raysOrigin, w, h);
         uniforms.rayPos.value = anchor;
         uniforms.rayDir.value = dir;
+        wake();
       };
 
       let painted = false;
+      let lastPaint;
       const loop = t => {
+        animationIdRef.current = null;
         if (!rendererRef.current || !uniformsRef.current || !meshRef.current) {
           return;
         }
 
-        uniforms.iTime.value = t * 0.001;
+        uniforms.iTime.value += lastPaint === undefined ? 0 : Math.min(.05, (t - lastPaint) * .001);
+        lastPaint = t;
 
         if (followMouse && mouseInfluence > 0.0) {
           const smoothing = 0.92;
@@ -324,17 +336,23 @@ void main() {
         try {
           renderer.render({ scene: mesh });
           if (!painted) { painted = true; onFirstFrame(); }
-          animationIdRef.current = requestAnimationFrame(loop);
+          if (!holdRef.current) wake();
+          else lastPaint = undefined;
         } catch {
           onUnavailable();
           return;
         }
       };
+      function wake() {
+        if (animationIdRef.current === null) animationIdRef.current = requestAnimationFrame(loop);
+      }
+      wakeRef.current = wake;
 
       canvas.addEventListener('webglcontextlost', onUnavailable);
       window.addEventListener('resize', updatePlacement);
 
       cleanupFunctionRef.current = () => {
+        wakeRef.current = null;
         if (animationIdRef.current) {
           cancelAnimationFrame(animationIdRef.current);
           animationIdRef.current = null;
@@ -364,7 +382,6 @@ void main() {
         meshRef.current = null;
       };
       updatePlacement();
-      animationIdRef.current = requestAnimationFrame(loop);
     };
 
     const startup = window.setTimeout(() => {

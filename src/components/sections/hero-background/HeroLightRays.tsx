@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useState, useSyncExternalStore } from "react";
 import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
+import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
 import { motion, useMotionValueEvent, useTransform } from "framer-motion";
 import { useLionJourney } from "../lion-journey/LionJourney";
 import { useHeroComposition } from "./HeroComposition";
@@ -25,6 +26,7 @@ export default function HeroLightRays() {
   const { composition: { scene } } = useHeroComposition();
   const visible = useSyncExternalStore(subscribeVisibility, isPageVisible, serverVisible);
   const reducedMotion = useHydratedReducedMotion();
+  const { released } = useIntroLifecycle();
   const [graphicsUnavailable, setGraphicsUnavailable] = useState(false);
   const [painted, setPainted] = useState(false);
   const showStill = useCallback(() => { setGraphicsUnavailable(true); setPainted(false); }, []);
@@ -37,6 +39,7 @@ export default function HeroLightRays() {
     {animated && <LightRays
       onUnavailable={showStill}
       onFirstFrame={showLive}
+      holdFirstFrame={!released}
       raysOrigin={scene.raysOrigin}
       raysColor={scene.raysColor}
       raysSecondaryColor="#ef152b"
