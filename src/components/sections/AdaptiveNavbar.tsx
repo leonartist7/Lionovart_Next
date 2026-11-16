@@ -155,7 +155,7 @@ function LogoBadge({ control }: { control: boolean }) {
 export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallback = false, withSound = false, shapeControl = false }: NavbarProps) {
   const tr = usePublicCopy();
   const router = useRouter();
-  const { released } = useIntroLifecycle();
+  const { released, revealing } = useIntroLifecycle();
   const introHeader = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const node = introHeader.current;
@@ -389,8 +389,8 @@ export default function AdaptiveNavbar({ lightweightMenu = false, sectionFallbac
       >
         <motion.header
           initial={reducedMotion ? false : { opacity: 0, y: -14 }}
-          animate={released ? { opacity: 1, y: 0 } : { opacity: 0, y: -14 }}
-          transition={{ duration: reducedMotion ? 0 : 0.42, ease: "easeOut" }}
+          animate={released || revealing ? { opacity: 1, y: 0 } : { opacity: 0, y: -14 }}
+          transition={{ duration: reducedMotion ? 0 : revealing ? .82 : .42, ease: "easeOut" }}
           className={`relative w-full ${styles.header}`}
         >
           <div aria-hidden className={styles.glass} />

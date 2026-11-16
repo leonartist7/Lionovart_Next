@@ -5,7 +5,7 @@ import { useLenis } from "lenis/react";
 import { isLocale } from "@/i18n/routing";
 import { useIntroLifecycle } from "./IntroLifecycle";
 import { waitForIntroContent, waitForIntroGraphics } from "./intro-readiness";
-import { INTRO_DEADLINE_MS, INTRO_EXIT_MS, INTRO_MIN_MS, introHoneycombPose } from "./intro-honeycomb";
+import { INTRO_DEADLINE_MS, INTRO_EXIT_MS, INTRO_FALLBACK_EXIT_MS, INTRO_MIN_MS, introFrameStep, introHoneycombPose } from "./intro-honeycomb";
 import type { HoneycombRenderer } from "@/components/sections/selected-work/honeycomb-renderer";
 import styles from "./SplashScreen.module.css";
 
@@ -15,9 +15,10 @@ type FinishReason = "ready" | "deadline" | "skip" | "returning" | "internal-page
 export default function SplashScreen() {
   const overlay = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const wordmark = useRef<HTMLDivElement>(null);
   const skip = useRef<() => void>(() => {});
   const unlockScroll = useRef<() => void>(() => {});
-  const { released, release } = useIntroLifecycle();
+  const { released, release, revealHero } = useIntroLifecycle();
   const lenis = useLenis();
 
   useEffect(() => {
@@ -34,8 +35,8 @@ export default function SplashScreen() {
   }, [released, lenis]);
 
   useEffect(() => {
-    const screen = overlay.current, surface = canvas.current;
-    if (released || !screen || !surface) return;
+    const screen = overlay.current, surface = canvas.current, logo = wordmark.current;
+    if (released || !screen || !surface || !logo) return;
     const html = document.documentElement;
     const media = matchMedia("(prefers-reduced-motion: reduce)");
     const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
@@ -48,7 +49,10 @@ export default function SplashScreen() {
     const started = performance.now() - elapsed;
     let field: HoneycombRenderer | undefined;
     let frame = 0, disposed = false, finished = false, ready = false;
+    let lastFrame: number | undefined, sceneTime = 0;
     let exitAt: number | undefined;
+    let exitDuration = INTRO_EXIT_MS;
+    let firstPaintAt: number | undefined;
     let visualSettled = lightweight();
     let deadline: ReturnType<typeof setTimeout> | undefined;
 
@@ -83,24 +87,31 @@ export default function SplashScreen() {
     const show = (now: number) => {
       frame = 0;
       if (disposed || finished || document.hidden) return;
-      const age = Math.max(0, now - started);
-      const canReveal = lightweight() || (age >= INTRO_MIN_MS && (visualSettled || age >= 2400));
+      sceneTime += introFrameStep(now, lastFrame);
+      lastFrame = now;
+      const age = now - started;
+      const showedField = firstPaintAt === undefined || sceneTime - firstPaintAt >= 280;
+      const canReveal = lightweight() || (age >= INTRO_MIN_MS && showedField && (visualSettled || age >= 2400));
       if (ready && canReveal && exitAt === undefined) {
         if (lightweight()) { finish("ready"); return; }
-        exitAt = now;
+        exitAt = sceneTime;
+        exitDuration = field ? INTRO_EXIT_MS : INTRO_FALLBACK_EXIT_MS;
         screen.dataset.phase = "revealing";
+        revealHero();
         performance.mark("lionovart:intro:reveal");
       }
-      const progress = exitAt === undefined ? 0 : (now - exitAt) / INTRO_EXIT_MS;
+      const progress = exitAt === undefined ? 0 : (sceneTime - exitAt) / exitDuration;
       if (progress >= 1) { finish("ready"); return; }
-      const pose = introHoneycombPose(Math.max(0, (exitAt ?? now) - started), progress);
-      field?.setPose(pose);
+      const pose = introHoneycombPose(sceneTime, progress);
+      const continueFrames = exitAt !== undefined || ready || Boolean(field && sceneTime < 4400);
+      field?.setPose(pose, continueFrames ? now : undefined);
       if (exitAt !== undefined) {
         screen.style.opacity = String(pose.cover);
-        screen.style.setProperty("--intro-wordmark-opacity", String(pose.wordmark));
-        screen.style.setProperty("--intro-fallback-zoom", String(1 + pose.push * 2.8));
+        logo.style.opacity = String(pose.wordmark);
+        logo.style.translate = `0 ${pose.wordmarkY}px`;
       }
-      if (exitAt !== undefined || ready || (field && age < 5000)) frame = requestAnimationFrame(show);
+      if (continueFrames) frame = requestAnimationFrame(show);
+      else lastFrame = undefined;
     };
     const wake = () => {
       if (!frame && !finished && !disposed && !document.hidden) frame = requestAnimationFrame(show);
@@ -115,11 +126,12 @@ export default function SplashScreen() {
 
     const onVisibility = () => {
       field?.setActive(!document.hidden);
-      if (document.hidden) { cancelAnimationFrame(frame); frame = 0; }
+      if (document.hidden) { cancelAnimationFrame(frame); frame = 0; lastFrame = undefined; }
       else if (performance.now() - started >= INTRO_DEADLINE_MS) finish("deadline");
       else wake();
     };
     const onMotion = () => {
+      if (lightweight() && exitAt !== undefined) { finish("ready"); return; }
       if (lightweight()) fallback();
       wake();
     };
@@ -157,13 +169,14 @@ export default function SplashScreen() {
         field = createHoneycombRenderer(surface, GALLERY_WORK.slice(0, 6), fallback, {
           opening: true,
           onFirstFrame: () => {
+            firstPaintAt = sceneTime;
             visualSettled = true;
             screen.dataset.introVisual = "honeycomb";
             html.dataset.introAnimation = "honeycomb";
             performance.mark("lionovart:intro:honeycomb-painted");
           },
         });
-        field.setPose(introHoneycombPose(performance.now() - started, 0));
+        field.setPose(introHoneycombPose(sceneTime, 0));
         field.setActive(!document.hidden);
         wake();
       }).catch(fallback);
@@ -181,7 +194,7 @@ export default function SplashScreen() {
       media.removeEventListener("change", onMotion);
       screen.removeEventListener("animationend", onFailsafe);
     };
-  }, [released, release]);
+  }, [released, release, revealHero]);
 
   if (released) return null;
   return <div ref={overlay} className={styles.screen} data-intro="true" data-phase="preparing" data-intro-visual="fallback">
@@ -190,7 +203,7 @@ export default function SplashScreen() {
       <div className={styles.lattice} />
       <canvas ref={canvas} className={styles.canvas} data-intro-honeycomb />
       <div className={styles.shade} />
-      <div className={styles.wordmark} />
+      <div ref={wordmark} className={styles.wordmark} />
     </div>
     <span className={styles.status} role="status">Loading LIONOVART</span>
     <button className={styles.skip} onClick={() => skip.current()} aria-label="Skip intro">Skip ↗</button>

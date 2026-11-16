@@ -20,3 +20,10 @@
   inset: 0;
   background: radial-gradient(ellipse at 50% 0%, #ffe14a33 0%, #ffe14a0d 35%, transparent 72%);
 }
+
+.host :global(.custom-rays) { opacity: 0; }
+.host[data-intro-rays="live"] :global(.custom-rays) { opacity: 1; }
+.host[data-intro-rays="live"] .still { opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .host :global(.custom-rays), .still { transition: opacity .55s ease-in-out; }
+}

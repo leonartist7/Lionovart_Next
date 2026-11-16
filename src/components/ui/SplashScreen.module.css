@@ -10,11 +10,10 @@
   animation: intro-failsafe 9s step-end forwards;
 }
 .stage, .canvas, .lattice, .shade { position: absolute; inset: 0; pointer-events: none; }
-.canvas { width: 100%; height: 100%; opacity: 0; transition: opacity .3s ease; }
+.canvas { width: 100%; height: 100%; opacity: 0; transition: opacity .56s ease-in-out; }
 .lattice {
   background: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20144%2083.14'%3E%3Cpath%20d%3D'M48.00%20-83.14L24.00%20-41.57L-24.00%20-41.57L-48.00%20-83.14L-24.00%20-124.71L24.00%20-124.71ZM48.00%200.00L24.00%2041.57L-24.00%2041.57L-48.00%200.00L-24.00%20-41.57L24.00%20-41.57ZM48.00%2083.14L24.00%20124.71L-24.00%20124.71L-48.00%2083.14L-24.00%2041.57L24.00%2041.57ZM120.00%20-41.57L96.00%200.00L48.00%200.00L24.00%20-41.57L48.00%20-83.14L96.00%20-83.14ZM120.00%2041.57L96.00%2083.14L48.00%2083.14L24.00%2041.57L48.00%200.00L96.00%200.00ZM120.00%20124.71L96.00%20166.28L48.00%20166.28L24.00%20124.71L48.00%2083.14L96.00%2083.14ZM192.00%20-83.14L168.00%20-41.57L120.00%20-41.57L96.00%20-83.14L120.00%20-124.71L168.00%20-124.71ZM192.00%200.00L168.00%2041.57L120.00%2041.57L96.00%200.00L120.00%20-41.57L168.00%20-41.57ZM192.00%2083.14L168.00%20124.71L120.00%20124.71L96.00%2083.14L120.00%2041.57L168.00%2041.57Z'%20fill%3D'%23191216'%20stroke%3D'%236a5340'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E") center / clamp(6.5rem, 14vw, 11rem) auto;
-  transform: scale(var(--intro-fallback-zoom, 1));
-  transition: opacity .3s ease;
+  transition: opacity .56s ease-in-out;
 }
 .screen[data-intro-visual="honeycomb"] .canvas { opacity: 1; }
 .screen[data-intro-visual="honeycomb"] .lattice { opacity: 0; }
@@ -26,7 +25,6 @@
   aspect-ratio: 4.7;
   transform: translate(-50%, -50%);
   background: url("/images/LOGO.svg") center / contain no-repeat;
-  opacity: var(--intro-wordmark-opacity, 1);
   pointer-events: none;
 }
 .status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }

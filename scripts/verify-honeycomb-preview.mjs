@@ -32,6 +32,20 @@ async function verifyIntro() {
       assert.equal(await page.evaluate(() => document.documentElement.dataset.splashComplete), undefined);
       assert.equal(await page.evaluate(() => document.body.style.overflow), 'hidden');
       await page.screenshot({ path: output + '/preloader.png' });
+      await page.evaluate(() => {
+        const overlay = document.querySelector('[data-intro]');
+        const header = document.querySelector('[data-intro-header-mounted] header');
+        const samples = [];
+        window.introReviewSamples = samples;
+        function sample(now) {
+          if (!overlay?.isConnected || overlay.style.display === 'none') return;
+          if (overlay.dataset.phase === 'revealing') {
+            samples.push([now, Number(overlay.style.opacity || 1), Number(getComputedStyle(header).opacity)]);
+          }
+          requestAnimationFrame(sample);
+        }
+        requestAnimationFrame(sample);
+      });
     } finally {
       unblock();
     }
@@ -42,11 +56,21 @@ async function verifyIntro() {
       graphics: document.documentElement.dataset.introGraphics,
       marks: performance.getEntriesByType('mark').map(mark => mark.name),
       lock: document.body.style.overflow,
+      samples: window.introReviewSamples,
     }));
     assert.equal(state.reason, 'ready');
     assert.equal(state.content, 'ready');
     assert.match(state.graphics, /^(live|fallback)$/);
     assert.notEqual(state.lock, 'hidden');
+    assert.ok(state.samples.length >= 25, 'The exit has enough sampled frames to read as one move');
+    const first = state.samples[0], last = state.samples.at(-1);
+    assert.ok(last[0] - first[0] >= 1400, 'The camera has time to ease out');
+    assert.ok(last[1] < .04, 'The cover fades fully before removal');
+    assert.ok(state.samples.some(([, cover, nav]) => cover < .65 && nav > .95), 'The navbar is in place while the cover is still fading');
+    for (let i = 1; i < state.samples.length; i++) {
+      const change = state.samples[i - 1][1] - state.samples[i][1];
+      assert.ok(change >= 0 && change < .09, 'No frame should jump the cover fade');
+    }
     assert.ok(state.marks.indexOf('lionovart:intro:honeycomb-painted') >= 0);
     assert.ok(state.marks.indexOf('lionovart:intro:hero-ready') < state.marks.indexOf('lionovart:intro:reveal'));
     await page.reload({ waitUntil: 'domcontentloaded' });

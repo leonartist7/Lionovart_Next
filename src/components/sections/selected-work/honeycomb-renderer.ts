@@ -48,6 +48,9 @@ export function createHoneycombRenderer(
   const slot = new InstancedBufferAttribute(new Float32Array(CAPACITY), 1).setUsage(DynamicDrawUsage);
   frame.setAttribute('posterIndex', slot);
 
+  const posterFade = new Float32Array(count);
+  const posterStarted = new Float64Array(count).fill(-Infinity);
+  const openingInk = new Color('#181417');
   const outline = new MeshBasicMaterial({ color: opening ? '#78644e' : '#d4c6b4' });
   const surface = new MeshBasicMaterial();
   const poster = new ShaderMaterial({
@@ -55,6 +58,7 @@ export function createHoneycombRenderer(
       atlas: { value: atlasTexture },
       columns: { value: ATLAS_COLUMNS },
       rows: { value: atlas.height / POSTER_HEIGHT },
+      ...(opening ? { posterFade: { value: posterFade }, openingInk: { value: openingInk } } : {}),
     },
     vertexShader: `
       attribute float posterIndex;
@@ -69,12 +73,14 @@ export function createHoneycombRenderer(
       uniform sampler2D atlas;
       uniform float columns;
       uniform float rows;
+      ${opening ? `uniform float posterFade[${count}]; uniform vec3 openingInk;` : ''}
       varying vec2 tileUv;
       varying float tileIndex;
       void main() {
         vec2 coord = vec2(mod(tileIndex, columns), rows - 1.0 - floor(tileIndex / columns));
         vec2 safeUv = mix(vec2(0.006, 0.01), vec2(0.994, 0.99), tileUv);
         gl_FragColor = texture2D(atlas, (coord + safeUv) / vec2(columns, rows));
+        ${opening ? 'gl_FragColor.rgb = mix(openingInk, gl_FragColor.rgb, posterFade[int(tileIndex)]);' : ''}
         #include <colorspace_fragment>
       }`,
   });
@@ -149,10 +155,11 @@ export function createHoneycombRenderer(
   let fittedWidth = 0, fittedTop = .4;
   let nextPoster = 0;
   let painted = false;
+  let externalClock = false;
 
   function invalidate() {
     dirty = true;
-    if (running && !document.hidden && !disposed && !frameId) frameId = requestAnimationFrame(draw);
+    if (running && !document.hidden && !disposed && !frameId && !externalClock) frameId = requestAnimationFrame(draw);
   }
 
   function updateTile(index: number, x: number, y: number, lift: number) {
@@ -182,15 +189,14 @@ export function createHoneycombRenderer(
     if (settling) pan.lerp(target, .22);
     else pan.copy(target);
     const x = pose.panX ?? pan.x, y = pose.panY ?? pan.y;
-    const exit = pose.lift > 0 ? nearestProject(x, y, count - 1, count) : { x, y };
+    const exit = !opening && pose.lift > 0 ? nearestProject(x, y, count - 1, count) : { x, y };
     const focus = pose.lift * (1 - pose.push) + pose.push;
     const centerX = x + (exit.x - x) * focus;
     const centerY = y + (exit.y - y) * focus;
     const aspect = width / height;
     const startZoom = 1 + 1.4 * (1 - pose.arrival);
-    const endZoom = opening ? 1.08 * span * Math.max(aspect / FRAME_WIDTH, 1 / FRAME_HEIGHT)
-      : fittedWidth > 0 ? (fittedWidth / height) * span / FRAME_WIDTH : 3;
-    const zoom = startZoom + (endZoom - startZoom) * pose.push;
+    const endZoom = fittedWidth > 0 ? (fittedWidth / height) * span / FRAME_WIDTH : 3;
+    const zoom = opening ? startZoom * Math.pow(1.92, pose.push) : startZoom + (endZoom - startZoom) * pose.push;
     const yShift = opening ? 0 : (pose.push * (.5 - fittedTop) * span) / zoom;
     const col = Math.round(centerX / CELL_X), row = Math.round(centerY / CELL_Y);
     rows = Math.ceil(span / (2 * CELL_Y)) + 2;
@@ -257,11 +263,21 @@ export function createHoneycombRenderer(
     }
 
     // Raise the far edge before the camera moves through the final artwork.
-    field.rotation.x = -.42 * pose.lift * (1 - pose.push);
-    field.rotation.z = -.045 * pose.lift * (1 - pose.push);
+    const tilt = pose.lift * (1 - pose.push) * (opening ? .23 : .42);
+    field.rotation.x = -tilt;
+    field.rotation.z = -tilt * .107;
     field.position.set(-centerX, -centerY + yShift, 0).applyEuler(field.rotation);
     camera.zoom = zoom;
     camera.updateProjectionMatrix();
+    let fadingPosters = false;
+    if (opening) {
+      for (let i = 0; i < count; i++) {
+        if (!Number.isFinite(posterStarted[i])) continue;
+        const blend = Math.min(1, Math.max(0, (now - posterStarted[i]) / 620));
+        posterFade[i] = blend * blend * (3 - 2 * blend);
+        fadingPosters ||= blend < 1;
+      }
+    }
     try {
       renderer.render(scene, camera);
     } catch {
@@ -272,7 +288,7 @@ export function createHoneycombRenderer(
       painted = true;
       onFirstFrame?.();
     }
-    if (settling || lifting) invalidate();
+    if (settling || lifting || fadingPosters) invalidate();
   }
 
   function resize() {
@@ -291,8 +307,14 @@ export function createHoneycombRenderer(
       const top = parent.getBoundingClientRect().top - stage.getBoundingClientRect().top;
       fittedTop = (panelTop * stage.clientHeight - top) / height;
     }
-    renderer.setPixelRatio(opening ? Math.min(devicePixelRatio || 1, 1.15) : Math.min(devicePixelRatio || 1, width < 768 ? 1.25 : 1.5));
-    renderer.setSize(width, height, false);
+    const dpr = opening
+      ? Math.min(devicePixelRatio || 1, 1, Math.sqrt(850000 / (width * height)))
+      : Math.min(devicePixelRatio || 1, width < 768 ? 1.25 : 1.5);
+    if (opening) renderer.setDrawingBufferSize(width, height, dpr);
+    else {
+      renderer.setPixelRatio(dpr);
+      renderer.setSize(width, height, false);
+    }
     const halfHeight = span / 2, halfWidth = halfHeight * width / height;
     camera.left = -halfWidth; camera.right = halfWidth;
     camera.top = halfHeight; camera.bottom = -halfHeight;
@@ -337,6 +359,7 @@ export function createHoneycombRenderer(
         if (disposed) return;
         if (loaded && img.naturalWidth) {
           paintPoster(index, img);
+          if (opening) posterStarted[index] = performance.now();
           atlasTexture.needsUpdate = true;
           invalidate();
         }
@@ -385,9 +408,16 @@ export function createHoneycombRenderer(
       if (active) { invalidate(); loadPosters(); }
       else { cancelAnimationFrame(frameId); frameId = 0; lastDraw = 0; }
     },
-    setPose(next: Pose) {
+    setPose(next: Pose, frameTime?: number) {
       pose = next;
-      invalidate();
+      externalClock = opening && frameTime !== undefined;
+      if (externalClock && frameTime !== undefined && running) {
+        // The splash owns this frame. Consume the camera pose before the same
+        // paint that applies the overlay opacity.
+        cancelAnimationFrame(frameId);
+        dirty = true;
+        draw(frameTime);
+      } else invalidate();
     },
     drag(dx: number, dy: number) {
       const worldPerPixel = span / (height * camera.zoom);
