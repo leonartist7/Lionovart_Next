@@ -96,16 +96,17 @@ export default function SplashScreen() {
         wake();
         return;
       }
-      const duration = Math.min(INTRO_EXIT_MS, INTRO_DEADLINE_MS - age);
-      if (duration < 380) return; // The outer failsafe fade is already in progress.
+      if (age >= INTRO_DEADLINE_MS * .92) return; // The outer failsafe fade is already in progress.
       exiting = true;
+      clearTimeout(deadline);
+      deadline = setTimeout(() => finish("deadline"), INTRO_EXIT_MS + 700);
       field?.setActive(false);
       screen.dataset.phase = "revealing";
       revealHero();
       performance.mark("lionovart:intro:reveal");
       // Composite the already-painted field so the camera stays smooth while
       // the hero becomes visible, even on a slow WebGL implementation.
-      const options = { duration, fill: "forwards" } as const;
+      const options = { duration: INTRO_EXIT_MS, fill: "forwards" } as const;
       const dissolve = veil.animate(INTRO_EXIT_FRAMES.map(({ cover }) => ({ opacity: cover })), options);
       animations.push(dissolve, logo.animate(INTRO_EXIT_FRAMES.map(({ wordmarkOpacity, wordmarkPosition }) => ({ opacity: wordmarkOpacity, translate: wordmarkPosition })), options));
       animations.push(plane.animate(INTRO_EXIT_FRAMES.map(({ camera }) => ({ transform: camera })), options));
@@ -125,7 +126,7 @@ export default function SplashScreen() {
     const onVisibility = () => {
       if (!exiting) field?.setActive(!document.hidden);
       if (document.hidden) { cancelAnimationFrame(frame); frame = 0; }
-      else if (performance.now() - started >= INTRO_DEADLINE_MS) finish("deadline");
+      else if (!exiting && performance.now() - started >= INTRO_DEADLINE_MS) finish("deadline");
       else wake();
     };
     const onMotion = () => {

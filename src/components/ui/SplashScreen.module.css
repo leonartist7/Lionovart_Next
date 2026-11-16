@@ -7,6 +7,7 @@
   /* The CSS clock starts before hydration and can release the overlay on its own. */
   animation: intro-failsafe 8.5s ease-in-out forwards;
 }
+.screen[data-phase="revealing"] { animation: intro-release-failsafe 2.2s ease-in-out forwards; }
 .cover { position: absolute; inset: 0; background: #0d0a0d; }
 .stage, .camera, .field, .canvas, .lattice, .shade { position: absolute; inset: 0; pointer-events: none; }
 .field { animation: intro-drift 4.4s cubic-bezier(.42, 0, .38, 1) both; }
@@ -46,6 +47,11 @@
 @keyframes intro-failsafe {
   0%, 92% { opacity: 1; visibility: visible; pointer-events: auto; }
   99% { opacity: 0; visibility: visible; pointer-events: auto; }
+  100% { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+@keyframes intro-release-failsafe {
+  0%, 84% { opacity: 1; }
+  99% { opacity: 0; visibility: visible; }
   100% { opacity: 0; visibility: hidden; pointer-events: none; }
 }
 @keyframes intro-drift {
