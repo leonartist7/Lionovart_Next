@@ -8,30 +8,30 @@ const source={x:250,y:220,width:280,height:390};
 const sourceCenter={...source,x:610};
 const center={x:610,y:270,width:600,height:337.5};
 const destination={x:280,y:235,width:500,height:281.25};
-test('collection reaches the service anchor before reshaping begins',()=>{
- const held=cardTransportRect(source,sourceCenter,destination,center,0,false,pose(.695));
- assert.equal(held.x,center.x);assert.equal(held.y,center.y);
- assert.equal(held.width,sourceCenter.width);
- assert.equal(held.height,sourceCenter.height);
- const hero=cardTransportRect(sourceCenter,sourceCenter,center,center,1,true,pose(.695));
- assert.deepEqual(hero,{...sourceCenter,x:center.x,y:center.y});
+test('desktop cards meet while already widening toward their final frame',()=>{
+ const held=cardTransportRect(source,sourceCenter,destination,center,pose(.695));
+ const hero=cardTransportRect(sourceCenter,sourceCenter,center,center,pose(.695));
+ assert.deepEqual(held,hero);
+ assert.ok(held.width>sourceCenter.width&&held.width<center.width);
+ assert.ok(held.y>sourceCenter.y&&held.y<center.y);
+ assert.deepEqual(cardTransportRect(source,sourceCenter,destination,center,pose(.78)),center);
 });
 test('the foreground has no second vertical or horizontal movement while opening',()=>{
  const front={...sourceCenter,x:900,y:540};
- for(let step=695;step<=1000;step++) {
-  const r=cardTransportRect(front,front,center,center,1,true,pose(step/1000));
+ for(let step=770;step<=1000;step++) {
+  const r=cardTransportRect(front,front,center,center,pose(step/1000));
   assert.equal(r.x,center.x);assert.equal(r.y,center.y);
  }
 });
 test('the stack reaches its complete service aspect before any lateral expansion',()=>{
- const held=cardTransportRect(source,sourceCenter,destination,center,0,false,pose(.84));
+ const held=cardTransportRect(source,sourceCenter,destination,center,pose(.84));
  assert.equal(held.x,center.x);assert.equal(held.y,center.y);
  assert.ok(Math.abs(held.width/held.height-16/9)<1e-10);
 });
 test('transport reaches live service positions under unequal original film projection',()=>{
  for(const parentX of [.6,.85,1.2])for(const parentY of [.5,.9,1.1])for(const motionX of [-30,0,30]) {
   const base={...source,parentX,parentY,motionX,motionY:18};
-  const desired=cardTransportRect(source,sourceCenter,destination,center,0,false,pose(1));
+  const desired=cardTransportRect(source,sourceCenter,destination,center,pose(1));
   const frame=cardBridgeFrame(base,desired,1,1,false);
   assert.deepEqual(desired,destination);
   assert.ok(Math.abs(base.x+parentX*(frame.x+frame.sx*motionX-motionX)-destination.x)<1e-8);
@@ -43,7 +43,7 @@ test('transport reaches live service positions under unequal original film proje
 });
 test('rapid forward and reverse input produce the same finite frames without travel overshoot',()=>{
  const points=Array.from({length:2001},(_,i)=>i/2000);
- const read=p=>cardTransportRect(source,sourceCenter,destination,center,0,false,pose(p));
+ const read=p=>cardTransportRect(source,sourceCenter,destination,center,pose(p));
  assert.deepEqual(points.map(read).toReversed(),points.toReversed().map(read));
  let previous=read(0);
  for(const p of points) {

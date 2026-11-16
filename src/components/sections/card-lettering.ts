@@ -8,8 +8,9 @@ export function cardLettering(width: number, height: number, segments: readonly 
   const joinedSize = Math.min(72, width * (portrait ? .80 : .48) / Math.max(1, total));
   const size = mix(readingSize, joinedSize, assembly);
   const before = segments.slice(0, index).reduce((sum, segment) => sum + segment, 0);
-  const joined = width * .08 + before * size;
-  return { size, x: mix(width * .08, joined, assembly), y: mix(height * (portrait ? .78 : .16), height * (portrait ? .78 : .24), assembly) };
+  const left = portrait ? width * .08 : (width - total * size) / 2;
+  const joined = left + before * size;
+  return { size, x: mix(width * .08, joined, assembly), y: mix(height * (portrait ? .78 : .16), height * (portrait ? .78 : .5), assembly) };
 }
 
 /** Retire a duplicate only as its actual projected origin meets the next N/A.

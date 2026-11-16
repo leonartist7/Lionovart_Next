@@ -213,7 +213,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         }));
         const leader=reading[portrait ? 0 : 1];
         const units=sources.map(source=>source.unit);
-        const desiredFrames=reading.map((source,index)=>cardTransportRect(source,leader,destination[index].rect,center.rect,index,destination[index].selected,pose));
+        const desiredFrames=reading.map((source,index)=>cardTransportRect(source,leader,destination[index].rect,center.rect,pose,portrait));
         const letters = desiredFrames.map((desired, index) => {
           const reading = sources[index].label;
           const merged = cardLettering(desired.width, desired.height, units, index, pose.assembly, portrait);
@@ -278,9 +278,10 @@ export default function CardsServicesTransition({ children }: { children: ReactN
         // Once the frames meet, lay out the actual painted label boxes in one
         // row. Glyph bearings and tracking differ from a cached inline advance.
         const settleLetters=Math.max(0,Math.min(1,(pose.assembly-.9)/.1));
-        if(settleLetters>0 && identities.length===3){
+        if(settleLetters>0 && identities.length===3 && letteringOrigin){
           const widths=identities.map(identity=>identity.getBoundingClientRect().width);
-          let left=parseFloat(identities[0].style.left);
+          let left=portrait ? parseFloat(identities[0].style.left)
+            : desiredFrames[1].x - letteringOrigin.left - widths.reduce((sum,width)=>sum+width,0)/2;
           identities.forEach((identity,index)=>{
             identity.style.left=`${mix(parseFloat(identity.style.left),left,settleLetters)}px`;
             left+=widths[index];
@@ -348,7 +349,7 @@ export default function CardsServicesTransition({ children }: { children: ReactN
           <span className={styles.innovation}>{locale === 'fr' ? 'L’innovation' : 'Innovation'}</span>{' '}
           <span className={styles.claimSwap}>
             <span className={styles.optional} data-brand-optional>{locale === 'fr' ? 'n’est pas une option.' : 'isn’t optional.'}</span>
-            <span className={styles.needed} data-brand-needed aria-hidden="true">{locale === 'fr' ? 'est nécessaire.' : 'is needed.'}</span>
+            <span className={styles.needed} data-brand-needed aria-hidden="true">{locale === 'fr' ? 'est une nécessité.' : 'It’s a necessity.'}</span>
           </span>
         </span></h2>
       </div>

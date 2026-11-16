@@ -74,6 +74,9 @@
 :global([data-story-static=true]) .shapingMessage { --claim-fade: 1; }
 .shapingMessage .brandSignature { margin: 0; font: 500 clamp(2.8rem,8vw,8rem)/1 var(--font-clash-display),sans-serif; letter-spacing: -.045em; color: var(--world-ink,#fffaf1); }
 .cardIntro :global(.opening-proof-stage) { filter: opacity(var(--handoff-proof,1)); }
+@media (min-width:1024px) and (min-height:561px) {
+  .brandStatement { top: min(72svh, calc(100svh - 10.5rem)); }
+}
 @media(max-width:767px) {
   .shapingMessage h2 { max-width: 19ch; font-size: clamp(1.65rem,6.8vw,2.6rem); }
   .brandStatement { top:62svh; bottom:auto; }

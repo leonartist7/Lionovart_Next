@@ -15,8 +15,8 @@ test('all three original frames share one outline during the hold and reach thei
   for(let i=0;i<3;i++) {
     const source={x:200+i*400,y:300,width:240,height:340};
     const target={...center,x:200+i*400};
-    assert.deepEqual(cardTransportRect(source,source, target,center,i,i===1,at(.78)),center);
-    assert.deepEqual(cardTransportRect(source,source, target,center,i,i===1,at(1)),target);
+    assert.deepEqual(cardTransportRect(source,source,target,center,at(.78)),center);
+    assert.deepEqual(cardTransportRect(source,source,target,center,at(1)),target);
   }
 });
 test('the artwork remains intact through departure, then dissolves gradually',()=>{

@@ -4,14 +4,24 @@ const mix = (a: number, b: number, p: number) => a + (b - a) * p;
 const blend = (a: CardRect, b: CardRect, p: number): CardRect => ({
   x: mix(a.x,b.x,p), y: mix(a.y,b.y,p), width: mix(a.width,b.width,p), height: mix(a.height,b.height,p),
 });
-/** The original frames gather first, reshape while stacked, then spread to the live service orbit. */
+/** The original frames meet at the service anchor, then spread to the live service orbit. */
 export function cardTransportRect(source: CardRect, sourceCenter: CardRect, service: CardRect,
-  serviceCenter: CardRect, index: number, selected: boolean, pose: ReturnType<typeof cardHandoff>) {
-  // Rise into the live service anchor during collection. Reshaping and opening
-  // then share that same center; the front frame cannot drift during the reveal.
-  const gathered = { ...sourceCenter, x: serviceCenter.x, y: serviceCenter.y };
-  const stacked = { ...serviceCenter };
-  return blend(blend(blend(source,gathered,pose.gather),stacked,pose.reshape),service,pose.spread);
+  serviceCenter: CardRect, pose: ReturnType<typeof cardHandoff>, portrait = false) {
+  if (portrait) {
+    const gathered = { ...sourceCenter, x: serviceCenter.x, y: serviceCenter.y };
+    return blend(blend(blend(source, gathered, pose.gather), serviceCenter, pose.reshape), service, pose.spread);
+  }
+  // Convergence follows the source row while the shared center and shape ease
+  // toward Services. This removes the separate narrow, upright pause.
+  const collected = blend(source, sourceCenter, pose.gather);
+  const anchor = blend(sourceCenter, serviceCenter, pose.settle);
+  const frame = {
+    x: anchor.x + collected.x - sourceCenter.x,
+    y: anchor.y + collected.y - sourceCenter.y,
+    width: mix(collected.width, serviceCenter.width, pose.settle),
+    height: mix(collected.height, serviceCenter.height, pose.settle),
+  };
+  return blend(frame, service, pose.spread);
 }
 
 

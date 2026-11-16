@@ -43,8 +43,8 @@
 .journey :global(.hero-invitation) { width: min(100%,360px); }
 .journey :global(.hero-capsule) { position: relative; isolation: isolate; width: min(230px,100%); height: 48px; border-radius: 999px; transition: width 450ms cubic-bezier(.22,1,.36,1), height 250ms ease; background: linear-gradient(140deg,#f7f2e9,#667071 25%,#f8f4eb 49%,#647071 75%,#e3d4b8); box-shadow: inset 0 1px 0 #fff9, 0 6px 20px #0003; }
 .journey :global(.hero-capsule-open) { width: 100%; }
-.journey :global(.hero-capsule-metal) { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; }
-.journey :global(.hero-capsule-interior) { position: absolute; inset: 1.5px; border-radius: inherit; background: linear-gradient(180deg, #c01020 0%, #7a0010 50%, #3d0008 100%); pointer-events: none; overflow: hidden; }
+.journey :global(.hero-capsule-metal) { position: absolute; z-index:1; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; }
+.journey :global(.hero-capsule-interior) { position: absolute; z-index:2; inset: 2.5px; border-radius: inherit; background: linear-gradient(180deg, #c01020 0%, #7a0010 50%, #3d0008 100%); pointer-events: none; overflow: hidden; }
 .journey :global(.hero-capsule-interior::after) { content: ''; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(120deg,#39332de8,#151418f5 65%,#282626ed); opacity: 0; transition: opacity 450ms cubic-bezier(.22,1,.36,1); backdrop-filter: blur(18px); box-shadow: inset 0 1px 0 #fff2; }
 .journey :global(.hero-capsule-open .hero-capsule-interior::after) { opacity: 1; }
 .journey :global(.hero-capsule-trigger) { position: relative; width: 100%; height: 48px; display: flex; align-items: center; justify-content: center; gap: 14px; border-radius: inherit; color: #fff; font-size: 0.9375rem; font-weight: 600; cursor: pointer; }
@@ -62,6 +62,7 @@
 .journey :global(.hero-capsule .hero-form-success) { position: relative; padding: 15px 20px; font-size: 0.75rem; line-height: 1.5; }
 .journey :global(.hero-capsule .hero-form-success p:first-child) { font-size: 0.875rem; margin: 0; }
 .journey :global(.hero-capsule .hero-form-success a) { padding-top: 2px; }
+.journey :global(.hero-capsule-trigger), .journey :global(.hero-capsule-form), .journey :global(.hero-form-success) { z-index:3; }
 .journey :global(.hero-client-proof) { display: flex; align-items: center; justify-content: center; gap: 8px; width: 290px; max-width: 100%; color: white; text-decoration: none; margin-top: 4px; padding-block: 8px; }
 .journey :global(.hero-client-laurel) { width: 46px; height: 120px; object-fit: contain; }
 .journey :global(.hero-client-rating) { display: flex; flex-direction: column; align-items: center; gap: 10px; }
@@ -277,8 +278,12 @@
 .journey :global(.trust-placement .opening-laurel img) { height:60px; }
 .journey :global(.trust-placement-switch) { position:absolute; inset:0; width:100%; border:0; border-radius:8px; background:transparent; cursor:pointer; pointer-events:auto; }
 .journey :global(.trust-placement-switch:focus-visible) { outline:2px solid #e5bd77; outline-offset:4px; }
-.journey :global(.hero-capsule:has(.hero-capsule-trigger:is(:hover,:focus-visible)) .hero-capsule-interior) { background:#fffaf1; }
-.journey :global(.hero-capsule-trigger:is(:hover,:focus-visible)) { color:#680411; outline:2px solid #fffaf1; outline-offset:4px; }
+.journey :global(.hero-capsule:has(.hero-capsule-trigger:focus-visible) .hero-capsule-interior) { background:#fffaf1; }
+.journey :global(.hero-capsule-trigger:focus-visible) { color:#680411; outline:2px solid #fffaf1; outline-offset:4px; }
+@media (hover: hover) {
+ .journey :global(.hero-capsule:has(.hero-capsule-trigger:hover) .hero-capsule-interior) { background:#fffaf1; }
+ .journey :global(.hero-capsule-trigger:hover) { color:#680411; }
+}
 @media(max-width:767px) {
  .journey :global(.lion-hero) { align-content:start; padding-top:calc(var(--hero-nav-clearance,6.25rem) + max(.5rem,env(safe-area-inset-top))); padding-bottom:1.5rem; }
  .journey :global(.lion-content) { gap:clamp(1.375rem,3svh,1.875rem); }
@@ -296,6 +301,12 @@
 /* The shared film/card geometry reserves this complete reading stack below. */
 .journey :global(.opening-work-pinned) { --opening-video-center:41svh; }
 .journey :global(.opening-work-pinned .opening-proof-stage) { top:0; }
+@media (min-width:1024px) and (min-height:561px) {
+ .journey :global(.opening-work-pinned) { --opening-video-center:46svh; }
+ .journey :global([data-opening-imagine="inline"] .opening-work-pinned .opening-video-anchor) {
+  --opening-film-width:min(86vw,86rem,calc((100svh - 13rem) * 16 / 9));
+ }
+}
 
 
 /* Shared content-fit fallback must release the opening runway as well. */

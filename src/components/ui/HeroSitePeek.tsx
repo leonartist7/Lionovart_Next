@@ -2,7 +2,7 @@
 
 import { usePublicCopy } from "@/hooks/usePublicCopy";
 import { useIntroLifecycle } from "@/components/ui/IntroLifecycle";
-import { usePreviewShape } from "@/components/ui/ShapePreview";
+import { liquidMetalMaterial, liquidMetalPixelBudget } from "./liquid-metal-material";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { CONTACT_EMAIL } from "@/lib/contact";
@@ -29,7 +29,6 @@ export default function HeroSitePeek() {
   const shader = useRef<HTMLDivElement>(null);
   const request = useRef<AbortController | null>(null);
   const reduced = useReducedMotion();
-  const usePillShader = usePreviewShape() === 'original';
   const visible = useInView(host, { amount: .01 });
   const fallbackProgress = useMotionValue(0);
   const openingProgress = journey?.openingProgress ?? fallbackProgress;
@@ -41,14 +40,17 @@ export default function HeroSitePeek() {
   useEffect(() => () => setPaused?.(false), [setPaused]);
   useEffect(() => {
     const surface = shader.current;
-    if (!surface || !running || !usePillShader) return;
+    if (!surface || !running) return;
     let mount: ShaderMount | undefined;
     try {
-      mount = new ShaderMount(surface, liquidMetalFragmentShader,
-        { u_repetition: 4, u_softness: 0.5, u_shiftRed: 0.65, u_shiftBlue: 0, u_distortion: 0, u_contour: 0, u_angle: 45, u_scale: 8, u_shape: 1, u_offsetX: 0.1, u_offsetY: -0.1 }, undefined, 0.6);
+      mount = new ShaderMount(surface, liquidMetalFragmentShader, liquidMetalMaterial,
+        { antialias: false, powerPreference: 'low-power' }, .6, 0, 1.5, liquidMetalPixelBudget);
     } catch { surface.replaceChildren(); return; }
-    return () => { mount?.setSpeed(0); mount?.dispose(); surface.replaceChildren(); };
-  }, [running, usePillShader]);
+    const useFallback = () => { mount?.dispose(); mount = undefined; };
+    const canvas = mount.canvasElement;
+    canvas.addEventListener('webglcontextlost', useFallback, { once: true });
+    return () => { canvas.removeEventListener('webglcontextlost', useFallback); mount?.dispose(); };
+  }, [running]);
   const changeStep = (next: Step) => { setError(""); setStep(next); };
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -91,7 +93,7 @@ export default function HeroSitePeek() {
     onFocusCapture={() => setPaused?.(true)}
     onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused?.(false); }}>
     <div ref={journey?.cta} data-hex-metal-active={running} className={`hero-capsule ${expanded ? "hero-capsule-open" : ""} ${step === "done" ? "hero-capsule-done" : ""}`}>
-      {step === "closed" && running && usePillShader && <div ref={shader} className="hero-capsule-metal" aria-hidden="true" />}
+      {step === "closed" && running && <div ref={shader} className="hero-capsule-metal" aria-hidden="true" />}
       <div className="hero-capsule-interior" aria-hidden="true" />
       <AnimatePresence initial={false} mode="wait">
         {step === "closed" ? <motion.button key="invitation" type="button" className="hero-capsule-trigger"

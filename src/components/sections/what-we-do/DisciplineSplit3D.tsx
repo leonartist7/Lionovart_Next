@@ -453,7 +453,8 @@ export default function DisciplineSplit3D({
     const viewport = opening ? Math.max(1, opening.offsetHeight - overflow) : window.innerHeight;
     const viewportWidth = document.documentElement.clientWidth;
     const navClearance = Number.parseFloat(openingStyles?.getPropertyValue("--hero-nav-clearance") || "") || 100;
-    const safeTop = pinned ? Math.min(navClearance, 80) + 8 : 24;
+    const wideStage = pinned && viewportWidth >= 1024 && viewport > 560;
+    const safeTop = pinned ? Math.max(Math.min(navClearance, 80) + 8, wideStage ? Math.min(128, viewport * .12) : 0) : 24;
     const safeBottom = viewport - 16;
     const stageWidth = stage.offsetWidth;
     const frontHeight = Array.from(stage.querySelectorAll<HTMLElement>(".opening-pane-sizing")).reduce((total, el) => total + el.offsetHeight, 0);

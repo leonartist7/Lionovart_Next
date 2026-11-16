@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { chromium } from '/tmp/story-qa/node_modules/playwright/index.mjs';
+import sharp from 'sharp';
 
 const base = process.env.STORY_PREVIEW ?? 'http://127.0.0.1:3100';
 const output = 'verification-output/honeycomb';
@@ -91,7 +92,43 @@ async function verifyIntro() {
 
 }
 
-async function verifyOpeningControls(page, hero) {
+async function verifyMetal(page, hero) {
+  await page.waitForFunction(() => document.querySelector('.hero-capsule')?.dataset.hexMetalActive === 'true');
+  const samples = [];
+  let mode;
+  for (const frame of [0, 1450, 2870, 7100]) {
+    mode = await hero.evaluate(async (element, frame) => {
+      const mount = element.querySelector('.hero-capsule-metal')?.paperShaderMount;
+      if (mount) {
+        mount.setSpeed(0);
+        mount.setFrame(frame);
+      } else {
+        const animation = element.getAnimations({ subtree: true }).find(item => item.animationName === 'hex-metal-flow');
+        animation?.pause();
+        if (animation) animation.currentTime = frame % 3600;
+      }
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return mount ? 'shader' : 'CSS fallback';
+    }, frame);
+    const { data, info: { width, height } } = await sharp(await hero.screenshot({ scale: 'css' }))
+      .removeAlpha().raw().toBuffer({ resolveWithObject: true });
+    samples.push([[1, height >> 1], [width - 2, height >> 1], [width >> 1, 1], [width >> 1, height - 2]].map(([x, y]) => {
+      const i = (y * width + x) * 3;
+      return data[i] * .21 + data[i+1] * .72 + data[i+2] * .07;
+    }));
+  }
+  for (const [i, side] of ['left', 'right', 'top', 'bottom'].entries()) {
+    const values = samples.map(sample => sample[i]);
+    assert.ok(Math.max(...values) - Math.min(...values) > 10, `The ${side} rim changes luminance (${mode}): ${values}`);
+  }
+  await hero.evaluate(element => {
+    element.querySelector('.hero-capsule-metal')?.paperShaderMount?.setSpeed(.6);
+    element.getAnimations({ subtree: true }).find(item => item.animationName === 'hex-metal-flow')?.play();
+  });
+  console.log(`Passed all four liquid-metal rim samples (${mode})`);
+}
+
+async function verifyOpeningControls(page) {
   const sound = page.locator('[data-experience-sound]:visible').first();
   assert.equal(await sound.getAttribute('aria-pressed'), 'true');
   const label = page.locator('.cursor-label');
@@ -102,20 +139,6 @@ async function verifyOpeningControls(page, hero) {
   await page.waitForTimeout(200);
   assert.equal(await page.locator('#exit-intent-heading').count(), 0);
   assert.equal(await page.evaluate(() => sessionStorage.getItem('lionovart:exit-intent-shown')), null);
-
-  await page.waitForFunction(() => document.querySelector('.hero-capsule')?.getAttribute('data-hex-metal-active') === 'true');
-  const sampleRim = () => hero.evaluate(element => {
-    const rim = getComputedStyle(element, '::after');
-    return [rim.animationName, rim.backgroundImage, rim.getPropertyValue('--hex-metal-angle')];
-  });
-  const first = await sampleRim();
-  assert.equal(first[0], 'hex-metal-flow');
-  assert.match(first[1], /^conic-gradient/);
-  await page.waitForTimeout(300);
-  const second = await sampleRim();
-  assert.notEqual(second[2], first[2]);
-  assert.notEqual(second[1], first[1]);
-  assert.equal(await hero.locator('.hero-capsule-metal canvas').count(), 0);
 
   const nextTone = () => page.waitForFunction(() => window.reviewTones > 0);
   await page.locator('[data-logo-shape-control]').press('Enter');
@@ -130,7 +153,7 @@ async function verifyOpeningControls(page, hero) {
   await sound.press('Space');
   assert.equal(await sound.getAttribute('aria-pressed'), 'true');
   assert.equal(await page.evaluate(() => localStorage.getItem('lionovart:experience-sound')), 'on');
-  console.log('Passed hexagon rim animation, default audio, and opening cleanup');
+  console.log('Passed default audio and opening cleanup');
 }
 
 async function scroll(page, progress) {
@@ -145,6 +168,13 @@ async function check(width, height, phone = false) {
   try {
     const page = await context.newPage();
     const errors = [];
+    if (width === 768) await page.addInitScript(() => {
+      const native = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function (type, ...options) {
+        if (type === 'webgl2' && this.parentElement?.classList.contains('hero-capsule-metal')) return null;
+        return native.call(this, type, ...options);
+      };
+    });
     page.on('console', message => {
       if (/THREE\.WebGLProgram|WebGL: INVALID/i.test(message.text())) errors.push(message.text());
       if (/honeycomb|Context Lost/i.test(message.text())) console.log(width, message.text());
@@ -165,10 +195,11 @@ async function check(width, height, phone = false) {
     const pointed = await clip(badge);
     assert.match(pointed, /^polygon/);
     const heroClip = await clip(hero);
-    const rim = await hero.evaluate(element => getComputedStyle(element, '::after').clipPath);
-    assert.match(rim, /^polygon\(evenodd/);
+    assert.match(heroClip, /^polygon\(/);
+    assert.match(await hero.locator('.hero-capsule-interior').evaluate(node => getComputedStyle(node).clipPath), /^polygon\(/);
     assert.equal(await page.locator('[data-shape-preview-controls]').count(), 0);
-    if (width === 1440) await verifyOpeningControls(page, hero);
+    await verifyMetal(page, hero);
+    if (width === 1440) await verifyOpeningControls(page);
     await control.focus();
     await control.press('Enter');
     await page.waitForURL('**/?shape=hexagon-flat');
@@ -178,6 +209,8 @@ async function check(width, height, phone = false) {
     await page.waitForURL('**/?shape=original');
     await page.waitForFunction(() => !document.documentElement.dataset.shapePreview);
     assert.equal(await clip(badge), 'none');
+    assert.equal(await clip(hero), 'none');
+    if (phone) await verifyMetal(page, hero);
     await control.click();
     await page.waitForURL('**/?shape=hexagon');
     assert.equal(await page.evaluate(() => scrollY), 0);

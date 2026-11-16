@@ -10,10 +10,8 @@
 
 :root[data-shape-preview="hexagon"] {
   --preview-cut: min(12%, .9rem);
+  --preview-rim: 2.5px;
   --preview-button: polygon(var(--preview-cut) 0, calc(100% - var(--preview-cut)) 0, 100% 50%, calc(100% - var(--preview-cut)) 100%, var(--preview-cut) 100%, 0 50%);
-  --preview-metal-edge: polygon(evenodd,
-    var(--preview-cut) 0, calc(100% - var(--preview-cut)) 0, 100% 50%, calc(100% - var(--preview-cut)) 100%, var(--preview-cut) 100%, 0 50%, var(--preview-cut) 0,
-    var(--preview-cut) 2px, calc(100% - var(--preview-cut)) 2px, calc(100% - 2px) 50%, calc(100% - var(--preview-cut)) calc(100% - 2px), var(--preview-cut) calc(100% - 2px), 2px 50%, var(--preview-cut) 2px);
 }
 [data-shape-badge] { position: relative; display: inline-flex; flex: none; }
 :root[data-shape-preview] [data-shape-badge] {
@@ -37,31 +35,37 @@
 :root[data-shape-preview] [data-shape-button]:focus-visible { box-shadow: inset 0 0 0 3px #ffe2cf; }
 :root[data-shape-preview] [data-shape-metal-surface] { display: none; }
 :root[data-shape-preview] [data-shape-metal-interior] {
-  width: 100% !important;
-  height: 100% !important;
-  margin: 0 !important;
+  width: calc(100% - var(--preview-rim) * 2) !important;
+  height: calc(100% - var(--preview-rim) * 2) !important;
+  margin: var(--preview-rim) !important;
   border-radius: 0 !important;
   clip-path: var(--preview-button);
 }
 :root[data-shape-preview] [data-shape-metal-contour],
-:root[data-shape-preview] .hero-capsule:not(.hero-capsule-open)::after {
+.hero-capsule:not(.hero-capsule-open)::after {
   inset: 0 !important;
   border: 0 !important;
-  border-radius: 0 !important;
   box-shadow: none !important;
-  clip-path: var(--preview-metal-edge);
-  /* One moving reflection across the entire rim, with a dark-to-bright
-     range on every side. The center is cut out at the same six vertices. */
-  background: conic-gradient(from var(--hex-metal-angle, 15deg),
-    var(--hex-metal-shadow, #66524b) 0deg,
-    var(--hex-metal-midtone, #b5a59e) 36deg,
-    var(--hex-metal-glint, #fff5e7) 67deg,
-    var(--hex-metal-midtone, #b5a59e) 101deg,
-    var(--hex-metal-shadow, #66524b) 157deg,
-    var(--hex-metal-midtone, #b5a59e) 215deg,
-    var(--hex-metal-glint, #fff5e7) 254deg,
-    var(--hex-metal-midtone, #b5a59e) 282deg,
-    var(--hex-metal-shadow, #66524b) 360deg);
+  background:
+    linear-gradient(168deg, #fff9ea28 5%, transparent 45%, #21161638 82%),
+    conic-gradient(from var(--hex-metal-angle, 15deg),
+      var(--hex-metal-shadow, #514a50) 0deg,
+      var(--hex-metal-midtone, #a39b97) 28deg,
+      var(--hex-metal-glint, #fff6e6) 48deg,
+      var(--hex-metal-midtone, #a39b97) 66deg,
+      var(--hex-metal-shadow, #514a50) 88deg,
+      var(--hex-metal-glint, #fff6e6) 119deg,
+      var(--hex-metal-midtone, #a39b97) 133deg,
+      var(--hex-metal-shadow, #514a50) 167deg,
+      var(--hex-metal-midtone, #a39b97) 209deg,
+      var(--hex-metal-glint, #fff6e6) 236deg,
+      var(--hex-metal-shadow, #514a50) 267deg,
+      var(--hex-metal-glint, #fff6e6) 310deg,
+      var(--hex-metal-shadow, #514a50) 360deg);
+}
+:root[data-shape-preview] [data-shape-metal-contour] {
+  border-radius: 0 !important;
+  clip-path: var(--preview-button);
 }
 :root[data-shape-preview] [data-shape-metal-contour="gold"] {
   --hex-metal-shadow: #795038;
@@ -70,18 +74,18 @@
 }
 @media (prefers-reduced-motion: no-preference) {
   :root[data-shape-preview] [data-hex-metal-active="true"] > [data-shape-metal-contour],
-  :root[data-shape-preview] .hero-capsule[data-hex-metal-active="true"]:not(.hero-capsule-open)::after {
+  .hero-capsule[data-hex-metal-active="true"]:not(.hero-capsule-open, :has(.hero-capsule-metal[data-paper-shader]))::after {
     animation: hex-metal-flow 3.6s linear infinite;
   }
 }
-:root[data-shape-preview] .hero-capsule:not(.hero-capsule-open)::after {
+.hero-capsule:not(.hero-capsule-open)::after {
   content: "";
   position: absolute;
-  z-index: 2;
+  z-index: 0;
+  border-radius: inherit;
   pointer-events: none;
 }
 :root[data-shape-preview] .hero-capsule:not(.hero-capsule-open) .hero-capsule-interior {
-  inset: 0;
   clip-path: var(--preview-button);
 }
 :root[data-shape-preview] [data-shape-metal-contour] ~ [data-cta-target] { clip-path: var(--preview-button); }

@@ -258,7 +258,7 @@ try {
    const held=await page.locator('[data-persistent-card]').first().boundingBox();
    assert.ok(cornerArt.every(r=>r.width>=Math.min(104,held.width*(w<768 ? .23 : .09),held.height*.36)-1),'Merged artwork uses the enlarged responsive composition');
    const composition=await page.locator('[data-card-lettering-layer] [data-card-identity]').evaluateAll(es=>({labels:es.map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};}),art:[...document.querySelectorAll('[data-floating-card-object] img')].map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};})}));
-   if(w>=768)assert.ok(Math.max(...composition.labels.map(r=>r.right))<=Math.min(...composition.art.map(r=>r.left))+1,`Desktop names and upper-right artwork have separate space: ${JSON.stringify(composition)}`);
+   if(w>=768)assert.ok(Math.max(...composition.art.map(r=>r.bottom))<=Math.min(...composition.labels.map(r=>r.top))+1,`The desktop wordmark clears the upper-right artwork: ${JSON.stringify(composition)}`);
    else assert.ok(Math.max(...composition.art.map(r=>r.bottom))<=Math.min(...composition.labels.map(r=>r.top))+1,'Phone upper-left artwork clears the bottom-left names');
    const anchor=await page.locator('[data-service-card-target][data-position=center] [data-service-frame-target]').boundingBox();
    assert.ok(Math.abs(held.x+held.width/2-anchor.x-anchor.width/2)<1&&Math.abs(held.y+held.height/2-anchor.y-anchor.height/2)<1,'White hold and service foreground share one exact center');
@@ -273,7 +273,8 @@ try {
    assert.ok(Math.abs(lettering[1].x-lettering[0].right)<12,'LIO and NOV join without an unintended gap');
    assert.ok(Math.abs(lettering[2].x-lettering[1].right)<12,'NOV and ART join without an unintended gap');
    assert.ok(Math.max(...lettering.map(r=>r.y))-Math.min(...lettering.map(r=>r.y))<.25,'All wordmark segments share one precise baseline');
-   assert.ok(Math.abs(lettering[0].x-lettering[0].paneX-(lettering[0].paneRight-lettering[0].paneX)*.08)<2,'Wordmark stays aligned to the left reading corner');
+   if(w>=768)assert.ok(Math.abs((lettering[0].x+lettering[2].right)/2-held.x-held.width/2)<2,'The desktop wordmark is centered in the joined frame');
+   else assert.ok(Math.abs(lettering[0].x-lettering[0].paneX-(lettering[0].paneRight-lettering[0].paneX)*.08)<2,'The phone wordmark stays at its reading corner');
    assert.deepEqual(await page.locator('[data-persistent-card]').evaluateAll(nodes=>nodes.map(n=>n.dataset.persistentFrameId)),frames,'Original card DOM identities persist');
    if (focused) {
      const fatal = errors.filter(e => !/WebGL|GPU|ResizeObserver loop/.test(e));

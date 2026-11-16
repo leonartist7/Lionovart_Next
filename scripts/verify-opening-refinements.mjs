@@ -28,7 +28,7 @@ try {
     const p = Number(document.querySelector('[data-card-exit]')?.getAttribute('data-handoff-progress'));
     return p >= .39 && p <= .51;
   });
-  assert.equal(await statement.locator('[data-brand-needed]').textContent(), 'is needed.');
+  assert.equal(await statement.locator('[data-brand-needed]').textContent(), 'It’s a necessity.');
   assert.equal(await statement.locator('[data-brand-strike]').count(), 0);
 
   for (const [p, selector, hidden] of [[.24, '[data-brand-optional]', '[data-brand-needed]'], [.43, '[data-brand-needed]', '[data-brand-optional]']]) {
@@ -74,6 +74,36 @@ try {
     assert.equal(face.image, 'none', 'Artwork tint stays off the paper');
     assert.equal(face.opacity, '1', 'The original paper is solid after the transition');
     assert.equal(face.highlight, '0', 'The travelling highlight clears when the paper settles');
+  }
+  if (width >= 1024) {
+    await scroll(.78);
+    const joined = await page.evaluate(() => {
+      const box = document.querySelector('[data-persistent-card]').getBoundingClientRect();
+      const letters = [...document.querySelectorAll('[data-card-identity]')].map(el => el.getBoundingClientRect());
+      return [Math.abs((letters[0].left+letters[2].right)/2-box.x-box.width/2),
+        Math.abs(letters[0].y+letters[0].height/2-box.y-box.height/2)];
+    });
+    assert.ok(joined.every(gap => gap < 2), `Desktop wordmark centers in the joined card: ${joined}`);
+    await page.screenshot({ path: output + '/centered-wordmark-' + width + '.png' });
+
+    await page.locator('.hero-opening-pinned[data-opening-mode=pinned]').evaluate(opening => {
+      const stage = opening.closest('[data-service-world]').querySelector('.hero-opening-stage');
+      const intro = opening.closest('[data-work-intro]');
+      const transition = opening.closest('[data-work-services-transition]');
+      const top = opening.getBoundingClientRect().top + scrollY + (intro && transition ? transition.getBoundingClientRect().top - intro.getBoundingClientRect().top : 0);
+      const overflow = Number.parseFloat(opening.style.getPropertyValue('--hero-overflow')) || 0;
+      window.scrollTo({ top: top + overflow + (opening.offsetHeight - stage.offsetHeight) * .35, behavior: 'instant' });
+    });
+    await page.waitForFunction(() => {
+      const film = document.querySelector('[data-opening-film]');
+      const trust = document.querySelector('[data-opening-trust]');
+      return Number(getComputedStyle(film).opacity) > .99 && trust.getAttribute('aria-hidden') === 'false';
+    });
+    const film = await page.locator('[data-opening-film]').boundingBox();
+    const trust = await page.locator('[data-opening-trust]').boundingBox();
+    assert.ok(film.width >= width*.60 && film.y >= height*.11, `Desktop film has more room and breathing space: ${JSON.stringify(film)}`);
+    assert.ok(trust.y >= film.y+film.height+15 && trust.y+trust.height <= height, `Trust sits directly below the film: ${JSON.stringify(trust)}`);
+    await page.screenshot({ path: output + '/desktop-film-' + width + '.png' });
   }
   console.log('Verified centered copy, both review pages, and shared paper color at', width);
 } finally {

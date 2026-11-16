@@ -16,11 +16,12 @@ export function cardHandoff(top: number, height: number, viewport: number) {
   // Keep the printed card faces intact until the signature has been read.
   const gather = interval(progress, CARD_POSES.gather);
   const reshape = interval(progress, CARD_POSES.resolve);
+  const settle = interval(progress, [CARD_POSES.gather[0], CARD_POSES.resolve[1]]);
   const spread = interval(progress, CARD_POSES.services);
   const reveal = smooth((progress - .83) / .09);
   return {
     progress,
-    gather, reshape, spread,
+    gather, reshape, settle, spread,
     reading: smooth(progress / .18),
     identity: 1 - reveal,
     objects: 1 - reveal,
