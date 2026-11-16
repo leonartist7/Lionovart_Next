@@ -94,6 +94,10 @@ async function verifyIntro() {
 
 async function verifyMetal(page, hero) {
   await page.waitForFunction(() => document.querySelector('.hero-capsule')?.dataset.hexMetalActive === 'true');
+  const canvas = hero.locator('.hero-capsule-metal canvas');
+  if (await canvas.count()) {
+    assert.ok(await canvas.evaluate(node => node.width * node.height <= 81_000), 'CTA shader stays within its pixel budget');
+  }
   const samples = [];
   let mode;
   for (const frame of [0, 1450, 2870, 7100]) {
@@ -210,7 +214,15 @@ async function check(width, height, phone = false) {
     await page.waitForFunction(() => !document.documentElement.dataset.shapePreview);
     assert.equal(await clip(badge), 'none');
     assert.equal(await clip(hero), 'none');
-    if (phone) await verifyMetal(page, hero);
+    if (phone) {
+      await verifyMetal(page, hero);
+      const metal = hero.locator('.hero-capsule-metal canvas');
+      if (await metal.count()) {
+        await metal.evaluate(canvas => canvas.dispatchEvent(new Event('webglcontextlost')));
+        await metal.waitFor({ state: 'detached' });
+        assert.equal(await hero.evaluate(node => getComputedStyle(node, '::after').animationName), 'hex-metal-flow');
+      }
+    }
     await control.click();
     await page.waitForURL('**/?shape=hexagon');
     assert.equal(await page.evaluate(() => scrollY), 0);

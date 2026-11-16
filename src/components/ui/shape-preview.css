@@ -74,7 +74,7 @@
 }
 @media (prefers-reduced-motion: no-preference) {
   :root[data-shape-preview] [data-hex-metal-active="true"] > [data-shape-metal-contour],
-  .hero-capsule[data-hex-metal-active="true"]:not(.hero-capsule-open, :has(.hero-capsule-metal[data-paper-shader]))::after {
+  .hero-capsule[data-hex-metal-active="true"]:not(.hero-capsule-open, :has(.hero-capsule-metal canvas))::after {
     animation: hex-metal-flow 3.6s linear infinite;
   }
 }
