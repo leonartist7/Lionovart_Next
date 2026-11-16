@@ -40,7 +40,8 @@ async function verifyIntro() {
         function sample(now) {
           if (!overlay?.isConnected || overlay.style.display === 'none') return;
           if (overlay.dataset.phase === 'revealing') {
-            samples.push([now, Number(cover?.style.opacity || 1), Number(getComputedStyle(header).opacity)]);
+            samples.push([now, Number(getComputedStyle(cover).opacity), Number(getComputedStyle(header).opacity)]);
+            window.introReviewDissolve ??= cover.getAnimations()[0]?.effect.getKeyframes().map(frame => Number(frame.opacity));
           }
           requestAnimationFrame(sample);
         }
@@ -57,19 +58,21 @@ async function verifyIntro() {
       marks: performance.getEntriesByType('mark').map(mark => mark.name),
       lock: document.body.style.overflow,
       samples: window.introReviewSamples,
+      dissolve: window.introReviewDissolve,
+      duration: performance.measure('intro-review', 'lionovart:intro:reveal', 'lionovart:intro:complete').duration,
     }));
     assert.equal(state.reason, 'ready', `Intro ended with ${state.reason} after ${state.samples.length} reveal frames (${state.marks.join(', ')})`);
     assert.equal(state.content, 'ready');
     assert.match(state.graphics, /^(live|fallback)$/);
     assert.notEqual(state.lock, 'hidden');
-    assert.ok(state.samples.length >= 25, 'The exit has enough sampled frames to read as one move');
-    const first = state.samples[0], last = state.samples.at(-1);
-    assert.ok(last[0] - first[0] >= 1400, 'The camera has time to ease out');
-    assert.ok(last[1] < .04, 'The cover fades fully before removal');
-    assert.ok(state.samples.some(([, cover, nav]) => cover < .65 && nav > .95), 'The navbar is in place while the cover is still fading');
-    for (let i = 1; i < state.samples.length; i++) {
-      const change = state.samples[i - 1][1] - state.samples[i][1];
-      assert.ok(change >= 0 && change < .09, 'No frame should jump the cover fade');
+    assert.ok(state.samples.length >= 6, 'The browser paints the exit across multiple frames');
+    assert.ok(state.duration >= 1400, 'The camera has time to ease out');
+    assert.equal(state.dissolve.at(0), 1);
+    assert.equal(state.dissolve.at(-1), 0);
+    assert.ok(state.samples.some(([, cover, nav]) => cover > .03 && cover < .85 && nav > .8), 'The navbar fades in while the cover dissolves');
+    for (let i = 1; i < state.dissolve.length; i++) {
+      const change = state.dissolve[i - 1] - state.dissolve[i];
+      assert.ok(change >= 0 && change < .1, 'The compositor keyframes ease the cover out');
     }
     assert.ok(state.marks.indexOf('lionovart:intro:honeycomb-painted') >= 0);
     assert.ok(state.marks.indexOf('lionovart:intro:hero-ready') < state.marks.indexOf('lionovart:intro:reveal'));

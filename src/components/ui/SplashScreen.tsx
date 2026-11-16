@@ -5,7 +5,7 @@ import { useLenis } from "lenis/react";
 import { isLocale } from "@/i18n/routing";
 import { useIntroLifecycle } from "./IntroLifecycle";
 import { waitForIntroContent, waitForIntroGraphics } from "./intro-readiness";
-import { INTRO_DEADLINE_MS, INTRO_EXIT_MS, INTRO_FALLBACK_EXIT_MS, INTRO_MIN_MS, introFrameStep, introHoneycombPose } from "./intro-honeycomb";
+import { INTRO_DEADLINE_MS, INTRO_EXIT_FRAMES, INTRO_EXIT_MS, INTRO_FALLBACK_EXIT_MS, INTRO_MIN_MS } from "./intro-honeycomb";
 import type { HoneycombRenderer } from "@/components/sections/selected-work/honeycomb-renderer";
 import styles from "./SplashScreen.module.css";
 
@@ -15,6 +15,7 @@ type FinishReason = "ready" | "deadline" | "skip" | "returning" | "internal-page
 export default function SplashScreen() {
   const overlay = useRef<HTMLDivElement>(null);
   const cover = useRef<HTMLDivElement>(null);
+  const camera = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const wordmark = useRef<HTMLDivElement>(null);
   const skip = useRef<() => void>(() => {});
@@ -37,8 +38,8 @@ export default function SplashScreen() {
 
   useEffect(() => {
     const screen = overlay.current, surface = canvas.current, logo = wordmark.current;
-    const veil = cover.current;
-    if (released || !screen || !surface || !logo || !veil) return;
+    const veil = cover.current, plane = camera.current;
+    if (released || !screen || !surface || !logo || !veil || !plane) return;
     const html = document.documentElement;
     const media = matchMedia("(prefers-reduced-motion: reduce)");
     const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
@@ -51,9 +52,8 @@ export default function SplashScreen() {
     const started = performance.now() - elapsed;
     let field: HoneycombRenderer | undefined;
     let frame = 0, disposed = false, finished = false, ready = false;
-    let lastFrame: number | undefined, sceneTime = 0;
-    let exitAt: number | undefined;
-    let exitDuration = INTRO_EXIT_MS;
+    let exiting = false;
+    const animations: Animation[] = [];
     let firstPaintAt: number | undefined;
     let visualSettled = lightweight();
     let deadline: ReturnType<typeof setTimeout> | undefined;
@@ -88,35 +88,31 @@ export default function SplashScreen() {
     };
     const show = (now: number) => {
       frame = 0;
-      if (disposed || finished || document.hidden) return;
-      sceneTime += introFrameStep(now, lastFrame);
-      lastFrame = now;
+      if (disposed || finished || exiting || document.hidden || !ready) return;
       const age = now - started;
-      const showedField = firstPaintAt === undefined || sceneTime - firstPaintAt >= 280;
-      const canReveal = lightweight() || (age >= INTRO_MIN_MS && showedField && (visualSettled || age >= 2400));
-      if (ready && canReveal && exitAt === undefined) {
-        if (lightweight()) { finish("ready"); return; }
-        exitAt = sceneTime;
-        exitDuration = field ? INTRO_EXIT_MS : INTRO_FALLBACK_EXIT_MS;
-        screen.dataset.phase = "revealing";
-        revealHero();
-        performance.mark("lionovart:intro:reveal");
+      const showedField = firstPaintAt === undefined || now - firstPaintAt >= 280;
+      if (lightweight()) { finish("ready"); return; }
+      if (age < INTRO_MIN_MS || !showedField || (!visualSettled && age < 2400)) {
+        wake();
+        return;
       }
-      const progress = exitAt === undefined ? 0 : (sceneTime - exitAt) / exitDuration;
-      if (progress >= 1) { finish("ready"); return; }
-      const pose = introHoneycombPose(sceneTime, progress);
-      const continueFrames = exitAt !== undefined || ready || Boolean(field && sceneTime < 4400);
-      field?.setPose(pose, continueFrames ? now : undefined);
-      if (exitAt !== undefined) {
-        veil.style.opacity = String(pose.cover);
-        logo.style.opacity = String(pose.wordmark);
-        logo.style.translate = `0 ${pose.wordmarkY}px`;
-      }
-      if (continueFrames) frame = requestAnimationFrame(show);
-      else lastFrame = undefined;
+      const duration = Math.min(field ? INTRO_EXIT_MS : INTRO_FALLBACK_EXIT_MS, INTRO_DEADLINE_MS - age);
+      if (duration < 380) return; // The outer failsafe fade is already in progress.
+      exiting = true;
+      field?.setActive(false);
+      screen.dataset.phase = "revealing";
+      revealHero();
+      performance.mark("lionovart:intro:reveal");
+      // Composite the already-painted field so the camera stays smooth while
+      // the hero becomes visible, even on a slow WebGL implementation.
+      const options = { duration, fill: "forwards" } as const;
+      const dissolve = veil.animate(INTRO_EXIT_FRAMES.map(({ cover }) => ({ opacity: cover })), options);
+      animations.push(dissolve, logo.animate(INTRO_EXIT_FRAMES.map(({ wordmarkOpacity, wordmarkPosition }) => ({ opacity: wordmarkOpacity, translate: wordmarkPosition })), options));
+      if (field) animations.push(plane.animate(INTRO_EXIT_FRAMES.map(({ camera }) => ({ transform: camera })), options));
+      void dissolve.finished.then(() => finish("ready"), () => {});
     };
     const wake = () => {
-      if (!frame && !finished && !disposed && !document.hidden) frame = requestAnimationFrame(show);
+      if (!frame && ready && !exiting && !finished && !disposed && !document.hidden) frame = requestAnimationFrame(show);
     };
 
     let seen = false;
@@ -127,13 +123,13 @@ export default function SplashScreen() {
     }
 
     const onVisibility = () => {
-      field?.setActive(!document.hidden);
-      if (document.hidden) { cancelAnimationFrame(frame); frame = 0; lastFrame = undefined; }
+      if (!exiting) field?.setActive(!document.hidden);
+      if (document.hidden) { cancelAnimationFrame(frame); frame = 0; }
       else if (performance.now() - started >= INTRO_DEADLINE_MS) finish("deadline");
       else wake();
     };
     const onMotion = () => {
-      if (lightweight() && exitAt !== undefined) { finish("ready"); return; }
+      if (lightweight() && exiting) { finish("ready"); return; }
       if (lightweight()) fallback();
       wake();
     };
@@ -167,20 +163,19 @@ export default function SplashScreen() {
         import("@/components/sections/selected-work/honeycomb-renderer"),
         import("@/components/sections/selected-work/gallery"),
       ]).then(([{ createHoneycombRenderer }, { GALLERY_WORK }]) => {
-        if (finished || disposed || lightweight() || exitAt !== undefined) return;
+        if (finished || disposed || lightweight() || exiting) return;
         field = createHoneycombRenderer(surface, GALLERY_WORK.slice(0, 6), fallback, {
           opening: true,
           onFirstFrame: () => {
-            firstPaintAt = sceneTime;
+            firstPaintAt = performance.now();
             visualSettled = true;
             screen.dataset.introVisual = "honeycomb";
             html.dataset.introAnimation = "honeycomb";
             performance.mark("lionovart:intro:honeycomb-painted");
           },
         });
-        field.setPose(introHoneycombPose(sceneTime, 0));
+        field.setPose({ arrival: 1, lift: 0, push: 0, opacity: 1 });
         field.setActive(!document.hidden);
-        wake();
       }).catch(fallback);
     }
 
@@ -188,6 +183,7 @@ export default function SplashScreen() {
       disposed = true;
       clearTimeout(deadline);
       cancelAnimationFrame(frame);
+      animations.forEach(animation => animation.cancel());
       abort.abort();
       field?.dispose();
       document.removeEventListener("visibilitychange", onVisibility);
@@ -203,8 +199,12 @@ export default function SplashScreen() {
     <noscript><style>{`[data-intro="true"]{display:none!important}`}</style></noscript>
     <div ref={cover} className={styles.cover} data-intro-cover>
       <div className={styles.stage} aria-hidden="true">
-        <div className={styles.lattice} />
-        <canvas ref={canvas} className={styles.canvas} data-intro-honeycomb />
+        <div ref={camera} className={styles.camera}>
+          <div className={styles.field}>
+            <div className={styles.lattice} />
+            <canvas ref={canvas} className={styles.canvas} data-intro-honeycomb />
+          </div>
+        </div>
         <div className={styles.shade} />
         <div ref={wordmark} className={styles.wordmark} />
       </div>

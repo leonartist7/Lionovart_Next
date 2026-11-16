@@ -8,7 +8,8 @@
   animation: intro-failsafe 8.5s ease-in-out forwards;
 }
 .cover { position: absolute; inset: 0; background: #0d0a0d; }
-.stage, .canvas, .lattice, .shade { position: absolute; inset: 0; pointer-events: none; }
+.stage, .camera, .field, .canvas, .lattice, .shade { position: absolute; inset: 0; pointer-events: none; }
+.field { animation: intro-drift 4.4s cubic-bezier(.42, 0, .38, 1) both; }
 .canvas { width: 100%; height: 100%; opacity: 0; transition: opacity .56s ease-in-out; }
 .lattice {
   background: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20144%2083.14'%3E%3Cpath%20d%3D'M48.00%20-83.14L24.00%20-41.57L-24.00%20-41.57L-48.00%20-83.14L-24.00%20-124.71L24.00%20-124.71ZM48.00%200.00L24.00%2041.57L-24.00%2041.57L-48.00%200.00L-24.00%20-41.57L24.00%20-41.57ZM48.00%2083.14L24.00%20124.71L-24.00%20124.71L-48.00%2083.14L-24.00%2041.57L24.00%2041.57ZM120.00%20-41.57L96.00%200.00L48.00%200.00L24.00%20-41.57L48.00%20-83.14L96.00%20-83.14ZM120.00%2041.57L96.00%2083.14L48.00%2083.14L24.00%2041.57L48.00%200.00L96.00%200.00ZM120.00%20124.71L96.00%20166.28L48.00%20166.28L24.00%20124.71L48.00%2083.14L96.00%2083.14ZM192.00%20-83.14L168.00%20-41.57L120.00%20-41.57L96.00%20-83.14L120.00%20-124.71L168.00%20-124.71ZM192.00%200.00L168.00%2041.57L120.00%2041.57L96.00%200.00L120.00%20-41.57L168.00%20-41.57ZM192.00%2083.14L168.00%20124.71L120.00%20124.71L96.00%2083.14L120.00%2041.57L168.00%2041.57Z'%20fill%3D'%23191216'%20stroke%3D'%236a5340'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E") center / clamp(6.5rem, 14vw, 11rem) auto;
@@ -47,4 +48,11 @@
   99% { opacity: 0; visibility: visible; pointer-events: auto; }
   100% { opacity: 0; visibility: hidden; pointer-events: none; }
 }
-@media (prefers-reduced-motion: reduce) { .canvas, .lattice { transition: none; } }
+@keyframes intro-drift {
+  from { transform: translate3d(-1.2%, .65%, 0) scale(1.06); }
+  to { transform: translate3d(1.05%, -.75%, 0) scale(1.13); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .field { animation: none; }
+  .canvas, .lattice { transition: none; }
+}

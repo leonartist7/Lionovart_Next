@@ -155,11 +155,10 @@ export function createHoneycombRenderer(
   let fittedWidth = 0, fittedTop = .4;
   let nextPoster = 0;
   let painted = false;
-  let externalClock = false;
 
   function invalidate() {
     dirty = true;
-    if (running && !document.hidden && !disposed && !frameId && !externalClock) frameId = requestAnimationFrame(draw);
+    if (running && !document.hidden && !disposed && !frameId) frameId = requestAnimationFrame(draw);
   }
 
   function updateTile(index: number, x: number, y: number, lift: number) {
@@ -196,7 +195,7 @@ export function createHoneycombRenderer(
     const aspect = width / height;
     const startZoom = 1 + 1.4 * (1 - pose.arrival);
     const endZoom = fittedWidth > 0 ? (fittedWidth / height) * span / FRAME_WIDTH : 3;
-    const zoom = opening ? startZoom * Math.pow(1.92, pose.push) : startZoom + (endZoom - startZoom) * pose.push;
+    const zoom = startZoom + (endZoom - startZoom) * pose.push;
     const yShift = opening ? 0 : (pose.push * (.5 - fittedTop) * span) / zoom;
     const col = Math.round(centerX / CELL_X), row = Math.round(centerY / CELL_Y);
     rows = Math.ceil(span / (2 * CELL_Y)) + 2;
@@ -263,7 +262,7 @@ export function createHoneycombRenderer(
     }
 
     // Raise the far edge before the camera moves through the final artwork.
-    const tilt = pose.lift * (1 - pose.push) * (opening ? .23 : .42);
+    const tilt = pose.lift * (1 - pose.push) * .42;
     field.rotation.x = -tilt;
     field.rotation.z = -tilt * .107;
     field.position.set(-centerX, -centerY + yShift, 0).applyEuler(field.rotation);
@@ -408,16 +407,9 @@ export function createHoneycombRenderer(
       if (active) { invalidate(); loadPosters(); }
       else { cancelAnimationFrame(frameId); frameId = 0; lastDraw = 0; }
     },
-    setPose(next: Pose, frameTime?: number) {
+    setPose(next: Pose) {
       pose = next;
-      externalClock = opening && frameTime !== undefined;
-      if (externalClock && frameTime !== undefined && running) {
-        // The splash owns this frame. Consume the camera pose before the same
-        // paint that applies the overlay opacity.
-        cancelAnimationFrame(frameId);
-        dirty = true;
-        draw(frameTime);
-      } else invalidate();
+      invalidate();
     },
     drag(dx: number, dy: number) {
       const worldPerPixel = span / (height * camera.zoom);
