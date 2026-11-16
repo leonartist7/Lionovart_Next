@@ -31,7 +31,6 @@ async function verifyIntro() {
       assert.equal(await page.locator('[data-intro]').getAttribute('data-phase'), 'preparing');
       assert.equal(await page.evaluate(() => document.documentElement.dataset.splashComplete), undefined);
       assert.equal(await page.evaluate(() => document.body.style.overflow), 'hidden');
-      await page.screenshot({ path: output + '/preloader.png' });
       await page.evaluate(() => {
         const overlay = document.querySelector('[data-intro]');
         const header = document.querySelector('[data-intro-header-mounted] header');
@@ -59,7 +58,7 @@ async function verifyIntro() {
       lock: document.body.style.overflow,
       samples: window.introReviewSamples,
     }));
-    assert.equal(state.reason, 'ready');
+    assert.equal(state.reason, 'ready', `Intro ended with ${state.reason} after ${state.samples.length} reveal frames (${state.marks.join(', ')})`);
     assert.equal(state.content, 'ready');
     assert.match(state.graphics, /^(live|fallback)$/);
     assert.notEqual(state.lock, 'hidden');
@@ -76,7 +75,7 @@ async function verifyIntro() {
     assert.ok(state.marks.indexOf('lionovart:intro:hero-ready') < state.marks.indexOf('lionovart:intro:reveal'));
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => document.documentElement.dataset.introResult === 'returning');
-    console.log('Verified first-frame honeycomb, hero asset gate, reveal, and session bypass');
+    console.log(`Verified first-frame honeycomb, hero asset gate, ${state.samples.length} reveal frames, and session bypass`);
   } finally {
     await context.close();
   }

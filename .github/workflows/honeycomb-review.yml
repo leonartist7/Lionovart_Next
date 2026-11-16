@@ -51,9 +51,9 @@ jobs:
           server=$!
           trap 'kill "$server" 2>/dev/null || true' EXIT
           curl --fail --silent --retry 20 --retry-connrefused --retry-delay 2 "$STORY_PREVIEW/qa/white-card-version.json"
+          node scripts/verify-honeycomb-preview.mjs
           node scripts/verify-opening-refinements.mjs
           if [ "$STORY_VIEWPORT" = desktop ]; then node scripts/verify-chapter-previews.mjs; fi
-          node scripts/verify-honeycomb-preview.mjs
       - name: Upload viewport review
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
