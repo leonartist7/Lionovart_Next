@@ -14,6 +14,7 @@ type FinishReason = "ready" | "deadline" | "skip" | "returning" | "internal-page
 
 export default function SplashScreen() {
   const overlay = useRef<HTMLDivElement>(null);
+  const cover = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const wordmark = useRef<HTMLDivElement>(null);
   const skip = useRef<() => void>(() => {});
@@ -36,7 +37,8 @@ export default function SplashScreen() {
 
   useEffect(() => {
     const screen = overlay.current, surface = canvas.current, logo = wordmark.current;
-    if (released || !screen || !surface || !logo) return;
+    const veil = cover.current;
+    if (released || !screen || !surface || !logo || !veil) return;
     const html = document.documentElement;
     const media = matchMedia("(prefers-reduced-motion: reduce)");
     const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
@@ -106,7 +108,7 @@ export default function SplashScreen() {
       const continueFrames = exitAt !== undefined || ready || Boolean(field && sceneTime < 4400);
       field?.setPose(pose, continueFrames ? now : undefined);
       if (exitAt !== undefined) {
-        screen.style.opacity = String(pose.cover);
+        veil.style.opacity = String(pose.cover);
         logo.style.opacity = String(pose.wordmark);
         logo.style.translate = `0 ${pose.wordmarkY}px`;
       }
@@ -199,13 +201,15 @@ export default function SplashScreen() {
   if (released) return null;
   return <div ref={overlay} className={styles.screen} data-intro="true" data-phase="preparing" data-intro-visual="fallback">
     <noscript><style>{`[data-intro="true"]{display:none!important}`}</style></noscript>
-    <div className={styles.stage} aria-hidden="true">
-      <div className={styles.lattice} />
-      <canvas ref={canvas} className={styles.canvas} data-intro-honeycomb />
-      <div className={styles.shade} />
-      <div ref={wordmark} className={styles.wordmark} />
+    <div ref={cover} className={styles.cover} data-intro-cover>
+      <div className={styles.stage} aria-hidden="true">
+        <div className={styles.lattice} />
+        <canvas ref={canvas} className={styles.canvas} data-intro-honeycomb />
+        <div className={styles.shade} />
+        <div ref={wordmark} className={styles.wordmark} />
+      </div>
+      <span className={styles.status} role="status">Loading LIONOVART</span>
+      <button className={styles.skip} onClick={() => skip.current()} aria-label="Skip intro">Skip ↗</button>
     </div>
-    <span className={styles.status} role="status">Loading LIONOVART</span>
-    <button className={styles.skip} onClick={() => skip.current()} aria-label="Skip intro">Skip ↗</button>
   </div>;
 }

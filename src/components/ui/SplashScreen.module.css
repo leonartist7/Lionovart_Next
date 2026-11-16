@@ -4,11 +4,10 @@
   z-index: 10000;
   overflow: hidden;
   contain: strict;
-  background: #0d0a0d;
-  opacity: 1;
   /* The CSS clock starts before hydration and can release the overlay on its own. */
-  animation: intro-failsafe 9s step-end forwards;
+  animation: intro-failsafe 8.5s ease-in-out forwards;
 }
+.cover { position: absolute; inset: 0; background: #0d0a0d; }
 .stage, .canvas, .lattice, .shade { position: absolute; inset: 0; pointer-events: none; }
 .canvas { width: 100%; height: 100%; opacity: 0; transition: opacity .56s ease-in-out; }
 .lattice {
@@ -43,5 +42,9 @@
   font-size: 14px;
 }
 .skip:focus-visible { outline: 2px solid #f3d7aa; outline-offset: 4px; }
-@keyframes intro-failsafe { from { visibility: visible; pointer-events: auto; } to { visibility: hidden; pointer-events: none; } }
+@keyframes intro-failsafe {
+  0%, 92% { opacity: 1; visibility: visible; pointer-events: auto; }
+  99% { opacity: 0; visibility: visible; pointer-events: auto; }
+  100% { opacity: 0; visibility: hidden; pointer-events: none; }
+}
 @media (prefers-reduced-motion: reduce) { .canvas, .lattice { transition: none; } }

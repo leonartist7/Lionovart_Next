@@ -35,12 +35,13 @@ async function verifyIntro() {
       await page.evaluate(() => {
         const overlay = document.querySelector('[data-intro]');
         const header = document.querySelector('[data-intro-header-mounted] header');
+        const cover = overlay?.querySelector('[data-intro-cover]');
         const samples = [];
         window.introReviewSamples = samples;
         function sample(now) {
           if (!overlay?.isConnected || overlay.style.display === 'none') return;
           if (overlay.dataset.phase === 'revealing') {
-            samples.push([now, Number(overlay.style.opacity || 1), Number(getComputedStyle(header).opacity)]);
+            samples.push([now, Number(cover?.style.opacity || 1), Number(getComputedStyle(header).opacity)]);
           }
           requestAnimationFrame(sample);
         }
